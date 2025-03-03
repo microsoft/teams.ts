@@ -8,7 +8,7 @@
   "homepage": "https://github.com/microsoft/spark.js",
   "bugs": "https://github.com/microsoft/spark.js/issues",
   "bin": {
-    "teams": "./dist/index.js"
+    "spark": "./dist/index.js"
   },
   "files": [
     "dist",
