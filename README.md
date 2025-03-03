@@ -1,4 +1,4 @@
-# <img src="./assets/icons/teams.png" width="50px" /> Teams SDK: Javascript
+# <img src="./assets/icons/teams.png" width="50px" /> Spark.JS
 
 <a href="#">
     <img src="https://img.shields.io/github/package-json/v/microsoft/spark.js?label=npm" />
