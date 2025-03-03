@@ -18,7 +18,7 @@
     </a>
 </p>
 
-A cli for building apps using the `@teams.sdk`.
+A cli for building apps using `@microsoft/spark.js`.
 
 <a href="https://microsoft.github.io/spark.js/2.getting-started/index.html" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />

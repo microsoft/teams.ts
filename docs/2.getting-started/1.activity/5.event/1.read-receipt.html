@@ -155,7 +155,7 @@
 <p>A read receipt event is sent when a user has read a message, and in the UI shows as an eye icon next to the message.</p>
 <pre><code class="language-typescript">app.on('readReceipt', async ({ activity }) =&gt; {});
 </code></pre>
-<p><code>'readReceipt'</code> is the <code>@teams.sdk</code> alias for the event name <code>'application/vnd.microsoft.readReceipt'</code>.</p>
+<p><code>'readReceipt'</code> is alias for the event name <code>'application/vnd.microsoft.readReceipt'</code>.</p>
 <h2 id="read-receipts"><a class="header" href="#read-receipts">Read receipts</a></h2>
 <p>Bots can also subscribe to read receipts to track when a message has been read by a user. For example, if a read receipt is not received by the bot, the bot could send a follow-up message in personal chat.</p>
 <p>Please note that in Teams, the RSC <code>ChatMessageReadReceipt.Read.Chat</code> permissions must be added to the app manifest to receive read receipts.</p>
