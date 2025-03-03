@@ -1,0 +1,119 @@
+/* Reset & Base Styles
+---------------------------------------- */
+html,
+body,
+:root {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+}
+
+div {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Reset for Text Elements */
+blockquote,
+dl,
+dd,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+hr,
+figure,
+p,
+pre,
+ul,
+ol {
+  margin: 0;
+}
+
+/* Link Styles
+---------------------------------------- */
+a,
+a:hover,
+a:focus,
+a:active,
+a:visited {
+  text-decoration: none;
+}
+
+/* Theme Variables; Fluent UI teamsDarkTheme & teamsLightTheme
+---------------------------------------- */
+:root {
+  --background-color: #1f1f1f;
+  --text-color: #ffffff;
+  --scrollbar-overlay: rgba(255, 255, 255, 0.4);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --background-color: #ffffff;
+    --text-color: #242424;
+    --scrollbar-overlay: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Theme Application
+---------------------------------------- */
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+/* Scrollbar Styles
+---------------------------------------- */
+/* Base scrollbar dimensions */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 5px;
+  transition: border .2s
+}
+
+*:hover::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-overlay);
+  border: 2px solid var(--background-color);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-overlay);
+  border: 0px solid var(--scrollbar-overlay);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--background-color)
+}
+
+.scroll-on-hover {
+  overflow: auto;
+  overflow: overlay
+  
+}
+
+.scroll-on-hover::-webkit-scrollbar-thumb {
+  visibility: hidden
+}
+
+.scroll-on-hover:hover::-webkit-scrollbar-thumb {
+  visibility: visible
+}
