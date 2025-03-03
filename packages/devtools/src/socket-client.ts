@@ -14,7 +14,7 @@ interface SocketEventTypes {
   readonly 'activity.sending': ActivitySendingEvent;
   readonly 'activity.sent': ActivitySentEvent;
   readonly 'activity.error': ActivityErrorEvent;
-  readonly 'disconnect': void;
+  readonly disconnect: void;
 }
 
 export class SocketClient {
