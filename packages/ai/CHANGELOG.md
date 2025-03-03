@@ -1,5 +1,13 @@
 # @microsoft/spark.ai
 
+## 0.0.2
+
+### Patch Changes
+
+- fix cli binary name
+- Updated dependencies
+    - @microsoft/spark.common@0.0.2
+
 ## 0.0.1
 
 ### Patch Changes
