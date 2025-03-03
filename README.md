@@ -92,7 +92,6 @@ $: npm run test
 - [`@microsoft/spark.common`](./packages/common/README.md)
 - [`@microsoft/spark.config`](./packages/config/README.md)
 - [`@microsoft/spark.dev`](./packages/dev/README.md)
-- [`@microsoft/spark.devtools`](./packages/devtools/README.md)
 - [`@microsoft/spark.graph`](./packages/graph/README.md)
 - [`@microsoft/spark.openai`](./packages/openai/README.md)
 
