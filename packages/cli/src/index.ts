@@ -7,7 +7,7 @@ import * as commands from './commands';
 
 (async () => {
   yargs(hideBin(process.argv))
-    .scriptName('teams')
+    .scriptName('spark')
     .command(commands.New())
     .command(commands.Config())
     .parse();
