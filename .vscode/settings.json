@@ -1,0 +1,4 @@
+{
+  "typescript.preferences.quoteStyle": "single",
+  "css.lint.unknownAtRules": "ignore"
+}

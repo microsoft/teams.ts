@@ -1,0 +1,29 @@
+import { App } from '@microsoft/spark.apps';
+import { ConsoleLogger } from '@microsoft/spark.common/logging';
+import { BotBuilderPlugin } from '@microsoft/spark.botbuilder';
+import { DevtoolsPlugin } from '@microsoft/spark.dev';
+import { TeamsActivityHandler } from 'botbuilder';
+
+export class ActivityHandler extends TeamsActivityHandler {
+  constructor() {
+    super();
+    this.onMessage(async (ctx, next) => {
+      await ctx.sendActivity('hi from botbuilder...');
+      await next();
+    });
+  }
+}
+
+const handler = new ActivityHandler();
+const app = new App({
+  logger: new ConsoleLogger('@samples/botbuilder', { level: 'debug' }),
+  plugins: [new BotBuilderPlugin({ handler }), new DevtoolsPlugin()],
+});
+
+app.on('message', async ({ send }) => {
+  await send('hi from spark...');
+});
+
+(async () => {
+  await app.start();
+})();

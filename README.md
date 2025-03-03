@@ -1,33 +1,111 @@
-# Project
+# <img src="./assets/icons/teams.png" width="50px" /> Teams SDK: Javascript
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+<a href="#">
+    <img src="https://img.shields.io/github/package-json/v/microsoft/spark.js?label=npm" />
+</a>
+<a href="https://github.com/microsoft/spark.js/actions/workflows/pages/pages-build-deployment">
+    <img src="https://img.shields.io/github/actions/workflow/status/microsoft/spark.js/pages/pages-build-deployment?label=documentation" />
+</a>
 
-As the maintainer of this project, please make a few updates:
+a suite of packages used to build on the Teams Platform.
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+<a href="https://microsoft.github.io/spark.js/2.getting-started/index.html" target="_blank">
+    <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
+</a>
 
-## Contributing
+- [Documentation](https://microsoft.github.io/spark.js)
+- [Why?](#why)
+- [Design Philosophy](#design-philosophy)
+- [Scripts](#scripts)
+- [Packages](#packages)
+- [Samples](#samples)
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+## Why?
 
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
+Building agents and bots for Microsoft Teams can often involve a lot of boilerplate code and managing numerous dependencies, which can be time-consuming and complex. Our new SDK aims to simplify this process by minimizing the boilerplate and dependencies required, while also providing helpful AI/Teams native abstractions. This allows developers to focus more on creating intelligent and effective bots, rather than getting bogged down in setup and configuration. By streamlining the development process, we hope to make it easier and faster to build powerful, AI-driven bots for Microsoft Teams.
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+## Design Philosophy
 
-## Trademarks
+These packages were designed with the following mentality to ensure longevity and sustainability.
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
-[Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
-Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
-Any use of third-party trademarks or logos are subject to those third-party's policies.
+### Low Dependency
+
+[BotBuilder](https://github.com/microsoft/botbuilder-js) has struggled to support new LTS versions of node due to many dependencies being deprecated or requiring major version bumps (eg requires code changes to update).
+
+By providing interfaces and default internal implementations, we mitigate this risk.
+
+> ℹ️ **Note**: when necessary we will still use an external dependency, namely when an internal implementation is non-trivial.
+
+### Unopinionated
+
+[BotBuilder](https://github.com/microsoft/botbuilder-js) is a highly opinionated **Framework**, meaning it dictates many of the dos/don'ts of development with its packages.
+
+This goal of this project is that they be a set of unopinionated packages that export simple abstractions for development in **Microsoft Teams**, leaving the app design descisions to the developer.
+
+## Scripts
+
+> all scripts can be run for a particular workspace by appending `--workspace=${name}`
+
+### Build
+
+```bash
+$: npm run build
+```
+
+### Clean
+
+```bash
+$: npm run clean
+```
+
+### Format
+
+```bash
+$: npm run fmt
+```
+
+### Dev
+
+> for apps/samples only
+
+```bash
+$: npm run dev
+```
+
+### Test
+
+> for packages only
+
+```bash
+$: npm run test
+```
+
+## Packages
+
+- [`@microsoft/spark.apps`](./packages/apps/README.md)
+- [`@microsoft/spark.ai`](./packages/ai/README.md)
+- [`@microsoft/spark.api`](./packages/api/README.md)
+- [`@microsoft/spark.botbuilder`](./packages/botbuilder/README.md)
+- [`@microsoft/spark.cards`](./packages/cards/README.md)
+- [`@microsoft/spark.cli`](./packages/cli/README.md)
+- [`@microsoft/spark.client`](./packages/client/README.md)
+- [`@microsoft/spark.common`](./packages/common/README.md)
+- [`@microsoft/spark.config`](./packages/config/README.md)
+- [`@microsoft/spark.dev`](./packages/dev/README.md)
+- [`@microsoft/spark.devtools`](./packages/devtools/README.md)
+- [`@microsoft/spark.graph`](./packages/graph/README.md)
+- [`@microsoft/spark.openai`](./packages/openai/README.md)
+
+## Samples
+
+- [`@samples/echo`](./samples/echo/README.md)
+- [`@samples/botbuilder`](./samples/botbuilder/README.md)
+- [`@samples/console`](./samples/console/README.md)
+- [`@samples/auth`](./samples/auth/README.md)
+- [`@samples/lights`](./samples/lights/README.md)
+- [`@samples/tab`](./samples/tab/README.md)
+
+## Links
+
+- [Teams Developer Portal: Apps](https://dev.teams.microsoft.com/apps)
+- [Teams Toolkit](https://www.npmjs.com/package/@microsoft/teamsapp-cli)

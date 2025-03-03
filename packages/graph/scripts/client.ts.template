@@ -1,0 +1,189 @@
+{{#if (notEmpty endpoints)}}
+import qs from 'qs';
+{{/if}}
+import * as http from '@microsoft/spark.common/http';
+
+import pkg from 'src/../package.json';
+{{#if (notEmpty endpoints)}}
+import type { Endpoints } from './{{types}}-types.ts';
+{{/if}}
+{{#each clients}}
+import { {{capitalize @key}}Client } from './{{@key}}';
+{{/each}}
+
+{{#if (notEmpty endpoints)}}
+interface Param {
+  readonly in: string;
+  readonly name: string;
+}
+{{/if}}
+
+{{#if (notEmpty endpoints)}}
+function getInjectedUrl(url: string, params: Array<Param>, data: Record<string, any>) {
+  const query: Record<string, any> = { };
+
+  for (const param of params) {
+    if (param.in === 'query') {
+      query[param.name] = data[param.name];
+    }
+
+    if (param.in !== 'path') {
+      continue;
+    }
+
+    url = url.replace(`{${param.name}}`, data[param.name]);
+  }
+
+  return `${url}${qs.stringify(query, { addQueryPrefix: true })}`;
+}
+{{/if}}
+
+/**
+ * {{url}}
+ {{#if description}}
+ * {{description}}
+ {{/if}}
+ */
+export class {{capitalize name}}Client {
+  protected baseUrl = '{{url}}';
+  protected http: http.Client;
+
+  {{#if (notEmpty parameters)}}
+  constructor(
+    {{#each parameters}}protected readonly {{camelcase this}}: string,{{/each}}
+    options?: http.Client | http.ClientOptions
+  ) {
+  {{else}}
+  constructor(options?: http.Client | http.ClientOptions) {
+  {{/if}}
+    if (!options) {
+      this.http = new http.Client({
+        baseUrl: 'https://graph.microsoft.com/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': `teams[graph]/${pkg.version}`
+        }
+      });
+    } else if ('request' in options) {
+      this.http = options.clone({
+        baseUrl: 'https://graph.microsoft.com/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': `teams[graph]/${pkg.version}`,
+        }
+      });
+    } else {
+      this.http = new http.Client({
+        ...options,
+        baseUrl: 'https://graph.microsoft.com/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': `teams[graph]/${pkg.version}`,
+          ...options.headers
+        }
+      });
+    }
+  }
+
+  {{#each clients}}
+  /**
+   * `{{url}}`
+   *
+   {{#if description}}
+   * {{description}}
+   {{/if}}
+   */
+  {{#if (notEmpty parameters)}}
+  {{@key}}({{#each parameters}}{{camelcase this}}: string,{{/each}}) {
+    return new {{capitalize @key}}Client(
+      {{#each parameters}}{{camelcase this}},{{/each}}
+      this.http
+    );
+  }
+  {{else}}
+  get {{@key}}() {
+    return new {{capitalize @key}}Client(this.http);
+  }
+  {{/if}}
+
+  {{/each}}
+
+  {{#each endpoints}}
+  /**
+   * `{{uppercase method}} {{url}}`
+   *
+  {{#if description}}
+   * {{description}}
+  {{/if}}
+   */
+  {{#if (eq method "get")}}
+  async {{name}}(params?: Endpoints['{{@key}}']['parameters'], config?: http.RequestConfig) {
+    const url = getInjectedUrl(
+      '{{url}}',
+      [
+        {{#if (notEmpty parameters)}}
+        {{#each parameters}}
+        { name: '{{name}}', in: '{{in}}' },
+        {{/each}}
+        {{/if}}
+      ],
+      {
+        ...(params || { }),
+        {{#if (notEmpty ../parameters)}}
+        {{#each ../parameters}}'{{this}}': this.{{camelcase this}},{{/each}}
+        {{/if}}
+      },
+    );
+
+    return this.http.get(url, config).then(res => res.data as Endpoints['{{@key}}']['response']);
+  }
+  {{else if (eq method "delete")}}
+  async {{name}}(params?: Endpoints['{{@key}}']['parameters'], config?: http.RequestConfig) {
+    const url = getInjectedUrl(
+      '{{url}}',
+      [
+        {{#if (notEmpty parameters)}}
+        {{#each parameters}}
+        { name: '{{name}}', in: '{{in}}' },
+        {{/each}}
+        {{/if}}
+      ],
+      {
+        ...(params || { }),
+        {{#if (notEmpty ../parameters)}}
+        {{#each ../parameters}}'{{this}}': this.{{camelcase this}},{{/each}}
+        {{/if}}
+      },
+    );
+
+    return this.http.delete(url, config).then(res => res.data as Endpoints['{{@key}}']['response']);
+  }
+  {{else}}
+  async {{name}}(
+    body: Endpoints['{{@key}}']['body'],
+    params?: Endpoints['{{@key}}']['parameters'],
+    config?: http.RequestConfig
+  ) {
+    const url = getInjectedUrl(
+      '{{url}}',
+      [
+        {{#if (notEmpty parameters)}}
+        {{#each parameters}}
+        { name: '{{name}}', in: '{{in}}' },
+        {{/each}}
+        {{/if}}
+      ],
+      {
+        ...(params || { }),
+        {{#if (notEmpty ../parameters)}}
+        {{#each ../parameters}}'{{this}}': this.{{camelcase this}},{{/each}}
+        {{/if}}
+      },
+    );
+
+    return this.http.{{method}}(url, body, config).then(res => res.data as Endpoints['{{@key}}']['response']);
+  }
+  {{/if}}
+
+  {{/each}}
+}

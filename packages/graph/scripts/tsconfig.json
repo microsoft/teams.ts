@@ -1,0 +1,13 @@
+{
+  "extends": "@microsoft/spark.config/tsconfig.esm.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "baseUrl": "."
+  },
+  "include": ["**/*.ts"]
+}

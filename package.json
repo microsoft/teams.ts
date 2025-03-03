@@ -1,0 +1,48 @@
+{
+  "name": "@microsoft/spark.js",
+  "version": "0.0.0",
+  "private": true,
+  "homepage": "https://github.com/microsoft/spark.js",
+  "bugs": "https://github.com/microsoft/spark.js/issues",
+  "packageManager": "npm@10.8.1",
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/spark.js.git"
+  },
+  "workspaces": [
+    "packages/*",
+    "samples/*"
+  ],
+  "keywords": [
+    "microsoft",
+    "teams",
+    "msteams",
+    "copilot",
+    "ai",
+    "adaptive-cards",
+    "apps",
+    "bots"
+  ],
+  "scripts": {
+    "clean": "npx turbo clean",
+    "build": "npx turbo build",
+    "build:packages": "npx turbo build --filter=./packages/*",
+    "build:samples": "npx turbo build --filter=./samples/*",
+    "dev": "npx turbo dev",
+    "lint": "npx turbo lint",
+    "test": "npx turbo test --concurrency=100%",
+    "fmt": "npx prettier --write \"**/*.{js,ts,tsx,md,json}\"",
+    "docs:build": "mdbook build book",
+    "docs:serve": "mdbook serve book"
+  },
+  "devDependencies": {
+    "@changesets/cli": "latest",
+    "@turbo/gen": "^2.4.4",
+    "prettier": "^3.2.5",
+    "turbo": "^2.4.0",
+    "typescript": "^5.4.5"
+  }
+}

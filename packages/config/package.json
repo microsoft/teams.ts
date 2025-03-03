@@ -1,0 +1,19 @@
+{
+  "name": "@microsoft/spark.config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "homepage": "https://github.com/microsoft/spark.js",
+  "bugs": "https://github.com/microsoft/spark.js/issues",
+  "files": [
+    "eslint.config.js"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/spark.js.git",
+    "directory": "packages/config"
+  }
+}

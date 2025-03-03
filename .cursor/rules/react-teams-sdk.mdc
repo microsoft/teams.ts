@@ -1,0 +1,62 @@
+---
+description: React development in Spark
+globs: *.tsx, *.ts
+alwaysApply: false
+---
+---
+description:
+globs:
+---
+---
+description:
+globs: *.tsx
+---
+# React + Styled Components .cursorrules
+
+# Prefer functional components with hooks
+
+const preferFunctionalComponents = true;
+
+// Styled Components best practices
+
+const styledComponentsBestPractices = [
+  "Keep imports from @microsoft/spark.___ as is, and do not modify update the syntax of the import",
+  "Import components from React like { FC }",
+  "Keep <></> React components when they exist",
+  "Use fluentui for all components",
+  "FluentUI documentation can be found at https://react.fluentui.dev",
+  "For colors, fonts, spacing, typography styles etc, use fluent ui's tokens, found at https://github.com/microsoft/fluentui/tree/master/packages/tokens/src/global",
+  "When you see tailwind classes, help convert them to Griffel useStyles",
+  "Create reusable styled components",
+  "Use props for dynamic styling",
+  "Utilize CSS helper functions like css`` when needed",
+];
+
+// Folder structure inside a package
+
+const folderStructure = `
+packages/
+    devtools/
+        src/
+        Components/
+            ComponentName/
+                ComponentName.tsx
+                ComponentName.styles.ts
+        Stores/
+        Types/
+        Utils/
+`;
+
+// Additional instructions
+
+const additionalInstructions = `
+1. Use proper naming conventions for styled components (e.g., StyledButton)
+2. Implement a consistent theming system
+3. Use CSS-in-JS for all styling needs in a parallel ComponentName.styles.ts file
+4. Use Griffel useStyles for styling
+5. Utilize styled-components' attrs method for frequently used props
+6. Organize styles in a logical way
+7. Implement proper TypeScript support for styled-components
+8. Use the css prop for conditional styling when appropriate
+9. Follow the styled-components documentation for best practices
+`;

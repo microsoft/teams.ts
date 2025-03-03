@@ -1,0 +1,4043 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "0.style": {
+      "type": "string",
+      "pattern": "^(([D|d][E|e][F|f][A|a][U|u][L|l][T|t])|([P|p][O|o][S|s][I|i][T|t][I|i][V|v][E|e])|([D|d][E|e][S|s][T|t][R|r][U|u][C|c][T|t][I|i][V|v][E|e]))$"
+    },
+    "1.mode": {
+      "type": "string",
+      "pattern": "^(([P|p][R|r][I|i][M|m][A|a][R|r][Y|y])|([S|s][E|e][C|c][O|o][N|n][D|d][A|a][R|r][Y|y]))$"
+    },
+    "2.associatedInputs": {
+      "type": "string",
+      "pattern": "^(([A|a][U|u][T|t][O|o])|([N|n][O|o][N|n][E|e]))$"
+    },
+    "3.targetElements": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/definitions/TargetElement"
+        }
+      ]
+    },
+    "4.FallbackActionArray": {
+      "type": "string",
+      "pattern": "^(([D|d][R|r][O|o][P|p]))$"
+    },
+    "5.FallbackActionArray": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/Action.Submit"
+        },
+        {
+          "$ref": "#/definitions/Action.OpenUrl"
+        },
+        {
+          "$ref": "#/definitions/Action.Execute"
+        },
+        {
+          "$ref": "#/definitions/Action.ToggleVisibility"
+        },
+        {
+          "$ref": "#/definitions/Action.ShowCard"
+        },
+        {
+          "$ref": "#/definitions/Action.ResetInputs"
+        },
+        {
+          "$ref": "#/definitions/4.FallbackActionArray"
+        }
+      ]
+    },
+    "6.selectAction": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/Action.Execute"
+        },
+        {
+          "$ref": "#/definitions/Action.OpenUrl"
+        },
+        {
+          "$ref": "#/definitions/Action.ResetInputs"
+        },
+        {
+          "$ref": "#/definitions/Action.Submit"
+        },
+        {
+          "$ref": "#/definitions/Action.ToggleVisibility"
+        }
+      ]
+    },
+    "7.style": {
+      "type": "string",
+      "pattern": "^(([D|d][E|e][F|f][A|a][U|u][L|l][T|t])|([E|e][M|m][P|p][H|h][A|a][S|s][I|i][S|s])|([A|a][C|c][C|c][E|e][N|n][T|t])|([G|g][O|o][O|o][D|d])|([A|a][T|t][T|t][E|e][N|n][T|t][I|i][O|o][N|n])|([W|w][A|a][R|r][N|n][I|i][N|n][G|g]))$"
+    },
+    "8.targetWidth": {
+      "type": "string",
+      "pattern": "^(([V|v][E|e][R|r][Y|y][N|n][A|a][R|r][R|r][O|o][W|w])|([N|n][A|a][R|r][R|r][O|o][W|w])|([S|s][T|t][A|a][N|n][D|d][A|a][R|r][D|d])|([W|w][I|i][D|d][E|e])|([A|a][T|t][L|l][E|e][A|a][S|s][T|t]:[V|v][E|e][R|r][Y|y][N|n][A|a][R|r][R|r][O|o][W|w])|([A|a][T|t][M|m][O|o][S|s][T|t]:[V|v][E|e][R|r][Y|y][N|n][A|a][R|r][R|r][O|o][W|w])|([A|a][T|t][L|l][E|e][A|a][S|s][T|t]:[N|n][A|a][R|r][R|r][O|o][W|w])|([A|a][T|t][M|m][O|o][S|s][T|t]:[N|n][A|a][R|r][R|r][O|o][W|w])|([A|a][T|t][L|l][E|e][A|a][S|s][T|t]:[S|s][T|t][A|a][N|n][D|d][A|a][R|r][D|d])|([A|a][T|t][M|m][O|o][S|s][T|t]:[S|s][T|t][A|a][N|n][D|d][A|a][R|r][D|d])|([A|a][T|t][L|l][E|e][A|a][S|s][T|t]:[W|w][I|i][D|d][E|e])|([A|a][T|t][M|m][O|o][S|s][T|t]:[W|w][I|i][D|d][E|e]))$"
+    },
+    "9.horizontalItemsAlignment": {
+      "type": "string",
+      "pattern": "^(([L|l][E|e][F|f][T|t])|([C|c][E|e][N|n][T|t][E|e][R|r])|([R|r][I|i][G|g][H|h][T|t]))$"
+    },
+    "10.verticalItemsAlignment": {
+      "type": "string",
+      "pattern": "^(([T|t][O|o][P|p])|([C|c][E|e][N|n][T|t][E|e][R|r])|([B|b][O|o][T|t][T|t][O|o][M|m]))$"
+    },
+    "11.itemFit": {
+      "type": "string",
+      "pattern": "^(([F|f][I|i][T|t])|([F|f][I|i][L|l][L|l]))$"
+    },
+    "12.minItemWidth": {
+      "type": "string",
+      "pattern": "^\\d+px$"
+    },
+    "13.columnSpacing": {
+      "type": "string",
+      "pattern": "^(([N|n][O|o][N|n][E|e])|([S|s][M|m][A|a][L|l][L|l])|([D|d][E|e][F|f][A|a][U|u][L|l][T|t])|([M|m][E|e][D|d][I|i][U|u][M|m])|([L|l][A|a][R|r][G|g][E|e])|([E|e][X|x][T|t][R|r][A|a][L|l][A|a][R|r][G|g][E|e])|([P|p][A|a][D|d][D|d][I|i][N|n][G|g]))$"
+    },
+    "14.columns": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "15.layouts": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Layout.Stack"
+        },
+        {
+          "$ref": "#/definitions/Layout.Flow"
+        },
+        {
+          "$ref": "#/definitions/Layout.AreaGrid"
+        }
+      ]
+    },
+    "16.fillMode": {
+      "type": "string",
+      "pattern": "^(([C|c][O|o][V|v][E|e][R|r])|([R|r][E|e][P|p][E|e][A|a][T|t][H|h][O|o][R|r][I|i][Z|z][O|o][N|n][T|t][A|a][L|l][L|l][Y|y])|([R|r][E|e][P|p][E|e][A|a][T|t][V|v][E|e][R|r][T|t][I|i][C|c][A|a][L|l][L|l][Y|y])|([R|r][E|e][P|p][E|e][A|a][T|t]))$"
+    },
+    "17.backgroundImage": {
+      "oneOf": [
+        {
+          "type": "string",
+          "x-contentType": "imageUrl"
+        },
+        {
+          "$ref": "#/definitions/BackgroundImage"
+        }
+      ]
+    },
+    "18.version": {
+      "type": "string",
+      "pattern": "^((1.0)|(1.1)|(1.2)|(1.3)|(1.4)|(1.5)|(1.6))$"
+    },
+    "19.width": {
+      "type": "string",
+      "pattern": "^(([F|f][U|u][L|l][L|l]))$"
+    },
+    "20.height": {
+      "type": "string",
+      "pattern": "^(([A|a][U|u][T|t][O|o])|([S|s][T|t][R|r][E|e][T|t][C|c][H|h]))$"
+    },
+    "21.width": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/12.minItemWidth"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "22.size": {
+      "type": "string",
+      "pattern": "^(([S|s][M|m][A|a][L|l][L|l])|([D|d][E|e][F|f][A|a][U|u][L|l][T|t])|([M|m][E|e][D|d][I|i][U|u][M|m])|([L|l][A|a][R|r][G|g][E|e])|([E|e][X|x][T|t][R|r][A|a][L|l][A|a][R|r][G|g][E|e]))$"
+    },
+    "23.weight": {
+      "type": "string",
+      "pattern": "^(([L|l][I|i][G|g][H|h][T|t][E|e][R|r])|([D|d][E|e][F|f][A|a][U|u][L|l][T|t])|([B|b][O|o][L|l][D|d][E|e][R|r]))$"
+    },
+    "24.color": {
+      "type": "string",
+      "pattern": "^(([D|d][E|e][F|f][A|a][U|u][L|l][T|t])|([D|d][A|a][R|r][K|k])|([L|l][I|i][G|g][H|h][T|t])|([A|a][C|c][C|c][E|e][N|n][T|t])|([G|g][O|o][O|o][D|d])|([W|w][A|a][R|r][N|n][I|i][N|n][G|g])|([A|a][T|t][T|t][E|e][N|n][T|t][I|i][O|o][N|n]))$"
+    },
+    "25.fontType": {
+      "type": "string",
+      "pattern": "^(([D|d][E|e][F|f][A|a][U|u][L|l][T|t])|([M|m][O|o][N|n][O|o][S|s][P|p][A|a][C|c][E|e]))$"
+    },
+    "26.style": {
+      "type": "string",
+      "pattern": "^(([D|d][E|e][F|f][A|a][U|u][L|l][T|t])|([C|c][O|o][L|l][U|u][M|m][N|n][H|h][E|e][A|a][D|d][E|e][R|r])|([H|h][E|e][A|a][D|d][I|i][N|n][G|g]))$"
+    },
+    "27.style": {
+      "type": "string",
+      "pattern": "^(([D|d][E|e][F|f][A|a][U|u][L|l][T|t])|([P|p][E|e][R|r][S|s][O|o][N|n])|([R|r][O|o][U|u][N|n][D|d][E|e][D|d][C|c][O|o][R|r][N|n][E|e][R|r][S|s]))$"
+    },
+    "28.size": {
+      "type": "string",
+      "pattern": "^(([A|a][U|u][T|t][O|o])|([S|s][T|t][R|r][E|e][T|t][C|c][H|h])|([S|s][M|m][A|a][L|l][L|l])|([M|m][E|e][D|d][I|i][U|u][M|m])|([L|l][A|a][R|r][G|g][E|e]))$"
+    },
+    "29.width": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^(([A|a][U|u][T|t][O|o])|([S|s][T|t][R|r][E|e][T|t][C|c][H|h]))$"
+        },
+        {
+          "type": "string",
+          "pattern": "^\\d+px$"
+        }
+      ]
+    },
+    "30.style": {
+      "type": "string",
+      "pattern": "^(([T|t][E|e][X|x][T|t])|([T|t][E|e][L|l])|([U|u][R|r][L|l])|([E|e][M|m][A|a][I|i][L|l])|([P|p][A|a][S|s][S|s][W|w][O|o][R|r][D|d]))$"
+    },
+    "31.style": {
+      "type": "string",
+      "pattern": "^(([C|c][O|o][M|m][P|p][A|a][C|c][T|t])|([E|e][X|x][P|p][A|a][N|n][D|d][E|e][D|d])|([F|f][I|i][L|l][T|t][E|e][R|r][E|e][D|d]))$"
+    },
+    "32.size": {
+      "type": "string",
+      "pattern": "^(([M|m][E|e][D|d][I|i][U|u][M|m])|([L|l][A|a][R|r][G|g][E|e]))$"
+    },
+    "33.color": {
+      "type": "string",
+      "pattern": "^(([N|n][E|e][U|u][T|t][R|r][A|a][L|l])|([M|m][A|a][R|r][I|i][G|g][O|o][L|l][D|d]))$"
+    },
+    "34.style": {
+      "type": "string",
+      "pattern": "^(([D|d][E|e][F|f][A|a][U|u][L|l][T|t])|([C|c][O|o][M|m][P|p][A|a][C|c][T|t]))$"
+    },
+    "35.size": {
+      "type": "string",
+      "pattern": "^(([X|x][X|x][S|s][M|m][A|a][L|l][L|l])|([X|x][S|s][M|m][A|a][L|l][L|l])|([S|s][M|m][A|a][L|l][L|l])|([S|s][T|t][A|a][N|n][D|d][A|a][R|r][D|d])|([M|m][E|e][D|d][I|i][U|u][M|m])|([L|l][A|a][R|r][G|g][E|e])|([X|x][L|l][A|a][R|r][G|g][E|e])|([X|x][X|x][L|l][A|a][R|r][G|g][E|e]))$"
+    },
+    "36.style": {
+      "type": "string",
+      "pattern": "^(([R|r][E|e][G|g][U|u][L|l][A|a][R|r])|([F|f][I|i][L|l][L|l][E|e][D|d]))$"
+    },
+    "37.pageAnimation": {
+      "type": "string",
+      "pattern": "^(([S|s][L|l][I|i][D|d][E|e])|([C|c][R|r][O|o][S|s][S|s][F|f][A|a][D|d][E|e])|([N|n][O|o][N|n][E|e]))$"
+    },
+    "38.color": {
+      "type": "string",
+      "pattern": "^(([G|g][O|o][O|o][D|d])|([W|w][A|a][R|r][N|n][I|i][N|n][G|g])|([A|a][T|t][T|t][E|e][N|n][T|t][I|i][O|o][N|n])|([N|n][E|e][U|u][T|t][R|r][A|a][L|l])|([C|c][A|a][T|t][E|e][G|g][O|o][R|r][I|i][C|c][A|a][L|l][R|r][E|e][D|d])|([C|c][A|a][T|t][E|e][G|g][O|o][R|r][I|i][C|c][A|a][L|l][P|p][U|u][R|r][P|p][L|l][E|e])|([C|c][A|a][T|t][E|e][G|g][O|o][R|r][I|i][C|c][A|a][L|l][L|l][A|a][V|v][E|e][N|n][D|d][E|e][R|r])|([C|c][A|a][T|t][E|e][G|g][O|o][R|r][I|i][C|c][A|a][L|l][B|b][L|l][U|u][E|e])|([C|c][A|a][T|t][E|e][G|g][O|o][R|r][I|i][C|c][A|a][L|l][L|l][I|i][G|g][H|h][T|t][B|b][L|l][U|u][E|e])|([C|c][A|a][T|t][E|e][G|g][O|o][R|r][I|i][C|c][A|a][L|l][T|t][E|e][A|a][L|l])|([C|c][A|a][T|t][E|e][G|g][O|o][R|r][I|i][C|c][A|a][L|l][G|g][R|r][E|e][E|e][N|n])|([C|c][A|a][T|t][E|e][G|g][O|o][R|r][I|i][C|c][A|a][L|l][L|l][I|i][M|m][E|e])|([C|c][A|a][T|t][E|e][G|g][O|o][R|r][I|i][C|c][A|a][L|l][M|m][A|a][R|r][I|i][G|g][O|o][L|l][D|d])|([S|s][E|e][Q|q][U|u][E|e][N|n][T|t][I|i][A|a][L|l]1)|([S|s][E|e][Q|q][U|u][E|e][N|n][T|t][I|i][A|a][L|l]2)|([S|s][E|e][Q|q][U|u][E|e][N|n][T|t][I|i][A|a][L|l]3)|([S|s][E|e][Q|q][U|u][E|e][N|n][T|t][I|i][A|a][L|l]4)|([S|s][E|e][Q|q][U|u][E|e][N|n][T|t][I|i][A|a][L|l]5)|([S|s][E|e][Q|q][U|u][E|e][N|n][T|t][I|i][A|a][L|l]6)|([S|s][E|e][Q|q][U|u][E|e][N|n][T|t][I|i][A|a][L|l]7)|([S|s][E|e][Q|q][U|u][E|e][N|n][T|t][I|i][A|a][L|l]8)|([D|d][I|i][V|v][E|e][R|r][G|g][I|i][N|n][G|g][B|b][L|l][U|u][E|e])|([D|d][I|i][V|v][E|e][R|r][G|g][I|i][N|n][G|g][L|l][I|i][G|g][H|h][T|t][B|b][L|l][U|u][E|e])|([D|d][I|i][V|v][E|e][R|r][G|g][I|i][N|n][G|g][C|c][Y|y][A|a][N|n])|([D|d][I|i][V|v][E|e][R|r][G|g][I|i][N|n][G|g][T|t][E|e][A|a][L|l])|([D|d][I|i][V|v][E|e][R|r][G|g][I|i][N|n][G|g][Y|y][E|e][L|l][L|l][O|o][W|w])|([D|d][I|i][V|v][E|e][R|r][G|g][I|i][N|n][G|g][P|p][E|e][A|a][C|c][H|h])|([D|d][I|i][V|v][E|e][R|r][G|g][I|i][N|n][G|g][L|l][I|i][G|g][H|h][T|t][R|r][E|e][D|d])|([D|d][I|i][V|v][E|e][R|r][G|g][I|i][N|n][G|g][R|r][E|e][D|d])|([D|d][I|i][V|v][E|e][R|r][G|g][I|i][N|n][G|g][M|m][A|a][R|r][O|o][O|o][N|n])|([D|d][I|i][V|v][E|e][R|r][G|g][I|i][N|n][G|g][G|g][R|r][A|a][Y|y]))$"
+    },
+    "39.x": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "40.displayMode": {
+      "type": "string",
+      "pattern": "^(([A|a][B|b][S|s][O|o][L|l][U|u][T|t][E|e][W|w][I|i][T|t][H|h][A|a][X|x][I|i][S|s])|([A|a][B|b][S|s][O|o][L|l][U|u][T|t][E|e][N|n][O|o][A|a][X|x][I|i][S|s])|([P|p][A|a][R|r][T|t][T|t][O|o][W|w][H|h][O|o][L|l][E|e]))$"
+    },
+    "41.x": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "42.valueFormat": {
+      "type": "string",
+      "pattern": "^(([P|p][E|e][R|r][C|c][E|e][N|n][T|t][A|a][G|g][E|e])|([F|f][R|r][A|a][C|c][T|t][I|i][O|o][N|n]))$"
+    },
+    "43.language": {
+      "type": "string",
+      "pattern": "^(([B|b][A|a][S|s][H|h])|([C|c])|([C|c][P|p][P|p])|([C|c][S|s][H|h][A|a][R|r][P|p])|([C|c][S|s][S|s])|([D|d][O|o][S|s])|([G|g][O|o])|([G|g][R|r][A|a][P|p][H|h][Q|q][L|l])|([H|h][T|t][M|m][L|l])|([J|j][A|a][V|v][A|a])|([J|j][A|a][V|v][A|a][S|s][C|c][R|r][I|i][P|p][T|t])|([J|j][S|s][O|o][N|n])|([O|o][B|b][J|j][E|e][C|c][T|t][I|i][V|v][E|e][C|c])|([P|p][E|e][R|r][L|l])|([P|p][H|h][P|p])|([P|p][L|l][A|a][I|i][N|n][T|t][E|e][X|x][T|t])|([P|p][O|o][W|w][E|e][R|r][S|s][H|h][E|e][L|l][L|l])|([P|p][Y|y][T|t][H|h][O|o][N|n])|([S|s][Q|q][L|l])|([T|t][Y|y][P|p][E|e][S|s][C|c][R|r][I|i][P|p][T|t])|([V|v][B|b][N|n][E|e][T|t])|([V|v][E|e][R|r][I|i][L|l][O|o][G|g])|([V|v][H|h][D|d][L|l])|([X|x][M|m][L|l]))$"
+    },
+    "44.FallbackElementArray": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/Container"
+        },
+        {
+          "$ref": "#/definitions/ActionSet"
+        },
+        {
+          "$ref": "#/definitions/ColumnSet"
+        },
+        {
+          "$ref": "#/definitions/Media"
+        },
+        {
+          "$ref": "#/definitions/RichTextBlock"
+        },
+        {
+          "$ref": "#/definitions/Table"
+        },
+        {
+          "$ref": "#/definitions/TextBlock"
+        },
+        {
+          "$ref": "#/definitions/FactSet"
+        },
+        {
+          "$ref": "#/definitions/ImageSet"
+        },
+        {
+          "$ref": "#/definitions/Image"
+        },
+        {
+          "$ref": "#/definitions/Input.Text"
+        },
+        {
+          "$ref": "#/definitions/Input.Date"
+        },
+        {
+          "$ref": "#/definitions/Input.Time"
+        },
+        {
+          "$ref": "#/definitions/Input.Number"
+        },
+        {
+          "$ref": "#/definitions/Input.Toggle"
+        },
+        {
+          "$ref": "#/definitions/Input.ChoiceSet"
+        },
+        {
+          "$ref": "#/definitions/Input.Rating"
+        },
+        {
+          "$ref": "#/definitions/Rating"
+        },
+        {
+          "$ref": "#/definitions/CompoundButton"
+        },
+        {
+          "$ref": "#/definitions/Icon"
+        },
+        {
+          "$ref": "#/definitions/Carousel"
+        },
+        {
+          "$ref": "#/definitions/Chart.Donut"
+        },
+        {
+          "$ref": "#/definitions/Chart.Pie"
+        },
+        {
+          "$ref": "#/definitions/Chart.VerticalBar.Grouped"
+        },
+        {
+          "$ref": "#/definitions/Chart.VerticalBar"
+        },
+        {
+          "$ref": "#/definitions/Chart.HorizontalBar"
+        },
+        {
+          "$ref": "#/definitions/Chart.HorizontalBar.Stacked"
+        },
+        {
+          "$ref": "#/definitions/Chart.Line"
+        },
+        {
+          "$ref": "#/definitions/Chart.Gauge"
+        },
+        {
+          "$ref": "#/definitions/CodeBlock"
+        },
+        {
+          "$ref": "#/definitions/4.FallbackActionArray"
+        }
+      ]
+    },
+    "45.CardElementArray": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ActionSet"
+        },
+        {
+          "$ref": "#/definitions/Carousel"
+        },
+        {
+          "$ref": "#/definitions/Chart.Donut"
+        },
+        {
+          "$ref": "#/definitions/Chart.Gauge"
+        },
+        {
+          "$ref": "#/definitions/Chart.HorizontalBar"
+        },
+        {
+          "$ref": "#/definitions/Chart.HorizontalBar.Stacked"
+        },
+        {
+          "$ref": "#/definitions/Chart.Line"
+        },
+        {
+          "$ref": "#/definitions/Chart.Pie"
+        },
+        {
+          "$ref": "#/definitions/Chart.VerticalBar"
+        },
+        {
+          "$ref": "#/definitions/Chart.VerticalBar.Grouped"
+        },
+        {
+          "$ref": "#/definitions/CodeBlock"
+        },
+        {
+          "$ref": "#/definitions/ColumnSet"
+        },
+        {
+          "$ref": "#/definitions/CompoundButton"
+        },
+        {
+          "$ref": "#/definitions/Container"
+        },
+        {
+          "$ref": "#/definitions/FactSet"
+        },
+        {
+          "$ref": "#/definitions/Icon"
+        },
+        {
+          "$ref": "#/definitions/Image"
+        },
+        {
+          "$ref": "#/definitions/ImageSet"
+        },
+        {
+          "$ref": "#/definitions/Input.ChoiceSet"
+        },
+        {
+          "$ref": "#/definitions/Input.Date"
+        },
+        {
+          "$ref": "#/definitions/Input.Number"
+        },
+        {
+          "$ref": "#/definitions/Input.Rating"
+        },
+        {
+          "$ref": "#/definitions/Input.Text"
+        },
+        {
+          "$ref": "#/definitions/Input.Time"
+        },
+        {
+          "$ref": "#/definitions/Input.Toggle"
+        },
+        {
+          "$ref": "#/definitions/Media"
+        },
+        {
+          "$ref": "#/definitions/Rating"
+        },
+        {
+          "$ref": "#/definitions/RichTextBlock"
+        },
+        {
+          "$ref": "#/definitions/Table"
+        },
+        {
+          "$ref": "#/definitions/TextBlock"
+        }
+      ]
+    },
+    "46.imageSize": {
+      "type": "string",
+      "pattern": "^(([S|s][M|m][A|a][L|l][L|l])|([M|m][E|e][D|d][I|i][U|u][M|m])|([L|l][A|a][R|r][G|g][E|e]))$"
+    },
+    "47.RichTextBlockInlineArray": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/TextRun"
+        },
+        {
+          "type": "string",
+          "x-contentType": "text"
+        }
+      ]
+    },
+    "48.width": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/29.width"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "49.ActionArray": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Action.Execute"
+        },
+        {
+          "$ref": "#/definitions/Action.OpenUrl"
+        },
+        {
+          "$ref": "#/definitions/Action.ResetInputs"
+        },
+        {
+          "$ref": "#/definitions/Action.ShowCard"
+        },
+        {
+          "$ref": "#/definitions/Action.Submit"
+        },
+        {
+          "$ref": "#/definitions/Action.ToggleVisibility"
+        }
+      ]
+    },
+    "AdaptiveCard": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "AdaptiveCard"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "selectAction": {
+          "$ref": "#/definitions/6.selectAction"
+        },
+        "style": {
+          "$ref": "#/definitions/7.style"
+        },
+        "layouts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/15.layouts"
+          }
+        },
+        "minHeight": {
+          "$ref": "#/definitions/12.minItemWidth"
+        },
+        "backgroundImage": {
+          "$ref": "#/definitions/17.backgroundImage"
+        },
+        "verticalContentAlignment": {
+          "$ref": "#/definitions/10.verticalItemsAlignment"
+        },
+        "rtl": {
+          "type": "boolean"
+        },
+        "$schema": {
+          "type": "string"
+        },
+        "version": {
+          "default": "1.0",
+          "$ref": "#/definitions/18.version"
+        },
+        "fallbackText": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "speak": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "refresh": {
+          "$ref": "#/definitions/RefreshDefinition"
+        },
+        "authentication": {
+          "$ref": "#/definitions/Authentication"
+        },
+        "msTeams": {
+          "$ref": "#/definitions/TeamsCardProperties"
+        },
+        "metadata": {
+          "$ref": "#/definitions/CardMetadata"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/45.CardElementArray"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/49.ActionArray"
+          }
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "HostCapabilities": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "Action.Execute": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Action.Execute"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "iconUrl": {
+          "x-contentType": "imageUrl",
+          "type": "string"
+        },
+        "style": {
+          "default": "default",
+          "$ref": "#/definitions/0.style"
+        },
+        "mode": {
+          "default": "primary",
+          "$ref": "#/definitions/1.mode"
+        },
+        "tooltip": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "isEnabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "data": {},
+        "associatedInputs": {
+          "$ref": "#/definitions/2.associatedInputs"
+        },
+        "conditionallyEnabled": {
+          "default": false,
+          "type": "boolean"
+        },
+        "verb": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/5.FallbackActionArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Action.Submit": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Action.Submit"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "iconUrl": {
+          "x-contentType": "imageUrl",
+          "type": "string"
+        },
+        "style": {
+          "default": "default",
+          "$ref": "#/definitions/0.style"
+        },
+        "mode": {
+          "default": "primary",
+          "$ref": "#/definitions/1.mode"
+        },
+        "tooltip": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "isEnabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "data": {},
+        "associatedInputs": {
+          "$ref": "#/definitions/2.associatedInputs"
+        },
+        "conditionallyEnabled": {
+          "default": false,
+          "type": "boolean"
+        },
+        "msTeams": {
+          "$ref": "#/definitions/TeamsSubmitActionProperties"
+        },
+        "fallback": {
+          "$ref": "#/definitions/5.FallbackActionArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "TeamsSubmitActionProperties": {
+      "type": "object",
+      "properties": {
+        "feedback": {
+          "$ref": "#/definitions/TeamsSubmitActionFeedback"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TeamsSubmitActionFeedback": {
+      "type": "object",
+      "properties": {
+        "hide": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Action.OpenUrl": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Action.OpenUrl"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "iconUrl": {
+          "x-contentType": "imageUrl",
+          "type": "string"
+        },
+        "style": {
+          "default": "default",
+          "$ref": "#/definitions/0.style"
+        },
+        "mode": {
+          "default": "primary",
+          "$ref": "#/definitions/1.mode"
+        },
+        "tooltip": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "isEnabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "url": {
+          "x-contentType": "link",
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/5.FallbackActionArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Action.ToggleVisibility": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Action.ToggleVisibility"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "iconUrl": {
+          "x-contentType": "imageUrl",
+          "type": "string"
+        },
+        "style": {
+          "default": "default",
+          "$ref": "#/definitions/0.style"
+        },
+        "mode": {
+          "default": "primary",
+          "$ref": "#/definitions/1.mode"
+        },
+        "tooltip": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "isEnabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "targetElements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/3.targetElements"
+          }
+        },
+        "fallback": {
+          "$ref": "#/definitions/5.FallbackActionArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "TargetElement": {
+      "type": "object",
+      "properties": {
+        "elementId": {
+          "type": "string"
+        },
+        "isVisible": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Action.ShowCard": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Action.ShowCard"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "iconUrl": {
+          "x-contentType": "imageUrl",
+          "type": "string"
+        },
+        "style": {
+          "default": "default",
+          "$ref": "#/definitions/0.style"
+        },
+        "mode": {
+          "default": "primary",
+          "$ref": "#/definitions/1.mode"
+        },
+        "tooltip": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "isEnabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "fallback": {
+          "$ref": "#/definitions/5.FallbackActionArray"
+        },
+        "card": {
+          "$ref": "#/definitions/AdaptiveCard"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Action.ResetInputs": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Action.ResetInputs"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "iconUrl": {
+          "x-contentType": "imageUrl",
+          "type": "string"
+        },
+        "style": {
+          "default": "default",
+          "$ref": "#/definitions/0.style"
+        },
+        "mode": {
+          "default": "primary",
+          "$ref": "#/definitions/1.mode"
+        },
+        "tooltip": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "isEnabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "targetInputIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fallback": {
+          "$ref": "#/definitions/5.FallbackActionArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Layout.Stack": {
+      "type": "object",
+      "properties": {
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "type": {
+          "const": "Layout.Stack"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Layout.Flow": {
+      "type": "object",
+      "properties": {
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "horizontalItemsAlignment": {
+          "default": "Center",
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "verticalItemsAlignment": {
+          "default": "Top",
+          "$ref": "#/definitions/10.verticalItemsAlignment"
+        },
+        "itemFit": {
+          "default": "Fit",
+          "$ref": "#/definitions/11.itemFit"
+        },
+        "minItemWidth": {
+          "default": 0,
+          "$ref": "#/definitions/12.minItemWidth"
+        },
+        "maxItemWidth": {
+          "$ref": "#/definitions/12.minItemWidth"
+        },
+        "itemWidth": {
+          "$ref": "#/definitions/12.minItemWidth"
+        },
+        "columnSpacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "rowSpacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "type": {
+          "const": "Layout.Flow"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Layout.AreaGrid": {
+      "type": "object",
+      "properties": {
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/14.columns"
+          }
+        },
+        "areas": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GridArea"
+          }
+        },
+        "columnSpacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "rowSpacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "type": {
+          "const": "Layout.AreaGrid"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "GridArea": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "column": {
+          "default": 1,
+          "type": "number"
+        },
+        "columnSpan": {
+          "default": 1,
+          "type": "number"
+        },
+        "row": {
+          "default": 1,
+          "type": "number"
+        },
+        "rowSpan": {
+          "default": 1,
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "BackgroundImage": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "x-contentType": "imageUrl",
+          "type": "string"
+        },
+        "fillMode": {
+          "default": "Cover",
+          "$ref": "#/definitions/16.fillMode"
+        },
+        "horizontalAlignment": {
+          "default": "Left",
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "verticalAlignment": {
+          "default": "Top",
+          "$ref": "#/definitions/10.verticalItemsAlignment"
+        }
+      },
+      "additionalProperties": false
+    },
+    "RefreshDefinition": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "$ref": "#/definitions/Action.Execute"
+        },
+        "userIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "Authentication": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "connectionName": {
+          "type": "string"
+        },
+        "buttons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AuthCardButton"
+          }
+        },
+        "tokenExchangeResource": {
+          "$ref": "#/definitions/TokenExchangeResource"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AuthCardButton": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TokenExchangeResource": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "uri": {
+          "type": "string"
+        },
+        "providerId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TeamsCardProperties": {
+      "type": "object",
+      "properties": {
+        "width": {
+          "$ref": "#/definitions/19.width"
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/mention"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "mention": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "mention"
+        },
+        "text": {
+          "type": "string"
+        },
+        "mentioned": {
+          "$ref": "#/definitions/MentionedPerson"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "MentionedPerson": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "x-contentType": "text",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CardMetadata": {
+      "type": "object",
+      "properties": {
+        "webUrl": {
+          "x-contentType": "link",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Container": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Container"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "selectAction": {
+          "$ref": "#/definitions/6.selectAction"
+        },
+        "style": {
+          "$ref": "#/definitions/7.style"
+        },
+        "showBorder": {
+          "default": false,
+          "type": "boolean"
+        },
+        "roundedCorners": {
+          "default": false,
+          "type": "boolean"
+        },
+        "layouts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/15.layouts"
+          }
+        },
+        "bleed": {
+          "default": false,
+          "type": "boolean"
+        },
+        "minHeight": {
+          "$ref": "#/definitions/12.minItemWidth"
+        },
+        "backgroundImage": {
+          "$ref": "#/definitions/17.backgroundImage"
+        },
+        "verticalContentAlignment": {
+          "$ref": "#/definitions/10.verticalItemsAlignment"
+        },
+        "rtl": {
+          "type": "boolean"
+        },
+        "maxHeight": {
+          "$ref": "#/definitions/12.minItemWidth"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/45.CardElementArray"
+          }
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "ActionSet": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "ActionSet"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/49.ActionArray"
+          }
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "ColumnSet": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "ColumnSet"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "selectAction": {
+          "$ref": "#/definitions/6.selectAction"
+        },
+        "style": {
+          "$ref": "#/definitions/7.style"
+        },
+        "showBorder": {
+          "default": false,
+          "type": "boolean"
+        },
+        "roundedCorners": {
+          "default": false,
+          "type": "boolean"
+        },
+        "bleed": {
+          "default": false,
+          "type": "boolean"
+        },
+        "minHeight": {
+          "$ref": "#/definitions/12.minItemWidth"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Column"
+          }
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Media": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Media"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MediaSource"
+          }
+        },
+        "captionSources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CaptionSource"
+          }
+        },
+        "poster": {
+          "x-contentType": "imageUrl",
+          "type": "string"
+        },
+        "altText": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "MediaSource": {
+      "type": "object",
+      "properties": {
+        "mimeType": {
+          "type": "string"
+        },
+        "url": {
+          "x-contentType": "mediaUrl",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CaptionSource": {
+      "type": "object",
+      "properties": {
+        "mimeType": {
+          "type": "string"
+        },
+        "url": {
+          "x-contentType": "mediaUrl",
+          "type": "string"
+        },
+        "label": {
+          "x-contentType": "text",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "RichTextBlock": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RichTextBlock"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        },
+        "inlines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/47.RichTextBlockInlineArray"
+          }
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Table": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Table"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "style": {
+          "$ref": "#/definitions/7.style"
+        },
+        "showBorder": {
+          "default": false,
+          "type": "boolean"
+        },
+        "roundedCorners": {
+          "default": false,
+          "type": "boolean"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ColumnDefinition"
+          }
+        },
+        "firstRowAsHeaders": {
+          "default": true,
+          "type": "boolean"
+        },
+        "showGridLines": {
+          "default": true,
+          "type": "boolean"
+        },
+        "gridStyle": {
+          "$ref": "#/definitions/7.style"
+        },
+        "horizontalCellContentAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "verticalCellContentAlignment": {
+          "$ref": "#/definitions/10.verticalItemsAlignment"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TableRow"
+          }
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "ColumnDefinition": {
+      "type": "object",
+      "properties": {
+        "horizontalCellContentAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "verticalCellContentAlignment": {
+          "$ref": "#/definitions/10.verticalItemsAlignment"
+        },
+        "width": {
+          "$ref": "#/definitions/21.width"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TextBlock": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "TextBlock"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "text": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "size": {
+          "$ref": "#/definitions/22.size"
+        },
+        "weight": {
+          "$ref": "#/definitions/23.weight"
+        },
+        "color": {
+          "$ref": "#/definitions/24.color"
+        },
+        "isSubtle": {
+          "type": "boolean"
+        },
+        "fontType": {
+          "$ref": "#/definitions/25.fontType"
+        },
+        "wrap": {
+          "default": false,
+          "type": "boolean"
+        },
+        "maxLines": {
+          "type": "number"
+        },
+        "style": {
+          "$ref": "#/definitions/26.style"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "FactSet": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "FactSet"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Fact"
+          }
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Fact": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "value": {
+          "x-contentType": "text",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ImageSet": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "ImageSet"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Image"
+          }
+        },
+        "imageSize": {
+          "default": "Medium",
+          "$ref": "#/definitions/46.imageSize"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Image": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Image"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "url": {
+          "x-contentType": "imageUrl",
+          "type": "string"
+        },
+        "altText": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "backgroundColor": {
+          "type": "string"
+        },
+        "style": {
+          "default": "Default",
+          "$ref": "#/definitions/27.style"
+        },
+        "size": {
+          "default": "Auto",
+          "$ref": "#/definitions/28.size"
+        },
+        "width": {
+          "default": "auto",
+          "$ref": "#/definitions/29.width"
+        },
+        "selectAction": {
+          "$ref": "#/definitions/6.selectAction"
+        },
+        "allowExpand": {
+          "default": false,
+          "type": "boolean"
+        },
+        "msTeams": {
+          "$ref": "#/definitions/TeamsImageProperties"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/29.width"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "TeamsImageProperties": {
+      "type": "object",
+      "properties": {
+        "allowExpand": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Input.Text": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Input.Text"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "label": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "isRequired": {
+          "default": false,
+          "type": "boolean"
+        },
+        "errorMessage": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "valueChangedAction": {
+          "$ref": "#/definitions/Action.ResetInputs"
+        },
+        "value": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "maxLength": {
+          "type": "number"
+        },
+        "isMultiline": {
+          "default": false,
+          "type": "boolean"
+        },
+        "placeholder": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "style": {
+          "default": "Text",
+          "$ref": "#/definitions/30.style"
+        },
+        "inlineAction": {
+          "$ref": "#/definitions/6.selectAction"
+        },
+        "regex": {
+          "type": "string"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Input.Date": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Input.Date"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "label": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "isRequired": {
+          "default": false,
+          "type": "boolean"
+        },
+        "errorMessage": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "valueChangedAction": {
+          "$ref": "#/definitions/Action.ResetInputs"
+        },
+        "value": {
+          "type": "string"
+        },
+        "placeholder": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "min": {
+          "type": "string"
+        },
+        "max": {
+          "type": "string"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Input.Time": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Input.Time"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "label": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "isRequired": {
+          "default": false,
+          "type": "boolean"
+        },
+        "errorMessage": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "valueChangedAction": {
+          "$ref": "#/definitions/Action.ResetInputs"
+        },
+        "value": {
+          "type": "string"
+        },
+        "placeholder": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "min": {
+          "type": "string"
+        },
+        "max": {
+          "type": "string"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Input.Number": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Input.Number"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "label": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "isRequired": {
+          "default": false,
+          "type": "boolean"
+        },
+        "errorMessage": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "valueChangedAction": {
+          "$ref": "#/definitions/Action.ResetInputs"
+        },
+        "value": {
+          "type": "number"
+        },
+        "placeholder": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Input.Toggle": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Input.Toggle"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "label": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "isRequired": {
+          "default": false,
+          "type": "boolean"
+        },
+        "errorMessage": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "valueChangedAction": {
+          "$ref": "#/definitions/Action.ResetInputs"
+        },
+        "value": {
+          "default": "false",
+          "type": "string"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "valueOn": {
+          "default": "true",
+          "type": "string"
+        },
+        "valueOff": {
+          "default": "false",
+          "type": "string"
+        },
+        "wrap": {
+          "default": true,
+          "type": "boolean"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Input.ChoiceSet": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Input.ChoiceSet"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "label": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "isRequired": {
+          "default": false,
+          "type": "boolean"
+        },
+        "errorMessage": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "valueChangedAction": {
+          "$ref": "#/definitions/Action.ResetInputs"
+        },
+        "value": {
+          "type": "string"
+        },
+        "choices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Choice"
+          }
+        },
+        "choices.data": {
+          "$ref": "#/definitions/Data.Query"
+        },
+        "style": {
+          "default": "compact",
+          "$ref": "#/definitions/31.style"
+        },
+        "isMultiSelect": {
+          "default": false,
+          "type": "boolean"
+        },
+        "placeholder": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "wrap": {
+          "default": true,
+          "type": "boolean"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Choice": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Data.Query": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Data.Query"
+        },
+        "dataset": {
+          "type": "string"
+        },
+        "associatedInputs": {
+          "$ref": "#/definitions/2.associatedInputs"
+        },
+        "count": {
+          "type": "number"
+        },
+        "skip": {
+          "type": "number"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Input.Rating": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Input.Rating"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "label": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "isRequired": {
+          "default": false,
+          "type": "boolean"
+        },
+        "errorMessage": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "valueChangedAction": {
+          "$ref": "#/definitions/Action.ResetInputs"
+        },
+        "value": {
+          "type": "number"
+        },
+        "max": {
+          "default": 5,
+          "type": "number"
+        },
+        "allowHalfSteps": {
+          "default": false,
+          "type": "boolean"
+        },
+        "size": {
+          "default": "Large",
+          "$ref": "#/definitions/32.size"
+        },
+        "color": {
+          "default": "Neutral",
+          "$ref": "#/definitions/33.color"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Rating": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Rating"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "value": {
+          "type": "number"
+        },
+        "count": {
+          "type": "number"
+        },
+        "max": {
+          "default": 5,
+          "type": "number"
+        },
+        "size": {
+          "default": "Large",
+          "$ref": "#/definitions/32.size"
+        },
+        "color": {
+          "default": "Neutral",
+          "$ref": "#/definitions/33.color"
+        },
+        "style": {
+          "default": "Default",
+          "$ref": "#/definitions/34.style"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "CompoundButton": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "CompoundButton"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "icon": {
+          "$ref": "#/definitions/IconInfo"
+        },
+        "badge": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "description": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "selectAction": {
+          "$ref": "#/definitions/6.selectAction"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "IconInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "size": {
+          "default": "Small",
+          "$ref": "#/definitions/35.size"
+        },
+        "style": {
+          "default": "Regular",
+          "$ref": "#/definitions/36.style"
+        },
+        "color": {
+          "default": "Default",
+          "$ref": "#/definitions/24.color"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Icon": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Icon"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "name": {
+          "type": "string"
+        },
+        "size": {
+          "default": "Standard",
+          "$ref": "#/definitions/35.size"
+        },
+        "style": {
+          "default": "Regular",
+          "$ref": "#/definitions/36.style"
+        },
+        "color": {
+          "default": "Default",
+          "$ref": "#/definitions/24.color"
+        },
+        "selectAction": {
+          "$ref": "#/definitions/6.selectAction"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Carousel": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Carousel"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "selectAction": {
+          "$ref": "#/definitions/6.selectAction"
+        },
+        "style": {
+          "$ref": "#/definitions/7.style"
+        },
+        "showBorder": {
+          "default": false,
+          "type": "boolean"
+        },
+        "roundedCorners": {
+          "default": false,
+          "type": "boolean"
+        },
+        "bleed": {
+          "default": false,
+          "type": "boolean"
+        },
+        "minHeight": {
+          "$ref": "#/definitions/12.minItemWidth"
+        },
+        "pageAnimation": {
+          "default": "Slide",
+          "$ref": "#/definitions/37.pageAnimation"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        },
+        "pages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CarouselPage"
+          }
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Chart.Donut": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Chart.Donut"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "colorSet": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DonutChartData"
+          }
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "DonutChartData": {
+      "type": "object",
+      "properties": {
+        "legend": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "value": {
+          "type": "number"
+        },
+        "color": {
+          "$ref": "#/definitions/38.color"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Chart.Pie": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Chart.Pie"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "colorSet": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DonutChartData"
+          }
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Chart.VerticalBar.Grouped": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Chart.VerticalBar.Grouped"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "colorSet": {
+          "type": "string"
+        },
+        "xAxisTitle": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "yAxisTitle": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "color": {
+          "$ref": "#/definitions/38.color"
+        },
+        "stacked": {
+          "default": false,
+          "type": "boolean"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GroupedVerticalBarChartData"
+          }
+        },
+        "showBarValues": {
+          "default": false,
+          "type": "boolean"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "GroupedVerticalBarChartData": {
+      "type": "object",
+      "properties": {
+        "legend": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BarChartDataValue"
+          }
+        },
+        "color": {
+          "$ref": "#/definitions/38.color"
+        }
+      },
+      "additionalProperties": false
+    },
+    "BarChartDataValue": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Chart.VerticalBar": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Chart.VerticalBar"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "colorSet": {
+          "type": "string"
+        },
+        "xAxisTitle": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "yAxisTitle": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/VerticalBarChartDataValue"
+          }
+        },
+        "color": {
+          "$ref": "#/definitions/38.color"
+        },
+        "showBarValues": {
+          "default": false,
+          "type": "boolean"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "VerticalBarChartDataValue": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "$ref": "#/definitions/39.x"
+        },
+        "y": {
+          "type": "number"
+        },
+        "color": {
+          "$ref": "#/definitions/38.color"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Chart.HorizontalBar": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Chart.HorizontalBar"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "colorSet": {
+          "type": "string"
+        },
+        "xAxisTitle": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "yAxisTitle": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "color": {
+          "$ref": "#/definitions/38.color"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HorizontalBarChartDataValue"
+          }
+        },
+        "displayMode": {
+          "default": "AbsoluteWithAxis",
+          "$ref": "#/definitions/40.displayMode"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "HorizontalBarChartDataValue": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "y": {
+          "type": "number"
+        },
+        "color": {
+          "$ref": "#/definitions/38.color"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Chart.HorizontalBar.Stacked": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Chart.HorizontalBar.Stacked"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "colorSet": {
+          "type": "string"
+        },
+        "xAxisTitle": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "yAxisTitle": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "color": {
+          "$ref": "#/definitions/38.color"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StackedHorizontalBarChartData"
+          }
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "StackedHorizontalBarChartData": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StackedHorizontalBarChartDataPoint"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "StackedHorizontalBarChartDataPoint": {
+      "type": "object",
+      "properties": {
+        "legend": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "value": {
+          "type": "number"
+        },
+        "color": {
+          "$ref": "#/definitions/38.color"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Chart.Line": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Chart.Line"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "colorSet": {
+          "type": "string"
+        },
+        "xAxisTitle": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "yAxisTitle": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "color": {
+          "$ref": "#/definitions/38.color"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LineChartData"
+          }
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "LineChartData": {
+      "type": "object",
+      "properties": {
+        "legend": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LineChartValue"
+          }
+        },
+        "color": {
+          "$ref": "#/definitions/38.color"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LineChartValue": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "$ref": "#/definitions/41.x"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Chart.Gauge": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Chart.Gauge"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "title": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "colorSet": {
+          "type": "string"
+        },
+        "min": {
+          "default": 0,
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "subLabel": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "showMinMax": {
+          "default": true,
+          "type": "boolean"
+        },
+        "showLegend": {
+          "default": true,
+          "type": "boolean"
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GaugeChartLegend"
+          }
+        },
+        "value": {
+          "default": 0,
+          "type": "number"
+        },
+        "valueFormat": {
+          "default": "Percentage",
+          "$ref": "#/definitions/42.valueFormat"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "GaugeChartLegend": {
+      "type": "object",
+      "properties": {
+        "size": {
+          "default": 0,
+          "type": "number"
+        },
+        "legend": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "color": {
+          "$ref": "#/definitions/38.color"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CodeBlock": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "CodeBlock"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "codeSnippet": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "language": {
+          "default": "PlainText",
+          "$ref": "#/definitions/43.language"
+        },
+        "startLineNumber": {
+          "default": 1,
+          "type": "number"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "CarouselPage": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "CarouselPage"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "selectAction": {
+          "$ref": "#/definitions/6.selectAction"
+        },
+        "style": {
+          "$ref": "#/definitions/7.style"
+        },
+        "showBorder": {
+          "default": false,
+          "type": "boolean"
+        },
+        "roundedCorners": {
+          "default": false,
+          "type": "boolean"
+        },
+        "layouts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/15.layouts"
+          }
+        },
+        "minHeight": {
+          "$ref": "#/definitions/12.minItemWidth"
+        },
+        "backgroundImage": {
+          "$ref": "#/definitions/17.backgroundImage"
+        },
+        "verticalContentAlignment": {
+          "$ref": "#/definitions/10.verticalItemsAlignment"
+        },
+        "rtl": {
+          "type": "boolean"
+        },
+        "maxHeight": {
+          "$ref": "#/definitions/12.minItemWidth"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/45.CardElementArray"
+          }
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "TableRow": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "TableRow"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "showBorder": {
+          "default": false,
+          "type": "boolean"
+        },
+        "roundedCorners": {
+          "default": false,
+          "type": "boolean"
+        },
+        "style": {
+          "$ref": "#/definitions/7.style"
+        },
+        "horizontalCellContentAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "verticalCellContentAlignment": {
+          "$ref": "#/definitions/10.verticalItemsAlignment"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        },
+        "cells": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TableCell"
+          }
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "TableCell": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "TableCell"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "selectAction": {
+          "$ref": "#/definitions/6.selectAction"
+        },
+        "layouts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/15.layouts"
+          }
+        },
+        "bleed": {
+          "default": false,
+          "type": "boolean"
+        },
+        "minHeight": {
+          "$ref": "#/definitions/12.minItemWidth"
+        },
+        "backgroundImage": {
+          "$ref": "#/definitions/17.backgroundImage"
+        },
+        "verticalContentAlignment": {
+          "$ref": "#/definitions/10.verticalItemsAlignment"
+        },
+        "rtl": {
+          "type": "boolean"
+        },
+        "maxHeight": {
+          "$ref": "#/definitions/12.minItemWidth"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/45.CardElementArray"
+          }
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "TextRun": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "TextRun"
+        },
+        "id": {
+          "type": "string"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "text": {
+          "x-contentType": "text",
+          "type": "string"
+        },
+        "size": {
+          "$ref": "#/definitions/22.size"
+        },
+        "weight": {
+          "$ref": "#/definitions/23.weight"
+        },
+        "color": {
+          "$ref": "#/definitions/24.color"
+        },
+        "isSubtle": {
+          "type": "boolean"
+        },
+        "fontType": {
+          "$ref": "#/definitions/25.fontType"
+        },
+        "italic": {
+          "default": false,
+          "type": "boolean"
+        },
+        "strikethrough": {
+          "default": false,
+          "type": "boolean"
+        },
+        "highlight": {
+          "default": false,
+          "type": "boolean"
+        },
+        "underline": {
+          "default": false,
+          "type": "boolean"
+        },
+        "selectAction": {
+          "$ref": "#/definitions/6.selectAction"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Column": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Column"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "default": {},
+          "$ref": "#/definitions/HostCapabilities"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "isVisible": {
+          "default": true,
+          "type": "boolean"
+        },
+        "separator": {
+          "default": false,
+          "type": "boolean"
+        },
+        "height": {
+          "default": "auto",
+          "$ref": "#/definitions/20.height"
+        },
+        "horizontalAlignment": {
+          "$ref": "#/definitions/9.horizontalItemsAlignment"
+        },
+        "spacing": {
+          "default": "Default",
+          "$ref": "#/definitions/13.columnSpacing"
+        },
+        "targetWidth": {
+          "$ref": "#/definitions/8.targetWidth"
+        },
+        "selectAction": {
+          "$ref": "#/definitions/6.selectAction"
+        },
+        "style": {
+          "$ref": "#/definitions/7.style"
+        },
+        "showBorder": {
+          "default": false,
+          "type": "boolean"
+        },
+        "roundedCorners": {
+          "default": false,
+          "type": "boolean"
+        },
+        "layouts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/15.layouts"
+          }
+        },
+        "bleed": {
+          "default": false,
+          "type": "boolean"
+        },
+        "minHeight": {
+          "$ref": "#/definitions/12.minItemWidth"
+        },
+        "backgroundImage": {
+          "$ref": "#/definitions/17.backgroundImage"
+        },
+        "verticalContentAlignment": {
+          "$ref": "#/definitions/10.verticalItemsAlignment"
+        },
+        "rtl": {
+          "type": "boolean"
+        },
+        "maxHeight": {
+          "$ref": "#/definitions/12.minItemWidth"
+        },
+        "width": {
+          "default": "stretch",
+          "$ref": "#/definitions/48.width"
+        },
+        "grid.area": {
+          "type": "string"
+        },
+        "fallback": {
+          "$ref": "#/definitions/44.FallbackElementArray"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/45.CardElementArray"
+          }
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    }
+  },
+  "$ref": "#/definitions/AdaptiveCard"
+}

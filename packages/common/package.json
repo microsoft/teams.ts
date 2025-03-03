@@ -1,0 +1,86 @@
+{
+  "name": "@microsoft/spark.common",
+  "version": "0.0.0",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "homepage": "https://github.com/microsoft/spark.js",
+  "bugs": "https://github.com/microsoft/spark.js/issues",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/spark.js.git",
+    "directory": "packages/common"
+  },
+  "keywords": [
+    "microsoft",
+    "teams",
+    "msteams",
+    "copilot",
+    "ai",
+    "common"
+  ],
+  "exports": {
+    ".": {
+      "types": {
+        "require": "./dist/index.d.ts",
+        "import": "./dist/index.d.mts"
+      },
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
+    "./events": {
+      "types": {
+        "require": "./dist/events/index.d.ts",
+        "import": "./dist/events/index.d.mts"
+      },
+      "require": "./dist/events/index.js",
+      "import": "./dist/events/index.mjs"
+    },
+    "./http": {
+      "types": {
+        "require": "./dist/http/index.d.ts",
+        "import": "./dist/http/index.d.mts"
+      },
+      "require": "./dist/http/index.js",
+      "import": "./dist/http/index.mjs"
+    },
+    "./logging": {
+      "types": {
+        "require": "./dist/logging/index.d.ts",
+        "import": "./dist/logging/index.d.mts"
+      },
+      "require": "./dist/logging/index.js",
+      "import": "./dist/logging/index.mjs"
+    },
+    "./storage": {
+      "types": {
+        "require": "./dist/storage/index.d.ts",
+        "import": "./dist/storage/index.d.mts"
+      },
+      "require": "./dist/storage/index.js",
+      "import": "./dist/storage/index.mjs"
+    }
+  },
+  "scripts": {
+    "clean": "npx rimraf ./dist",
+    "build": "npx tsup",
+    "test": "npx jest"
+  },
+  "dependencies": {
+    "axios": "^1.7.7"
+  },
+  "devDependencies": {
+    "@microsoft/spark.config": "*",
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "rimraf": "^6.0.1",
+    "ts-jest": "^29.2.5",
+    "tsup": "^8.4.0",
+    "typescript": "^5.4.5"
+  }
+}

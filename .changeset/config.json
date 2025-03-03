@@ -1,0 +1,26 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.0.2/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "fixed": [
+    [
+      "@microsoft/spark.ai",
+      "@microsoft/spark.api",
+      "@microsoft/spark.apps",
+      "@microsoft/spark.botbuilder",
+      "@microsoft/spark.cards",
+      "@microsoft/spark.cli",
+      "@microsoft/spark.client",
+      "@microsoft/spark.common",
+      "@microsoft/spark.config",
+      "@microsoft/spark.dev",
+      "@microsoft/spark.graph",
+      "@microsoft/spark.openai"
+    ]
+  ],
+  "linked": [],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": []
+}
