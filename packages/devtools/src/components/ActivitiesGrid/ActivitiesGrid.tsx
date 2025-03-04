@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import {
   Menu,
   MenuButton,
@@ -71,6 +71,20 @@ const ActivitiesGrid: FC<ActivitiesGridProps> = ({
     }
   };
 
+  const memoizedRowsList = useMemo(() => list
+    .slice()
+    .reverse()
+    .filter((event) => filterActivities(event, params))
+    .map((event, index) => (
+      <ActivityRow
+        key={event.id}
+        event={event}
+        index={index}
+        isSelected={selected?.id === event.id}
+        onSelect={handleRowSelect}
+      />
+    )), [list, params, selected, handleRowSelect]);
+
   const handleTypeFilter = (path: string) => {
     if (params.get('path') === path) {
       params.delete('path');
@@ -120,21 +134,7 @@ const ActivitiesGrid: FC<ActivitiesGridProps> = ({
           </tr>
         </thead>
         <tbody>
-          {list.length ? (
-            list
-              .slice()
-              .reverse()
-              .filter((event) => filterActivities(event, params))
-              .map((event, index) => (
-                <ActivityRow
-                  key={event.id}
-                  event={event}
-                  index={index}
-                  isSelected={selected?.id === event.id}
-                  onSelect={handleRowSelect}
-                />
-              ))
-          ) : (
+          {list.length ? memoizedRowsList : (
             <tr>
               <td colSpan={4} className={mergeClasses(classes.cell, classes.emptyTable)}>
                 No activities

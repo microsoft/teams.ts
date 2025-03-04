@@ -1,11 +1,12 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { FC, useState, ChangeEvent, KeyboardEvent, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Textarea } from '@fluentui/react-components';
-import { useClasses } from './ComposeBox.styles';
-import NewMessageToolbar from './ComposeBoxToolbar/ComposeBoxToolbar';
-import { useCardStore } from '../../stores/CardStore';
-import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
 import { Attachment } from '@microsoft/spark.api';
+
+import { useCardStore } from '../../stores/CardStore';
 import { AttachmentType } from '../../types/Attachment';
+import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
+import NewMessageToolbar from './ComposeBoxToolbar/ComposeBoxToolbar';
+import useComposeBoxClasses from './ComposeBox.styles';
 
 export interface ComposeBoxProps {
   onSend: (message: string, attachments?: Attachment[]) => void;
@@ -13,8 +14,8 @@ export interface ComposeBoxProps {
   onMessageSent: (message: string) => void;
 }
 
-const ComposeBox: React.FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent }) => {
-  const classes = useClasses();
+const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent }) => {
+  const classes = useComposeBoxClasses();
   const [message, setMessage] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [uiAttachments, setUiAttachments] = useState<AttachmentType[]>([]);
@@ -31,7 +32,7 @@ const ComposeBox: React.FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessa
 
   // Convert API Attachment to UI AttachmentType
   const convertToAttachmentType = (attachment: Attachment): AttachmentType => {
-    // Check if it's a card attachment
+    // Check for card attachment
     if (attachment.contentType?.startsWith('application/vnd.microsoft.card.')) {
       return {
         type: 'card',
@@ -95,7 +96,7 @@ const ComposeBox: React.FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessa
   }, [message, attachments, onSend, onMessageSent]);
 
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
+    (e: KeyboardEvent) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         handleSendMessage();
@@ -166,14 +167,14 @@ const ComposeBox: React.FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessa
   );
 
   // Memoized message input handler to prevent re-renders
-  const handleMessageChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleMessageChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
   }, []);
 
   // Check if there's content to send
   const hasContent = message.trim().length > 0 || attachments.length > 0;
 
-  const memoizedToolbar = React.useMemo(
+  const memoizedToolbar = useMemo(
     () => <NewMessageToolbar onSend={handleToolbarAction} hasContent={hasContent} />,
     [handleToolbarAction, hasContent]
   );
