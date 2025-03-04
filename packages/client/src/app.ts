@@ -4,7 +4,6 @@ import { Credentials } from '@microsoft/spark.api';
 
 import * as window from './window';
 import { Context, mapContext } from './context';
-import { Jwt } from './jwt';
 
 export type AppOptions = Partial<Credentials> & {
   /**
@@ -95,8 +94,6 @@ export class App {
   }
   protected _runtime?: window.Runtime;
 
-  protected _token?: string;
-
   constructor(options?: AppOptions) {
     this.options = options || {};
     this._log = options?.logger || new ConsoleLogger('@spark/client');
@@ -127,21 +124,6 @@ export class App {
     this._context = mapContext(context);
 
     this._connectedAt = new Date();
-
-    const clientId = this.options.clientId;
-    const clientSecret =
-      this.options && 'clientSecret' in this.options ? this.options.clientSecret : undefined;
-    const tenantId = this.options && 'tenantId' in this.options ? this.options.tenantId : undefined;
-    const token = this.options && 'token' in this.options ? this.options.token : undefined;
-
-    if (token) {
-      this._token = await token('.default');
-    }
-
-    if (clientId && clientSecret) {
-      this._token = await new Jwt({ clientId, tenantId }).sign(clientSecret);
-    }
-
     return this.context;
   }
 
@@ -154,9 +136,12 @@ export class App {
   async exec<T = any>(name: string, data?: any) {
     const res = await this.http.post<T>(`/api/functions/${name}`, data, {
       headers: {
-        Authorization: this._token ? `Bearer ${this._token}` : undefined,
         'x-spark-app-id': this.context.app.id,
         'x-spark-app-session-id': this.context.app.sessionId,
+        'x-spark-app-client-id': this.options.clientId,
+        'x-spark-app-client-secret':
+          'clientSecret' in this.options ? this.options.clientSecret : undefined,
+        'x-spark-app-tenant-id': 'tenantId' in this.options ? this.options.tenantId : undefined,
         'x-spark-tenant-id': this.context.user?.tenant?.id,
         'x-spark-user-id': this.context.user?.id,
         'x-spark-team-id': this.context.team?.internalId,
