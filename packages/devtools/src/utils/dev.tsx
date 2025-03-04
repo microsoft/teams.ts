@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router';
 import { Attachment } from '@microsoft/spark.api';
+import { useLogger } from '../contexts/LoggerContext';
 
 // Type definitions
 type DevModeOnRouteHook = (pathname: string, callback: () => void) => void;
@@ -33,7 +34,8 @@ if (import.meta.env.DEV) {
   autoFillAndSendMessage = () => {
     // Get the dev message from environment variable
     const devMessage = import.meta.env.VITE_DEV_MESSAGE || null;
-
+    const log = useLogger();
+    const childLog = log.child('autoFillAndSendMessage');
     // Wait for DOM to be fully loaded
     setTimeout(() => {
       try {
@@ -42,7 +44,7 @@ if (import.meta.env.DEV) {
           '#compose-box textarea'
         ) as HTMLTextAreaElement | null;
         if (!composeTextarea) {
-          console.warn('Dev mode: Could not find compose textarea');
+          childLog.warn('Dev mode: Could not find compose textarea');
           return;
         }
 
@@ -67,7 +69,7 @@ if (import.meta.env.DEV) {
 
           composeTextarea.dispatchEvent(inputEvent);
 
-          console.log('Dev mode: Set compose box text to:', devMessage);
+          childLog.info('Dev mode: Set compose box text to:', devMessage);
 
           // Wait a bit to ensure React state is updated
           setTimeout(() => {
@@ -78,14 +80,14 @@ if (import.meta.env.DEV) {
             if (sendButton) {
               // Directly click the button
               sendButton.click();
-              console.log('Dev mode: Clicked send button');
+              childLog.info('Dev mode: Clicked send button');
             } else {
-              console.warn('Dev mode: Could not find send button');
+              childLog.warn('Dev mode: Could not find send button');
             }
           }, 500);
         }
       } catch (error) {
-        console.error('Dev mode: Error in autoFillAndSendMessage:', error);
+        childLog.error('Dev mode: Error in autoFillAndSendMessage:', error);
       }
     }, 1000);
   };

@@ -19,6 +19,7 @@ import { ChatContext } from '../../stores/ChatStore';
 import useSparkApi from '../../hooks/useSparkApi';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
 import { AttachmentType } from '../../types/Attachment';
+import { useLogger } from '../../contexts/LoggerContext';
 
 interface ChatMessageProps {
   content: string;
@@ -36,6 +37,9 @@ const ChatMessage: FC<ChatMessageProps> = ({
   value,
 }) => {
   const classes = useChatMessageStyles();
+  const log = useLogger();
+  const childLog = log.child('ChatMessage');
+
   const { chat, messages } = useContext(ChatContext);
   const sparkApi = useSparkApi();
   const labelId = `message-${value.id}`;
@@ -80,7 +84,7 @@ const ChatMessage: FC<ChatMessageProps> = ({
         reactionsRemoved: removed,
       });
     } catch (err) {
-      console.error(err);
+      childLog.error(err);
       // Revert on error
       if (added.length) {
         setReactions((prev) => prev.filter((r) => r !== added[0]));
