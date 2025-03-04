@@ -56,7 +56,7 @@ provision:
     - uses: arm/deploy # Deploy given ARM templates parallelly.
       env:
           # an arbitrary name for the connection
-          OAUTH_CONNECTION_NAME: graph-connection
+          OAUTH_CONNECTION_NAME: graph
       with:
           # AZURE_SUBSCRIPTION_ID is a built-in environment variable,
           # if its value is empty, TeamsFx will prompt you to select a subscription.
@@ -115,4 +115,4 @@ deploy:
               CLIENT_ID: ${{BOT_ID}}
               CLIENT_SECRET: ${{SECRET_BOT_PASSWORD}}
               # an arbitrary name for the connection
-              OAUTH_CONNECTION_NAME: graph-connection
+              OAUTH_CONNECTION_NAME: graph
