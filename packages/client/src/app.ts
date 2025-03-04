@@ -139,8 +139,9 @@ export class App {
         'x-spark-app-id': this.context.app.id,
         'x-spark-app-session-id': this.context.app.sessionId,
         'x-spark-app-client-id': this.options.clientId,
-        'x-spark-app-client-secret': this.options.clientSecret,
-        'x-spark-app-tenant-id': this.options.tenantId,
+        'x-spark-app-client-secret':
+          'clientSecret' in this.options ? this.options.clientSecret : undefined,
+        'x-spark-app-tenant-id': 'tenantId' in this.options ? this.options.tenantId : undefined,
         'x-spark-tenant-id': this.context.user?.tenant?.id,
         'x-spark-user-id': this.context.user?.id,
         'x-spark-team-id': this.context.team?.internalId,
