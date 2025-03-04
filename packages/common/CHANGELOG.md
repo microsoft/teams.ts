@@ -1,5 +1,11 @@
 # @microsoft/spark.common
 
+## 0.0.3
+
+### Patch Changes
+
+- add support for more types of bot authentication, devtools fixes
+
 ## 0.0.2
 
 ### Patch Changes
