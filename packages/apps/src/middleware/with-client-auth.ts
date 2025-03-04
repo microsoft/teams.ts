@@ -13,8 +13,11 @@ export type ClientAuthRequest = express.Request & {
   context?: ClientContext;
 };
 
-export function withClientAuth({ logger, clientId, clientSecret, tenantId }: WithClientAuthParams) {
-  const log = logger;
+export function withClientAuth(params: WithClientAuthParams) {
+  const log = params.logger;
+  const clientId = params.clientId;
+  const clientSecret = 'clientSecret' in params ? params.clientSecret : undefined;
+  const tenantId = 'tenantId' in params ? params.tenantId : undefined;
 
   return (req: ClientAuthRequest, res: express.Response, next: express.NextFunction) => {
     const appClientId = req.header('X-Spark-App-Client-Id');

@@ -180,7 +180,7 @@ export class App {
   protected startedAt?: Date;
   protected port?: number;
 
-  private readonly _userAgent = `teams[apps]/${pkg.version}`;
+  private readonly _userAgent = `spark[apps]/${pkg.version}`;
   private readonly _manifest: Partial<manifest.Manifest>;
   private _tokens: AppTokens = {};
 
@@ -224,14 +224,19 @@ export class App {
     );
 
     const clientId = this.options.clientId || process.env.CLIENT_ID;
-    const clientSecret = this.options.clientSecret || process.env.CLIENT_SECRET;
-    const tenantId = this.options.tenantId || process.env.TENANT_ID;
+    const clientSecret =
+      ('clientSecret' in this.options ? this.options.clientSecret : undefined) ||
+      process.env.CLIENT_SECRET;
+    const tenantId =
+      ('tenantId' in this.options ? this.options.tenantId : undefined) || process.env.TENANT_ID;
+    const token = 'token' in this.options ? this.options.token : undefined;
 
     if (clientId && clientSecret) {
       this.credentials = {
         clientId,
         clientSecret,
         tenantId,
+        token,
       };
     }
 
@@ -256,7 +261,9 @@ export class App {
    * start the app
    * @param port port to listen on
    */
-  async start(port = 3000) {
+  async start(port?: number | string) {
+    this.port = +(port || process.env.PORT || 3000);
+
     try {
       if (this.credentials) {
         const botResponse = await this.api.bots.token.get(this.credentials);
@@ -269,12 +276,11 @@ export class App {
 
       for (const plugin of this.plugins) {
         if (plugin.onStart) {
-          await plugin.onStart(port);
+          await plugin.onStart(this.port);
         }
       }
 
       this.events.emit('start', this.log);
-      this.port = port;
       this.startedAt = new Date();
     } catch (err: any) {
       this.events.emit('error', { err, log: this.log });

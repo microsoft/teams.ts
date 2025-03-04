@@ -29,14 +29,22 @@ export class BotBuilderPlugin extends HttpPlugin {
     super.onInit(app);
 
     if (!this.adapter) {
+      const clientId = app.credentials?.clientId;
+      const clientSecret =
+        app.credentials && 'clientSecret' in app.credentials
+          ? app.credentials?.clientSecret
+          : undefined;
+      const tenantId =
+        app.credentials && 'tenantId' in app.credentials ? app.credentials?.tenantId : undefined;
+
       this.adapter = new CloudAdapter(
         new ConfigurationBotFrameworkAuthentication(
           {},
           new ConfigurationServiceClientCredentialFactory({
-            MicrosoftAppType: app.credentials?.tenantId ? 'SingleTenant' : 'MultiTenant',
-            MicrosoftAppId: app.credentials?.clientId,
-            MicrosoftAppPassword: app.credentials?.clientSecret,
-            MicrosoftAppTenantId: app.credentials?.tenantId,
+            MicrosoftAppType: tenantId ? 'SingleTenant' : 'MultiTenant',
+            MicrosoftAppId: clientId,
+            MicrosoftAppPassword: clientSecret,
+            MicrosoftAppTenantId: tenantId,
           })
         )
       );

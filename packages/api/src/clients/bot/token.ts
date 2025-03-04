@@ -3,8 +3,6 @@ import { Client, ClientOptions } from '@microsoft/spark.common/http';
 
 import { Credentials } from '../../auth';
 
-export type GetBotTokenParams = Credentials;
-
 export interface GetBotTokenResponse {
   readonly token_type: 'Bearer';
   readonly expires_in: number;
@@ -31,14 +29,22 @@ export class BotTokenClient {
     }
   }
 
-  async get(params: GetBotTokenParams) {
-    const tenantId = params.tenantId || 'botframework.com';
+  async get(credentials: Credentials) {
+    if ('token' in credentials) {
+      return {
+        token_type: 'Bearer',
+        expires_in: -1,
+        access_token: await credentials.token('https://api.botframework.com/.default'),
+      };
+    }
+
+    const tenantId = credentials.tenantId || 'botframework.com';
     const res = await this.http.post<GetBotTokenResponse>(
       `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,
       qs.stringify({
         grant_type: 'client_credentials',
-        client_id: params.clientId,
-        client_secret: params.clientSecret,
+        client_id: credentials.clientId,
+        client_secret: credentials.clientSecret,
         scope: 'https://api.botframework.com/.default',
       }),
       {
@@ -49,14 +55,22 @@ export class BotTokenClient {
     return res.data;
   }
 
-  async getGraph(params: GetBotTokenParams) {
-    const tenantId = params.tenantId || 'botframework.com';
+  async getGraph(credentials: Credentials) {
+    if ('token' in credentials) {
+      return {
+        token_type: 'Bearer',
+        expires_in: -1,
+        access_token: await credentials.token('https://api.botframework.com/.default'),
+      };
+    }
+
+    const tenantId = credentials.tenantId || 'botframework.com';
     const res = await this.http.post<GetBotTokenResponse>(
       `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,
       qs.stringify({
         grant_type: 'client_credentials',
-        client_id: params.clientId,
-        client_secret: params.clientSecret,
+        client_id: credentials.clientId,
+        client_secret: credentials.clientSecret,
         scope: 'https://graph.microsoft.com/.default',
       }),
       {
