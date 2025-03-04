@@ -1,25 +1,36 @@
-import { FC } from 'react';
-import { Badge, Text, Tooltip } from '@fluentui/react-components';
+import { FC, memo, useCallback } from 'react';
+import { Badge, Text } from '@fluentui/react-components';
 import useClasses from './DevtoolsBanner.styles';
 import { useNavigate } from 'react-router';
 import { navigateToRootAndRefresh, DevOnly } from '../../utils/dev';
+import StatusBadge from './StatusBadge';
 
 interface DevtoolsBannerProps {
   connected: boolean;
 }
 
-const DevtoolsBanner: FC<DevtoolsBannerProps> = ({ connected }) => {
+const DevtoolsBanner: FC<DevtoolsBannerProps> = memo(({ connected }) => {
   const classes = useClasses();
   const navigate = useNavigate();
+
+  const handleRefresh = useCallback(() => {
+    navigateToRootAndRefresh(navigate);
+  }, [navigate]);
 
   return (
     <div data-tid="devtools-" className={classes.devtoolsLandmark}>
       <div className={classes.imageContainer}>
-        <img src="/devtools/teams.png" className={classes.teamsImg} role="presentation" />
+        <img
+          src="/devtools/teams.png"
+          className={classes.teamsImg}
+          role="presentation"
+          loading="eager"
+          fetchPriority="high"
+        />
         <DevOnly>
           <button
             className={classes.devButton}
-            onClick={() => navigateToRootAndRefresh(navigate)}
+            onClick={handleRefresh}
             aria-hidden="true"
             tabIndex={-1}
           />
@@ -28,23 +39,14 @@ const DevtoolsBanner: FC<DevtoolsBannerProps> = ({ connected }) => {
       <Text as="h1" size={500} weight="semibold">
         DevTools
       </Text>
-      <Tooltip content={connected ? 'Connected' : 'Disconnected'} relationship="description">
-        <Badge
-          data-tid="status badge"
-          role="status"
-          aria-label={connected ? 'Connected' : 'Disconnected'}
-          color={connected ? 'success' : 'danger'}
-          size="extra-small"
-          className={classes.badge}
-        >
-          <div className={connected ? classes.pingAnimation : ''} />
-        </Badge>
-      </Tooltip>
+      <StatusBadge connected={connected} classes={classes} />
       <Badge aria-label="Beta" appearance="tint" className={classes.betaBadge}>
         Beta
       </Badge>
     </div>
   );
-};
+});
+
+DevtoolsBanner.displayName = 'DevtoolsBanner';
 
 export default DevtoolsBanner;
