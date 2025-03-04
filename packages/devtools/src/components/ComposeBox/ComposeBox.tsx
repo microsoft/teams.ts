@@ -1,4 +1,13 @@
-import { FC, useState, ChangeEvent, KeyboardEvent, useRef, useEffect, useCallback, useMemo } from 'react';
+import {
+  FC,
+  useState,
+  ChangeEvent,
+  KeyboardEvent,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import { Textarea } from '@fluentui/react-components';
 import { Attachment } from '@microsoft/spark.api';
 
