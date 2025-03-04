@@ -15,9 +15,10 @@ export interface ClientCredentials {
 
 /**
  * credentials for authentication
- * of an app via managed identity
+ * of an app via any external auth method
  */
 export interface TokenCredentials {
   readonly clientId: string;
-  readonly token: (...scopes: string[]) => string | Promise<string>;
+  readonly tenantId?: string;
+  readonly token: (scope: string | string[], tenantId?: string) => string | Promise<string>;
 }
