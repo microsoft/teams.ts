@@ -1,6 +1,6 @@
 import { makeStyles } from '@fluentui/react-components';
 
-export const useClasses = makeStyles({
+const useComposeBoxClasses = makeStyles({
   composeBoxContainer: {
     position: 'relative',
     margin: '1rem 3.125rem',
@@ -19,3 +19,5 @@ export const useClasses = makeStyles({
     position: 'relative',
   },
 });
+
+export default useComposeBoxClasses;

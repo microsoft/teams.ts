@@ -31,8 +31,8 @@ if (import.meta.env.DEV) {
    * Only works in development mode
    */
   autoFillAndSendMessage = () => {
-    // Get the dev message from environment variable or use a default
-    const devMessage = import.meta.env.VITE_DEV_MESSAGE || 'This is a development test message';
+    // Get the dev message from environment variable
+    const devMessage = import.meta.env.VITE_DEV_MESSAGE || null;
 
     // Wait for DOM to be fully loaded
     setTimeout(() => {
@@ -55,7 +55,7 @@ if (import.meta.env.DEV) {
           'value'
         )?.set;
 
-        if (nativeInputValueSetter) {
+        if (nativeInputValueSetter && devMessage) {
           // Set the value directly using the native setter
           nativeInputValueSetter.call(composeTextarea, devMessage);
 
