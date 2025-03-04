@@ -60,7 +60,7 @@ export class BotTokenClient {
       return {
         token_type: 'Bearer',
         expires_in: -1,
-        access_token: await credentials.token('https://api.botframework.com/.default'),
+        access_token: await credentials.token('https://graph.microsoft.com/.default'),
       };
     }
 

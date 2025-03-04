@@ -19,5 +19,5 @@ export interface ClientCredentials {
  */
 export interface TokenCredentials {
   readonly clientId: string;
-  readonly token: (scope: string) => string | Promise<string>;
+  readonly token: (...scopes: string[]) => string | Promise<string>;
 }
