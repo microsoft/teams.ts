@@ -67,7 +67,7 @@ export class JsonWebToken implements Token {
 
   constructor(value: string) {
     this._value = value;
-    this._payload = jwtDecode(value, { header: true });
+    this._payload = jwtDecode(value);
   }
 
   toString() {
