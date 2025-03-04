@@ -45,7 +45,7 @@ export class TabsClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `teams[graph]/${pkg.version}`,
+          'User-Agent': `spark[graph]/${pkg.version}`,
         },
       });
     } else if ('request' in options) {
@@ -53,7 +53,7 @@ export class TabsClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `teams[graph]/${pkg.version}`,
+          'User-Agent': `spark[graph]/${pkg.version}`,
         },
       });
     } else {
@@ -62,7 +62,7 @@ export class TabsClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `teams[graph]/${pkg.version}`,
+          'User-Agent': `spark[graph]/${pkg.version}`,
           ...options.headers,
         },
       });
@@ -166,7 +166,7 @@ export class TabsClient {
   /**
    * `PATCH /chats/{chat-id}/tabs/{teamsTab-id}`
    *
-   * Update the properties of the specified tab in a chat. 
+   * Update the properties of the specified tab in a chat.
 This can be used to configure the content of the tab.
    */
   async update(
@@ -196,7 +196,7 @@ This can be used to configure the content of the tab.
   /**
    * `POST /chats/{chat-id}/tabs`
    *
-   * Add (pin) a tab to the specified chat. 
+   * Add (pin) a tab to the specified chat.
 The corresponding app must already be installed in the chat.
    */
   async create(

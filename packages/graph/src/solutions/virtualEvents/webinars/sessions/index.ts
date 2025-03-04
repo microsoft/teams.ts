@@ -45,7 +45,7 @@ export class SessionsClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `teams[graph]/${pkg.version}`,
+          'User-Agent': `spark[graph]/${pkg.version}`,
         },
       });
     } else if ('request' in options) {
@@ -53,7 +53,7 @@ export class SessionsClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `teams[graph]/${pkg.version}`,
+          'User-Agent': `spark[graph]/${pkg.version}`,
         },
       });
     } else {
@@ -62,7 +62,7 @@ export class SessionsClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `teams[graph]/${pkg.version}`,
+          'User-Agent': `spark[graph]/${pkg.version}`,
           ...options.headers,
         },
       });
@@ -110,7 +110,7 @@ export class SessionsClient {
   /**
    * `GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/sessions`
    *
-   * Get a list of all virtualEventSession summary objects under a virtual event. A session summary contains only the endDateTime, id, joinWebUrl, startDateTime, and subject of a virtual event session. The rest of session properties will be null. Currently, the following virtual event types are supported: 
+   * Get a list of all virtualEventSession summary objects under a virtual event. A session summary contains only the endDateTime, id, joinWebUrl, startDateTime, and subject of a virtual event session. The rest of session properties will be null. Currently, the following virtual event types are supported:
 - virtualEventTownhall
 - virtualEventWebinar
    */
@@ -143,7 +143,7 @@ export class SessionsClient {
   /**
    * `GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/sessions/{virtualEventSession-id}`
    *
-   * Read the properties and relationships of a virtualEventSession object.  Currently, the following virtual event types are supported: 
+   * Read the properties and relationships of a virtualEventSession object.  Currently, the following virtual event types are supported:
 - virtualEventTownhall
 - virtualEventWebinar
    */
