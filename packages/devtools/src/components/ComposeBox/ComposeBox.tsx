@@ -16,6 +16,7 @@ import { AttachmentType } from '../../types/Attachment';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
 import NewMessageToolbar from './ComposeBoxToolbar/ComposeBoxToolbar';
 import useComposeBoxClasses from './ComposeBox.styles';
+import { useLogger } from '../../contexts/LoggerContext';
 
 export interface ComposeBoxProps {
   onSend: (message: string, attachments?: Attachment[]) => void;
@@ -32,6 +33,8 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { currentCard, clearCurrentCard } = useCardStore();
   const processedCardRef = useRef<any>(null);
+  const log = useLogger();
+  const childLog = log.child('ComposeBox');
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -75,7 +78,7 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
   // Process currentCard only once when it changes
   useEffect(() => {
     if (currentCard && JSON.stringify(processedCardRef.current) !== JSON.stringify(currentCard)) {
-      console.log('Processing new card from CardStore:', currentCard);
+      childLog.info('Processing new card from CardStore:', currentCard);
       processedCardRef.current = currentCard;
 
       const newAttachment: Attachment = {
@@ -138,7 +141,7 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
   const handleToolbarAction = useCallback(
     (toolbarAttachments?: any[]) => {
       if (toolbarAttachments && toolbarAttachments.length > 0) {
-        console.log('Processing attachments from toolbar:', toolbarAttachments);
+        childLog.info('Processing attachments from toolbar:', toolbarAttachments);
 
         // If we have new attachments, add them directly
         const newAttachments: Attachment[] = toolbarAttachments.map((attachment) => ({

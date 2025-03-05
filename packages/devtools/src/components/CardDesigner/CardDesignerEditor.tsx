@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Card } from '@microsoft/spark.cards';
-import { Tab, TabList } from '@fluentui/react-components';
-
+import { SelectTabEvent, SelectTabData, Tab, TabList, TabValue } from '@fluentui/react-components';
 import { json } from '@codemirror/lang-json';
 import { javascript } from '@codemirror/lang-javascript';
 import { EditorState } from '@codemirror/state';
@@ -10,7 +9,7 @@ import { atomone } from '@uiw/codemirror-themes-all';
 import { EditorView, basicSetup } from 'codemirror';
 
 import { useCardDesignerEditorClasses } from './CardDesignerEditor.styles';
-import type { SelectTabData, SelectTabEvent, TabValue } from '@fluentui/react-components';
+import { useLogger } from '../../contexts/LoggerContext';
 
 export interface CardDesignerEditorProps {
   readonly value?: Card;
@@ -64,15 +63,25 @@ export interface CardDesignerJsonEditorProps {
 export function CardDesignerJsonEditor({ value, onChange }: CardDesignerJsonEditorProps) {
   const ref = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
-  const initializedRef = useRef(false);
   const classes = useCardDesignerEditorClasses();
   const [isUpdating, setIsUpdating] = useState(false);
+  const log = useLogger();
+  const childLog = log.child('CardDesignerJsonEditor');
+
+  // Helper function with access to logger
+  const tryParseJson = (value: string) => {
+    try {
+      // creates new object every time
+      return JSON.parse(value);
+    } catch (err) {
+      childLog.warn('Failed to parse JSON:', err);
+      return null;
+    }
+  };
 
   // Initialize the editor once
   useEffect(() => {
-    if (!ref.current || initializedRef.current || viewRef.current) return;
-
-    initializedRef.current = true;
+    if (!ref.current || viewRef.current) return;
 
     const view = new EditorView({
       parent: ref.current,
@@ -89,7 +98,7 @@ export function CardDesignerJsonEditor({ value, onChange }: CardDesignerJsonEdit
               const card = JSON.parse(update.state.doc.toString());
               onChange(card);
             } catch (err) {
-              console.error(err);
+              childLog.error(err);
             }
           }),
         ],
@@ -101,9 +110,8 @@ export function CardDesignerJsonEditor({ value, onChange }: CardDesignerJsonEdit
     return () => {
       view.destroy();
       viewRef.current = null;
-      initializedRef.current = false;
     };
-  }, [ref.current]);
+  }, [ref]);
 
   // Update the editor content when value changes
   useEffect(() => {
@@ -135,15 +143,14 @@ export interface CardDesignerTypescriptEditorProps {
 export function CardDesignerTypescriptEditor({ value }: CardDesignerTypescriptEditorProps) {
   const ref = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
-  const initializedRef = useRef(false);
   const classes = useCardDesignerEditorClasses();
   const [isUpdating, setIsUpdating] = useState(false);
+  const log = useLogger();
+  const childLog = log.child('CardDesignerTypescriptEditor');
 
   // Initialize the editor once
   useEffect(() => {
-    if (!ref.current || initializedRef.current || viewRef.current) return;
-
-    initializedRef.current = true;
+    if (!ref.current || viewRef.current) return;
 
     const view = new EditorView({
       parent: ref.current,
@@ -163,34 +170,29 @@ export function CardDesignerTypescriptEditor({ value }: CardDesignerTypescriptEd
     return () => {
       view.destroy();
       viewRef.current = null;
-      initializedRef.current = false;
     };
-  }, [ref.current]);
+  }, [ref]);
 
-  // Update the editor content when value changes
   useEffect(() => {
     if (!viewRef.current || !value || isUpdating) return;
 
     if (viewRef.current.state.doc.toString() === value) return;
 
-    setIsUpdating(true);
-    viewRef.current.dispatch({
-      changes: {
-        from: 0,
-        to: viewRef.current.state.doc.length,
-        insert: value,
-      },
-    });
-    setIsUpdating(false);
+    try {
+      setIsUpdating(true);
+      viewRef.current.dispatch({
+        changes: {
+          from: 0,
+          to: viewRef.current.state.doc.length,
+          insert: value,
+        },
+      });
+    } catch (err) {
+      childLog.error('Failed to update TypeScript editor content:', err);
+    } finally {
+      setIsUpdating(false);
+    }
   }, [value]);
 
   return <div ref={ref} className={classes.cardDesignerEditor} />;
-}
-
-function tryParseJson(value: string) {
-  try {
-    return JSON.parse(value);
-  } catch {
-    return null;
-  }
 }

@@ -1,4 +1,4 @@
-import { FC, HTMLProps } from 'react';
+import { FC, HTMLProps, memo } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Link } from '@fluentui/react-components';
@@ -19,7 +19,7 @@ interface ChatMessageMarkdownProps {
   content: string;
 }
 
-export const MarkdownContent: FC<ChatMessageMarkdownProps> = ({ content }) => {
+export const MarkdownContent: FC<ChatMessageMarkdownProps> = memo(({ content }) => {
   return (
     <Markdown
       children={content}
@@ -30,4 +30,4 @@ export const MarkdownContent: FC<ChatMessageMarkdownProps> = ({ content }) => {
       }}
     />
   );
-};
+});

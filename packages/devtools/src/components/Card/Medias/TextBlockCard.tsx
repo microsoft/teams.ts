@@ -1,5 +1,5 @@
 import { TextBlock } from '@microsoft/spark.cards';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { MarkdownContent } from '../../MarkdownContent';
 
 export interface TextBlockCardProps {
@@ -7,13 +7,11 @@ export interface TextBlockCardProps {
 }
 
 export default function TextBlockCard({ value }: TextBlockCardProps) {
-  const [html, setHtml] = useState<string>();
+  const html = useMemo(() => {
+    return value.text;
+  }, [value.text]);
 
-  useEffect(() => {
-    setHtml(value.text);
-  }, [value]);
-
-  if (!html) {
+  if (!value.text) {
     return <></>;
   }
 

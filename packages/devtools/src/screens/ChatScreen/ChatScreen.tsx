@@ -11,6 +11,7 @@ import ChatMessage from '../../components/ChatMessage/ChatMessage';
 import ComposeBox from '../../components/ComposeBox/ComposeBox';
 import TypingIndicator from '../../components/TypingIndicator/TypingIndicator';
 import { useScreensClasses } from '../Screens.styles';
+import { useLogger } from '../../contexts/LoggerContext';
 
 const MAX_HISTORY = 5;
 
@@ -23,6 +24,8 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
   const screenClasses = useScreensClasses();
   const { chat, feedback, messages, streaming, typing } = useContext(ChatContext);
   const [messageHistory, setMessageHistory] = useState<string[]>([]);
+  const log = useLogger();
+  const childLog = log.child('ChatScreen');
 
   const sparkApi = useSparkApi();
 
@@ -35,7 +38,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
           attachments: messageAttachments || [],
         });
       } catch (err) {
-        console.error('Error sending message:', err);
+        childLog.error('Error sending message:', err);
       }
     },
     [sparkApi, chat?.id]
