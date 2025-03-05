@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>📚 Long Term - Spark.JS</title>
+        <title>Message Delete - Spark.JS</title>
 
 
         <!-- Custom HTML head -->
@@ -151,28 +151,30 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="-memory-long-term"><a class="header" href="#-memory-long-term">📚 Memory: Long Term</a></h1>
-<p>Stores information for extended periods of time.
-It's where memories of events, knowledge, and experiences are stored and recalled.</p>
-<h2 id="episodic"><a class="header" href="#episodic">Episodic</a></h2>
-<p>Episodic memory is a type of long-term memory that involves the recollection of specific events,
-situations, and experiences, including the context in which they occurred, such as time and place.
-It enables individuals to remember personal past experiences.</p>
-<h2 id="semantic"><a class="header" href="#semantic">Semantic</a></h2>
-<p>A type of long-term memory that involves the storage and recall of general world knowledge,
-facts, concepts, and meanings, independent of personal experience or specific events.
-It includes things like vocabulary, historical dates, and mathematical concepts.</p>
-<p><img src="https://github.com/microsoft/spark.js/blob/main/assets/episodic_vs_semantic_memory.jpg?raw=true" alt="Episodic vs Semantic" /></p>
+                        <h1 id="message-delete"><a class="header" href="#message-delete">Message Delete</a></h1>
+<p>Message delete activities represent a deletion of an existing message activity within a conversation. The deleted activity is referred to by the <code>id</code> and <code>conversation</code> fields within the activity.</p>
+<pre><code class="language-typescript">app.on('messageDelete', async ({ activity }) =&gt; {});
+</code></pre>
+<h2 id="schema"><a class="header" href="#schema">Schema</a></h2>
+<p>Message delete activities are identified by a <code>type</code> value of <code>messageDelete</code>.</p>
+<p><code>A5800</code>: Channels MAY elect to send message delete activities for all deletions within a conversation, a subset of deletions within a conversation (e.g. only deletions by certain users), or no activities within the conversation.</p>
+<p><code>A5801</code>: Channels SHOULD NOT send message delete activities for conversations or activities that the bot did not observe.</p>
+<p><code>A5802</code>: If a bot triggers a delete, the channel SHOULD NOT send a message delete activity back to that bot.</p>
+<p><code>A5803</code>: Channels SHOULD NOT send message delete activities corresponding to activities whose type is not <code>message</code>.</p>
+<h2 id="message-delete-ui-in-teams"><a class="header" href="#message-delete-ui-in-teams">Message delete UI in Teams</a></h2>
+<p>To delete a message in Teams, hover over the message in the client, click on the three dots, and select "Delete" option in the dropdown menu.</p>
+<!-- TODO: update this to correct link once repo has been transferred -->
+<p><img src="../../../../../assets/screenshots/message-delete-ui.png" alt="Deleting a message in Teams" /></p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../8.ai/5.memory/1.short-term.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../9.activity/1.message/2.message-reaction.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../../9.activity/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../9.activity/2.typing/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -182,11 +184,11 @@ It includes things like vocabulary, historical dates, and mathematical concepts.
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../8.ai/5.memory/1.short-term.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../9.activity/1.message/2.message-reaction.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../../9.activity/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../9.activity/2.typing/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

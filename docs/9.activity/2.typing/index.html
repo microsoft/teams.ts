@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>📚 Long Term - Spark.JS</title>
+        <title>Typing - Spark.JS</title>
 
 
         <!-- Custom HTML head -->
@@ -151,28 +151,32 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="-memory-long-term"><a class="header" href="#-memory-long-term">📚 Memory: Long Term</a></h1>
-<p>Stores information for extended periods of time.
-It's where memories of events, knowledge, and experiences are stored and recalled.</p>
-<h2 id="episodic"><a class="header" href="#episodic">Episodic</a></h2>
-<p>Episodic memory is a type of long-term memory that involves the recollection of specific events,
-situations, and experiences, including the context in which they occurred, such as time and place.
-It enables individuals to remember personal past experiences.</p>
-<h2 id="semantic"><a class="header" href="#semantic">Semantic</a></h2>
-<p>A type of long-term memory that involves the storage and recall of general world knowledge,
-facts, concepts, and meanings, independent of personal experience or specific events.
-It includes things like vocabulary, historical dates, and mathematical concepts.</p>
-<p><img src="https://github.com/microsoft/spark.js/blob/main/assets/episodic_vs_semantic_memory.jpg?raw=true" alt="Episodic vs Semantic" /></p>
+                        <h1 id="activity-typing"><a class="header" href="#activity-typing">Activity: Typing</a></h1>
+<p>Typing activities represent ongoing input from a user or a bot. This activity is often sent when keystrokes are being entered by a user, although it's also used by bots to indicate they're "thinking," and could also be used to indicate processing, e.g. collecting audio from users.</p>
+<p>Typing activities are intended to persist within UIs for three seconds.</p>
+<pre><code class="language-typescript">// Send a typing indicator to the user upon receiving a message
+app.on('message', async ({ send }) =&gt; {
+    await send({ type: 'typing' });
+});
+</code></pre>
+<h2 id="schema"><a class="header" href="#schema">Schema</a></h2>
+<p>Typing activities are identified by a <code>type</code> value of <code>typing</code>.</p>
+<p><code>A6000</code>: If able, clients SHOULD display typing indicators for three seconds upon receiving a typing activity.</p>
+<p><code>A6001</code>: Unless otherwise known for the channel, senders SHOULD NOT send typing activities more frequently than one every three seconds. (Senders MAY send typing activities every two seconds to prevent gaps from appearing.)</p>
+<p><code>A6002</code>: If a channel assigns an <code>id</code> to a typing activity, it MAY allow bots and clients to delete the typing activity before its expiration.</p>
+<p><code>A6003</code>: If able, channels SHOULD send typing activities to bots.</p>
+<h2 id="typing-indicator-ui-in-teams"><a class="header" href="#typing-indicator-ui-in-teams">Typing indicator UI in Teams</a></h2>
+<p>The typing indicator is a small animation that appears in the bottom left corner of the chat window above the message input field when a user or bot is typing.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../8.ai/5.memory/1.short-term.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../9.activity/1.message/3.message-delete.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../../9.activity/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../9.activity/3.conversation/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -182,11 +186,11 @@ It includes things like vocabulary, historical dates, and mathematical concepts.
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../8.ai/5.memory/1.short-term.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../9.activity/1.message/3.message-delete.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../../9.activity/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../9.activity/3.conversation/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

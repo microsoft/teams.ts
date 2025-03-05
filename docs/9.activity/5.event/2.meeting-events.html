@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>📚 Long Term - Spark.JS</title>
+        <title>Meeting Events - Spark.JS</title>
 
 
         <!-- Custom HTML head -->
@@ -151,28 +151,37 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="-memory-long-term"><a class="header" href="#-memory-long-term">📚 Memory: Long Term</a></h1>
-<p>Stores information for extended periods of time.
-It's where memories of events, knowledge, and experiences are stored and recalled.</p>
-<h2 id="episodic"><a class="header" href="#episodic">Episodic</a></h2>
-<p>Episodic memory is a type of long-term memory that involves the recollection of specific events,
-situations, and experiences, including the context in which they occurred, such as time and place.
-It enables individuals to remember personal past experiences.</p>
-<h2 id="semantic"><a class="header" href="#semantic">Semantic</a></h2>
-<p>A type of long-term memory that involves the storage and recall of general world knowledge,
-facts, concepts, and meanings, independent of personal experience or specific events.
-It includes things like vocabulary, historical dates, and mathematical concepts.</p>
-<p><img src="https://github.com/microsoft/spark.js/blob/main/assets/episodic_vs_semantic_memory.jpg?raw=true" alt="Episodic vs Semantic" /></p>
+                        <h1 id="activity-meeting-start-and-end-events"><a class="header" href="#activity-meeting-start-and-end-events">Activity: Meeting Start and End Events</a></h1>
+<p>Meeting extensibility provides a way for bots to participate in meetings and receive notifications that are specific to meeting events. Please note that Teams has three types of meetings: channel meetings, scheduled meetings, and instant meetings.</p>
+<h2 id="meeting-start-event"><a class="header" href="#meeting-start-event">Meeting start event</a></h2>
+<pre><code class="language-typescript">app.on('meetingStart', async ({ activity }) =&gt; {});
+</code></pre>
+<p>The <code>'meetingStart'</code> is alias for the event name <code>'application/vnd.microsoft.meetingStart'</code>. This event is sent when a meeting starts.</p>
+<h2 id="meeting-end-event"><a class="header" href="#meeting-end-event">Meeting end event</a></h2>
+<pre><code class="language-typescript">app.on('meetingEnd', async ({ activity }) =&gt; {});
+</code></pre>
+<p>The <code>'meetingEnd'</code> is the alias for the event name <code>'application/vnd.microsoft.meetingEnd'</code>. This event is sent when a meeting ends.</p>
+<h2 id="app-permissions"><a class="header" href="#app-permissions">App permissions</a></h2>
+<p>In Teams, the app manifest requires specific setup to have meetings permissions.</p>
+<ul>
+<li>The <code>'webApplicationInfo'</code> section must be populated with the <code>'id'</code> and <code>'resource'</code> values.</li>
+<li>The <code>'permissions'</code> section under <code>'authorization'</code> must have the <code>'OnlineMeeting.ReadBasic.Chat'</code> and <code>'ChannelMeeting.ReadBasic.Group'</code> permissions.</li>
+</ul>
+<h2 id="resources"><a class="header" href="#resources">Resources</a></h2>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/microsoftteams/platform/apps-in-teams-meetings/meeting-apps-apis#example-of-getting-meeting-start-or-end-events">Microsoft Learn: Teams Meeting Extensibility</a></li>
+<li><a href="https://learn.microsoft.com/en-us/microsoftteams/platform/graph-api/rsc/resource-specific-consent">Microsoft Learn: Graph API - Resource specific consent</a></li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../8.ai/5.memory/1.short-term.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../9.activity/5.event/1.read-receipt.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../../9.activity/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../9.activity/5.event/3.meeting-participant-events.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -182,11 +191,11 @@ It includes things like vocabulary, historical dates, and mathematical concepts.
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../8.ai/5.memory/1.short-term.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../9.activity/5.event/1.read-receipt.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../../9.activity/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../9.activity/5.event/3.meeting-participant-events.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
