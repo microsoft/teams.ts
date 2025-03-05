@@ -23,5 +23,6 @@ export function toActivityParams(activity: ActivityLike): ActivityParams {
   } else if (isCard(activity)) {
     activity = new MessageSendActivityBuilder('').card('adaptive', activity).build();
   }
+
   return activity;
 }
