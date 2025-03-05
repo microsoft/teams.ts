@@ -9,6 +9,7 @@ type TextActivity = MessageSendActivity | MessageUpdateActivity | TypingActivity
 export interface RemoveMentionsTextOptions {
   /**
    * the account to remove mentions for
+   * by default, all at-mentions listed in `entities` are removed.
    */
   accountId?: string;
 
