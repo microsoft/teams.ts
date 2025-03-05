@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/spark.js",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "homepage": "https://github.com/microsoft/spark.js",
   "bugs": "https://github.com/microsoft/spark.js/issues",
