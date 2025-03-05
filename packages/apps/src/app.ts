@@ -22,6 +22,7 @@ import {
   TokenExchangeState,
   cardAttachment,
   ActivityLike,
+  RemoveMentionsTextOptions,
 } from '@microsoft/spark.api';
 
 import pkg from '../package.json';
@@ -80,7 +81,22 @@ export type AppOptions = Partial<Credentials> & {
    * The apps manifest
    */
   readonly manifest?: Partial<manifest.Manifest>;
+
+  /**
+   * Activity Options
+   */
+  readonly activity?: AppActivityOptions;
 };
+
+export interface AppActivityOptions {
+  readonly mentions?: {
+    /**
+     * Automatically remove `<at>...</at>` mention
+     * from inbound activity `text`
+     */
+    readonly removeText?: boolean | RemoveMentionsTextOptions;
+  };
+}
 
 export interface AppTokens {
   /**
@@ -255,6 +271,11 @@ export class App {
 
     for (const plugin of plugins) {
       this.plugin(plugin);
+    }
+
+    if (this.options.activity?.mentions?.removeText) {
+      const options = this.options.activity?.mentions?.removeText;
+      this.use(middleware.removeMentionsText(typeof options === 'boolean' ? {} : options));
     }
 
     // default event handlers
