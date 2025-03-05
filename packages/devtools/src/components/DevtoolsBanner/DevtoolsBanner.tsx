@@ -25,7 +25,8 @@ const DevtoolsBanner: FC<DevtoolsBannerProps> = memo(({ connected }) => {
           className={classes.teamsImg}
           role="presentation"
           loading="eager"
-          fetchPriority="high"
+          // Workaround for React v.s. TypeScript inconsistency
+          {...{ fetchpriority: 'high' }}
         />
         <DevOnly>
           <button

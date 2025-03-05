@@ -1,11 +1,12 @@
 import { useContext, useState } from 'react';
 import { useSearchParams } from 'react-router';
-import { ActivityContext } from '../../stores/ActivityStore';
-import { ActivityEvent } from '../../types/Event';
-import { useScreensClasses } from '../Screens.styles';
-import useActivitiesScreenClasses from './ActivitiesScreen.styles';
+
 import ActivitiesGrid from '../../components/ActivitiesGrid/ActivitiesGrid';
 import ActivityDetails from '../../components/ActivityDetails/ActivityDetails';
+import { ActivityContext } from '../../stores/ActivityStore';
+import { ActivityEvent } from '../../types/Event';
+import useScreensClasses from '../Screens.styles';
+import useActivitiesScreenClasses from './ActivitiesScreen.styles';
 
 export default function ActivitiesScreen() {
   const classes = useActivitiesScreenClasses();

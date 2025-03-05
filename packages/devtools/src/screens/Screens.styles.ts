@@ -1,6 +1,6 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
-export const useScreensClasses = makeStyles({
+const useScreensClasses = makeStyles({
   screenContainer: {
     display: 'flex',
     flexDirection: 'column',
@@ -18,3 +18,5 @@ export const useScreensClasses = makeStyles({
     height: '100%',
   },
 });
+
+export default useScreensClasses;

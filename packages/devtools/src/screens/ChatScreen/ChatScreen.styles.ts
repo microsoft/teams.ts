@@ -1,6 +1,6 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
-export const useClasses = makeStyles({
+const useClasses = makeStyles({
   messagesList: {
     maxWidth: '1042px',
     minWidth: '495px',
@@ -11,6 +11,8 @@ export const useClasses = makeStyles({
     justifyContent: 'flex-start',
     padding: '10px 0',
     flex: 1,
+    overflowY: 'auto',
+    scrollbarGutter: 'smooth',
   },
   composeContainer: {
     backgroundColor: tokens.colorNeutralBackground3,
@@ -29,3 +31,5 @@ export const useClasses = makeStyles({
     margin: '10px 0',
   },
 });
+
+export default useClasses;
