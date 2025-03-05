@@ -103,7 +103,6 @@ export class Router {
         // custom routes
         if (
           event === 'mention' &&
-          activity.type === 'message' &&
           activity.entities?.some((e) => e.type === 'mention')
         ) {
           return (
