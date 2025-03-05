@@ -16,6 +16,8 @@ export interface RemoveMentionsTextOptions {
   /**
    * when `true`, the inner text of the tag
    * will not be removed
+   * Eg. input: Hello <at>my-bot</at>! How are you?
+   *     output: Hello my-bot! How are you?
    */
   tagOnly?: boolean;
 }
