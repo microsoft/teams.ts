@@ -1,5 +1,15 @@
 # @microsoft/spark.cli
 
+## 0.0.3
+
+### Patch Changes
+
+- add support for more types of bot authentication, devtools fixes
+- Updated dependencies
+    - @microsoft/spark.ai@0.0.3
+    - @microsoft/spark.common@0.0.3
+    - @microsoft/spark.openai@0.0.3
+
 ## 0.0.2
 
 ### Patch Changes
