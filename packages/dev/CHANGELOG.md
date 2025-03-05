@@ -1,5 +1,16 @@
 # @microsoft/spark.dev
 
+## 0.0.5
+
+### Patch Changes
+
+- add removeMentionsText util and middleware, update docs
+- Updated dependencies
+    - @microsoft/spark.api@0.0.5
+    - @microsoft/spark.apps@0.0.5
+    - @microsoft/spark.common@0.0.5
+    - @microsoft/spark.graph@0.0.5
+
 ## 0.0.4
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @microsoft/spark.cli
 
+## 0.0.5
+
+### Patch Changes
+
+- add removeMentionsText util and middleware, update docs
+- Updated dependencies
+    - @microsoft/spark.ai@0.0.5
+    - @microsoft/spark.common@0.0.5
+    - @microsoft/spark.openai@0.0.5
+
 ## 0.0.4
 
 ### Patch Changes

@@ -101,10 +101,7 @@ export class Router {
         }
 
         // custom routes
-        if (
-          event === 'mention' &&
-          activity.entities?.some((e) => e.type === 'mention')
-        ) {
+        if (event === 'mention' && activity.entities?.some((e) => e.type === 'mention')) {
           return (
             activity.entities?.find(
               (e) => e.type === 'mention' && e.mentioned.id === activity.recipient.id

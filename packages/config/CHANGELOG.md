@@ -1,5 +1,11 @@
 # @microsoft/spark.config
 
+## 0.0.5
+
+### Patch Changes
+
+- add removeMentionsText util and middleware, update docs
+
 ## 0.0.4
 
 ### Patch Changes
