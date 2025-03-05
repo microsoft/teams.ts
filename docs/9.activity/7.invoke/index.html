@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>📚 Long Term - Spark.JS</title>
+        <title>Invoke - Spark.JS</title>
 
 
         <!-- Custom HTML head -->
@@ -151,28 +151,45 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="-memory-long-term"><a class="header" href="#-memory-long-term">📚 Memory: Long Term</a></h1>
-<p>Stores information for extended periods of time.
-It's where memories of events, knowledge, and experiences are stored and recalled.</p>
-<h2 id="episodic"><a class="header" href="#episodic">Episodic</a></h2>
-<p>Episodic memory is a type of long-term memory that involves the recollection of specific events,
-situations, and experiences, including the context in which they occurred, such as time and place.
-It enables individuals to remember personal past experiences.</p>
-<h2 id="semantic"><a class="header" href="#semantic">Semantic</a></h2>
-<p>A type of long-term memory that involves the storage and recall of general world knowledge,
-facts, concepts, and meanings, independent of personal experience or specific events.
-It includes things like vocabulary, historical dates, and mathematical concepts.</p>
-<p><img src="https://github.com/microsoft/spark.js/blob/main/assets/episodic_vs_semantic_memory.jpg?raw=true" alt="Episodic vs Semantic" /></p>
+                        <h1 id="activity-invoke"><a class="header" href="#activity-invoke">Activity: Invoke</a></h1>
+<p>Invoke activities communicate programmatic information from a client or channel to a bot, and have a corresponding return payload for use within the channel. The meaning of an invoke activity is defined by the <code>name</code> field, which is meaningful within the scope of a channel.</p>
+<p>Invoke activities are the synchronous counterpart to <a href="https://github.com/microsoft/Agents/blob/main/specs/activity/protocol-activity.md#event-activity">event activities</a>. Event activities are designed to be extensible. Invoke activities differ only in their ability to return response payloads back to the channel; because the channel must decide where and how to process these response payloads, Invoke is useful only in cases where explicit support for each invoke name has been added to the channel. Thus, Invoke is not designed to be a generic application extensibility mechanism.</p>
+<pre><code class="language-typescript">app.on('invoke', async ({ activity }) =&gt; {});
+</code></pre>
+<h2 id="schema"><a class="header" href="#schema">Schema</a></h2>
+<p>Invoke activities are identified by a <code>type</code> value of <code>invoke</code> and specific values of the <code>name</code> field.</p>
+<p>The list of defined Invoke activities is included in <a href="https://github.com/microsoft/Agents/blob/main/specs/activity/protocol-activity.md#appendix-iii---protocols-using-the-invoke-activity">Appendix III</a>.</p>
+<p><code>A5301</code>: Channels SHOULD NOT allow application-defined invoke messages between clients and bots.</p>
+<h3 id="name"><a class="header" href="#name">Name</a></h3>
+<p>The <code>name</code> field controls the meaning of the invocation and the schema of the <code>value</code> field. The value of the <code>name</code> field is of type string.</p>
+<p><code>A5401</code>: Invoke activities MUST contain a <code>name</code> field.</p>
+<p><code>A5402</code>: Receivers MUST ignore event activities with <code>name</code> fields they do not understand.</p>
+<h3 id="value"><a class="header" href="#value">Value</a></h3>
+<p>The <code>value</code> field contains parameters specific to this event, as defined by the event name. The value of the <code>value</code> field is a complex type.</p>
+<p><code>A5500</code>: The <code>value</code> field MAY be missing or empty, if defined by the event name.</p>
+<p><code>A5501</code>: Extensions to the event activity SHOULD NOT require receivers to use any information other than the activity <code>type</code> and <code>name</code> fields to understand the schema of the <code>value</code> field.</p>
+<h3 id="relates-to"><a class="header" href="#relates-to">Relates to</a></h3>
+<p>The <code>relatesTo</code> field references another conversation, and optionally a specific activity within that conversation. The value of the <code>relatesTo</code> field is a complex object of the <a href="https://github.com/microsoft/Agents/blob/main/specs/activity/protocol-activity.md#conversation-reference">Conversation reference</a> type.</p>
+<p><code>A5600</code>: <code>relatesTo</code> SHOULD NOT reference an activity within the conversation identified by the <code>conversation</code> field.</p>
+<h2 id="app-permissions"><a class="header" href="#app-permissions">App permissions</a></h2>
+<p>In Teams, the app manifest requires specific setup to have invoke permissions. These permissions are dependent on the type of invoke(s) being used in your application.</p>
+<h2 id="invoke-aliases"><a class="header" href="#invoke-aliases">Invoke Aliases</a></h2>
+<p>The <code>@microsoft/spark.api</code> package includes a set of aliases for the <code>name</code> field of invoke activities. These aliases are used to simplify the syntax of invoking activities in your application.</p>
+<p>Please see the subsequent sections for more information on the aliases that are available.</p>
+<h2 id="resources"><a class="header" href="#resources">Resources</a></h2>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/microsoftteams/platform/graph-api/rsc/resource-specific-consent">Microsoft Learn: Graph API - Resource specific consent</a></li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../8.ai/5.memory/1.short-term.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../9.activity/6.command/1.command-result.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../../9.activity/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../9.activity/7.invoke/1.adaptive-card/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -182,11 +199,11 @@ It includes things like vocabulary, historical dates, and mathematical concepts.
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../8.ai/5.memory/1.short-term.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../9.activity/6.command/1.command-result.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../../9.activity/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../9.activity/7.invoke/1.adaptive-card/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

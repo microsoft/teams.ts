@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>📚 Long Term - Spark.JS</title>
+        <title>✍ Writing Documentation - Spark.JS</title>
 
 
         <!-- Custom HTML head -->
@@ -151,30 +151,57 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="-memory-long-term"><a class="header" href="#-memory-long-term">📚 Memory: Long Term</a></h1>
-<p>Stores information for extended periods of time.
-It's where memories of events, knowledge, and experiences are stored and recalled.</p>
-<h2 id="episodic"><a class="header" href="#episodic">Episodic</a></h2>
-<p>Episodic memory is a type of long-term memory that involves the recollection of specific events,
-situations, and experiences, including the context in which they occurred, such as time and place.
-It enables individuals to remember personal past experiences.</p>
-<h2 id="semantic"><a class="header" href="#semantic">Semantic</a></h2>
-<p>A type of long-term memory that involves the storage and recall of general world knowledge,
-facts, concepts, and meanings, independent of personal experience or specific events.
-It includes things like vocabulary, historical dates, and mathematical concepts.</p>
-<p><img src="https://github.com/microsoft/spark.js/blob/main/assets/episodic_vs_semantic_memory.jpg?raw=true" alt="Episodic vs Semantic" /></p>
+                        <h1 id="-writing-documentation"><a class="header" href="#-writing-documentation">✍ Writing Documentation</a></h1>
+<blockquote>
+<p>[<strong>ℹ️ Note</strong>]
+Do not make edits to the <code>/docs/</code> directory, as these files are auto-generated.</p>
+</blockquote>
+<p>One of the most important aspects of a library is great documentation. If you make any code changes, please be sure to update the documentation to reflect the changes. Please see below for details on how to edit the documentation.</p>
+<h2 id="introducing-mdbook"><a class="header" href="#introducing-mdbook">Introducing <code>mdbook</code></a></h2>
+<p>mdbook is a tool that allows you to write documentation in markdown. Please see the <a href="https://rust-lang.github.io/mdBook/index.html"><code>mdbook</code> documentation</a> for detailed documentation on editing and adding content.</p>
+<h2 id="installing-mdbook"><a class="header" href="#installing-mdbook">Installing mdbook</a></h2>
+<ul>
+<li>If you do not have cargo installed, please see the <a href="https://www.rust-lang.org/tools/install">rust installation guide</a>.</li>
+<li>Once cargo is installed, be sure to add cargo/env to your PATH and source it:</li>
+</ul>
+<pre><code class="language-sh"># Configure shell for cargo on Mac
+cd $HOME/.cargo
+ls # Should see a cargo/env file
+source $HOME/.cargo/env
+echo $PATH # Should see cargo/bin in the path
+source ~/.zshrc # or ~/.bashrc
+</code></pre>
+<ul>
+<li>Run <code>cargo install mdbook</code> to install the mdbook CLI globally.</li>
+<li>Run <code>cargo install mdbook-theme</code> to install the theme CLI.</li>
+</ul>
+<h2 id="running-the-book-locally"><a class="header" href="#running-the-book-locally">Running the book locally</a></h2>
+<ul>
+<li>At the root of the repo, run <code>npm run docs:serve</code> to start the book locally.</li>
+<li>This will start the book on <a href="http://localhost:3000">http://localhost:3000</a>. The book will automatically reload as you save changes.</li>
+</ul>
+<h2 id="adding-content"><a class="header" href="#adding-content">Adding content</a></h2>
+<ul>
+<li>To add content, create a new markdown file in the <code>book/src</code> directory.</li>
+<li>To add a new section, create a new directory in the <code>book/src</code> directory and add a <code>README.md</code> file to it.</li>
+<li>Be sure to update the <code>SUMMARY.md</code> file to include your new content.</li>
+<li>Sub-chapters should be added as a folder under the section with a new <code>README.md</code> file.</li>
+</ul>
+<h2 id="finishing-up"><a class="header" href="#finishing-up">Finishing up</a></h2>
+<ul>
+<li>Once you have finished making changes, run <code>npm run docs:build</code> to build the book.</li>
+<li>This will convert the markdown files to html and place them in the <code>/docs</code> directory.</li>
+<li>Be sure to test the book locally to ensure your changes are correct.</li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../8.ai/5.memory/1.short-term.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../10.contributing/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../../9.activity/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
-                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -182,13 +209,10 @@ It includes things like vocabulary, historical dates, and mathematical concepts.
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../8.ai/5.memory/1.short-term.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../10.contributing/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../../9.activity/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
-                    </a>
             </nav>
 
         </div>
