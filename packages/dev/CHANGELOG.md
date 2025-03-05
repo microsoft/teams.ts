@@ -1,5 +1,16 @@
 # @microsoft/spark.dev
 
+## 0.0.6
+
+### Patch Changes
+
+- fix middleware bug in removeMentionsText
+- Updated dependencies
+    - @microsoft/spark.apps@0.0.6
+    - @microsoft/spark.api@0.0.6
+    - @microsoft/spark.common@0.0.6
+    - @microsoft/spark.graph@0.0.6
+
 ## 0.0.5
 
 ### Patch Changes

@@ -3,7 +3,7 @@ import * as api from '@microsoft/spark.api';
 import { MiddlewareContext } from '../middleware-context';
 
 export function removeMentionsText(options?: api.RemoveMentionsTextOptions) {
-  return ({ activity }: MiddlewareContext) => {
+  return ({ activity, next }: MiddlewareContext) => {
     if (
       activity.type === 'message' ||
       activity.type === 'messageUpdate' ||
@@ -11,5 +11,7 @@ export function removeMentionsText(options?: api.RemoveMentionsTextOptions) {
     ) {
       activity.text = api.removeMentionsText(activity, options);
     }
+
+    return next();
   };
 }
