@@ -236,6 +236,13 @@ export class App {
         clientId,
         clientSecret,
         tenantId,
+      };
+    }
+
+    if (clientId && token) {
+      this.credentials = {
+        clientId,
+        tenantId,
         token,
       };
     }
