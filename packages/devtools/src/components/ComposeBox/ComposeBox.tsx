@@ -16,7 +16,7 @@ import { AttachmentType } from '../../types/Attachment';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
 import NewMessageToolbar from './ComposeBoxToolbar/ComposeBoxToolbar';
 import useComposeBoxClasses from './ComposeBox.styles';
-import { useLogger } from '../../contexts/LoggerContext';
+import useLogger from '../../hooks/useLogger';
 
 export interface ComposeBoxProps {
   onSend: (message: string, attachments?: Attachment[]) => void;

@@ -9,7 +9,7 @@ import { atomone } from '@uiw/codemirror-themes-all';
 import { EditorView, basicSetup } from 'codemirror';
 
 import { useCardDesignerEditorClasses } from './CardDesignerEditor.styles';
-import { useLogger } from '../../contexts/LoggerContext';
+import useLogger from '../../hooks/useLogger';
 
 export interface CardDesignerEditorProps {
   readonly value?: ICard;

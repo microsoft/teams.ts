@@ -13,7 +13,7 @@ import { CopyRegular } from '@fluentui/react-icons/lib/fonts';
 import Json from '../Json/Json';
 import { ActivityEvent } from '../../types/Event';
 import useActivityDetailsClasses from './ActivityDetails.styles';
-import { useLogger } from '../../contexts/LoggerContext';
+import useLogger from '../../hooks/useLogger';
 interface ActivityDetailsProps {
   selected: ActivityEvent;
   view: 'preview' | 'json';

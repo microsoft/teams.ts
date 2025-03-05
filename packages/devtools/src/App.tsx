@@ -9,19 +9,20 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 
-import useTheme from './hooks/useTheme';
-import useAppClasses from './App.styles';
-import { SocketClient } from './socket-client';
-import { ActivityEvent } from './types/Event';
-import { ChatContext, useChatStore } from './stores/ChatStore';
 import { ActivityContext, useActivityStore } from './stores/ActivityStore';
+import { ActivityEvent } from './types/Event';
 import { CardContext, useCardStore } from './stores/CardStore';
+import { ChatContext, useChatStore } from './stores/ChatStore';
+import { LoggerProvider } from './contexts/LoggerContext';
+import { SocketClient } from './socket-client';
+import ActivitiesScreen from './screens/ActivitiesScreen/ActivitiesScreen';
+import CardsScreen from './screens/CardsScreen';
 import ChatScreen from './screens/ChatScreen/ChatScreen';
 import DevtoolsBanner from './components/DevtoolsBanner/DevtoolsBanner';
 import PageNavButton from './components/PageNavButton/PageNavButton';
-import ActivitiesScreen from './screens/ActivitiesScreen/ActivitiesScreen';
-import CardsScreen from './screens/CardsScreen';
-import { LoggerProvider, useLogger } from './contexts/LoggerContext';
+import useAppClasses from './App.styles';
+import useLogger from './hooks/useLogger';
+import useTheme from './hooks/useTheme';
 
 const socket = new SocketClient();
 
@@ -78,7 +79,7 @@ export default function App() {
         log.info('Disconnected from server...');
       });
     };
-  }, [activityStore, chatStore]);
+  }, [activityStore, chatStore, log]);
 
   const fluentTheme = useMemo(() => {
     return theme === 'dark' ? teamsDarkTheme : teamsLightTheme;
