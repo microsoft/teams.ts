@@ -2,7 +2,8 @@ import { FC, memo, useCallback } from 'react';
 import { Badge, Text } from '@fluentui/react-components';
 import useClasses from './DevtoolsBanner.styles';
 import { useNavigate } from 'react-router';
-import { navigateToRootAndRefresh, DevOnly } from '../../utils/dev';
+import { DevOnly } from '../../utils/dev';
+import { navigateToRootAndRefresh } from '../../utils/devUtils';
 import StatusBadge from './StatusBadge';
 
 interface DevtoolsBannerProps {

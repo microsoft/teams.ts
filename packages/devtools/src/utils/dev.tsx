@@ -10,9 +10,3 @@ if (import.meta.env.DEV) {
 }
 
 export { DevOnly };
-export {
-  AutoFillAndSendMessage as autoFillAndSendMessage,
-  useDevModeOnRoute,
-  useDevModeSendMessage,
-  navigateToRootAndRefresh,
-} from './devUtils';
