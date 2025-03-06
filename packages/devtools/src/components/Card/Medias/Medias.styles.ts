@@ -19,6 +19,9 @@ export const useImageCardClasses = makeStyles({
 });
 
 export const useIconCardStyles = makeStyles({
+  root: {
+    display: 'flex'
+  },
   xxSmall: {
     fontSize: tokens.fontSizeBase200,
   },
@@ -123,3 +126,14 @@ export const useBadgeCardStyles = makeStyles({
     marginBottom: 'auto',
   },
 });
+
+export const useCodeBlockStyles = makeStyles({
+  codeBlock: {
+    backgroundColor: tokens.colorNeutralBackground1,
+    border: `1px solid ${tokens.colorNeutralStroke1}`,
+    padding: '0.5rem',
+    borderRadius: tokens.borderRadiusMedium,
+    fontFamily: 'monospace',
+    overflowX: 'auto',
+  }
+})

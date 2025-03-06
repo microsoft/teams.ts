@@ -18,16 +18,17 @@ export interface IconCardProps extends ComponentProps<'div'> {
 
 export default function IconCard(props: IconCardProps) {
   const { value, className } = props;
+  console.log(className);
   const name = `${value.name}${value.style || 'Regular'}`;
   const Icon = loadIcon(name);
-  const styles = useIconCardStyles();
+  const classes = useIconCardStyles();
 
   // Get the appropriate size class based on the icon size
-  const sizeClass = value.size ? styles[value.size] : styles.Medium;
+  const sizeClass = value.size ? classes[value.size] : classes.Medium;
 
   return (
     <Suspense>
-      <Icon className={mergeClasses(className, sizeClass)} />
+      <Icon className={mergeClasses(classes.root, className, sizeClass)} />
     </Suspense>
   );
 }

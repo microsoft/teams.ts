@@ -20,54 +20,54 @@ export default function BadgeCard({ value }: BadgeCardProps) {
 }
 
 function BadgeCardContent({ value }: BadgeCardProps) {
-  const styles = useBadgeCardStyles();
+  const classes = useBadgeCardStyles();
 
   // Determine shape class
-  const shapeClass = value.shape === 'circular' ? styles.circular : styles.rounded;
+  const shapeClass = value.shape === 'circular' ? classes.circular : classes.rounded;
 
   // Determine size class
-  let sizeClass = styles.sizeMedium;
+  let sizeClass = classes.sizeMedium;
   if (value.size === 'large') {
-    sizeClass = styles.sizeLarge;
+    sizeClass = classes.sizeLarge;
   } else if (value.size === 'extraLarge') {
-    sizeClass = styles.sizeExtraLarge;
+    sizeClass = classes.sizeExtraLarge;
   }
 
   // Determine style class
-  let styleClass = styles.styleDefault;
+  let styleClass = classes.styleDefault;
   switch (value.style) {
     case 'subtle':
-      styleClass = styles.styleSubtle;
+      styleClass = classes.styleSubtle;
       break;
     case 'informative':
-      styleClass = styles.styleInformative;
+      styleClass = classes.styleInformative;
       break;
     case 'accent':
-      styleClass = styles.styleAccent;
+      styleClass = classes.styleAccent;
       break;
     case 'good':
-      styleClass = styles.styleGood;
+      styleClass = classes.styleGood;
       break;
     case 'attention':
-      styleClass = styles.styleAttention;
+      styleClass = classes.styleAttention;
       break;
     case 'warning':
-      styleClass = styles.styleWarning;
+      styleClass = classes.styleWarning;
       break;
     default:
-      styleClass = styles.styleDefault;
+      styleClass = classes.styleDefault;
   }
 
   // Determine icon position
-  const iconPositionClass = value.iconPosition === 'after' ? styles.iconAfter : styles.iconBefore;
+  const iconPositionClass = value.iconPosition === 'after' ? classes.iconAfter : classes.iconBefore;
 
   // Determine appearance class
-  const appearanceClass = value.appearance === 'tint' ? styles.appearanceTint : '';
+  const appearanceClass = value.appearance === 'tint' ? classes.appearanceTint : '';
 
   return (
     <div
       className={mergeClasses(
-        styles.badgeContainer,
+        classes.badgeContainer,
         iconPositionClass,
         shapeClass,
         sizeClass,
@@ -77,14 +77,14 @@ function BadgeCardContent({ value }: BadgeCardProps) {
     >
       {value.icon && (
         <IconCard
-          className={styles.icon}
+          className={classes.icon}
           value={{
             type: 'Icon',
             name: value.icon,
           }}
         />
       )}
-      <span className={styles.text}>{value.text}</span>
+      <span className={classes.text}>{value.text}</span>
     </div>
   );
 }

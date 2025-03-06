@@ -7,6 +7,9 @@ import c from 'highlight.js/lib/languages/c';
 import typescript from 'highlight.js/lib/languages/typescript';
 import 'highlight.js/styles/atom-one-dark.min.css';
 
+import Logger from '../../Logger/Logger';
+import { useCodeBlockStyles } from './Medias.styles';
+
 hljs.registerLanguage('json', json);
 hljs.registerLanguage('bash', bash);
 hljs.registerLanguage('c', c);
@@ -18,23 +21,25 @@ export interface CodeBlockCardProps {
 
 export default function CodeBlockCard({ value }: CodeBlockCardProps) {
   const [html, setHtml] = useState<string>();
+  const childLog = Logger.child('CodeBlockCard');
+  const classes = useCodeBlockStyles();
 
   useEffect(() => {
     if (value.language) {
       try {
         setHtml(hljs.highlight(value.codeSnippet || 'null', { language: value.language }).value);
         return;
-      } catch {}
+      } catch {
+        childLog.error('Error highlighting code block', value);
+      }
     }
 
     setHtml(hljs.highlightAuto(value.codeSnippet || 'null').value);
-  }, [value]);
+  }, [childLog, value]);
 
   if (!html) {
-    return <pre className="text-xs bg-black p-2 rounded" />;
+    return <pre className={classes.codeBlock}>{value.codeSnippet}</pre>;
   }
 
-  return (
-    <pre className="text-xs bg-black p-2 rounded" dangerouslySetInnerHTML={{ __html: html }} />
-  );
+  return <pre className={classes.codeBlock} dangerouslySetInnerHTML={{ __html: html }} />;
 }
