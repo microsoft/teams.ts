@@ -13,6 +13,7 @@ import {
 } from '../../models';
 
 import { IActivity, Activity } from '../activity';
+import { removeMentionsText, RemoveMentionsTextOptions } from '../utils';
 
 export interface IMessageActivity extends IActivity<'message'> {
   /**
@@ -262,6 +263,14 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
       mentioned: account,
       text: `<at>${account.name}</at>`,
     });
+  }
+
+  /**
+   * remove "\<at>...\</at>" text from an activity
+   */
+  removeMentionsText(options: RemoveMentionsTextOptions = {}) {
+    this.text = removeMentionsText(this, options);
+    return this;
   }
 
   /**
