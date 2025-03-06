@@ -1,8 +1,8 @@
 import npath from 'path';
 import { AxiosError } from 'axios';
 
-import { Logger, ConsoleLogger } from '@microsoft/spark.common/logging';
-import { LocalStorage, Storage } from '@microsoft/spark.common/storage';
+import { ILogger, ConsoleLogger } from '@microsoft/spark.common/logging';
+import { LocalStorage, IStorage } from '@microsoft/spark.common/storage';
 import { EventEmitter, EventHandler } from '@microsoft/spark.common/events';
 
 import * as http from '@microsoft/spark.common/http';
@@ -60,12 +60,12 @@ export type AppOptions = Partial<Credentials> & {
   /**
    * logger instance to use
    */
-  readonly logger?: Logger;
+  readonly logger?: ILogger;
 
   /**
    * storage instance to use
    */
-  readonly storage?: Storage;
+  readonly storage?: IStorage;
 
   /**
    * plugins to extend the apps functionality
@@ -137,9 +137,9 @@ export interface ProcessActivityArgs {
  */
 export class App {
   api: AppClient;
-  log: Logger;
+  log: ILogger;
   http: http.Client;
-  storage: Storage;
+  storage: IStorage;
   credentials?: Credentials;
 
   /**

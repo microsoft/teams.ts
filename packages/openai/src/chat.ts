@@ -1,5 +1,5 @@
 import { IChatModel, ChatParams, LocalMemory, ModelMessage } from '@microsoft/spark.ai';
-import { ConsoleLogger, Logger } from '@microsoft/spark.common/logging';
+import { ConsoleLogger, ILogger } from '@microsoft/spark.common/logging';
 
 import OpenAI, { AzureOpenAI } from 'openai';
 import { Fetch } from 'openai/core';
@@ -16,7 +16,7 @@ export interface OpenAIChatModelOptions {
   readonly timeout?: number;
   readonly stream?: boolean;
   readonly temperature?: number;
-  readonly logger?: Logger;
+  readonly logger?: ILogger;
   readonly requestOptions?:
     | OpenAI.ChatCompletionCreateParams
     | ((
@@ -44,7 +44,7 @@ export interface AzureOpenAIChatModelOptions extends OpenAIChatModelOptions {
 
 export class OpenAIChatModel implements IChatModel {
   private readonly _openai: OpenAI;
-  private readonly _log: Logger;
+  private readonly _log: ILogger;
 
   constructor(readonly options: OpenAIChatModelOptions | AzureOpenAIChatModelOptions) {
     this._log =

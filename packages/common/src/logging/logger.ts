@@ -1,10 +1,10 @@
 export type LogLevel = 'error' | 'warn' | 'info' | 'debug';
 
-export interface LoggerOptions {
+export interface ILoggerOptions {
   readonly level?: LogLevel;
 }
 
-export interface Logger {
+export interface ILogger {
   /**
    * Output debug message
    * @param msg any data to log
@@ -38,5 +38,5 @@ export interface Logger {
   /**
    * Create a child logger instance
    */
-  child(name: string): Logger;
+  child(name: string): ILogger;
 }

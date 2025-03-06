@@ -1,5 +1,5 @@
 import { IAudioModel, TextToAudioParams, AudioToTextParams } from '@microsoft/spark.ai';
-import { Logger, ConsoleLogger } from '@microsoft/spark.common/logging';
+import { ILogger, ConsoleLogger } from '@microsoft/spark.common/logging';
 
 import OpenAI, { toFile } from 'openai';
 import { Fetch } from 'openai/core.mjs';
@@ -15,12 +15,12 @@ export interface OpenAIAudioPluginOptions {
   readonly timeout?: number;
   readonly stream?: boolean;
   readonly temperature?: number;
-  readonly logger?: Logger;
+  readonly logger?: ILogger;
 }
 
 export class OpenAIAudioModel implements IAudioModel {
   private readonly _openai: OpenAI;
-  private readonly _log: Logger;
+  private readonly _log: ILogger;
 
   constructor(readonly options: OpenAIAudioPluginOptions) {
     this._log =

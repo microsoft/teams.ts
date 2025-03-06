@@ -1,4 +1,4 @@
-import { Logger } from '@microsoft/spark.common/logging';
+import { ILogger } from '@microsoft/spark.common/logging';
 import { AxiosError } from 'axios';
 
 export interface ErrorEventArgs {
@@ -10,7 +10,7 @@ export interface ErrorEventArgs {
   /**
    * the app logger instance
    */
-  log: Logger;
+  log: ILogger;
 }
 
 export function error({ err, log }: ErrorEventArgs) {

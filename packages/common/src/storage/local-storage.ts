@@ -1,13 +1,13 @@
-import { Storage } from './storage';
+import { IStorage } from './storage';
 
-export interface LocalStorageOptions {
+export type LocalStorageOptions = {
   /**
    * max number of records.
    */
   readonly max?: number;
-}
+};
 
-export class LocalStorage<T = any> implements Storage<T> {
+export class LocalStorage<T = any> implements IStorage<T> {
   protected readonly _store: Map<string, T>;
   protected readonly _keys: string[];
   protected readonly _options: LocalStorageOptions;

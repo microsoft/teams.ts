@@ -1,15 +1,15 @@
 import { AxiosInterceptorOptions, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 
-import { Logger } from '../logging';
+import { ILogger } from '../logging';
 
-export interface Interceptor {
+export type Interceptor = {
   options?: AxiosInterceptorOptions;
   request?: RequestInterceptor;
   response?: ResponseInterceptor;
   error?: ErrorInterceptor;
-}
+};
 
-export interface ErrorContext<T = any> {
+export type ErrorContext<T = any> = {
   /**
    * The error
    */
@@ -18,15 +18,15 @@ export interface ErrorContext<T = any> {
   /**
    * The clients logger instance
    */
-  readonly log: Logger;
-}
+  readonly log: ILogger;
+};
 
 /**
  * A method called to intercept a request that failed
  */
 export type ErrorInterceptor<T = any> = (ctx: ErrorContext<T>) => any;
 
-export interface RequestContext<D = any> {
+export type RequestContext<D = any> = {
   /**
    * The outgoing request config
    */
@@ -35,8 +35,8 @@ export interface RequestContext<D = any> {
   /**
    * The clients logger instance
    */
-  readonly log: Logger;
-}
+  readonly log: ILogger;
+};
 
 /**
  * A method called to intercept a successful request
@@ -45,7 +45,7 @@ export type RequestInterceptor<D = any> = (
   ctx: RequestContext<D>
 ) => InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig>;
 
-export interface ResponseContext<T = any, D = any> {
+export type ResponseContext<T = any, D = any> = {
   /**
    * The response
    */
@@ -54,8 +54,8 @@ export interface ResponseContext<T = any, D = any> {
   /**
    * The clients logger instance
    */
-  readonly log: Logger;
-}
+  readonly log: ILogger;
+};
 
 /**
  * A method called to intercept a successful response

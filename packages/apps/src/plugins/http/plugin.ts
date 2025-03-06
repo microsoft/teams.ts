@@ -9,7 +9,7 @@ import {
   Client,
   IToken,
 } from '@microsoft/spark.api';
-import { ConsoleLogger, Logger, EventEmitter, EventHandler } from '@microsoft/spark.common';
+import { ConsoleLogger, ILogger, EventEmitter, EventHandler } from '@microsoft/spark.common';
 
 import { AppActivityErrorEvent, AppActivityResponseEvent } from '../../events';
 import { Plugin, PluginEvents, Streamer } from '../../types';
@@ -42,7 +42,7 @@ export class HttpPlugin implements Plugin {
   protected _port?: number;
 
   protected app?: App;
-  protected log: Logger;
+  protected log: ILogger;
   protected express: express.Application;
   protected events: EventEmitter<PluginEvents>;
   protected pending: Record<string, express.Response> = {};

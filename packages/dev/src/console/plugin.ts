@@ -1,7 +1,7 @@
 import readline from 'readline';
 import express from 'express';
 
-import { ConsoleLogger, Logger, EventEmitter, EventHandler } from '@microsoft/spark.common';
+import { ConsoleLogger, ILogger, EventEmitter, EventHandler } from '@microsoft/spark.common';
 import { App, Plugin, PluginEvents } from '@microsoft/spark.apps';
 import {
   ActivityParams,
@@ -27,7 +27,7 @@ export interface ConsoleOptions {
 export class ConsolePlugin implements Plugin {
   readonly name = 'console';
 
-  protected log: Logger;
+  protected log: ILogger;
   protected reader: readline.Interface;
   protected express: express.Application;
   protected events: EventEmitter<PluginEvents>;

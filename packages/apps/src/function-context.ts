@@ -1,4 +1,4 @@
-import { Logger } from '@microsoft/spark.common';
+import { ILogger } from '@microsoft/spark.common';
 
 import { AppClient } from './api';
 import { ClientContext } from './client-context';
@@ -12,7 +12,7 @@ export interface FunctionContext<T = any> extends ClientContext {
   /**
    * the app logger instance
    */
-  log: Logger;
+  log: ILogger;
 
   /**
    * the function payload

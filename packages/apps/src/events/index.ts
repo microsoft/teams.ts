@@ -1,4 +1,4 @@
-import { Logger } from '@microsoft/spark.common';
+import { ILogger } from '@microsoft/spark.common';
 
 import { ErrorMiddlewareContext, SignInMiddlewareContext } from '../middleware-context';
 import {
@@ -50,7 +50,7 @@ export interface AppActivityBeforeSentEvent extends ActivityBeforeSentEvent {
 }
 
 export interface Events {
-  start: Logger;
+  start: ILogger;
   signin: SignInMiddlewareContext;
   error: ErrorEventArgs;
   'activity.error': AppActivityErrorEvent;

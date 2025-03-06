@@ -1,12 +1,12 @@
 import express from 'express';
 
-import { Logger } from '@microsoft/spark.common';
+import { ILogger } from '@microsoft/spark.common';
 import { Credentials } from '@microsoft/spark.api';
 
 import { ClientContext } from '../client-context';
 
 export type WithClientAuthParams = Partial<Credentials> & {
-  readonly logger: Logger;
+  readonly logger: ILogger;
 };
 
 export type ClientAuthRequest = express.Request & {

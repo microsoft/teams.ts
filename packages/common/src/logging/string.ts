@@ -1,8 +1,8 @@
 import { ANSI } from './ansi';
 
-interface StringLike {
+type StringLike = {
   toString(): string;
-}
+};
 
 export class String implements StringLike {
   private _value: string = '';

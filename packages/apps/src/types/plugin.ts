@@ -5,7 +5,7 @@ import {
   InvokeResponse,
   IToken,
 } from '@microsoft/spark.api';
-import { EventHandler, Logger } from '@microsoft/spark.common';
+import { EventHandler, ILogger } from '@microsoft/spark.common';
 
 import { App } from '../app';
 import { ActivityContext } from '../activity-context';
@@ -90,7 +90,7 @@ export interface ActivitySentEvent {
  */
 export interface PluginEvents {
   error: any;
-  start: Logger;
+  start: ILogger;
   'activity.received': ActivityReceivedEvent;
   'activity.response': ActivityResponseEvent;
   'activity.sent': ActivitySentEvent;

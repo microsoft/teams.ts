@@ -6,7 +6,7 @@ import io from 'socket.io';
 import * as uuid from 'uuid';
 
 import { ActivityParams, ConversationReference } from '@microsoft/spark.api';
-import { EventEmitter, EventHandler, ConsoleLogger, Logger } from '@microsoft/spark.common';
+import { EventEmitter, EventHandler, ConsoleLogger, ILogger } from '@microsoft/spark.common';
 import {
   App,
   AppActivityReceivedEvent,
@@ -30,7 +30,7 @@ interface ResolveRejctPromise<T = any> {
 export class DevtoolsPlugin implements Plugin {
   readonly name = 'devtools';
 
-  protected log: Logger;
+  protected log: ILogger;
   protected http: http.Server;
   protected express: express.Application;
   protected io: io.Server;
