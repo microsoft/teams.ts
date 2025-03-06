@@ -2,7 +2,8 @@ import { FC, memo, useCallback } from 'react';
 import { Badge, Text } from '@fluentui/react-components';
 import useClasses from './DevtoolsBanner.styles';
 import { useNavigate } from 'react-router';
-import { navigateToRootAndRefresh, DevOnly } from '../../utils/dev';
+import { navigateToRootAndRefresh } from '../../utils/devUtils';
+import DevOnly from '../../utils/dev';
 import StatusBadge from './StatusBadge';
 
 interface DevtoolsBannerProps {
@@ -25,7 +26,8 @@ const DevtoolsBanner: FC<DevtoolsBannerProps> = memo(({ connected }) => {
           className={classes.teamsImg}
           role="presentation"
           loading="eager"
-          fetchPriority="high"
+          // Workaround for React v.s. TypeScript inconsistency
+          {...{ fetchpriority: 'high' }}
         />
         <DevOnly>
           <button
@@ -48,5 +50,4 @@ const DevtoolsBanner: FC<DevtoolsBannerProps> = memo(({ connected }) => {
 });
 
 DevtoolsBanner.displayName = 'DevtoolsBanner';
-
 export default DevtoolsBanner;

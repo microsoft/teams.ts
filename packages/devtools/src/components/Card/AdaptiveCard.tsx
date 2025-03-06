@@ -1,5 +1,5 @@
 import { ComponentProps } from 'react';
-import { makeStyles, mergeClasses } from '@fluentui/react-components';
+import { makeStyles, mergeClasses, tokens } from '@fluentui/react-components';
 import * as cards from '@microsoft/spark.cards';
 
 import Card from './Card';
@@ -15,15 +15,19 @@ const useAdaptiveCardStyles = makeStyles({
     flexDirection: 'column',
     borderRadius: '0.5rem',
     padding: '0.75rem',
+    backgroundColor: tokens.colorNeutralBackground6,
+    boxShadow: tokens.shadow16,
+    gap: tokens.spacingVerticalS,
   },
 });
 
-export default function AdaptiveCard({ value, className }: AdaptiveCardProps) {
+export default function AdaptiveCard({ value }: AdaptiveCardProps) {
+  console.log('AC value', value);
   const classes = useAdaptiveCardStyles();
   return (
-    <div className={mergeClasses(className, classes.root)}>
+    <div className={mergeClasses(classes.root)}>
       {value.body && value.body.length > 0 && (
-        <div className="flex flex-col">
+        <div>
           {value.body.map((item, index) => {
             return <Card key={`body-item-${index}`} value={item} />;
           })}
@@ -31,7 +35,7 @@ export default function AdaptiveCard({ value, className }: AdaptiveCardProps) {
       )}
 
       {value.actions && value.actions.length > 0 && (
-        <div className="flex gap-1">
+        <div>
           {value.actions.map((action, index) => {
             return <ActionCard key={`action-item-${index}`} value={action} />;
           })}

@@ -1,23 +1,23 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
-export const useClasses = makeStyles({
+const useClasses = makeStyles({
   messagesList: {
-    maxWidth: '1042px',
-    minWidth: '495px',
+    maxWidth: '65.125rem',
+    minWidth: '31rem',
     margin: 'auto',
     width: '100%',
     display: 'flex',
     flexDirection: 'column-reverse',
-    justifyContent: 'flex-start',
     padding: '10px 0',
     flex: 1,
+    overflowY: 'auto',
   },
   composeContainer: {
     backgroundColor: tokens.colorNeutralBackground3,
   },
   composeInner: {
-    maxWidth: '1042px',
-    minWidth: '495px',
+    maxWidth: '65.125rem',
+    minWidth: '31rem',
     margin: '0 auto',
   },
   typingIndicator: {
@@ -26,6 +26,8 @@ export const useClasses = makeStyles({
   },
   bannerContainer: {
     backgroundColor: tokens.colorSubtleBackground,
-    margin: '10px 0',
+    margin: '0.5rem 0',
   },
 });
+
+export default useClasses;

@@ -9,7 +9,7 @@ import { atomone } from '@uiw/codemirror-themes-all';
 import { EditorView, basicSetup } from 'codemirror';
 
 import { useCardDesignerEditorClasses } from './CardDesignerEditor.styles';
-import { useLogger } from '../../contexts/LoggerContext';
+import Logger from '../../components/Logger/Logger';
 
 export interface CardDesignerEditorProps {
   readonly value?: ICard;
@@ -65,19 +65,7 @@ export function CardDesignerJsonEditor({ value, onChange }: CardDesignerJsonEdit
   const viewRef = useRef<EditorView | null>(null);
   const classes = useCardDesignerEditorClasses();
   const [isUpdating, setIsUpdating] = useState(false);
-  const log = useLogger();
-  const childLog = log.child('CardDesignerJsonEditor');
-
-  // Helper function with access to logger
-  const tryParseJson = (value: string) => {
-    try {
-      // creates new object every time
-      return JSON.parse(value);
-    } catch (err) {
-      childLog.warn('Failed to parse JSON:', err);
-      return null;
-    }
-  };
+  const childLog = Logger.child('CardDesignerJsonEditor');
 
   // Initialize the editor once
   useEffect(() => {
@@ -111,10 +99,21 @@ export function CardDesignerJsonEditor({ value, onChange }: CardDesignerJsonEdit
       view.destroy();
       viewRef.current = null;
     };
-  }, [ref]);
+  }, [childLog, ref, isUpdating, onChange, value]);
 
   // Update the editor content when value changes
   useEffect(() => {
+    // Helper function with access to logger
+    const tryParseJson = (value: string) => {
+      try {
+        // creates new object every time
+        return JSON.parse(value);
+      } catch (err) {
+        childLog.warn('Failed to parse JSON:', err);
+        return null;
+      }
+    };
+
     if (!viewRef.current || !value) return;
 
     const currentContent = viewRef.current.state.doc.toString();
@@ -131,7 +130,7 @@ export function CardDesignerJsonEditor({ value, onChange }: CardDesignerJsonEdit
       },
     });
     setIsUpdating(false);
-  }, [value]);
+  }, [childLog, value]);
 
   return <div ref={ref} className={classes.cardDesignerEditor} />;
 }
@@ -145,8 +144,7 @@ export function CardDesignerTypescriptEditor({ value }: CardDesignerTypescriptEd
   const viewRef = useRef<EditorView | null>(null);
   const classes = useCardDesignerEditorClasses();
   const [isUpdating, setIsUpdating] = useState(false);
-  const log = useLogger();
-  const childLog = log.child('CardDesignerTypescriptEditor');
+  const childLog = Logger.child('CardDesignerTypescriptEditor');
 
   // Initialize the editor once
   useEffect(() => {
@@ -171,7 +169,7 @@ export function CardDesignerTypescriptEditor({ value }: CardDesignerTypescriptEd
       view.destroy();
       viewRef.current = null;
     };
-  }, [ref]);
+  }, [ref, value]);
 
   useEffect(() => {
     if (!viewRef.current || !value || isUpdating) return;
@@ -192,7 +190,7 @@ export function CardDesignerTypescriptEditor({ value }: CardDesignerTypescriptEd
     } finally {
       setIsUpdating(false);
     }
-  }, [value]);
+  }, [childLog, isUpdating, value]);
 
   return <div ref={ref} className={classes.cardDesignerEditor} />;
 }

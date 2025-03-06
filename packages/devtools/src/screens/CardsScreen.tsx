@@ -4,13 +4,14 @@ import {
   ToastBody,
   ToastTitle,
   useToastController,
+  makeStyles,
 } from '@fluentui/react-components';
 import { AttachRegular } from '@fluentui/react-icons';
-import CardDesigner from '../components/CardDesigner/CardDesigner';
-import { useScreensClasses } from './Screens.styles';
-import { useCardStore } from '../stores/CardStore';
 import { Card } from '@microsoft/spark.cards';
-import { makeStyles } from '@fluentui/react-components';
+
+import CardDesigner from '../components/CardDesigner/CardDesigner';
+import useScreensClasses from './Screens.styles';
+import { useCardStore } from '../stores/CardStore';
 
 const useStyles = makeStyles({
   buttonContainer: {

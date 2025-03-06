@@ -19,7 +19,8 @@ import { ChatContext } from '../../stores/ChatStore';
 import useSparkApi from '../../hooks/useSparkApi';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
 import { AttachmentType } from '../../types/Attachment';
-import { useLogger } from '../../contexts/LoggerContext';
+
+import Logger from '../Logger/Logger';
 
 interface ChatMessageProps {
   content: string;
@@ -37,8 +38,7 @@ const ChatMessage: FC<ChatMessageProps> = ({
   value,
 }) => {
   const classes = useChatMessageStyles();
-  const log = useLogger();
-  const childLog = log.child('ChatMessage');
+  const childLog = Logger.child('ChatMessage');
 
   const { chat, messages } = useContext(ChatContext);
   const sparkApi = useSparkApi();
@@ -47,16 +47,15 @@ const ChatMessage: FC<ChatMessageProps> = ({
     (value.body?.contentType === 'text' && value.body?.content) || ''
   );
   const [reactions, setReactions] = useState<MessageReaction[]>(value.reactions || []);
+  const [reactionSender, setReactionSender] = useState<MessageUser | undefined>(undefined);
   const hasAttachments = value.attachments && value.attachments.length > 0;
-
-  let reactionSender: MessageUser | undefined;
 
   const handleMessageReaction = async (id: string, newReactionActivity: MessageReaction) => {
     const message = messages[chat.id].find((m) => m.id === id);
 
     if (!message) return;
     const { type, user } = newReactionActivity;
-    reactionSender = user;
+    setReactionSender(user);
     const added: Array<MessageReaction> = [];
     const removed: Array<MessageReaction> = [];
     const reaction = (message.reactions || []).find(

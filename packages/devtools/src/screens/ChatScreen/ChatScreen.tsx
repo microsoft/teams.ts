@@ -1,17 +1,18 @@
-import { FC, useContext, useCallback, useState } from 'react';
-import { ChatContext } from '../../stores/ChatStore';
-import { useClasses } from './ChatScreen.styles';
 import { Attachment } from '@microsoft/spark.api';
-import useSparkApi from '../../hooks/useSparkApi';
-import { useDevModeSendMessage } from '../../utils/dev';
+import { FC, useCallback, useContext, useState } from 'react';
 
 import Chat from '../../components/Chat/Chat';
-import ChatMessageContainer from '../../components/ChatMessage/ChatMessageContainer';
 import ChatMessage from '../../components/ChatMessage/ChatMessage';
+import ChatMessageContainer from '../../components/ChatMessage/ChatMessageContainer';
 import ComposeBox from '../../components/ComposeBox/ComposeBox';
 import TypingIndicator from '../../components/TypingIndicator/TypingIndicator';
-import { useScreensClasses } from '../Screens.styles';
-import { useLogger } from '../../contexts/LoggerContext';
+import Logger from '../../components/Logger/Logger';
+import useSparkApi from '../../hooks/useSparkApi';
+import { ChatContext } from '../../stores/ChatStore';
+import { useDevModeSendMessage } from '../../utils/devUtils';
+
+import useClasses from './ChatScreen.styles';
+import useScreensClasses from '../Screens.styles';
 
 const MAX_HISTORY = 5;
 
@@ -24,7 +25,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
   const screenClasses = useScreensClasses();
   const { chat, feedback, messages, streaming, typing } = useContext(ChatContext);
   const [messageHistory, setMessageHistory] = useState<string[]>([]);
-  const log = useLogger();
+  const log = Logger;
   const childLog = log.child('ChatScreen');
 
   const sparkApi = useSparkApi();
@@ -41,7 +42,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
         childLog.error('Error sending message:', err);
       }
     },
-    [sparkApi, chat?.id]
+    [sparkApi, chat?.id, childLog]
   );
 
   const handleMessageSent = useCallback((message: string) => {
@@ -58,9 +59,9 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
   });
 
   return (
-    <Chat className={screenClasses.screenContainer}>
-      <div className={screenClasses.scrollbarContainer}>
-        <div className={classes.messagesList}>
+    <Chat id="screen-container" className={screenClasses.screenContainer}>
+      <div id="scrollbar-container" className={screenClasses.scrollbarContainer}>
+        <div id="messages-container" className={classes.messagesList}>
           {chat &&
             (messages[chat.id] || []).map((message) => (
               <ChatMessageContainer key={message.id} value={message} isConnected={isConnected}>
@@ -91,3 +92,4 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
 };
 
 export default ChatScreen;
+ChatScreen.displayName = 'ChatScreen';

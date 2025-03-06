@@ -26,6 +26,9 @@ export class SocketClient {
       path: '/devtools/sockets',
     });
   }
+  get connected() {
+    return this._socket.connected;
+  }
 
   connect(callback?: (...args: any[]) => void | Promise<void>) {
     if (callback) {
@@ -35,8 +38,10 @@ export class SocketClient {
     this._socket.connect();
   }
 
-  disconnect(callback: (...args: any[]) => void | Promise<void>) {
-    this._socket.on('disconnect', callback);
+  disconnect(callback?: (...args: any[]) => void | Promise<void>) {
+    if (callback) {
+      this._socket.on('disconnect', callback);
+    }
   }
 
   on<Event extends keyof SocketEventTypes>(

@@ -14,8 +14,10 @@ export const useClasses = makeStyles({
   },
   jsonTextarea: {
     minHeight: '250px',
-    height: 'auto',
+    height: '100%',
+    overflowY: 'hidden',
+    overflowX: 'hidden',
     width: '100%',
     fontFamily: 'monospace',
-  },
+  }
 });

@@ -1,4 +1,4 @@
-import { FC, useState, useRef, useCallback } from 'react';
+import { FC, useState, useRef, useCallback, memo } from 'react';
 import {
   AttachRegular,
   bundleIcon,
@@ -7,29 +7,30 @@ import {
   SendRegular,
 } from '@fluentui/react-icons/lib/fonts';
 import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogBody,
+  DialogContent,
+  DialogSurface,
+  DialogTitle,
+  Menu,
+  MenuItem,
+  MenuList,
+  MenuPopover,
+  MenuTrigger,
+  Textarea,
+  Toast,
+  ToastBody,
+  ToastTitle,
   Toolbar,
   ToolbarButton,
   ToolbarDivider,
-  Menu,
-  MenuTrigger,
-  MenuPopover,
-  MenuList,
-  MenuItem,
-  Dialog,
-  DialogSurface,
-  DialogTitle,
-  DialogContent,
-  DialogBody,
-  DialogActions,
-  Button,
-  Textarea,
   useId,
   useToastController,
-  Toast,
-  ToastTitle,
-  ToastBody,
 } from '@fluentui/react-components';
 import type { ToolbarProps } from '@fluentui/react-components';
+
 import { useClasses } from './ComposeBoxToolbar.styles';
 import { useNavigate } from 'react-router';
 
@@ -162,4 +163,4 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = ({
   );
 };
 
-export default ComposeBoxToolbar;
+export default memo(ComposeBoxToolbar);

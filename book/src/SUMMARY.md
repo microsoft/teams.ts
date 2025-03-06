@@ -90,5 +90,3 @@
         - [Handoff Action](./9.activity/7.invoke/10.handoff-action.md)
     - [Handoff](./9.activity/8.handoff/README.md)
     - [Trace](./9.activity/9.trace/README.md)
-- [🛠️ Contributing](./10.contributing/README.md)
-    - [✍ Writing Documentation](./10.contributing/1.documentation/README.md)
