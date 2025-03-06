@@ -1,15 +1,15 @@
 import { Function } from '../function';
-import { Memory } from '../memory';
+import { IMemory } from '../memory';
 import { Message, ModelMessage, SystemMessage, UserMessage } from '../message';
 
-export interface ChatParams {
+export type ChatParams = {
   readonly system?: SystemMessage | UserMessage;
   readonly input: Message;
-  readonly messages?: Memory;
+  readonly messages?: IMemory;
   readonly functions?: Record<string, Function>;
-}
+};
 
-export interface ChatModel {
+export interface IChatModel {
   chat(
     params: ChatParams,
     onChunk?: (chunk: ModelMessage) => void | Promise<void>

@@ -1,25 +1,25 @@
 import { Function, FunctionHandler } from '../function';
 import { LocalMemory } from '../local-memory';
-import { Memory } from '../memory';
+import { IMemory } from '../memory';
 import { ContentPart, Message, SystemMessage, UserMessage } from '../message';
-import { ChatModel } from '../models';
+import { IChatModel } from '../models';
 import { Schema } from '../schema';
-import { Template } from '../template';
+import { ITemplate } from '../template';
 import { StringTemplate } from '../templates';
 
-export interface ChatPromptOptions {
-  readonly model: ChatModel;
-  readonly instructions?: string | Template;
+export type ChatPromptOptions = {
+  readonly model: IChatModel;
+  readonly instructions?: string | ITemplate;
   readonly role?: 'system' | 'user';
-  readonly messages?: Message[] | Memory;
-}
+  readonly messages?: Message[] | IMemory;
+};
 
 export class ChatPrompt {
-  readonly messages: Memory;
+  readonly messages: IMemory;
 
   protected readonly _role: 'system' | 'user';
-  protected readonly _model: ChatModel;
-  protected readonly _template: Template;
+  protected readonly _model: IChatModel;
+  protected readonly _template: ITemplate;
   protected readonly _functions: Record<string, Function> = {};
 
   constructor(options: ChatPromptOptions) {

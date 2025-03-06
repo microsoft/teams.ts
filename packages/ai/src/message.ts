@@ -2,36 +2,36 @@ import { FunctionCall } from './function';
 
 export type Message = UserMessage | ModelMessage | SystemMessage | FunctionMessage;
 
-export interface UserMessage {
+export type UserMessage = {
   role: 'user';
   content: string | ContentPart[];
-}
+};
 
-export interface ModelMessage {
+export type ModelMessage = {
   role: 'model';
   content?: string;
   function_calls?: FunctionCall[];
-}
+};
 
-export interface SystemMessage {
+export type SystemMessage = {
   role: 'system';
   content: string;
-}
+};
 
-export interface FunctionMessage {
+export type FunctionMessage = {
   role: 'function';
   content?: string;
   function_id: string;
-}
+};
 
 export type ContentPart = TextContentPart | ImageContentPart;
 
-export interface TextContentPart {
+export type TextContentPart = {
   type: 'text';
   text: string;
-}
+};
 
-export interface ImageContentPart {
+export type ImageContentPart = {
   type: 'image_url';
   image_url: string;
-}
+};

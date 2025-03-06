@@ -1,4 +1,4 @@
-import { ChatModel, ChatParams, LocalMemory, ModelMessage } from '@microsoft/spark.ai';
+import { IChatModel, ChatParams, LocalMemory, ModelMessage } from '@microsoft/spark.ai';
 import { ConsoleLogger, Logger } from '@microsoft/spark.common/logging';
 
 import OpenAI, { AzureOpenAI } from 'openai';
@@ -42,7 +42,7 @@ export interface AzureOpenAIChatModelOptions extends OpenAIChatModelOptions {
   azureADTokenProvider?: () => Promise<string>;
 }
 
-export class OpenAIChatModel implements ChatModel {
+export class OpenAIChatModel implements IChatModel {
   private readonly _openai: OpenAI;
   private readonly _log: Logger;
 

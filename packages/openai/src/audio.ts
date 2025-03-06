@@ -1,4 +1,4 @@
-import { AudioModel, TextToAudioParams, AudioToTextParams } from '@microsoft/spark.ai';
+import { IAudioModel, TextToAudioParams, AudioToTextParams } from '@microsoft/spark.ai';
 import { Logger, ConsoleLogger } from '@microsoft/spark.common/logging';
 
 import OpenAI, { toFile } from 'openai';
@@ -18,7 +18,7 @@ export interface OpenAIAudioPluginOptions {
   readonly logger?: Logger;
 }
 
-export class OpenAIAudioModel implements AudioModel {
+export class OpenAIAudioModel implements IAudioModel {
   private readonly _openai: OpenAI;
   private readonly _log: Logger;
 
