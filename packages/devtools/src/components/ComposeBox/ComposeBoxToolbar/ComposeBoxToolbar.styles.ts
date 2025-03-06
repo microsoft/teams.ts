@@ -19,5 +19,5 @@ export const useClasses = makeStyles({
     overflowX: 'hidden',
     width: '100%',
     fontFamily: 'monospace',
-  }
+  },
 });

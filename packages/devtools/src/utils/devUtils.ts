@@ -5,7 +5,9 @@ import Logger from '../components/Logger/Logger';
 
 // Type definitions
 type DevModeOnRouteHook = (pathname: string, callback: () => void) => void;
-type DevModeSendMessageHook = (sendMessageFn: (message: string, attachments?: Attachment[]) => void) => void;
+type DevModeSendMessageHook = (
+  sendMessageFn: (message: string, attachments?: Attachment[]) => void
+) => void;
 
 // Create no-op versions of the functions for production
 const noOp = () => {};
@@ -29,7 +31,9 @@ if (import.meta.env.DEV) {
 
     setTimeout(() => {
       try {
-        const composeTextarea = document.querySelector('#compose-box textarea') as HTMLTextAreaElement | null;
+        const composeTextarea = document.querySelector(
+          '#compose-box textarea'
+        ) as HTMLTextAreaElement | null;
         if (!composeTextarea) {
           childLog.warn('Dev mode: Could not find compose textarea');
           return;
@@ -49,7 +53,9 @@ if (import.meta.env.DEV) {
           childLog.info('Dev mode: Set compose box text to:', devMessage);
 
           setTimeout(() => {
-            const sendButton = document.querySelector('[data-tid="send-button"]') as HTMLButtonElement | null;
+            const sendButton = document.querySelector(
+              '[data-tid="send-button"]'
+            ) as HTMLButtonElement | null;
             if (sendButton) {
               sendButton.click();
               childLog.info('Dev mode: Clicked send button');
@@ -73,7 +79,9 @@ if (import.meta.env.DEV) {
     }, [location.pathname, pathname, callback]);
   };
 
-  useDevModeSendMessage = (sendMessageFn: (message: string, attachments?: Attachment[]) => void) => {
+  useDevModeSendMessage = (
+    sendMessageFn: (message: string, attachments?: Attachment[]) => void
+  ) => {
     const sendMessageRef = useRef(sendMessageFn);
 
     useEffect(() => {

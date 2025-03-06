@@ -18,7 +18,7 @@ const useScreensClasses = makeStyles({
     scrollbarGutter: 'stable',
     height: '100%',
     overscrollBehavior: 'contain',
-    position: 'relative'
+    position: 'relative',
   },
 });
 

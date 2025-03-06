@@ -20,7 +20,7 @@ export const useImageCardClasses = makeStyles({
 
 export const useIconCardStyles = makeStyles({
   root: {
-    display: 'flex'
+    display: 'flex',
   },
   xxSmall: {
     fontSize: tokens.fontSizeBase200,
@@ -135,5 +135,5 @@ export const useCodeBlockStyles = makeStyles({
     borderRadius: tokens.borderRadiusMedium,
     fontFamily: 'monospace',
     overflowX: 'auto',
-  }
-})
+  },
+});
