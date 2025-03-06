@@ -1,17 +1,17 @@
-import { IFunction } from '../function';
-import { IMemory } from '../memory';
-import { Message, IModelMessage, ISystemMessage, IUserMessage } from '../message';
+import { Function } from '../function';
+import { Memory } from '../memory';
+import { Message, ModelMessage, SystemMessage, UserMessage } from '../message';
 
-export interface IChatParams {
-  readonly system?: ISystemMessage | IUserMessage;
+export interface ChatParams {
+  readonly system?: SystemMessage | UserMessage;
   readonly input: Message;
-  readonly messages?: IMemory;
-  readonly functions?: Record<string, IFunction>;
+  readonly messages?: Memory;
+  readonly functions?: Record<string, Function>;
 }
 
-export interface IChatModel {
+export interface ChatModel {
   chat(
-    params: IChatParams,
-    onChunk?: (chunk: IModelMessage) => void | Promise<void>
-  ): Promise<IModelMessage>;
+    params: ChatParams,
+    onChunk?: (chunk: ModelMessage) => void | Promise<void>
+  ): Promise<ModelMessage>;
 }

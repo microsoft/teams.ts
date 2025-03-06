@@ -1,8 +1,8 @@
-import { IAudioModel } from './audio';
-import { IImageModel } from './image';
-import { IChatModel } from './chat';
+import { AudioModel } from './audio';
+import { ImageModel } from './image';
+import { ChatModel } from './chat';
 
-export type Model = IChatModel | IAudioModel | IImageModel;
+export type Model = ChatModel | AudioModel | ImageModel;
 
 export * from './chat';
 export * from './audio';

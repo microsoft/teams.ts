@@ -1,28 +1,28 @@
-import { IFunction, FunctionHandler } from '../function';
+import { Function, FunctionHandler } from '../function';
 import { LocalMemory } from '../local-memory';
-import { IMemory } from '../memory';
-import { ContentPart, Message, ISystemMessage, IUserMessage } from '../message';
-import { IChatModel } from '../models';
+import { Memory } from '../memory';
+import { ContentPart, Message, SystemMessage, UserMessage } from '../message';
+import { ChatModel } from '../models';
 import { Schema } from '../schema';
-import { ITemplate } from '../template';
+import { Template } from '../template';
 import { StringTemplate } from '../templates';
 
-export interface IChatPromptOptions {
-  readonly model: IChatModel;
-  readonly instructions?: string | ITemplate;
+export interface ChatPromptOptions {
+  readonly model: ChatModel;
+  readonly instructions?: string | Template;
   readonly role?: 'system' | 'user';
-  readonly messages?: Message[] | IMemory;
+  readonly messages?: Message[] | Memory;
 }
 
 export class ChatPrompt {
-  readonly messages: IMemory;
+  readonly messages: Memory;
 
   protected readonly _role: 'system' | 'user';
-  protected readonly _model: IChatModel;
-  protected readonly _template: ITemplate;
-  protected readonly _functions: Record<string, IFunction> = {};
+  protected readonly _model: ChatModel;
+  protected readonly _template: Template;
+  protected readonly _functions: Record<string, Function> = {};
 
-  constructor(options: IChatPromptOptions) {
+  constructor(options: ChatPromptOptions) {
     this._role = options.role || 'system';
     this.messages =
       typeof options.messages === 'object' && !Array.isArray(options.messages)
@@ -69,7 +69,7 @@ export class ChatPrompt {
     }
 
     let buffer = '';
-    let system: ISystemMessage | IUserMessage | undefined = undefined;
+    let system: SystemMessage | UserMessage | undefined = undefined;
     const prompt = await this._template.render();
 
     if (prompt) {

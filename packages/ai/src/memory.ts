@@ -1,6 +1,6 @@
 import { Message } from './message';
 
-export interface IMemory {
+export interface Memory {
   push(message: Message): void | Promise<void>;
   pop(): (Message | undefined) | Promise<Message | undefined>;
   values(): Message[] | Promise<Message[]>;

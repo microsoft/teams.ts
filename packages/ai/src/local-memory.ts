@@ -1,21 +1,21 @@
-import { IMemory } from './memory';
+import { Memory } from './memory';
 import { Message } from './message';
-import { IChatModel } from './models';
+import { ChatModel } from './models';
 
-export interface ILocalMemoryOptions {
+export interface LocalMemoryOptions {
   readonly max?: number;
   readonly messages?: Message[];
   readonly collapse?: {
     readonly strategy: 'half' | 'full';
-    readonly model: IChatModel;
+    readonly model: ChatModel;
   };
 }
 
-export class LocalMemory implements IMemory {
+export class LocalMemory implements Memory {
   protected readonly messages: Message[];
-  protected readonly options: ILocalMemoryOptions;
+  protected readonly options: LocalMemoryOptions;
 
-  constructor(options?: ILocalMemoryOptions) {
+  constructor(options?: LocalMemoryOptions) {
     this.messages = options?.messages || [];
     this.options = options || {};
   }

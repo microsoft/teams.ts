@@ -1,17 +1,17 @@
-import { IAudioModel, IAudioToTextParams, ITextToAudioParams } from '../models';
+import { AudioModel, AudioToTextParams, TextToAudioParams } from '../models';
 
-export interface IAudioPromptOptions {
-  readonly model: IAudioModel;
+export interface AudioPromptOptions {
+  readonly model: AudioModel;
 }
 
 export class AudioPrompt {
-  protected readonly _model: IAudioModel;
+  protected readonly _model: AudioModel;
 
-  constructor(options: IAudioPromptOptions) {
+  constructor(options: AudioPromptOptions) {
     this._model = options.model;
   }
 
-  audioToText(params: IAudioToTextParams) {
+  audioToText(params: AudioToTextParams) {
     if (!this._model.audioToText) {
       throw new Error('cannot transcribe audio to text');
     }
@@ -19,7 +19,7 @@ export class AudioPrompt {
     return this._model.audioToText(params);
   }
 
-  textToAudio(params: ITextToAudioParams) {
+  textToAudio(params: TextToAudioParams) {
     if (!this._model.textToAudio) {
       throw new Error('cannot translate text to audio');
     }
