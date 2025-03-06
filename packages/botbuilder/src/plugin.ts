@@ -87,7 +87,10 @@ export class BotBuilderPlugin extends HttpPlugin {
       });
     } catch (err) {
       this.log.error(err);
-      res.status(500).send('internal server error');
+
+      if (!res.headersSent) {
+        res.status(500).send('internal server error');
+      }
     }
   }
 }

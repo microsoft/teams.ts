@@ -198,7 +198,10 @@ export class HttpPlugin implements IPlugin, IStreamerPlugin {
       return;
     }
 
-    res.status(500).send(err.message);
+    if (!res.headersSent) {
+      res.status(500).send(err.message);
+    }
+
     delete this.pending[activity.id];
   }
 
@@ -209,7 +212,10 @@ export class HttpPlugin implements IPlugin, IStreamerPlugin {
       return;
     }
 
-    res.status(response.status || 200).send(JSON.stringify(response.body || null));
+    if (!res.headersSent) {
+      res.status(response.status || 200).send(JSON.stringify(response.body || null));
+    }
+
     delete this.pending[activity.id];
   }
 }
