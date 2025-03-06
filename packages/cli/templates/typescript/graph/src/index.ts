@@ -1,4 +1,4 @@
-import { MessageSendActivity } from '@microsoft/spark.api';
+import { MessageActivity } from '@microsoft/spark.api';
 import { App } from '@microsoft/spark.apps';
 import { DevtoolsPlugin } from '@microsoft/spark.dev';
 import { Card, CodeBlock } from '@microsoft/spark.cards';
@@ -20,13 +20,13 @@ app.event('signin', async ({ send, api }) => {
   const me = await api.user.me.get();
 
   await send(
-    MessageSendActivity(`hello ${me.displayName} 👋!`).card(
+    new MessageActivity(`hello ${me.displayName} 👋!`).addCard(
       'adaptive',
-      Card([
-        CodeBlock({
+      new Card(
+        new CodeBlock({
           codeSnippet: JSON.stringify(me, null, 2),
-        }),
-      ])
+        })
+      )
     )
   );
 });
