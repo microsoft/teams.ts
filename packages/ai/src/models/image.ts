@@ -1,8 +1,8 @@
-export interface TextToImageParams {
+export interface ITextToImageParams {
   readonly prompt?: string;
   readonly size?: string;
 }
 
-export interface ImageModel {
-  textToImage?(params?: TextToImageParams): Promise<string>;
+export interface IImageModel {
+  textToImage?(params?: ITextToImageParams): Promise<string>;
 }

@@ -1,4 +1,4 @@
-interface BaseSchema {
+interface IBaseSchema {
   readonly $schema?: string;
   readonly $ref?: string;
   readonly id?: string;
@@ -9,15 +9,15 @@ interface BaseSchema {
 }
 
 export type Schema =
-  | StringSchema
-  | NumberSchema
-  | BooleanSchema
-  | ObjectSchema
-  | ArraySchema
-  | NullSchema
-  | AnySchema;
+  | IStringSchema
+  | INumberSchema
+  | IBooleanSchema
+  | IObjectSchema
+  | IArraySchema
+  | INullSchema
+  | IAnySchema;
 
-export interface StringSchema extends BaseSchema {
+export interface IStringSchema extends IBaseSchema {
   readonly type: 'string';
   readonly pattern?: string;
   readonly format?: string;
@@ -25,18 +25,18 @@ export interface StringSchema extends BaseSchema {
   readonly maxLength?: number;
 }
 
-export interface NumberSchema extends BaseSchema {
+export interface INumberSchema extends IBaseSchema {
   readonly type: 'number' | 'integer';
   readonly min?: number;
   readonly max?: number;
   readonly multipleOf?: number;
 }
 
-export interface BooleanSchema extends BaseSchema {
+export interface IBooleanSchema extends IBaseSchema {
   readonly type: 'boolean';
 }
 
-export interface ObjectSchema extends BaseSchema {
+export interface IObjectSchema extends IBaseSchema {
   readonly type: 'object';
   readonly properties?: {
     [key: string]: Schema;
@@ -44,16 +44,16 @@ export interface ObjectSchema extends BaseSchema {
   readonly required?: string[] | boolean;
 }
 
-export interface ArraySchema extends BaseSchema {
+export interface IArraySchema extends IBaseSchema {
   readonly type: 'array';
   readonly items: Schema | Schema[];
   readonly additionalItems?: Schema | Schema[];
 }
 
-export interface NullSchema extends BaseSchema {
+export interface INullSchema extends IBaseSchema {
   readonly type: 'null';
 }
 
-export interface AnySchema extends BaseSchema {
+export interface IAnySchema extends IBaseSchema {
   readonly type: undefined;
 }

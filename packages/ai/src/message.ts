@@ -1,37 +1,37 @@
-import { FunctionCall } from './function';
+import { IFunctionCall } from './function';
 
-export type Message = UserMessage | ModelMessage | SystemMessage | FunctionMessage;
+export type Message = IUserMessage | IModelMessage | ISystemMessage | IFunctionMessage;
 
-export interface UserMessage {
+export interface IUserMessage {
   role: 'user';
   content: string | ContentPart[];
 }
 
-export interface ModelMessage {
+export interface IModelMessage {
   role: 'model';
   content?: string;
-  function_calls?: FunctionCall[];
+  function_calls?: IFunctionCall[];
 }
 
-export interface SystemMessage {
+export interface ISystemMessage {
   role: 'system';
   content: string;
 }
 
-export interface FunctionMessage {
+export interface IFunctionMessage {
   role: 'function';
   content?: string;
   function_id: string;
 }
 
-export type ContentPart = TextContentPart | ImageContentPart;
+export type ContentPart = ITextContentPart | IImageContentPart;
 
-export interface TextContentPart {
+export interface ITextContentPart {
   type: 'text';
   text: string;
 }
 
-export interface ImageContentPart {
+export interface IImageContentPart {
   type: 'image_url';
   image_url: string;
 }

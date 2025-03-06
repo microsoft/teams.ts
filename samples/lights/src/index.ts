@@ -44,9 +44,7 @@ app.on('message', async ({ send, stream, activity }) => {
   The lights are currently off.`,
     model: new OpenAIChatModel({
       model: 'gpt-4o-mini',
-      apiKey: process.env.AZURE_OPENAI_API_KEY,
-      apiVersion: '2024-05-01-preview',
-      endpoint: process.env.AZURE_OPENAI_ENDPOINT,
+      apiKey: process.env.OPENAI_API_KEY,
       stream: true,
     }),
   })

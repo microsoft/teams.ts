@@ -1,4 +1,4 @@
-import { ChatModel, ChatParams, LocalMemory, ModelMessage } from '@microsoft/spark.ai';
+import { IChatModel, IChatParams, LocalMemory, IModelMessage } from '@microsoft/spark.ai';
 import { ConsoleLogger, Logger } from '@microsoft/spark.common/logging';
 
 import OpenAI, { AzureOpenAI } from 'openai';
@@ -20,7 +20,7 @@ export interface OpenAIChatModelOptions {
   readonly requestOptions?:
     | OpenAI.ChatCompletionCreateParams
     | ((
-        params: ChatParams
+        params: IChatParams
       ) => OpenAI.ChatCompletionCreateParams | Promise<OpenAI.ChatCompletionCreateParams>);
 }
 
@@ -42,7 +42,7 @@ export interface AzureOpenAIChatModelOptions extends OpenAIChatModelOptions {
   azureADTokenProvider?: () => Promise<string>;
 }
 
-export class OpenAIChatModel implements ChatModel {
+export class OpenAIChatModel implements IChatModel {
   private readonly _openai: OpenAI;
   private readonly _log: Logger;
 
@@ -76,9 +76,9 @@ export class OpenAIChatModel implements ChatModel {
   }
 
   async chat(
-    params: ChatParams,
-    onChunk?: (chunk: ModelMessage) => void | Promise<void>
-  ): Promise<ModelMessage> {
+    params: IChatParams,
+    onChunk?: (chunk: IModelMessage) => void | Promise<void>
+  ): Promise<IModelMessage> {
     const memory = params.messages || new LocalMemory();
     await memory.push(params.input);
 
@@ -262,7 +262,7 @@ export class OpenAIChatModel implements ChatModel {
         }
       }
 
-      const modelMessage: ModelMessage = {
+      const modelMessage: IModelMessage = {
         role: 'model',
         content: message.content || undefined,
         function_calls: message.tool_calls?.map((call) => ({

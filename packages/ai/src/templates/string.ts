@@ -1,6 +1,6 @@
-import { Template } from '../template';
+import { ITemplate } from '../template';
 
-export class StringTemplate implements Template {
+export class StringTemplate implements ITemplate {
   constructor(readonly src?: string) {}
 
   render() {

@@ -1,4 +1,4 @@
-import { AudioModel, TextToAudioParams, AudioToTextParams } from '@microsoft/spark.ai';
+import { IAudioModel, ITextToAudioParams, IAudioToTextParams } from '@microsoft/spark.ai';
 import { Logger, ConsoleLogger } from '@microsoft/spark.common/logging';
 
 import OpenAI, { toFile } from 'openai';
@@ -18,7 +18,7 @@ export interface OpenAIAudioPluginOptions {
   readonly logger?: Logger;
 }
 
-export class OpenAIAudioModel implements AudioModel {
+export class OpenAIAudioModel implements IAudioModel {
   private readonly _openai: OpenAI;
   private readonly _log: Logger;
 
@@ -36,7 +36,7 @@ export class OpenAIAudioModel implements AudioModel {
     });
   }
 
-  async audioToText(params: AudioToTextParams) {
+  async audioToText(params: IAudioToTextParams) {
     try {
       const res = await this._openai.audio.transcriptions.create({
         file: await toFile(params.data, `temp.${params.type}`, { type: params.type }),
@@ -52,7 +52,7 @@ export class OpenAIAudioModel implements AudioModel {
     }
   }
 
-  async textToAudio(params: TextToAudioParams) {
+  async textToAudio(params: ITextToAudioParams) {
     try {
       const res = await this._openai.audio.speech.create({
         response_format: params.type as any,
