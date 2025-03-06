@@ -116,7 +116,7 @@ export class HttpPlugin implements IPlugin, IStreamerPlugin {
   async onSend(activity: ActivityParams, ref: ConversationReference) {
     const api = new Client(
       ref.serviceUrl,
-      this.app?.http.clone({
+      this.app?.client.clone({
         token: () => this.app?.tokens.bot,
       })
     );

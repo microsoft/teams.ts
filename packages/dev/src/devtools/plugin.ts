@@ -69,12 +69,7 @@ export class DevtoolsPlugin implements IPlugin {
     app.event('activity.received', this.onActivityReceived.bind(this));
     app.event('activity.sent', this.onActivitySent.bind(this));
 
-    const httpPlugin = app.getPlugin('http');
-
-    if (httpPlugin && httpPlugin instanceof HttpPlugin) {
-      this.httpPlugin = httpPlugin;
-    }
-
+    this.httpPlugin = app.http;
     this.log = app.log.child('devtools');
   }
 
