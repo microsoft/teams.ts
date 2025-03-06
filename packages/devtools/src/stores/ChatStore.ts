@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import {
   Message,
-  MessageActivity,
+  $MessageActivity,
   IMessageDeleteActivity,
   IMessageReactionActivity,
   IMessageActivity,
@@ -30,7 +30,7 @@ export interface ChatStore {
   readonly onTypingActivity: (event: ActivityEvent<ITypingActivity>, state: ChatStore) => ChatStore;
 
   readonly onMessageActivity: (
-    event: ActivityEvent<MessageActivity>,
+    event: ActivityEvent<$MessageActivity>,
     state: ChatStore
   ) => ChatStore;
   readonly onMessageSendActivity: (

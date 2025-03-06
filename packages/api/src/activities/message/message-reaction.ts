@@ -1,5 +1,5 @@
 import { MessageReaction } from '../../models';
-import { IActivity, ActivityBaseBuilder } from '../activity';
+import { IActivity, Activity } from '../activity';
 
 export interface IMessageReactionActivity extends IActivity<'messageReaction'> {
   /**
@@ -13,26 +13,36 @@ export interface IMessageReactionActivity extends IActivity<'messageReaction'> {
   reactionsRemoved?: MessageReaction[];
 }
 
-export class MessageReactionActivityBuilder extends ActivityBaseBuilder<IMessageReactionActivity> {
-  activity: Pick<IMessageReactionActivity, 'type'> & Partial<IMessageReactionActivity>;
+export class MessageReactionActivity
+  extends Activity<'messageReaction'>
+  implements IMessageReactionActivity
+{
+  /**
+   * The collection of reactions added to the conversation.
+   */
+  reactionsAdded?: MessageReaction[];
 
-  constructor(options?: Omit<Partial<IMessageReactionActivity>, 'type'>) {
-    super();
-    this.activity = {
-      ...options,
+  /**
+   * The collection of reactions removed from the conversation.
+   */
+  reactionsRemoved?: MessageReaction[];
+
+  constructor(value: Omit<Partial<IMessageReactionActivity>, 'type'> = {}) {
+    super({
+      ...value,
       type: 'messageReaction',
-    };
+    });
   }
 
   /**
    * Add a message reaction.
    */
   addReaction(reaction: MessageReaction) {
-    if (!this.activity.reactionsAdded) {
-      this.activity.reactionsAdded = [];
+    if (!this.reactionsAdded) {
+      this.reactionsAdded = [];
     }
 
-    this.activity.reactionsAdded.push(reaction);
+    this.reactionsAdded.push(reaction);
     return this;
   }
 
@@ -40,25 +50,21 @@ export class MessageReactionActivityBuilder extends ActivityBaseBuilder<IMessage
    * Remove a message reaction.
    */
   removeReaction(reaction: MessageReaction) {
-    if (!this.activity.reactionsRemoved) {
-      this.activity.reactionsRemoved = [];
+    if (!this.reactionsRemoved) {
+      this.reactionsRemoved = [];
     }
 
-    if (this.activity.reactionsAdded) {
-      const i = this.activity.reactionsAdded.findIndex(
+    if (this.reactionsAdded) {
+      const i = this.reactionsAdded.findIndex(
         (r) => r.type === reaction.type && r.user?.id === reaction.user?.id
       );
 
       if (i > -1) {
-        this.activity.reactionsAdded.splice(i, 1);
+        this.reactionsAdded.splice(i, 1);
       }
     }
 
-    this.activity.reactionsRemoved.push(reaction);
+    this.reactionsRemoved.push(reaction);
     return this;
   }
-}
-
-export function MessageReactionActivity(options?: Omit<Partial<IMessageReactionActivity>, 'type'>) {
-  return new MessageReactionActivityBuilder(options);
 }

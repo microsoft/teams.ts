@@ -1,7 +1,7 @@
 import { EventActivity } from './event';
 import { InvokeActivity } from './invoke';
 import { ConversationActivity } from './conversation';
-import { MessageActivity } from './message';
+import { $MessageActivity } from './message';
 import { CommandActivity } from './command';
 import { InstallUpdateActivity } from './install-update';
 import { ITraceActivity } from './trace';
@@ -9,7 +9,7 @@ import { ITypingActivity } from './typing';
 import { IHandoffActivity } from './handoff';
 
 export type Activity =
-  | MessageActivity
+  | $MessageActivity
   | EventActivity
   | InvokeActivity
   | ITraceActivity
@@ -29,4 +29,3 @@ export * from './conversation';
 export * from './command';
 export * from './install-update';
 export * from './utils';
-export * from './builder';

@@ -15,7 +15,7 @@ describe('MessageReactionActivity', () => {
   };
 
   it('should build', () => {
-    const activity = MessageReactionActivity()
+    const activity = new MessageReactionActivity()
       .addReaction({
         type: 'angry',
         user: a,
@@ -27,8 +27,7 @@ describe('MessageReactionActivity', () => {
       .removeReaction({
         type: 'heart',
         user: b,
-      })
-      .build();
+      });
 
     expect(activity.type).toEqual('messageReaction');
     expect(activity.reactionsAdded).toStrictEqual([

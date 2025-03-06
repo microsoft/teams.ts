@@ -1,23 +1,7 @@
 import { Account, ConversationAccount } from '../models';
-import { ActivityBaseBuilder, IActivity } from './activity';
+import { Activity } from './activity';
 
-class ExampleActivityBuilder extends ActivityBaseBuilder<IActivity<'example'>> {
-  activity: Pick<IActivity<'example'>, 'type'> & Partial<IActivity<'example'>>;
-
-  constructor(options?: Omit<Partial<IActivity<'example'>>, 'type'>) {
-    super();
-    this.activity = {
-      ...options,
-      type: 'example',
-    };
-  }
-
-  build() {
-    return this.activity;
-  }
-}
-
-describe('ActivityBuilder', () => {
+describe('Activity', () => {
   const user: Account = {
     id: '1',
     name: 'test',
@@ -36,22 +20,21 @@ describe('ActivityBuilder', () => {
   };
 
   it('should build', () => {
-    const activity = new ExampleActivityBuilder()
-      .id('1')
-      .locale('en')
-      .from(user)
-      .conversation(chat)
-      .relatesTo({
+    const activity = new Activity({ type: 'example' })
+      .withId('1')
+      .withLocale('en')
+      .withFrom(user)
+      .withConversation(chat)
+      .withRelatesTo({
         channelId: 'msteams',
         serviceUrl: 'http://localhost',
         bot,
         conversation: chat,
       })
-      .recipient(bot)
-      .replyToId('3')
-      .aiGenerated()
-      .feedback()
-      .build();
+      .withRecipient(bot)
+      .withReplyToId('3')
+      .addAiGenerated()
+      .addFeedback();
 
     expect(activity.id).toEqual('1');
     expect(activity.locale).toEqual('en');

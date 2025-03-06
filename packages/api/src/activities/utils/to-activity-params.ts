@@ -3,8 +3,7 @@ import { isCard } from '@microsoft/spark.cards';
 import { ActivityParams } from '../../clients';
 import { ActivityLike } from '../../models';
 
-import { isActivityBuilder } from '../builder';
-import { MessageActivityBuilder } from '../message';
+import { MessageActivity } from '../message';
 
 /**
  * @hidden
@@ -18,10 +17,8 @@ export function toActivityParams(activity: ActivityLike): ActivityParams {
       type: 'message',
       text: activity,
     };
-  } else if (isActivityBuilder(activity)) {
-    activity = activity.build();
   } else if (isCard(activity)) {
-    activity = new MessageActivityBuilder('').card('adaptive', activity).build();
+    activity = new MessageActivity().addCard('adaptive', activity);
   }
 
   return activity;

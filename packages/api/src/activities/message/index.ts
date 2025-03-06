@@ -3,7 +3,7 @@ import { IMessageReactionActivity } from './message-reaction';
 import { IMessageActivity } from './message';
 import { IMessageUpdateActivity } from './message-update';
 
-export type MessageActivity =
+export type $MessageActivity =
   | IMessageActivity
   | IMessageUpdateActivity
   | IMessageDeleteActivity

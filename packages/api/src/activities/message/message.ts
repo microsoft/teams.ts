@@ -12,7 +12,7 @@ import {
   TextFormat,
 } from '../../models';
 
-import { IActivity, ActivityBaseBuilder } from '../activity';
+import { IActivity, Activity } from '../activity';
 
 export interface IMessageActivity extends IActivity<'message'> {
   /**
@@ -81,31 +81,93 @@ export interface IMessageActivity extends IActivity<'message'> {
   value?: any;
 }
 
-export class MessageActivityBuilder extends ActivityBaseBuilder<IMessageActivity> {
-  activity: Pick<IMessageActivity, 'type'> & Partial<IMessageActivity>;
+export class MessageActivity extends Activity<'message'> implements IMessageActivity {
+  /**
+   * The text content of the message.
+   */
+  text!: string;
 
-  constructor(text: string, options?: Omit<Partial<IMessageActivity>, 'type'>) {
-    super();
-    this.activity = {
-      ...options,
+  /**
+   * The text to speak.
+   */
+  speak?: string;
+
+  /**
+   * Indicates whether your bot is accepting,
+   * expecting, or ignoring user input after the message is delivered to the client. Possible
+   * values include: 'acceptingInput', 'ignoringInput', 'expectingInput'
+   */
+  inputHint?: InputHint;
+
+  /**
+   * The text to display if the channel cannot render cards.
+   */
+  summary?: string;
+
+  /**
+   * Format of text fields Default:markdown. Possible values include: 'markdown', 'plain', 'xml'
+   */
+  textFormat?: TextFormat;
+
+  /**
+   * The layout hint for multiple attachments. Default: list. Possible values include: 'list',
+   * 'carousel'
+   */
+  attachmentLayout?: AttachmentLayout;
+
+  /**
+   * Attachments
+   */
+  attachments?: Attachment[];
+
+  /**
+   * The suggested actions for the activity.
+   */
+  suggestedActions?: SuggestedActions;
+
+  /**
+   * The importance of the activity. Possible values include: 'low', 'normal', 'high'
+   */
+  importance?: Importance;
+
+  /**
+   * A delivery hint to signal to the recipient alternate delivery paths for the activity.
+   * The default delivery mode is "default". Possible values include: 'normal', 'notification'
+   */
+  deliveryMode?: DeliveryMode;
+
+  /**
+   * The time at which the activity should be considered to be "expired" and should not be
+   * presented to the recipient.
+   */
+  expiration?: Date;
+
+  /**
+   * A value that is associated with the activity.
+   */
+  value?: any;
+
+  constructor(text?: string, value: Omit<Partial<IMessageActivity>, 'type'> = {}) {
+    super({
       type: 'message',
       text,
-    };
+      ...value,
+    });
   }
 
   /**
    * The text content of the message.
    */
-  text(value: string) {
-    this.activity.text = value;
+  withText(value: string) {
+    this.text = value;
     return this;
   }
 
   /**
    * The text to speak.
    */
-  speak(value: string) {
-    this.activity.speak = value;
+  withSpeak(value: string) {
+    this.speak = value;
     return this;
   }
 
@@ -114,24 +176,24 @@ export class MessageActivityBuilder extends ActivityBaseBuilder<IMessageActivity
    * expecting, or ignoring user input after the message is delivered to the client. Possible
    * values include: 'acceptingInput', 'ignoringInput', 'expectingInput'
    */
-  inputHint(value: InputHint) {
-    this.activity.inputHint = value;
+  withInputHint(value: InputHint) {
+    this.inputHint = value;
     return this;
   }
 
   /**
    * The text to display if the channel cannot render cards.
    */
-  summary(value: string) {
-    this.activity.summary = value;
+  withSummary(value: string) {
+    this.summary = value;
     return this;
   }
 
   /**
    * Format of text fields Default:markdown. Possible values include: 'markdown', 'plain', 'xml'
    */
-  textFormat(value: TextFormat) {
-    this.activity.textFormat = value;
+  withTextFormat(value: TextFormat) {
+    this.textFormat = value;
     return this;
   }
 
@@ -139,36 +201,24 @@ export class MessageActivityBuilder extends ActivityBaseBuilder<IMessageActivity
    * The layout hint for multiple attachments. Default: list. Possible values include: 'list',
    * 'carousel'
    */
-  attachmentLayout(value: AttachmentLayout) {
-    this.activity.attachmentLayout = value;
-    return this;
-  }
-
-  /**
-   * Attachments
-   */
-  attachment(value: Attachment) {
-    if (!this.activity.attachments) {
-      this.activity.attachments = [];
-    }
-
-    this.activity.attachments.push(value);
+  withAttachmentLayout(value: AttachmentLayout) {
+    this.attachmentLayout = value;
     return this;
   }
 
   /**
    * The suggested actions for the activity.
    */
-  suggestedActions(value: SuggestedActions) {
-    this.activity.suggestedActions = value;
+  withSuggestedActions(value: SuggestedActions) {
+    this.suggestedActions = value;
     return this;
   }
 
   /**
    * The importance of the activity. Possible values include: 'low', 'normal', 'high'
    */
-  importance(value: Importance) {
-    this.activity.importance = value;
+  withImportance(value: Importance) {
+    this.importance = value;
     return this;
   }
 
@@ -176,8 +226,8 @@ export class MessageActivityBuilder extends ActivityBaseBuilder<IMessageActivity
    * A delivery hint to signal to the recipient alternate delivery paths for the activity.
    * The default delivery mode is "default". Possible values include: 'normal', 'notification'
    */
-  deliveryMode(value: DeliveryMode) {
-    this.activity.deliveryMode = value;
+  withDeliveryMode(value: DeliveryMode) {
+    this.deliveryMode = value;
     return this;
   }
 
@@ -185,16 +235,28 @@ export class MessageActivityBuilder extends ActivityBaseBuilder<IMessageActivity
    * The time at which the activity should be considered to be "expired" and should not be
    * presented to the recipient.
    */
-  expiration(value: Date) {
-    this.activity.expiration = value;
+  withExpiration(value: Date) {
+    this.expiration = value;
+    return this;
+  }
+
+  /**
+   * Attachments
+   */
+  addAttachment(value: Attachment) {
+    if (!this.attachments) {
+      this.attachments = [];
+    }
+
+    this.attachments.push(value);
     return this;
   }
 
   /**
    * `@mention` an account
    */
-  mention(account: Account) {
-    return this.entity({
+  addMention(account: Account) {
+    return this.addEntity({
       type: 'mention',
       mentioned: account,
       text: `<at>${account.name}</at>`,
@@ -204,11 +266,7 @@ export class MessageActivityBuilder extends ActivityBaseBuilder<IMessageActivity
   /**
    * Add a card attachment
    */
-  card<T extends CardAttachmentType>(type: T, content: CardAttachmentTypes[T]['content']) {
-    return this.attachment(cardAttachment(type, content));
+  addCard<T extends CardAttachmentType>(type: T, content: CardAttachmentTypes[T]['content']) {
+    return this.addAttachment(cardAttachment(type, content));
   }
-}
-
-export function MessageActivity(text: string, options?: Omit<Partial<IMessageActivity>, 'type'>) {
-  return new MessageActivityBuilder(text, options);
 }
