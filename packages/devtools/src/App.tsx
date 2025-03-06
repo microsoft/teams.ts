@@ -6,7 +6,7 @@ import {
   teamsLightTheme,
   Toaster,
 } from '@fluentui/react-components';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 
 import { ActivityContext, useActivityStore } from './stores/ActivityStore';
@@ -34,51 +34,34 @@ export default function App() {
   const cardStore = useCardStore();
   const log = useLogger();
 
-  const [connected, setConnected] = useState(false);
-
   useEffect(() => {
-    let mounted = true;
-
     const connectSocket = async () => {
       try {
         socket.connect();
-        if (mounted) {
-          log.info('Connected to server...');
-          setConnected(true);
-        }
+        log.info('Connected to server...');
       } catch (error) {
-        if (mounted) {
-          log.error('Connection error:', error);
-          setConnected(false);
-        }
+        log.error('Error connecting to server:', error);
       }
     };
 
     connectSocket();
 
-    socket.on('disconnect', () => {
-      if (mounted) {
-        log.info('Disconnected from server...');
-        setConnected(false);
-      }
-    });
+    return () => {
+      socket.off('activity');
+      socket.disconnect();
+    };
+  }, [log]);
 
+  useEffect(() => {
     const handleActivity = (event: ActivityEvent) => {
       activityStore.put(event);
       chatStore.onActivity(event);
     };
 
     socket.on('activity', handleActivity);
-
-    return () => {
-      mounted = false;
-      socket.off('activity');
-
-      // Disconnect the socket
-      socket.disconnect(() => {
-        log.info('Disconnected from server...');
-      });
-    };
+    socket.on('disconnect', () => {
+      log.info('Disconnected from server...');
+    });
   }, [activityStore, chatStore, log]);
 
   const fluentTheme = useMemo(() => {
@@ -95,7 +78,7 @@ export default function App() {
                 <BrowserRouter basename="/devtools" data-tid="browser-router">
                   <nav id="app-sidebar" className={classes.sideBar} aria-label="Sidebar navigation">
                     <header id="banner" className={classes.header}>
-                      <DevtoolsBanner connected={connected} />
+                      <DevtoolsBanner connected={socket.connected} />
                     </header>
                   </nav>
                   <div id="app-content" className={classes.mainLayout} data-tid="main-layout">
@@ -120,7 +103,7 @@ export default function App() {
                     </nav>
                     <main id="page-content" className={classes.mainContent}>
                       <Routes>
-                        <Route path="" element={<ChatScreen isConnected={connected} />} />
+                        <Route path="" element={<ChatScreen isConnected={socket.connected} />} />
                         <Route path="cards" element={<CardsScreen />} />
                         <Route path="activities" element={<ActivitiesScreen />} />
                         {/* <Route path="logs" element={<Logs />} /> */}
