@@ -19,7 +19,8 @@ import { ChatContext } from '../../stores/ChatStore';
 import useSparkApi from '../../hooks/useSparkApi';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
 import { AttachmentType } from '../../types/Attachment';
-import useLogger from '../../hooks/useLogger';
+
+import Logger from '../Logger/Logger';
 
 interface ChatMessageProps {
   content: string;
@@ -37,8 +38,7 @@ const ChatMessage: FC<ChatMessageProps> = ({
   value,
 }) => {
   const classes = useChatMessageStyles();
-  const log = useLogger();
-  const childLog = log.child('ChatMessage');
+  const childLog = Logger.child('ChatMessage');
 
   const { chat, messages } = useContext(ChatContext);
   const sparkApi = useSparkApi();

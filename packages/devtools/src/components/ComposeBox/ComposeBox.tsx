@@ -13,10 +13,10 @@ import { Attachment } from '@microsoft/spark.api';
 
 import { useCardStore } from '../../stores/CardStore';
 import { AttachmentType } from '../../types/Attachment';
+import Logger from '../Logger/Logger';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
 import NewMessageToolbar from './ComposeBoxToolbar/ComposeBoxToolbar';
 import useComposeBoxClasses from './ComposeBox.styles';
-import useLogger from '../../hooks/useLogger';
 
 export interface ComposeBoxProps {
   onSend: (message: string, attachments?: Attachment[]) => void;
@@ -33,8 +33,7 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { currentCard, clearCurrentCard } = useCardStore();
   const processedCardRef = useRef<any>(null);
-  const log = useLogger();
-  const childLog = log.child('ComposeBox');
+  const childLog = Logger.child('ComposeBox');
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -91,7 +90,7 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
       // Clear the current card from the store
       clearCurrentCard();
     }
-  }, [currentCard, clearCurrentCard]);
+  }, [currentCard, clearCurrentCard, childLog]);
 
   // Handle sending message with text and attachments
   const handleSendMessage = useCallback(() => {
@@ -166,7 +165,7 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
         }
       }
     },
-    [handleSendMessage, message, attachments]
+    [childLog, handleSendMessage, message, attachments]
   );
 
   const handleRemoveAttachment = useCallback(

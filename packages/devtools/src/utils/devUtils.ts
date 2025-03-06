@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router';
 import { Attachment } from '@microsoft/spark.api';
-import useLogger from '../hooks/useLogger';
+import Logger from '../components/Logger/Logger';
 
 // Type definitions
 type DevModeOnRouteHook = (pathname: string, callback: () => void) => void;
@@ -23,8 +23,7 @@ if (import.meta.env.DEV) {
 
   AutoFillAndSendMessage = () => {
     const devMessage = import.meta.env.VITE_DEV_MESSAGE || null;
-    const log = useLogger();
-    const childLog = log.child('autoFillAndSendMessage');
+    const childLog = Logger.child('AutoFillAndSendMessage');
 
     if (!devMessage) return;
 

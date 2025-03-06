@@ -13,7 +13,8 @@ import { CopyRegular } from '@fluentui/react-icons/lib/fonts';
 import Json from '../Json/Json';
 import { ActivityEvent } from '../../types/Event';
 import useActivityDetailsClasses from './ActivityDetails.styles';
-import useLogger from '../../hooks/useLogger';
+import Logger from '../Logger/Logger';
+
 interface ActivityDetailsProps {
   selected: ActivityEvent;
   view: 'preview' | 'json';
@@ -23,8 +24,7 @@ interface ActivityDetailsProps {
 const ActivityDetails: FC<ActivityDetailsProps> = ({ selected, view, setView }) => {
   const classes = useActivityDetailsClasses();
   const { dispatchToast } = useToastController();
-  const log = useLogger();
-  const childLog = log.child('ActivityDetails');
+  const childLog = Logger.child('ActivityDetails');
 
   const handleCopy = async () => {
     try {
