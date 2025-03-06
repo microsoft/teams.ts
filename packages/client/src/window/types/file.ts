@@ -17,7 +17,7 @@ export enum FileFormats {
 /**
  * File object that can be used to represent image or video or audio
  */
-export interface File {
+export type File = {
   /**
    * Content of the file. When format is Base64, this is the base64 content
    * When format is ID, this is id mapping to the URI
@@ -44,4 +44,4 @@ export interface File {
    * Optional: Name of the file
    */
   name?: string;
-}
+};

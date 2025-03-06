@@ -1,9 +1,9 @@
 /**
  * Represents Meeting information.
  */
-export interface MeetingContext {
+export type MeetingContext = {
   /**
    * Meeting Id used by tab when running in meeting context
    */
   id: string;
-}
+};

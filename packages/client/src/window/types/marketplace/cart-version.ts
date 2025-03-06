@@ -1,7 +1,7 @@
 /**
  * Version of the cart that is used by the app.
  */
-export interface CartVersion {
+export type CartVersion = {
   /**
    * Represents the major version of a cart, it
    * not compatible with the previous major version.
@@ -13,4 +13,4 @@ export interface CartVersion {
    * with the previous minor version in the same major version.
    */
   readonly minorVersion: number;
-}
+};

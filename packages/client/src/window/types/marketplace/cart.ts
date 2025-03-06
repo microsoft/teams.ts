@@ -5,7 +5,7 @@ import { CartVersion } from './cart-version';
 /**
  * Represents the cart object for the app checkout flow.
  */
-export interface Cart {
+export type Cart = {
   /**
    * Version of the cart.
    */
@@ -25,4 +25,4 @@ export interface Cart {
    * The cart items.
    */
   readonly cartItems: CartItem[];
-}
+};

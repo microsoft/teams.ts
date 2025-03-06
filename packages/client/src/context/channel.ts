@@ -3,7 +3,7 @@ import { ChannelType } from '../window';
 /**
  * Represents Channel information.
  */
-export interface ChannelContext {
+export type ChannelContext = {
   /**
    * The Microsoft Teams ID for the channel with which the content is associated.
    */
@@ -38,4 +38,4 @@ export interface ChannelContext {
    * The Microsoft Entra group ID of the team which owns the channel.
    */
   ownerGroupId?: string;
-}
+};

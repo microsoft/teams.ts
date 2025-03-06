@@ -1,10 +1,10 @@
 import { NotificationType } from '../types';
 import { WindowClient } from '../window-client';
 
-export interface ShowNotificationParameters {
+export type ShowNotificationParams = {
   message: string;
   notificationType: NotificationType;
-}
+};
 
 export class NotificationClient {
   readonly window: WindowClient;
@@ -13,7 +13,7 @@ export class NotificationClient {
     this.window = client;
   }
 
-  async show(params: ShowNotificationParameters) {
+  async show(params: ShowNotificationParams) {
     await this.window.send('notifications.showNotification', params);
   }
 }

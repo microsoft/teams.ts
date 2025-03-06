@@ -3,12 +3,12 @@ import { WindowClient } from '../window-client';
 /**
  * Represents set of parameters needed to open the appInstallDialog.
  */
-export interface OpenAppInstallDialogParams {
+export type OpenAppInstallDialogParams = {
   /**
    * A unique identifier for the app being installed.
    */
   appId: string;
-}
+};
 
 export class AppInstallDialogClient {
   readonly window: WindowClient;

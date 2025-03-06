@@ -1,6 +1,6 @@
 import { DialogDimension } from './dialog-dimension';
 
-export interface DialogSize {
+export type DialogSize = {
   /**
    * The requested height of the webview/iframe.
    */
@@ -10,4 +10,4 @@ export interface DialogSize {
    * The requested width of the webview/iframe.
    */
   width?: DialogDimension | number;
-}
+};

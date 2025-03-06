@@ -5,7 +5,7 @@ import { WindowClient } from '../window-client';
 /**
  * Describes the authentication pop-up parameters
  */
-export interface AuthPopUpParams {
+export type AuthPopUpParams = {
   /**
    * The URL for the authentication pop-up.
    */
@@ -31,12 +31,12 @@ export interface AuthPopUpParams {
    * environment without an embedded browser.
    */
   isExternal?: boolean;
-}
+};
 
 /**
  * Describes authentication token request parameters
  */
-export interface AuthTokenRequestParams {
+export type AuthTokenRequestParams = {
   /**
    * An list of resources for which to acquire the access token; only for internal Microsoft usage
    */
@@ -56,7 +56,7 @@ export interface AuthTokenRequestParams {
    * An optional identifier of the home tenant for which to acquire the access token for (used in cross-tenant shared channels).
    */
   tenantId?: string;
-}
+};
 
 export class AuthenticationClient {
   readonly window: WindowClient;

@@ -17,7 +17,7 @@ export type AppOptions = Partial<Credentials> & {
   readonly logger?: ILogger;
 };
 
-interface AppConnect {
+type AppConnect = {
   /**
    * the app id
    */
@@ -30,7 +30,7 @@ interface AppConnect {
     readonly short: string;
     readonly full: string;
   };
-}
+};
 
 export class App {
   readonly options: AppOptions;

@@ -19,7 +19,7 @@ export type ExpectedFailureReason =
 /**
  * Represents the failed request sent during a failed app initialization.
  */
-export interface FailedParams {
+export type FailedParams = {
   /**
    * The reason for the failure
    */
@@ -29,12 +29,12 @@ export interface FailedParams {
    * This property is currently unused.
    */
   message?: string;
-}
+};
 
 /**
  * Represents the failure request sent during an erroneous app initialization.
  */
-export interface ExpectedFailureParams {
+export type ExpectedFailureParams = {
   /**
    * The reason for the failure
    */
@@ -44,7 +44,7 @@ export interface ExpectedFailureParams {
    * A message that describes the failure
    */
   message?: string;
-}
+};
 
 export class AppInitializationClient {
   readonly window: WindowClient;

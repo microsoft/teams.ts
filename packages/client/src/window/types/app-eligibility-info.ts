@@ -3,7 +3,7 @@ import { LegalAgeGroupClassification } from './legal-age-group-classification';
 /**
  * Eligibility Information for the app user.
  */
-export interface AppEligibilityInfo {
+export type AppEligibilityInfo = {
   /**
    * Describes the user’s age group, which can have implications on which product they are able to use.
    */
@@ -35,12 +35,12 @@ export interface AppEligibilityInfo {
    * Indicates if the tenant admin has opted the user out of Copilot.
    */
   isOptedOutByAdmin: boolean;
-}
+};
 
 /**
  * Represents the feature set available to the user.
  */
-export interface FeatureSet {
+export type FeatureSet = {
   /**
    * Server Feature set
    */
@@ -49,4 +49,4 @@ export interface FeatureSet {
    * UX Feature set
    */
   uxFeatures: ReadonlyArray<string>;
-}
+};

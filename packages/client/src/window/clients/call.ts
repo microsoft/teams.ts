@@ -1,7 +1,7 @@
 import { WindowClient } from '../window-client';
 import { CallModality } from '../types';
 
-export interface StartCallParams {
+export type StartCallParams = {
   /**
    * Comma-separated list of user IDs representing the participants of the call.
    *
@@ -21,7 +21,7 @@ export interface StartCallParams {
    * An optional parameter that informs about the source of the deep link
    */
   source?: string;
-}
+};
 
 export class CallClient {
   readonly window: WindowClient;

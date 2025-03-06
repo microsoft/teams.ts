@@ -1,7 +1,7 @@
 /**
  * Data struture to represent the location information
  */
-export interface Location {
+export type Location = {
   /**
    * Latitude of the location
    */
@@ -23,4 +23,4 @@ export interface Location {
    * Time stamp when the location was captured
    */
   timestamp?: number;
-}
+};

@@ -3,7 +3,7 @@ import { HostClientType } from './host';
 /**
  * Represents OS locale info used for formatting date and time data
  */
-export interface Locale {
+export type Locale = {
   /**
    * Represents the user's platform on which the app is running.
    */
@@ -38,4 +38,4 @@ export interface Locale {
    * @example 10:10:42 AM
    */
   longTime: string;
-}
+};

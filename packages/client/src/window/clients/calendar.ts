@@ -3,7 +3,7 @@ import { WindowClient } from '../window-client';
 /**
  * Compose meeting parameters
  */
-export interface ComposeCalendarMeetingParams {
+export type ComposeCalendarMeetingParams = {
   /**
    * An array of email addresses, user name, or user id of the attendees to invite to the meeting.
    */
@@ -28,17 +28,17 @@ export interface ComposeCalendarMeetingParams {
    * The body content of the meeting.
    */
   content?: string;
-}
+};
 
 /**
  * Open calendar item parameters.
  */
-export interface OpenCalendarItemParams {
+export type OpenCalendarItemParams = {
   /**
    * An unique base64-encoded string id that represents the event's unique identifier of the calendar item to be opened.
    */
   itemId: string;
-}
+};
 
 export class CalendarClient {
   readonly window: WindowClient;

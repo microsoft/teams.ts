@@ -61,13 +61,13 @@ export enum ImageOutputFormats {
 /**
  * Input for view images API
  */
-export interface ImageUri {
+export type ImageUri = {
   /** Image location */
   value: string;
 
   /** Image Uri type */
   type: ImageUriType;
-}
+};
 
 /**
  * ID contains a mapping for content uri on platform's side, URL is generic
@@ -83,7 +83,7 @@ export enum ImageUriType {
 /**
  * Input parameter supplied to the select Media API
  */
-export interface MediaInputs {
+export type MediaInputs = {
   /**
    * Only one media type can be selected at a time
    */
@@ -113,7 +113,7 @@ export interface MediaInputs {
    * Additional properties for audio capture flows.
    */
   audioProps?: AudioProps;
-}
+};
 
 /**
  * @hidden
@@ -121,7 +121,7 @@ export interface MediaInputs {
  * --------
  * All properties common to Image and Video Props
  */
-interface MediaProps {
+type MediaProps = {
   /**
    * Optional; Lets the developer specify the media source, more than one can be specified.
    * Default value is both camera and gallery
@@ -139,12 +139,12 @@ interface MediaProps {
    * Default value is true
    */
   cameraSwitcher?: boolean;
-}
+};
 
 /**
  *  All properties in ImageProps are optional and have default values in the platform
  */
-export interface ImageProps extends MediaProps {
+export type ImageProps = MediaProps & {
   /**
    * Optional; indicate if inking on the selected Image is allowed or not
    * Default value is true
@@ -168,12 +168,12 @@ export interface ImageProps extends MediaProps {
    * Default value is Image.
    */
   imageOutputFormats?: ImageOutputFormats[];
-}
+};
 
 /**
  * All properties in VideoProps are optional and have default values in the platform
  */
-export interface VideoProps extends MediaProps {
+export type VideoProps = MediaProps & {
   /**
    * Optional; the maximum duration in seconds after which the recording should terminate automatically.
    * Default value is defined by the platform serving the API.
@@ -192,23 +192,23 @@ export interface VideoProps extends MediaProps {
    * Default value is true, indicating the user will be able to stop the video.
    */
   isStopButtonVisible?: boolean;
-}
+};
 
 /**
  * All properties in VideoAndImageProps are optional and have default values in the platform
  */
-export interface VideoAndImageProps extends ImageProps, VideoProps {}
+export type VideoAndImageProps = ImageProps & VideoProps;
 
 /**
  *  All properties in AudioProps are optional and have default values in the platform
  */
-export interface AudioProps {
+export type AudioProps = {
   /**
    * Optional; the maximum duration in minutes after which the recording should terminate automatically
    * Default value is defined by the platform serving the API.
    */
   maxDuration?: number;
-}
+};
 
 export class MediaClient {
   readonly window: WindowClient;

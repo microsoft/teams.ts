@@ -3,7 +3,7 @@ import { TeamType, UserTeamRole } from '../window';
 /**
  * Represents Team information.
  */
-export interface TeamContext {
+export type TeamContext = {
   /**
    * The Microsoft Teams ID for the team with which the content is associated.
    */
@@ -42,4 +42,4 @@ export interface TeamContext {
    * be used only as a hint as to the user's role, and never as proof of her role.
    */
   userRole?: UserTeamRole;
-}
+};

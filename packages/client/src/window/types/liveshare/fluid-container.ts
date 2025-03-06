@@ -3,7 +3,7 @@ import { ContainerState } from './container-state';
 /**
  * This response specifies the container mapping information for the current Live Share session.
  */
-export interface FluidContainer {
+export type FluidContainer = {
   /**
    * State of the containerId mapping.
    */
@@ -26,4 +26,4 @@ export interface FluidContainer {
    * but another client is creating it.
    */
   retryAfter: number;
-}
+};

@@ -1,6 +1,6 @@
 import { DataResidency } from './data-residency';
 
-export interface UserProfile {
+export type UserProfile = {
   /**
    * The intended recipient of the token. The application that receives the token must verify that the audience
    * value is correct and reject any tokens intended for a different audience.
@@ -91,4 +91,4 @@ export interface UserProfile {
    * Stores the data residency of the user.
    */
   dataResidency?: DataResidency;
-}
+};

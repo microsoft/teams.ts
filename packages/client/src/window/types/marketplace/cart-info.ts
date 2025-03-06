@@ -4,7 +4,7 @@ import { Intent } from './intent';
 /**
  * Represents the cart information
  */
-export interface CartInfo {
+export type CartInfo = {
   /**
    * The country market where the products are selling.
    * Should be country code in ISO 3166-1 alpha-2 format, e.g. CA for Canada.
@@ -48,4 +48,4 @@ export interface CartInfo {
    * https://en.wikipedia.org/wiki/ISO_8601
    */
   readonly updatedAt: string;
-}
+};

@@ -2,7 +2,7 @@
  * an Error originating from
  * the parent window
  */
-export interface ClientError {
+export type ClientError = {
   readonly errorCode?: number | string;
   readonly message: string | Error;
-}
+};

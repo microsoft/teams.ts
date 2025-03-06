@@ -1,6 +1,6 @@
 import { ClientError } from './client-error';
 
-export interface MessageRequest {
+export type MessageRequest = {
   id: number;
   uuidAsString: string;
   func: string;
@@ -8,17 +8,17 @@ export interface MessageRequest {
   monotonicTimestamp?: number;
   args: any[];
   apiVersionTag?: string;
-}
+};
 
-export interface MessageResponse {
+export type MessageResponse = {
   id: number;
   uuidAsString: string;
   origin: string;
   args: any[];
   monotonicTimestamp?: number;
   isPartialResponse?: boolean; // If the message is partial, then there will be more future responses for the given message ID.
-}
+};
 
-export interface ErrorMessageResponse extends MessageResponse {
+export type ErrorMessageResponse = MessageResponse & {
   args: [false, string] | [false, ClientError] | [ClientError];
-}
+};

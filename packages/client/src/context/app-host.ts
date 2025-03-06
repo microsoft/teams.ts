@@ -3,7 +3,7 @@ import { HostClientType, HostName } from '../window';
 /**
  * Represents information about the application's host.
  */
-export interface AppHostContext {
+export type AppHostContext = {
   /**
    * Identifies which host is running your app
    */
@@ -23,4 +23,4 @@ export interface AppHostContext {
    * Current ring ID
    */
   ringId?: string;
-}
+};
