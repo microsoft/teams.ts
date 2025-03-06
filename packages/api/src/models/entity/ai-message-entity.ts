@@ -1,4 +1,4 @@
-export interface AIMessageEntity {
+export type AIMessageEntity = {
   readonly type: 'https://schema.org/Message';
 
   /**
@@ -20,4 +20,4 @@ export interface AIMessageEntity {
    * other properties
    */
   [key: string]: any;
-}
+};

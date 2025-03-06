@@ -1,6 +1,6 @@
 import { Account } from '../account';
 
-export interface MentionEntity {
+export type MentionEntity = {
   readonly type: 'mention';
 
   /**
@@ -17,4 +17,4 @@ export interface MentionEntity {
    * other properties
    */
   [key: string]: any;
-}
+};

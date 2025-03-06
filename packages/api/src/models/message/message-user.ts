@@ -1,10 +1,10 @@
 /**
- * @interface
+ *
  * An interface representing MessageActionsPayloadUser.
  * Represents a user entity.
  *
  */
-export interface MessageUser {
+export type MessageUser = {
   /**
    * @member {UserIdentityType} [userIdentityType] The identity type of the
    * user. Possible values include: 'aadUser', 'onPremiseAadUser',
@@ -21,4 +21,4 @@ export interface MessageUser {
    * @member {string} [displayName] The plaintext display name of the user.
    */
   displayName?: string;
-}
+};

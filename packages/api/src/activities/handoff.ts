@@ -1,5 +1,3 @@
-import { ActivityBase } from './base';
+import { IActivity } from './activity';
 
-export interface HandoffActivity extends ActivityBase {
-  readonly type: 'handoff';
-}
+export interface IHandoffActivity extends IActivity<'handoff'> {}

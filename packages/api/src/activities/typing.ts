@@ -1,34 +1,32 @@
-import { ActivityBase, ActivityBaseBuilder } from './base';
+import { IActivity, Activity } from './activity';
 
-export interface TypingActivity extends ActivityBase {
-  readonly type: 'typing';
-
+export interface ITypingActivity extends IActivity<'typing'> {
   /**
    * The text content of the message.
    */
   text?: string;
 }
 
-export class TypingActivityBuilder extends ActivityBaseBuilder<TypingActivity> {
-  activity: Pick<TypingActivity, 'type'> & Partial<TypingActivity>;
+export class TypingActivity extends Activity<'typing'> implements ITypingActivity {
+  /**
+   * The text content of the message.
+   */
+  text?: string;
 
-  constructor(options?: Omit<Partial<TypingActivity>, 'type'>) {
-    super();
-    this.activity = {
-      ...options,
+  constructor(value: Omit<Partial<ITypingActivity>, 'type'> = {}) {
+    super({
       type: 'typing',
-    };
+      ...value,
+    });
+
+    Object.assign(this, value);
   }
 
   /**
    * The text content of the message.
    */
-  text(value: string) {
-    this.activity.text = value;
+  withText(value: string) {
+    this.text = value;
     return this;
   }
-}
-
-export function TypingActivity(options?: Omit<Partial<TypingActivity>, 'type'>) {
-  return new TypingActivityBuilder(options);
 }

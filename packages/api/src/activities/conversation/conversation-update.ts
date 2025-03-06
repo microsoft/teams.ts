@@ -1,10 +1,8 @@
 import { Account, ChannelData } from '../../models';
 
-import { ActivityBase } from '../base';
+import { IActivity } from '../activity';
 
-export interface ConversationUpdateActivity extends ActivityBase {
-  readonly type: 'conversationUpdate';
-
+export interface IConversationUpdateActivity extends IActivity<'conversationUpdate'> {
   /**
    * The collection of members added to the conversation.
    */

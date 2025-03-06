@@ -1,7 +1,7 @@
 /**
  * A request to receive a user token
  */
-export interface TokenRequest {
+export type TokenRequest = {
   /**
    * The provider to request a user token from
    */
@@ -11,4 +11,4 @@ export interface TokenRequest {
    * A collection of settings for the specific provider for this request
    */
   settings: Record<string, any>;
-}
+};

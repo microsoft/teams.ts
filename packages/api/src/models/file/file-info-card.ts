@@ -1,10 +1,10 @@
 /**
- * @interface
+ *
  * An interface representing FileInfoCard.
  * File info card.
  *
  */
-export interface FileInfoCard {
+export type FileInfoCard = {
   /**
    * @member {string} [uniqueId] Unique Id for the file.
    */
@@ -19,4 +19,4 @@ export interface FileInfoCard {
    * @member {any} [etag] ETag for the file.
    */
   etag?: any;
-}
+};

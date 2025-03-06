@@ -7,12 +7,12 @@ import { TeamInfo } from './team-info';
 import { TenantInfo } from './tenant-info';
 
 /**
- * @interface
+ *
  * An interface representing ChannelData.
  * Channel data specific to messages received in Microsoft Teams
  *
  */
-export interface ChannelData {
+export type ChannelData = {
   /**
    * @member {ChannelInfo} [channel] Information about the channel in which the
    * message was sent.
@@ -81,7 +81,7 @@ export interface ChannelData {
    * Starts at 1 for the first message and increments from there.
    */
   streamSequence?: number;
-}
+};
 
 export * from './channel-info';
 export * from './notification-info';

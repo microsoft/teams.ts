@@ -1,12 +1,12 @@
 import { FC } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
-import { Column } from '@microsoft/spark.cards';
+import { IColumn } from '@microsoft/spark.cards';
 
 import Card from '../Card';
 import useContainerClasses from './Containers.styles';
 
 export interface ColumnCardProps {
-  readonly value: Column;
+  readonly value: IColumn;
 }
 
 const ColumnCard: FC<ColumnCardProps> = ({ value }) => {

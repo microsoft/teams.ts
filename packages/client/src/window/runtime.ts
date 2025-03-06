@@ -1,4 +1,4 @@
-export interface Runtime {
+export type Runtime = {
   readonly apiVersion: number;
   readonly supports: {
     readonly app?: {
@@ -91,4 +91,4 @@ export interface Runtime {
     };
     readonly webStorage?: {};
   };
-}
+};

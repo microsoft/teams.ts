@@ -3,7 +3,7 @@ import { TargetWidth } from '../common';
 /**
  * A layout that stacks elements on top of each other. Layout.Stack is the default layout used by AdaptiveCard and all containers.
  */
-export interface StackLayout {
+export interface IStackLayout {
   type: 'Layout.Stack';
 
   /**
@@ -12,14 +12,31 @@ export interface StackLayout {
   targetWidth?: TargetWidth;
 }
 
-export type StackLayoutParams = Omit<StackLayout, 'type'>;
+export type StackLayoutOptions = Omit<IStackLayout, 'type'>;
 
 /**
  * A layout that stacks elements on top of each other. Layout.Stack is the default layout used by AdaptiveCard and all containers.
  */
-export function StackLayout(params?: StackLayoutParams): StackLayout {
-  return {
-    type: 'Layout.Stack',
-    ...params,
-  };
+export class StackLayout implements IStackLayout {
+  type: 'Layout.Stack';
+
+  /**
+   * Controls for which card width the layout should be used.
+   */
+  targetWidth?: TargetWidth;
+
+  constructor(options: StackLayoutOptions = {}) {
+    this.type = 'Layout.Stack';
+    this.withOptions(options);
+  }
+
+  withOptions(value: StackLayoutOptions) {
+    Object.assign(this, value);
+    return this;
+  }
+
+  withTargetWidth(value: TargetWidth) {
+    this.targetWidth = value;
+    return this;
+  }
 }

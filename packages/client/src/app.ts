@@ -1,5 +1,5 @@
 import * as http from '@microsoft/spark.common/http';
-import { Logger, ConsoleLogger } from '@microsoft/spark.common/logging';
+import { ILogger, ConsoleLogger } from '@microsoft/spark.common/logging';
 import { Credentials } from '@microsoft/spark.api';
 
 import * as window from './window';
@@ -14,10 +14,10 @@ export type AppOptions = Partial<Credentials> & {
   /**
    * logger instance to use
    */
-  readonly logger?: Logger;
+  readonly logger?: ILogger;
 };
 
-interface AppConnect {
+type AppConnect = {
   /**
    * the app id
    */
@@ -30,7 +30,7 @@ interface AppConnect {
     readonly short: string;
     readonly full: string;
   };
-}
+};
 
 export class App {
   readonly options: AppOptions;
@@ -43,7 +43,7 @@ export class App {
   get log() {
     return this._log;
   }
-  protected _log: Logger;
+  protected _log: ILogger;
 
   /**
    * the app id

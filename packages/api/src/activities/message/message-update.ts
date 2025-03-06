@@ -1,9 +1,7 @@
 import { ChannelData } from '../../models';
-import { ActivityBase, ActivityBaseBuilder } from '../base';
+import { IActivity, Activity } from '../activity';
 
-export interface MessageUpdateActivity extends ActivityBase {
-  readonly type: 'messageUpdate';
-
+export interface IMessageUpdateActivity extends IActivity<'messageUpdate'> {
   /**
    * The text content of the message.
    */
@@ -35,45 +33,83 @@ export interface MessageUpdateActivity extends ActivityBase {
   };
 }
 
-export class MessageUpdateActivityBuilder extends ActivityBaseBuilder<MessageUpdateActivity> {
-  activity: Pick<MessageUpdateActivity, 'type'> & Partial<MessageUpdateActivity>;
+export class MessageUpdateActivity
+  extends Activity<'messageUpdate'>
+  implements IMessageUpdateActivity
+{
+  /**
+   * The text content of the message.
+   */
+  text!: string;
+
+  /**
+   * The text to speak.
+   */
+  speak?: string;
+
+  /**
+   * The text to display if the channel cannot render cards.
+   */
+  summary?: string;
+
+  /**
+   * The time at which the activity should be considered to be "expired" and should not be
+   * presented to the recipient.
+   */
+  expiration?: Date;
+
+  /**
+   * A value that is associated with the activity.
+   */
+  value?: any;
+
+  declare channelData: ChannelData & {
+    eventType: 'undeleteMessage' | 'editMessage';
+  };
 
   constructor(
     eventType: 'undeleteMessage' | 'editMessage',
-    options?: Omit<Partial<MessageUpdateActivity>, 'type'>
+    value: Omit<Partial<IMessageUpdateActivity>, 'type'> = {}
   ) {
-    super();
-    this.activity = {
-      ...options,
+    super({
+      ...value,
       type: 'messageUpdate',
       channelData: {
-        ...options?.channelData,
+        ...value?.channelData,
         eventType,
       },
-    };
+    });
+
+    Object.assign(this, {
+      ...value,
+      channelData: {
+        ...value?.channelData,
+        eventType,
+      },
+    });
   }
 
   /**
    * The text content of the message.
    */
-  text(value: string) {
-    this.activity.text = value;
+  withText(value: string) {
+    this.text = value;
     return this;
   }
 
   /**
    * The text to speak.
    */
-  speak(value: string) {
-    this.activity.speak = value;
+  withSpeak(value: string) {
+    this.speak = value;
     return this;
   }
 
   /**
    * The text to display if the channel cannot render cards.
    */
-  summary(value: string) {
-    this.activity.summary = value;
+  withSummary(value: string) {
+    this.summary = value;
     return this;
   }
 
@@ -81,15 +117,8 @@ export class MessageUpdateActivityBuilder extends ActivityBaseBuilder<MessageUpd
    * The time at which the activity should be considered to be "expired" and should not be
    * presented to the recipient.
    */
-  expiration(value: Date) {
-    this.activity.expiration = value;
+  withExpiration(value: Date) {
+    this.expiration = value;
     return this;
   }
-}
-
-export function MessageUpdateActivity(
-  eventType: 'undeleteMessage' | 'editMessage',
-  options?: Omit<Partial<MessageUpdateActivity>, 'type'>
-) {
-  return new MessageUpdateActivityBuilder(eventType, options);
 }

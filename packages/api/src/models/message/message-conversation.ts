@@ -1,10 +1,10 @@
 /**
- * @interface
+ *
  * An interface representing MessageActionsPayloadConversation.
  * Represents a team or channel entity.
  *
  */
-export interface MessageConversation {
+export type MessageConversation = {
   /**
    * @member {ConversationIdentityType} [conversationIdentityType] The type of
    * conversation, whether a team or channel. Possible values include: 'team',
@@ -22,4 +22,4 @@ export interface MessageConversation {
    * channel entity.
    */
   displayName?: string;
-}
+};

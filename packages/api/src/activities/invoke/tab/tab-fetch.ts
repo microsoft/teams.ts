@@ -1,10 +1,8 @@
 import { ConversationReference, TabRequest } from '../../../models';
 
-import { ActivityBase } from '../../base';
+import { IActivity } from '../../activity';
 
-export interface TabFetchInvokeActivity extends ActivityBase {
-  readonly type: 'invoke';
-
+export interface ITabFetchInvokeActivity extends IActivity<'invoke'> {
   /**
    * The name of the operation associated with an invoke or event activity.
    */

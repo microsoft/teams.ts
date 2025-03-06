@@ -1,15 +1,15 @@
-import { MessageDeleteActivity } from './message-delete';
-import { MessageReactionActivity } from './message-reaction';
-import { MessageSendActivity } from './message-send';
-import { MessageUpdateActivity } from './message-update';
+import { IMessageDeleteActivity } from './message-delete';
+import { IMessageReactionActivity } from './message-reaction';
+import { IMessageActivity } from './message';
+import { IMessageUpdateActivity } from './message-update';
 
-export type MessageActivity =
-  | MessageSendActivity
-  | MessageUpdateActivity
-  | MessageDeleteActivity
-  | MessageReactionActivity;
+export type $MessageActivity =
+  | IMessageActivity
+  | IMessageUpdateActivity
+  | IMessageDeleteActivity
+  | IMessageReactionActivity;
 
 export * from './message-delete';
-export * from './message-send';
+export * from './message';
 export * from './message-update';
 export * from './message-reaction';

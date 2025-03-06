@@ -4,7 +4,7 @@ import { CardImage } from './card-image';
 /**
  * A basic card
  */
-export interface BasicCard {
+export type BasicCard = {
   /**
    * Title of the card
    */
@@ -34,4 +34,4 @@ export interface BasicCard {
    * This action will be activated when user taps on the card itself
    */
   tap?: CardAction;
-}
+};

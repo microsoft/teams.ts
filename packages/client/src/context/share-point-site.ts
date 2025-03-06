@@ -1,7 +1,7 @@
 /**
  * Represents information about a SharePoint site
  */
-export interface SharePointSiteContext {
+export type SharePointSiteContext = {
   /**
    * The root SharePoint site associated with the team.
    */
@@ -31,4 +31,4 @@ export interface SharePointSiteContext {
    * The SharePoint relative path to the current users mysite
    */
   mySitePath?: string;
-}
+};

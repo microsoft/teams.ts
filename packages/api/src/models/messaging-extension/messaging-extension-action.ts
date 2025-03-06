@@ -3,13 +3,13 @@ import { Message } from '../message';
 import { TaskModuleRequest } from '../task-module';
 
 /**
- * @interface
+ *
  * An interface representing MessagingExtensionAction.
  * Messaging extension action
  *
  * @extends TaskModuleRequest
  */
-export interface MessagingExtensionAction extends TaskModuleRequest {
+export type MessagingExtensionAction = TaskModuleRequest & {
   /**
    * @member {string} [commandId] Id of the command assigned by Bot
    */
@@ -38,4 +38,4 @@ export interface MessagingExtensionAction extends TaskModuleRequest {
    * part of the command request.
    */
   messagePayload?: Message;
-}
+};

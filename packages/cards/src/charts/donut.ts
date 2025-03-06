@@ -1,8 +1,7 @@
-import { BaseElement } from '../base';
-import { HorizontalAlignment } from '../common';
+import { IElement, Element } from '../base';
 import { ChartColor } from './color';
 
-export interface DonutChart extends BaseElement {
+export interface IDonutChart extends IElement {
   type: 'Chart.Donut';
 
   /**
@@ -18,30 +17,62 @@ export interface DonutChart extends BaseElement {
   /**
    * the data to display in the chart.
    */
-  data: DonutChartData[];
+  data: IDonutChartData[];
 
   /**
    * the area of a `Layout.AreaGrid` layout in which an element should be displayed.
    */
   'grid.area'?: string;
+}
+
+export type DonutChartOptions = Omit<IDonutChart, 'type' | 'data'>;
+
+export class DonutChart extends Element implements IDonutChart {
+  type: 'Chart.Donut';
 
   /**
-   * controls how the element should be horizontally aligned.
+   * the title of the chart.
    */
-  horizontalAlignment?: HorizontalAlignment;
+  title?: string;
+
+  /**
+   * the name of the set of colors to use.
+   */
+  colorSet?: string;
+
+  /**
+   * the data to display in the chart.
+   */
+  data: IDonutChartData[];
+
+  constructor(...data: IDonutChartData[]) {
+    super();
+    this.type = 'Chart.Donut';
+    this.data = data;
+  }
+
+  withOptions(value: DonutChartOptions) {
+    Object.assign(this, value);
+    return this;
+  }
+
+  withTitle(value: string) {
+    this.title = value;
+    return this;
+  }
+
+  withColorSet(value: string) {
+    this.colorSet = value;
+    return this;
+  }
+
+  addData(...data: IDonutChartData[]) {
+    this.data.push(...data);
+    return this;
+  }
 }
 
-export type DonutChartParams = Omit<DonutChart, 'type' | 'data'>;
-
-export function DonutChart(data: DonutChartData[] = [], params?: DonutChartParams): DonutChart {
-  return {
-    type: 'Chart.Donut',
-    data,
-    ...params,
-  };
-}
-
-export interface DonutChartData {
+export interface IDonutChartData {
   /**
    * the color to use for the data point.
    */
@@ -58,11 +89,46 @@ export interface DonutChartData {
   value: number;
 }
 
-export type DonutChartDataParams = Omit<DonutChartData, 'value'>;
+export type DonutChartDataOptions = Omit<IDonutChartData, 'value'>;
 
-export function DonutChartData(value: number = 0, params?: DonutChartDataParams): DonutChartData {
-  return {
-    value,
-    ...params,
-  };
+export class DonutChartData implements IDonutChartData {
+  /**
+   * the color to use for the data point.
+   */
+  color?: ChartColor;
+
+  /**
+   * the legend of the chart.
+   */
+  legend?: string;
+
+  /**
+   * the value associated with the data point.
+   */
+  value: number;
+
+  constructor(value = 0, options: DonutChartDataOptions = {}) {
+    this.value = value;
+    this.withOptions(options);
+  }
+
+  withOptions(value: DonutChartDataOptions) {
+    Object.assign(this, value);
+    return this;
+  }
+
+  withColor(value: ChartColor) {
+    this.color = value;
+    return this;
+  }
+
+  withLegend(value: string) {
+    this.legend = value;
+    return this;
+  }
+
+  withValue(value: number) {
+    this.value = value;
+    return this;
+  }
 }

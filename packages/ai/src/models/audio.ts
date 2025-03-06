@@ -1,17 +1,17 @@
-export interface TextToAudioParams {
+export type TextToAudioParams = {
   readonly type: string;
   readonly text: string;
   readonly voice: string;
-}
+};
 
-export interface AudioToTextParams {
+export type AudioToTextParams = {
   readonly type: string;
   readonly data: Buffer;
   readonly prompt?: string;
   readonly lang?: string;
-}
+};
 
-export interface AudioModel {
+export interface IAudioModel {
   textToAudio?(params: TextToAudioParams): Promise<Buffer>;
   audioToText?(params: AudioToTextParams): Promise<string>;
 }

@@ -1,10 +1,10 @@
 import { Body1, Subtitle2 } from '@fluentui/react-components';
-import { Fact } from '@microsoft/spark.cards';
+import { IFact } from '@microsoft/spark.cards';
 
 import useContainerClasses from './Containers.styles';
 
 export interface FactCardProps {
-  readonly value: Fact;
+  readonly value: IFact;
 }
 
 export default function FactCard({ value }: FactCardProps) {

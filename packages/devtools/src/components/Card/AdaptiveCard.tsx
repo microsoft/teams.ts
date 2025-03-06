@@ -6,7 +6,7 @@ import Card from './Card';
 import ActionCard from './Actions/ActionCard';
 
 export interface AdaptiveCardProps extends ComponentProps<'div'> {
-  readonly value: cards.Card;
+  readonly value: cards.ICard;
 }
 
 const useAdaptiveCardStyles = makeStyles({

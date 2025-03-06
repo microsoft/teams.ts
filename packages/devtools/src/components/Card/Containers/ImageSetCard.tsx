@@ -1,10 +1,10 @@
-import { ImageSet } from '@microsoft/spark.cards';
+import { IImageSet } from '@microsoft/spark.cards';
 import ImageCard from '../Medias/ImageCard';
 import { mergeClasses } from '@fluentui/react-components';
 import useContainerClasses from './Containers.styles';
 
 export interface ImageSetCardProps {
-  readonly value: ImageSet;
+  readonly value: IImageSet;
 }
 
 export default function ImageSetCard({ value }: ImageSetCardProps) {

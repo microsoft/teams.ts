@@ -1,10 +1,8 @@
 import { ConversationReference } from '../models';
 
-import { ActivityBase } from './base';
+import { IActivity } from './activity';
 
-export interface TraceActivity extends ActivityBase {
-  readonly type: 'trace';
-
+export interface ITraceActivity extends IActivity<'trace'> {
   /**
    * The name of the operation associated with an invoke or event activity.
    */

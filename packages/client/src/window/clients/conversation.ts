@@ -1,7 +1,7 @@
 import { ThreadMember } from '../types';
 import { WindowClient } from '../window-client';
 
-export interface OpenConversationParams {
+export type OpenConversationParams = {
   /**
    * The Id of the subEntity where the conversation is taking place
    */
@@ -26,9 +26,9 @@ export interface OpenConversationParams {
    * The entity Id of the tab
    */
   entityId: string;
-}
+};
 
-export interface CreateConversationParams {
+export type CreateConversationParams = {
   /**
    * Array containing [Microsoft Entra UPNs](https://learn.microsoft.com/entra/identity/hybrid/connect/plan-connect-userprincipalname) (usually but not always an e-mail address)
    * of users with whom to begin a chat
@@ -44,7 +44,7 @@ export interface CreateConversationParams {
    * The display name of a conversation for 3 or more users (chats with fewer than three users will ignore this field)
    */
   topic?: string;
-}
+};
 
 export class ConversationsClient {
   readonly window: WindowClient;

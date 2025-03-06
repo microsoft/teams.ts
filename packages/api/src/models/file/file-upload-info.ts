@@ -1,10 +1,10 @@
 /**
- * @interface
+ *
  * An interface representing FileUploadInfo.
  * Information about the file to be uploaded.
  *
  */
-export interface FileUploadInfo {
+export type FileUploadInfo = {
   /**
    * @member {string} [name] Name of the file.
    */
@@ -30,4 +30,4 @@ export interface FileUploadInfo {
    * @member {string} [fileType] Type of the file.
    */
   fileType?: string;
-}
+};

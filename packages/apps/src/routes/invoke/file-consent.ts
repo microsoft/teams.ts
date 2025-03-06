@@ -1,11 +1,11 @@
-import { FileConsentInvokeActivity, InvokeResponse } from '@microsoft/spark.api';
+import { IFileConsentInvokeActivity, InvokeResponse } from '@microsoft/spark.api';
 
 import { RouteHandler } from '../../types';
-import { MiddlewareContext } from '../../middleware-context';
+import { IMiddlewareContext } from '../../contexts';
 
 export type FileConsentActivityRoutes = {
-  [K in FileConsentInvokeActivity['value']['action'] as `file.consent.${K}`]?: RouteHandler<
-    MiddlewareContext<FileConsentInvokeActivity>,
+  [K in IFileConsentInvokeActivity['value']['action'] as `file.consent.${K}`]?: RouteHandler<
+    IMiddlewareContext<IFileConsentInvokeActivity>,
     InvokeResponse<'fileConsent/invoke'>
   >;
 };

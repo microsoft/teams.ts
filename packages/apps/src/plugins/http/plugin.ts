@@ -7,12 +7,12 @@ import {
   JsonWebToken,
   ConversationReference,
   Client,
-  Token,
+  IToken,
 } from '@microsoft/spark.api';
-import { ConsoleLogger, Logger, EventEmitter, EventHandler } from '@microsoft/spark.common';
+import { ConsoleLogger, ILogger, EventEmitter, EventHandler } from '@microsoft/spark.common';
 
-import { AppActivityErrorEvent, AppActivityResponseEvent } from '../../events';
-import { Plugin, PluginEvents, Streamer } from '../../types';
+import { IAppActivityErrorEvent, IAppActivityResponseEvent } from '../../events';
+import { IPlugin, IPluginEvents, IStreamer, IStreamerPlugin } from '../../types';
 import { App } from '../../app';
 
 import { HttpStream } from './stream';
@@ -20,7 +20,7 @@ import { HttpStream } from './stream';
 /**
  * Can send/receive activities via http
  */
-export class HttpPlugin implements Plugin {
+export class HttpPlugin implements IPlugin, IStreamerPlugin {
   readonly name = 'http';
 
   readonly get: express.Application['get'];
@@ -42,9 +42,9 @@ export class HttpPlugin implements Plugin {
   protected _port?: number;
 
   protected app?: App;
-  protected log: Logger;
+  protected log: ILogger;
   protected express: express.Application;
-  protected events: EventEmitter<PluginEvents>;
+  protected events: EventEmitter<IPluginEvents>;
   protected pending: Record<string, express.Response> = {};
 
   constructor() {
@@ -74,7 +74,7 @@ export class HttpPlugin implements Plugin {
     return this;
   }
 
-  on<Name extends keyof PluginEvents>(name: Name, callback: EventHandler<PluginEvents[Name]>) {
+  on<Name extends keyof IPluginEvents>(name: Name, callback: EventHandler<IPluginEvents[Name]>) {
     this.events.on(name, callback);
   }
 
@@ -149,7 +149,7 @@ export class HttpPlugin implements Plugin {
     return { ...activity, ...res };
   }
 
-  onStreamOpen(ref: ConversationReference): Streamer {
+  onStreamOpen(ref: ConversationReference): IStreamer {
     return new HttpStream((activity) => this.onSend(activity, ref));
   }
 
@@ -175,7 +175,7 @@ export class HttpPlugin implements Plugin {
     }
 
     const activity: Activity = req.body;
-    const token: Token = authorization
+    const token: IToken = authorization
       ? new JsonWebToken(authorization)
       : {
           appId: '',
@@ -191,25 +191,31 @@ export class HttpPlugin implements Plugin {
     });
   }
 
-  protected onActivityError({ err, activity }: AppActivityErrorEvent) {
+  protected onActivityError({ err, activity }: IAppActivityErrorEvent) {
     const res = this.pending[activity.id];
 
     if (!res) {
       return;
     }
 
-    res.status(500).send(err.message);
+    if (!res.headersSent) {
+      res.status(500).send(err.message);
+    }
+
     delete this.pending[activity.id];
   }
 
-  protected onActivityResponse({ response, activity }: AppActivityResponseEvent) {
+  protected onActivityResponse({ response, activity }: IAppActivityResponseEvent) {
     const res = this.pending[activity.id];
 
     if (!res) {
       return;
     }
 
-    res.status(response.status || 200).send(JSON.stringify(response.body || null));
+    if (!res.headersSent) {
+      res.status(response.status || 200).send(JSON.stringify(response.body || null));
+    }
+
     delete this.pending[activity.id];
   }
 }

@@ -20,12 +20,12 @@ export type MessagingExtensionResultType =
   | 'silentAuth';
 
 /**
- * @interface
+ *
  * An interface representing MessagingExtensionResult.
  * Messaging extension result
  *
  */
-export interface MessagingExtensionResult {
+export type MessagingExtensionResult = {
   /**
    * @member {AttachmentLayout} [attachmentLayout] Hint for how to deal with
    * multiple attachments. Possible values include: 'list', 'grid'
@@ -59,4 +59,4 @@ export interface MessagingExtensionResult {
    * Message activity to preview
    */
   activityPreview?: Activity;
-}
+};

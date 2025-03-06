@@ -1,10 +1,10 @@
 import path from 'node:path';
 import fs from 'node:fs';
 
-import { ProjectAttributeOperation } from '../project-attribute';
+import { IProjectAttributeOperation } from '../project-attribute';
 import { FileCopyOperation } from './file-copy';
 
-export class DirectoryCopyOperation implements ProjectAttributeOperation {
+export class DirectoryCopyOperation implements IProjectAttributeOperation {
   readonly name = 'directory.copy';
 
   private _from: string;

@@ -1,10 +1,10 @@
 import { SuggestedActions } from '../suggested-actions';
 
 /**
- * @interface
+ *
  * An interface the bot's authentication config for SuggestedActions
  */
-export interface ConfigAuth {
+export type ConfigAuth = {
   /**
    * @member {SuggestedActions} [suggestedActions] SuggestedActions for the Bot Config Auth
    */
@@ -14,4 +14,4 @@ export interface ConfigAuth {
    * @member {BotConfigAuthType} [type] Type of the Bot Config Auth
    */
   type: 'auth';
-}
+};

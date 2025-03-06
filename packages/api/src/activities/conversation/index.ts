@@ -1,7 +1,7 @@
-import { ConversationUpdateActivity } from './conversation-update';
-import { EndOfConversationActivity } from './end-of-conversation';
+import { IConversationUpdateActivity } from './conversation-update';
+import { IEndOfConversationActivity } from './end-of-conversation';
 
-export type ConversationActivity = ConversationUpdateActivity | EndOfConversationActivity;
+export type ConversationActivity = IConversationUpdateActivity | IEndOfConversationActivity;
 
 export * from './conversation-update';
 export * from './end-of-conversation';

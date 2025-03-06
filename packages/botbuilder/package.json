@@ -29,6 +29,8 @@
   ],
   "scripts": {
     "clean": "npx rimraf ./dist",
+    "lint": "npx eslint",
+    "lint:fix": "npx eslint --fix",
     "build": "npx tsup",
     "test": "npx jest"
   },

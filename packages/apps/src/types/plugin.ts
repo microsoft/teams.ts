@@ -3,13 +3,13 @@ import {
   ActivityParams,
   ConversationReference,
   InvokeResponse,
-  Token,
+  IToken,
 } from '@microsoft/spark.api';
-import { EventHandler, Logger } from '@microsoft/spark.common';
+import { EventHandler, ILogger } from '@microsoft/spark.common';
 
 import { App } from '../app';
-import { ActivityContext } from '../activity-context';
-import { Streamer } from './streamer';
+import { IActivityContext } from '../contexts';
+import { IStreamer } from './streamer';
 
 /**
  * represents an activity that was sent
@@ -20,11 +20,11 @@ export type SentActivity = { id: string } & ActivityParams;
  * the event emitted by a plugin
  * when an activity is received
  */
-export interface ActivityReceivedEvent {
+export interface IActivityReceivedEvent {
   /**
    * inbound request token
    */
-  token: Token;
+  token: IToken;
 
   /**
    * inbound request activity payload
@@ -36,7 +36,7 @@ export interface ActivityReceivedEvent {
  * the event emitted by a plugin
  * before an invoke response is returned
  */
-export interface ActivityResponseEvent {
+export interface IActivityResponseEvent {
   /**
    * inbound request activity payload
    */
@@ -57,7 +57,7 @@ export interface ActivityResponseEvent {
  * the event emitted by a plugin
  * before an activity is sent
  */
-export interface ActivityBeforeSentEvent {
+export interface IActivityBeforeSentEvent {
   /**
    * the activity that will be sent
    */
@@ -73,7 +73,7 @@ export interface ActivityBeforeSentEvent {
  * the event emitted by a plugin
  * when an activity is sent
  */
-export interface ActivitySentEvent {
+export interface IActivitySentEvent {
   /**
    * the sent activity
    */
@@ -88,20 +88,20 @@ export interface ActivitySentEvent {
 /**
  * the events a plugin can emit
  */
-export interface PluginEvents {
+export interface IPluginEvents {
   error: any;
-  start: Logger;
-  'activity.received': ActivityReceivedEvent;
-  'activity.response': ActivityResponseEvent;
-  'activity.sent': ActivitySentEvent;
-  'activity.before.sent': ActivityBeforeSentEvent;
+  start: ILogger;
+  'activity.received': IActivityReceivedEvent;
+  'activity.response': IActivityResponseEvent;
+  'activity.sent': IActivitySentEvent;
+  'activity.before.sent': IActivityBeforeSentEvent;
 }
 
 /**
  * a component for extending the base
  * `App` functionality
  */
-export interface Plugin<Events extends PluginEvents = PluginEvents> {
+export interface IPlugin<Events extends IPluginEvents = IPluginEvents> {
   /**
    * the unique plugin name
    */
@@ -128,7 +128,7 @@ export interface Plugin<Events extends PluginEvents = PluginEvents> {
    * called by the `App`
    * when an activity is received
    */
-  onActivity?(ctx: ActivityContext): void | Promise<void>;
+  onActivity?(ctx: IActivityContext): void | Promise<void>;
 
   /**
    * called by the `App`
@@ -143,13 +143,14 @@ export interface Plugin<Events extends PluginEvents = PluginEvents> {
    * called by the `App`
    * to send an activity chunk
    */
-  onStreamOpen?(ref: ConversationReference): Streamer | Promise<Streamer>;
+  onStreamOpen?(ref: ConversationReference): IStreamer | Promise<IStreamer>;
 }
 
 /**
  * a Plugin that
  */
-export interface SenderPlugin<Events extends PluginEvents = PluginEvents> extends Plugin<Events> {
+export interface ISenderPlugin<Events extends IPluginEvents = IPluginEvents>
+  extends IPlugin<Events> {
   /**
    * called by the `App`
    * to send an activity
@@ -163,10 +164,11 @@ export interface SenderPlugin<Events extends PluginEvents = PluginEvents> extend
 /**
  * a Plugin that
  */
-export interface StreamerPlugin<Events extends PluginEvents = PluginEvents> extends Plugin<Events> {
+export interface IStreamerPlugin<Events extends IPluginEvents = IPluginEvents>
+  extends IPlugin<Events> {
   /**
    * called by the `App`
    * to send an activity chunk
    */
-  onStreamOpen(ref: ConversationReference): Streamer | Promise<Streamer>;
+  onStreamOpen(ref: ConversationReference): IStreamer | Promise<IStreamer>;
 }

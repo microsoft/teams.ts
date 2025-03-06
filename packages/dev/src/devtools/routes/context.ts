@@ -1,8 +1,8 @@
-import { Activity, InvokeResponse, Token } from '@microsoft/spark.api';
-import { Logger } from '@microsoft/spark.common/logging';
+import { Activity, InvokeResponse, IToken } from '@microsoft/spark.api';
+import { ILogger } from '@microsoft/spark.common/logging';
 
-export interface RouteContext {
+export type RouteContext = {
   readonly port: number;
-  readonly log: Logger;
-  readonly process: (token: Token, activity: Activity) => Promise<InvokeResponse>;
-}
+  readonly log: ILogger;
+  readonly process: (token: IToken, activity: Activity) => Promise<InvokeResponse>;
+};

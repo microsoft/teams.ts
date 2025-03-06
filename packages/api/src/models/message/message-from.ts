@@ -3,13 +3,13 @@ import { MessageConversation } from './message-conversation';
 import { MessageUser } from './message-user';
 
 /**
- * @interface
+ *
  * An interface representing MessageActionsPayloadFrom.
  * Represents a user, application, or conversation type that either sent or was
  * referenced in a message.
  *
  */
-export interface MessageFrom {
+export type MessageFrom = {
   /**
    * @member {MessageActionsPayloadUser} [user] Represents details of the user.
    */
@@ -26,4 +26,4 @@ export interface MessageFrom {
    * details of the converesation.
    */
   conversation?: MessageConversation;
-}
+};

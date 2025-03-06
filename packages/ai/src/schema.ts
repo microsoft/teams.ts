@@ -1,4 +1,4 @@
-interface BaseSchema {
+type BaseSchema = {
   readonly $schema?: string;
   readonly $ref?: string;
   readonly id?: string;
@@ -6,7 +6,7 @@ interface BaseSchema {
   readonly description?: string;
   readonly type?: 'object' | 'array' | 'string' | 'number' | 'integer' | 'null' | 'boolean';
   readonly enum?: any[];
-}
+};
 
 export type Schema =
   | StringSchema
@@ -17,43 +17,43 @@ export type Schema =
   | NullSchema
   | AnySchema;
 
-export interface StringSchema extends BaseSchema {
+export type StringSchema = BaseSchema & {
   readonly type: 'string';
   readonly pattern?: string;
   readonly format?: string;
   readonly minLength?: number;
   readonly maxLength?: number;
-}
+};
 
-export interface NumberSchema extends BaseSchema {
+export type NumberSchema = BaseSchema & {
   readonly type: 'number' | 'integer';
   readonly min?: number;
   readonly max?: number;
   readonly multipleOf?: number;
-}
+};
 
-export interface BooleanSchema extends BaseSchema {
+export type BooleanSchema = BaseSchema & {
   readonly type: 'boolean';
-}
+};
 
-export interface ObjectSchema extends BaseSchema {
+export type ObjectSchema = BaseSchema & {
   readonly type: 'object';
   readonly properties?: {
     [key: string]: Schema;
   };
   readonly required?: string[] | boolean;
-}
+};
 
-export interface ArraySchema extends BaseSchema {
+export type ArraySchema = BaseSchema & {
   readonly type: 'array';
   readonly items: Schema | Schema[];
   readonly additionalItems?: Schema | Schema[];
-}
+};
 
-export interface NullSchema extends BaseSchema {
+export type NullSchema = BaseSchema & {
   readonly type: 'null';
-}
+};
 
-export interface AnySchema extends BaseSchema {
+export type AnySchema = BaseSchema & {
   readonly type: undefined;
-}
+};

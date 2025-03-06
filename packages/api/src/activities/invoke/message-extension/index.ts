@@ -1,23 +1,23 @@
-import { MessageExtensionAnonQueryLinkInvokeActivity } from './anon-query-link';
-import { MessageExtensionCardButtonClickedInvokeActivity } from './card-button-clicked';
-import { MessageExtensionFetchTaskInvokeActivity } from './fetch-task';
-import { MessageExtensionQueryInvokeActivity } from './query';
-import { MessageExtensionQueryLinkInvokeActivity } from './query-link';
-import { MessageExtensionQuerySettingUrlInvokeActivity } from './query-setting-url';
-import { MessageExtensionSelectItemInvokeActivity } from './select-item';
-import { MessageExtensionSettingInvokeActivity } from './setting';
-import { MessageExtensionSubmitActionInvokeActivity } from './submit-action';
+import { IMessageExtensionAnonQueryLinkInvokeActivity } from './anon-query-link';
+import { IMessageExtensionCardButtonClickedInvokeActivity } from './card-button-clicked';
+import { IMessageExtensionFetchTaskInvokeActivity } from './fetch-task';
+import { IMessageExtensionQueryInvokeActivity } from './query';
+import { IMessageExtensionQueryLinkInvokeActivity } from './query-link';
+import { IMessageExtensionQuerySettingUrlInvokeActivity } from './query-setting-url';
+import { IMessageExtensionSelectItemInvokeActivity } from './select-item';
+import { IMessageExtensionSettingInvokeActivity } from './setting';
+import { IMessageExtensionSubmitActionInvokeActivity } from './submit-action';
 
 export type MessageExtensionInvokeActivity =
-  | MessageExtensionAnonQueryLinkInvokeActivity
-  | MessageExtensionFetchTaskInvokeActivity
-  | MessageExtensionCardButtonClickedInvokeActivity
-  | MessageExtensionQueryLinkInvokeActivity
-  | MessageExtensionQuerySettingUrlInvokeActivity
-  | MessageExtensionQueryInvokeActivity
-  | MessageExtensionSelectItemInvokeActivity
-  | MessageExtensionSettingInvokeActivity
-  | MessageExtensionSubmitActionInvokeActivity;
+  | IMessageExtensionAnonQueryLinkInvokeActivity
+  | IMessageExtensionFetchTaskInvokeActivity
+  | IMessageExtensionCardButtonClickedInvokeActivity
+  | IMessageExtensionQueryLinkInvokeActivity
+  | IMessageExtensionQuerySettingUrlInvokeActivity
+  | IMessageExtensionQueryInvokeActivity
+  | IMessageExtensionSelectItemInvokeActivity
+  | IMessageExtensionSettingInvokeActivity
+  | IMessageExtensionSubmitActionInvokeActivity;
 
 export * from './anon-query-link';
 export * from './card-button-clicked';

@@ -1,9 +1,7 @@
 import { Account } from '../../models';
-import { ActivityBase } from '../base';
+import { IActivity } from '../activity';
 
-export interface MeetingParticipantLeaveEventActivity extends ActivityBase {
-  readonly type: 'event';
-
+export interface IMeetingParticipantLeaveEventActivity extends IActivity<'event'> {
   /**
    * The name of the operation associated with an invoke or event activity.
    */

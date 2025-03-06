@@ -1,9 +1,9 @@
-import { SignInTokenExchangeInvokeActivity } from './token-exchange';
-import { SignInVerifyStateInvokeActivity } from './verify-state';
+import { ISignInTokenExchangeInvokeActivity } from './token-exchange';
+import { ISignInVerifyStateInvokeActivity } from './verify-state';
 
 export type SignInInvokeActivity =
-  | SignInTokenExchangeInvokeActivity
-  | SignInVerifyStateInvokeActivity;
+  | ISignInTokenExchangeInvokeActivity
+  | ISignInVerifyStateInvokeActivity;
 
 export * from './token-exchange';
 export * from './verify-state';

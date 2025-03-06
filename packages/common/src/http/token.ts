@@ -1,8 +1,8 @@
 import { AxiosRequestConfig } from 'axios';
 
-export interface StringLike {
+export type StringLike = {
   toString(): string;
-}
+};
 
 export type TokenFactory = (
   config: AxiosRequestConfig

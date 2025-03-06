@@ -1,9 +1,9 @@
 /**
- * @interface
+ *
  * An interface representing a Meeting.
  * Meeting details.
  */
-export interface Meeting {
+export type Meeting = {
   /**
    * @member {string} [role] Meeting role of the user.
    */
@@ -13,4 +13,4 @@ export interface Meeting {
    * @member {string} [inMeeting] Indicates if the participant is in the meeting.
    */
   inMeeting?: boolean;
-}
+};

@@ -2,9 +2,9 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { String } from '@microsoft/spark.common';
 
-import { ProjectAttributeOperation } from '../project-attribute';
+import { IProjectAttributeOperation } from '../project-attribute';
 
-export class FileJsonSetOperation implements ProjectAttributeOperation {
+export class FileJsonSetOperation implements IProjectAttributeOperation {
   readonly name = 'file.json.set';
 
   private _path: string;

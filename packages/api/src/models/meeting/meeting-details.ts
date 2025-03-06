@@ -1,7 +1,7 @@
 /**
- * @interface
+ *
  */
-export interface MeetingDetails {
+export type MeetingDetails = {
   /**
    * @member {string} [id] The meeting's Id, encoded as a BASE64 string.
    */
@@ -36,4 +36,4 @@ export interface MeetingDetails {
    * @member {Date} [scheduledEndTime] The meeting's scheduled end time, in UTC.
    */
   scheduledEndTime?: Date;
-}
+};

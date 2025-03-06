@@ -1,7 +1,7 @@
-import { ConfigFetchInvokeActivity } from './config-fetch';
-import { ConfigSubmitInvokeActivity } from './config-submit';
+import { IConfigFetchInvokeActivity } from './config-fetch';
+import { IConfigSubmitInvokeActivity } from './config-submit';
 
-export type ConfigInvokeActivity = ConfigFetchInvokeActivity | ConfigSubmitInvokeActivity;
+export type ConfigInvokeActivity = IConfigFetchInvokeActivity | IConfigSubmitInvokeActivity;
 
 export * from './config-fetch';
 export * from './config-submit';

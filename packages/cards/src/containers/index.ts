@@ -1,11 +1,17 @@
-import { ActionSet } from './action-set';
-import { Carousel } from './carousel';
-import { ColumnSet } from './column-set';
-import { Container } from './container';
-import { FactSet } from './fact-set';
-import { ImageSet } from './image-set';
+import { IActionSet } from './action-set';
+import { ICarousel } from './carousel';
+import { IColumnSet } from './column-set';
+import { IContainer } from './container';
+import { IFactSet } from './fact-set';
+import { IImageSet } from './image-set';
 
-export type ContainerElement = ActionSet | ColumnSet | Container | FactSet | ImageSet | Carousel;
+export type ContainerElement =
+  | IActionSet
+  | IColumnSet
+  | IContainer
+  | IFactSet
+  | IImageSet
+  | ICarousel;
 
 export * from './action-set';
 export * from './column';

@@ -6,11 +6,11 @@ import { Account, Conversation, ConversationResource } from '../../models';
 import { ActivityParams, ConversationActivityClient } from './activity';
 import { ConversationMemberClient } from './member';
 
-export interface GetConversationsParams {
+export type GetConversationsParams = {
   readonly continuationToken?: string;
-}
+};
 
-export interface CreateConversationParams {
+export type CreateConversationParams = {
   readonly isGroup?: boolean;
   readonly bot?: Partial<Account>;
   readonly members?: Account[];
@@ -18,9 +18,9 @@ export interface CreateConversationParams {
   readonly tenantId?: string;
   readonly activity?: ActivityParams;
   readonly channelData?: Record<string, any>;
-}
+};
 
-export interface GetConversationsResponse {
+export type GetConversationsResponse = {
   /**
    * Paging token
    */
@@ -30,7 +30,7 @@ export interface GetConversationsResponse {
    * List of conversations
    */
   conversations: Conversation[];
-}
+};
 
 export class ConversationClient {
   readonly serviceUrl: string;

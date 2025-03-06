@@ -1,10 +1,10 @@
-import { Logger } from '@microsoft/spark.common/logging';
-import { Storage } from '@microsoft/spark.common/storage';
+import { ILogger } from '@microsoft/spark.common/logging';
+import { IStorage } from '@microsoft/spark.common/storage';
 import { Activity, ConversationReference } from '@microsoft/spark.api';
 
-import { ApiClient } from './api';
+import { ApiClient } from '../api';
 
-export interface ActivityContext<T extends Activity = Activity> {
+export interface IActivityContext<T extends Activity = Activity> {
   /**
    * the unique name of the plugin that
    * emitted the event
@@ -29,7 +29,7 @@ export interface ActivityContext<T extends Activity = Activity> {
   /**
    * the app logger instance
    */
-  log: Logger;
+  log: ILogger;
 
   /**
    * the api client
@@ -39,7 +39,7 @@ export interface ActivityContext<T extends Activity = Activity> {
   /**
    * app storage instance
    */
-  storage: Storage;
+  storage: IStorage;
 
   /**
    * whether the user has provided

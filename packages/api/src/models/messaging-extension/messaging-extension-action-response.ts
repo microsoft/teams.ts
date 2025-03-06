@@ -4,12 +4,12 @@ import { TaskModuleContinueResponse, TaskModuleMessageResponse } from '../task-m
 import { MessagingExtensionResult } from './messaging-extension-result';
 
 /**
- * @interface
+ *
  * An interface representing MessagingExtensionActionResponse.
  * Response of messaging extension action
  *
  */
-export interface MessagingExtensionActionResponse {
+export type MessagingExtensionActionResponse = {
   /**
    * @member {TaskModuleContinueResponse | TaskModuleMessageResponse} [task] The JSON for the response to
    * appear in the task module.
@@ -25,4 +25,4 @@ export interface MessagingExtensionActionResponse {
    * @member {CacheInfo} [cacheInfo] The cache info for this response
    */
   cacheInfo?: CacheInfo;
-}
+};

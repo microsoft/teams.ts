@@ -1,10 +1,10 @@
 import { ChannelInfo } from './channel-info';
 
 /**
- * @interface
+ *
  * Settings within teams channel data specific to messages received in Microsoft Teams.
  */
-export interface ChannelDataSettings {
+export type ChannelDataSettings = {
   /**
    * @member {ChannelInfo} [selectedChannel] Information about the selected Teams channel.
    */
@@ -18,4 +18,4 @@ export interface ChannelDataSettings {
    * will be written to a JSON object when the instance is serialized.
    */
   [properties: string]: unknown;
-}
+};

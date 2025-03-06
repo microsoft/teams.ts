@@ -1,5 +1,5 @@
-import { AdaptiveCardActionInvokeActivity } from './action';
+import { IAdaptiveCardActionInvokeActivity } from './action';
 
-export type AdaptiveCardInvokeActivity = AdaptiveCardActionInvokeActivity;
+export type AdaptiveCardInvokeActivity = IAdaptiveCardActionInvokeActivity;
 
 export * from './action';

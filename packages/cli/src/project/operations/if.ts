@@ -1,22 +1,22 @@
-import { ProjectAttributeOperation } from '../project-attribute';
+import { IProjectAttributeOperation } from '../project-attribute';
 
-export class IfOperation implements ProjectAttributeOperation {
+export class IfOperation implements IProjectAttributeOperation {
   readonly name = 'if';
 
   private _conditions: Array<() => boolean | Promise<boolean>> = [];
-  private _then?: ProjectAttributeOperation;
-  private _else?: ProjectAttributeOperation;
+  private _then?: IProjectAttributeOperation;
+  private _else?: IProjectAttributeOperation;
 
   constructor(...conditions: Array<() => boolean | Promise<boolean>>) {
     this._conditions = conditions;
   }
 
-  then(operation: ProjectAttributeOperation) {
+  then(operation: IProjectAttributeOperation) {
     this._then = operation;
     return this;
   }
 
-  else(operation: ProjectAttributeOperation) {
+  else(operation: IProjectAttributeOperation) {
     this._else = operation;
     return this;
   }

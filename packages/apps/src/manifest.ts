@@ -1,4 +1,4 @@
-export interface Manifest {
+export type Manifest = {
   $schema?: string;
   /**
    * A color to use in conjunction with the icon. The value must be a valid HTML color code
@@ -131,42 +131,42 @@ export interface Manifest {
    * app.
    */
   webApplicationInfo?: WebApplicationInfo;
-}
+};
 
-export interface Activities {
+export type Activities = {
   /**
    * Specify the types of activites that your app can post to a users activity feed
    */
   activityTypes?: ActivityType[];
-}
+};
 
-export interface ActivityType {
+export type ActivityType = {
   description: string;
   templateText: string;
   type: string;
-}
+};
 
 /**
  * Specify and consolidates authorization related information for the App.
  */
-export interface ManifestAuthorization {
+export type ManifestAuthorization = {
   /**
    * List of permissions that the app needs to function.
    */
   permissions?: Permissions;
-}
+};
 
 /**
  * List of permissions that the app needs to function.
  */
-export interface Permissions {
+export type Permissions = {
   /**
    * Permissions that must be granted on a per resource instance basis.
    */
   resourceSpecific?: ResourceSpecific[];
-}
+};
 
-export interface ResourceSpecific {
+export type ResourceSpecific = {
   /**
    * The name of the resource-specific permission.
    */
@@ -175,14 +175,14 @@ export interface ResourceSpecific {
    * The type of the resource-specific permission: delegated vs application.
    */
   type: ResourceSpecificType;
-}
+};
 
 /**
  * The type of the resource-specific permission: delegated vs application.
  */
 export type ResourceSpecificType = 'Application' | 'Delegated';
 
-export interface Bot {
+export type Bot = {
   /**
    * The Microsoft App ID specified for the bot in the Bot Framework portal
    * (https://dev.botframework.com/bots)
@@ -223,17 +223,17 @@ export interface Bot {
    * A value indicating whether the bot supports video calling.
    */
   supportsVideo?: boolean;
-}
+};
 
-export interface CommandList {
+export type CommandList = {
   commands: CommandListCommand[];
   /**
    * Specifies the scopes for which the command list is valid
    */
   scopes: CommandListScope[];
-}
+};
 
-export interface CommandListCommand {
+export type CommandListCommand = {
   /**
    * A simple text description or an example of the command syntax and its arguments.
    */
@@ -242,21 +242,21 @@ export interface CommandListCommand {
    * The bot command name
    */
   title: string;
-}
+};
 
 export type CommandListScope = 'team' | 'personal' | 'groupChat';
 
-export interface Configuration {
+export type Configuration = {
   groupChat?: GroupChat;
   team?: GroupChat;
-}
+};
 
-export interface GroupChat {
+export type GroupChat = {
   fetchTask?: boolean;
   taskInfo?: TaskInfo;
-}
+};
 
-export interface TaskInfo {
+export type TaskInfo = {
   /**
    * Dialog height - either a number in pixels or default layout such as 'large', 'medium', or
    * 'small'
@@ -275,9 +275,9 @@ export interface TaskInfo {
    * 'small'
    */
   width?: string;
-}
+};
 
-export interface ComposeExtension {
+export type ComposeExtension = {
   /**
    * A relative file path to the api specification file in the manifest package.
    */
@@ -305,12 +305,12 @@ export interface ComposeExtension {
    * A list of handlers that allow apps to be invoked when certain conditions are met
    */
   messageHandlers?: MessageHandler[];
-}
+};
 
 /**
  * Object capturing authorization information.
  */
-export interface ComposeExtensionAuthorization {
+export type ComposeExtensionAuthorization = {
   /**
    * Object capturing details needed to do service auth. It will be only present when auth
    * type is apiSecretServiceAuth.
@@ -325,18 +325,18 @@ export interface ComposeExtensionAuthorization {
    * auth type is entraId.
    */
   microsoftEntraConfiguration?: MicrosoftEntraConfiguration;
-}
+};
 
 /**
  * Object capturing details needed to do service auth. It will be only present when auth
  * type is apiSecretServiceAuth.
  */
-export interface APISecretServiceAuthConfiguration {
+export type APISecretServiceAuthConfiguration = {
   /**
    * Registration id returned when developer submits the api key through Developer Portal.
    */
   apiSecretRegistrationId?: string;
-}
+};
 
 /**
  * Enum of possible authentication types.
@@ -347,14 +347,14 @@ export type AuthType = 'none' | 'apiSecretServiceAuth' | 'microsoftEntra';
  * Object capturing details needed to do single aad auth flow. It will be only present when
  * auth type is entraId.
  */
-export interface MicrosoftEntraConfiguration {
+export type MicrosoftEntraConfiguration = {
   /**
    * Boolean indicating whether single sign on is configured for the app.
    */
   supportsSingleSignOn?: boolean;
-}
+};
 
-export interface ComposeExtensionCommand {
+export type ComposeExtensionCommand = {
   /**
    * A relative file path for api response rendering template file.
    */
@@ -395,11 +395,11 @@ export interface ComposeExtensionCommand {
    * Type of the command
    */
   type?: CommandType;
-}
+};
 
 export type CommandContext = 'compose' | 'commandBox' | 'message';
 
-export interface Parameter {
+export type Parameter = {
   /**
    * The choice options for the parameter
    */
@@ -432,9 +432,9 @@ export interface Parameter {
    * Initial value for the parameter
    */
   value?: string;
-}
+};
 
-export interface Choice {
+export type Choice = {
   /**
    * Title of the choice
    */
@@ -443,19 +443,19 @@ export interface Choice {
    * Value of the choice
    */
   value: string;
-}
+};
 
 /**
  * Type of the parameter
  */
 export type InputType = 'text' | 'textarea' | 'number' | 'date' | 'time' | 'toggle' | 'choiceset';
 
-export interface SamplePrompt {
+export type SamplePrompt = {
   /**
    * This string will hold the sample prompt
    */
   text: string;
-}
+};
 
 /**
  * Type of the command
@@ -467,20 +467,20 @@ export type CommandType = 'query' | 'action';
  */
 export type ComposeExtensionType = 'botBased' | 'apiBased';
 
-export interface MessageHandler {
+export type MessageHandler = {
   /**
    * Type of the message handler
    */
   type: MessageHandlerType;
   value: Value;
-}
+};
 
 /**
  * Type of the message handler
  */
 export type MessageHandlerType = 'link';
 
-export interface Value {
+export type Value = {
   /**
    * A list of domains that the link message handler can register for, and when they are
    * matched the app will be invoked
@@ -492,7 +492,7 @@ export interface Value {
    */
   supportsAnonymizedPayloads?: boolean;
   [property: string]: any;
-}
+};
 
 export type ConfigurableProperty =
   | 'name'
@@ -505,7 +505,7 @@ export type ConfigurableProperty =
   | 'privacyUrl'
   | 'termsOfUseUrl';
 
-export interface ConfigurableTab {
+export type ConfigurableTab = {
   /**
    * A value indicating whether an instance of the tab's configuration can be updated by the
    * user after creation.
@@ -538,7 +538,7 @@ export interface ConfigurableTab {
    * Defines how your tab will be made available in SharePoint.
    */
   supportedSharePointHosts?: SupportedSharePointHost[];
-}
+};
 
 export type ConfigurableTabContext =
   | 'personalTab'
@@ -555,7 +555,7 @@ export type ConfigurableTabScope = 'team' | 'groupChat';
 
 export type SupportedSharePointHost = 'sharePointFullPage' | 'sharePointWebPart';
 
-export interface Connector {
+export type Connector = {
   /**
    * The url to use for configuring the connector using the inline configuration experience.
    */
@@ -571,23 +571,23 @@ export interface Connector {
    * is supported.
    */
   scopes: ConnectorScope[];
-}
+};
 
 export type ConnectorScope = 'team';
 
-export interface CopilotAgents {
+export type CopilotAgents = {
   /**
    * An array of declarative agent elements references. Currently, only one declarative agent
    * per application is supported.
    */
   declarativeAgents: DeclarativeAgentRef[];
-}
+};
 
 /**
  * A reference to a declarative agent element. The element's definition is in a separate
  * file.
  */
-export interface DeclarativeAgentRef {
+export type DeclarativeAgentRef = {
   /**
    * Relative file path to this declarative agent element file in the application package.
    */
@@ -596,13 +596,13 @@ export interface DeclarativeAgentRef {
    * A unique identifier for this declarative agent element.
    */
   id: string;
-}
+};
 
 /**
  * Cards wich could be pinned to dashboard providing summarized view of information relevant
  * to user.
  */
-export interface DashboardCard {
+export type DashboardCard = {
   contentSource: DashboardCardContentSource;
   /**
    * Rendering Size for dashboard card.
@@ -625,12 +625,12 @@ export interface DashboardCard {
    * Id of the group in the card picker. This must be guid.
    */
   pickerGroupId: string;
-}
+};
 
 /**
  * Represents a configuration for the source of the card’s content.
  */
-export interface DashboardCardContentSource {
+export type DashboardCardContentSource = {
   /**
    * The configuration for the bot source. Required if sourceType is set to bot.
    */
@@ -639,17 +639,17 @@ export interface DashboardCardContentSource {
    * The content of the dashboard card is sourced from a bot.
    */
   sourceType?: SourceType;
-}
+};
 
 /**
  * The configuration for the bot source. Required if sourceType is set to bot.
  */
-export interface BotConfiguration {
+export type BotConfiguration = {
   /**
    * The unique Microsoft app ID for the bot as registered with the Bot Framework.
    */
   botId?: string;
-}
+};
 
 /**
  * The content of the dashboard card is sourced from a bot.
@@ -664,7 +664,7 @@ export type DefaultSize = 'medium' | 'large';
 /**
  * Represents a configuration for the source of the card’s content
  */
-export interface DashboardCardIcon {
+export type DashboardCardIcon = {
   /**
    * The icon for the card, to be displayed in the toolbox and card bar, represented as URL.
    */
@@ -674,13 +674,13 @@ export interface DashboardCardIcon {
    * ‘iconUrl’ is not specified.
    */
   officeUIFabricIconName?: string;
-}
+};
 
 /**
  * When a group install scope is selected, this will define the default capability when the
  * user installs the app
  */
-export interface DefaultGroupCapability {
+export type DefaultGroupCapability = {
   /**
    * When the install scope selected is GroupChat, this field specifies the default capability
    * available
@@ -696,7 +696,7 @@ export interface DefaultGroupCapability {
    * available
    */
   team?: Groupchat;
-}
+};
 
 /**
  * When the install scope selected is GroupChat, this field specifies the default capability
@@ -716,7 +716,7 @@ export type Groupchat = 'tab' | 'bot' | 'connector';
  */
 export type DefaultInstallScope = 'personal' | 'team' | 'groupChat' | 'meetings';
 
-export interface Description {
+export type Description = {
   /**
    * The full description of the app. Maximum length is 4000 characters.
    */
@@ -726,9 +726,9 @@ export interface Description {
    * characters.
    */
   short: string;
-}
+};
 
-export interface Developer {
+export type Developer = {
   /**
    * The Microsoft Partner Network ID that identifies the partner organization building the
    * app. This field is not required, and should only be used if you are already part of the
@@ -751,14 +751,14 @@ export interface Developer {
    * The url to the page that provides support information for the app.
    */
   websiteUrl: string;
-}
+};
 
 export type DevicePermission = 'geolocation' | 'media' | 'notifications' | 'midi' | 'openExternal';
 
 /**
  * The set of extensions for this app. Currently only one extensions per app is supported.
  */
-export interface ElementExtension {
+export type ElementExtension = {
   alternates?: ExtensionAlternateVersionsArray[];
   /**
    * The url for your extension, used to validate Exchange user identity tokens.
@@ -768,21 +768,21 @@ export interface ElementExtension {
   requirements?: RequirementsExtensionElement;
   ribbons?: ExtensionRibbonsArray[];
   runtimes?: ExtensionRuntimesArray[];
-}
+};
 
-export interface ExtensionAlternateVersionsArray {
+export type ExtensionAlternateVersionsArray = {
   alternateIcons?: AlternateIcons;
   hide?: Hide;
   prefer?: Prefer;
   requirements?: RequirementsExtensionElement;
-}
+};
 
-export interface AlternateIcons {
+export type AlternateIcons = {
   highResolutionIcon: ExtensionCommonIcon;
   icon: ExtensionCommonIcon;
-}
+};
 
-export interface ExtensionCommonIcon {
+export type ExtensionCommonIcon = {
   /**
    * Size in pixels of the icon. Three image sizes are required (16, 32, and 80 pixels)
    */
@@ -791,22 +791,22 @@ export interface ExtensionCommonIcon {
    * Absolute Url to the icon.
    */
   url: string;
-}
+};
 
-export interface Hide {
+export type Hide = {
   customOfficeAddin?: CustomOfficeAddin;
   storeOfficeAddin?: StoreOfficeAddin;
   [property: string]: any;
-}
+};
 
-export interface CustomOfficeAddin {
+export type CustomOfficeAddin = {
   /**
    * Solution ID of the in-market add-in to hide. Maximum length is 64 characters.
    */
   officeAddinId: string;
-}
+};
 
-export interface StoreOfficeAddin {
+export type StoreOfficeAddin = {
   /**
    * Asset ID of the in-market add-in to hide. Maximum length is 64 characters.
    */
@@ -815,21 +815,21 @@ export interface StoreOfficeAddin {
    * Solution ID of an in-market add-in to hide. Maximum length is 64 characters.
    */
   officeAddinId: string;
-}
+};
 
-export interface Prefer {
+export type Prefer = {
   comAddin?: COMAddin;
   [property: string]: any;
-}
+};
 
-export interface COMAddin {
+export type COMAddin = {
   /**
    * Program ID of the alternate com extension. Maximum length is 64 characters.
    */
   progId: string;
-}
+};
 
-export interface RequirementsExtensionElement {
+export type RequirementsExtensionElement = {
   capabilities?: Capability[];
   /**
    * Identifies the form factors that support the add-in. Supported values: mobile, desktop.
@@ -839,9 +839,9 @@ export interface RequirementsExtensionElement {
    * Identifies the scopes in which the add-in can run.
    */
   scopes?: RequirementsScope[];
-}
+};
 
-export interface Capability {
+export type Capability = {
   /**
    * Identifies the maximum version for the requirement sets that the add-in needs to run.
    */
@@ -854,22 +854,22 @@ export interface Capability {
    * Identifies the name of the requirement sets that the add-in needs to run.
    */
   name: string;
-}
+};
 
 export type FormFactor = 'desktop' | 'mobile';
 
 export type RequirementsScope = 'mail' | 'workbook' | 'document' | 'presentation';
 
-export interface ExtensionAutoRunEventsArray {
+export type ExtensionAutoRunEventsArray = {
   /**
    * Specifies the type of event. For supported types, please see:
    * https://review.learn.microsoft.com/en-us/office/dev/add-ins/outlook/autolaunch?tabs=xmlmanifest#supported-events.
    */
   events: Event[];
   requirements?: RequirementsExtensionElement;
-}
+};
 
-export interface Event {
+export type Event = {
   /**
    * The ID of an action defined in runtimes. Maximum length is 64 characters.
    */
@@ -879,22 +879,22 @@ export interface Event {
    */
   options?: Options;
   type: string;
-}
+};
 
 /**
  * Configures how Outlook responds to the event.
  */
-export interface Options {
+export type Options = {
   sendMode: SendMode;
-}
+};
 
 export type SendMode = 'promptUser' | 'softBlock' | 'block';
 
-export interface ExtensionRibbonsArray {
+export type ExtensionRibbonsArray = {
   contexts?: ExtensionContext[];
   requirements?: RequirementsExtensionElement;
   tabs: ExtensionRibbonsArrayTabsItem[];
-}
+};
 
 /**
  * Specifies the Office application windows in which the ribbon customization is available
@@ -910,7 +910,7 @@ export type ExtensionContext =
   | 'logEventMeetingDetailsAttendee'
   | 'default';
 
-export interface ExtensionRibbonsArrayTabsItem {
+export type ExtensionRibbonsArrayTabsItem = {
   /**
    * Id of the existing office Tab. Maximum length is 64 characters.
    */
@@ -932,9 +932,9 @@ export interface ExtensionRibbonsArrayTabsItem {
    */
   label?: string;
   position?: Position;
-}
+};
 
-export interface ExtensionRibbonsCustomMobileGroupItem {
+export type ExtensionRibbonsCustomMobileGroupItem = {
   controls: ExtensionRibbonsCustomMobileControlButtonItem[];
   /**
    * Specify the Id of the group. Used for mobileMessageRead ext point.
@@ -945,9 +945,9 @@ export interface ExtensionRibbonsCustomMobileGroupItem {
    */
   label: string;
   [property: string]: any;
-}
+};
 
-export interface ExtensionRibbonsCustomMobileControlButtonItem {
+export type ExtensionRibbonsCustomMobileControlButtonItem = {
   /**
    * The ID of an action defined in runtimes. Maximum length is 64 characters.
    */
@@ -963,9 +963,9 @@ export interface ExtensionRibbonsCustomMobileControlButtonItem {
   label: string;
   type: PurpleType;
   [property: string]: any;
-}
+};
 
-export interface ExtensionCustomMobileIcon {
+export type ExtensionCustomMobileIcon = {
   /**
    * How to scale - 1,2,3 for each image. This attribute specifies the UIScreen.scale property
    * for iOS devices.
@@ -979,11 +979,11 @@ export interface ExtensionCustomMobileIcon {
    * Url to the icon.
    */
   url: string;
-}
+};
 
 export type PurpleType = 'mobileButton';
 
-export interface ExtensionRibbonsCustomTabGroupsItem {
+export type ExtensionRibbonsCustomTabGroupsItem = {
   /**
    * Id of a built-in Group. Maximum length is 64 characters.
    */
@@ -998,9 +998,9 @@ export interface ExtensionRibbonsCustomTabGroupsItem {
    * Displayed text for the group. Maximum length is 64 characters.
    */
   label?: string;
-}
+};
 
-export interface ExtensionCommonCustomGroupControlsItem {
+export type ExtensionCommonCustomGroupControlsItem = {
   /**
    * The ID of an execution-type action that handles this key combination. Maximum length is
    * 64 characters.
@@ -1038,9 +1038,9 @@ export interface ExtensionCommonCustomGroupControlsItem {
    * Defines the type of control whether button or menu.
    */
   type: FluffyType;
-}
+};
 
-export interface ExtensionCommonCustomControlMenuItem {
+export type ExtensionCommonCustomControlMenuItem = {
   /**
    * The ID of an action defined in runtimes. Maximum length is 64 characters.
    */
@@ -1064,9 +1064,9 @@ export interface ExtensionCommonCustomControlMenuItem {
    * Supported values: menuItem.
    */
   type: ItemType;
-}
+};
 
-export interface ExtensionCommonSuperToolTip {
+export type ExtensionCommonSuperToolTip = {
   /**
    * Description of the super tip. Maximum length is 250 characters.
    */
@@ -1075,7 +1075,7 @@ export interface ExtensionCommonSuperToolTip {
    * Title text of the super tip. Maximum length is 64 characters.
    */
   title: string;
-}
+};
 
 /**
  * Supported values: menuItem.
@@ -1087,7 +1087,7 @@ export type ItemType = 'menuItem';
  */
 export type FluffyType = 'button' | 'menu';
 
-export interface Position {
+export type Position = {
   /**
    * Define alignment of this custom tab relative to the specified built-in tab.
    */
@@ -1096,7 +1096,7 @@ export interface Position {
    * The id of the built-in tab. Maximum length is 64 characters.
    */
   builtInTabId: string;
-}
+};
 
 /**
  * Define alignment of this custom tab relative to the specified built-in tab.
@@ -1106,7 +1106,7 @@ export type Align = 'after' | 'before';
 /**
  * A runtime environment for a page or script
  */
-export interface ExtensionRuntimesArray {
+export type ExtensionRuntimesArray = {
   actions?: ExtensionRuntimesActionsItem[];
   code: ExtensionRuntimeCode;
   /**
@@ -1123,13 +1123,13 @@ export interface ExtensionRuntimesArray {
    * Supports running functions and launching pages.
    */
   type?: RuntimeType;
-}
+};
 
 /**
  * Specifies the set of actions supported by this runtime. An action is either running a
  * JavaScript function or opening a view such as a task pane.
  */
-export interface ExtensionRuntimesActionsItem {
+export type ExtensionRuntimesActionsItem = {
   /**
    * Display name of the action. Maximum length is 64 characters.
    */
@@ -1162,7 +1162,7 @@ export interface ExtensionRuntimesActionsItem {
    * View where the page should be opened. Maximum length is 64 characters.
    */
   view?: string;
-}
+};
 
 /**
  * executeFunction: Run a script function without waiting for it to finish. openPate: Open a
@@ -1170,7 +1170,7 @@ export interface ExtensionRuntimesActionsItem {
  */
 export type ActionType = 'executeFunction' | 'openPage';
 
-export interface ExtensionRuntimeCode {
+export type ExtensionRuntimeCode = {
   /**
    * URL of the .html page to be loaded in browser-based runtimes.
    */
@@ -1179,7 +1179,7 @@ export interface ExtensionRuntimeCode {
    * URL of the .js script file to be loaded in UI-less runtimes.
    */
   script?: string;
-}
+};
 
 /**
  * Runtimes with a short lifetime do not preserve state across executions. Runtimes with a
@@ -1196,14 +1196,14 @@ export type RuntimeType = 'general';
  * Specify the app's Graph connector configuration. If this is present then
  * webApplicationInfo.id must also be specified.
  */
-export interface GraphConnector {
+export type GraphConnector = {
   /**
    * The url where Graph-connector notifications for the application should be sent.
    */
   notificationUrl: string;
-}
+};
 
-export interface Icons {
+export type Icons = {
   /**
    * A relative file path to a full color PNG icon. Size 192x192.
    */
@@ -1213,9 +1213,9 @@ export interface Icons {
    * white. Size 32x32.
    */
   outline: string;
-}
+};
 
-export interface LocalizationInfo {
+export type LocalizationInfo = {
   additionalLanguages?: AdditionalLanguage[];
   /**
    * A relative file path to a the .json file containing strings in the default language.
@@ -1225,9 +1225,9 @@ export interface LocalizationInfo {
    * The language tag of the strings in this top level manifest file.
    */
   defaultLanguageTag: string;
-}
+};
 
-export interface AdditionalLanguage {
+export type AdditionalLanguage = {
   /**
    * A relative file path to a the .json file containing the translated strings.
    */
@@ -1236,14 +1236,14 @@ export interface AdditionalLanguage {
    * The language tag of the strings in the provided file.
    */
   languageTag: string;
-}
+};
 
 export type ManifestVersion = '1.19';
 
 /**
  * Specify meeting extension definition.
  */
-export interface MeetingExtensionDefinition {
+export type MeetingExtensionDefinition = {
   /**
    * Meeting supported scenes.
    */
@@ -1257,9 +1257,9 @@ export interface MeetingExtensionDefinition {
    * to an RTMP endpoint.
    */
   supportsStreaming?: boolean;
-}
+};
 
-export interface Scene {
+export type Scene = {
   /**
    * A relative file path to a scene metadata json file.
    */
@@ -1284,9 +1284,9 @@ export interface Scene {
    * Number of seats reserved for organizers or presenters.
    */
   seatsReservedForOrganizersOrPresenters: number;
-}
+};
 
-export interface Name {
+export type Name = {
   /**
    * The full name of the app, used if the full app name exceeds 30 characters.
    */
@@ -1295,11 +1295,11 @@ export interface Name {
    * A short display name for the app.
    */
   short: string;
-}
+};
 
 export type Permission = 'identity' | 'messageTeamMembers';
 
-export interface StaticTab {
+export type StaticTab = {
   /**
    * The Microsoft App ID specified for the bot in the Bot Framework portal
    * (https://dev.botframework.com/bots)
@@ -1335,7 +1335,7 @@ export interface StaticTab {
    * The url to point at if a user opts to view in a browser.
    */
   websiteUrl?: string;
-}
+};
 
 export type StaticTabContext =
   | 'personalTab'
@@ -1350,12 +1350,12 @@ export type StaticTabContext =
 /**
  * Subscription offer associated with this app.
  */
-export interface SubscriptionOffer {
+export type SubscriptionOffer = {
   /**
    * A unique identifier for the Commercial Marketplace Software as a Service Offer.
    */
   offerId: string;
-}
+};
 
 export type SupportedChannelType = 'sharedChannels' | 'privateChannels';
 
@@ -1363,7 +1363,7 @@ export type SupportedChannelType = 'sharedChannels' | 'privateChannels';
  * Specify your AAD App ID and Graph information to help users seamlessly sign into your AAD
  * app.
  */
-export interface WebApplicationInfo {
+export type WebApplicationInfo = {
   /**
    * AAD application id of the app. This id must be a GUID.
    */
@@ -1372,4 +1372,4 @@ export interface WebApplicationInfo {
    * Resource url of app for acquiring auth token for SSO.
    */
   resource?: string;
-}
+};

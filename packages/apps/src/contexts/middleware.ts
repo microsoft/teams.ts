@@ -2,25 +2,25 @@ import {
   Activity,
   ActivityLike,
   MentionEntity,
-  MessageSendActivity,
-  SignInTokenExchangeInvokeActivity,
-  SignInVerifyStateInvokeActivity,
+  IMessageActivity,
+  ISignInTokenExchangeInvokeActivity,
+  ISignInVerifyStateInvokeActivity,
   TokenResponse,
 } from '@microsoft/spark.api';
 
-import { ActivityContext } from './activity-context';
-import { SentActivity, Streamer } from './types';
+import { IActivityContext } from './activity';
+import { SentActivity, IStreamer } from '../types';
 
-export interface MiddlewareContext<T extends Activity = Activity> extends ActivityContext<T> {
+export interface IMiddlewareContext<T extends Activity = Activity> extends IActivityContext<T> {
   /**
    * a stream that can emit activity chunks
    */
-  stream: Streamer;
+  stream: IStreamer;
 
   /**
    * call the next event/middleware handler
    */
-  next: (ctx?: MiddlewareContext) => any | Promise<any>;
+  next: (ctx?: IMiddlewareContext) => any | Promise<any>;
 
   /**
    * send an activity to the conversation
@@ -48,23 +48,25 @@ export interface MiddlewareContext<T extends Activity = Activity> extends Activi
   signout: (name?: string) => Promise<void>;
 }
 
-export interface MentionMiddlewareContext extends MiddlewareContext<MessageSendActivity> {
+export interface IMentionMiddlewareContext extends IMiddlewareContext<IMessageActivity> {
   /**
    * the mention entity that references your app
    */
   mention: MentionEntity;
 }
 
-export interface SignInMiddlewareContext
-  extends MiddlewareContext<SignInTokenExchangeInvokeActivity | SignInVerifyStateInvokeActivity> {
+export interface ISignInMiddlewareContext
+  extends IMiddlewareContext<
+    ISignInTokenExchangeInvokeActivity | ISignInVerifyStateInvokeActivity
+  > {
   /**
    * the token response of the signin request
    */
   token: TokenResponse;
 }
 
-export interface ErrorMiddlewareContext<T extends Activity = Activity>
-  extends MiddlewareContext<T> {
+export interface IErrorMiddlewareContext<T extends Activity = Activity>
+  extends IMiddlewareContext<T> {
   /**
    * the error
    */

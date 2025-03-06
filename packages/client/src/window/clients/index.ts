@@ -1,4 +1,4 @@
-import { Logger } from '@microsoft/spark.common';
+import { ILogger } from '@microsoft/spark.common';
 
 import { Context, FrameContext, HostClientType, Theme } from '../types';
 import { WindowClient } from '../window-client';
@@ -41,7 +41,7 @@ export class Client {
   readonly notification: NotificationClient;
   readonly media: MediaClient;
 
-  constructor(logger?: Logger) {
+  constructor(logger?: ILogger) {
     this.window = new WindowClient(logger);
     this.appEntity = new AppEntityClient(this.window);
     this.appInitialization = new AppInitializationClient(this.window);

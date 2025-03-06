@@ -1,12 +1,12 @@
 import { MessagingExtensionParameter } from './messaging-extension-parameter';
 
 /**
- * @interface
+ *
  * An interface representing MessagingExtensionQueryOptions.
  * Messaging extension query options
  *
  */
-export interface MessagingExtensionQueryOptions {
+export type MessagingExtensionQueryOptions = {
   /**
    * @member {number} [skip] Number of entities to skip
    */
@@ -16,15 +16,15 @@ export interface MessagingExtensionQueryOptions {
    * @member {number} [count] Number of entities to fetch
    */
   count?: number;
-}
+};
 
 /**
- * @interface
+ *
  * An interface representing MessagingExtensionQuery.
  * Messaging extension query
  *
  */
-export interface MessagingExtensionQuery {
+export type MessagingExtensionQuery = {
   /**
    * @member {string} [commandId] Id of the command assigned by Bot
    */
@@ -46,4 +46,4 @@ export interface MessagingExtensionQuery {
    * authentication/configuration flow
    */
   state?: string;
-}
+};

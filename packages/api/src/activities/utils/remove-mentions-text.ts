@@ -1,12 +1,12 @@
-import { MessageSendActivity, MessageUpdateActivity } from '../message';
-import { TypingActivity } from '../typing';
+import { IMessageActivity, IMessageUpdateActivity } from '../message';
+import { ITypingActivity } from '../typing';
 
 /**
  * any activity type that has a `text` property
  */
-type TextActivity = MessageSendActivity | MessageUpdateActivity | TypingActivity;
+type TextActivity = IMessageActivity | IMessageUpdateActivity | ITypingActivity;
 
-export interface RemoveMentionsTextOptions {
+export type RemoveMentionsTextOptions = {
   /**
    * the account to remove mentions for
    * by default, all at-mentions listed in `entities` are removed.
@@ -20,7 +20,7 @@ export interface RemoveMentionsTextOptions {
    *     output: Hello my-bot! How are you?
    */
   tagOnly?: boolean;
-}
+};
 
 /**
  * remove "\<at>...\</at>" text from an activity

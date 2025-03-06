@@ -5,7 +5,7 @@ import { ThumbnailUrl } from './thumbnail-url';
 /**
  * Video card
  */
-export interface VideoCard {
+export type VideoCard = {
   /**
    * Title of this card
    */
@@ -67,4 +67,4 @@ export interface VideoCard {
    * Supplementary parameter for this card
    */
   value?: any;
-}
+};

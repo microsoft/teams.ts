@@ -1,7 +1,7 @@
 /**
  * The response object of a token exchange invoke.
  */
-export interface TokenExchangeInvokeResponse {
+export type TokenExchangeInvokeResponse = {
   /**
    * The id from the OAuthCard.
    */
@@ -21,4 +21,4 @@ export interface TokenExchangeInvokeResponse {
    * Extension data for overflow of properties.
    */
   properties?: Record<string, any>;
-}
+};

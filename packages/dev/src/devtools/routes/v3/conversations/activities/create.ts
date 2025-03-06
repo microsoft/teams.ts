@@ -6,9 +6,9 @@ import { Activity, JsonWebToken } from '@microsoft/spark.api';
 
 import { RouteContext } from '../../../context';
 
-interface CreateActivityParams {
+type CreateActivityParams = {
   readonly conversationId: string;
-}
+};
 
 export function create({ port, log, process }: RouteContext) {
   return async (

@@ -8,13 +8,13 @@ export type ClipboardMimeType = 'text/plain' | 'text/html' | 'image/png' | 'imag
 /**
  * Clipboard write parameters
  */
-export interface ClipboardWriteParams {
+export type ClipboardWriteParams = {
   /** Mime Type of data to be copied to Clipboard */
   mimeType: ClipboardMimeType;
 
   /** Blob content in Base64 string format */
   content: string;
-}
+};
 
 export class ClipboardClient {
   readonly window: WindowClient;

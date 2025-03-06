@@ -1,5 +1,5 @@
 import * as uuid from 'uuid';
-import { ConsoleLogger, EventEmitter, Logger } from '@microsoft/spark.common';
+import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/spark.common';
 
 import { ErrorMessageResponse, MessageRequest, MessageResponse } from './message';
 
@@ -18,12 +18,12 @@ export class WindowClient {
   }
 
   protected id: number;
-  protected log: Logger;
+  protected log: ILogger;
   protected inFlight: Record<string, MessageRequest> = {};
   protected requests: EventEmitter<Record<string, MessageRequest>>;
   protected responses: EventEmitter<Record<string, MessageResponse | ErrorMessageResponse>>;
 
-  constructor(logger?: Logger) {
+  constructor(logger?: ILogger) {
     this.id = 0;
     this.log = logger?.child('window') || new ConsoleLogger('@microsoft/spark.client/window');
     this.requests = new EventEmitter();

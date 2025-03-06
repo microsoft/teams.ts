@@ -1,9 +1,9 @@
 import { Card, TextBlock } from '@microsoft/spark.cards';
 
 import { Account, cardAttachment } from '../../models';
-import { MessageSendActivity } from './message-send';
+import { MessageActivity } from './message';
 
-describe('MessageSendActivity', () => {
+describe('MessageActivity', () => {
   const user: Account = {
     id: '1',
     name: 'test',
@@ -12,15 +12,15 @@ describe('MessageSendActivity', () => {
 
   it('should build', () => {
     const expiration = new Date();
-    const card = Card([TextBlock('hello world')]);
-    const activity = MessageSendActivity('test')
-      .text('hello world')
-      .speak('say something')
-      .inputHint('acceptingInput')
-      .summary('my test summary')
-      .textFormat('plain')
-      .attachmentLayout('list')
-      .suggestedActions({
+    const card = new Card(new TextBlock('hello world'));
+    const activity = new MessageActivity('test')
+      .withText('hello world')
+      .withSpeak('say something')
+      .withInputHint('acceptingInput')
+      .withSummary('my test summary')
+      .withTextFormat('plain')
+      .withAttachmentLayout('list')
+      .withSuggestedActions({
         to: ['1', '2'],
         actions: [
           {
@@ -30,12 +30,11 @@ describe('MessageSendActivity', () => {
           },
         ],
       })
-      .importance('high')
-      .deliveryMode('notification')
-      .expiration(expiration)
-      .mention(user)
-      .card('adaptive', card)
-      .build();
+      .withImportance('high')
+      .withDeliveryMode('notification')
+      .withExpiration(expiration)
+      .addMention(user)
+      .addCard('adaptive', card);
 
     expect(activity.type).toEqual('message');
     expect(activity.text).toEqual('hello world');

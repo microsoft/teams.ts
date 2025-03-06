@@ -2,7 +2,7 @@ import path from 'node:path';
 import url from 'node:url';
 import fs from 'node:fs';
 
-import { ProjectAttribute } from '../project-attribute';
+import { IProjectAttribute } from '../project-attribute';
 import {
   CompoundOperation,
   CopyOperation,
@@ -11,7 +11,7 @@ import {
   IfOperation,
 } from '../operations';
 
-export class TeamsToolkitAttribute implements ProjectAttribute {
+export class TeamsToolkitAttribute implements IProjectAttribute {
   readonly id: string;
   readonly name: string;
   readonly alias = 'ttk';

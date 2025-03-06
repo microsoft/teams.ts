@@ -1,8 +1,6 @@
-import { ActivityBase } from '../base';
+import { IActivity } from '../activity';
 
-export interface InstalledActivity extends ActivityBase {
-  readonly type: 'installationUpdate';
-
+export interface IInstalledActivity extends IActivity<'installationUpdate'> {
   /**
    * install update action
    */

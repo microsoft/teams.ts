@@ -2,23 +2,23 @@ import { TabResponseCards } from './tab-response-card';
 import { TabSuggestedActions } from './tab-suggested-actions';
 
 /**
- * @interface
+ *
  * Envelope for Card Tab Response Payload.
  *
  */
-export interface TabResponse {
+export type TabResponse = {
   /**
    * @member {TabResponsePayload} [tab] The response to the tab/fetch message.
    */
   tab: TabResponsePayload;
-}
+};
 
 /**
- * @interface
+ *
  * Payload for Tab Response.
  *
  */
-export interface TabResponsePayload {
+export type TabResponsePayload = {
   /**
    * @member {'continue' | 'auth' | 'silentAuth'} [type] Choice of action options when responding to the tab/fetch message.
    */
@@ -34,4 +34,4 @@ export interface TabResponsePayload {
    * @member {TabSuggestedActions} [suggestedActions] The Suggested Actions for this card tab.
    */
   suggestedActions?: TabSuggestedActions;
-}
+};

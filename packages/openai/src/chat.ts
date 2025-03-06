@@ -1,11 +1,11 @@
-import { ChatModel, ChatParams, LocalMemory, ModelMessage } from '@microsoft/spark.ai';
-import { ConsoleLogger, Logger } from '@microsoft/spark.common/logging';
+import { IChatModel, ChatParams, LocalMemory, ModelMessage } from '@microsoft/spark.ai';
+import { ConsoleLogger, ILogger } from '@microsoft/spark.common/logging';
 
 import OpenAI, { AzureOpenAI } from 'openai';
 import { Fetch } from 'openai/core';
 import { Stream } from 'openai/streaming';
 
-export interface OpenAIChatModelOptions {
+export type OpenAIChatModelOptions = {
   readonly model: (string & {}) | OpenAI.Chat.ChatModel;
   readonly apiKey?: string;
   readonly baseUrl?: string;
@@ -16,15 +16,15 @@ export interface OpenAIChatModelOptions {
   readonly timeout?: number;
   readonly stream?: boolean;
   readonly temperature?: number;
-  readonly logger?: Logger;
+  readonly logger?: ILogger;
   readonly requestOptions?:
     | OpenAI.ChatCompletionCreateParams
     | ((
         params: ChatParams
       ) => OpenAI.ChatCompletionCreateParams | Promise<OpenAI.ChatCompletionCreateParams>);
-}
+};
 
-export interface AzureOpenAIChatModelOptions extends OpenAIChatModelOptions {
+export type AzureOpenAIChatModelOptions = OpenAIChatModelOptions & {
   /**
    * Defaults to process.env['OPENAI_API_VERSION'].
    */
@@ -40,11 +40,11 @@ export interface AzureOpenAIChatModelOptions extends OpenAIChatModelOptions {
    * which will be invoked on every request.
    */
   azureADTokenProvider?: () => Promise<string>;
-}
+};
 
-export class OpenAIChatModel implements ChatModel {
+export class OpenAIChatModel implements IChatModel {
   private readonly _openai: OpenAI;
-  private readonly _log: Logger;
+  private readonly _log: ILogger;
 
   constructor(readonly options: OpenAIChatModelOptions | AzureOpenAIChatModelOptions) {
     this._log =

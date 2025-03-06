@@ -1,23 +1,23 @@
 import { AdaptiveCardInvokeActivity } from './adaptive-card';
 import { MessageExtensionInvokeActivity } from './message-extension';
 import { ConfigInvokeActivity } from './config';
-import { ExecuteActionInvokeActivity } from './execute-action';
-import { FileConsentInvokeActivity } from './file-consent';
-import { HandoffActionInvokeActivity } from './handoff-action';
 import { MessageInvokeActivity } from './message';
 import { SignInInvokeActivity } from './sign-in';
 import { TabInvokeActivity } from './tab';
 import { TaskInvokeActivity } from './task';
+import { IExecuteActionInvokeActivity } from './execute-action';
+import { IFileConsentInvokeActivity } from './file-consent';
+import { IHandoffActionInvokeActivity } from './handoff-action';
 
 export type InvokeActivity =
-  | FileConsentInvokeActivity
-  | ExecuteActionInvokeActivity
+  | IFileConsentInvokeActivity
+  | IExecuteActionInvokeActivity
   | MessageExtensionInvokeActivity
   | ConfigInvokeActivity
   | TabInvokeActivity
   | TaskInvokeActivity
   | MessageInvokeActivity
-  | HandoffActionInvokeActivity
+  | IHandoffActionInvokeActivity
   | SignInInvokeActivity
   | AdaptiveCardInvokeActivity;
 

@@ -1,14 +1,14 @@
-import { MessageSendActivity, TypingActivity } from '@microsoft/spark.api';
+import { IMessageActivity, ITypingActivity } from '@microsoft/spark.api';
 
 /**
  * component that can send streamed chunks of an activity
  */
-export interface Streamer {
+export interface IStreamer {
   /**
    * emit an activity chunk
    * @param activity the activity to send
    */
-  emit(activity: Partial<MessageSendActivity | TypingActivity> | string): void;
+  emit(activity: Partial<IMessageActivity | ITypingActivity> | string): void;
 
   /**
    * close the stream

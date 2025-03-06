@@ -1,4 +1,4 @@
-export interface SensitiveUsageEntity {
+export type SensitiveUsageEntity = {
   readonly type: 'https://schema.org/Message';
 
   /**
@@ -30,4 +30,4 @@ export interface SensitiveUsageEntity {
    * other properties
    */
   [key: string]: any;
-}
+};

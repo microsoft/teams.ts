@@ -3,7 +3,7 @@ import { CallerType } from './caller';
 /**
  * any authorized token
  */
-export interface Token {
+export interface IToken {
   /**
    * the app id
    */

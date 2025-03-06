@@ -1,7 +1,7 @@
 import { InvokeActivity, InvokeResponse } from '@microsoft/spark.api';
 
 import { RouteHandler } from '../../types';
-import { MiddlewareContext } from '../../middleware-context';
+import { IMiddlewareContext } from '../../contexts';
 
 import { FileConsentActivityRoutes } from './file-consent';
 import { MessageExtensionSubmitActivityRoutes } from './message-extension-submit';
@@ -9,14 +9,14 @@ import { MessageSubmitActivityRoutes } from './message-submit';
 
 export type InvokeActivityRoutes = {
   [K in InvokeActivity['name'] as InvokeAliases[K]]?: RouteHandler<
-    MiddlewareContext<Extract<InvokeActivity, { name: K }>>,
+    IMiddlewareContext<Extract<InvokeActivity, { name: K }>>,
     InvokeResponse<K>
   >;
 } & FileConsentActivityRoutes &
   MessageExtensionSubmitActivityRoutes &
   MessageSubmitActivityRoutes;
 
-interface InvokeAliases {
+type InvokeAliases = {
   'config/fetch': 'config.open';
   'config/submit': 'config.submit';
   'fileConsent/invoke': 'file.consent';
@@ -39,7 +39,7 @@ interface InvokeAliases {
   'signin/tokenExchange': 'signin.token-exchange';
   'signin/verifyState': 'signin.verify-state';
   'adaptiveCard/action': 'card.action';
-}
+};
 
 export const INVOKE_ALIASES: InvokeAliases = {
   'config/fetch': 'config.open',

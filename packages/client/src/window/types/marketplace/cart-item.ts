@@ -1,7 +1,7 @@
 /**
  * Represents the basic cart item information.
  */
-export interface Item {
+export type Item = {
   /**
    * The id of the cart item.
    */
@@ -26,12 +26,12 @@ export interface Item {
    * The thumbnail imageURL of the cart item.
    */
   readonly imageURL?: URL;
-}
+};
 
 /**
  * Represents the cart item that could have accessories
  */
-export interface CartItem extends Item {
+export type CartItem = Item & {
   /**
    * Accessories to the item if existing.
    */
@@ -41,4 +41,4 @@ export interface CartItem extends Item {
    * The thumbnail imageURL of the cart item.
    */
   readonly imageURL?: URL;
-}
+};

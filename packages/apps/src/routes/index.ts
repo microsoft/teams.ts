@@ -1,4 +1,4 @@
-import { MentionMiddlewareContext, MiddlewareContext } from '../middleware-context';
+import { IMentionMiddlewareContext, IMiddlewareContext } from '../contexts';
 import { RouteHandler } from '../types';
 
 import { ActivityRoutes } from './activity';
@@ -9,7 +9,7 @@ import { MessageUpdateActivityRoutes } from './message-update';
 import { MessageDeleteActivityRoutes } from './message-delete';
 import { EventActivityRoutes } from './event';
 
-export interface Routes
+export interface IRoutes
   extends ActivityRoutes,
     InvokeActivityRoutes,
     InstallActivityRoutes,
@@ -17,8 +17,8 @@ export interface Routes
     MessageUpdateActivityRoutes,
     MessageDeleteActivityRoutes,
     EventActivityRoutes {
-  mention?: RouteHandler<MentionMiddlewareContext>;
-  activity?: RouteHandler<MiddlewareContext>;
+  mention?: RouteHandler<IMentionMiddlewareContext>;
+  activity?: RouteHandler<IMiddlewareContext>;
 }
 
 export * from './activity';

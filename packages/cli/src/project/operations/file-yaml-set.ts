@@ -3,9 +3,9 @@ import fs from 'node:fs';
 import yaml from 'yaml';
 import { String } from '@microsoft/spark.common';
 
-import { ProjectAttributeOperation } from '../project-attribute';
+import { IProjectAttributeOperation } from '../project-attribute';
 
-export class FileYamlSetOperation implements ProjectAttributeOperation {
+export class FileYamlSetOperation implements IProjectAttributeOperation {
   readonly name = 'file.yaml.set';
 
   private _path: string;

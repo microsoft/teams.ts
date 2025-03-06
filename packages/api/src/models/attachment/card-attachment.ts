@@ -1,4 +1,4 @@
-import { Card } from '@microsoft/spark.cards';
+import { ICard } from '@microsoft/spark.cards';
 
 import { AnimationCard, AudioCard, HeroCard, ThumbnailCard, VideoCard } from '../card';
 import { OAuthCard } from '../oauth';
@@ -15,10 +15,10 @@ export function cardAttachment<T extends CardAttachmentType>(
 }
 
 export type CardAttachmentType = keyof CardAttachmentTypes;
-export interface CardAttachmentTypes {
+export type CardAttachmentTypes = {
   adaptive: {
     contentType: 'application/vnd.microsoft.card.adaptive';
-    content: Card;
+    content: ICard;
   };
   animation: {
     contentType: 'application/vnd.microsoft.card.animation';
@@ -48,4 +48,4 @@ export interface CardAttachmentTypes {
     contentType: 'application/vnd.microsoft.card.video';
     content: VideoCard;
   };
-}
+};

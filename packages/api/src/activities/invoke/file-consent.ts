@@ -1,10 +1,8 @@
 import { ConversationReference, FileConsentCardResponse } from '../../models';
 
-import { ActivityBase } from '../base';
+import { IActivity } from '../activity';
 
-export interface FileConsentInvokeActivity extends ActivityBase {
-  readonly type: 'invoke';
-
+export interface IFileConsentInvokeActivity extends IActivity<'invoke'> {
   /**
    * The name of the operation associated with an invoke or event activity.
    */

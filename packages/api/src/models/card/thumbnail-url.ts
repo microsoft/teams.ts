@@ -1,7 +1,7 @@
 /**
  * Thumbnail URL
  */
-export interface ThumbnailUrl {
+export type ThumbnailUrl = {
   /**
    * URL pointing to the thumbnail to use for media content
    */
@@ -11,4 +11,4 @@ export interface ThumbnailUrl {
    * HTML alt text to include on this thumbnail image
    */
   alt: string;
-}
+};

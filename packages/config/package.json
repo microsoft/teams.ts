@@ -6,7 +6,9 @@
   "homepage": "https://github.com/microsoft/spark.js",
   "bugs": "https://github.com/microsoft/spark.js/issues",
   "files": [
-    "eslint.config.js"
+    "eslint.config.js",
+    "jest.config.js",
+    "tsup.config.js"
   ],
   "publishConfig": {
     "access": "public"
@@ -15,5 +17,15 @@
     "type": "git",
     "url": "https://github.com/microsoft/spark.js.git",
     "directory": "packages/config"
+  },
+  "scripts": {
+    "lint": "npx eslint",
+    "lint:fix": "npx eslint --fix"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "eslint": "^9.21.0",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^8.26.0"
   }
 }

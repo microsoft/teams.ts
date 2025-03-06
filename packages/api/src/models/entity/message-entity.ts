@@ -1,4 +1,4 @@
-export interface MessageEntity {
+export type MessageEntity = {
   readonly type: 'message';
 
   /**
@@ -10,4 +10,4 @@ export interface MessageEntity {
    * other properties
    */
   [key: string]: any;
-}
+};

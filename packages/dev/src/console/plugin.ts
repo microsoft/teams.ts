@@ -1,36 +1,36 @@
 import readline from 'readline';
 import express from 'express';
 
-import { ConsoleLogger, Logger, EventEmitter, EventHandler } from '@microsoft/spark.common';
-import { App, Plugin, PluginEvents } from '@microsoft/spark.apps';
+import { ConsoleLogger, ILogger, EventEmitter, EventHandler } from '@microsoft/spark.common';
+import { App, IPlugin, IPluginEvents } from '@microsoft/spark.apps';
 import {
   ActivityParams,
   ConversationReference,
-  MessageSendActivity,
-  Token,
+  IMessageActivity,
+  IToken,
 } from '@microsoft/spark.api';
 
 /**
  * Console Receiver Options
  */
-export interface ConsoleOptions {
+export type ConsoleOptions = {
   /**
    * input stream
    * defaults to `process.stdin`
    */
   readonly stream?: NodeJS.ReadableStream;
-}
+};
 
 /**
  * Can receive activities via the console
  */
-export class ConsolePlugin implements Plugin {
+export class ConsolePlugin implements IPlugin {
   readonly name = 'console';
 
-  protected log: Logger;
+  protected log: ILogger;
   protected reader: readline.Interface;
   protected express: express.Application;
-  protected events: EventEmitter<PluginEvents>;
+  protected events: EventEmitter<IPluginEvents>;
 
   constructor(protected options: ConsoleOptions = {}) {
     this.log = new ConsoleLogger('@spark/app/http');
@@ -44,7 +44,7 @@ export class ConsolePlugin implements Plugin {
     this.events = new EventEmitter();
   }
 
-  on<Name extends keyof PluginEvents>(name: Name, callback: EventHandler<PluginEvents[Name]>) {
+  on<Name extends keyof IPluginEvents>(name: Name, callback: EventHandler<IPluginEvents[Name]>) {
     this.events.on(name, callback);
   }
 
@@ -55,7 +55,7 @@ export class ConsolePlugin implements Plugin {
   async onStart(port = 3000) {
     this.express.listen(port + 1, () => {
       this.reader.on('line', async (text) => {
-        const activity: MessageSendActivity = {
+        const activity: IMessageActivity = {
           id: '1',
           type: 'message',
           text,
@@ -78,7 +78,7 @@ export class ConsolePlugin implements Plugin {
           },
         };
 
-        const token: Token = {
+        const token: IToken = {
           appId: '1',
           from: 'azure',
           fromId: 'azure',

@@ -1,10 +1,8 @@
 import { AppBasedLinkQuery, ConversationReference } from '../../../models';
 
-import { ActivityBase } from '../../base';
+import { IActivity } from '../../activity';
 
-export interface MessageExtensionQueryLinkInvokeActivity extends ActivityBase {
-  readonly type: 'invoke';
-
+export interface IMessageExtensionQueryLinkInvokeActivity extends IActivity<'invoke'> {
   /**
    * The name of the operation associated with an invoke or event activity.
    */

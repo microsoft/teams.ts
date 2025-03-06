@@ -1,6 +1,6 @@
 import { App } from '@microsoft/spark.apps';
 import { ConsoleLogger } from '@microsoft/spark.common/logging';
-import { MessageSendActivity } from '@microsoft/spark.api';
+import { MessageActivity } from '@microsoft/spark.api';
 import { Card, CodeBlock, Column, ColumnSet, TextBlock } from '@microsoft/spark.cards';
 import { DevtoolsPlugin } from '@microsoft/spark.dev';
 
@@ -29,37 +29,31 @@ app.event('signin', async ({ send, api }) => {
   const me = await api.user.me.get();
 
   await send(
-    MessageSendActivity(`hello ${me.displayName} 👋!`)
-      .card(
+    new MessageActivity(`hello ${me.displayName} 👋!`)
+      .addCard(
         'adaptive',
-        Card([
-          CodeBlock({
+        new Card(
+          new CodeBlock({
             codeSnippet: JSON.stringify(me, null, 2),
-          }),
-        ])
+          })
+        )
       )
-      .card(
+      .addCard(
         'adaptive',
-        Card([
-          ColumnSet(
-            [
-              Column(
-                [
-                  TextBlock('Name:', { weight: 'bolder' }),
-                  TextBlock('Title:', { weight: 'bolder' }),
-                  TextBlock('Email:', { weight: 'bolder' }),
-                ],
-                { width: '65px' }
-              ),
-              Column([
-                TextBlock(me.displayName || ''),
-                TextBlock(me.jobTitle || ''),
-                TextBlock(me.mail || ''),
-              ]),
-            ],
-            { spacing: 'small' }
-          ),
-        ])
+        new Card(
+          new ColumnSet(
+            new Column(
+              new TextBlock('Name:', { weight: 'bolder' }),
+              new TextBlock('Title:', { weight: 'bolder' }),
+              new TextBlock('Email:', { weight: 'bolder' })
+            ).withWidth('65px'),
+            new Column(
+              new TextBlock(me.displayName || ''),
+              new TextBlock(me.jobTitle || ''),
+              new TextBlock(me.mail || '')
+            )
+          ).withSpacing('small')
+        )
       )
   );
 });

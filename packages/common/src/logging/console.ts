@@ -1,7 +1,7 @@
 import { ANSI } from './ansi';
-import { Logger, LoggerOptions, LogLevel } from './logger';
+import { ILogger, ILoggerOptions, LogLevel } from './logger';
 
-export class ConsoleLogger implements Logger {
+export class ConsoleLogger implements ILogger {
   protected readonly name: string;
   protected readonly level: LogLevel;
 
@@ -20,7 +20,7 @@ export class ConsoleLogger implements Logger {
     debug: ANSI.ForegroundMagenta,
   };
 
-  constructor(name: string, options?: LoggerOptions) {
+  constructor(name: string, options?: ILoggerOptions) {
     this.name = name;
     this.level = options?.level || 'info';
     this._pattern = parseMagicExpr(process.env.LOG || '*');

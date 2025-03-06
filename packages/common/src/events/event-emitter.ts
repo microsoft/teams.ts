@@ -1,6 +1,6 @@
 export type EventHandler<T = any> = (data: T) => void | Promise<void>;
 
-export interface EventEmitter<EventTypes = Record<string, any>> {
+export interface IEventEmitter<EventTypes = Record<string, any>> {
   on<Event extends keyof EventTypes>(
     event: Event,
     handler: EventHandler<EventTypes[Event]>
@@ -13,7 +13,7 @@ export interface EventEmitter<EventTypes = Record<string, any>> {
   emit<Event extends keyof EventTypes>(event: Event, value: EventTypes[Event]): void;
 }
 
-export class EventEmitter<EventTypes = Record<string, any>> {
+export class EventEmitter<EventTypes = Record<string, any>> implements IEventEmitter<EventTypes> {
   protected index = -1;
   protected subscriptions = new Map<
     keyof EventTypes,

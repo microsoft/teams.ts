@@ -1,10 +1,10 @@
 /**
- * @interface
+ *
  * An interface representing MessageActionsPayloadBody.
  * Plaintext/HTML representation of the content of the message.
  *
  */
-export interface MessageBody {
+export type MessageBody = {
   /**
    * @member {ContentType} [contentType] Type of the content. Possible values
    * include: 'html', 'text'
@@ -21,4 +21,4 @@ export interface MessageBody {
    * stripping HTML tags.
    */
   textContent?: string;
-}
+};

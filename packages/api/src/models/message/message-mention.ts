@@ -1,12 +1,12 @@
 import { MessageFrom } from './message-from';
 
 /**
- * @interface
+ *
  * An interface representing MessageActionsPayloadMention.
  * Represents the entity that was mentioned in the message.
  *
  */
-export interface MessageMention {
+export type MessageMention = {
   /**
    * @member {number} [id] The id of the mentioned entity.
    */
@@ -23,4 +23,4 @@ export interface MessageMention {
    * the mentioned entity.
    */
   mentioned?: MessageFrom;
-}
+};

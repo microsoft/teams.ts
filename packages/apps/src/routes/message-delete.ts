@@ -1,11 +1,11 @@
-import { MessageDeleteActivity } from '@microsoft/spark.api';
+import { IMessageDeleteActivity } from '@microsoft/spark.api';
 
 import { RouteHandler } from '../types';
-import { MiddlewareContext } from '../middleware-context';
+import { IMiddlewareContext } from '../contexts';
 
 export type MessageDeleteActivityRoutes = {
-  [K in MessageDeleteActivity['channelData']['eventType'] as K]?: RouteHandler<
-    MiddlewareContext<MessageDeleteActivity>,
+  [K in IMessageDeleteActivity['channelData']['eventType'] as K]?: RouteHandler<
+    IMiddlewareContext<IMessageDeleteActivity>,
     void
   >;
 };

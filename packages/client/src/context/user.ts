@@ -3,7 +3,7 @@ import { TenantContext } from './tenant';
 /**
  * Represents User information.
  */
-export interface UserContext {
+export type UserContext = {
   /**
    * The Microsoft Entra object id of the current user.
    *
@@ -65,4 +65,4 @@ export interface UserContext {
    * The tenant related info of the current user.
    */
   tenant?: TenantContext;
-}
+};

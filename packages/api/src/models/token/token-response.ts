@@ -3,7 +3,7 @@ import { ChannelID } from '../channel-id';
 /**
  * A response that includes a user token
  */
-export interface TokenResponse {
+export type TokenResponse = {
   /**
    * @member {string} [channelId]
    */
@@ -28,4 +28,4 @@ export interface TokenResponse {
    * A collection of properties about this response, such as token polling parameters
    */
   properties?: Record<string, any>;
-}
+};

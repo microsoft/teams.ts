@@ -1,17 +1,17 @@
-import { ChoiceSetInput } from './choice-set';
-import { DateInput } from './date';
-import { NumberInput } from './number';
-import { TextInput } from './text';
-import { TimeInput } from './time';
-import { ToggleInput } from './toggle';
+import { IChoiceSetInput } from './choice-set';
+import { IDateInput } from './date';
+import { INumberInput } from './number';
+import { ITextInput } from './text';
+import { ITimeInput } from './time';
+import { IToggleInput } from './toggle';
 
 export type InputElement =
-  | ChoiceSetInput
-  | DateInput
-  | NumberInput
-  | TextInput
-  | TimeInput
-  | ToggleInput;
+  | IChoiceSetInput
+  | IDateInput
+  | INumberInput
+  | ITextInput
+  | ITimeInput
+  | IToggleInput;
 
 export * from './choice-set';
 export * from './date';

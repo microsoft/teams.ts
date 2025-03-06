@@ -1,11 +1,11 @@
 import { FC } from 'react';
 import { Button, mergeClasses, Tooltip } from '@fluentui/react-components';
-import { ExecuteAction } from '@microsoft/spark.cards';
+import { IExecuteAction } from '@microsoft/spark.cards';
 
 import { useExecuteActionCardClasses } from './Actions.styles';
 
 export interface ExecuteActionCardProps {
-  readonly value: ExecuteAction;
+  readonly value: IExecuteAction;
 }
 
 const ExecuteActionCard: FC<ExecuteActionCardProps> = ({ value }) => {

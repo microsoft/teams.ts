@@ -1,10 +1,10 @@
-import { Badge } from '@microsoft/spark.cards';
+import { IBadge } from '@microsoft/spark.cards';
 import { mergeClasses, Tooltip } from '@fluentui/react-components';
 import IconCard from './IconCard';
 import { useBadgeCardStyles } from './Medias.styles';
 
 export interface BadgeCardProps {
-  readonly value: Badge;
+  readonly value: IBadge;
 }
 
 export default function BadgeCard({ value }: BadgeCardProps) {

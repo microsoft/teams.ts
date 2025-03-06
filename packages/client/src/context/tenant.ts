@@ -1,7 +1,7 @@
 /**
  * Represents Tenant information.
  */
-export interface TenantContext {
+export type TenantContext = {
   /**
    * The Microsoft Entra tenant ID of the current user.
    * Because a malicious party can run your content in a browser, this value should
@@ -16,4 +16,4 @@ export interface TenantContext {
    * The type of license for the current user's tenant. Possible values are enterprise, free, edu, and unknown.
    */
   teamsSku?: string;
-}
+};

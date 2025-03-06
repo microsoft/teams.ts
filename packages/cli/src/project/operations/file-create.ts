@@ -2,9 +2,9 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { String } from '@microsoft/spark.common';
 
-import { ProjectAttributeOperation } from '../project-attribute';
+import { IProjectAttributeOperation } from '../project-attribute';
 
-export class FileCreateOperation implements ProjectAttributeOperation {
+export class FileCreateOperation implements IProjectAttributeOperation {
   readonly name = 'file.create';
 
   private _path: string;

@@ -1,5 +1,5 @@
 import { ComponentProps, Suspense, lazy } from 'react';
-import { Icon } from '@microsoft/spark.cards';
+import { IIcon } from '@microsoft/spark.cards';
 import { FluentIcon } from '@fluentui/react-icons/lib/fonts';
 import { mergeClasses } from '@fluentui/react-components';
 import { useIconCardStyles } from './Medias.styles';
@@ -13,7 +13,7 @@ const loadIcon = (name: string) => {
 };
 
 export interface IconCardProps extends ComponentProps<'div'> {
-  readonly value: Icon;
+  readonly value: IIcon;
 }
 
 export default function IconCard(props: IconCardProps) {

@@ -1,4 +1,4 @@
-export interface Attachment {
+export type Attachment = {
   /**
    * @member {string} [id] The id of the attachment.
    */
@@ -28,4 +28,4 @@ export interface Attachment {
    * (OPTIONAL) Thumbnail associated with attachment
    */
   thumbnailUrl?: string;
-}
+};

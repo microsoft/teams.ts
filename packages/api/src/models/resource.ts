@@ -1,9 +1,9 @@
 /**
  * A response containing a resource ID
  */
-export interface Resource {
+export type Resource = {
   /**
    * Id of the resource
    */
   id: string;
-}
+};

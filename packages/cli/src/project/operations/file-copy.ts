@@ -2,9 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { String } from '@microsoft/spark.common';
 
-import { ProjectAttributeOperation } from '../project-attribute';
+import { IProjectAttributeOperation } from '../project-attribute';
 
-export class FileCopyOperation implements ProjectAttributeOperation {
+export class FileCopyOperation implements IProjectAttributeOperation {
   readonly name = 'file.copy';
 
   private _from: string;

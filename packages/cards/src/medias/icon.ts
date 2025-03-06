@@ -1,7 +1,7 @@
 import { Action } from '../actions';
 import { Color } from '../common';
 
-export interface Icon {
+export interface IIcon {
   type: 'Icon';
 
   /**
@@ -30,14 +30,66 @@ export interface Icon {
   selectAction?: Action;
 }
 
-export type IconParams = Omit<Icon, 'type' | 'name'>;
+export type IconOptions = Omit<IIcon, 'type' | 'name'>;
 
-export function Icon(name: IconName, params?: IconParams): Icon {
-  return {
-    type: 'Icon',
-    name,
-    ...params,
-  };
+export class Icon implements IIcon {
+  type: 'Icon';
+
+  /**
+   * name of the icon.
+   */
+  name: IconName;
+
+  /**
+   * size of the icon.
+   */
+  size?: 'xxSmall' | 'xSmall' | 'Standard' | 'Medium' | 'Large' | 'xLarge' | 'xxLarge';
+
+  /**
+   * style of the icon.
+   */
+  style?: 'Regular' | 'Filled';
+
+  /**
+   * color of the icon.
+   */
+  color?: Color;
+
+  /**
+   * select action
+   */
+  selectAction?: Action;
+
+  constructor(name: IconName, options: IconOptions = {}) {
+    this.type = 'Icon';
+    this.name = name;
+    this.withOptions(options);
+  }
+
+  withOptions(value: IconOptions) {
+    Object.assign(this, value);
+    return this;
+  }
+
+  withSize(value: 'xxSmall' | 'xSmall' | 'Standard' | 'Medium' | 'Large' | 'xLarge' | 'xxLarge') {
+    this.size = value;
+    return this;
+  }
+
+  withStyle(value: 'Regular' | 'Filled') {
+    this.style = value;
+    return this;
+  }
+
+  withColor(value: Color) {
+    this.color = value;
+    return this;
+  }
+
+  withSelectAction(value: Action) {
+    this.selectAction = value;
+    return this;
+  }
 }
 
 export type IconName =

@@ -1,12 +1,12 @@
 import { FC } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
-import { ActionSet } from '@microsoft/spark.cards';
+import { IActionSet } from '@microsoft/spark.cards';
 
 import ActionCard from '../Actions/ActionCard';
 import useContainerClasses from './Containers.styles';
 
 export interface ActionSetCardProps {
-  readonly value: ActionSet;
+  readonly value: IActionSet;
 }
 
 const ActionSetCard: FC<ActionSetCardProps> = ({ value }) => {

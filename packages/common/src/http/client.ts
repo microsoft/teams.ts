@@ -5,12 +5,12 @@ import axios, {
   RawAxiosRequestHeaders,
 } from 'axios';
 
-import { ConsoleLogger, Logger } from '../logging';
+import { ConsoleLogger, ILogger } from '../logging';
 
 import { Interceptor } from './interceptor';
 import { Token } from './token';
 
-export interface ClientOptions {
+export type ClientOptions = {
   /**
    * The client name
    */
@@ -22,9 +22,9 @@ export interface ClientOptions {
   readonly token?: Token;
 
   /**
-   * Logger instance to use
+   *: ILogger instance to use
    */
-  readonly logger?: Logger;
+  readonly logger?: ILogger;
 
   /**
    * The baseUrl to prefix all client requests with
@@ -45,28 +45,28 @@ export interface ClientOptions {
    * Default interceptors to register
    */
   readonly interceptors?: Array<Interceptor>;
-}
+};
 
-export interface RequestConfig<D = any> extends AxiosRequestConfig<D> {
+export type RequestConfig<D = any> = AxiosRequestConfig<D> & {
   /**
    * If provided, this token will be used instead of
    * the default token provided in the `ClientOptions`
    */
   token?: Token;
-}
+};
 
-interface InterceptorRegistry {
+type InterceptorRegistry = {
   readonly requestId?: number;
   readonly responseId?: number;
   readonly interceptor: Interceptor;
-}
+};
 
 export class Client {
   token?: Token;
   readonly name: string;
 
   protected options: ClientOptions;
-  protected log: Logger;
+  protected log: ILogger;
   protected http: AxiosInstance;
   protected seq: number = 0;
   protected interceptors: Map<number, InterceptorRegistry>;

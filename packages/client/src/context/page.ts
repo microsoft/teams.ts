@@ -3,7 +3,7 @@ import { FrameContext } from '../window';
 /**
  * Represents Page information.
  */
-export interface PageContext {
+export type PageContext = {
   /**
    * The developer-defined unique ID for the page this content points to.
    */
@@ -41,4 +41,4 @@ export interface PageContext {
    * Source origin from where the page is opened
    */
   sourceOrigin?: string;
-}
+};

@@ -10,7 +10,7 @@ import { UserTeamRoles } from './user-team-role';
 /**
  * Represents the structure of the received context message.
  */
-export interface Context {
+export type Context = {
   /**
    * The Office 365 group ID for the team with which the content is associated.
    * This field is available only when the identity permission is requested in the manifest.
@@ -326,4 +326,4 @@ export interface Context {
    * The version of the manifest that the app is running.
    */
   manifestVersion?: string;
-}
+};

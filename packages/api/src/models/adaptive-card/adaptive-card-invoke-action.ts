@@ -2,7 +2,7 @@
  * Defines the structure that arrives in the Activity.Value.Action for Invoke
  * activity with Name of 'adaptiveCard/action'.
  */
-export interface AdaptiveCardInvokeAction {
+export type AdaptiveCardInvokeAction = {
   /**
    * The Type of this Adaptive Card Invoke Action.
    */
@@ -22,4 +22,4 @@ export interface AdaptiveCardInvokeAction {
    * The Data of this adaptive card action invoke.
    */
   data: Record<string, any>;
-}
+};

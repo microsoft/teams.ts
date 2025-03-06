@@ -3,12 +3,12 @@ import { Action } from '../action';
 import { FileUploadInfo } from './file-upload-info';
 
 /**
- * @interface
+ *
  * An interface representing FileConsentCard.
  * File consent card attachment.
  *
  */
-export interface FileConsentCard {
+export type FileConsentCard = {
   /**
    * @member {string} [description] File description.
    */
@@ -32,16 +32,16 @@ export interface FileConsentCard {
    * Activity.
    */
   declineContext?: any;
-}
+};
 
 /**
- * @interface
+ *
  * An interface representing FileConsentCardResponse.
  * Represents the value of the invoke activity sent when the user acts on a
  * file consent card
  *
  */
-export interface FileConsentCardResponse {
+export type FileConsentCardResponse = {
   /**
    * @member {Action} [action] The action the user took. Possible values
    * include: 'accept', 'decline'
@@ -58,4 +58,4 @@ export interface FileConsentCardResponse {
    * contains information about the file to be uploaded.
    */
   uploadInfo?: FileUploadInfo;
-}
+};

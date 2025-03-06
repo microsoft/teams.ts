@@ -3,12 +3,12 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import {
   Message,
-  MessageActivity,
-  MessageDeleteActivity,
-  MessageReactionActivity,
-  MessageSendActivity,
-  MessageUpdateActivity,
-  TypingActivity,
+  $MessageActivity,
+  IMessageDeleteActivity,
+  IMessageReactionActivity,
+  IMessageActivity,
+  IMessageUpdateActivity,
+  ITypingActivity,
 } from '@microsoft/spark.api';
 
 import { ActivityEvent } from '../types/Event';
@@ -27,35 +27,35 @@ export interface ChatStore {
   readonly put: (chatId: string, message: Message) => void;
 
   readonly onActivity: (event: ActivityEvent) => void;
-  readonly onTypingActivity: (event: ActivityEvent<TypingActivity>, state: ChatStore) => ChatStore;
+  readonly onTypingActivity: (event: ActivityEvent<ITypingActivity>, state: ChatStore) => ChatStore;
 
   readonly onMessageActivity: (
-    event: ActivityEvent<MessageActivity>,
+    event: ActivityEvent<$MessageActivity>,
     state: ChatStore
   ) => ChatStore;
   readonly onMessageSendActivity: (
-    event: ActivityEvent<MessageSendActivity>,
+    event: ActivityEvent<IMessageActivity>,
     state: ChatStore
   ) => ChatStore;
   readonly onMessageUpdateActivity: (
-    event: ActivityEvent<MessageUpdateActivity>,
+    event: ActivityEvent<IMessageUpdateActivity>,
     state: ChatStore
   ) => ChatStore;
   readonly onMessageReactionActivity: (
-    event: ActivityEvent<MessageReactionActivity>,
+    event: ActivityEvent<IMessageReactionActivity>,
     state: ChatStore
   ) => ChatStore;
   readonly onMessageDeleteActivity: (
-    event: ActivityEvent<MessageDeleteActivity>,
+    event: ActivityEvent<IMessageDeleteActivity>,
     state: ChatStore
   ) => ChatStore;
 
   readonly onStreamChunkActivity: (
-    event: ActivityEvent<TypingActivity>,
+    event: ActivityEvent<ITypingActivity>,
     state: ChatStore
   ) => ChatStore;
   readonly onStreamMessageActivity: (
-    event: ActivityEvent<MessageSendActivity>,
+    event: ActivityEvent<IMessageActivity>,
     state: ChatStore
   ) => ChatStore;
 }

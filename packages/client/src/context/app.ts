@@ -5,7 +5,7 @@ import { AppHostContext } from './app-host';
 /**
  * Represents application information.
  */
-export interface AppContext {
+export type AppContext = {
   /**
    * This ID is the unique identifier assigned to the app after deployment and is critical for ensuring the correct app instance is recognized across hosts.
    */
@@ -74,4 +74,4 @@ export interface AppContext {
    * The version of the manifest that the app is running.
    */
   manifestVersion?: string;
-}
+};

@@ -1,11 +1,11 @@
-import { AudioModel, AudioToTextParams, TextToAudioParams } from '../models';
+import { IAudioModel, AudioToTextParams, TextToAudioParams } from '../models';
 
-export interface AudioPromptOptions {
-  readonly model: AudioModel;
-}
+export type AudioPromptOptions = {
+  readonly model: IAudioModel;
+};
 
 export class AudioPrompt {
-  protected readonly _model: AudioModel;
+  protected readonly _model: IAudioModel;
 
   constructor(options: AudioPromptOptions) {
     this._model = options.model;

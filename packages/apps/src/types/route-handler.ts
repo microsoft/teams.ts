@@ -1,5 +1,5 @@
-import { MiddlewareContext } from '../middleware-context';
+import { IMiddlewareContext } from '../contexts';
 
-export type RouteHandler<In extends MiddlewareContext<any>, Out = void> = (
+export type RouteHandler<In extends IMiddlewareContext<any>, Out = void> = (
   ctx: In
 ) => Out | Promise<Out>;

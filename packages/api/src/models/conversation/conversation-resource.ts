@@ -1,7 +1,7 @@
 /**
  * A response containing a resource
  */
-export interface ConversationResource {
+export type ConversationResource = {
   /**
    * Id of the resource
    */
@@ -16,4 +16,4 @@ export interface ConversationResource {
    * Service endpoint where operations concerning the conversation may be performed
    */
   serviceUrl: string;
-}
+};

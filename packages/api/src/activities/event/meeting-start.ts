@@ -1,8 +1,6 @@
-import { ActivityBase } from '../base';
+import { IActivity } from '../activity';
 
-export interface MeetingStartEventActivity extends ActivityBase {
-  readonly type: 'event';
-
+export interface IMeetingStartEventActivity extends IActivity<'event'> {
   /**
    * The name of the operation associated with an invoke or event activity.
    */

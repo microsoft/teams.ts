@@ -3,7 +3,7 @@ import { DialogDimension } from './dialog-dimension';
 /**
  * Data structure to describe dialog information
  */
-export interface DialogInfo {
+export type DialogInfo = {
   /**
    * The url to be rendered in the webview/iframe.
    *
@@ -44,4 +44,4 @@ export interface DialogInfo {
    * in the event payload.
    */
   completionBotId?: string;
-}
+};

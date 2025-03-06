@@ -1,12 +1,12 @@
 import { TabEntityContext } from '../tab';
 
 /**
- * @interface
+ *
  * An interface representing TaskModuleRequest.
  * Task module invoke request value payload
  *
  */
-export interface TaskModuleRequest {
+export type TaskModuleRequest = {
   /**
    * @member {any} [data] User input data. Free payload with key-value pairs.
    */
@@ -22,17 +22,17 @@ export interface TaskModuleRequest {
    * @member {TabEntityContext} [tabContext] Tab request context.
    */
   tabContext?: TabEntityContext;
-}
+};
 
 /**
- * @interface
+ *
  * An interface representing TaskModuleRequestContext.
  * Current user context, i.e., the current theme
  *
  */
-export interface TaskModuleRequestContext {
+export type TaskModuleRequestContext = {
   /**
    * @member {string} [theme]
    */
   theme?: string;
-}
+};

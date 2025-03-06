@@ -7,9 +7,9 @@ import { String } from '@microsoft/spark.common';
 
 import { Project } from '../../project';
 
-interface Args {
+type Args = {
   name: string;
-}
+};
 
 export function Add(): CommandModule<{}, Args> {
   const configsPath = path.resolve(url.fileURLToPath(import.meta.url), '../..', 'configs');

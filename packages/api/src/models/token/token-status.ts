@@ -1,7 +1,7 @@
 /**
  * The status of a particular token.
  */
-export interface TokenStatus {
+export type TokenStatus = {
   /**
    * The channel ID.
    */
@@ -21,4 +21,4 @@ export interface TokenStatus {
    * The display name of the service provider for which this Token belongs to.
    */
   serviceProviderDisplayName: string;
-}
+};

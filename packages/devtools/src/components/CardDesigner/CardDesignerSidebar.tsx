@@ -56,7 +56,7 @@ const groups: CardGroup[] = [
       {
         icon: TableLightningRegular as FluentIcon,
         label: 'ActionSet',
-        value: ActionSet([
+        value: new ActionSet(
           {
             type: 'Action.OpenUrl',
             title: 'Action.OpenUrl',
@@ -65,45 +65,45 @@ const groups: CardGroup[] = [
           {
             type: 'Action.Submit',
             title: 'Action.Submit',
-          },
-        ]),
+          }
+        ),
         typescript: 'ActionSet()',
       },
       {
         icon: ColumnTripleRegular as FluentIcon,
         label: 'ColumnSet',
-        value: ColumnSet(),
+        value: new ColumnSet(),
         typescript: 'ColumnSet()',
       },
       {
         icon: CheckboxUncheckedRegular as FluentIcon,
         label: 'Container',
-        value: Container(),
+        value: new Container(),
         typescript: 'Container()',
       },
       {
         icon: DocumentOnePageColumnsRegular as FluentIcon,
         label: 'FactSet',
-        value: FactSet([Fact('hello', 'world')]),
+        value: new FactSet(new Fact('hello', 'world')),
         typescript: 'FactSet([Fact("hello", "world")])',
       },
       {
         icon: TableImageRegular as FluentIcon,
         label: 'ImageSet',
-        value: ImageSet([
-          Image(
+        value: new ImageSet(
+          new Image(
             'https://github.com/aacebo/teams-sdk-js/blob/main/assets/icons/teams.png?raw=true',
             {
               size: 'medium',
             }
           ),
-          Image(
+          new Image(
             'https://github.com/aacebo/teams-sdk-js/blob/main/assets/icons/teams.png?raw=true',
             {
               size: 'medium',
             }
-          ),
-        ]),
+          )
+        ),
         typescript: [
           'ImageSet([',
           '\tImage("https://github.com/aacebo/teams-sdk-js/blob/main/assets/icons/teams.png?raw=true", { size: "medium" }),',
@@ -114,7 +114,7 @@ const groups: CardGroup[] = [
       {
         icon: TableRegular as FluentIcon,
         label: 'Table',
-        value: ImageSet(),
+        value: new ImageSet(),
         typescript: 'ImageSet()',
       },
     ],
@@ -125,7 +125,7 @@ const groups: CardGroup[] = [
       {
         icon: BadgeRegular as FluentIcon,
         label: 'Badge',
-        value: Badge({
+        value: new Badge({
           style: 'attention',
           icon: 'Warning',
           text: 'an error badge example...',
@@ -145,7 +145,7 @@ const groups: CardGroup[] = [
       {
         icon: CodeRegular as FluentIcon,
         label: 'CodeBlock',
-        value: CodeBlock({
+        value: new CodeBlock({
           codeSnippet: 'const helloWorld = () => console.log("hello, world!");',
           language: 'TypeScript',
         }),
@@ -159,13 +159,13 @@ const groups: CardGroup[] = [
       {
         icon: InfoRegular as FluentIcon,
         label: 'Icon',
-        value: Icon('Info'),
+        value: new Icon('Info'),
         typescript: 'Icon("Info")',
       },
       {
         icon: ImageRegular as FluentIcon,
         label: 'Image',
-        value: Image(
+        value: new Image(
           'https://github.com/aacebo/teams-sdk-js/blob/main/assets/icons/teams.png?raw=true',
           { size: 'medium' }
         ),
@@ -175,19 +175,19 @@ const groups: CardGroup[] = [
       {
         icon: FilmstripPlayRegular as FluentIcon,
         label: 'Media',
-        value: Media(),
+        value: new Media(),
         typescript: 'Media()',
       },
       {
         icon: TextWordCountRegular as FluentIcon,
         label: 'RichTextBlock',
-        value: RichTextBlock(),
+        value: new RichTextBlock(),
         typescript: 'RichTextBlock()',
       },
       {
         icon: TextFontSizeRegular as FluentIcon,
         label: 'TextBlock',
-        value: TextBlock('hello world!'),
+        value: new TextBlock('hello world!'),
         typescript: 'TextBlock("hello world!")',
       },
     ],

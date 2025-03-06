@@ -3,26 +3,26 @@ import {
   Attachment,
   ChannelData,
   Entity,
-  MessageSendActivity,
+  IMessageActivity,
 } from '@microsoft/spark.api';
 
-import { SentActivity, Streamer } from '../../types';
+import { SentActivity, IStreamer } from '../../types';
 
-export class HttpStream implements Streamer {
+export class HttpStream implements IStreamer {
   protected index = 0;
   protected id?: string;
   protected text: string = '';
   protected attachments: Attachment[] = [];
   protected channelData: ChannelData = {};
   protected entities: Entity[] = [];
-  protected queue: Array<Partial<MessageSendActivity>> = [];
+  protected queue: Array<Partial<IMessageActivity>> = [];
 
   private _timeout?: NodeJS.Timeout;
   private _failures: number = 0;
 
   constructor(protected send: (activity: ActivityParams) => Promise<SentActivity>) {}
 
-  emit(activity: Partial<MessageSendActivity> | string) {
+  emit(activity: Partial<IMessageActivity> | string) {
     if (this._timeout) {
       clearTimeout(this._timeout);
       this._timeout = undefined;

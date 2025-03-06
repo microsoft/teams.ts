@@ -1,5 +1,5 @@
-import { MessageSubmitActionInvokeActivity } from './submit-action';
+import { IMessageSubmitActionInvokeActivity } from './submit-action';
 
-export type MessageInvokeActivity = MessageSubmitActionInvokeActivity;
+export type MessageInvokeActivity = IMessageSubmitActionInvokeActivity;
 
 export * from './submit-action';
