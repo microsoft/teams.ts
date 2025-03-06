@@ -28,6 +28,8 @@
   ],
   "scripts": {
     "clean": "npx rimraf ./dist",
+    "lint": "npx eslint",
+    "lint:fix": "npx eslint --fix",
     "build": "npx cross-env NODE_OPTIONS='--max-old-space-size=16384' npx tsup",
     "test": "npx jest",
     "generate": "npx quicktype -s schema -l typescript ./manifest.schema.json -o ./src/manifest.ts --prefer-unions --just-types"

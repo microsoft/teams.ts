@@ -18,6 +18,10 @@
     "url": "https://github.com/microsoft/spark.js.git",
     "directory": "packages/config"
   },
+  "scripts": {
+    "lint": "npx eslint",
+    "lint:fix": "npx eslint --fix"
+  },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
     "eslint": "^9.21.0",

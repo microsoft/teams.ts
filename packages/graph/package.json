@@ -25,6 +25,8 @@
   ],
   "scripts": {
     "clean": "npx rimraf ./dist",
+    "lint": "npx eslint",
+    "lint:fix": "npx eslint --fix",
     "build": "npx cross-env NODE_OPTIONS='--max-old-space-size=16384' npx tsup && npx rimraf ./dist/index.d.mts",
     "test": "npx jest",
     "gen": "npm run gen:types && npm run gen:endpoints",
