@@ -79,6 +79,14 @@ export class MessageUpdateActivity
         eventType,
       },
     });
+
+    Object.assign(this, {
+      ...value,
+      channelData: {
+        ...value?.channelData,
+        eventType,
+      },
+    });
   }
 
   /**

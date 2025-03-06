@@ -32,6 +32,8 @@ export class MessageReactionActivity
       ...value,
       type: 'messageReaction',
     });
+
+    Object.assign(this, value);
   }
 
   /**

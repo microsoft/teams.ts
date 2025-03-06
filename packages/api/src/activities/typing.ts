@@ -18,6 +18,8 @@ export class TypingActivity extends Activity<'typing'> implements ITypingActivit
       type: 'typing',
       ...value,
     });
+
+    Object.assign(this, value);
   }
 
   /**

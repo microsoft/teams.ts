@@ -149,10 +149,11 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
 
   constructor(text?: string, value: Omit<Partial<IMessageActivity>, 'type'> = {}) {
     super({
-      type: 'message',
-      text,
       ...value,
+      type: 'message',
     });
+
+    Object.assign(this, { text, ...value });
   }
 
   /**

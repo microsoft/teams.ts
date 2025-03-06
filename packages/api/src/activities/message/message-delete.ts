@@ -24,5 +24,13 @@ export class MessageDeleteActivity
         eventType: 'softDeleteMessage',
       },
     });
+
+    Object.assign(this, {
+      ...value,
+      channelData: {
+        ...value.channelData,
+        eventType: 'softDeleteMessage',
+      },
+    });
   }
 }
