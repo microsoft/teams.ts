@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 
-import { ProjectAttribute } from './project-attribute';
+import { IProjectAttribute } from './project-attribute';
 import { ProjectLanguage } from './project-language';
 import * as attributes from './attributes';
 
@@ -21,7 +21,7 @@ export class Project {
   }
   private _language: ProjectLanguage;
 
-  private readonly _attributes: Array<ProjectAttribute> = [];
+  private readonly _attributes: Array<IProjectAttribute> = [];
 
   constructor(path: string, name: string, language: ProjectLanguage) {
     this._path = path;

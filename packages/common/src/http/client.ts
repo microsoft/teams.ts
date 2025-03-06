@@ -47,19 +47,19 @@ export type ClientOptions = {
   readonly interceptors?: Array<Interceptor>;
 };
 
-export interface RequestConfig<D = any> extends AxiosRequestConfig<D> {
+export type RequestConfig<D = any> = AxiosRequestConfig<D> & {
   /**
    * If provided, this token will be used instead of
    * the default token provided in the `ClientOptions`
    */
   token?: Token;
-}
+};
 
-interface InterceptorRegistry {
+type InterceptorRegistry = {
   readonly requestId?: number;
   readonly responseId?: number;
   readonly interceptor: Interceptor;
-}
+};
 
 export class Client {
   token?: Token;

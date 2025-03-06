@@ -580,7 +580,9 @@ export class App {
         appToken = access_token;
         this.tenantTokens.set(token.tenantId || 'common', access_token);
       }
-    } catch (err) {}
+    } catch (err) {
+      // noop
+    }
 
     const http = this.http.clone();
     const api = new ApiClient(
@@ -682,7 +684,7 @@ export class App {
     const { appId, api, ref, activity } = ctx;
 
     return async (name = 'graph', text = 'Please Sign In...') => {
-      let convo = { ...ref };
+      const convo = { ...ref };
 
       try {
         const res = await api.users.token.get({
@@ -692,7 +694,9 @@ export class App {
         });
 
         return res.token;
-      } catch (err) {}
+      } catch (err) {
+        // noop
+      }
 
       // create new 1:1 conversation with user to do SSO
       // because groupchats don't support it.

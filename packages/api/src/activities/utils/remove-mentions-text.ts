@@ -6,7 +6,7 @@ import { ITypingActivity } from '../typing';
  */
 type TextActivity = IMessageActivity | IMessageUpdateActivity | ITypingActivity;
 
-export interface RemoveMentionsTextOptions {
+export type RemoveMentionsTextOptions = {
   /**
    * the account to remove mentions for
    * by default, all at-mentions listed in `entities` are removed.
@@ -20,7 +20,7 @@ export interface RemoveMentionsTextOptions {
    *     output: Hello my-bot! How are you?
    */
   tagOnly?: boolean;
-}
+};
 
 /**
  * remove "\<at>...\</at>" text from an activity

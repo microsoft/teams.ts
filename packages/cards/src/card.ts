@@ -94,7 +94,7 @@ export interface ICard {
 /**
  * Card metadata for Microsoft Teams.
  */
-export interface MSTeamsCardInfo {
+export type MSTeamsCardInfo = {
   /**
    * Expands the card to take up the full width of the message.
    */
@@ -116,7 +116,7 @@ export interface MSTeamsCardInfo {
     | 'atMost:narrow'
     | 'atMost:standard'
     | 'atMost:wide';
-}
+};
 
 export type CardOptions = Omit<Partial<ICard>, 'body' | 'type' | 'msteams'> &
   Partial<MSTeamsCardInfo>;

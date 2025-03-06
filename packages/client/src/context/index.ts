@@ -12,7 +12,7 @@ import { UserContext } from './user';
 /**
  * Represents structure of the received context message.
  */
-export interface Context {
+export type Context = {
   /**
    * Properties about the current session for your app
    */
@@ -68,7 +68,7 @@ export interface Context {
    * If there's no key/value pairs passed, the object will be empty in the case
    */
   dialogParameters: Record<string, string>;
-}
+};
 
 export function mapContext(ctx: window.Context): Context {
   return {

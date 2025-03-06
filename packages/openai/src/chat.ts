@@ -24,7 +24,7 @@ export type OpenAIChatModelOptions = {
       ) => OpenAI.ChatCompletionCreateParams | Promise<OpenAI.ChatCompletionCreateParams>);
 };
 
-export interface AzureOpenAIChatModelOptions extends OpenAIChatModelOptions {
+export type AzureOpenAIChatModelOptions = OpenAIChatModelOptions & {
   /**
    * Defaults to process.env['OPENAI_API_VERSION'].
    */
@@ -40,7 +40,7 @@ export interface AzureOpenAIChatModelOptions extends OpenAIChatModelOptions {
    * which will be invoked on every request.
    */
   azureADTokenProvider?: () => Promise<string>;
-}
+};
 
 export class OpenAIChatModel implements IChatModel {
   private readonly _openai: OpenAI;

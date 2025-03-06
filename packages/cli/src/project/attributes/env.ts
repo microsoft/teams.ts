@@ -1,7 +1,7 @@
-import { ProjectAttribute } from '../project-attribute';
+import { IProjectAttribute } from '../project-attribute';
 import { CompoundOperation, FileEnvSetOperation } from '../operations';
 
-export class EnvAttribute implements ProjectAttribute {
+export class EnvAttribute implements IProjectAttribute {
   readonly id = 'env';
   readonly name = 'environment';
   readonly alias = 'env';

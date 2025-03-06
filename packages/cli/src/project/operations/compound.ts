@@ -1,11 +1,11 @@
-import { ProjectAttributeOperation } from '../project-attribute';
+import { IProjectAttributeOperation } from '../project-attribute';
 
-export class CompoundOperation implements ProjectAttributeOperation {
+export class CompoundOperation implements IProjectAttributeOperation {
   readonly name = 'compound';
 
-  private _operations: Array<ProjectAttributeOperation> = [];
+  private _operations: Array<IProjectAttributeOperation> = [];
 
-  constructor(...operations: Array<ProjectAttributeOperation>) {
+  constructor(...operations: Array<IProjectAttributeOperation>) {
     this._operations = operations;
   }
 

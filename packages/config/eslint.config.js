@@ -4,7 +4,7 @@ const tseslint = require('typescript-eslint');
 /** @type {import("eslint").Linter.Config} */
 module.exports = tseslint.config({
   extends: [eslint.configs.recommended, ...tseslint.configs.recommended],
-  ignores: ['dist/**/*'],
+  ignores: ['**/*/dist/**/*', '**/*/coverage/**/*'],
   files: ['src/**/*.ts'],
   rules: {
     '@typescript-eslint/naming-convention': [
@@ -18,5 +18,9 @@ module.exports = tseslint.config({
         },
       },
     ],
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
+    '@typescript-eslint/no-duplicate-enum-values': 'off',
+    '@typescript-eslint/no-empty-object-type': 'off',
   },
 });

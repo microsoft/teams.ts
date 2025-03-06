@@ -6,12 +6,12 @@ import { CommandModule } from 'yargs';
 
 import { Project } from '../../project';
 
-interface Args {
+type Args = {
   readonly name: string;
   readonly template: string;
   readonly ttk?: boolean;
   readonly start?: boolean;
-}
+};
 
 export function CSharp(): CommandModule<{}, Args> {
   return {

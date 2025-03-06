@@ -2,10 +2,10 @@ import path from 'node:path';
 import url from 'node:url';
 import fs from 'node:fs';
 
-import { ProjectAttribute } from '../project-attribute';
+import { IProjectAttribute } from '../project-attribute';
 import { CompoundOperation, CopyOperation, FileJsonSetOperation } from '../operations';
 
-export class TemplateAttribute implements ProjectAttribute {
+export class TemplateAttribute implements IProjectAttribute {
   readonly id: string;
   readonly name: string;
   readonly alias = 't';
