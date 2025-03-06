@@ -1,3 +1,5 @@
+# Contributing to the project
+
 # ✍ Writing Documentation
 
 > [**ℹ️ Note**]
