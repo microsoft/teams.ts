@@ -33,6 +33,7 @@
     "build:samples": "npx turbo build --filter=./samples/*",
     "dev": "npx turbo dev",
     "lint": "npx turbo lint",
+    "lint:fix": "npx turbo lint:fix",
     "test": "npx turbo test --concurrency=100%",
     "fmt": "npx prettier --write \"**/*.{js,ts,tsx,md,json}\"",
     "docs:build": "mdbook build book",
