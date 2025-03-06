@@ -5,12 +5,7 @@ import usePageNavClasses from './PageNav.styles';
 const PageNav: FC = memo(() => {
   const classes = usePageNavClasses();
   return (
-    <nav
-      id="top-nav"
-      className={classes.pageNavContainer}
-      aria-label="Page navigation"
-      data-tid="top-nav"
-    >
+    <nav id="top-nav" className={classes.pageNavContainer} aria-label="Page navigation">
       <div className={classes.navButtonContainer}>
         <PageNavButton to="/" iconType="chat" label="Chat" />
         <PageNavButton to="/cards" iconType="cards" label="Cards" />
@@ -28,3 +23,4 @@ const PageNav: FC = memo(() => {
 });
 
 export default PageNav;
+PageNav.displayName = 'PageNav';
