@@ -1,9 +1,9 @@
 import { ILogger } from '@microsoft/spark.common';
 
-import { AppClient } from './api';
-import { ClientContext } from './client-context';
+import { AppClient } from '../api';
+import { IClientContext } from './client';
 
-export interface FunctionContext<T = any> extends ClientContext {
+export interface IFunctionContext<T = any> extends IClientContext {
   /**
    * the api client
    */

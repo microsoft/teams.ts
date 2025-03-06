@@ -29,24 +29,22 @@ import pkg from '../package.json';
 
 import * as manifest from './manifest';
 import * as middleware from './middleware';
-import { Routes } from './routes';
+import * as contexts from './contexts';
+import { IRoutes } from './routes';
 import { Router } from './router';
 import {
-  AppActivityBeforeSentEvent,
-  AppActivityErrorEvent,
-  AppActivityReceivedEvent,
-  AppActivitySentEvent,
-  Events,
+  IAppActivityBeforeSentEvent,
+  IAppActivityErrorEvent,
+  IAppActivityReceivedEvent,
+  IAppActivitySentEvent,
+  IEvents,
 } from './events';
-import { ActivityContext } from './activity-context';
-import { MiddlewareContext } from './middleware-context';
-import { FunctionContext } from './function-context';
 import { HttpPlugin } from './plugins';
 import { OAuthSettings } from './oauth';
 import { AppClient, ApiClient } from './api';
 import { signin } from './events/signin';
 import { error } from './events/error';
-import { ActivityReceivedEvent, Plugin, RouteHandler, SenderPlugin } from './types';
+import { IActivityReceivedEvent, IPlugin, RouteHandler, ISenderPlugin } from './types';
 
 /**
  * App initialization options
@@ -70,7 +68,7 @@ export type AppOptions = Partial<Credentials> & {
   /**
    * plugins to extend the apps functionality
    */
-  readonly plugins?: Array<Plugin>;
+  readonly plugins?: Array<IPlugin>;
 
   /**
    * OAuth Settings
@@ -88,7 +86,7 @@ export type AppOptions = Partial<Credentials> & {
   readonly activity?: AppActivityOptions;
 };
 
-export interface AppActivityOptions {
+export type AppActivityOptions = {
   readonly mentions?: {
     /**
      * Automatically remove `<at>...</at>` mention
@@ -96,9 +94,9 @@ export interface AppActivityOptions {
      */
     readonly removeText?: boolean | RemoveMentionsTextOptions;
   };
-}
+};
 
-export interface AppTokens {
+export type AppTokens = {
   /**
    * bot token used to send activities
    */
@@ -108,9 +106,9 @@ export interface AppTokens {
    * graph token used to query the graph api
    */
   graph?: IToken;
-}
+};
 
-export interface ProcessActivityArgs {
+export type ProcessActivityArgs = {
   /**
    * inbound request token
    */
@@ -124,13 +122,13 @@ export interface ProcessActivityArgs {
   /**
    * the sender plugin to respond with
    */
-  readonly sender: SenderPlugin;
+  readonly sender: ISenderPlugin;
 
   /**
    * other
    */
   [key: string]: any;
-}
+};
 
 /**
  * The orchestrator for receiving/sending activities
@@ -189,10 +187,10 @@ export class App {
     return this._tokens;
   }
 
-  protected plugins: Array<Plugin> = [];
+  protected plugins: Array<IPlugin> = [];
   protected router = new Router();
   protected tenantTokens = new LocalStorage<string>(undefined, { max: 20000 });
-  protected events = new EventEmitter<Events>();
+  protected events = new EventEmitter<IEvents>();
   protected startedAt?: Date;
   protected port?: number;
 
@@ -320,7 +318,7 @@ export class App {
    * @param name event to subscribe to
    * @param cb callback to invoke
    */
-  on<Name extends keyof Routes>(name: Name, cb: Exclude<Routes[Name], undefined>) {
+  on<Name extends keyof IRoutes>(name: Name, cb: Exclude<IRoutes[Name], undefined>) {
     this.router.on(name, cb);
     return this;
   }
@@ -330,7 +328,7 @@ export class App {
    * @param pattern pattern to match against message text
    * @param cb callback to invoke
    */
-  message(pattern: string | RegExp, cb: Exclude<Routes['message'], undefined>) {
+  message(pattern: string | RegExp, cb: Exclude<IRoutes['message'], undefined>) {
     this.router.register<'message'>({
       select: (activity) => {
         if (activity.type !== 'message') {
@@ -349,7 +347,7 @@ export class App {
    * register a middleware
    * @param cb callback to invoke
    */
-  use(cb: RouteHandler<MiddlewareContext>) {
+  use(cb: RouteHandler<contexts.IMiddlewareContext>) {
     this.router.use(cb);
     return this;
   }
@@ -359,7 +357,7 @@ export class App {
    * @param name the event to subscribe to
    * @param cb the callback to invoke
    */
-  event<Name extends keyof Events>(name: Name, cb: EventHandler<Events[Name]>) {
+  event<Name extends keyof IEvents>(name: Name, cb: EventHandler<IEvents[Name]>) {
     this.events.on(name, cb);
     return this;
   }
@@ -368,7 +366,7 @@ export class App {
    * add a plugin
    * @param plugin plugin to add
    */
-  plugin(plugin: Plugin) {
+  plugin(plugin: IPlugin) {
     if (this.plugins.some((p) => p.name === plugin.name)) {
       return;
     }
@@ -412,7 +410,10 @@ export class App {
    * @param name The unique function name
    * @param cb The callback to handle the function
    */
-  function<TData>(name: string, cb: (context: FunctionContext<TData>) => any | Promise<any>) {
+  function<TData>(
+    name: string,
+    cb: (context: contexts.IFunctionContext<TData>) => any | Promise<any>
+  ) {
     const http = this.getPlugin('http');
     const log = this.log.child(`functions`).child(name);
 
@@ -544,7 +545,7 @@ export class App {
    * @param sender the plugin to use for sending activities
    * @param event the received activity event
    */
-  async process(sender: SenderPlugin, event: ActivityReceivedEvent) {
+  async process(sender: ISenderPlugin, event: IActivityReceivedEvent) {
     const { token, activity } = event;
 
     this.log.debug(
@@ -609,7 +610,7 @@ export class App {
       }
     }
 
-    const ctx: ActivityContext<Activity> = {
+    const ctx: contexts.IActivityContext<Activity> = {
       ...event,
       plugin: sender.name,
       sender: undefined,
@@ -624,7 +625,7 @@ export class App {
 
     let i = 0;
     const stream = sender.onStreamOpen ? await sender.onStreamOpen(ref) : undefined;
-    const routeCtx: MiddlewareContext<Activity> = {
+    const routeCtx: contexts.IMiddlewareContext<Activity> = {
       ...ctx,
       stream: {
         emit(activity) {
@@ -677,7 +678,7 @@ export class App {
     }
   }
 
-  protected onSignIn(ctx: ActivityContext, sender: SenderPlugin) {
+  protected onSignIn(ctx: contexts.IActivityContext, sender: ISenderPlugin) {
     const { appId, api, ref, activity } = ctx;
 
     return async (name = 'graph', text = 'Please Sign In...') => {
@@ -750,7 +751,7 @@ export class App {
     };
   }
 
-  protected onSignOut({ activity, api }: ActivityContext) {
+  protected onSignOut({ activity, api }: contexts.IActivityContext) {
     return async (name = 'graph') => {
       await api.users.token.signOut({
         channelId: activity.channelId,
@@ -760,7 +761,9 @@ export class App {
     };
   }
 
-  protected async onTokenExchange(ctx: MiddlewareContext<ISignInTokenExchangeInvokeActivity>) {
+  protected async onTokenExchange(
+    ctx: contexts.IMiddlewareContext<ISignInTokenExchangeInvokeActivity>
+  ) {
     const { api, activity, storage } = ctx;
     const key = `auth/${activity.conversation.id}/${activity.from.id}`;
 
@@ -805,7 +808,9 @@ export class App {
     }
   }
 
-  protected async onVerifyState(ctx: MiddlewareContext<ISignInVerifyStateInvokeActivity>) {
+  protected async onVerifyState(
+    ctx: contexts.IMiddlewareContext<ISignInVerifyStateInvokeActivity>
+  ) {
     const { plugin, api, activity, storage } = ctx;
     const key = `auth/${activity.conversation.id}/${activity.from.id}`;
 
@@ -851,12 +856,12 @@ export class App {
     this.events.emit('error', { err, log: this.log });
   }
 
-  protected onActivityError(event: AppActivityErrorEvent) {
+  protected onActivityError(event: IAppActivityErrorEvent) {
     this.onError(event.err);
     this.events.emit('activity.error', event);
   }
 
-  protected async onActivityReceived(event: AppActivityReceivedEvent) {
+  protected async onActivityReceived(event: IAppActivityReceivedEvent) {
     this.events.emit('activity.received', event);
 
     const plugin = this.getPlugin(event.plugin);
@@ -869,14 +874,14 @@ export class App {
       throw new Error(`plugin "${event.plugin}" cannot send activities`);
     }
 
-    await this.process(plugin as SenderPlugin, event);
+    await this.process(plugin as ISenderPlugin, event);
   }
 
-  protected onActivitySent(event: AppActivitySentEvent) {
+  protected onActivitySent(event: IAppActivitySentEvent) {
     this.events.emit('activity.sent', event);
   }
 
-  protected onBeforeActivitySent(event: AppActivityBeforeSentEvent) {
+  protected onBeforeActivitySent(event: IAppActivityBeforeSentEvent) {
     this.events.emit('activity.before.sent', event);
   }
 }

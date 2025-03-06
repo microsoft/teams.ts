@@ -11,8 +11,8 @@ import {
 } from '@microsoft/spark.api';
 import { ConsoleLogger, ILogger, EventEmitter, EventHandler } from '@microsoft/spark.common';
 
-import { AppActivityErrorEvent, AppActivityResponseEvent } from '../../events';
-import { Plugin, PluginEvents, Streamer } from '../../types';
+import { IAppActivityErrorEvent, IAppActivityResponseEvent } from '../../events';
+import { IPlugin, IPluginEvents, IStreamer, IStreamerPlugin } from '../../types';
 import { App } from '../../app';
 
 import { HttpStream } from './stream';
@@ -20,7 +20,7 @@ import { HttpStream } from './stream';
 /**
  * Can send/receive activities via http
  */
-export class HttpPlugin implements Plugin {
+export class HttpPlugin implements IPlugin, IStreamerPlugin {
   readonly name = 'http';
 
   readonly get: express.Application['get'];
@@ -44,7 +44,7 @@ export class HttpPlugin implements Plugin {
   protected app?: App;
   protected log: ILogger;
   protected express: express.Application;
-  protected events: EventEmitter<PluginEvents>;
+  protected events: EventEmitter<IPluginEvents>;
   protected pending: Record<string, express.Response> = {};
 
   constructor() {
@@ -74,7 +74,7 @@ export class HttpPlugin implements Plugin {
     return this;
   }
 
-  on<Name extends keyof PluginEvents>(name: Name, callback: EventHandler<PluginEvents[Name]>) {
+  on<Name extends keyof IPluginEvents>(name: Name, callback: EventHandler<IPluginEvents[Name]>) {
     this.events.on(name, callback);
   }
 
@@ -149,7 +149,7 @@ export class HttpPlugin implements Plugin {
     return { ...activity, ...res };
   }
 
-  onStreamOpen(ref: ConversationReference): Streamer {
+  onStreamOpen(ref: ConversationReference): IStreamer {
     return new HttpStream((activity) => this.onSend(activity, ref));
   }
 
@@ -191,7 +191,7 @@ export class HttpPlugin implements Plugin {
     });
   }
 
-  protected onActivityError({ err, activity }: AppActivityErrorEvent) {
+  protected onActivityError({ err, activity }: IAppActivityErrorEvent) {
     const res = this.pending[activity.id];
 
     if (!res) {
@@ -202,7 +202,7 @@ export class HttpPlugin implements Plugin {
     delete this.pending[activity.id];
   }
 
-  protected onActivityResponse({ response, activity }: AppActivityResponseEvent) {
+  protected onActivityResponse({ response, activity }: IAppActivityResponseEvent) {
     const res = this.pending[activity.id];
 
     if (!res) {

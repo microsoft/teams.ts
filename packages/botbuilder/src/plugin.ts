@@ -10,10 +10,10 @@ import {
   ConfigurationServiceClientCredentialFactory,
 } from 'botbuilder';
 
-export interface BotBuilderPluginOptions {
+export type BotBuilderPluginOptions = {
   readonly adapter?: CloudAdapter;
   readonly handler?: ActivityHandler;
-}
+};
 
 export class BotBuilderPlugin extends HttpPlugin {
   protected adapter?: CloudAdapter;

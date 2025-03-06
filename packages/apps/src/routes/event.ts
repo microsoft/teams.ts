@@ -1,11 +1,11 @@
 import { EventActivity } from '@microsoft/spark.api';
 
 import { RouteHandler } from '../types';
-import { MiddlewareContext } from '../middleware-context';
+import { IMiddlewareContext } from '../contexts';
 
 export type EventActivityRoutes = {
   [K in EventActivity['name'] as EventAliases[K]]?: RouteHandler<
-    MiddlewareContext<Extract<EventActivity, { name: K }>>,
+    IMiddlewareContext<Extract<EventActivity, { name: K }>>,
     void
   >;
 };

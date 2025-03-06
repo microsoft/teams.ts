@@ -1,8 +1,8 @@
 import { Activity } from '@microsoft/spark.api';
 
 import { RouteHandler } from '../types';
-import { MiddlewareContext } from '../middleware-context';
+import { IMiddlewareContext } from '../contexts';
 
 export type ActivityRoutes = {
-  [K in Activity['type']]?: RouteHandler<MiddlewareContext<Extract<Activity, { type: K }>>>;
+  [K in Activity['type']]?: RouteHandler<IMiddlewareContext<Extract<Activity, { type: K }>>>;
 };

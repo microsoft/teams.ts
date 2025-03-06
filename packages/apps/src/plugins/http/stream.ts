@@ -6,9 +6,9 @@ import {
   IMessageActivity,
 } from '@microsoft/spark.api';
 
-import { SentActivity, Streamer } from '../../types';
+import { SentActivity, IStreamer } from '../../types';
 
-export class HttpStream implements Streamer {
+export class HttpStream implements IStreamer {
   protected index = 0;
   protected id?: string;
   protected text: string = '';

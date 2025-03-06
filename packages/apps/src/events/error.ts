@@ -1,7 +1,7 @@
 import { ILogger } from '@microsoft/spark.common/logging';
 import { AxiosError } from 'axios';
 
-export interface ErrorEventArgs {
+export type ErrorEventArgs = {
   /**
    * the error
    */
@@ -11,7 +11,7 @@ export interface ErrorEventArgs {
    * the app logger instance
    */
   log: ILogger;
-}
+};
 
 export function error({ err, log }: ErrorEventArgs) {
   log.error(err.message);

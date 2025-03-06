@@ -5,7 +5,7 @@ import OpenAI, { AzureOpenAI } from 'openai';
 import { Fetch } from 'openai/core';
 import { Stream } from 'openai/streaming';
 
-export interface OpenAIChatModelOptions {
+export type OpenAIChatModelOptions = {
   readonly model: (string & {}) | OpenAI.Chat.ChatModel;
   readonly apiKey?: string;
   readonly baseUrl?: string;
@@ -22,7 +22,7 @@ export interface OpenAIChatModelOptions {
     | ((
         params: ChatParams
       ) => OpenAI.ChatCompletionCreateParams | Promise<OpenAI.ChatCompletionCreateParams>);
-}
+};
 
 export interface AzureOpenAIChatModelOptions extends OpenAIChatModelOptions {
   /**

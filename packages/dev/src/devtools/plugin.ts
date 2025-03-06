@@ -9,25 +9,25 @@ import { ActivityParams, ConversationReference } from '@microsoft/spark.api';
 import { EventEmitter, EventHandler, ConsoleLogger, ILogger } from '@microsoft/spark.common';
 import {
   App,
-  AppActivityReceivedEvent,
-  AppActivityResponseEvent,
-  AppActivitySentEvent,
+  IAppActivityReceivedEvent,
+  IAppActivityResponseEvent,
+  IAppActivitySentEvent,
   HttpPlugin,
   HttpStream,
-  Plugin,
-  PluginEvents,
-  Streamer,
+  IPlugin,
+  IPluginEvents,
+  IStreamer,
 } from '@microsoft/spark.apps';
 
 import { router } from './routes';
-import { ActivityEvent, Event } from './event';
+import { ActivityEvent, IEvent } from './event';
 
 interface ResolveRejctPromise<T = any> {
   readonly resolve: (value: T) => void;
   readonly reject: (err: any) => void;
 }
 
-export class DevtoolsPlugin implements Plugin {
+export class DevtoolsPlugin implements IPlugin {
   readonly name = 'devtools';
 
   protected log: ILogger;
@@ -36,7 +36,7 @@ export class DevtoolsPlugin implements Plugin {
   protected io: io.Server;
   protected sockets = new Map<string, io.Socket>();
   protected httpPlugin = new HttpPlugin();
-  protected events = new EventEmitter<PluginEvents>();
+  protected events = new EventEmitter<IPluginEvents>();
   protected pending: Record<string, ResolveRejctPromise> = {};
 
   constructor() {
@@ -60,7 +60,7 @@ export class DevtoolsPlugin implements Plugin {
     }
   }
 
-  on<Name extends keyof PluginEvents>(name: Name, callback: EventHandler<PluginEvents[Name]>) {
+  on<Name extends keyof IPluginEvents>(name: Name, callback: EventHandler<IPluginEvents[Name]>) {
     this.events.on(name, callback);
   }
 
@@ -117,13 +117,13 @@ export class DevtoolsPlugin implements Plugin {
     return res;
   }
 
-  onStreamOpen(ref: ConversationReference): Streamer {
+  onStreamOpen(ref: ConversationReference): IStreamer {
     return new HttpStream((activity) => {
       return this.onSend(activity, ref);
     });
   }
 
-  protected onActivityReceived({ activity }: AppActivityReceivedEvent) {
+  protected onActivityReceived({ activity }: IAppActivityReceivedEvent) {
     this.sendActivity({
       id: uuid.v4(),
       type: 'activity.received',
@@ -133,7 +133,7 @@ export class DevtoolsPlugin implements Plugin {
     });
   }
 
-  protected onActivitySent({ activity, ref }: AppActivitySentEvent) {
+  protected onActivitySent({ activity, ref }: IAppActivitySentEvent) {
     this.sendActivity({
       id: uuid.v4(),
       type: 'activity.sent',
@@ -143,7 +143,7 @@ export class DevtoolsPlugin implements Plugin {
     });
   }
 
-  protected onActivityResponse({ activity, response }: AppActivityResponseEvent) {
+  protected onActivityResponse({ activity, response }: IAppActivityResponseEvent) {
     const promise = this.pending[activity.id];
 
     if (!promise) return;
@@ -160,7 +160,7 @@ export class DevtoolsPlugin implements Plugin {
     });
   }
 
-  protected send(event: Event) {
+  protected send(event: IEvent) {
     for (const socket of this.sockets.values()) {
       socket.emit(event.type, event);
     }

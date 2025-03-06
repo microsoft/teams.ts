@@ -1,14 +1,14 @@
 import { Activity } from '@microsoft/spark.api';
 
-import { EVENT_ALIASES, Routes, INVOKE_ALIASES } from './routes';
+import { EVENT_ALIASES, IRoutes, INVOKE_ALIASES } from './routes';
 import { RouteHandler } from './types';
-import { MiddlewareContext } from './middleware-context';
+import { IMiddlewareContext } from './contexts';
 
-interface Route<Name extends keyof Routes = keyof Routes> {
+type Route<Name extends keyof IRoutes = keyof IRoutes> = {
   readonly name?: Name;
   readonly select: (activity: Activity) => boolean;
-  readonly callback: Routes[Name];
-}
+  readonly callback: IRoutes[Name];
+};
 
 export class Router {
   protected readonly routes: Route[] = [];
@@ -20,14 +20,14 @@ export class Router {
   select(activity: Activity) {
     return this.routes
       .filter((r) => r.select(activity))
-      .map((r) => r.callback as RouteHandler<MiddlewareContext, any>);
+      .map((r) => r.callback as RouteHandler<IMiddlewareContext, any>);
   }
 
   /**
    * register a new route
    * @param route the route to register
    */
-  register<Name extends keyof Routes>(route: Route<Name>) {
+  register<Name extends keyof IRoutes>(route: Route<Name>) {
     this.routes.push(route);
     return this;
   }
@@ -36,7 +36,7 @@ export class Router {
    * register a middleware
    * @param callback the callback to invoke
    */
-  use(callback: RouteHandler<MiddlewareContext>) {
+  use(callback: RouteHandler<IMiddlewareContext>) {
     this.register({
       select: () => true,
       callback,
@@ -50,7 +50,7 @@ export class Router {
    * @param event event to subscribe to
    * @param callback the callback to invoke
    */
-  on<Name extends keyof Routes>(event: Name, callback: Exclude<Routes[Name], undefined>) {
+  on<Name extends keyof IRoutes>(event: Name, callback: Exclude<IRoutes[Name], undefined>) {
     this.register({
       name: event,
       select: (activity) => {

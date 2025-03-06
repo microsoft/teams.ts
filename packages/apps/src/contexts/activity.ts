@@ -2,9 +2,9 @@ import { ILogger } from '@microsoft/spark.common/logging';
 import { IStorage } from '@microsoft/spark.common/storage';
 import { Activity, ConversationReference } from '@microsoft/spark.api';
 
-import { ApiClient } from './api';
+import { ApiClient } from '../api';
 
-export interface ActivityContext<T extends Activity = Activity> {
+export interface IActivityContext<T extends Activity = Activity> {
   /**
    * the unique name of the plugin that
    * emitted the event

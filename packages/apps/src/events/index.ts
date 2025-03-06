@@ -1,15 +1,15 @@
 import { ILogger } from '@microsoft/spark.common';
 
-import { ErrorMiddlewareContext, SignInMiddlewareContext } from '../middleware-context';
+import { IErrorMiddlewareContext, ISignInMiddlewareContext } from '../contexts';
 import {
-  ActivityBeforeSentEvent,
-  ActivityResponseEvent,
-  ActivityReceivedEvent,
-  ActivitySentEvent,
+  IActivityBeforeSentEvent,
+  IActivityResponseEvent,
+  IActivityReceivedEvent,
+  IActivitySentEvent,
 } from '../types';
 import { ErrorEventArgs } from './error';
 
-export interface AppActivityErrorEvent extends ErrorMiddlewareContext {
+export interface IAppActivityErrorEvent extends IErrorMiddlewareContext {
   /**
    * the unique name of the plugin that
    * emitted the event
@@ -17,7 +17,7 @@ export interface AppActivityErrorEvent extends ErrorMiddlewareContext {
   plugin: string;
 }
 
-export interface AppActivityReceivedEvent extends ActivityReceivedEvent {
+export interface IAppActivityReceivedEvent extends IActivityReceivedEvent {
   /**
    * the unique name of the plugin that
    * emitted the event
@@ -25,7 +25,7 @@ export interface AppActivityReceivedEvent extends ActivityReceivedEvent {
   plugin: string;
 }
 
-export interface AppActivityResponseEvent extends ActivityResponseEvent {
+export interface IAppActivityResponseEvent extends IActivityResponseEvent {
   /**
    * the unique name of the plugin that
    * emitted the event
@@ -33,7 +33,7 @@ export interface AppActivityResponseEvent extends ActivityResponseEvent {
   plugin: string;
 }
 
-export interface AppActivitySentEvent extends ActivitySentEvent {
+export interface IAppActivitySentEvent extends IActivitySentEvent {
   /**
    * the unique name of the plugin that
    * emitted the event
@@ -41,7 +41,7 @@ export interface AppActivitySentEvent extends ActivitySentEvent {
   plugin: string;
 }
 
-export interface AppActivityBeforeSentEvent extends ActivityBeforeSentEvent {
+export interface IAppActivityBeforeSentEvent extends IActivityBeforeSentEvent {
   /**
    * the unique name of the plugin that
    * emitted the event
@@ -49,15 +49,15 @@ export interface AppActivityBeforeSentEvent extends ActivityBeforeSentEvent {
   plugin: string;
 }
 
-export interface Events {
+export interface IEvents {
   start: ILogger;
-  signin: SignInMiddlewareContext;
+  signin: ISignInMiddlewareContext;
   error: ErrorEventArgs;
-  'activity.error': AppActivityErrorEvent;
-  'activity.received': AppActivityReceivedEvent;
-  'activity.response': AppActivityResponseEvent;
-  'activity.sent': AppActivitySentEvent;
-  'activity.before.sent': AppActivityBeforeSentEvent;
+  'activity.error': IAppActivityErrorEvent;
+  'activity.received': IAppActivityReceivedEvent;
+  'activity.response': IAppActivityResponseEvent;
+  'activity.sent': IAppActivitySentEvent;
+  'activity.before.sent': IAppActivityBeforeSentEvent;
 }
 
 export { ErrorEventArgs };

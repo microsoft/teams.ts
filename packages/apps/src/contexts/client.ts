@@ -1,4 +1,4 @@
-export interface ClientContext {
+export interface IClientContext {
   /**
    * This ID is the unique identifier assigned to the app after deployment and is critical for ensuring the correct app instance is recognized across hosts.
    */

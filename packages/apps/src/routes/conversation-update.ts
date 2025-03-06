@@ -1,11 +1,11 @@
 import { IConversationUpdateActivity } from '@microsoft/spark.api';
 
 import { RouteHandler } from '../types';
-import { MiddlewareContext } from '../middleware-context';
+import { IMiddlewareContext } from '../contexts';
 
 export type ConversationUpdateActivityRoutes = {
   [K in IConversationUpdateActivity['channelData']['eventType'] as K]?: RouteHandler<
-    MiddlewareContext<IConversationUpdateActivity>,
+    IMiddlewareContext<IConversationUpdateActivity>,
     void
   >;
 };

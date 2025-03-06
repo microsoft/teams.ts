@@ -3,7 +3,7 @@ import { IMessageActivity, ITypingActivity } from '@microsoft/spark.api';
 /**
  * component that can send streamed chunks of an activity
  */
-export interface Streamer {
+export interface IStreamer {
   /**
    * emit an activity chunk
    * @param activity the activity to send

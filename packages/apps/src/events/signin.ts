@@ -1,5 +1,5 @@
-import { SignInMiddlewareContext } from '../middleware-context';
+import { ISignInMiddlewareContext } from '../contexts';
 
-export function signin({ activity, log }: SignInMiddlewareContext) {
+export function signin({ activity, log }: ISignInMiddlewareContext) {
   log.debug(`${activity.from.name} has signed in...`);
 }
