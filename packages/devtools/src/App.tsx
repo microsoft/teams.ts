@@ -6,7 +6,7 @@ import {
   teamsLightTheme,
   Toaster,
 } from '@fluentui/react-components';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 
 import { ActivityContext, useActivityStore } from './stores/ActivityStore';
@@ -19,10 +19,10 @@ import ActivitiesScreen from './screens/ActivitiesScreen/ActivitiesScreen';
 import CardsScreen from './screens/CardsScreen';
 import ChatScreen from './screens/ChatScreen/ChatScreen';
 import DevtoolsBanner from './components/DevtoolsBanner/DevtoolsBanner';
-import PageNavButton from './components/PageNavButton/PageNavButton';
 import useAppClasses from './App.styles';
 import useLogger from './hooks/useLogger';
 import useTheme from './hooks/useTheme';
+import PageNav from './components/PageNav/PageNav';
 
 const socket = new SocketClient();
 
@@ -33,14 +33,17 @@ export default function App() {
   const chatStore = useChatStore();
   const cardStore = useCardStore();
   const log = useLogger();
+  const [connected, setConnected] = useState(false);
 
   useEffect(() => {
     const connectSocket = async () => {
       try {
         socket.connect();
         log.info('Connected to server...');
+        setConnected(true);
       } catch (error) {
         log.error('Error connecting to server:', error);
+        setConnected(false);
       }
     };
 
@@ -61,6 +64,7 @@ export default function App() {
     socket.on('activity', handleActivity);
     socket.on('disconnect', () => {
       log.info('Disconnected from server...');
+      setConnected(false);
     });
   }, [activityStore, chatStore, log]);
 
@@ -78,32 +82,14 @@ export default function App() {
                 <BrowserRouter basename="/devtools" data-tid="browser-router">
                   <nav id="app-sidebar" className={classes.sideBar} aria-label="Sidebar navigation">
                     <header id="banner" className={classes.header}>
-                      <DevtoolsBanner connected={socket.connected} />
+                      <DevtoolsBanner connected={connected} />
                     </header>
                   </nav>
                   <div id="app-content" className={classes.mainLayout} data-tid="main-layout">
-                    <nav
-                      id="top-nav"
-                      className={classes.pageNavContainer}
-                      aria-label="Page navigation"
-                      data-tid="top-nav"
-                    >
-                      <div className={classes.navButtonContainer}>
-                        <PageNavButton to="/" iconType="chat" label="Chat" />
-                        <PageNavButton to="/cards" iconType="cards" label="Cards" />
-                        <PageNavButton to="/activities" iconType="activities" label="Activities" />
-
-                        {/* TODO: Add logs page back once implemented */}
-                        {/* <PageNavButton
-                          to="/logs"
-                          iconType="logs"
-                          label="Logs"
-                        /> */}
-                      </div>
-                    </nav>
+                    <PageNav />
                     <main id="page-content" className={classes.mainContent}>
                       <Routes>
-                        <Route path="" element={<ChatScreen isConnected={socket.connected} />} />
+                        <Route path="" element={<ChatScreen isConnected={connected} />} />
                         <Route path="cards" element={<CardsScreen />} />
                         <Route path="activities" element={<ActivitiesScreen />} />
                         {/* <Route path="logs" element={<Logs />} /> */}
@@ -121,3 +107,5 @@ export default function App() {
     </LoggerProvider>
   );
 }
+
+App.displayName = 'App';

@@ -38,18 +38,6 @@ const useAppClasses = makeStyles({
     height: '100%',
     overflow: 'hidden',
   },
-  pageNavContainer: {
-    flex: '0 0 auto',
-    display: 'flex',
-    justifyContent: 'flex-end',
-    padding: '0.5rem 0',
-  },
-  navButtonContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens.spacingHorizontalL,
-    marginRight: tokens.spacingHorizontalL,
-  },
   mainLayout: {
     display: 'flex',
     flexDirection: 'column',

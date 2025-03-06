@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, memo } from 'react';
 
 type DevOnlyComponent = FC<{ children: ReactNode }>;
 const NoOpDevOnly: DevOnlyComponent = () => null;
@@ -6,7 +6,8 @@ const NoOpDevOnly: DevOnlyComponent = () => null;
 let DevOnly = NoOpDevOnly;
 
 if (import.meta.env.DEV) {
-  DevOnly = ({ children }) => <>{children}</>;
+  DevOnly = memo(({ children }) => <>{children}</>);
 }
 
-export { DevOnly };
+export default DevOnly;
+DevOnly.displayName = 'DevOnly';

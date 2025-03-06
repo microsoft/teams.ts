@@ -215,3 +215,4 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
 };
 
 export default ComposeBox;
+ComposeBox.displayName = 'ComposeBox';
