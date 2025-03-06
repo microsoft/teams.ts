@@ -1,7 +1,8 @@
 import { Action } from '../actions';
+import { Element, IElement } from '../base';
 import { Color } from '../common';
 
-export interface IIcon {
+export interface IIcon extends IElement {
   type: 'Icon';
 
   /**
@@ -32,7 +33,7 @@ export interface IIcon {
 
 export type IconOptions = Omit<IIcon, 'type' | 'name'>;
 
-export class Icon implements IIcon {
+export class Icon extends Element implements IIcon {
   type: 'Icon';
 
   /**
@@ -61,6 +62,7 @@ export class Icon implements IIcon {
   selectAction?: Action;
 
   constructor(name: IconName, options: IconOptions = {}) {
+    super();
     this.type = 'Icon';
     this.name = name;
     this.withOptions(options);

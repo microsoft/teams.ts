@@ -53,7 +53,7 @@ export type AppOptions = Partial<Credentials> & {
   /**
    * http client or client options used to make api requests
    */
-  readonly http?: http.Client | http.ClientOptions | (() => http.Client);
+  readonly client?: http.Client | http.ClientOptions | (() => http.Client);
 
   /**
    * logger instance to use
@@ -134,11 +134,12 @@ export type ProcessActivityArgs = {
  * The orchestrator for receiving/sending activities
  */
 export class App {
-  api: AppClient;
-  log: ILogger;
-  http: http.Client;
-  storage: IStorage;
-  credentials?: Credentials;
+  readonly api: AppClient;
+  readonly log: ILogger;
+  readonly http: HttpPlugin;
+  readonly client: http.Client;
+  readonly storage: IStorage;
+  readonly credentials?: Credentials;
 
   /**
    * the apps id
@@ -203,29 +204,29 @@ export class App {
     this.storage = this.options.storage || new LocalStorage();
     this._manifest = this.options.manifest || {};
 
-    if (!options.http) {
-      this.http = new http.Client({
+    if (!options.client) {
+      this.client = new http.Client({
         headers: {
           'User-Agent': this._userAgent,
         },
       });
-    } else if (typeof options.http === 'function') {
-      this.http = options.http().clone({
+    } else if (typeof options.client === 'function') {
+      this.client = options.client().clone({
         headers: {
           'User-Agent': this._userAgent,
         },
       });
-    } else if ('request' in options.http) {
-      this.http = options.http.clone({
+    } else if ('request' in options.client) {
+      this.client = options.client.clone({
         headers: {
           'User-Agent': this._userAgent,
         },
       });
     } else {
-      this.http = new http.Client({
-        ...options.http,
+      this.client = new http.Client({
+        ...options.client,
         headers: {
-          ...options.http.headers,
+          ...options.client.headers,
           'User-Agent': this._userAgent,
         },
       });
@@ -233,8 +234,8 @@ export class App {
 
     this.api = new AppClient(
       'https://smba.trafficmanager.net/teams',
-      this.http.clone({ token: () => this._tokens.bot }),
-      this.http.clone({ token: () => this._tokens.graph })
+      this.client.clone({ token: () => this._tokens.bot }),
+      this.client.clone({ token: () => this._tokens.graph })
     );
 
     const clientId = this.options.clientId || process.env.CLIENT_ID;
@@ -262,10 +263,18 @@ export class App {
     }
 
     const plugins = this.options.plugins || [];
+    let httpPlugin = plugins.find((p) => p.name === 'http');
 
-    if (!plugins.find((p) => p.name === 'http')) {
-      plugins.unshift(new HttpPlugin());
+    if (!httpPlugin) {
+      httpPlugin = new HttpPlugin();
+      plugins.unshift(httpPlugin);
     }
+
+    if (!(httpPlugin instanceof HttpPlugin)) {
+      throw new Error('http plugin must be of type `HttpPlugin`');
+    }
+
+    this.http = httpPlugin;
 
     for (const plugin of plugins) {
       this.plugin(plugin);
@@ -414,32 +423,28 @@ export class App {
     name: string,
     cb: (context: contexts.IFunctionContext<TData>) => any | Promise<any>
   ) {
-    const http = this.getPlugin('http');
-    const log = this.log.child(`functions`).child(name);
-
-    if (http && http instanceof HttpPlugin) {
-      http.post(
-        `/api/functions/${name}`,
-        middleware.withClientAuth({
-          logger: log,
-          ...this.credentials,
-        }),
-        async (req: middleware.ClientAuthRequest, res) => {
-          if (!req.context) {
-            throw new Error('expected client context');
-          }
-
-          const data = await cb({
-            ...req.context,
-            log,
-            api: this.api,
-            data: req.body,
-          });
-
-          res.send(data);
+    const log = this.log.child('functions').child(name);
+    this.http.post(
+      `/api/functions/${name}`,
+      middleware.withClientAuth({
+        logger: log,
+        ...this.credentials,
+      }),
+      async (req: middleware.ClientAuthRequest, res) => {
+        if (!req.context) {
+          throw new Error('expected client context');
         }
-      );
-    }
+
+        const data = await cb({
+          ...req.context,
+          log,
+          api: this.api,
+          data: req.body,
+        });
+
+        res.send(data);
+      }
+    );
 
     return this;
   }
@@ -475,14 +480,10 @@ export class App {
       this._manifest.staticTabs.push(tab);
     }
 
-    const http = this.getPlugin('http');
-
-    if (http && http instanceof HttpPlugin) {
-      http.static(`/tabs/${name}`, path);
-      http.use(`/tabs/${name}*`, async (_, res) => {
-        res.sendFile(npath.join(path, 'index.html'));
-      });
-    }
+    this.http.static(`/tabs/${name}`, path);
+    this.http.use(`/tabs/${name}*`, async (_, res) => {
+      res.sendFile(npath.join(path, 'index.html'));
+    });
 
     return this;
   }
@@ -512,14 +513,8 @@ export class App {
    * @param activity the activity to send
    */
   async send(conversationId: string, activity: ActivityLike) {
-    const plugin = this.getPlugin('http');
-
     if (!this.id || !this.name) {
       throw new Error('app not started');
-    }
-
-    if (!plugin || !(plugin instanceof HttpPlugin)) {
-      throw new Error('http plugin not found');
     }
 
     const ref: ConversationReference = {
@@ -536,7 +531,7 @@ export class App {
       },
     };
 
-    const res = await plugin.onSend(toActivityParams(activity), ref);
+    const res = await this.http.onSend(toActivityParams(activity), ref);
     return res;
   }
 
@@ -584,12 +579,12 @@ export class App {
       // noop
     }
 
-    const http = this.http.clone();
+    const client = this.client.clone();
     const api = new ApiClient(
       serviceUrl,
-      http.clone({ token: () => this.tokens.bot }),
-      http.clone({ token: () => appToken }),
-      http.clone({ token: () => userToken })
+      client.clone({ token: () => this.tokens.bot }),
+      client.clone({ token: () => appToken }),
+      client.clone({ token: () => userToken })
     );
 
     const ref: ConversationReference = {
@@ -783,7 +778,7 @@ export class App {
       });
 
       ctx.api.user = new graph.Client(
-        this.http.clone({
+        this.client.clone({
           token: token.token,
         })
       );
@@ -833,7 +828,7 @@ export class App {
       });
 
       ctx.api.user = new graph.Client(
-        this.http.clone({
+        this.client.clone({
           token: token.token,
         })
       );
