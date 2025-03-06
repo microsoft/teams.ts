@@ -1,19 +1,19 @@
 import { HorizontalAlignment } from '../common';
-import { BaseContainerElement } from './base';
+import { IContainerElement, ContainerElement } from './base';
 
-import { Column } from './column';
+import { IColumn } from './column';
 import { ContainerStyle } from './container';
 
 /**
  * ColumnSet divides a region into Columns, allowing elements to sit side-by-side.
  */
-export interface ColumnSet extends BaseContainerElement {
+export interface IColumnSet extends IContainerElement {
   type: 'ColumnSet';
 
   /**
    * The array of `Columns` to divide the region into.
    */
-  columns?: Column[];
+  columns?: IColumn[];
 
   /**
    * Specifies the minimum height of the column in pixels, like `\"80px\"`.
@@ -31,15 +31,52 @@ export interface ColumnSet extends BaseContainerElement {
   horizontalAlignment?: HorizontalAlignment | null;
 }
 
-export type ColumnSetParams = Omit<ColumnSet, 'type'>;
+export type ColumnSetOptions = Omit<IContainerElement, 'type'>;
 
 /**
  * ColumnSet divides a region into Columns, allowing elements to sit side-by-side.
  */
-export function ColumnSet(columns: Column[] = [], params?: ColumnSetParams): ColumnSet {
-  return {
-    type: 'ColumnSet',
-    columns,
-    ...params,
-  };
+export class ColumnSet extends ContainerElement implements IColumnSet {
+  type: 'ColumnSet';
+
+  /**
+   * The array of `Columns` to divide the region into.
+   */
+  columns: IColumn[];
+
+  /**
+   * Specifies the minimum height of the column in pixels, like `\"80px\"`.
+   */
+  minHeight?: string;
+
+  /**
+   * Style hint for `ColumnSet`.
+   */
+  style?: ContainerStyle | null;
+
+  constructor(...columns: IColumn[]) {
+    super();
+    this.type = 'ColumnSet';
+    this.columns = columns;
+  }
+
+  withOptions(value: ColumnSetOptions) {
+    Object.assign(this, value);
+    return this;
+  }
+
+  withMinHeight(value: string) {
+    this.minHeight = value;
+    return this;
+  }
+
+  withStyle(value: ContainerStyle) {
+    this.style = value;
+    return this;
+  }
+
+  addColumns(...value: IColumn[]) {
+    this.columns.push(...value);
+    return this;
+  }
 }

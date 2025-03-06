@@ -14,12 +14,12 @@ describe('Activity Utils', () => {
     });
 
     it('should convert card to message activity with card attachment', () => {
-      const card = Card([
-        CodeBlock({
+      const card = new Card(
+        new CodeBlock({
           language: 'TypeScript',
           codeSnippet: 'let test = 1',
-        }),
-      ]);
+        })
+      );
 
       const activity = toActivityParams(card);
       expect(activity).toEqual(new MessageActivity().addCard('adaptive', card));

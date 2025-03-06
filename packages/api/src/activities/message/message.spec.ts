@@ -12,7 +12,7 @@ describe('MessageActivity', () => {
 
   it('should build', () => {
     const expiration = new Date();
-    const card = Card([TextBlock('hello world')]);
+    const card = new Card(new TextBlock('hello world'));
     const activity = new MessageActivity('test')
       .withText('hello world')
       .withSpeak('say something')

@@ -1,8 +1,8 @@
-import { Image } from '@microsoft/spark.cards';
+import { IImage } from '@microsoft/spark.cards';
 import { useImageCardClasses } from './Medias.styles';
 
 export interface ImageCardProps {
-  readonly value: Image;
+  readonly value: IImage;
 }
 
 export default function ImageCard({ value }: ImageCardProps) {

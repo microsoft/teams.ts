@@ -1,28 +1,46 @@
-import { Card } from '../card';
+import { ICard } from '../card';
 
-import { BaseAction } from './base';
+import { IAction, Action } from './base';
 
 /**
  * Defines an AdaptiveCard which is shown to the user when the button or link is clicked.
  */
-export interface ShowCardAction extends BaseAction {
+export interface IShowCardAction extends IAction {
   type: 'Action.ShowCard';
 
   /**
    * the card to display
    */
-  card: Card;
+  card: ICard;
 }
 
-export type ShowCardActionParams = Omit<ShowCardAction, 'type' | 'card'>;
+export type ShowCardActionOptions = Omit<IShowCardAction, 'type' | 'card'>;
 
 /**
  * Defines an AdaptiveCard which is shown to the user when the button or link is clicked.
  */
-export function ShowCardAction(card: Card, params?: ShowCardActionParams): ShowCardAction {
-  return {
-    type: 'Action.ShowCard',
-    card,
-    ...params,
-  };
+export class ShowCardAction extends Action implements IShowCardAction {
+  type: 'Action.ShowCard';
+
+  /**
+   * the card to display
+   */
+  card: ICard;
+
+  constructor(card: ICard, options: ShowCardActionOptions = {}) {
+    super();
+    this.type = 'Action.ShowCard';
+    this.card = card;
+    this.withOptions(options);
+  }
+
+  withOptions(value: ShowCardActionOptions) {
+    Object.assign(this, value);
+    return this;
+  }
+
+  withCard(value: ICard) {
+    this.card = value;
+    return this;
+  }
 }

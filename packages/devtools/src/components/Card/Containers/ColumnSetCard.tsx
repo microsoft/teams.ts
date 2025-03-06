@@ -1,12 +1,12 @@
 import { FC } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
-import { ColumnSet } from '@microsoft/spark.cards';
+import { IColumnSet } from '@microsoft/spark.cards';
 
 import ColumnCard from './ColumnCard';
 import useContainerClasses from './Containers.styles';
 
 export interface ColumnSetCardProps {
-  readonly value: ColumnSet;
+  readonly value: IColumnSet;
 }
 
 const ColumnSetCard: FC<ColumnSetCardProps> = ({ value }) => {

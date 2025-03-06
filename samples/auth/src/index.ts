@@ -32,34 +32,28 @@ app.event('signin', async ({ send, api }) => {
     new MessageActivity(`hello ${me.displayName} 👋!`)
       .addCard(
         'adaptive',
-        Card([
-          CodeBlock({
+        new Card(
+          new CodeBlock({
             codeSnippet: JSON.stringify(me, null, 2),
-          }),
-        ])
+          })
+        )
       )
       .addCard(
         'adaptive',
-        Card([
-          ColumnSet(
-            [
-              Column(
-                [
-                  TextBlock('Name:', { weight: 'bolder' }),
-                  TextBlock('Title:', { weight: 'bolder' }),
-                  TextBlock('Email:', { weight: 'bolder' }),
-                ],
-                { width: '65px' }
-              ),
-              Column([
-                TextBlock(me.displayName || ''),
-                TextBlock(me.jobTitle || ''),
-                TextBlock(me.mail || ''),
-              ]),
-            ],
-            { spacing: 'small' }
-          ),
-        ])
+        new Card(
+          new ColumnSet(
+            new Column(
+              new TextBlock('Name:', { weight: 'bolder' }),
+              new TextBlock('Title:', { weight: 'bolder' }),
+              new TextBlock('Email:', { weight: 'bolder' })
+            ).withWidth('65px'),
+            new Column(
+              new TextBlock(me.displayName || ''),
+              new TextBlock(me.jobTitle || ''),
+              new TextBlock(me.mail || '')
+            )
+          ).withSpacing('small')
+        )
       )
   );
 });

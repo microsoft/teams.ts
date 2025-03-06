@@ -244,12 +244,12 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
   /**
    * Attachments
    */
-  addAttachment(value: Attachment) {
+  addAttachments(...value: Attachment[]) {
     if (!this.attachments) {
       this.attachments = [];
     }
 
-    this.attachments.push(value);
+    this.attachments.push(...value);
     return this;
   }
 
@@ -268,6 +268,6 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
    * Add a card attachment
    */
   addCard<T extends CardAttachmentType>(type: T, content: CardAttachmentTypes[T]['content']) {
-    return this.addAttachment(cardAttachment(type, content));
+    return this.addAttachments(cardAttachment(type, content));
   }
 }

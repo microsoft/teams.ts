@@ -1,7 +1,7 @@
 /**
  * Represents an entry for Action.ToggleVisibility's targetElements property
  */
-export interface TargetElement {
+export type TargetElement = {
   type: 'TargetElement';
 
   /**
@@ -13,4 +13,4 @@ export interface TargetElement {
    * If `true`, always show target element. If `false`, always hide target element. If not supplied, toggle target element's visibility.
    */
   isVisible?: boolean | null;
-}
+};

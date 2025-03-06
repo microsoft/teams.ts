@@ -1,4 +1,4 @@
-import { Card } from '@microsoft/spark.cards';
+import { ICard } from '@microsoft/spark.cards';
 
 import {
   ConfigResponse,
@@ -48,5 +48,5 @@ type InvokeResponseBody = {
   'handoff/action': void;
   'signin/tokenExchange': TokenExchangeInvokeResponse | undefined;
   'signin/verifyState': void;
-  'adaptiveCard/action': Card;
+  'adaptiveCard/action': ICard;
 };

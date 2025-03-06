@@ -1,4 +1,4 @@
-import { BaseElement } from '../base';
+import { IElement, Element } from '../base';
 
 export type CodeLanguage =
   | 'Bash'
@@ -29,7 +29,7 @@ export type CodeLanguage =
 /**
  * Displays a block of code with syntax highlighting
  */
-export interface CodeBlock extends BaseElement {
+export interface ICodeBlock extends IElement {
   type: 'CodeBlock';
 
   /**
@@ -48,14 +48,52 @@ export interface CodeBlock extends BaseElement {
   startLineNumber?: number;
 }
 
-export type CodeBlockParams = Omit<CodeBlock, 'type'>;
+export type CodeBlockOptions = Omit<ICodeBlock, 'type'>;
 
 /**
  * Displays a block of code with syntax highlighting
  */
-export function CodeBlock(params?: CodeBlockParams): CodeBlock {
-  return {
-    type: 'CodeBlock',
-    ...params,
-  };
+export class CodeBlock extends Element implements ICodeBlock {
+  type: 'CodeBlock';
+
+  /**
+   * which programming language to use.
+   */
+  language?: CodeLanguage;
+
+  /**
+   * code to display/highlight.
+   */
+  codeSnippet?: string;
+
+  /**
+   * which line number to display on the first line.
+   */
+  startLineNumber?: number;
+
+  constructor(options: CodeBlockOptions = {}) {
+    super();
+    this.type = 'CodeBlock';
+    this.withOptions(options);
+  }
+
+  withOptions(value: CodeBlockOptions) {
+    Object.assign(this, value);
+    return this;
+  }
+
+  withLanguage(value: CodeLanguage) {
+    this.language = value;
+    return this;
+  }
+
+  withCode(value: string) {
+    this.codeSnippet = value;
+    return this;
+  }
+
+  withStartLineNumber(value: number) {
+    this.startLineNumber = value;
+    return this;
+  }
 }

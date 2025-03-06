@@ -1,13 +1,13 @@
 import { FC } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
-import { FactSet } from '@microsoft/spark.cards';
+import { IFactSet } from '@microsoft/spark.cards';
 
 import useContainerClasses from './Containers.styles';
 
 import FactCard from './FactCard';
 
 export interface FactSetCardProps {
-  readonly value: FactSet;
+  readonly value: IFactSet;
 }
 
 const FactSetCard: FC<FactSetCardProps> = ({ value }) => {

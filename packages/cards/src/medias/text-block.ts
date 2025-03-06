@@ -1,10 +1,10 @@
-import { BaseElement } from '../base';
-import { Color, FontSize, FontType, FontWeight, HorizontalAlignment } from '../common';
+import { IElement, Element } from '../base';
+import { Color, FontSize, FontType, FontWeight } from '../common';
 
 /**
  * Displays text, allowing control over font sizes, weight, and color.
  */
-export interface TextBlock extends BaseElement {
+export interface ITextBlock extends IElement {
   type: 'TextBlock';
 
   /**
@@ -26,11 +26,6 @@ export interface TextBlock extends BaseElement {
    * Type of font to use for rendering
    */
   fontType?: FontType | null;
-
-  /**
-   * Controls the horizontal text alignment. When not specified, the value of horizontalAlignment is inherited from the parent container. If no parent container has horizontalAlignment set, it defaults to Left.
-   */
-  horizontalAlignment?: HorizontalAlignment;
 
   /**
    * If true, displays text slightly toned down to appear less prominent.
@@ -58,15 +53,113 @@ export interface TextBlock extends BaseElement {
   wrap?: boolean;
 }
 
-export type TextBlockParams = Omit<TextBlock, 'type' | 'text'>;
+export type TextBlockOptions = Omit<ITextBlock, 'type' | 'text'>;
 
 /**
  * Displays text, allowing control over font sizes, weight, and color.
  */
-export function TextBlock(text: string, params?: TextBlockParams): TextBlock {
-  return {
-    type: 'TextBlock',
-    text,
-    ...params,
-  };
+export class TextBlock extends Element implements ITextBlock {
+  type: 'TextBlock';
+
+  /**
+   * Text to display. A subset of markdown is supported (https://aka.ms/ACTextFeatures)
+   */
+  text: string;
+
+  /**
+   * The style of this TextBlock for accessibility purposes.
+   */
+  style?: 'default' | 'heading';
+
+  /**
+   * Controls the color of TextBlock elements.
+   */
+  color?: Color;
+
+  /**
+   * Type of font to use for rendering
+   */
+  fontType?: FontType | null;
+
+  /**
+   * If true, displays text slightly toned down to appear less prominent.
+   */
+  isSubtle?: boolean;
+
+  /**
+   * Specifies the maximum number of lines to display.
+   */
+  maxLines?: number;
+
+  /**
+   * Controls size of text.
+   */
+  size?: FontSize;
+
+  /**
+   * Controls the weight of TextBlock elements.
+   */
+  weight?: FontWeight;
+
+  /**
+   * If true, allow text to wrap. Otherwise, text is clipped.
+   */
+  wrap?: boolean;
+
+  constructor(text: string, options: TextBlockOptions = {}) {
+    super();
+    this.type = 'TextBlock';
+    this.text = text;
+    this.withOptions(options);
+  }
+
+  withOptions(value: TextBlockOptions) {
+    Object.assign(this, value);
+    return this;
+  }
+
+  withStyle(value: 'default' | 'heading') {
+    this.style = value;
+    return this;
+  }
+
+  withColor(value: Color) {
+    this.color = value;
+    return this;
+  }
+
+  withFontType(value: FontType) {
+    this.fontType = value;
+    return this;
+  }
+
+  withSubtle(value = true) {
+    this.isSubtle = value;
+    return this;
+  }
+
+  withMaxLines(value: number) {
+    this.maxLines = value;
+    return this;
+  }
+
+  withSize(value: FontSize) {
+    this.size = value;
+    return this;
+  }
+
+  withWeight(value: FontWeight) {
+    this.weight = value;
+    return this;
+  }
+
+  withWrap(value = true) {
+    this.wrap = value;
+    return this;
+  }
+
+  addText(...value: string[]) {
+    this.text += value.join();
+    return this;
+  }
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Card } from '@microsoft/spark.cards';
+import { ICard } from '@microsoft/spark.cards';
 import { SelectTabEvent, SelectTabData, Tab, TabList, TabValue } from '@fluentui/react-components';
 import { json } from '@codemirror/lang-json';
 import { javascript } from '@codemirror/lang-javascript';
@@ -12,9 +12,9 @@ import { useCardDesignerEditorClasses } from './CardDesignerEditor.styles';
 import { useLogger } from '../../contexts/LoggerContext';
 
 export interface CardDesignerEditorProps {
-  readonly value?: Card;
+  readonly value?: ICard;
   readonly typescript?: string;
-  readonly onChange?: (value: Card) => void;
+  readonly onChange?: (value: ICard) => void;
 }
 
 export default function CardDesignerEditor({
@@ -56,8 +56,8 @@ export default function CardDesignerEditor({
 }
 
 export interface CardDesignerJsonEditorProps {
-  readonly value?: Card;
-  readonly onChange?: (value: Card) => void;
+  readonly value?: ICard;
+  readonly onChange?: (value: ICard) => void;
 }
 
 export function CardDesignerJsonEditor({ value, onChange }: CardDesignerJsonEditorProps) {

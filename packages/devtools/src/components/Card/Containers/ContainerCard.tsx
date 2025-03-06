@@ -1,11 +1,11 @@
 import { mergeClasses } from '@fluentui/react-components';
-import { Container } from '@microsoft/spark.cards';
+import { IContainer } from '@microsoft/spark.cards';
 
 import Card from '../Card';
 import useContainerClasses from './Containers.styles';
 
 export interface ContainerCardProps {
-  readonly value: Container;
+  readonly value: IContainer;
 }
 
 export default function ContainerCard({ value }: ContainerCardProps) {

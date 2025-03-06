@@ -1,25 +1,25 @@
-import { Badge } from './badge';
-import { CodeBlock } from './code-block';
-import { Icon } from './icon';
-import { Image } from './image';
-import { Media } from './media';
-import { ProgressBar } from './progress-bar';
-import { ProgressRing } from './progress-ring';
-import { RichTextBlock } from './rich-text-block';
-import { TextBlock } from './text-block';
-import { TextRun } from './text-run';
+import { IBadge } from './badge';
+import { ICodeBlock } from './code-block';
+import { IIcon } from './icon';
+import { IImage } from './image';
+import { IMedia } from './media';
+import { IProgressBar } from './progress-bar';
+import { IProgressRing } from './progress-ring';
+import { IRichTextBlock } from './rich-text-block';
+import { ITextBlock } from './text-block';
+import { ITextRun } from './text-run';
 
 export type MediaElement =
-  | CodeBlock
-  | Icon
-  | Image
-  | Media
-  | RichTextBlock
-  | TextBlock
-  | TextRun
-  | Badge
-  | ProgressBar
-  | ProgressRing;
+  | ICodeBlock
+  | IIcon
+  | IImage
+  | IMedia
+  | IRichTextBlock
+  | ITextBlock
+  | ITextRun
+  | IBadge
+  | IProgressBar
+  | IProgressRing;
 
 export * from './background-image';
 export * from './text-block';

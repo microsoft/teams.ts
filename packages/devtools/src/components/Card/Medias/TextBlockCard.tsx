@@ -1,9 +1,9 @@
-import { TextBlock } from '@microsoft/spark.cards';
+import { ITextBlock } from '@microsoft/spark.cards';
 import { useMemo } from 'react';
 import { MarkdownContent } from '../../MarkdownContent';
 
 export interface TextBlockCardProps {
-  readonly value: TextBlock;
+  readonly value: ITextBlock;
 }
 
 export default function TextBlockCard({ value }: TextBlockCardProps) {

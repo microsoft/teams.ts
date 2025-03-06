@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CodeBlock } from '@microsoft/spark.cards';
+import { ICodeBlock } from '@microsoft/spark.cards';
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
 import bash from 'highlight.js/lib/languages/bash';
@@ -13,7 +13,7 @@ hljs.registerLanguage('c', c);
 hljs.registerLanguage('typescript', typescript);
 
 export interface CodeBlockCardProps {
-  readonly value: CodeBlock;
+  readonly value: ICodeBlock;
 }
 
 export default function CodeBlockCard({ value }: CodeBlockCardProps) {

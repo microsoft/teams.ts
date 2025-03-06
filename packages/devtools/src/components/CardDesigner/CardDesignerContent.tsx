@@ -1,9 +1,9 @@
-import { Card } from '@microsoft/spark.cards';
+import { ICard, Card } from '@microsoft/spark.cards';
 import AdaptiveCard from '../Card/AdaptiveCard';
 import { useCardDesignerContentClasses } from './CardDesignerContent.styles';
 
 export interface CardDesignerContentProps {
-  readonly value?: Card;
+  readonly value?: ICard;
 }
 
 export default function CardDesignerContent({ value }: CardDesignerContentProps) {
@@ -12,7 +12,7 @@ export default function CardDesignerContent({ value }: CardDesignerContentProps)
   return (
     <div className={classes.container}>
       <div className={classes.card}>
-        <AdaptiveCard value={value || Card([])} />
+        <AdaptiveCard value={value || new Card()} />
       </div>
     </div>
   );

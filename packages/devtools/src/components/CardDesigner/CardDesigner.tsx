@@ -1,4 +1,4 @@
-import { ActionSet, Card, Element, Icon, TextBlock } from '@microsoft/spark.cards';
+import { ActionSet, ICard, Card, Element, Icon, TextBlock } from '@microsoft/spark.cards';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import prettier from 'prettier/standalone';
 import parserTypeScript from 'prettier/plugins/typescript';
@@ -10,28 +10,26 @@ import CardDesignerSidebar from './CardDesignerSidebar';
 import { useCardDesignerClasses } from './CardDesigner.styles';
 
 export interface CardDesignerProps {
-  readonly value?: Card;
-  readonly onChange?: (value: Card) => void;
+  readonly value?: ICard;
+  readonly onChange?: (value: ICard) => void;
 }
 
-const placeholderCard = Card([
-  Icon('Warning'),
-  TextBlock('Use this site instead of this Cards editor page:', {
+const placeholderCard = new Card(
+  new Icon('Warning'),
+  new TextBlock('Use this site instead of this Cards editor page:', {
     wrap: true,
     style: 'heading',
   }),
-  ActionSet([
-    {
-      type: 'Action.OpenUrl',
-      title: 'Adaptive Cards Designer',
-      url: 'https://adaptivecards.microsoft.com/designer',
-    },
-  ]),
-]);
+  new ActionSet({
+    type: 'Action.OpenUrl',
+    title: 'Adaptive Cards Designer',
+    url: 'https://adaptivecards.microsoft.com/designer',
+  })
+);
 
 export default function CardDesigner({ value, onChange }: CardDesignerProps) {
   const classes = useCardDesignerClasses();
-  const [card, setCard] = useState<Card>(value || Card());
+  const [card, setCard] = useState<ICard>(value || new Card());
   const [typescript, setTypescript] = useState<string>();
   const [formatted, setFormatted] = useState<string>();
   const isUpdatingRef = useRef(false);
@@ -112,7 +110,7 @@ export default function CardDesigner({ value, onChange }: CardDesignerProps) {
     }
   }, []);
 
-  const onEditorUpdate = useCallback((updatedCard: Card) => {
+  const onEditorUpdate = useCallback((updatedCard: ICard) => {
     isUpdatingRef.current = true;
     setCard(updatedCard);
     // Allow other effects to run before clearing the flag

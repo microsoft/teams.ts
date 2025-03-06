@@ -1,11 +1,11 @@
 import { FC } from 'react';
 import { Button, Tooltip } from '@fluentui/react-components';
-import { OpenUrlAction } from '@microsoft/spark.cards';
+import { IOpenUrlAction } from '@microsoft/spark.cards';
 
 import { useOpenUrlActionCardClasses } from './Actions.styles';
 
 export interface OpenUrlActionCardProps {
-  readonly value: OpenUrlAction;
+  readonly value: IOpenUrlAction;
 }
 
 const OpenUrlActionCard: FC<OpenUrlActionCardProps> = ({ value }) => {

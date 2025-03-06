@@ -1,8 +1,7 @@
-import { BaseElement } from '../base';
-import { HorizontalAlignment } from '../common';
+import { IElement, Element } from '../base';
 import { ChartColor } from './color';
 
-export interface LineChart extends BaseElement {
+export interface ILineChart extends IElement {
   type: 'Chart.Line';
 
   /**
@@ -23,30 +22,62 @@ export interface LineChart extends BaseElement {
   /**
    * the data to display in the chart.
    */
-  data: LineChartData[];
-
-  /**
-   * the area of a `Layout.AreaGrid` layout in which an element should be displayed.
-   */
-  'grid.area'?: string;
-
-  /**
-   * controls how the element should be horizontally aligned.
-   */
-  horizontalAlignment?: HorizontalAlignment;
+  data: ILineChartData[];
 }
 
-export type LineChartParams = Omit<LineChart, 'type' | 'data'>;
+export type LineChartOptions = Omit<ILineChart, 'type' | 'data'>;
 
-export function LineChart(data: LineChartData[] = [], params?: LineChartParams): LineChart {
-  return {
-    type: 'Chart.Line',
-    data,
-    ...params,
-  };
+export class LineChart extends Element implements ILineChart {
+  type: 'Chart.Line';
+
+  /**
+   * the title of the chart.
+   */
+  title?: string;
+
+  /**
+   * the color to use for all data points.
+   */
+  color?: ChartColor;
+
+  /**
+   * the name of the set of colors to use.
+   */
+  colorSet?: string;
+
+  /**
+   * the data to display in the chart.
+   */
+  data: ILineChartData[];
+
+  constructor(...data: ILineChartData[]) {
+    super();
+    this.type = 'Chart.Line';
+    this.data = data;
+  }
+
+  withOptions(value: LineChartOptions) {
+    Object.assign(this, value);
+    return this;
+  }
+
+  withTitle(value: string) {
+    this.title = value;
+    return this;
+  }
+
+  withColorSet(value: string) {
+    this.colorSet = value;
+    return this;
+  }
+
+  addData(...data: ILineChartData[]) {
+    this.data.push(...data);
+    return this;
+  }
 }
 
-export interface LineChartData {
+export interface ILineChartData {
   /**
    * the color to use for the data point.
    */
@@ -60,22 +91,53 @@ export interface LineChartData {
   /**
    * the data points in the series.
    */
-  values: LineChartDataPoint[];
+  values: ILineChartDataPoint[];
 }
 
-export type LineChartDataParams = Omit<LineChartData, 'values'>;
+export type LineChartDataOptions = Omit<ILineChartData, 'values'>;
 
-export function LineChartData(
-  values: LineChartDataPoint[] = [],
-  params?: LineChartDataParams
-): LineChartData {
-  return {
-    values,
-    ...params,
-  };
+export class LineChartData implements ILineChartData {
+  /**
+   * the color to use for the data point.
+   */
+  color?: ChartColor;
+
+  /**
+   * the legend of the chart.
+   */
+  legend?: string;
+
+  /**
+   * the data points in the series.
+   */
+  values: ILineChartDataPoint[];
+
+  constructor(...dataPoints: ILineChartDataPoint[]) {
+    this.values = dataPoints;
+  }
+
+  withOptions(value: LineChartDataOptions) {
+    Object.assign(this, value);
+    return this;
+  }
+
+  withColor(value: ChartColor) {
+    this.color = value;
+    return this;
+  }
+
+  withLegend(value: string) {
+    this.legend = value;
+    return this;
+  }
+
+  addDataPoints(...value: ILineChartDataPoint[]) {
+    this.values.push(...value);
+    return this;
+  }
 }
 
-export interface LineChartDataPoint {
+export interface ILineChartDataPoint {
   /**
    * the x axis value of the data point.
    */
@@ -87,6 +149,19 @@ export interface LineChartDataPoint {
   y: number;
 }
 
-export function LineChartDataPoint(x: number | string, y: number): LineChartDataPoint {
-  return { x, y };
+export class LineChartDataPoint implements ILineChartDataPoint {
+  /**
+   * the x axis value of the data point.
+   */
+  x: number | string;
+
+  /**
+   * the y axis value of the data point.
+   */
+  y: number;
+
+  constructor(x: number | string, y: number) {
+    this.x = x;
+    this.y = y;
+  }
 }
