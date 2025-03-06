@@ -8,7 +8,7 @@ import {
   Entity,
 } from '../models';
 
-export interface ActivityBase<T extends string = string> {
+export interface IActivity<T extends string = string> {
   /**
    * Contains the type of the activity.
    */
@@ -86,7 +86,7 @@ export interface ActivityBase<T extends string = string> {
   channelData?: ChannelData;
 }
 
-export abstract class ActivityBaseBuilder<ActivityType extends ActivityBase = ActivityBase> {
+export abstract class ActivityBaseBuilder<ActivityType extends IActivity = IActivity> {
   abstract activity: Pick<ActivityType, 'type'> & Partial<Omit<ActivityType, 'type'>>;
 
   /**

@@ -1,10 +1,10 @@
 /**
- * @interface
+ *
  * An interface representing MessageActionsPayloadApp.
  * Represents an application entity.
  *
  */
-export interface MessageApp {
+export type MessageApp = {
   /**
    * @member {ApplicationIdentityType} [applicationIdentityType] The type of
    * application. Possible values include: 'aadApplication', 'bot',
@@ -27,4 +27,4 @@ export interface MessageApp {
    * application.
    */
   displayName?: string;
-}
+};

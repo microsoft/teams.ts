@@ -7,13 +7,13 @@ import { MessageMention } from './message-mention';
 import { MessageReaction } from './message-reaction';
 
 /**
- * @interface
+ *
  * An interface representing MessageActionsPayload.
  * Represents the individual message within a chat or channel where a message
  * actions is taken.
  *
  */
-export interface Message {
+export type Message = {
   /**
    * @member {string} [id] Unique id of the message.
    */
@@ -109,4 +109,4 @@ export interface Message {
    * message.
    */
   reactions?: MessageReaction[];
-}
+};

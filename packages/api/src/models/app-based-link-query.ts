@@ -1,10 +1,10 @@
 /**
- * @interface
+ *
  * An interface representing AppBasedLinkQuery.
  * Invoke request body type for app-based link query.
  *
  */
-export interface AppBasedLinkQuery {
+export type AppBasedLinkQuery = {
   /**
    * @member {string} [url] Url queried by user
    */
@@ -14,4 +14,4 @@ export interface AppBasedLinkQuery {
    * @member {string} [state] State is the magic code for OAuth Flow
    */
   state?: string;
-}
+};

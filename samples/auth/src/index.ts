@@ -1,6 +1,6 @@
 import { App } from '@microsoft/spark.apps';
 import { ConsoleLogger } from '@microsoft/spark.common/logging';
-import { MessageSendActivity } from '@microsoft/spark.api';
+import { MessageActivityBuilder } from '@microsoft/spark.api';
 import { Card, CodeBlock, Column, ColumnSet, TextBlock } from '@microsoft/spark.cards';
 import { DevtoolsPlugin } from '@microsoft/spark.dev';
 
@@ -29,7 +29,7 @@ app.event('signin', async ({ send, api }) => {
   const me = await api.user.me.get();
 
   await send(
-    MessageSendActivity(`hello ${me.displayName} 👋!`)
+    new MessageActivityBuilder(`hello ${me.displayName} 👋!`)
       .card(
         'adaptive',
         Card([

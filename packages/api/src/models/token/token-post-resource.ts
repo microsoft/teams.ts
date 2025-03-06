@@ -1,10 +1,10 @@
 /**
- * @interface
+ *
  * An interface representing TokenPostResource.
  */
-export interface TokenPostResource {
+export type TokenPostResource = {
   /**
    * @member {string} [sasUrl]
    */
   sasUrl?: string;
-}
+};

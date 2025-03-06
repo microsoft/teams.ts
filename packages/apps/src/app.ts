@@ -10,12 +10,12 @@ import * as graph from '@microsoft/spark.graph';
 
 import {
   Activity,
-  Token,
+  IToken,
   Credentials,
   ConversationReference,
   TokenExchangeInvokeResponse,
-  SignInTokenExchangeInvokeActivity,
-  SignInVerifyStateInvokeActivity,
+  ISignInTokenExchangeInvokeActivity,
+  ISignInVerifyStateInvokeActivity,
   JsonWebToken,
   toActivityParams,
   ConversationAccount,
@@ -102,19 +102,19 @@ export interface AppTokens {
   /**
    * bot token used to send activities
    */
-  bot?: Token;
+  bot?: IToken;
 
   /**
    * graph token used to query the graph api
    */
-  graph?: Token;
+  graph?: IToken;
 }
 
 export interface ProcessActivityArgs {
   /**
    * inbound request token
    */
-  readonly token: Token;
+  readonly token: IToken;
 
   /**
    * inbound request activity payload
@@ -760,7 +760,7 @@ export class App {
     };
   }
 
-  protected async onTokenExchange(ctx: MiddlewareContext<SignInTokenExchangeInvokeActivity>) {
+  protected async onTokenExchange(ctx: MiddlewareContext<ISignInTokenExchangeInvokeActivity>) {
     const { api, activity, storage } = ctx;
     const key = `auth/${activity.conversation.id}/${activity.from.id}`;
 
@@ -805,7 +805,7 @@ export class App {
     }
   }
 
-  protected async onVerifyState(ctx: MiddlewareContext<SignInVerifyStateInvokeActivity>) {
+  protected async onVerifyState(ctx: MiddlewareContext<ISignInVerifyStateInvokeActivity>) {
     const { plugin, api, activity, storage } = ctx;
     const key = `auth/${activity.conversation.id}/${activity.from.id}`;
 

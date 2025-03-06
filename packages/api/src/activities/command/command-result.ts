@@ -1,11 +1,9 @@
-import { ActivityBase } from '../base';
+import { IActivity } from '../activity';
 
 /**
  * Asynchronous external command result.
  */
-export interface CommandResultActivity<T = any> extends ActivityBase {
-  readonly type: 'commandResult';
-
+export interface ICommandResultActivity<T = any> extends IActivity<'commandResult'> {
   /**
    * The name of the event.
    */
@@ -22,7 +20,7 @@ export interface CommandResultActivity<T = any> extends ActivityBase {
  * An optional extensible data payload may be included if defined by the command activity name.
  * The presence of an error field indicates that the original command failed to complete.
  */
-export interface CommandResultValue<T = any> {
+export type CommandResultValue<T = any> = {
   /**
    * ID of the command.
    */
@@ -38,4 +36,4 @@ export interface CommandResultValue<T = any> {
    * The optional error, if the command result indicates a failure.
    */
   error?: Error;
-}
+};

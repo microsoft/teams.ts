@@ -5,7 +5,7 @@ import { ThumbnailUrl } from './thumbnail-url';
 /**
  * Media card
  */
-export interface MediaCard {
+export type MediaCard = {
   /**
    * Title of this card
    */
@@ -67,4 +67,4 @@ export interface MediaCard {
    * Supplementary parameter for this card
    */
   value?: any;
-}
+};

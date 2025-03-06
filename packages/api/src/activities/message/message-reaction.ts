@@ -1,9 +1,7 @@
 import { MessageReaction } from '../../models';
-import { ActivityBase, ActivityBaseBuilder } from '../base';
+import { IActivity, ActivityBaseBuilder } from '../activity';
 
-export interface MessageReactionActivity extends ActivityBase {
-  readonly type: 'messageReaction';
-
+export interface IMessageReactionActivity extends IActivity<'messageReaction'> {
   /**
    * The collection of reactions added to the conversation.
    */
@@ -15,10 +13,10 @@ export interface MessageReactionActivity extends ActivityBase {
   reactionsRemoved?: MessageReaction[];
 }
 
-export class MessageReactionActivityBuilder extends ActivityBaseBuilder<MessageReactionActivity> {
-  activity: Pick<MessageReactionActivity, 'type'> & Partial<MessageReactionActivity>;
+export class MessageReactionActivityBuilder extends ActivityBaseBuilder<IMessageReactionActivity> {
+  activity: Pick<IMessageReactionActivity, 'type'> & Partial<IMessageReactionActivity>;
 
-  constructor(options?: Omit<Partial<MessageReactionActivity>, 'type'>) {
+  constructor(options?: Omit<Partial<IMessageReactionActivity>, 'type'>) {
     super();
     this.activity = {
       ...options,
@@ -61,6 +59,6 @@ export class MessageReactionActivityBuilder extends ActivityBaseBuilder<MessageR
   }
 }
 
-export function MessageReactionActivity(options?: Omit<Partial<MessageReactionActivity>, 'type'>) {
+export function MessageReactionActivity(options?: Omit<Partial<IMessageReactionActivity>, 'type'>) {
   return new MessageReactionActivityBuilder(options);
 }

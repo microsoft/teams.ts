@@ -5,7 +5,7 @@ import { ThumbnailUrl } from './thumbnail-url';
 /**
  * An animation card (Ex: gif or short video clip)
  */
-export interface AnimationCard {
+export type AnimationCard = {
   /**
    * Title of this card
    */
@@ -67,4 +67,4 @@ export interface AnimationCard {
    * Supplementary parameter for this card
    */
   value?: any;
-}
+};

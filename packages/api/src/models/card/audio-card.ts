@@ -5,7 +5,7 @@ import { ThumbnailUrl } from './thumbnail-url';
 /**
  * Audio card
  */
-export interface AudioCard {
+export type AudioCard = {
   /**
    * Title of this card
    */
@@ -67,4 +67,4 @@ export interface AudioCard {
    * Supplementary parameter for this card
    */
   value?: any;
-}
+};

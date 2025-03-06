@@ -1,7 +1,7 @@
 /**
  * A request to exchange a token.
  */
-export interface TokenExchangeInvokeRequest {
+export type TokenExchangeInvokeRequest = {
   /**
    * The id from the OAuthCard.
    */
@@ -16,4 +16,4 @@ export interface TokenExchangeInvokeRequest {
    * The user token that can be exchanged.
    */
   token: string;
-}
+};

@@ -1,11 +1,11 @@
-import { MessageExtensionSubmitActionInvokeActivity, InvokeResponse } from '@microsoft/spark.api';
+import { IMessageExtensionSubmitActionInvokeActivity, InvokeResponse } from '@microsoft/spark.api';
 
 import { RouteHandler } from '../../types';
 import { MiddlewareContext } from '../../middleware-context';
 
 export type MessageExtensionSubmitActivityRoutes = {
-  [K in MessageExtensionSubmitActionInvokeActivity['value']['botMessagePreviewAction'] as `message.ext.${K}`]?: RouteHandler<
-    MiddlewareContext<MessageExtensionSubmitActionInvokeActivity>,
+  [K in IMessageExtensionSubmitActionInvokeActivity['value']['botMessagePreviewAction'] as `message.ext.${K}`]?: RouteHandler<
+    MiddlewareContext<IMessageExtensionSubmitActionInvokeActivity>,
     InvokeResponse<'composeExtension/submitAction'>
   >;
 };

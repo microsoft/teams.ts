@@ -1,8 +1,8 @@
-import { ActivityBaseBuilder } from './base';
+import { ActivityBaseBuilder } from './activity';
 import {
   MessageDeleteActivityBuilder,
   MessageReactionActivityBuilder,
-  MessageSendActivityBuilder,
+  MessageActivityBuilder,
   MessageUpdateActivityBuilder,
 } from './message';
 import { TypingActivityBuilder } from './typing';
@@ -13,7 +13,7 @@ import { TypingActivityBuilder } from './typing';
 export type ActivityBuilder =
   | MessageDeleteActivityBuilder
   | MessageReactionActivityBuilder
-  | MessageSendActivityBuilder
+  | MessageActivityBuilder
   | MessageUpdateActivityBuilder
   | TypingActivityBuilder;
 

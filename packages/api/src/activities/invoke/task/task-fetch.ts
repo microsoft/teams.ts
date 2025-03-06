@@ -1,10 +1,8 @@
 import { ConversationReference, TaskModuleRequest } from '../../../models';
 
-import { ActivityBase } from '../../base';
+import { IActivity } from '../../activity';
 
-export interface TaskFetchInvokeActivity extends ActivityBase {
-  readonly type: 'invoke';
-
+export interface ITaskFetchInvokeActivity extends IActivity<'invoke'> {
   /**
    * The name of the operation associated with an invoke or event activity.
    */

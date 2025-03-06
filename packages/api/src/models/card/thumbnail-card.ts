@@ -4,7 +4,7 @@ import { CardImage } from './card-image';
 /**
  * A thumbnail card (card with a single, small thumbnail image)
  */
-export interface ThumbnailCard {
+export type ThumbnailCard = {
   /**
    * Title of the card
    */
@@ -34,4 +34,4 @@ export interface ThumbnailCard {
    * This action will be activated when user taps on the card itself
    */
   tap?: CardAction;
-}
+};

@@ -3,7 +3,7 @@ import { CardAction } from '../card';
 /**
  * A card representing a request to sign in
  */
-export interface SigninCard {
+export type SigninCard = {
   /**
    * Text for signin request
    */
@@ -13,4 +13,4 @@ export interface SigninCard {
    * Action to use to perform signin
    */
   buttons: CardAction[];
-}
+};

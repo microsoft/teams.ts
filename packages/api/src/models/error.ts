@@ -1,7 +1,7 @@
 /**
  * Object representing error information
  */
-export interface HttpError {
+export type HttpError = {
   /**
    * Error code
    */
@@ -16,12 +16,12 @@ export interface HttpError {
    * Error from inner http call
    */
   innerHttpError: InnerHttpError;
-}
+};
 
 /**
  * Object representing inner http error
  */
-export interface InnerHttpError {
+export type InnerHttpError = {
   /**
    * HttpStatusCode from failed request
    */
@@ -31,14 +31,14 @@ export interface InnerHttpError {
    * Body from failed request
    */
   body: any;
-}
+};
 
 /**
  * An HTTP API response
  */
-export interface HttpErrorResponse {
+export type HttpErrorResponse = {
   /**
    * Error message
    */
   error: HttpError;
-}
+};

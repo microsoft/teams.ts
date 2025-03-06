@@ -1,20 +1,20 @@
 import { EventActivity } from './event';
 import { InvokeActivity } from './invoke';
-import { TraceActivity } from './trace';
-import { TypingActivity } from './typing';
-import { HandoffActivity } from './handoff';
 import { ConversationActivity } from './conversation';
 import { MessageActivity } from './message';
 import { CommandActivity } from './command';
 import { InstallUpdateActivity } from './install-update';
+import { ITraceActivity } from './trace';
+import { ITypingActivity } from './typing';
+import { IHandoffActivity } from './handoff';
 
 export type Activity =
   | MessageActivity
   | EventActivity
   | InvokeActivity
-  | TraceActivity
-  | TypingActivity
-  | HandoffActivity
+  | ITraceActivity
+  | ITypingActivity
+  | IHandoffActivity
   | ConversationActivity
   | CommandActivity
   | InstallUpdateActivity;

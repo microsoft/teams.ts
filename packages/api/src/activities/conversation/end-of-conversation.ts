@@ -1,4 +1,4 @@
-import { ActivityBase } from '../base';
+import { IActivity } from '../activity';
 
 export type EndOfConversationCode =
   | 'unknown'
@@ -8,9 +8,7 @@ export type EndOfConversationCode =
   | 'botIssuedInvalidMessage'
   | 'channelFailed';
 
-export interface EndOfConversationActivity extends ActivityBase {
-  readonly type: 'endOfConversation';
-
+export interface IEndOfConversationActivity extends IActivity<'endOfConversation'> {
   /**
    * The a code for endOfConversation activities that indicates why the conversation ended.
    * Possible values include: 'unknown', 'completedSuccessfully', 'userCancelled', 'botTimedOut',

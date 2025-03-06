@@ -10,13 +10,13 @@ export type EventActivityRoutes = {
   >;
 };
 
-interface EventAliases {
+type EventAliases = {
   'application/vnd.microsoft.readReceipt': 'readReceipt';
   'application/vnd.microsoft.meetingStart': 'meetingStart';
   'application/vnd.microsoft.meetingEnd': 'meetingEnd';
   'application/vnd.microsoft.meetingParticipantJoin': 'meetingParticipantJoin';
   'application/vnd.microsoft.meetingParticipantLeave': 'meetingParticipantLeave';
-}
+};
 
 export const EVENT_ALIASES: EventAliases = {
   'application/vnd.microsoft.readReceipt': 'readReceipt',

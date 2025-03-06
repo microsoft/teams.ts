@@ -6,8 +6,8 @@ import { App, Plugin, PluginEvents } from '@microsoft/spark.apps';
 import {
   ActivityParams,
   ConversationReference,
-  MessageSendActivity,
-  Token,
+  IMessageActivity,
+  IToken,
 } from '@microsoft/spark.api';
 
 /**
@@ -55,7 +55,7 @@ export class ConsolePlugin implements Plugin {
   async onStart(port = 3000) {
     this.express.listen(port + 1, () => {
       this.reader.on('line', async (text) => {
-        const activity: MessageSendActivity = {
+        const activity: IMessageActivity = {
           id: '1',
           type: 'message',
           text,
@@ -78,7 +78,7 @@ export class ConsolePlugin implements Plugin {
           },
         };
 
-        const token: Token = {
+        const token: IToken = {
           appId: '1',
           from: 'azure',
           fromId: 'azure',

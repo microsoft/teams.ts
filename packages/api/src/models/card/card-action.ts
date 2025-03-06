@@ -9,7 +9,7 @@ export type CardActionType =
   | 'signin'
   | 'call';
 
-export interface CardAction {
+export type CardAction = {
   /**
    * The type of action implemented by this button. Possible values include: 'openUrl', 'imBack',
    * 'postBack', 'playAudio', 'playVideo', 'showImage', 'downloadFile', 'signin', 'call',
@@ -51,4 +51,4 @@ export interface CardAction {
    * Alternate image text to be used in place of the `image` field
    */
   imageAltText?: string;
-}
+};

@@ -1,10 +1,10 @@
 /**
- * @interface
+ *
  * An interface representing TeamInfo.
  * Describes a team
  *
  */
-export interface TeamInfo {
+export type TeamInfo = {
   /**
    * @member {string} [id] Unique identifier representing a team
    */
@@ -19,4 +19,4 @@ export interface TeamInfo {
    * @member {string} [aadGroupId] The Azure AD Teams group ID.
    */
   aadGroupId?: string;
-}
+};

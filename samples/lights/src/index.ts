@@ -4,7 +4,7 @@ import { ConsoleLogger } from '@microsoft/spark.common/logging';
 import { OpenAIChatModel } from '@microsoft/spark.openai';
 import { LocalStorage } from '@microsoft/spark.common/storage';
 import { DevtoolsPlugin } from '@microsoft/spark.dev';
-import { MessageSendActivity } from '@microsoft/spark.api';
+import { MessageActivityBuilder } from '@microsoft/spark.api';
 
 const storage = new LocalStorage<{
   status: boolean;
@@ -44,9 +44,7 @@ app.on('message', async ({ send, stream, activity }) => {
   The lights are currently off.`,
     model: new OpenAIChatModel({
       model: 'gpt-4o-mini',
-      apiKey: process.env.AZURE_OPENAI_API_KEY,
-      apiVersion: '2024-05-01-preview',
-      endpoint: process.env.AZURE_OPENAI_ENDPOINT,
+      apiKey: process.env.OPENAI_API_KEY,
       stream: true,
     }),
   })
@@ -63,7 +61,7 @@ app.on('message', async ({ send, stream, activity }) => {
     });
 
   await prompt.chat(activity.text, (chunk) => {
-    stream.emit(MessageSendActivity(chunk).feedback().build());
+    stream.emit(new MessageActivityBuilder(chunk).feedback().build());
   });
 });
 

@@ -5,7 +5,7 @@ import { CardImage } from './card-image';
 /**
  * A Hero card (card with a single, large image)
  */
-export interface HeroCard {
+export type HeroCard = {
   /**
    * Title of the card
    */
@@ -35,4 +35,4 @@ export interface HeroCard {
    * This action will be activated when user taps on the card itself
    */
   tap?: CardAction;
-}
+};

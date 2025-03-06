@@ -2,9 +2,9 @@ import {
   Activity,
   ActivityLike,
   MentionEntity,
-  MessageSendActivity,
-  SignInTokenExchangeInvokeActivity,
-  SignInVerifyStateInvokeActivity,
+  IMessageActivity,
+  ISignInTokenExchangeInvokeActivity,
+  ISignInVerifyStateInvokeActivity,
   TokenResponse,
 } from '@microsoft/spark.api';
 
@@ -48,7 +48,7 @@ export interface MiddlewareContext<T extends Activity = Activity> extends Activi
   signout: (name?: string) => Promise<void>;
 }
 
-export interface MentionMiddlewareContext extends MiddlewareContext<MessageSendActivity> {
+export interface MentionMiddlewareContext extends MiddlewareContext<IMessageActivity> {
   /**
    * the mention entity that references your app
    */
@@ -56,7 +56,7 @@ export interface MentionMiddlewareContext extends MiddlewareContext<MessageSendA
 }
 
 export interface SignInMiddlewareContext
-  extends MiddlewareContext<SignInTokenExchangeInvokeActivity | SignInVerifyStateInvokeActivity> {
+  extends MiddlewareContext<ISignInTokenExchangeInvokeActivity | ISignInVerifyStateInvokeActivity> {
   /**
    * the token response of the signin request
    */

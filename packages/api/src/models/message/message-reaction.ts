@@ -16,7 +16,7 @@ export type MessageReactionType =
   | 'angry'
   | 'plusOne';
 
-export interface MessageReaction {
+export type MessageReaction = {
   /**
    * @member {ReactionType} [reactionType] The type of reaction given to the
    * message. Possible values include: 'like', 'heart', 'laugh', 'surprised',
@@ -35,4 +35,4 @@ export interface MessageReaction {
    * reaction is associated.
    */
   user?: MessageUser;
-}
+};

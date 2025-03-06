@@ -1,12 +1,12 @@
 import { Attachment } from '../attachment';
 
 /**
- * @interface
+ *
  * An interface representing TaskModuleTaskInfo.
  * Metadata for a Task Module.
  *
  */
-export interface TaskModuleTaskInfo {
+export type TaskModuleTaskInfo = {
   /**
    * @member {string} [title] Appears below the app name and to the right of
    * the app icon.
@@ -48,4 +48,4 @@ export interface TaskModuleTaskInfo {
    * module feature, this URL is opened in a browser tab.
    */
   completionBotId?: string;
-}
+};

@@ -3,7 +3,7 @@ import { CardAction } from './card-action';
 /**
  * An image on a card
  */
-export interface CardImage {
+export type CardImage = {
   /**
    * URL thumbnail image for major content property
    */
@@ -18,4 +18,4 @@ export interface CardImage {
    * Action assigned to specific Attachment
    */
   tap?: CardAction;
-}
+};

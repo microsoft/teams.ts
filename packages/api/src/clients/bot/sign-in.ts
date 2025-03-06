@@ -3,19 +3,19 @@ import { Client, ClientOptions } from '@microsoft/spark.common/http';
 
 import { SignInUrlResponse } from '../../models';
 
-export interface GetBotSignInUrlParams {
+export type GetBotSignInUrlParams = {
   state: string;
   codeChallenge?: string;
   emulatorUrl?: string;
   finalRedirect?: string;
-}
+};
 
-export interface GetBotSignInResourceParams {
+export type GetBotSignInResourceParams = {
   state: string;
   codeChallenge?: string;
   emulatorUrl?: string;
   finalRedirect?: string;
-}
+};
 
 export class BotSignInClient {
   get http() {

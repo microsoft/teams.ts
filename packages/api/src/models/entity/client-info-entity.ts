@@ -1,4 +1,4 @@
-export interface ClientInfoEntity {
+export type ClientInfoEntity = {
   readonly type: 'clientInfo';
 
   /**
@@ -25,4 +25,4 @@ export interface ClientInfoEntity {
    * other properties
    */
   [key: string]: any;
-}
+};

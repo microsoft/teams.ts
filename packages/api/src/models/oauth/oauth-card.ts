@@ -5,7 +5,7 @@ import { TokenExchangeResource } from '../token-exchange';
 /**
  * A card representing a request to perform a sign in via OAuth
  */
-export interface OAuthCard {
+export type OAuthCard = {
   /**
    * Text for signin request
    */
@@ -30,4 +30,4 @@ export interface OAuthCard {
    * Action to use to perform signin
    */
   buttons: CardAction[];
-}
+};

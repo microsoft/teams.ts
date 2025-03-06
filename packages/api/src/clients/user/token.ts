@@ -3,38 +3,38 @@ import { Client, ClientOptions } from '@microsoft/spark.common/http';
 
 import { ChannelID, TokenExchangeRequest, TokenResponse, TokenStatus } from '../../models';
 
-export interface GetUserTokenParams {
+export type GetUserTokenParams = {
   userId: string;
   connectionName: string;
   channelId?: ChannelID;
   code?: string;
-}
+};
 
-export interface GetUserAADTokenParams {
+export type GetUserAADTokenParams = {
   userId: string;
   connectionName: string;
   resourceUrls: string[];
   channelId: ChannelID;
-}
+};
 
-export interface GetUserTokenStatusParams {
+export type GetUserTokenStatusParams = {
   userId: string;
   channelId: ChannelID;
   includeFilter: string;
-}
+};
 
-export interface SignOutUserParams {
+export type SignOutUserParams = {
   userId: string;
   connectionName: string;
   channelId: ChannelID;
-}
+};
 
-export interface ExchangeUserTokenParams {
+export type ExchangeUserTokenParams = {
   userId: string;
   connectionName: string;
   channelId: ChannelID;
   exchangeRequest: TokenExchangeRequest;
-}
+};
 
 export class UserTokenClient {
   get http() {

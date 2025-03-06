@@ -1,7 +1,7 @@
-import { TaskFetchInvokeActivity } from './task-fetch';
-import { TaskSubmitInvokeActivity } from './task-submit';
+import { ITaskFetchInvokeActivity } from './task-fetch';
+import { ITaskSubmitInvokeActivity } from './task-submit';
 
-export type TaskInvokeActivity = TaskFetchInvokeActivity | TaskSubmitInvokeActivity;
+export type TaskInvokeActivity = ITaskFetchInvokeActivity | ITaskSubmitInvokeActivity;
 
 export * from './task-fetch';
 export * from './task-submit';

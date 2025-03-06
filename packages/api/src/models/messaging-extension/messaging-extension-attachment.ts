@@ -1,15 +1,15 @@
 import { Attachment } from '../attachment';
 
 /**
- * @interface
+ *
  * An interface representing MessagingExtensionAttachment.
  * Messaging extension attachment.
  *
  * @extends Attachment
  */
-export interface MessagingExtensionAttachment extends Attachment {
+export type MessagingExtensionAttachment = Attachment & {
   /**
    * @member {Attachment} [preview]
    */
   preview?: Attachment;
-}
+};

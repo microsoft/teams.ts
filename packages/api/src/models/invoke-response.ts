@@ -14,7 +14,7 @@ import {
  *
  * This interface supports the framework and is not intended to be called directly for your code.
  */
-export interface InvokeResponse<T extends keyof InvokeResponseBody = any> {
+export type InvokeResponse<T extends keyof InvokeResponseBody = any> = {
   /**
    * The HTTP status code of the response.
    */
@@ -24,9 +24,9 @@ export interface InvokeResponse<T extends keyof InvokeResponseBody = any> {
    * Optional. The body of the response.
    */
   body?: InvokeResponseBody[T];
-}
+};
 
-interface InvokeResponseBody {
+type InvokeResponseBody = {
   'config/fetch': ConfigResponse;
   'config/submit': ConfigResponse;
   'fileConsent/invoke': void;
@@ -49,4 +49,4 @@ interface InvokeResponseBody {
   'signin/tokenExchange': TokenExchangeInvokeResponse | undefined;
   'signin/verifyState': void;
   'adaptiveCard/action': Card;
-}
+};

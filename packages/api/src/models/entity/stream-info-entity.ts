@@ -1,4 +1,4 @@
-export interface StreamInfoEntity {
+export type StreamInfoEntity = {
   readonly type: 'streaminfo';
 
   /**
@@ -28,4 +28,4 @@ export interface StreamInfoEntity {
    * other properties
    */
   [key: string]: any;
-}
+};

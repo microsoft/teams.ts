@@ -1,8 +1,7 @@
 /**
- * @interface
  * An interface representing TokenExchangeRequest.
  */
-export interface TokenExchangeRequest {
+export type TokenExchangeRequest = {
   /**
    * @member {string} [uri]
    */
@@ -12,4 +11,4 @@ export interface TokenExchangeRequest {
    * @member {string} [token]
    */
   token?: string;
-}
+};

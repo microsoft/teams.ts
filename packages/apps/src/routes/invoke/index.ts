@@ -16,7 +16,7 @@ export type InvokeActivityRoutes = {
   MessageExtensionSubmitActivityRoutes &
   MessageSubmitActivityRoutes;
 
-interface InvokeAliases {
+type InvokeAliases = {
   'config/fetch': 'config.open';
   'config/submit': 'config.submit';
   'fileConsent/invoke': 'file.consent';
@@ -39,7 +39,7 @@ interface InvokeAliases {
   'signin/tokenExchange': 'signin.token-exchange';
   'signin/verifyState': 'signin.verify-state';
   'adaptiveCard/action': 'card.action';
-}
+};
 
 export const INVOKE_ALIASES: InvokeAliases = {
   'config/fetch': 'config.open',

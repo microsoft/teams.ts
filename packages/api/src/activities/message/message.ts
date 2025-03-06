@@ -12,11 +12,9 @@ import {
   TextFormat,
 } from '../../models';
 
-import { ActivityBase, ActivityBaseBuilder } from '../base';
+import { IActivity, ActivityBaseBuilder } from '../activity';
 
-export interface MessageSendActivity extends ActivityBase {
-  readonly type: 'message';
-
+export interface IMessageActivity extends IActivity<'message'> {
   /**
    * The text content of the message.
    */
@@ -83,10 +81,10 @@ export interface MessageSendActivity extends ActivityBase {
   value?: any;
 }
 
-export class MessageSendActivityBuilder extends ActivityBaseBuilder<MessageSendActivity> {
-  activity: Pick<MessageSendActivity, 'type'> & Partial<MessageSendActivity>;
+export class MessageActivityBuilder extends ActivityBaseBuilder<IMessageActivity> {
+  activity: Pick<IMessageActivity, 'type'> & Partial<IMessageActivity>;
 
-  constructor(text: string, options?: Omit<Partial<MessageSendActivity>, 'type'>) {
+  constructor(text: string, options?: Omit<Partial<IMessageActivity>, 'type'>) {
     super();
     this.activity = {
       ...options,
@@ -211,9 +209,6 @@ export class MessageSendActivityBuilder extends ActivityBaseBuilder<MessageSendA
   }
 }
 
-export function MessageSendActivity(
-  text: string,
-  options?: Omit<Partial<MessageSendActivity>, 'type'>
-) {
-  return new MessageSendActivityBuilder(text, options);
+export function MessageActivity(text: string, options?: Omit<Partial<IMessageActivity>, 'type'>) {
+  return new MessageActivityBuilder(text, options);
 }

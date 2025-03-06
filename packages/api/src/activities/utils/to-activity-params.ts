@@ -4,7 +4,7 @@ import { ActivityParams } from '../../clients';
 import { ActivityLike } from '../../models';
 
 import { isActivityBuilder } from '../builder';
-import { MessageSendActivityBuilder } from '../message';
+import { MessageActivityBuilder } from '../message';
 
 /**
  * @hidden
@@ -21,7 +21,7 @@ export function toActivityParams(activity: ActivityLike): ActivityParams {
   } else if (isActivityBuilder(activity)) {
     activity = activity.build();
   } else if (isCard(activity)) {
-    activity = new MessageSendActivityBuilder('').card('adaptive', activity).build();
+    activity = new MessageActivityBuilder('').card('adaptive', activity).build();
   }
 
   return activity;

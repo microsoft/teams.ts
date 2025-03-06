@@ -23,7 +23,7 @@ export type CitationIconName =
   | 'Text'
   | 'PDF';
 
-export interface CitationEntity {
+export type CitationEntity = {
   readonly type: 'https://schema.org/Message';
 
   /**
@@ -96,9 +96,9 @@ export interface CitationEntity {
      */
     usageInfo?: SensitiveUsageEntity;
   };
-}
+};
 
-export interface CitationAppearance {
+export type CitationAppearance = {
   /**
    * Name of the document (max length 80)
    */
@@ -137,4 +137,4 @@ export interface CitationAppearance {
    * Sensitivity content information
    */
   usageInfo?: SensitiveUsageEntity;
-}
+};

@@ -3,7 +3,7 @@ import { ConversationReference } from '../conversation';
 /**
  * State object passed to the bot token service.
  */
-export interface TokenExchangeState {
+export type TokenExchangeState = {
   /**
    * The connection name that was used.
    */
@@ -23,4 +23,4 @@ export interface TokenExchangeState {
    * The URL of the bot messaging endpoint.
    */
   msAppId: string;
-}
+};

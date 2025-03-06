@@ -1,13 +1,13 @@
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 
 import { CallerIds, CallerType } from './caller';
-import { Token } from './token';
+import { IToken } from './token';
 
-export interface JsonWebTokenPayload extends JwtPayload {
+export type JsonWebTokenPayload = JwtPayload & {
   readonly [key: string]: any;
-}
+};
 
-export class JsonWebToken implements Token {
+export class JsonWebToken implements IToken {
   get audience() {
     return this._payload.aud;
   }

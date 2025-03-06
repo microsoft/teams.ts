@@ -2,10 +2,10 @@ import { Account, ConversationAccount } from '../account';
 import { MeetingDetails } from './meeting-details';
 
 /**
- * @interface
+ *
  * General information about a Teams meeting.
  */
-export interface MeetingInfo {
+export type MeetingInfo = {
   /**
    * @member {string} [id] Unique identifier representing a meeting
    */
@@ -25,4 +25,4 @@ export interface MeetingInfo {
    * @member {TeamsChannelAccount} [organizer] The organizer's user information.
    */
   organizer?: Account;
-}
+};

@@ -15,7 +15,7 @@ export function cardAttachment<T extends CardAttachmentType>(
 }
 
 export type CardAttachmentType = keyof CardAttachmentTypes;
-export interface CardAttachmentTypes {
+export type CardAttachmentTypes = {
   adaptive: {
     contentType: 'application/vnd.microsoft.card.adaptive';
     content: Card;
@@ -48,4 +48,4 @@ export interface CardAttachmentTypes {
     contentType: 'application/vnd.microsoft.card.video';
     content: VideoCard;
   };
-}
+};

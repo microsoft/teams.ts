@@ -1,9 +1,7 @@
 import { SignInExchangeToken } from '../../../models';
-import { ActivityBase } from '../../base';
+import { IActivity } from '../../activity';
 
-export interface SignInTokenExchangeInvokeActivity extends ActivityBase {
-  readonly type: 'invoke';
-
+export interface ISignInTokenExchangeInvokeActivity extends IActivity<'invoke'> {
   /**
    * The name of the operation associated with an invoke or event activity.
    */

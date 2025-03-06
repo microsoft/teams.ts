@@ -4,7 +4,7 @@ import { ChannelID } from '../channel-id';
 /**
  * An object relating to a particular point in a conversation
  */
-export interface ConversationReference {
+export type ConversationReference = {
   /**
    * (Optional) ID of the activity to refer to
    */
@@ -43,4 +43,4 @@ export interface ConversationReference {
    * Service endpoint where operations concerning the referenced conversation may be performed
    */
   serviceUrl: string;
-}
+};

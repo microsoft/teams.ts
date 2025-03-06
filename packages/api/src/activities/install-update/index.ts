@@ -1,7 +1,7 @@
-import { InstalledActivity } from './add';
-import { UnInstalledActivity } from './remove';
+import { IInstalledActivity } from './add';
+import { IUnInstalledActivity } from './remove';
 
-export type InstallUpdateActivity = InstalledActivity | UnInstalledActivity;
+export type InstallUpdateActivity = IInstalledActivity | IUnInstalledActivity;
 
 export * from './add';
 export * from './remove';

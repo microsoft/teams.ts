@@ -3,7 +3,7 @@ import { Account } from '../account';
 /**
  * Conversation and its members
  */
-export interface Conversation {
+export type Conversation = {
   /**
    * Conversation ID
    */
@@ -13,4 +13,4 @@ export interface Conversation {
    * List of members in this conversation
    */
   members: Account[];
-}
+};

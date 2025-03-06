@@ -1,10 +1,10 @@
 /**
- * @interface
+ *
  * An interface representing MessagingExtensionParameter.
  * Messaging extension query parameters
  *
  */
-export interface MessagingExtensionParameter {
+export type MessagingExtensionParameter = {
   /**
    * @member {string} [name] Name of the parameter
    */
@@ -14,4 +14,4 @@ export interface MessagingExtensionParameter {
    * @member {any} [value] Value of the parameter
    */
   value?: any;
-}
+};

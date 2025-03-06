@@ -1,18 +1,16 @@
-import { ActivityBase, ActivityBaseBuilder } from './base';
+import { IActivity, ActivityBaseBuilder } from './activity';
 
-export interface TypingActivity extends ActivityBase {
-  readonly type: 'typing';
-
+export interface ITypingActivity extends IActivity<'typing'> {
   /**
    * The text content of the message.
    */
   text?: string;
 }
 
-export class TypingActivityBuilder extends ActivityBaseBuilder<TypingActivity> {
-  activity: Pick<TypingActivity, 'type'> & Partial<TypingActivity>;
+export class TypingActivityBuilder extends ActivityBaseBuilder<ITypingActivity> {
+  activity: Pick<ITypingActivity, 'type'> & Partial<ITypingActivity>;
 
-  constructor(options?: Omit<Partial<TypingActivity>, 'type'>) {
+  constructor(options?: Omit<Partial<ITypingActivity>, 'type'>) {
     super();
     this.activity = {
       ...options,
@@ -29,6 +27,6 @@ export class TypingActivityBuilder extends ActivityBaseBuilder<TypingActivity> {
   }
 }
 
-export function TypingActivity(options?: Omit<Partial<TypingActivity>, 'type'>) {
+export function TypingActivity(options?: Omit<Partial<ITypingActivity>, 'type'>) {
   return new TypingActivityBuilder(options);
 }

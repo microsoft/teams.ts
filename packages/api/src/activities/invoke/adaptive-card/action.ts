@@ -1,9 +1,7 @@
 import { AdaptiveCardInvokeValue } from '../../../models';
-import { ActivityBase } from '../../base';
+import { IActivity } from '../../activity';
 
-export interface AdaptiveCardActionInvokeActivity extends ActivityBase {
-  readonly type: 'invoke';
-
+export interface IAdaptiveCardActionInvokeActivity extends IActivity<'invoke'> {
   /**
    * The name of the operation associated with an invoke or event activity.
    */

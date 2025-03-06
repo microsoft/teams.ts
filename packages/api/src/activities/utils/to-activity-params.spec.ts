@@ -1,6 +1,6 @@
 import { Card, CodeBlock } from '@microsoft/spark.cards';
 
-import { MessageSendActivity } from '../message';
+import { MessageActivityBuilder } from '../message';
 import { toActivityParams } from './to-activity-params';
 
 describe('Activity Utils', () => {
@@ -14,7 +14,7 @@ describe('Activity Utils', () => {
     });
 
     it('should convert builder to message activity', () => {
-      const activity = toActivityParams(MessageSendActivity('testing123'));
+      const activity = toActivityParams(new MessageActivityBuilder('testing123'));
       expect(activity).toEqual({
         type: 'message',
         text: 'testing123',
@@ -31,7 +31,7 @@ describe('Activity Utils', () => {
 
       const activity = toActivityParams(card);
 
-      expect(activity).toEqual(MessageSendActivity('').card('adaptive', card).build());
+      expect(activity).toEqual(new MessageActivityBuilder('').card('adaptive', card).build());
     });
   });
 });

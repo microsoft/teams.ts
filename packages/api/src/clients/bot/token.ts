@@ -3,12 +3,12 @@ import { Client, ClientOptions } from '@microsoft/spark.common/http';
 
 import { Credentials } from '../../auth';
 
-export interface GetBotTokenResponse {
+export type GetBotTokenResponse = {
   readonly token_type: 'Bearer';
   readonly expires_in: number;
   readonly ext_expires_in?: number;
   readonly access_token: string;
-}
+};
 
 export class BotTokenClient {
   get http() {

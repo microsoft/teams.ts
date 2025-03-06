@@ -1,10 +1,10 @@
 /**
- * @interface
+ *
  * An interface representing NotificationInfo.
  * Specifies if a notification is to be sent for the mentions.
  *
  */
-export interface NotificationInfo {
+export type NotificationInfo = {
   /**
    * @member {boolean} [alert] true if notification is to be sent to the user,
    * false otherwise.
@@ -21,4 +21,4 @@ export interface NotificationInfo {
    * @member {string} [externalResourceUrl] the value of the notification's external resource url
    */
   externalResourceUrl?: string;
-}
+};

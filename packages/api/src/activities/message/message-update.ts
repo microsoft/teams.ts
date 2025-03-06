@@ -1,9 +1,7 @@
 import { ChannelData } from '../../models';
-import { ActivityBase, ActivityBaseBuilder } from '../base';
+import { IActivity, ActivityBaseBuilder } from '../activity';
 
-export interface MessageUpdateActivity extends ActivityBase {
-  readonly type: 'messageUpdate';
-
+export interface IMessageUpdateActivity extends IActivity<'messageUpdate'> {
   /**
    * The text content of the message.
    */
@@ -35,12 +33,12 @@ export interface MessageUpdateActivity extends ActivityBase {
   };
 }
 
-export class MessageUpdateActivityBuilder extends ActivityBaseBuilder<MessageUpdateActivity> {
-  activity: Pick<MessageUpdateActivity, 'type'> & Partial<MessageUpdateActivity>;
+export class MessageUpdateActivityBuilder extends ActivityBaseBuilder<IMessageUpdateActivity> {
+  activity: Pick<IMessageUpdateActivity, 'type'> & Partial<IMessageUpdateActivity>;
 
   constructor(
     eventType: 'undeleteMessage' | 'editMessage',
-    options?: Omit<Partial<MessageUpdateActivity>, 'type'>
+    options?: Omit<Partial<IMessageUpdateActivity>, 'type'>
   ) {
     super();
     this.activity = {
@@ -89,7 +87,7 @@ export class MessageUpdateActivityBuilder extends ActivityBaseBuilder<MessageUpd
 
 export function MessageUpdateActivity(
   eventType: 'undeleteMessage' | 'editMessage',
-  options?: Omit<Partial<MessageUpdateActivity>, 'type'>
+  options?: Omit<Partial<IMessageUpdateActivity>, 'type'>
 ) {
   return new MessageUpdateActivityBuilder(eventType, options);
 }

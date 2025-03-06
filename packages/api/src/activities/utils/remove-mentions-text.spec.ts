@@ -1,9 +1,9 @@
-import { MessageSendActivity } from '../message';
+import { IMessageActivity } from '../message';
 import { removeMentionsText } from './remove-mentions-text';
 
 describe('Activity Utils', () => {
   describe('removeMentionsText', () => {
-    const activity: MessageSendActivity = {
+    const activity: IMessageActivity = {
       id: '1',
       type: 'message',
       channelId: 'msteams',

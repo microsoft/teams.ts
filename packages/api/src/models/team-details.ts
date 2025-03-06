@@ -1,9 +1,9 @@
 /**
- * @interface
+ *
  * An interface representing TeamDetails.
  * Details related to a team
  */
-export interface TeamDetails {
+export type TeamDetails = {
   /**
    * @member {string} [id] Unique identifier representing a team
    */
@@ -35,4 +35,4 @@ export interface TeamDetails {
    * the team.
    */
   memberCount?: number;
-}
+};

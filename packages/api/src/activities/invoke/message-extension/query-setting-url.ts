@@ -1,10 +1,8 @@
 import { ConversationReference, MessagingExtensionQuery } from '../../../models';
 
-import { ActivityBase } from '../../base';
+import { IActivity } from '../../activity';
 
-export interface MessageExtensionQuerySettingUrlInvokeActivity extends ActivityBase {
-  readonly type: 'invoke';
-
+export interface IMessageExtensionQuerySettingUrlInvokeActivity extends IActivity<'invoke'> {
   /**
    * The name of the operation associated with an invoke or event activity.
    */

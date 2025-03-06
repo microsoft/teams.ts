@@ -1,10 +1,10 @@
 import { Account, ConversationAccount } from '../models';
-import { ActivityBaseBuilder, ActivityBase } from './base';
+import { ActivityBaseBuilder, IActivity } from './activity';
 
-class ExampleActivityBuilder extends ActivityBaseBuilder<ActivityBase<'example'>> {
-  activity: Pick<ActivityBase<'example'>, 'type'> & Partial<ActivityBase<'example'>>;
+class ExampleActivityBuilder extends ActivityBaseBuilder<IActivity<'example'>> {
+  activity: Pick<IActivity<'example'>, 'type'> & Partial<IActivity<'example'>>;
 
-  constructor(options?: Omit<Partial<ActivityBase<'example'>>, 'type'>) {
+  constructor(options?: Omit<Partial<IActivity<'example'>>, 'type'>) {
     super();
     this.activity = {
       ...options,

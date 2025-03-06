@@ -1,18 +1,16 @@
 import { ChannelData } from '../../models';
-import { ActivityBase, ActivityBaseBuilder } from '../base';
+import { IActivity, ActivityBaseBuilder } from '../activity';
 
-export interface MessageDeleteActivity extends ActivityBase {
-  readonly type: 'messageDelete';
-
+export interface IMessageDeleteActivity extends IActivity<'messageDelete'> {
   channelData: ChannelData & {
     eventType: 'softDeleteMessage';
   };
 }
 
-export class MessageDeleteActivityBuilder extends ActivityBaseBuilder<MessageDeleteActivity> {
-  activity: Pick<MessageDeleteActivity, 'type'> & Partial<MessageDeleteActivity>;
+export class MessageDeleteActivityBuilder extends ActivityBaseBuilder<IMessageDeleteActivity> {
+  activity: Pick<IMessageDeleteActivity, 'type'> & Partial<IMessageDeleteActivity>;
 
-  constructor(options?: Omit<Partial<MessageDeleteActivity>, 'type'>) {
+  constructor(options?: Omit<Partial<IMessageDeleteActivity>, 'type'>) {
     super();
     this.activity = {
       ...options,
@@ -25,6 +23,6 @@ export class MessageDeleteActivityBuilder extends ActivityBaseBuilder<MessageDel
   }
 }
 
-export function MessageDeleteActivity(options?: Omit<Partial<MessageDeleteActivity>, 'type'>) {
+export function MessageDeleteActivity(options?: Omit<Partial<IMessageDeleteActivity>, 'type'>) {
   return new MessageDeleteActivityBuilder(options);
 }

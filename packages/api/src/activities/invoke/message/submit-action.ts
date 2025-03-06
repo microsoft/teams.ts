@@ -1,10 +1,8 @@
 import { ConversationReference } from '../../../models';
 
-import { ActivityBase } from '../../base';
+import { IActivity } from '../../activity';
 
-export interface MessageSubmitActionInvokeActivity extends ActivityBase {
-  readonly type: 'invoke';
-
+export interface IMessageSubmitActionInvokeActivity extends IActivity<'invoke'> {
   /**
    * The name of the operation associated with an invoke or event activity.
    */

@@ -1,8 +1,7 @@
 /**
- * @interface
  * An interface representing TokenExchangeResource.
  */
-export interface TokenExchangeResource {
+export type TokenExchangeResource = {
   /**
    * @member {string} [id]
    */
@@ -17,4 +16,4 @@ export interface TokenExchangeResource {
    * @member {string} [providerId]
    */
   providerId?: string;
-}
+};

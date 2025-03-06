@@ -1,9 +1,9 @@
 import { Card, TextBlock } from '@microsoft/spark.cards';
 
 import { Account, cardAttachment } from '../../models';
-import { MessageSendActivity } from './message-send';
+import { MessageActivity } from './message';
 
-describe('MessageSendActivity', () => {
+describe('MessageActivity', () => {
   const user: Account = {
     id: '1',
     name: 'test',
@@ -13,7 +13,7 @@ describe('MessageSendActivity', () => {
   it('should build', () => {
     const expiration = new Date();
     const card = Card([TextBlock('hello world')]);
-    const activity = MessageSendActivity('test')
+    const activity = MessageActivity('test')
       .text('hello world')
       .speak('say something')
       .inputHint('acceptingInput')

@@ -3,7 +3,7 @@ import {
   ActivityParams,
   ConversationReference,
   InvokeResponse,
-  Token,
+  IToken,
 } from '@microsoft/spark.api';
 import { EventHandler, Logger } from '@microsoft/spark.common';
 
@@ -24,7 +24,7 @@ export interface ActivityReceivedEvent {
   /**
    * inbound request token
    */
-  token: Token;
+  token: IToken;
 
   /**
    * inbound request activity payload

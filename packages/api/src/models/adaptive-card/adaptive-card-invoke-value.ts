@@ -5,7 +5,7 @@ import { AdaptiveCardInvokeAction } from './adaptive-card-invoke-action';
  * Defines the structure that arrives in the Activity.Value for Invoke activity with
  * Name of 'adaptiveCard/action'.
  */
-export interface AdaptiveCardInvokeValue {
+export type AdaptiveCardInvokeValue = {
   /**
    * The [AdaptiveCardInvokeAction](xref:botframework-schema.AdaptiveCardInvokeAction) of
    * this adaptive card invoke action value.
@@ -27,4 +27,4 @@ export interface AdaptiveCardInvokeValue {
    * What triggered the action
    */
   trigger?: 'manual';
-}
+};

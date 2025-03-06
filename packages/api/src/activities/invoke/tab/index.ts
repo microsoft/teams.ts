@@ -1,7 +1,7 @@
-import { TabFetchInvokeActivity } from './tab-fetch';
-import { TabSubmitInvokeActivity } from './tab-submit';
+import { ITabFetchInvokeActivity } from './tab-fetch';
+import { ITabSubmitInvokeActivity } from './tab-submit';
 
-export type TabInvokeActivity = TabFetchInvokeActivity | TabSubmitInvokeActivity;
+export type TabInvokeActivity = ITabFetchInvokeActivity | ITabSubmitInvokeActivity;
 
 export * from './tab-fetch';
 export * from './tab-submit';

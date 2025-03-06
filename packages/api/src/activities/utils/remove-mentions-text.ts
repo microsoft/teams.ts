@@ -1,10 +1,10 @@
-import { MessageSendActivity, MessageUpdateActivity } from '../message';
-import { TypingActivity } from '../typing';
+import { IMessageActivity, IMessageUpdateActivity } from '../message';
+import { ITypingActivity } from '../typing';
 
 /**
  * any activity type that has a `text` property
  */
-type TextActivity = MessageSendActivity | MessageUpdateActivity | TypingActivity;
+type TextActivity = IMessageActivity | IMessageUpdateActivity | ITypingActivity;
 
 export interface RemoveMentionsTextOptions {
   /**

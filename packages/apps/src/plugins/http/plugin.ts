@@ -7,7 +7,7 @@ import {
   JsonWebToken,
   ConversationReference,
   Client,
-  Token,
+  IToken,
 } from '@microsoft/spark.api';
 import { ConsoleLogger, Logger, EventEmitter, EventHandler } from '@microsoft/spark.common';
 
@@ -175,7 +175,7 @@ export class HttpPlugin implements Plugin {
     }
 
     const activity: Activity = req.body;
-    const token: Token = authorization
+    const token: IToken = authorization
       ? new JsonWebToken(authorization)
       : {
           appId: '',
