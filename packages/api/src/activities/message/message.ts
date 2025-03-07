@@ -279,4 +279,13 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
   addCard<T extends CardAttachmentType>(type: T, content: CardAttachmentTypes[T]['content']) {
     return this.addAttachments(cardAttachment(type, content));
   }
+
+  /**
+   * is the recipient account mentioned
+   */
+  isRecipientMentioned() {
+    return (this.entities || [])
+      .filter((e) => e.type === 'mention')
+      .some((e) => e.mentioned.id === this.recipient.id);
+  }
 }
