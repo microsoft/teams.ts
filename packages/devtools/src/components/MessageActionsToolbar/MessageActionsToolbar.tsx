@@ -90,7 +90,7 @@ const MessageActionsToolbar: FC<MessageActionsProps> = ({
           <Tooltip
             content={<span className={classes.tooltipText}>{reaction}</span>}
             relationship="label"
-            key={reaction}
+            key={`toolbar-${reaction}`}
           >
             <ToolbarToggleButton
               as="button"
@@ -100,7 +100,7 @@ const MessageActionsToolbar: FC<MessageActionsProps> = ({
               size="small"
               name={reaction}
               value={reaction}
-              onClick={(_e) => {
+              onClick={() => {
                 const reactionActivity = createReactionActivity(reaction, reactionSender);
                 handleMessageReaction(value.id, reactionActivity);
               }}

@@ -6,7 +6,7 @@ interface ChatAvatarProps {
 
 const useClasses = makeStyles({
   avatarSpacer: {
-    margin: tokens.spacingHorizontalXXL,
+    marginTop: tokens.spacingVerticalXXL,
   },
   avatar: {
     alignSelf: 'flex-start',
@@ -17,8 +17,7 @@ const ChatAvatarWrapper: FC<ChatAvatarProps> = ({ isConnected }) => {
   const classes = useClasses();
 
   return (
-    <div id="avatar" className={classes.avatar}>
-      <div className={classes.avatarSpacer} />
+    <div id="avatar" className={(classes.avatar, classes.avatarSpacer)}>
       <Avatar name="User" badge={{ status: isConnected ? 'available' : 'offline' }} size={40} />
     </div>
   );

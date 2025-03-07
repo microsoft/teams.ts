@@ -11,14 +11,15 @@ import {
   Tooltip,
   Image,
 } from '@fluentui/react-components';
+import { Message, MessageReaction, MessageUser, Attachment } from '@microsoft/spark.api';
+
 import MessageActionsToolbar, {
   MessageReactionsEmoji,
 } from '../MessageActionsToolbar/MessageActionsToolbar';
-import { Message, MessageReaction, MessageUser, Attachment } from '@microsoft/spark.api';
 import { ChatContext } from '../../stores/ChatStore';
 import useSparkApi from '../../hooks/useSparkApi';
-import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
 import { AttachmentType } from '../../types/Attachment';
+import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
 
 import Logger from '../Logger/Logger';
 
