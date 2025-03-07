@@ -1,5 +1,5 @@
 import { App } from './app';
-import { IMiddlewareContext } from './contexts';
+import { IActivityContext } from './contexts';
 import { IRoutes } from './routes';
 import { RouteHandler } from './types';
 
@@ -45,7 +45,7 @@ export function message(
  * register a middleware
  * @param cb callback to invoke
  */
-export function use(this: App, cb: RouteHandler<IMiddlewareContext>) {
+export function use(this: App, cb: RouteHandler<IActivityContext>) {
   this.router.use(cb);
   return this;
 }

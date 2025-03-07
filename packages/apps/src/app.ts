@@ -30,7 +30,7 @@ import { $process } from './app.process';
 import { getPlugin, plugin } from './app.plugins';
 import { message, on, use } from './app.routing';
 import { configTab, func, tab } from './app.embed';
-import { onSignIn, onSignOut, onTokenExchange, onVerifyState } from './app.oauth';
+import { onTokenExchange, onVerifyState } from './app.oauth';
 import {
   event,
   onActivityError,
@@ -395,8 +395,6 @@ export class App {
   /// OAuth
   ///
 
-  protected onSignIn = onSignIn;
-  protected onSignOut = onSignOut;
   protected onTokenExchange = onTokenExchange;
   protected onVerifyState = onVerifyState;
 

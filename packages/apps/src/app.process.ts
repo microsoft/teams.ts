@@ -1,9 +1,9 @@
-import { Activity, ConversationReference, toActivityParams } from '@microsoft/spark.api';
+import { ConversationReference } from '@microsoft/spark.api';
 
 import { App } from './app';
 import { ApiClient } from './api';
 import { IActivityReceivedEvent, ISenderPlugin } from './types';
-import { IActivityContext, IMiddlewareContext } from './contexts';
+import { ActivityContext, IActivityContext } from './contexts';
 
 /**
  * activity handler called when an inbound activity is received
@@ -77,10 +77,17 @@ export async function $process(this: App, sender: ISenderPlugin, event: IActivit
     }
   }
 
-  const ctx: IActivityContext<Activity> = {
+  let i = 0;
+  const next = (ctx?: IActivityContext) => {
+    if (i === routes.length - 1) return;
+    i++;
+    return routes[i](ctx || context.toInterface());
+  };
+
+  const context = await ActivityContext.new(sender, {
     ...event,
+    next,
     plugin: sender.name,
-    sender: undefined,
     api,
     appId: this.id || '',
     log: this.log,
@@ -88,46 +95,15 @@ export async function $process(this: App, sender: ISenderPlugin, event: IActivit
     ref,
     storage: this.storage,
     isSignedIn: !!userToken,
-  };
-
-  let i = 0;
-  const stream = sender.onStreamOpen ? await sender.onStreamOpen(ref) : undefined;
-  const routeCtx: IMiddlewareContext<Activity> = {
-    ...ctx,
-    stream: {
-      emit(activity) {
-        stream?.emit(activity);
-      },
-      close() {
-        stream?.close();
-      },
-    },
-    next: (context) => {
-      if (i === routes.length - 1) return;
-      i++;
-      return routes[i](context || routeCtx);
-    },
-    send: async (activity) => {
-      const res = await sender.onSend(toActivityParams(activity), ref);
-      return res;
-    },
-    reply: async (activity) => {
-      activity = toActivityParams(activity);
-      activity.replyToId = ctx.activity.id;
-      const res = await sender.onSend(activity, ref);
-      return res;
-    },
-    signin: this.onSignIn(ctx, sender),
-    signout: this.onSignOut(ctx),
-  };
+  });
 
   if (routes.length === 0) {
     return { status: 200 };
   }
 
   try {
-    const res = (await routes[0](routeCtx)) || { status: 200 };
-    await stream?.close();
+    const res = (await routes[0](context.toInterface())) || { status: 200 };
+    await context.stream.close();
     this.events.emit('activity.response', {
       plugin: sender.name,
       activity,
@@ -135,7 +111,7 @@ export async function $process(this: App, sender: ISenderPlugin, event: IActivit
       response: res,
     });
   } catch (err: any) {
-    this.onActivityError({ ...routeCtx, err });
+    this.onActivityError({ ...context.toInterface(), err });
     this.events.emit('activity.response', {
       plugin: sender.name,
       activity,

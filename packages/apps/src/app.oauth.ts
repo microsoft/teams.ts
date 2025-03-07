@@ -1,106 +1,17 @@
 import { AxiosError } from 'axios';
 import {
-  cardAttachment,
-  ConversationAccount,
   ISignInTokenExchangeInvokeActivity,
   ISignInVerifyStateInvokeActivity,
   TokenExchangeInvokeResponse,
-  TokenExchangeState,
 } from '@microsoft/spark.api';
 import * as graph from '@microsoft/spark.graph';
 
 import { App } from './app';
-import { ISenderPlugin } from './types';
 import * as contexts from './contexts';
-
-export function onSignIn(this: App, ctx: contexts.IActivityContext, sender: ISenderPlugin) {
-  const { appId, api, ref, activity } = ctx;
-
-  return async (name = 'graph', text = 'Please Sign In...') => {
-    const convo = { ...ref };
-
-    try {
-      const res = await api.users.token.get({
-        channelId: activity.channelId,
-        userId: activity.from.id,
-        connectionName: name,
-      });
-
-      return res.token;
-    } catch (err) {
-      // noop
-    }
-
-    // create new 1:1 conversation with user to do SSO
-    // because groupchats don't support it.
-    if (activity.conversation.isGroup) {
-      const res = await api.conversations.create({
-        tenantId: activity.conversation.tenantId,
-        isGroup: false,
-        bot: { id: activity.recipient.id },
-        members: [activity.from],
-      });
-
-      await sender.onSend(
-        {
-          type: 'message',
-          text,
-        },
-        ref
-      );
-
-      convo.conversation = { id: res.id } as ConversationAccount;
-    }
-
-    const tokenExchangeState: TokenExchangeState = {
-      connectionName: name,
-      conversation: convo,
-      relatesTo: activity.relatesTo,
-      msAppId: appId,
-    };
-
-    const state = Buffer.from(JSON.stringify(tokenExchangeState)).toString('base64');
-    const resource = await api.bots.signIn.getResource({ state });
-
-    await sender.onSend(
-      {
-        type: 'message',
-        inputHint: 'acceptingInput',
-        recipient: activity.from,
-        attachments: [
-          cardAttachment('oauth', {
-            text,
-            connectionName: name,
-            tokenExchangeResource: resource.tokenExchangeResource,
-            tokenPostResource: resource.tokenPostResource,
-            buttons: [
-              {
-                type: 'signin',
-                title: 'Sign In',
-                value: resource.signInLink,
-              },
-            ],
-          }),
-        ],
-      },
-      ref
-    );
-  };
-}
-
-export function onSignOut(this: App, { activity, api }: contexts.IActivityContext) {
-  return async (name = 'graph') => {
-    await api.users.token.signOut({
-      channelId: activity.channelId,
-      userId: activity.from.id,
-      connectionName: name,
-    });
-  };
-}
 
 export async function onTokenExchange(
   this: App,
-  ctx: contexts.IMiddlewareContext<ISignInTokenExchangeInvokeActivity>
+  ctx: contexts.IActivityContext<ISignInTokenExchangeInvokeActivity>
 ) {
   const { api, activity, storage } = ctx;
   const key = `auth/${activity.conversation.id}/${activity.from.id}`;
@@ -148,7 +59,7 @@ export async function onTokenExchange(
 
 export async function onVerifyState(
   this: App,
-  ctx: contexts.IMiddlewareContext<ISignInVerifyStateInvokeActivity>
+  ctx: contexts.IActivityContext<ISignInVerifyStateInvokeActivity>
 ) {
   const { plugin, api, activity, storage } = ctx;
   const key = `auth/${activity.conversation.id}/${activity.from.id}`;

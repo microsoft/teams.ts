@@ -2,7 +2,7 @@ import { Activity } from '@microsoft/spark.api';
 
 import { EVENT_ALIASES, IRoutes, INVOKE_ALIASES } from './routes';
 import { RouteHandler } from './types';
-import { IMiddlewareContext } from './contexts';
+import { IActivityContext } from './contexts';
 
 type Route<Name extends keyof IRoutes = keyof IRoutes> = {
   readonly name?: Name;
@@ -20,7 +20,7 @@ export class Router {
   select(activity: Activity) {
     return this.routes
       .filter((r) => r.select(activity))
-      .map((r) => r.callback as RouteHandler<IMiddlewareContext, any>);
+      .map((r) => r.callback as RouteHandler<IActivityContext, any>);
   }
 
   /**
@@ -36,7 +36,7 @@ export class Router {
    * register a middleware
    * @param callback the callback to invoke
    */
-  use(callback: RouteHandler<IMiddlewareContext>) {
+  use(callback: RouteHandler<IActivityContext>) {
     this.register({
       select: () => true,
       callback,

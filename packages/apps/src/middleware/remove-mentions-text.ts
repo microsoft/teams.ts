@@ -1,9 +1,9 @@
 import * as api from '@microsoft/spark.api';
 
-import { IMiddlewareContext } from '../contexts';
+import { IActivityContext } from '../contexts';
 
 export function removeMentionsText(options?: api.RemoveMentionsTextOptions) {
-  return ({ activity, next }: IMiddlewareContext) => {
+  return ({ activity, next }: IActivityContext) => {
     if (
       activity.type === 'message' ||
       activity.type === 'messageUpdate' ||
