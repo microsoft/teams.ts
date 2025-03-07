@@ -5,6 +5,7 @@ export interface ILoggerOptions {
    * Minimum severity level to log. When provided, log entries with lower severity are ignored.
    */
   readonly level?: LogLevel;
+
   /**
    * Logger name filter pattern. May contain wild cards.
    * When provided, the logger is only enabled if its name matches the pattern.

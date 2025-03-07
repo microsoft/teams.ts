@@ -1,18 +1,6 @@
 import { ANSI } from './ansi';
 import { ILogger, ILoggerOptions, LogLevel } from './logger';
 
-const parseLogLevel = (level?: string): LogLevel | undefined => {
-  const value = level?.toLowerCase();
-  switch (value) {
-    case 'error':
-    case 'warn':
-    case 'info':
-    case 'debug':
-      return value;
-    default:
-      return undefined;
-  }
-};
 export class ConsoleLogger implements ILogger {
   protected readonly name: string;
   protected readonly level: LogLevel;
@@ -102,4 +90,17 @@ function parseMagicExpr(pattern: string) {
   }
 
   return new RegExp(res);
+}
+
+function parseLogLevel(level?: string): LogLevel | undefined {
+  const value = level?.toLowerCase();
+  switch (value) {
+    case 'error':
+    case 'warn':
+    case 'info':
+    case 'debug':
+      return value;
+    default:
+      return undefined;
+  }
 }
