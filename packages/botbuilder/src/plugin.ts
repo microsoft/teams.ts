@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { App, HttpPlugin } from '@microsoft/spark.apps';
-import { Activity, JsonWebToken } from '@microsoft/spark.api';
+import { $Activity, Activity, JsonWebToken } from '@microsoft/spark.api';
 
 import {
   ActivityHandler,
@@ -82,7 +82,7 @@ export class BotBuilderPlugin extends HttpPlugin {
         this.pending[context.activity.id] = res;
         this.events.emit('activity.received', {
           token: new JsonWebToken(authorization),
-          activity: context.activity as Activity,
+          activity: new $Activity(context.activity as any) as Activity,
         });
       });
     } catch (err) {

@@ -44,4 +44,72 @@ describe('MessageReactionActivity', () => {
       },
     ]);
   });
+
+  it('should build from interface', () => {
+    const activity = MessageReactionActivity.from(
+      new MessageReactionActivity()
+        .addReaction({
+          type: 'angry',
+          user: a,
+        })
+        .addReaction({
+          type: 'heart',
+          user: b,
+        })
+        .removeReaction({
+          type: 'heart',
+          user: b,
+        })
+        .toInterface()
+    );
+
+    expect(activity.type).toEqual('messageReaction');
+    expect(activity.reactionsAdded).toStrictEqual([
+      {
+        type: 'angry',
+        user: a,
+      },
+    ]);
+
+    expect(activity.reactionsRemoved).toStrictEqual([
+      {
+        type: 'heart',
+        user: b,
+      },
+    ]);
+  });
+
+  it('should clone', () => {
+    const activity = MessageReactionActivity.from(
+      new MessageReactionActivity()
+        .addReaction({
+          type: 'angry',
+          user: a,
+        })
+        .addReaction({
+          type: 'heart',
+          user: b,
+        })
+        .removeReaction({
+          type: 'heart',
+          user: b,
+        })
+        .toInterface()
+    ).clone();
+
+    expect(activity.type).toEqual('messageReaction');
+    expect(activity.reactionsAdded).toStrictEqual([
+      {
+        type: 'angry',
+        user: a,
+      },
+    ]);
+
+    expect(activity.reactionsRemoved).toStrictEqual([
+      {
+        type: 'heart',
+        user: b,
+      },
+    ]);
+  });
 });

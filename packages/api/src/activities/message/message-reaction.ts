@@ -37,6 +37,30 @@ export class MessageReactionActivity
   }
 
   /**
+   * initialize from interface
+   */
+  static from(activity: IMessageReactionActivity) {
+    return new MessageReactionActivity(activity);
+  }
+
+  /**
+   * convert to interface
+   */
+  toInterface(): IMessageReactionActivity {
+    return Object.assign({}, this);
+  }
+
+  /**
+   * copy to a new instance
+   */
+  clone(options: Omit<Partial<IMessageReactionActivity>, 'type'> = {}) {
+    return new MessageReactionActivity({
+      ...this.toInterface(),
+      ...options,
+    });
+  }
+
+  /**
    * Add a message reaction.
    */
   addReaction(reaction: MessageReaction) {

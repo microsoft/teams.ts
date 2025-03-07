@@ -2,10 +2,14 @@ import {
   Account,
   ChannelData,
   ChannelID,
+  ChannelInfo,
   CitationAppearance,
   ConversationAccount,
   ConversationReference,
   Entity,
+  MeetingInfo,
+  NotificationInfo,
+  TeamInfo,
 } from '../models';
 
 export interface IActivity<T extends string = string> {
@@ -84,6 +88,26 @@ export interface IActivity<T extends string = string> {
    * Contains channel-specific content.
    */
   channelData?: ChannelData;
+
+  /**
+   * Information about the channel in which the message was sent.
+   */
+  get channel(): ChannelInfo | undefined;
+
+  /**
+   * Information about the team in which the message was sent.
+   */
+  get team(): TeamInfo | undefined;
+
+  /**
+   * Information about the tenant in which the message was sent.
+   */
+  get meeting(): MeetingInfo | undefined;
+
+  /**
+   * Notification settings for the message.
+   */
+  get notification(): NotificationInfo | undefined;
 }
 
 export class Activity<T extends string = string> implements IActivity<T> {
@@ -163,8 +187,61 @@ export class Activity<T extends string = string> implements IActivity<T> {
    */
   channelData?: ChannelData;
 
+  /**
+   * Information about the tenant in which the message was sent.
+   */
+  get tenant() {
+    return this.channelData?.tenant;
+  }
+
+  /**
+   * Information about the channel in which the message was sent.
+   */
+  get channel() {
+    return this.channelData?.channel;
+  }
+
+  /**
+   * Information about the team in which the message was sent.
+   */
+  get team() {
+    return this.channelData?.team;
+  }
+
+  /**
+   * Information about the tenant in which the message was sent.
+   */
+  get meeting() {
+    return this.channelData?.meeting;
+  }
+
+  /**
+   * Notification settings for the message.
+   */
+  get notification() {
+    return this.channelData?.notification;
+  }
+
   constructor(value: Pick<IActivity<T>, 'type'> & Partial<Omit<IActivity<T>, 'type'>>) {
-    Object.assign(this, value);
+    Object.assign(this, {
+      channelId: 'msteams',
+      ...value,
+    });
+  }
+
+  static from(activity: IActivity) {
+    return new Activity(activity);
+  }
+
+  toInterface(): IActivity {
+    return Object.assign({}, this);
+  }
+
+  clone(options: Omit<Partial<IActivity>, 'type'> = {}) {
+    return new Activity({
+      ...this.toInterface(),
+      ...options,
+    });
   }
 
   withId(value: string) {

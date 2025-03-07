@@ -1,5 +1,5 @@
-import { IMiddlewareContext } from '../contexts';
+import { IActivityContext } from '../contexts';
 
-export type RouteHandler<In extends IMiddlewareContext<any>, Out = void> = (
+export type RouteHandler<In extends IActivityContext<any>, Out = void> = (
   ctx: In
 ) => Out | Promise<Out>;

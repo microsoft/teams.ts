@@ -1,15 +1,15 @@
 import { ILogger } from '@microsoft/spark.common';
 
-import { IErrorMiddlewareContext, ISignInMiddlewareContext } from '../contexts';
+import { IActivityErrorContext, IActivitySignInContext } from '../contexts';
 import {
   IActivityBeforeSentEvent,
   IActivityResponseEvent,
   IActivityReceivedEvent,
   IActivitySentEvent,
 } from '../types';
-import { ErrorEventArgs } from './error';
+import { ErrorEvent } from './error';
 
-export interface IAppActivityErrorEvent extends IErrorMiddlewareContext {
+export interface IAppActivityErrorEvent extends IActivityErrorContext {
   /**
    * the unique name of the plugin that
    * emitted the event
@@ -51,8 +51,8 @@ export interface IAppActivityBeforeSentEvent extends IActivityBeforeSentEvent {
 
 export interface IEvents {
   start: ILogger;
-  signin: ISignInMiddlewareContext;
-  error: ErrorEventArgs;
+  signin: IActivitySignInContext;
+  error: ErrorEvent;
   'activity.error': IAppActivityErrorEvent;
   'activity.received': IAppActivityReceivedEvent;
   'activity.response': IAppActivityResponseEvent;
@@ -60,4 +60,4 @@ export interface IEvents {
   'activity.before.sent': IAppActivityBeforeSentEvent;
 }
 
-export { ErrorEventArgs };
+export { ErrorEvent };

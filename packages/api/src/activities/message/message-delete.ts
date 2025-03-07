@@ -33,4 +33,28 @@ export class MessageDeleteActivity
       },
     });
   }
+
+  /**
+   * initialize from interface
+   */
+  static from(activity: IMessageDeleteActivity) {
+    return new MessageDeleteActivity(activity);
+  }
+
+  /**
+   * convert to interface
+   */
+  toInterface(): IMessageDeleteActivity {
+    return Object.assign({}, this);
+  }
+
+  /**
+   * copy to a new instance
+   */
+  clone(options: Omit<Partial<IMessageDeleteActivity>, 'type'> = {}) {
+    return new MessageDeleteActivity({
+      ...this.toInterface(),
+      ...options,
+    });
+  }
 }

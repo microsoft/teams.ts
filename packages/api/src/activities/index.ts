@@ -29,3 +29,4 @@ export * from './conversation';
 export * from './command';
 export * from './install-update';
 export * from './utils';
+export { IActivity, Activity as $Activity } from './activity';
