@@ -1,5 +1,19 @@
 # @microsoft/spark.devtools
 
+## 0.1.0
+
+### Minor Changes
+
+- devtools fixes, breaking type changes due to rename/refactor
+
+### Patch Changes
+
+- Updated dependencies
+    - @microsoft/spark.api@0.1.0
+    - @microsoft/spark.apps@0.1.0
+    - @microsoft/spark.cards@0.1.0
+    - @microsoft/spark.common@0.1.0
+
 ## 0.0.6
 
 ### Patch Changes

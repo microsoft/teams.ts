@@ -1,5 +1,11 @@
 # @microsoft/spark.botbuilder
 
+## 0.1.0
+
+### Minor Changes
+
+- devtools fixes, breaking type changes due to rename/refactor
+
 ## 0.0.6
 
 ### Patch Changes
