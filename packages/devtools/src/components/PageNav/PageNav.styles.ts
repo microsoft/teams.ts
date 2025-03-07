@@ -4,11 +4,13 @@ const usePageNavClasses = makeStyles({
   pageNavContainer: {
     flex: '0 0 auto',
     display: 'flex',
-    justifyContent: 'flex-end',
-    padding: '0.5rem 0',
+    alignContent: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
   navButtonContainer: {
     display: 'flex',
+    flexShrink: 1,
     alignItems: 'center',
     gap: tokens.spacingHorizontalL,
     marginRight: tokens.spacingHorizontalL,

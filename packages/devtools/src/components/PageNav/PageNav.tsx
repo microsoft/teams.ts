@@ -1,11 +1,18 @@
 import { FC, memo } from 'react';
+
+import DevtoolsBanner from '../DevtoolsBanner/DevtoolsBanner';
 import PageNavButton from '../PageNavButton/PageNavButton';
 import usePageNavClasses from './PageNav.styles';
 
-const PageNav: FC = memo(() => {
+interface PageNavProps {
+  connected: boolean;
+}
+
+const PageNav: FC<PageNavProps> = memo(({ connected }) => {
   const classes = usePageNavClasses();
   return (
     <nav id="top-nav" className={classes.pageNavContainer} aria-label="Page navigation">
+      <DevtoolsBanner connected={connected} />
       <div className={classes.navButtonContainer}>
         <PageNavButton to="/" iconType="chat" label="Chat" />
         <PageNavButton to="/cards" iconType="cards" label="Cards" />
