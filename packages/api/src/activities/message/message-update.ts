@@ -90,6 +90,30 @@ export class MessageUpdateActivity
   }
 
   /**
+   * initialize from interface
+   */
+  static from(activity: IMessageUpdateActivity) {
+    return new MessageUpdateActivity(activity.channelData.eventType, activity);
+  }
+
+  /**
+   * convert to interface
+   */
+  toInterface(): IMessageUpdateActivity {
+    return Object.assign({}, this);
+  }
+
+  /**
+   * copy to a new instance
+   */
+  clone(options: Omit<Partial<IMessageUpdateActivity>, 'type'> = {}) {
+    return new MessageUpdateActivity(this.channelData.eventType, {
+      ...this.toInterface(),
+      ...options,
+    });
+  }
+
+  /**
    * The text content of the message.
    */
   withText(value: string) {

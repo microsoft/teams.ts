@@ -315,11 +315,8 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
    * @param options options to customize the mention
    */
   addMention(account: Account, options: AddMentionOptions = {}) {
-    let { text, addText = true } = options;
-
-    if (!text) {
-      text = account.name;
-    }
+    const text = options.text || account.name;
+    const addText = options.addText || true;
 
     if (addText) {
       this.addText(`<at>${text}</at>`);

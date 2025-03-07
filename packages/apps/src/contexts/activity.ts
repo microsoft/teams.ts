@@ -6,8 +6,12 @@ import {
   cardAttachment,
   ConversationAccount,
   ConversationReference,
+  MessageActivity,
+  MessageDeleteActivity,
+  MessageUpdateActivity,
   toActivityParams,
   TokenExchangeState,
+  TypingActivity,
 } from '@microsoft/spark.api';
 
 import { ApiClient } from '../api';
@@ -128,6 +132,22 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
 
     if (!stream) {
       stream = { emit() {}, close() {} };
+    }
+
+    if (value.activity.type === 'message') {
+      value.activity = MessageActivity.from(value.activity).toInterface();
+    }
+
+    if (value.activity.type === 'messageUpdate') {
+      value.activity = MessageUpdateActivity.from(value.activity).toInterface();
+    }
+
+    if (value.activity.type === 'messageDelete') {
+      value.activity = MessageDeleteActivity.from(value.activity).toInterface();
+    }
+
+    if (value.activity.type === 'typing') {
+      value.activity = TypingActivity.from(value.activity).toInterface();
     }
 
     return new ActivityContext(plugin, stream, value);

@@ -22,10 +22,10 @@ import {
 import { router } from './routes';
 import { ActivityEvent, IEvent } from './event';
 
-interface ResolveRejctPromise<T = any> {
+type ResolveRejctPromise<T = any> = {
   readonly resolve: (value: T) => void;
   readonly reject: (err: any) => void;
-}
+};
 
 export class DevtoolsPlugin implements IPlugin {
   readonly name = 'devtools';

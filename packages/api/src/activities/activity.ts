@@ -223,18 +223,25 @@ export class Activity<T extends string = string> implements IActivity<T> {
   }
 
   constructor(value: Pick<IActivity<T>, 'type'> & Partial<Omit<IActivity<T>, 'type'>>) {
-    Object.assign(this, value);
+    Object.assign(this, {
+      channelId: 'msteams',
+      ...value,
+    });
   }
 
-  /**
-   * initialize from interface
-   */
   static from(activity: IActivity) {
     return new Activity(activity);
   }
 
   toInterface(): IActivity {
     return Object.assign({}, this);
+  }
+
+  clone(options: Omit<Partial<IActivity>, 'type'> = {}) {
+    return new Activity({
+      ...this.toInterface(),
+      ...options,
+    });
   }
 
   withId(value: string) {
