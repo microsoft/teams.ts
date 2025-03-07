@@ -1,9 +1,9 @@
 import { FC } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
-
 import { Message } from '@microsoft/spark.api';
-import { useClasses } from './ChatMessageContainer.styles';
+
 import { formatMessageTime } from '../../utils/date-format';
+import { useClasses } from './ChatMessageContainer.styles';
 import ChatAvatarWrapper from './ChatAvatarWrapper';
 
 export interface MessageProps {

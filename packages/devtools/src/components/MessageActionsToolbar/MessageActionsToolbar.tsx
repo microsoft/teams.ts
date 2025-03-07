@@ -163,3 +163,4 @@ const MessageActionsToolbar: FC<MessageActionsProps> = ({
 };
 
 export default MessageActionsToolbar;
+MessageActionsToolbar.displayName = 'MessageActionsToolbar';

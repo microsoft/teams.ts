@@ -1,4 +1,5 @@
 import { ComponentProps } from 'react';
+
 import { useJsonNumberClasses } from './Json.styles';
 
 export interface JsonNumberProps extends ComponentProps<'div'> {

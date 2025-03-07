@@ -20,7 +20,6 @@ import { ChatContext } from '../../stores/ChatStore';
 import useSparkApi from '../../hooks/useSparkApi';
 import { AttachmentType } from '../../types/Attachment';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
-
 import Logger from '../Logger/Logger';
 
 interface ChatMessageProps {

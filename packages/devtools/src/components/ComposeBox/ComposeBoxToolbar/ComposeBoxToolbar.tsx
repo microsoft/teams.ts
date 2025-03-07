@@ -25,14 +25,14 @@ import {
   ToastTitle,
   Toolbar,
   ToolbarButton,
+  ToolbarProps,
   ToolbarDivider,
   useId,
   useToastController,
 } from '@fluentui/react-components';
-import type { ToolbarProps } from '@fluentui/react-components';
+import { useNavigate } from 'react-router';
 
 import { useClasses } from './ComposeBoxToolbar.styles';
-import { useNavigate } from 'react-router';
 
 interface ComposeBoxToolbarProps extends ToolbarProps {
   onSend?: (attachments?: any[]) => void;

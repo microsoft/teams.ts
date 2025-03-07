@@ -9,7 +9,7 @@ const useClasses = makeStyles({
     width: '11rem',
     backgroundColor: tokens.colorNeutralBackground1,
     borderRight: `1px solid ${tokens.colorNeutralStencil1}`,
-   '@media (max-width: 700px)': {
+    '@media (max-width: 700px)': {
       display: 'none',
     },
   },
