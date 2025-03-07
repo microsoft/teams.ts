@@ -1,11 +1,23 @@
 import { ANSI } from './ansi';
 import { ILogger, ILoggerOptions, LogLevel } from './logger';
 
+const parseLogLevel = (level?: string): LogLevel | undefined => {
+  const value = level?.toLowerCase();
+  switch (value) {
+    case 'error':
+    case 'warn':
+    case 'info':
+    case 'debug':
+      return value;
+    default:
+      return undefined;
+  }
+};
 export class ConsoleLogger implements ILogger {
   protected readonly name: string;
   protected readonly level: LogLevel;
 
-  private readonly _pattern: RegExp;
+  private readonly _enabled: boolean;
   private readonly _levels = {
     error: 100,
     warn: 200,
@@ -22,8 +34,11 @@ export class ConsoleLogger implements ILogger {
 
   constructor(name: string, options?: ILoggerOptions) {
     this.name = name;
-    this.level = options?.level || 'info';
-    this._pattern = parseMagicExpr(process.env.LOG || '*');
+
+    const env = typeof process === 'undefined' ? undefined : process.env;
+    const logNamePattern = env?.LOG || options?.pattern || '*';
+    this._enabled = parseMagicExpr(logNamePattern).test(name);
+    this.level = parseLogLevel(env?.LOG_LEVEL) || options?.level || 'info';
   }
 
   error(...msg: any[]) {
@@ -43,11 +58,11 @@ export class ConsoleLogger implements ILogger {
   }
 
   log(level: LogLevel, ...msg: any[]) {
-    if (this._levels[level] > this._levels[this.level]) {
+    if (!this._enabled) {
       return;
     }
 
-    if (!this._pattern.test(this.name)) {
+    if (this._levels[level] > this._levels[this.level]) {
       return;
     }
 
