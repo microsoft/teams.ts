@@ -52,6 +52,41 @@ describe('ConsoleLogger', () => {
     expect(debugSpy).not.toHaveBeenCalled();
   });
 
+  it('should use default options when process is undefined', () => {
+    const originalProcess = global.process;
+    global.process = undefined as any;
+    const logger = new ConsoleLogger('test');
+    logger.info('This is an info message');
+    expect(infoSpy).toHaveBeenCalledTimes(1);
+
+    global.process = originalProcess;
+  });
+
+  it.each`
+    envLogLevel  | optionLogLevel
+    ${'error'}   | ${undefined}
+    ${'ERROR'}   | ${'info'}
+    ${undefined} | ${'error'}
+    ${'bogus'}   | ${'error'}
+  `(
+    'should log only error when environment variable is $envLogLevel and option log level is $optionLogLevel',
+    ({ envLogLevel, optionLogLevel }) => {
+      if (envLogLevel) {
+        process.env.LOG_LEVEL = envLogLevel;
+      }
+      const logger = new ConsoleLogger('test', { level: optionLogLevel });
+      logger.warn('This is a warning message');
+      expect(warnSpy).not.toHaveBeenCalled();
+      logger.info('This is an info message');
+      expect(infoSpy).not.toHaveBeenCalled();
+      logger.debug('This is a debug message');
+      expect(debugSpy).not.toHaveBeenCalled();
+
+      logger.error('This is an error message');
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+    }
+  );
+
   it('should create child logger with prefix', () => {
     const logger = new ConsoleLogger('parent');
     const childLogger = logger.child('child');
@@ -61,16 +96,26 @@ describe('ConsoleLogger', () => {
     expect((childLogger as any).level).toBe('info');
   });
 
-  it('should respect environment variable for logging pattern', () => {
-    process.env.LOG = 'test*';
-    const logger = new ConsoleLogger('testLogger');
-    logger.info('This should log');
-    expect(infoSpy).toHaveBeenCalled();
+  it.each`
+    envPattern   | optionPattern
+    ${'test*'}   | ${undefined}
+    ${undefined} | ${'test*'}
+    ${'test*'}   | ${'nonMatching*'}
+  `(
+    `should respect logging pattern when environment variable is $envPattern and option pattern is $optionPattern`,
+    ({ envPattern, optionPattern }) => {
+      if (envPattern) {
+        process.env.LOG = envPattern;
+      }
+      const logger = new ConsoleLogger('testLogger', { pattern: optionPattern });
+      logger.info('This should log');
+      expect(infoSpy).toHaveBeenCalled();
 
-    const nonMatchingLogger = new ConsoleLogger('nonMatchingLogger');
-    nonMatchingLogger.info('This should not log');
-    expect(infoSpy).toHaveBeenCalledTimes(1);
-  });
+      const nonMatchingLogger = new ConsoleLogger('nonMatchingLogger', { pattern: optionPattern });
+      nonMatchingLogger.info('This should not log');
+      expect(infoSpy).toHaveBeenCalledTimes(1);
+    }
+  );
 
   it('should format object messages properly', () => {
     const logger = new ConsoleLogger('test');
