@@ -29,4 +29,16 @@ export class TypingActivity extends Activity<'typing'> implements ITypingActivit
     this.text = value;
     return this;
   }
+
+  /**
+   * Append text
+   */
+  addText(text: string) {
+    if (!this.text) {
+      this.text = '';
+    }
+
+    this.text += text;
+    return this;
+  }
 }

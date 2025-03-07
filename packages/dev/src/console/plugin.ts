@@ -6,7 +6,7 @@ import { App, IPlugin, IPluginEvents } from '@microsoft/spark.apps';
 import {
   ActivityParams,
   ConversationReference,
-  IMessageActivity,
+  MessageActivity,
   IToken,
 } from '@microsoft/spark.api';
 
@@ -55,28 +55,24 @@ export class ConsolePlugin implements IPlugin {
   async onStart(port = 3000) {
     this.express.listen(port + 1, () => {
       this.reader.on('line', async (text) => {
-        const activity: IMessageActivity = {
-          id: '1',
-          type: 'message',
-          text,
-          channelId: 'msteams',
-          conversation: {
+        const activity = new MessageActivity(text)
+          .withChannelId('msteams')
+          .withConversation({
             id: '1',
             conversationType: 'oneOnOne',
             isGroup: false,
             name: '',
-          },
-          from: {
+          })
+          .withFrom({
             id: '1',
             name: 'user',
             role: 'user',
-          },
-          recipient: {
+          })
+          .withRecipient({
             id: '2',
             name: 'bot',
             role: 'bot',
-          },
-        };
+          });
 
         const token: IToken = {
           appId: '1',

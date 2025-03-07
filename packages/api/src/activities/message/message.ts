@@ -8,6 +8,7 @@ import {
   DeliveryMode,
   Importance,
   InputHint,
+  MentionEntity,
   SuggestedActions,
   TextFormat,
 } from '../../models';
@@ -80,6 +81,21 @@ export interface IMessageActivity extends IActivity<'message'> {
    * A value that is associated with the activity.
    */
   value?: any;
+
+  /**
+   * remove "\<at>...\</at>" text from an activity
+   */
+  removeMentionsText(options?: RemoveMentionsTextOptions): IMessageActivity;
+
+  /**
+   * is the recipient account mentioned
+   */
+  isRecipientMentioned(): boolean;
+
+  /**
+   * get a mention by the account id if exists
+   */
+  getAccountMention(accountId: string): MentionEntity | undefined;
 }
 
 export class MessageActivity extends Activity<'message'> implements IMessageActivity {
@@ -148,13 +164,44 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
    */
   value?: any;
 
-  constructor(text?: string, value: Omit<Partial<IMessageActivity>, 'type'> = {}) {
+  constructor(text: string = '', value: Omit<Partial<IMessageActivity>, 'type'> = {}) {
     super({
       ...value,
       type: 'message',
     });
 
     Object.assign(this, { text, ...value });
+  }
+
+  /**
+   * initialize from interface
+   */
+  static from(activity: IMessageActivity) {
+    return new MessageActivity(activity.text, activity);
+  }
+
+  /**
+   * convert to interface
+   */
+  toInterface(): IMessageActivity {
+    return Object.assign(
+      {
+        removeMentionsText: this.removeMentionsText.bind(this),
+        isRecipientMentioned: this.isRecipientMentioned.bind(this),
+        getAccountMention: this.getAccountMention.bind(this),
+      },
+      this
+    );
+  }
+
+  /**
+   * copy to a new instance
+   */
+  clone(options: Omit<Partial<IMessageActivity>, 'type'> = {}) {
+    return new MessageActivity(this.text, {
+      ...this.toInterface(),
+      ...options,
+    });
   }
 
   /**
@@ -243,6 +290,14 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
   }
 
   /**
+   * Append text
+   */
+  addText(text: string) {
+    this.text += text;
+    return this;
+  }
+
+  /**
    * Attachments
    */
   addAttachments(...value: Attachment[]) {
@@ -256,13 +311,32 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
 
   /**
    * `@mention` an account
+   * @param account the account to mention
+   * @param options options to customize the mention
    */
-  addMention(account: Account) {
+  addMention(account: Account, options: AddMentionOptions = {}) {
+    let { text, addText = true } = options;
+
+    if (!text) {
+      text = account.name;
+    }
+
+    if (addText) {
+      this.addText(`<at>${text}</at>`);
+    }
+
     return this.addEntity({
       type: 'mention',
       mentioned: account,
-      text: `<at>${account.name}</at>`,
+      text: `<at>${text}</at>`,
     });
+  }
+
+  /**
+   * Add a card attachment
+   */
+  addCard<T extends CardAttachmentType>(type: T, content: CardAttachmentTypes[T]['content']) {
+    return this.addAttachments(cardAttachment(type, content));
   }
 
   /**
@@ -274,13 +348,6 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
   }
 
   /**
-   * Add a card attachment
-   */
-  addCard<T extends CardAttachmentType>(type: T, content: CardAttachmentTypes[T]['content']) {
-    return this.addAttachments(cardAttachment(type, content));
-  }
-
-  /**
    * is the recipient account mentioned
    */
   isRecipientMentioned() {
@@ -288,4 +355,34 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
       .filter((e) => e.type === 'mention')
       .some((e) => e.mentioned.id === this.recipient.id);
   }
+
+  /**
+   * get a mention by the account id if exists
+   */
+  getAccountMention(accountId: string) {
+    return (this.entities || [])
+      .filter((e) => e.type === 'mention')
+      .find((e) => e.mentioned.id === accountId);
+  }
 }
+
+/**
+ * options for adding a mention
+ * to an activity
+ */
+export type AddMentionOptions = {
+  /**
+   * if `true`, append the mention `text` to the `activity.text`
+   * @default true
+   */
+  readonly addText?: boolean;
+
+  /**
+   * the `text` to use for the mention
+   *
+   * @default `account.name`
+   * @remark
+   * this text should not include `<at>` or `</at>`
+   */
+  readonly text?: string;
+};
