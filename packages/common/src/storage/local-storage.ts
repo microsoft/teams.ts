@@ -63,11 +63,11 @@ export class LocalStorage<T = any> implements IStorage<T> {
     return JSON.stringify(
       this._store
         .entries()
+        .toArray()
         .map(([key, value]) => ({
           key,
           value,
-        }))
-        .toArray(),
+        })),
       null,
       2
     );
