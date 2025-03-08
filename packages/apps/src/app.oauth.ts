@@ -39,7 +39,7 @@ export async function onTokenExchange(
     if (err instanceof AxiosError) {
       if (err.status !== 404 && err.status !== 400) {
         this.onActivityError({ ...ctx, err });
-        return { status: err.status };
+        return { status: err.status || 500 };
       }
 
       if (err.status === 404) {
@@ -92,7 +92,7 @@ export async function onVerifyState(
     if (err instanceof AxiosError) {
       if (err.status !== 404 && err.status !== 400) {
         this.onActivityError({ ...ctx, err, plugin });
-        return { status: err.status };
+        return { status: err.status || 500 };
       }
 
       if (err.status === 404) {
