@@ -110,12 +110,11 @@ export class Badge extends Element implements IBadge {
   constructor(options: BadgeOptions = {}) {
     super();
     this.type = 'Badge';
-    this.withOptions(options);
+    Object.assign(this, options);
   }
 
-  withOptions(value: BadgeOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: BadgeOptions) {
+    return new Badge(options);
   }
 
   withAppearance(value: BadgeAppearance) {
