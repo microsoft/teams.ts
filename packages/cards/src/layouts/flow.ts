@@ -123,12 +123,11 @@ export class FlowLayout implements IFlowLayout {
 
   constructor(options: FlowLayoutOptions = {}) {
     this.type = 'Layout.Flow';
-    this.withOptions(options);
+    Object.assign(this, options);
   }
 
-  withOptions(value: FlowLayoutOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: FlowLayoutOptions) {
+    return new FlowLayout(options);
   }
 
   withColumnSpacing(value: Spacing) {

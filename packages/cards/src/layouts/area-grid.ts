@@ -75,9 +75,10 @@ export class AreaGridLayout implements IAreaGridLayout {
     this.columns = [];
   }
 
-  withOptions(value: AreaGridLayoutOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: Omit<IAreaGridLayout, 'type'>) {
+    const layout = new AreaGridLayout(...options.areas);
+    Object.assign(layout, options);
+    return layout;
   }
 
   withColumnSpacing(value: Spacing) {
@@ -173,7 +174,7 @@ export class GridArea implements IGridArea {
    */
   rowSpan?: number;
 
-  constructor(value: IGridArea) {
+  constructor(value: IGridArea = {}) {
     Object.assign(this, value);
   }
 
@@ -196,6 +197,11 @@ export class GridArea implements IGridArea {
   withRow(value: number, span?: number) {
     this.row = value;
     this.rowSpan = span;
+    return this;
+  }
+
+  withRowSpan(value: number) {
+    this.rowSpan = value;
     return this;
   }
 }
