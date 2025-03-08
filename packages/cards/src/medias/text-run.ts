@@ -129,12 +129,11 @@ export class TextRun implements ITextRun {
   constructor(text: string, options: TextRunOptions = {}) {
     this.type = 'TextRun';
     this.text = text;
-    this.withOptions(options);
+    Object.assign(this, options);
   }
 
-  withOptions(value: TextRunOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: Omit<ITextRun, 'type'>) {
+    return new TextRun(options.text, options);
   }
 
   withColor(value: Color) {
@@ -192,5 +191,9 @@ export class TextRun implements ITextRun {
   addText(...value: string[]) {
     this.text += value.join('');
     return this;
+  }
+
+  toString() {
+    return this.text;
   }
 }
