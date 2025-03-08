@@ -190,7 +190,7 @@ export class TextRun implements ITextRun {
   }
 
   addText(...value: string[]) {
-    this.text += value.join();
+    this.text += value.join('');
     return this;
   }
 }

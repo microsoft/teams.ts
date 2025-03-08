@@ -159,7 +159,7 @@ export class TextBlock extends Element implements ITextBlock {
   }
 
   addText(...value: string[]) {
-    this.text += value.join();
+    this.text += value.join('');
     return this;
   }
 }

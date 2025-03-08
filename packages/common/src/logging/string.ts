@@ -5,16 +5,20 @@ type StringLike = {
 };
 
 export class String implements StringLike {
-  private _value: string = '';
+  private _value: string;
+
+  constructor(value = '') {
+    this._value = value;
+  }
 
   clear() {
     this._value = '';
     return this;
   }
 
-  append(text: StringLike) {
-    this._value += text;
-    return;
+  append(...text: StringLike[]) {
+    this._value += text.join('');
+    return this;
   }
 
   reset() {
@@ -23,117 +27,117 @@ export class String implements StringLike {
   }
 
   bold(text: StringLike) {
-    this._value += ANSI.Bold + text + ANSI.BoldReset;
+    this._value += ANSI.Bold + text.toString() + ANSI.BoldReset;
     return this;
   }
 
   italic(text: StringLike) {
-    this._value += ANSI.Italic + text + ANSI.ItalicReset;
+    this._value += ANSI.Italic + text.toString() + ANSI.ItalicReset;
     return this;
   }
 
   underline(text: StringLike) {
-    this._value += ANSI.Underline + text + ANSI.UnderlineReset;
+    this._value += ANSI.Underline + text.toString() + ANSI.UnderlineReset;
     return this;
   }
 
   strike(text: StringLike) {
-    this._value += ANSI.Strike + text + ANSI.StrikeReset;
+    this._value += ANSI.Strike + text.toString() + ANSI.StrikeReset;
     return this;
   }
 
   black(text: StringLike) {
-    this._value += ANSI.ForegroundBlack + text + ANSI.ForegroundReset;
+    this._value += ANSI.ForegroundBlack + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
   bgBlack(text: StringLike) {
-    this._value += ANSI.BackgroundBlack + text + ANSI.BackgroundReset;
+    this._value += ANSI.BackgroundBlack + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
   red(text: StringLike) {
-    this._value += ANSI.ForegroundRed + text + ANSI.ForegroundReset;
+    this._value += ANSI.ForegroundRed + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
   bgRed(text: StringLike) {
-    this._value += ANSI.BackgroundRed + text + ANSI.BackgroundReset;
+    this._value += ANSI.BackgroundRed + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
   green(text: StringLike) {
-    this._value += ANSI.ForegroundGreen + text + ANSI.ForegroundReset;
+    this._value += ANSI.ForegroundGreen + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
-  bgGeen(text: StringLike) {
-    this._value += ANSI.BackgroundGreen + text + ANSI.BackgroundReset;
+  bgGreen(text: StringLike) {
+    this._value += ANSI.BackgroundGreen + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
   yellow(text: StringLike) {
-    this._value += ANSI.ForegroundYellow + text + ANSI.ForegroundReset;
+    this._value += ANSI.ForegroundYellow + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
   bgYellow(text: StringLike) {
-    this._value += ANSI.BackgroundYellow + text + ANSI.BackgroundReset;
+    this._value += ANSI.BackgroundYellow + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
   blue(text: StringLike) {
-    this._value += ANSI.ForegroundBlue + text + ANSI.ForegroundReset;
+    this._value += ANSI.ForegroundBlue + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
   bgBlue(text: StringLike) {
-    this._value += ANSI.BackgroundBlue + text + ANSI.BackgroundReset;
+    this._value += ANSI.BackgroundBlue + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
   magenta(text: StringLike) {
-    this._value += ANSI.ForegroundMagenta + text + ANSI.ForegroundReset;
+    this._value += ANSI.ForegroundMagenta + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
   bgMagenta(text: StringLike) {
-    this._value += ANSI.BackgroundMagenta + text + ANSI.BackgroundReset;
+    this._value += ANSI.BackgroundMagenta + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
   cyan(text: StringLike) {
-    this._value += ANSI.ForegroundCyan + text + ANSI.ForegroundReset;
+    this._value += ANSI.ForegroundCyan + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
   bgCyan(text: StringLike) {
-    this._value += ANSI.BackgroundCyan + text + ANSI.BackgroundReset;
+    this._value += ANSI.BackgroundCyan + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
   white(text: StringLike) {
-    this._value += ANSI.ForegroundWhite + text + ANSI.ForegroundReset;
+    this._value += ANSI.ForegroundWhite + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
   bgWhite(text: StringLike) {
-    this._value += ANSI.BackgroundWhite + text + ANSI.BackgroundReset;
+    this._value += ANSI.BackgroundWhite + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
   gray(text: StringLike) {
-    this._value += ANSI.ForegroundGray + text + ANSI.ForegroundReset;
+    this._value += ANSI.ForegroundGray + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
   default(text: StringLike) {
-    this._value += ANSI.ForegroundDefault + text + ANSI.ForegroundReset;
+    this._value += ANSI.ForegroundDefault + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
   bgDefault(text: StringLike) {
-    this._value += ANSI.BackgroundDefault + text + ANSI.BackgroundReset;
+    this._value += ANSI.BackgroundDefault + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
