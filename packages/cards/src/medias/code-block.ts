@@ -74,12 +74,11 @@ export class CodeBlock extends Element implements ICodeBlock {
   constructor(options: CodeBlockOptions = {}) {
     super();
     this.type = 'CodeBlock';
-    this.withOptions(options);
+    Object.assign(this, options);
   }
 
-  withOptions(value: CodeBlockOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: CodeBlockOptions) {
+    return new CodeBlock(options);
   }
 
   withLanguage(value: CodeLanguage) {
