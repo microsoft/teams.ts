@@ -154,15 +154,13 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
   }
 
   async send(activity: ActivityLike) {
-    const res = await this._plugin.onSend(toActivityParams(activity), this.ref);
-    return res;
+    return this._plugin.onSend(toActivityParams(activity), this.ref);
   }
 
   async reply(activity: ActivityLike) {
     activity = toActivityParams(activity);
     activity.replyToId = this.activity.id;
-    const res = await this._plugin.onSend(activity, this.ref);
-    return res;
+    return this.send(activity);
   }
 
   async signin(name = 'graph', text = 'Please Sign In...') {
@@ -190,14 +188,7 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
         members: [this.activity.from],
       });
 
-      await this._plugin.onSend(
-        {
-          type: 'message',
-          text,
-        },
-        this.ref
-      );
-
+      await this.send({ type: 'message', text });
       convo.conversation = { id: res.id } as ConversationAccount;
     }
 
@@ -211,29 +202,26 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
     const state = Buffer.from(JSON.stringify(tokenExchangeState)).toString('base64');
     const resource = await this.api.bots.signIn.getResource({ state });
 
-    await this._plugin.onSend(
-      {
-        type: 'message',
-        inputHint: 'acceptingInput',
-        recipient: this.activity.from,
-        attachments: [
-          cardAttachment('oauth', {
-            text,
-            connectionName: name,
-            tokenExchangeResource: resource.tokenExchangeResource,
-            tokenPostResource: resource.tokenPostResource,
-            buttons: [
-              {
-                type: 'signin',
-                title: 'Sign In',
-                value: resource.signInLink,
-              },
-            ],
-          }),
-        ],
-      },
-      this.ref
-    );
+    await this.send({
+      type: 'message',
+      inputHint: 'acceptingInput',
+      recipient: this.activity.from,
+      attachments: [
+        cardAttachment('oauth', {
+          text,
+          connectionName: name,
+          tokenExchangeResource: resource.tokenExchangeResource,
+          tokenPostResource: resource.tokenPostResource,
+          buttons: [
+            {
+              type: 'signin',
+              title: 'Sign In',
+              value: resource.signInLink,
+            },
+          ],
+        }),
+      ],
+    });
   }
 
   async signout(name = 'graph') {
