@@ -61,9 +61,10 @@ export class Media extends Element implements IMedia {
     this.sources = sources;
   }
 
-  withOptions(value: MediaOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: Omit<IMedia, 'type'>) {
+    const media = new Media(...options.sources);
+    Object.assign(media, options);
+    return media;
   }
 
   withPoster(value: string) {

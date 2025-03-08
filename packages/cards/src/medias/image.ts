@@ -102,12 +102,11 @@ export class Image extends Element implements IImage {
     super();
     this.type = 'Image';
     this.url = url;
-    this.withOptions(options);
+    Object.assign(this, options);
   }
 
-  withOptions(value: ImageOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: Omit<IImage, 'type'>) {
+    return new Image(options.url, options);
   }
 
   withAltText(value: string) {
