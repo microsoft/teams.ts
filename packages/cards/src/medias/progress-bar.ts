@@ -49,12 +49,11 @@ export class ProgressBar extends Element implements IProgressBar {
   constructor(options: ProgressBarOptions = {}) {
     super();
     this.type = 'ProgressBar';
-    this.withOptions(options);
+    Object.assign(this, options);
   }
 
-  withOptions(value: ProgressBarOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: ProgressBarOptions) {
+    return new ProgressBar(options);
   }
 
   withColor(value: Color) {
