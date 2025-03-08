@@ -139,7 +139,7 @@ describe('MessageActivity', () => {
         })
         .addText(', how are you?');
 
-      activity.removeMentionsText();
+      activity.stripMentionsText();
       expect(activity.text).toEqual('hi , how are you?');
     });
 
@@ -152,7 +152,7 @@ describe('MessageActivity', () => {
         })
         .addText(', how are you?');
 
-      activity.removeMentionsText({ tagOnly: true });
+      activity.stripMentionsText({ tagOnly: true });
       expect(activity.text).toEqual('hi test-user, how are you?');
     });
 
@@ -171,7 +171,7 @@ describe('MessageActivity', () => {
         })
         .addText(' how are you?');
 
-      activity.removeMentionsText({ accountId: '1234' });
+      activity.stripMentionsText({ accountId: '1234' });
       expect(activity.text).toEqual('hi <at>test-user</at>,  how are you?');
     });
 
@@ -184,7 +184,7 @@ describe('MessageActivity', () => {
         })
         .addText(', how are you?');
 
-      activity.removeMentionsText({ accountId: '1' });
+      activity.stripMentionsText({ accountId: '1' });
       expect(activity.text).toEqual('hi <at>test-user</at>, how are you?');
     });
   });
