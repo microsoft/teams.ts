@@ -6,7 +6,7 @@ import { ITypingActivity } from '../typing';
  */
 type TextActivity = IMessageActivity | IMessageUpdateActivity | ITypingActivity;
 
-export type RemoveMentionsTextOptions = {
+export type StripMentionsTextOptions = {
   /**
    * the account to remove mentions for
    * by default, all at-mentions listed in `entities` are removed.
@@ -26,9 +26,9 @@ export type RemoveMentionsTextOptions = {
  * remove "\<at>...\</at>" text from an activity
  * @param activity the activity
  */
-export function removeMentionsText<TActivity extends TextActivity>(
+export function stripMentionsText<TActivity extends TextActivity>(
   activity: TActivity,
-  { accountId, tagOnly }: RemoveMentionsTextOptions = {}
+  { accountId, tagOnly }: StripMentionsTextOptions = {}
 ): TActivity['text'] {
   if (!activity.text) return;
 

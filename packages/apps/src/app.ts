@@ -10,7 +10,7 @@ import {
   JsonWebToken,
   toActivityParams,
   ActivityLike,
-  RemoveMentionsTextOptions,
+  StripMentionsTextOptions,
 } from '@microsoft/spark.api';
 
 import pkg from '../package.json';
@@ -86,7 +86,7 @@ export type AppActivityOptions = {
      * Automatically remove `<at>...</at>` mention
      * from inbound activity `text`
      */
-    readonly removeText?: boolean | RemoveMentionsTextOptions;
+    readonly stripText?: boolean | StripMentionsTextOptions;
   };
 };
 
@@ -252,9 +252,9 @@ export class App {
       this.plugin(plugin);
     }
 
-    if (this.options.activity?.mentions?.removeText) {
-      const options = this.options.activity?.mentions?.removeText;
-      this.use(middleware.removeMentionsText(typeof options === 'boolean' ? {} : options));
+    if (this.options.activity?.mentions?.stripText) {
+      const options = this.options.activity?.mentions?.stripText;
+      this.use(middleware.stripMentionsText(typeof options === 'boolean' ? {} : options));
     }
 
     // default event handlers
