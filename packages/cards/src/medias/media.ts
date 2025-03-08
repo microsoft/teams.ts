@@ -125,11 +125,6 @@ export class MediaSource implements IMediaSource {
     this.url = url;
     this.mimeType = mimeType;
   }
-
-  withMimeType(value: string) {
-    this.mimeType = value;
-    return this;
-  }
 }
 
 /**
