@@ -50,12 +50,11 @@ export class ExecuteAction extends Action implements IExecuteAction {
   constructor(options: ExecuteActionOptions = {}) {
     super();
     this.type = 'Action.Execute';
-    this.withOptions(options);
+    Object.assign(this, options);
   }
 
-  withOptions(value: ExecuteActionOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: ExecuteActionOptions) {
+    return new ExecuteAction(options);
   }
 
   withVerb(value: string) {

@@ -31,12 +31,11 @@ export class ShowCardAction extends Action implements IShowCardAction {
     super();
     this.type = 'Action.ShowCard';
     this.card = card;
-    this.withOptions(options);
+    Object.assign(this, options);
   }
 
-  withOptions(value: ShowCardActionOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: Omit<IShowCardAction, 'type'>) {
+    return new ShowCardAction(options.card, options);
   }
 
   withCard(value: ICard) {

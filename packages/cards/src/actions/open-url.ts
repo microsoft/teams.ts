@@ -29,12 +29,11 @@ export class OpenUrlAction extends Action implements IOpenUrlAction {
     super();
     this.type = 'Action.OpenUrl';
     this.url = url;
-    this.withOptions(options);
+    Object.assign(this, options);
   }
 
-  withOptions(value: OpenUrlActionOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: Omit<IOpenUrlAction, 'type'>) {
+    return new OpenUrlAction(options.url, options);
   }
 
   withUrl(value: string) {
