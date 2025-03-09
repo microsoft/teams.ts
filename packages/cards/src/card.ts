@@ -1,10 +1,4 @@
-import {
-  Action,
-  IExecuteAction,
-  IOpenUrlAction,
-  ISubmitAction,
-  IToggleVisibilityAction,
-} from './actions';
+import { Action, IExecute, IOpenUrl, ISubmit, IToggleVisibility } from './actions';
 import { IAuth, Refresh, VerticalAlignment } from './common';
 import { IBackgroundImage } from './medias';
 import { Element } from './element';
@@ -48,7 +42,7 @@ export interface ICard {
   /**
    * An Action that will be invoked when the card is tapped or selected. Action.ShowCard is not supported.
    */
-  selectAction?: IExecuteAction | IOpenUrlAction | ISubmitAction | IToggleVisibilityAction;
+  selectAction?: IExecute | IOpenUrl | ISubmit | IToggleVisibility;
 
   /**
    * Text shown when the client doesn’t support the version specified (may contain markdown).
@@ -160,7 +154,7 @@ export class Card implements ICard {
   /**
    * An Action that will be invoked when the card is tapped or selected. Action.ShowCard is not supported.
    */
-  selectAction?: IExecuteAction | IOpenUrlAction | ISubmitAction | IToggleVisibilityAction;
+  selectAction?: IExecute | IOpenUrl | ISubmit | IToggleVisibility;
 
   /**
    * Text shown when the client doesn’t support the version specified (may contain markdown).
@@ -234,9 +228,7 @@ export class Card implements ICard {
     return this;
   }
 
-  withSelectedAction(
-    value: IExecuteAction | IOpenUrlAction | ISubmitAction | IToggleVisibilityAction
-  ) {
+  withSelectedAction(value: IExecute | IOpenUrl | ISubmit | IToggleVisibility) {
     this.selectAction = value;
     return this;
   }

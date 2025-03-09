@@ -1,15 +1,15 @@
-import { IExecuteAction } from './execute';
-import { IOpenUrlAction } from './open-url';
-import { IShowCardAction } from './show-card';
-import { ISubmitAction } from './submit';
-import { IToggleVisibilityAction } from './toggle-visibility';
+import * as Execute from './execute';
+import * as OpenUrl from './open-url';
+import * as ShowCard from './show-card';
+import * as Submit from './submit';
+import * as ToggleVisibility from './toggle-visibility';
 
 export type Action =
-  | IExecuteAction
-  | IOpenUrlAction
-  | IShowCardAction
-  | ISubmitAction
-  | IToggleVisibilityAction;
+  | Execute.IExecute
+  | OpenUrl.IOpenUrl
+  | ShowCard.IShowCard
+  | Submit.ISubmit
+  | ToggleVisibility.IToggleVisibility;
 
 export * from './execute';
 export * from './open-url';

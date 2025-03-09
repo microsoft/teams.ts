@@ -5,7 +5,7 @@ import { IAction, Action } from './base';
 /**
  * An action that toggles the visibility of associated card elements.
  */
-export interface IToggleVisibilityAction extends IAction {
+export interface IToggleVisibility extends IAction {
   type: 'Action.ToggleVisibility';
 
   /**
@@ -14,15 +14,12 @@ export interface IToggleVisibilityAction extends IAction {
   targetElements: (string | TargetElement)[];
 }
 
-export type ToggleVisibilityActionOptions = Omit<
-  IToggleVisibilityAction,
-  'type' | 'targetElements'
->;
+export type ToggleVisibilityActionOptions = Omit<IToggleVisibility, 'type' | 'targetElements'>;
 
 /**
  * An action that toggles the visibility of associated card elements.
  */
-export class ToggleVisibilityAction extends Action implements IToggleVisibilityAction {
+export class ToggleVisibility extends Action implements IToggleVisibility {
   type: 'Action.ToggleVisibility';
 
   /**
@@ -36,8 +33,8 @@ export class ToggleVisibilityAction extends Action implements IToggleVisibilityA
     this.targetElements = targetElements;
   }
 
-  static from(options: Omit<IToggleVisibilityAction, 'type'>) {
-    const action = new ToggleVisibilityAction(...options.targetElements);
+  static from(options: Omit<IToggleVisibility, 'type'>) {
+    const action = new ToggleVisibility(...options.targetElements);
     Object.assign(action, options);
     return action;
   }

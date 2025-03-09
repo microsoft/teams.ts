@@ -5,7 +5,7 @@ import { IAction, Action } from './base';
 /**
  * Defines an AdaptiveCard which is shown to the user when the button or link is clicked.
  */
-export interface IShowCardAction extends IAction {
+export interface IShowCard extends IAction {
   type: 'Action.ShowCard';
 
   /**
@@ -14,12 +14,12 @@ export interface IShowCardAction extends IAction {
   card: ICard;
 }
 
-export type ShowCardActionOptions = Omit<IShowCardAction, 'type' | 'card'>;
+export type ShowCardOptions = Omit<IShowCard, 'type' | 'card'>;
 
 /**
  * Defines an AdaptiveCard which is shown to the user when the button or link is clicked.
  */
-export class ShowCardAction extends Action implements IShowCardAction {
+export class ShowCard extends Action implements IShowCard {
   type: 'Action.ShowCard';
 
   /**
@@ -27,15 +27,15 @@ export class ShowCardAction extends Action implements IShowCardAction {
    */
   card: ICard;
 
-  constructor(card: ICard, options: ShowCardActionOptions = {}) {
+  constructor(card: ICard, options: ShowCardOptions = {}) {
     super();
     this.type = 'Action.ShowCard';
     this.card = card;
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IShowCardAction, 'type'>) {
-    return new ShowCardAction(options.card, options);
+  static from(options: Omit<IShowCard, 'type'>) {
+    return new ShowCard(options.card, options);
   }
 
   withCard(value: ICard) {

@@ -1,8 +1,8 @@
-import { ExecuteAction } from './execute';
+import { Execute } from './execute';
 
-describe('ExecuteAction', () => {
+describe('Actions.Execute', () => {
   it('should build', () => {
-    const action = new ExecuteAction()
+    const action = new Execute()
       .withVerb('test')
       .withData({ hello: 'world' })
       .withAssociatedInputs('auto');
@@ -13,7 +13,7 @@ describe('ExecuteAction', () => {
   });
 
   it('should build from interface', () => {
-    const action = ExecuteAction.from({
+    const action = Execute.from({
       verb: 'test',
       data: { hello: 'world' },
       associatedInputs: 'auto',

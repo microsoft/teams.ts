@@ -3,7 +3,7 @@ import { IAction, Action } from './base';
 /**
  * When invoked, show the given url either by launching it in an external web browser or showing within an embedded web browser.
  */
-export interface IOpenUrlAction extends IAction {
+export interface IOpenUrl extends IAction {
   type: 'Action.OpenUrl';
 
   /**
@@ -12,12 +12,12 @@ export interface IOpenUrlAction extends IAction {
   url: string;
 }
 
-export type OpenUrlActionOptions = Omit<IOpenUrlAction, 'type' | 'url'>;
+export type OpenUrlOptions = Omit<IOpenUrl, 'type' | 'url'>;
 
 /**
  * When invoked, show the given url either by launching it in an external web browser or showing within an embedded web browser.
  */
-export class OpenUrlAction extends Action implements IOpenUrlAction {
+export class OpenUrl extends Action implements IOpenUrl {
   type: 'Action.OpenUrl';
 
   /**
@@ -25,15 +25,15 @@ export class OpenUrlAction extends Action implements IOpenUrlAction {
    */
   url: string;
 
-  constructor(url: string, options: OpenUrlActionOptions = {}) {
+  constructor(url: string, options: OpenUrlOptions = {}) {
     super();
     this.type = 'Action.OpenUrl';
     this.url = url;
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IOpenUrlAction, 'type'>) {
-    return new OpenUrlAction(options.url, options);
+  static from(options: Omit<IOpenUrl, 'type'>) {
+    return new OpenUrl(options.url, options);
   }
 
   withUrl(value: string) {

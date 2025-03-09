@@ -1,24 +1,25 @@
-import { ISubmitAction, SubmitAction, SubmitActionOptions } from './submit';
-import { ITabInfo } from './tab';
+import { ITabInfo } from '../common';
+
+import { ISubmit, Submit, SubmitOptions } from './submit';
 
 /**
  * Adaptive Card action response type for the {@link CollabStageAction} function.
  */
-export interface ICollabStageAction extends ISubmitAction {
+export interface ICollabStage extends ISubmit {
   data: {
-    msteams: ICollabStageActionData;
+    msteams: ICollabStageData;
   };
 }
 
 /**
  * Adaptive Card action that opens a collab stage popout window.
  */
-export class CollabStageAction extends SubmitAction implements ICollabStageAction {
+export class CollabStage extends Submit implements ICollabStage {
   declare data: {
-    msteams: ICollabStageActionData;
+    msteams: ICollabStageData;
   };
 
-  constructor(tab: ITabInfo, options: SubmitActionOptions = {}) {
+  constructor(tab: ITabInfo, options: SubmitOptions = {}) {
     super(options);
     this.data = {
       msteams: {
@@ -33,7 +34,7 @@ export class CollabStageAction extends SubmitAction implements ICollabStageActio
     this.withOptions(options);
   }
 
-  withOptions(value: SubmitActionOptions) {
+  withOptions(value: SubmitOptions) {
     Object.assign(this, value);
     return this;
   }
@@ -42,27 +43,27 @@ export class CollabStageAction extends SubmitAction implements ICollabStageActio
 /**
  * Contains the Adaptive Card action data in {@link CollabStageAction}.
  */
-export interface ICollabStageActionData {
+export interface ICollabStageData {
   type: 'invoke';
 
   /**
    * Set the value to send with the invoke
    */
-  value?: ICollabStageActionValueData;
+  value?: ICollabStageValueData;
 }
 
 /**
  * Contains the Adaptive Card action data in {@link CollabStageAction}.
  */
-export class CollabStageActionData implements ICollabStageActionData {
+export class CollabStageActionData implements ICollabStageData {
   type: 'invoke';
 
   /**
    * Set the value to send with the invoke
    */
-  value?: ICollabStageActionValueData;
+  value?: ICollabStageValueData;
 
-  constructor(value?: ICollabStageActionValueData) {
+  constructor(value?: ICollabStageValueData) {
     this.type = 'invoke';
     this.value = value;
   }
@@ -71,7 +72,7 @@ export class CollabStageActionData implements ICollabStageActionData {
 /**
  * Contains the Adaptive Card action value data in {@link CollabStageActionData}.
  */
-export interface ICollabStageActionValueData {
+export interface ICollabStageValueData {
   type: 'tab/tabInfoAction';
 
   /**
@@ -83,7 +84,7 @@ export interface ICollabStageActionValueData {
 /**
  * Contains the Adaptive Card action value data in {@link CollabStageActionData}.
  */
-export class CollabStageActionValueData implements ICollabStageActionValueData {
+export class CollabStageValueData implements ICollabStageValueData {
   type: 'tab/tabInfoAction';
 
   /**

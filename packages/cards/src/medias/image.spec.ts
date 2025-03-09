@@ -1,4 +1,4 @@
-import { SubmitAction } from '../actions';
+import { Submit } from '../actions';
 import { Image } from './image';
 
 describe('Image', () => {
@@ -8,7 +8,7 @@ describe('Image', () => {
       .withAllowExpand()
       .withAllowExpand(false)
       .withBackgroundColor('blue')
-      .withSelectAction(new SubmitAction())
+      .withSelectAction(new Submit())
       .withSize('auto')
       .withStyle('default')
       .withWidth('10px');
@@ -29,7 +29,7 @@ describe('Image', () => {
       altText: 'test',
       allowExpand: false,
       backgroundColor: 'blue',
-      selectAction: new SubmitAction(),
+      selectAction: new Submit(),
       size: 'auto',
       style: 'default',
       width: '10px',
