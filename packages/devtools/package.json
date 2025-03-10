@@ -11,7 +11,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "build:watch": "tsc -b && vite build --watch --mode development",
-    "lint": "eslint .",
+    "lint": "eslint . ",
+    "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "build:bundle:visualize": "npx vite-bundle-visualizer"
   },
