@@ -1,6 +1,6 @@
 import { ISubmitAction, MSTeamsData, SubmitAction, SubmitActionOptions } from './submit';
 
-export type TaskFetchActionOptions = SubmitActionOptions & { data: MSTeamsData<ITaskFetchAction> };
+export type TaskFetchActionOptions = SubmitActionOptions & { data: MSTeamsData<ITaskFetchData> };
 
 export interface ITaskFetchAction extends ISubmitAction {
   /**
@@ -32,6 +32,7 @@ export class TaskFetchAction extends SubmitAction implements ITaskFetchAction {
 
   withValue(value: any) {
     this.data.msteams.data = value;
+    return this;
   }
 }
 

@@ -71,7 +71,7 @@ export interface ICollabStageData {
 /**
  * Contains the Adaptive Card action data in {@link CollabStageAction}.
  */
-export class CollabStageActionData implements ICollabStageData {
+export class CollabStageData implements ICollabStageData {
   type: 'invoke';
 
   /**
