@@ -1,4 +1,4 @@
-import { Submit } from '../actions';
+import { SubmitAction } from '../actions';
 import { TextRun } from './text-run';
 
 describe('TextRun', () => {
@@ -19,7 +19,7 @@ describe('TextRun', () => {
       .withSubtle()
       .withSubtle(false)
       .withWeight('bolder')
-      .withSelectAction(new Submit());
+      .withSelectAction(new SubmitAction());
 
     expect(element.toString()).toEqual('tester');
     expect(element.color).toEqual('accent');

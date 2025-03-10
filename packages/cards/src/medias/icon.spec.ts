@@ -1,4 +1,4 @@
-import { Submit } from '../actions';
+import { SubmitAction } from '../actions';
 import { Icon } from './icon';
 
 describe('Icon', () => {
@@ -7,7 +7,7 @@ describe('Icon', () => {
       .withSize('Large')
       .withStyle('Filled')
       .withColor('accent')
-      .withSelectAction(new Submit());
+      .withSelectAction(new SubmitAction());
 
     expect(element.name).toEqual('AccessTime');
     expect(element.size).toEqual('Large');
@@ -22,7 +22,7 @@ describe('Icon', () => {
       size: 'Large',
       style: 'Filled',
       color: 'accent',
-      selectAction: new Submit(),
+      selectAction: new SubmitAction(),
     });
 
     expect(element.name).toEqual('AccessTime');
