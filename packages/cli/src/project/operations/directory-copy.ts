@@ -2,9 +2,12 @@ import path from 'node:path';
 import fs from 'node:fs';
 
 import { IProjectAttributeOperation } from '../project-attribute';
-import { FileCopyOperation } from './file-copy';
+import { IProject } from '../project';
 
-export class DirectoryCopyOperation implements IProjectAttributeOperation {
+import { FileCopy } from './file-copy';
+import { FileTemplateHandlebars } from './file-template-handlebars';
+
+export class DirectoryCopy implements IProjectAttributeOperation {
   readonly name = 'directory.copy';
 
   private _from: string;
@@ -15,8 +18,8 @@ export class DirectoryCopyOperation implements IProjectAttributeOperation {
     this._to = to;
   }
 
-  async up() {
-    const operations: Array<ProjectAttributeOperation> = [];
+  async up(project: IProject) {
+    const operations: Array<IProjectAttributeOperation> = [];
 
     if (!fs.existsSync(this._from)) {
       throw new Error(`"${this._from}" does not exist`);
@@ -34,25 +37,35 @@ export class DirectoryCopyOperation implements IProjectAttributeOperation {
 
     for (const item of items) {
       const stat = fs.statSync(path.resolve(this._from, item));
+      const isHandlebars = item.endsWith('.hbs');
 
       if (stat.isDirectory()) {
         operations.push(
-          new DirectoryCopyOperation(path.resolve(this._from, item), path.resolve(this._to, item))
+          new DirectoryCopy(path.resolve(this._from, item), path.resolve(this._to, item))
         );
       } else {
-        operations.push(
-          new FileCopyOperation(path.resolve(this._from, item), path.resolve(this._to, item))
-        );
+        if (isHandlebars) {
+          operations.push(
+            new FileTemplateHandlebars(
+              path.resolve(this._from, item),
+              path.resolve(this._to, item.replace('.hbs', ''))
+            )
+          );
+        } else {
+          operations.push(
+            new FileCopy(path.resolve(this._from, item), path.resolve(this._to, item))
+          );
+        }
       }
     }
 
     for (const op of operations) {
-      await op.up();
+      await op.up(project);
     }
   }
 
-  async down() {
-    const operations: Array<ProjectAttributeOperation> = [];
+  async down(project: IProject) {
+    const operations: Array<IProjectAttributeOperation> = [];
 
     if (!fs.existsSync(this._from)) {
       throw new Error(`"${this._from}" does not exist`);
@@ -70,20 +83,30 @@ export class DirectoryCopyOperation implements IProjectAttributeOperation {
 
     for (const item of items) {
       const stat = fs.statSync(path.resolve(this._from, item));
+      const isHandlebars = item.endsWith('.hbs');
 
       if (stat.isDirectory()) {
         operations.push(
-          new DirectoryCopyOperation(path.resolve(this._from, item), path.resolve(this._to, item))
+          new DirectoryCopy(path.resolve(this._from, item), path.resolve(this._to, item))
         );
       } else {
-        operations.push(
-          new FileCopyOperation(path.resolve(this._from, item), path.resolve(this._to, item))
-        );
+        if (isHandlebars) {
+          operations.push(
+            new FileTemplateHandlebars(
+              path.resolve(this._from, item),
+              path.resolve(this._to, item.replace('.hbs', ''))
+            )
+          );
+        } else {
+          operations.push(
+            new FileCopy(path.resolve(this._from, item), path.resolve(this._to, item))
+          );
+        }
       }
     }
 
     for (const op of operations.toReversed()) {
-      await op.down();
+      await op.down(project);
     }
   }
 }

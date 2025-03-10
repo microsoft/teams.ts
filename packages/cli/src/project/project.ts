@@ -2,10 +2,17 @@ import path from 'node:path';
 import fs from 'node:fs';
 
 import { IProjectAttribute } from './project-attribute';
-import { ProjectLanguage } from './project-language';
-import * as attributes from './attributes';
+import { ProjectBuilder } from './project-builder';
 
-export class Project {
+export type ProjectLanguage = 'typescript' | 'csharp';
+
+export interface IProject {
+  readonly path: string;
+  readonly name: string;
+  readonly language: ProjectLanguage;
+}
+
+export class Project implements IProject {
   get path() {
     return this._path;
   }
@@ -23,46 +30,37 @@ export class Project {
 
   private readonly _attributes: Array<IProjectAttribute> = [];
 
-  constructor(path: string, name: string, language: ProjectLanguage) {
+  constructor(
+    path: string,
+    name: string,
+    language: ProjectLanguage,
+    attributes: Array<IProjectAttribute> = []
+  ) {
     this._path = path;
     this._name = name;
     this._language = language;
-  }
-
-  addEnv(key: string, value: string, filename = '.env') {
-    this._attributes.push(new attributes.EnvAttribute(filename, key, value));
-    return this;
-  }
-
-  addTemplate(name: string) {
-    if (this._attributes.some((attr) => attr.id === `template[${name}]`)) {
-      return this;
-    }
-
-    this._attributes.push(new attributes.TemplateAttribute(name));
-    return this;
-  }
-
-  addTeamsToolkit(name: string) {
-    this._attributes.push(new attributes.TeamsToolkitAttribute(name));
-    return this;
+    this._attributes = attributes;
   }
 
   async up() {
     for (const attribute of this._attributes) {
       const op = await attribute[this._language](this._path);
-      await op.up();
+      await op.up(this);
     }
   }
 
   async down() {
     for (const attribute of this._attributes.toReversed()) {
       const op = await attribute[this._language](this._path);
-      await op.down();
+      await op.down(this);
     }
   }
 
-  static load(): Project {
+  static builder() {
+    return new ProjectBuilder();
+  }
+
+  static load() {
     const language = fs.existsSync(path.join(process.cwd(), 'package.json'))
       ? 'typescript'
       : undefined;
@@ -71,7 +69,9 @@ export class Project {
       throw new Error('invalid project');
     }
 
-    const name = path.basename(process.cwd());
-    return new Project(process.cwd(), name, language);
+    return new ProjectBuilder()
+      .withPath(process.cwd())
+      .withName(path.basename(process.cwd()))
+      .withLanguage(language);
   }
 }

@@ -3,8 +3,9 @@ import fs from 'node:fs';
 import { String } from '@microsoft/spark.common';
 
 import { IProjectAttributeOperation } from '../project-attribute';
+import { IProject } from '../project';
 
-export class FileEnvSetOperation implements IProjectAttributeOperation {
+export class FileEnvSet implements IProjectAttributeOperation {
   readonly name = 'file.env.set';
 
   private _path: string;
@@ -19,7 +20,7 @@ export class FileEnvSetOperation implements IProjectAttributeOperation {
     this._value = value;
   }
 
-  up() {
+  up(_: IProject) {
     const filePath = path.join(this._path, this._filename);
     const relativeFilePath = path.relative(process.cwd(), filePath);
     process.stdout.write(
@@ -44,7 +45,7 @@ export class FileEnvSetOperation implements IProjectAttributeOperation {
     process.stdout.write('✔️\n');
   }
 
-  down() {
+  down(_: IProject) {
     const filePath = path.join(this._path, this._filename);
     const relativeFilePath = path.relative(process.cwd(), filePath);
 

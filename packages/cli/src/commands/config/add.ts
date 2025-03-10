@@ -31,12 +31,13 @@ export function Add(): CommandModule<{}, Args> {
     },
     handler: async ({ name }) => {
       const [type, subType] = name.split('.');
-      const project = Project.load();
+      const builder = Project.load();
 
       if (type === 'ttk') {
-        project.addTeamsToolkit(subType);
+        builder.addTeamsToolkit(subType);
       }
 
+      const project = builder.build();
       await project.up();
       console.log(
         new String().bold(new String().green(`✅ config "${name}" successfully added`)).toString()

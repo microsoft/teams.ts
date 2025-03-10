@@ -1,10 +1,12 @@
 import fs from 'node:fs';
 
 import { IProjectAttributeOperation } from '../project-attribute';
-import { FileCopyOperation } from './file-copy';
-import { DirectoryCopyOperation } from './directory-copy';
+import { IProject } from '../project';
 
-export class CopyOperation implements IProjectAttributeOperation {
+import { FileCopy } from './file-copy';
+import { DirectoryCopy } from './directory-copy';
+
+export class Copy implements IProjectAttributeOperation {
   readonly name = 'copy';
 
   private _from: string;
@@ -15,7 +17,7 @@ export class CopyOperation implements IProjectAttributeOperation {
     this._to = to;
   }
 
-  up() {
+  up(project: IProject) {
     if (!fs.existsSync(this._from)) {
       throw new Error(`"${this._from}" does not exist`);
     }
@@ -23,13 +25,13 @@ export class CopyOperation implements IProjectAttributeOperation {
     const stat = fs.statSync(this._from);
 
     if (stat.isDirectory()) {
-      return new DirectoryCopyOperation(this._from, this._to).up();
+      return new DirectoryCopy(this._from, this._to).up(project);
     }
 
-    return new FileCopyOperation(this._from, this._to).up();
+    return new FileCopy(this._from, this._to).up(project);
   }
 
-  down() {
+  down(project: IProject) {
     if (!fs.existsSync(this._to)) {
       return;
     }
@@ -37,9 +39,9 @@ export class CopyOperation implements IProjectAttributeOperation {
     const stat = fs.statSync(this._to);
 
     if (stat.isDirectory()) {
-      return new DirectoryCopyOperation(this._from, this._to).down();
+      return new DirectoryCopy(this._from, this._to).down(project);
     }
 
-    return new FileCopyOperation(this._from, this._to).down();
+    return new FileCopy(this._from, this._to).down(project);
   }
 }

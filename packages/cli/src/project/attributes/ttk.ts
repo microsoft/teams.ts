@@ -3,13 +3,7 @@ import url from 'node:url';
 import fs from 'node:fs';
 
 import { IProjectAttribute } from '../project-attribute';
-import {
-  CompoundOperation,
-  CopyOperation,
-  FileJsonSetOperation,
-  FileYamlSetOperation,
-  IfOperation,
-} from '../operations';
+import { Compound, Copy, FileJsonSet, FileYamlSet, If } from '../operations';
 
 export class TeamsToolkitAttribute implements IProjectAttribute {
   readonly id: string;
@@ -23,45 +17,45 @@ export class TeamsToolkitAttribute implements IProjectAttribute {
   }
 
   typescript(targetDir: string) {
-    return new CompoundOperation(
-      new CopyOperation(
+    return new Compound(
+      new Copy(
         path.resolve(url.fileURLToPath(import.meta.url), '../..', 'configs', 'ttk', this.name),
         targetDir
       ),
-      new FileJsonSetOperation(targetDir, 'package.json', 'devDependencies.env-cmd', 'latest'),
-      new FileJsonSetOperation(
+      new FileJsonSet(targetDir, 'package.json', 'devDependencies.env-cmd', 'latest'),
+      new FileJsonSet(
         targetDir,
         'package.json',
         'scripts.dev:teamsfx',
         'npx env-cmd --silent -f .env npm run dev'
       ),
-      new FileJsonSetOperation(
+      new FileJsonSet(
         targetDir,
         'package.json',
         'scripts.dev:teamsfx:testtool',
         'npx env-cmd --silent -f .env npm run dev'
       ),
-      new FileJsonSetOperation(
+      new FileJsonSet(
         targetDir,
         'package.json',
         'scripts.dev:teamsfx:launch-testtool',
         'npx env-cmd --silent -f env/.env.testtool teamsapptester start'
       ),
       // optional vite project support
-      new IfOperation(() => {
+      new If(() => {
         return (
           fs.existsSync(path.join(targetDir, 'vite.config.js')) ||
           fs.existsSync(path.join(targetDir, 'vite.config.ts'))
         );
       }).then(
-        new CompoundOperation(
-          new FileYamlSetOperation(
+        new Compound(
+          new FileYamlSet(
             targetDir,
             'teamsapp.local.yml',
             'deploy.1.with.envs.VITE_CLIENT_ID',
             '${{BOT_ID}}'
           ),
-          new FileYamlSetOperation(
+          new FileYamlSet(
             targetDir,
             'teamsapp.local.yml',
             'deploy.1.with.envs.VITE_CLIENT_SECRET',
@@ -73,6 +67,6 @@ export class TeamsToolkitAttribute implements IProjectAttribute {
   }
 
   csharp(_: string) {
-    return new CompoundOperation();
+    return new Compound();
   }
 }

@@ -1,3 +1,5 @@
+import { IProject } from './project';
+
 export interface IProjectAttribute {
   readonly id: string;
   readonly name: string;
@@ -11,6 +13,6 @@ export interface IProjectAttribute {
 export interface IProjectAttributeOperation {
   readonly name: string;
 
-  up(): void | Promise<void>;
-  down(): void | Promise<void>;
+  up(project: IProject): void | Promise<void>;
+  down(project: IProject): void | Promise<void>;
 }

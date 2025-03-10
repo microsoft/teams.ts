@@ -3,8 +3,9 @@ import fs from 'node:fs';
 import { String } from '@microsoft/spark.common';
 
 import { IProjectAttributeOperation } from '../project-attribute';
+import { IProject } from '../project';
 
-export class FileJsonSetOperation implements IProjectAttributeOperation {
+export class FileJsonSet implements IProjectAttributeOperation {
   readonly name = 'file.json.set';
 
   private _path: string;
@@ -19,7 +20,7 @@ export class FileJsonSetOperation implements IProjectAttributeOperation {
     this._value = value;
   }
 
-  up() {
+  up(_: IProject) {
     const ext = path.extname(this._filename).toLowerCase();
     const filePath = path.join(this._path, this._filename);
     const relativeFilePath = path.relative(process.cwd(), filePath);
@@ -49,7 +50,7 @@ export class FileJsonSetOperation implements IProjectAttributeOperation {
     process.stdout.write('✔️\n');
   }
 
-  down() {
+  down(_: IProject) {
     const ext = path.extname(this._filename).toLowerCase();
     const filePath = path.join(this._path, this._filename);
     const relativeFilePath = path.relative(process.cwd(), filePath);
