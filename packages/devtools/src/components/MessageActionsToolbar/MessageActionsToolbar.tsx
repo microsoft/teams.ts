@@ -25,6 +25,7 @@ import { MessageReactionType } from '@microsoft/spark.api';
 import { useNavigate } from 'react-router';
 
 import { useClasses } from './MessageActionsToolbar.styles';
+import { MessageReactionsEmoji } from '../../types/MessageReactionsEmoji';
 
 interface MessageActionsProps extends ToolbarProps {
   // Whether the message is sent or received
@@ -33,16 +34,6 @@ interface MessageActionsProps extends ToolbarProps {
   handleMessageReaction: (id: string, reaction: MessageReaction) => Promise<void>;
   reactionSender: MessageUser | undefined;
 }
-
-export const MessageReactionsEmoji: Array<{
-  readonly label: string;
-  readonly reaction: MessageReactionType;
-}> = [
-  { label: '👍', reaction: 'like' },
-  { label: '❤️', reaction: 'heart' },
-  { label: '😆', reaction: 'laugh' },
-  { label: '😮', reaction: 'surprised' },
-];
 
 const MoreHorizontalIcon = bundleIcon(
   MoreHorizontal16Filled as FluentIcon,
