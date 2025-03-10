@@ -110,12 +110,11 @@ export class TextBlock extends Element implements ITextBlock {
     super();
     this.type = 'TextBlock';
     this.text = text;
-    this.withOptions(options);
+    Object.assign(this, options);
   }
 
-  withOptions(value: TextBlockOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: Omit<ITextBlock, 'type'>) {
+    return new TextBlock(options.text, options);
   }
 
   withStyle(value: 'default' | 'heading') {
@@ -159,7 +158,11 @@ export class TextBlock extends Element implements ITextBlock {
   }
 
   addText(...value: string[]) {
-    this.text += value.join();
+    this.text += value.join('');
     return this;
+  }
+
+  toString() {
+    return this.text;
   }
 }

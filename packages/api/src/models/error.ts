@@ -36,7 +36,7 @@ export type InnerHttpError = {
 /**
  * An HTTP API response
  */
-export type HttpErrorResponse = {
+export type ErrorResponse = {
   /**
    * Error message
    */

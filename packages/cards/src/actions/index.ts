@@ -11,6 +11,12 @@ export type Action =
   | ISubmitAction
   | IToggleVisibilityAction;
 
+export type SelectAction =
+  | IExecuteAction
+  | IOpenUrlAction
+  | ISubmitAction
+  | IToggleVisibilityAction;
+
 export * from './execute';
 export * from './open-url';
 export * from './show-card';

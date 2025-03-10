@@ -8,3 +8,4 @@ export * from './font';
 export * from './refresh';
 export * from './auth';
 export * from './target-width';
+export * from './tab-info';

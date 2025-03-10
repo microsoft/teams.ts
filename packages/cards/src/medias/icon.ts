@@ -65,12 +65,11 @@ export class Icon extends Element implements IIcon {
     super();
     this.type = 'Icon';
     this.name = name;
-    this.withOptions(options);
+    Object.assign(this, options);
   }
 
-  withOptions(value: IconOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: Omit<IIcon, 'type'>) {
+    return new Icon(options.name, options);
   }
 
   withSize(value: 'xxSmall' | 'xSmall' | 'Standard' | 'Medium' | 'Large' | 'xLarge' | 'xxLarge') {

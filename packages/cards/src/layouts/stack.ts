@@ -27,12 +27,11 @@ export class StackLayout implements IStackLayout {
 
   constructor(options: StackLayoutOptions = {}) {
     this.type = 'Layout.Stack';
-    this.withOptions(options);
+    Object.assign(this, options);
   }
 
-  withOptions(value: StackLayoutOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: StackLayoutOptions) {
+    return new StackLayout(options);
   }
 
   withTargetWidth(value: TargetWidth) {

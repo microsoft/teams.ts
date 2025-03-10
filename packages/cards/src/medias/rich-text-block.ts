@@ -1,6 +1,6 @@
 import { IElement, Element } from '../base';
 
-import { ITextRun } from './text-run';
+import { ITextRun, TextRun } from './text-run';
 
 /**
  * Defines an array of inlines, allowing for inline text formatting.
@@ -33,13 +33,20 @@ export class RichTextBlock extends Element implements IRichTextBlock {
     this.inlines = inlines;
   }
 
-  withOptions(value: RichTextBlockOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: Omit<IRichTextBlock, 'type'>) {
+    const block = new RichTextBlock(...options.inlines);
+    Object.assign(block, options);
+    return block;
   }
 
   addText(...value: (ITextRun | string)[]) {
     this.inlines.push(...value);
     return this;
+  }
+
+  toString(delim = '') {
+    return this.inlines
+      .map((v) => (typeof v === 'string' ? v : TextRun.from(v).toString()))
+      .join(delim);
   }
 }

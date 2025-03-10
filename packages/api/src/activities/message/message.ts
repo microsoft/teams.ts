@@ -14,7 +14,7 @@ import {
 } from '../../models';
 
 import { IActivity, Activity } from '../activity';
-import { removeMentionsText, RemoveMentionsTextOptions } from '../utils';
+import { stripMentionsText, StripMentionsTextOptions } from '../utils';
 
 export interface IMessageActivity extends IActivity<'message'> {
   /**
@@ -85,7 +85,7 @@ export interface IMessageActivity extends IActivity<'message'> {
   /**
    * remove "\<at>...\</at>" text from an activity
    */
-  removeMentionsText(options?: RemoveMentionsTextOptions): IMessageActivity;
+  stripMentionsText(options?: StripMentionsTextOptions): IMessageActivity;
 
   /**
    * is the recipient account mentioned
@@ -186,7 +186,7 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
   toInterface(): IMessageActivity {
     return Object.assign(
       {
-        removeMentionsText: this.removeMentionsText.bind(this),
+        stripMentionsText: this.stripMentionsText.bind(this),
         isRecipientMentioned: this.isRecipientMentioned.bind(this),
         getAccountMention: this.getAccountMention.bind(this),
       },
@@ -339,8 +339,8 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
   /**
    * remove "\<at>...\</at>" text from an activity
    */
-  removeMentionsText(options: RemoveMentionsTextOptions = {}) {
-    this.text = removeMentionsText(this, options);
+  stripMentionsText(options: StripMentionsTextOptions = {}) {
+    this.text = stripMentionsText(this, options);
     return this;
   }
 

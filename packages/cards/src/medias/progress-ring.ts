@@ -52,12 +52,11 @@ export class ProgressRing extends Element implements IProgressRing {
   constructor(options: ProgressRingOptions = {}) {
     super();
     this.type = 'ProgressRing';
-    this.withOptions(options);
+    Object.assign(this, options);
   }
 
-  withOptions(value: ProgressRingOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: ProgressRingOptions) {
+    return new ProgressRing(options);
   }
 
   withLabel(value: string, position?: 'before' | 'after' | 'above' | 'below') {

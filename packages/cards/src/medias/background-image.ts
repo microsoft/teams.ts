@@ -58,12 +58,11 @@ export class BackgroundImage implements IBackgroundImage {
   constructor(url: string, options: BackgroundImageOptions = {}) {
     this.type = 'BackgroundImage';
     this.url = url;
-    this.withOptions(options);
+    Object.assign(this, options);
   }
 
-  withOptions(value: BackgroundImageOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: Omit<IBackgroundImage, 'type'>) {
+    return new BackgroundImage(options.url, options);
   }
 
   withUrl(value: string) {

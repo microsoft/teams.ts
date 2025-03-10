@@ -1,4 +1,4 @@
-import { IExecuteAction, IOpenUrlAction, ISubmitAction, IToggleVisibilityAction } from '../actions';
+import { SelectAction } from '../actions';
 import { IElement, Element } from '../base';
 import { Layout } from '../layouts';
 import { IBackgroundImage } from '../medias';
@@ -39,7 +39,7 @@ export interface IContainerElement extends IElement {
   /**
    * An Action that will be invoked when the `Container` is tapped or selected. `Action.ShowCard` is not supported.
    */
-  selectAction?: IExecuteAction | IOpenUrlAction | ISubmitAction | IToggleVisibilityAction;
+  selectAction?: SelectAction;
 }
 
 export class ContainerElement extends Element implements IContainerElement {
@@ -78,7 +78,7 @@ export class ContainerElement extends Element implements IContainerElement {
   /**
    * An Action that will be invoked when the `Container` is tapped or selected. `Action.ShowCard` is not supported.
    */
-  selectAction?: IExecuteAction | IOpenUrlAction | ISubmitAction | IToggleVisibilityAction;
+  selectAction?: SelectAction;
 
   withLayouts(...value: Layout[]) {
     this.layouts = value;
@@ -110,9 +110,7 @@ export class ContainerElement extends Element implements IContainerElement {
     return this;
   }
 
-  withSelectAction(
-    value: IExecuteAction | IOpenUrlAction | ISubmitAction | IToggleVisibilityAction
-  ) {
+  withSelectAction(value: SelectAction) {
     this.selectAction = value;
     return this;
   }

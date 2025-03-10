@@ -36,12 +36,13 @@ export class ToggleVisibilityAction extends Action implements IToggleVisibilityA
     this.targetElements = targetElements;
   }
 
-  withOptions(value: ToggleVisibilityActionOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: Omit<IToggleVisibilityAction, 'type'>) {
+    const action = new ToggleVisibilityAction(...options.targetElements);
+    Object.assign(action, options);
+    return action;
   }
 
-  addElements(...value: (string | TargetElement)[]) {
+  addTargets(...value: (string | TargetElement)[]) {
     this.targetElements.push(...value);
     return this;
   }

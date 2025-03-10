@@ -1,8 +1,8 @@
 import { MessageActivity } from '../message';
-import { removeMentionsText } from './remove-mentions-text';
+import { stripMentionsText } from './strip-mentions-text';
 
 describe('Activity Utils', () => {
-  describe('removeMentionsText', () => {
+  describe('stripMentionsText', () => {
     const activity = new MessageActivity('Hello <at>test-bot</at>! How are you?')
       .withChannelId('msteams')
       .withConversation({
@@ -29,7 +29,7 @@ describe('Activity Utils', () => {
       });
 
     it('should do nothing when no text', () => {
-      const text = removeMentionsText({
+      const text = stripMentionsText({
         ...activity.toInterface(),
         type: 'typing',
         text: undefined,
@@ -39,7 +39,7 @@ describe('Activity Utils', () => {
     });
 
     it('should do nothing when no mentions', () => {
-      const text = removeMentionsText({
+      const text = stripMentionsText({
         ...activity.toInterface(),
         entities: undefined,
       });
@@ -48,12 +48,12 @@ describe('Activity Utils', () => {
     });
 
     it('should remove mention', () => {
-      const text = removeMentionsText(activity);
+      const text = stripMentionsText(activity);
       expect(text).toEqual('Hello ! How are you?');
     });
 
     it('should remove multiple mentions', () => {
-      const text = removeMentionsText(
+      const text = stripMentionsText(
         activity
           .clone()
           .withText(`${activity.text} <at>some other text</at>`)
@@ -72,7 +72,7 @@ describe('Activity Utils', () => {
     });
 
     it('should remove only mention tags', () => {
-      const text = removeMentionsText(
+      const text = stripMentionsText(
         activity
           .clone()
           .withText(`${activity.text} <at>some other text</at>`)
@@ -92,7 +92,7 @@ describe('Activity Utils', () => {
     });
 
     it('should remove only specific account mentions', () => {
-      const text = removeMentionsText(
+      const text = stripMentionsText(
         activity
           .clone()
           .withText(`${activity.text} <at>test-bot-2</at>`)

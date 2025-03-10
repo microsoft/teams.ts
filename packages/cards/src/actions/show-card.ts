@@ -14,7 +14,7 @@ export interface IShowCardAction extends IAction {
   card: ICard;
 }
 
-export type ShowCardActionOptions = Omit<IShowCardAction, 'type' | 'card'>;
+export type ShowCardOptions = Omit<IShowCardAction, 'type' | 'card'>;
 
 /**
  * Defines an AdaptiveCard which is shown to the user when the button or link is clicked.
@@ -27,16 +27,15 @@ export class ShowCardAction extends Action implements IShowCardAction {
    */
   card: ICard;
 
-  constructor(card: ICard, options: ShowCardActionOptions = {}) {
+  constructor(card: ICard, options: ShowCardOptions = {}) {
     super();
     this.type = 'Action.ShowCard';
     this.card = card;
-    this.withOptions(options);
+    Object.assign(this, options);
   }
 
-  withOptions(value: ShowCardActionOptions) {
-    Object.assign(this, value);
-    return this;
+  static from(options: Omit<IShowCardAction, 'type'>) {
+    return new ShowCardAction(options.card, options);
   }
 
   withCard(value: ICard) {
