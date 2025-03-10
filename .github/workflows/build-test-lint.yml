@@ -1,3 +1,5 @@
+name: Build & Test & Lint
+
 on:
   workflow_call:
   workflow_dispatch:
@@ -8,8 +10,8 @@ on:
 permissions: read-all
 
 jobs:
-  build:
-    name: Build
+  build-test-lint:
+    name: Build & Test & Lint
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -26,3 +28,6 @@ jobs:
       run: npm install
     - name: Build
       run: npm run build
+    - name: Test
+      run: npm run test
+
