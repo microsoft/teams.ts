@@ -77,11 +77,20 @@ export async function $process(this: App, sender: ISenderPlugin, event: IActivit
     }
   }
 
-  let i = 0;
-  const next = (ctx?: IActivityContext) => {
-    if (i === routes.length - 1) return;
+  let i = -1;
+  let invokeResponse: InvokeResponse | undefined;
+
+  const next = async (ctx?: IActivityContext) => {
+    if (i === routes.length - 1) return invokeResponse;
     i++;
-    return routes[i](ctx || context.toInterface());
+
+    const res = await routes[i](ctx || context.toInterface());
+
+    if (res !== undefined) {
+      invokeResponse = res;
+    }
+
+    return invokeResponse;
   };
 
   const context = await ActivityContext.new(sender, {
@@ -102,7 +111,7 @@ export async function $process(this: App, sender: ISenderPlugin, event: IActivit
   }
 
   try {
-    const res: InvokeResponse = (await routes[0](context.toInterface())) || { status: 200 };
+    const res: InvokeResponse = (await next()) || { status: 200 };
     await context.stream.close();
     this.events.emit('activity.response', {
       plugin: sender.name,

@@ -6,6 +6,7 @@ import {
   cardAttachment,
   ConversationAccount,
   ConversationReference,
+  InvokeResponse,
   MessageActivity,
   MessageDeleteActivity,
   MessageUpdateActivity,
@@ -69,7 +70,7 @@ export interface IActivityContextOptions<T extends Activity = Activity> {
   /**
    * call the next event/middleware handler
    */
-  next: (context?: IActivityContext) => any | Promise<any>;
+  next: (context?: IActivityContext) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 }
 
 export interface IActivityContext<T extends Activity = Activity>
@@ -115,11 +116,13 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
   storage!: IStorage;
   stream: IStreamer;
   isSignedIn?: boolean;
-  next!: (context?: IActivityContext) => any | Promise<any>;
+  next!: (context?: IActivityContext) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
   [key: string]: any;
 
   protected _plugin: ISenderPlugin;
-  protected _next?: (context?: IActivityContext) => any | Promise<any>;
+  protected _next?: (
+    context?: IActivityContext
+  ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 
   constructor(plugin: ISenderPlugin, stream: IStreamer, value: IActivityContextOptions) {
     Object.assign(this, value);

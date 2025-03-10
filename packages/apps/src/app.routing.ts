@@ -1,3 +1,5 @@
+import { InvokeResponse } from '@microsoft/spark.api';
+
 import { App } from './app';
 import { IActivityContext } from './contexts';
 import { IRoutes } from './routes';
@@ -45,7 +47,7 @@ export function message(
  * register a middleware
  * @param cb callback to invoke
  */
-export function use(this: App, cb: RouteHandler<IActivityContext>) {
+export function use(this: App, cb: RouteHandler<IActivityContext, void | InvokeResponse>) {
   this.router.use(cb);
   return this;
 }

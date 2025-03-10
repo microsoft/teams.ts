@@ -1,4 +1,4 @@
-import { Activity } from '@microsoft/spark.api';
+import { Activity, InvokeResponse } from '@microsoft/spark.api';
 
 import { EVENT_ALIASES, IRoutes, INVOKE_ALIASES } from './routes';
 import { RouteHandler } from './types';
@@ -20,7 +20,7 @@ export class Router {
   select(activity: Activity) {
     return this.routes
       .filter((r) => r.select(activity))
-      .map((r) => r.callback as RouteHandler<IActivityContext, any>);
+      .map((r) => r.callback as RouteHandler<IActivityContext, void | InvokeResponse>);
   }
 
   /**
@@ -36,7 +36,7 @@ export class Router {
    * register a middleware
    * @param callback the callback to invoke
    */
-  use(callback: RouteHandler<IActivityContext>) {
+  use(callback: RouteHandler<IActivityContext, any>) {
     this.register({
       select: () => true,
       callback,
