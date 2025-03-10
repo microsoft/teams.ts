@@ -1,5 +1,11 @@
 # @microsoft/spark.client
 
+## 0.1.1
+
+### Patch Changes
+
+- adaptive cards action invoke response fix, tests for cards
+
 ## 0.1.0
 
 ### Minor Changes

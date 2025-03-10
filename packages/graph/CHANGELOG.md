@@ -1,5 +1,13 @@
 # @microsoft/spark.graph
 
+## 0.1.1
+
+### Patch Changes
+
+- adaptive cards action invoke response fix, tests for cards
+- Updated dependencies
+    - @microsoft/spark.common@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes
