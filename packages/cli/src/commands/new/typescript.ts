@@ -97,32 +97,37 @@ export function Typescript(): CommandModule<{}, z.infer<typeof ArgsSchema>> {
     },
     handler: async ({ name, template, ttk, start, clientId, clientSecret }) => {
       const projectDir = path.join(process.cwd(), name);
-      const project = new Project(projectDir, name, 'typescript').addTemplate(template);
+      const builder = Project.builder()
+        .withPath(projectDir)
+        .withName(name)
+        .withLanguage('typescript')
+        .addTemplate(template);
 
       if (ttk) {
-        project.addTeamsToolkit(ttk);
+        builder.addTeamsToolkit(ttk);
       }
 
       if (clientId) {
-        project.addEnv('CLIENT_ID', clientId);
+        builder.addEnv('CLIENT_ID', clientId);
       }
 
       if (clientSecret) {
-        project.addEnv('CLIENT_SECRET', clientSecret);
+        builder.addEnv('CLIENT_SECRET', clientSecret);
       }
 
       if (process.env.OPENAI_API_KEY) {
-        project.addEnv('OPENAI_API_KEY', process.env.OPENAI_API_KEY);
+        builder.addEnv('OPENAI_API_KEY', process.env.OPENAI_API_KEY);
       }
 
       if (process.env.AZURE_OPENAI_API_KEY) {
-        project.addEnv('AZURE_OPENAI_API_KEY', process.env.AZURE_OPENAI_API_KEY);
+        builder.addEnv('AZURE_OPENAI_API_KEY', process.env.AZURE_OPENAI_API_KEY);
       }
 
       if (process.env.AZURE_OPENAI_ENDPOINT) {
-        project.addEnv('AZURE_OPENAI_ENDPOINT', process.env.AZURE_OPENAI_ENDPOINT);
+        builder.addEnv('AZURE_OPENAI_ENDPOINT', process.env.AZURE_OPENAI_ENDPOINT);
       }
 
+      const project = builder.build();
       await project.up();
       console.log(
         new String()

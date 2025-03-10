@@ -4,8 +4,9 @@ import yaml from 'yaml';
 import { String } from '@microsoft/spark.common';
 
 import { IProjectAttributeOperation } from '../project-attribute';
+import { IProject } from '../project';
 
-export class FileYamlSetOperation implements IProjectAttributeOperation {
+export class FileYamlSet implements IProjectAttributeOperation {
   readonly name = 'file.yaml.set';
 
   private _path: string;
@@ -20,7 +21,7 @@ export class FileYamlSetOperation implements IProjectAttributeOperation {
     this._value = value;
   }
 
-  up() {
+  up(_: IProject) {
     const ext = path.extname(this._filename).toLowerCase();
     const filePath = path.join(this._path, this._filename);
     const relativeFilePath = path.relative(process.cwd(), filePath);
@@ -50,7 +51,7 @@ export class FileYamlSetOperation implements IProjectAttributeOperation {
     process.stdout.write('✔️\n');
   }
 
-  down() {
+  down(_: IProject) {
     const ext = path.extname(this._filename).toLowerCase();
     const filePath = path.join(this._path, this._filename);
     const relativeFilePath = path.relative(process.cwd(), filePath);

@@ -1,6 +1,7 @@
+import { IProject } from '../project';
 import { IProjectAttributeOperation } from '../project-attribute';
 
-export class CompoundOperation implements IProjectAttributeOperation {
+export class Compound implements IProjectAttributeOperation {
   readonly name = 'compound';
 
   private _operations: Array<IProjectAttributeOperation> = [];
@@ -9,15 +10,15 @@ export class CompoundOperation implements IProjectAttributeOperation {
     this._operations = operations;
   }
 
-  async up() {
+  async up(project: IProject) {
     for (const op of this._operations) {
-      await op.up();
+      await op.up(project);
     }
   }
 
-  async down() {
+  async down(project: IProject) {
     for (const op of this._operations.toReversed()) {
-      await op.down();
+      await op.down(project);
     }
   }
 }

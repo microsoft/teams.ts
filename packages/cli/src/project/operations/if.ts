@@ -1,6 +1,7 @@
+import { IProject } from '../project';
 import { IProjectAttributeOperation } from '../project-attribute';
 
-export class IfOperation implements IProjectAttributeOperation {
+export class If implements IProjectAttributeOperation {
   readonly name = 'if';
 
   private _conditions: Array<() => boolean | Promise<boolean>> = [];
@@ -21,25 +22,25 @@ export class IfOperation implements IProjectAttributeOperation {
     return this;
   }
 
-  async up() {
+  async up(project: IProject) {
     const res = await Promise.all(this._conditions.map((condition) => condition()));
 
     if (res.includes(false)) {
-      await this._else?.up();
+      await this._else?.up(project);
       return;
     }
 
-    await this._then?.up();
+    await this._then?.up(project);
   }
 
-  async down() {
+  async down(project: IProject) {
     const res = await Promise.all(this._conditions.map((condition) => condition()));
 
     if (res.includes(false)) {
-      await this._else?.down();
+      await this._else?.down(project);
       return;
     }
 
-    await this._then?.down();
+    await this._then?.down(project);
   }
 }
