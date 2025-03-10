@@ -1,4 +1,4 @@
-import { ConversationReference } from '@microsoft/spark.api';
+import { ConversationReference, InvokeResponse } from '@microsoft/spark.api';
 
 import { App } from './app';
 import { ApiClient } from './api';
@@ -102,7 +102,7 @@ export async function $process(this: App, sender: ISenderPlugin, event: IActivit
   }
 
   try {
-    const res = (await routes[0](context.toInterface())) || { status: 200 };
+    const res: InvokeResponse = (await routes[0](context.toInterface())) || { status: 200 };
     await context.stream.close();
     this.events.emit('activity.response', {
       plugin: sender.name,
