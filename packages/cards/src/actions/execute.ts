@@ -5,7 +5,7 @@ import { IAction, Action } from './base';
 /**
  * Gathers input fields, merges with optional data field, and sends an event to the client. Clients process the event by sending an Invoke activity of type adaptiveCard/action to the target Bot. The inputs that are gathered are those on the current card, and in the case of a show card those on any parent cards. See [Universal Action Model](https://docs.microsoft.com/en-us/adaptive-cards/authoring-cards/universal-action-model) documentation for more details.
  */
-export interface IExecute extends IAction {
+export interface IExecuteAction extends IAction {
   type: 'Action.Execute';
 
   /**
@@ -24,12 +24,12 @@ export interface IExecute extends IAction {
   associatedInputs?: AssociatedInputs;
 }
 
-export type ExecuteOptions = Omit<IExecute, 'type'>;
+export type ExecuteActionOptions = Omit<IExecuteAction, 'type'>;
 
 /**
  * Gathers input fields, merges with optional data field, and sends an event to the client. Clients process the event by sending an Invoke activity of type adaptiveCard/action to the target Bot. The inputs that are gathered are those on the current card, and in the case of a show card those on any parent cards. See [Universal Action Model](https://docs.microsoft.com/en-us/adaptive-cards/authoring-cards/universal-action-model) documentation for more details.
  */
-export class Execute extends Action implements IExecute {
+export class ExecuteAction extends Action implements IExecuteAction {
   type: 'Action.Execute';
 
   /**
@@ -47,14 +47,14 @@ export class Execute extends Action implements IExecute {
    */
   associatedInputs?: AssociatedInputs;
 
-  constructor(options: ExecuteOptions = {}) {
+  constructor(options: ExecuteActionOptions = {}) {
     super();
     this.type = 'Action.Execute';
     Object.assign(this, options);
   }
 
-  static from(options: ExecuteOptions) {
-    return new Execute(options);
+  static from(options: ExecuteActionOptions) {
+    return new ExecuteAction(options);
   }
 
   withVerb(value: string) {

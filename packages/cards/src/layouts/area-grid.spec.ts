@@ -1,6 +1,6 @@
 import { AreaGridLayout, GridArea } from './area-grid';
 
-describe('AreaGridLayout', () => {
+describe('Layouts.AreaGrid', () => {
   it('should build', () => {
     const layout = new AreaGridLayout()
       .withColumnSpacing('default')

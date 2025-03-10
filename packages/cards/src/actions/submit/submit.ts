@@ -10,7 +10,7 @@ import { ITaskFetchData } from './task-fetch';
 /**
  * Gathers input fields, merges with optional data field, and sends an event to the client. It is up to the client to determine how this data is processed. For example: With BotFramework bots, the client would send an activity through the messaging medium to the bot. The inputs that are gathered are those on the current card, and in the case of a show card those on any parent cards. See https://docs.microsoft.com/en-us/adaptive-cards/authoring-cards/input-validation for more details.
  */
-export interface ISubmit extends IAction {
+export interface ISubmitAction extends IAction {
   type: 'Action.Submit';
 
   /**
@@ -21,15 +21,15 @@ export interface ISubmit extends IAction {
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
    */
-  data?: string | SubmitActionData;
+  data?: string | SubmitData;
 }
 
-export type SubmitOptions = Omit<ISubmit, 'type'>;
+export type SubmitOptions = Omit<ISubmitAction, 'type'>;
 
 /**
  * Gathers input fields, merges with optional data field, and sends an event to the client. It is up to the client to determine how this data is processed. For example: With BotFramework bots, the client would send an activity through the messaging medium to the bot. The inputs that are gathered are those on the current card, and in the case of a show card those on any parent cards. See https://docs.microsoft.com/en-us/adaptive-cards/authoring-cards/input-validation for more details.
  */
-export class Submit extends Action implements ISubmit {
+export class SubmitAction extends Action implements ISubmitAction {
   type: 'Action.Submit';
 
   /**
@@ -40,7 +40,7 @@ export class Submit extends Action implements ISubmit {
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
    */
-  data?: string | SubmitActionData;
+  data?: string | SubmitData;
 
   constructor(options: SubmitOptions = {}) {
     super();
@@ -48,8 +48,8 @@ export class Submit extends Action implements ISubmit {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<ISubmit, 'type'>) {
-    return new Submit(options);
+  static from(options: Omit<ISubmitAction, 'type'>) {
+    return new SubmitAction(options);
   }
 
   withAssociatedInputs(value: AssociatedInputs) {
@@ -57,7 +57,7 @@ export class Submit extends Action implements ISubmit {
     return this;
   }
 
-  withData(data: string | SubmitActionData) {
+  withData(data: string | SubmitData) {
     this.data = data;
     return this;
   }
@@ -66,7 +66,7 @@ export class Submit extends Action implements ISubmit {
 /**
  * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
  */
-export type SubmitActionData = {
+export type SubmitData = {
   /**
    * Teams specific payload data.
    */

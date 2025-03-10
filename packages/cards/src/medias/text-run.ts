@@ -1,4 +1,4 @@
-import { IExecute, IOpenUrl, ISubmit, IToggleVisibility } from '../actions';
+import { SelectAction } from '../actions';
 import { Color, FontSize, FontType, FontWeight } from '../common';
 
 /**
@@ -40,7 +40,7 @@ export interface ITextRun {
   /**
    * Action to invoke when this text run is clicked. Visually changes the text run into a hyperlink. Action.ShowCard is not supported.
    */
-  selectAction?: IExecute | IOpenUrl | ISubmit | IToggleVisibility;
+  selectAction?: SelectAction;
 
   /**
    * Controls size of text.
@@ -104,7 +104,7 @@ export class TextRun implements ITextRun {
   /**
    * Action to invoke when this text run is clicked. Visually changes the text run into a hyperlink. Action.ShowCard is not supported.
    */
-  selectAction?: IExecute | IOpenUrl | ISubmit | IToggleVisibility;
+  selectAction?: SelectAction;
 
   /**
    * Controls size of text.
@@ -161,7 +161,7 @@ export class TextRun implements ITextRun {
     return this;
   }
 
-  withSelectAction(value: IExecute | IOpenUrl | ISubmit | IToggleVisibility) {
+  withSelectAction(value: SelectAction) {
     this.selectAction = value;
     return this;
   }

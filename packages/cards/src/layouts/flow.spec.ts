@@ -1,6 +1,6 @@
 import { FlowLayout } from './flow';
 
-describe('FlowLayout', () => {
+describe('Layouts.Flow', () => {
   it('should build', () => {
     const layout = new FlowLayout()
       .withColumnSpacing('default')

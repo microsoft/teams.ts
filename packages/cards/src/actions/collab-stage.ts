@@ -1,11 +1,11 @@
 import { ITabInfo } from '../common';
 
-import { ISubmit, Submit, SubmitOptions } from './submit';
+import { ISubmitAction, SubmitAction, SubmitOptions } from './submit';
 
 /**
  * Adaptive Card action response type for the {@link CollabStageAction} function.
  */
-export interface ICollabStage extends ISubmit {
+export interface ICollabStageAction extends ISubmitAction {
   data: {
     msteams: ICollabStageData;
   };
@@ -14,7 +14,7 @@ export interface ICollabStage extends ISubmit {
 /**
  * Adaptive Card action that opens a collab stage popout window.
  */
-export class CollabStage extends Submit implements ICollabStage {
+export class CollabStageAction extends SubmitAction implements ICollabStageAction {
   declare data: {
     msteams: ICollabStageData;
   };

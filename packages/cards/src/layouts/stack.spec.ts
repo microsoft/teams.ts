@@ -1,6 +1,6 @@
 import { StackLayout } from './stack';
 
-describe('StackLayout', () => {
+describe('Layouts.Stack', () => {
   it('should build', () => {
     const layout = new StackLayout().withTargetWidth('Narrow');
 

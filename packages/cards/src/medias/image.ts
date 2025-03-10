@@ -1,4 +1,4 @@
-import { IExecute, IOpenUrl, ISubmit, IToggleVisibility } from '../actions';
+import { SelectAction } from '../actions';
 import { IElement, Element } from '../base';
 
 export type ImageSize = 'auto' | 'stretch' | 'small' | 'medium' | 'large';
@@ -32,7 +32,7 @@ export interface IImage extends IElement {
   /**
    * An Action that will be invoked when the Image is tapped or selected. Action.ShowCard is not supported.
    */
-  selectAction?: IExecute | IOpenUrl | ISubmit | IToggleVisibility;
+  selectAction?: SelectAction;
 
   /**
    * Controls the approximate size of the image. The physical dimensions will vary per host.
@@ -81,7 +81,7 @@ export class Image extends Element implements IImage {
   /**
    * An Action that will be invoked when the Image is tapped or selected. Action.ShowCard is not supported.
    */
-  selectAction?: IExecute | IOpenUrl | ISubmit | IToggleVisibility;
+  selectAction?: SelectAction;
 
   /**
    * Controls the approximate size of the image. The physical dimensions will vary per host.
@@ -124,7 +124,7 @@ export class Image extends Element implements IImage {
     return this;
   }
 
-  withSelectAction(value: IExecute | IOpenUrl | ISubmit | IToggleVisibility) {
+  withSelectAction(value: SelectAction) {
     this.selectAction = value;
     return this;
   }

@@ -1,8 +1,8 @@
-import { ToggleVisibility } from './toggle-visibility';
+import { ToggleVisibilityAction } from './toggle-visibility';
 
 describe('Actions.ToggleVisibility', () => {
   it('should build', () => {
-    const action = new ToggleVisibility().addTargets('a', 'b').addTargets({
+    const action = new ToggleVisibilityAction().addTargets('a', 'b').addTargets({
       type: 'TargetElement',
       elementId: '1',
       isVisible: true,
@@ -19,7 +19,7 @@ describe('Actions.ToggleVisibility', () => {
   });
 
   it('should build from interface', () => {
-    const action = ToggleVisibility.from({
+    const action = ToggleVisibilityAction.from({
       targetElements: [
         'a',
         'b',
