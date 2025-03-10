@@ -1,3 +1,40 @@
+import { ISubmitAction, MSTeamsData, SubmitAction, SubmitActionOptions } from './submit';
+
+export type MessageBackActionOptions = SubmitActionOptions & {
+  data: MSTeamsData<IMessageBackData>;
+};
+
+export interface IMessageBackAction extends ISubmitAction {
+  /**
+   * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
+   */
+  data: MSTeamsData<IMessageBackData>;
+}
+
+export class MessageBackAction extends SubmitAction implements IMessageBackAction {
+  /**
+   * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
+   */
+  data: MSTeamsData<IMessageBackData>;
+
+  constructor(data: IMessageBackData, options: SubmitActionOptions = {}) {
+    super(options);
+    Object.assign(this, options);
+    this.data = {
+      msteams: new MessageBackData(data.text, data.value, data.displayText),
+    };
+  }
+
+  static from(options: MessageBackActionOptions) {
+    return new MessageBackAction(options.data.msteams, options);
+  }
+
+  withData(value: IMessageBackData) {
+    this.data.msteams = value;
+    return this;
+  }
+}
+
 export interface IMessageBackData {
   type: 'messageBack';
 

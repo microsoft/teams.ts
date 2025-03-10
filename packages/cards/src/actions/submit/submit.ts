@@ -1,11 +1,8 @@
 import { AssociatedInputs } from '../../common';
 
 import { IAction, Action } from '../base';
-import { IIMBackData } from './im-back';
-import { IInvokeData } from './invoke';
-import { IMessageBackData } from './message-back';
-import { ISignInData } from './sign-in';
-import { ITaskFetchData } from './task-fetch';
+
+export type SubmitActionOptions = Omit<ISubmitAction, 'type' | 'data'>;
 
 /**
  * Gathers input fields, merges with optional data field, and sends an event to the client. It is up to the client to determine how this data is processed. For example: With BotFramework bots, the client would send an activity through the messaging medium to the bot. The inputs that are gathered are those on the current card, and in the case of a show card those on any parent cards. See https://docs.microsoft.com/en-us/adaptive-cards/authoring-cards/input-validation for more details.
@@ -21,10 +18,8 @@ export interface ISubmitAction extends IAction {
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
    */
-  data?: string | SubmitData;
+  data?: MSTeamsData<Record<string, any>>;
 }
-
-export type SubmitOptions = Omit<ISubmitAction, 'type'>;
 
 /**
  * Gathers input fields, merges with optional data field, and sends an event to the client. It is up to the client to determine how this data is processed. For example: With BotFramework bots, the client would send an activity through the messaging medium to the bot. The inputs that are gathered are those on the current card, and in the case of a show card those on any parent cards. See https://docs.microsoft.com/en-us/adaptive-cards/authoring-cards/input-validation for more details.
@@ -40,9 +35,9 @@ export class SubmitAction extends Action implements ISubmitAction {
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
    */
-  data?: string | SubmitData;
+  data?: MSTeamsData<Record<string, any>>;
 
-  constructor(options: SubmitOptions = {}) {
+  constructor(options: SubmitActionOptions = {}) {
     super();
     this.type = 'Action.Submit';
     Object.assign(this, options);
@@ -57,8 +52,12 @@ export class SubmitAction extends Action implements ISubmitAction {
     return this;
   }
 
-  withData(data: string | SubmitData) {
-    this.data = data;
+  withData(value: Record<string, any> = {}) {
+    if (!this.data) {
+      this.data = { msteams: {} };
+    }
+
+    this.data.msteams = value;
     return this;
   }
 }
@@ -66,14 +65,14 @@ export class SubmitAction extends Action implements ISubmitAction {
 /**
  * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
  */
-export type SubmitData = {
+export type MSTeamsData<T> = {
   /**
    * Teams specific payload data.
    */
-  msteams?: IMessageBackData | IIMBackData | ISignInData | ITaskFetchData | IInvokeData;
+  msteams: T;
 
   /**
-   * any other properties
+   * Other
    */
   [key: string]: any;
 };

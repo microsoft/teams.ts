@@ -1,41 +1,57 @@
-import { ITabInfo } from '../common';
+import { ITabInfo } from '../../common';
 
-import { ISubmitAction, SubmitAction, SubmitOptions } from './submit';
+import { ISubmitAction, MSTeamsData, SubmitAction, SubmitActionOptions } from './submit';
+
+export type CollabStageActionOptions = SubmitActionOptions & {
+  data: MSTeamsData<ICollabStageData>;
+};
 
 /**
  * Adaptive Card action response type for the {@link CollabStageAction} function.
  */
 export interface ICollabStageAction extends ISubmitAction {
-  data: {
-    msteams: ICollabStageData;
-  };
+  /**
+   * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
+   */
+  data: MSTeamsData<ICollabStageData>;
 }
 
 /**
  * Adaptive Card action that opens a collab stage popout window.
  */
 export class CollabStageAction extends SubmitAction implements ICollabStageAction {
-  declare data: {
-    msteams: ICollabStageData;
-  };
+  /**
+   * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
+   */
+  data: MSTeamsData<ICollabStageData>;
 
-  constructor(tab: ITabInfo, options: SubmitOptions = {}) {
+  constructor(tab?: ITabInfo, options: SubmitActionOptions = {}) {
     super(options);
+    Object.assign(this, options);
     this.data = {
       msteams: {
         type: 'invoke',
-        value: {
-          type: 'tab/tabInfoAction',
-          tabInfo: tab,
-        },
+        value: tab
+          ? {
+              type: 'tab/tabInfoAction',
+              tabInfo: tab,
+            }
+          : undefined,
       },
     };
-
-    this.withOptions(options);
   }
 
-  withOptions(value: SubmitOptions) {
-    Object.assign(this, value);
+  static from(options: CollabStageActionOptions) {
+    return new CollabStageAction(options.data.msteams.value?.tabInfo, options);
+  }
+
+  withData(value: ICollabStageData) {
+    this.data.msteams = value;
+    return this;
+  }
+
+  withValue(value: ITabInfo) {
+    this.data.msteams.value = new CollabStageValueData(value);
     return this;
   }
 }
