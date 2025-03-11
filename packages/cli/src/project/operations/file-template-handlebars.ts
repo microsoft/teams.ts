@@ -33,7 +33,14 @@ export class FileTemplateHandlebars implements IProjectAttributeOperation {
     );
 
     const template = Handlebars.compile(content, { strict: true });
-    const rendered = template(project);
+    const rendered = template(project, {
+      helpers: {
+        capitalize: (text: string) => {
+          if (!text) return '';
+          return `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
+        },
+      },
+    });
 
     fs.writeFileSync(this._to, rendered, 'utf8');
     process.stdout.write('✔️\n');

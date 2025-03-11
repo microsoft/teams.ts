@@ -3,19 +3,19 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "resourceBaseName": {
-      "value": "bot${{RESOURCE_SUFFIX}}"
+      "value": "bot$\{{RESOURCE_SUFFIX}}"
     },
     "botAadAppClientId": {
-      "value": "${{BOT_ID}}"
+      "value": "$\{{BOT_ID}}"
     },
     "botAadAppClientSecret": {
-      "value": "${{SECRET_BOT_PASSWORD}}"
+      "value": "$\{{SECRET_BOT_PASSWORD}}"
     },
     "webAppSKU": {
       "value": "B1"
     },
     "botDisplayName": {
-      "value": "EchoBotInfra"
+      "value": "{{ capitalize name }}Infra"
     }
   }
 }

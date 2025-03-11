@@ -45,14 +45,22 @@ export class Project implements IProject {
   async up() {
     for (const attribute of this._attributes) {
       const op = await attribute[this._language](this._path);
-      await op.up(this);
+      await op.up({
+        path: this.path,
+        name: this.name,
+        language: this.language,
+      });
     }
   }
 
   async down() {
     for (const attribute of this._attributes.toReversed()) {
       const op = await attribute[this._language](this._path);
-      await op.down(this);
+      await op.down({
+        path: this.path,
+        name: this.name,
+        language: this.language,
+      });
     }
   }
 
