@@ -1,5 +1,5 @@
 {
-  "name": "echo",
+  "name": "{{ toKebabCase name }}",
   "version": "0.0.0",
   "license": "MIT",
   "private": true,
@@ -11,25 +11,30 @@
   ],
   "scripts": {
     "clean": "npx rimraf ./dist",
-    "build": "npx tsup",
-    "start": "node .",
-    "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\""
+    "start": "node -r dotenv/config .",
+    "dev": "npx nodemon",
+    "build": "npx tsup && npm run build:client",
+    "build:client": "npx vite build --outDir dist/client"
   },
   "dependencies": {
     "@microsoft/spark.api": "latest",
     "@microsoft/spark.apps": "latest",
     "@microsoft/spark.cards": "latest",
+    "@microsoft/spark.client": "latest",
     "@microsoft/spark.common": "latest",
+    "@microsoft/spark.dev": "latest",
     "@microsoft/spark.graph": "latest",
-    "@microsoft/spark.dev": "latest"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",
+    "@vitejs/plugin-react": "^4.3.4",
     "dotenv": "^16.4.5",
     "nodemon": "^3.1.4",
     "rimraf": "^6.0.1",
-    "ts-node": "^10.9.2",
     "tsup": "^8.4.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vite": "^6.2.0"
   }
 }

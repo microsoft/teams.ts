@@ -1,5 +1,5 @@
 import { IProjectAttribute } from '../project-attribute';
-import { CompoundOperation, FileEnvSetOperation } from '../operations';
+import { Compound, FileEnvSet } from '../operations';
 
 export class EnvAttribute implements IProjectAttribute {
   readonly id = 'env';
@@ -18,12 +18,10 @@ export class EnvAttribute implements IProjectAttribute {
   }
 
   typescript(targetDir: string) {
-    return new CompoundOperation(
-      new FileEnvSetOperation(targetDir, this._filename, this._key, this._value)
-    );
+    return new Compound(new FileEnvSet(targetDir, this._filename, this._key, this._value));
   }
 
   csharp(_: string) {
-    return new CompoundOperation();
+    return new Compound();
   }
 }

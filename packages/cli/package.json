@@ -37,9 +37,9 @@
     "test": "npx jest"
   },
   "dependencies": {
-    "@microsoft/spark.ai": "*",
     "@microsoft/spark.common": "*",
-    "@microsoft/spark.openai": "*",
+    "change-case": "^5.4.4",
+    "handlebars": "^4.7.8",
     "yaml": "^2.7.0",
     "yargs": "^17.7.2",
     "zod": "^3.24.2"

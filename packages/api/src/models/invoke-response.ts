@@ -25,6 +25,18 @@ export type InvokeResponse<T extends keyof InvokeResponseBody = any> = {
   body?: InvokeResponseBody[T];
 };
 
+/**
+ * @hidden
+ * @internal
+ *
+ * Type guard to check if a value is an InvokeResponse.
+ * @param value value to compare
+ * @returns true if value is type of InvokeResponse
+ */
+export function isInvokeResponse(value: any): value is InvokeResponse {
+  return typeof value === 'object' && 'status' in value && typeof value.status === 'number';
+}
+
 type InvokeResponseBody = {
   'config/fetch': ConfigResponse;
   'config/submit': ConfigResponse;
@@ -45,7 +57,7 @@ type InvokeResponseBody = {
   'tab/submit': TabResponse;
   'message/submitAction': void;
   'handoff/action': void;
-  'signin/tokenExchange': TokenExchangeInvokeResponse | undefined;
+  'signin/tokenExchange': TokenExchangeInvokeResponse | void;
   'signin/verifyState': void;
   'adaptiveCard/action': AdaptiveCardActionResponse;
 };

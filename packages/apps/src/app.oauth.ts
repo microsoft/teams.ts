@@ -37,13 +37,9 @@ export async function onTokenExchange(
     return { status: 200 };
   } catch (err) {
     if (err instanceof AxiosError) {
-      if (err.status !== 404 && err.status !== 400) {
+      if (err.status !== 404 && err.status !== 400 && err.status !== 412) {
         this.onActivityError({ ...ctx, err });
         return { status: err.status || 500 };
-      }
-
-      if (err.status === 404) {
-        return { status: 404 };
       }
     }
 
@@ -62,13 +58,16 @@ export async function onVerifyState(
   this: App,
   ctx: contexts.IActivityContext<ISignInVerifyStateInvokeActivity>
 ) {
-  const { plugin, api, activity, storage } = ctx;
+  const { plugin, log, api, activity, storage } = ctx;
   const key = `auth/${activity.conversation.id}/${activity.from.id}`;
 
   try {
     const connectionName: string | undefined = await storage.get(key);
 
     if (!connectionName || !activity.value.state) {
+      log.warn(
+        `auth state not found for conversation "${activity.conversation.id}" and user "${activity.from.id}"`
+      );
       return { status: 404 };
     }
 
@@ -90,13 +89,9 @@ export async function onVerifyState(
     return { status: 200 };
   } catch (err) {
     if (err instanceof AxiosError) {
-      if (err.status !== 404 && err.status !== 400) {
+      if (err.status !== 404 && err.status !== 400 && err.status !== 412) {
         this.onActivityError({ ...ctx, err, plugin });
         return { status: err.status || 500 };
-      }
-
-      if (err.status === 404) {
-        return { status: 404 };
       }
     }
 

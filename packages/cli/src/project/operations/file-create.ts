@@ -3,8 +3,9 @@ import fs from 'node:fs';
 import { String } from '@microsoft/spark.common';
 
 import { IProjectAttributeOperation } from '../project-attribute';
+import { IProject } from '../project';
 
-export class FileCreateOperation implements IProjectAttributeOperation {
+export class FileCreate implements IProjectAttributeOperation {
   readonly name = 'file.create';
 
   private _path: string;
@@ -17,7 +18,7 @@ export class FileCreateOperation implements IProjectAttributeOperation {
     this._content = content;
   }
 
-  up() {
+  up(_: IProject) {
     const filePath = path.join(this._path, this._filename);
     const relativeFilePath = path.relative(process.cwd(), filePath);
 
@@ -34,7 +35,7 @@ export class FileCreateOperation implements IProjectAttributeOperation {
     process.stdout.write('✔️\n');
   }
 
-  down() {
+  down(_: IProject) {
     const filePath = path.join(this._path, this._filename);
     const relativeFilePath = path.relative(process.cwd(), filePath);
 
@@ -43,7 +44,15 @@ export class FileCreateOperation implements IProjectAttributeOperation {
     }
 
     process.stdout.write(new String().yellow(`deleting "${relativeFilePath}"...`).toString());
-    fs.rmSync(filePath);
+    fs.rmSync(filePath, { recursive: true });
+
+    if (
+      fs.existsSync(path.dirname(filePath)) &&
+      fs.readdirSync(path.dirname(filePath), { recursive: true }).length === 0
+    ) {
+      fs.rmdirSync(path.dirname(filePath));
+    }
+
     process.stdout.write('✔️\n');
   }
 }

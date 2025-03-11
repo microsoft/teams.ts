@@ -3,8 +3,9 @@ import path from 'node:path';
 import { String } from '@microsoft/spark.common';
 
 import { IProjectAttributeOperation } from '../project-attribute';
+import { IProject } from '../project';
 
-export class FileCopyOperation implements IProjectAttributeOperation {
+export class FileCopy implements IProjectAttributeOperation {
   readonly name = 'file.copy';
 
   private _from: string;
@@ -15,7 +16,7 @@ export class FileCopyOperation implements IProjectAttributeOperation {
     this._to = to;
   }
 
-  up() {
+  up(_: IProject) {
     const relativeTo = path.relative(process.cwd(), this._to);
 
     if (!fs.existsSync(this._from)) {
@@ -29,7 +30,7 @@ export class FileCopyOperation implements IProjectAttributeOperation {
     process.stdout.write('✔️\n');
   }
 
-  down() {
+  down(_: IProject) {
     const relativeTo = path.relative(process.cwd(), this._to);
 
     if (!fs.existsSync(this._to)) {
@@ -37,7 +38,15 @@ export class FileCopyOperation implements IProjectAttributeOperation {
     }
 
     process.stdout.write(new String().yellow(`deleting "${relativeTo}"...`).toString());
-    fs.rmSync(this._to);
+    fs.rmSync(this._to, { recursive: true });
+
+    if (
+      fs.existsSync(path.dirname(this._to)) &&
+      fs.readdirSync(path.dirname(this._to), { recursive: true }).length === 0
+    ) {
+      fs.rmdirSync(path.dirname(this._to));
+    }
+
     process.stdout.write('✔️\n');
   }
 }

@@ -1,4 +1,4 @@
-import { ConversationReference, InvokeResponse } from '@microsoft/spark.api';
+import { ConversationReference, isInvokeResponse } from '@microsoft/spark.api';
 
 import { App } from './app';
 import { ApiClient } from './api';
@@ -78,19 +78,19 @@ export async function $process(this: App, sender: ISenderPlugin, event: IActivit
   }
 
   let i = -1;
-  let invokeResponse: InvokeResponse | undefined;
+  let data: any = undefined;
 
   const next = async (ctx?: IActivityContext) => {
-    if (i === routes.length - 1) return invokeResponse;
+    if (i === routes.length - 1) return data;
     i++;
 
     const res = await routes[i](ctx || context.toInterface());
 
-    if (res !== undefined) {
-      invokeResponse = res;
+    if (res) {
+      data = res;
     }
 
-    return invokeResponse;
+    return data;
   };
 
   const context = await ActivityContext.new(sender, {
@@ -111,7 +111,12 @@ export async function $process(this: App, sender: ISenderPlugin, event: IActivit
   }
 
   try {
-    const res: InvokeResponse = (await next()) || { status: 200 };
+    let res = await next();
+
+    if (!res || !isInvokeResponse(res)) {
+      res = { status: 200, body: res };
+    }
+
     await context.stream.close();
     this.events.emit('activity.response', {
       plugin: sender.name,

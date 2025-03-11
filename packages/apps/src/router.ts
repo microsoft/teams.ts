@@ -1,4 +1,4 @@
-import { Activity, InvokeResponse } from '@microsoft/spark.api';
+import { Activity } from '@microsoft/spark.api';
 
 import { EVENT_ALIASES, IRoutes, INVOKE_ALIASES } from './routes';
 import { RouteHandler } from './types';
@@ -20,7 +20,7 @@ export class Router {
   select(activity: Activity) {
     return this.routes
       .filter((r) => r.select(activity))
-      .map((r) => r.callback as RouteHandler<IActivityContext, void | InvokeResponse>);
+      .map((r) => r.callback as RouteHandler<IActivityContext, any>);
   }
 
   /**

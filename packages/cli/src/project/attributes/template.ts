@@ -3,7 +3,7 @@ import url from 'node:url';
 import fs from 'node:fs';
 
 import { IProjectAttribute } from '../project-attribute';
-import { CompoundOperation, CopyOperation, FileJsonSetOperation } from '../operations';
+import { Compound, Copy } from '../operations';
 
 export class TemplateAttribute implements IProjectAttribute {
   readonly id: string;
@@ -18,36 +18,20 @@ export class TemplateAttribute implements IProjectAttribute {
 
   typescript(targetDir: string) {
     fs.mkdirSync(targetDir, { recursive: true });
-    const name = path.basename(targetDir);
 
-    return new CompoundOperation(
-      new CopyOperation(
-        path.resolve(
-          url.fileURLToPath(import.meta.url),
-          '../..',
-          'templates',
-          'typescript',
-          this.name
-        ),
-        targetDir
+    return new Copy(
+      path.resolve(
+        url.fileURLToPath(import.meta.url),
+        '../..',
+        'templates',
+        'typescript',
+        this.name
       ),
-      new FileJsonSetOperation(targetDir, 'package.json', 'name', name),
-      new FileJsonSetOperation(
-        path.join(targetDir, 'appPackage'),
-        'manifest.json',
-        'name.short',
-        `${name}-\${{APP_NAME_SUFFIX}}`
-      ),
-      new FileJsonSetOperation(
-        path.join(targetDir, 'appPackage'),
-        'manifest.json',
-        'name.full',
-        name
-      )
+      targetDir
     );
   }
 
   csharp(_: string) {
-    return new CompoundOperation();
+    return new Compound();
   }
 }

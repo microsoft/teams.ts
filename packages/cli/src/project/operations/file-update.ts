@@ -3,8 +3,9 @@ import fs from 'node:fs';
 import { String } from '@microsoft/spark.common';
 
 import { IProjectAttributeOperation } from '../project-attribute';
+import { IProject } from '../project';
 
-export class FileUpdateOperation implements IProjectAttributeOperation {
+export class FileUpdate implements IProjectAttributeOperation {
   readonly name = 'file.update';
 
   private _path: string;
@@ -17,7 +18,7 @@ export class FileUpdateOperation implements IProjectAttributeOperation {
     this._content = content;
   }
 
-  up() {
+  up(_: IProject) {
     const filePath = path.join(this._path, this._filename);
     const relativeFilePath = path.relative(process.cwd(), filePath);
 
@@ -30,5 +31,5 @@ export class FileUpdateOperation implements IProjectAttributeOperation {
     process.stdout.write('✔️\n');
   }
 
-  down() {}
+  down(_: IProject) {}
 }

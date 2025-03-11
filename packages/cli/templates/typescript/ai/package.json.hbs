@@ -1,5 +1,5 @@
 {
-  "name": "graph",
+  "name": "{{ toKebabCase name }}",
   "version": "0.0.0",
   "license": "MIT",
   "private": true,
@@ -16,12 +16,14 @@
     "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\""
   },
   "dependencies": {
+    "@microsoft/spark.ai": "latest",
     "@microsoft/spark.api": "latest",
     "@microsoft/spark.apps": "latest",
     "@microsoft/spark.cards": "latest",
     "@microsoft/spark.common": "latest",
     "@microsoft/spark.dev": "latest",
-    "@microsoft/spark.graph": "latest"
+    "@microsoft/spark.graph": "latest",
+    "@microsoft/spark.openai": "latest"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",
