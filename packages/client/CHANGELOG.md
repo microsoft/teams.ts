@@ -1,5 +1,11 @@
 # @microsoft/spark.client
 
+## 0.1.2
+
+### Patch Changes
+
+- fix bug in `next` routing method
+
 ## 0.1.1
 
 ### Patch Changes

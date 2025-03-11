@@ -1,5 +1,15 @@
 # @microsoft/spark.cli
 
+## 0.1.2
+
+### Patch Changes
+
+- fix bug in `next` routing method
+- Updated dependencies
+    - @microsoft/spark.ai@0.1.2
+    - @microsoft/spark.common@0.1.2
+    - @microsoft/spark.openai@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes

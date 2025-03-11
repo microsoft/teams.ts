@@ -1,5 +1,13 @@
 # @microsoft/spark.graph
 
+## 0.1.2
+
+### Patch Changes
+
+- fix bug in `next` routing method
+- Updated dependencies
+    - @microsoft/spark.common@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @microsoft/spark.devtools
 
+## 0.1.2
+
+### Patch Changes
+
+- fix bug in `next` routing method
+- Updated dependencies
+    - @microsoft/spark.api@0.1.2
+    - @microsoft/spark.apps@0.1.2
+    - @microsoft/spark.cards@0.1.2
+    - @microsoft/spark.common@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes
