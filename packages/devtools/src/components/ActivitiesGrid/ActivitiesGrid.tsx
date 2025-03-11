@@ -1,28 +1,21 @@
 import { FC, useMemo } from 'react';
 import {
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  MenuPopover,
-  MenuTrigger,
+  DataGrid,
+  DataGridBody,
+  DataGridCell,
+  DataGridHeader,
+  DataGridHeaderCell,
+  DataGridRow,
   mergeClasses,
+  TableRowId,
 } from '@fluentui/react-components';
-import { CheckmarkFilled, Filter20Regular } from '@fluentui/react-icons/lib/fonts';
 
 import { ActivityEvent } from '../../types/Event';
 import { getPath } from '../../utils/get-path';
-
-import useActivitiesGridClasses, { GRID_COLUMNS, ColumnId } from './ActivitiesGrid.styles';
-import ActivityRow from './ActivityRow';
-import { getActivityPath } from './utils';
-
-const columnClassMap: Record<ColumnId, `column${Capitalize<ColumnId>}`> = {
-  type: 'columnType',
-  chat: 'columnChat',
-  from: 'columnFrom',
-  timestamp: 'columnTimestamp',
-};
+import { getActivityPath } from './getActivityPath';
+import useActivityGridColumns from './ActivityGridColumns';
+import useActivitiesGridClasses from './ActivitiesGrid.styles';
+import CustomDataGridHeaderCell from './CustomDataGridHeaderCell';
 
 function filterActivities(event: ActivityEvent, params: URLSearchParams): boolean {
   for (const [key, filter] of params.entries()) {
@@ -41,116 +34,124 @@ function filterActivities(event: ActivityEvent, params: URLSearchParams): boolea
   return true;
 }
 
-function getColumnClassName(columnId: ColumnId): `column${Capitalize<ColumnId>}` {
-  return columnClassMap[columnId];
-}
-
 interface ActivitiesGridProps {
-  list: ActivityEvent[];
-  selected: ActivityEvent | undefined;
-  setSelected: (event: ActivityEvent | undefined) => void;
+  activities: ActivityEvent[];
+  selected?: ActivityEvent;
+  handleRowSelect: (activity: ActivityEvent) => void;
   params: URLSearchParams;
-  setParams: (params: URLSearchParams) => void;
+  handleTypeFilter: (path: string) => void;
 }
 
 const ActivitiesGrid: FC<ActivitiesGridProps> = ({
-  list,
+  activities,
   selected,
-  setSelected,
+  handleRowSelect,
   params,
-  setParams,
+  handleTypeFilter,
 }) => {
   const classes = useActivitiesGridClasses();
-  const activityPaths = [...new Set(list.map((event) => getActivityPath(event.body)))].sort();
 
-  const handleRowSelect = (event: ActivityEvent) => {
-    if (selected && selected.id === event.id) {
-      setSelected(undefined);
-    } else {
-      setSelected(event);
-    }
-  };
+  const activityPaths = useMemo(() => {
+    const paths = new Set<string>();
+    activities.forEach((activity) => {
+      const path = getActivityPath(activity.body);
+      if (path) {
+        paths.add(path);
+      }
+    });
+    return Array.from(paths).sort();
+  }, [activities]);
 
-  const memoizedRowsList = useMemo(
-    () =>
-      list
-        .slice()
-        .reverse()
-        .filter((event) => filterActivities(event, params))
-        .map((event, index) => (
-          <ActivityRow
-            key={event.id}
-            event={event}
-            index={index}
-            isSelected={selected?.id === event.id}
-            onSelect={handleRowSelect}
-          />
-        )),
-    [list, params, selected, handleRowSelect]
-  );
+  const filteredActivities = useMemo(() => {
+    return activities.filter((activity) => filterActivities(activity, params));
+  }, [activities, params]);
 
-  const handleTypeFilter = (path: string) => {
-    if (params.get('path') === path) {
-      params.delete('path');
-    } else {
-      params.set('path', path);
-    }
-    setParams(params);
-  };
+  const columns = useActivityGridColumns({
+    activityPaths,
+    params,
+    handleTypeFilter,
+  });
 
   return (
-    <div className={classes.tableContainer}>
-      <table className={classes.table}>
-        <thead className={classes.tableHeader}>
-          <tr>
-            <th scope="col" className={mergeClasses(classes.headerCell, classes.columnType)}>
-              <Menu hasIcons>
-                <MenuTrigger disableButtonEnhancement>
-                  <MenuButton className={classes.menuButton}>
-                    <span className={classes.typeLabel}>Type</span>
-                    {activityPaths.length > 0 && <Filter20Regular />}
-                  </MenuButton>
-                </MenuTrigger>
-                <MenuPopover className={classes.menuPopover}>
-                  <MenuList>
-                    {activityPaths.map((path) => (
-                      <MenuItem
-                        key={path}
-                        onClick={() => handleTypeFilter(path)}
-                        icon={params.has('path', path) ? <CheckmarkFilled /> : <></>}
-                      >
-                        {path}
-                      </MenuItem>
-                    ))}
-                  </MenuList>
-                </MenuPopover>
-              </Menu>
-            </th>
-            {GRID_COLUMNS.slice(1).map((column) => (
-              <th
-                key={column.id}
-                scope="col"
-                className={mergeClasses(classes.headerCell, classes[getColumnClassName(column.id)])}
+    <div className={classes.gridContainer}>
+      <DataGrid
+        items={filteredActivities}
+        columns={columns}
+        className={classes.grid}
+        selectionMode="single"
+        getRowId={(item) => item.id as TableRowId}
+        focusMode="composite"
+        selectedItems={selected ? [selected.id] : []}
+        onSelectionChange={(_e, data) => {
+          const selectedId = Array.from(data.selectedItems)[0] as string;
+          const selectedItem = filteredActivities.find((item) => item.id === selectedId);
+          if (selectedItem) {
+            handleRowSelect(selectedItem);
+          }
+        }}
+        aria-label="Activities list"
+      >
+        <DataGridHeader className={classes.header}>
+          <DataGridRow
+            selectionCell={{
+              'aria-hidden': true,
+              tabIndex: -1,
+              className: classes.hideSelection,
+            }}
+          >
+            {({ renderHeaderCell, columnId }) => {
+              return columnId === 'type' ? (
+                <CustomDataGridHeaderCell className={classes.cell} focusMode="group">
+                  {renderHeaderCell()}
+                </CustomDataGridHeaderCell>
+              ) : (
+                <DataGridHeaderCell
+                  className={
+                    columnId !== 'timestamp'
+                      ? classes.cell
+                      : mergeClasses(classes.cell, classes.timestamp)
+                  }
+                >
+                  {renderHeaderCell()}
+                </DataGridHeaderCell>
+              );
+            }}
+          </DataGridRow>
+        </DataGridHeader>
+        {filteredActivities.length > 0 ? (
+          <DataGridBody<ActivityEvent>>
+            {({ item }) => (
+              <DataGridRow
+                className={mergeClasses(
+                  classes.row,
+                  filteredActivities.indexOf(item) % 2 === 0 ? classes.evenRow : classes.oddRow,
+                  selected?.id === item.id && classes.selectedRow,
+                  item.type === 'activity.error' && classes.errorRow
+                )}
+                aria-selected={selected?.id === item.id}
+                selectionCell={{ radioIndicator: { 'aria-label': 'Select row' } }}
               >
-                {column.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {list.length ? (
-            memoizedRowsList
-          ) : (
-            <tr>
-              <td colSpan={4} className={mergeClasses(classes.cell, classes.emptyTable)}>
-                No activities
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+                {({ renderCell, columnId }) => (
+                  <DataGridCell
+                    className={
+                      columnId !== 'timestamp'
+                        ? classes.cell
+                        : mergeClasses(classes.cell, classes.timestamp)
+                    }
+                  >
+                    {renderCell(item)}
+                  </DataGridCell>
+                )}
+              </DataGridRow>
+            )}
+          </DataGridBody>
+        ) : (
+          <div className={classes.empty}>No activities to display.</div>
+        )}
+      </DataGrid>
     </div>
   );
 };
 
 export default ActivitiesGrid;
+ActivitiesGrid.displayName = 'ActivitiesGrid';

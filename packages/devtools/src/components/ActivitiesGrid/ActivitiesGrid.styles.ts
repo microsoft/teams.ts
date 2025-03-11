@@ -1,79 +1,66 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
-export type ColumnId = 'type' | 'chat' | 'from' | 'timestamp';
-
-export const GRID_COLUMNS = [
-  {
-    id: 'type' as const,
-    label: 'Type',
-    width: '25%',
-    minWidth: '150px',
-  },
-  {
-    id: 'chat' as const,
-    label: 'Chat',
-    width: '20%',
-    minWidth: '100px',
-  },
-  {
-    id: 'from' as const,
-    label: 'From',
-    width: '25%',
-    minWidth: '150px',
-  },
-  {
-    id: 'timestamp' as const,
-    label: 'Timestamp',
-    width: '30%',
-    minWidth: '180px',
-  },
-] as const;
-
 const useActivitiesGridClasses = makeStyles({
-  tableContainer: {
-    display: 'inline-block',
+  gridContainer: {
     maxWidth: '100%',
     margin: '2rem',
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    minHeight: 0,
+    scrollbarGutter: 'stable',
+    overscrollBehavior: 'contain',
+    scrollPadding: '2rem',
+    paddingRight: '1rem'
   },
-  table: {
-    backgroundColor: tokens.colorNeutralBackground1,
-    borderCollapse: 'collapse',
-    border: `1px solid ${tokens.colorNeutralStrokeAccessible}`,
-    margin: tokens.spacingHorizontalS,
-    color: tokens.colorNeutralForeground2,
-    width: 'auto',
-    boxShadow: tokens.shadow16,
-  },
-  tableHeader: {
-    textTransform: 'uppercase',
-    textAlign: 'center',
-  },
-  // Column-level styles
-  columnType: {
-    width: GRID_COLUMNS[0].width,
-    minWidth: GRID_COLUMNS[0].minWidth,
-    textAlign: 'left',
-  },
-  columnChat: {
-    width: GRID_COLUMNS[1].width,
-    minWidth: GRID_COLUMNS[1].minWidth,
-  },
-  columnFrom: {
-    width: GRID_COLUMNS[2].width,
-    minWidth: GRID_COLUMNS[2].minWidth,
-  },
-  columnTimestamp: {
-    width: GRID_COLUMNS[3].width,
-    minWidth: GRID_COLUMNS[3].minWidth,
-  },
-  // Row-level styles
-  tableRow: {
+
+  row: {
     borderBottom: `1px solid ${tokens.colorNeutralStrokeAccessible}`,
     '&:hover': {
       backgroundColor: tokens.colorBrandBackground2Hover,
       cursor: 'pointer',
     },
   },
+
+  grid: {
+    backgroundColor: tokens.colorNeutralBackground1,
+    borderCollapse: 'collapse',
+    border: `1px solid ${tokens.colorNeutralStrokeAccessible}`,
+    margin: tokens.spacingHorizontalS,
+    color: tokens.colorNeutralForeground2,
+    width: 'auto',
+    minWidth: '32rem',
+    tableLayout: 'auto',
+    boxShadow: tokens.shadow16,
+    '&:last-child': {
+      borderBottom: `1px solid ${tokens.colorTransparentStroke}`,
+    },
+  },
+  header: {
+    textTransform: 'uppercase',
+    '& button': {
+      textTransform: 'uppercase',
+      fontWeight: 'inherit',
+      padding: 0,
+      gap: tokens.spacingHorizontalXS,
+    },
+  },
+
+  directionIcon: {
+    marginRight: tokens.spacingHorizontalS,
+    flexShrink: 0,
+  },
+
+  menuPopover: {
+    padding: tokens.spacingHorizontalXXS,
+    borderRadius: '0.375rem',
+    boxShadow: tokens.shadow16,
+  },
+
+  timestamp: {
+    minWidth: '11.25rem',
+  },
+
+  // // Row styles
   oddRow: {
     backgroundColor: tokens.colorNeutralBackground1,
   },
@@ -90,83 +77,21 @@ const useActivitiesGridClasses = makeStyles({
     backgroundColor: tokens.colorPaletteRedBackground1,
     color: tokens.colorPaletteRedForeground1,
   },
-  // Cell and cell content styles
   cell: {
-    padding: `${tokens.spacingVerticalM} ${tokens.spacingHorizontalS}`,
+    minWidth: '6rem',
     whiteSpace: 'nowrap',
-  },
-  headerCell: {
-    padding: `${tokens.spacingVerticalXS} ${tokens.spacingHorizontalS}`,
-    whiteSpace: 'nowrap',
-  },
-  pathContainer: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    maxWidth: '100%',
-    justifyContent: 'flex-end',
-  },
-  icon: {
-    marginRight: tokens.spacingHorizontalS,
-    flexShrink: 0,
-  },
-  pathText: {
-    fontWeight: tokens.fontSizeBase600,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
-  conversationType: {
-    display: 'inline-block',
-  },
-  fromName: {
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
+  empty: {
     textAlign: 'center',
-    display: 'block',
+    padding: tokens.spacingVerticalL,
+    color: tokens.colorNeutralForeground3,
+    fontSize: tokens.fontSizeBase300,
+    borderBottom: `1px solid ${tokens.colorNeutralStrokeAccessible}`,
   },
-  timestampContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: tokens.spacingHorizontalS,
-  },
-  spinner: {
-    animation: 'spin 1s linear infinite',
-    border: '3px solid currentColor',
-    borderTopColor: 'transparent',
-    borderRadius: '50%',
-    height: tokens.spacingHorizontalM,
-    width: tokens.spacingHorizontalM,
-  },
-  // Menu styles
-  menuContainer: {
-    display: 'inline-flex',
-    width: 'auto',
-    maxWidth: '100%',
-    justifyContent: 'flex-start',
-  },
-  menuButton: {
-    display: 'inline-flex',
-
-    minWidth: 'auto',
-    width: 'auto',
-    padding: `${tokens.spacingVerticalXS} ${tokens.spacingHorizontalS}`,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  menuPopover: {
-    padding: tokens.spacingHorizontalXXS,
-    borderRadius: '0.375rem',
-    boxShadow: tokens.shadow16,
-  },
-  typeLabel: {
-    flex: '1 1 auto',
-    textTransform: 'uppercase',
-    fontWeight: 'bold',
-    paddingRight: tokens.spacingHorizontalS,
-  },
-  emptyTable: {
-    textAlign: 'center',
-    padding: tokens.spacingHorizontalS,
+  hideSelection: {
+    visibility: 'hidden',
   },
 });
 
