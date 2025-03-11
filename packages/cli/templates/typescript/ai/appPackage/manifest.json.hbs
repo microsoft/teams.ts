@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.15/MicrosoftTeams.schema.json",
   "version": "1.0.0",
   "manifestVersion": "1.15",
-  "id": "${{TEAMS_APP_ID}}",
-  "packageName": "com.package.name",
+  "id": "$\{{TEAMS_APP_ID}}",
+  "packageName": "com.package.{{ name }}",
   "name": {
-    "short": "tab-${{APP_NAME_SUFFIX}}",
-    "full": "Tab"
+    "short": "{{ name }}-${{APP_NAME_SUFFIX}}",
+    "full": "{{ capitalize name }}"
   },
   "developer": {
     "name": "Microsoft",
@@ -16,8 +16,8 @@
     "termsOfUseUrl": "https://www.microsoft.com/legal/terms-of-use"
   },
   "description": {
-    "short": "Sample bot with a tab",
-    "full": "Sample bot with a tab"
+    "short": "Sample bot that uses OpenAI",
+    "full": "Sample bot that uses OpenAI"
   },
   "icons": {
     "outline": "outline.png",
@@ -32,18 +32,11 @@
     {
       "entityId": "about",
       "scopes": ["personal"]
-    },
-    {
-      "entityId": "test",
-      "name": "Test",
-      "contentUrl": "https://${{BOT_DOMAIN}}/tabs/test",
-      "websiteUrl": "https://${{BOT_DOMAIN}}/tabs/test",
-      "scopes": ["personal", "team"]
     }
   ],
   "bots": [
     {
-      "botId": "${{BOT_ID}}",
+      "botId": "$\{{BOT_ID}}",
       "scopes": ["personal", "team", "groupChat"],
       "isNotificationOnly": false,
       "supportsCalling": false,
@@ -51,10 +44,9 @@
       "supportsFiles": false
     }
   ],
-  "validDomains": ["${{BOT_DOMAIN}}"],
-  "permissions": ["identity"],
+  "validDomains": ["$\{{BOT_DOMAIN}}"],
   "webApplicationInfo": {
-    "id": "${{BOT_ID}}",
-    "resource": "api://botid-${{BOT_ID}}"
+    "id": "$\{{BOT_ID}}",
+    "resource": "api://botid-$\{{BOT_ID}}"
   }
 }
