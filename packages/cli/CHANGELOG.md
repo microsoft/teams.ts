@@ -1,5 +1,13 @@
 # @microsoft/spark.cli
 
+## 0.1.3
+
+### Patch Changes
+
+- add template logic to cli for more accurate templates/configs
+- Updated dependencies
+    - @microsoft/spark.common@0.1.3
+
 ## 0.1.2
 
 ### Patch Changes
