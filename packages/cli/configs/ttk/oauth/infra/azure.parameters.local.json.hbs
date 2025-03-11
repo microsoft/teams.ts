@@ -3,22 +3,22 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "resourceBaseName": {
-      "value": "bot-${{RESOURCE_SUFFIX}}-${{TEAMSFX_ENV}}"
+      "value": "bot-$\{{RESOURCE_SUFFIX}}-$\{{TEAMSFX_ENV}}"
     },
     "botAadAppClientId": {
-      "value": "${{BOT_ID}}"
+      "value": "$\{{BOT_ID}}"
     },
     "botAadAppClientSecret": {
-      "value": "${{SECRET_BOT_PASSWORD}}"
+      "value": "$\{{SECRET_BOT_PASSWORD}}"
     },
     "botDisplayName": {
-      "value": "OAuthBot-${{TEAMSFX_ENV}}"
+      "value": "{{ capitalize name }}-$\{{TEAMSFX_ENV}}"
     },
     "botAppDomain": {
-      "value": "${{BOT_DOMAIN}}"
+      "value": "$\{{BOT_DOMAIN}}"
     },
     "oauthConnectionName": {
-      "value": "${{OAUTH_CONNECTION_NAME}}"
+      "value": "$\{{OAUTH_CONNECTION_NAME}}"
     }
   }
 }
