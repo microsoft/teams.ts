@@ -20,6 +20,21 @@ export class LocalMemory implements IMemory {
     this.options = options || {};
   }
 
+  get(i: number) {
+    if (i < 0 || i > this.messages.length - 1) return;
+    return this.messages[i];
+  }
+
+  set(i: number, message: Message) {
+    if (i < 0 || i > this.messages.length - 1) return;
+    this.messages[i] = message;
+  }
+
+  delete(i: number) {
+    if (i < 0 || i > this.messages.length - 1) return;
+    this.messages.splice(i, 1);
+  }
+
   async push(message: Message) {
     this.messages.push(message);
     let len = this.length();
@@ -54,6 +69,10 @@ export class LocalMemory implements IMemory {
 
   length() {
     return this.messages.length;
+  }
+
+  where(predicate: (value: Message, index: number) => boolean) {
+    return this.messages.filter(predicate);
   }
 
   async collapse() {
