@@ -10,7 +10,7 @@ import { MessageSubmitActivityRoutes } from './message-submit';
 export type InvokeActivityRoutes = {
   [K in InvokeActivity['name'] as InvokeAliases[K]]?: RouteHandler<
     IActivityContext<Extract<InvokeActivity, { name: K }>>,
-    InvokeResponse<K>
+    InvokeResponse<K> | InvokeResponse<K>['body']
   >;
 } & FileConsentActivityRoutes &
   MessageExtensionSubmitActivityRoutes &
