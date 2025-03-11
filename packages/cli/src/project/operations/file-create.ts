@@ -44,7 +44,15 @@ export class FileCreate implements IProjectAttributeOperation {
     }
 
     process.stdout.write(new String().yellow(`deleting "${relativeFilePath}"...`).toString());
-    fs.rmSync(filePath);
+    fs.rmSync(filePath, { recursive: true });
+
+    if (
+      fs.existsSync(path.dirname(filePath)) &&
+      fs.readdirSync(path.dirname(filePath), { recursive: true }).length === 0
+    ) {
+      fs.rmdirSync(path.dirname(filePath));
+    }
+
     process.stdout.write('✔️\n');
   }
 }

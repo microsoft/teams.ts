@@ -38,7 +38,15 @@ export class FileCopy implements IProjectAttributeOperation {
     }
 
     process.stdout.write(new String().yellow(`deleting "${relativeTo}"...`).toString());
-    fs.rmSync(this._to);
+    fs.rmSync(this._to, { recursive: true });
+
+    if (
+      fs.existsSync(path.dirname(this._to)) &&
+      fs.readdirSync(path.dirname(this._to), { recursive: true }).length === 0
+    ) {
+      fs.rmdirSync(path.dirname(this._to));
+    }
+
     process.stdout.write('✔️\n');
   }
 }
