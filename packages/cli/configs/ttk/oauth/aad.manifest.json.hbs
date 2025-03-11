@@ -1,7 +1,7 @@
 {
   "id": "$\{{AAD_APP_OBJECT_ID}}",
   "appId": "$\{{BOT_ID}}",
-  "displayName": "{{ capitalize name }}$\{{APP_NAME_SUFFIX}}",
+  "displayName": "{{ toPascalCase name }}$\{{APP_NAME_SUFFIX}}",
   "identifierUris": ["api://botid-$\{{BOT_ID}}"],
   "signInAudience": "AzureADMultipleOrgs",
   "api": {

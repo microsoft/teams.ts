@@ -16,7 +16,7 @@ provision:
   # Automates the creation of a Teams app registration and saves the App ID to an environment file.
   - uses: teamsApp/create
     with:
-      name: {{ capitalize name }}$\{{APP_NAME_SUFFIX}}
+      name: {{ toPascalCase name }}$\{{APP_NAME_SUFFIX}}
     writeToEnvironmentFile:
       teamsAppId: TEAMS_APP_ID
 
@@ -28,7 +28,7 @@ provision:
       # based on the definition in manifest. If you don't want to change the
       # name, make sure the name in Microsoft Entra manifest is the same with the name
       # defined here.
-      name: {{ capitalize name }}$\{{APP_NAME_SUFFIX}}
+      name: {{ toPascalCase name }}$\{{APP_NAME_SUFFIX}}
       # If the value is false, the driver will not generate client secret for you
       generateClientSecret: true
       # organization's Microsoft Entra tenant (for example, single tenant).
@@ -77,7 +77,7 @@ provision:
           # variable before ARM deployment.
           parameters: ./infra/azure.parameters.json
           # Required when deploying ARM template
-          deploymentName: Create-resources-for-{{ capitalize name }}-$\{{TEAMSFX_ENV}}
+          deploymentName: Create-resources-for-{{ toKebabCase name }}-$\{{TEAMSFX_ENV}}
       bicepCliVersion: v0.9.1
 
   # Optional: Automates schema and error checking of the Teams app manifest and outputs the results in the console.

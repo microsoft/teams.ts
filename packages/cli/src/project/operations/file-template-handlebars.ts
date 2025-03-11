@@ -1,6 +1,8 @@
 import path from 'node:path';
 import fs from 'node:fs';
+
 import Handlebars from 'handlebars';
+import * as changeCase from 'change-case';
 import { String } from '@microsoft/spark.common';
 
 import { IProjectAttributeOperation } from '../project-attribute';
@@ -37,7 +39,19 @@ export class FileTemplateHandlebars implements IProjectAttributeOperation {
       helpers: {
         capitalize: (text: string) => {
           if (!text) return '';
-          return `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
+          return changeCase.capitalCase(text);
+        },
+        toPascalCase: (text: string) => {
+          if (!text) return '';
+          return changeCase.pascalCase(text);
+        },
+        toDotCase: (text: string) => {
+          if (!text) return '';
+          return changeCase.dotCase(text);
+        },
+        toKebabCase: (text: string) => {
+          if (!text) return '';
+          return changeCase.kebabCase(text);
         },
       },
     });
