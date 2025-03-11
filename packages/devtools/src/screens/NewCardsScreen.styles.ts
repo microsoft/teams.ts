@@ -12,7 +12,7 @@ const useNewCardsScreenClasses = makeStyles({
   },
   iframe: {
     border: '0px solid transparent',
-  }
+  },
 });
 
 export default useNewCardsScreenClasses;
