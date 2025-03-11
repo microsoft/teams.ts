@@ -8,6 +8,7 @@ import {
   DataGridRow,
   mergeClasses,
   TableRowId,
+  Title1,
 } from '@fluentui/react-components';
 
 import { ActivityEvent } from '../../types/Event';
@@ -74,6 +75,7 @@ const ActivitiesGrid: FC<ActivitiesGridProps> = ({
 
   return (
     <div className={classes.gridContainer}>
+      <Title1>Activities list</Title1>
       <DataGrid
         items={filteredActivities}
         columns={columns}

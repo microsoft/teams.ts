@@ -1,19 +1,23 @@
 import { makeStyles } from '@fluentui/react-components';
 
 const useActivityDetailsClasses = makeStyles({
-  selectedContainer: {
+  detailsContainer: {
     display: 'flex',
     flexDirection: 'column',
+    gap: '1rem',
+    height: '100%',
+    overflow: 'auto',
   },
-  selectedHeader: {
+  tools: {
     display: 'flex',
-    padding: '0.5rem 1rem',
     alignItems: 'center',
     gap: '0.5rem',
   },
   jsonContainer: {
-    overflowY: 'auto',
     padding: '0.5rem',
+    flex: '1 1 auto',
+    overflow: 'auto',
+    minHeight: 0,
   },
   json: {
     margin: '0.5rem',

@@ -5,31 +5,38 @@ import ActivitiesGrid from '../../components/ActivitiesGrid/ActivitiesGrid';
 import ActivityDetails from '../../components/ActivityDetails/ActivityDetails';
 import { ActivityContext } from '../../stores/ActivityStore';
 import { ActivityEvent } from '../../types/Event';
-import useScreensClasses from '../Screens.styles';
 import useActivitiesScreenClasses from './ActivitiesScreen.styles';
 
 export default function ActivitiesScreen() {
   const classes = useActivitiesScreenClasses();
-  const screenClasses = useScreensClasses();
   const { list } = useContext(ActivityContext);
   const [selected, setSelected] = useState<ActivityEvent>();
   const [view, setView] = useState<'preview' | 'json'>('preview');
   const [params, setParams] = useSearchParams();
 
-  return (
-    <div className={screenClasses.screenContainer}>
-      <div className={screenClasses.scrollbarContainer}>
-        <div className={classes.activitiesContainer}>
-          <ActivitiesGrid
-            list={list}
-            selected={selected}
-            setSelected={setSelected}
-            params={params}
-            setParams={setParams}
-          />
+  const handleTypeFilter = (path: string) => {
+    const newParams = new URLSearchParams(params);
+    if (params.get('path') === path) {
+      newParams.delete('path');
+    } else {
+      newParams.set('path', path);
+    }
+    setParams(newParams);
+  };
 
-          {selected && <ActivityDetails selected={selected} view={view} setView={setView} />}
-        </div>
+  return (
+    <div className={classes.flexContainer}>
+      <div className={classes.activitiesContainer}>
+        <ActivitiesGrid
+          activities={list}
+          selected={selected}
+          handleRowSelect={setSelected}
+          params={params}
+          handleTypeFilter={handleTypeFilter}
+        />
+      </div>
+      <div className={classes.activityDetailsContainer}>
+        {<ActivityDetails selected={selected} view={view} setView={setView} />}
       </div>
     </div>
   );
