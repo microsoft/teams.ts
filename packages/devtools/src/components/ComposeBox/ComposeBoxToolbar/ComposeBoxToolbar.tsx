@@ -27,7 +27,6 @@ import {
   ToolbarButton,
   ToolbarProps,
   ToolbarDivider,
-  ToolbarProps,
   useId,
 } from '@fluentui/react-components';
 import { useNavigate } from 'react-router';
