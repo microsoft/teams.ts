@@ -7,8 +7,8 @@ export type ChatSendOptions<TOptions = Record<string, any>> = {
   readonly system?: SystemMessage | UserMessage;
   readonly messages?: IMemory;
   readonly functions?: Record<string, Function>;
+  readonly request?: TOptions;
   readonly onChunk?: TextChunkHandler;
-  readonly options?: TOptions;
 };
 
 export interface IChatModel<TOptions = Record<string, any>> {

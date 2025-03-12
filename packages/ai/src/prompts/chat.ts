@@ -16,8 +16,8 @@ export type ChatPromptOptions<TOptions = Record<string, any>> = {
 
 export type ChatPromptSendOptions<TOptions = Record<string, any>> = {
   readonly messages?: Message[] | IMemory;
+  readonly request?: TOptions;
   readonly onChunk?: TextChunkHandler;
-  readonly options?: TOptions;
 };
 
 export class ChatPrompt<TOptions = Record<string, any>> {
@@ -103,7 +103,7 @@ export class ChatPrompt<TOptions = Record<string, any>> {
       {
         system,
         messages,
-        options: options.options,
+        request: options.request,
         functions: this._functions,
         onChunk: async (chunk) => {
           if (!chunk || !onChunk) return;
