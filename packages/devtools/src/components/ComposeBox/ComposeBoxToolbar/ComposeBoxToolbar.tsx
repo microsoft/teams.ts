@@ -21,18 +21,20 @@ import {
   MenuTrigger,
   Textarea,
   Toast,
-  ToastBody,
   ToastTitle,
+  useToastController,
   Toolbar,
   ToolbarButton,
   ToolbarDivider,
+  ToolbarProps,
   useId,
-  useToastController,
 } from '@fluentui/react-components';
-import type { ToolbarProps } from '@fluentui/react-components';
-
-import { useClasses } from './ComposeBoxToolbar.styles';
 import { useNavigate } from 'react-router';
+import { Card } from '@microsoft/spark.cards';
+
+import { useCardStore } from '../../../stores/CardStore';
+import Logger from '../../Logger/Logger';
+import { useClasses } from './ComposeBoxToolbar.styles';
 
 interface ComposeBoxToolbarProps extends ToolbarProps {
   onSend?: (attachments?: any[]) => void;
@@ -50,13 +52,15 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = ({
 }) => {
   const classes = useClasses();
   const navigate = useNavigate();
-  const { dispatchToast } = useToastController();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [jsonInput, setJsonInput] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const dialogTitleId = useId('dialog-title');
   const textareaId = useId('json-input');
   const jsonInputRef = useRef<HTMLTextAreaElement>(null);
+  const { currentCard } = useCardStore();
+  const { dispatchToast } = useToastController();
+  const childLog = Logger.child('ComposeBoxToolbar');
 
   const handleNavigateToCards = () => {
     navigate('/cards');
@@ -65,41 +69,51 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = ({
 
   const handleSaveJson = useCallback(() => {
     try {
-      const card = JSON.parse(jsonInput);
+      const card = JSON.parse(jsonInput) as Card;
 
       if (onAttachment) {
         onAttachment({
           type: 'card',
           content: card,
+          contentType: 'application/vnd.microsoft.card.adaptive',
         });
       } else if (onSend) {
         onSend([
           {
-            contentType: 'application/vnd.microsoft.card.adaptive',
+            type: 'card',
             content: card,
+            contentType: 'application/vnd.microsoft.card.adaptive',
           },
         ]);
       }
 
       setIsDialogOpen(false);
+      setJsonInput('');
     } catch (error) {
+      childLog.debug('Failed to parse JSON:', error);
       dispatchToast(
         <Toast>
-          <ToastTitle>Error</ToastTitle>
-          <ToastBody>
-            Failed to parse JSON: {error instanceof Error ? error.message : String(error)}
-          </ToastBody>
+          <ToastTitle>Failed to parse JSON. Please check your input and try again.</ToastTitle>
         </Toast>,
         { intent: 'error' }
       );
     }
-  }, [jsonInput, onAttachment, onSend, dispatchToast, setIsDialogOpen]);
+  }, [childLog, jsonInput, onAttachment, onSend, dispatchToast]);
 
   const handleSend = useCallback(() => {
-    if (onSend && hasContent) {
-      onSend();
+    if (onSend) {
+      if (currentCard) {
+        onSend([
+          {
+            contentType: 'application/vnd.microsoft.card.adaptive',
+            content: currentCard,
+          },
+        ]);
+      } else if (hasContent) {
+        onSend();
+      }
     }
-  }, [onSend, hasContent]);
+  }, [onSend, hasContent, currentCard]);
 
   return (
     <Toolbar aria-label="New message actions" {...props} className={classes.toolbar}>
@@ -144,7 +158,7 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = ({
                 Cancel
               </Button>
               <Button appearance="primary" onClick={handleSaveJson}>
-                Attach Card
+                Attach card
               </Button>
             </DialogActions>
           </DialogBody>

@@ -1,4 +1,4 @@
-import { ComponentProps } from 'react';
+import { ComponentProps, memo } from 'react';
 import { makeStyles, mergeClasses, tokens } from '@fluentui/react-components';
 import * as cards from '@microsoft/spark.cards';
 
@@ -21,8 +21,7 @@ const useAdaptiveCardStyles = makeStyles({
   },
 });
 
-export default function AdaptiveCard({ value }: AdaptiveCardProps) {
-  console.log('AC value', value);
+const AdaptiveCard = memo(({ value }: AdaptiveCardProps) => {
   const classes = useAdaptiveCardStyles();
   return (
     <div className={mergeClasses(classes.root)}>
@@ -43,4 +42,7 @@ export default function AdaptiveCard({ value }: AdaptiveCardProps) {
       )}
     </div>
   );
-}
+});
+
+export default AdaptiveCard;
+AdaptiveCard.displayName = 'AdaptiveCard';
