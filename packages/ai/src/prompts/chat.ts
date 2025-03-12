@@ -74,10 +74,14 @@ export class ChatPrompt<TOptions extends Record<string, any> = Record<string, an
   }
   protected readonly _messages: IMemory;
 
+  get functions() {
+    return Object.values(this._functions);
+  }
+  protected readonly _functions: Record<string, Function> = {};
+
   protected readonly _role: 'system' | 'user';
   protected readonly _template: ITemplate;
   protected readonly _model: IChatModel<TOptions>;
-  protected readonly _functions: Record<string, Function> = {};
 
   constructor(options: ChatPromptOptions<TOptions>) {
     this._name = options.name || 'chat';
