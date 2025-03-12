@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/spark.config",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "license": "MIT",
   "homepage": "https://github.com/microsoft/spark.js",

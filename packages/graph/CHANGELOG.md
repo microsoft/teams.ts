@@ -1,5 +1,13 @@
 # @microsoft/spark.graph
 
+## 0.2.2
+
+### Patch Changes
+
+- add mcp package and update ai package with use method
+- Updated dependencies
+    - @microsoft/spark.common@0.2.2
+
 ## 0.2.1
 
 ### Patch Changes
