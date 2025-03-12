@@ -119,6 +119,6 @@ export class ChatPrompt<TOptions = Record<string, any>> {
       }
     );
 
-    return res.content || '';
+    return { ...res, content: res.content || '' };
   }
 }

@@ -7,6 +7,7 @@ import {
 } from '@microsoft/spark.ai';
 import { ConsoleLogger, ILogger } from '@microsoft/spark.common/logging';
 
+import '@azure/openai/types';
 import OpenAI, { AzureOpenAI } from 'openai';
 import { Fetch } from 'openai/core';
 import { Stream } from 'openai/streaming';
@@ -15,6 +16,7 @@ export type ChatCompletionCreateParams = Omit<
   OpenAI.ChatCompletionCreateParams,
   'model' | 'messages' | 'stream'
 >;
+
 export type OpenAIChatModelOptions = {
   readonly model: (string & {}) | OpenAI.Chat.ChatModel;
   readonly apiKey?: string;
@@ -241,6 +243,14 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
             }
           }
 
+          if (delta.context) {
+            if (message.context) {
+              Object.assign(message.context, delta.context);
+            } else {
+              message.context = delta.context;
+            }
+          }
+
           if (delta.content) {
             if (message.content) {
               message.content += delta.content;
@@ -258,6 +268,7 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
       const modelMessage: ModelMessage = {
         role: 'model',
         content: message.content || undefined,
+        context: message.context,
         function_calls: message.tool_calls?.map((call) => ({
           id: call.id,
           name: call.function.name,

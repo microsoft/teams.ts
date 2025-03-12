@@ -5,6 +5,7 @@ import { OpenAIChatModel } from '@microsoft/spark.openai';
 import { LocalStorage } from '@microsoft/spark.common/storage';
 import { DevtoolsPlugin } from '@microsoft/spark.dev';
 import { MessageActivity } from '@microsoft/spark.api';
+import '@azure/openai/types';
 
 const storage = new LocalStorage<{
   status: boolean;
