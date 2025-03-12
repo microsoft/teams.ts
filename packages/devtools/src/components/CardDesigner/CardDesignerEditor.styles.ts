@@ -21,7 +21,7 @@ export const useCardDesignerEditorClasses = makeStyles({
     flexDirection: 'column',
     flex: 1,
     minHeight: 0,
-    minWidth: '500px',
+    maxWidth: '500px',
   },
   tabPanel: {
     display: 'flex',
