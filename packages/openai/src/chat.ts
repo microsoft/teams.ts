@@ -267,6 +267,7 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
 
       const modelMessage: ModelMessage = {
         role: 'model',
+        audio: message.audio || undefined,
         content: message.content || undefined,
         context: message.context,
         function_calls: message.tool_calls?.map((call) => ({
