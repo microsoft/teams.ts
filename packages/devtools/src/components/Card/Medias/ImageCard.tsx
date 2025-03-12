@@ -1,4 +1,5 @@
 import { IImage } from '@microsoft/spark.cards';
+
 import { useImageCardClasses } from './Medias.styles';
 
 export interface ImageCardProps {

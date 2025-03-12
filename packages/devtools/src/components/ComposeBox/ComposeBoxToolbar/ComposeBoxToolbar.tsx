@@ -25,6 +25,7 @@ import {
   useToastController,
   Toolbar,
   ToolbarButton,
+  ToolbarProps,
   ToolbarDivider,
   ToolbarProps,
   useId,
@@ -34,6 +35,7 @@ import { Card } from '@microsoft/spark.cards';
 
 import { useCardStore } from '../../../stores/CardStore';
 import Logger from '../../Logger/Logger';
+
 import { useClasses } from './ComposeBoxToolbar.styles';
 
 interface ComposeBoxToolbarProps extends ToolbarProps {

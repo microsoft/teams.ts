@@ -3,6 +3,7 @@ import {
   Button,
   InfoLabel,
   Switch,
+  Title1,
   Toast,
   ToastTitle,
   Tooltip,
@@ -16,7 +17,7 @@ import useActivityDetailsClasses from './ActivityDetails.styles';
 import Logger from '../Logger/Logger';
 
 interface ActivityDetailsProps {
-  selected: ActivityEvent;
+  selected?: ActivityEvent;
   view: 'preview' | 'json';
   setView: (view: 'preview' | 'json') => void;
 }
@@ -54,10 +55,16 @@ const ActivityDetails: FC<ActivityDetailsProps> = ({ selected, view, setView }) 
   };
 
   return (
-    <div className={classes.selectedContainer}>
-      <div className={classes.selectedHeader}>
+    <div className={classes.detailsContainer}>
+      <Title1>Activity details</Title1>
+      <div className={classes.tools}>
         <Tooltip content="Copy to clipboard" relationship="label">
-          <Button aria-label="Copy to clipboard" icon={<CopyRegular />} onClick={handleCopy} />
+          <Button
+            aria-label="Copy to clipboard"
+            icon={<CopyRegular />}
+            onClick={handleCopy}
+            disabled={!selected}
+          />
         </Tooltip>
 
         <InfoLabel
@@ -79,16 +86,21 @@ const ActivityDetails: FC<ActivityDetailsProps> = ({ selected, view, setView }) 
             }}
             label={view === 'json' ? 'JSON' : 'Preview'}
             aria-label="Toggle between Preview and JSON"
+            disabled={!selected}
           />
         </InfoLabel>
       </div>
 
       <div className={classes.jsonContainer}>
-        <Json
-          className={classes.json}
-          value={selected.type === 'activity.error' ? selected.error : selected.body}
-          stringify={view === 'json'}
-        />
+        {selected ? (
+          <Json
+            className={classes.json}
+            value={selected.type === 'activity.error' ? selected.error : selected.body}
+            stringify={view === 'json'}
+          />
+        ) : (
+          <div>Select an activity from the activities list to view payload details.</div>
+        )}
       </div>
     </div>
   );

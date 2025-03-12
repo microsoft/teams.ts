@@ -1,5 +1,6 @@
 import { ITextBlock } from '@microsoft/spark.cards';
 import { useMemo } from 'react';
+
 import { MarkdownContent } from '../../MarkdownContent';
 
 export interface TextBlockCardProps {

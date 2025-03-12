@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router';
 import { Attachment } from '@microsoft/spark.api';
+
 import Logger from '../components/Logger/Logger';
 
 // Type definitions

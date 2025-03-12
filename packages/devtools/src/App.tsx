@@ -17,7 +17,6 @@ import { SocketClient } from './socket-client';
 import ActivitiesScreen from './screens/ActivitiesScreen/ActivitiesScreen';
 import CardsScreen from './screens/CardsScreen';
 import ChatScreen from './screens/ChatScreen/ChatScreen';
-import DevtoolsBanner from './components/DevtoolsBanner/DevtoolsBanner';
 import Logger from './components/Logger/Logger';
 import PageNav from './components/PageNav/PageNav';
 import useAppClasses from './App.styles';
@@ -44,9 +43,7 @@ export default function App() {
         setConnected(false);
       }
     };
-
     connectSocket();
-
     return () => {
       socket.off('activity');
       socket.disconnect();
@@ -75,27 +72,21 @@ export default function App() {
       <ChatContext.Provider value={chatStore}>
         <ActivityContext.Provider value={activityStore}>
           <CardContext.Provider value={cardStore}>
-            <Body1 id="app-root" className={mergeClasses(classes.default, classes.appContainer)}>
-              <BrowserRouter basename="/devtools" data-tid="browser-router">
-                <nav id="app-sidebar" className={classes.sideBar} aria-label="Sidebar navigation">
-                  <header id="banner" className={classes.header}>
-                    <DevtoolsBanner connected={connected} />
-                  </header>
-                </nav>
-                <div id="app-content" className={classes.mainLayout} data-tid="main-layout">
-                  <PageNav />
-                  <main id="page-content" className={classes.mainContent}>
-                    <Routes>
-                      <Route path="" element={<ChatScreen isConnected={connected} />} />
-                      <Route path="cards" element={<CardsScreen />} />
-                      <Route path="activities" element={<ActivitiesScreen />} />
-                      {/* <Route path="logs" element={<Logs />} /> */}
-                      <Route path="*" element={<Navigate to="/" replace />} />
-                    </Routes>
-                  </main>
-                </div>
-              </BrowserRouter>
-            </Body1>
+            <BrowserRouter basename="/devtools" data-tid="browser-router">
+              <Body1 id="app-root" className={mergeClasses(classes.default, classes.appContainer)}>
+                <PageNav connected={connected} />
+                <main id="page-content" className={classes.mainContent}>
+                  <Routes>
+                    <Route path="" element={<ChatScreen isConnected={connected} />} />
+                    <Route path="cards" element={<CardsScreen />} />
+                    <Route path="activities" element={<ActivitiesScreen />} />
+                    {/* <Route path="logs" element={<Logs />} /> */}
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </main>
+              </Body1>
+            </BrowserRouter>
+
             <Toaster />
           </CardContext.Provider>
         </ActivityContext.Provider>
