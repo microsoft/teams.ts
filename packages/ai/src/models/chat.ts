@@ -2,16 +2,15 @@ import { Function } from '../function';
 import { IMemory } from '../memory';
 import { Message, ModelMessage, SystemMessage, UserMessage } from '../message';
 
-export type ChatParams = {
+export type TextChunkHandler = (chunk: string) => void | Promise<void>;
+export type ChatSendOptions<TOptions = Record<string, any>> = {
   readonly system?: SystemMessage | UserMessage;
-  readonly input: Message;
   readonly messages?: IMemory;
   readonly functions?: Record<string, Function>;
+  readonly onChunk?: TextChunkHandler;
+  readonly options?: TOptions;
 };
 
-export interface IChatModel {
-  chat(
-    params: ChatParams,
-    onChunk?: (chunk: ModelMessage) => void | Promise<void>
-  ): Promise<ModelMessage>;
+export interface IChatModel<TOptions = Record<string, any>> {
+  send(input: Message, options?: ChatSendOptions<TOptions>): Promise<ModelMessage>;
 }

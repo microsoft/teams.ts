@@ -92,15 +92,17 @@ export class LocalMemory implements IMemory {
       last = this.messages[end];
     }
 
-    const res = await this.options.collapse.model.chat({
-      input: {
+    const res = await this.options.collapse.model.send(
+      {
         role: 'user',
         content: 'summarize this conversation',
       },
-      messages: new LocalMemory({
-        messages: this.messages.slice(start, end + 1),
-      }),
-    });
+      {
+        messages: new LocalMemory({
+          messages: this.messages.slice(start, end + 1),
+        }),
+      }
+    );
 
     this.messages.splice(start, end - start, res);
     return res;

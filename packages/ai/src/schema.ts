@@ -55,5 +55,5 @@ export type NullSchema = BaseSchema & {
 };
 
 export type AnySchema = BaseSchema & {
-  readonly type: undefined;
+  readonly type?: undefined;
 };
