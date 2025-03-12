@@ -1,0 +1,35 @@
+import { ChatPrompt } from '@microsoft/spark.ai';
+import { App } from '@microsoft/spark.apps';
+import { DevtoolsPlugin } from '@microsoft/spark.dev';
+import { MCPPlugin } from '@microsoft/spark.mcp';
+import { OpenAIChatModel } from '@microsoft/spark.openai';
+
+const prompt = new ChatPrompt({
+  model: new OpenAIChatModel({
+    model: 'gpt-4o-mini',
+    apiKey: process.env.OPENAI_API_KEY,
+  }),
+});
+
+prompt.function('hello-world', 'print hello world', () => {
+  return 'hello world!';
+});
+
+const app = new App({
+  plugins: [
+    new DevtoolsPlugin(),
+    new MCPPlugin({
+      name: '{{ toKebabCase name }}',
+      version: '0.0.0'
+    }).use(prompt)
+  ],
+});
+
+app.on('message', async ({ send, activity }) => {
+  await send({ type: 'typing' });
+  await send(`you said "${activity.text}"`);
+});
+
+(async () => {
+  await app.start();
+})();

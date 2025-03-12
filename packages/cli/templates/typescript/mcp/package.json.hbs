@@ -1,0 +1,40 @@
+{
+  "name": "{{ toKebabCase name }}",
+  "version": "0.0.0",
+  "license": "MIT",
+  "private": true,
+  "main": "dist/index",
+  "types": "dist/index",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "clean": "npx rimraf ./dist",
+    "build": "npx tsc",
+    "start": "node .",
+    "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\"",
+    "inspect": "npx cross-env SERVER_PORT=4000 npx @modelcontextprotocol/inspector node ."
+  },
+  "dependencies": {
+    "@microsoft/spark.api": "latest",
+    "@microsoft/spark.apps": "latest",
+    "@microsoft/spark.cards": "latest",
+    "@microsoft/spark.common": "latest",
+    "@microsoft/spark.dev": "latest",
+    "@microsoft/spark.graph": "latest",
+    "@microsoft/spark.mcp": "latest",
+    "@microsoft/spark.openai": "latest",
+    "@modelcontextprotocol/sdk": "^1.7.0"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/inspector": "^0.6.0",
+    "@types/node": "^22.5.4",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5",
+    "nodemon": "^3.1.4",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
