@@ -23,6 +23,7 @@
     - [💬 Chat](./7.devtools/1.chat.md)
     - [🔍 Inspect](./7.devtools/2.inspect.md)
     - [🪪 Cards](./7.devtools/3.cards.md)
+    - [Development](./7.devtools/4.devtools-development.md)
 - [🤖 AI](./8.ai/README.md)
     - [💬 Chat](./8.ai/1.chat/README.md)
         - [Simple](./8.ai/1.chat/1.simple.md)
