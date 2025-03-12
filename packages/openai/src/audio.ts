@@ -13,8 +13,6 @@ export type OpenAIAudioPluginOptions = {
   readonly headers?: { [key: string]: string };
   readonly fetch?: Fetch;
   readonly timeout?: number;
-  readonly stream?: boolean;
-  readonly temperature?: number;
   readonly logger?: ILogger;
 };
 

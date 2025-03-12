@@ -7,7 +7,7 @@ export type LocalStorageOptions = {
   readonly max?: number;
 };
 
-export class LocalStorage<T = any> implements IStorage<T> {
+export class LocalStorage<T = any> implements IStorage<string, T> {
   protected readonly _store: Map<string, T>;
   protected readonly _keys: string[];
   protected readonly _options: LocalStorageOptions;

@@ -5,6 +5,7 @@ import { OpenAIChatModel } from '@microsoft/spark.openai';
 import { LocalStorage } from '@microsoft/spark.common/storage';
 import { DevtoolsPlugin } from '@microsoft/spark.dev';
 import { MessageActivity } from '@microsoft/spark.api';
+import '@azure/openai/types';
 
 const storage = new LocalStorage<{
   status: boolean;
@@ -45,7 +46,6 @@ app.on('message', async ({ send, stream, activity }) => {
     model: new OpenAIChatModel({
       model: 'gpt-4o-mini',
       apiKey: process.env.OPENAI_API_KEY,
-      stream: true,
     }),
   })
     .function('get_light_status', 'get the current light status', () => {
@@ -60,8 +60,10 @@ app.on('message', async ({ send, stream, activity }) => {
       storage.set(activity.from.id, state);
     });
 
-  await prompt.chat(activity.text, (chunk) => {
-    stream.emit(new MessageActivity(chunk).addFeedback());
+  await prompt.send(activity.text, {
+    onChunk: (chunk) => {
+      stream.emit(new MessageActivity(chunk).addFeedback());
+    },
   });
 });
 

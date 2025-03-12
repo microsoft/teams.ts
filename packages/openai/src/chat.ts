@@ -1,9 +1,21 @@
-import { IChatModel, ChatParams, LocalMemory, ModelMessage } from '@microsoft/spark.ai';
+import {
+  IChatModel,
+  ChatSendOptions,
+  LocalMemory,
+  ModelMessage,
+  Message,
+} from '@microsoft/spark.ai';
 import { ConsoleLogger, ILogger } from '@microsoft/spark.common/logging';
 
+import '@azure/openai/types';
 import OpenAI, { AzureOpenAI } from 'openai';
 import { Fetch } from 'openai/core';
 import { Stream } from 'openai/streaming';
+
+export type ChatCompletionCreateParams = Omit<
+  OpenAI.ChatCompletionCreateParams,
+  'model' | 'messages' | 'stream'
+>;
 
 export type OpenAIChatModelOptions = {
   readonly model: (string & {}) | OpenAI.Chat.ChatModel;
@@ -14,14 +26,8 @@ export type OpenAIChatModelOptions = {
   readonly headers?: { [key: string]: string };
   readonly fetch?: Fetch;
   readonly timeout?: number;
-  readonly stream?: boolean;
-  readonly temperature?: number;
+  readonly requestOptions?: ChatCompletionCreateParams;
   readonly logger?: ILogger;
-  readonly requestOptions?:
-    | OpenAI.ChatCompletionCreateParams
-    | ((
-        params: ChatParams
-      ) => OpenAI.ChatCompletionCreateParams | Promise<OpenAI.ChatCompletionCreateParams>);
 };
 
 export type AzureOpenAIChatModelOptions = OpenAIChatModelOptions & {
@@ -42,7 +48,7 @@ export type AzureOpenAIChatModelOptions = OpenAIChatModelOptions & {
   azureADTokenProvider?: () => Promise<string>;
 };
 
-export class OpenAIChatModel implements IChatModel {
+export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
   private readonly _openai: OpenAI;
   private readonly _log: ILogger;
 
@@ -75,18 +81,18 @@ export class OpenAIChatModel implements IChatModel {
           });
   }
 
-  async chat(
-    params: ChatParams,
-    onChunk?: (chunk: ModelMessage) => void | Promise<void>
+  async send(
+    input: Message,
+    options: ChatSendOptions<ChatCompletionCreateParams> = {}
   ): Promise<ModelMessage> {
-    const memory = params.messages || new LocalMemory();
-    await memory.push(params.input);
+    const memory = options.messages || new LocalMemory();
+    await memory.push(input);
 
     // call functions
-    if (params.input.role === 'model' && params.input.function_calls?.length) {
-      for (const call of params.input.function_calls) {
+    if (input.role === 'model' && input.function_calls?.length) {
+      for (const call of input.function_calls) {
         const log = this._log.child(`tools/${call.name}`);
-        const fn = (params.functions || {})[call.name];
+        const fn = (options.functions || {})[call.name];
 
         if (!fn) {
           throw new Error(`function ${call.name} not found`);
@@ -117,28 +123,20 @@ export class OpenAIChatModel implements IChatModel {
 
     const messages = await memory.values();
 
-    if (params.system) {
-      messages.push(params.system);
+    if (options.system) {
+      messages.push(options.system);
     }
 
     try {
-      let requestOptions = this.options?.requestOptions;
-
-      if (requestOptions) {
-        if (typeof requestOptions === 'function') {
-          requestOptions = await requestOptions(params);
-        }
-      }
-
       const completion = await this._openai.chat.completions.create({
+        ...this.options.requestOptions,
+        ...options.request,
         model: 'endpoint' in this.options ? '' : this.options.model,
-        temperature: this.options.temperature,
-        stream: this.options.stream,
-        ...requestOptions,
+        stream: !!options.onChunk,
         tools:
-          Object.keys(params.functions || {}).length === 0
+          Object.keys(options.functions || {}).length === 0
             ? undefined
-            : Object.values(params.functions || {}).map((fn) => ({
+            : Object.values(options.functions || {}).map((fn) => ({
                 type: 'function',
                 function: {
                   name: fn.name,
@@ -245,6 +243,14 @@ export class OpenAIChatModel implements IChatModel {
             }
           }
 
+          if (delta.context) {
+            if (message.context) {
+              Object.assign(message.context, delta.context);
+            } else {
+              message.context = delta.context;
+            }
+          }
+
           if (delta.content) {
             if (message.content) {
               message.content += delta.content;
@@ -252,11 +258,8 @@ export class OpenAIChatModel implements IChatModel {
               message.content = delta.content;
             }
 
-            if (onChunk) {
-              await onChunk({
-                role: 'model',
-                content: delta.content,
-              });
+            if (options.onChunk) {
+              await options.onChunk(delta.content);
             }
           }
         }
@@ -264,7 +267,9 @@ export class OpenAIChatModel implements IChatModel {
 
       const modelMessage: ModelMessage = {
         role: 'model',
+        audio: message.audio || undefined,
         content: message.content || undefined,
+        context: message.context,
         function_calls: message.tool_calls?.map((call) => ({
           id: call.id,
           name: call.function.name,
@@ -273,14 +278,10 @@ export class OpenAIChatModel implements IChatModel {
       };
 
       if (message.tool_calls && message.tool_calls.length > 0) {
-        return this.chat(
-          {
-            ...params,
-            input: modelMessage,
-            messages: memory,
-          },
-          onChunk
-        );
+        return this.send(modelMessage, {
+          ...options,
+          messages: memory,
+        });
       }
 
       await memory.push(modelMessage);
