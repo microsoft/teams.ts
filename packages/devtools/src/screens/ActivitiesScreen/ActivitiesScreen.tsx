@@ -16,10 +16,18 @@ export default function ActivitiesScreen() {
 
   const handleTypeFilter = (path: string) => {
     const newParams = new URLSearchParams(params);
-    if (params.get('path') === path) {
+    if (path === '') {
+      // Clear all filters
       newParams.delete('path');
+      newParams.delete('body.id');
     } else {
-      newParams.set('path', path);
+      // Clear ID filter and toggle path filter
+      newParams.delete('body.id');
+      if (params.get('path') === path) {
+        newParams.delete('path');
+      } else {
+        newParams.set('path', path);
+      }
     }
     setParams(newParams);
   };

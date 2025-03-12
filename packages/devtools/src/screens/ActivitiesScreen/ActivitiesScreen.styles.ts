@@ -21,7 +21,7 @@ const useActivitiesScreenClasses = makeStyles({
     overflow: 'hidden',
     '@media (max-width: 1000px)': {
       width: '100%',
-      height: 'calc(100% - 18rem)',
+      height: 'calc(100% - 20rem)',
       padding: '0.5rem',
     },
   },
@@ -33,7 +33,7 @@ const useActivitiesScreenClasses = makeStyles({
     boxShadow: tokens.shadow16,
     '@media (max-width: 1000px)': {
       width: '100%',
-      height: '18rem',
+      height: '20rem',
       padding: '0.5rem',
     },
   },

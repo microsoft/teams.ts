@@ -7,12 +7,16 @@ import {
   MenuTrigger,
   createTableColumn,
   TableColumnDefinition,
+  Tooltip,
 } from '@fluentui/react-components';
 import {
   CheckmarkFilled,
   Filter20Regular,
+  Filter20Filled,
   ArrowDownFilled,
   ArrowUpFilled,
+  FluentIcon,
+  bundleIcon,
 } from '@fluentui/react-icons/lib/fonts';
 
 import { ActivityEvent } from '../../types/Event';
@@ -41,12 +45,16 @@ const handleKeyDown = (e: ReactKeyboardEvent) => {
     target.click();
   }
 };
+
+const FilterIcon = bundleIcon(Filter20Filled as FluentIcon, Filter20Regular as FluentIcon);
+
 const useActivityGridColumns = ({
   activityPaths,
   params,
   handleTypeFilter,
 }: ActivityGridColumnsProps): TableColumnDefinition<ActivityEvent>[] => {
   const classes = useActivitiesGridClasses();
+  const hasFilters = params.size > 0;
 
   return COLUMNS.map((column) =>
     createTableColumn<ActivityEvent>({
@@ -58,20 +66,36 @@ const useActivityGridColumns = ({
               <MenuTrigger>
                 <MenuButton appearance="transparent">
                   Type
-                  <Filter20Regular />
+                  <FilterIcon className={hasFilters ? classes.filterOn : undefined} />
                 </MenuButton>
               </MenuTrigger>
               <MenuPopover className={classes.menuPopover}>
                 <MenuList>
+                  {params.has('body.id') && (
+                    <Tooltip content={`ID: ${params.get('body.id')}`} relationship="label">
+                      <MenuItem
+                        key="id-filter"
+                        onKeyDown={handleKeyDown}
+                        onClick={() => handleTypeFilter('')}
+                        icon={<CheckmarkFilled />}
+                        className={classes.menuItem}
+                      >
+                        ID: {params.get('body.id')}
+                      </MenuItem>
+                    </Tooltip>
+                  )}
                   {activityPaths.map((path) => (
-                    <MenuItem
-                      key={path}
-                      onKeyDown={handleKeyDown}
-                      onClick={() => handleTypeFilter(path)}
-                      icon={params.has('path', path) ? <CheckmarkFilled /> : <></>}
-                    >
-                      {path}
-                    </MenuItem>
+                    <Tooltip key={path} content={path} relationship="label">
+                      <MenuItem
+                        key={path}
+                        onKeyDown={handleKeyDown}
+                        onClick={() => handleTypeFilter(path)}
+                        icon={params.has('path', path) ? <CheckmarkFilled /> : <></>}
+                        className={classes.menuItem}
+                      >
+                        {path}
+                      </MenuItem>
+                    </Tooltip>
                   ))}
                 </MenuList>
               </MenuPopover>

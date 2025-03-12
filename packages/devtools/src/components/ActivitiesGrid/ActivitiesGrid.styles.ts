@@ -88,6 +88,15 @@ const useActivitiesGridClasses = makeStyles({
   hideSelection: {
     visibility: 'hidden',
   },
+  filterOn: {
+    color: tokens.colorBrandForeground1,
+  },
+  menuItem: {
+    maxWidth: '12.5rem',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
 });
 
 export default useActivitiesGridClasses;
