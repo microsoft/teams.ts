@@ -7,31 +7,81 @@ import { Schema } from '../schema';
 import { ITemplate } from '../template';
 import { StringTemplate } from '../templates';
 
-export type ChatPromptOptions<TOptions = Record<string, any>> = {
+export type ChatPromptOptions<TOptions extends Record<string, any> = Record<string, any>> = {
+  /**
+   * the name of the prompt
+   */
+  readonly name?: string;
+
+  /**
+   * the description of the prompt
+   */
+  readonly description?: string;
+
+  /**
+   * the model to send messages to
+   */
   readonly model: IChatModel<TOptions>;
+
+  /**
+   * the defining characteristics/objective
+   * of the prompt
+   */
   readonly instructions?: string | string[] | ITemplate;
+
+  /**
+   * the `role` of the initial message
+   */
   readonly role?: 'system' | 'user';
+
+  /**
+   * the conversation history
+   */
   readonly messages?: Message[] | IMemory;
 };
 
-export type ChatPromptSendOptions<TOptions = Record<string, any>> = {
+export type ChatPromptSendOptions<TOptions extends Record<string, any> = Record<string, any>> = {
+  /**
+   * the conversation history
+   */
   readonly messages?: Message[] | IMemory;
+
+  /**
+   * the models request options
+   */
   readonly request?: TOptions;
+
+  /**
+   * the callback to be called for each
+   * stream chunk
+   */
   readonly onChunk?: TextChunkHandler;
 };
 
-export class ChatPrompt<TOptions = Record<string, any>> {
+export class ChatPrompt<TOptions extends Record<string, any> = Record<string, any>> {
+  get name() {
+    return this._name;
+  }
+  protected readonly _name: string;
+
+  get description() {
+    return this._description;
+  }
+  protected readonly _description: string;
+
   get messages() {
     return this._messages;
   }
   protected readonly _messages: IMemory;
 
   protected readonly _role: 'system' | 'user';
-  protected readonly _model: IChatModel<TOptions>;
   protected readonly _template: ITemplate;
+  protected readonly _model: IChatModel<TOptions>;
   protected readonly _functions: Record<string, Function> = {};
 
   constructor(options: ChatPromptOptions<TOptions>) {
+    this._name = options.name || 'chat';
+    this._description = options.description || 'an agent you can chat with';
     this._role = options.role || 'system';
     this._model = options.model;
     this._template = Array.isArray(options.instructions)
@@ -44,6 +94,32 @@ export class ChatPrompt<TOptions = Record<string, any>> {
       typeof options.messages === 'object' && !Array.isArray(options.messages)
         ? options.messages
         : new LocalMemory({ messages: options.messages || [] });
+  }
+
+  use(prompt: ChatPrompt): this;
+  use(name: string, prompt: ChatPrompt): this;
+  use(...args: any[]) {
+    const prompt: ChatPrompt = args.length === 1 ? args[0] : args[1];
+    const name: string = args.length === 1 ? prompt.name : args[0];
+    this._functions[name] = {
+      name,
+      description: prompt.description,
+      parameters: {
+        type: 'object',
+        properties: {
+          text: {
+            type: 'string',
+            description: 'the text to send to the assistant',
+          },
+        },
+        required: ['text'],
+      },
+      handler: ({ text }: { text: string }) => {
+        return prompt.send(text);
+      },
+    };
+
+    return this;
   }
 
   function(name: string, description: string, handler: FunctionHandler): this;
