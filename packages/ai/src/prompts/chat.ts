@@ -2,38 +2,48 @@ import { Function, FunctionHandler } from '../function';
 import { LocalMemory } from '../local-memory';
 import { IMemory } from '../memory';
 import { ContentPart, Message, SystemMessage, UserMessage } from '../message';
-import { IChatModel } from '../models';
+import { IChatModel, TextChunkHandler } from '../models';
 import { Schema } from '../schema';
 import { ITemplate } from '../template';
 import { StringTemplate } from '../templates';
 
-export type ChatPromptOptions = {
-  readonly model: IChatModel;
-  readonly instructions?: string | ITemplate;
+export type ChatPromptOptions<TOptions = Record<string, any>> = {
+  readonly model: IChatModel<TOptions>;
+  readonly instructions?: string | string[] | ITemplate;
   readonly role?: 'system' | 'user';
   readonly messages?: Message[] | IMemory;
 };
 
-export class ChatPrompt {
-  readonly messages: IMemory;
+export type ChatPromptSendOptions<TOptions = Record<string, any>> = {
+  readonly messages?: Message[] | IMemory;
+  readonly request?: TOptions;
+  readonly onChunk?: TextChunkHandler;
+};
+
+export class ChatPrompt<TOptions = Record<string, any>> {
+  get messages() {
+    return this._messages;
+  }
+  protected readonly _messages: IMemory;
 
   protected readonly _role: 'system' | 'user';
-  protected readonly _model: IChatModel;
+  protected readonly _model: IChatModel<TOptions>;
   protected readonly _template: ITemplate;
   protected readonly _functions: Record<string, Function> = {};
 
-  constructor(options: ChatPromptOptions) {
+  constructor(options: ChatPromptOptions<TOptions>) {
     this._role = options.role || 'system';
-    this.messages =
+    this._model = options.model;
+    this._template = Array.isArray(options.instructions)
+      ? new StringTemplate(options.instructions.join('\n'))
+      : typeof options.instructions !== 'object'
+        ? new StringTemplate(options.instructions)
+        : options.instructions;
+
+    this._messages =
       typeof options.messages === 'object' && !Array.isArray(options.messages)
         ? options.messages
         : new LocalMemory({ messages: options.messages || [] });
-
-    this._model = options.model;
-    this._template =
-      typeof options.instructions !== 'object'
-        ? new StringTemplate(options.instructions)
-        : options.instructions;
   }
 
   function(name: string, description: string, handler: FunctionHandler): this;
@@ -63,10 +73,16 @@ export class ChatPrompt {
     return await fn.handler(args || {});
   }
 
-  async chat(input: string | ContentPart[], onChunk?: (chunk: string) => void | Promise<void>) {
+  async send(input: string | ContentPart[], options: ChatPromptSendOptions<TOptions> = {}) {
+    const { onChunk } = options;
+
     if (typeof input === 'string') {
       input = input.trim();
     }
+
+    const messages = !Array.isArray(options.messages)
+      ? options.messages || this._messages
+      : new LocalMemory({ messages: options.messages || [] });
 
     let buffer = '';
     let system: SystemMessage | UserMessage | undefined = undefined;
@@ -79,29 +95,30 @@ export class ChatPrompt {
       };
     }
 
-    const res = await this._model.chat(
+    const res = await this._model.send(
       {
-        input: {
-          role: 'user',
-          content: input,
-        },
-        system,
-        messages: this.messages,
-        functions: this._functions,
+        role: 'user',
+        content: input,
       },
-      async (chunk) => {
-        if (!chunk.content || !onChunk) return;
-        buffer += chunk.content;
+      {
+        system,
+        messages,
+        request: options.request,
+        functions: this._functions,
+        onChunk: async (chunk) => {
+          if (!chunk || !onChunk) return;
+          buffer += chunk;
 
-        try {
-          await onChunk(buffer);
-          buffer = '';
-        } catch (err) {
-          return;
-        }
+          try {
+            await onChunk(buffer);
+            buffer = '';
+          } catch (err) {
+            return;
+          }
+        },
       }
     );
 
-    return res.content || '';
+    return { ...res, content: res.content || '' };
   }
 }
