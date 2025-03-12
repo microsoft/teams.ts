@@ -11,6 +11,7 @@ import {
   DocumentBulletList20Regular,
   DocumentBulletList20Filled,
 } from '@fluentui/react-icons/lib/fonts';
+
 import { useClasses } from './PageNavButton.styles';
 
 type IconType = 'chat' | 'cards' | 'activities' | 'logs';

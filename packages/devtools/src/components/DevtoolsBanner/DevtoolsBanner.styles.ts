@@ -10,6 +10,9 @@ const useClasses = makeStyles({
     padding: '12px 0',
     color: tokens.colorNeutralForeground1,
     position: 'relative',
+    width: '11rem',
+    borderRight: `1px solid ${tokens.colorNeutralStencil1}`,
+    flexShrink: 0,
   },
   imageContainer: {
     position: 'relative',
@@ -70,7 +73,7 @@ const useClasses = makeStyles({
   betaBadge: {
     position: 'absolute',
     right: '2.3rem',
-    bottom: '-0.25rem',
+    bottom: '0',
     border: `1px solid ${tokens.colorNeutralStencil1}`,
   },
 });

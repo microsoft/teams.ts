@@ -1,4 +1,5 @@
 import { ComponentProps } from 'react';
+
 import { useJsonStringClasses } from './Json.styles';
 
 export interface JsonStringProps extends ComponentProps<'div'> {

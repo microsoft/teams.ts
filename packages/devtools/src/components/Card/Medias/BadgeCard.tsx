@@ -1,5 +1,6 @@
 import { IBadge } from '@microsoft/spark.cards';
 import { mergeClasses, Tooltip } from '@fluentui/react-components';
+
 import IconCard from './IconCard';
 import { useBadgeCardStyles } from './Medias.styles';
 

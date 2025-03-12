@@ -1,4 +1,5 @@
 import { ComponentProps } from 'react';
+
 import JsonObject from './JsonObject';
 
 export interface JsonArrayProps extends ComponentProps<'div'> {

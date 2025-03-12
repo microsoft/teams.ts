@@ -2,6 +2,7 @@ import { ComponentProps, Suspense, lazy } from 'react';
 import { IIcon } from '@microsoft/spark.cards';
 import { FluentIcon } from '@fluentui/react-icons/lib/fonts';
 import { mergeClasses } from '@fluentui/react-components';
+
 import { useIconCardStyles } from './Medias.styles';
 
 const loadIcon = (name: string) => {

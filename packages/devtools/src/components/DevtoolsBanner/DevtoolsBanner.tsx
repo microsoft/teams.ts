@@ -19,7 +19,7 @@ const DevtoolsBanner: FC<DevtoolsBannerProps> = memo(({ connected }) => {
   }, [navigate]);
 
   return (
-    <div data-tid="devtools-" className={classes.devtoolsLandmark}>
+    <header id="banner" data-tid="devtools" className={classes.devtoolsLandmark}>
       <div className={classes.imageContainer}>
         <img
           src="/devtools/teams.png"
@@ -45,7 +45,7 @@ const DevtoolsBanner: FC<DevtoolsBannerProps> = memo(({ connected }) => {
       <Badge aria-label="Beta" appearance="tint" className={classes.betaBadge}>
         Beta
       </Badge>
-    </div>
+    </header>
   );
 });
 

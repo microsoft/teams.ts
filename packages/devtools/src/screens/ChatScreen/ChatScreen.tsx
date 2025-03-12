@@ -59,35 +59,38 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
   });
 
   return (
-    <Chat id="screen-container" className={screenClasses.screenContainer}>
-      <div id="scrollbar-container" className={screenClasses.scrollbarContainer}>
-        <div id="messages-container" className={classes.messagesList}>
-          {chat &&
-            (messages[chat.id] || []).map((message) => (
-              <ChatMessageContainer key={message.id} value={message} isConnected={isConnected}>
-                <ChatMessage
-                  content={message.body?.content || ''}
-                  feedback={feedback[message.id]}
-                  sendDirection={message.from?.user?.id === 'devtools' ? 'sent' : 'received'}
-                  streaming={streaming[message.id]}
-                  value={message}
-                />
-              </ChatMessageContainer>
-            ))}
+    <>
+      <nav id="chat-sidebar" className={classes.sideBar} aria-label="Chat navigation"></nav>
+      <Chat id="screen-container" className={screenClasses.screenContainer}>
+        <div id="scrollbar-container" className={screenClasses.scrollbarContainer}>
+          <div id="messages-container" className={classes.messagesList}>
+            {chat &&
+              (messages[chat.id] || []).map((message) => (
+                <ChatMessageContainer key={message.id} value={message} isConnected={isConnected}>
+                  <ChatMessage
+                    content={message.body?.content || ''}
+                    feedback={feedback[message.id]}
+                    sendDirection={message.from?.user?.id === 'devtools' ? 'sent' : 'received'}
+                    streaming={streaming[message.id]}
+                    value={message}
+                  />
+                </ChatMessageContainer>
+              ))}
+          </div>
         </div>
-      </div>
-      <div className={classes.composeContainer}>
-        <div className={classes.composeInner}>
-          <div className={classes.typingIndicator}>{typing[chat.id] && <TypingIndicator />}</div>
-          {/* <div className={classes.bannerContainer}>{/* TODO: Optional banner/toast content </div> */}
-          <ComposeBox
-            onSend={handleSendMessage}
-            messageHistory={messageHistory}
-            onMessageSent={handleMessageSent}
-          />
+        <div className={classes.composeContainer}>
+          <div className={classes.composeInner}>
+            <div className={classes.typingIndicator}>{typing[chat.id] && <TypingIndicator />}</div>
+            {/* <div className={classes.bannerContainer}>{/* TODO: Optional banner/toast content </div> */}
+            <ComposeBox
+              onSend={handleSendMessage}
+              messageHistory={messageHistory}
+              onMessageSent={handleMessageSent}
+            />
+          </div>
         </div>
-      </div>
-    </Chat>
+      </Chat>
+    </>
   );
 };
 
