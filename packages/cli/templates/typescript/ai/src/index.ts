@@ -16,12 +16,11 @@ app.on('message', async ({ stream, activity }) => {
     model: new OpenAIChatModel({
       model: 'gpt-4o',
       apiKey: process.env.OPENAI_API_KEY,
-      stream: true,
     }),
   });
 
-  await prompt.chat(activity.text, (chunk) => {
-    stream.emit(chunk);
+  await prompt.send(activity.text, {
+    onChunk: (chunk) => stream.emit(chunk),
   });
 });
 

@@ -16,6 +16,7 @@
     "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\""
   },
   "dependencies": {
+    "@azure/openai": "^2.0.0",
     "@microsoft/spark.ai": "*",
     "@microsoft/spark.api": "*",
     "@microsoft/spark.apps": "*",
