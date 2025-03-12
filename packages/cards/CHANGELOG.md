@@ -1,5 +1,11 @@
 # @microsoft/spark.cards
 
+## 0.2.1
+
+### Patch Changes
+
+- change @azure/openai from peer dependency to regular
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,5 +1,13 @@
 # @microsoft/spark.graph
 
+## 0.2.1
+
+### Patch Changes
+
+- change @azure/openai from peer dependency to regular
+- Updated dependencies
+    - @microsoft/spark.common@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/spark.openai",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -31,16 +31,13 @@
     "build": "npx tsup",
     "test": "npx jest"
   },
+  "dependencies": {
+    "@azure/openai": "^2.0.0"
+  },
   "peerDependencies": {
-    "@azure/openai": "^2.0.0",
     "@microsoft/spark.ai": "*",
     "@microsoft/spark.common": "*",
     "openai": "^4.55.0"
-  },
-  "peerDependenciesMeta": {
-    "@azure/openai": {
-      "optional": true
-    }
   },
   "devDependencies": {
     "@microsoft/spark.config": "*",
