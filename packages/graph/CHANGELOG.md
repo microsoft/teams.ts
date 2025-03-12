@@ -1,5 +1,16 @@
 # @microsoft/spark.graph
 
+## 0.2.0
+
+### Minor Changes
+
+- refactor ai package interface, devtools updates
+
+### Patch Changes
+
+- Updated dependencies
+    - @microsoft/spark.common@0.2.0
+
 ## 0.1.3
 
 ### Patch Changes

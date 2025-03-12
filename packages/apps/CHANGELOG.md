@@ -1,5 +1,11 @@
 # @microsoft/spark.apps
 
+## 0.2.0
+
+### Minor Changes
+
+- refactor ai package interface, devtools updates
+
 ## 0.1.3
 
 ### Patch Changes
