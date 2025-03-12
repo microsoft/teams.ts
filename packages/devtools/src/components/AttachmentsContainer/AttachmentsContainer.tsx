@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { Button, Image } from '@fluentui/react-components';
 import { Dismiss20Regular } from '@fluentui/react-icons/lib/fonts';
 
@@ -20,13 +20,7 @@ const AttachmentItem = memo(
   }) => {
     const classes = useClasses();
 
-    // Create a stable key based on content
-    const contentKey =
-      typeof attachment.content === 'object'
-        ? JSON.stringify(attachment.content).substring(0, 20)
-        : String(attachment.content).substring(0, 20);
-
-    const renderAttachmentContent = () => {
+    const renderAttachmentContent = useCallback(() => {
       switch (attachment.type) {
         case 'card':
           return attachment.content && <AdaptiveCard value={attachment.content} />;
@@ -45,10 +39,10 @@ const AttachmentItem = memo(
         default:
           return <div>{attachment.name || 'Attachment'}</div>;
       }
-    };
+    }, [attachment.content, attachment.type, attachment.name, classes]);
 
     return (
-      <div key={`attachment-${index}-${contentKey}`} className={classes.inlineAttachmentCard}>
+      <div className={classes.inlineAttachmentCard}>
         {showRemoveButton && (
           <Button
             appearance="transparent"
@@ -85,7 +79,7 @@ const AttachmentsContainer = memo(
       <div className={classes.inlineAttachmentsContainer}>
         {attachments.map((attachment, index) => (
           <AttachmentItem
-            key={index}
+            key={`${attachment.type}-${index}`}
             attachment={attachment}
             index={index}
             onRemove={onRemoveAttachment}
