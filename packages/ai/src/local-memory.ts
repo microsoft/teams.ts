@@ -20,6 +20,21 @@ export class LocalMemory implements IMemory {
     this.options = options || {};
   }
 
+  get(i: number) {
+    if (i < 0 || i > this.messages.length - 1) return;
+    return this.messages[i];
+  }
+
+  set(i: number, message: Message) {
+    if (i < 0 || i > this.messages.length - 1) return;
+    this.messages[i] = message;
+  }
+
+  delete(i: number) {
+    if (i < 0 || i > this.messages.length - 1) return;
+    this.messages.splice(i, 1);
+  }
+
   async push(message: Message) {
     this.messages.push(message);
     let len = this.length();
@@ -56,6 +71,10 @@ export class LocalMemory implements IMemory {
     return this.messages.length;
   }
 
+  where(predicate: (value: Message, index: number) => boolean) {
+    return this.messages.filter(predicate);
+  }
+
   async collapse() {
     if (!this.options.collapse) return;
 
@@ -73,15 +92,17 @@ export class LocalMemory implements IMemory {
       last = this.messages[end];
     }
 
-    const res = await this.options.collapse.model.chat({
-      input: {
+    const res = await this.options.collapse.model.send(
+      {
         role: 'user',
         content: 'summarize this conversation',
       },
-      messages: new LocalMemory({
-        messages: this.messages.slice(start, end + 1),
-      }),
-    });
+      {
+        messages: new LocalMemory({
+          messages: this.messages.slice(start, end + 1),
+        }),
+      }
+    );
 
     this.messages.splice(start, end - start, res);
     return res;

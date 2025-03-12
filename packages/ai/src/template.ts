@@ -1,3 +1,7 @@
 export interface ITemplate {
-  render(params?: Record<string, any>): string | Promise<string>;
+  /**
+   * render the template
+   * @param data the context data
+   */
+  render(data?: Record<string, any>): string | Promise<string>;
 }

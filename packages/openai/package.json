@@ -32,9 +32,15 @@
     "test": "npx jest"
   },
   "peerDependencies": {
+    "@azure/openai": "^2.0.0",
     "@microsoft/spark.ai": "*",
     "@microsoft/spark.common": "*",
     "openai": "^4.55.0"
+  },
+  "peerDependenciesMeta": {
+    "@azure/openai": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@microsoft/spark.config": "*",

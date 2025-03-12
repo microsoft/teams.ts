@@ -1,9 +1,11 @@
+import { Schema } from './schema';
+
 export type FunctionHandler<T = any> = (args: T) => any | Promise<any>;
 
 export type Function = {
   readonly name: string;
   readonly description: string;
-  readonly parameters: { [key: string]: any };
+  readonly parameters: Schema;
   readonly handler: FunctionHandler;
 };
 

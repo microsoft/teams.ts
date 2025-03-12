@@ -2,7 +2,6 @@ import path from 'node:path';
 import fs from 'node:fs';
 
 import Handlebars from 'handlebars';
-import * as changeCase from 'change-case';
 import { String } from '@microsoft/spark.common';
 
 import { IProjectAttributeOperation } from '../project-attribute';
@@ -19,7 +18,7 @@ export class FileTemplateHandlebars implements IProjectAttributeOperation {
     this._to = to;
   }
 
-  up(project: IProject) {
+  async up(project: IProject) {
     const relativeTo = path.relative(process.cwd(), this._to);
 
     if (!fs.existsSync(this._from)) {
@@ -34,6 +33,7 @@ export class FileTemplateHandlebars implements IProjectAttributeOperation {
         .toString()
     );
 
+    const changeCase = await import('change-case');
     const template = Handlebars.compile(content, { strict: true });
     const rendered = template(project, {
       helpers: {
