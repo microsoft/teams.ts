@@ -1,23 +1,26 @@
-import { ILogger } from '@microsoft/spark.common/logging';
-import { AxiosError } from 'axios';
+import { Activity } from '@microsoft/spark.api';
 
-export type ErrorEvent = {
+import { IEvent } from '../types';
+
+/**
+ * the event emitted by a plugin
+ * when an error occurs
+ */
+export interface IErrorEvent extends IEvent {
   /**
    * the error
    */
-  err: Error;
+  error: Error;
+}
 
+/**
+ * the event emitted by a plugin
+ * when an error occurs as the result
+ * of an activity
+ */
+export interface IActivityErrorEvent extends IErrorEvent {
   /**
-   * the app logger instance
+   * inbound request activity payload
    */
-  log: ILogger;
-};
-
-export function error({ err, log }: ErrorEvent) {
-  log.error(err.message);
-
-  if (err instanceof AxiosError) {
-    log.error(err.request.path);
-    log.error(err.response?.data);
-  }
+  activity: Activity;
 }

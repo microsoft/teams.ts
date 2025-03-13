@@ -25,6 +25,32 @@
     "dev",
     "devtools"
   ],
+  "exports": {
+    ".": {
+      "types": {
+        "require": "./dist/index.d.ts",
+        "import": "./dist/index.d.mts"
+      },
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
+    "./console": {
+      "types": {
+        "require": "./dist/console/index.d.ts",
+        "import": "./dist/console/index.d.mts"
+      },
+      "require": "./dist/console/index.js",
+      "import": "./dist/console/index.mjs"
+    },
+    "./devtools": {
+      "types": {
+        "require": "./dist/devtools/index.d.ts",
+        "import": "./dist/devtools/index.d.mts"
+      },
+      "require": "./dist/devtools/index.js",
+      "import": "./dist/devtools/index.mjs"
+    }
+  },
   "scripts": {
     "clean": "npx rimraf ./dist",
     "lint": "npx eslint",
@@ -52,7 +78,6 @@
     "@types/jest": "^29.5.12",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.5.5",
-    "@types/uuid": "^10.0.0",
     "jest": "^29.7.0",
     "rimraf": "^6.0.1",
     "ts-jest": "^29.2.5",
