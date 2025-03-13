@@ -17,6 +17,9 @@ export const useClasses = makeStyles({
     padding: '0',
     border: `1px solid ${tokens.colorSubtleBackground}`,
     fontSize: tokens.fontSizeBase400,
+    ':hover:not(:focus-visible)': {
+      outline: 'none',
+    },
   },
   tooltipText: {
     textTransform: 'capitalize',

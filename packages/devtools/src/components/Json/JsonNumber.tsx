@@ -1,16 +1,21 @@
+import { FC, memo } from 'react';
 import { ComponentProps } from 'react';
+import { mergeClasses } from '@fluentui/react-components';
 
-import { useJsonNumberClasses } from './Json.styles';
+import useJsonClasses from './Json.styles';
 
-export interface JsonNumberProps extends ComponentProps<'div'> {
+interface JsonNumberProps extends ComponentProps<'div'> {
   readonly value: number;
 }
 
-export default function JsonNumber(props: JsonNumberProps) {
-  const classes = useJsonNumberClasses();
+const JsonNumber: FC<JsonNumberProps> = (props) => {
+  const classes = useJsonClasses();
   return (
-    <div {...props} className={classes.number}>
+    <div {...props} className={mergeClasses(classes.base, classes.number, props.className)}>
       {props.value}
     </div>
   );
-}
+};
+
+JsonNumber.displayName = 'JsonNumber';
+export default memo(JsonNumber);

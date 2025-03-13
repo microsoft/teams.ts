@@ -94,7 +94,6 @@ const ActivityDetails: FC<ActivityDetailsProps> = ({ selected, view, setView }) 
       <div className={classes.jsonContainer}>
         {selected ? (
           <Json
-            className={classes.json}
             value={selected.type === 'activity.error' ? selected.error : selected.body}
             stringify={view === 'json'}
           />

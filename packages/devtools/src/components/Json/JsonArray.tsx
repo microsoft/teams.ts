@@ -1,13 +1,21 @@
-import { ComponentProps } from 'react';
-
+import { FC, memo } from 'react';
+import { JsonValue } from '../../types/JsonValue';
 import JsonObject from './JsonObject';
 
-export interface JsonArrayProps extends ComponentProps<'div'> {
-  readonly value: Array<any>;
+interface JsonArrayProps {
+  readonly value: JsonValue[];
   readonly level?: number;
-  readonly path?: any[];
+  readonly path?: JsonValue[];
 }
 
-export default function JsonArray(props: JsonArrayProps) {
-  return <JsonObject {...props} isArray={true} />;
-}
+const JsonArray: FC<JsonArrayProps> = (props) => {
+  const arrayAsObject = props.value.reduce<Record<string, JsonValue>>((acc, item, index) => {
+    acc[index] = item;
+    return acc;
+  }, {});
+
+  return <JsonObject {...props} value={arrayAsObject} isArray />;
+};
+
+JsonArray.displayName = 'JsonArray';
+export default memo(JsonArray);

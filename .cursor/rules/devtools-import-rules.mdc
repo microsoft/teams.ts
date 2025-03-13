@@ -1,0 +1,22 @@
+---
+description: devtools import rules
+globs: packages/devtools/, *.tsx, *.ts
+alwaysApply: true
+---
+
+# Devtools import rules
+
+Sort imports using the convention shown below. See [App.tsx](mdc:packages/devtools/src/App.tsx) as an example. 
+`
+// imports from external packages are first, sorted alphabetically by package name, except react imports should always be the first import
+import { FC } from 'react';
+import { Button } from '@fluentui/react-components';
+import { MessageActivity } from '@microsoft/spark.js';
+// Note intentional line break here
+
+// imports from devtools package should start with farthest from current file to closest to current file, then sorted alphabetically by filename
+import SomeComponent from '../../components/SomeComponent/SomeComponent';
+import ZComponent from '../../components/ZComponent/ZComponent';
+import useThisComponentClasses from './ThisComponent.styles.ts'
+`;
+Move types to the types folder, one type per file. See [MessageReactionsEmoji.ts](mdc:packages/devtools/src/types/MessageReactionsEmoji.ts)

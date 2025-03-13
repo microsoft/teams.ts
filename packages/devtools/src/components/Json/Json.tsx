@@ -1,4 +1,6 @@
+import { FC, memo } from 'react';
 import { ComponentProps } from 'react';
+import { mergeClasses } from '@fluentui/react-components';
 import hljs from 'highlight.js/lib/core';
 import jsonLanguage from 'highlight.js/lib/languages/json';
 import 'highlight.js/styles/atom-one-dark.min.css';
@@ -8,52 +10,77 @@ import JsonNumber from './JsonNumber';
 import JsonString from './JsonString';
 import JsonArray from './JsonArray';
 import JsonObject from './JsonObject';
-import { useJsonClasses } from './Json.styles';
+import useJsonClasses from './Json.styles';
+import { JsonValue } from '../../types/JsonValue';
 
 hljs.registerLanguage('json', jsonLanguage);
 
-export interface JsonProps extends ComponentProps<'div'> {
-  readonly value: any;
+interface JsonProps extends ComponentProps<'div'> {
+  readonly value: JsonValue;
   readonly stringify?: boolean;
   readonly level?: number;
-  readonly path?: any[];
+  readonly path?: JsonValue[];
   readonly isArray?: boolean;
 }
 
-export default function Json(props: JsonProps) {
+const StringifiedJson: FC<{ value: JsonValue; className?: string }> = ({ value, className }) => {
   const classes = useJsonClasses();
+  const html = hljs.highlight(JSON.stringify(value, null, 2), { language: 'json' }).value;
 
+  return (
+    <pre
+      className={mergeClasses(classes.base, classes.pre, className)}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
+};
+
+const NullUndefinedValue: FC<{ value: null | undefined; className?: string }> = ({
+  value,
+  className,
+}) => {
+  const classes = useJsonClasses();
+  return (
+    <div className={mergeClasses(classes.base, classes.baseText, className)}>{String(value)}</div>
+  );
+};
+
+const UnsupportedValue: FC<{ type: string; className?: string }> = ({ type, className }) => {
+  const classes = useJsonClasses();
+  return (
+    <div className={mergeClasses(classes.base, classes.baseText, className)}>
+      type "{type}" not supported
+    </div>
+  );
+};
+
+const Json: FC<JsonProps> = (props) => {
   if (props.stringify) {
-    const html = hljs.highlight(JSON.stringify(props.value, null, 2), { language: 'json' }).value;
-    return <pre className={classes.pre} dangerouslySetInnerHTML={{ __html: html }} />;
+    return <StringifiedJson value={props.value} className={props.className} />;
   }
 
-  if (props.value === null) {
-    return <div>null</div>;
+  if (props.value === null || props.value === undefined) {
+    return <NullUndefinedValue value={props.value} className={props.className} />;
   }
 
-  if (props.value === undefined) {
-    return <div>undefined</div>;
-  }
+  const valueType = typeof props.value;
 
-  if (typeof props.value === 'boolean') {
-    return <JsonBool {...props} />;
+  switch (valueType) {
+    case 'boolean':
+      return <JsonBool {...props} value={props.value as boolean} />;
+    case 'number':
+      return <JsonNumber {...props} value={props.value as number} />;
+    case 'string':
+      return <JsonString {...props} value={props.value as string} />;
+    case 'object':
+      if (Array.isArray(props.value)) {
+        return <JsonArray {...props} value={props.value} />;
+      }
+      return <JsonObject {...props} value={props.value as Record<string, JsonValue>} />;
+    default:
+      return <UnsupportedValue type={valueType} className={props.className} />;
   }
+};
 
-  if (typeof props.value === 'number') {
-    return <JsonNumber {...props} />;
-  }
-
-  if (typeof props.value === 'string') {
-    return <JsonString {...props} />;
-  }
-
-  if (typeof props.value === 'object') {
-    if (Array.isArray(props.value)) {
-      return <JsonArray {...props} />;
-    }
-    return <JsonObject {...props} />;
-  }
-
-  return <>type "{typeof props.value}" not supported</>;
-}
+Json.displayName = 'Json';
+export default memo(Json);

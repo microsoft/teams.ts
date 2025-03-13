@@ -1,16 +1,28 @@
-import { ComponentProps } from 'react';
+import { ComponentProps, FC, memo } from 'react';
+import { mergeClasses } from '@fluentui/react-components';
 
-import { useJsonStringClasses } from './Json.styles';
+import OverflowTooltip from './OverflowTooltip';
+import useJsonClasses from './Json.styles';
 
-export interface JsonStringProps extends ComponentProps<'div'> {
+interface JsonStringProps extends ComponentProps<'div'> {
   readonly value: string;
 }
 
-export default function JsonString(props: JsonStringProps) {
-  const classes = useJsonStringClasses();
+const JsonString: FC<JsonStringProps> = (props) => {
+  const classes = useJsonClasses();
+  const displayValue = `"${props.value}"`;
+
   return (
-    <div {...props} className={classes.string}>
-      "{props.value}"
-    </div>
+    <OverflowTooltip content={displayValue}>
+      <div
+        {...props}
+        className={mergeClasses(classes.base, classes.string, classes.value, props.className)}
+      >
+        {displayValue}
+      </div>
+    </OverflowTooltip>
   );
-}
+};
+
+JsonString.displayName = 'JsonString';
+export default memo(JsonString);

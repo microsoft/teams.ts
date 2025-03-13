@@ -5,6 +5,9 @@ export const useChatMessageStyles = makeStyles({
   messageContainer: {
     display: 'flex',
     flexDirection: 'column',
+    '&:focus': {
+      outline: 'none',
+    },
   },
 
   // Message body styles
@@ -18,7 +21,7 @@ export const useChatMessageStyles = makeStyles({
     wordWrap: 'break-word',
     overflowWrap: 'break-word',
     whiteSpace: 'pre-wrap',
-    '&:focus-visible': {
+    '&:focus': {
       outline: `2px solid ${tokens.colorNeutralForeground2Link}`,
       borderRadius: tokens.borderRadiusMedium,
     },
