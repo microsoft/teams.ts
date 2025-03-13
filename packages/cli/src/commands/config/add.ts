@@ -6,12 +6,13 @@ import { CommandModule } from 'yargs';
 import { String } from '@microsoft/spark.common';
 
 import { Project } from '../../project';
+import { IContext } from '../../context';
 
 type Args = {
   name: string;
 };
 
-export function Add(): CommandModule<{}, Args> {
+export function Add(_: IContext): CommandModule<{}, Args> {
   const configsPath = path.resolve(url.fileURLToPath(import.meta.url), '../..', 'configs');
 
   return {
