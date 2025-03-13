@@ -2,7 +2,7 @@ import { ChatPrompt } from '@microsoft/spark.ai';
 import { App } from '@microsoft/spark.apps';
 import { ConsoleLogger } from '@microsoft/spark.common/logging';
 import { DevtoolsPlugin } from '@microsoft/spark.dev';
-import { MCPPlugin } from '@microsoft/spark.mcp';
+import { McpPlugin } from '@microsoft/spark.mcp';
 import { OpenAIChatModel } from '@microsoft/spark.openai';
 
 const prompt = new ChatPrompt({
@@ -18,7 +18,7 @@ prompt.function('hello-world', 'print hello world', () => {
 
 const app = new App({
   logger: new ConsoleLogger('@samples/echo', { level: 'debug' }),
-  plugins: [new DevtoolsPlugin(), new MCPPlugin({ name: 'echo', version: '0.0.0' }).use(prompt)],
+  plugins: [new DevtoolsPlugin(), new McpPlugin({ name: 'echo' }).use(prompt)],
 });
 
 app.on('message', async ({ send, activity }) => {
