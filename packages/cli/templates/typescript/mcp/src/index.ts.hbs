@@ -1,7 +1,7 @@
 import { ChatPrompt } from '@microsoft/spark.ai';
 import { App } from '@microsoft/spark.apps';
 import { DevtoolsPlugin } from '@microsoft/spark.dev';
-import { MCPPlugin } from '@microsoft/spark.mcp';
+import { McpPlugin } from '@microsoft/spark.mcp';
 import { OpenAIChatModel } from '@microsoft/spark.openai';
 
 const prompt = new ChatPrompt({
@@ -18,10 +18,7 @@ prompt.function('hello-world', 'print hello world', () => {
 const app = new App({
   plugins: [
     new DevtoolsPlugin(),
-    new MCPPlugin({
-      name: '{{ toKebabCase name }}',
-      version: '0.0.0'
-    }).use(prompt)
+    new McpPlugin({ name: '{{ toKebabCase name }}' }).use(prompt)
   ],
 });
 
