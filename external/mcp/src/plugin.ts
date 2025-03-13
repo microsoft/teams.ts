@@ -39,37 +39,7 @@ export class MCPPlugin implements IPlugin {
   use(prompt: ChatPrompt) {
     for (const fn of prompt.functions) {
       const schema: z.AnyZodObject = eval(jsonSchemaToZod(fn.parameters, { module: 'cjs' }));
-      this.server.tool(
-        fn.name,
-        fn.description,
-        schema.shape,
-        async (args: any): Promise<CallToolResult> => {
-          try {
-            const res = await prompt.call(fn.name, args);
-
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: typeof res === 'string' ? res : JSON.stringify(res),
-                },
-              ],
-            };
-          } catch (err: any) {
-            this.log.error(err.toString());
-
-            return {
-              isError: true,
-              content: [
-                {
-                  type: 'text',
-                  text: err.toString(),
-                },
-              ],
-            };
-          }
-        }
-      );
+      this.server.tool(fn.name, fn.description, schema.shape, this.onToolCall(fn.name, prompt));
     }
 
     return this;
@@ -114,4 +84,33 @@ export class MCPPlugin implements IPlugin {
   }
 
   onActivity(_: IActivityContext) {}
+
+  protected onToolCall(name: string, prompt: ChatPrompt) {
+    return async (args: any): Promise<CallToolResult> => {
+      try {
+        const res = await prompt.call(name, args);
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: typeof res === 'string' ? res : JSON.stringify(res),
+            },
+          ],
+        };
+      } catch (err: any) {
+        this.log.error(err.toString());
+
+        return {
+          isError: true,
+          content: [
+            {
+              type: 'text',
+              text: err.toString(),
+            },
+          ],
+        };
+      }
+    };
+  }
 }
