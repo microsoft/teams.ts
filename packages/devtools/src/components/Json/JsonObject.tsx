@@ -1,96 +1,80 @@
-import { ComponentProps, useState } from 'react';
-import { Button, mergeClasses } from '@fluentui/react-components';
-import { TriangleDownFilled, TriangleRightFilled } from '@fluentui/react-icons/lib/fonts';
+import { ComponentProps, FC, memo, useState } from 'react';
+import { mergeClasses } from '@fluentui/react-components';
 
-import { useJsonObjectClasses } from './Json.styles';
+import { JsonValue } from '../../types/JsonValue';
+import { hasOnlyPrimitiveChildren } from './utils';
 import Json from './Json';
+import JsonObjectRow from './JsonObjectRow';
+import useJsonClasses from './Json.styles';
 
-export interface JsonObjectProps extends ComponentProps<'div'> {
-  readonly value: Record<string, any>;
+interface JsonObjectProps extends ComponentProps<'div'> {
+  readonly value: Record<string, JsonValue>;
   readonly level?: number;
-  readonly path?: any[];
+  readonly path?: JsonValue[];
   readonly isArray?: boolean;
 }
 
-// Helper to detect circular references
-const isCircular = (value: any, path: any[] = []): boolean => {
-  if (typeof value !== 'object' || value === null) {
-    return false;
-  }
-
-  return path.some((item) => item === value);
-};
-
-export default function JsonObject(props: JsonObjectProps) {
+const JsonObject: FC<JsonObjectProps> = (props: JsonObjectProps) => {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const classes = useJsonObjectClasses();
+  const classes = useJsonClasses();
   const level = props.level || 0;
   const path = props.path || [];
   const isArray = props.isArray || false;
+  const onlyPrimitives = hasOnlyPrimitiveChildren(props.value);
 
-  // Handle empty object/array
   if (Object.keys(props.value).length === 0) {
-    return <div className={classes.emptyObject}>{isArray ? '[]' : '{}'}</div>;
+    return (
+      <div
+        className={mergeClasses(
+          classes.base,
+          classes.baseText,
+          classes.emptyObject,
+          props.className
+        )}
+      >
+        {isArray ? '[]' : '{}'}
+      </div>
+    );
   }
 
   return (
     <div
       className={mergeClasses(
+        classes.base,
         classes.object,
         level > 0 ? classes.nestedLevel : undefined,
-        isArray ? classes.arrayContainer : undefined
+        isArray ? classes.arrayContainer : undefined,
+        props.className
       )}
     >
       {Object.entries(props.value).map(([key, value]) => {
-        const isObject = typeof value === 'object' && value !== null;
         const isExpanded = !!expanded[key];
-        const isCircularRef = isCircular(value, path);
+        const isObject = typeof value === 'object' && value !== null;
 
         return (
-          <div key={key}>
-            <div className={classes.row}>
-              <div className={classes.keyContainer}>
-                {isObject && !isCircularRef ? (
-                  <Button
-                    appearance="transparent"
-                    className={classes.expandButton}
-                    onClick={() => {
-                      setExpanded({
-                        ...expanded,
-                        [key]: !isExpanded,
-                      });
-                    }}
-                  >
-                    {isExpanded ? <TriangleDownFilled /> : <TriangleRightFilled />}
-                  </Button>
-                ) : (
-                  <div className={classes.iconPlaceholder}></div>
+          <div key={key} className={classes.base}>
+            <JsonObjectRow
+              keyName={key}
+              value={value}
+              isArray={isArray}
+              isExpanded={isExpanded}
+              onToggleExpand={() => {
+                setExpanded({
+                  ...expanded,
+                  [key]: !isExpanded,
+                });
+              }}
+              path={path}
+            />
+
+            {isExpanded && isObject && (
+              <div
+                className={mergeClasses(
+                  classes.base,
+                  classes.expandedValue,
+                  onlyPrimitives && classes.expandedValueCompact
                 )}
-              </div>
-
-              <div className={classes.key}>
-                {isArray ? <span className={classes.arrayIndex}>{key}</span> : key + ':'}
-              </div>
-
-              {isObject ? (
-                isCircularRef ? (
-                  <div className={classes.circularRef}>[Circular Reference]</div>
-                ) : !isExpanded ? (
-                  <div className={classes.value}>
-                    {Array.isArray(value)
-                      ? `[${value.length > 0 ? '...' : ''}]`
-                      : Object.keys(value).length === 0
-                        ? '{}'
-                        : '{ ... }'}
-                  </div>
-                ) : null
-              ) : (
-                <Json className={classes.value} value={value} />
-              )}
-            </div>
-
-            {isExpanded && isObject && !isCircularRef && (
-              <div className={classes.expandedValue}>
+              >
                 <Json
                   value={value}
                   level={level + 1}
@@ -104,4 +88,7 @@ export default function JsonObject(props: JsonObjectProps) {
       })}
     </div>
   );
-}
+};
+
+JsonObject.displayName = 'JsonObject';
+export default memo(JsonObject);

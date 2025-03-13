@@ -19,9 +19,6 @@ const useActivityDetailsClasses = makeStyles({
     overflow: 'auto',
     minHeight: 0,
   },
-  json: {
-    margin: '0.5rem',
-  },
 });
 
 export default useActivityDetailsClasses;

@@ -1,29 +1,34 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
 const useJsonClasses = makeStyles({
+  base: {
+    fontSize: tokens.fontSizeBase300,
+  },
+  baseText: {
+    color: tokens.colorNeutralForeground1,
+  },
+  collapsedPreview: {
+    color: tokens.colorNeutralForeground2,
+    fontStyle: 'italic',
+  },
   pre: {
-    fontSize: tokens.fontSizeBase200,
+    fontFamily: 'monospace',
   },
-});
-
-const useJsonBoolClasses = makeStyles({
   bool: {
-    color: tokens.colorPaletteRedForeground3,
+    color: tokens.colorPalettePinkForeground2,
   },
-});
-
-const useJsonNumberClasses = makeStyles({
   number: {
-    color: tokens.colorPaletteGoldForeground2,
+    color: tokens.colorPaletteMarigoldForeground1,
   },
-});
-
-const useJsonObjectClasses = makeStyles({
+  string: {
+    color: tokens.colorPaletteBlueForeground2,
+  },
   object: {
     display: 'flex',
     flexDirection: 'column',
     textAlign: 'left',
     width: '100%',
+    overflow: 'hidden',
   },
   row: {
     display: 'flex',
@@ -32,6 +37,7 @@ const useJsonObjectClasses = makeStyles({
     width: '100%',
     minHeight: '1.5rem',
     position: 'relative',
+    overflow: 'hidden',
   },
   expandButton: {
     display: 'flex',
@@ -40,78 +46,68 @@ const useJsonObjectClasses = makeStyles({
     height: 'auto',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '1.25rem',
+    width: '1rem',
+    flexShrink: 0,
+    marginRight: tokens.spacingHorizontalXS,
   },
-  keyContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    minWidth: '1.5rem',
-    justifyContent: 'flex-start',
+  expandButtonDisabled: {
+    color: tokens.colorNeutralForegroundDisabled,
+    cursor: 'default',
+    ':hover, :active': {
+      backgroundColor: 'transparent',
+      color: tokens.colorNeutralForegroundDisabled,
+      cursor: 'default',
+    },
   },
   key: {
-    color: tokens.colorPaletteNavyForeground2,
+    color: tokens.colorPaletteBlueBorderActive,
     paddingRight: tokens.spacingHorizontalS,
-    fontWeight: tokens.fontWeightSemibold,
+    fontWeight: tokens.fontWeightRegular,
     minWidth: '1.25rem',
-  },
-  iconPlaceholder: {
-    width: '1rem',
-    height: '1rem',
-    marginLeft: '2px',
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
+    overflow: 'visible',
   },
   value: {
-    fontSize: tokens.fontSizeBase200,
-    opacity: 0.8,
-    fontStyle: 'italic',
-    wordBreak: 'break-word',
+    wordBreak: 'break-all',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    maxWidth: '500px',
+    whiteSpace: 'nowrap',
+    flexGrow: 1,
+    minWidth: 0,
   },
   expandedValue: {
     width: 'calc(100% - 1.5rem)',
     paddingLeft: tokens.spacingHorizontalS,
     borderLeft: `1px solid ${tokens.colorNeutralStroke2}`,
-    margin: `${tokens.spacingVerticalXXS} 0`,
     marginLeft: tokens.spacingHorizontalS,
+  },
+  expandedValueCompact: {
+    marginLeft: tokens.spacingHorizontalXS,
   },
   nestedLevel: {
     paddingLeft: tokens.spacingHorizontalS,
     width: '100%',
+    overflow: 'hidden',
   },
   emptyObject: {
-    fontSize: tokens.fontSizeBase200,
-    opacity: 0.8,
+    color: tokens.colorNeutralForeground2,
     fontStyle: 'italic',
   },
   circularRef: {
-    fontSize: tokens.fontSizeBase200,
     color: tokens.colorPaletteRedForeground2,
-    fontStyle: 'italic',
   },
   arrayContainer: {
     position: 'relative',
     paddingLeft: tokens.spacingHorizontalM,
+    overflow: 'hidden',
   },
   arrayIndex: {
     color: tokens.colorPaletteDarkOrangeForeground2,
-    fontSize: tokens.fontSizeBase200,
-    opacity: 0.7,
     minWidth: '1.25rem',
     display: 'inline-block',
+    flexShrink: 0,
   },
 });
 
-const useJsonStringClasses = makeStyles({
-  string: {
-    color: tokens.colorPaletteLightTealForeground2,
-  },
-});
-
-export {
-  useJsonClasses,
-  useJsonBoolClasses,
-  useJsonNumberClasses,
-  useJsonObjectClasses,
-  useJsonStringClasses,
-};
+export default useJsonClasses;

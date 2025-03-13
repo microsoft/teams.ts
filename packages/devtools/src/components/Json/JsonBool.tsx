@@ -1,16 +1,21 @@
+import { FC, memo } from 'react';
 import { ComponentProps } from 'react';
+import { mergeClasses } from '@fluentui/react-components';
 
-import { useJsonBoolClasses } from './Json.styles';
+import useJsonClasses from './Json.styles';
 
-export interface JsonBoolProps extends ComponentProps<'div'> {
+interface JsonBoolProps extends ComponentProps<'div'> {
   readonly value: boolean;
 }
 
-export default function JsonBool(props: JsonBoolProps) {
-  const classes = useJsonBoolClasses();
+const JsonBool: FC<JsonBoolProps> = (props) => {
+  const classes = useJsonClasses();
   return (
-    <div {...props} className={classes.bool}>
-      {props.value === true ? 'true' : 'false'}
+    <div {...props} className={mergeClasses(classes.base, classes.bool, props.className)}>
+      {String(props.value)}
     </div>
   );
-}
+};
+
+JsonBool.displayName = 'JsonBool';
+export default memo(JsonBool);
