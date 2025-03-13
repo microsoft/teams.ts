@@ -1,7 +1,7 @@
 import { Function, FunctionHandler } from '../function';
 import { LocalMemory } from '../local-memory';
 import { IMemory } from '../memory';
-import { ContentPart, Message, SystemMessage, UserMessage } from '../message';
+import { ContentPart, Message, ModelMessage, SystemMessage, UserMessage } from '../message';
 import { IChatModel, TextChunkHandler } from '../models';
 import { Schema } from '../schema';
 import { ITemplate } from '../template';
@@ -58,7 +58,67 @@ export type ChatPromptSendOptions<TOptions extends Record<string, any> = Record<
   readonly onChunk?: TextChunkHandler;
 };
 
-export class ChatPrompt<TOptions extends Record<string, any> = Record<string, any>> {
+/**
+ * a prompt that can interface with a
+ * chat model that provides utility like
+ * streaming and function calling
+ */
+export interface IChatPrompt<TOptions extends Record<string, any> = Record<string, any>> {
+  /**
+   * the prompt name
+   */
+  readonly name: string;
+
+  /**
+   * the prompt description
+   */
+  readonly description: string;
+
+  /**
+   * the chat history
+   */
+  readonly messages: IMemory;
+
+  /**
+   * the registered functions
+   */
+  readonly functions: Array<Function>;
+
+  /**
+   * add another chat prompt as a
+   */
+  use(prompt: IChatPrompt): this;
+  use(name: string, prompt: IChatPrompt): this;
+
+  /**
+   * add a function that can be called
+   * by the model
+   */
+  function(name: string, description: string, handler: FunctionHandler): this;
+  function(name: string, description: string, parameters: Schema, handler: FunctionHandler): this;
+
+  /**
+   * call a function
+   */
+  call<A extends Record<string, any>, R = any>(name: string, args?: A): Promise<R>;
+
+  /**
+   * send a message to the model and get a response
+   */
+  send(
+    input: string | ContentPart[],
+    options?: ChatPromptSendOptions<TOptions>
+  ): Promise<Pick<ModelMessage, 'content'> & Omit<ModelMessage, 'content'>>;
+}
+
+/**
+ * a prompt that can interface with a
+ * chat model that provides utility like
+ * streaming and function calling
+ */
+export class ChatPrompt<TOptions extends Record<string, any> = Record<string, any>>
+  implements IChatPrompt<TOptions>
+{
   get name() {
     return this._name;
   }

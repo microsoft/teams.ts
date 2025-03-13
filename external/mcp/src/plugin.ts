@@ -1,17 +1,42 @@
-import { ChatPrompt } from '@microsoft/spark.ai';
+import { IChatPrompt } from '@microsoft/spark.ai';
 import { App, IActivityContext, IPlugin, IPluginEvents } from '@microsoft/spark.apps';
 import { ConsoleLogger, EventEmitter, EventHandler, ILogger } from '@microsoft/spark.common';
 
 import { ServerOptions } from '@modelcontextprotocol/sdk/server/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
-import { Implementation, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
 import { z } from 'zod';
 import { jsonSchemaToZod } from 'json-schema-to-zod';
 
 import { IConnection } from './connection';
 
+export type MCPPluginOptions = ServerOptions & {
+  /**
+   * the MCP server name
+   * @default mcp
+   */
+  readonly name?: string;
+
+  /**
+   * the MCP server version
+   * @default 0.0.0
+   */
+  readonly version?: string;
+
+  /**
+   * the http path
+   * @default /mcp
+   */
+  readonly path?: string;
+};
+
+/**
+ * High-level MCP server that provides a simpler API for working with resources, tools, and prompts.
+ * For advanced usage (like sending notifications or setting custom request handlers),
+ * use the underlying Server instance available via the server property.
+ */
 export class MCPPlugin implements IPlugin {
   readonly name: string;
   readonly version: string;
@@ -26,17 +51,28 @@ export class MCPPlugin implements IPlugin {
   protected connections: Record<number, IConnection> = {};
   protected readonly events = new EventEmitter<IPluginEvents>();
 
-  constructor(serverInfo: Implementation | McpServer, options: ServerOptions = {}) {
+  constructor(options: McpServer | MCPPluginOptions = {}) {
     this.log = new ConsoleLogger('@spark/mcp');
-    this.name = serverInfo instanceof McpServer ? 'mcp' : `mcp.${serverInfo.name}`;
-    this.version = serverInfo instanceof McpServer ? '0.0.0' : serverInfo.version;
-    this.server = serverInfo instanceof McpServer ? serverInfo : new McpServer(serverInfo, options);
+    this.name =
+      options instanceof McpServer ? 'mcp' : `mcp${options.name ? `.${options.name}` : ''}`;
+    this.version = options instanceof McpServer ? '0.0.0' : options.version || '0.0.0';
+    this.server =
+      options instanceof McpServer
+        ? options
+        : new McpServer(
+            {
+              name: this.name,
+              version: this.version,
+            },
+            options
+          );
+
     this.prompt = this.server.prompt.bind(this.server);
     this.tool = this.server.tool.bind(this.server);
     this.resource = this.server.resource.bind(this.server);
   }
 
-  use(prompt: ChatPrompt) {
+  use(prompt: IChatPrompt) {
     for (const fn of prompt.functions) {
       const schema: z.AnyZodObject = eval(jsonSchemaToZod(fn.parameters, { module: 'cjs' }));
       this.server.tool(fn.name, fn.description, schema.shape, this.onToolCall(fn.name, prompt));
@@ -85,10 +121,14 @@ export class MCPPlugin implements IPlugin {
 
   onActivity(_: IActivityContext) {}
 
-  protected onToolCall(name: string, prompt: ChatPrompt) {
+  protected onToolCall(name: string, prompt: IChatPrompt) {
     return async (args: any): Promise<CallToolResult> => {
       try {
         const res = await prompt.call(name, args);
+
+        if (this.isCallToolResult(res)) {
+          return res;
+        }
 
         return {
           content: [
@@ -112,5 +152,17 @@ export class MCPPlugin implements IPlugin {
         };
       }
     };
+  }
+
+  protected isCallToolResult(value: any): value is CallToolResult {
+    return (
+      !!value &&
+      Array.isArray(value) &&
+      value.every(
+        (item) =>
+          'type' in item &&
+          (item.type === 'text' || item.type === 'image' || item.type === 'resource')
+      )
+    );
   }
 }
