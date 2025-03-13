@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/spark.js",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "homepage": "https://github.com/microsoft/spark.js",
   "bugs": "https://github.com/microsoft/spark.js/issues",
@@ -14,6 +14,7 @@
   },
   "workspaces": [
     "packages/*",
+    "external/*",
     "samples/*"
   ],
   "keywords": [
@@ -31,6 +32,7 @@
     "build": "npx turbo build",
     "build:packages": "npx turbo build --filter=./packages/*",
     "build:samples": "npx turbo build --filter=./samples/*",
+    "build:external": "npx turbo build --filter=./external/*",
     "dev": "npx turbo dev",
     "lint": "npx turbo lint",
     "lint:fix": "npx turbo lint:fix",

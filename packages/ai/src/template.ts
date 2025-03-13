@@ -1,3 +1,7 @@
+/**
+ * a component that can
+ * render text content
+ */
 export interface ITemplate {
   /**
    * render the template

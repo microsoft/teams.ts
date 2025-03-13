@@ -1,5 +1,11 @@
 # @microsoft/spark.config
 
+## 0.2.2
+
+### Patch Changes
+
+- add mcp package and update ai package with use method
+
 ## 0.2.1
 
 ### Patch Changes
