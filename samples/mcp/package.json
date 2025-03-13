@@ -12,9 +12,9 @@
   "scripts": {
     "clean": "npx rimraf ./dist",
     "build": "npx tsc",
-    "start": "node .",
+    "start": "node -r dotenv/config .",
     "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\"",
-    "inspect": "npx cross-env SERVER_PORT=4000 npx @modelcontextprotocol/inspector node ."
+    "inspect": "npx cross-env SERVER_PORT=9000 npx @modelcontextprotocol/inspector -e NODE_NO_WARNINGS=1 -e PORT=3000 node -r dotenv/config ."
   },
   "dependencies": {
     "@microsoft/spark.api": "*",

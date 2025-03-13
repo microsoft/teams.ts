@@ -5,6 +5,7 @@ import url from 'node:url';
 import { CommandModule } from 'yargs';
 
 import { Project } from '../../project';
+import { IContext } from '../../context';
 
 type Args = {
   readonly name: string;
@@ -13,7 +14,7 @@ type Args = {
   readonly start?: boolean;
 };
 
-export function CSharp(): CommandModule<{}, Args> {
+export function CSharp(_: IContext): CommandModule<{}, Args> {
   return {
     command: 'csharp <name>',
     aliases: ['c#', 'dotnet', '.net'],

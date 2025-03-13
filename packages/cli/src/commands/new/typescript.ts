@@ -8,6 +8,7 @@ import { CommandModule } from 'yargs';
 import { z } from 'zod';
 
 import { Project } from '../../project';
+import { IContext } from '../../context';
 
 const ArgsSchema = z.object({
   name: z.string(),
@@ -18,7 +19,7 @@ const ArgsSchema = z.object({
   clientSecret: z.string().optional(),
 });
 
-export function Typescript(): CommandModule<{}, z.infer<typeof ArgsSchema>> {
+export function Typescript(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema>> {
   return {
     command: ['$0 <name>', 'typescript <name>'],
     aliases: 'ts',

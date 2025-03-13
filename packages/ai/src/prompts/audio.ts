@@ -17,7 +17,37 @@ export type AudioPromptOptions = {
   readonly model: IAudioModel;
 };
 
-export class AudioPrompt {
+/**
+ * a prompt that can interface with
+ * an audio model
+ */
+export interface IAudioPrompt {
+  /**
+   * the prompt name
+   */
+  readonly name: string;
+
+  /**
+   * the prompt description
+   */
+  readonly description: string;
+
+  /**
+   * convert text to audio
+   */
+  textToAudio?(params: TextToAudioParams): Promise<Buffer>;
+
+  /**
+   * transcribe audio to text
+   */
+  audioToText?(params: AudioToTextParams): Promise<string>;
+}
+
+/**
+ * a prompt that can interface with
+ * an audio model
+ */
+export class AudioPrompt implements IAudioPrompt {
   get name() {
     return this._name;
   }
