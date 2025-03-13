@@ -73,7 +73,17 @@ export default function App() {
         <ActivityContext.Provider value={activityStore}>
           <CardContext.Provider value={cardStore}>
             <BrowserRouter basename="/devtools" data-tid="browser-router">
-              <Body1 id="app-root" className={mergeClasses(classes.default, classes.appContainer)}>
+              {/*
+              Note: The accessibility warning about focusable aria-hidden elements is a known false positive
+              for tabster dummy elements. These elements are intentionally designed to redirect focus while
+              remaining hidden from screen readers. See discussion:
+              https://github.com/microsoft/fluentui/issues/25133#issuecomment-1279371471
+            */}
+              <Body1
+                id="app-root"
+                data-tabster='{"root":{"deloser":true}}'
+                className={mergeClasses(classes.default, classes.appContainer)}
+              >
                 <PageNav connected={connected} />
                 <main id="page-content" className={classes.mainContent}>
                   <Routes>
@@ -86,7 +96,6 @@ export default function App() {
                 </main>
               </Body1>
             </BrowserRouter>
-
             <Toaster />
           </CardContext.Provider>
         </ActivityContext.Provider>
