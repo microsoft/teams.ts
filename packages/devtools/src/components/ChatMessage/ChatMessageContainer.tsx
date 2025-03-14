@@ -3,7 +3,7 @@ import { mergeClasses } from '@fluentui/react-components';
 import { Message } from '@microsoft/spark.api';
 
 import { formatMessageTime } from '../../utils/date-format';
-import { useClasses } from './ChatMessageContainer.styles';
+import useChatContainerClasses from './ChatMessageContainer.styles';
 import ChatAvatarWrapper from './ChatAvatarWrapper';
 
 export interface MessageProps {
@@ -13,7 +13,7 @@ export interface MessageProps {
 }
 
 const ChatMessageContainer: FC<MessageProps> = ({ value, isConnected = false, children }) => {
-  const classes = useClasses();
+  const classes = useChatContainerClasses();
   const sendDirection = value.from?.user?.id === 'devtools' ? 'sent' : 'received';
   const ariaLabel = sendDirection === 'sent' ? 'Sent message at' : 'Received message at';
 
