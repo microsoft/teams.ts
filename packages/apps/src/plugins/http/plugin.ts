@@ -21,15 +21,21 @@ import {
   IPluginStartEvent,
   IPluginErrorEvent,
   IPluginActivityResponseEvent,
+  Plugin,
 } from '../../types';
 
 import { HttpStream } from './stream';
 
+import pkg from '../../../package.json';
+
 /**
  * Can send/receive activities via http
  */
+@Plugin({
+  name: 'http',
+  version: pkg.version,
+})
 export class HttpPlugin implements ISender {
-  readonly name = 'http';
   readonly events: EventEmitter<IPluginEvents>;
 
   readonly get: express.Application['get'];

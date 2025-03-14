@@ -2,13 +2,21 @@ import readline from 'readline';
 import express from 'express';
 
 import { ConsoleLogger, ILogger, EventEmitter } from '@microsoft/spark.common';
-import { IPluginEvents, IPluginInitEvent, IPluginStartEvent, ISender } from '@microsoft/spark.apps';
+import {
+  IPluginEvents,
+  IPluginInitEvent,
+  IPluginStartEvent,
+  ISender,
+  Plugin,
+} from '@microsoft/spark.apps';
 import {
   ActivityParams,
   ConversationReference,
   MessageActivity,
   IToken,
 } from '@microsoft/spark.api';
+
+import pkg from '../../package.json';
 
 /**
  * Console Receiver Options
@@ -24,8 +32,11 @@ export type ConsoleOptions = {
 /**
  * Can receive activities via the console
  */
+@Plugin({
+  name: 'console',
+  version: pkg.version,
+})
 export class ConsolePlugin implements ISender {
-  readonly name = 'console';
   readonly events: EventEmitter<IPluginEvents>;
 
   protected log: ILogger;

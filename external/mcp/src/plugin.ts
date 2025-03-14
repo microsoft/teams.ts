@@ -7,6 +7,7 @@ import {
   IPluginEvents,
   IPluginInitEvent,
   IPluginStartEvent,
+  Plugin,
 } from '@microsoft/spark.apps';
 import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/spark.common';
 
@@ -19,6 +20,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import { jsonSchemaToZod } from 'json-schema-to-zod';
 
+import pkg from '../package.json';
 import { IConnection } from './connection';
 
 /**
@@ -87,11 +89,12 @@ export type McpPluginOptions = ServerOptions & {
  * For advanced usage (like sending notifications or setting custom request handlers),
  * use the underlying Server instance available via the server property.
  */
+@Plugin({
+  name: 'mcp',
+  version: pkg.version,
+  dependencies: ['http'],
+})
 export class McpPlugin implements IPlugin {
-  readonly name: string;
-  readonly version: string;
-  readonly description?: string;
-  readonly dependencies = ['http'];
   readonly events = new EventEmitter<IPluginEvents>();
 
   readonly server: McpServer;
@@ -106,17 +109,13 @@ export class McpPlugin implements IPlugin {
 
   constructor(options: McpServer | McpPluginOptions = {}) {
     this.log = new ConsoleLogger('@spark/mcp');
-    this.name =
-      options instanceof McpServer ? 'mcp' : `mcp${options.name ? `.${options.name}` : ''}`;
-    this.version = options instanceof McpServer ? '0.0.0' : options.version || '0.0.0';
-    this.description = options instanceof McpServer ? undefined : options.description;
     this.server =
       options instanceof McpServer
         ? options
         : new McpServer(
             {
-              name: this.name,
-              version: this.version,
+              name: options.name || 'mcp',
+              version: options.version || '0.0.0',
             },
             options
           );
@@ -143,10 +142,10 @@ export class McpPlugin implements IPlugin {
     const [http] = plugins;
 
     if (!(http instanceof HttpPlugin)) {
-      throw new Error(`expected http plugin, found ${http.name}`);
+      throw new Error(`expected http plugin, found ${http.toString()}`);
     }
 
-    this.log = logger.child(this.name);
+    this.log = logger.child('mcp');
 
     if (this.transport.type === 'sse') {
       return this.onInitSSE(http, this.transport);

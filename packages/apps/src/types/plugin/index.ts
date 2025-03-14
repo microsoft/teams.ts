@@ -1,4 +1,5 @@
 export * from './plugin';
+export * from './plugin-decorator';
 export * from './plugin-activity-event';
 export * from './plugin-activity-sent-event';
 export * from './plugin-activity-response-event';

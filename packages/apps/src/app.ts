@@ -31,6 +31,7 @@ import { message, on, use } from './app.routing';
 import { configTab, func, tab } from './app.embed';
 import { onTokenExchange, onVerifyState } from './app.oauth';
 import { event, onError, onActivity, onActivitySent, onActivityResponse } from './app.events';
+import { IPluginDecorated } from './types/plugin/plugin-decorated';
 
 /**
  * App initialization options
@@ -154,7 +155,7 @@ export class App {
   }
   protected _tokens: AppTokens = {};
 
-  protected plugins: Array<IPlugin> = [];
+  protected plugins: Array<IPluginDecorated> = [];
   protected router = new Router();
   protected tenantTokens = new LocalStorage<string>(undefined, { max: 20000 });
   protected events = new EventEmitter<IEvents>();
@@ -227,15 +228,11 @@ export class App {
     }
 
     const plugins = this.options.plugins || [];
-    let httpPlugin = plugins.find((p) => p.name === 'http');
+    let httpPlugin = plugins.find((p) => p instanceof HttpPlugin);
 
     if (!httpPlugin) {
       httpPlugin = new HttpPlugin();
       plugins.unshift(httpPlugin);
-    }
-
-    if (!(httpPlugin instanceof HttpPlugin)) {
-      throw new Error('http plugin must be of type `HttpPlugin`');
     }
 
     this.http = httpPlugin;
@@ -285,7 +282,7 @@ export class App {
             ...this.createPluginEvent(),
             type: 'start',
             port: this.port,
-            plugins: this.getPluginDependencies(plugin.name),
+            plugins: this.getPluginDependencies(plugin.__metadata__.name),
           });
         }
       }
@@ -307,7 +304,7 @@ export class App {
           await plugin.onStop({
             ...this.createPluginEvent(),
             type: 'stop',
-            plugins: this.getPluginDependencies(plugin.name),
+            plugins: this.getPluginDependencies(plugin.__metadata__.name),
           });
         }
       }

@@ -1,31 +1,38 @@
 import { App } from './app';
-import { IPlugin, IPluginEvent, ISender } from './types';
+import { IPlugin, IPluginEvent, ISender, PluginName } from './types';
+import { IPluginDecorated } from './types/plugin/plugin-decorated';
 
 /**
  * add a plugin
  * @param plugin plugin to add
  */
 export function plugin(this: App, plugin: IPlugin) {
-  if (this.plugins.some((p) => p.name === plugin.name)) {
-    return;
+  if (!('__metadata__' in plugin)) {
+    throw new Error('invalid plugin');
   }
 
-  this.plugins.push(plugin);
+  const decorated = plugin as IPluginDecorated;
+
+  if (this.plugins.some((p) => p.__metadata__.name === decorated.__metadata__.name)) {
+    throw new Error(`duplicate plugin "${decorated.__metadata__.name}" found`);
+  }
+
+  this.plugins.push(decorated);
 
   if (plugin.onInit) {
     plugin.onInit({
       ...this.createPluginEvent(),
       type: 'init',
-      plugins: this.getPluginDependencies(plugin.name),
+      plugins: this.getPluginDependencies(decorated.__metadata__.name),
     });
   }
 
-  plugin.events.on('error', (e) => {
+  decorated.events.on('error', (e) => {
     this.onError({ ...e, sender: plugin });
   });
 
   if (plugin.send && plugin.createStream) {
-    plugin.events.on('activity', (e) => {
+    decorated.events.on('activity', (e) => {
       this.onActivity(plugin as ISender, e);
     });
   }
@@ -36,21 +43,21 @@ export function plugin(this: App, plugin: IPlugin) {
 /**
  * get a plugin
  */
-export function getPlugin(this: App, name: string) {
-  return this.plugins.find((p) => p.name === name);
+export function getPlugin(this: App, name: PluginName): IPlugin | undefined {
+  return this.plugins.find((p) => p.__metadata__.name === name);
 }
 
 /**
  * get a plugins dependencies
  */
-export function getPluginDependencies(this: App, name: string) {
-  const plugin = this.getPlugin(name);
+export function getPluginDependencies(this: App, name: string): Array<IPlugin> {
+  const plugin = this.plugins.find((p) => p.__metadata__.name === name);
 
   if (!plugin) return [];
 
   const plugins: Array<IPlugin> = [];
 
-  for (const packageName of plugin.dependencies || []) {
+  for (const packageName of plugin.__metadata__.dependencies || []) {
     const dependency = this.getPlugin(packageName);
 
     if (!dependency) {

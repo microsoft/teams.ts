@@ -21,12 +21,6 @@ import { ISender, IStreamer } from '../types';
 
 export interface IActivityContextOptions<T extends Activity = Activity> {
   /**
-   * the unique name of the plugin that
-   * emitted the event
-   */
-  plugin: string;
-
-  /**
    * the app id of the bot
    */
   appId: string;
@@ -108,7 +102,6 @@ export interface IActivityContext<T extends Activity = Activity>
 }
 
 export class ActivityContext<T extends Activity = Activity> implements IActivityContext<T> {
-  plugin!: string;
   appId!: string;
   activity!: T;
   ref!: ConversationReference;
@@ -232,7 +225,6 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
       api: this.api,
       appId: this.appId,
       log: this.log,
-      plugin: this._plugin.name,
       ref: this.ref,
       storage: this.storage,
       stream: this.stream,

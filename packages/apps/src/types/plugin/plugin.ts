@@ -13,11 +13,26 @@ import { IPluginActivitySentEvent } from './plugin-activity-sent-event';
 import { IPluginActivityResponseEvent } from './plugin-activity-response-event';
 
 /**
+ * represents a plugins
+ * unique name
+ */
+export type PluginName = 'http' | Omit<string, 'http'>;
+
+/**
  * the minimum events a plugin
  * should support
  */
 export interface IPluginEvents {
+  /**
+   * emitted when the plugin
+   * encounters an error
+   */
   readonly error: IErrorEvent;
+
+  /**
+   * emitted when the plugin
+   * receives an activity
+   */
   readonly activity: IActivityEvent;
 }
 
@@ -27,29 +42,9 @@ export interface IPluginEvents {
  */
 export interface IPlugin {
   /**
-   * the unique plugin name
-   */
-  readonly name: string;
-
-  /**
-   * the plugin version
-   */
-  readonly version?: string;
-
-  /**
-   * the plugins this plugin depends on
-   *
-   * @remark
-   * dependencies will be injected into the plugin
-   * on lifecycle events (init, start, stop) in the
-   * `plugins` array in the same order as provided here
-   */
-  readonly dependencies?: Array<string>;
-
-  /**
    * the event emitter of the plugin
    */
-  readonly events: Omit<IEventEmitter<IPluginEvents>, 'emit'>;
+  readonly events?: Omit<IEventEmitter<IPluginEvents>, 'emit'>;
 
   /**
    * lifecycle method called by the `App`

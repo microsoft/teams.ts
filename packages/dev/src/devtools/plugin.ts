@@ -17,7 +17,10 @@ import {
   IPluginStartEvent,
   ISender,
   IStreamer,
+  Plugin,
 } from '@microsoft/spark.apps';
+
+import pkg from '../../package.json';
 
 import { router } from './routes';
 import { ActivityEvent, IEvent } from './event';
@@ -27,9 +30,12 @@ type ResolveRejctPromise<T = any> = {
   readonly reject: (err: any) => void;
 };
 
+@Plugin({
+  name: 'devtools',
+  version: pkg.version,
+  dependencies: ['http'],
+})
 export class DevtoolsPlugin implements ISender {
-  readonly name = 'devtools';
-  readonly dependencies = ['http'];
   readonly events = new EventEmitter<IPluginEvents>();
 
   protected log: ILogger;
@@ -65,17 +71,13 @@ export class DevtoolsPlugin implements ISender {
     const [http] = plugins;
 
     if (!(http instanceof HttpPlugin)) {
-      throw new Error(`expected http plugin, found ${http.name}`);
+      throw new Error(`expected http plugin, found ${http.toString()}`);
     }
 
     this.httpPlugin = http;
     this.log = logger.child('devtools');
   }
 
-  /**
-   * start listening
-   * @param port port to listen on
-   */
   async onStart({ port }: IPluginStartEvent) {
     port += 1;
 

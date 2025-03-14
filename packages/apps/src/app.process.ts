@@ -108,7 +108,6 @@ export async function $process(this: App, sender: ISender, event: IActivityEvent
   const context = new ActivityContext(sender, {
     ...event,
     next,
-    plugin: sender.name,
     api,
     appId: this.id || '',
     log: this.log,
