@@ -1,5 +1,5 @@
 import { App } from './app';
-import { IPlugin } from './types';
+import { IPlugin, IPluginEvent, ISender } from './types';
 
 /**
  * add a plugin
@@ -10,30 +10,26 @@ export function plugin(this: App, plugin: IPlugin) {
     return;
   }
 
-  plugin.onInit(this);
-  plugin.on('error', this.onError.bind(this));
-  plugin.on('activity.received', (e) =>
-    this.onActivityReceived({
-      ...e,
-      plugin: plugin.name,
-    })
-  );
-
-  plugin.on('activity.sent', (e) =>
-    this.onActivitySent({
-      ...e,
-      plugin: plugin.name,
-    })
-  );
-
-  plugin.on('activity.before.sent', (e) =>
-    this.onBeforeActivitySent({
-      ...e,
-      plugin: plugin.name,
-    })
-  );
-
   this.plugins.push(plugin);
+
+  if (plugin.onInit) {
+    plugin.onInit({
+      ...this.createPluginEvent(),
+      type: 'init',
+      plugins: this.getPluginDependencies(plugin.name),
+    });
+  }
+
+  plugin.events.on('error', (e) => {
+    this.onError({ ...e, sender: plugin });
+  });
+
+  if (plugin.send && plugin.createStream) {
+    plugin.events.on('activity', (e) => {
+      this.onActivity(plugin as ISender, e);
+    });
+  }
+
   return this;
 }
 
@@ -42,4 +38,45 @@ export function plugin(this: App, plugin: IPlugin) {
  */
 export function getPlugin(this: App, name: string) {
   return this.plugins.find((p) => p.name === name);
+}
+
+/**
+ * get a plugins dependencies
+ */
+export function getPluginDependencies(this: App, name: string) {
+  const plugin = this.getPlugin(name);
+
+  if (!plugin) return [];
+
+  const plugins: Array<IPlugin> = [];
+
+  for (const packageName of plugin.dependencies || []) {
+    const dependency = this.getPlugin(packageName);
+
+    if (!dependency) {
+      throw new Error(`plugin "${packageName}" not found, but plugin "${name}" depends on it`);
+    }
+
+    plugins.push(dependency);
+  }
+
+  return plugins;
+}
+
+/**
+ * create plugin event
+ */
+export function createPluginEvent(this: App): IPluginEvent {
+  return {
+    type: '',
+    id: this.id,
+    name: this.name,
+    client: this.client,
+    logger: this.log,
+    storage: this.storage,
+    manifest: this.manifest,
+    credentials: this.credentials,
+    botToken: this.tokens.bot,
+    graphToken: this.tokens.graph,
+  };
 }

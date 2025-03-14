@@ -6,16 +6,16 @@ import io from 'socket.io';
 import * as uuid from 'uuid';
 
 import { ActivityParams, ConversationReference } from '@microsoft/spark.api';
-import { EventEmitter, EventHandler, ConsoleLogger, ILogger } from '@microsoft/spark.common';
+import { EventEmitter, ConsoleLogger, ILogger } from '@microsoft/spark.common';
 import {
-  App,
-  IAppActivityReceivedEvent,
-  IAppActivityResponseEvent,
-  IAppActivitySentEvent,
   HttpPlugin,
-  HttpStream,
-  IPlugin,
+  IPluginActivityEvent,
+  IPluginActivityResponseEvent,
+  IPluginActivitySentEvent,
   IPluginEvents,
+  IPluginInitEvent,
+  IPluginStartEvent,
+  ISender,
   IStreamer,
 } from '@microsoft/spark.apps';
 
@@ -27,8 +27,10 @@ type ResolveRejctPromise<T = any> = {
   readonly reject: (err: any) => void;
 };
 
-export class DevtoolsPlugin implements IPlugin {
+export class DevtoolsPlugin implements ISender {
   readonly name = 'devtools';
+  readonly dependencies = ['http'];
+  readonly events = new EventEmitter<IPluginEvents>();
 
   protected log: ILogger;
   protected http: http.Server;
@@ -36,7 +38,6 @@ export class DevtoolsPlugin implements IPlugin {
   protected io: io.Server;
   protected sockets = new Map<string, io.Socket>();
   protected httpPlugin = new HttpPlugin();
-  protected events = new EventEmitter<IPluginEvents>();
   protected pending: Record<string, ResolveRejctPromise> = {};
 
   constructor() {
@@ -60,25 +61,24 @@ export class DevtoolsPlugin implements IPlugin {
     }
   }
 
-  on<Name extends keyof IPluginEvents>(name: Name, callback: EventHandler<IPluginEvents[Name]>) {
-    this.events.on(name, callback);
-  }
+  onInit({ logger, plugins }: IPluginInitEvent) {
+    const [http] = plugins;
 
-  onInit(app: App) {
-    app.event('activity.response', this.onActivityResponse.bind(this));
-    app.event('activity.received', this.onActivityReceived.bind(this));
-    app.event('activity.sent', this.onActivitySent.bind(this));
+    if (!(http instanceof HttpPlugin)) {
+      throw new Error(`expected http plugin, found ${http.name}`);
+    }
 
-    this.httpPlugin = app.http;
-    this.log = app.log.child('devtools');
+    this.httpPlugin = http;
+    this.log = logger.child('devtools');
   }
 
   /**
    * start listening
    * @param port port to listen on
    */
-  async onStart(port = 3000) {
+  async onStart({ port }: IPluginStartEvent) {
     port += 1;
+
     this.express.use(
       router({
         port,
@@ -86,7 +86,8 @@ export class DevtoolsPlugin implements IPlugin {
         process: (token, activity) => {
           return new Promise((resolve, reject) => {
             this.pending[activity.id] = { resolve, reject };
-            this.events.emit('activity.received', {
+            this.events.emit('activity', {
+              sender: this.httpPlugin,
               token,
               activity,
             });
@@ -96,8 +97,9 @@ export class DevtoolsPlugin implements IPlugin {
     );
 
     return await new Promise<void>((resolve, reject) => {
-      this.http.on('error', (err) => {
-        reject(err);
+      this.http.on('error', (error) => {
+        this.events.emit('error', { error });
+        return reject(error);
       });
 
       this.http.listen(port, async () => {
@@ -107,38 +109,35 @@ export class DevtoolsPlugin implements IPlugin {
     });
   }
 
-  async onSend(activity: ActivityParams, ref: ConversationReference) {
-    const res = await this.httpPlugin.onSend(activity, ref);
-    return res;
+  async send(activity: ActivityParams, ref: ConversationReference) {
+    return await this.httpPlugin.send(activity, ref);
   }
 
-  onStreamOpen(ref: ConversationReference): IStreamer {
-    return new HttpStream((activity) => {
-      return this.onSend(activity, ref);
-    });
+  createStream(ref: ConversationReference): IStreamer {
+    return this.httpPlugin.createStream(ref);
   }
 
-  protected onActivityReceived({ activity }: IAppActivityReceivedEvent) {
-    this.sendActivity({
+  onActivity({ activity, conversation }: IPluginActivityEvent) {
+    this.emitActivity({
       id: uuid.v4(),
       type: 'activity.received',
-      chat: activity.conversation,
+      chat: conversation,
       body: activity,
       sentAt: new Date(),
     });
   }
 
-  protected onActivitySent({ activity, ref }: IAppActivitySentEvent) {
-    this.sendActivity({
+  onActivitySent({ activity, conversation }: IPluginActivitySentEvent) {
+    this.emitActivity({
       id: uuid.v4(),
       type: 'activity.sent',
-      chat: ref.conversation,
+      chat: conversation,
       body: activity as any,
       sentAt: new Date(),
     });
   }
 
-  protected onActivityResponse({ activity, response }: IAppActivityResponseEvent) {
+  onActivityResponse({ activity, response }: IPluginActivityResponseEvent) {
     const promise = this.pending[activity.id];
 
     if (!promise) return;
@@ -155,13 +154,13 @@ export class DevtoolsPlugin implements IPlugin {
     });
   }
 
-  protected send(event: IEvent) {
+  protected emit(event: IEvent) {
     for (const socket of this.sockets.values()) {
       socket.emit(event.type, event);
     }
   }
 
-  protected sendActivity(event: ActivityEvent) {
+  protected emitActivity(event: ActivityEvent) {
     for (const socket of this.sockets.values()) {
       socket.emit('activity', event);
       socket.emit(event.type, event);

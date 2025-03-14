@@ -1,8 +1,8 @@
 import readline from 'readline';
 import express from 'express';
 
-import { ConsoleLogger, ILogger, EventEmitter, EventHandler } from '@microsoft/spark.common';
-import { App, IPlugin, IPluginEvents } from '@microsoft/spark.apps';
+import { ConsoleLogger, ILogger, EventEmitter } from '@microsoft/spark.common';
+import { IPluginEvents, IPluginInitEvent, IPluginStartEvent, ISender } from '@microsoft/spark.apps';
 import {
   ActivityParams,
   ConversationReference,
@@ -24,16 +24,16 @@ export type ConsoleOptions = {
 /**
  * Can receive activities via the console
  */
-export class ConsolePlugin implements IPlugin {
+export class ConsolePlugin implements ISender {
   readonly name = 'console';
+  readonly events: EventEmitter<IPluginEvents>;
 
   protected log: ILogger;
   protected reader: readline.Interface;
   protected express: express.Application;
-  protected events: EventEmitter<IPluginEvents>;
 
   constructor(protected options: ConsoleOptions = {}) {
-    this.log = new ConsoleLogger('@spark/app/http');
+    this.log = new ConsoleLogger('@spark/app/console');
     this.express = express();
     this.reader = readline.createInterface({
       input: this.options.stream || process.stdin,
@@ -44,15 +44,11 @@ export class ConsolePlugin implements IPlugin {
     this.events = new EventEmitter();
   }
 
-  on<Name extends keyof IPluginEvents>(name: Name, callback: EventHandler<IPluginEvents[Name]>) {
-    this.events.on(name, callback);
+  onInit({ logger }: IPluginInitEvent) {
+    this.log = logger.child('console');
   }
 
-  onInit(app: App) {
-    this.log = app.log.child('console');
-  }
-
-  async onStart(port = 3000) {
+  async onStart({ port }: IPluginStartEvent) {
     this.express.listen(port + 1, () => {
       this.reader.on('line', async (text) => {
         const activity = new MessageActivity(text)
@@ -81,7 +77,8 @@ export class ConsolePlugin implements IPlugin {
           serviceUrl: '',
         };
 
-        this.events.emit('activity.received', {
+        this.events.emit('activity', {
+          sender: this,
           token,
           activity,
         });
@@ -89,7 +86,7 @@ export class ConsolePlugin implements IPlugin {
     });
   }
 
-  async onSend(activity: ActivityParams, ref: ConversationReference) {
+  async send(activity: ActivityParams, _ref: ConversationReference) {
     if (typeof activity === 'string') {
       activity = {
         type: 'message',
@@ -97,21 +94,19 @@ export class ConsolePlugin implements IPlugin {
       };
     }
 
-    this.events.emit('activity.before.sent', {
-      activity,
-      ref,
-    });
-
     if (activity.type === 'message' && activity.text) {
       this.log.info(activity.text);
     }
 
-    this.events.emit('activity.sent', {
-      activity: { id: '1', ...activity },
-      ref,
-    });
-
     return { id: '1', ...activity };
+  }
+
+  createStream(_: ConversationReference) {
+    return {
+      events: new EventEmitter(),
+      emit: () => {},
+      close: () => {},
+    };
   }
 
   protected onAuthRedirect(

@@ -2,25 +2,21 @@ import { ILogger } from '@microsoft/spark.common';
 
 import { IActivitySignInContext } from '../contexts';
 
-import { IActivityBeforeSentEvent } from './activity-before-sent';
-import { IActivityReceivedEvent } from './activity-received';
+import { IActivityEvent } from './activity';
 import { IActivityResponseEvent } from './activity-response';
 import { IActivitySentEvent } from './activity-sent';
-import { IErrorEvent, IActivityErrorEvent } from './error';
+import { IErrorEvent } from './error';
 
 export interface IEvents {
   start: ILogger;
   signin: IActivitySignInContext;
   error: IErrorEvent;
-  'activity.error': IActivityErrorEvent;
-  'activity.received': IActivityReceivedEvent;
+  activity: IActivityEvent;
   'activity.response': IActivityResponseEvent;
   'activity.sent': IActivitySentEvent;
-  'activity.before.sent': IActivityBeforeSentEvent;
 }
 
-export * from './activity-before-sent';
-export * from './activity-received';
+export * from './activity';
 export * from './activity-response';
 export * from './activity-sent';
 export * from './error';

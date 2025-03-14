@@ -1,27 +1,36 @@
 import http from 'http';
 import express from 'express';
 
+import { ConsoleLogger, ILogger, EventEmitter } from '@microsoft/spark.common';
+import * as $http from '@microsoft/spark.common/http';
+
 import {
   Activity,
   ActivityParams,
   JsonWebToken,
   ConversationReference,
-  Client,
   IToken,
+  Client,
 } from '@microsoft/spark.api';
-import { ConsoleLogger, ILogger, EventEmitter, EventHandler } from '@microsoft/spark.common';
 
-import { IAppActivityErrorEvent, IAppActivityResponseEvent } from '../../events';
-import { IPlugin, IPluginEvents, IStreamer, IStreamerPlugin } from '../../types';
-import { App } from '../../app';
+import {
+  IStreamer,
+  ISender,
+  IPluginEvents,
+  IPluginInitEvent,
+  IPluginStartEvent,
+  IPluginErrorEvent,
+  IPluginActivityResponseEvent,
+} from '../../types';
 
 import { HttpStream } from './stream';
 
 /**
  * Can send/receive activities via http
  */
-export class HttpPlugin implements IPlugin, IStreamerPlugin {
+export class HttpPlugin implements ISender {
   readonly name = 'http';
+  readonly events: EventEmitter<IPluginEvents>;
 
   readonly get: express.Application['get'];
   readonly post: express.Application['post'];
@@ -41,10 +50,11 @@ export class HttpPlugin implements IPlugin, IStreamerPlugin {
   }
   protected _port?: number;
 
-  protected app?: App;
   protected log: ILogger;
+  protected botToken?: IToken;
+  protected graphToken?: IToken;
+  protected client!: $http.Client;
   protected express: express.Application;
-  protected events: EventEmitter<IPluginEvents>;
   protected pending: Record<string, express.Response> = {};
 
   constructor() {
@@ -74,50 +84,45 @@ export class HttpPlugin implements IPlugin, IStreamerPlugin {
     return this;
   }
 
-  on<Name extends keyof IPluginEvents>(name: Name, callback: EventHandler<IPluginEvents[Name]>) {
-    this.events.on(name, callback);
+  onInit({ logger, client, botToken, graphToken }: IPluginInitEvent) {
+    this.log = logger.child('http');
+    this.client = client;
+    this.botToken = botToken;
+    this.graphToken = graphToken;
   }
 
-  onInit(app: App) {
-    this.app = app;
-    this.log = app.log.child('http');
-    app.event('activity.error', this.onActivityError.bind(this));
-    app.event('activity.response', this.onActivityResponse.bind(this));
-  }
-
-  /**
-   * start listening
-   * @param port port to listen on
-   */
-  async onStart(port = 3000) {
-    if (!this.app) {
-      throw new Error('plugin not registered');
-    }
-
+  async onStart({ port, manifest, client, botToken, graphToken }: IPluginStartEvent) {
+    this.client = client;
+    this.botToken = botToken;
+    this.graphToken = graphToken;
     this._port = port;
     this.express.get('/', (_, res) => {
-      res.send(this.app?.manifest);
+      res.send(manifest);
     });
 
     return await new Promise<void>((resolve, reject) => {
-      this.express.on('error', (err) => {
-        this.events.emit('error', err);
-        reject(err);
-      });
+      this._server = this.express.listen(port, async (err) => {
+        if (err) {
+          this.events.emit('error', { error: err });
+          reject(err);
+          return;
+        }
 
-      this._server = this.express.listen(port, async () => {
-        this.events.emit('start', this.log);
         this.log.info(`listening on port ${port} 🚀`);
         resolve();
       });
     });
   }
 
-  async onSend(activity: ActivityParams, ref: ConversationReference) {
+  onStop() {
+    this._server.close();
+  }
+
+  async send(activity: ActivityParams, ref: ConversationReference) {
     const api = new Client(
       ref.serviceUrl,
-      this.app?.client.clone({
-        token: () => this.app?.tokens.bot,
+      this.client.clone({
+        token: () => this.botToken,
       })
     );
 
@@ -127,30 +132,56 @@ export class HttpPlugin implements IPlugin, IStreamerPlugin {
       conversation: ref.conversation,
     };
 
-    if (activity.id && !activity.channelData?.streamId) {
+    if (activity.id) {
       const res = await api.conversations
         .activities(ref.conversation.id)
         .update(activity.id, activity);
       return { ...activity, ...res };
     }
 
-    this.events.emit('activity.before.sent', {
-      activity,
-      ref,
-    });
-
     const res = await api.conversations.activities(ref.conversation.id).create(activity);
-
-    this.events.emit('activity.sent', {
-      activity: { ...activity, ...res },
-      ref,
-    });
-
     return { ...activity, ...res };
   }
 
-  onStreamOpen(ref: ConversationReference): IStreamer {
-    return new HttpStream((activity) => this.onSend(activity, ref));
+  createStream(ref: ConversationReference): IStreamer {
+    return new HttpStream(
+      new Client(
+        ref.serviceUrl,
+        this.client.clone({
+          token: () => this.botToken,
+        })
+      ),
+      ref
+    );
+  }
+
+  onError({ error, activity }: IPluginErrorEvent) {
+    if (!activity) return;
+    const res = this.pending[activity.id];
+
+    if (!res) {
+      return;
+    }
+
+    if (!res.headersSent) {
+      res.status(500).send(error.message);
+    }
+
+    delete this.pending[activity.id];
+  }
+
+  onActivityResponse({ response, activity }: IPluginActivityResponseEvent) {
+    const res = this.pending[activity.id];
+
+    if (!res) {
+      return;
+    }
+
+    if (!res.headersSent) {
+      res.status(response.status || 200).send(JSON.stringify(response.body || null));
+    }
+
+    delete this.pending[activity.id];
   }
 
   /**
@@ -163,10 +194,6 @@ export class HttpPlugin implements IPlugin, IStreamerPlugin {
     res: express.Response,
     _next: express.NextFunction
   ) {
-    if (!this.app) {
-      throw new Error('plugin not registered');
-    }
-
     const authorization = req.headers.authorization?.replace('Bearer ', '');
 
     if (!authorization && process.env.NODE_ENV !== 'local') {
@@ -185,37 +212,10 @@ export class HttpPlugin implements IPlugin, IStreamerPlugin {
         };
 
     this.pending[activity.id] = res;
-    this.events.emit('activity.received', {
+    this.events.emit('activity', {
+      sender: this,
       activity,
       token,
     });
-  }
-
-  protected onActivityError({ err, activity }: IAppActivityErrorEvent) {
-    const res = this.pending[activity.id];
-
-    if (!res) {
-      return;
-    }
-
-    if (!res.headersSent) {
-      res.status(500).send(err.message);
-    }
-
-    delete this.pending[activity.id];
-  }
-
-  protected onActivityResponse({ response, activity }: IAppActivityResponseEvent) {
-    const res = this.pending[activity.id];
-
-    if (!res) {
-      return;
-    }
-
-    if (!res.headersSent) {
-      res.status(response.status || 200).send(JSON.stringify(response.body || null));
-    }
-
-    delete this.pending[activity.id];
   }
 }

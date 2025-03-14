@@ -1,12 +1,17 @@
 import { Activity, IToken } from '@microsoft/spark.api';
 
-import { IEvent } from '../types';
+import { IEvent, ISender } from '../types';
 
 /**
  * the event emitted by a plugin
  * when an activity is received
  */
-export interface IActivityReceivedEvent extends IEvent {
+export interface IActivityEvent extends IEvent {
+  /**
+   * the sender of the event
+   */
+  sender: ISender;
+
   /**
    * inbound request token
    */

@@ -65,4 +65,26 @@ export class TypingActivity extends Activity<'typing'> implements ITypingActivit
     this.text += text;
     return this;
   }
+
+  /**
+   * Add stream informative update
+   * @param id the stream id
+   * @param sequence the sequence number (index) of the chunk
+   */
+  addStreamUpdate(sequence: number = 0) {
+    if (!this.channelData) {
+      this.channelData = {};
+    }
+
+    this.channelData.streamId = this.id;
+    this.channelData.streamType = 'streaming';
+    this.channelData.streamSequence = sequence;
+
+    return this.addEntity({
+      type: 'streaminfo',
+      streamId: this.id,
+      streamType: 'streaming',
+      streamSequence: sequence,
+    });
+  }
 }

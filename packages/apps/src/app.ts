@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import { ILogger, ConsoleLogger } from '@microsoft/spark.common/logging';
 import { LocalStorage, IStorage } from '@microsoft/spark.common/storage';
 import { EventEmitter } from '@microsoft/spark.common/events';
@@ -22,23 +23,14 @@ import { IEvents } from './events';
 import { HttpPlugin } from './plugins';
 import { OAuthSettings } from './oauth';
 import { AppClient } from './api';
-import { signin } from './events/signin';
-import { error } from './events/error';
 import { IPlugin } from './types';
 
 import { $process } from './app.process';
-import { getPlugin, plugin } from './app.plugins';
+import { createPluginEvent, getPlugin, getPluginDependencies, plugin } from './app.plugins';
 import { message, on, use } from './app.routing';
 import { configTab, func, tab } from './app.embed';
 import { onTokenExchange, onVerifyState } from './app.oauth';
-import {
-  event,
-  onActivityError,
-  onActivityReceived,
-  onActivitySent,
-  onBeforeActivitySent,
-  onError,
-} from './app.events';
+import { event, onError, onActivity, onActivitySent, onActivityResponse } from './app.events';
 
 /**
  * App initialization options
@@ -260,8 +252,14 @@ export class App {
     // default event handlers
     this.on('signin.token-exchange', this.onTokenExchange.bind(this));
     this.on('signin.verify-state', this.onVerifyState.bind(this));
-    this.event('signin', signin);
-    this.event('error', error);
+    this.event('error', ({ error }) => {
+      this.log.error(error.message);
+
+      if (error instanceof AxiosError) {
+        this.log.error(error.request.path);
+        this.log.error(error.response?.data);
+      }
+    });
   }
 
   /**
@@ -283,14 +281,38 @@ export class App {
 
       for (const plugin of this.plugins) {
         if (plugin.onStart) {
-          await plugin.onStart(this.port);
+          await plugin.onStart({
+            ...this.createPluginEvent(),
+            type: 'start',
+            port: this.port,
+            plugins: this.getPluginDependencies(plugin.name),
+          });
         }
       }
 
       this.events.emit('start', this.log);
       this.startedAt = new Date();
-    } catch (err: any) {
-      this.events.emit('error', { err, log: this.log });
+    } catch (error: any) {
+      this.onError({ error });
+    }
+  }
+
+  /**
+   * stop the app
+   */
+  async stop() {
+    try {
+      for (const plugin of this.plugins) {
+        if (plugin.onStop) {
+          await plugin.onStop({
+            ...this.createPluginEvent(),
+            type: 'stop',
+            plugins: this.getPluginDependencies(plugin.name),
+          });
+        }
+      }
+    } catch (error: any) {
+      this.onError({ error });
     }
   }
 
@@ -318,7 +340,7 @@ export class App {
       },
     };
 
-    const res = await this.http.onSend(toActivityParams(activity), ref);
+    const res = await this.http.send(toActivityParams(activity), ref);
     return res;
   }
 
@@ -359,6 +381,11 @@ export class App {
    * get a plugin
    */
   getPlugin = getPlugin;
+
+  /**
+   * get a plugins dependencies
+   */
+  getPluginDependencies = getPluginDependencies;
 
   /**
    * add/update a function that can be called remotely
@@ -402,9 +429,9 @@ export class App {
   /// Events
   ///
 
+  protected createPluginEvent = createPluginEvent;
   protected onError = onError;
-  protected onActivityError = onActivityError;
-  protected onActivityReceived = onActivityReceived;
+  protected onActivity = onActivity;
   protected onActivitySent = onActivitySent;
-  protected onBeforeActivitySent = onBeforeActivitySent;
+  protected onActivityResponse = onActivityResponse;
 }

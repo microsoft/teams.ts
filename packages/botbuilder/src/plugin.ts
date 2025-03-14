@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { App, HttpPlugin } from '@microsoft/spark.apps';
+import { HttpPlugin, IPluginInitEvent } from '@microsoft/spark.apps';
 import { $Activity, Activity, JsonWebToken } from '@microsoft/spark.api';
 
 import {
@@ -25,17 +25,15 @@ export class BotBuilderPlugin extends HttpPlugin {
     this.handler = options?.handler;
   }
 
-  onInit(app: App) {
-    super.onInit(app);
+  onInit(event: IPluginInitEvent) {
+    super.onInit(event);
+    const { credentials } = event;
 
     if (!this.adapter) {
-      const clientId = app.credentials?.clientId;
+      const clientId = credentials?.clientId;
       const clientSecret =
-        app.credentials && 'clientSecret' in app.credentials
-          ? app.credentials?.clientSecret
-          : undefined;
-      const tenantId =
-        app.credentials && 'tenantId' in app.credentials ? app.credentials?.tenantId : undefined;
+        credentials && 'clientSecret' in credentials ? credentials?.clientSecret : undefined;
+      const tenantId = credentials && 'tenantId' in credentials ? credentials?.tenantId : undefined;
 
       this.adapter = new CloudAdapter(
         new ConfigurationBotFrameworkAuthentication(
@@ -56,7 +54,7 @@ export class BotBuilderPlugin extends HttpPlugin {
     res: express.Response,
     next: express.NextFunction
   ) {
-    if (!this.app || !this.adapter) {
+    if (!this.adapter) {
       throw new Error('plugin not registered');
     }
 
@@ -80,7 +78,8 @@ export class BotBuilderPlugin extends HttpPlugin {
         }
 
         this.pending[context.activity.id] = res;
-        this.events.emit('activity.received', {
+        this.events.emit('activity', {
+          sender: this,
           token: new JsonWebToken(authorization),
           activity: new $Activity(context.activity as any) as Activity,
         });

@@ -3,6 +3,7 @@ import { IStorage } from '@microsoft/spark.common/storage';
 import {
   Activity,
   ActivityLike,
+  SentActivity,
   cardAttachment,
   ConversationAccount,
   ConversationReference,
@@ -16,7 +17,7 @@ import {
 } from '@microsoft/spark.api';
 
 import { ApiClient } from '../api';
-import { ISenderPlugin, IStreamer, SentActivity } from '../types';
+import { ISender, IStreamer } from '../types';
 
 export interface IActivityContextOptions<T extends Activity = Activity> {
   /**
@@ -119,23 +120,15 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
   next!: (context?: IActivityContext) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
   [key: string]: any;
 
-  protected _plugin: ISenderPlugin;
+  protected _plugin: ISender;
   protected _next?: (
     context?: IActivityContext
   ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 
-  constructor(plugin: ISenderPlugin, stream: IStreamer, value: IActivityContextOptions) {
+  constructor(plugin: ISender, value: IActivityContextOptions) {
     Object.assign(this, value);
     this._plugin = plugin;
-    this.stream = stream;
-  }
-
-  static async new(plugin: ISenderPlugin, value: IActivityContextOptions) {
-    let stream = plugin.onStreamOpen ? await plugin.onStreamOpen(value.ref) : undefined;
-
-    if (!stream) {
-      stream = { emit() {}, close() {} };
-    }
+    this.stream = plugin.createStream(value.ref);
 
     if (value.activity.type === 'message') {
       value.activity = MessageActivity.from(value.activity).toInterface();
@@ -152,12 +145,10 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
     if (value.activity.type === 'typing') {
       value.activity = TypingActivity.from(value.activity).toInterface();
     }
-
-    return new ActivityContext(plugin, stream, value);
   }
 
   async send(activity: ActivityLike) {
-    return this._plugin.onSend(toActivityParams(activity), this.ref);
+    return await this._plugin.send(toActivityParams(activity), this.ref);
   }
 
   async reply(activity: ActivityLike) {

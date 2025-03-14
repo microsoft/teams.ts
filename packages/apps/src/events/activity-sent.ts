@@ -1,6 +1,6 @@
-import { ActivityParams, ConversationReference } from '@microsoft/spark.api';
+import { ConversationReference, SentActivity } from '@microsoft/spark.api';
 
-import { IEvent } from '../types';
+import { IEvent, ISender } from '../types';
 
 /**
  * the event emitted by a plugin
@@ -8,7 +8,12 @@ import { IEvent } from '../types';
  */
 export interface IActivitySentEvent extends IEvent, ConversationReference {
   /**
+   * the sender of the event
+   */
+  sender: ISender;
+
+  /**
    * the sent activity
    */
-  activity: { id: string } & ActivityParams;
+  activity: SentActivity;
 }

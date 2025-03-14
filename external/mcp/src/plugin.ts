@@ -1,8 +1,14 @@
 import { Readable, Writable } from 'stream';
 
 import { IChatPrompt } from '@microsoft/spark.ai';
-import { App, IActivityContext, IPlugin, IPluginEvents } from '@microsoft/spark.apps';
-import { ConsoleLogger, EventEmitter, EventHandler, ILogger } from '@microsoft/spark.common';
+import {
+  HttpPlugin,
+  IPlugin,
+  IPluginEvents,
+  IPluginInitEvent,
+  IPluginStartEvent,
+} from '@microsoft/spark.apps';
+import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/spark.common';
 
 import { ServerOptions } from '@modelcontextprotocol/sdk/server/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -65,6 +71,11 @@ export type McpPluginOptions = ServerOptions & {
   readonly version?: string;
 
   /**
+   * the MCP server description
+   */
+  readonly description?: string;
+
+  /**
    * the transport or transport options
    * @default sse
    */
@@ -79,6 +90,9 @@ export type McpPluginOptions = ServerOptions & {
 export class McpPlugin implements IPlugin {
   readonly name: string;
   readonly version: string;
+  readonly description?: string;
+  readonly dependencies = ['http'];
+  readonly events = new EventEmitter<IPluginEvents>();
 
   readonly server: McpServer;
   readonly prompt: McpServer['prompt'];
@@ -88,7 +102,6 @@ export class McpPlugin implements IPlugin {
   protected log: ILogger;
   protected id: number = -1;
   protected connections: Record<number, IConnection> = {};
-  protected events = new EventEmitter<IPluginEvents>();
   protected transport: McpSSETransportOptions | McpStdioTransportOptions = { type: 'sse' };
 
   constructor(options: McpServer | McpPluginOptions = {}) {
@@ -96,6 +109,7 @@ export class McpPlugin implements IPlugin {
     this.name =
       options instanceof McpServer ? 'mcp' : `mcp${options.name ? `.${options.name}` : ''}`;
     this.version = options instanceof McpServer ? '0.0.0' : options.version || '0.0.0';
+    this.description = options instanceof McpServer ? undefined : options.description;
     this.server =
       options instanceof McpServer
         ? options
@@ -125,19 +139,23 @@ export class McpPlugin implements IPlugin {
     return this;
   }
 
-  async onInit(app: App) {
-    this.log = app.log.child(this.name);
+  async onInit({ logger, plugins }: IPluginInitEvent) {
+    const [http] = plugins;
 
-    if (this.transport.type === 'sse') {
-      return this.onInitSSE(app, this.transport);
+    if (!(http instanceof HttpPlugin)) {
+      throw new Error(`expected http plugin, found ${http.name}`);
     }
 
-    await this.onInitStdio(app, this.transport);
+    this.log = logger.child(this.name);
+
+    if (this.transport.type === 'sse') {
+      return this.onInitSSE(http, this.transport);
+    }
+
+    await this.onInitStdio(this.transport);
   }
 
-  async onStart(port: number = 3000) {
-    this.events.emit('start', this.log);
-
+  async onStart({ port }: IPluginStartEvent) {
     if (this.transport.type === 'sse') {
       this.log.info(`listening at http://localhost:${port}${this.transport.path || '/mcp'}`);
     } else {
@@ -145,21 +163,15 @@ export class McpPlugin implements IPlugin {
     }
   }
 
-  on<Name extends keyof IPluginEvents>(name: Name, callback: EventHandler<IPluginEvents[Name]>) {
-    this.events.on(name, callback);
-  }
-
-  onActivity(_: IActivityContext) {}
-
-  protected onInitStdio(_: App, options: McpStdioTransportOptions) {
+  protected onInitStdio(options: McpStdioTransportOptions) {
     const transport = new StdioServerTransport(options.stdin, options.stdout);
     return this.server.connect(transport);
   }
 
-  protected onInitSSE(app: App, options: McpSSETransportOptions) {
+  protected onInitSSE(http: HttpPlugin, options: McpSSETransportOptions) {
     const path = options.path || '/mcp';
 
-    app.http.get(path, (_, res) => {
+    http.get(path, (_, res) => {
       this.id++;
       this.log.debug('connecting...');
       const transport = new SSEServerTransport(`${path}/${this.id}/messages`, res);
@@ -172,7 +184,7 @@ export class McpPlugin implements IPlugin {
       this.server.connect(transport);
     });
 
-    app.http.post(`${path}/:id/messages`, (req, res) => {
+    http.post(`${path}/:id/messages`, (req, res) => {
       const id = +req.params.id;
       const { transport } = this.connections[id];
 
