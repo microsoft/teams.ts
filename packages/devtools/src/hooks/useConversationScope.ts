@@ -1,18 +1,17 @@
-import { useContext } from 'react';
-import { ActivityContext } from '../stores/ActivityStore';
+import { useActivityStore } from '../stores/ActivityStore';
 import { ConversationType } from '../types/ConversationType';
+import { useMemo } from 'react';
+
 /**
  * Get conversation type from the message id
  */
-const useConversationScope = (id: string):  ConversationType => {
-  const { list: activities } = useContext(ActivityContext);
-  const activityEvent = activities.find((activity) => activity.body.id === id);
+const useConversationScope = (id: string): ConversationType => {
+  const { byId } = useActivityStore();
 
-  // If the activity is not found, default to personal. If someone thinks of a better default, lmk.
-  if (!activityEvent) {
-    return 'personal'
-  }
-  return activityEvent?.body.conversation.conversationType;
-}
+  return useMemo(() => {
+    const activity = byId[id];
+    return activity?.body.conversation.conversationType ?? 'personal';
+  }, [byId, id]);
+};
 
 export default useConversationScope;

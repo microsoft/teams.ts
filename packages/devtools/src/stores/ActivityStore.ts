@@ -5,12 +5,14 @@ import { ActivityEvent } from '../types/Event';
 
 export interface ActivityStore {
   readonly list: Array<ActivityEvent>;
+  readonly byId: Record<string, ActivityEvent>;
   readonly put: (event: ActivityEvent) => void;
 }
 
 export const useActivityStore = create<ActivityStore>()(
   devtools((set) => ({
     list: [],
+    byId: {},
     put: (event) =>
       set((state) => {
         const i = state.list.findIndex((e) => e.id === event.id);
@@ -26,7 +28,13 @@ export const useActivityStore = create<ActivityStore>()(
           };
         }
 
-        return { ...state };
+        // Update the byId lookup
+        state.byId[event.body.id] = event;
+
+        return {
+          ...state,
+          byId: { ...state.byId }
+        };
       }),
   }))
 );
