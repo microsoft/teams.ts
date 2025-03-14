@@ -16,11 +16,13 @@ export const useActivityStore = create<ActivityStore>()(
     put: (event) =>
       set((state) => {
         const i = state.list.findIndex((e) => e.id === event.id);
+        const list = [...state.list];
+        const byId = { ...state.byId };
 
         if (i === -1) {
-          state.list.push(event);
+          list.push(event);
         } else {
-          state.list[i] = {
+          list[i] = {
             ...state.list[i],
             type: event.type,
             body: event.body,
@@ -29,11 +31,11 @@ export const useActivityStore = create<ActivityStore>()(
         }
 
         // Update the byId lookup
-        state.byId[event.body.id] = event;
+        byId[event.id] = event;
 
         return {
-          ...state,
-          byId: { ...state.byId }
+          list: list,
+          byId: byId,
         };
       }),
   }))
