@@ -17,3 +17,14 @@ export const formatMessageTime = (dateStr: string) => {
 
   return format(date, 'M/d h:mm a');
 };
+
+export const formatMessageTooltipTime = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return format(date, 'MMMM d, yyyy HH:mm');
+};
+
+// Returns the date in ISO format for screen readers
+export const formatMessageDateTime = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.toISOString();
+};
