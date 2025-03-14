@@ -1,5 +1,5 @@
 import { Attachment } from '@microsoft/spark.api';
-import { FC, useCallback, useContext, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
 
 import Chat from '../../components/Chat/Chat';
 import ChatMessage from '../../components/ChatMessage/ChatMessage';
@@ -8,7 +8,7 @@ import ComposeBox from '../../components/ComposeBox/ComposeBox';
 import TypingIndicator from '../../components/TypingIndicator/TypingIndicator';
 import Logger from '../../components/Logger/Logger';
 import useSparkApi from '../../hooks/useSparkApi';
-import { ChatContext } from '../../stores/ChatStore';
+import { useChatStore } from '../../stores/ChatStore';
 import { useDevModeSendMessage } from '../../utils/devUtils';
 
 import useClasses from './ChatScreen.styles';
@@ -23,7 +23,7 @@ interface ChatScreenProps {
 const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
   const classes = useClasses();
   const screenClasses = useScreensClasses();
-  const { chat, feedback, messages, streaming, typing } = useContext(ChatContext);
+  const { chat, feedback, messages, streaming, typing } = useChatStore();
   const [messageHistory, setMessageHistory] = useState<string[]>([]);
   const log = Logger;
   const childLog = log.child('ChatScreen');

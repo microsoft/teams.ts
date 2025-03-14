@@ -1,4 +1,4 @@
-import { FC, memo, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import { FC, memo, useEffect, useState, useCallback, useMemo } from 'react';
 import { MarkdownContent } from '../MarkdownContent';
 import { useChatMessageStyles } from './ChatMessage.styles';
 import {
@@ -13,9 +13,10 @@ import {
 } from '@fluentui/react-components';
 import { Message, MessageReaction, MessageUser, Attachment } from '@microsoft/spark.api';
 
-import { ChatContext } from '../../stores/ChatStore';
+import { useChatStore } from '../../stores/ChatStore';
 import useSparkApi from '../../hooks/useSparkApi';
 import { AttachmentType } from '../../types/Attachment';
+import { MessageActionUI } from '../../types/MessageActionUI';
 import { MessageReactionsEmoji } from '../../types/MessageReactionsEmoji';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
 import MessageActionsToolbar from '../MessageActionsToolbar/MessageActionsToolbar';
@@ -33,7 +34,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
   ({ content, streaming = false, feedback = false, sendDirection, value }) => {
     const classes = useChatMessageStyles();
     const childLog = Logger.child('ChatMessage');
-    const { chat, messages } = useContext(ChatContext);
+    const { chat, messages } = useChatStore();
     const sparkApi = useSparkApi();
     const labelId = `message-${value.id}`;
     const [html, setHtml] = useState<string>(
@@ -83,6 +84,10 @@ const ChatMessage: FC<ChatMessageProps> = memo(
         setOpenedByKeyboard(false);
       }
       setIsPopoverOpen(data.open);
+    }, []);
+
+    const handleMessageAction = useCallback(async (id: string, action: MessageActionUI) => {
+      console.log('handleMessageAction', id, action);
     }, []);
 
     const handleMessageReaction = useCallback(
@@ -279,10 +284,11 @@ const ChatMessage: FC<ChatMessageProps> = memo(
             </PopoverTrigger>
             <PopoverSurface className={classes.popoverSurface} data-message-toolbar={value.id}>
               <MessageActionsToolbar
-                sent={sendDirection === 'sent'}
+                userSentMessage={sendDirection === 'sent'}
                 value={value}
                 size="small"
                 handleMessageReaction={handleMessageReaction}
+                handleMessageAction={handleMessageAction}
                 reactionSender={reactionSender}
               />
             </PopoverSurface>

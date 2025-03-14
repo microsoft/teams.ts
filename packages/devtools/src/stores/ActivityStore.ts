@@ -1,4 +1,3 @@
-import { createContext } from 'react';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
@@ -31,5 +30,3 @@ export const useActivityStore = create<ActivityStore>()(
       }),
   }))
 );
-
-export const ActivityContext = createContext<ActivityStore>(null as any);

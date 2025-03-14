@@ -1,4 +1,3 @@
-import { createContext } from 'react';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import {
@@ -356,5 +355,3 @@ export const useChatStore = create<ChatStore>()(
     },
   }))
 );
-
-export const ChatContext = createContext<ChatStore>(null as any);
