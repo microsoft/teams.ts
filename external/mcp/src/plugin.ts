@@ -138,7 +138,7 @@ export class McpPlugin implements IPlugin {
     return this;
   }
 
-  async onInit({ logger, plugins }: IPluginInitEvent) {
+  onInit({ logger, plugins }: IPluginInitEvent) {
     const [http] = plugins;
 
     if (!(http instanceof HttpPlugin)) {
@@ -151,10 +151,10 @@ export class McpPlugin implements IPlugin {
       return this.onInitSSE(http, this.transport);
     }
 
-    await this.onInitStdio(this.transport);
+    return this.onInitStdio(this.transport);
   }
 
-  async onStart({ port }: IPluginStartEvent) {
+  onStart({ port }: IPluginStartEvent) {
     if (this.transport.type === 'sse') {
       this.log.info(`listening at http://localhost:${port}${this.transport.path || '/mcp'}`);
     } else {

@@ -111,14 +111,6 @@ export class DevtoolsPlugin implements ISender {
     });
   }
 
-  async send(activity: ActivityParams, ref: ConversationReference) {
-    return await this.httpPlugin.send(activity, ref);
-  }
-
-  createStream(ref: ConversationReference): IStreamer {
-    return this.httpPlugin.createStream(ref);
-  }
-
   onActivity({ activity, conversation }: IPluginActivityEvent) {
     this.emitActivity({
       id: uuid.v4(),
@@ -146,6 +138,14 @@ export class DevtoolsPlugin implements ISender {
 
     promise.resolve(response);
     delete this.pending[activity.id];
+  }
+
+  async send(activity: ActivityParams, ref: ConversationReference) {
+    return await this.httpPlugin.send(activity, ref);
+  }
+
+  createStream(ref: ConversationReference): IStreamer {
+    return this.httpPlugin.createStream(ref);
   }
 
   protected onConnection(socket: io.Socket) {
