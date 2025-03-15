@@ -34,6 +34,7 @@ import pkg from '../../../package.json';
 @Plugin({
   name: 'http',
   version: pkg.version,
+  description: 'the default plugin for sending/receiving activities',
 })
 export class HttpPlugin implements ISender {
   readonly events: EventEmitter<IPluginEvents>;

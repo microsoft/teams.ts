@@ -78,7 +78,7 @@ export class DevtoolsPlugin implements ISender {
     this.log = logger.child('devtools');
   }
 
-  async onStart({ port }: IPluginStartEvent) {
+  onStart({ port }: IPluginStartEvent) {
     port += 1;
 
     this.express.use(
@@ -98,7 +98,7 @@ export class DevtoolsPlugin implements ISender {
       })
     );
 
-    return await new Promise<void>((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       this.http.on('error', (error) => {
         this.events.emit('error', { error });
         return reject(error);

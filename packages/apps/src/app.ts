@@ -26,12 +26,11 @@ import { AppClient } from './api';
 import { IPlugin } from './types';
 
 import { $process } from './app.process';
-import { createPluginEvent, getPlugin, getPluginDependencies, plugin } from './app.plugins';
+import { createPluginEvent, getPlugin, plugin } from './app.plugins';
 import { message, on, use } from './app.routing';
 import { configTab, func, tab } from './app.embed';
 import { onTokenExchange, onVerifyState } from './app.oauth';
 import { event, onError, onActivity, onActivitySent, onActivityResponse } from './app.events';
-import { IPluginDecorated } from './types/plugin/plugin-decorated';
 
 /**
  * App initialization options
@@ -155,7 +154,7 @@ export class App {
   }
   protected _tokens: AppTokens = {};
 
-  protected plugins: Array<IPluginDecorated> = [];
+  protected plugins: Array<IPlugin> = [];
   protected router = new Router();
   protected tenantTokens = new LocalStorage<string>(undefined, { max: 20000 });
   protected events = new EventEmitter<IEvents>();
@@ -282,7 +281,6 @@ export class App {
             ...this.createPluginEvent(),
             type: 'start',
             port: this.port,
-            plugins: this.getPluginDependencies(plugin.__metadata__.name),
           });
         }
       }
@@ -304,7 +302,6 @@ export class App {
           await plugin.onStop({
             ...this.createPluginEvent(),
             type: 'stop',
-            plugins: this.getPluginDependencies(plugin.__metadata__.name),
           });
         }
       }
@@ -378,11 +375,6 @@ export class App {
    * get a plugin
    */
   getPlugin = getPlugin;
-
-  /**
-   * get a plugins dependencies
-   */
-  getPluginDependencies = getPluginDependencies;
 
   /**
    * add/update a function that can be called remotely

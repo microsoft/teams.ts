@@ -59,7 +59,7 @@ export class ConsolePlugin implements ISender {
     this.log = logger.child('console');
   }
 
-  async onStart({ port }: IPluginStartEvent) {
+  onStart({ port }: IPluginStartEvent) {
     this.express.listen(port + 1, () => {
       this.reader.on('line', async (text) => {
         const activity = new MessageActivity(text)

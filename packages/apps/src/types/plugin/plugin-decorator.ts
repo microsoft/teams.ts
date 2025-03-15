@@ -1,12 +1,11 @@
-import { EventEmitter } from '@microsoft/spark.common';
+import 'reflect-metadata';
 
-import { IPluginEvents, PluginName } from './plugin';
-import { IPluginDecorated } from './plugin-decorated';
+export const PLUGIN_METADATA_KEY = 'teams:plugin';
 
 /**
- * metadata for the plugin
+ * options for the plugins
  */
-export type PluginMetadata = {
+export type PluginOptions = {
   /**
    * the unique plugin name
    */
@@ -15,42 +14,45 @@ export type PluginMetadata = {
   /**
    * the plugin version
    */
-  readonly version?: string;
+  readonly version: string;
 
   /**
-   * the plugins this plugin depends on
-   *
-   * @remark
-   * dependencies will be injected into the plugin
-   * on lifecycle events (init, start, stop) in the
-   * `plugins` array in the same order as provided here
+   * the plugin description
    */
-  readonly dependencies?: Array<PluginName>;
+  readonly description?: string;
+};
+
+/**
+ * metadata for the plugin
+ */
+export type PluginMetadata = PluginOptions & {
+  /**
+   * the `Type` of the plugin
+   */
+  readonly type: any;
 };
 
 /**
  * turn any class into a plugin via
  * `@Plugin({ ... })`
  */
-export function Plugin(metadata: PluginMetadata) {
+export function Plugin(metadata: Partial<PluginOptions> = {}) {
   return <T extends { new (...args: any[]): {} }>(Base: T) => {
-    return class extends Base implements IPluginDecorated {
-      /**
-       * the plugin metadata
-       */
-      readonly __metadata__ = metadata;
+    const name = metadata.name || Base.name;
+    const version = metadata.version || '0.0.0';
 
-      /**
-       * the event emitter of the plugin
-       */
-      readonly events = new EventEmitter<IPluginEvents>();
+    Reflect.defineMetadata(
+      PLUGIN_METADATA_KEY,
+      {
+        name,
+        version,
+        description: metadata.description,
+      },
+      Base
+    );
 
-      /**
-       * default toString implementation
-       */
-      toString() {
-        return this.__metadata__.name;
-      }
-    };
+    console.log(Base.name);
+
+    return Base;
   };
 }

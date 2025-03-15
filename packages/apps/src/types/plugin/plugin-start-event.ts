@@ -1,4 +1,3 @@
-import { IPlugin } from './plugin';
 import { IPluginEvent } from './plugin-event';
 
 /**
@@ -11,9 +10,4 @@ export interface IPluginStartEvent extends IPluginEvent<'start'> {
    * `app.start()` method
    */
   readonly port: number;
-
-  /**
-   * the injected plugin dependencies
-   */
-  readonly plugins: Array<IPlugin>;
 }

@@ -9,3 +9,4 @@ export * from './plugin-init-event';
 export * from './plugin-start-event';
 export * from './plugin-stop-event';
 export * from './sender';
+export * from './inject-decorator';
