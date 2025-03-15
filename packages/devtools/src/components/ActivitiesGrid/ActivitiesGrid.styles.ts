@@ -42,16 +42,19 @@ const useActivitiesGridClasses = makeStyles({
       fontWeight: 'inherit',
       padding: 0,
       gap: tokens.spacingHorizontalXS,
+      border: `0px solid transparent`,
+      '&:focus-visible': {
+        outline: 'none',
+        boxShadow: 'none',
+        border: 'none',
+        transition: 'none',
+        transitionDuration: '0s',
+      },
     },
   },
   directionIcon: {
     marginRight: tokens.spacingHorizontalS,
     flexShrink: 0,
-  },
-  menuPopover: {
-    padding: tokens.spacingHorizontalXXS,
-    borderRadius: '0.375rem',
-    boxShadow: tokens.shadow16,
   },
   cell: {
     minWidth: '6rem',
@@ -90,12 +93,6 @@ const useActivitiesGridClasses = makeStyles({
   },
   filterOn: {
     color: tokens.colorBrandForeground1,
-  },
-  menuItem: {
-    maxWidth: '12.5rem',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
   },
 });
 
