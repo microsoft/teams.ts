@@ -219,7 +219,7 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
         members: [this.activity.from],
       });
 
-      await this.send({ type: 'message', text });
+      await this.send({ type: 'message', text: oauthCardText });
       convo.conversation = { id: res.id } as ConversationAccount;
     }
 
