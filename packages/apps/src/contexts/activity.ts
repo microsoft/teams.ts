@@ -1,5 +1,3 @@
-import { ILogger } from '@microsoft/spark.common/logging';
-import { IStorage } from '@microsoft/spark.common/storage';
 import {
   Activity,
   ActivityLike,
@@ -14,6 +12,8 @@ import {
   TokenExchangeState,
   TypingActivity,
 } from '@microsoft/spark.api';
+import { ILogger } from '@microsoft/spark.common/logging';
+import { IStorage } from '@microsoft/spark.common/storage';
 
 import { ApiClient } from '../api';
 import { ISenderPlugin, IStreamer, SentActivity } from '../types';
@@ -73,6 +73,24 @@ export interface IActivityContextOptions<T extends Activity = Activity> {
   next: (context?: IActivityContext) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 }
 
+interface ISignInOptions {
+  /**
+   * The name of the auth connection to use
+   * @default `graph`
+   */
+  connectionName: string;
+  /**
+   * The text to display on the oauth card
+   * @default `Please Sign In...`
+   */
+  oauthCardText: string;
+  /**
+   * The text to display on the sign in button
+   * @default `Sign In`
+   */
+  signInButtonText: string;
+}
+
 export interface IActivityContext<T extends Activity = Activity>
   extends IActivityContextOptions<T> {
   /**
@@ -94,10 +112,9 @@ export interface IActivityContext<T extends Activity = Activity>
 
   /**
    * trigger user signin flow for the activity sender
-   * @param name auth connection name, defaults to `graph`
-   * @param text card text to display
+   * @param options options for the signin flow
    */
-  signin: (name?: string, text?: string) => Promise<string | undefined>;
+  signin: (options?: Partial<ISignInOptions>) => Promise<string | undefined>;
 
   /**
    * sign the activity sender out
@@ -105,6 +122,12 @@ export interface IActivityContext<T extends Activity = Activity>
    */
   signout: (name?: string) => Promise<void>;
 }
+
+const DEFAULT_SIGNIN_OPTIONS: ISignInOptions = {
+  connectionName: 'graph',
+  oauthCardText: 'Please Sign In...',
+  signInButtonText: 'Sign In',
+};
 
 export class ActivityContext<T extends Activity = Activity> implements IActivityContext<T> {
   plugin!: string;
@@ -166,14 +189,19 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
     return this.send(activity);
   }
 
-  async signin(name = 'graph', text = 'Please Sign In...') {
+  async signin(options?: Partial<ISignInOptions>) {
+    const { connectionName, oauthCardText, signInButtonText } = {
+      ...DEFAULT_SIGNIN_OPTIONS,
+      ...options,
+    };
+
     const convo = { ...this.ref };
 
     try {
       const res = await this.api.users.token.get({
         channelId: this.activity.channelId,
         userId: this.activity.from.id,
-        connectionName: name,
+        connectionName,
       });
 
       return res.token;
@@ -196,7 +224,7 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
     }
 
     const tokenExchangeState: TokenExchangeState = {
-      connectionName: name,
+      connectionName,
       conversation: convo,
       relatesTo: this.activity.relatesTo,
       msAppId: this.appId,
@@ -211,14 +239,14 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
       recipient: this.activity.from,
       attachments: [
         cardAttachment('oauth', {
-          text,
-          connectionName: name,
+          text: oauthCardText,
+          connectionName,
           tokenExchangeResource: resource.tokenExchangeResource,
           tokenPostResource: resource.tokenPostResource,
           buttons: [
             {
               type: 'signin',
-              title: 'Sign In',
+              title: signInButtonText,
               value: resource.signInLink,
             },
           ],
