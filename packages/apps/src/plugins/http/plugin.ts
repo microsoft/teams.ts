@@ -106,10 +106,10 @@ export class HttpPlugin implements ISender {
     return this;
   }
 
-  async onStart({ port, manifest }: IPluginStartEvent) {
+  async onStart({ port }: IPluginStartEvent) {
     this._port = port;
     this.express.get('/', (_, res) => {
-      res.send(manifest);
+      res.send(this.manifest);
     });
 
     return await new Promise<void>((resolve, reject) => {

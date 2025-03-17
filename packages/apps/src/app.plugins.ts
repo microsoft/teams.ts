@@ -1,14 +1,7 @@
 import { ILogger } from '@microsoft/spark.common';
 
 import { App } from './app';
-import {
-  IPlugin,
-  IPluginActivityEvent,
-  IPluginErrorEvent,
-  IPluginEvent,
-  ISender,
-  PluginName,
-} from './types';
+import { IPlugin, IPluginActivityEvent, IPluginErrorEvent, ISender, PluginName } from './types';
 import {
   DependencyMetadata,
   PLUGIN_DEPENDENCIES_METADATA_KEY,
@@ -28,6 +21,7 @@ export function plugin(this: App, plugin: IPlugin) {
   }
 
   this.plugins.push(plugin);
+  this.container.register(name, { useValue: plugin });
   this.container.register(plugin.constructor.name, { useValue: plugin });
   return this;
 }
@@ -43,29 +37,12 @@ export function getPlugin(this: App, name: PluginName): IPlugin | undefined {
 }
 
 /**
- * create plugin event
- */
-export function createPluginEvent(this: App): IPluginEvent {
-  return {
-    type: '',
-    id: this.id,
-    name: this.name,
-    client: this.client,
-    logger: this.log,
-    storage: this.storage,
-    manifest: this.manifest,
-    credentials: this.credentials,
-    botToken: this.tokens.bot,
-    graphToken: this.tokens.graph,
-  };
-}
-
-/**
  * inject fields/events into a plugin
  */
 export function inject(this: App, plugin: IPlugin) {
   const { name, dependencies, events } = getMetadata(plugin);
 
+  // inject dependencies
   for (const { key, type, optional } of dependencies) {
     let dependency = this.container.resolve(type);
 
@@ -92,6 +69,7 @@ export function inject(this: App, plugin: IPlugin) {
     });
   }
 
+  // inject event handlers
   for (const { key, name } of events) {
     let handler = (..._: any[]) => {};
 

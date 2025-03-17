@@ -27,11 +27,7 @@ export function event<Name extends keyof IEvents>(
 export async function onError(this: App, event: IErrorEvent) {
   for (const plugin of this.plugins) {
     if (plugin.onError) {
-      await plugin.onError({
-        ...this.createPluginEvent(),
-        ...event,
-        type: 'error',
-      });
+      await plugin.onError(event);
     }
   }
 
@@ -47,9 +43,7 @@ export async function onActivitySent(this: App, sender: ISender, event: IActivit
   for (const plugin of this.plugins) {
     if (plugin.onActivitySent) {
       await plugin.onActivitySent({
-        ...this.createPluginEvent(),
         ...event,
-        type: 'activity.sent',
         sender,
       });
     }
@@ -66,9 +60,7 @@ export async function onActivityResponse(
   for (const plugin of this.plugins) {
     if (plugin.onActivityResponse) {
       await plugin.onActivityResponse({
-        ...this.createPluginEvent(),
         ...event,
-        type: 'activity.response',
         sender,
       });
     }

@@ -1,10 +1,8 @@
-import { IPluginEvent } from './plugin-event';
-
 /**
  * the event emitted when a plugin
  * is started
  */
-export interface IPluginStartEvent extends IPluginEvent<'start'> {
+export interface IPluginStartEvent {
   /**
    * the port given to the
    * `app.start()` method

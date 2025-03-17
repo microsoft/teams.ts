@@ -1,15 +1,12 @@
 import { Activity, ConversationReference, InvokeResponse } from '@microsoft/spark.api';
 
-import { IPluginEvent } from './plugin-event';
 import { ISender } from './sender';
 
 /**
  * the event emitted by a plugin
  * before an activity response is sent
  */
-export interface IPluginActivityResponseEvent
-  extends IPluginEvent<'activity.response'>,
-    ConversationReference {
+export interface IPluginActivityResponseEvent extends ConversationReference {
   /**
    * the sender
    */

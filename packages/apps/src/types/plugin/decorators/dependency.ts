@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { PLUGIN_METADATA_KEY, PluginOptions } from './plugin';
 
 export const PLUGIN_DEPENDENCIES_METADATA_KEY = 'teams:plugin:dependencies';
 
@@ -32,7 +33,14 @@ export function Dependency(options: DependencyOptions = {}) {
     if (typeof propertyKey === 'string') {
       const TargetType = target.constructor;
       const FieldType = Reflect.getMetadata('design:type', target, propertyKey);
-      const fieldTypeKey = name || FieldType.name;
+      let fieldTypeKey = name || FieldType.name;
+
+      // if plugin, resolve using the plugins name
+      if (Reflect.hasMetadata(PLUGIN_METADATA_KEY, FieldType)) {
+        const meta: PluginOptions = Reflect.getMetadata(PLUGIN_METADATA_KEY, FieldType);
+        fieldTypeKey = meta.name;
+      }
+
       const targetFieldsMetadata: Array<DependencyMetadata> =
         Reflect.getOwnMetadata(PLUGIN_DEPENDENCIES_METADATA_KEY, TargetType) || [];
 

@@ -76,9 +76,7 @@ export async function $process(this: App, sender: ISender, event: IActivityEvent
     if (plugin.onActivity) {
       routes.unshift(({ next }) => {
         plugin.onActivity!({
-          ...this.createPluginEvent(),
           ...ref,
-          type: 'activity',
           sender: sender,
           activity,
           token,

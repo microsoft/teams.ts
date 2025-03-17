@@ -26,7 +26,7 @@ import { AppClient } from './api';
 import { IPlugin } from './types';
 
 import { $process } from './app.process';
-import { createPluginEvent, getPlugin, inject, plugin } from './app.plugins';
+import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
 import { message, on, use } from './app.routing';
 import { configTab, func, tab } from './app.embed';
 import { onTokenExchange, onVerifyState } from './app.oauth';
@@ -231,7 +231,10 @@ export class App {
 
     // add/validate plugins
     const plugins = this.options.plugins || [];
-    let httpPlugin = plugins.find((p) => p instanceof HttpPlugin);
+    let httpPlugin = plugins.find((p) => {
+      const meta = getMetadata(p);
+      return meta.name === 'http';
+    }) as HttpPlugin | undefined;
 
     if (!httpPlugin) {
       httpPlugin = new HttpPlugin();
@@ -296,21 +299,14 @@ export class App {
         this.inject(plugin);
 
         if (plugin.onInit) {
-          plugin.onInit({
-            ...this.createPluginEvent(),
-            type: 'init',
-          });
+          plugin.onInit();
         }
       }
 
       // start plugins
       for (const plugin of this.plugins) {
         if (plugin.onStart) {
-          await plugin.onStart({
-            ...this.createPluginEvent(),
-            type: 'start',
-            port: this.port,
-          });
+          await plugin.onStart({ port: this.port });
         }
       }
 
@@ -328,10 +324,7 @@ export class App {
     try {
       for (const plugin of this.plugins) {
         if (plugin.onStop) {
-          await plugin.onStop({
-            ...this.createPluginEvent(),
-            type: 'stop',
-          });
+          await plugin.onStop();
         }
       }
     } catch (error: any) {
@@ -448,7 +441,6 @@ export class App {
   ///
 
   protected inject = inject;
-  protected createPluginEvent = createPluginEvent;
   protected onError = onError;
   protected onActivity = onActivity;
   protected onActivitySent = onActivitySent;

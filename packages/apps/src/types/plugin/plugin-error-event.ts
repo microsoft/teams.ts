@@ -1,13 +1,12 @@
 import { Activity } from '@microsoft/spark.api';
 
-import { IPluginEvent } from './plugin-event';
 import { IPlugin } from './plugin';
 
 /**
  * the event emitted when an
  * error occurs
  */
-export interface IPluginErrorEvent extends IPluginEvent<'error'> {
+export interface IPluginErrorEvent {
   /**
    * the sender
    */

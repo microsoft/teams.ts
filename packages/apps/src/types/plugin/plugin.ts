@@ -3,9 +3,7 @@ import { ActivityParams, ConversationReference, SentActivity } from '@microsoft/
 import { IStreamer } from '../streamer';
 import { IActivityEvent, IErrorEvent } from '../../events';
 
-import { IPluginInitEvent } from './plugin-init-event';
 import { IPluginStartEvent } from './plugin-start-event';
-import { IPluginStopEvent } from './plugin-stop-event';
 import { IPluginErrorEvent } from './plugin-error-event';
 import { IPluginActivityEvent } from './plugin-activity-event';
 import { IPluginActivitySentEvent } from './plugin-activity-sent-event';
@@ -38,7 +36,7 @@ export interface IPlugin {
    * lifecycle method called by the `App`
    * once during initialization
    */
-  onInit?(event: IPluginInitEvent): void | Promise<void>;
+  onInit?(): void | Promise<void>;
 
   /**
    * lifecycle method called by the `App`
@@ -50,7 +48,7 @@ export interface IPlugin {
    * lifecycle method called by the `App`
    * once during shutdown
    */
-  onStop?(event: IPluginStopEvent): void | Promise<void>;
+  onStop?(): void | Promise<void>;
 
   /**
    * called by the `App`

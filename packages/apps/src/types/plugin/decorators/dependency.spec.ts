@@ -32,7 +32,7 @@ describe('@Dependency', () => {
     expect(fields).toHaveLength(1);
     expect(fields[0]).toEqual({
       key: 'http',
-      type: HttpPlugin.name,
+      type: 'http',
       optional: false,
     });
   });
@@ -65,7 +65,7 @@ describe('@Dependency', () => {
     expect(fields).toHaveLength(1);
     expect(fields[0]).toEqual({
       key: 'b',
-      type: B.name,
+      type: 'b',
       optional: false,
     });
 
@@ -75,7 +75,7 @@ describe('@Dependency', () => {
     expect(fields).toHaveLength(1);
     expect(fields[0]).toEqual({
       key: 'http',
-      type: HttpPlugin.name,
+      type: 'http',
       optional: false,
     });
   });
@@ -99,7 +99,7 @@ describe('@Dependency', () => {
     expect(fields).toHaveLength(1);
     expect(fields[0]).toEqual({
       key: 'http',
-      type: HttpPlugin.name,
+      type: 'http',
       optional: true,
     });
   });
