@@ -65,7 +65,7 @@ export default function App() {
       Logger.info('Disconnected from server...');
       setConnected(false);
     });
-  }, [activityStore, chatStore]);
+  }, [activityStore, chatStore, metadataStore]);
 
   const fluentTheme = useMemo(() => {
     return theme === 'dark' ? teamsDarkTheme : teamsLightTheme;
