@@ -29,7 +29,7 @@
     "clean": "npx rimraf ./dist",
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
-    "build": "npx tsup",
+    "build": "npx tsc",
     "test": "npx jest"
   },
   "dependencies": {

@@ -1,15 +1,15 @@
 import { Readable, Writable } from 'stream';
 
 import { IChatPrompt } from '@microsoft/spark.ai';
+import { ILogger } from '@microsoft/spark.common';
 import {
+  Dependency,
   HttpPlugin,
   IPlugin,
-  IPluginEvents,
-  IPluginInitEvent,
   IPluginStartEvent,
+  Logger,
   Plugin,
 } from '@microsoft/spark.apps';
-import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/spark.common';
 
 import { ServerOptions } from '@modelcontextprotocol/sdk/server/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -92,23 +92,29 @@ export type McpPluginOptions = ServerOptions & {
 @Plugin({
   name: 'mcp',
   version: pkg.version,
-  dependencies: ['http'],
+  description: [
+    'High-level MCP server that provides a simpler API for working with resources, tools, and prompts.',
+    'For advanced usage (like sending notifications or setting custom request handlers),',
+    'use the underlying Server instance available via the server property.',
+  ].join('\n'),
 })
 export class McpPlugin implements IPlugin {
-  readonly events = new EventEmitter<IPluginEvents>();
+  @Logger()
+  readonly logger!: ILogger;
+
+  @Dependency()
+  readonly httpPlugin!: HttpPlugin;
 
   readonly server: McpServer;
   readonly prompt: McpServer['prompt'];
   readonly tool: McpServer['tool'];
   readonly resource: McpServer['resource'];
 
-  protected log: ILogger;
   protected id: number = -1;
   protected connections: Record<number, IConnection> = {};
   protected transport: McpSSETransportOptions | McpStdioTransportOptions = { type: 'sse' };
 
   constructor(options: McpServer | McpPluginOptions = {}) {
-    this.log = new ConsoleLogger('@spark/mcp');
     this.server =
       options instanceof McpServer
         ? options
@@ -138,17 +144,9 @@ export class McpPlugin implements IPlugin {
     return this;
   }
 
-  onInit({ logger, plugins }: IPluginInitEvent) {
-    const [http] = plugins;
-
-    if (!(http instanceof HttpPlugin)) {
-      throw new Error(`expected http plugin, found ${http.toString()}`);
-    }
-
-    this.log = logger.child('mcp');
-
+  onInit() {
     if (this.transport.type === 'sse') {
-      return this.onInitSSE(http, this.transport);
+      return this.onInitSSE(this.httpPlugin, this.transport);
     }
 
     return this.onInitStdio(this.transport);
@@ -156,9 +154,9 @@ export class McpPlugin implements IPlugin {
 
   onStart({ port }: IPluginStartEvent) {
     if (this.transport.type === 'sse') {
-      this.log.info(`listening at http://localhost:${port}${this.transport.path || '/mcp'}`);
+      this.logger.info(`listening at http://localhost:${port}${this.transport.path || '/mcp'}`);
     } else {
-      this.log.info('listening on stdin');
+      this.logger.info('listening on stdin');
     }
   }
 
@@ -172,7 +170,7 @@ export class McpPlugin implements IPlugin {
 
     http.get(path, (_, res) => {
       this.id++;
-      this.log.debug('connecting...');
+      this.logger.debug('connecting...');
       const transport = new SSEServerTransport(`${path}/${this.id}/messages`, res);
       this.connections[this.id] = {
         id: this.id,
@@ -214,7 +212,7 @@ export class McpPlugin implements IPlugin {
           ],
         };
       } catch (err: any) {
-        this.log.error(err.toString());
+        this.logger.error(err.toString());
 
         return {
           isError: true,
