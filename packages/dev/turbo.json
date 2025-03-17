@@ -8,6 +8,7 @@
       "dependsOn": [
         "@microsoft/spark.api#build",
         "@microsoft/spark.apps#build",
+        "@microsoft/spark.cards#build",
         "@microsoft/spark.common#build",
         "@microsoft/spark.graph#build",
         "@microsoft/spark.devtools#build"

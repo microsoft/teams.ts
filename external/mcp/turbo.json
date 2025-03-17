@@ -8,7 +8,8 @@
       "dependsOn": [
         "@microsoft/spark.ai#build",
         "@microsoft/spark.apps#build",
-        "@microsoft/spark.common#build"
+        "@microsoft/spark.common#build",
+        "@microsoft/spark.dev#build"
       ]
     }
   }

@@ -21,12 +21,15 @@ import Logger from './components/Logger/Logger';
 import PageNav from './components/PageNav/PageNav';
 import useAppClasses from './App.styles';
 import useTheme from './hooks/useTheme';
+import { MetadataContext, useMetadataStore } from './stores/MetadataStore';
+import CustomScreen from './screens/CustomScreen';
 
 const socket = new SocketClient();
 
 export default function App() {
   const classes = useAppClasses();
   const [theme] = useTheme();
+  const metadataStore = useMetadataStore();
   const activityStore = useActivityStore();
   const chatStore = useChatStore();
   const cardStore = useCardStore();
@@ -57,6 +60,7 @@ export default function App() {
     };
 
     socket.on('activity', handleActivity);
+    socket.on('metadata', (event) => metadataStore.set(event.body));
     socket.on('disconnect', () => {
       Logger.info('Disconnected from server...');
       setConnected(false);
@@ -69,37 +73,42 @@ export default function App() {
 
   return (
     <FluentProvider theme={fluentTheme}>
-      <ChatContext.Provider value={chatStore}>
-        <ActivityContext.Provider value={activityStore}>
-          <CardContext.Provider value={cardStore}>
-            <BrowserRouter basename="/devtools" data-tid="browser-router">
-              {/*
-              Note: The accessibility warning about focusable aria-hidden elements is a known false positive
-              for tabster dummy elements. These elements are intentionally designed to redirect focus while
-              remaining hidden from screen readers. See discussion:
-              https://github.com/microsoft/fluentui/issues/25133#issuecomment-1279371471
-            */}
-              <Body1
-                id="app-root"
-                data-tabster='{"root":{"deloser":true}}'
-                className={mergeClasses(classes.default, classes.appContainer)}
-              >
-                <PageNav connected={connected} />
-                <main id="page-content" className={classes.mainContent}>
-                  <Routes>
-                    <Route path="" element={<ChatScreen isConnected={connected} />} />
-                    <Route path="cards" element={<CardsScreen />} />
-                    <Route path="activities" element={<ActivitiesScreen />} />
-                    {/* <Route path="logs" element={<Logs />} /> */}
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                  </Routes>
-                </main>
-              </Body1>
-            </BrowserRouter>
-            <Toaster />
-          </CardContext.Provider>
-        </ActivityContext.Provider>
-      </ChatContext.Provider>
+      <MetadataContext.Provider value={metadataStore}>
+        <ChatContext.Provider value={chatStore}>
+          <ActivityContext.Provider value={activityStore}>
+            <CardContext.Provider value={cardStore}>
+              <BrowserRouter basename="/devtools" data-tid="browser-router">
+                {/*
+                Note: The accessibility warning about focusable aria-hidden elements is a known false positive
+                for tabster dummy elements. These elements are intentionally designed to redirect focus while
+                remaining hidden from screen readers. See discussion:
+                https://github.com/microsoft/fluentui/issues/25133#issuecomment-1279371471
+              */}
+                <Body1
+                  id="app-root"
+                  data-tabster='{"root":{"deloser":true}}'
+                  className={mergeClasses(classes.default, classes.appContainer)}
+                >
+                  <PageNav connected={connected} />
+                  <main id="page-content" className={classes.mainContent}>
+                    <Routes>
+                      <Route path="" element={<ChatScreen isConnected={connected} />} />
+                      <Route path="cards" element={<CardsScreen />} />
+                      <Route path="activities" element={<ActivitiesScreen />} />
+                      {metadataStore.metadata && metadataStore.metadata.pages.map(page =>
+                        <Route path={page.name} element={<CustomScreen { ...page } />} />
+                      )}
+                      {/* <Route path="logs" element={<Logs />} /> */}
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                  </main>
+                </Body1>
+              </BrowserRouter>
+              <Toaster />
+            </CardContext.Provider>
+          </ActivityContext.Provider>
+        </ChatContext.Provider>
+      </MetadataContext.Provider>
     </FluentProvider>
   );
 }

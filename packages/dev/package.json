@@ -42,6 +42,7 @@
   "peerDependencies": {
     "@microsoft/spark.api": "*",
     "@microsoft/spark.apps": "*",
+    "@microsoft/spark.cards": "*",
     "@microsoft/spark.common": "*",
     "@microsoft/spark.graph": "*"
   },

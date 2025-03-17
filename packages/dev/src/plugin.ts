@@ -5,7 +5,7 @@ import express from 'express';
 import io from 'socket.io';
 import * as uuid from 'uuid';
 
-import { ActivityParams, ConversationReference } from '@microsoft/spark.api';
+import { ActivityParams, ConversationReference, IToken } from '@microsoft/spark.api';
 import { ILogger } from '@microsoft/spark.common';
 import {
   HttpPlugin,
@@ -27,6 +27,7 @@ import pkg from '../package.json';
 
 import { router } from './routes';
 import { ActivityEvent, IEvent } from './event';
+import { Page } from './types';
 
 type ResolveRejctPromise<T = any> = {
   readonly resolve: (value: T) => void;
@@ -44,6 +45,12 @@ export class DevtoolsPlugin implements ISender {
   @Logger()
   readonly log!: ILogger;
 
+  @Dependency({ optional: true })
+  readonly id?: IToken;
+
+  @Dependency({ optional: true })
+  readonly name?: IToken;
+
   @Dependency()
   readonly httpPlugin!: HttpPlugin;
 
@@ -58,27 +65,26 @@ export class DevtoolsPlugin implements ISender {
   protected io: io.Server;
   protected sockets = new Map<string, io.Socket>();
   protected pending: Record<string, ResolveRejctPromise> = {};
+  protected pages: Array<Page> = [];
 
   constructor() {
+    const dist = path.join(__dirname, 'devtools-web');
     this.express = express();
     this.http = http.createServer(this.express);
     this.io = new io.Server(this.http, { path: '/devtools/sockets' });
-    this.io.on('connection', this.onConnection.bind(this));
-
-    try {
-      const dist = path.join(__dirname, 'devtools-web');
-      this.express.use('/devtools', express.static(dist));
-      this.express.get('/devtools/*', (_, res) => {
-        res.sendFile(path.join(dist, 'index.html'));
-      });
-    } catch (err) {
-      throw new Error(
-        'failed to load devtools, please ensure you have installed `@microsoft/spark.devtools`'
-      );
-    }
+    this.io.on('connection', this.onSocketConnection.bind(this));
+    this.express.use('/devtools', express.static(dist));
+    this.express.get('/devtools/*', (_, res) => {
+      res.sendFile(path.join(dist, 'index.html'));
+    });
   }
 
-  addTab() {
+  /**
+   * add a custom page to the devtools
+   * @param page the page to add
+   */
+  addPage(page: Page) {
+    this.pages.push(page);
     return this;
   }
 
@@ -116,7 +122,7 @@ export class DevtoolsPlugin implements ISender {
   }
 
   onActivity({ activity, conversation }: IPluginActivityEvent) {
-    this.emitActivity({
+    this.emitActivityToSockets({
       id: uuid.v4(),
       type: 'activity.received',
       chat: conversation,
@@ -126,7 +132,7 @@ export class DevtoolsPlugin implements ISender {
   }
 
   onActivitySent({ activity, conversation }: IPluginActivitySentEvent) {
-    this.emitActivity({
+    this.emitActivityToSockets({
       id: uuid.v4(),
       type: 'activity.sent',
       chat: conversation,
@@ -152,21 +158,31 @@ export class DevtoolsPlugin implements ISender {
     return this.httpPlugin.createStream(ref);
   }
 
-  protected onConnection(socket: io.Socket) {
+  protected onSocketConnection(socket: io.Socket) {
     this.sockets.set(socket.id, socket);
+    socket.emit('metadata', {
+      id: uuid.v4(),
+      type: 'metadata',
+      body: {
+        id: this.id?.toString(),
+        name: this.name?.toString(),
+        pages: this.pages
+      },
+      sentAt: new Date(),
+    });
 
     socket.on('disconnect', () => {
       this.sockets.delete(socket.id);
     });
   }
 
-  protected emit(event: IEvent) {
+  protected emitToSockets(event: IEvent) {
     for (const socket of this.sockets.values()) {
       socket.emit(event.type, event);
     }
   }
 
-  protected emitActivity(event: ActivityEvent) {
+  protected emitActivityToSockets(event: ActivityEvent) {
     for (const socket of this.sockets.values()) {
       socket.emit('activity', event);
       socket.emit(event.type, event);

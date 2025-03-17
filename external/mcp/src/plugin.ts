@@ -2,6 +2,7 @@ import { Readable, Writable } from 'stream';
 
 import { IChatPrompt } from '@microsoft/spark.ai';
 import { ILogger } from '@microsoft/spark.common';
+import { DevtoolsPlugin } from '@microsoft/spark.dev';
 import {
   Dependency,
   HttpPlugin,
@@ -82,6 +83,13 @@ export type McpPluginOptions = ServerOptions & {
    * @default sse
    */
   readonly transport?: McpSSETransportOptions | McpStdioTransportOptions;
+
+  /**
+   * the port to use for the local
+   * MCP Inspector
+   * @default 5173
+   */
+  readonly inspector?: number;
 };
 
 /**
@@ -105,16 +113,21 @@ export class McpPlugin implements IPlugin {
   @Dependency()
   readonly httpPlugin!: HttpPlugin;
 
+  @Dependency({ optional: true })
+  readonly devtoolsPlugin?: DevtoolsPlugin;
+
   readonly server: McpServer;
   readonly prompt: McpServer['prompt'];
   readonly tool: McpServer['tool'];
   readonly resource: McpServer['resource'];
 
   protected id: number = -1;
+  protected inspector: number;
   protected connections: Record<number, IConnection> = {};
   protected transport: McpSSETransportOptions | McpStdioTransportOptions = { type: 'sse' };
 
   constructor(options: McpServer | McpPluginOptions = {}) {
+    this.inspector = options instanceof McpServer ? 5173 : options.inspector || 5173;
     this.server =
       options instanceof McpServer
         ? options
@@ -135,6 +148,10 @@ export class McpPlugin implements IPlugin {
     this.resource = this.server.resource.bind(this.server);
   }
 
+  /**
+   * add a chat prompt to your server
+   * @param prompt the chat prompt
+   */
   use(prompt: IChatPrompt) {
     for (const fn of prompt.functions) {
       const schema: z.AnyZodObject = eval(jsonSchemaToZod(fn.parameters, { module: 'cjs' }));
@@ -145,6 +162,12 @@ export class McpPlugin implements IPlugin {
   }
 
   onInit() {
+    this.devtoolsPlugin?.addPage({
+      name: 'mcp',
+      displayName: 'MCP',
+      url: `http://localhost:${this.inspector}`,
+    });
+
     if (this.transport.type === 'sse') {
       return this.onInitSSE(this.httpPlugin, this.transport);
     }
