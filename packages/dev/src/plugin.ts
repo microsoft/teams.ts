@@ -23,7 +23,7 @@ import {
   IActivityEvent,
 } from '@microsoft/spark.apps';
 
-import pkg from '../../package.json';
+import pkg from '../package.json';
 
 import { router } from './routes';
 import { ActivityEvent, IEvent } from './event';
@@ -36,10 +36,9 @@ type ResolveRejctPromise<T = any> = {
 @Plugin({
   name: 'devtools',
   version: pkg.version,
-  description: [
-    'a set of tools to make development',
-    'of teams apps faster and simpler'
-  ].join('\n')
+  description: ['a set of tools to make development', 'of teams apps faster and simpler'].join(
+    '\n'
+  ),
 })
 export class DevtoolsPlugin implements ISender {
   @Logger()
@@ -67,7 +66,7 @@ export class DevtoolsPlugin implements ISender {
     this.io.on('connection', this.onConnection.bind(this));
 
     try {
-      const dist = path.join(__dirname, '..', 'devtools-web');
+      const dist = path.join(__dirname, 'devtools-web');
       this.express.use('/devtools', express.static(dist));
       this.express.get('/devtools/*', (_, res) => {
         res.sendFile(path.join(dist, 'index.html'));
@@ -77,6 +76,10 @@ export class DevtoolsPlugin implements ISender {
         'failed to load devtools, please ensure you have installed `@microsoft/spark.devtools`'
       );
     }
+  }
+
+  addTab() {
+    return this;
   }
 
   onStart({ port }: IPluginStartEvent) {
