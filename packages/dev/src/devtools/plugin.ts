@@ -36,6 +36,10 @@ type ResolveRejctPromise<T = any> = {
 @Plugin({
   name: 'devtools',
   version: pkg.version,
+  description: [
+    'a set of tools to make development',
+    'of teams apps faster and simpler'
+  ].join('\n')
 })
 export class DevtoolsPlugin implements ISender {
   @Logger()
