@@ -7,19 +7,21 @@ import io from 'socket.io';
 import * as uuid from 'uuid';
 
 import { ActivityParams, ConversationReference } from '@microsoft/spark.api';
-import { EventEmitter, ILogger } from '@microsoft/spark.common';
+import { ILogger } from '@microsoft/spark.common';
 import {
   HttpPlugin,
   Logger,
   IPluginActivityEvent,
   IPluginActivityResponseEvent,
   IPluginActivitySentEvent,
-  IPluginEvents,
   IPluginStartEvent,
   ISender,
   IStreamer,
   Plugin,
-  Inject,
+  Dependency,
+  Event,
+  IErrorEvent,
+  IActivityEvent,
 } from '@microsoft/spark.apps';
 
 import pkg from '../../package.json';
@@ -40,10 +42,14 @@ export class DevtoolsPlugin implements ISender {
   @Logger()
   readonly log!: ILogger;
 
-  @Inject()
+  @Dependency()
   readonly httpPlugin!: HttpPlugin;
 
-  readonly events = new EventEmitter<IPluginEvents>();
+  @Event('error')
+  readonly $onError!: (event: IErrorEvent) => void;
+
+  @Event('activity')
+  readonly $onActivity!: (event: IActivityEvent) => void;
 
   protected http: http.Server;
   protected express: express.Application;
@@ -80,7 +86,7 @@ export class DevtoolsPlugin implements ISender {
         process: (token, activity) => {
           return new Promise((resolve, reject) => {
             this.pending[activity.id] = { resolve, reject };
-            this.events.emit('activity', {
+            this.$onActivity({
               sender: this.httpPlugin,
               token,
               activity,
@@ -92,7 +98,7 @@ export class DevtoolsPlugin implements ISender {
 
     return new Promise<void>((resolve, reject) => {
       this.http.on('error', (error) => {
-        this.events.emit('error', { error });
+        this.$onError({ error });
         return reject(error);
       });
 

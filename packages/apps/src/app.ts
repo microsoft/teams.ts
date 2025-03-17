@@ -293,7 +293,7 @@ export class App {
       // initialize plugins
       for (const plugin of this.plugins) {
         // inject dependencies
-        inject(this.container, plugin);
+        this.inject(plugin);
 
         if (plugin.onInit) {
           plugin.onInit({
@@ -447,6 +447,7 @@ export class App {
   /// Events
   ///
 
+  protected inject = inject;
   protected createPluginEvent = createPluginEvent;
   protected onError = onError;
   protected onActivity = onActivity;

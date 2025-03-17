@@ -5,25 +5,25 @@ import { ILogger, IStorage } from '@microsoft/spark.common';
 import { HttpPlugin } from '../../../plugins';
 import { Plugin } from './plugin';
 import {
-  Inject,
-  PLUGIN_FIELDS_METADATA_KEY,
-  InjectMetadata,
+  Dependency,
+  PLUGIN_DEPENDENCIES_METADATA_KEY,
+  DependencyMetadata,
   Logger,
   Storage,
-} from './inject';
+} from './dependency';
 
-describe('@Inject', () => {
+describe('@Dependency', () => {
   it('should have field', () => {
     @Plugin({
       name: 'test',
       version: '0.0.0',
     })
     class Test {
-      @Inject()
+      @Dependency()
       http!: HttpPlugin;
     }
 
-    const fields: Array<InjectMetadata> = Reflect.getMetadata(PLUGIN_FIELDS_METADATA_KEY, Test);
+    const fields: Array<DependencyMetadata> = Reflect.getMetadata(PLUGIN_DEPENDENCIES_METADATA_KEY, Test);
 
     expect(fields).toBeDefined();
     expect(fields).toHaveLength(1);
@@ -40,7 +40,7 @@ describe('@Inject', () => {
       version: '0.0.0',
     })
     class B {
-      @Inject()
+      @Dependency()
       http!: HttpPlugin;
     }
 
@@ -49,11 +49,11 @@ describe('@Inject', () => {
       version: '0.0.0',
     })
     class A {
-      @Inject()
+      @Dependency()
       b!: B;
     }
 
-    let fields: Array<InjectMetadata> = Reflect.getMetadata(PLUGIN_FIELDS_METADATA_KEY, A);
+    let fields: Array<DependencyMetadata> = Reflect.getMetadata(PLUGIN_DEPENDENCIES_METADATA_KEY, A);
 
     expect(fields).toBeDefined();
     expect(fields).toHaveLength(1);
@@ -63,7 +63,7 @@ describe('@Inject', () => {
       optional: false,
     });
 
-    fields = Reflect.getMetadata(PLUGIN_FIELDS_METADATA_KEY, B);
+    fields = Reflect.getMetadata(PLUGIN_DEPENDENCIES_METADATA_KEY, B);
 
     expect(fields).toBeDefined();
     expect(fields).toHaveLength(1);
@@ -80,11 +80,11 @@ describe('@Inject', () => {
       version: '0.0.0',
     })
     class Test {
-      @Inject({ optional: true })
+      @Dependency({ optional: true })
       http?: HttpPlugin;
     }
 
-    const fields: Array<InjectMetadata> = Reflect.getMetadata(PLUGIN_FIELDS_METADATA_KEY, Test);
+    const fields: Array<DependencyMetadata> = Reflect.getMetadata(PLUGIN_DEPENDENCIES_METADATA_KEY, Test);
 
     expect(fields).toBeDefined();
     expect(fields).toHaveLength(1);
@@ -101,11 +101,11 @@ describe('@Inject', () => {
       version: '0.0.0',
     })
     class Test {
-      @Inject({ optional: true })
+      @Dependency({ optional: true })
       id?: string;
     }
 
-    const fields: Array<InjectMetadata> = Reflect.getMetadata(PLUGIN_FIELDS_METADATA_KEY, Test);
+    const fields: Array<DependencyMetadata> = Reflect.getMetadata(PLUGIN_DEPENDENCIES_METADATA_KEY, Test);
 
     expect(fields).toBeDefined();
     expect(fields).toHaveLength(1);
@@ -127,7 +127,7 @@ describe('@Inject', () => {
         logger!: ILogger;
       }
 
-      const fields: Array<InjectMetadata> = Reflect.getMetadata(PLUGIN_FIELDS_METADATA_KEY, Test);
+      const fields: Array<DependencyMetadata> = Reflect.getMetadata(PLUGIN_DEPENDENCIES_METADATA_KEY, Test);
 
       expect(fields).toBeDefined();
       expect(fields).toHaveLength(1);
@@ -150,7 +150,7 @@ describe('@Inject', () => {
         storage!: IStorage;
       }
 
-      const fields: Array<InjectMetadata> = Reflect.getMetadata(PLUGIN_FIELDS_METADATA_KEY, Test);
+      const fields: Array<DependencyMetadata> = Reflect.getMetadata(PLUGIN_DEPENDENCIES_METADATA_KEY, Test);
 
       expect(fields).toBeDefined();
       expect(fields).toHaveLength(1);

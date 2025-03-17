@@ -1,2 +1,3 @@
 export { Plugin, PluginOptions } from './plugin';
-export { Inject, InjectOptions, Logger, Storage } from './inject';
+export { Dependency, DependencyOptions, Logger, Storage } from './dependency';
+export { Event } from './event';

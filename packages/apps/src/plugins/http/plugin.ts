@@ -1,7 +1,7 @@
 import http from 'http';
 import express from 'express';
 
-import { ILogger, EventEmitter } from '@microsoft/spark.common';
+import { ILogger } from '@microsoft/spark.common';
 import * as $http from '@microsoft/spark.common/http';
 
 import {
@@ -16,17 +16,18 @@ import {
 import {
   IStreamer,
   ISender,
-  IPluginEvents,
   IPluginStartEvent,
   IPluginErrorEvent,
   IPluginActivityResponseEvent,
   Plugin,
   Logger,
-  Inject,
+  Dependency,
+  Event,
 } from '../../types';
 
 import pkg from '../../../package.json';
 import { Manifest } from '../../manifest';
+import { IActivityEvent, IErrorEvent } from '../../events';
 import { HttpStream } from './stream';
 
 /**
@@ -41,19 +42,23 @@ export class HttpPlugin implements ISender {
   @Logger()
   readonly logger!: ILogger;
 
-  @Inject()
+  @Dependency()
   readonly client!: $http.Client;
 
-  @Inject()
+  @Dependency()
   readonly manifest!: Partial<Manifest>;
 
-  @Inject({ optional: true })
+  @Dependency({ optional: true })
   readonly botToken?: IToken;
 
-  @Inject({ optional: true })
+  @Dependency({ optional: true })
   readonly graphToken?: IToken;
 
-  readonly events: EventEmitter<IPluginEvents>;
+  @Event('error')
+  readonly $onError!: (event: IErrorEvent) => void;
+
+  @Event('activity')
+  readonly $onActivity!: (event: IActivityEvent) => void;
 
   readonly get: express.Application['get'];
   readonly post: express.Application['post'];
@@ -89,7 +94,6 @@ export class HttpPlugin implements ISender {
 
     this.express.use('/api*', express.json());
     this.express.post('/api/messages', this.onRequest.bind(this));
-    this.events = new EventEmitter();
   }
 
   /**
@@ -111,7 +115,7 @@ export class HttpPlugin implements ISender {
     return await new Promise<void>((resolve, reject) => {
       this._server = this.express.listen(port, async (err) => {
         if (err) {
-          this.events.emit('error', { error: err });
+          this.$onError({ error: err });
           reject(err);
           return;
         }
@@ -124,6 +128,35 @@ export class HttpPlugin implements ISender {
 
   onStop() {
     this._server.close();
+  }
+
+  onError({ error, activity }: IPluginErrorEvent) {
+    if (!activity) return;
+    const res = this.pending[activity.id];
+
+    if (!res) {
+      return;
+    }
+
+    if (!res.headersSent) {
+      res.status(500).send(error.message);
+    }
+
+    delete this.pending[activity.id];
+  }
+
+  onActivityResponse({ response, activity }: IPluginActivityResponseEvent) {
+    const res = this.pending[activity.id];
+
+    if (!res) {
+      return;
+    }
+
+    if (!res.headersSent) {
+      res.status(response.status || 200).send(JSON.stringify(response.body || null));
+    }
+
+    delete this.pending[activity.id];
   }
 
   async send(activity: ActivityParams, ref: ConversationReference) {
@@ -163,35 +196,6 @@ export class HttpPlugin implements ISender {
     );
   }
 
-  onError({ error, activity }: IPluginErrorEvent) {
-    if (!activity) return;
-    const res = this.pending[activity.id];
-
-    if (!res) {
-      return;
-    }
-
-    if (!res.headersSent) {
-      res.status(500).send(error.message);
-    }
-
-    delete this.pending[activity.id];
-  }
-
-  onActivityResponse({ response, activity }: IPluginActivityResponseEvent) {
-    const res = this.pending[activity.id];
-
-    if (!res) {
-      return;
-    }
-
-    if (!res.headersSent) {
-      res.status(response.status || 200).send(JSON.stringify(response.body || null));
-    }
-
-    delete this.pending[activity.id];
-  }
-
   /**
    * validates an incoming http request
    * @param req the incoming http request
@@ -216,11 +220,11 @@ export class HttpPlugin implements ISender {
           appId: '',
           from: 'azure',
           fromId: '',
-          serviceUrl: activity.serviceUrl || 'https://smba.trafficmanager.net/teams',
+          serviceUrl: activity.serviceUrl || '',
         };
 
     this.pending[activity.id] = res;
-    this.events.emit('activity', {
+    this.$onActivity({
       sender: this,
       activity,
       token,

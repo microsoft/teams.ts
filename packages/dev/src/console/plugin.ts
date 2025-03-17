@@ -2,7 +2,7 @@ import readline from 'readline';
 import express from 'express';
 
 import { ConsoleLogger, ILogger, EventEmitter } from '@microsoft/spark.common';
-import { Logger, IPluginEvents, IPluginStartEvent, ISender, Plugin } from '@microsoft/spark.apps';
+import { Logger, IPluginStartEvent, ISender, Plugin, Event, IErrorEvent, IActivityEvent } from '@microsoft/spark.apps';
 import {
   ActivityParams,
   ConversationReference,
@@ -34,7 +34,11 @@ export class ConsolePlugin implements ISender {
   @Logger()
   readonly logger!: ILogger;
 
-  readonly events: EventEmitter<IPluginEvents>;
+  @Event('error')
+  readonly $onError!: (event: IErrorEvent) => void;
+
+  @Event('activity')
+  readonly $onActivity!: (event: IActivityEvent) => void;
 
   protected log: ILogger;
   protected reader: readline.Interface;
@@ -49,7 +53,6 @@ export class ConsolePlugin implements ISender {
     });
 
     this.express.get('/auth/redirect', this.onAuthRedirect.bind(this));
-    this.events = new EventEmitter();
   }
 
   onStart({ port }: IPluginStartEvent) {
@@ -81,7 +84,7 @@ export class ConsolePlugin implements ISender {
           serviceUrl: '',
         };
 
-        this.events.emit('activity', {
+        this.$onActivity({
           sender: this,
           token,
           activity,

@@ -1,10 +1,10 @@
 import { ILogger } from '@microsoft/spark.common';
 
 import { App } from './app';
-import { IContainer } from './container';
-import { IPlugin, IPluginEvent, ISender, PluginName } from './types';
-import { InjectMetadata, PLUGIN_FIELDS_METADATA_KEY } from './types/plugin/decorators/inject';
+import { IPlugin, IPluginActivityEvent, IPluginErrorEvent, IPluginEvent, ISender, PluginName } from './types';
+import { DependencyMetadata, PLUGIN_DEPENDENCIES_METADATA_KEY } from './types/plugin/decorators/dependency';
 import { PLUGIN_METADATA_KEY, PluginOptions } from './types/plugin/decorators/plugin';
+import { EventMetadata, PLUGIN_EVENTS_METADATA_KEY } from './types/plugin/decorators/event';
 
 /**
  * add a plugin
@@ -19,17 +19,6 @@ export function plugin(this: App, plugin: IPlugin) {
 
   this.plugins.push(plugin);
   this.container.register(plugin.constructor.name, { useValue: plugin });
-
-  plugin.events?.on('error', (e) => {
-    this.onError({ ...e, sender: plugin });
-  });
-
-  if (plugin.send && plugin.createStream) {
-    plugin.events?.on('activity', (e) => {
-      this.onActivity(plugin as ISender, e);
-    });
-  }
-
   return this;
 }
 
@@ -61,33 +50,17 @@ export function createPluginEvent(this: App): IPluginEvent {
   };
 }
 
-//
-// PLUGIN HELPERS
-//
+/**
+ * inject fields/events into a plugin
+ */
+export function inject(this: App, plugin: IPlugin) {
+  const { name, dependencies, events } = getMetadata(plugin);
 
-export function getMetadata(plugin: IPlugin) {
-  if (!Reflect.hasMetadata(PLUGIN_METADATA_KEY, plugin.constructor)) {
-    throw new Error(`type "${plugin.constructor.name}" is not a valid plugin`);
-  }
-
-  const metadata: PluginOptions = Reflect.getMetadata(PLUGIN_METADATA_KEY, plugin.constructor);
-  const fields: InjectMetadata =
-    Reflect.getMetadata(PLUGIN_FIELDS_METADATA_KEY, plugin.constructor) || [];
-
-  return {
-    ...metadata,
-    fields,
-  };
-}
-
-export function inject(container: IContainer, plugin: IPlugin) {
-  const { name, fields } = getMetadata(plugin);
-
-  for (const { key, type, optional } of fields) {
-    let dependency = container.resolve(type);
+  for (const { key, type, optional } of dependencies) {
+    let dependency = this.container.resolve(type);
 
     if (!dependency) {
-      dependency = container.resolve(key);
+      dependency = this.container.resolve(key);
     }
 
     if (!dependency) {
@@ -106,4 +79,47 @@ export function inject(container: IContainer, plugin: IPlugin) {
       configurable: false,
     });
   }
+
+  for (const { key, name } of events) {
+    let handler = (..._: any[]) => {};
+
+    if (name === 'error') {
+      handler = (event: IPluginErrorEvent) => {
+        this.onError({ ...event, sender: plugin });
+      };
+    } else if (name === 'activity') {
+      handler = (event: IPluginActivityEvent) => {
+        this.onActivity(plugin as ISender, event);
+      };
+    }
+
+    Object.defineProperty(plugin, key, {
+      value: handler,
+      writable: false,
+      enumerable: false,
+      configurable: false,
+    });
+  }
+}
+
+//
+// PLUGIN HELPERS
+//
+
+export function getMetadata(plugin: IPlugin) {
+  if (!Reflect.hasMetadata(PLUGIN_METADATA_KEY, plugin.constructor)) {
+    throw new Error(`type "${plugin.constructor.name}" is not a valid plugin`);
+  }
+
+  const metadata: PluginOptions = Reflect.getMetadata(PLUGIN_METADATA_KEY, plugin.constructor);
+  const dependencies: Array<DependencyMetadata> =
+    Reflect.getMetadata(PLUGIN_DEPENDENCIES_METADATA_KEY, plugin.constructor) || [];
+  const events: Array<EventMetadata> =
+    Reflect.getMetadata(PLUGIN_EVENTS_METADATA_KEY, plugin.constructor) || [];
+
+  return {
+    ...metadata,
+    dependencies,
+    events,
+  };
 }

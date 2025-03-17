@@ -1,5 +1,4 @@
 import { ActivityParams, ConversationReference, SentActivity } from '@microsoft/spark.api';
-import { IEventEmitter } from '@microsoft/spark.common';
 
 import { IStreamer } from '../streamer';
 import { IActivityEvent, IErrorEvent } from '../../events';
@@ -19,33 +18,22 @@ import { IPluginActivityResponseEvent } from './plugin-activity-response-event';
 export type PluginName = 'http' | Omit<string, 'http'>;
 
 /**
- * the minimum events a plugin
- * should support
+ * emitted when the plugin
+ * encounters an error
  */
-export interface IPluginEvents {
-  /**
-   * emitted when the plugin
-   * encounters an error
-   */
-  readonly error: IErrorEvent;
+export type OnErrorPluginEvent = (event: IErrorEvent) => void;
 
-  /**
-   * emitted when the plugin
-   * receives an activity
-   */
-  readonly activity: IActivityEvent;
-}
+/**
+ * emitted when the plugin
+ * receives an activity
+ */
+export type OnActivityPluginEvent = (event: IActivityEvent) => void;
 
 /**
  * a component for extending the base
  * `App` functionality
  */
 export interface IPlugin {
-  /**
-   * the event emitter of the plugin
-   */
-  readonly events?: Omit<IEventEmitter<IPluginEvents>, 'emit'>;
-
   /**
    * lifecycle method called by the `App`
    * once during initialization
