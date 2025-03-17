@@ -1,5 +1,4 @@
 export * from './plugin';
-export * from './plugin-decorator';
 export * from './plugin-activity-event';
 export * from './plugin-activity-sent-event';
 export * from './plugin-activity-response-event';
@@ -9,4 +8,6 @@ export * from './plugin-init-event';
 export * from './plugin-start-event';
 export * from './plugin-stop-event';
 export * from './sender';
-export * from './inject-decorator';
+
+export { Plugin, PluginOptions } from './plugin-decorator';
+export { Inject, InjectOptions, Logger, Storage } from './inject-decorator';

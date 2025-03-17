@@ -26,11 +26,12 @@ import { AppClient } from './api';
 import { IPlugin } from './types';
 
 import { $process } from './app.process';
-import { createPluginEvent, getPlugin, plugin } from './app.plugins';
+import { createPluginEvent, getPlugin, inject, plugin } from './app.plugins';
 import { message, on, use } from './app.routing';
 import { configTab, func, tab } from './app.embed';
 import { onTokenExchange, onVerifyState } from './app.oauth';
 import { event, onError, onActivity, onActivitySent, onActivityResponse } from './app.events';
+import { Container } from './container';
 
 /**
  * App initialization options
@@ -154,9 +155,10 @@ export class App {
   }
   protected _tokens: AppTokens = {};
 
+  protected container = new Container();
   protected plugins: Array<IPlugin> = [];
   protected router = new Router();
-  protected tenantTokens = new LocalStorage<string>(undefined, { max: 20000 });
+  protected tenantTokens = new LocalStorage<string>({}, { max: 20000 });
   protected events = new EventEmitter<IEvents>();
   protected startedAt?: Date;
   protected port?: number;
@@ -202,6 +204,7 @@ export class App {
       this.client.clone({ token: () => this._tokens.graph })
     );
 
+    // initialize credentials
     const clientId = this.options.clientId || process.env.CLIENT_ID;
     const clientSecret =
       ('clientSecret' in this.options ? this.options.clientSecret : undefined) ||
@@ -226,6 +229,7 @@ export class App {
       };
     }
 
+    // add/validate plugins
     const plugins = this.options.plugins || [];
     let httpPlugin = plugins.find((p) => p instanceof HttpPlugin);
 
@@ -235,6 +239,17 @@ export class App {
     }
 
     this.http = httpPlugin;
+
+    // add injectable items to container
+    this.container.register('id', { useValue: this.id });
+    this.container.register('name', { useValue: this.name });
+    this.container.register('manifest', { useValue: this.manifest });
+    this.container.register('credentials', { useValue: this.credentials });
+    this.container.register('botToken', { useFactory: () => this.tokens.bot });
+    this.container.register('graphToken', { useFactory: () => this.tokens.graph });
+    this.container.register('ILogger', { useValue: this.log });
+    this.container.register('IStorage', { useValue: this.storage });
+    this.container.register(this.client.constructor.name, { useFactory: () => this.client });
 
     for (const plugin of plugins) {
       this.plugin(plugin);
@@ -275,6 +290,20 @@ export class App {
         };
       }
 
+      // initialize plugins
+      for (const plugin of this.plugins) {
+        // inject dependencies
+        inject(this.container, plugin);
+
+        if (plugin.onInit) {
+          plugin.onInit({
+            ...this.createPluginEvent(),
+            type: 'init',
+          });
+        }
+      }
+
+      // start plugins
       for (const plugin of this.plugins) {
         if (plugin.onStart) {
           await plugin.onStart({

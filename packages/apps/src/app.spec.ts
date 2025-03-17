@@ -2,7 +2,7 @@ import supertest from 'supertest';
 
 import { App } from './app';
 
-xdescribe('App', () => {
+describe('App', () => {
   let app: App;
 
   beforeAll(async () => {

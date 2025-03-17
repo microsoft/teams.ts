@@ -1,62 +1,24 @@
-import 'reflect-metadata';
+import { ILogger } from '@microsoft/spark.common';
 
 import { App } from './app';
-import {
-  InjectMetadata,
-  IPlugin,
-  IPluginEvent,
-  ISender,
-  PluginMetadata,
-  PluginName,
-} from './types';
+import { IContainer } from './container';
+import { IPlugin, IPluginEvent, ISender, PluginName } from './types';
+import { InjectMetadata, PLUGIN_FIELDS_METADATA_KEY } from './types/plugin/inject-decorator';
+import { PLUGIN_METADATA_KEY, PluginOptions } from './types/plugin/plugin-decorator';
 
 /**
  * add a plugin
  * @param plugin plugin to add
  */
 export function plugin(this: App, plugin: IPlugin) {
-  const metadata: PluginMetadata | undefined = Reflect.getOwnMetadata(
-    '__teams_plugin__',
-    plugin.constructor
-  );
+  const { name } = getMetadata(plugin);
 
-  if (!metadata) {
-    throw new Error(`type "${plugin.constructor.name}" is not a valid plugin`);
-  }
-
-  const fields: Array<InjectMetadata> =
-    Reflect.getOwnMetadata('__teams_plugin_inject__', plugin.constructor) || [];
-
-  for (const { key, type } of fields) {
-    const dependencyMetadata: PluginMetadata = Reflect.getOwnMetadata('__teams_plugin__', type);
-    const dependency = this.getPlugin(dependencyMetadata.name);
-
-    if (!dependency) {
-      throw new Error(
-        `plugin "${dependencyMetadata.name}" not found, but plugin "${metadata.name}" depends on it`
-      );
-    }
-
-    Object.defineProperty(plugin, key, {
-      value: dependency,
-      writable: true,
-      enumerable: false,
-      configurable: false,
-    });
-  }
-
-  if (!!this.getPlugin(metadata.name)) {
-    throw new Error(`duplicate plugin "${metadata.name}" found`);
+  if (!!this.getPlugin(name)) {
+    throw new Error(`duplicate plugin "${name}" found`);
   }
 
   this.plugins.push(plugin);
-
-  if (plugin.onInit) {
-    plugin.onInit({
-      ...this.createPluginEvent(),
-      type: 'init',
-    });
-  }
+  this.container.register(plugin.constructor.name, { useValue: plugin });
 
   plugin.events?.on('error', (e) => {
     this.onError({ ...e, sender: plugin });
@@ -75,8 +37,8 @@ export function plugin(this: App, plugin: IPlugin) {
  * get a plugin
  */
 export function getPlugin(this: App, name: PluginName): IPlugin | undefined {
-  return this.plugins.find((p) => {
-    const metadata: PluginMetadata = Reflect.getOwnMetadata('__teams_plugin__', p);
+  return this.plugins.find((plugin) => {
+    const metadata = getMetadata(plugin);
     return metadata.name === name;
   });
 }
@@ -97,4 +59,51 @@ export function createPluginEvent(this: App): IPluginEvent {
     botToken: this.tokens.bot,
     graphToken: this.tokens.graph,
   };
+}
+
+//
+// PLUGIN HELPERS
+//
+
+export function getMetadata(plugin: IPlugin) {
+  if (!Reflect.hasMetadata(PLUGIN_METADATA_KEY, plugin.constructor)) {
+    throw new Error(`type "${plugin.constructor.name}" is not a valid plugin`);
+  }
+
+  const metadata: PluginOptions = Reflect.getMetadata(PLUGIN_METADATA_KEY, plugin.constructor);
+  const fields: InjectMetadata =
+    Reflect.getMetadata(PLUGIN_FIELDS_METADATA_KEY, plugin.constructor) || [];
+
+  return {
+    ...metadata,
+    fields,
+  };
+}
+
+export function inject(container: IContainer, plugin: IPlugin) {
+  const { name, fields } = getMetadata(plugin);
+
+  for (const { key, type, optional } of fields) {
+    let dependency = container.resolve(type);
+
+    if (!dependency) {
+      dependency = container.resolve(key);
+    }
+
+    if (!dependency) {
+      if (optional) continue;
+      throw new Error(`dependency "${type}" not found, but plugin "${name}" depends on it`);
+    }
+
+    if (type === 'ILogger') {
+      dependency = (dependency as ILogger).child(name);
+    }
+
+    Object.defineProperty(plugin, key, {
+      value: dependency,
+      writable: true,
+      enumerable: false,
+      configurable: false,
+    });
+  }
 }

@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import http from 'http';
 import path from 'path';
 
@@ -6,18 +7,19 @@ import io from 'socket.io';
 import * as uuid from 'uuid';
 
 import { ActivityParams, ConversationReference } from '@microsoft/spark.api';
-import { EventEmitter, ConsoleLogger, ILogger } from '@microsoft/spark.common';
+import { EventEmitter, ILogger } from '@microsoft/spark.common';
 import {
   HttpPlugin,
+  Logger,
   IPluginActivityEvent,
   IPluginActivityResponseEvent,
   IPluginActivitySentEvent,
   IPluginEvents,
-  IPluginInitEvent,
   IPluginStartEvent,
   ISender,
   IStreamer,
   Plugin,
+  Inject,
 } from '@microsoft/spark.apps';
 
 import pkg from '../../package.json';
@@ -33,21 +35,23 @@ type ResolveRejctPromise<T = any> = {
 @Plugin({
   name: 'devtools',
   version: pkg.version,
-  dependencies: ['http'],
 })
 export class DevtoolsPlugin implements ISender {
+  @Logger()
+  readonly log!: ILogger;
+
+  @Inject()
+  readonly httpPlugin!: HttpPlugin;
+
   readonly events = new EventEmitter<IPluginEvents>();
 
-  protected log: ILogger;
   protected http: http.Server;
   protected express: express.Application;
   protected io: io.Server;
   protected sockets = new Map<string, io.Socket>();
-  protected httpPlugin = new HttpPlugin();
   protected pending: Record<string, ResolveRejctPromise> = {};
 
   constructor() {
-    this.log = new ConsoleLogger('@spark/app/devtools');
     this.express = express();
     this.http = http.createServer(this.express);
     this.io = new io.Server(this.http, { path: '/devtools/sockets' });
@@ -60,22 +64,10 @@ export class DevtoolsPlugin implements ISender {
         res.sendFile(path.join(dist, 'index.html'));
       });
     } catch (err) {
-      this.log.warn(
+      throw new Error(
         'failed to load devtools, please ensure you have installed `@microsoft/spark.devtools`'
       );
-      this.log.warn(err);
     }
-  }
-
-  onInit({ logger, plugins }: IPluginInitEvent) {
-    const [http] = plugins;
-
-    if (!(http instanceof HttpPlugin)) {
-      throw new Error(`expected http plugin, found ${http.toString()}`);
-    }
-
-    this.httpPlugin = http;
-    this.log = logger.child('devtools');
   }
 
   onStart({ port }: IPluginStartEvent) {

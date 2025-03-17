@@ -1,5 +1,7 @@
 import 'reflect-metadata';
 
+import { Constructor } from '../constructor';
+
 export const PLUGIN_METADATA_KEY = 'teams:plugin';
 
 /**
@@ -23,21 +25,11 @@ export type PluginOptions = {
 };
 
 /**
- * metadata for the plugin
- */
-export type PluginMetadata = PluginOptions & {
-  /**
-   * the `Type` of the plugin
-   */
-  readonly type: any;
-};
-
-/**
  * turn any class into a plugin via
  * `@Plugin({ ... })`
  */
 export function Plugin(metadata: Partial<PluginOptions> = {}) {
-  return <T extends { new (...args: any[]): {} }>(Base: T) => {
+  return <T extends Constructor<{}>>(Base: T) => {
     const name = metadata.name || Base.name;
     const version = metadata.version || '0.0.0';
 
@@ -50,8 +42,6 @@ export function Plugin(metadata: Partial<PluginOptions> = {}) {
       },
       Base
     );
-
-    console.log(Base.name);
 
     return Base;
   };

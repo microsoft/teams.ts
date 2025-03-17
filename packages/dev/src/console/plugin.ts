@@ -2,13 +2,7 @@ import readline from 'readline';
 import express from 'express';
 
 import { ConsoleLogger, ILogger, EventEmitter } from '@microsoft/spark.common';
-import {
-  IPluginEvents,
-  IPluginInitEvent,
-  IPluginStartEvent,
-  ISender,
-  Plugin,
-} from '@microsoft/spark.apps';
+import { Logger, IPluginEvents, IPluginStartEvent, ISender, Plugin } from '@microsoft/spark.apps';
 import {
   ActivityParams,
   ConversationReference,
@@ -37,6 +31,9 @@ export type ConsoleOptions = {
   version: pkg.version,
 })
 export class ConsolePlugin implements ISender {
+  @Logger()
+  readonly logger!: ILogger;
+
   readonly events: EventEmitter<IPluginEvents>;
 
   protected log: ILogger;
@@ -53,10 +50,6 @@ export class ConsolePlugin implements ISender {
 
     this.express.get('/auth/redirect', this.onAuthRedirect.bind(this));
     this.events = new EventEmitter();
-  }
-
-  onInit({ logger }: IPluginInitEvent) {
-    this.log = logger.child('console');
   }
 
   onStart({ port }: IPluginStartEvent) {
