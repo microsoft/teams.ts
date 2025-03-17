@@ -3,8 +3,8 @@ import { ILogger } from '@microsoft/spark.common';
 import { App } from './app';
 import { IContainer } from './container';
 import { IPlugin, IPluginEvent, ISender, PluginName } from './types';
-import { InjectMetadata, PLUGIN_FIELDS_METADATA_KEY } from './types/plugin/inject-decorator';
-import { PLUGIN_METADATA_KEY, PluginOptions } from './types/plugin/plugin-decorator';
+import { InjectMetadata, PLUGIN_FIELDS_METADATA_KEY } from './types/plugin/decorators/inject';
+import { PLUGIN_METADATA_KEY, PluginOptions } from './types/plugin/decorators/plugin';
 
 /**
  * add a plugin

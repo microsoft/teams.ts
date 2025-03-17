@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { Plugin, PLUGIN_METADATA_KEY } from './plugin-decorator';
+import { Plugin, PLUGIN_METADATA_KEY } from './plugin';
 
 describe('@Plugin', () => {
   it('should have metadata', () => {

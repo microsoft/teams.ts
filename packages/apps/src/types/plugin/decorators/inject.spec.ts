@@ -2,15 +2,15 @@ import 'reflect-metadata';
 
 import { ILogger, IStorage } from '@microsoft/spark.common';
 
-import { HttpPlugin } from '../../plugins';
-import { Plugin } from './plugin-decorator';
+import { HttpPlugin } from '../../../plugins';
+import { Plugin } from './plugin';
 import {
   Inject,
   PLUGIN_FIELDS_METADATA_KEY,
   InjectMetadata,
   Logger,
   Storage,
-} from './inject-decorator';
+} from './inject';
 
 describe('@Inject', () => {
   it('should have field', () => {

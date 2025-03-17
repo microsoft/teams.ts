@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { Constructor } from '../constructor';
+import { Constructor } from '../../constructor';
 
 export const PLUGIN_METADATA_KEY = 'teams:plugin';
 
