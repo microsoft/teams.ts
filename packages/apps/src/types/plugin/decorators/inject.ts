@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 
 export const PLUGIN_FIELDS_METADATA_KEY = 'teams:plugin:fields';
-
 export type InjectMetadata = Array<FieldMetadata>;
 export type FieldMetadata = {
   /**
@@ -47,7 +46,6 @@ export function Inject(nameOrOptions?: string | InjectOptions) {
       const TargetType = target.constructor;
       const FieldType = Reflect.getMetadata('design:type', target, propertyKey);
       const fieldTypeKey = name || FieldType.name;
-
       const targetFieldsMetadata: InjectMetadata =
         Reflect.getOwnMetadata(PLUGIN_FIELDS_METADATA_KEY, TargetType) || [];
 
