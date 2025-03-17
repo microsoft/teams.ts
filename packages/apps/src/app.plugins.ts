@@ -92,7 +92,7 @@ export function inject(container: IContainer, plugin: IPlugin) {
 
     if (!dependency) {
       if (optional) continue;
-      throw new Error(`dependency "${type}" not found, but plugin "${name}" depends on it`);
+      throw new Error(`dependency "${type}" of property "${key}" not found, but plugin "${name}" depends on it`);
     }
 
     if (type === 'ILogger') {

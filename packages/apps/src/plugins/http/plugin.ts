@@ -1,7 +1,7 @@
 import http from 'http';
 import express from 'express';
 
-import { ConsoleLogger, ILogger, EventEmitter } from '@microsoft/spark.common';
+import { ILogger, EventEmitter } from '@microsoft/spark.common';
 import * as $http from '@microsoft/spark.common/http';
 
 import {
@@ -17,16 +17,17 @@ import {
   IStreamer,
   ISender,
   IPluginEvents,
-  IPluginInitEvent,
   IPluginStartEvent,
   IPluginErrorEvent,
   IPluginActivityResponseEvent,
   Plugin,
+  Logger,
+  Inject,
 } from '../../types';
 
-import { HttpStream } from './stream';
-
 import pkg from '../../../package.json';
+import { Manifest } from '../../manifest';
+import { HttpStream } from './stream';
 
 /**
  * Can send/receive activities via http
@@ -37,6 +38,21 @@ import pkg from '../../../package.json';
   description: 'the default plugin for sending/receiving activities',
 })
 export class HttpPlugin implements ISender {
+  @Logger()
+  readonly logger!: ILogger;
+
+  @Inject()
+  readonly client!: $http.Client;
+
+  @Inject()
+  readonly manifest!: Partial<Manifest>;
+
+  @Inject({ optional: true })
+  readonly botToken?: IToken;
+
+  @Inject({ optional: true })
+  readonly graphToken?: IToken;
+
   readonly events: EventEmitter<IPluginEvents>;
 
   readonly get: express.Application['get'];
@@ -57,15 +73,10 @@ export class HttpPlugin implements ISender {
   }
   protected _port?: number;
 
-  protected log: ILogger;
-  protected botToken?: IToken;
-  protected graphToken?: IToken;
-  protected client!: $http.Client;
   protected express: express.Application;
   protected pending: Record<string, express.Response> = {};
 
   constructor() {
-    this.log = new ConsoleLogger('@spark/app/http');
     this.express = express();
     this._server = http.createServer(this.express);
     this.get = this.express.get.bind(this.express);
@@ -91,17 +102,7 @@ export class HttpPlugin implements ISender {
     return this;
   }
 
-  onInit({ logger, client, botToken, graphToken }: IPluginInitEvent) {
-    this.log = logger.child('http');
-    this.client = client;
-    this.botToken = botToken;
-    this.graphToken = graphToken;
-  }
-
-  async onStart({ port, manifest, client, botToken, graphToken }: IPluginStartEvent) {
-    this.client = client;
-    this.botToken = botToken;
-    this.graphToken = graphToken;
+  async onStart({ port, manifest }: IPluginStartEvent) {
     this._port = port;
     this.express.get('/', (_, res) => {
       res.send(manifest);
@@ -115,7 +116,7 @@ export class HttpPlugin implements ISender {
           return;
         }
 
-        this.log.info(`listening on port ${port} 🚀`);
+        this.logger.info(`listening on port ${port} 🚀`);
         resolve();
       });
     });

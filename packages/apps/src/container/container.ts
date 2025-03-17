@@ -49,15 +49,15 @@ export class Container implements IContainer {
   }
 
   resolve<T = any>(key: string): T | undefined {
-    const provider = this.providers.get(key);
-
-    if (!provider) return;
-
     let value = this.values.get(key);
 
     if (value) {
       return value;
     }
+
+    const provider = this.providers.get(key);
+
+    if (!provider) return;
 
     if (isFactoryProvider(provider)) {
       value = provider.useFactory();
@@ -67,5 +67,11 @@ export class Container implements IContainer {
 
     this.values.set(key, value);
     return value;
+  }
+
+  toString() {
+    return Object.entries(this.values)
+      .map(([key, value]) => `${key} => ${value}`)
+      .join('\n');
   }
 }
