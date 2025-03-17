@@ -24,7 +24,7 @@ export type DependencyMetadata = {
  * add plugin dependencies via
  * `@Dependency()`
  */
-export function Dependency(options: DependencyOptions = { }) {
+export function Dependency(options: DependencyOptions = {}) {
   const name = options.name;
   const optional = options.optional || false;
 
@@ -185,7 +185,10 @@ export type PluginDependencyOptions = {
   /**
    * the name used to resolve the dependency
    */
-  readonly name?: Omit<string, 'id' | 'name' | 'manifest' | 'credentials' | 'botToken' | 'graphToken' | 'ILogger' | 'IStorage'>;
+  readonly name?: Omit<
+    string,
+    'id' | 'name' | 'manifest' | 'credentials' | 'botToken' | 'graphToken' | 'ILogger' | 'IStorage'
+  >;
 
   /**
    * if optional, the app will not throw

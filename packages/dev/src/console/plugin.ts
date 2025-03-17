@@ -2,7 +2,15 @@ import readline from 'readline';
 import express from 'express';
 
 import { ConsoleLogger, ILogger, EventEmitter } from '@microsoft/spark.common';
-import { Logger, IPluginStartEvent, ISender, Plugin, Event, IErrorEvent, IActivityEvent } from '@microsoft/spark.apps';
+import {
+  Logger,
+  IPluginStartEvent,
+  ISender,
+  Plugin,
+  Event,
+  IErrorEvent,
+  IActivityEvent,
+} from '@microsoft/spark.apps';
 import {
   ActivityParams,
   ConversationReference,

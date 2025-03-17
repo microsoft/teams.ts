@@ -23,7 +23,10 @@ describe('@Dependency', () => {
       http!: HttpPlugin;
     }
 
-    const fields: Array<DependencyMetadata> = Reflect.getMetadata(PLUGIN_DEPENDENCIES_METADATA_KEY, Test);
+    const fields: Array<DependencyMetadata> = Reflect.getMetadata(
+      PLUGIN_DEPENDENCIES_METADATA_KEY,
+      Test
+    );
 
     expect(fields).toBeDefined();
     expect(fields).toHaveLength(1);
@@ -53,7 +56,10 @@ describe('@Dependency', () => {
       b!: B;
     }
 
-    let fields: Array<DependencyMetadata> = Reflect.getMetadata(PLUGIN_DEPENDENCIES_METADATA_KEY, A);
+    let fields: Array<DependencyMetadata> = Reflect.getMetadata(
+      PLUGIN_DEPENDENCIES_METADATA_KEY,
+      A
+    );
 
     expect(fields).toBeDefined();
     expect(fields).toHaveLength(1);
@@ -84,7 +90,10 @@ describe('@Dependency', () => {
       http?: HttpPlugin;
     }
 
-    const fields: Array<DependencyMetadata> = Reflect.getMetadata(PLUGIN_DEPENDENCIES_METADATA_KEY, Test);
+    const fields: Array<DependencyMetadata> = Reflect.getMetadata(
+      PLUGIN_DEPENDENCIES_METADATA_KEY,
+      Test
+    );
 
     expect(fields).toBeDefined();
     expect(fields).toHaveLength(1);
@@ -105,7 +114,10 @@ describe('@Dependency', () => {
       id?: string;
     }
 
-    const fields: Array<DependencyMetadata> = Reflect.getMetadata(PLUGIN_DEPENDENCIES_METADATA_KEY, Test);
+    const fields: Array<DependencyMetadata> = Reflect.getMetadata(
+      PLUGIN_DEPENDENCIES_METADATA_KEY,
+      Test
+    );
 
     expect(fields).toBeDefined();
     expect(fields).toHaveLength(1);
@@ -127,7 +139,10 @@ describe('@Dependency', () => {
         logger!: ILogger;
       }
 
-      const fields: Array<DependencyMetadata> = Reflect.getMetadata(PLUGIN_DEPENDENCIES_METADATA_KEY, Test);
+      const fields: Array<DependencyMetadata> = Reflect.getMetadata(
+        PLUGIN_DEPENDENCIES_METADATA_KEY,
+        Test
+      );
 
       expect(fields).toBeDefined();
       expect(fields).toHaveLength(1);
@@ -150,7 +165,10 @@ describe('@Dependency', () => {
         storage!: IStorage;
       }
 
-      const fields: Array<DependencyMetadata> = Reflect.getMetadata(PLUGIN_DEPENDENCIES_METADATA_KEY, Test);
+      const fields: Array<DependencyMetadata> = Reflect.getMetadata(
+        PLUGIN_DEPENDENCIES_METADATA_KEY,
+        Test
+      );
 
       expect(fields).toBeDefined();
       expect(fields).toHaveLength(1);

@@ -27,7 +27,7 @@ export function Event(name: PluginEventName) {
 
       targetEventsMetadata.push({
         key: propertyKey,
-        name
+        name,
       });
 
       Reflect.defineMetadata(PLUGIN_EVENTS_METADATA_KEY, targetEventsMetadata, TargetType);

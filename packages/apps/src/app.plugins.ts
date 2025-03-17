@@ -1,8 +1,18 @@
 import { ILogger } from '@microsoft/spark.common';
 
 import { App } from './app';
-import { IPlugin, IPluginActivityEvent, IPluginErrorEvent, IPluginEvent, ISender, PluginName } from './types';
-import { DependencyMetadata, PLUGIN_DEPENDENCIES_METADATA_KEY } from './types/plugin/decorators/dependency';
+import {
+  IPlugin,
+  IPluginActivityEvent,
+  IPluginErrorEvent,
+  IPluginEvent,
+  ISender,
+  PluginName,
+} from './types';
+import {
+  DependencyMetadata,
+  PLUGIN_DEPENDENCIES_METADATA_KEY,
+} from './types/plugin/decorators/dependency';
 import { PLUGIN_METADATA_KEY, PluginOptions } from './types/plugin/decorators/plugin';
 import { EventMetadata, PLUGIN_EVENTS_METADATA_KEY } from './types/plugin/decorators/event';
 
@@ -65,7 +75,9 @@ export function inject(this: App, plugin: IPlugin) {
 
     if (!dependency) {
       if (optional) continue;
-      throw new Error(`dependency "${type}" of property "${key}" not found, but plugin "${name}" depends on it`);
+      throw new Error(
+        `dependency "${type}" of property "${key}" not found, but plugin "${name}" depends on it`
+      );
     }
 
     if (type === 'ILogger') {
