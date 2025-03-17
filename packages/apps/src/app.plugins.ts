@@ -16,7 +16,7 @@ import { EventMetadata, PLUGIN_EVENTS_METADATA_KEY } from './types/plugin/decora
 export function plugin(this: App, plugin: IPlugin) {
   const { name } = getMetadata(plugin);
 
-  if (!!this.getPlugin(name)) {
+  if (this.getPlugin(name)) {
     throw new Error(`duplicate plugin "${name}" found`);
   }
 
