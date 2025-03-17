@@ -166,7 +166,7 @@ export class DevtoolsPlugin implements ISender {
       body: {
         id: this.id?.toString(),
         name: this.name?.toString(),
-        pages: this.pages
+        pages: this.pages,
       },
       sentAt: new Date(),
     });

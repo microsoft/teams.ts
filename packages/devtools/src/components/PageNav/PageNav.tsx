@@ -18,12 +18,10 @@ const PageNav: FC<PageNavProps> = memo(({ connected }) => {
     <nav id="top-nav" className={classes.pageNavContainer} aria-label="Page navigation">
       <DevtoolsBanner connected={connected} />
       <div className={classes.navButtonContainer}>
-        {metadata && metadata.pages.map(page =>
-          <PageNavButton
-            to={`/${page.name}`}
-            label={page.displayName}
-          />
-        )}
+        {metadata &&
+          metadata.pages.map((page) => (
+            <PageNavButton to={`/${page.name}`} label={page.displayName} />
+          ))}
 
         <PageNavButton to="/" iconType="chat" label="Chat" />
         <PageNavButton to="/cards" iconType="cards" label="Cards" />

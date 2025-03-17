@@ -95,9 +95,10 @@ export default function App() {
                       <Route path="" element={<ChatScreen isConnected={connected} />} />
                       <Route path="cards" element={<CardsScreen />} />
                       <Route path="activities" element={<ActivitiesScreen />} />
-                      {metadataStore.metadata && metadataStore.metadata.pages.map(page =>
-                        <Route path={page.name} element={<CustomScreen { ...page } />} />
-                      )}
+                      {metadataStore.metadata &&
+                        metadataStore.metadata.pages.map((page) => (
+                          <Route path={page.name} element={<CustomScreen {...page} />} />
+                        ))}
                       {/* <Route path="logs" element={<Logs />} /> */}
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
