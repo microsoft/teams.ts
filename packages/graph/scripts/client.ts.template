@@ -1,5 +1,5 @@
 {{#if (notEmpty endpoints)}}
-import qs from 'qs';
+import { getInjectedUrl } from '@utils/url';
 {{/if}}
 import * as http from '@microsoft/spark.common/http';
 
@@ -10,34 +10,6 @@ import type { Endpoints } from './{{types}}-types.ts';
 {{#each clients}}
 import { {{capitalize @key}}Client } from './{{@key}}';
 {{/each}}
-
-{{#if (notEmpty endpoints)}}
-interface Param {
-  readonly in: string;
-  readonly name: string;
-  readonly explode?: boolean;
-}
-{{/if}}
-
-{{#if (notEmpty endpoints)}}
-function getInjectedUrl(url: string, params: Array<Param>, data: Record<string, any>) {
-  const query: Record<string, any> = { };
-
-  for (const param of params) {
-    if (param.in === 'query') {
-      query[param.name] = data[param.name];
-    }
-
-    if (param.in !== 'path') {
-      continue;
-    }
-
-    url = url.replace(`{${param.name}}`, data[param.name]);
-  }
-
-  return `${url}${qs.stringify(query, { addQueryPrefix: true, arrayFormat: 'comma' })}`;
-}
-{{/if}}
 
 /**
  * {{url}}
@@ -145,7 +117,7 @@ export class {{capitalize name}}Client {
       [
         {{#if (notEmpty parameters)}}
         {{#each parameters}}
-        { name: '{{name}}', in: '{{in}}'{{#if explode}}, explode: {{explode}}{{/if}} },
+        { name: '{{name}}', in: '{{in}}' },
         {{/each}}
         {{/if}}
       ],
@@ -170,7 +142,7 @@ export class {{capitalize name}}Client {
       [
         {{#if (notEmpty parameters)}}
         {{#each parameters}}
-        { name: '{{name}}', in: '{{in}}'{{#if explode}}, explode: {{explode}}{{/if}} },
+        { name: '{{name}}', in: '{{in}}' },
         {{/each}}
         {{/if}}
       ],
