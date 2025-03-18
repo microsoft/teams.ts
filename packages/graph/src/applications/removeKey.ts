@@ -7,6 +7,7 @@ import type { Endpoints } from './removeKey-types.ts';
 interface Param {
   readonly in: string;
   readonly name: string;
+  readonly explode?: boolean;
 }
 
 function getInjectedUrl(url: string, params: Array<Param>, data: Record<string, any>) {
@@ -14,7 +15,8 @@ function getInjectedUrl(url: string, params: Array<Param>, data: Record<string, 
 
   for (const param of params) {
     if (param.in === 'query') {
-      query[param.name] = data[param.name];
+      const arrayFormat = param.explode == null || param.explode ? 'repeat' : 'comma'; // Assuming params are in form style
+      query[param.name] = qs.stringify(data[param.name], { arrayFormat });
     }
 
     if (param.in !== 'path') {
