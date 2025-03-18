@@ -121,6 +121,11 @@ export class TabsClient {
     const url = getInjectedUrl(
       '/teams/{team-id}/channels/{channel-id}/tabs',
       [
+        { name: '$top', in: 'query' },
+        { name: '$skip', in: 'query' },
+        { name: '$search', in: 'query' },
+        { name: '$filter', in: 'query' },
+        { name: '$count', in: 'query' },
         { name: '$orderby', in: 'query' },
         { name: '$select', in: 'query' },
         { name: '$expand', in: 'query' },

@@ -140,6 +140,10 @@ export class UsersClient {
       '/users',
       [
         { name: 'ConsistencyLevel', in: 'header' },
+        { name: '$top', in: 'query' },
+        { name: '$search', in: 'query' },
+        { name: '$filter', in: 'query' },
+        { name: '$count', in: 'query' },
         { name: '$orderby', in: 'query' },
         { name: '$select', in: 'query' },
         { name: '$expand', in: 'query' },

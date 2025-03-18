@@ -110,7 +110,7 @@ export class SessionsClient {
   /**
    * `GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/sessions`
    *
-   * Get a list of all virtualEventSession summary objects under a virtual event. A session summary contains only the endDateTime, id, joinWebUrl, startDateTime, and subject of a virtual event session. The rest of session properties will be null. Currently, the following virtual event types are supported:
+   * Get a list of all virtualEventSession summary objects under a virtual event. A session summary contains only the endDateTime, id, joinWebUrl, startDateTime, and subject of a virtual event session. The rest of session properties will be null. Currently, the following virtual event types are supported: 
 - virtualEventTownhall
 - virtualEventWebinar
    */
@@ -121,6 +121,11 @@ export class SessionsClient {
     const url = getInjectedUrl(
       '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/sessions',
       [
+        { name: '$top', in: 'query' },
+        { name: '$skip', in: 'query' },
+        { name: '$search', in: 'query' },
+        { name: '$filter', in: 'query' },
+        { name: '$count', in: 'query' },
         { name: '$orderby', in: 'query' },
         { name: '$select', in: 'query' },
         { name: '$expand', in: 'query' },
@@ -143,7 +148,7 @@ export class SessionsClient {
   /**
    * `GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/sessions/{virtualEventSession-id}`
    *
-   * Read the properties and relationships of a virtualEventSession object.  Currently, the following virtual event types are supported:
+   * Read the properties and relationships of a virtualEventSession object.  Currently, the following virtual event types are supported: 
 - virtualEventTownhall
 - virtualEventWebinar
    */
