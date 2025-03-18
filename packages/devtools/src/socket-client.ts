@@ -1,6 +1,8 @@
 import io, { Socket } from 'socket.io-client';
 
+import { Metadata } from './types/Metadata';
 import {
+  Event,
   ActivityErrorEvent,
   ActivityEvent,
   ActivityReceivedEvent,
@@ -9,6 +11,7 @@ import {
 } from './types/Event';
 
 interface SocketEventTypes {
+  readonly metadata: Event<Metadata>;
   readonly activity: ActivityEvent;
   readonly 'activity.received': ActivityReceivedEvent;
   readonly 'activity.sending': ActivitySendingEvent;

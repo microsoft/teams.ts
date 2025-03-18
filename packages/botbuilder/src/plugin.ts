@@ -1,7 +1,19 @@
 import express from 'express';
 
-import { App, HttpPlugin } from '@microsoft/spark.apps';
-import { $Activity, Activity, JsonWebToken } from '@microsoft/spark.api';
+import { ILogger } from '@microsoft/spark.common';
+import {
+  Dependency,
+  Event,
+  HttpPlugin,
+  IActivityEvent,
+  IErrorEvent,
+  ISender,
+  Logger,
+  Plugin,
+  manifest,
+} from '@microsoft/spark.apps';
+import { $Activity, Activity, Credentials, IToken, JsonWebToken } from '@microsoft/spark.api';
+import * as $http from '@microsoft/spark.common/http';
 
 import {
   ActivityHandler,
@@ -10,12 +22,42 @@ import {
   ConfigurationServiceClientCredentialFactory,
 } from 'botbuilder';
 
+import pkg from '../package.json';
+
 export type BotBuilderPluginOptions = {
   readonly adapter?: CloudAdapter;
   readonly handler?: ActivityHandler;
 };
 
-export class BotBuilderPlugin extends HttpPlugin {
+@Plugin({
+  name: 'http',
+  version: pkg.version,
+})
+export class BotBuilderPlugin extends HttpPlugin implements ISender {
+  @Logger()
+  declare readonly logger: ILogger;
+
+  @Dependency()
+  declare readonly client: $http.Client;
+
+  @Dependency()
+  declare readonly manifest: Partial<manifest.Manifest>;
+
+  @Dependency({ optional: true })
+  declare readonly botToken?: IToken;
+
+  @Dependency({ optional: true })
+  declare readonly graphToken?: IToken;
+
+  @Dependency({ optional: true })
+  readonly credentials?: Credentials;
+
+  @Event('error')
+  declare readonly $onError: (event: IErrorEvent) => void;
+
+  @Event('activity')
+  declare readonly $onActivity: (event: IActivityEvent) => void;
+
   protected adapter?: CloudAdapter;
   protected handler?: ActivityHandler;
 
@@ -25,17 +67,15 @@ export class BotBuilderPlugin extends HttpPlugin {
     this.handler = options?.handler;
   }
 
-  onInit(app: App) {
-    super.onInit(app);
-
+  onInit() {
     if (!this.adapter) {
-      const clientId = app.credentials?.clientId;
+      const clientId = this.credentials?.clientId;
       const clientSecret =
-        app.credentials && 'clientSecret' in app.credentials
-          ? app.credentials?.clientSecret
+        this.credentials && 'clientSecret' in this.credentials
+          ? this.credentials?.clientSecret
           : undefined;
       const tenantId =
-        app.credentials && 'tenantId' in app.credentials ? app.credentials?.tenantId : undefined;
+        this.credentials && 'tenantId' in this.credentials ? this.credentials?.tenantId : undefined;
 
       this.adapter = new CloudAdapter(
         new ConfigurationBotFrameworkAuthentication(
@@ -56,7 +96,7 @@ export class BotBuilderPlugin extends HttpPlugin {
     res: express.Response,
     next: express.NextFunction
   ) {
-    if (!this.app || !this.adapter) {
+    if (!this.adapter) {
       throw new Error('plugin not registered');
     }
 
@@ -80,13 +120,14 @@ export class BotBuilderPlugin extends HttpPlugin {
         }
 
         this.pending[context.activity.id] = res;
-        this.events.emit('activity.received', {
+        this.$onActivity({
+          sender: this,
           token: new JsonWebToken(authorization),
           activity: new $Activity(context.activity as any) as Activity,
         });
       });
     } catch (err) {
-      this.log.error(err);
+      this.logger.error(err);
 
       if (!res.headersSent) {
         res.status(500).send('internal server error');

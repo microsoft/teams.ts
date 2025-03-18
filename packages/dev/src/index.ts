@@ -1,2 +1,2 @@
-export * from './console';
-export * from './devtools';
+export * from './plugin';
+export * from './types';

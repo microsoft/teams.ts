@@ -35,11 +35,11 @@ export async function onTokenExchange(
 
     this.events.emit('signin', { ...ctx, token });
     return { status: 200 };
-  } catch (err) {
-    if (err instanceof AxiosError) {
-      if (err.status !== 404 && err.status !== 400 && err.status !== 412) {
-        this.onActivityError({ ...ctx, err });
-        return { status: err.status || 500 };
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.status !== 404 && error.status !== 400 && error.status !== 412) {
+        this.events.emit('error', { error, activity });
+        return { status: error.status || 500 };
       }
     }
 
@@ -58,7 +58,7 @@ export async function onVerifyState(
   this: App,
   ctx: contexts.IActivityContext<ISignInVerifyStateInvokeActivity>
 ) {
-  const { plugin, log, api, activity, storage } = ctx;
+  const { log, api, activity, storage } = ctx;
   const key = `auth/${activity.conversation.id}/${activity.from.id}`;
 
   try {
@@ -87,11 +87,11 @@ export async function onVerifyState(
     await storage.delete(key);
     this.events.emit('signin', { ...ctx, token });
     return { status: 200 };
-  } catch (err) {
-    if (err instanceof AxiosError) {
-      if (err.status !== 404 && err.status !== 400 && err.status !== 412) {
-        this.onActivityError({ ...ctx, err, plugin });
-        return { status: err.status || 500 };
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.status !== 404 && error.status !== 400 && error.status !== 412) {
+        this.events.emit('error', { error, activity });
+        return { status: error.status || 500 };
       }
     }
 

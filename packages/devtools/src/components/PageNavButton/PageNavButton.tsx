@@ -31,13 +31,13 @@ const iconMap: Record<IconType, { default: JSX.Element; active: JSX.Element }> =
 
 interface PageNavButtonProps {
   to: string;
-  iconType: IconType;
+  iconType?: IconType;
   label: string;
 }
 
 const PageNavButton: FC<PageNavButtonProps> = ({ to, iconType, label }) => {
   const classes = useClasses();
-  const icons = iconMap[iconType];
+  const icons = iconType ? iconMap[iconType] : undefined;
 
   return (
     <NavLink to={to} className={classes.pageNavButton}>
@@ -46,7 +46,7 @@ const PageNavButton: FC<PageNavButtonProps> = ({ to, iconType, label }) => {
           role="presentation"
           className={mergeClasses(isActive ? classes.activeRoute : '', classes.linkWithIcon)}
         >
-          {isActive ? icons.active : icons.default}
+          {icons && (isActive ? icons.active : icons.default)}
           {label}
         </div>
       )}

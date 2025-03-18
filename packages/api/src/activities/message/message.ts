@@ -361,6 +361,25 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
       .filter((e) => e.type === 'mention')
       .find((e) => e.mentioned.id === accountId);
   }
+
+  /**
+   * Add stream info, making
+   * this a final stream message
+   */
+  addStreamFinal() {
+    if (!this.channelData) {
+      this.channelData = {};
+    }
+
+    this.channelData.streamId = this.id;
+    this.channelData.streamType = 'final';
+
+    return this.addEntity({
+      type: 'streaminfo',
+      streamId: this.id,
+      streamType: 'final',
+    });
+  }
 }
 
 /**

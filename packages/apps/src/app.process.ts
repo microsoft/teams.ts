@@ -1,16 +1,17 @@
-import { ConversationReference, isInvokeResponse } from '@microsoft/spark.api';
+import { ActivityLike, ConversationReference, isInvokeResponse } from '@microsoft/spark.api';
 
 import { App } from './app';
 import { ApiClient } from './api';
-import { IActivityReceivedEvent, ISenderPlugin } from './types';
+import { ISender } from './types';
 import { ActivityContext, IActivityContext } from './contexts';
+import { IActivityEvent } from './events';
 
 /**
  * activity handler called when an inbound activity is received
  * @param sender the plugin to use for sending activities
  * @param event the received activity event
  */
-export async function $process(this: App, sender: ISenderPlugin, event: IActivityReceivedEvent) {
+export async function $process(this: App, sender: ISender, event: IActivityEvent) {
   const { token, activity } = event;
 
   this.log.debug(
@@ -73,7 +74,16 @@ export async function $process(this: App, sender: ISenderPlugin, event: IActivit
     const plugin = this.plugins[i];
 
     if (plugin.onActivity) {
-      routes.unshift(plugin.onActivity.bind(plugin));
+      routes.unshift(({ next }) => {
+        plugin.onActivity!({
+          ...ref,
+          sender: sender,
+          activity,
+          token,
+        });
+
+        return next();
+      });
     }
   }
 
@@ -93,10 +103,9 @@ export async function $process(this: App, sender: ISenderPlugin, event: IActivit
     return data;
   };
 
-  const context = await ActivityContext.new(sender, {
+  const context = new ActivityContext(sender, {
     ...event,
     next,
-    plugin: sender.name,
     api,
     appId: this.id || '',
     log: this.log,
@@ -110,6 +119,35 @@ export async function $process(this: App, sender: ISenderPlugin, event: IActivit
     return { status: 200 };
   }
 
+  const send = context.send.bind(context);
+  context.send = async (activity: ActivityLike) => {
+    const res = await send(activity);
+
+    this.onActivitySent(sender, {
+      ...ref,
+      sender,
+      activity: res,
+    });
+
+    return res;
+  };
+
+  context.stream.events.on('chunk', (activity) => {
+    this.onActivitySent(sender, {
+      ...ref,
+      sender,
+      activity,
+    });
+  });
+
+  context.stream.events.once('close', (activity) => {
+    this.onActivitySent(sender, {
+      ...ref,
+      sender,
+      activity,
+    });
+  });
+
   try {
     let res = await next();
 
@@ -118,18 +156,18 @@ export async function $process(this: App, sender: ISenderPlugin, event: IActivit
     }
 
     await context.stream.close();
-    this.events.emit('activity.response', {
-      plugin: sender.name,
+    this.onActivityResponse(sender, {
+      ...ref,
+      sender,
       activity,
-      ref,
       response: res,
     });
-  } catch (err: any) {
-    this.onActivityError({ ...context.toInterface(), err });
-    this.events.emit('activity.response', {
-      plugin: sender.name,
+  } catch (error: any) {
+    this.onError({ error, activity, sender });
+    this.onActivityResponse(sender, {
+      ...ref,
+      sender,
       activity,
-      ref,
       response: { status: 500 },
     });
   }

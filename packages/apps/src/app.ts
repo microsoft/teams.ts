@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import { ILogger, ConsoleLogger } from '@microsoft/spark.common/logging';
 import { LocalStorage, IStorage } from '@microsoft/spark.common/storage';
 import { EventEmitter } from '@microsoft/spark.common/events';
@@ -22,23 +23,15 @@ import { IEvents } from './events';
 import { HttpPlugin } from './plugins';
 import { OAuthSettings } from './oauth';
 import { AppClient } from './api';
-import { signin } from './events/signin';
-import { error } from './events/error';
 import { IPlugin } from './types';
 
 import { $process } from './app.process';
-import { getPlugin, plugin } from './app.plugins';
+import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
 import { message, on, use } from './app.routing';
 import { configTab, func, tab } from './app.embed';
 import { onTokenExchange, onVerifyState } from './app.oauth';
-import {
-  event,
-  onActivityError,
-  onActivityReceived,
-  onActivitySent,
-  onBeforeActivitySent,
-  onError,
-} from './app.events';
+import { event, onError, onActivity, onActivitySent, onActivityResponse } from './app.events';
+import { Container } from './container';
 
 /**
  * App initialization options
@@ -162,9 +155,10 @@ export class App {
   }
   protected _tokens: AppTokens = {};
 
+  protected container = new Container();
   protected plugins: Array<IPlugin> = [];
   protected router = new Router();
-  protected tenantTokens = new LocalStorage<string>(undefined, { max: 20000 });
+  protected tenantTokens = new LocalStorage<string>({}, { max: 20000 });
   protected events = new EventEmitter<IEvents>();
   protected startedAt?: Date;
   protected port?: number;
@@ -210,6 +204,7 @@ export class App {
       this.client.clone({ token: () => this._tokens.graph })
     );
 
+    // initialize credentials
     const clientId = this.options.clientId || process.env.CLIENT_ID;
     const clientSecret =
       ('clientSecret' in this.options ? this.options.clientSecret : undefined) ||
@@ -234,19 +229,30 @@ export class App {
       };
     }
 
+    // add/validate plugins
     const plugins = this.options.plugins || [];
-    let httpPlugin = plugins.find((p) => p.name === 'http');
+    let httpPlugin = plugins.find((p) => {
+      const meta = getMetadata(p);
+      return meta.name === 'http';
+    }) as HttpPlugin | undefined;
 
     if (!httpPlugin) {
       httpPlugin = new HttpPlugin();
       plugins.unshift(httpPlugin);
     }
 
-    if (!(httpPlugin instanceof HttpPlugin)) {
-      throw new Error('http plugin must be of type `HttpPlugin`');
-    }
-
     this.http = httpPlugin;
+
+    // add injectable items to container
+    this.container.register('id', { useValue: this.id });
+    this.container.register('name', { useValue: this.name });
+    this.container.register('manifest', { useValue: this.manifest });
+    this.container.register('credentials', { useValue: this.credentials });
+    this.container.register('botToken', { useFactory: () => this.tokens.bot });
+    this.container.register('graphToken', { useFactory: () => this.tokens.graph });
+    this.container.register('ILogger', { useValue: this.log });
+    this.container.register('IStorage', { useValue: this.storage });
+    this.container.register(this.client.constructor.name, { useFactory: () => this.client });
 
     for (const plugin of plugins) {
       this.plugin(plugin);
@@ -260,8 +266,14 @@ export class App {
     // default event handlers
     this.on('signin.token-exchange', this.onTokenExchange.bind(this));
     this.on('signin.verify-state', this.onVerifyState.bind(this));
-    this.event('signin', signin);
-    this.event('error', error);
+    this.event('error', ({ error }) => {
+      this.log.error(error.message);
+
+      if (error instanceof AxiosError) {
+        this.log.error(error.request.path);
+        this.log.error(error.response?.data);
+      }
+    });
   }
 
   /**
@@ -281,16 +293,42 @@ export class App {
         };
       }
 
+      // initialize plugins
+      for (const plugin of this.plugins) {
+        // inject dependencies
+        this.inject(plugin);
+
+        if (plugin.onInit) {
+          plugin.onInit();
+        }
+      }
+
+      // start plugins
       for (const plugin of this.plugins) {
         if (plugin.onStart) {
-          await plugin.onStart(this.port);
+          await plugin.onStart({ port: this.port });
         }
       }
 
       this.events.emit('start', this.log);
       this.startedAt = new Date();
-    } catch (err: any) {
-      this.events.emit('error', { err, log: this.log });
+    } catch (error: any) {
+      this.onError({ error });
+    }
+  }
+
+  /**
+   * stop the app
+   */
+  async stop() {
+    try {
+      for (const plugin of this.plugins) {
+        if (plugin.onStop) {
+          await plugin.onStop();
+        }
+      }
+    } catch (error: any) {
+      this.onError({ error });
     }
   }
 
@@ -318,7 +356,7 @@ export class App {
       },
     };
 
-    const res = await this.http.onSend(toActivityParams(activity), ref);
+    const res = await this.http.send(toActivityParams(activity), ref);
     return res;
   }
 
@@ -402,9 +440,9 @@ export class App {
   /// Events
   ///
 
+  protected inject = inject;
   protected onError = onError;
-  protected onActivityError = onActivityError;
-  protected onActivityReceived = onActivityReceived;
+  protected onActivity = onActivity;
   protected onActivitySent = onActivitySent;
-  protected onBeforeActivitySent = onBeforeActivitySent;
+  protected onActivityResponse = onActivityResponse;
 }
