@@ -17,7 +17,7 @@ import { useChatStore } from '../../stores/ChatStore';
 import useSparkApi from '../../hooks/useSparkApi';
 import { AttachmentType } from '../../types/Attachment';
 import { MessageActionUI } from '../../types/MessageActionUI';
-import { MessageReactionsEmoji } from '../../types/MessageReactionsEmoji';
+import { messageReactions } from '../../types/MessageReactionsEmoji';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
 import MessageActionsToolbar from '../MessageActionsToolbar/MessageActionsToolbar';
 import Logger from '../Logger/Logger';
@@ -312,7 +312,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
                     shape="circular"
                     size="small"
                   >
-                    {MessageReactionsEmoji.find((r) => r.reaction === reaction.type)?.label}
+                    {messageReactions.find((r) => r.reaction === reaction.type)?.label}
                   </Button>
                 </Tooltip>
               ))}

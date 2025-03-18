@@ -10,13 +10,13 @@ import {
   Tooltip,
 } from '@fluentui/react-components';
 import {
-  CheckmarkFilled,
-  Filter20Regular,
-  Filter20Filled,
   ArrowDownFilled,
   ArrowUpFilled,
-  FluentIcon,
   bundleIcon,
+  CheckmarkFilled,
+  Filter20Filled,
+  Filter20Regular,
+  FluentIcon,
 } from '@fluentui/react-icons/lib/fonts';
 
 import { ActivityEvent } from '../../types/Event';
