@@ -21,8 +21,7 @@ function getInjectedUrl(url: string, params: Array<Param>, data: Record<string, 
 
   for (const param of params) {
     if (param.in === 'query') {
-      const arrayFormat = param.explode == null || param.explode ? 'repeat' : 'comma'; // Assuming params are in form style
-      query[param.name] = qs.stringify(data[param.name], { arrayFormat });
+      query[param.name] = data[param.name];
     }
 
     if (param.in !== 'path') {
@@ -32,7 +31,7 @@ function getInjectedUrl(url: string, params: Array<Param>, data: Record<string, 
     url = url.replace(`{${param.name}}`, data[param.name]);
   }
 
-  return `${url}${qs.stringify(query, { addQueryPrefix: true })}`;
+  return `${url}${qs.stringify(query, { addQueryPrefix: true, arrayFormat: 'comma' })}`;
 }
 
 /**
