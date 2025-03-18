@@ -1,13 +1,18 @@
-import fs from 'fs';
-import npath from 'path';
-import yaml from 'yaml';
-import handlebars from 'handlebars';
-import sortKeys from 'sort-keys';
 import camelcase from 'camelcase';
-import * as prettier from 'prettier';
+import fs from 'fs';
+import handlebars from 'handlebars';
 import { OpenAPIV3 } from 'openapi-types';
+import npath from 'path';
+import * as prettier from 'prettier';
+import sortKeys from 'sort-keys';
+import yaml from 'yaml';
 
-import prettierConfig from './prettier.config';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import prettierConfig from './prettier.config.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const whitelist = [
   /^\/chats(.*)$/,
@@ -101,6 +106,7 @@ interface Endpoint {
 
 class Client {
   readonly name: string;
+  private components?: OpenAPIV3.ComponentsObject;
 
   url: string;
   description?: string;
@@ -108,9 +114,10 @@ class Client {
   clients: Record<string, Client>;
   endpoints: Record<string, Endpoint>;
 
-  constructor(name: string, description?: string) {
+  constructor(name: string, description?: string, components?: OpenAPIV3.ComponentsObject) {
     this.name = name;
     this.description = description;
+    this.components = components;
     this.url = '/';
     this.parameters = [];
     this.clients = {};
@@ -162,7 +169,7 @@ class Client {
     }
 
     if (!this.clients[name]) {
-      this.clients[name] = new Client(name);
+      this.clients[name] = new Client(name, undefined, this.components);
       this.clients[name].url = npath.join(this.url, ...params.map((p) => `{${p}}`), child);
       this.clients[name].parameters = params;
     }
@@ -219,10 +226,11 @@ class Client {
   protected addEndpoint(path: string[], schema: OpenAPIV3.PathItemObject & { url: string }) {
     for (const method in methods) {
       const def = schema[method as keyof typeof methods];
-
       if (!def) continue;
 
-      const params = [...(def.parameters || []), ...(schema.parameters || [])];
+      const params = [...(def.parameters || []), ...(schema.parameters || [])]
+        .map((param) => this.resolveParameter(param))
+        .filter((p): p is OpenAPIV3.ParameterObject => 'name' in p); // Type guard to ensure we have name
 
       let name = camelcase([methods[method as keyof typeof methods], ...path]);
 
@@ -244,7 +252,7 @@ class Client {
         method,
         name: this.getUniqueName(name),
         url: schema.url,
-        parameters: params.filter((p) => 'name' in p),
+        parameters: params,
         description: def.description,
         deprecated: def.deprecated,
       };
@@ -264,6 +272,32 @@ class Client {
     }
 
     return name;
+  }
+
+  private resolveParameter(param: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject) {
+    if ('$ref' in param) {
+      // Extract parameter name from "#/components/parameters/top"
+      const paramName = param.$ref.split('/').pop();
+      if (!paramName || !this.components?.parameters) {
+        return param;
+      }
+
+      // Try exact match first
+      const exactMatch = this.components.parameters[paramName];
+      if (exactMatch) {
+        return exactMatch;
+      }
+
+      // Try with $ prefix if not found
+      const prefixMatch = this.components.parameters[`$${paramName}`];
+      if (prefixMatch) {
+        return prefixMatch;
+      }
+
+      // If neither match works, return original param
+      return param;
+    }
+    return param;
   }
 }
 
@@ -289,7 +323,7 @@ function isWhitelisted(path: string) {
   const schema: OpenAPIV3.Document = yaml.parse(data.toString());
 
   console.log('generating endpoints...');
-  const client = new Client('', schema.info.description);
+  const client = new Client('', schema.info.description, schema.components);
 
   for (const [path, definition] of Object.entries(schema.paths)) {
     if (!definition || !isWhitelisted(path)) continue;

@@ -195,6 +195,11 @@ export class BookingBusinessesClient {
     const url = getInjectedUrl(
       '/solutions/bookingBusinesses',
       [
+        { name: '$top', in: 'query' },
+        { name: '$skip', in: 'query' },
+        { name: '$search', in: 'query' },
+        { name: '$filter', in: 'query' },
+        { name: '$count', in: 'query' },
         { name: '$orderby', in: 'query' },
         { name: '$select', in: 'query' },
         { name: '$expand', in: 'query' },

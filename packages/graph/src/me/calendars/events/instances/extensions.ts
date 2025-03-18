@@ -112,6 +112,11 @@ export class ExtensionsClient {
     const url = getInjectedUrl(
       '/me/calendars/{calendar-id}/events/{event-id}/instances/{event-id1}/extensions',
       [
+        { name: '$top', in: 'query' },
+        { name: '$skip', in: 'query' },
+        { name: '$search', in: 'query' },
+        { name: '$filter', in: 'query' },
+        { name: '$count', in: 'query' },
         { name: '$orderby', in: 'query' },
         { name: '$select', in: 'query' },
         { name: '$expand', in: 'query' },

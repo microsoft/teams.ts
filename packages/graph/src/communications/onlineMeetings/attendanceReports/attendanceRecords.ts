@@ -111,6 +111,11 @@ export class AttendanceRecordsClient {
     const url = getInjectedUrl(
       '/communications/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords',
       [
+        { name: '$top', in: 'query' },
+        { name: '$skip', in: 'query' },
+        { name: '$search', in: 'query' },
+        { name: '$filter', in: 'query' },
+        { name: '$count', in: 'query' },
         { name: '$orderby', in: 'query' },
         { name: '$select', in: 'query' },
         { name: '$expand', in: 'query' },
