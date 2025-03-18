@@ -9,7 +9,9 @@ import {
   MessageDeleteActivity,
   MessageUpdateActivity,
   toActivityParams,
+  TokenExchangeResource,
   TokenExchangeState,
+  TokenPostResource,
   TypingActivity,
 } from '@microsoft/spark.api';
 import { ILogger } from '@microsoft/spark.common/logging';
@@ -73,7 +75,7 @@ export interface IActivityContextOptions<T extends Activity = Activity> {
   next: (context?: IActivityContext) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 }
 
-interface ISignInOptions {
+type SignInOptions = {
   /**
    * The name of the auth connection to use
    * @default `graph`
@@ -89,7 +91,17 @@ interface ISignInOptions {
    * @default `Sign In`
    */
   signInButtonText: string;
-}
+  /**
+   * Construct your own sign in activity
+   * By default, we create a simple oauth card with a sign in button.
+   * Only use this if you need to fully customize the sign in experience.
+   */
+  overrideSignInActivity?: (
+    tokenExchangeResource?: TokenExchangeResource,
+    tokenPostResource?: TokenPostResource,
+    signInLink?: string
+  ) => ActivityLike;
+};
 
 export interface IActivityContext<T extends Activity = Activity>
   extends IActivityContextOptions<T> {
@@ -114,7 +126,7 @@ export interface IActivityContext<T extends Activity = Activity>
    * trigger user signin flow for the activity sender
    * @param options options for the signin flow
    */
-  signin: (options?: Partial<ISignInOptions>) => Promise<string | undefined>;
+  signin: (options?: Partial<SignInOptions>) => Promise<string | undefined>;
 
   /**
    * sign the activity sender out
@@ -123,7 +135,7 @@ export interface IActivityContext<T extends Activity = Activity>
   signout: (name?: string) => Promise<void>;
 }
 
-const DEFAULT_SIGNIN_OPTIONS: ISignInOptions = {
+const DEFAULT_SIGNIN_OPTIONS: SignInOptions = {
   connectionName: 'graph',
   oauthCardText: 'Please Sign In...',
   signInButtonText: 'Sign In',
@@ -189,8 +201,8 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
     return this.send(activity);
   }
 
-  async signin(options?: Partial<ISignInOptions>) {
-    const { connectionName, oauthCardText, signInButtonText } = {
+  async signin(options?: Partial<SignInOptions>) {
+    const { connectionName, oauthCardText, signInButtonText, overrideSignInActivity } = {
       ...DEFAULT_SIGNIN_OPTIONS,
       ...options,
     };
@@ -233,26 +245,32 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
     const state = Buffer.from(JSON.stringify(tokenExchangeState)).toString('base64');
     const resource = await this.api.bots.signIn.getResource({ state });
 
-    await this.send({
-      type: 'message',
-      inputHint: 'acceptingInput',
-      recipient: this.activity.from,
-      attachments: [
-        cardAttachment('oauth', {
-          text: oauthCardText,
-          connectionName,
-          tokenExchangeResource: resource.tokenExchangeResource,
-          tokenPostResource: resource.tokenPostResource,
-          buttons: [
-            {
-              type: 'signin',
-              title: signInButtonText,
-              value: resource.signInLink,
-            },
-          ],
-        }),
-      ],
-    });
+    await this.send(
+      overrideSignInActivity?.(
+        resource.tokenExchangeResource,
+        resource.tokenPostResource,
+        resource.signInLink
+      ) ?? {
+        type: 'message',
+        inputHint: 'acceptingInput',
+        recipient: this.activity.from,
+        attachments: [
+          cardAttachment('oauth', {
+            text: oauthCardText,
+            connectionName,
+            tokenExchangeResource: resource.tokenExchangeResource,
+            tokenPostResource: resource.tokenPostResource,
+            buttons: [
+              {
+                type: 'signin',
+                title: signInButtonText,
+                value: resource.signInLink,
+              },
+            ],
+          }),
+        ],
+      }
+    );
   }
 
   async signout(name = 'graph') {
