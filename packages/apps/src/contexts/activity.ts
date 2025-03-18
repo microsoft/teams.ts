@@ -1,5 +1,3 @@
-import { ILogger } from '@microsoft/spark.common/logging';
-import { IStorage } from '@microsoft/spark.common/storage';
 import {
   Activity,
   ActivityLike,
@@ -12,9 +10,13 @@ import {
   MessageDeleteActivity,
   MessageUpdateActivity,
   toActivityParams,
+  TokenExchangeResource,
   TokenExchangeState,
+  TokenPostResource,
   TypingActivity,
 } from '@microsoft/spark.api';
+import { ILogger } from '@microsoft/spark.common/logging';
+import { IStorage } from '@microsoft/spark.common/storage';
 
 import { ApiClient } from '../api';
 import { ISender, IStreamer } from '../types';
@@ -68,6 +70,34 @@ export interface IActivityContextOptions<T extends Activity = Activity> {
   next: (context?: IActivityContext) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 }
 
+type SignInOptions = {
+  /**
+   * The name of the auth connection to use
+   * @default `graph`
+   */
+  connectionName: string;
+  /**
+   * The text to display on the oauth card
+   * @default `Please Sign In...`
+   */
+  oauthCardText: string;
+  /**
+   * The text to display on the sign in button
+   * @default `Sign In`
+   */
+  signInButtonText: string;
+  /**
+   * Construct your own sign in activity
+   * By default, we create a simple oauth card with a sign in button.
+   * Only use this if you need to fully customize the sign in experience.
+   */
+  overrideSignInActivity?: (
+    tokenExchangeResource?: TokenExchangeResource,
+    tokenPostResource?: TokenPostResource,
+    signInLink?: string
+  ) => ActivityLike;
+};
+
 export interface IActivityContext<T extends Activity = Activity>
   extends IActivityContextOptions<T> {
   /**
@@ -89,10 +119,9 @@ export interface IActivityContext<T extends Activity = Activity>
 
   /**
    * trigger user signin flow for the activity sender
-   * @param name auth connection name, defaults to `graph`
-   * @param text card text to display
+   * @param options options for the signin flow
    */
-  signin: (name?: string, text?: string) => Promise<string | undefined>;
+  signin: (options?: Partial<SignInOptions>) => Promise<string | undefined>;
 
   /**
    * sign the activity sender out
@@ -100,6 +129,12 @@ export interface IActivityContext<T extends Activity = Activity>
    */
   signout: (name?: string) => Promise<void>;
 }
+
+const DEFAULT_SIGNIN_OPTIONS: SignInOptions = {
+  connectionName: 'graph',
+  oauthCardText: 'Please Sign In...',
+  signInButtonText: 'Sign In',
+};
 
 export class ActivityContext<T extends Activity = Activity> implements IActivityContext<T> {
   appId!: string;
@@ -150,14 +185,19 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
     return this.send(activity);
   }
 
-  async signin(name = 'graph', text = 'Please Sign In...') {
+  async signin(options?: Partial<SignInOptions>) {
+    const { connectionName, oauthCardText, signInButtonText, overrideSignInActivity } = {
+      ...DEFAULT_SIGNIN_OPTIONS,
+      ...options,
+    };
+
     const convo = { ...this.ref };
 
     try {
       const res = await this.api.users.token.get({
         channelId: this.activity.channelId,
         userId: this.activity.from.id,
-        connectionName: name,
+        connectionName,
       });
 
       return res.token;
@@ -175,12 +215,12 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
         members: [this.activity.from],
       });
 
-      await this.send({ type: 'message', text });
+      await this.send({ type: 'message', text: oauthCardText });
       convo.conversation = { id: res.id } as ConversationAccount;
     }
 
     const tokenExchangeState: TokenExchangeState = {
-      connectionName: name,
+      connectionName,
       conversation: convo,
       relatesTo: this.activity.relatesTo,
       msAppId: this.appId,
@@ -189,26 +229,32 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
     const state = Buffer.from(JSON.stringify(tokenExchangeState)).toString('base64');
     const resource = await this.api.bots.signIn.getResource({ state });
 
-    await this.send({
-      type: 'message',
-      inputHint: 'acceptingInput',
-      recipient: this.activity.from,
-      attachments: [
-        cardAttachment('oauth', {
-          text,
-          connectionName: name,
-          tokenExchangeResource: resource.tokenExchangeResource,
-          tokenPostResource: resource.tokenPostResource,
-          buttons: [
-            {
-              type: 'signin',
-              title: 'Sign In',
-              value: resource.signInLink,
-            },
-          ],
-        }),
-      ],
-    });
+    await this.send(
+      overrideSignInActivity?.(
+        resource.tokenExchangeResource,
+        resource.tokenPostResource,
+        resource.signInLink
+      ) ?? {
+        type: 'message',
+        inputHint: 'acceptingInput',
+        recipient: this.activity.from,
+        attachments: [
+          cardAttachment('oauth', {
+            text: oauthCardText,
+            connectionName,
+            tokenExchangeResource: resource.tokenExchangeResource,
+            tokenPostResource: resource.tokenPostResource,
+            buttons: [
+              {
+                type: 'signin',
+                title: signInButtonText,
+                value: resource.signInLink,
+              },
+            ],
+          }),
+        ],
+      }
+    );
   }
 
   async signout(name = 'graph') {
