@@ -7,12 +7,7 @@ import * as prettier from 'prettier';
 import sortKeys from 'sort-keys';
 import yaml from 'yaml';
 
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
 import prettierConfig from './prettier.config.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const whitelist = [
   /^\/chats(.*)$/,
