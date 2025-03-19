@@ -61,7 +61,7 @@ export interface ChatStore {
 }
 
 export const useChatStore = create<ChatStore>()(
-  devtools((set): ChatStore => ({
+  devtools((set, get): ChatStore => ({
     chat: {
       id: 'devtools',
       name: 'Default',
@@ -93,7 +93,7 @@ export const useChatStore = create<ChatStore>()(
         };
       }),
     getMessageById: (messageId: string) => {
-      const currentState = useChatStore.getState();
+      const currentState = get();
       for (const messages of Object.values(currentState.messages)) {
         const foundMessage = messages.find((message: Message) => message.id === messageId);
         if (foundMessage) return foundMessage;
