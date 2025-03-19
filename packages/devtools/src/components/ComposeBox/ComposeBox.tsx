@@ -125,7 +125,11 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
             historyIndex === -1 ? 0 : Math.min(historyIndex + 1, messageHistory.length - 1);
           if (newIndex < messageHistory.length) {
             setHistoryIndex(newIndex);
-            setMessage(messageHistory[newIndex].body?.content || '');
+            const historyMessage = messageHistory[newIndex];
+            setMessage(historyMessage.body?.content || '');
+            if (historyMessage.attachments) {
+              setAttachments(historyMessage.attachments);
+            }
           }
         }
       } else if (e.key === 'ArrowDown' && !e.shiftKey && historyIndex !== -1) {
@@ -133,10 +137,15 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
         const newIndex = historyIndex - 1;
         if (newIndex >= 0) {
           setHistoryIndex(newIndex);
-          setMessage(messageHistory[newIndex].body?.content || '');
+          const historyMessage = messageHistory[newIndex];
+          setMessage(historyMessage.body?.content || '');
+          if (historyMessage.attachments) {
+            setAttachments(historyMessage.attachments);
+          }
         } else {
           setHistoryIndex(-1);
           setMessage('');
+          setAttachments([]);
         }
       }
     },
