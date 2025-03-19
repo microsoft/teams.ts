@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router';
-import { Attachment } from '@microsoft/spark.api';
+import { Attachment, Message } from '@microsoft/spark.api';
 
 import Logger from '../components/Logger/Logger';
 
 // Type definitions
 type DevModeOnRouteHook = (pathname: string, callback: () => void) => void;
 type DevModeSendMessageHook = (
-  sendMessageFn: (message: string, attachments?: Attachment[]) => void
+  sendMessageFn: (message: Partial<Message>, attachments?: Attachment[]) => void
 ) => void;
 
 // Create no-op versions of the functions for production
@@ -81,7 +81,7 @@ if (import.meta.env.DEV) {
   };
 
   useDevModeSendMessage = (
-    sendMessageFn: (message: string, attachments?: Attachment[]) => void
+    sendMessageFn: (message: Partial<Message>, attachments?: Attachment[]) => void
   ) => {
     const sendMessageRef = useRef(sendMessageFn);
 
@@ -92,9 +92,16 @@ if (import.meta.env.DEV) {
     useEffect(() => {
       if (!hasDevMessageBeenSent) {
         const devMessage = import.meta.env.VITE_DEV_MESSAGE;
+
         if (devMessage) {
+          const message: Partial<Message> = {
+            body: {
+              content: devMessage,
+              contentType: 'text'
+            }
+          };
           const timer = setTimeout(() => {
-            sendMessageRef.current(devMessage);
+            sendMessageRef.current(message);
             hasDevMessageBeenSent = true;
           }, 1500);
           return () => clearTimeout(timer);

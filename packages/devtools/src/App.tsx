@@ -14,6 +14,7 @@ import PageNav from './components/PageNav/PageNav';
 import useTheme from './hooks/useTheme';
 import { useActivityStore } from './stores/ActivityStore';
 import { useChatStore } from './stores/ChatStore';
+import { MetadataContext, useMetadataStore } from './stores/MetadataStore';
 import { SocketClient } from './socket-client';
 import ActivitiesScreen from './screens/ActivitiesScreen/ActivitiesScreen';
 import CardsScreen from './screens/CardsScreen';
@@ -21,7 +22,6 @@ import ChatScreen from './screens/ChatScreen/ChatScreen';
 import CustomScreen from './screens/CustomScreen';
 import { ActivityEvent } from './types/Event';
 import useAppClasses from './App.styles';
-import { MetadataContext, useMetadataStore } from './stores/MetadataStore';
 
 const socket = new SocketClient();
 
