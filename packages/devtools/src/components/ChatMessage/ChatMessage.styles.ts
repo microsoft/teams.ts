@@ -51,6 +51,9 @@ export const useChatMessageStyles = makeStyles({
       margin: 0,
     },
   },
+  messageDeleted: {
+    fontStyle: 'italic',
+  },
 
   // Message direction variants
   received: {
