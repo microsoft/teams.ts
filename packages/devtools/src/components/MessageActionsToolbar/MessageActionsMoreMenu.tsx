@@ -51,6 +51,10 @@ const MessageActionsMoreMenu: FC<MessageActionsMoreMenuProps> = memo(
       });
     }
 
+    if (menuList.length === 0) {
+      return null;
+    }
+
     return (
       <Menu>
         <MenuTrigger>

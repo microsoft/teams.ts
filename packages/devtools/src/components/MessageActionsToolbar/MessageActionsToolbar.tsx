@@ -123,7 +123,6 @@ const MessageActionsToolbar: FC<MessageActionsProps> = memo(
               />
             </Tooltip>
           )}
-          {/* TODO: hide more actions if length is 0 */}
           <MessageActionsMoreMenu
             conversationType={conversationType}
             userSentMessage={userSentMessage}
