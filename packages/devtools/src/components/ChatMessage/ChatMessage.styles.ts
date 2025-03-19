@@ -55,6 +55,11 @@ export const useChatMessageStyles = makeStyles({
     fontStyle: 'italic',
   },
 
+  messageDeletedLink: {
+    marginLeft: '0.75rem',
+    paddingInlineEnd: '0.75rem',
+    paddingInlineStart: '0.75rem',
+  },
   // Message direction variants
   received: {
     alignSelf: 'flex-start',
