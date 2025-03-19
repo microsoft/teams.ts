@@ -97,8 +97,8 @@ if (import.meta.env.DEV) {
           const message: Partial<Message> = {
             body: {
               content: devMessage,
-              contentType: 'text'
-            }
+              contentType: 'text',
+            },
           };
           const timer = setTimeout(() => {
             sendMessageRef.current(message);

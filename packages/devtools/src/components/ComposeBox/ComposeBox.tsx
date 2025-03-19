@@ -208,23 +208,21 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
 
   return (
     <div className={classes.composeBoxContainer}>
-      <div className={classes.textareaContainer}>
-        <Textarea
-          ref={textareaRef}
-          className={classes.composeInput}
-          placeholder="Type a message..."
-          value={message}
-          onChange={handleMessageChange}
-          onKeyDown={handleKeyDown}
-        />
-        {memoizedToolbar}
+      <Textarea
+        ref={textareaRef}
+        className={classes.composeInput}
+        placeholder="Type a message..."
+        value={message}
+        onChange={handleMessageChange}
+        onKeyDown={handleKeyDown}
+      />
+      {memoizedToolbar}
 
-        <AttachmentsContainer
-          attachments={uiAttachments}
-          onRemoveAttachment={handleRemoveAttachment}
-          showRemoveButtons={true}
-        />
-      </div>
+      <AttachmentsContainer
+        attachments={uiAttachments}
+        onRemoveAttachment={handleRemoveAttachment}
+        showRemoveButtons={true}
+      />
     </div>
   );
 };

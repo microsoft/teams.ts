@@ -36,7 +36,7 @@ import { Card } from '@microsoft/spark.cards';
 import { useCardStore } from '../../../stores/CardStore';
 import Logger from '../../Logger/Logger';
 
-import { useClasses } from './ComposeBoxToolbar.styles';
+import { useCBToolbarClasses } from './ComposeBoxToolbar.styles';
 
 interface ComposeBoxToolbarProps extends ToolbarProps {
   onSend?: (attachments?: any[]) => void;
@@ -52,7 +52,7 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = ({
   hasContent = false,
   ...props
 }) => {
-  const classes = useClasses();
+  const classes = useCBToolbarClasses();
   const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [jsonInput, setJsonInput] = useState('');
