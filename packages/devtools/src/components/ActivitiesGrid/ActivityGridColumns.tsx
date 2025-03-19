@@ -22,6 +22,7 @@ import {
 import { ActivityEvent } from '../../types/Event';
 import { getActivityPath } from './getActivityPath';
 import useActivitiesGridClasses from './ActivitiesGrid.styles';
+import OverflowCell from './OverflowCell';
 
 const COLUMNS = [
   { id: 'type', label: 'Type' },
@@ -93,21 +94,37 @@ const useActivityGridColumns = ({
         switch (column.id) {
           case 'type':
             return (
-              <div>
+              <div className={classes.typeContainer}>
                 {item.type === 'activity.received' ? (
                   <ArrowDownFilled className={classes.directionIcon} role="presentation" />
                 ) : (
                   <ArrowUpFilled className={classes.directionIcon} role="presentation" />
                 )}
-                <span>{path}</span>
+                <OverflowCell
+                  content={path || ''}
+                  className={classes.cell}
+                  subtractSelector=".directionIcon"
+                />
               </div>
             );
           case 'chat':
-            return <span>{item.body.conversation?.conversationType || '??'}</span>;
+            return (
+              <OverflowCell
+                content={String(item.body.conversation?.conversationType || '??')}
+                className={classes.cell}
+              />
+            );
           case 'from':
-            return item.body.from ? <span>{item.body.from.name}</span> : null;
+            return item.body.from ? (
+              <OverflowCell content={item.body.from.name} className={classes.cell} />
+            ) : null;
           case 'timestamp':
-            return <div>{new Date(item.sentAt).toLocaleString()}</div>;
+            return (
+              <OverflowCell
+                content={new Date(item.sentAt).toLocaleString()}
+                className={classes.cell}
+              />
+            );
           default:
             return null;
         }

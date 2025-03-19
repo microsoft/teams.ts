@@ -56,6 +56,11 @@ const useActivitiesGridClasses = makeStyles({
     marginRight: tokens.spacingHorizontalS,
     flexShrink: 0,
   },
+  typeContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
   cell: {
     minWidth: '6rem',
     whiteSpace: 'nowrap',
