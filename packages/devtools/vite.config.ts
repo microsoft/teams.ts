@@ -8,6 +8,7 @@ export default defineConfig({
   base: '/devtools',
   build: {
     outDir: '../dev/dist/devtools-web',
+    minify: process.env.NODE_ENV === 'production',
     rollupOptions: {
       plugins: [nodeResolve()],
     },

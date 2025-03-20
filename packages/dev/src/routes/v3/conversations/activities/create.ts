@@ -44,7 +44,7 @@ export function create({ port, log, process }: RouteContext) {
           },
           conversation: {
             id: req.params.conversationId,
-            conversationType: 'oneOnOne',
+            conversationType: 'personal',
             isGroup: false,
             name: 'default',
           },

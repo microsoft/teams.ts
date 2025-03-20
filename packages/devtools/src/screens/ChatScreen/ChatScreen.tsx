@@ -1,5 +1,5 @@
-import { Attachment } from '@microsoft/spark.api';
-import { FC, useCallback, useContext, useState } from 'react';
+import { Attachment, Message } from '@microsoft/spark.api';
+import { FC, useCallback, useState } from 'react';
 
 import Chat from '../../components/Chat/Chat';
 import ChatMessage from '../../components/ChatMessage/ChatMessage';
@@ -8,7 +8,7 @@ import ComposeBox from '../../components/ComposeBox/ComposeBox';
 import TypingIndicator from '../../components/TypingIndicator/TypingIndicator';
 import Logger from '../../components/Logger/Logger';
 import useSparkApi from '../../hooks/useSparkApi';
-import { ChatContext } from '../../stores/ChatStore';
+import { useChatStore } from '../../stores/ChatStore';
 import { useDevModeSendMessage } from '../../utils/devUtils';
 
 import useClasses from './ChatScreen.styles';
@@ -23,20 +23,20 @@ interface ChatScreenProps {
 const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
   const classes = useClasses();
   const screenClasses = useScreensClasses();
-  const { chat, feedback, messages, streaming, typing } = useContext(ChatContext);
-  const [messageHistory, setMessageHistory] = useState<string[]>([]);
+  const { chat, feedback, messages, streaming, typing } = useChatStore();
+  const [messageHistory, setMessageHistory] = useState<Partial<Message>[]>([]);
   const log = Logger;
   const childLog = log.child('ChatScreen');
 
   const sparkApi = useSparkApi();
 
-  const handleSendMessage = useCallback(
-    async (message: string, messageAttachments?: Attachment[]) => {
+  const onSendMessage = useCallback(
+    async (message: Partial<Message>) => {
       try {
         await sparkApi.conversations.activities(chat.id).create({
           type: 'message',
-          text: message,
-          attachments: messageAttachments || [],
+          text: message.body?.content || '',
+          attachments: message.attachments || [],
         });
       } catch (err) {
         childLog.error('Error sending message:', err);
@@ -45,16 +45,18 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
     [sparkApi, chat?.id, childLog]
   );
 
-  const handleMessageSent = useCallback((message: string) => {
+  const handleMessageHistory = useCallback((message: Partial<Message>) => {
     setMessageHistory((prev) => [message, ...prev].slice(0, MAX_HISTORY));
   }, []);
 
   // Use the hook to automatically send a message in development mode
   // This will be a no-op in production builds
-  useDevModeSendMessage((message: string, attachments?: Attachment[]) => {
-    handleSendMessage(message, attachments);
-    if (message.trim()) {
-      handleMessageSent(message.trim());
+  useDevModeSendMessage((message: Partial<Message>, attachments?: Attachment[]) => {
+    const content = message.body?.content || '';
+    const messageWithAttachments = { ...message, attachments };
+    onSendMessage(messageWithAttachments);
+    if (content.trim() || attachments?.length) {
+      handleMessageHistory(messageWithAttachments as Message);
     }
   });
 
@@ -83,9 +85,9 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
             <div className={classes.typingIndicator}>{typing[chat.id] && <TypingIndicator />}</div>
             {/* <div className={classes.bannerContainer}>{/* TODO: Optional banner/toast content </div> */}
             <ComposeBox
-              onSend={handleSendMessage}
+              onSend={onSendMessage}
               messageHistory={messageHistory}
-              onMessageSent={handleMessageSent}
+              onMessageSent={handleMessageHistory}
             />
           </div>
         </div>

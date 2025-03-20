@@ -1,4 +1,3 @@
-import { createContext } from 'react';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { Card } from '@microsoft/spark.cards';
@@ -16,5 +15,3 @@ export const useCardStore = create<CardStore>()(
     clearCurrentCard: () => set({ currentCard: null }),
   }))
 );
-
-export const CardContext = createContext<CardStore>(null as any);

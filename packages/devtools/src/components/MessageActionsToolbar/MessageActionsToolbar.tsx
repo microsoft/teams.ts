@@ -8,61 +8,30 @@ import {
   ToolbarProps,
   Tooltip,
 } from '@fluentui/react-components';
-import {
-  bundleIcon,
-  Edit16Filled,
-  Edit16Regular,
-  FluentIcon,
-  MoreHorizontal16Filled,
-  MoreHorizontal16Regular,
-  SearchFilled,
-  SearchRegular,
-  TextQuote16Filled,
-  TextQuote16Regular,
-} from '@fluentui/react-icons/lib/fonts';
-import { Message, MessageReaction, MessageReactionType, MessageUser } from '@microsoft/spark.api';
+
+import { Message, MessageReactionType, MessageUser } from '@microsoft/spark.api';
 import { useNavigate } from 'react-router';
 
-import { MessageReactionsEmoji } from '../../types/MessageReactionsEmoji';
-import { useClasses } from './MessageActionsToolbar.styles';
+import useConversationScope from '../../hooks/useConversationScope';
+import { MessageActionUIPayload } from '../../types/MessageActionUI';
+import { messageReactions } from '../../types/MessageReactionsEmoji';
+import { EditIcon, SearchIcon } from './icons';
+import useMessageActionsToolbarClasses from './MessageActionsToolbar.styles';
+import MessageActionsMoreMenu from './MessageActionsMoreMenu';
 
 interface MessageActionsProps extends ToolbarProps {
   // Whether the message is sent or received
-  sent: boolean;
+  userSentMessage: boolean;
   value: Message;
-  handleMessageReaction: (id: string, reaction: MessageReaction) => Promise<void>;
+  onMessageAction: (action: MessageActionUIPayload) => Promise<void>;
   reactionSender: MessageUser | undefined;
 }
 
-const MoreHorizontalIcon = bundleIcon(
-  MoreHorizontal16Filled as FluentIcon,
-  MoreHorizontal16Regular as FluentIcon
-);
-const EditIcon = bundleIcon(Edit16Filled as FluentIcon, Edit16Regular as FluentIcon);
-const TextQuoteIcon = bundleIcon(TextQuote16Filled as FluentIcon, TextQuote16Regular as FluentIcon);
-const SearchIcon = bundleIcon(SearchFilled as FluentIcon, SearchRegular as FluentIcon);
-
 const MessageActionsToolbar: FC<MessageActionsProps> = memo(
-  ({ sent, value, handleMessageReaction, reactionSender, ...props }) => {
-    const classes = useClasses();
+  ({ userSentMessage, value, onMessageAction, reactionSender, ...props }) => {
+    const classes = useMessageActionsToolbarClasses();
     const navigate = useNavigate();
-
-    const createReactionActivity = useCallback(
-      (type: MessageReactionType, user: MessageUser | undefined): MessageReaction => ({
-        type,
-        user,
-        createdDateTime: new Date().toUTCString(),
-      }),
-      []
-    );
-
-    const handleReactionClick = useCallback(
-      (reaction: MessageReactionType) => {
-        const reactionActivity = createReactionActivity(reaction, reactionSender);
-        handleMessageReaction(value.id, reactionActivity);
-      },
-      [createReactionActivity, handleMessageReaction, reactionSender, value.id]
-    );
+    const conversationType = useConversationScope(value.id);
 
     const handleExamineClick = useCallback(() => {
       navigate({
@@ -71,10 +40,29 @@ const MessageActionsToolbar: FC<MessageActionsProps> = memo(
       });
     }, [navigate, value.id]);
 
+    const handleReactionClick = useCallback(
+      (reactionType: MessageReactionType) => {
+        onMessageAction({
+          id: value.id,
+          type: 'messageReaction',
+          reactionType,
+          user: reactionSender,
+        });
+      },
+      [onMessageAction, value.id, reactionSender]
+    );
+
+    const handleEdit = useCallback(() => {
+      onMessageAction({
+        id: value.id,
+        type: 'messageUpdate',
+      });
+    }, [onMessageAction, value.id]);
+
     const reactionButtons = useMemo(
       () => (
         <ToolbarGroup>
-          {MessageReactionsEmoji.map(({ label, reaction }) => (
+          {messageReactions.map(({ label, reaction }) => (
             <Tooltip
               content={<span className={classes.tooltipText}>{reaction}</span>}
               relationship="label"
@@ -83,12 +71,12 @@ const MessageActionsToolbar: FC<MessageActionsProps> = memo(
               <ToolbarToggleButton
                 as="button"
                 appearance="subtle"
-                aria-label={reaction}
+                aria-label={`React with ${reaction}`}
                 className={classes.toolbarButton}
                 size="small"
                 name={reaction}
                 value={reaction}
-                onClick={() => handleReactionClick(reaction as MessageReactionType)}
+                onClick={() => handleReactionClick(reaction)}
               >
                 {label}
               </ToolbarToggleButton>
@@ -111,7 +99,8 @@ const MessageActionsToolbar: FC<MessageActionsProps> = memo(
               onClick={handleExamineClick}
             />
           </Tooltip>
-          {!sent && (
+          {/* Not implemented yet */}
+          {/* {userSentMessage && (
             <Tooltip content="Reply with quote" relationship="label">
               <ToolbarButton
                 appearance="subtle"
@@ -121,30 +110,36 @@ const MessageActionsToolbar: FC<MessageActionsProps> = memo(
                 disabled={true}
               />
             </Tooltip>
-          )}
-          {sent && (
+          )} */}
+          {userSentMessage && conversationType === 'personal' && (
             <Tooltip content="Edit" relationship="label">
               <ToolbarButton
                 aria-label="Edit"
                 key="Edit"
                 icon={<EditIcon />}
                 className={classes.toolbarButton}
-                disabled={true}
+                disabled
+                onClick={handleEdit}
               />
             </Tooltip>
           )}
-          <Tooltip content="More options" relationship="label">
-            <ToolbarButton
-              aria-label="More options"
-              key="more-options"
-              icon={<MoreHorizontalIcon />}
-              className={classes.toolbarButton}
-              disabled={true}
-            />
-          </Tooltip>
+          <MessageActionsMoreMenu
+            conversationType={conversationType}
+            userSentMessage={userSentMessage}
+            onMessageAction={onMessageAction}
+            value={value}
+          />
         </>
       ),
-      [classes.toolbarButton, handleExamineClick, sent]
+      [
+        classes.toolbarButton,
+        conversationType,
+        handleEdit,
+        handleExamineClick,
+        onMessageAction,
+        userSentMessage,
+        value,
+      ]
     );
 
     return (

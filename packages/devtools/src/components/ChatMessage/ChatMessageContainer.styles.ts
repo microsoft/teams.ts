@@ -1,6 +1,6 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
-export const useClasses = makeStyles({
+const useChatContainerClasses = makeStyles({
   messageRow: {
     display: 'flex',
     marginLeft: tokens.spacingHorizontalL,
@@ -40,3 +40,5 @@ export const useClasses = makeStyles({
     transition: 'all 0.2s',
   },
 });
+
+export default useChatContainerClasses;

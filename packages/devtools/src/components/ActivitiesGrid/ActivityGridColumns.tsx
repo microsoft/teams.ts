@@ -10,18 +10,19 @@ import {
   Tooltip,
 } from '@fluentui/react-components';
 import {
-  CheckmarkFilled,
-  Filter20Regular,
-  Filter20Filled,
   ArrowDownFilled,
   ArrowUpFilled,
-  FluentIcon,
   bundleIcon,
+  CheckmarkFilled,
+  Filter20Filled,
+  Filter20Regular,
+  FluentIcon,
 } from '@fluentui/react-icons/lib/fonts';
 
 import { ActivityEvent } from '../../types/Event';
 import { getActivityPath } from './getActivityPath';
 import useActivitiesGridClasses from './ActivitiesGrid.styles';
+import OverflowCell from './OverflowCell';
 
 const COLUMNS = [
   { id: 'type', label: 'Type' },
@@ -35,16 +36,6 @@ interface ActivityGridColumnsProps {
   params: URLSearchParams;
   handleTypeFilter: (path: string) => void;
 }
-
-import { KeyboardEvent as ReactKeyboardEvent } from 'react';
-
-const handleKeyDown = (e: ReactKeyboardEvent) => {
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    const target = e.target as HTMLButtonElement;
-    target.click();
-  }
-};
 
 const FilterIcon = bundleIcon(Filter20Filled as FluentIcon, Filter20Regular as FluentIcon);
 
@@ -64,38 +55,32 @@ const useActivityGridColumns = ({
           return (
             <Menu>
               <MenuTrigger>
-                <MenuButton appearance="transparent">
+                <MenuButton id="button" appearance="transparent">
                   Type
-                  <FilterIcon className={hasFilters ? classes.filterOn : undefined} />
+                  <FilterIcon className={hasFilters ? classes.filterOn : ''} />
                 </MenuButton>
               </MenuTrigger>
-              <MenuPopover className={classes.menuPopover}>
+              <MenuPopover>
                 <MenuList>
                   {params.has('body.id') && (
                     <Tooltip content={`ID: ${params.get('body.id')}`} relationship="label">
                       <MenuItem
-                        key="id-filter"
-                        onKeyDown={handleKeyDown}
                         onClick={() => handleTypeFilter('')}
                         icon={<CheckmarkFilled />}
-                        className={classes.menuItem}
+                        key="id-filter"
                       >
-                        ID: {params.get('body.id')}
+                        Activity Id
                       </MenuItem>
                     </Tooltip>
                   )}
                   {activityPaths.map((path) => (
-                    <Tooltip key={path} content={path} relationship="label">
-                      <MenuItem
-                        key={path}
-                        onKeyDown={handleKeyDown}
-                        onClick={() => handleTypeFilter(path)}
-                        icon={params.has('path', path) ? <CheckmarkFilled /> : <></>}
-                        className={classes.menuItem}
-                      >
-                        {path}
-                      </MenuItem>
-                    </Tooltip>
+                    <MenuItem
+                      key={path}
+                      onClick={() => handleTypeFilter(path)}
+                      icon={params.has('path', path) ? <CheckmarkFilled /> : <></>}
+                    >
+                      {path}
+                    </MenuItem>
                   ))}
                 </MenuList>
               </MenuPopover>
@@ -109,21 +94,37 @@ const useActivityGridColumns = ({
         switch (column.id) {
           case 'type':
             return (
-              <div>
+              <div className={classes.typeContainer}>
                 {item.type === 'activity.received' ? (
                   <ArrowDownFilled className={classes.directionIcon} role="presentation" />
                 ) : (
                   <ArrowUpFilled className={classes.directionIcon} role="presentation" />
                 )}
-                <span>{path}</span>
+                <OverflowCell
+                  content={path || ''}
+                  className={classes.cell}
+                  subtractSelector=".directionIcon"
+                />
               </div>
             );
           case 'chat':
-            return <span>{item.body.conversation?.conversationType || '??'}</span>;
+            return (
+              <OverflowCell
+                content={String(item.body.conversation?.conversationType || '??')}
+                className={classes.cell}
+              />
+            );
           case 'from':
-            return item.body.from ? <span>{item.body.from.name}</span> : null;
+            return item.body.from ? (
+              <OverflowCell content={item.body.from.name} className={classes.cell} />
+            ) : null;
           case 'timestamp':
-            return <div>{new Date(item.sentAt).toLocaleString()}</div>;
+            return (
+              <OverflowCell
+                content={new Date(item.sentAt).toLocaleString()}
+                className={classes.cell}
+              />
+            );
           default:
             return null;
         }

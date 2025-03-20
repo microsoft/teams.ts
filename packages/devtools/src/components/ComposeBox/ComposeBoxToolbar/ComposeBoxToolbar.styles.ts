@@ -1,10 +1,11 @@
 import { makeStyles } from '@fluentui/react-components';
 
-export const useClasses = makeStyles({
+export const useCBToolbarClasses = makeStyles({
   toolbar: {
     position: 'absolute',
-    right: '10px',
-    top: '10px',
+    right: 0,
+    bottom: 0,
+    margin: '0.5rem',
   },
   toolbarButton: {
     minWidth: '0',

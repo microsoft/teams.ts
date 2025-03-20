@@ -1,4 +1,3 @@
-import { createContext } from 'react';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import {
@@ -25,6 +24,7 @@ export interface ChatStore {
   readonly feedback: Record<string, boolean>;
 
   readonly put: (chatId: string, message: Message) => void;
+  readonly getMessageById: (messageId: string) => Message | undefined;
 
   readonly onActivity: (event: ActivityEvent) => void;
   readonly onTypingActivity: (event: ActivityEvent<ITypingActivity>, state: ChatStore) => ChatStore;
@@ -61,7 +61,7 @@ export interface ChatStore {
 }
 
 export const useChatStore = create<ChatStore>()(
-  devtools((set) => ({
+  devtools((set, get): ChatStore => ({
     chat: {
       id: 'devtools',
       name: 'Default',
@@ -92,6 +92,14 @@ export const useChatStore = create<ChatStore>()(
           messages: { ...state.messages },
         };
       }),
+    getMessageById: (messageId: string) => {
+      const currentState = get();
+      for (const messages of Object.values(currentState.messages)) {
+        const foundMessage = messages.find((message: Message) => message.id === messageId);
+        if (foundMessage) return foundMessage;
+      }
+      return undefined;
+    },
     onActivity: (event: ActivityEvent) =>
       set((state) => {
         if (event.type !== 'activity.received' && event.type !== 'activity.sent') return state;
@@ -356,5 +364,3 @@ export const useChatStore = create<ChatStore>()(
     },
   }))
 );
-
-export const ChatContext = createContext<ChatStore>(null as any);
