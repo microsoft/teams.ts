@@ -53,12 +53,12 @@ provision:
       templates:
         - path: ./infra/azure.bicep
           parameters: ./infra/azure.parameters.json
-          deploymentName: Create-resources-for-tab
+          deploymentName: Create-resources-for-{{ toKebabCase name }}-$\{{TEAMSFX_ENV}}
       bicepCliVersion: v0.9.1
 
   - uses: aadApp/update
     with:
-      # This task sets the SPA redirect URI order to enable Nested App Authentication (NAA) for the tab app.
+      # This task sets the SPA redirect URI order to enable Nested App Authentication (NAA) for the embed app.
       # Relative path to this file. Environment variables in manifest will
       # be replaced before apply to Microsoft Entra app.
       manifestPath: ./aad.manifest.json
