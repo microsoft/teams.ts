@@ -1,4 +1,4 @@
-import { FC, memo, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import { FC, memo, useEffect, useState, useCallback, useMemo } from 'react';
 import { MarkdownContent } from '../MarkdownContent';
 import { useChatMessageStyles } from './ChatMessage.styles';
 import {
@@ -11,15 +11,24 @@ import {
   Tooltip,
   Image,
 } from '@fluentui/react-components';
-import { Message, MessageReaction, MessageUser, Attachment } from '@microsoft/spark.api';
+import {
+  Message,
+  MessageReaction,
+  MessageUser,
+  Attachment,
+  MessageDeleteActivity,
+  MessageUpdateActivity,
+} from '@microsoft/spark.api';
 
-import { ChatContext } from '../../stores/ChatStore';
+import { useChatStore } from '../../stores/ChatStore';
 import useSparkApi from '../../hooks/useSparkApi';
 import { AttachmentType } from '../../types/Attachment';
-import { MessageReactionsEmoji } from '../../types/MessageReactionsEmoji';
+import { MessageActionUIPayload } from '../../types/MessageActionUI';
+import { messageReactions } from '../../types/MessageReactionsEmoji';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
 import MessageActionsToolbar from '../MessageActionsToolbar/MessageActionsToolbar';
 import Logger from '../Logger/Logger';
+import ChatMessageDeleted from './ChatMessageDeleted';
 
 interface ChatMessageProps {
   content: string;
@@ -33,7 +42,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
   ({ content, streaming = false, feedback = false, sendDirection, value }) => {
     const classes = useChatMessageStyles();
     const childLog = Logger.child('ChatMessage');
-    const { chat, messages } = useContext(ChatContext);
+    const { chat, messages } = useChatStore();
     const sparkApi = useSparkApi();
     const labelId = `message-${value.id}`;
     const [html, setHtml] = useState<string>(
@@ -43,6 +52,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
     const [reactionSender, setReactionSender] = useState<MessageUser | undefined>(undefined);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [openedByKeyboard, setOpenedByKeyboard] = useState(false);
+    const [deletedMessages, setDeletedMessages] = useState<Message[]>([]);
 
     const handleMessageKeyDown = useCallback(
       (event: React.KeyboardEvent) => {
@@ -84,6 +94,46 @@ const ChatMessage: FC<ChatMessageProps> = memo(
       }
       setIsPopoverOpen(data.open);
     }, []);
+
+    const handleMessageDelete = useCallback(
+      async (action: MessageActionUIPayload, message: Message) => {
+        try {
+          const deleteActivity = new MessageDeleteActivity({
+            id: action.id,
+            channelData: { eventType: 'softDeleteMessage' },
+          });
+          await sparkApi.conversations.activities(chat.id).create(deleteActivity);
+          setDeletedMessages((prev) => [...prev, message]);
+        } catch (err) {
+          childLog.error('Error on messageUpdate/softDeleteMessage:', err);
+        }
+      },
+      [chat.id, childLog, sparkApi]
+    );
+
+    const handleMessageUpdate = useCallback(
+      async (uiAction: MessageActionUIPayload, message: Message) => {
+        const { id, eventType } = uiAction;
+        if (!eventType) {
+          childLog.error('No event type provided for messageUpdate. Unable to update message.');
+          return;
+        }
+
+        try {
+          const updateActivity = new MessageUpdateActivity(eventType, {
+            id,
+            text: message.body?.content || '',
+          });
+          await sparkApi.conversations.activities(chat.id).create(updateActivity);
+          if (eventType === 'undeleteMessage') {
+            setDeletedMessages((prev) => prev.filter((m) => m.id !== id));
+          }
+        } catch (err) {
+          childLog.error('Error updating message:', err);
+        }
+      },
+      [chat.id, childLog, sparkApi.conversations]
+    );
 
     const handleMessageReaction = useCallback(
       async (id: string, newReactionActivity: MessageReaction) => {
@@ -129,6 +179,38 @@ const ChatMessage: FC<ChatMessageProps> = memo(
         }
       },
       [chat.id, childLog, messages, sparkApi]
+    );
+
+    const onMessageAction = useCallback(
+      async (action: MessageActionUIPayload) => {
+        const message = messages[chat.id].find((m) => m.id === action.id);
+        if (!message) return;
+
+        try {
+          switch (action.type) {
+            case 'messageUpdate':
+              handleMessageUpdate(action, message);
+              break;
+            case 'messageDelete':
+              handleMessageDelete(action, message);
+              break;
+            // TODO: Implement reply with quote
+            // case 'replyWithQuote':
+            //   break;
+            case 'messageReaction':
+              if (action.reactionType && action.user) {
+                handleMessageReaction(action.id, {
+                  type: action.reactionType,
+                  user: action.user,
+                  createdDateTime: new Date().toUTCString(),
+                });
+              }
+          }
+        } catch (err) {
+          childLog.error('Error handling message action:', err);
+        }
+      },
+      [chat.id, messages, childLog, handleMessageReaction, handleMessageDelete, handleMessageUpdate]
     );
 
     const renderAttachment = useCallback(
@@ -231,6 +313,15 @@ const ChatMessage: FC<ChatMessageProps> = memo(
       setReactions(value.reactions || []);
     }, [value]);
 
+    if (value.deleted && deletedMessages.includes(value)) {
+      return (
+        <ChatMessageDeleted
+          id={value.id}
+          sendDirection={sendDirection}
+          onMessageAction={onMessageAction}
+        />
+      );
+    }
     return (
       <>
         <div id={labelId} aria-labelledby={labelId} className={classes.messageContainer}>
@@ -279,10 +370,10 @@ const ChatMessage: FC<ChatMessageProps> = memo(
             </PopoverTrigger>
             <PopoverSurface className={classes.popoverSurface} data-message-toolbar={value.id}>
               <MessageActionsToolbar
-                sent={sendDirection === 'sent'}
+                userSentMessage={sendDirection === 'sent'}
                 value={value}
                 size="small"
-                handleMessageReaction={handleMessageReaction}
+                onMessageAction={onMessageAction}
                 reactionSender={reactionSender}
               />
             </PopoverSurface>
@@ -306,7 +397,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
                     shape="circular"
                     size="small"
                   >
-                    {MessageReactionsEmoji.find((r) => r.reaction === reaction.type)?.label}
+                    {messageReactions.find((r) => r.reaction === reaction.type)?.label}
                   </Button>
                 </Tooltip>
               ))}

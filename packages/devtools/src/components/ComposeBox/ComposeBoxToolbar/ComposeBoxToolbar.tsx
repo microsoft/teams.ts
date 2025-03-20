@@ -28,6 +28,7 @@ import {
   ToolbarProps,
   ToolbarDivider,
   useId,
+  Tooltip,
 } from '@fluentui/react-components';
 import { useNavigate } from 'react-router';
 import { Card } from '@microsoft/spark.cards';
@@ -35,7 +36,7 @@ import { Card } from '@microsoft/spark.cards';
 import { useCardStore } from '../../../stores/CardStore';
 import Logger from '../../Logger/Logger';
 
-import { useClasses } from './ComposeBoxToolbar.styles';
+import { useCBToolbarClasses } from './ComposeBoxToolbar.styles';
 
 interface ComposeBoxToolbarProps extends ToolbarProps {
   onSend?: (attachments?: any[]) => void;
@@ -51,7 +52,7 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = ({
   hasContent = false,
   ...props
 }) => {
-  const classes = useClasses();
+  const classes = useCBToolbarClasses();
   const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [jsonInput, setJsonInput] = useState('');
@@ -120,11 +121,13 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = ({
     <Toolbar aria-label="New message actions" {...props} className={classes.toolbar}>
       <Menu open={menuOpen} onOpenChange={(_e, data) => setMenuOpen(data.open)}>
         <MenuTrigger disableButtonEnhancement>
-          <ToolbarButton
-            aria-label="Attach file"
-            icon={<AttachRegular />}
-            className={classes.toolbarButton}
-          />
+          <Tooltip content="Attach file" relationship="label">
+            <ToolbarButton
+              aria-label="Attach file"
+              icon={<AttachRegular />}
+              className={classes.toolbarButton}
+            />
+          </Tooltip>
         </MenuTrigger>
         <MenuPopover>
           <MenuList>
@@ -166,14 +169,16 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = ({
         </DialogSurface>
       </Dialog>
       <ToolbarDivider />
-      <ToolbarButton
-        data-tid="send-button"
-        aria-label="Send message"
-        className={classes.toolbarButton}
-        onClick={handleSend}
-        icon={<Send tabIndex={-1} />}
-        disabled={!hasContent}
-      />
+      <Tooltip content="Send message" relationship="label">
+        <ToolbarButton
+          data-tid="send-button"
+          aria-label="Send message"
+          className={classes.toolbarButton}
+          onClick={handleSend}
+          icon={<Send tabIndex={-1} />}
+          disabled={!hasContent}
+        />
+      </Tooltip>
     </Toolbar>
   );
 };

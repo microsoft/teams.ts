@@ -1,4 +1,4 @@
-import qs from 'qs';
+import { getInjectedUrl } from '@utils/url';
 import * as http from '@microsoft/spark.common/http';
 
 import pkg from 'src/../package.json';
@@ -8,29 +8,6 @@ import { SetReactionClient } from './setReaction';
 import { SoftDeleteClient } from './softDelete';
 import { UndoSoftDeleteClient } from './undoSoftDelete';
 import { UnsetReactionClient } from './unsetReaction';
-
-interface Param {
-  readonly in: string;
-  readonly name: string;
-}
-
-function getInjectedUrl(url: string, params: Array<Param>, data: Record<string, any>) {
-  const query: Record<string, any> = {};
-
-  for (const param of params) {
-    if (param.in === 'query') {
-      query[param.name] = data[param.name];
-    }
-
-    if (param.in !== 'path') {
-      continue;
-    }
-
-    url = url.replace(`{${param.name}}`, data[param.name]);
-  }
-
-  return `${url}${qs.stringify(query, { addQueryPrefix: true })}`;
-}
 
 /**
  * /users/{user-id}/chats/{chat-id}/messages/{chatMessage-id}/replies
@@ -161,6 +138,11 @@ export class RepliesClient {
     const url = getInjectedUrl(
       '/users/{user-id}/chats/{chat-id}/messages/{chatMessage-id}/replies',
       [
+        { name: '$top', in: 'query' },
+        { name: '$skip', in: 'query' },
+        { name: '$search', in: 'query' },
+        { name: '$filter', in: 'query' },
+        { name: '$count', in: 'query' },
         { name: '$orderby', in: 'query' },
         { name: '$select', in: 'query' },
         { name: '$expand', in: 'query' },

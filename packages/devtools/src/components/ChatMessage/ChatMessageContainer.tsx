@@ -1,9 +1,13 @@
-import { FC } from 'react';
-import { mergeClasses } from '@fluentui/react-components';
+import { FC, memo } from 'react';
+import { mergeClasses, Tooltip } from '@fluentui/react-components';
 import { Message } from '@microsoft/spark.api';
 
-import { formatMessageTime } from '../../utils/date-format';
-import { useClasses } from './ChatMessageContainer.styles';
+import {
+  formatMessageDateTime,
+  formatMessageTime,
+  formatMessageTooltipTime,
+} from '../../utils/date-format';
+import useChatContainerClasses from './ChatMessageContainer.styles';
 import ChatAvatarWrapper from './ChatAvatarWrapper';
 
 export interface MessageProps {
@@ -12,8 +16,8 @@ export interface MessageProps {
   readonly children?: React.ReactNode;
 }
 
-const ChatMessageContainer: FC<MessageProps> = ({ value, isConnected = false, children }) => {
-  const classes = useClasses();
+const ChatMessageContainer: FC<MessageProps> = memo(({ value, isConnected = false, children }) => {
+  const classes = useChatContainerClasses();
   const sendDirection = value.from?.user?.id === 'devtools' ? 'sent' : 'received';
   const ariaLabel = sendDirection === 'sent' ? 'Sent message at' : 'Received message at';
 
@@ -29,22 +33,33 @@ const ChatMessageContainer: FC<MessageProps> = ({ value, isConnected = false, ch
         <div className={classes.badgeMessageContainer}>
           {sendDirection === 'received' && <ChatAvatarWrapper isConnected={isConnected} />}
           <div className={classes.timeMessageContainer}>
-            <time
-              aria-label={ariaLabel}
-              id={value.id}
-              className={mergeClasses(
-                classes.timestamp,
-                sendDirection === 'sent' && classes.sentTime
-              )}
-            >
-              {value.createdDateTime && formatMessageTime(value.createdDateTime)}
-            </time>
+            {value.createdDateTime ? (
+              <Tooltip
+                content={formatMessageTooltipTime(value.createdDateTime)}
+                relationship="label"
+              >
+                <time
+                  aria-label={ariaLabel}
+                  dateTime={formatMessageDateTime(value.createdDateTime)}
+                  id={value.id}
+                  className={mergeClasses(
+                    classes.timestamp,
+                    sendDirection === 'sent' && classes.sentTime
+                  )}
+                >
+                  {formatMessageTime(value.createdDateTime)}
+                </time>
+              </Tooltip>
+            ) : (
+              <span className={classes.timestamp}>Timestamp unavailable</span>
+            )}
             {children}
           </div>
         </div>
       </div>
     </article>
   );
-};
+});
 
+ChatMessageContainer.displayName = 'ChatMessageContainer';
 export default ChatMessageContainer;

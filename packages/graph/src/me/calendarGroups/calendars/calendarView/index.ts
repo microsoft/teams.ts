@@ -1,4 +1,4 @@
-import qs from 'qs';
+import { getInjectedUrl } from '@utils/url';
 import * as http from '@microsoft/spark.common/http';
 
 import pkg from 'src/../package.json';
@@ -14,29 +14,6 @@ import { ForwardClient } from './forward';
 import { InstancesClient } from './instances';
 import { SnoozeReminderClient } from './snoozeReminder';
 import { TentativelyAcceptClient } from './tentativelyAccept';
-
-interface Param {
-  readonly in: string;
-  readonly name: string;
-}
-
-function getInjectedUrl(url: string, params: Array<Param>, data: Record<string, any>) {
-  const query: Record<string, any> = {};
-
-  for (const param of params) {
-    if (param.in === 'query') {
-      query[param.name] = data[param.name];
-    }
-
-    if (param.in !== 'path') {
-      continue;
-    }
-
-    url = url.replace(`{${param.name}}`, data[param.name]);
-  }
-
-  return `${url}${qs.stringify(query, { addQueryPrefix: true })}`;
-}
 
 /**
  * /me/calendarGroups/{calendarGroup-id}/calendars/{calendar-id}/calendarView
@@ -192,6 +169,11 @@ export class CalendarViewClient {
       [
         { name: 'startDateTime', in: 'query' },
         { name: 'endDateTime', in: 'query' },
+        { name: '$top', in: 'query' },
+        { name: '$skip', in: 'query' },
+        { name: '$search', in: 'query' },
+        { name: '$filter', in: 'query' },
+        { name: '$count', in: 'query' },
         { name: '$orderby', in: 'query' },
         { name: '$select', in: 'query' },
         { name: '$expand', in: 'query' },

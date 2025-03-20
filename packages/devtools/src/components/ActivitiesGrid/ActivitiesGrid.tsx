@@ -16,7 +16,6 @@ import { getPath } from '../../utils/get-path';
 import { getActivityPath } from './getActivityPath';
 import useActivityGridColumns from './ActivityGridColumns';
 import useActivitiesGridClasses from './ActivitiesGrid.styles';
-import CustomDataGridHeaderCell from './CustomDataGridHeaderCell';
 
 function filterActivities(event: ActivityEvent, params: URLSearchParams): boolean {
   for (const [key, filter] of params.entries()) {
@@ -95,6 +94,7 @@ const ActivitiesGrid: FC<ActivitiesGridProps> = ({
       >
         <DataGridHeader className={classes.header}>
           <DataGridRow
+            // Hide this because we don't want to enable 'select all' feature
             selectionCell={{
               'aria-hidden': true,
               tabIndex: -1,
@@ -103,9 +103,9 @@ const ActivitiesGrid: FC<ActivitiesGridProps> = ({
           >
             {({ renderHeaderCell, columnId }) => {
               return columnId === 'type' ? (
-                <CustomDataGridHeaderCell className={classes.cell} focusMode="group">
+                <DataGridHeaderCell tabIndex={-1} className={classes.cell}>
                   {renderHeaderCell()}
-                </CustomDataGridHeaderCell>
+                </DataGridHeaderCell>
               ) : (
                 <DataGridHeaderCell
                   className={

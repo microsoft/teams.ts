@@ -1,32 +1,9 @@
-import qs from 'qs';
+import { getInjectedUrl } from '@utils/url';
 import * as http from '@microsoft/spark.common/http';
 
 import pkg from 'src/../package.json';
 import type { Endpoints } from './index-types.ts';
 import { AttendanceReportsClient } from './attendanceReports';
-
-interface Param {
-  readonly in: string;
-  readonly name: string;
-}
-
-function getInjectedUrl(url: string, params: Array<Param>, data: Record<string, any>) {
-  const query: Record<string, any> = {};
-
-  for (const param of params) {
-    if (param.in === 'query') {
-      query[param.name] = data[param.name];
-    }
-
-    if (param.in !== 'path') {
-      continue;
-    }
-
-    url = url.replace(`{${param.name}}`, data[param.name]);
-  }
-
-  return `${url}${qs.stringify(query, { addQueryPrefix: true })}`;
-}
 
 /**
  * /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/sessions
@@ -110,7 +87,7 @@ export class SessionsClient {
   /**
    * `GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/sessions`
    *
-   * Get a list of all virtualEventSession summary objects under a virtual event. A session summary contains only the endDateTime, id, joinWebUrl, startDateTime, and subject of a virtual event session. The rest of session properties will be null. Currently, the following virtual event types are supported:
+   * Get a list of all virtualEventSession summary objects under a virtual event. A session summary contains only the endDateTime, id, joinWebUrl, startDateTime, and subject of a virtual event session. The rest of session properties will be null. Currently, the following virtual event types are supported: 
 - virtualEventTownhall
 - virtualEventWebinar
    */
@@ -121,6 +98,11 @@ export class SessionsClient {
     const url = getInjectedUrl(
       '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/sessions',
       [
+        { name: '$top', in: 'query' },
+        { name: '$skip', in: 'query' },
+        { name: '$search', in: 'query' },
+        { name: '$filter', in: 'query' },
+        { name: '$count', in: 'query' },
         { name: '$orderby', in: 'query' },
         { name: '$select', in: 'query' },
         { name: '$expand', in: 'query' },
@@ -143,7 +125,7 @@ export class SessionsClient {
   /**
    * `GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/sessions/{virtualEventSession-id}`
    *
-   * Read the properties and relationships of a virtualEventSession object.  Currently, the following virtual event types are supported:
+   * Read the properties and relationships of a virtualEventSession object.  Currently, the following virtual event types are supported: 
 - virtualEventTownhall
 - virtualEventWebinar
    */

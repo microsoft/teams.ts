@@ -1,8 +1,16 @@
 import { Readable, Writable } from 'stream';
 
 import { IChatPrompt } from '@microsoft/spark.ai';
-import { App, IActivityContext, IPlugin, IPluginEvents } from '@microsoft/spark.apps';
-import { ConsoleLogger, EventEmitter, EventHandler, ILogger } from '@microsoft/spark.common';
+import { ILogger } from '@microsoft/spark.common';
+import { DevtoolsPlugin } from '@microsoft/spark.dev';
+import {
+  Dependency,
+  HttpPlugin,
+  IPlugin,
+  IPluginStartEvent,
+  Logger,
+  Plugin,
+} from '@microsoft/spark.apps';
 
 import { ServerOptions } from '@modelcontextprotocol/sdk/server/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -13,6 +21,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import { jsonSchemaToZod } from 'json-schema-to-zod';
 
+import pkg from '../package.json';
 import { IConnection } from './connection';
 
 /**
@@ -65,10 +74,22 @@ export type McpPluginOptions = ServerOptions & {
   readonly version?: string;
 
   /**
+   * the MCP server description
+   */
+  readonly description?: string;
+
+  /**
    * the transport or transport options
    * @default sse
    */
   readonly transport?: McpSSETransportOptions | McpStdioTransportOptions;
+
+  /**
+   * the port to use for the local
+   * MCP Inspector
+   * @default 5173
+   */
+  readonly inspector?: number;
 };
 
 /**
@@ -76,33 +97,44 @@ export type McpPluginOptions = ServerOptions & {
  * For advanced usage (like sending notifications or setting custom request handlers),
  * use the underlying Server instance available via the server property.
  */
+@Plugin({
+  name: 'mcp',
+  version: pkg.version,
+  description: [
+    'High-level MCP server that provides a simpler API for working with resources, tools, and prompts.',
+    'For advanced usage (like sending notifications or setting custom request handlers),',
+    'use the underlying Server instance available via the server property.',
+  ].join('\n'),
+})
 export class McpPlugin implements IPlugin {
-  readonly name: string;
-  readonly version: string;
+  @Logger()
+  readonly logger!: ILogger;
+
+  @Dependency()
+  readonly httpPlugin!: HttpPlugin;
+
+  @Dependency({ optional: true })
+  readonly devtoolsPlugin?: DevtoolsPlugin;
 
   readonly server: McpServer;
   readonly prompt: McpServer['prompt'];
   readonly tool: McpServer['tool'];
   readonly resource: McpServer['resource'];
 
-  protected log: ILogger;
   protected id: number = -1;
+  protected inspector: number;
   protected connections: Record<number, IConnection> = {};
-  protected events = new EventEmitter<IPluginEvents>();
   protected transport: McpSSETransportOptions | McpStdioTransportOptions = { type: 'sse' };
 
   constructor(options: McpServer | McpPluginOptions = {}) {
-    this.log = new ConsoleLogger('@spark/mcp');
-    this.name =
-      options instanceof McpServer ? 'mcp' : `mcp${options.name ? `.${options.name}` : ''}`;
-    this.version = options instanceof McpServer ? '0.0.0' : options.version || '0.0.0';
+    this.inspector = options instanceof McpServer ? 5173 : options.inspector || 5173;
     this.server =
       options instanceof McpServer
         ? options
         : new McpServer(
             {
-              name: this.name,
-              version: this.version,
+              name: options.name || 'mcp',
+              version: options.version || '0.0.0',
             },
             options
           );
@@ -116,6 +148,10 @@ export class McpPlugin implements IPlugin {
     this.resource = this.server.resource.bind(this.server);
   }
 
+  /**
+   * add a chat prompt to your server
+   * @param prompt the chat prompt
+   */
   use(prompt: IChatPrompt) {
     for (const fn of prompt.functions) {
       const schema: z.AnyZodObject = eval(jsonSchemaToZod(fn.parameters, { module: 'cjs' }));
@@ -125,43 +161,39 @@ export class McpPlugin implements IPlugin {
     return this;
   }
 
-  async onInit(app: App) {
-    this.log = app.log.child(this.name);
+  onInit() {
+    this.devtoolsPlugin?.addPage({
+      name: 'mcp',
+      displayName: 'MCP',
+      url: `http://localhost:${this.inspector}`,
+    });
 
     if (this.transport.type === 'sse') {
-      return this.onInitSSE(app, this.transport);
+      return this.onInitSSE(this.httpPlugin, this.transport);
     }
 
-    await this.onInitStdio(app, this.transport);
+    return this.onInitStdio(this.transport);
   }
 
-  async onStart(port: number = 3000) {
-    this.events.emit('start', this.log);
-
+  onStart({ port }: IPluginStartEvent) {
     if (this.transport.type === 'sse') {
-      this.log.info(`listening at http://localhost:${port}${this.transport.path || '/mcp'}`);
+      this.logger.info(`listening at http://localhost:${port}${this.transport.path || '/mcp'}`);
     } else {
-      this.log.info('listening on stdin');
+      this.logger.info('listening on stdin');
     }
   }
 
-  on<Name extends keyof IPluginEvents>(name: Name, callback: EventHandler<IPluginEvents[Name]>) {
-    this.events.on(name, callback);
-  }
-
-  onActivity(_: IActivityContext) {}
-
-  protected onInitStdio(_: App, options: McpStdioTransportOptions) {
+  protected onInitStdio(options: McpStdioTransportOptions) {
     const transport = new StdioServerTransport(options.stdin, options.stdout);
     return this.server.connect(transport);
   }
 
-  protected onInitSSE(app: App, options: McpSSETransportOptions) {
+  protected onInitSSE(http: HttpPlugin, options: McpSSETransportOptions) {
     const path = options.path || '/mcp';
 
-    app.http.get(path, (_, res) => {
+    http.get(path, (_, res) => {
       this.id++;
-      this.log.debug('connecting...');
+      this.logger.debug('connecting...');
       const transport = new SSEServerTransport(`${path}/${this.id}/messages`, res);
       this.connections[this.id] = {
         id: this.id,
@@ -172,7 +204,7 @@ export class McpPlugin implements IPlugin {
       this.server.connect(transport);
     });
 
-    app.http.post(`${path}/:id/messages`, (req, res) => {
+    http.post(`${path}/:id/messages`, (req, res) => {
       const id = +req.params.id;
       const { transport } = this.connections[id];
 
@@ -203,7 +235,7 @@ export class McpPlugin implements IPlugin {
           ],
         };
       } catch (err: any) {
-        this.log.error(err.toString());
+        this.logger.error(err.toString());
 
         return {
           isError: true,

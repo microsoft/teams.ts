@@ -1,4 +1,4 @@
-import qs from 'qs';
+import { getInjectedUrl } from '@utils/url';
 import * as http from '@microsoft/spark.common/http';
 
 import pkg from 'src/../package.json';
@@ -7,29 +7,6 @@ import { ChatsClient } from './chats';
 import { OnlineMeetingsClient } from './onlineMeetings';
 import { PresenceClient } from './presence';
 import { TeamworkClient } from './teamwork';
-
-interface Param {
-  readonly in: string;
-  readonly name: string;
-}
-
-function getInjectedUrl(url: string, params: Array<Param>, data: Record<string, any>) {
-  const query: Record<string, any> = {};
-
-  for (const param of params) {
-    if (param.in === 'query') {
-      query[param.name] = data[param.name];
-    }
-
-    if (param.in !== 'path') {
-      continue;
-    }
-
-    url = url.replace(`{${param.name}}`, data[param.name]);
-  }
-
-  return `${url}${qs.stringify(query, { addQueryPrefix: true })}`;
-}
 
 /**
  * /users
@@ -140,6 +117,10 @@ export class UsersClient {
       '/users',
       [
         { name: 'ConsistencyLevel', in: 'header' },
+        { name: '$top', in: 'query' },
+        { name: '$search', in: 'query' },
+        { name: '$filter', in: 'query' },
+        { name: '$count', in: 'query' },
         { name: '$orderby', in: 'query' },
         { name: '$select', in: 'query' },
         { name: '$expand', in: 'query' },

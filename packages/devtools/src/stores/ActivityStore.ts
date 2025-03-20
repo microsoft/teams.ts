@@ -1,4 +1,3 @@
-import { createContext } from 'react';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
@@ -6,20 +5,24 @@ import { ActivityEvent } from '../types/Event';
 
 export interface ActivityStore {
   readonly list: Array<ActivityEvent>;
+  readonly byId: Record<string, ActivityEvent>;
   readonly put: (event: ActivityEvent) => void;
 }
 
 export const useActivityStore = create<ActivityStore>()(
   devtools((set) => ({
     list: [],
+    byId: {},
     put: (event) =>
       set((state) => {
         const i = state.list.findIndex((e) => e.id === event.id);
+        const list = [...state.list];
+        const byId = { ...state.byId };
 
         if (i === -1) {
-          state.list.push(event);
+          list.push(event);
         } else {
-          state.list[i] = {
+          list[i] = {
             ...state.list[i],
             type: event.type,
             body: event.body,
@@ -27,9 +30,13 @@ export const useActivityStore = create<ActivityStore>()(
           };
         }
 
-        return { ...state };
+        // Update the byId lookup
+        byId[event.id] = event;
+
+        return {
+          list: list,
+          byId: byId,
+        };
       }),
   }))
 );
-
-export const ActivityContext = createContext<ActivityStore>(null as any);

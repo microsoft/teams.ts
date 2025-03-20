@@ -1,14 +1,23 @@
+import { EventEmitter } from '@microsoft/spark.common';
 import {
   ActivityParams,
   Attachment,
   ChannelData,
+  Client,
+  ConversationReference,
   Entity,
   IMessageActivity,
+  MessageActivity,
+  TypingActivity,
 } from '@microsoft/spark.api';
 
-import { SentActivity, IStreamer } from '../../types';
+import { IStreamer, IStreamerEvents } from '../../types';
 
 export class HttpStream implements IStreamer {
+  readonly events = new EventEmitter<IStreamerEvents>();
+
+  protected client: Client;
+  protected ref: ConversationReference;
   protected index = 0;
   protected id?: string;
   protected text: string = '';
@@ -20,7 +29,10 @@ export class HttpStream implements IStreamer {
   private _timeout?: NodeJS.Timeout;
   private _failures: number = 0;
 
-  constructor(protected send: (activity: ActivityParams) => Promise<SentActivity>) {}
+  constructor(client: Client, ref: ConversationReference) {
+    this.client = client;
+    this.ref = ref;
+  }
 
   emit(activity: Partial<IMessageActivity> | string) {
     if (this._timeout) {
@@ -46,25 +58,14 @@ export class HttpStream implements IStreamer {
       await new Promise((resolve) => setTimeout(resolve, 200));
     }
 
-    await this.send({
-      id: this.id,
-      type: 'message',
-      text: this.text,
-      attachments: this.attachments,
-      entities: [
-        ...this.entities,
-        {
-          type: 'streaminfo',
-          streamId: this.id,
-          streamType: 'final',
-        },
-      ],
-      channelData: {
-        ...this.channelData,
-        streamId: this.id,
-        streamType: 'final',
-      },
-    });
+    const activity = new MessageActivity(this.text)
+      .withId(this.id)
+      .addAttachments(...this.attachments)
+      .addEntities(...this.entities)
+      .addStreamFinal();
+
+    const res = await this.send(activity);
+    this.events.emit('close', res);
 
     this.index = 0;
     this.id = undefined;
@@ -113,27 +114,15 @@ export class HttpStream implements IStreamer {
       }
 
       this.index++;
-      const { id } = await this.send({
-        id: this.id,
-        type: 'typing',
-        text: this.text,
-        channelData: {
-          streamId: this.id,
-          streamType: 'streaming',
-          streamSequence: this.index,
-        },
-        entities: [
-          {
-            type: 'streaminfo',
-            streamId: this.id,
-            streamType: 'streaming',
-            streamSequence: this.index,
-          },
-        ],
-      });
+      const activity = new TypingActivity({ id: this.id })
+        .withText(this.text)
+        .addStreamUpdate(this.index);
+
+      const res = await this.send(activity);
+      this.events.emit('chunk', res);
 
       if (!this.id) {
-        this.id = id;
+        this.id = res.id;
       }
 
       this._failures = 0;
@@ -148,5 +137,25 @@ export class HttpStream implements IStreamer {
         this._timeout = setTimeout(this.flush.bind(this), (this._failures + 1) * 500);
       }
     }
+  }
+
+  protected async send(activity: ActivityParams) {
+    activity = {
+      ...activity,
+      from: this.ref.bot,
+      conversation: this.ref.conversation,
+    };
+
+    if (activity.id && !(activity.entities?.some((e) => e.type === 'streaminfo') || false)) {
+      const res = await this.client.conversations
+        .activities(this.ref.conversation.id)
+        .update(activity.id, activity);
+      return { ...activity, ...res };
+    }
+
+    const res = await this.client.conversations
+      .activities(this.ref.conversation.id)
+      .create(activity);
+    return { ...activity, ...res };
   }
 }

@@ -10,8 +10,8 @@ describe('App', () => {
     await app.start(9000);
   });
 
-  afterAll(() => {
-    app.http.server.close();
+  afterAll(async () => {
+    await app.stop();
   });
 
   it('should get manifest', (done) => {

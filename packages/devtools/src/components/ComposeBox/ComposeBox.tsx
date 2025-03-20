@@ -9,7 +9,7 @@ import {
   useMemo,
 } from 'react';
 import { Textarea } from '@fluentui/react-components';
-import { Attachment } from '@microsoft/spark.api';
+import { Attachment, Message } from '@microsoft/spark.api';
 
 import { useCardStore } from '../../stores/CardStore';
 import { AttachmentType } from '../../types/Attachment';
@@ -19,9 +19,9 @@ import NewMessageToolbar from './ComposeBoxToolbar/ComposeBoxToolbar';
 import useComposeBoxClasses from './ComposeBox.styles';
 
 export interface ComposeBoxProps {
-  onSend: (message: string, attachments?: Attachment[]) => void;
-  messageHistory: string[];
-  onMessageSent: (message: string) => void;
+  onSend: (message: Partial<Message>, attachments?: Attachment[]) => void;
+  messageHistory: Partial<Message>[];
+  onMessageSent: (message: Partial<Message>) => void;
 }
 
 const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent }) => {
@@ -95,9 +95,16 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
   // Handle sending message with text and attachments
   const handleSendMessage = useCallback(() => {
     if (message.trim() || attachments.length > 0) {
-      onSend(message, attachments);
+      const messageObj: Partial<Message> = {
+        body: {
+          content: message,
+          contentType: 'text',
+        },
+        attachments,
+      };
+      onSend(messageObj);
       if (message.trim()) {
-        onMessageSent(message.trim());
+        onMessageSent(messageObj);
       }
       setMessage('');
       setAttachments([]);
@@ -118,7 +125,11 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
             historyIndex === -1 ? 0 : Math.min(historyIndex + 1, messageHistory.length - 1);
           if (newIndex < messageHistory.length) {
             setHistoryIndex(newIndex);
-            setMessage(messageHistory[newIndex]);
+            const historyMessage = messageHistory[newIndex];
+            setMessage(historyMessage.body?.content || '');
+            if (historyMessage.attachments) {
+              setAttachments(historyMessage.attachments);
+            }
           }
         }
       } else if (e.key === 'ArrowDown' && !e.shiftKey && historyIndex !== -1) {
@@ -126,10 +137,15 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
         const newIndex = historyIndex - 1;
         if (newIndex >= 0) {
           setHistoryIndex(newIndex);
-          setMessage(messageHistory[newIndex]);
+          const historyMessage = messageHistory[newIndex];
+          setMessage(historyMessage.body?.content || '');
+          if (historyMessage.attachments) {
+            setAttachments(historyMessage.attachments);
+          }
         } else {
           setHistoryIndex(-1);
           setMessage('');
+          setAttachments([]);
         }
       }
     },
@@ -192,23 +208,21 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
 
   return (
     <div className={classes.composeBoxContainer}>
-      <div className={classes.textareaContainer}>
-        <Textarea
-          ref={textareaRef}
-          className={classes.composeInput}
-          placeholder="Type a message..."
-          value={message}
-          onChange={handleMessageChange}
-          onKeyDown={handleKeyDown}
-        />
-        {memoizedToolbar}
+      <Textarea
+        ref={textareaRef}
+        className={classes.composeInput}
+        placeholder="Type a message..."
+        value={message}
+        onChange={handleMessageChange}
+        onKeyDown={handleKeyDown}
+      />
+      {memoizedToolbar}
 
-        <AttachmentsContainer
-          attachments={uiAttachments}
-          onRemoveAttachment={handleRemoveAttachment}
-          showRemoveButtons={true}
-        />
-      </div>
+      <AttachmentsContainer
+        attachments={uiAttachments}
+        onRemoveAttachment={handleRemoveAttachment}
+        showRemoveButtons={true}
+      />
     </div>
   );
 };

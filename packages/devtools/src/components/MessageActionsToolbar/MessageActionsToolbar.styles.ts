@@ -1,6 +1,6 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
-export const useClasses = makeStyles({
+const useMessageActionsToolbarStyles = makeStyles({
   toolbar: {
     display: 'flex',
     flexDirection: 'row',
@@ -25,3 +25,5 @@ export const useClasses = makeStyles({
     textTransform: 'capitalize',
   },
 });
+
+export default useMessageActionsToolbarStyles;

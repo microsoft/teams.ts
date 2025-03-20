@@ -1,32 +1,9 @@
-import qs from 'qs';
+import { getInjectedUrl } from '@utils/url';
 import * as http from '@microsoft/spark.common/http';
 
 import pkg from 'src/../package.json';
 import type { Endpoints } from './index-types.ts';
 import { SchemaClient } from './schema';
-
-interface Param {
-  readonly in: string;
-  readonly name: string;
-}
-
-function getInjectedUrl(url: string, params: Array<Param>, data: Record<string, any>) {
-  const query: Record<string, any> = {};
-
-  for (const param of params) {
-    if (param.in === 'query') {
-      query[param.name] = data[param.name];
-    }
-
-    if (param.in !== 'path') {
-      continue;
-    }
-
-    url = url.replace(`{${param.name}}`, data[param.name]);
-  }
-
-  return `${url}${qs.stringify(query, { addQueryPrefix: true })}`;
-}
 
 /**
  * /applications/{application-id}/synchronization/templates
@@ -115,6 +92,11 @@ export class TemplatesClient {
     const url = getInjectedUrl(
       '/applications/{application-id}/synchronization/templates',
       [
+        { name: '$top', in: 'query' },
+        { name: '$skip', in: 'query' },
+        { name: '$search', in: 'query' },
+        { name: '$filter', in: 'query' },
+        { name: '$count', in: 'query' },
         { name: '$orderby', in: 'query' },
         { name: '$select', in: 'query' },
         { name: '$expand', in: 'query' },
