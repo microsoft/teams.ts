@@ -131,7 +131,7 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
       const completion = await this._openai.chat.completions.create({
         ...this.options.requestOptions,
         ...options.request,
-        model: this.options.model,
+        model: 'endpoint' in this.options ? '' : this.options.model,
         stream: !!options.onChunk,
         tools:
           Object.keys(options.functions || {}).length === 0
