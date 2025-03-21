@@ -1,5 +1,11 @@
 # @microsoft/spark.api
 
+## 0.2.4
+
+### Patch Changes
+
+- fix reflect-metadata dependency
+
 ## 0.2.3
 
 ### Patch Changes

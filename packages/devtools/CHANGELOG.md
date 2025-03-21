@@ -1,5 +1,16 @@
 # @microsoft/spark.devtools
 
+## 0.2.4
+
+### Patch Changes
+
+- fix reflect-metadata dependency
+- Updated dependencies
+    - @microsoft/spark.api@0.2.4
+    - @microsoft/spark.apps@0.2.4
+    - @microsoft/spark.cards@0.2.4
+    - @microsoft/spark.common@0.2.4
+
 ## 0.2.3
 
 ### Patch Changes

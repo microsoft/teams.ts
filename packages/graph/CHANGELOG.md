@@ -1,5 +1,13 @@
 # @microsoft/spark.graph
 
+## 0.2.4
+
+### Patch Changes
+
+- fix reflect-metadata dependency
+- Updated dependencies
+    - @microsoft/spark.common@0.2.4
+
 ## 0.2.3
 
 ### Patch Changes
