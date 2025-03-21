@@ -91,7 +91,7 @@ provision:
           outputZipPath: ./appPackage/build/appPackage.$\{{TEAMSFX_ENV}}.zip
           outputJsonPath: ./appPackage/build/manifest.$\{{TEAMSFX_ENV}}.json
 
-    # Automates updating the Teams app manifest in Teams Developer Portal using the App ID from the mainfest file.
+    # Automates updating the Teams app manifest in Teams Developer Portal using the App ID from the manifest file.
     # This action ensures that any manifest changes are reflected when launching the app again in Teams.
     - uses: teamsApp/update
       with:
