@@ -12,7 +12,7 @@ const orderImports = {
     return {
       Program(node) {
         const sourceCode = context.getSourceCode();
-        const imports = node.body.filter(node => node.type === 'ImportDeclaration');
+        const imports = node.body.filter((node) => node.type === 'ImportDeclaration');
 
         // If there are no imports, don't try to fix anything
         if (imports.length === 0) {
@@ -22,26 +22,27 @@ const orderImports = {
         // Get all comments before the first import
         const firstImport = imports[0];
         const commentsBeforeImports = sourceCode.getCommentsBefore(firstImport);
-        const leadingComments = commentsBeforeImports.map(c => sourceCode.getText(c)).join('\n');
+        const leadingComments = commentsBeforeImports.map((c) => sourceCode.getText(c)).join('\n');
 
         // Get all comments after the last import
         const lastImport = imports[imports.length - 1];
-        const nextNode = node.body.find(n =>
-          n.type !== 'ImportDeclaration' &&
-          lastImport.range[1] < n.range[0]
+        const nextNode = node.body.find(
+          (n) => n.type !== 'ImportDeclaration' && lastImport.range[1] < n.range[0]
         );
 
         // Get trailing comments
         let trailingComments = '';
         const allComments = sourceCode.getAllComments();
-        const commentsAfterImports = allComments.filter(comment => {
+        const commentsAfterImports = allComments.filter((comment) => {
           const commentStart = comment.range[0];
-          return commentStart > lastImport.range[1] &&
-                 (!nextNode || commentStart < nextNode.range[0]) &&
-                 // Make sure the comment is actually between imports and next node
-                 sourceCode.text.slice(lastImport.range[1], commentStart).trim() === '';
+          return (
+            commentStart > lastImport.range[1] &&
+            (!nextNode || commentStart < nextNode.range[0]) &&
+            // Make sure the comment is actually between imports and next node
+            sourceCode.text.slice(lastImport.range[1], commentStart).trim() === ''
+          );
         });
-        trailingComments = commentsAfterImports.map(c => sourceCode.getText(c)).join('\n');
+        trailingComments = commentsAfterImports.map((c) => sourceCode.getText(c)).join('\n');
 
         const importGroups = {
           react: [],
@@ -51,7 +52,7 @@ const orderImports = {
         };
 
         // Categorize imports
-        imports.forEach(imp => {
+        imports.forEach((imp) => {
           const source = imp.source.value;
           if (source === 'react') {
             importGroups.react.push(imp);
@@ -129,10 +130,12 @@ const orderImports = {
         // Add React imports and external imports together with their comments
         const topImports = [...importGroups.react, ...importGroups.external];
         if (topImports.length) {
-          const importTexts = topImports.map(imp => {
+          const importTexts = topImports.map((imp) => {
             const comments = getNodeComments(imp);
-            const commentText = comments.map(c => sourceCode.getText(c)).join('\n');
-            return commentText ? `${commentText}\n${sourceCode.getText(imp)}` : sourceCode.getText(imp);
+            const commentText = comments.map((c) => sourceCode.getText(c)).join('\n');
+            return commentText
+              ? `${commentText}\n${sourceCode.getText(imp)}`
+              : sourceCode.getText(imp);
           });
           importParts.push(importTexts.join('\n'));
         }
@@ -140,10 +143,12 @@ const orderImports = {
         // Add internal imports with their comments
         if (importGroups.internal.length) {
           if (topImports.length > 0) importParts.push('');
-          const importTexts = importGroups.internal.map(imp => {
+          const importTexts = importGroups.internal.map((imp) => {
             const comments = getNodeComments(imp);
-            const commentText = comments.map(c => sourceCode.getText(c)).join('\n');
-            return commentText ? `${commentText}\n${sourceCode.getText(imp)}` : sourceCode.getText(imp);
+            const commentText = comments.map((c) => sourceCode.getText(c)).join('\n');
+            return commentText
+              ? `${commentText}\n${sourceCode.getText(imp)}`
+              : sourceCode.getText(imp);
           });
           importParts.push(importTexts.join('\n'));
         }
@@ -151,10 +156,12 @@ const orderImports = {
         // Add local imports with their comments
         if (importGroups.local.length) {
           if (topImports.length > 0 || importGroups.internal.length > 0) importParts.push('');
-          const importTexts = importGroups.local.map(imp => {
+          const importTexts = importGroups.local.map((imp) => {
             const comments = getNodeComments(imp);
-            const commentText = comments.map(c => sourceCode.getText(c)).join('\n');
-            return commentText ? `${commentText}\n${sourceCode.getText(imp)}` : sourceCode.getText(imp);
+            const commentText = comments.map((c) => sourceCode.getText(c)).join('\n');
+            return commentText
+              ? `${commentText}\n${sourceCode.getText(imp)}`
+              : sourceCode.getText(imp);
           });
           importParts.push(importTexts.join('\n'));
         }
