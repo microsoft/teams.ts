@@ -4,6 +4,7 @@ import { Dismiss20Regular } from '@fluentui/react-icons/lib/fonts';
 
 import { AttachmentType } from '../../types/Attachment';
 import AdaptiveCard from '../Card/AdaptiveCard';
+
 import { useClasses } from './AttachmentsContainer.styles';
 
 const AttachmentItem = memo(

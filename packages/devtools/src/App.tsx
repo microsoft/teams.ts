@@ -9,19 +9,19 @@ import {
 } from '@fluentui/react-components';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 
+import ActivitiesScreen from './screens/ActivitiesScreen/ActivitiesScreen';
+import ChatScreen from './screens/ChatScreen/ChatScreen';
 import Logger from './components/Logger/Logger';
 import PageNav from './components/PageNav/PageNav';
+import CardsScreen from './screens/CardsScreen';
+import CustomScreen from './screens/CustomScreen';
 import useTheme from './hooks/useTheme';
 import { useActivityStore } from './stores/ActivityStore';
 import { useChatStore } from './stores/ChatStore';
 import { MetadataContext, useMetadataStore } from './stores/MetadataStore';
-import { SocketClient } from './socket-client';
-import ActivitiesScreen from './screens/ActivitiesScreen/ActivitiesScreen';
-import CardsScreen from './screens/CardsScreen';
-import ChatScreen from './screens/ChatScreen/ChatScreen';
-import CustomScreen from './screens/CustomScreen';
 import { ActivityEvent } from './types/Event';
 import useAppClasses from './App.styles';
+import { SocketClient } from './socket-client';
 
 const socket = new SocketClient();
 

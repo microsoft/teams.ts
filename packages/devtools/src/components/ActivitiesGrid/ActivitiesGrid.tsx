@@ -13,9 +13,10 @@ import {
 
 import { ActivityEvent } from '../../types/Event';
 import { getPath } from '../../utils/get-path';
-import { getActivityPath } from './getActivityPath';
-import useActivityGridColumns from './ActivityGridColumns';
+
 import useActivitiesGridClasses from './ActivitiesGrid.styles';
+import useActivityGridColumns from './ActivityGridColumns';
+import { getActivityPath } from './getActivityPath';
 
 function filterActivities(event: ActivityEvent, params: URLSearchParams): boolean {
   for (const [key, filter] of params.entries()) {

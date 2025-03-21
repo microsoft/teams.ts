@@ -1,6 +1,6 @@
+import { Card } from '@microsoft/spark.cards';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { Card } from '@microsoft/spark.cards';
 
 export interface CardStore {
   readonly currentCard: Card | null;

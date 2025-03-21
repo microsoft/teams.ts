@@ -8,15 +8,15 @@ import {
   ToolbarProps,
   Tooltip,
 } from '@fluentui/react-components';
-
 import { Message, MessageReactionType, MessageUser } from '@microsoft/spark.api';
 import { useNavigate } from 'react-router';
 
 import useConversationScope from '../../hooks/useConversationScope';
 import { MessageActionUIPayload } from '../../types/MessageActionUI';
 import { messageReactions } from '../../types/MessageReactionsEmoji';
-import { EditIcon, SearchIcon } from './icons';
+
 import useMessageActionsToolbarClasses from './MessageActionsToolbar.styles';
+import { EditIcon, SearchIcon } from './icons';
 import MessageActionsMoreMenu from './MessageActionsMoreMenu';
 
 interface MessageActionsProps extends ToolbarProps {

@@ -1,13 +1,13 @@
-import { ActionSet, ICard, Card, Element, Icon, TextBlock } from '@microsoft/spark.cards';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import prettier from 'prettier/standalone';
-import parserTypeScript from 'prettier/plugins/typescript';
+import { ActionSet, ICard, Card, Element, Icon, TextBlock } from '@microsoft/spark.cards';
 import estree from 'prettier/plugins/estree';
+import parserTypeScript from 'prettier/plugins/typescript';
+import prettier from 'prettier/standalone';
 
+import { useCardDesignerClasses } from './CardDesigner.styles';
 import CardDesignerContent from './CardDesignerContent';
 import CardDesignerEditor from './CardDesignerEditor';
 import CardDesignerSidebar from './CardDesignerSidebar';
-import { useCardDesignerClasses } from './CardDesigner.styles';
 
 export interface CardDesignerProps {
   readonly value?: ICard;

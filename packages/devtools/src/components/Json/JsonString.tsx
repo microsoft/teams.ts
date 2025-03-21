@@ -1,8 +1,8 @@
 import { ComponentProps, FC, memo } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
 
-import OverflowTooltip from './OverflowTooltip';
 import useJsonClasses from './Json.styles';
+import OverflowTooltip from './OverflowTooltip';
 
 interface JsonStringProps extends ComponentProps<'div'> {
   readonly value: string;

@@ -14,7 +14,34 @@ const orderImports = {
         const sourceCode = context.getSourceCode();
         const imports = node.body.filter(node => node.type === 'ImportDeclaration');
 
-        if (imports.length === 0) return;
+        // If there are no imports, don't try to fix anything
+        if (imports.length === 0) {
+          return;
+        }
+
+        // Get all comments before the first import
+        const firstImport = imports[0];
+        const commentsBeforeImports = sourceCode.getCommentsBefore(firstImport);
+        const leadingComments = commentsBeforeImports.map(c => sourceCode.getText(c)).join('\n');
+
+        // Get all comments after the last import
+        const lastImport = imports[imports.length - 1];
+        const nextNode = node.body.find(n =>
+          n.type !== 'ImportDeclaration' &&
+          lastImport.range[1] < n.range[0]
+        );
+
+        // Get trailing comments
+        let trailingComments = '';
+        const allComments = sourceCode.getAllComments();
+        const commentsAfterImports = allComments.filter(comment => {
+          const commentStart = comment.range[0];
+          return commentStart > lastImport.range[1] &&
+                 (!nextNode || commentStart < nextNode.range[0]) &&
+                 // Make sure the comment is actually between imports and next node
+                 sourceCode.text.slice(lastImport.range[1], commentStart).trim() === '';
+        });
+        trailingComments = commentsAfterImports.map(c => sourceCode.getText(c)).join('\n');
 
         const importGroups = {
           react: [],
@@ -76,72 +103,98 @@ const orderImports = {
         importGroups.internal.sort(sortByDepthCategoryAndName);
         importGroups.local.sort(sortByDepthCategoryAndName);
 
-        // Build the desired import text with proper spacing
+        // Helper function to get comments associated with a node
+        const getNodeComments = (node) => {
+          const comments = [];
+          const tokens = sourceCode.getTokens(node, { includeComments: true });
+
+          for (const token of tokens) {
+            if (token.type === 'Line' || token.type === 'Block') {
+              comments.push(token);
+            }
+          }
+
+          return comments;
+        };
+
+        // Build the desired import text with proper spacing and comments
         const importParts = [];
 
-        // Add React imports and external imports together
+        // Add leading comments if they exist
+        if (leadingComments) {
+          importParts.push(leadingComments);
+          importParts.push('');
+        }
+
+        // Add React imports and external imports together with their comments
         const topImports = [...importGroups.react, ...importGroups.external];
         if (topImports.length) {
-          importParts.push(topImports.map(imp => sourceCode.getText(imp)).join('\n'));
+          const importTexts = topImports.map(imp => {
+            const comments = getNodeComments(imp);
+            const commentText = comments.map(c => sourceCode.getText(c)).join('\n');
+            return commentText ? `${commentText}\n${sourceCode.getText(imp)}` : sourceCode.getText(imp);
+          });
+          importParts.push(importTexts.join('\n'));
         }
 
-        // Add internal imports
+        // Add internal imports with their comments
         if (importGroups.internal.length) {
-          if (importParts.length > 0) importParts.push('');
-          importParts.push(importGroups.internal.map(imp => sourceCode.getText(imp)).join('\n'));
+          if (topImports.length > 0) importParts.push('');
+          const importTexts = importGroups.internal.map(imp => {
+            const comments = getNodeComments(imp);
+            const commentText = comments.map(c => sourceCode.getText(c)).join('\n');
+            return commentText ? `${commentText}\n${sourceCode.getText(imp)}` : sourceCode.getText(imp);
+          });
+          importParts.push(importTexts.join('\n'));
         }
 
-        // Add local imports
+        // Add local imports with their comments
         if (importGroups.local.length) {
-          if (importParts.length > 0) importParts.push('');
-          importParts.push(importGroups.local.map(imp => sourceCode.getText(imp)).join('\n'));
+          if (topImports.length > 0 || importGroups.internal.length > 0) importParts.push('');
+          const importTexts = importGroups.local.map(imp => {
+            const comments = getNodeComments(imp);
+            const commentText = comments.map(c => sourceCode.getText(c)).join('\n');
+            return commentText ? `${commentText}\n${sourceCode.getText(imp)}` : sourceCode.getText(imp);
+          });
+          importParts.push(importTexts.join('\n'));
+        }
+
+        // Add trailing comments if they exist
+        if (trailingComments) {
+          importParts.push('');
+          importParts.push(trailingComments);
         }
 
         const desiredImportText = importParts.join('\n');
 
-        // Find the next non-import statement
-        const nextNode = node.body.find(n =>
-          n.type !== 'ImportDeclaration' &&
-          imports[imports.length - 1].range[1] < n.range[0]
-        );
-
         // Get the current import text including whitespace after imports
         let currentImportText = '';
-        const firstImport = imports[0];
-        const lastImport = imports[imports.length - 1];
         const importEnd = lastImport.range[1];
 
         if (nextNode) {
           const nextStart = nextNode.range[0];
           currentImportText = sourceCode.text.slice(firstImport.range[0], nextStart);
+          const suffix = trailingComments ? '\n' : '\n\n';
+          const expectedText = desiredImportText + suffix;
 
-          // Count newlines between imports and next node
-          const textAfterImports = sourceCode.text.slice(importEnd, nextStart);
-          const newlineCount = (textAfterImports.match(/\n/g) || []).length;
-
-          if (newlineCount > 2 || currentImportText !== desiredImportText + '\n\n') {
+          // Only fix if the current text is different from what we want
+          if (currentImportText.trim() !== expectedText.trim()) {
             context.report({
               node: firstImport,
-              message: 'Incorrect import order or formatting.',
+              message: 'Import order needs to be fixed.',
               fix(fixer) {
-                // Remove everything from first import to next node
-                const removeRange = [firstImport.range[0], nextStart];
-                const fix = fixer.replaceTextRange(removeRange, desiredImportText + '\n\n');
-                return fix;
+                return fixer.replaceTextRange([firstImport.range[0], nextStart], expectedText);
               },
             });
           }
         } else {
           currentImportText = sourceCode.text.slice(firstImport.range[0], importEnd);
-          if (currentImportText !== desiredImportText) {
+          if (currentImportText.trim() !== desiredImportText.trim()) {
             context.report({
               node: firstImport,
-              message: 'Incorrect import order or formatting.',
+              message: 'Import order needs to be fixed.',
               fix(fixer) {
-                // Remove and replace all imports
-                const removeRange = [firstImport.range[0], lastImport.range[1]];
-                const fix = fixer.replaceTextRange(removeRange, desiredImportText);
-                return fix;
+                return fixer.replaceTextRange([firstImport.range[0], importEnd], desiredImportText);
               },
             });
           }

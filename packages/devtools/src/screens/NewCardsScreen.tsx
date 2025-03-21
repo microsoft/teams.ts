@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Button } from '@fluentui/react-components';
 
 import Logger from '../components/Logger/Logger';
+
 import useNewCardsScreenClasses from './NewCardsScreen.styles';
 
 const designerUrl = 'https://8e1d-50-46-250-16.ngrok-free.app/designer.html';

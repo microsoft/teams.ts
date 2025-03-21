@@ -1,6 +1,4 @@
 import { FC, memo, useEffect, useState, useCallback, useMemo } from 'react';
-import { MarkdownContent } from '../MarkdownContent';
-import { useChatMessageStyles } from './ChatMessage.styles';
 import {
   Button,
   mergeClasses,
@@ -20,14 +18,17 @@ import {
   MessageUpdateActivity,
 } from '@microsoft/spark.api';
 
-import { useChatStore } from '../../stores/ChatStore';
 import useSparkApi from '../../hooks/useSparkApi';
+import { useChatStore } from '../../stores/ChatStore';
 import { AttachmentType } from '../../types/Attachment';
 import { MessageActionUIPayload } from '../../types/MessageActionUI';
 import { messageReactions } from '../../types/MessageReactionsEmoji';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
-import MessageActionsToolbar from '../MessageActionsToolbar/MessageActionsToolbar';
 import Logger from '../Logger/Logger';
+import MessageActionsToolbar from '../MessageActionsToolbar/MessageActionsToolbar';
+import { MarkdownContent } from '../MarkdownContent';
+
+import { useChatMessageStyles } from './ChatMessage.styles';
 import ChatMessageDeleted from './ChatMessageDeleted';
 
 interface ChatMessageProps {

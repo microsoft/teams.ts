@@ -1,3 +1,4 @@
+import { FC } from 'react';
 import { IImage } from '@microsoft/spark.cards';
 
 import { useImageCardClasses } from './Medias.styles';
@@ -6,7 +7,7 @@ export interface ImageCardProps {
   readonly value: IImage;
 }
 
-export default function ImageCard({ value }: ImageCardProps) {
+const ImageCard: FC<ImageCardProps> = ({ value }) => {
   const classes = useImageCardClasses();
   return (
     <img
@@ -22,4 +23,6 @@ export default function ImageCard({ value }: ImageCardProps) {
       }
     />
   );
-}
+};
+
+export default ImageCard;

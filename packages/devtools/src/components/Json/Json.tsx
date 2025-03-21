@@ -5,13 +5,14 @@ import hljs from 'highlight.js/lib/core';
 import jsonLanguage from 'highlight.js/lib/languages/json';
 import 'highlight.js/styles/atom-one-dark.min.css';
 
+import { JsonValue } from '../../types/JsonValue';
+
+import useJsonClasses from './Json.styles';
+import JsonArray from './JsonArray';
 import JsonBool from './JsonBool';
 import JsonNumber from './JsonNumber';
-import JsonString from './JsonString';
-import JsonArray from './JsonArray';
 import JsonObject from './JsonObject';
-import useJsonClasses from './Json.styles';
-import { JsonValue } from '../../types/JsonValue';
+import JsonString from './JsonString';
 
 hljs.registerLanguage('json', jsonLanguage);
 

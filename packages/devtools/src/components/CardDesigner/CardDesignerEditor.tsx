@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { ICard } from '@microsoft/spark.cards';
-import { SelectTabEvent, SelectTabData, Tab, TabList, TabValue } from '@fluentui/react-components';
-import { json } from '@codemirror/lang-json';
 import { javascript } from '@codemirror/lang-javascript';
+import { json } from '@codemirror/lang-json';
 import { EditorState } from '@codemirror/state';
 import { ViewUpdate } from '@codemirror/view';
+import { SelectTabEvent, SelectTabData, Tab, TabList, TabValue } from '@fluentui/react-components';
+import { ICard } from '@microsoft/spark.cards';
 import { atomone } from '@uiw/codemirror-themes-all';
 import { EditorView, basicSetup } from 'codemirror';
 
-import { useCardDesignerEditorClasses } from './CardDesignerEditor.styles';
 import Logger from '../../components/Logger/Logger';
+
+import { useCardDesignerEditorClasses } from './CardDesignerEditor.styles';
 
 export interface CardDesignerEditorProps {
   readonly value?: ICard;

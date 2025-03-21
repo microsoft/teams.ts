@@ -2,11 +2,12 @@ import { ComponentProps, FC, memo } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
 
 import { JsonValue } from '../../types/JsonValue';
-import { isCircular } from './utils';
+
+import useJsonClasses from './Json.styles';
 import JsonExpandButton from './JsonExpandButton';
 import JsonKey from './JsonKey';
 import JsonPrimitiveWrapper from './JsonPrimitiveWrapper';
-import useJsonClasses from './Json.styles';
+import { isCircular } from './utils';
 import ValueDisplay from './ValueDisplay';
 
 interface JsonObjectRowProps extends ComponentProps<'div'> {

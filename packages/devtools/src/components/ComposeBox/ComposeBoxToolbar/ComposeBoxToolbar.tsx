@@ -1,12 +1,5 @@
 import { FC, useState, useRef, useCallback, memo } from 'react';
 import {
-  AttachRegular,
-  bundleIcon,
-  FluentIcon,
-  SendFilled,
-  SendRegular,
-} from '@fluentui/react-icons/lib/fonts';
-import {
   Button,
   Dialog,
   DialogActions,
@@ -30,8 +23,15 @@ import {
   useId,
   Tooltip,
 } from '@fluentui/react-components';
-import { useNavigate } from 'react-router';
+import {
+  AttachRegular,
+  bundleIcon,
+  FluentIcon,
+  SendFilled,
+  SendRegular,
+} from '@fluentui/react-icons/lib/fonts';
 import { Card } from '@microsoft/spark.cards';
+import { useNavigate } from 'react-router';
 
 import { useCardStore } from '../../../stores/CardStore';
 import Logger from '../../Logger/Logger';

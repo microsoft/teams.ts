@@ -1,14 +1,16 @@
+import { FC } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
 import { IContainer } from '@microsoft/spark.cards';
 
 import Card from '../Card';
+
 import useContainerClasses from './Containers.styles';
 
 export interface ContainerCardProps {
   readonly value: IContainer;
 }
 
-export default function ContainerCard({ value }: ContainerCardProps) {
+const ContainerCard: FC<ContainerCardProps> = ({ value }) => {
   const classes = useContainerClasses();
   return (
     <div
@@ -22,4 +24,6 @@ export default function ContainerCard({ value }: ContainerCardProps) {
       })}
     </div>
   );
-}
+};
+
+export default ContainerCard;

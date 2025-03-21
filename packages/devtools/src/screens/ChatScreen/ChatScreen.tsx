@@ -1,18 +1,18 @@
-import { Attachment, Message } from '@microsoft/spark.api';
 import { FC, useCallback, useState } from 'react';
+import { Attachment, Message } from '@microsoft/spark.api';
 
 import Chat from '../../components/Chat/Chat';
 import ChatMessage from '../../components/ChatMessage/ChatMessage';
 import ChatMessageContainer from '../../components/ChatMessage/ChatMessageContainer';
 import ComposeBox from '../../components/ComposeBox/ComposeBox';
-import TypingIndicator from '../../components/TypingIndicator/TypingIndicator';
 import Logger from '../../components/Logger/Logger';
+import TypingIndicator from '../../components/TypingIndicator/TypingIndicator';
 import useSparkApi from '../../hooks/useSparkApi';
 import { useChatStore } from '../../stores/ChatStore';
 import { useDevModeSendMessage } from '../../utils/devUtils';
+import useScreensClasses from '../Screens.styles';
 
 import useClasses from './ChatScreen.styles';
-import useScreensClasses from '../Screens.styles';
 
 const MAX_HISTORY = 5;
 

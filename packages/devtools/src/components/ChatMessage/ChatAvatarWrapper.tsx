@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import { Avatar, makeStyles, tokens } from '@fluentui/react-components';
+
 interface ChatAvatarProps {
   isConnected: boolean;
 }

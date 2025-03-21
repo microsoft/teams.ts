@@ -5,6 +5,7 @@ import ActivitiesGrid from '../../components/ActivitiesGrid/ActivitiesGrid';
 import ActivityDetails from '../../components/ActivityDetails/ActivityDetails';
 import { useActivityStore } from '../../stores/ActivityStore';
 import { ActivityEvent } from '../../types/Event';
+
 import useActivitiesScreenClasses from './ActivitiesScreen.styles';
 
 const ActivitiesScreen: FC = () => {

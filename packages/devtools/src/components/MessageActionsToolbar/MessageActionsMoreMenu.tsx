@@ -13,8 +13,9 @@ import { Message } from '@microsoft/spark.api';
 
 import { ConversationType } from '../../types/ConversationType';
 import { MessageActionUIPayload } from '../../types/MessageActionUI';
-import { DeleteIcon, MoreHorizontalIcon } from './icons';
+
 import useMessageActionsToolbarClasses from './MessageActionsToolbar.styles';
+import { DeleteIcon, MoreHorizontalIcon } from './icons';
 
 interface MessageActionsMoreMenuProps {
   conversationType: ConversationType;

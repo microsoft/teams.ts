@@ -1,11 +1,11 @@
+import { FC } from 'react';
 import { Element } from '@microsoft/spark.cards';
 
 import ActionSetCard from './Containers/ActionSetCard';
-import ContainerCard from './Containers/ContainerCard';
 import ColumnSetCard from './Containers/ColumnSetCard';
+import ContainerCard from './Containers/ContainerCard';
 import FactSetCard from './Containers/FactSetCard';
 import ImageSetCard from './Containers/ImageSetCard';
-
 import BadgeCard from './Medias/BadgeCard';
 import CodeBlockCard from './Medias/CodeBlockCard';
 import IconCard from './Medias/IconCard';
@@ -16,7 +16,7 @@ export interface CardProps {
   readonly value: Element;
 }
 
-export default function Card({ value }: CardProps) {
+const Card: FC<CardProps> = ({ value }) => {
   switch (value.type) {
     case 'ActionSet':
       return <ActionSetCard value={value} />;
@@ -41,4 +41,6 @@ export default function Card({ value }: CardProps) {
   }
 
   return <>not found</>;
-}
+};
+
+export default Card;

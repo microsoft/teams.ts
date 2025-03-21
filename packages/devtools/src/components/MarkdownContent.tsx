@@ -1,7 +1,7 @@
 import { FC, HTMLProps, memo } from 'react';
+import { Link } from '@fluentui/react-components';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Link } from '@fluentui/react-components';
 
 const MarkdownLink: FC<React.AnchorHTMLAttributes<HTMLAnchorElement>> = (props) => (
   <Link {...props} target="_blank" rel="noopener noreferrer" />

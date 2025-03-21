@@ -3,7 +3,6 @@ import { mergeClasses } from '@fluentui/react-components';
 import { IFactSet } from '@microsoft/spark.cards';
 
 import useContainerClasses from './Containers.styles';
-
 import FactCard from './FactCard';
 
 export interface FactSetCardProps {

@@ -1,5 +1,6 @@
 import { FC, memo } from 'react';
 import { Tooltip } from '@fluentui/react-components';
+
 import { useIsOverflowing } from '../../hooks/useIsOverflowing';
 
 interface OverflowTooltipProps {
