@@ -1,9 +1,9 @@
 import {
-  IChatModel,
   ChatSendOptions,
+  IChatModel,
   LocalMemory,
-  ModelMessage,
   Message,
+  ModelMessage,
 } from '@microsoft/spark.ai';
 import { ConsoleLogger, ILogger } from '@microsoft/spark.common/logging';
 
@@ -60,10 +60,10 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
         ? new AzureOpenAI({
             apiKey: options.apiKey,
             apiVersion: options.apiVersion,
-            endpoint: options.endpoint,
+            endpoint: options.endpoint?.replace(/\/$/, ''),
             deployment: options.model,
             azureADTokenProvider: options.azureADTokenProvider,
-            baseURL: options.baseUrl,
+            baseURL: options.baseUrl?.replace(/\/$/, ''),
             organization: options.organization,
             project: options.project,
             defaultHeaders: options.headers,
@@ -72,7 +72,7 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
           })
         : new OpenAI({
             apiKey: options.apiKey,
-            baseURL: options.baseUrl,
+            baseURL: options.baseUrl?.replace(/\/$/, ''),
             organization: options.organization,
             project: options.project,
             defaultHeaders: options.headers,
@@ -124,7 +124,7 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
     const messages = await memory.values();
 
     if (options.system) {
-      messages.push(options.system);
+      messages.unshift(options.system);
     }
 
     try {

@@ -25,7 +25,9 @@ export type ChatPromptOptions<TOptions extends Record<string, any> = Record<stri
 
   /**
    * the defining characteristics/objective
-   * of the prompt
+   * of the prompt. This is commonly used to provide a system prompt.
+   * If you supply the system prompt as part of the messages,
+   * you do not need to supply this option.
    */
   readonly instructions?: string | string[] | ITemplate;
 
