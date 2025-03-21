@@ -1,7 +1,8 @@
-const { execSync } = require('child_process');
+const { execSync, spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const http = require('http');
 
 // Create a temporary directory for testing
 const tempDir = path.join(os.tmpdir(), 'spark-integration-test-' + Date.now());
@@ -59,17 +60,116 @@ try {
   console.log('Installing dependencies...');
   execSync('npm install', { stdio: 'inherit' });
 
-  // Step 4: Start the dev server (just to verify it can start)
+  // Step 4: Start the dev server and verify it's running
   console.log('Starting dev server...');
 
-  // Use a shorter timeout for CI environments
-  const startProcess = execSync('npm run dev -- --no-open', {
-    timeout: 30000, // 30 seconds timeout
-    stdio: 'inherit',
+  // Start the server in a separate process so we can listen to its output
+  const devProcess = spawn('npm', ['run', 'dev', '--', '--no-open'], {
+    stdio: ['ignore', 'pipe', 'pipe'],
   });
 
-  console.log('Integration test passed!');
-  process.exit(0);
+  let serverStarted = false;
+  let timeout = setTimeout(() => {
+    if (!serverStarted) {
+      console.error('Timeout waiting for server to start');
+      devProcess.kill();
+      process.exit(1);
+    }
+  }, 60000); // 60 second timeout
+
+  devProcess.stdout.on('data', (data) => {
+    const output = data.toString();
+    console.log('Server output:', output);
+
+    // Check if the server is listening on port 3000
+    if (
+      output.includes('listening on port 3000') ||
+      output.includes('Server running at http://localhost:3000')
+    ) {
+      serverStarted = true;
+      clearTimeout(timeout);
+
+      console.log('Server is running on port 3000, sending a test message...');
+
+      // Wait a moment for the server to fully initialize
+      setTimeout(() => {
+        // Send a test message to the API endpoint
+        const testMessage = JSON.stringify({
+          type: 'message',
+          text: 'Test message from integration test',
+          channelId: 'msteams',
+          from: {
+            id: 'integration-test',
+            name: 'Integration Test',
+            role: 'user',
+          },
+          conversation: {
+            id: 'test-conversation',
+            conversationType: 'personal',
+            isGroup: false,
+            name: 'test',
+          },
+        });
+
+        // Make the HTTP request
+        const req = http.request(
+          {
+            hostname: 'localhost',
+            port: 3000,
+            path: '/api/messages',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Content-Length': Buffer.byteLength(testMessage),
+              'X-Teams-DevTools': 'true',
+            },
+          },
+          (res) => {
+            console.log(`API response status: ${res.statusCode}`);
+            let responseData = '';
+
+            res.on('data', (chunk) => {
+              responseData += chunk;
+            });
+
+            res.on('end', () => {
+              if (res.statusCode >= 200 && res.statusCode < 300) {
+                console.log('Test message sent successfully:', responseData);
+                console.log('Integration test passed!');
+              } else {
+                console.error('Failed to send test message:', responseData);
+                console.error('Integration test failed!');
+              }
+
+              // Clean up and exit
+              devProcess.kill();
+              process.exit(res.statusCode >= 200 && res.statusCode < 300 ? 0 : 1);
+            });
+          }
+        );
+
+        req.on('error', (e) => {
+          console.error('Error sending test message:', e.message);
+          devProcess.kill();
+          process.exit(1);
+        });
+
+        req.write(testMessage);
+        req.end();
+      }, 5000); // Wait 5 seconds before sending the request
+    }
+  });
+
+  devProcess.stderr.on('data', (data) => {
+    console.error('Server error:', data.toString());
+  });
+
+  devProcess.on('close', (code) => {
+    if (!serverStarted) {
+      console.error(`Server process exited with code ${code} before starting`);
+      process.exit(1);
+    }
+  });
 } catch (error) {
   console.error('Integration test failed:', error);
   process.exit(1);
