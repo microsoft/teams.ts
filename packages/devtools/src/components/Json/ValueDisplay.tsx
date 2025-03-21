@@ -2,8 +2,9 @@ import { FC, memo } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
 
 import { JsonValue } from '../../types/JsonValue';
-import { getCollapsedValue } from './utils';
+
 import useJsonClasses from './Json.styles';
+import { getCollapsedValue } from './utils';
 
 interface ValueDisplayProps {
   readonly value: JsonValue;

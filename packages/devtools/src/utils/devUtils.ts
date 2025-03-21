@@ -1,10 +1,9 @@
 import { useEffect, useRef } from 'react';
-import { useLocation } from 'react-router';
 import { Attachment, Message } from '@microsoft/spark.api';
+import { useLocation } from 'react-router';
 
 import Logger from '../components/Logger/Logger';
 
-// Type definitions
 type DevModeOnRouteHook = (pathname: string, callback: () => void) => void;
 type DevModeSendMessageHook = (
   sendMessageFn: (message: Partial<Message>, attachments?: Attachment[]) => void

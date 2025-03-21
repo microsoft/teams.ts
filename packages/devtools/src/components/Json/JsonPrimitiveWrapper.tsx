@@ -2,9 +2,10 @@ import { FC, memo } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
 
 import { JsonValue } from '../../types/JsonValue';
+
+import useJsonClasses from './Json.styles';
 import Json from './Json';
 import OverflowTooltip from './OverflowTooltip';
-import useJsonClasses from './Json.styles';
 
 interface JsonPrimitiveWrapperProps {
   readonly value: JsonValue;

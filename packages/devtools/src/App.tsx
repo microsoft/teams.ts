@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useCallback, useRef, useDebugValue, useState } from 'react';
 import {
   Body1,
   FluentProvider,
@@ -9,61 +9,89 @@ import {
 } from '@fluentui/react-components';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 
+import ActivitiesScreen from './screens/ActivitiesScreen/ActivitiesScreen';
+import ChatScreen from './screens/ChatScreen/ChatScreen';
 import Logger from './components/Logger/Logger';
 import PageNav from './components/PageNav/PageNav';
+import CardsScreen from './screens/CardsScreen';
+import CustomScreen from './screens/CustomScreen';
 import useTheme from './hooks/useTheme';
 import { useActivityStore } from './stores/ActivityStore';
 import { useChatStore } from './stores/ChatStore';
 import { MetadataContext, useMetadataStore } from './stores/MetadataStore';
-import { SocketClient } from './socket-client';
-import ActivitiesScreen from './screens/ActivitiesScreen/ActivitiesScreen';
-import CardsScreen from './screens/CardsScreen';
-import ChatScreen from './screens/ChatScreen/ChatScreen';
-import CustomScreen from './screens/CustomScreen';
 import { ActivityEvent } from './types/Event';
+import { Page } from './types/Page';
 import useAppClasses from './App.styles';
+import { SocketClient } from './socket-client';
 
 const socket = new SocketClient();
+
+// Memoized selectors
+const selectMetadataPages = (state: any) => state.metadata?.pages as Page[] | undefined;
+const selectPutActivity = (state: any) => state.put;
+const selectOnActivity = (state: any) => state.onActivity;
+const selectSetMetadata = (state: any) => state.set;
 
 export default function App() {
   const classes = useAppClasses();
   const [theme] = useTheme();
-  const metadataStore = useMetadataStore();
-  const activityStore = useActivityStore();
-  const chatStore = useChatStore();
-  const [connected, setConnected] = useState(false);
+  const socketRef = useRef(socket);
+  const [connected, setConnected] = useState(socket.connected);
 
-  useEffect(() => {
-    const connectSocket = async () => {
-      try {
-        socket.connect();
-        Logger.info('Connected to server...');
-        setConnected(true);
-      } catch (error) {
-        Logger.error('Error connecting to server:', error);
-        setConnected(false);
-      }
-    };
-    connectSocket();
-    return () => {
-      socket.off('activity');
-      socket.disconnect();
-    };
+  // Use specific selectors with debug values
+  const metadataPages = useMetadataStore(selectMetadataPages);
+  useDebugValue(metadataPages?.length ?? 0, (count) => `${count} metadata pages`);
+
+  const putActivity = useActivityStore(selectPutActivity);
+  const onActivity = useChatStore(selectOnActivity);
+  const setMetadata = useMetadataStore(selectSetMetadata);
+
+  const handleConnect = useCallback(() => {
+    Logger.info('Connected to server...');
+    setConnected(true);
   }, []);
 
-  useEffect(() => {
-    const handleActivity = (event: ActivityEvent) => {
-      activityStore.put(event);
-      chatStore.onActivity(event);
-    };
+  const handleDisconnect = useCallback(() => {
+    Logger.info('Disconnected from server...');
+    setConnected(false);
+  }, []);
 
+  const handleActivity = useCallback(
+    (event: ActivityEvent) => {
+      // Batch store updates to prevent multiple re-renders
+      Promise.resolve().then(() => {
+        putActivity(event);
+        onActivity(event);
+      });
+    },
+    [putActivity, onActivity]
+  );
+
+  const handleMetadata = useCallback(
+    (event: { body: any }) => {
+      setMetadata(event.body);
+    },
+    [setMetadata]
+  );
+
+  useEffect(() => {
+    const socket = socketRef.current;
+
+    socket.on('connect', handleConnect);
+    socket.on('disconnect', handleDisconnect);
     socket.on('activity', handleActivity);
-    socket.on('metadata', (event) => metadataStore.set(event.body));
-    socket.on('disconnect', () => {
-      Logger.info('Disconnected from server...');
-      setConnected(false);
-    });
-  }, [activityStore, chatStore, metadataStore]);
+    socket.on('metadata', handleMetadata);
+
+    socket.connect();
+
+    return () => {
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.off('activity');
+      socket.off('metadata');
+      socket.disconnect();
+    };
+  }, [handleConnect, handleDisconnect, handleActivity, handleMetadata]);
 
   const fluentTheme = useMemo(() => {
     return theme === 'dark' ? teamsDarkTheme : teamsLightTheme;
@@ -71,7 +99,7 @@ export default function App() {
 
   return (
     <FluentProvider theme={fluentTheme}>
-      <MetadataContext.Provider value={metadataStore}>
+      <MetadataContext.Provider value={useMetadataStore()}>
         <BrowserRouter basename="/devtools" data-tid="browser-router">
           {/*
                 Note: The accessibility warning about focusable aria-hidden elements is a known false positive
@@ -90,11 +118,9 @@ export default function App() {
                 <Route path="" element={<ChatScreen isConnected={connected} />} />
                 <Route path="cards" element={<CardsScreen />} />
                 <Route path="activities" element={<ActivitiesScreen />} />
-                {metadataStore.metadata &&
-                  metadataStore.metadata.pages.map((page) => (
-                    <Route path={page.name} element={<CustomScreen {...page} />} />
-                  ))}
-                {/* <Route path="logs" element={<Logs />} /> */}
+                {metadataPages?.map((page: Page) => (
+                  <Route key={page.name} path={page.name} element={<CustomScreen {...page} />} />
+                ))}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>

@@ -1,5 +1,5 @@
+import { FC, useMemo } from 'react';
 import { ITextBlock } from '@microsoft/spark.cards';
-import { useMemo } from 'react';
 
 import { MarkdownContent } from '../../MarkdownContent';
 
@@ -7,7 +7,7 @@ export interface TextBlockCardProps {
   readonly value: ITextBlock;
 }
 
-export default function TextBlockCard({ value }: TextBlockCardProps) {
+const TextBlockCard: FC<TextBlockCardProps> = ({ value }) => {
   const html = useMemo(() => {
     return value.text;
   }, [value.text]);
@@ -17,4 +17,6 @@ export default function TextBlockCard({ value }: TextBlockCardProps) {
   }
 
   return <MarkdownContent content={html} />;
-}
+};
+
+export default TextBlockCard;

@@ -3,6 +3,7 @@ import { mergeClasses } from '@fluentui/react-components';
 import { IColumn } from '@microsoft/spark.cards';
 
 import Card from '../Card';
+
 import useContainerClasses from './Containers.styles';
 
 export interface ColumnCardProps {

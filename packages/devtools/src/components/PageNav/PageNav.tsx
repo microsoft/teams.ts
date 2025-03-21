@@ -1,7 +1,6 @@
 import { FC, memo } from 'react';
 
 import { useMetadataStore } from '../../stores/MetadataStore';
-
 import DevtoolsBanner from '../DevtoolsBanner/DevtoolsBanner';
 import PageNavButton from '../PageNavButton/PageNavButton';
 import usePageNavClasses from './PageNav.styles';
@@ -18,10 +17,9 @@ const PageNav: FC<PageNavProps> = memo(({ connected }) => {
     <nav id="top-nav" className={classes.pageNavContainer} aria-label="Page navigation">
       <DevtoolsBanner connected={connected} />
       <div className={classes.navButtonContainer}>
-        {metadata &&
-          metadata.pages.map((page) => (
-            <PageNavButton to={`/${page.name}`} label={page.displayName} />
-          ))}
+        {metadata?.pages?.map((page) => (
+          <PageNavButton key={page.name} to={`/${page.name}`} label={page.displayName} />
+        ))}
 
         <PageNavButton to="/" iconType="chat" label="Chat" />
         <PageNavButton to="/cards" iconType="cards" label="Cards" />
@@ -38,5 +36,5 @@ const PageNav: FC<PageNavProps> = memo(({ connected }) => {
   );
 });
 
-export default PageNav;
 PageNav.displayName = 'PageNav';
+export default PageNav;

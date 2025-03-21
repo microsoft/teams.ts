@@ -2,10 +2,11 @@ import { ComponentProps, FC, memo, useState } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
 
 import { JsonValue } from '../../types/JsonValue';
-import { hasOnlyPrimitiveChildren } from './utils';
+
+import useJsonClasses from './Json.styles';
 import Json from './Json';
 import JsonObjectRow from './JsonObjectRow';
-import useJsonClasses from './Json.styles';
+import { hasOnlyPrimitiveChildren } from './utils';
 
 interface JsonObjectProps extends ComponentProps<'div'> {
   readonly value: Record<string, JsonValue>;

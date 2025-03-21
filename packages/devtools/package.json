@@ -1,7 +1,6 @@
 {
   "name": "@microsoft/spark.devtools",
   "version": "0.2.2",
-  "type": "module",
   "private": true,
   "files": [
     "dist",
@@ -13,6 +12,9 @@
     "build:watch": "tsc -b && vite build --watch --mode development",
     "lint": "eslint . ",
     "lint:fix": "eslint . --fix",
+    "fmt": "prettier --write \"src/**/*.{js,ts,tsx,md,json}\"",
+    "fmt:check": "prettier --check \"src/**/*.{js,ts,tsx,md,json}\"",
+    "fix": "npm run fmt && npm run lint:fix",
     "preview": "vite preview",
     "build:bundle:visualize": "npx vite-bundle-visualizer"
   },
@@ -47,6 +49,7 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
+    "prettier": "^3.2.5",
     "react-refresh": "^0.16.0",
     "remark-gfm": "^4.0.1",
     "typescript": "~5.7.2",

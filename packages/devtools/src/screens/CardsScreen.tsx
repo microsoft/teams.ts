@@ -10,8 +10,9 @@ import { AttachRegular } from '@fluentui/react-icons';
 import { Card } from '@microsoft/spark.cards';
 
 import CardDesigner from '../components/CardDesigner/CardDesigner';
-import useScreensClasses from './Screens.styles';
 import { useCardStore } from '../stores/CardStore';
+
+import useScreensClasses from './Screens.styles';
 
 const useStyles = makeStyles({
   buttonContainer: {

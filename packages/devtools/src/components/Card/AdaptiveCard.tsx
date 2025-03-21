@@ -2,8 +2,8 @@ import { ComponentProps, memo } from 'react';
 import { makeStyles, mergeClasses, tokens } from '@fluentui/react-components';
 import * as cards from '@microsoft/spark.cards';
 
-import Card from './Card';
 import ActionCard from './Actions/ActionCard';
+import Card from './Card';
 
 export interface AdaptiveCardProps extends ComponentProps<'div'> {
   readonly value: cards.ICard;

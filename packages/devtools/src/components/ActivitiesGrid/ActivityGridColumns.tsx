@@ -20,8 +20,9 @@ import {
 } from '@fluentui/react-icons/lib/fonts';
 
 import { ActivityEvent } from '../../types/Event';
-import { getActivityPath } from './getActivityPath';
+
 import useActivitiesGridClasses from './ActivitiesGrid.styles';
+import { getActivityPath } from './getActivityPath';
 import OverflowCell from './OverflowCell';
 
 const COLUMNS = [

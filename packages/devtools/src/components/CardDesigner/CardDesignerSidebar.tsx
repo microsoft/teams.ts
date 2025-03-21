@@ -1,19 +1,5 @@
-import {
-  ActionSet,
-  Badge,
-  CodeBlock,
-  ColumnSet,
-  Container,
-  Element,
-  Fact,
-  FactSet,
-  Icon,
-  Image,
-  ImageSet,
-  Media,
-  RichTextBlock,
-  TextBlock,
-} from '@microsoft/spark.cards';
+import { useCallback, useState } from 'react';
+import { Button, Title3 } from '@fluentui/react-components';
 import {
   FluentIcon,
   AddFilled,
@@ -31,9 +17,24 @@ import {
   TableImageRegular,
   FilmstripPlayRegular,
 } from '@fluentui/react-icons/lib/fonts';
+import {
+  ActionSet,
+  Badge,
+  CodeBlock,
+  ColumnSet,
+  Container,
+  Element,
+  Fact,
+  FactSet,
+  Icon,
+  Image,
+  ImageSet,
+  Media,
+  RichTextBlock,
+  TextBlock,
+} from '@microsoft/spark.cards';
+
 import { useCardDesignerSidebarClasses } from './CardDesignerSidebar.styles';
-import { Button, Title3 } from '@fluentui/react-components';
-import { useCallback, useState } from 'react';
 
 export interface CardDesignerSidebarProps {
   readonly onSelect?: (el: Element, ts: string) => void;

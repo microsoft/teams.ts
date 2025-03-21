@@ -1,6 +1,7 @@
+import { useMemo } from 'react';
+
 import { useActivityStore } from '../stores/ActivityStore';
 import { ConversationType } from '../types/ConversationType';
-import { useMemo } from 'react';
 
 /**
  * Get conversation type from the message id

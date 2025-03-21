@@ -7,6 +7,7 @@ import {
   formatMessageTime,
   formatMessageTooltipTime,
 } from '../../utils/date-format';
+
 import useChatContainerClasses from './ChatMessageContainer.styles';
 import ChatAvatarWrapper from './ChatAvatarWrapper';
 

@@ -1,14 +1,15 @@
-import { IBadge } from '@microsoft/spark.cards';
+import { FC } from 'react';
 import { mergeClasses, Tooltip } from '@fluentui/react-components';
+import { IBadge } from '@microsoft/spark.cards';
 
-import IconCard from './IconCard';
 import { useBadgeCardStyles } from './Medias.styles';
+import IconCard from './IconCard';
 
 export interface BadgeCardProps {
   readonly value: IBadge;
 }
 
-export default function BadgeCard({ value }: BadgeCardProps) {
+const BadgeCard: FC<BadgeCardProps> = ({ value }) => {
   if (value.tooltip) {
     return (
       <Tooltip content={value.tooltip} relationship="label">
@@ -18,9 +19,9 @@ export default function BadgeCard({ value }: BadgeCardProps) {
   }
 
   return <BadgeCardContent value={value} />;
-}
+};
 
-function BadgeCardContent({ value }: BadgeCardProps) {
+const BadgeCardContent: FC<BadgeCardProps> = ({ value }) => {
   const classes = useBadgeCardStyles();
 
   // Determine shape class
@@ -88,4 +89,6 @@ function BadgeCardContent({ value }: BadgeCardProps) {
       <span className={classes.text}>{value.text}</span>
     </div>
   );
-}
+};
+
+export default BadgeCard;

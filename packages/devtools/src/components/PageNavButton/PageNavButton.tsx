@@ -1,5 +1,4 @@
 import { FC } from 'react';
-import { NavLink } from 'react-router';
 import { mergeClasses } from '@fluentui/react-components';
 import {
   Chat20Regular,
@@ -11,6 +10,7 @@ import {
   DocumentBulletList20Regular,
   DocumentBulletList20Filled,
 } from '@fluentui/react-icons/lib/fonts';
+import { NavLink } from 'react-router';
 
 import { useClasses } from './PageNavButton.styles';
 

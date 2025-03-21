@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { ICodeBlock } from '@microsoft/spark.cards';
 import hljs from 'highlight.js/lib/core';
-import json from 'highlight.js/lib/languages/json';
 import bash from 'highlight.js/lib/languages/bash';
 import c from 'highlight.js/lib/languages/c';
+import json from 'highlight.js/lib/languages/json';
 import typescript from 'highlight.js/lib/languages/typescript';
 import 'highlight.js/styles/atom-one-dark.min.css';
 
 import Logger from '../../Logger/Logger';
+
 import { useCodeBlockStyles } from './Medias.styles';
 
 hljs.registerLanguage('json', json);
@@ -19,7 +20,7 @@ export interface CodeBlockCardProps {
   readonly value: ICodeBlock;
 }
 
-export default function CodeBlockCard({ value }: CodeBlockCardProps) {
+const CodeBlockCard: FC<CodeBlockCardProps> = ({ value }) => {
   const [html, setHtml] = useState<string>();
   const childLog = Logger.child('CodeBlockCard');
   const classes = useCodeBlockStyles();
@@ -27,7 +28,11 @@ export default function CodeBlockCard({ value }: CodeBlockCardProps) {
   useEffect(() => {
     if (value.language) {
       try {
-        setHtml(hljs.highlight(value.codeSnippet || 'null', { language: value.language }).value);
+        setHtml(
+          hljs.highlight(value.codeSnippet || 'null', {
+            language: value.language,
+          }).value
+        );
         return;
       } catch {
         childLog.error('Error highlighting code block', value);
@@ -42,4 +47,6 @@ export default function CodeBlockCard({ value }: CodeBlockCardProps) {
   }
 
   return <pre className={classes.codeBlock} dangerouslySetInnerHTML={{ __html: html }} />;
-}
+};
+
+export default CodeBlockCard;

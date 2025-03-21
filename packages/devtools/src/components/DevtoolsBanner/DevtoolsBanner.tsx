@@ -1,9 +1,11 @@
 import { FC, memo, useCallback } from 'react';
 import { Badge, Text } from '@fluentui/react-components';
-import useClasses from './DevtoolsBanner.styles';
 import { useNavigate } from 'react-router';
-import { navigateToRootAndRefresh } from '../../utils/devUtils';
+
 import DevOnly from '../../utils/dev';
+import { navigateToRootAndRefresh } from '../../utils/devUtils';
+
+import useDevtoolsBannerClasses from './DevtoolsBanner.styles';
 import StatusBadge from './StatusBadge';
 
 interface DevtoolsBannerProps {
@@ -11,7 +13,7 @@ interface DevtoolsBannerProps {
 }
 
 const DevtoolsBanner: FC<DevtoolsBannerProps> = memo(({ connected }) => {
-  const classes = useClasses();
+  const classes = useDevtoolsBannerClasses();
   const navigate = useNavigate();
 
   const handleRefresh = useCallback(() => {

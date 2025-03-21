@@ -11,10 +11,11 @@ import {
 } from '@fluentui/react-components';
 import { CopyRegular } from '@fluentui/react-icons/lib/fonts';
 
-import Json from '../Json/Json';
 import { ActivityEvent } from '../../types/Event';
-import useActivityDetailsClasses from './ActivityDetails.styles';
+import Json from '../Json/Json';
 import Logger from '../Logger/Logger';
+
+import useActivityDetailsClasses from './ActivityDetails.styles';
 
 interface ActivityDetailsProps {
   selected?: ActivityEvent;
