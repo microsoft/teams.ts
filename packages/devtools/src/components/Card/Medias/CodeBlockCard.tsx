@@ -16,13 +16,14 @@ hljs.registerLanguage('bash', bash);
 hljs.registerLanguage('c', c);
 hljs.registerLanguage('typescript', typescript);
 
+const childLog = Logger.child('CodeBlockCard');
+
 export interface CodeBlockCardProps {
   readonly value: ICodeBlock;
 }
 
 const CodeBlockCard: FC<CodeBlockCardProps> = ({ value }) => {
   const [html, setHtml] = useState<string>();
-  const childLog = Logger.child('CodeBlockCard');
   const classes = useCodeBlockStyles();
 
   useEffect(() => {
@@ -40,7 +41,7 @@ const CodeBlockCard: FC<CodeBlockCardProps> = ({ value }) => {
     }
 
     setHtml(hljs.highlightAuto(value.codeSnippet || 'null').value);
-  }, [childLog, value]);
+  }, [value]);
 
   if (!html) {
     return <pre className={classes.codeBlock}>{value.codeSnippet}</pre>;

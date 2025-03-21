@@ -46,6 +46,8 @@ interface ComposeBoxToolbarProps extends ToolbarProps {
 
 const Send = bundleIcon(SendFilled as FluentIcon, SendRegular as FluentIcon);
 
+const childLog = Logger.child('ComposeBoxToolbar');
+
 const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = ({
   onSend,
   onAttachment,
@@ -62,7 +64,6 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = ({
   const jsonInputRef = useRef<HTMLTextAreaElement>(null);
   const { currentCard } = useCardStore();
   const { dispatchToast } = useToastController();
-  const childLog = Logger.child('ComposeBoxToolbar');
 
   const handleNavigateToCards = () => {
     navigate('/cards');
@@ -100,7 +101,7 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = ({
         { intent: 'error' }
       );
     }
-  }, [childLog, jsonInput, onAttachment, onSend, dispatchToast]);
+  }, [jsonInput, onAttachment, onSend, dispatchToast]);
 
   const handleSend = useCallback(() => {
     if (onSend) {

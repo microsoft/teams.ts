@@ -23,10 +23,11 @@ interface ActivityDetailsProps {
   setView: (view: 'preview' | 'json') => void;
 }
 
+const childLog = Logger.child('ActivityDetails');
+
 const ActivityDetails: FC<ActivityDetailsProps> = ({ selected, view, setView }) => {
   const classes = useActivityDetailsClasses();
   const { dispatchToast } = useToastController();
-  const childLog = Logger.child('ActivityDetails');
 
   const handleCopy = async () => {
     try {

@@ -13,8 +13,9 @@ import { Attachment, Message } from '@microsoft/spark.api';
 
 import { useCardStore } from '../../stores/CardStore';
 import { AttachmentType } from '../../types/Attachment';
-import Logger from '../Logger/Logger';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
+import Logger from '../Logger/Logger';
+
 import NewMessageToolbar from './ComposeBoxToolbar/ComposeBoxToolbar';
 import useComposeBoxClasses from './ComposeBox.styles';
 

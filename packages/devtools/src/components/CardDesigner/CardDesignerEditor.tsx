@@ -12,6 +12,10 @@ import Logger from '../../components/Logger/Logger';
 
 import { useCardDesignerEditorClasses } from './CardDesignerEditor.styles';
 
+// Logger instantiations
+const jsonEditorLog = Logger.child('CardDesignerJsonEditor');
+const typescriptEditorLog = Logger.child('CardDesignerTypescriptEditor');
+
 export interface CardDesignerEditorProps {
   readonly value?: ICard;
   readonly typescript?: string;
@@ -66,7 +70,6 @@ export function CardDesignerJsonEditor({ value, onChange }: CardDesignerJsonEdit
   const viewRef = useRef<EditorView | null>(null);
   const classes = useCardDesignerEditorClasses();
   const [isUpdating, setIsUpdating] = useState(false);
-  const childLog = Logger.child('CardDesignerJsonEditor');
 
   // Initialize the editor once
   useEffect(() => {
@@ -87,7 +90,7 @@ export function CardDesignerJsonEditor({ value, onChange }: CardDesignerJsonEdit
               const card = JSON.parse(update.state.doc.toString());
               onChange(card);
             } catch (err) {
-              childLog.error(err);
+              jsonEditorLog.error(err);
             }
           }),
         ],
@@ -100,7 +103,7 @@ export function CardDesignerJsonEditor({ value, onChange }: CardDesignerJsonEdit
       view.destroy();
       viewRef.current = null;
     };
-  }, [childLog, ref, isUpdating, onChange, value]);
+  }, [ref, isUpdating, onChange, value]);
 
   // Update the editor content when value changes
   useEffect(() => {
@@ -110,7 +113,7 @@ export function CardDesignerJsonEditor({ value, onChange }: CardDesignerJsonEdit
         // creates new object every time
         return JSON.parse(value);
       } catch (err) {
-        childLog.warn('Failed to parse JSON:', err);
+        jsonEditorLog.warn('Failed to parse JSON:', err);
         return null;
       }
     };
@@ -131,7 +134,7 @@ export function CardDesignerJsonEditor({ value, onChange }: CardDesignerJsonEdit
       },
     });
     setIsUpdating(false);
-  }, [childLog, value]);
+  }, [value]);
 
   return <div ref={ref} className={classes.cardDesignerEditor} />;
 }
@@ -145,7 +148,6 @@ export function CardDesignerTypescriptEditor({ value }: CardDesignerTypescriptEd
   const viewRef = useRef<EditorView | null>(null);
   const classes = useCardDesignerEditorClasses();
   const [isUpdating, setIsUpdating] = useState(false);
-  const childLog = Logger.child('CardDesignerTypescriptEditor');
 
   // Initialize the editor once
   useEffect(() => {
@@ -187,11 +189,11 @@ export function CardDesignerTypescriptEditor({ value }: CardDesignerTypescriptEd
         },
       });
     } catch (err) {
-      childLog.error('Failed to update TypeScript editor content:', err);
+      typescriptEditorLog.error('Failed to update TypeScript editor content:', err);
     } finally {
       setIsUpdating(false);
     }
-  }, [childLog, isUpdating, value]);
+  }, [isUpdating, value]);
 
   return <div ref={ref} className={classes.cardDesignerEditor} />;
 }
