@@ -6,7 +6,8 @@ alwaysApply: true
 
 # Devtools import rules
 
-Sort imports using the convention shown below. See [App.tsx](mdc:packages/devtools/src/App.tsx) as an example. 
+Whenever you run into the sort import linter error, just run npm run lint:fix.
+Sort imports using the convention shown below. See [App.tsx](mdc:packages/devtools/src/App.tsx) as an example.
 `
 // imports from external packages are first, sorted alphabetically by package name, except react imports should always be the first import
 import { FC } from 'react';
