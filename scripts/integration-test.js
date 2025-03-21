@@ -2,7 +2,6 @@ const { execSync, spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const http = require('http');
 
 // Create a temporary directory for testing
 const tempDir = path.join(os.tmpdir(), 'spark-integration-test-' + Date.now());
@@ -89,74 +88,45 @@ try {
       serverStarted = true;
       clearTimeout(timeout);
 
-      console.log('Server is running on port 3000, sending a test message...');
+      console.log('Server is running, preparing to test API...');
 
       // Wait a moment for the server to fully initialize
-      setTimeout(() => {
-        // Send a test message to the API endpoint
-        const testMessage = JSON.stringify({
-          type: 'message',
-          text: 'Test message from integration test',
-          channelId: 'msteams',
-          from: {
-            id: 'integration-test',
-            name: 'Integration Test',
-            role: 'user',
-          },
-          conversation: {
-            id: 'test-conversation',
-            conversationType: 'personal',
-            isGroup: false,
-            name: 'test',
-          },
-        });
+      setTimeout(async () => {
+        try {
+          // Load the Spark API Client
+          const { Client } = require('@microsoft/spark.api');
 
-        // Make the HTTP request
-        const req = http.request(
-          {
-            hostname: 'localhost',
-            port: 3000,
-            path: '/api/messages',
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Content-Length': Buffer.byteLength(testMessage),
-              'X-Teams-DevTools': 'true',
-            },
-          },
-          (res) => {
-            console.log(`API response status: ${res.statusCode}`);
-            let responseData = '';
+          // Create a client connected to our local server
+          console.log('Creating Spark API client...');
+          const client = new Client('http://localhost:3001', {
+            headers: { 'x-teams-devtools': 'true' },
+          });
 
-            res.on('data', (chunk) => {
-              responseData += chunk;
-            });
+          // Send a message to the server
+          console.log('Sending test message to server...');
 
-            res.on('end', () => {
-              if (res.statusCode >= 200 && res.statusCode < 300) {
-                console.log('Test message sent successfully:', responseData);
-                console.log('Integration test passed!');
-              } else {
-                console.error('Failed to send test message:', responseData);
-                console.error('Integration test failed!');
-              }
+          // First create a conversation if needed
+          console.log('Creating/getting a conversation...');
+          const chatId = 'devtools';
 
-              // Clean up and exit
-              devProcess.kill();
-              process.exit(res.statusCode >= 200 && res.statusCode < 300 ? 0 : 1);
-            });
-          }
-        );
+          // Use the conversations.activities API like in ChatScreen.tsx
+          const response = await client.conversations.activities(chatId).create({
+            type: 'message',
+            text: 'Test message from integration test',
+          });
 
-        req.on('error', (e) => {
-          console.error('Error sending test message:', e.message);
+          console.log('Received response:', response);
+          console.log('Integration test passed!');
+
+          // Clean up and exit
+          devProcess.kill();
+          process.exit(0);
+        } catch (error) {
+          console.error('Error running integration test:', error);
           devProcess.kill();
           process.exit(1);
-        });
-
-        req.write(testMessage);
-        req.end();
-      }, 5000); // Wait 5 seconds before sending the request
+        }
+      }, 5000); // Wait 5 seconds before testing
     }
   });
 
