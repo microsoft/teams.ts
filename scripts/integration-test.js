@@ -13,7 +13,7 @@ try {
   // Step 1: Use the local CLI to create a new app
   console.log('Creating new app with local CLI...');
   const cliPath = path.resolve(process.env.GITHUB_WORKSPACE || '.', 'packages/cli/dist/index.js');
-  execSync(`node ${cliPath} new my-test-app --template typescript`, { stdio: 'inherit' });
+  execSync(`node ${cliPath} new my-test-app --template echo`, { stdio: 'inherit' });
 
   // Change to the newly created app directory
   process.chdir(path.join(tempDir, 'my-test-app'));
