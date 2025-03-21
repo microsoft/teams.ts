@@ -10,13 +10,7 @@ const useComposeBoxClasses = makeStyles({
   },
   composeInput: {
     width: '100%',
-    padding: '10px 0',
     paddingRight: '100px',
-  },
-  textareaContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'relative',
   },
 });
 

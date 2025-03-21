@@ -1,19 +1,19 @@
 import {
   FC,
   useState,
-  ChangeEvent,
   KeyboardEvent,
+  FormEvent,
   useRef,
   useEffect,
   useCallback,
   useMemo,
 } from 'react';
-import { Textarea } from '@fluentui/react-components';
 import { Attachment, Message } from '@microsoft/spark.api';
 
 import { useCardStore } from '../../stores/CardStore';
 import { AttachmentType } from '../../types/Attachment';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
+import ContentEditableArea from '../ContentEditableArea/ContentEditableArea';
 import Logger from '../Logger/Logger';
 
 import NewMessageToolbar from './ComposeBoxToolbar/ComposeBoxToolbar';
@@ -24,6 +24,7 @@ export interface ComposeBoxProps {
   messageHistory: Partial<Message>[];
   onMessageSent: (message: Partial<Message>) => void;
 }
+const childLog = Logger.child('ComposeBox');
 
 const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent }) => {
   const classes = useComposeBoxClasses();
@@ -31,16 +32,16 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [uiAttachments, setUiAttachments] = useState<AttachmentType[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const contentEditableRef = useRef<HTMLDivElement>(null);
   const { currentCard, clearCurrentCard } = useCardStore();
   const processedCardRef = useRef<any>(null);
-  const childLog = Logger.child('ComposeBox');
+  const [isDisabled] = useState(false);
 
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (contentEditableRef.current) {
+  //     contentEditableRef.current.focus();
+  //   }
+  // }, []);
 
   // Convert API Attachment to UI AttachmentType
   const convertToAttachmentType = (attachment: Attachment): AttachmentType => {
@@ -91,7 +92,7 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
       // Clear the current card from the store
       clearCurrentCard();
     }
-  }, [currentCard, clearCurrentCard, childLog]);
+  }, [currentCard, clearCurrentCard]);
 
   // Handle sending message with text and attachments
   const handleSendMessage = useCallback(() => {
@@ -114,11 +115,63 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
     }
   }, [message, attachments, onSend, onMessageSent]);
 
+  const insertLineBreak = useCallback(() => {
+    const selection = window.getSelection();
+    if (!selection || !selection.rangeCount) return;
+
+    const range = selection.getRangeAt(0);
+    if (range) {
+      const br = document.createElement('br');
+      range.insertNode(br);
+
+      // Create a zero-width space after the br to ensure the cursor has a text node to sit in
+      const space = document.createTextNode('\u200B');
+      br.parentNode?.insertBefore(space, br.nextSibling);
+
+      // Move the cursor after the space
+      range.setStartAfter(space);
+      range.setEndAfter(space);
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      // Trigger input event to update state
+      const event = new Event('input', { bubbles: true });
+      contentEditableRef.current?.dispatchEvent(event);
+    }
+  }, []);
+
+  const handleDefaultValue = useCallback((defaultValue: string) => {
+    setMessage(defaultValue);
+  }, []);
+
+  // Memoized message input handler to prevent re-renders
+  const handleInputChange = useCallback(
+    (e: FormEvent<HTMLDivElement>) => {
+      if (isDisabled) return;
+
+      const target = e.target as HTMLDivElement;
+      setMessage(target.innerText);
+    },
+    [isDisabled]
+  );
+
   const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      if (isDisabled) return;
+
+      if (e.key === 'Enter') {
+        // Don't interfere with form submission (when Enter pressed in a form without Shift)
+        if (contentEditableRef.current?.closest('form') && !e.shiftKey) {
+          return;
+        }
         e.preventDefault();
-        handleSendMessage();
+
+        if (e.shiftKey) {
+          // Insert a line break at the caret position
+          insertLineBreak();
+        } else {
+          handleSendMessage();
+        }
       } else if (e.key === 'ArrowUp' && !e.shiftKey && (message === '' || historyIndex !== -1)) {
         e.preventDefault();
         if (messageHistory.length > 0) {
@@ -150,7 +203,7 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
         }
       }
     },
-    [handleSendMessage, message, historyIndex, messageHistory]
+    [isDisabled, message, historyIndex, insertLineBreak, messageHistory, handleSendMessage]
   );
 
   // Handle toolbar actions
@@ -182,7 +235,7 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
         }
       }
     },
-    [childLog, handleSendMessage, message, attachments]
+    [handleSendMessage, message, attachments]
   );
 
   const handleRemoveAttachment = useCallback(
@@ -194,11 +247,6 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
     [attachments]
   );
 
-  // Memoized message input handler to prevent re-renders
-  const handleMessageChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(e.target.value);
-  }, []);
-
   // Check if there's content to send
   const hasContent = message.trim().length > 0 || attachments.length > 0;
 
@@ -209,13 +257,15 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
 
   return (
     <div className={classes.composeBoxContainer}>
-      <Textarea
-        ref={textareaRef}
+      <ContentEditableArea
+        ref={contentEditableRef}
         className={classes.composeInput}
         placeholder="Type a message..."
         value={message}
-        onChange={handleMessageChange}
+        onInputChange={handleInputChange}
         onKeyDown={handleKeyDown}
+        disabled={isDisabled}
+        onDefaultValue={handleDefaultValue}
       />
       {memoizedToolbar}
 

@@ -22,7 +22,6 @@ const useClasses = makeStyles({
     flexDirection: 'column-reverse',
     padding: '10px 0',
     flex: 1,
-    overflowY: 'auto',
   },
   composeContainer: {
     backgroundColor: tokens.colorNeutralBackground3,
