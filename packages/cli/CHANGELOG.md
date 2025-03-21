@@ -1,5 +1,13 @@
 # @microsoft/spark.cli
 
+## 0.2.3
+
+### Patch Changes
+
+- devtools fixes, plugins refactor, ai package fixes, new cli ttk configuration
+- Updated dependencies
+    - @microsoft/spark.common@0.2.3
+
 ## 0.2.2
 
 ### Patch Changes
