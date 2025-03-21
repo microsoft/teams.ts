@@ -17,6 +17,7 @@ interface SocketEventTypes {
   readonly 'activity.sending': ActivitySendingEvent;
   readonly 'activity.sent': ActivitySentEvent;
   readonly 'activity.error': ActivityErrorEvent;
+  readonly connect: void;
   readonly disconnect: void;
 }
 
@@ -27,24 +28,24 @@ export class SocketClient {
     this._socket = io({
       autoConnect: false,
       path: '/devtools/sockets',
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
     });
   }
+
   get connected() {
     return this._socket.connected;
   }
 
-  connect(callback?: (...args: any[]) => void | Promise<void>) {
-    if (callback) {
-      this._socket.on('connect', callback);
+  connect() {
+    if (!this._socket.connected) {
+      this._socket.connect();
     }
-
-    this._socket.connect();
   }
 
-  disconnect(callback?: (...args: any[]) => void | Promise<void>) {
-    if (callback) {
-      this._socket.on('disconnect', callback);
-    }
+  disconnect() {
+    this._socket.disconnect();
   }
 
   on<Event extends keyof SocketEventTypes>(

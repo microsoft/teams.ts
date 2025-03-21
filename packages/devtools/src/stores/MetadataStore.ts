@@ -19,3 +19,4 @@ export const useMetadataStore = create<MetadataStore>()(
 );
 
 export const MetadataContext = createContext<MetadataStore>(null as any);
+MetadataContext.displayName = 'MetadataContext';

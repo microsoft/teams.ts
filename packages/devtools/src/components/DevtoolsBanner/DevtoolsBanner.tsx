@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router';
 import DevOnly from '../../utils/dev';
 import { navigateToRootAndRefresh } from '../../utils/devUtils';
 
-import useClasses from './DevtoolsBanner.styles';
+import useDevtoolsBannerClasses from './DevtoolsBanner.styles';
 import StatusBadge from './StatusBadge';
 
 interface DevtoolsBannerProps {
@@ -13,7 +13,7 @@ interface DevtoolsBannerProps {
 }
 
 const DevtoolsBanner: FC<DevtoolsBannerProps> = memo(({ connected }) => {
-  const classes = useClasses();
+  const classes = useDevtoolsBannerClasses();
   const navigate = useNavigate();
 
   const handleRefresh = useCallback(() => {

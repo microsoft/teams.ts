@@ -11,14 +11,13 @@ import useSparkApi from '../../hooks/useSparkApi';
 import { useChatStore } from '../../stores/ChatStore';
 import { useDevModeSendMessage } from '../../utils/devUtils';
 import useScreensClasses from '../Screens.styles';
-
 import useClasses from './ChatScreen.styles';
-
-const MAX_HISTORY = 5;
 
 interface ChatScreenProps {
   isConnected: boolean;
 }
+
+const MAX_HISTORY = 5;
 
 const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
   const classes = useClasses();
@@ -96,5 +95,5 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
   );
 };
 
-export default ChatScreen;
 ChatScreen.displayName = 'ChatScreen';
+export default ChatScreen;

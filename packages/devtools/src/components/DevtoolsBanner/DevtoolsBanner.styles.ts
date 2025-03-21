@@ -1,6 +1,6 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
-const useClasses = makeStyles({
+const useDevtoolsBannerClasses = makeStyles({
   devtoolsLandmark: {
     fontWeight: tokens.fontWeightSemibold,
     display: 'flex',
@@ -78,4 +78,4 @@ const useClasses = makeStyles({
   },
 });
 
-export default useClasses;
+export default useDevtoolsBannerClasses;
