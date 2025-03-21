@@ -18,7 +18,13 @@ prompt.function('hello-world', 'print hello world', () => {
 
 const app = new App({
   logger: new ConsoleLogger('@samples/echo', { level: 'debug' }),
-  plugins: [new DevtoolsPlugin(), new McpPlugin({ name: 'echo' }).use(prompt)],
+  plugins: [
+    new DevtoolsPlugin(),
+    new McpPlugin({
+      name: 'echo',
+      inspector: 'http://localhost:5173?proxyPort=9000',
+    }).use(prompt),
+  ],
 });
 
 app.on('message', async ({ send, activity }) => {

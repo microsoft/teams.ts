@@ -85,11 +85,11 @@ export type McpPluginOptions = ServerOptions & {
   readonly transport?: McpSSETransportOptions | McpStdioTransportOptions;
 
   /**
-   * the port to use for the local
+   * the url to use for the local
    * MCP Inspector
-   * @default 5173
+   * @default `http://localhost:5173`
    */
-  readonly inspector?: number;
+  readonly inspector?: string;
 };
 
 /**
@@ -122,12 +122,15 @@ export class McpPlugin implements IPlugin {
   readonly resource: McpServer['resource'];
 
   protected id: number = -1;
-  protected inspector: number;
+  protected inspector: string;
   protected connections: Record<number, IConnection> = {};
   protected transport: McpSSETransportOptions | McpStdioTransportOptions = { type: 'sse' };
 
   constructor(options: McpServer | McpPluginOptions = {}) {
-    this.inspector = options instanceof McpServer ? 5173 : options.inspector || 5173;
+    this.inspector =
+      options instanceof McpServer
+        ? 'http://localhost:5173'
+        : options.inspector || 'http://localhost:5173';
     this.server =
       options instanceof McpServer
         ? options
@@ -165,7 +168,7 @@ export class McpPlugin implements IPlugin {
     this.devtoolsPlugin?.addPage({
       name: 'mcp',
       displayName: 'MCP',
-      url: `http://localhost:${this.inspector}`,
+      url: this.inspector,
     });
 
     if (this.transport.type === 'sse') {

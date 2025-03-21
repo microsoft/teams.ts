@@ -6,7 +6,7 @@ import io from 'socket.io';
 import * as uuid from 'uuid';
 
 import { ActivityParams, ConversationReference, IToken } from '@microsoft/spark.api';
-import { ILogger } from '@microsoft/spark.common';
+import { ILogger, String } from '@microsoft/spark.common';
 import {
   HttpPlugin,
   Logger,
@@ -86,6 +86,18 @@ export class DevtoolsPlugin implements ISender {
   addPage(page: Page) {
     this.pages.push(page);
     return this;
+  }
+
+  onInit() {
+    this.log.warn(
+      new String()
+        .bold(
+          new String().yellow(
+            `⚠️  Devtools are not secure and should not be used production environments ⚠️`
+          )
+        )
+        .toString()
+    );
   }
 
   onStart({ port }: IPluginStartEvent) {

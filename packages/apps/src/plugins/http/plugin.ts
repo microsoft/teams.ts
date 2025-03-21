@@ -1,5 +1,6 @@
 import http from 'http';
 import express from 'express';
+import cors from 'cors';
 
 import { ILogger } from '@microsoft/spark.common';
 import * as $http from '@microsoft/spark.common/http';
@@ -92,6 +93,7 @@ export class HttpPlugin implements ISender {
     this.route = this.express.route.bind(this.express);
     this.use = this.express.use.bind(this.express);
 
+    this.express.use(cors());
     this.express.use('/api*', express.json());
     this.express.post('/api/messages', this.onRequest.bind(this));
   }
