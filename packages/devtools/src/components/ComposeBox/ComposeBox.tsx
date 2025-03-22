@@ -37,11 +37,11 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
   const processedCardRef = useRef<any>(null);
   const [isDisabled] = useState(false);
 
-  // useEffect(() => {
-  //   if (contentEditableRef.current) {
-  //     contentEditableRef.current.focus();
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (contentEditableRef.current) {
+      contentEditableRef.current.focus();
+    }
+  }, []);
 
   // Convert API Attachment to UI AttachmentType
   const convertToAttachmentType = (attachment: Attachment): AttachmentType => {
@@ -96,16 +96,17 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
 
   // Handle sending message with text and attachments
   const handleSendMessage = useCallback(() => {
-    if (message.trim() || attachments.length > 0) {
+    const trimmedMessage = message.trim();
+    if (trimmedMessage || attachments.length > 0) {
       const messageObj: Partial<Message> = {
         body: {
-          content: message,
+          content: trimmedMessage,
           contentType: 'text',
         },
         attachments,
       };
       onSend(messageObj);
-      if (message.trim()) {
+      if (trimmedMessage) {
         onMessageSent(messageObj);
       }
       setMessage('');
@@ -228,14 +229,10 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
         // This is safe because we're handling toolbar actions directly
         setAttachments((prev) => [...prev, ...newAttachments]);
       } else {
-        // If no attachments, this is a send action
-        // Only proceed if there's text content or existing attachments
-        if (message.trim() || attachments.length > 0) {
-          handleSendMessage();
-        }
+        handleSendMessage();
       }
     },
-    [handleSendMessage, message, attachments]
+    [handleSendMessage]
   );
 
   const handleRemoveAttachment = useCallback(
@@ -266,14 +263,14 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
         onKeyDown={handleKeyDown}
         disabled={isDisabled}
         onDefaultValue={handleDefaultValue}
-      />
-      {memoizedToolbar}
-
-      <AttachmentsContainer
-        attachments={uiAttachments}
-        onRemoveAttachment={handleRemoveAttachment}
-        showRemoveButtons={true}
-      />
+        toolbar={memoizedToolbar}
+      >
+        <AttachmentsContainer
+          attachments={uiAttachments}
+          onRemoveAttachment={handleRemoveAttachment}
+          showRemoveButtons={true}
+        />
+      </ContentEditableArea>
     </div>
   );
 };

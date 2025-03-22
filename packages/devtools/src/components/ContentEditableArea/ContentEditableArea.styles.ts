@@ -1,38 +1,38 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
 const useContentEditableAreaClasses = makeStyles({
-  // Root styles (intended to match FluentUI's Textarea)
+  // Root styles with shared CSS variables
   base: {
-    display: 'inline-flex',
+    '--ce-area-padding': tokens.spacingHorizontalMNudge,
+    '--ce-area-border': tokens.strokeWidthThin,
+    '--ce-area-radius': tokens.borderRadiusMedium,
+    '--content-min-height-small': '2.5rem',
+    '--content-max-height-small': '12.5rem',
+    '--content-min-height-medium': '2.75rem',
+    '--content-max-height-medium': '16.25rem',
+    '--content-min-height-large': '4rem',
+    '--content-max-height-large': '20rem',
+    '--transition-duration-normal': tokens.durationNormal,
+    '--transition-duration-fast': tokens.durationUltraFast,
+    '--transition-delay-in': tokens.curveDecelerateMid,
+    '--transition-delay-out': tokens.curveAccelerateMid,
+    '--transition-duration-reduced': '0.01ms',
+    '--transition-delay-reduced': '0.01ms',
     boxSizing: 'border-box',
     position: 'relative',
-    padding: `0 0 ${tokens.strokeWidthThick} 0`,
     margin: '0',
-    borderRadius: tokens.borderRadiusMedium,
-    verticalAlign: 'top',
+    borderRadius: 'var(--ce-area-radius)',
     width: '100%',
-
-    '& div': {
-      outline: 'none',
-      '&:focus': {
-        outline: 'none',
-      },
-      '&:active': {
-        outline: 'none',
-      },
-    },
   },
 
-  disabled: {
-    backgroundColor: tokens.colorTransparentBackground,
-    border: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStrokeDisabled}`,
-    '@media (forced-colors: active)': {
-      border: `${tokens.strokeWidthThin} solid Gray`,
-    },
+  // Shared layout styles
+  flexColumn: {
+    display: 'flex',
+    flexDirection: 'column',
   },
 
-  interactive: {
-    // Intended to imitate FluentUI Textarea
+  // Focus state styles
+  focusState: {
     '::after': {
       boxSizing: 'border-box',
       content: '""',
@@ -40,31 +40,21 @@ const useContentEditableAreaClasses = makeStyles({
       left: '-1px',
       bottom: '-1px',
       right: '-1px',
-      height: `max(${tokens.strokeWidthThick}, ${tokens.borderRadiusMedium})`,
-      borderBottomLeftRadius: tokens.borderRadiusMedium,
-      borderBottomRightRadius: tokens.borderRadiusMedium,
+      height: `max(${tokens.strokeWidthThick}, var(--ce-area-radius))`,
+      borderBottomLeftRadius: 'var(--ce-area-radius)',
+      borderBottomRightRadius: 'var(--ce-area-radius)',
       borderBottom: `${tokens.strokeWidthThick} solid ${tokens.colorCompoundBrandStroke}`,
       clipPath: `inset(calc(100% - ${tokens.strokeWidthThick}) 0 0 0)`,
       transform: 'scaleX(0)',
       transitionProperty: 'transform',
-      transitionDuration: tokens.durationUltraFast,
-      transitionDelay: tokens.curveAccelerateMid,
-
-      '@media screen and (prefers-reduced-motion: reduce)': {
-        transitionDuration: '0.01ms',
-        transitionDelay: '0.01ms',
-      },
+      transitionDuration: 'var(--transition-duration-fast)',
+      transitionDelay: 'var(--transition-delay-out)',
     },
     ':focus-within::after': {
       transform: 'scaleX(1)',
       transitionProperty: 'transform',
-      transitionDuration: tokens.durationNormal,
-      transitionDelay: tokens.curveDecelerateMid,
-
-      '@media screen and (prefers-reduced-motion: reduce)': {
-        transitionDuration: '0.01ms',
-        transitionDelay: '0.01ms',
-      },
+      transitionDuration: 'var(--transition-duration-normal)',
+      transitionDelay: 'var(--transition-delay-in)',
     },
     ':focus-within:active::after': {
       borderBottomColor: tokens.colorCompoundBrandStrokePressed,
@@ -74,50 +64,137 @@ const useContentEditableAreaClasses = makeStyles({
       outlineStyle: 'solid',
       outlineColor: 'transparent',
     },
+    '@media screen and (prefers-reduced-motion: reduce)': {
+      '&, &::after, &:focus-within, &:focus-within::after': {
+        transitionDuration: 'var(--transition-duration-reduced)',
+        transitionDelay: 'var(--transition-delay-reduced)',
+      },
+    },
+  },
+
+  // Placeholder styles
+  placeholder: {
+    '&:empty::before, &[data-is-empty="true"]::before': {
+      content: 'attr(data-placeholder)',
+      position: 'absolute',
+      color: tokens.colorNeutralForeground4,
+      pointerEvents: 'none',
+      userSelect: 'none',
+      left: 'var(--ce-area-padding)',
+    },
+  },
+
+  textboxRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    width: '100%',
+    gap: tokens.spacingHorizontalMNudge,
+  },
+
+  disabled: {
+    backgroundColor: tokens.colorTransparentBackground,
+    border: `var(--ce-area-border) solid ${tokens.colorNeutralStrokeDisabled}`,
+    '@media (forced-colors: active)': {
+      border: `var(--ce-area-border) solid Gray`,
+    },
+  },
+
+  interactive: {
+    '::after': {
+      boxSizing: 'border-box',
+      content: '""',
+      position: 'absolute',
+      left: '-1px',
+      bottom: '-1px',
+      right: '-1px',
+      height: `max(${tokens.strokeWidthThick}, var(--ce-area-radius))`,
+      borderBottomLeftRadius: 'var(--ce-area-radius)',
+      borderBottomRightRadius: 'var(--ce-area-radius)',
+      borderBottom: `${tokens.strokeWidthThick} solid ${tokens.colorCompoundBrandStroke}`,
+      clipPath: `inset(calc(100% - ${tokens.strokeWidthThick}) 0 0 0)`,
+      transform: 'scaleX(0)',
+      transitionProperty: 'transform',
+      transitionDuration: 'var(--transition-duration-fast)',
+      transitionDelay: 'var(--transition-delay-out)',
+    },
+    ':focus-within::after': {
+      transform: 'scaleX(1)',
+      transitionProperty: 'transform',
+      transitionDuration: 'var(--transition-duration-normal)',
+      transitionDelay: 'var(--transition-delay-in)',
+    },
+    ':focus-within:active::after': {
+      borderBottomColor: tokens.colorCompoundBrandStrokePressed,
+    },
+    ':focus-within': {
+      outlineWidth: tokens.strokeWidthThick,
+      outlineStyle: 'solid',
+      outlineColor: 'transparent',
+    },
+    '@media screen and (prefers-reduced-motion: reduce)': {
+      '&, &::after, &:focus-within, &:focus-within::after': {
+        transitionDuration: 'var(--transition-duration-reduced)',
+        transitionDelay: 'var(--transition-delay-reduced)',
+      },
+    },
   },
 
   filled: {
-    border: `${tokens.strokeWidthThin} solid ${tokens.colorTransparentStroke}`,
+    border: `var(--ce-area-border) solid ${tokens.colorTransparentStroke}`,
     ':hover,:focus-within': {
-      border: `${tokens.strokeWidthThin} solid ${tokens.colorTransparentStroke}`,
+      border: `var(--ce-area-border) solid ${tokens.colorTransparentStroke}`,
     },
   },
+
   'filled-darker': {
     backgroundColor: tokens.colorNeutralBackground3,
   },
+
   'filled-lighter': {
     backgroundColor: tokens.colorNeutralBackground1,
   },
 
   outline: {
     backgroundColor: tokens.colorNeutralBackground1,
-    border: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStroke1}`,
+    border: `var(--ce-area-border) solid ${tokens.colorNeutralStroke1}`,
     borderBottomColor: tokens.colorNeutralStrokeAccessible,
   },
+
   outlineInteractive: {
     ':hover': {
-      border: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStroke1Hover}`,
+      border: `var(--ce-area-border) solid ${tokens.colorNeutralStroke1Hover}`,
       borderBottomColor: tokens.colorNeutralStrokeAccessibleHover,
     },
-
     ':active': {
-      border: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStroke1Pressed}`,
+      border: `var(--ce-area-border) solid ${tokens.colorNeutralStroke1Pressed}`,
       borderBottomColor: tokens.colorNeutralStrokeAccessiblePressed,
     },
-
     ':focus-within': {
-      border: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStroke1Pressed}`,
+      border: `var(--ce-area-border) solid ${tokens.colorNeutralStroke1Pressed}`,
       borderBottomColor: tokens.colorCompoundBrandStroke,
     },
   },
 
   invalid: {
     ':not(:focus-within),:hover:not(:focus-within)': {
-      border: `${tokens.strokeWidthThin} solid ${tokens.colorPaletteRedBorder2}`,
+      border: `var(--ce-area-border) solid ${tokens.colorPaletteRedBorder2}`,
     },
   },
 
-  // ContentEditable styles
+  contentWrapper: {
+    flex: 1,
+    minWidth: 0,
+    overflowY: 'auto',
+  },
+
+  toolbarWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    flexShrink: 0,
+    alignSelf: 'flex-end',
+  },
+
   contentEditableBase: {
     border: 'none',
     outline: 'none',
@@ -131,29 +208,12 @@ const useContentEditableAreaClasses = makeStyles({
     height: '100%',
     width: '100%',
     position: 'relative',
-
-    '&:focus': {
-      outline: 'none',
-    },
-    '&:active': {
-      outline: 'none',
-    },
-
-    // ContentEditable specific - make it look and behave like textarea
+    wordBreak: 'break-word',
+    padding: 'var(--ce-area-padding)',
     whiteSpace: 'pre-wrap',
     overflowWrap: 'break-word',
     overflowY: 'auto',
     overflowX: 'hidden',
-
-    // Empty state styling for placeholder
-    '&:empty::before, &[data-is-empty="true"]::before': {
-      content: 'attr(data-placeholder)',
-      position: 'absolute',
-      color: tokens.colorNeutralForeground4,
-      pointerEvents: 'none',
-      userSelect: 'none',
-      left: '11px',
-    },
   },
 
   contentEditableDisabled: {
@@ -161,29 +221,27 @@ const useContentEditableAreaClasses = makeStyles({
     cursor: 'not-allowed',
   },
 
-  // Size variants - mimic textarea dimensions
   small: {
-    minHeight: '40px',
-    padding: `${tokens.spacingHorizontalM}`,
-    maxHeight: '200px',
+    minHeight: 'var(--content-min-height-small)',
+    maxHeight: 'var(--content-max-height-small)',
     fontSize: tokens.fontSizeBase200,
-    lineHeight: tokens.lineHeightBase200,
+    lineHeight: 'calc(var(--content-min-height-small) - var(--ce-area-padding) * 2)',
     fontWeight: tokens.fontWeightRegular,
   },
+
   medium: {
-    minHeight: '44px',
-    padding: `${tokens.spacingHorizontalM}`,
-    maxHeight: '260px',
+    minHeight: 'var(--content-min-height-medium)',
+    maxHeight: 'var(--content-max-height-medium)',
     fontSize: tokens.fontSizeBase300,
-    lineHeight: tokens.lineHeightBase300,
+    lineHeight: 'calc(var(--content-min-height-medium) - var(--ce-area-padding) * 2)',
     fontWeight: tokens.fontWeightRegular,
   },
+
   large: {
-    minHeight: '64px',
-    padding: `${tokens.spacingHorizontalM}`,
-    maxHeight: '320px',
+    minHeight: 'var(--content-min-height-large)',
+    maxHeight: 'var(--content-max-height-large)',
     fontSize: tokens.fontSizeBase400,
-    lineHeight: tokens.lineHeightBase400,
+    lineHeight: 'calc(var(--content-min-height-large) - var(--ce-area-padding) * 2)',
     fontWeight: tokens.fontWeightRegular,
   },
 });

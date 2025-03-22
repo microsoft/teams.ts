@@ -2,10 +2,8 @@ import { makeStyles } from '@fluentui/react-components';
 
 export const useCBToolbarClasses = makeStyles({
   toolbar: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-    margin: '0.5rem',
+    height: '100%',
+    marginRight: '4px',
   },
   toolbarButton: {
     minWidth: '0',
@@ -14,7 +12,7 @@ export const useCBToolbarClasses = makeStyles({
     padding: '0',
   },
   jsonTextarea: {
-    minHeight: '250px',
+    minHeight: '15.625rem',
     height: '100%',
     overflowY: 'hidden',
     overflowX: 'hidden',

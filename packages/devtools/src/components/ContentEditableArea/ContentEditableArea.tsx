@@ -6,6 +6,7 @@ import {
   forwardRef,
   ForwardedRef,
   useCallback,
+  ClipboardEvent,
 } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
 
@@ -63,6 +64,22 @@ interface ContentEditableAreaProps {
    * Called when the defaultValue is set
    */
   onDefaultValue: (defaultValue: string) => void;
+
+  /**
+   * Toolbar component to render next to the textbox
+   */
+  toolbar: React.ReactNode;
+
+  /**
+   * Children to render below the text content
+   */
+  children?: React.ReactNode;
+
+  /**
+   * Whether to allow rich text input. Defaults to false.
+   * // TODO: handle rich text input.
+   */
+  allowRichText?: boolean;
 }
 
 /**
@@ -81,6 +98,9 @@ const ContentEditableArea = forwardRef<HTMLDivElement, ContentEditableAreaProps>
       className,
       onKeyDown,
       onDefaultValue,
+      toolbar,
+      children,
+      allowRichText = false,
       ...rest
     },
     ref: ForwardedRef<HTMLDivElement>
@@ -114,8 +134,10 @@ const ContentEditableArea = forwardRef<HTMLDivElement, ContentEditableAreaProps>
       areaRef.current.setAttribute('data-is-empty', (!content).toString());
     }, [defaultValue, value, areaRef, onDefaultValue]);
 
-    const rootClassName = mergeClasses(
+    const root = mergeClasses(
+      classes.flexColumn,
       classes.base,
+      classes.focusState,
       disabled && classes.disabled,
       !disabled && classes.interactive,
       !disabled && appearance === 'outline' && classes.outline,
@@ -126,13 +148,52 @@ const ContentEditableArea = forwardRef<HTMLDivElement, ContentEditableAreaProps>
       className
     );
 
-    const contentEditableClassName = mergeClasses(
+    const contentEditable = mergeClasses(
       classes.contentEditableBase,
+      classes.placeholder,
       classes[size],
       disabled && classes.contentEditableDisabled
     );
 
-    // Update empty state on input
+    const contentWrapper = mergeClasses(classes.flexColumn, classes.contentWrapper);
+
+    const toolbarWrapper = mergeClasses(classes.toolbarWrapper, classes[size]);
+
+    // Handle paste events to sanitize rich text
+    const handlePaste = useCallback(
+      (e: ClipboardEvent<HTMLDivElement>) => {
+        if (disabled || allowRichText) return;
+
+        // Prevent the default paste
+        e.preventDefault();
+
+        // Get plain text from clipboard
+        const text = e.clipboardData.getData('text/plain');
+
+        // Insert text at cursor position
+        const selection = window.getSelection();
+        if (!selection?.rangeCount) return;
+
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+
+        const textNode = document.createTextNode(text);
+        range.insertNode(textNode);
+
+        // Move cursor to end of inserted text
+        range.setStartAfter(textNode);
+        range.setEndAfter(textNode);
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        // Trigger input event
+        const event = new Event('input', { bubbles: true });
+        e.currentTarget.dispatchEvent(event);
+      },
+      [disabled, allowRichText]
+    );
+
+    // Add cleanup to input handler
     const handleInput = useCallback(
       (e: FormEvent<HTMLDivElement>) => {
         const target = e.target as HTMLDivElement;
@@ -144,21 +205,28 @@ const ContentEditableArea = forwardRef<HTMLDivElement, ContentEditableAreaProps>
     );
 
     return (
-      <span className={rootClassName}>
-        <div
-          ref={ref}
-          role="textbox"
-          aria-multiline
-          aria-disabled={disabled}
-          className={contentEditableClassName}
-          contentEditable={!disabled}
-          onInput={handleInput}
-          onKeyDown={onKeyDown}
-          data-placeholder={placeholder}
-          suppressContentEditableWarning={true}
-          {...rest}
-          title={'Compose Box'}
-        />
+      <span className={root}>
+        <div className={classes.textboxRow}>
+          <div className={contentWrapper}>
+            <div
+              ref={ref}
+              role="textbox"
+              aria-multiline
+              aria-disabled={disabled}
+              className={contentEditable}
+              contentEditable={!disabled}
+              onInput={handleInput}
+              onKeyDown={onKeyDown}
+              onPaste={handlePaste}
+              data-placeholder={placeholder}
+              suppressContentEditableWarning={true}
+              {...rest}
+              title={'Compose Box'}
+            />
+            {children}
+          </div>
+          <div className={toolbarWrapper}>{toolbar}</div>
+        </div>
       </span>
     );
   }
