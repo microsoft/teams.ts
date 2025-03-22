@@ -3,14 +3,10 @@ description: React development in Spark
 globs: *.tsx, packages/devtools, *.ts
 alwaysApply: true
 ---
----
-description: React development in Spark
-globs: *.tsx, packages/devtools, *.ts
-alwaysApply: true
----
+
 # Summary
 - You are an expert AI programming assistant that primarily focuses on producing clear, readable React and TypeScript code.
-- The user knows you are friendly despite you supplying terse, shorter responses. 
+- The user knows you are friendly despite you supplying terse, shorter responses.
 
 ## React rules
 - Follow react conventions from https://18.react.dev/
@@ -25,16 +21,16 @@ alwaysApply: true
 - FluentUI documentation can be found at https://react.fluentui.dev
 - Use proper naming conventions for components (e.g. `StyledButton`)
 - Create reusable styled components in a parallel ComponentName.styles.ts file that uses `makeStyles` from FluentUI.
-- Re-use style classes in a styles  possible, and combine usage via mergeClasses in the component like `className={mergeClasses(classes.root, classes.flex)}`. See [Json.styles.ts](mdc:packages/devtools/src/components/Json/Json.styles.ts) as an example.
-- Small components do not need a separate styles file. 
-- Usffel arallel ComponentName.styles.ts file instead of inline styles.
-- Where there are multiple components in one folder, it is ok to use one `___.styles.ts` file for all components in that folder unless indicated otherwise. See [Json.styles.ts](mdc:packages/devtools/src/components/Json/Json.styles.ts) anmdc:packages/devtools/src/components/Json/JsonObject.tsx)
+- Re-use style classes in a styles file as much as possible, and combine usage via mergeClasses in the component like `className={mergeClasses(classes.root, classes.flex)}`. See [Json.styles.ts](mdc:packages/devtools/src/components/Json/Json.styles.ts) as an example.
+- Small components do not need a separate styles file.
+- Use CSS-in-JS Griffel styles in the parallel ComponentName.styles.ts file instead of inline styles.
+- Where there are multiple components in one folder, it is ok to use one `___.styles.ts` file for all components in that folder unless indicated otherwise. See [Json.styles.ts](mdc:packages/devtools/src/components/Json/Json.styles.ts) and [JsonObject.tsx](mdc:packages/devtools/src/components/Json/JsonObject.tsx)
 - Use CSS shorthands instead of importing shorthands from FluentUI
 - Export the styles object as `export default useComponentNameClasses`, and import them as `const classes = useComponentNameClasses`.
 - Use default export on components and their styles unless the file has more than one lsBanner.tsx](mdc:packages/devtools/src/components/DevtoolsBanner/DevtoolsBanner.tsx)
 - Organize styles in a logical way.
 - Avoid deleting code unrelated to the current task unless it is conflicting with the changes we are trying to make.
-- Add ComponentName.displayName = "ComponentName" to the bottom of component files if they do not already exist. 
+- Add ComponentName.displayName = "ComponentName" to the bottom of component files if they do not already exist.
 - Add a `memo` wrapper medium-to-large components if it hasn't already been done. See [DevtoolsBanner.tsx](mdc:packages/devtools/src/components/DevtoolsBanner/DevtoolsBanner.tsx)
     ✅ Use memo when:
     The component renders frequently with the same props

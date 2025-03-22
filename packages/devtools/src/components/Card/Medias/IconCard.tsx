@@ -1,4 +1,4 @@
-import { ComponentProps, FC, Suspense, lazy } from 'react';
+import { ComponentProps, FC, Suspense, lazy, memo } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
 import { FluentIcon } from '@fluentui/react-icons/lib/fonts';
 import { IIcon } from '@microsoft/spark.cards';
@@ -17,9 +17,8 @@ export interface IconCardProps extends ComponentProps<'div'> {
   readonly value: IIcon;
 }
 
-const IconCard: FC<IconCardProps> = (props) => {
+const IconCard: FC<IconCardProps> = memo((props) => {
   const { value, className } = props;
-  console.log(className);
   const name = `${value.name}${value.style || 'Regular'}`;
   const Icon = loadIcon(name);
   const classes = useIconCardStyles();
@@ -32,6 +31,8 @@ const IconCard: FC<IconCardProps> = (props) => {
       <Icon className={mergeClasses(classes.root, className, sizeClass)} />
     </Suspense>
   );
-};
+});
+
+IconCard.displayName = 'IconCard';
 
 export default IconCard;

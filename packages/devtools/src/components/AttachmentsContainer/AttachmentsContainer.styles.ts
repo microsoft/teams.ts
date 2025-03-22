@@ -1,30 +1,33 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
-export const useClasses = makeStyles({
+const useAttachmentsContainerClasses = makeStyles({
   inlineAttachmentsContainer: {
     display: 'flex',
     flexDirection: 'column',
     width: 'fit-content',
-    padding: '8px',
+    padding: tokens.spacingHorizontalS,
+    userSelect: 'none',
   },
   inlineAttachmentCard: {
     backgroundColor: tokens.colorNeutralBackground2,
-    border: `1px solid ${tokens.colorNeutralStroke1}`,
-    borderRadius: '4px',
-    marginBottom: '4px',
+    border: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStroke1}`,
+    borderRadius: tokens.borderRadiusSmall,
+    marginBottom: tokens.spacingVerticalXXS,
     overflow: 'hidden',
     position: 'relative',
   },
   removeAttachmentButton: {
     position: 'absolute',
-    top: '4px',
-    right: '4px',
-    zIndex: 1,
+    top: tokens.spacingVerticalXXS,
+    right: tokens.spacingHorizontalXXS,
+    '&:hover': {
+      backgroundColor: tokens.colorNeutralBackground3,
+    },
   },
   inlineCardContent: {
-    padding: '8px',
-    maxWidth: '300px',
-    maxHeight: '300px',
+    // TODO: media queries for max-width
+    padding: tokens.spacingHorizontalS,
+    width: '31.125rem',
     overflow: 'auto',
   },
   attachmentImage: {
@@ -40,3 +43,5 @@ export const useClasses = makeStyles({
     color: tokens.colorNeutralForeground1,
   },
 });
+
+export default useAttachmentsContainerClasses;

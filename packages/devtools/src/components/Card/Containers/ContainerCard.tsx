@@ -26,4 +26,6 @@ const ContainerCard: FC<ContainerCardProps> = ({ value }) => {
   );
 };
 
+ContainerCard.displayName = 'ContainerCard';
+
 export default ContainerCard;

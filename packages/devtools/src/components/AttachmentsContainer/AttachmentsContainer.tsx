@@ -1,25 +1,22 @@
-import { memo, useCallback } from 'react';
+import { FC, memo, useCallback } from 'react';
 import { Button, Image } from '@fluentui/react-components';
 import { Dismiss20Regular } from '@fluentui/react-icons/lib/fonts';
 
 import { AttachmentType } from '../../types/Attachment';
 import AdaptiveCard from '../Card/AdaptiveCard';
 
-import { useClasses } from './AttachmentsContainer.styles';
+import useAttachmentsContainerClasses from './AttachmentsContainer.styles';
 
-const AttachmentItem = memo(
-  ({
-    attachment,
-    index,
-    onRemove,
-    showRemoveButton = true,
-  }: {
-    attachment: AttachmentType;
-    index: number;
-    onRemove: (index: number) => void;
-    showRemoveButton?: boolean;
-  }) => {
-    const classes = useClasses();
+interface AttachmentItemProps {
+  attachment: AttachmentType;
+  index: number;
+  onRemove: (index: number) => void;
+  showRemoveButton?: boolean;
+}
+
+const AttachmentItem: FC<AttachmentItemProps> = memo(
+  ({ attachment, index, onRemove, showRemoveButton = true }) => {
+    const classes = useAttachmentsContainerClasses();
 
     const renderAttachmentContent = useCallback(() => {
       switch (attachment.type) {
@@ -59,37 +56,39 @@ const AttachmentItem = memo(
   }
 );
 
-// Memoized attachments container
-const AttachmentsContainer = memo(
-  ({
-    attachments,
-    onRemoveAttachment,
-    showRemoveButtons = true,
-  }: {
-    attachments: AttachmentType[];
-    onRemoveAttachment: (index: number) => void;
-    showRemoveButtons?: boolean;
-  }) => {
-    const classes = useClasses();
+interface AttachmentsContainerProps {
+  attachments: AttachmentType[];
+  onRemoveAttachment: (index: number) => void;
+  showRemoveButtons?: boolean;
+}
 
-    if (attachments.length === 0) {
-      return null;
-    }
+const AttachmentsContainer: FC<AttachmentsContainerProps> = ({
+  attachments,
+  onRemoveAttachment,
+  showRemoveButtons = true,
+}) => {
+  const classes = useAttachmentsContainerClasses();
 
-    return (
-      <div className={classes.inlineAttachmentsContainer}>
-        {attachments.map((attachment, index) => (
-          <AttachmentItem
-            key={`${attachment.type}-${index}`}
-            attachment={attachment}
-            index={index}
-            onRemove={onRemoveAttachment}
-            showRemoveButton={showRemoveButtons}
-          />
-        ))}
-      </div>
-    );
+  if (attachments.length === 0) {
+    return null;
   }
-);
+
+  return (
+    <div className={classes.inlineAttachmentsContainer}>
+      {attachments.map((attachment, index) => (
+        <AttachmentItem
+          key={`${attachment.type}-${index}`}
+          attachment={attachment}
+          index={index}
+          onRemove={onRemoveAttachment}
+          showRemoveButton={showRemoveButtons}
+        />
+      ))}
+    </div>
+  );
+};
+
+AttachmentItem.displayName = 'AttachmentItem';
+AttachmentsContainer.displayName = 'AttachmentsContainer';
 
 export default AttachmentsContainer;
