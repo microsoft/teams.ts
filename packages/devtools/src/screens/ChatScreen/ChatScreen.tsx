@@ -1,4 +1,5 @@
-import { FC, useCallback, useState } from 'react';
+import { FC, memo, useCallback, useState } from 'react';
+import { mergeClasses } from '@fluentui/react-components';
 import { Message } from '@microsoft/spark.api';
 
 import Chat from '../../components/Chat/Chat';
@@ -20,7 +21,7 @@ interface ChatScreenProps {
 
 const MAX_HISTORY = 5;
 
-const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
+const ChatScreen: FC<ChatScreenProps> = memo(({ isConnected }) => {
   const classes = useClasses();
   const screenClasses = useScreensClasses();
   const { chat, feedback, messages, streaming, typing } = useChatStore();
@@ -54,11 +55,11 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
   useDevModeSendMessage(onSendMessage);
 
   return (
-    <>
+    <div className={mergeClasses(screenClasses.screenContainer, classes.flexRow)}>
       <nav id="chat-sidebar" className={classes.sideBar} aria-label="Chat navigation"></nav>
-      <Chat id="screen-container" className={screenClasses.screenContainer}>
-        <div id="scrollbar-container" className={screenClasses.scrollbarContainer}>
-          <div id="messages-container" className={classes.messagesList}>
+      <Chat className={screenClasses.scrollbarContainer}>
+        <div id="temp" className={classes.chatContainer}>
+          <div id="messages-list" className={classes.messagesList}>
             {chat &&
               (messages[chat.id] || []).map((message) => (
                 <ChatMessageContainer key={message.id} value={message} isConnected={isConnected}>
@@ -85,9 +86,9 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
           </div>
         </div>
       </Chat>
-    </>
+    </div>
   );
-};
+});
 
 ChatScreen.displayName = 'ChatScreen';
 export default ChatScreen;
