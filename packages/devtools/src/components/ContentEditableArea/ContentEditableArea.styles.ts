@@ -25,7 +25,6 @@ const useContentEditableAreaClasses = makeStyles({
     width: '100%',
   },
 
-  // Shared layout styles
   flexColumn: {
     display: 'flex',
     flexDirection: 'column',
@@ -74,13 +73,12 @@ const useContentEditableAreaClasses = makeStyles({
 
   // Placeholder styles
   placeholder: {
-    '&:empty::before, &[data-is-empty="true"]::before': {
+    '&[data-is-empty="true"]::before': {
       content: 'attr(data-placeholder)',
       position: 'absolute',
       color: tokens.colorNeutralForeground4,
       pointerEvents: 'none',
       userSelect: 'none',
-      left: 'var(--ce-area-padding)',
     },
   },
 
@@ -185,7 +183,9 @@ const useContentEditableAreaClasses = makeStyles({
   contentWrapper: {
     flex: 1,
     minWidth: 0,
+    maxHeight: 'inherit',
     overflowY: 'auto',
+    padding: 'var(--ce-area-padding)',
   },
 
   toolbarWrapper: {
@@ -203,17 +203,13 @@ const useContentEditableAreaClasses = makeStyles({
     backgroundColor: 'transparent',
     boxSizing: 'border-box',
     color: tokens.colorNeutralForeground1,
-    flexGrow: 1,
     fontFamily: tokens.fontFamilyBase,
-    height: '100%',
     width: '100%',
     position: 'relative',
     wordBreak: 'break-word',
-    padding: 'var(--ce-area-padding)',
     whiteSpace: 'pre-wrap',
     overflowWrap: 'break-word',
-    overflowY: 'auto',
-    overflowX: 'hidden',
+    minHeight: '1.5em',
   },
 
   contentEditableDisabled: {

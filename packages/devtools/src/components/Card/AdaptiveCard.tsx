@@ -13,10 +13,10 @@ const useAdaptiveCardStyles = makeStyles({
   root: {
     display: 'flex',
     flexDirection: 'column',
-    borderRadius: '0.5rem',
-    padding: '0.75rem',
+    borderRadius: tokens.borderRadiusLarge,
+    padding: '1rem',
     backgroundColor: tokens.colorNeutralBackground6,
-    boxShadow: tokens.shadow16,
+    boxShadow: tokens.shadow4,
     gap: tokens.spacingVerticalS,
   },
 });

@@ -184,4 +184,5 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = ({
   );
 };
 
+ComposeBoxToolbar.displayName = 'ComposeBoxToolbar';
 export default memo(ComposeBoxToolbar);

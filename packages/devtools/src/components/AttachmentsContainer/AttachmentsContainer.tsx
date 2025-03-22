@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import { Button, Image } from '@fluentui/react-components';
+import { Button, Image, Tooltip } from '@fluentui/react-components';
 import { Dismiss20Regular } from '@fluentui/react-icons/lib/fonts';
 
 import { AttachmentType } from '../../types/Attachment';
@@ -43,17 +43,21 @@ const AttachmentItem = memo(
     }, [attachment.content, attachment.type, attachment.name, classes]);
 
     return (
-      <div className={classes.inlineAttachmentCard}>
+      <div contentEditable={false} className={classes.inlineAttachmentCard}>
         {showRemoveButton && (
-          <Button
-            appearance="transparent"
-            icon={<Dismiss20Regular />}
-            onClick={() => onRemove(index)}
-            aria-label="Remove attachment"
-            className={classes.removeAttachmentButton}
-          />
+          <Tooltip content="Remove" relationship="label">
+            <Button
+              appearance="transparent"
+              icon={<Dismiss20Regular />}
+              onClick={() => onRemove(index)}
+              aria-label="Remove attachment"
+              className={classes.removeAttachmentButton}
+            />
+          </Tooltip>
         )}
-        <div className={classes.inlineCardContent}>{renderAttachmentContent()}</div>
+        <div contentEditable={false} className={classes.inlineCardContent}>
+          {renderAttachmentContent()}
+        </div>
       </div>
     );
   }

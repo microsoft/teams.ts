@@ -7,6 +7,7 @@ import {
   useEffect,
   useCallback,
   useMemo,
+  memo,
 } from 'react';
 import { Attachment, Message } from '@microsoft/spark.api';
 
@@ -26,7 +27,7 @@ export interface ComposeBoxProps {
 }
 const childLog = Logger.child('ComposeBox');
 
-const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent }) => {
+const ComposeBox: FC<ComposeBoxProps> = memo(({ onSend, messageHistory, onMessageSent }) => {
   const classes = useComposeBoxClasses();
   const [message, setMessage] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
@@ -273,7 +274,7 @@ const ComposeBox: FC<ComposeBoxProps> = ({ onSend, messageHistory, onMessageSent
       </ContentEditableArea>
     </div>
   );
-};
+});
 
-export default ComposeBox;
 ComposeBox.displayName = 'ComposeBox';
+export default ComposeBox;
