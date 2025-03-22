@@ -199,10 +199,10 @@ const ChatMessage: FC<ChatMessageProps> = memo(
             // case 'replyWithQuote':
             //   break;
             case 'messageReaction':
-              if (action.reactionType && action.user) {
+              if (action.reactionType) {
                 handleMessageReaction(action.id, {
                   type: action.reactionType,
-                  user: action.user,
+                  user: action.user || undefined,
                   createdDateTime: new Date().toUTCString(),
                 });
               }
