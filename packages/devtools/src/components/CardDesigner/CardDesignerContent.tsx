@@ -1,3 +1,4 @@
+import { FC, memo } from 'react';
 import { ICard, Card } from '@microsoft/spark.cards';
 
 import AdaptiveCard from '../Card/AdaptiveCard';
@@ -8,7 +9,7 @@ export interface CardDesignerContentProps {
   readonly value?: ICard;
 }
 
-export default function CardDesignerContent({ value }: CardDesignerContentProps) {
+const CardDesignerContent: FC<CardDesignerContentProps> = memo(({ value }) => {
   const classes = useCardDesignerContentClasses();
 
   return (
@@ -18,4 +19,8 @@ export default function CardDesignerContent({ value }: CardDesignerContentProps)
       </div>
     </div>
   );
-}
+});
+
+CardDesignerContent.displayName = 'CardDesignerContent';
+
+export default CardDesignerContent;

@@ -4,7 +4,7 @@ export const useCardDesignerEditorClasses = makeStyles({
   cardDesignerEditor: {
     display: 'flex',
     flex: 1,
-    borderLeft: `1px solid ${tokens.colorNeutralStroke2}`,
+    borderLeft: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStroke2}`,
     boxShadow: tokens.shadow8,
     minHeight: 0,
   },
@@ -21,7 +21,7 @@ export const useCardDesignerEditorClasses = makeStyles({
     flexDirection: 'column',
     flex: 1,
     minHeight: 0,
-    maxWidth: '500px',
+    maxWidth: '31rem',
   },
   tabPanel: {
     display: 'flex',

@@ -19,4 +19,6 @@ const ActionCard: FC<ActionCardProps> = ({ value }) => {
   return <>not found</>;
 };
 
+ActionCard.displayName = 'ActionCard';
+
 export default ActionCard;

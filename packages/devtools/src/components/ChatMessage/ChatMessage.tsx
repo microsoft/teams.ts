@@ -1,35 +1,24 @@
-import { FC, memo, useEffect, useState, useCallback, useMemo } from 'react';
-import {
-  Button,
-  mergeClasses,
-  Popover,
-  PopoverSurface,
-  PopoverTrigger,
-  PositioningShorthand,
-  Tooltip,
-  Image,
-} from '@fluentui/react-components';
+import { FC, memo, useCallback, useEffect, useState } from 'react';
+import { mergeClasses, Popover, PopoverSurface, PopoverTrigger } from '@fluentui/react-components';
 import {
   Message,
   MessageReaction,
   MessageUser,
-  Attachment,
   MessageDeleteActivity,
   MessageUpdateActivity,
 } from '@microsoft/spark.api';
 
 import useSparkApi from '../../hooks/useSparkApi';
 import { useChatStore } from '../../stores/ChatStore';
-import { AttachmentType } from '../../types/Attachment';
 import { MessageActionUIPayload } from '../../types/MessageActionUI';
-import { messageReactions } from '../../types/MessageReactionsEmoji';
-import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
 import Logger from '../Logger/Logger';
 import MessageActionsToolbar from '../MessageActionsToolbar/MessageActionsToolbar';
 import { MarkdownContent } from '../MarkdownContent';
 
-import { useChatMessageStyles } from './ChatMessage.styles';
+import useChatMessageStyles from './ChatMessage.styles';
 import ChatMessageDeleted from './ChatMessageDeleted';
+import MessageAttachments from './MessageAttachments';
+import MessageReactionButton from './MessageReactionButton';
 
 const childLog = Logger.child('ChatMessage');
 
@@ -200,10 +189,10 @@ const ChatMessage: FC<ChatMessageProps> = memo(
             // case 'replyWithQuote':
             //   break;
             case 'messageReaction':
-              if (action.reactionType && action.user) {
+              if (action.reactionType) {
                 handleMessageReaction(action.id, {
                   type: action.reactionType,
-                  user: action.user,
+                  user: action.user || undefined,
                   createdDateTime: new Date().toUTCString(),
                 });
               }
@@ -215,105 +204,27 @@ const ChatMessage: FC<ChatMessageProps> = memo(
       [chat.id, messages, handleMessageReaction, handleMessageDelete, handleMessageUpdate]
     );
 
-    const renderAttachment = useCallback(
-      (attachment: Attachment) => {
-        if (!attachment) return null;
-
-        switch (attachment.contentType) {
-          case 'image/png':
-          case 'image/jpeg':
-          case 'image/gif':
-          case 'image/jpg':
-            return (
-              <Image
-                key={attachment.id}
-                src={attachment.contentUrl}
-                alt={attachment.name || 'Image attachment'}
-                className={classes.attachmentImage}
-              />
-            );
-          default:
-            return null;
-        }
-      },
-      [classes.attachmentImage]
+    const messageBodyClasses = mergeClasses(
+      classes.messageBody,
+      sendDirection === 'sent' ? classes.sent : classes.received,
+      streaming && classes.streaming
     );
 
-    const convertToAttachmentType = useCallback((attachment: Attachment): AttachmentType => {
-      if (attachment.contentType?.startsWith('application/vnd.microsoft.card.')) {
-        return {
-          type: 'card',
-          content: attachment.content,
-          name: attachment.name,
-        };
-      }
-
-      if (attachment.contentType?.startsWith('image/')) {
-        return {
-          type: 'image',
-          content: attachment.contentUrl || attachment.content,
-          name: attachment.name,
-        };
-      }
-
-      return {
-        type: 'file',
-        content: attachment.contentUrl || attachment.content,
-        name: attachment.name,
-      };
-    }, []);
-
-    const nonImageAttachments = useMemo(() => {
-      if (!value.attachments) return [];
-      return value.attachments
-        .filter((attachment: Attachment) => !attachment.contentType?.startsWith('image/'))
-        .map(convertToAttachmentType);
-    }, [value.attachments, convertToAttachmentType]);
-
-    const hasAttachments = useMemo(
-      () => value.attachments && value.attachments.length > 0,
-      [value.attachments]
-    );
-
-    const messageBodyClasses = useMemo(
-      () =>
-        mergeClasses(
-          classes.messageBody,
-          sendDirection === 'sent' ? classes.sent : classes.received,
-          streaming && classes.streaming
-        ),
-      [
-        classes.messageBody,
-        classes.received,
-        classes.sent,
-        classes.streaming,
-        sendDirection,
-        streaming,
-      ]
-    );
-
-    const reactionContainerClasses = useMemo(
-      () =>
-        mergeClasses(
-          classes.reactionContainer,
-          reactions.length > 0 && classes.reactionContainerVisible,
-          sendDirection === 'sent' && classes.reactionContainerSent
-        ).trim(),
-      [
-        classes.reactionContainer,
-        classes.reactionContainerSent,
-        classes.reactionContainerVisible,
-        reactions.length,
-        sendDirection,
-      ]
-    );
+    const reactionContainerClasses = mergeClasses(
+      classes.reactionContainer,
+      reactions.length > 0 && classes.reactionContainerVisible,
+      sendDirection === 'sent' && classes.reactionContainerSent
+    ).trim();
 
     useEffect(() => {
       if (value.body?.contentType === 'text') {
         setHtml(value.body?.content || '');
       }
-      setReactions(value.reactions || []);
     }, [value]);
+
+    useEffect(() => {
+      setReactions(value.reactions || []);
+    }, [value.reactions]);
 
     if (value.deleted && deletedMessages.includes(value)) {
       return (
@@ -324,6 +235,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
         />
       );
     }
+
     return (
       <>
         <div id={labelId} aria-labelledby={labelId} className={classes.messageContainer}>
@@ -332,7 +244,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
             onOpenChange={handlePopoverChange}
             openOnHover
             mouseLeaveDelay={100}
-            positioning={'above-end' as PositioningShorthand}
+            positioning={{ align: 'end', position: 'above' }}
             trapFocus={openedByKeyboard}
             unstable_disableAutoFocus={!openedByKeyboard}
           >
@@ -350,22 +262,8 @@ const ChatMessage: FC<ChatMessageProps> = memo(
                 <div className={classes.messageContent}>
                   <span className={classes.messageText}>
                     {html ? <MarkdownContent content={html} /> : content}
-                    {hasAttachments && (
-                      <div className={classes.attachments}>
-                        {value.attachments &&
-                          value.attachments
-                            .filter((attachment: Attachment) =>
-                              attachment.contentType?.startsWith('image/')
-                            )
-                            .map(renderAttachment)}
-                      </div>
-                    )}
-                    {nonImageAttachments.length > 0 && (
-                      <AttachmentsContainer
-                        attachments={nonImageAttachments}
-                        onRemoveAttachment={() => {}}
-                        showRemoveButtons={false}
-                      />
+                    {value.attachments && value.attachments.length > 0 && (
+                      <MessageAttachments attachments={value.attachments} classes={classes} />
                     )}
                     {streaming && <span className={classes.streamingCursor} />}
                   </span>
@@ -384,25 +282,12 @@ const ChatMessage: FC<ChatMessageProps> = memo(
           {reactions.length > 0 && (
             <div data-tid="reactions-container" className={reactionContainerClasses}>
               {reactions.map((reaction) => (
-                <Tooltip
-                  content={<span className={classes.tooltipText}>{reaction.type}</span>}
-                  relationship="label"
-                  key={reaction.type}
-                  positioning={'below-end' as PositioningShorthand}
-                >
-                  <Button
-                    className={mergeClasses(
-                      classes.reactionButton,
-                      reaction.user?.id === reactionSender?.id && classes.reactionFromUser
-                    ).trim()}
-                    key={reaction.type}
-                    onClick={() => handleMessageReaction(value.id, reaction)}
-                    shape="circular"
-                    size="small"
-                  >
-                    {messageReactions.find((r) => r.reaction === reaction.type)?.label}
-                  </Button>
-                </Tooltip>
+                <MessageReactionButton
+                  key={`${reaction.type}-${reaction.user?.id}`}
+                  reaction={reaction}
+                  isFromUser={reaction.user?.id === reactionSender?.id}
+                  onReactionClick={() => handleMessageReaction(value.id, reaction)}
+                />
               ))}
             </div>
           )}

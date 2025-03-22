@@ -44,5 +44,6 @@ const AdaptiveCard = memo(({ value }: AdaptiveCardProps) => {
   );
 });
 
-export default AdaptiveCard;
 AdaptiveCard.displayName = 'AdaptiveCard';
+
+export default AdaptiveCard;

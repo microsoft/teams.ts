@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import {
   Button,
   InfoLabel,
@@ -25,7 +25,7 @@ interface ActivityDetailsProps {
 
 const childLog = Logger.child('ActivityDetails');
 
-const ActivityDetails: FC<ActivityDetailsProps> = ({ selected, view, setView }) => {
+const ActivityDetails: FC<ActivityDetailsProps> = memo(({ selected, view, setView }) => {
   const classes = useActivityDetailsClasses();
   const { dispatchToast } = useToastController();
 
@@ -105,6 +105,8 @@ const ActivityDetails: FC<ActivityDetailsProps> = ({ selected, view, setView }) 
       </div>
     </div>
   );
-};
+});
+
+ActivityDetails.displayName = 'ActivityDetails';
 
 export default ActivityDetails;

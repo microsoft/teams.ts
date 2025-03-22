@@ -3,7 +3,7 @@ import { Link, mergeClasses } from '@fluentui/react-components';
 
 import { MessageActionUIPayload } from '../../types/MessageActionUI';
 
-import { useChatMessageStyles } from './ChatMessage.styles';
+import useChatMessageStyles from './ChatMessage.styles';
 
 interface ChatMessageDeletedProps {
   id: string;

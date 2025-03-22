@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { Avatar, makeStyles, tokens } from '@fluentui/react-components';
 
 interface ChatAvatarProps {
+  id: string;
   isConnected: boolean;
 }
 
@@ -14,14 +15,15 @@ const useClasses = makeStyles({
   },
 });
 
-const ChatAvatarWrapper: FC<ChatAvatarProps> = ({ isConnected }) => {
+const ChatAvatarWrapper: FC<ChatAvatarProps> = ({ id, isConnected }) => {
   const classes = useClasses();
 
   return (
-    <div id="avatar" className={(classes.avatar, classes.avatarSpacer)}>
+    <div id={id} className={(classes.avatar, classes.avatarSpacer)}>
       <Avatar name="User" badge={{ status: isConnected ? 'available' : 'offline' }} size={40} />
     </div>
   );
 };
 
+ChatAvatarWrapper.displayName = 'ChatAvatarWrapper';
 export default ChatAvatarWrapper;

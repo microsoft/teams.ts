@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import { mergeClasses, Tooltip } from '@fluentui/react-components';
 import { IBadge } from '@microsoft/spark.cards';
 
@@ -9,19 +9,7 @@ export interface BadgeCardProps {
   readonly value: IBadge;
 }
 
-const BadgeCard: FC<BadgeCardProps> = ({ value }) => {
-  if (value.tooltip) {
-    return (
-      <Tooltip content={value.tooltip} relationship="label">
-        <BadgeCardContent value={value} />
-      </Tooltip>
-    );
-  }
-
-  return <BadgeCardContent value={value} />;
-};
-
-const BadgeCardContent: FC<BadgeCardProps> = ({ value }) => {
+const BadgeCardContent: FC<BadgeCardProps> = memo(({ value }) => {
   const classes = useBadgeCardStyles();
 
   // Determine shape class
@@ -89,6 +77,21 @@ const BadgeCardContent: FC<BadgeCardProps> = ({ value }) => {
       <span className={classes.text}>{value.text}</span>
     </div>
   );
-};
+});
+
+const BadgeCard: FC<BadgeCardProps> = memo(({ value }) => {
+  if (value.tooltip) {
+    return (
+      <Tooltip content={value.tooltip} relationship="label">
+        <BadgeCardContent value={value} />
+      </Tooltip>
+    );
+  }
+
+  return <BadgeCardContent value={value} />;
+});
+
+BadgeCardContent.displayName = 'BadgeCardContent';
+BadgeCard.displayName = 'BadgeCard';
 
 export default BadgeCard;

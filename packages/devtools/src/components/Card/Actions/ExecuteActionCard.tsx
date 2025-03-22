@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { Button, mergeClasses, Tooltip } from '@fluentui/react-components';
 import { IExecuteAction } from '@microsoft/spark.cards';
 
-import { useExecuteActionCardClasses } from './Actions.styles';
+import useActionCardStyles from './Actions.styles';
 
 export interface ExecuteActionCardProps {
   readonly value: IExecuteAction;
@@ -21,7 +21,7 @@ const ExecuteActionCard: FC<ExecuteActionCardProps> = ({ value }) => {
 };
 
 const ExecuteActionCardContent: FC<ExecuteActionCardProps> = ({ value }) => {
-  const classes = useExecuteActionCardClasses();
+  const classes = useActionCardStyles();
 
   // Determine which style variant to use based on action style
   const styleVariant =
@@ -40,5 +40,8 @@ const ExecuteActionCardContent: FC<ExecuteActionCardProps> = ({ value }) => {
     </Button>
   );
 };
+
+ExecuteActionCard.displayName = 'ExecuteActionCard';
+ExecuteActionCardContent.displayName = 'ExecuteActionCardContent';
 
 export default ExecuteActionCard;

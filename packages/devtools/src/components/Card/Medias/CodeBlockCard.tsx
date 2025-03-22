@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, memo, useEffect, useState } from 'react';
 import { ICodeBlock } from '@microsoft/spark.cards';
 import hljs from 'highlight.js/lib/core';
 import bash from 'highlight.js/lib/languages/bash';
@@ -22,7 +22,7 @@ export interface CodeBlockCardProps {
   readonly value: ICodeBlock;
 }
 
-const CodeBlockCard: FC<CodeBlockCardProps> = ({ value }) => {
+const CodeBlockCard: FC<CodeBlockCardProps> = memo(({ value }) => {
   const [html, setHtml] = useState<string>();
   const classes = useCodeBlockStyles();
 
@@ -48,6 +48,8 @@ const CodeBlockCard: FC<CodeBlockCardProps> = ({ value }) => {
   }
 
   return <pre className={classes.codeBlock} dangerouslySetInnerHTML={{ __html: html }} />;
-};
+});
+
+CodeBlockCard.displayName = 'CodeBlockCard';
 
 export default CodeBlockCard;

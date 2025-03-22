@@ -1,20 +1,20 @@
-import { makeStyles } from '@fluentui/react-components';
+import { makeStyles, tokens } from '@fluentui/react-components';
 
 const useActivityDetailsClasses = makeStyles({
   detailsContainer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1rem',
+    gap: tokens.spacingVerticalL,
     height: '100%',
     overflow: 'auto',
   },
   tools: {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
+    gap: tokens.spacingHorizontalS,
   },
   jsonContainer: {
-    padding: '0.5rem',
+    padding: tokens.spacingHorizontalS,
     flex: '1 1 auto',
     overflow: 'auto',
     minHeight: 0,

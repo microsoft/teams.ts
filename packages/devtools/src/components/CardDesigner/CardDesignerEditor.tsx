@@ -1,18 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
+import { FC, memo, useEffect, useRef, useState } from 'react';
 import { javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import { EditorState } from '@codemirror/state';
 import { ViewUpdate } from '@codemirror/view';
-import { SelectTabEvent, SelectTabData, Tab, TabList, TabValue } from '@fluentui/react-components';
+import { SelectTabData, SelectTabEvent, Tab, TabList, TabValue } from '@fluentui/react-components';
 import { ICard } from '@microsoft/spark.cards';
 import { atomone } from '@uiw/codemirror-themes-all';
-import { EditorView, basicSetup } from 'codemirror';
+import { basicSetup, EditorView } from 'codemirror';
 
 import Logger from '../../components/Logger/Logger';
 
 import { useCardDesignerEditorClasses } from './CardDesignerEditor.styles';
 
-// Logger instantiations
 const jsonEditorLog = Logger.child('CardDesignerJsonEditor');
 const typescriptEditorLog = Logger.child('CardDesignerTypescriptEditor');
 
@@ -22,11 +21,7 @@ export interface CardDesignerEditorProps {
   readonly onChange?: (value: ICard) => void;
 }
 
-export default function CardDesignerEditor({
-  value,
-  typescript,
-  onChange,
-}: CardDesignerEditorProps) {
+const CardDesignerEditor: FC<CardDesignerEditorProps> = memo(({ value, typescript, onChange }) => {
   const classes = useCardDesignerEditorClasses();
   const [selectedValue, setSelectedValue] = useState<TabValue>('json');
 
@@ -58,20 +53,19 @@ export default function CardDesignerEditor({
       </div>
     </div>
   );
-}
+});
 
 export interface CardDesignerJsonEditorProps {
   readonly value?: ICard;
   readonly onChange?: (value: ICard) => void;
 }
 
-export function CardDesignerJsonEditor({ value, onChange }: CardDesignerJsonEditorProps) {
+const CardDesignerJsonEditor: FC<CardDesignerJsonEditorProps> = memo(({ value, onChange }) => {
   const ref = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const classes = useCardDesignerEditorClasses();
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Initialize the editor once
   useEffect(() => {
     if (!ref.current || viewRef.current) return;
 
@@ -105,12 +99,9 @@ export function CardDesignerJsonEditor({ value, onChange }: CardDesignerJsonEdit
     };
   }, [ref, isUpdating, onChange, value]);
 
-  // Update the editor content when value changes
   useEffect(() => {
-    // Helper function with access to logger
     const tryParseJson = (value: string) => {
       try {
-        // creates new object every time
         return JSON.parse(value);
       } catch (err) {
         jsonEditorLog.warn('Failed to parse JSON:', err);
@@ -137,19 +128,18 @@ export function CardDesignerJsonEditor({ value, onChange }: CardDesignerJsonEdit
   }, [value]);
 
   return <div ref={ref} className={classes.cardDesignerEditor} />;
-}
+});
 
 export interface CardDesignerTypescriptEditorProps {
   readonly value?: string;
 }
 
-export function CardDesignerTypescriptEditor({ value }: CardDesignerTypescriptEditorProps) {
+const CardDesignerTypescriptEditor: FC<CardDesignerTypescriptEditorProps> = memo(({ value }) => {
   const ref = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const classes = useCardDesignerEditorClasses();
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Initialize the editor once
   useEffect(() => {
     if (!ref.current || viewRef.current) return;
 
@@ -196,4 +186,10 @@ export function CardDesignerTypescriptEditor({ value }: CardDesignerTypescriptEd
   }, [isUpdating, value]);
 
   return <div ref={ref} className={classes.cardDesignerEditor} />;
-}
+});
+
+CardDesignerEditor.displayName = 'CardDesignerEditor';
+CardDesignerJsonEditor.displayName = 'CardDesignerJsonEditor';
+CardDesignerTypescriptEditor.displayName = 'CardDesignerTypescriptEditor';
+
+export default CardDesignerEditor;
