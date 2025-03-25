@@ -118,7 +118,6 @@ const MessageActionsToolbar: FC<MessageActionsProps> = memo(
                 key="Edit"
                 icon={<EditIcon />}
                 className={classes.toolbarButton}
-                disabled
                 onClick={handleEdit}
               />
             </Tooltip>
