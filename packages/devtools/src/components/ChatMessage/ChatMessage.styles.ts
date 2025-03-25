@@ -45,11 +45,8 @@ const useChatMessageStyles = makeStyles({
     display: 'block',
   },
   messageText: {
-    display: 'inline-block',
-    '& p': {
-      display: 'inline',
-      margin: 0,
-    },
+    display: 'block',
+    whiteSpace: 'pre-wrap',
   },
   messageDeleted: {
     fontStyle: 'italic',

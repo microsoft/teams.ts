@@ -11,12 +11,13 @@ import {
 import useSparkApi from '../../hooks/useSparkApi';
 import { useChatStore } from '../../stores/ChatStore';
 import { MessageActionUIPayload } from '../../types/MessageActionUI';
+import { hasMarkdownContent } from '../../utils/markdown';
 import Logger from '../Logger/Logger';
 import MessageActionsToolbar from '../MessageActionsToolbar/MessageActionsToolbar';
 import { MarkdownContent } from '../MarkdownContent';
 
+import ChatMessageDeleted from './MessageUpdate/ChatMessageDeleted';
 import useChatMessageStyles from './ChatMessage.styles';
-import ChatMessageDeleted from './ChatMessageDeleted';
 import MessageAttachments from './MessageAttachments';
 import MessageReactionButton from './MessageReactionButton';
 
@@ -24,21 +25,19 @@ const childLog = Logger.child('ChatMessage');
 
 interface ChatMessageProps {
   content: string;
-  feedback: boolean;
+  feedback?: boolean;
   sendDirection: 'sent' | 'received';
-  streaming: boolean;
+  streaming?: boolean;
   value: Message;
+  onMessageAction: (action: MessageActionUIPayload) => Promise<void>;
 }
 
 const ChatMessage: FC<ChatMessageProps> = memo(
-  ({ content, streaming = false, feedback = false, sendDirection, value }) => {
+  ({ content, streaming = false, feedback = false, sendDirection, value, onMessageAction }) => {
     const classes = useChatMessageStyles();
     const { chat, messages } = useChatStore();
     const sparkApi = useSparkApi();
     const labelId = `message-${value.id}`;
-    const [html, setHtml] = useState<string>(
-      (value.body?.contentType === 'text' && value.body?.content) || ''
-    );
     const [reactions, setReactions] = useState<MessageReaction[]>(value.reactions || []);
     const [reactionSender, setReactionSender] = useState<MessageUser | undefined>(undefined);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -104,26 +103,31 @@ const ChatMessage: FC<ChatMessageProps> = memo(
 
     const handleMessageUpdate = useCallback(
       async (uiAction: MessageActionUIPayload, message: Message) => {
-        const { id, eventType } = uiAction;
-        if (!eventType) {
-          childLog.error('No event type provided for messageUpdate. Unable to update message.');
-          return;
-        }
+        const { id, eventType, type } = uiAction;
 
         try {
-          const updateActivity = new MessageUpdateActivity(eventType, {
-            id,
-            text: message.body?.content || '',
-          });
-          await sparkApi.conversations.activities(chat.id).create(updateActivity);
-          if (eventType === 'undeleteMessage') {
-            setDeletedMessages((prev) => prev.filter((m) => m.id !== id));
+          if (type === 'messageUpdate') {
+            // For edit message actions, delegate to parent handler
+            await onMessageAction(uiAction);
+          } else if (eventType) {
+            // For other message updates (undelete, etc)
+            const updateActivity = new MessageUpdateActivity(eventType, {
+              id,
+              text: message.body?.content || '',
+            });
+            await sparkApi.conversations.activities(chat.id).create(updateActivity);
+            if (eventType === 'undeleteMessage') {
+              setDeletedMessages((prev) => prev.filter((m) => m.id !== id));
+            }
+          } else {
+            childLog.error('No event type provided for messageUpdate. Unable to update message.');
+            return;
           }
         } catch (err) {
           childLog.error('Error updating message:', err);
         }
       },
-      [chat.id, sparkApi.conversations]
+      [chat.id, sparkApi.conversations, onMessageAction]
     );
 
     const handleMessageReaction = useCallback(
@@ -172,7 +176,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
       [chat.id, messages, sparkApi]
     );
 
-    const onMessageAction = useCallback(
+    const handleMessageAction = useCallback(
       async (action: MessageActionUIPayload) => {
         const message = messages[chat.id].find((m) => m.id === action.id);
         if (!message) return;
@@ -180,7 +184,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
         try {
           switch (action.type) {
             case 'messageUpdate':
-              handleMessageUpdate(action, message);
+              await handleMessageUpdate(action, message);
               break;
             case 'messageDelete':
               handleMessageDelete(action, message);
@@ -215,12 +219,6 @@ const ChatMessage: FC<ChatMessageProps> = memo(
       reactions.length > 0 && classes.reactionContainerVisible,
       sendDirection === 'sent' && classes.reactionContainerSent
     ).trim();
-
-    useEffect(() => {
-      if (value.body?.contentType === 'text') {
-        setHtml(value.body?.content || '');
-      }
-    }, [value]);
 
     useEffect(() => {
       setReactions(value.reactions || []);
@@ -261,7 +259,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
               >
                 <div className={classes.messageContent}>
                   <span className={classes.messageText}>
-                    {html ? <MarkdownContent content={html} /> : content}
+                    {hasMarkdownContent(content) ? <MarkdownContent content={content} /> : content}
                     {value.attachments && value.attachments.length > 0 && (
                       <MessageAttachments attachments={value.attachments} classes={classes} />
                     )}
@@ -274,7 +272,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
               <MessageActionsToolbar
                 userSentMessage={sendDirection === 'sent'}
                 value={value}
-                onMessageAction={onMessageAction}
+                onMessageAction={handleMessageAction}
                 reactionSender={reactionSender}
               />
             </PopoverSurface>

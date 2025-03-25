@@ -54,6 +54,8 @@ globs: packages/devtools/**/*.tsx,.ts
 - Sort imports from the same package alphabetically.
 - Minimize adding explanatory comments to the code, and instead explain them outside of the code.
 
+# React router
+- We're using React Router v7, which has a different package structure than previous versions. In v7, the navigation components are actually in the react-router package, not react-router-dom. Do not replace react-router with react-router-dom.
 
 ## Folder structure inside a package
 const folderStructure = `
