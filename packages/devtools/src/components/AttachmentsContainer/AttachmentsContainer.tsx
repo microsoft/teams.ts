@@ -52,7 +52,13 @@ const AttachmentItem: FC<AttachmentItemProps> = memo(
             />
           </Tooltip>
         )}
-        <div contentEditable={false} className={classes.inlineCardContent}>
+        <div
+          contentEditable={false}
+          className={classes.inlineCardContent}
+          data-target-width={
+            attachment.type === 'card' ? attachment.content?.msteams?.targetWidth : undefined
+          }
+        >
           {renderAttachmentContent()}
         </div>
       </div>

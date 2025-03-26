@@ -222,6 +222,11 @@ export const useChatStore = create<ChatStore>()(
           message.body.textContent = event.body.text;
         }
 
+        // Update attachments if present in the value
+        if (event.body.value?.attachments) {
+          message.attachments = event.body.value.attachments;
+        }
+
         message.lastModifiedDateTime = (event.body.timestamp || new Date()).toUTCString();
         state.put(state.chat.id, message);
         return state;

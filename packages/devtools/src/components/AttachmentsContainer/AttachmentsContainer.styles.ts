@@ -1,6 +1,12 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
 const useAttachmentsContainerClasses = makeStyles({
+  root: {
+    // Card width breakpoints
+    '--card-width-very-narrow': '13.375rem',  // 214px
+    '--card-width-narrow': '21.4375rem',      // 343px
+    '--card-width-standard': '31.125rem',      // 498px
+  },
   inlineAttachmentsContainer: {
     display: 'flex',
     flexDirection: 'column',
@@ -27,10 +33,39 @@ const useAttachmentsContainerClasses = makeStyles({
     },
   },
   inlineCardContent: {
-    // TODO: media queries for max-width
     padding: tokens.spacingHorizontalS,
-    width: '31.125rem',
+    width: 'var(--card-width-standard)',
     overflow: 'auto',
+    '&[data-target-width="veryNarrow"]': {
+      width: 'var(--card-width-very-narrow)',
+    },
+    '&[data-target-width="narrow"]': {
+      width: 'var(--card-width-narrow)',
+    },
+    '&[data-target-width="standard"]': {
+      width: 'var(--card-width-standard)',
+    },
+    '&[data-target-width="wide"]': {
+      width: '100%',
+    },
+    '&[data-target-width="atLeast:veryNarrow"]': {
+      minWidth: 'var(--card-width-very-narrow)',
+    },
+    '&[data-target-width="atLeast:narrow"]': {
+      minWidth: 'var(--card-width-narrow)',
+    },
+    '&[data-target-width="atLeast:standard"]': {
+      minWidth: 'var(--card-width-standard)',
+    },
+    '&[data-target-width="atMost:veryNarrow"]': {
+      maxWidth: 'var(--card-width-very-narrow)',
+    },
+    '&[data-target-width="atMost:narrow"]': {
+      maxWidth: 'var(--card-width-narrow)',
+    },
+    '&[data-target-width="atMost:standard"]': {
+      maxWidth: 'var(--card-width-standard)',
+    },
   },
   attachmentImage: {
     borderRadius: tokens.borderRadiusSmall,

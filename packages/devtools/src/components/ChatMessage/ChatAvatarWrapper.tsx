@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Avatar, makeStyles, tokens } from '@fluentui/react-components';
+import { Avatar, makeStyles, mergeClasses, tokens } from '@fluentui/react-components';
 
 interface ChatAvatarProps {
   id: string;
@@ -19,7 +19,7 @@ const ChatAvatarWrapper: FC<ChatAvatarProps> = ({ id, isConnected }) => {
   const classes = useClasses();
 
   return (
-    <div id={id} className={(classes.avatar, classes.avatarSpacer)}>
+    <div id={id} className={mergeClasses(classes.avatarSpacer, classes.avatar)}>
       <Avatar name="User" badge={{ status: isConnected ? 'available' : 'offline' }} size={40} />
     </div>
   );
