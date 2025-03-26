@@ -31,6 +31,8 @@ import { MarkdownContent } from '../MarkdownContent';
 import { useChatMessageStyles } from './ChatMessage.styles';
 import ChatMessageDeleted from './ChatMessageDeleted';
 
+const childLog = Logger.child('ChatMessage');
+
 interface ChatMessageProps {
   content: string;
   feedback: boolean;
@@ -42,7 +44,6 @@ interface ChatMessageProps {
 const ChatMessage: FC<ChatMessageProps> = memo(
   ({ content, streaming = false, feedback = false, sendDirection, value }) => {
     const classes = useChatMessageStyles();
-    const childLog = Logger.child('ChatMessage');
     const { chat, messages } = useChatStore();
     const sparkApi = useSparkApi();
     const labelId = `message-${value.id}`;
@@ -109,7 +110,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
           childLog.error('Error on messageUpdate/softDeleteMessage:', err);
         }
       },
-      [chat.id, childLog, sparkApi]
+      [chat.id, sparkApi]
     );
 
     const handleMessageUpdate = useCallback(
@@ -133,7 +134,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
           childLog.error('Error updating message:', err);
         }
       },
-      [chat.id, childLog, sparkApi.conversations]
+      [chat.id, sparkApi.conversations]
     );
 
     const handleMessageReaction = useCallback(
@@ -179,7 +180,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
           }
         }
       },
-      [chat.id, childLog, messages, sparkApi]
+      [chat.id, messages, sparkApi]
     );
 
     const onMessageAction = useCallback(
@@ -211,7 +212,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
           childLog.error('Error handling message action:', err);
         }
       },
-      [chat.id, messages, childLog, handleMessageReaction, handleMessageDelete, handleMessageUpdate]
+      [chat.id, messages, handleMessageReaction, handleMessageDelete, handleMessageUpdate]
     );
 
     const renderAttachment = useCallback(
@@ -265,7 +266,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
     const nonImageAttachments = useMemo(() => {
       if (!value.attachments) return [];
       return value.attachments
-        .filter((attachment) => !attachment.contentType?.startsWith('image/'))
+        .filter((attachment: Attachment) => !attachment.contentType?.startsWith('image/'))
         .map(convertToAttachmentType);
     }, [value.attachments, convertToAttachmentType]);
 
@@ -353,7 +354,9 @@ const ChatMessage: FC<ChatMessageProps> = memo(
                       <div className={classes.attachments}>
                         {value.attachments &&
                           value.attachments
-                            .filter((attachment) => attachment.contentType?.startsWith('image/'))
+                            .filter((attachment: Attachment) =>
+                              attachment.contentType?.startsWith('image/')
+                            )
                             .map(renderAttachment)}
                       </div>
                     )}
@@ -373,7 +376,6 @@ const ChatMessage: FC<ChatMessageProps> = memo(
               <MessageActionsToolbar
                 userSentMessage={sendDirection === 'sent'}
                 value={value}
-                size="small"
                 onMessageAction={onMessageAction}
                 reactionSender={reactionSender}
               />

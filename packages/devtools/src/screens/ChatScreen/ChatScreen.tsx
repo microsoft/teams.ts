@@ -1,5 +1,5 @@
 import { FC, useCallback, useState } from 'react';
-import { Attachment, Message } from '@microsoft/spark.api';
+import { Message } from '@microsoft/spark.api';
 
 import Chat from '../../components/Chat/Chat';
 import ChatMessage from '../../components/ChatMessage/ChatMessage';
@@ -11,6 +11,7 @@ import useSparkApi from '../../hooks/useSparkApi';
 import { useChatStore } from '../../stores/ChatStore';
 import { useDevModeSendMessage } from '../../utils/devUtils';
 import useScreensClasses from '../Screens.styles';
+
 import useClasses from './ChatScreen.styles';
 
 interface ChatScreenProps {
@@ -50,14 +51,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
 
   // Use the hook to automatically send a message in development mode
   // This will be a no-op in production builds
-  useDevModeSendMessage((message: Partial<Message>, attachments?: Attachment[]) => {
-    const content = message.body?.content || '';
-    const messageWithAttachments = { ...message, attachments };
-    onSendMessage(messageWithAttachments);
-    if (content.trim() || attachments?.length) {
-      handleMessageHistory(messageWithAttachments as Message);
-    }
-  });
+  useDevModeSendMessage(onSendMessage);
 
   return (
     <>
