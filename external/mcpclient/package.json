@@ -1,6 +1,6 @@
 {
-  "name": "@microsoft/spark.mcp",
-  "version": "0.2.4",
+  "name": "@microsoft/spark.mcpclient",
+  "version": "0.1.0",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -14,39 +14,21 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/microsoft/spark.js.git",
-    "directory": "packages/mcp"
+    "directory": "packages/mcpclient"
   },
   "keywords": [
     "microsoft",
     "teams",
-    "msteams",
-    "copilot",
-    "ai",
-    "modelcontextprotocol",
-    "mcp"
+    "msteams"
   ],
   "scripts": {
     "clean": "npx rimraf ./dist",
-    "lint": "npx eslint",
-    "lint:fix": "npx eslint --fix",
-    "build": "npx tsc",
+    "build": "npx tsup",
     "test": "npx jest"
   },
-  "dependencies": {
-    "json-schema-to-zod": "^2.6.0",
-    "zod": "^3.24.2"
-  },
   "peerDependencies": {
-    "@microsoft/spark.ai": "*",
-    "@microsoft/spark.apps": "*",
-    "@microsoft/spark.common": "*",
-    "@microsoft/spark.dev": "*",
-    "@modelcontextprotocol/sdk": "1.5.0"
-  },
-  "peerDependenciesMeta": {
-    "@microsoft/spark.dev": {
-      "optional": true
-    }
+    "@modelcontextprotocol/sdk": "1.5.0",
+    "@microsoft/spark.ai": "*"
   },
   "devDependencies": {
     "@microsoft/spark.config": "*",
