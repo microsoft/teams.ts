@@ -1,6 +1,6 @@
 import { Function, FunctionHandler } from '../function';
 import { LocalMemory } from '../local-memory';
-import { IMCPClient, MCPClientParams } from '../mcp';
+import { IMcpClient, McpClientParams } from '../mcp';
 import { IMemory } from '../memory';
 import { ContentPart, Message, ModelMessage, SystemMessage, UserMessage } from '../message';
 import { IChatModel, TextChunkHandler } from '../models';
@@ -43,9 +43,9 @@ export type ChatPromptOptions<TOptions extends Record<string, any> = Record<stri
   readonly messages?: Message[] | IMemory;
 
   /**
-   * The MCP client for handling MCP server communication
+   * The Mcp client for handling Mcp server communication
    */
-  readonly mcpClient?: IMCPClient;
+  readonly mcpClient?: IMcpClient;
 };
 
 export type ChatPromptSendOptions<TOptions extends Record<string, any> = Record<string, any>> = {
@@ -106,7 +106,7 @@ export interface IChatPrompt<TOptions extends Record<string, any> = Record<strin
   function(name: string, description: string, parameters: Schema, handler: FunctionHandler): this;
 
   mcp(url: string): this;
-  mcp(url: string, params?: MCPClientParams[]): this;
+  mcp(url: string, params?: McpClientParams[]): this;
 
   /**
    * call a function
@@ -154,8 +154,8 @@ export class ChatPrompt<TOptions extends Record<string, any> = Record<string, an
   protected readonly _template: ITemplate;
   protected readonly _model: IChatModel<TOptions>;
 
-  protected readonly _mcpClient?: IMCPClient;
-  protected readonly _mcpFunctions: Record<string, MCPClientParams[] | undefined> = {};
+  protected readonly _mcpClient?: IMcpClient;
+  protected readonly _mcpFunctions: Record<string, McpClientParams[] | undefined> = {};
 
   constructor(options: ChatPromptOptions<TOptions>) {
     this._name = options.name || 'chat';
@@ -218,11 +218,13 @@ export class ChatPrompt<TOptions extends Record<string, any> = Record<string, an
     return this;
   }
 
-  mcp(url: string, params?: MCPClientParams[]): this {
+  mcp(url: string, params?: McpClientParams[]): this {
     if (!this._mcpClient) {
-      throw new Error('MCPClient not provided. Pass mcpClient in ChatPrompt options to use MCP features.');
+      throw new Error(
+        'McpClient not provided. Pass mcpClient in ChatPrompt options to use Mcp features.'
+      );
     }
-    
+
     this._mcpFunctions[url] = params;
 
     return this;
@@ -264,12 +266,12 @@ export class ChatPrompt<TOptions extends Record<string, any> = Record<string, an
     if (this._mcpClient) {
       const args = Object.entries(this._mcpFunctions).map(([url, params]) => ({
         url,
-        params
+        params,
       }));
 
       if (args.length > 0) {
         const functions = await this._mcpClient.buildFunctions(args);
-        functions.forEach(fn => {
+        functions.forEach((fn) => {
           fnsCopy[fn.name] = fn;
         });
       }

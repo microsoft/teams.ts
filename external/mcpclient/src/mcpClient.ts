@@ -1,56 +1,73 @@
 import type { Function, Schema } from '@microsoft/spark.ai';
-import { MCPClientParams } from '@microsoft/spark.ai';
+import { IMcpClient, McpClientParams } from '@microsoft/spark.ai';
 import { Client, ClientOptions } from '@modelcontextprotocol/sdk/client/index.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
-import {
-    CallToolRequest,
-    CallToolResultSchema,
-    Implementation as ClientDetails,
-    CompatibilityCallToolResultSchema,
-} from '@modelcontextprotocol/sdk/types.js';
 
-export type MCPClientParamsMap = Record<string, MCPClientParams[]>;
+/**
+ * A map of Mcp client params keyed off of their corresponding urls
+ */
+export type McpClientParamsCache = Record<string, McpClientParams[]>;
 
-export type MCPClientArgs = CallToolRequest['params'];
+export type McpClientOptions = ClientOptions & {
+  /**
+   * the Mcp client name
+   * @default 'mcpClient'
+   */
+  readonly name?: string;
 
-export type MCPCLientResult =
-  | typeof CallToolResultSchema
-  | typeof CompatibilityCallToolResultSchema;
+  /**
+   * the Mcp client version
+   * @default 0.0.0
+   */
+  readonly version?: string;
 
-export interface IMCPClient {
-  buildFunctions(
-    args: {
-      url: string;
-      params?: MCPClientParams[];
-    }[]
-  ): Promise<Function[]>;
-}
+  /**
+   * A saved cache of tool params for their corresponding server urls
+   * If not provided, the client will fetch the params from the server
+   * @default {}
+   */
+  readonly cache?: McpClientParamsCache;
+};
 
-export class MCPClient implements IMCPClient {
-  private _cache: MCPClientParamsMap;
-
-  constructor(
-    public readonly clientInfo: ClientDetails,
-    public readonly clientOptions?: ClientOptions,
-    cache: MCPClientParamsMap = {}
-  ) {
-    this._cache = cache;
+export class McpClient implements IMcpClient {
+  get name() {
+    return this._name;
   }
+  protected readonly _name: string;
+
+  get version() {
+    return this._version;
+  }
+  protected readonly _version: string;
+
+  get clientOptions() {
+    return this._clientOptions;
+  }
+  protected _clientOptions: ClientOptions;
 
   get cache() {
     return this._cache;
   }
+  protected _cache: McpClientParamsCache;
 
-  async buildFunctions(args: { url: string; params?: MCPClientParams[] }[]): Promise<Function[]> {
+  constructor(options?: McpClientOptions) {
+    const { name, version, cache, ...clientOptions } = options || {};
+    this._name = name || 'mcpClient';
+    this._version = version || '0.0.0';
+    this._cache = cache || {};
+    this._clientOptions = clientOptions;
+  }
+
+  async buildFunctions(args: { url: string; params?: McpClientParams[] }[]): Promise<Function[]> {
     // First, handle all fetching needs
     const fetchNeeded = args.filter((arg) => !arg.params && !this._cache[arg.url]);
 
     // Fetch all needed params in parallel
     if (fetchNeeded.length > 0) {
-        const tools = await this.getTools(fetchNeeded.map((arg) => arg.url));
-        for (const [url, params] of Object.entries(tools)) {
-          this._cache[url] = params;
-        }
+      const tools = await this.getTools(fetchNeeded.map((arg) => arg.url));
+      for (const [url, params] of Object.entries(tools)) {
+        this._cache[url] = params;
+      }
     }
 
     // Now create all functions
@@ -69,7 +86,7 @@ export class MCPClient implements IMCPClient {
         description: param.description,
         parameters: param.schema || {},
         handler: async (args: any) => {
-          const [client, transport] = this.makeMCPClient(url);
+          const [client, transport] = this.makeMcpClient(url);
           try {
             await client.connect(transport);
             const result = await client.callTool({
@@ -89,10 +106,10 @@ export class MCPClient implements IMCPClient {
     return allFunctions;
   }
 
-  async getTools(urls: string[]): Promise<MCPClientParamsMap> {
+  async getTools(urls: string[]): Promise<McpClientParamsCache> {
     const toolCallResult = await Promise.all(
-      urls.map((url) => {
-        const tools = this.fetchTools(url);
+      urls.map(async (url) => {
+        const tools = await this.fetchTools(url);
         return [url, tools];
       })
     );
@@ -100,8 +117,8 @@ export class MCPClient implements IMCPClient {
     return Object.fromEntries(toolCallResult);
   }
 
-  private async fetchTools(url: string): Promise<MCPClientParams[]> {
-    const [client, transport] = this.makeMCPClient(url);
+  private async fetchTools(url: string): Promise<McpClientParams[]> {
+    const [client, transport] = this.makeMcpClient(url);
     try {
       await client.connect(transport);
       const tools = await client.listTools();
@@ -115,10 +132,16 @@ export class MCPClient implements IMCPClient {
     }
   }
 
-  private makeMCPClient(serverUrl: string) {
-    const transport = new SSEClientTransport(new URL(`${serverUrl}/sse`));
+  private makeMcpClient(serverUrl: string) {
+    const transport = new SSEClientTransport(new URL(serverUrl));
 
-    const client = new Client(this.clientInfo, this.clientOptions);
+    const client = new Client(
+      {
+        name: this._name,
+        version: this._version,
+      },
+      this._clientOptions
+    );
 
     return [client, transport] as const;
   }

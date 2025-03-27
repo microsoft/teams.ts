@@ -12,9 +12,23 @@ const prompt = new ChatPrompt({
   }),
 });
 
-prompt.function('hello-world', 'print hello world', () => {
-  return 'hello world!';
-});
+prompt.function(
+  'echo',
+  'echos back whatever you said',
+  {
+    type: 'object',
+    properties: {
+      input: {
+        type: 'string',
+        description: 'the text to echo back',
+      },
+    },
+    required: ['input'],
+  } as const,
+  async ({ input }: { input: string }) => {
+    return `You said "${input}" :)`;
+  }
+);
 
 const app = new App({
   logger: new ConsoleLogger('@samples/echo', { level: 'debug' }),
