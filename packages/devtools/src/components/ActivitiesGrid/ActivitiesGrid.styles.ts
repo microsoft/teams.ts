@@ -15,7 +15,7 @@ const useActivitiesGridClasses = makeStyles({
     padding: '0.5rem',
   },
   row: {
-    borderBottom: `1px solid ${tokens.colorNeutralStrokeAccessible}`,
+    borderBottom: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStrokeAccessible}`,
     '&:hover': {
       backgroundColor: tokens.colorBrandBackground2Hover,
       cursor: 'pointer',
@@ -32,7 +32,7 @@ const useActivitiesGridClasses = makeStyles({
     tableLayout: 'auto',
     boxShadow: tokens.shadow16,
     '&:last-child': {
-      borderBottom: `1px solid ${tokens.colorTransparentStroke}`,
+      borderBottom: `${tokens.strokeWidthThin} solid ${tokens.colorTransparentStroke}`,
     },
   },
   header: {
@@ -91,7 +91,7 @@ const useActivitiesGridClasses = makeStyles({
     padding: tokens.spacingVerticalL,
     color: tokens.colorNeutralForeground3,
     fontSize: tokens.fontSizeBase300,
-    borderBottom: `1px solid ${tokens.colorNeutralStrokeAccessible}`,
+    borderBottom: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStrokeAccessible}`,
   },
   hideSelection: {
     visibility: 'hidden',

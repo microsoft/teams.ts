@@ -17,6 +17,10 @@ const useAttachmentsContainerClasses = makeStyles({
     position: 'relative',
   },
   removeAttachmentButton: {
+    borderRadius: tokens.borderRadiusSmall,
+    backgroundColor: tokens.colorNeutralBackground6,
+    border: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStroke1}`,
+    boxShadow: tokens.shadow4,
     position: 'absolute',
     top: tokens.spacingVerticalXXS,
     right: tokens.spacingHorizontalXXS,
@@ -31,7 +35,6 @@ const useAttachmentsContainerClasses = makeStyles({
     overflow: 'auto',
   },
   attachmentImage: {
-    maxWidth: '300px',
     borderRadius: tokens.borderRadiusSmall,
   },
   fileAttachment: {
@@ -39,7 +42,7 @@ const useAttachmentsContainerClasses = makeStyles({
     padding: `${tokens.spacingVerticalXXS} ${tokens.spacingHorizontalS}`,
     backgroundColor: tokens.colorNeutralBackground1,
     borderRadius: tokens.borderRadiusSmall,
-    border: `1px solid ${tokens.colorNeutralStroke1}`,
+    border: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStroke1}`,
     color: tokens.colorNeutralForeground1,
   },
 });

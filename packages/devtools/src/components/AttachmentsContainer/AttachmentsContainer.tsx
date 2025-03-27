@@ -1,11 +1,18 @@
 import { FC, memo, useCallback } from 'react';
-import { Button, Image } from '@fluentui/react-components';
-import { Dismiss20Regular } from '@fluentui/react-icons/lib/fonts';
+import { Button, Image, Tooltip } from '@fluentui/react-components';
+import {
+  bundleIcon,
+  DismissFilled,
+  DismissRegular,
+  FluentIcon,
+} from '@fluentui/react-icons/lib/fonts';
 
 import { AttachmentType } from '../../types/Attachment';
 import AdaptiveCard from '../Card/AdaptiveCard';
 
 import useAttachmentsContainerClasses from './AttachmentsContainer.styles';
+
+const DismissIcon = bundleIcon(DismissFilled as FluentIcon, DismissRegular as FluentIcon);
 
 interface AttachmentItemProps {
   attachment: AttachmentType;
@@ -40,17 +47,21 @@ const AttachmentItem: FC<AttachmentItemProps> = memo(
     }, [attachment.content, attachment.type, attachment.name, classes]);
 
     return (
-      <div className={classes.inlineAttachmentCard}>
+      <div contentEditable={false} className={classes.inlineAttachmentCard}>
         {showRemoveButton && (
-          <Button
-            appearance="transparent"
-            icon={<Dismiss20Regular />}
-            onClick={() => onRemove(index)}
-            aria-label="Remove attachment"
-            className={classes.removeAttachmentButton}
-          />
+          <Tooltip content="Remove" relationship="label">
+            <Button
+              appearance="transparent"
+              icon={<DismissIcon />}
+              onClick={() => onRemove(index)}
+              aria-label="Remove attachment"
+              className={classes.removeAttachmentButton}
+            />
+          </Tooltip>
         )}
-        <div className={classes.inlineCardContent}>{renderAttachmentContent()}</div>
+        <div contentEditable={false} className={classes.inlineCardContent}>
+          {renderAttachmentContent()}
+        </div>
       </div>
     );
   }
@@ -73,6 +84,7 @@ const AttachmentsContainer: FC<AttachmentsContainerProps> = ({
     return null;
   }
 
+  // TODO: attachmentLayout
   return (
     <div className={classes.inlineAttachmentsContainer}>
       {attachments.map((attachment, index) => (
@@ -87,8 +99,5 @@ const AttachmentsContainer: FC<AttachmentsContainerProps> = ({
     </div>
   );
 };
-
-AttachmentItem.displayName = 'AttachmentItem';
-AttachmentsContainer.displayName = 'AttachmentsContainer';
 
 export default AttachmentsContainer;

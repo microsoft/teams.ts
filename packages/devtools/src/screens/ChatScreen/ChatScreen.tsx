@@ -1,4 +1,5 @@
 import { FC, useCallback, useState } from 'react';
+import { mergeClasses } from '@fluentui/react-components';
 import { Message } from '@microsoft/spark.api';
 
 import Chat from '../../components/Chat/Chat';
@@ -12,7 +13,7 @@ import { useChatStore } from '../../stores/ChatStore';
 import { useDevModeSendMessage } from '../../utils/devUtils';
 import useScreensClasses from '../Screens.styles';
 
-import useClasses from './ChatScreen.styles';
+import useChatScreenClasses from './ChatScreen.styles';
 
 interface ChatScreenProps {
   isConnected: boolean;
@@ -21,7 +22,7 @@ interface ChatScreenProps {
 const MAX_HISTORY = 5;
 
 const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
-  const classes = useClasses();
+  const classes = useChatScreenClasses();
   const screenClasses = useScreensClasses();
   const { chat, feedback, messages, streaming, typing } = useChatStore();
   const [messageHistory, setMessageHistory] = useState<Partial<Message>[]>([]);
@@ -54,7 +55,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
   useDevModeSendMessage(onSendMessage);
 
   return (
-    <>
+    <div className={mergeClasses(screenClasses.screenContainer, classes.flexRow)}>
       <nav id="chat-sidebar" className={classes.sideBar} aria-label="Chat navigation"></nav>
       <Chat id="screen-container" className={screenClasses.screenContainer}>
         <div id="scrollbar-container" className={screenClasses.scrollbarContainer}>
@@ -85,7 +86,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
           </div>
         </div>
       </Chat>
-    </>
+    </div>
   );
 };
 

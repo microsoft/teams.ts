@@ -1,6 +1,10 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
-const useClasses = makeStyles({
+const useChatScreenClasses = makeStyles({
+  flexRow: {
+    display: 'flex',
+    flexDirection: 'row',
+  },
   sideBar: {
     display: 'flex',
     flexDirection: 'column',
@@ -8,8 +12,8 @@ const useClasses = makeStyles({
     height: '100%',
     width: '11rem',
     backgroundColor: tokens.colorNeutralBackground1,
-    borderRight: `1px solid ${tokens.colorNeutralStencil1}`,
-    '@media (max-width: 700px)': {
+    borderRight: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStencil1}`,
+    '@media (max-width: 43.75rem)': {
       display: 'none',
     },
   },
@@ -22,7 +26,6 @@ const useClasses = makeStyles({
     flexDirection: 'column-reverse',
     padding: '10px 0',
     flex: 1,
-    overflowY: 'auto',
   },
   composeContainer: {
     backgroundColor: tokens.colorNeutralBackground3,
@@ -33,8 +36,8 @@ const useClasses = makeStyles({
     margin: '0 auto',
   },
   typingIndicator: {
-    height: '30px',
-    paddingLeft: '50px',
+    height: '1.875rem',
+    paddingLeft: '1.875rem',
   },
   bannerContainer: {
     backgroundColor: tokens.colorSubtleBackground,
@@ -42,4 +45,4 @@ const useClasses = makeStyles({
   },
 });
 
-export default useClasses;
+export default useChatScreenClasses;

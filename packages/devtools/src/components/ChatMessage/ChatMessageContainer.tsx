@@ -32,7 +32,9 @@ const ChatMessageContainer: FC<MessageProps> = memo(({ value, isConnected = fals
     >
       <div className={classes.messageContainer}>
         <div className={classes.badgeMessageContainer}>
-          {sendDirection === 'received' && <ChatAvatarWrapper isConnected={isConnected} />}
+          {sendDirection === 'received' && (
+            <ChatAvatarWrapper id={`avatar-${value.id}`} isConnected={isConnected} />
+          )}
           <div className={classes.timeMessageContainer}>
             {value.createdDateTime ? (
               <Tooltip
