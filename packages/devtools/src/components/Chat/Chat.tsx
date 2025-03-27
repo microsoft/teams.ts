@@ -1,17 +1,14 @@
 import { ComponentProps, HTMLAttributes, forwardRef } from 'react';
-import { makeStyles, mergeClasses, tokens } from '@fluentui/react-components';
-
-import useScreenClasses from '../../screens/Screens.styles';
+import { makeStyles, tokens } from '@fluentui/react-components';
 
 const useChatClasses = makeStyles({
   root: {
+    gap: tokens.spacingVerticalS,
+    width: '100%',
     display: 'flex',
     flexDirection: 'column',
-    gap: tokens.spacingVerticalS,
-    padding: tokens.spacingVerticalM,
-    width: '100%',
-    height: '100%',
-    overflow: 'auto',
+    flex: 1,
+    minHeight: 0,
   },
 });
 
@@ -19,15 +16,10 @@ export type ChatProps = HTMLAttributes<HTMLDivElement> & ComponentProps<'div'>;
 
 const Chat = forwardRef<HTMLDivElement, ChatProps>((props, ref) => {
   const { children, ...rest } = props;
-  const screenClasses = useScreenClasses();
   const classes = useChatClasses();
 
   return (
-    <div
-      ref={ref}
-      className={mergeClasses(classes.root, screenClasses.scrollbarContainer)}
-      {...rest}
-    >
+    <div ref={ref} className={classes.root} {...rest}>
       {children}
     </div>
   );

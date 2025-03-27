@@ -3,42 +3,47 @@ import { makeStyles, tokens } from '@fluentui/react-components';
 const useChatContainerClasses = makeStyles({
   messageRow: {
     display: 'flex',
+    alignItems: 'flex-start',
+    padding: '0.5rem',
     marginLeft: tokens.spacingHorizontalL,
     marginRight: tokens.spacingHorizontalL,
-    alignItems: 'flex-end',
-    padding: '0.5rem',
   },
+
+  messageContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    maxWidth: '80%',
+  },
+
   messageGroupSent: {
     justifyContent: 'flex-end',
   },
   messageGroupReceived: {
     justifyContent: 'flex-start',
   },
-  messageContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    maxWidth: '80%',
-  },
+
   badgeMessageContainer: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     flexDirection: 'row',
     gap: tokens.spacingHorizontalM,
   },
-  sentTime: {
-    textAlign: 'right',
+
+  timeMessageContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
   },
+
+  // Visual styles
   timestamp: {
     fontSize: tokens.fontSizeBase200,
     color: tokens.colorNeutralForeground3,
     marginBottom: tokens.spacingVerticalS,
   },
-  timeMessageContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'relative',
-    transition: 'all 0.2s',
-  },
+  sentTime: {
+    textAlign: 'right',
+  }
 });
 
 export default useChatContainerClasses;

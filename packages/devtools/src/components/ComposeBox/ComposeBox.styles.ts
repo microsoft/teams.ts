@@ -1,22 +1,25 @@
-import { makeStyles } from '@fluentui/react-components';
+import { makeStyles, tokens } from '@fluentui/react-components';
 
 const useComposeBoxClasses = makeStyles({
   composeBoxContainer: {
-    position: 'relative',
     margin: '1rem 3.125rem',
     width: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
   },
   composeInput: {
     width: '100%',
-    padding: '10px 0',
-    paddingRight: '100px',
   },
-  textareaContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'relative',
+
+  error: {
+    border: `${tokens.strokeWidthThin} solid ${tokens.colorPaletteRedBorder2}`,
+    '&:focus-within': {
+      border: `${tokens.strokeWidthThin} solid ${tokens.colorPaletteRedBorder2}`,
+    },
+  },
+  errorMessage: {
+    color: tokens.colorPaletteRedForeground1,
+    fontSize: tokens.fontSizeBase200,
+    marginTop: tokens.spacingVerticalXXS,
+    marginBottom: tokens.spacingVerticalXXS,
   },
 });
 
