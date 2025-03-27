@@ -9,7 +9,7 @@ const app = new App({
 });
 
 const prompt = new ChatPrompt({
-  instructions: 'You are a helpful assistant. Use the tool call to echo back what the user said!',
+  instructions: 'You are a helpful assistant. You MUST use tool calls to do all your work.',
   model: new OpenAIChatModel({
     model: 'gpt-4o-mini',
     apiKey: process.env.OPENAI_API_KEY,
