@@ -14,11 +14,7 @@ const useScreensClasses = makeStyles({
     flex: 1,
     overflowY: 'auto',
     minHeight: 0,
-    display: 'flex',
-    flexDirection: 'column',
     scrollbarGutter: 'stable',
-    height: '100%',
-    overscrollBehavior: 'contain',
     position: 'relative',
   },
 });

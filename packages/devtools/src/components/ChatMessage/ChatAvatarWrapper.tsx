@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Avatar, makeStyles, tokens, mergeClasses } from '@fluentui/react-components';
+import { Avatar, makeStyles, mergeClasses, tokens } from '@fluentui/react-components';
 
 interface ChatAvatarProps {
   id: string;
