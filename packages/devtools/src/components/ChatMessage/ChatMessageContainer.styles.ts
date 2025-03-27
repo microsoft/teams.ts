@@ -4,7 +4,7 @@ const useChatContainerClasses = makeStyles({
   messageRow: {
     display: 'flex',
     alignItems: 'flex-start',
-    padding: '0.5rem',
+    padding: tokens.spacingVerticalS,
     marginLeft: tokens.spacingHorizontalL,
     marginRight: tokens.spacingHorizontalL,
   },

@@ -63,11 +63,6 @@ interface ContentEditableAreaProps {
   onKeyDown?: (e: KeyboardEvent<HTMLDivElement>) => void;
 
   /**
-   * Called when the defaultValue is set
-   */
-  onDefaultValue: (defaultValue: string) => void;
-
-  /**
    * Toolbar component to render next to the textbox
    */
   toolbar: React.ReactNode;
@@ -106,7 +101,6 @@ const ContentEditableAreaBase: ForwardRefRenderFunction<
     disabled = false,
     className,
     onKeyDown,
-    onDefaultValue,
     toolbar,
     children,
     allowRichText = false,
@@ -122,6 +116,13 @@ const ContentEditableAreaBase: ForwardRefRenderFunction<
   const [areaGrown, setAreaGrown] = useState(false);
   const isFirstMount = useRef(true);
   const classes = useContentEditableAreaClasses();
+  const [editMode, setEditMode] = useState(false);
+
+  useEffect(() => {
+    if (title === 'Edit message') {
+      setEditMode(true);
+    }
+  }, [title]);
 
   useEffect(() => {
     const checkHeight = (entries: ResizeObserverEntry[]) => {
@@ -156,7 +157,6 @@ const ContentEditableAreaBase: ForwardRefRenderFunction<
     if (isFirstMount.current) {
       if (defaultValue !== undefined) {
         areaRef.current.textContent = defaultValue;
-        onDefaultValue(defaultValue);
       }
       isFirstMount.current = false;
     }
@@ -165,9 +165,9 @@ const ContentEditableAreaBase: ForwardRefRenderFunction<
       areaRef.current.innerText = value || '';
     }
     // Always update empty state
-    const content = areaRef.current.innerText.replace(/[\u200B\s]/g, '');
+    const content = areaRef.current.innerText;
     areaRef.current.setAttribute('data-is-empty', (!content).toString());
-  }, [defaultValue, value, areaRef, onDefaultValue]);
+  }, [defaultValue, value, areaRef]);
 
   const root = mergeClasses(
     classes.flexColumn,
@@ -187,13 +187,15 @@ const ContentEditableAreaBase: ForwardRefRenderFunction<
   const contentEditable = mergeClasses(
     classes.contentEditableBase,
     classes.placeholder,
-    disabled && classes.contentEditableDisabled
+    disabled && classes.contentEditableDisabled,
+    editMode && classes.editMode
   );
 
-  const inputAndAttachmentsWrapper = mergeClasses(
-    classes.inputAndAttachmentsWrapper,
+  const contentWrapper = mergeClasses(
+    classes.contentWrapper,
     classes[size],
-    areaGrown && classes.fullWidth
+    areaGrown && classes.fullWidth,
+    editMode && classes.fullWidth
   );
 
   const toolbarWrapper = mergeClasses(classes.toolbarWrapper, classes[size]);
@@ -232,11 +234,11 @@ const ContentEditableAreaBase: ForwardRefRenderFunction<
     [disabled, allowRichText]
   );
 
-  // Add cleanup to input handler
   const handleInput = useCallback(
     (e: FormEvent<HTMLDivElement>) => {
       const target = e.target as HTMLDivElement;
-      const content = target.innerText.replace(/[\u200B\s]/g, '');
+      const content = target.innerText;
+
       target.setAttribute('data-is-empty', (!content).toString());
       onInputChange(e);
     },
@@ -246,12 +248,12 @@ const ContentEditableAreaBase: ForwardRefRenderFunction<
   return (
     <span className={root}>
       <div className={mergeClasses(classes.container, areaGrown && classes.flexColumn)}>
-        <div className={inputAndAttachmentsWrapper}>
+        <div className={contentWrapper}>
           <div
+            id="content-editable-area"
             ref={areaRef}
             role="textbox"
             aria-multiline
-            aria-disabled={disabled}
             className={contentEditable}
             contentEditable={!disabled}
             onInput={handleInput}

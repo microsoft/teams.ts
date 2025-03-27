@@ -1,5 +1,6 @@
 import { FC, memo, useCallback } from 'react';
 import { Link, mergeClasses } from '@fluentui/react-components';
+import { MessageUser } from '@microsoft/spark.api';
 
 import { MessageActionUIPayload } from '../../../types/MessageActionUI';
 import useChatMessageStyles from '../ChatMessage.styles';
@@ -8,10 +9,11 @@ interface ChatMessageDeletedProps {
   id: string;
   sendDirection: 'sent' | 'received';
   onMessageAction: (action: MessageActionUIPayload) => Promise<void>;
+  user?: MessageUser;
 }
 
 const ChatMessageDeleted: FC<ChatMessageDeletedProps> = memo(
-  ({ id, sendDirection, onMessageAction }) => {
+  ({ id, sendDirection, onMessageAction, user }) => {
     const classes = useChatMessageStyles();
 
     const undoDelete = useCallback(async () => {
@@ -19,8 +21,9 @@ const ChatMessageDeleted: FC<ChatMessageDeletedProps> = memo(
         id,
         type: 'messageUpdate',
         eventType: 'undeleteMessage',
+        user,
       });
-    }, [id, onMessageAction]);
+    }, [id, onMessageAction, user]);
 
     return (
       <div className={classes.messageContainer}>

@@ -12,7 +12,7 @@ const useChatClasses = makeStyles({
   },
 });
 
-export type ChatProps = HTMLAttributes<HTMLDivElement> & ComponentProps<'div'>;
+type ChatProps = HTMLAttributes<HTMLDivElement> & ComponentProps<'div'>;
 
 const Chat = forwardRef<HTMLDivElement, ChatProps>((props, ref) => {
   const { children, ...rest } = props;

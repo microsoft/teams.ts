@@ -1,18 +1,10 @@
-import { FC, memo, useCallback, useEffect, useState } from 'react';
+import { FC, memo, useCallback, useState } from 'react';
 import { mergeClasses, Popover, PopoverSurface, PopoverTrigger } from '@fluentui/react-components';
-import {
-  Message,
-  MessageReaction,
-  MessageUser,
-  MessageDeleteActivity,
-  MessageUpdateActivity,
-} from '@microsoft/spark.api';
+import { Message, MessageUser, MessageReaction } from '@microsoft/spark.api';
 
-import useSparkApi from '../../hooks/useSparkApi';
 import { useChatStore } from '../../stores/ChatStore';
 import { MessageActionUIPayload } from '../../types/MessageActionUI';
 import { hasMarkdownContent } from '../../utils/markdown';
-import Logger from '../Logger/Logger';
 import MessageActionsToolbar from '../MessageActionsToolbar/MessageActionsToolbar';
 import { MarkdownContent } from '../MarkdownContent';
 
@@ -20,8 +12,6 @@ import ChatMessageDeleted from './MessageUpdate/ChatMessageDeleted';
 import useChatMessageStyles from './ChatMessage.styles';
 import MessageAttachments from './MessageAttachments';
 import MessageReactionButton from './MessageReactionButton';
-
-const childLog = Logger.child('ChatMessage');
 
 interface ChatMessageProps {
   content: string;
@@ -35,14 +25,12 @@ interface ChatMessageProps {
 const ChatMessage: FC<ChatMessageProps> = memo(
   ({ content, streaming = false, feedback = false, sendDirection, value, onMessageAction }) => {
     const classes = useChatMessageStyles();
-    const { chat, messages } = useChatStore();
-    const sparkApi = useSparkApi();
+    const { deletedMessages, chat } = useChatStore();
+    const isDeleted = deletedMessages[chat.id]?.some((m) => m.id === value.id);
     const labelId = `message-${value.id}`;
-    const [reactions, setReactions] = useState<MessageReaction[]>(value.reactions || []);
-    const [reactionSender, setReactionSender] = useState<MessageUser | undefined>(undefined);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [openedByKeyboard, setOpenedByKeyboard] = useState(false);
-    const [deletedMessages, setDeletedMessages] = useState<Message[]>([]);
+    const [reactionSender, setReactionSender] = useState<MessageUser | undefined>();
 
     const handleMessageKeyDown = useCallback(
       (event: React.KeyboardEvent) => {
@@ -85,154 +73,41 @@ const ChatMessage: FC<ChatMessageProps> = memo(
       setIsPopoverOpen(data.open);
     }, []);
 
-    const handleMessageDelete = useCallback(
-      async (action: MessageActionUIPayload, message: Message) => {
-        try {
-          const deleteActivity = new MessageDeleteActivity({
-            id: action.id,
-            channelData: { eventType: 'softDeleteMessage' },
-          });
-          await sparkApi.conversations.activities(chat.id).create(deleteActivity);
-          setDeletedMessages((prev) => [...prev, message]);
-        } catch (err) {
-          childLog.error('Error on messageUpdate/softDeleteMessage:', err);
-        }
-      },
-      [chat.id, sparkApi]
-    );
-
-    const handleMessageUpdate = useCallback(
-      async (uiAction: MessageActionUIPayload, message: Message) => {
-        const { id, eventType, type } = uiAction;
-
-        try {
-          if (type === 'messageUpdate') {
-            // For edit message actions, delegate to parent handler
-            await onMessageAction(uiAction);
-          } else if (eventType) {
-            // For other message updates (undelete, etc)
-            const updateActivity = new MessageUpdateActivity(eventType, {
-              id,
-              text: message.body?.content || '',
-            });
-            await sparkApi.conversations.activities(chat.id).create(updateActivity);
-            if (eventType === 'undeleteMessage') {
-              setDeletedMessages((prev) => prev.filter((m) => m.id !== id));
-            }
-          } else {
-            childLog.error('No event type provided for messageUpdate. Unable to update message.');
-            return;
-          }
-        } catch (err) {
-          childLog.error('Error updating message:', err);
-        }
-      },
-      [chat.id, sparkApi.conversations, onMessageAction]
-    );
-
-    const handleMessageReaction = useCallback(
-      async (id: string, newReactionActivity: MessageReaction) => {
-        const message = messages[chat.id].find((m) => m.id === id);
-        if (!message) return;
-
-        const { type, user } = newReactionActivity;
-        setReactionSender(user);
-        const added: Array<MessageReaction> = [];
-        const removed: Array<MessageReaction> = [];
-        const reaction = (message.reactions || []).find(
-          (r: MessageReaction) => r.type === type && r.user?.id === user?.id
+    const handleReactionClick = useCallback(
+      (reaction: MessageReaction) => {
+        const existingReaction = value.reactions?.find(
+          (r) => r.type === reaction.type && r.user?.id === reaction.user?.id
         );
-
-        if (reaction) {
-          removed.push(reaction);
-          setReactions((prev) => prev.filter((r) => !(r.type === type && r.user?.id === user?.id)));
+        if (existingReaction) {
+          setReactionSender(existingReaction.user);
         } else {
-          const newReaction = {
-            type,
-            user,
-            createdDateTime: new Date().toUTCString(),
-          };
-          added.push(newReaction);
-          setReactions((prev) => [...prev, newReaction]);
+          setReactionSender(sendDirection === 'sent' ? value.from?.user : undefined);
         }
-
-        try {
-          await sparkApi.conversations.activities(chat.id).create({
-            id,
-            type: 'messageReaction',
-            reactionsAdded: added,
-            reactionsRemoved: removed,
-          });
-        } catch (err) {
-          childLog.error(err);
-          // Revert on error
-          if (added.length) {
-            setReactions((prev) => prev.filter((r) => r !== added[0]));
-          } else if (removed.length) {
-            setReactions((prev) => [...prev, removed[0]]);
-          }
-        }
+        onMessageAction({
+          id: value.id,
+          type: 'messageReaction',
+          reactionType: reaction.type,
+        });
       },
-      [chat.id, messages, sparkApi]
+      [value.id, value.reactions, value.from?.user, sendDirection, onMessageAction]
     );
 
-    const handleMessageAction = useCallback(
-      async (action: MessageActionUIPayload) => {
-        const message = messages[chat.id].find((m) => m.id === action.id);
-        if (!message) return;
-
-        try {
-          switch (action.type) {
-            case 'messageUpdate':
-              await handleMessageUpdate(action, message);
-              break;
-            case 'messageDelete':
-              handleMessageDelete(action, message);
-              break;
-            // TODO: Implement reply with quote
-            // case 'replyWithQuote':
-            //   break;
-            case 'messageReaction':
-              if (action.reactionType) {
-                handleMessageReaction(action.id, {
-                  type: action.reactionType,
-                  user: action.user || undefined,
-                  createdDateTime: new Date().toUTCString(),
-                });
-              }
-          }
-        } catch (err) {
-          childLog.error('Error handling message action:', err);
-        }
-      },
-      [chat.id, messages, handleMessageReaction, handleMessageDelete, handleMessageUpdate]
-    );
-
-    const messageBodyClasses = mergeClasses(
-      classes.messageBody,
-      sendDirection === 'sent' ? classes.sent : classes.received,
-      streaming && classes.streaming
-    );
-
-    const reactionContainerClasses = mergeClasses(
-      classes.reactionContainer,
-      reactions.length > 0 && classes.reactionContainerVisible,
-      sendDirection === 'sent' && classes.reactionContainerSent
-    ).trim();
-
-    useEffect(() => {
-      setReactions(value.reactions || []);
-    }, [value.reactions]);
-
-    if (value.deleted && deletedMessages.includes(value)) {
+    if (isDeleted) {
       return (
         <ChatMessageDeleted
           id={value.id}
           sendDirection={sendDirection}
           onMessageAction={onMessageAction}
+          user={value.from?.user}
         />
       );
     }
+
+    const messageContent = hasMarkdownContent(content) ? (
+      <MarkdownContent content={content} />
+    ) : (
+      <div className={classes.messageText}>{content}</div>
+    );
 
     return (
       <>
@@ -255,16 +130,17 @@ const ChatMessage: FC<ChatMessageProps> = memo(
                 onKeyDown={handleMessageKeyDown}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
-                className={messageBodyClasses}
+                className={mergeClasses(
+                  classes.messageBody,
+                  sendDirection === 'sent' ? classes.sent : classes.received,
+                  streaming && classes.streaming
+                )}
               >
                 <div className={classes.messageContent}>
-                  <span className={classes.messageText}>
-                    {hasMarkdownContent(content) ? <MarkdownContent content={content} /> : content}
-                    {value.attachments && value.attachments.length > 0 && (
-                      <MessageAttachments attachments={value.attachments} classes={classes} />
-                    )}
-                    {streaming && <span className={classes.streamingCursor} />}
-                  </span>
+                  {messageContent}
+                  {value.attachments && value.attachments.length > 0 && (
+                    <MessageAttachments attachments={value.attachments} classes={classes} />
+                  )}
                 </div>
               </div>
             </PopoverTrigger>
@@ -272,19 +148,24 @@ const ChatMessage: FC<ChatMessageProps> = memo(
               <MessageActionsToolbar
                 userSentMessage={sendDirection === 'sent'}
                 value={value}
-                onMessageAction={handleMessageAction}
-                reactionSender={reactionSender}
+                onMessageAction={onMessageAction}
               />
             </PopoverSurface>
           </Popover>
-          {reactions.length > 0 && (
-            <div data-tid="reactions-container" className={reactionContainerClasses}>
-              {reactions.map((reaction) => (
+          {value.reactions && value.reactions.length > 0 && (
+            <div
+              className={mergeClasses(
+                classes.reactionContainer,
+                value.reactions.length > 0 && classes.reactionContainerVisible,
+                sendDirection === 'sent' && classes.reactionContainerSent
+              )}
+            >
+              {value.reactions.map((reaction) => (
                 <MessageReactionButton
                   key={`${reaction.type}-${reaction.user?.id}`}
                   reaction={reaction}
                   isFromUser={reaction.user?.id === reactionSender?.id}
-                  onReactionClick={() => handleMessageReaction(value.id, reaction)}
+                  onReactionClick={() => handleReactionClick(reaction)}
                 />
               ))}
             </div>
@@ -299,5 +180,4 @@ const ChatMessage: FC<ChatMessageProps> = memo(
 );
 
 ChatMessage.displayName = 'ChatMessage';
-
 export default ChatMessage;

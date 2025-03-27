@@ -22,9 +22,12 @@ export interface ChatStore {
   readonly typing: Record<string, boolean>;
   readonly streaming: Record<string, boolean>;
   readonly feedback: Record<string, boolean>;
+  readonly deletedMessages: Record<string, Array<Message>>;
 
   readonly put: (chatId: string, message: Message) => void;
   readonly getMessageById: (messageId: string) => Message | undefined;
+  readonly addDeletedMessage: (chatId: string, message: Message) => void;
+  readonly removeDeletedMessage: (chatId: string, messageId: string) => void;
 
   readonly onActivity: (event: ActivityEvent) => void;
   readonly onTypingActivity: (event: ActivityEvent<ITypingActivity>, state: ChatStore) => ChatStore;
@@ -73,6 +76,7 @@ export const useChatStore = create<ChatStore>()(
       typing: {},
       streaming: {},
       feedback: {},
+      deletedMessages: {},
       put: (chatId: string, message: Message) =>
         set((state) => {
           const messages = state.messages[chatId] || [];
@@ -101,6 +105,31 @@ export const useChatStore = create<ChatStore>()(
         }
         return undefined;
       },
+      addDeletedMessage: (chatId: string, message: Message) =>
+        set((state) => {
+          const deletedMessages = state.deletedMessages[chatId] || [];
+          if (!deletedMessages.some(m => m.id === message.id)) {
+            deletedMessages.unshift(message);
+          }
+          return {
+            ...state,
+            deletedMessages: {
+              ...state.deletedMessages,
+              [chatId]: deletedMessages
+            }
+          };
+        }),
+      removeDeletedMessage: (chatId: string, messageId: string) =>
+        set((state) => {
+          const deletedMessages = state.deletedMessages[chatId] || [];
+          return {
+            ...state,
+            deletedMessages: {
+              ...state.deletedMessages,
+              [chatId]: deletedMessages.filter(m => m.id !== messageId)
+            }
+          };
+        }),
       onActivity: (event: ActivityEvent) =>
         set((state) => {
           if (event.type !== 'activity.received' && event.type !== 'activity.sent') return state;

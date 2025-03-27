@@ -1,7 +1,6 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
 const useContentEditableAreaClasses = makeStyles({
-  // Root styles with shared CSS variables
   base: {
     '--ce-area-padding': tokens.spacingHorizontalMNudge,
     '--ce-area-border': tokens.strokeWidthThin,
@@ -21,6 +20,7 @@ const useContentEditableAreaClasses = makeStyles({
     boxSizing: 'border-box',
     position: 'relative',
     margin: '0',
+    minWidth: 0,
     borderRadius: 'var(--ce-area-radius)',
     width: '100%',
   },
@@ -80,6 +80,7 @@ const useContentEditableAreaClasses = makeStyles({
       color: tokens.colorNeutralForeground4,
       pointerEvents: 'none',
       userSelect: 'none',
+      minHeight: '1.5rem',
     },
   },
 
@@ -88,6 +89,7 @@ const useContentEditableAreaClasses = makeStyles({
     alignItems: 'flex-end',
     width: '100%',
     overflow: 'hidden',
+    minWidth: 0,
   },
 
   disabled: {
@@ -180,17 +182,20 @@ const useContentEditableAreaClasses = makeStyles({
     },
   },
 
-  inputAndAttachmentsWrapper: {
+  contentWrapper: {
     flex: '1 1 auto',
     minWidth: 0,
     maxHeight: 'inherit',
     overflowY: 'auto',
     padding: 'var(--ce-area-padding)',
+    '& > *:not(:first-child)': {
+      marginTop: tokens.spacingVerticalS,
+    },
   },
 
   fullWidth: {
     width: '100%',
-    flex: '1 1 100%'
+    flex: '1 1 100%',
   },
 
   toolbarWrapper: {
@@ -217,6 +222,9 @@ const useContentEditableAreaClasses = makeStyles({
     minHeight: '1.5rem',
   },
 
+  editMode: {
+    minHeight: '3rem',
+  },
   contentEditableDisabled: {
     color: tokens.colorNeutralForegroundDisabled,
     cursor: 'not-allowed',
