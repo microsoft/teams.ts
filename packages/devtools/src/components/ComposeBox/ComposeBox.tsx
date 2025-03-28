@@ -214,11 +214,13 @@ const ComposeBox: FC<ComposeBoxProps> = memo(
           placeholder="Type a message..."
           toolbar={memoizedToolbar}
         >
-          <AttachmentsContainer
-            attachments={uiAttachments}
-            onRemoveAttachment={handleRemoveAttachment}
-            showRemoveButtons={true}
-          />
+          {attachments.length > 0 && (
+            <AttachmentsContainer
+              attachments={uiAttachments}
+              onRemoveAttachment={handleRemoveAttachment}
+              showRemoveButtons={true}
+            />
+          )}
         </ContentEditableArea>
       </div>
     );

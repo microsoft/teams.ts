@@ -269,9 +269,8 @@ const ContentEditableAreaBase: ForwardRefRenderFunction<
             suppressContentEditableWarning={true}
             {...rest}
             title={title}
-          >
-            {children}
-          </div>
+          ></div>
+          {children && <div contentEditable={false}>{children}</div>}
         </div>
         <div className={toolbarWrapper}>{toolbar}</div>
       </div>

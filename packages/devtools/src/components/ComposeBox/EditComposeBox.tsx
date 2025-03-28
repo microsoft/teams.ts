@@ -208,11 +208,13 @@ const EditComposeBox: FC<EditComposeBoxProps> = memo(
         disabled={disabled}
         appearance="outline"
       >
-        <AttachmentsContainer
-          attachments={uiAttachments}
-          onRemoveAttachment={handleRemoveAttachment}
-          showRemoveButtons={!disabled}
-        />
+        {attachments && (
+          <AttachmentsContainer
+            attachments={uiAttachments}
+            onRemoveAttachment={handleRemoveAttachment}
+            showRemoveButtons={!disabled}
+          />
+        )}
       </ContentEditableArea>
     );
   }

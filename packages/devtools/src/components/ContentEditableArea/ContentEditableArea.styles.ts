@@ -225,6 +225,7 @@ const useContentEditableAreaClasses = makeStyles({
     whiteSpace: 'pre-wrap',
     overflowWrap: 'break-word',
     minHeight: '1.5rem',
+    overflowY: 'auto',
   },
 
   editMode: {
