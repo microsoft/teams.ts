@@ -1,7 +1,6 @@
 import {
   Activity,
   ActivityLike,
-  SentActivity,
   cardAttachment,
   ConversationAccount,
   ConversationReference,
@@ -9,6 +8,7 @@ import {
   MessageActivity,
   MessageDeleteActivity,
   MessageUpdateActivity,
+  SentActivity,
   toActivityParams,
   TokenExchangeResource,
   TokenExchangeState,
@@ -19,6 +19,7 @@ import { ILogger } from '@microsoft/spark.common/logging';
 import { IStorage } from '@microsoft/spark.common/storage';
 
 import { ApiClient } from '../api';
+import { saveOauthFlowState } from '../app.oauth';
 import { ISender, IStreamer } from '../types';
 
 export interface IActivityContextOptions<T extends Activity = Activity> {
@@ -228,6 +229,12 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
 
     const state = Buffer.from(JSON.stringify(tokenExchangeState)).toString('base64');
     const resource = await this.api.bots.signIn.getResource({ state });
+
+    if (!resource.tokenExchangeResource) {
+      // Without a token exchange resource, this is a normal Oauth flow.
+      // So we save the state in storage to keep track of the fact that we are in the middle of a sign in flow.
+      await saveOauthFlowState(this.storage, this.activity, connectionName);
+    }
 
     await this.send(
       overrideSignInActivity?.(

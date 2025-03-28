@@ -1,23 +1,50 @@
-import { AxiosError } from 'axios';
 import {
+  IActivity,
   ISignInTokenExchangeInvokeActivity,
   ISignInVerifyStateInvokeActivity,
   TokenExchangeInvokeResponse,
 } from '@microsoft/spark.api';
 import * as graph from '@microsoft/spark.graph';
+import { AxiosError } from 'axios';
 
+import { IStorage } from '@microsoft/spark.common';
 import { App } from './app';
 import * as contexts from './contexts';
+
+function buildOauthFlowKey(conversationId: string, userId: string): string {
+  return `auth/${conversationId}/${userId}`;
+}
+
+export async function saveOauthFlowState(
+  storage: IStorage,
+  activity: IActivity,
+  connectionName: string
+) {
+  const key = buildOauthFlowKey(activity.conversation.id, activity.from.id);
+  await storage.set(key, connectionName);
+}
+
+export async function getOauthFlowState(
+  storage: IStorage,
+  activity: IActivity
+): Promise<string | undefined> {
+  const key = buildOauthFlowKey(activity.conversation.id, activity.from.id);
+  return await storage.get(key);
+}
+
+export async function deleteOauthFlowState(storage: IStorage, activity: IActivity): Promise<void> {
+  const key = buildOauthFlowKey(activity.conversation.id, activity.from.id);
+  await storage.delete(key);
+}
 
 export async function onTokenExchange(
   this: App,
   ctx: contexts.IActivityContext<ISignInTokenExchangeInvokeActivity>
 ) {
   const { api, activity, storage } = ctx;
-  const key = `auth/${activity.conversation.id}/${activity.from.id}`;
 
   try {
-    await storage.set(key, activity.value.connectionName);
+    await saveOauthFlowState(storage, activity, activity.value.connectionName);
     const token = await api.users.token.exchange({
       channelId: activity.channelId,
       userId: activity.from.id,
@@ -59,10 +86,9 @@ export async function onVerifyState(
   ctx: contexts.IActivityContext<ISignInVerifyStateInvokeActivity>
 ) {
   const { log, api, activity, storage } = ctx;
-  const key = `auth/${activity.conversation.id}/${activity.from.id}`;
 
   try {
-    const connectionName: string | undefined = await storage.get(key);
+    const connectionName: string | undefined = await getOauthFlowState(storage, activity);
 
     if (!connectionName || !activity.value.state) {
       log.warn(
@@ -84,7 +110,7 @@ export async function onVerifyState(
       })
     );
 
-    await storage.delete(key);
+    await deleteOauthFlowState(storage, activity);
     this.events.emit('signin', { ...ctx, token });
     return { status: 200 };
   } catch (error) {
