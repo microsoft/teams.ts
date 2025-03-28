@@ -5,6 +5,7 @@ import {
   memo,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -25,21 +26,24 @@ export interface ComposeBoxProps {
   messageHistory: Partial<Message>[];
   onMessageSent: (message: Partial<Message>) => void;
   onCardProcessed?: () => void;
+  disabled?: boolean;
 }
 
 const childLog = Logger.child('ComposeBox');
 
 const ComposeBox: FC<ComposeBoxProps> = memo(
-  ({ onSend, messageHistory, onMessageSent, onCardProcessed }) => {
+  ({ onSend, messageHistory, onMessageSent, onCardProcessed, disabled = false }) => {
     const classes = useComposeBoxClasses();
     const {
       currentCard,
       targetComponent,
       processedCardIds,
+      draftMessage,
       addProcessedCardId,
       clearCurrentCard,
       clearProcessedCardIds,
       setCurrentCard,
+      setDraftMessage,
     } = useCardStore();
 
     const [message, setMessage] = useState('');
@@ -76,15 +80,21 @@ const ComposeBox: FC<ComposeBoxProps> = memo(
       }
     }, [currentCard, setCurrentCard]);
 
+    useLayoutEffect(() => {
+      if (mountedRef.current && draftMessage && targetComponent !== 'edit') {
+        setMessage(draftMessage);
+      }
+    }, [draftMessage, targetComponent]);
+
     // Process currentCard only once when it changes and when this component is the target
     useEffect(() => {
-      if (currentCard && targetComponent === 'compose' && mountedRef.current) {
-        childLog.info('Current card:', currentCard);
+      if (currentCard && targetComponent !== 'edit' && mountedRef.current) {
+        childLog.info('Logging card to CardStore');
 
         const currentCardStr = JSON.stringify(currentCard);
 
         if (!processedCardIds.has(currentCardStr)) {
-          childLog.info('Processing new card:', currentCard);
+          childLog.info('Processing new card in CardStore');
 
           const newAttachment: Attachment = {
             contentType: 'application/vnd.microsoft.card.adaptive',
@@ -94,7 +104,7 @@ const ComposeBox: FC<ComposeBoxProps> = memo(
           setAttachments((prev) => {
             // Don't add the attachment if it already exists
             if (prev.some((a) => JSON.stringify(a.content) === currentCardStr)) {
-              childLog.info('Card already exists in attachments, skipping');
+              childLog.info('Card from CardStore already exists in attachments, skipping');
               return prev;
             }
 
@@ -119,6 +129,7 @@ const ComposeBox: FC<ComposeBoxProps> = memo(
           attachments,
         };
         onSend(messageObj);
+        setDraftMessage();
         if (trimmedMessage) {
           onMessageSent(messageObj);
         }
@@ -130,12 +141,24 @@ const ComposeBox: FC<ComposeBoxProps> = memo(
         clearCurrentCard();
         clearProcessedCardIds();
       }
-    }, [message, attachments, onSend, onMessageSent, clearCurrentCard, clearProcessedCardIds]);
+    }, [
+      attachments,
+      clearCurrentCard,
+      clearProcessedCardIds,
+      message,
+      onMessageSent,
+      onSend,
+      setDraftMessage,
+    ]);
 
-    const handleInputChange = useCallback((e: FormEvent<HTMLDivElement>) => {
-      const target = e.target as HTMLDivElement;
-      setMessage(processMessageContent(target.innerHTML));
-    }, []);
+    const handleInputChange = useCallback(
+      (e: FormEvent<HTMLDivElement>) => {
+        if (disabled) return;
+        const target = e.target as HTMLDivElement;
+        setMessage(processMessageContent(target.innerHTML));
+      },
+      [disabled]
+    );
 
     const handleKeyDown = useCallback(
       (e: KeyboardEvent<HTMLDivElement>) => {
@@ -182,25 +205,31 @@ const ComposeBox: FC<ComposeBoxProps> = memo(
       setAttachments((prev) => [...prev, attachment]);
     }, []);
 
-    const handleRemoveAttachment = useCallback((index: number) => {
-      setAttachments((prev) => prev.filter((_, i) => i !== index));
-    }, []);
+    const handleRemoveAttachment = useCallback(
+      (index: number) => {
+        setAttachments((prev) => prev.filter((_, i) => i !== index));
+        setCurrentCard(null);
+      },
+      [setCurrentCard]
+    );
 
     const hasContent = message.trim().length > 0 || attachments.length > 0;
 
     // Convert API attachments to UI attachment types
     const uiAttachments = useMemo(() => convertAttachmentsForUI(attachments), [attachments]);
 
-    const memoizedToolbar = useMemo(
-      () => (
-        <ComposeBoxToolbar
-          onAttachment={handleAttachment}
-          onSendMessage={handleSendMessage}
-          hasContent={hasContent}
-        />
-      ),
-      [handleAttachment, handleSendMessage, hasContent]
+    const toolbarProps = useMemo(
+      () => ({
+        onAttachment: handleAttachment,
+        onSendMessage: handleSendMessage,
+        hasContent,
+        draftMessage: message,
+        disabled,
+      }),
+      [handleAttachment, handleSendMessage, hasContent, message, disabled]
     );
+
+    const memoizedToolbar = useMemo(() => <ComposeBoxToolbar {...toolbarProps} />, [toolbarProps]);
 
     return (
       <div className={classes.composeBoxContainer}>

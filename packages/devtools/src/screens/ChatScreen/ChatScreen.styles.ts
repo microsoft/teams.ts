@@ -32,8 +32,8 @@ const useChatScreenClasses = makeStyles({
     flex: 1,
     '@media (max-width: 31rem)': {
       minWidth: 'unset',
-      overflowX: 'hidden'
-    }
+      overflowX: 'hidden',
+    },
   },
   composeContainer: {
     backgroundColor: tokens.colorNeutralBackground3,
@@ -47,8 +47,8 @@ const useChatScreenClasses = makeStyles({
     minWidth: '31rem',
     margin: '0 auto',
     '@media (max-width: 31rem)': {
-      minWidth: 'unset'
-    }
+      minWidth: 'unset',
+    },
   },
   typingIndicator: {
     height: '1.875rem',

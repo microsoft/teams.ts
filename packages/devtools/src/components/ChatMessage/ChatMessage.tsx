@@ -12,7 +12,6 @@ import ChatMessageDeleted from './MessageUpdate/ChatMessageDeleted';
 import useChatMessageStyles from './ChatMessage.styles';
 import MessageAttachments from './MessageAttachments';
 import MessageReactionButton from './MessageReactionButton';
-
 interface ChatMessageProps {
   content: string;
   feedback?: boolean;

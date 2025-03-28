@@ -1,4 +1,4 @@
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
 import {
   Message,
@@ -43,7 +43,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
     addDeletedMessage,
     removeDeletedMessage,
   } = useChatStore();
-  const { clearCurrentCard } = useCardStore();
+  const { editingMessageId, clearCurrentCard, setEditingMessageId } = useCardStore();
   const [messageHistory, setMessageHistory] = useState<Partial<Message>[]>([]);
   const [currentlyEditingMessageId, setCurrentlyEditingMessageId] = useState<string | null>(null);
   const sparkApi = useSparkApi();
@@ -146,7 +146,8 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
 
   const handleConfirmCancel = useCallback(() => {
     setCurrentlyEditingMessageId(null);
-  }, []);
+    setEditingMessageId(null);
+  }, [setEditingMessageId]);
 
   const handleEditComplete = useCallback(
     async (messageId: string, updatedMessage: Partial<Message>) => {
@@ -156,6 +157,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
         JSON.stringify(originalMessage?.attachments) === JSON.stringify(updatedMessage.attachments)
       ) {
         setCurrentlyEditingMessageId(null);
+        setEditingMessageId(null);
         return;
       }
       try {
@@ -175,11 +177,12 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
 
         await sparkApi.conversations.activities(chat.id).create(updateActivity);
         setCurrentlyEditingMessageId(null);
+        setEditingMessageId(null);
       } catch (err) {
         childLog.error('Error updating message:', err);
       }
     },
-    [getMessageById, sparkApi.conversations, chat.id]
+    [getMessageById, sparkApi.conversations, chat.id, setEditingMessageId]
   );
 
   const onSendMessage = useCallback(
@@ -204,6 +207,12 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
   // Use the hook to automatically send a message in development mode
   // This will be a no-op in production builds
   useDevModeSendMessage(onSendMessage);
+
+  useEffect(() => {
+    if (editingMessageId) {
+      setCurrentlyEditingMessageId(editingMessageId);
+    }
+  }, [editingMessageId]);
 
   return (
     <div className={mergeClasses(screenClasses.screenContainer, classes.flexRow)}>

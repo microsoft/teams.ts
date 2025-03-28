@@ -10,6 +10,7 @@ import {
   useState,
 } from 'react';
 import { Attachment } from '@microsoft/spark.api';
+import { useLocation } from 'react-router';
 
 import { useCardStore } from '../../stores/CardStore';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
@@ -28,6 +29,7 @@ export interface EditComposeBoxProps {
   onCancel: () => void;
   disabled?: boolean;
   onCardProcessed?: () => void;
+  editingMessageId?: string;
 }
 
 const EditComposeBox: FC<EditComposeBoxProps> = memo(
@@ -38,15 +40,19 @@ const EditComposeBox: FC<EditComposeBoxProps> = memo(
     onCancel,
     disabled = false,
     onCardProcessed,
+    editingMessageId,
   }) => {
+    const location = useLocation();
     const {
       currentCard,
+      draftMessage,
       targetComponent,
       processedCardIds,
       addProcessedCardId,
       clearCurrentCard,
       clearProcessedCardIds,
       setCurrentCard,
+      setDraftMessage,
     } = useCardStore();
 
     const contentEditableRef = useRef<HTMLDivElement>(null);
@@ -89,16 +95,39 @@ const EditComposeBox: FC<EditComposeBoxProps> = memo(
       }
     }, [currentCard, setCurrentCard]);
 
-    // Process currentCard only once when it changes and this is the target component
+    useEffect(() => {
+      const isEditMode = location.state?.isEditing && targetComponent === 'edit';
+
+      if (!isEditMode) {
+        return;
+      }
+
+      // Use Promise to defer state updates to next microtask
+      Promise.resolve().then(() => {
+        if (!mountedRef.current) {
+          mountedRef.current = true;
+          if (currentCard) {
+            setCurrentCard(currentCard, 'edit');
+          }
+        } else if (draftMessage && message !== draftMessage) {
+          setMessage(draftMessage);
+        }
+      });
+    }, [
+      location.state?.isEditing,
+      targetComponent,
+      currentCard,
+      draftMessage,
+      message,
+      setCurrentCard,
+    ]);
     useEffect(() => {
       if (currentCard && targetComponent === 'edit' && mountedRef.current && !disabled) {
-        childLog.info('Current card:', currentCard);
-
+        childLog.info('Logging card to CardStore');
         const currentCardStr = JSON.stringify(currentCard);
 
         if (!processedCardIds.has(currentCardStr)) {
-          childLog.info('Processing new card:', currentCard);
-
+          childLog.info('Processing new card in CardStore');
           const newAttachment: Attachment = {
             contentType: 'application/vnd.microsoft.card.adaptive',
             content: currentCard,
@@ -107,23 +136,31 @@ const EditComposeBox: FC<EditComposeBoxProps> = memo(
           setAttachments((prev) => {
             // Don't add the attachment if it already exists
             if (prev.some((a) => JSON.stringify(a.content) === currentCardStr)) {
-              childLog.info('Card already exists in attachments, skipping');
+              childLog.info('Card from CardStore already exists in attachments, skipping');
               return prev;
             }
-
-            addProcessedCardId(currentCardStr);
-            onCardProcessed?.();
             return [...prev, newAttachment];
           });
         } else {
           childLog.info('Card already processed, skipping');
         }
       }
+    }, [currentCard, disabled, processedCardIds, targetComponent]);
+
+    // Handle card processing separately
+    useEffect(() => {
+      if (currentCard && targetComponent === 'edit' && mountedRef.current && !disabled) {
+        const currentCardStr = JSON.stringify(currentCard);
+        if (!processedCardIds.has(currentCardStr)) {
+          addProcessedCardId(currentCardStr);
+          onCardProcessed?.();
+        }
+      }
     }, [
       currentCard,
-      targetComponent,
       disabled,
       processedCardIds,
+      targetComponent,
       addProcessedCardId,
       onCardProcessed,
     ]);
@@ -132,10 +169,18 @@ const EditComposeBox: FC<EditComposeBoxProps> = memo(
       const trimmedMessage = message.trim();
       if (trimmedMessage || attachments.length > 0) {
         onComplete(trimmedMessage, attachments);
+        setDraftMessage();
         clearCurrentCard();
         clearProcessedCardIds();
       }
-    }, [message, attachments, onComplete, clearCurrentCard, clearProcessedCardIds]);
+    }, [
+      attachments,
+      clearCurrentCard,
+      clearProcessedCardIds,
+      message,
+      onComplete,
+      setDraftMessage,
+    ]);
 
     // Rest of the component remains unchanged
     const handleAttachment = useCallback((attachment: any) => {
@@ -173,28 +218,36 @@ const EditComposeBox: FC<EditComposeBoxProps> = memo(
       (index: number) => {
         if (disabled) return;
         setAttachments((prev) => prev.filter((_, i) => i !== index));
+        setCurrentCard(null);
       },
-      [disabled]
+      [disabled, setCurrentCard]
     );
-
-    const hasContent = message.trim().length > 0 || attachments.length > 0;
 
     // Convert API attachments to UI attachment types
     const uiAttachments = useMemo(() => convertAttachmentsForUI(attachments), [attachments]);
 
-    const memoizedToolbar = useMemo(
-      () => (
-        <ComposeBoxToolbar
-          onAttachment={handleAttachment}
-          onEditComplete={handleComplete}
-          onEditCancel={onCancel}
-          hasContent={hasContent}
-          editMode={true}
-          disabled={disabled}
-        />
-      ),
-      [handleAttachment, handleComplete, onCancel, hasContent, disabled]
+    const toolbarProps = useMemo(
+      () => ({
+        onAttachment: handleAttachment,
+        onEditComplete: handleComplete,
+        onEditCancel: onCancel,
+        editMode: true,
+        disabled,
+        editingMessageId,
+        draftMessage: message,
+        hasContent: Boolean(message.trim().length > 0 || attachments.length > 0),
+      }),
+      [
+        handleAttachment,
+        handleComplete,
+        onCancel,
+        disabled,
+        editingMessageId,
+        message,
+        attachments.length,
+      ]
     );
+    const memoizedToolbar = useMemo(() => <ComposeBoxToolbar {...toolbarProps} />, [toolbarProps]);
 
     return (
       <ContentEditableArea

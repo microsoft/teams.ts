@@ -22,7 +22,6 @@ const useChatContainerClasses = makeStyles({
     },
   },
 
-
   messageGroupSent: {
     justifyContent: 'flex-end',
   },

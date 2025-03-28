@@ -22,7 +22,7 @@ const useContentEditableAreaClasses = makeStyles({
     margin: '0',
     minWidth: 0,
     borderRadius: 'var(--ce-area-radius)',
-    width: '100%'
+    width: '100%',
   },
 
   // Shared layout styles
@@ -90,8 +90,8 @@ const useContentEditableAreaClasses = makeStyles({
     overflow: 'hidden',
     minWidth: 0,
     '&.editMode': {
-      flex: '1 1 100%'
-    }
+      flex: '1 1 100%',
+    },
   },
 
   disabled: {
@@ -196,8 +196,8 @@ const useContentEditableAreaClasses = makeStyles({
     },
     '&.editMode': {
       flex: '1 0 auto',
-      minWidth: '100%'
-    }
+      minWidth: '100%',
+    },
   },
 
   fullWidth: {
@@ -229,7 +229,7 @@ const useContentEditableAreaClasses = makeStyles({
   },
 
   editMode: {
-    minHeight: '3rem'
+    minHeight: '3rem',
   },
   contentEditableDisabled: {
     color: tokens.colorNeutralForegroundDisabled,

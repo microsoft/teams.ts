@@ -10,4 +10,3 @@ export const VALID_CARD_TYPES = [
   'thumbnail',
   'video',
 ] as const satisfies readonly CardAttachmentType[];
-

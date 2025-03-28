@@ -25,6 +25,8 @@ import {
 import { Attachment } from '@microsoft/spark.api';
 import { useNavigate } from 'react-router';
 
+import { useCardStore } from '../../../stores/CardStore';
+
 import { useCBToolbarClasses } from './ComposeBoxToolbar.styles';
 import CancelEditDialog from './CancelEditDialog';
 import PasteCardDialog from './PasteCardDialog';
@@ -37,6 +39,8 @@ interface ComposeBoxToolbarProps extends ToolbarProps {
   onEditCancel?: () => void;
   onEditComplete?: () => void;
   disabled?: boolean;
+  draftMessage?: string;
+  editingMessageId?: string;
 }
 
 const Dismiss = bundleIcon(DismissFilled as FluentIcon, DismissRegular as FluentIcon);
@@ -51,7 +55,9 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = memo(
     editMode = false,
     onEditCancel,
     onEditComplete,
+    draftMessage,
     disabled = false,
+    editingMessageId = undefined,
     ...props
   }) => {
     const classes = useCBToolbarClasses();
@@ -59,6 +65,7 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = memo(
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
+    const { setDraftMessage, setEditingMessageId } = useCardStore();
 
     const handleCancelDialogOpen = useCallback(() => {
       setIsConfirmCancelOpen(true);
@@ -76,13 +83,17 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = memo(
     }, [onEditCancel, handleCancelDialogClose]);
 
     const handleNavigateToCards = useCallback(() => {
+      setDraftMessage(draftMessage);
+      if (editingMessageId) {
+        setEditingMessageId(editingMessageId);
+      }
       navigate('/cards', {
         state: {
           isEditing: editMode,
         },
       });
       setMenuOpen(false);
-    }, [editMode, navigate]);
+    }, [draftMessage, editMode, navigate, setDraftMessage, setEditingMessageId, editingMessageId]);
 
     const handleSend = useCallback(() => {
       if (onSendMessage && hasContent) {

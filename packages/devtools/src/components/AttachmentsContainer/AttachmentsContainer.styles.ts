@@ -3,9 +3,9 @@ import { makeStyles, tokens } from '@fluentui/react-components';
 const useAttachmentsContainerClasses = makeStyles({
   root: {
     // Card width breakpoints
-    '--card-width-very-narrow': '13.375rem',  // 214px
-    '--card-width-narrow': '21.4375rem',      // 343px
-    '--card-width-standard': '31.125rem',      // 498px
+    '--card-width-very-narrow': '13.375rem', // 214px
+    '--card-width-narrow': '21.4375rem', // 343px
+    '--card-width-standard': '31.125rem', // 498px
   },
   inlineAttachmentsContainer: {
     display: 'flex',

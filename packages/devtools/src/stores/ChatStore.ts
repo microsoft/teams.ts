@@ -108,15 +108,15 @@ export const useChatStore = create<ChatStore>()(
       addDeletedMessage: (chatId: string, message: Message) =>
         set((state) => {
           const deletedMessages = state.deletedMessages[chatId] || [];
-          if (!deletedMessages.some(m => m.id === message.id)) {
+          if (!deletedMessages.some((m) => m.id === message.id)) {
             deletedMessages.unshift(message);
           }
           return {
             ...state,
             deletedMessages: {
               ...state.deletedMessages,
-              [chatId]: deletedMessages
-            }
+              [chatId]: deletedMessages,
+            },
           };
         }),
       removeDeletedMessage: (chatId: string, messageId: string) =>
@@ -126,8 +126,8 @@ export const useChatStore = create<ChatStore>()(
             ...state,
             deletedMessages: {
               ...state.deletedMessages,
-              [chatId]: deletedMessages.filter(m => m.id !== messageId)
-            }
+              [chatId]: deletedMessages.filter((m) => m.id !== messageId),
+            },
           };
         }),
       onActivity: (event: ActivityEvent) =>

@@ -36,8 +36,9 @@ const CardsScreen: FC = memo(() => {
   const location = useLocation();
 
   const handleAttachCard = (card: Card) => {
-    childLog.info('Setting card in store:');
     const isEditing = location.state?.isEditing ?? false;
+    childLog.debug('Attaching card in mode:', isEditing ? 'edit' : 'compose');
+    childLog.info('Setting card in store:');
 
     setCurrentCard(card, isEditing ? 'edit' : 'compose');
 
@@ -50,7 +51,7 @@ const CardsScreen: FC = memo(() => {
     );
 
     // Navigate to ChatScreen after setting the card
-    navigate('/chat');
+    navigate('/chat', { state: { isEditing } });
   };
 
   return (
