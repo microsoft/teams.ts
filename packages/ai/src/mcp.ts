@@ -1,5 +1,5 @@
-import type { Function } from './function';
-import type { Schema } from './schema';
+import { Function } from './function';
+import { Schema } from './schema';
 
 export type McpClientParams = {
   name: string;
