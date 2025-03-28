@@ -69,10 +69,8 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
         const removed: Array<MessageReaction> = [];
         const { reactions = [] } = originalMessage;
         const existingReaction =
-          action.type === 'messageReaction' && action.reactionType && action.user
-            ? reactions.find(
-                (r) => r.type === action.reactionType && r.user?.id === action.user?.id
-              )
+          action.type === 'messageReaction' && action.reactionType
+            ? reactions.find((r) => r.type === action.reactionType)
             : undefined;
 
         switch (action.type) {
@@ -119,15 +117,15 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
             break;
 
           case 'messageReaction':
-            if (!action.reactionType || !action.user) return;
+            if (!action.reactionType) return;
 
             if (existingReaction) {
               removed.push(existingReaction);
             } else {
               added.push({
                 type: action.reactionType,
-                user: action.user,
                 createdDateTime: new Date().toUTCString(),
+                user: action.user,
               });
             }
 
@@ -211,11 +209,8 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
     <div className={mergeClasses(screenClasses.screenContainer, classes.flexRow)}>
       <nav id="chat-sidebar" className={classes.sideBar} aria-label="Chat navigation"></nav>
       <Chat>
-        <div className={classes.chatContainer}>
-          <div
-            id="messages-list"
-            className={mergeClasses(classes.messagesList, screenClasses.scrollbarContainer)}
-          >
+        <div className={mergeClasses(classes.chatContainer, screenClasses.scrollbarContainer)}>
+          <div id="messages-list" className={classes.messagesList}>
             {chat &&
               (messages[chat.id] || []).map((message) => (
                 <ChatMessageContainer key={message.id} value={message} isConnected={isConnected}>

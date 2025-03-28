@@ -10,14 +10,14 @@ import {
   useState,
 } from 'react';
 import { Attachment } from '@microsoft/spark.api';
-import { Card } from '@microsoft/spark.cards';
 
+import { useCardStore } from '../../stores/CardStore';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
 import ContentEditableArea from '../ContentEditableArea/ContentEditableArea';
 import Logger from '../Logger/Logger';
 
 import ComposeBoxToolbar from './ComposeBoxToolbar/ComposeBoxToolbar';
-import useEditComposeBoxClasses from './EditComposeBox.styles';
+import { processMessageContent, convertAttachmentsForUI } from './ComposeBoxUtils';
 
 const childLog = Logger.child('EditComposeBox');
 
@@ -27,7 +27,6 @@ export interface EditComposeBoxProps {
   onComplete: (content: string, attachments: Attachment[]) => void;
   onCancel: () => void;
   disabled?: boolean;
-  currentCard?: Card | null;
   onCardProcessed?: () => void;
 }
 
@@ -38,42 +37,66 @@ const EditComposeBox: FC<EditComposeBoxProps> = memo(
     onComplete,
     onCancel,
     disabled = false,
-    currentCard,
     onCardProcessed,
   }) => {
-    const classes = useEditComposeBoxClasses();
+    const {
+      currentCard,
+      targetComponent,
+      processedCardIds,
+      addProcessedCardId,
+      clearCurrentCard,
+      clearProcessedCardIds,
+      setCurrentCard,
+    } = useCardStore();
+
     const contentEditableRef = useRef<HTMLDivElement>(null);
     const [message, setMessage] = useState(value);
     const [attachments, setAttachments] = useState<Attachment[]>(defaultAttachments);
-    const processedCardsRef = useRef<Set<string>>(new Set());
     const mountedRef = useRef(false);
 
-    // Update message when value prop changes
     useEffect(() => {
       setMessage(value);
     }, [value]);
 
-    // Update attachments when defaultAttachments prop changes
     useEffect(() => {
       setAttachments(defaultAttachments);
     }, [defaultAttachments]);
 
-    // Handle initial mount with a card already in the store
+    // Setup and cleanup
     useEffect(() => {
       mountedRef.current = true;
       return () => {
         mountedRef.current = false;
+        clearCurrentCard();
+        clearProcessedCardIds();
       };
-    }, []);
+    }, [clearCurrentCard, clearProcessedCardIds]);
 
-    // Process currentCard only once when it changes
+    // Set as active component when focused
     useEffect(() => {
-      if (currentCard && mountedRef.current) {
+      const handleFocus = () => {
+        if (currentCard && mountedRef.current) {
+          setCurrentCard(currentCard, 'edit');
+        }
+      };
+
+      const editBox = contentEditableRef.current;
+      if (editBox) {
+        editBox.addEventListener('focus', handleFocus);
+        return () => {
+          editBox.removeEventListener('focus', handleFocus);
+        };
+      }
+    }, [currentCard, setCurrentCard]);
+
+    // Process currentCard only once when it changes and this is the target component
+    useEffect(() => {
+      if (currentCard && targetComponent === 'edit' && mountedRef.current && !disabled) {
         childLog.info('Current card:', currentCard);
 
         const currentCardStr = JSON.stringify(currentCard);
 
-        if (!processedCardsRef.current.has(currentCardStr)) {
+        if (!processedCardIds.has(currentCardStr)) {
           childLog.info('Processing new card:', currentCard);
 
           const newAttachment: Attachment = {
@@ -87,35 +110,34 @@ const EditComposeBox: FC<EditComposeBoxProps> = memo(
               childLog.info('Card already exists in attachments, skipping');
               return prev;
             }
-            const newAttachments = [...prev, newAttachment];
-            // Process the card after we've successfully added it
-            processedCardsRef.current.add(currentCardStr);
+
+            addProcessedCardId(currentCardStr);
             onCardProcessed?.();
-            return newAttachments;
+            return [...prev, newAttachment];
           });
         } else {
           childLog.info('Card already processed, skipping');
         }
       }
-    }, [currentCard, onCardProcessed]);
-
-    // Cleanup on unmount or when canceling
-    useEffect(() => {
-      const processedCards = processedCardsRef.current;
-      return () => {
-        setMessage('');
-        setAttachments([]);
-        processedCards.clear();
-      };
-    }, []);
+    }, [
+      currentCard,
+      targetComponent,
+      disabled,
+      processedCardIds,
+      addProcessedCardId,
+      onCardProcessed,
+    ]);
 
     const handleComplete = useCallback(() => {
       const trimmedMessage = message.trim();
       if (trimmedMessage || attachments.length > 0) {
         onComplete(trimmedMessage, attachments);
+        clearCurrentCard();
+        clearProcessedCardIds();
       }
-    }, [message, attachments, onComplete]);
+    }, [message, attachments, onComplete, clearCurrentCard, clearProcessedCardIds]);
 
+    // Rest of the component remains unchanged
     const handleAttachment = useCallback((attachment: any) => {
       if (!attachment.contentType) {
         childLog.error('Invalid attachment: missing contentType');
@@ -128,17 +150,7 @@ const EditComposeBox: FC<EditComposeBoxProps> = memo(
       (e: FormEvent<HTMLDivElement>) => {
         if (disabled) return;
         const target = e.target as HTMLDivElement;
-        // Convert <br> and <div> to newlines for markdown
-        const content = target.innerHTML
-          .replace(/<br\s*\/?>/gi, '\n')
-          .replace(/<div>/gi, '\n')
-          .replace(/<\/div>/gi, '')
-          .replace(/&nbsp;/g, ' ');
-
-        // Create a temporary div to strip HTML
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = content;
-        setMessage(tempDiv.textContent || '');
+        setMessage(processMessageContent(target.innerHTML));
       },
       [disabled]
     );
@@ -157,14 +169,6 @@ const EditComposeBox: FC<EditComposeBoxProps> = memo(
       [disabled, onCancel, handleComplete]
     );
 
-    const handleDefaultValue = useCallback(
-      (defaultValue: string) => {
-        if (disabled) return;
-        setMessage(defaultValue);
-      },
-      [disabled]
-    );
-
     const handleRemoveAttachment = useCallback(
       (index: number) => {
         if (disabled) return;
@@ -176,31 +180,7 @@ const EditComposeBox: FC<EditComposeBoxProps> = memo(
     const hasContent = message.trim().length > 0 || attachments.length > 0;
 
     // Convert API attachments to UI attachment types
-    const uiAttachments = useMemo(
-      () =>
-        attachments.map((attachment) => {
-          if (attachment.contentType?.startsWith('application/vnd.microsoft.card.')) {
-            return {
-              type: 'card' as const,
-              content: attachment.content,
-              name: attachment.name,
-            };
-          }
-          if (attachment.contentType?.startsWith('image/')) {
-            return {
-              type: 'image' as const,
-              content: attachment.contentUrl || attachment.content,
-              name: attachment.name,
-            };
-          }
-          return {
-            type: 'file' as const,
-            content: attachment.contentUrl || attachment.content,
-            name: attachment.name,
-          };
-        }),
-      [attachments]
-    );
+    const uiAttachments = useMemo(() => convertAttachmentsForUI(attachments), [attachments]);
 
     const memoizedToolbar = useMemo(
       () => (
@@ -217,25 +197,23 @@ const EditComposeBox: FC<EditComposeBoxProps> = memo(
     );
 
     return (
-      <div className={classes.editComposeContainer}>
-        <ContentEditableArea
-          ref={contentEditableRef}
-          className={classes.composeInput}
-          value={message}
-          onInputChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          onDefaultValue={handleDefaultValue}
-          placeholder=""
-          toolbar={memoizedToolbar}
-          disabled={disabled}
-        >
-          <AttachmentsContainer
-            attachments={uiAttachments}
-            onRemoveAttachment={handleRemoveAttachment}
-            showRemoveButtons={!disabled}
-          />
-        </ContentEditableArea>
-      </div>
+      <ContentEditableArea
+        title="Edit message"
+        ref={contentEditableRef}
+        defaultValue={value}
+        value={message}
+        onInputChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        toolbar={memoizedToolbar}
+        disabled={disabled}
+        appearance="outline"
+      >
+        <AttachmentsContainer
+          attachments={uiAttachments}
+          onRemoveAttachment={handleRemoveAttachment}
+          showRemoveButtons={!disabled}
+        />
+      </ContentEditableArea>
     );
   }
 );

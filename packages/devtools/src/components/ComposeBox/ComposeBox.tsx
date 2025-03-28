@@ -11,81 +11,79 @@ import {
 } from 'react';
 import { Attachment, Message } from '@microsoft/spark.api';
 
+import { useCardStore } from '../../stores/CardStore';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';
 import ContentEditableArea from '../ContentEditableArea/ContentEditableArea';
 import Logger from '../Logger/Logger';
 
 import ComposeBoxToolbar from './ComposeBoxToolbar/ComposeBoxToolbar';
 import useComposeBoxClasses from './ComposeBox.styles';
-import { convertAttachmentsForUI, processMessageContent } from './ComposeBoxUtils';
+import { processMessageContent, convertAttachmentsForUI } from './ComposeBoxUtils';
 
 export interface ComposeBoxProps {
   onSend: (message: Partial<Message>, attachments?: Attachment[]) => void;
   messageHistory: Partial<Message>[];
   onMessageSent: (message: Partial<Message>) => void;
-  currentCard?: any;
   onCardProcessed?: () => void;
 }
 
 const childLog = Logger.child('ComposeBox');
 
-// Use sessionStorage to persist state across navigation
-const STORAGE_KEY = 'composeBoxState';
-
 const ComposeBox: FC<ComposeBoxProps> = memo(
-  ({ onSend, messageHistory, onMessageSent, currentCard, onCardProcessed }) => {
+  ({ onSend, messageHistory, onMessageSent, onCardProcessed }) => {
     const classes = useComposeBoxClasses();
-    const [message, setMessage] = useState(() => {
-      try {
-        const savedState = sessionStorage.getItem(STORAGE_KEY);
-        if (savedState) {
-          const { message: savedMessage } = JSON.parse(savedState);
-          return savedMessage || '';
-        }
-      } catch (error) {
-        childLog.error('Error loading saved state:', error);
-      }
-      return '';
-    });
+    const {
+      currentCard,
+      targetComponent,
+      processedCardIds,
+      addProcessedCardId,
+      clearCurrentCard,
+      clearProcessedCardIds,
+      setCurrentCard,
+    } = useCardStore();
+
+    const [message, setMessage] = useState('');
     const [attachments, setAttachments] = useState<Attachment[]>([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
     const contentEditableRef = useRef<HTMLDivElement>(null);
-    const processedCardsRef = useRef<Set<string>>(new Set());
     const mountedRef = useRef(false);
-    const cardProcessedRef = useRef(false);
 
-    // Save state to sessionStorage when it changes
-    useEffect(() => {
-      try {
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ message }));
-      } catch (error) {
-        childLog.error('Error saving state:', error);
-      }
-    }, [message]);
-
+    // Focus on input and mark as mounted when component mounts
     useEffect(() => {
       if (contentEditableRef.current) {
         contentEditableRef.current.focus();
       }
-    }, []);
-
-    // Handle initial mount with a card already in the store
-    useEffect(() => {
       mountedRef.current = true;
       return () => {
         mountedRef.current = false;
-        cardProcessedRef.current = false;
       };
     }, []);
 
-    // Process currentCard only once when it changes and not in edit mode
+    // Set as active component when focused
     useEffect(() => {
-      if (currentCard && mountedRef.current) {
+      const handleFocus = () => {
+        if (currentCard && mountedRef.current) {
+          setCurrentCard(currentCard, 'compose');
+        }
+      };
+
+      const composeBox = contentEditableRef.current;
+      if (composeBox) {
+        composeBox.addEventListener('focus', handleFocus);
+        return () => {
+          composeBox.removeEventListener('focus', handleFocus);
+        };
+      }
+    }, [currentCard, setCurrentCard]);
+
+    // Process currentCard only once when it changes and when this component is the target
+    useEffect(() => {
+      if (currentCard && targetComponent === 'compose' && mountedRef.current) {
         childLog.info('Current card:', currentCard);
 
         const currentCardStr = JSON.stringify(currentCard);
 
-        if (!processedCardsRef.current.has(currentCardStr)) {
+        if (!processedCardIds.has(currentCardStr)) {
           childLog.info('Processing new card:', currentCard);
 
           const newAttachment: Attachment = {
@@ -99,17 +97,16 @@ const ComposeBox: FC<ComposeBoxProps> = memo(
               childLog.info('Card already exists in attachments, skipping');
               return prev;
             }
-            const newAttachments = [...prev, newAttachment];
-            // Process the card after we've successfully added it
-            processedCardsRef.current.add(currentCardStr);
+
+            addProcessedCardId(currentCardStr);
             onCardProcessed?.();
-            return newAttachments;
+            return [...prev, newAttachment];
           });
         } else {
           childLog.info('Card already processed, skipping');
         }
       }
-    }, [currentCard, onCardProcessed]);
+    }, [currentCard, targetComponent, processedCardIds, addProcessedCardId, onCardProcessed]);
 
     const handleSendMessage = useCallback(() => {
       const trimmedMessage = message.trim();
@@ -128,16 +125,12 @@ const ComposeBox: FC<ComposeBoxProps> = memo(
         setMessage('');
         setAttachments([]);
         setHistoryIndex(-1);
-        processedCardsRef.current.clear();
-        cardProcessedRef.current = false;
-        // Clear saved state after sending
-        sessionStorage.removeItem(STORAGE_KEY);
-      }
-    }, [message, attachments, onSend, onMessageSent]);
 
-    const handleDefaultValue = useCallback((defaultValue: string) => {
-      setMessage(defaultValue);
-    }, []);
+        // Clear card state
+        clearCurrentCard();
+        clearProcessedCardIds();
+      }
+    }, [message, attachments, onSend, onMessageSent, clearCurrentCard, clearProcessedCardIds]);
 
     const handleInputChange = useCallback((e: FormEvent<HTMLDivElement>) => {
       const target = e.target as HTMLDivElement;
@@ -195,6 +188,7 @@ const ComposeBox: FC<ComposeBoxProps> = memo(
 
     const hasContent = message.trim().length > 0 || attachments.length > 0;
 
+    // Convert API attachments to UI attachment types
     const uiAttachments = useMemo(() => convertAttachmentsForUI(attachments), [attachments]);
 
     const memoizedToolbar = useMemo(
@@ -211,13 +205,12 @@ const ComposeBox: FC<ComposeBoxProps> = memo(
     return (
       <div className={classes.composeBoxContainer}>
         <ContentEditableArea
-          title="Compose box"
+          title="Compose message"
           ref={contentEditableRef}
           className={classes.composeInput}
           value={message}
           onInputChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          onDefaultValue={handleDefaultValue}
           placeholder="Type a message..."
           toolbar={memoizedToolbar}
         >
@@ -232,5 +225,5 @@ const ComposeBox: FC<ComposeBoxProps> = memo(
   }
 );
 
-export default ComposeBox;
 ComposeBox.displayName = 'ComposeBox';
+export default ComposeBox;

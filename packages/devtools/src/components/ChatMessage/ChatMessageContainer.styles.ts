@@ -13,11 +13,20 @@ const useChatContainerClasses = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     maxWidth: '80%',
+    '&:has([title="Edit message"])': {
+      flex: '1 1 100%',
+    },
+    // for changing width when EditComposeBox is rendered
+    '&:has([title="Edit message"]) [data-ed]': {
+      flex: '1 1 100%',
+    },
   },
+
 
   messageGroupSent: {
     justifyContent: 'flex-end',
   },
+
   messageGroupReceived: {
     justifyContent: 'flex-start',
   },
@@ -42,8 +51,8 @@ const useChatContainerClasses = makeStyles({
     marginBottom: tokens.spacingVerticalS,
   },
   sentTime: {
-    textAlign: 'right',
-  }
+    textAlign: 'end',
+  },
 });
 
 export default useChatContainerClasses;

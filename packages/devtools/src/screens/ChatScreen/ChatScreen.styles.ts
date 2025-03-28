@@ -17,6 +17,11 @@ const useChatScreenClasses = makeStyles({
       display: 'none',
     },
   },
+  chatContainer: {
+    display: 'flex',
+    flexDirection: 'column-reverse',
+    minHeight: 0,
+  },
   messagesList: {
     maxWidth: '65.125rem',
     minWidth: '31rem',
@@ -24,16 +29,26 @@ const useChatScreenClasses = makeStyles({
     width: '100%',
     display: 'flex',
     flexDirection: 'column-reverse',
-    padding: '10px 0',
     flex: 1,
+    '@media (max-width: 31rem)': {
+      minWidth: 'unset',
+      overflowX: 'hidden'
+    }
   },
   composeContainer: {
     backgroundColor: tokens.colorNeutralBackground3,
+    overflowX: 'hidden',
+    position: 'sticky',
+    bottom: 0,
+    width: '100%',
   },
   composeInner: {
     maxWidth: '65.125rem',
     minWidth: '31rem',
     margin: '0 auto',
+    '@media (max-width: 31rem)': {
+      minWidth: 'unset'
+    }
   },
   typingIndicator: {
     height: '1.875rem',

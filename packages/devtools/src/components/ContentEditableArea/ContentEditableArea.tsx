@@ -181,6 +181,7 @@ const ContentEditableAreaBase: ForwardRefRenderFunction<
     !disabled && appearance.startsWith('filled') && classes.filled,
     !disabled && appearance === 'filled-darker' && classes['filled-darker'],
     !disabled && appearance === 'filled-lighter' && classes['filled-lighter'],
+    editMode && classes.fullWidth,
     className
   );
 
@@ -194,8 +195,13 @@ const ContentEditableAreaBase: ForwardRefRenderFunction<
   const contentWrapper = mergeClasses(
     classes.contentWrapper,
     classes[size],
-    areaGrown && classes.fullWidth,
-    editMode && classes.fullWidth
+    areaGrown && classes.fullWidth
+  );
+
+  const container = mergeClasses(
+    classes.container,
+    areaGrown && classes.flexColumn,
+    editMode && classes.editMode
   );
 
   const toolbarWrapper = mergeClasses(classes.toolbarWrapper, classes[size]);
@@ -246,8 +252,8 @@ const ContentEditableAreaBase: ForwardRefRenderFunction<
   );
 
   return (
-    <span className={root}>
-      <div className={mergeClasses(classes.container, areaGrown && classes.flexColumn)}>
+    <span className={mergeClasses(root, editMode && classes.editMode)}>
+      <div className={container}>
         <div className={contentWrapper}>
           <div
             id="content-editable-area"
