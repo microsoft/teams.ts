@@ -5,29 +5,28 @@ import { ConsoleLogger } from '@microsoft/spark.common';
 import './App.css';
 
 export default function App() {
-  const [context, setContext] = React.useState<client.Context>();
+  const [greeting, setGreeting] = React.useState('');
 
   React.useEffect(() => {
     (async () => {
-      const app = new client.App({
-        clientId: import.meta.env.VITE_CLIENT_ID,
-        clientSecret: import.meta.env.VITE_CLIENT_SECRET,
-        tenantId: import.meta.env.VITE_TENANT_ID,
+      const clientId = import.meta.env.VITE_CLIENT_ID;
+      const tenantId = import.meta.env.VITE_TENANT_ID;
+      const app = new client.App(clientId, {
+        tenantId,
         logger: new ConsoleLogger('@samples/tab', { level: 'debug' }),
       });
 
-      const context = await app.connect();
-      setContext(context);
+      await app.start();
 
-      const res = await app.exec('hello-world', { hello: 'world' });
-      app.log.info(res);
+      const result = await app.exec<string>('hello-world');
+      setGreeting(result);
     })();
   }, []);
 
   return (
     <div className="App">
       <pre>
-        <code>{JSON.stringify(context, null, 2)}</code>
+        <code>{greeting}</code>
       </pre>
     </div>
   );

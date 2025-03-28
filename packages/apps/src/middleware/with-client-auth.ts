@@ -16,22 +16,24 @@ export type ClientAuthRequest = express.Request & {
 export function withClientAuth(params: WithClientAuthParams) {
   const log = params.logger;
   const clientId = params.clientId;
-  const clientSecret = 'clientSecret' in params ? params.clientSecret : undefined;
   const tenantId = 'tenantId' in params ? params.tenantId : undefined;
 
   return (req: ClientAuthRequest, res: express.Response, next: express.NextFunction) => {
     const appClientId = req.header('X-Spark-App-Client-Id');
-    const appClientSecret = req.header('X-Spark-App-Client-Secret');
     const appTenantId = req.header('X-Spark-App-Tenant-Id');
     const appSessionId = req.header('X-Spark-App-Session-Id');
     const pageId = req.header('X-Spark-Page-Id');
+    const authorization = req.header('Authorization')?.split(' ');
+    const authToken =
+      authorization?.length === 2 && authorization[0].toLowerCase() === 'bearer'
+        ? authorization[1]
+        : undefined;
 
     if (
       !pageId ||
       !appSessionId ||
       appClientId !== clientId ||
-      appClientSecret !== clientSecret ||
-      appTenantId !== tenantId
+      (tenantId && appTenantId !== tenantId)
     ) {
       log.debug('unauthorized');
       res.status(401).send('unauthorized');
@@ -50,6 +52,7 @@ export function withClientAuth(params: WithClientAuthParams) {
       chatId: req.header('X-Spark-Chat-Id'),
       meetingId: req.header('X-Spark-Meeting-Id'),
       subPageId: req.header('X-Spark-Sub-Page-Id'),
+      authToken,
     };
 
     next();
