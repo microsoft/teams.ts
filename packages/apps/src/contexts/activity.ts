@@ -206,20 +206,6 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
       // noop
     }
 
-    // create new 1:1 conversation with user to do SSO
-    // because groupchats don't support it.
-    if (this.activity.conversation.isGroup) {
-      const res = await this.api.conversations.create({
-        tenantId: this.activity.conversation.tenantId,
-        isGroup: false,
-        bot: { id: this.activity.recipient.id },
-        members: [this.activity.from],
-      });
-
-      await this.send({ type: 'message', text: oauthCardText });
-      convo.conversation = { id: res.id } as ConversationAccount;
-    }
-
     const tokenExchangeState: TokenExchangeState = {
       connectionName,
       conversation: convo,
@@ -234,6 +220,18 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
       // Without a token exchange resource, this is a normal Oauth flow.
       // So we save the state in storage to keep track of the fact that we are in the middle of a sign in flow.
       await saveOauthFlowState(this.storage, this.activity, connectionName);
+    } else if (this.activity.conversation.isGroup) {
+      // create new 1:1 conversation with user to do SSO
+      // because groupchats don't support it.
+      const res = await this.api.conversations.create({
+        tenantId: this.activity.conversation.tenantId,
+        isGroup: false,
+        bot: { id: this.activity.recipient.id },
+        members: [this.activity.from],
+      });
+
+      await this.send({ type: 'message', text: oauthCardText });
+      convo.conversation = { id: res.id } as ConversationAccount;
     }
 
     await this.send(
