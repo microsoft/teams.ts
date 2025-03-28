@@ -37,8 +37,8 @@ const CardsScreen: FC = memo(() => {
 
   const handleAttachCard = (card: Card) => {
     childLog.info('Setting card in store:');
-    // Get the current URL to determine if we're in edit mode
-    const isEditing = location.search.includes('edit=true');
+    const isEditing = location.state?.isEditing ?? false;
+
     setCurrentCard(card, isEditing ? 'edit' : 'compose');
 
     dispatchToast(

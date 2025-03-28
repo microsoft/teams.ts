@@ -76,9 +76,13 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = memo(
     }, [onEditCancel, handleCancelDialogClose]);
 
     const handleNavigateToCards = useCallback(() => {
-      navigate('/cards');
+      navigate('/cards', {
+        state: {
+          isEditing: editMode,
+        },
+      });
       setMenuOpen(false);
-    }, [navigate]);
+    }, [editMode, navigate]);
 
     const handleSend = useCallback(() => {
       if (onSendMessage && hasContent) {
