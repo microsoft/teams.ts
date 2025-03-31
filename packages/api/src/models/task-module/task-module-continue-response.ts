@@ -9,6 +9,7 @@ import { TaskModuleTaskInfo } from './task-module-task-info';
  * @extends TaskModuleResponseBase
  */
 export type TaskModuleContinueResponse = TaskModuleResponseBase & {
+  type: 'continue';
   /**
    * @member {TaskModuleTaskInfo} [value] The JSON for the Adaptive card to
    * appear in the task module.

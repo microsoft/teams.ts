@@ -8,6 +8,7 @@ import { TaskModuleResponseBase } from './task-module-response-base';
  * @extends TaskModuleResponseBase
  */
 export type TaskModuleMessageResponse = TaskModuleResponseBase & {
+  type: 'message';
   /**
    * @member {string} [value] Teams will display the value of value in a popup
    * message box.
