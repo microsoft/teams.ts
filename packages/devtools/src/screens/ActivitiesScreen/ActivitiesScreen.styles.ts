@@ -7,7 +7,7 @@ const useActivitiesScreenClasses = makeStyles({
     width: '100%',
     gap: '1rem',
     overflow: 'hidden',
-    '@media (max-width: 1000px)': {
+    '@media (max-width: 62.5rem)': {
       flexDirection: 'column',
       padding: '0.5rem',
       gap: '0.5rem',
@@ -19,7 +19,7 @@ const useActivitiesScreenClasses = makeStyles({
     height: '100%',
     padding: '1rem',
     overflow: 'hidden',
-    '@media (max-width: 1000px)': {
+    '@media (max-width: 62.5rem)': {
       width: '100%',
       height: 'calc(100% - 20rem)',
       padding: '0.5rem',
@@ -31,7 +31,7 @@ const useActivitiesScreenClasses = makeStyles({
     height: '100%',
     padding: '1rem',
     boxShadow: tokens.shadow16,
-    '@media (max-width: 1000px)': {
+    '@media (max-width: 62.5rem)': {
       width: '100%',
       height: '20rem',
       padding: '0.5rem',

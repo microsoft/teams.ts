@@ -26,7 +26,7 @@ const useJsonClasses = makeStyles({
   object: {
     display: 'flex',
     flexDirection: 'column',
-    textAlign: 'left',
+    textAlign: 'start',
     width: '100%',
     overflow: 'hidden',
   },

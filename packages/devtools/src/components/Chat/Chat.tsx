@@ -1,16 +1,30 @@
-import { HTMLAttributes, forwardRef } from 'react';
+import { ComponentProps, HTMLAttributes, forwardRef } from 'react';
+import { makeStyles, tokens } from '@fluentui/react-components';
 
-export type ChatProps = HTMLAttributes<HTMLDivElement>;
+const useChatClasses = makeStyles({
+  root: {
+    gap: tokens.spacingVerticalS,
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
+    minHeight: 0,
+  },
+});
 
-const Chat = forwardRef<HTMLDivElement, ChatProps>(({ ...props }, ref) => {
-  const { className, children, ...rest } = props;
+type ChatProps = HTMLAttributes<HTMLDivElement> & ComponentProps<'div'>;
+
+const Chat = forwardRef<HTMLDivElement, ChatProps>((props, ref) => {
+  const { children, ...rest } = props;
+  const classes = useChatClasses();
 
   return (
-    <div ref={ref} className={className} {...rest}>
+    <div ref={ref} className={classes.root} {...rest}>
       {children}
     </div>
   );
 });
 
-export default Chat;
 Chat.displayName = 'Chat';
+
+export default Chat;

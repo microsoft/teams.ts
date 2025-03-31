@@ -6,7 +6,7 @@ export const useCardDesignerContentClasses = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    padding: '1rem',
+    padding: tokens.spacingVerticalL,
     backgroundColor: tokens.colorNeutralBackground3,
     textAlign: 'center',
   },

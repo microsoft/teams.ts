@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import { Element } from '@microsoft/spark.cards';
 
 import ActionSetCard from './Containers/ActionSetCard';
@@ -16,7 +16,7 @@ export interface CardProps {
   readonly value: Element;
 }
 
-const Card: FC<CardProps> = ({ value }) => {
+const Card: FC<CardProps> = memo(({ value }) => {
   switch (value.type) {
     case 'ActionSet':
       return <ActionSetCard value={value} />;
@@ -41,6 +41,8 @@ const Card: FC<CardProps> = ({ value }) => {
   }
 
   return <>not found</>;
-};
+});
+
+Card.displayName = 'Card';
 
 export default Card;

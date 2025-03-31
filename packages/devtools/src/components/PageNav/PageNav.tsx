@@ -3,6 +3,7 @@ import { FC, memo } from 'react';
 import { useMetadataStore } from '../../stores/MetadataStore';
 import DevtoolsBanner from '../DevtoolsBanner/DevtoolsBanner';
 import PageNavButton from '../PageNavButton/PageNavButton';
+
 import usePageNavClasses from './PageNav.styles';
 
 interface PageNavProps {

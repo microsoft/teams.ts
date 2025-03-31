@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import {
   Button,
   InfoLabel,
@@ -23,10 +23,11 @@ interface ActivityDetailsProps {
   setView: (view: 'preview' | 'json') => void;
 }
 
-const ActivityDetails: FC<ActivityDetailsProps> = ({ selected, view, setView }) => {
+const childLog = Logger.child('ActivityDetails');
+
+const ActivityDetails: FC<ActivityDetailsProps> = memo(({ selected, view, setView }) => {
   const classes = useActivityDetailsClasses();
   const { dispatchToast } = useToastController();
-  const childLog = Logger.child('ActivityDetails');
 
   const handleCopy = async () => {
     try {
@@ -104,6 +105,8 @@ const ActivityDetails: FC<ActivityDetailsProps> = ({ selected, view, setView }) 
       </div>
     </div>
   );
-};
+});
+
+ActivityDetails.displayName = 'ActivityDetails';
 
 export default ActivityDetails;

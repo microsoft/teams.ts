@@ -8,7 +8,7 @@ import {
   ToolbarProps,
   Tooltip,
 } from '@fluentui/react-components';
-import { Message, MessageReactionType, MessageUser } from '@microsoft/spark.api';
+import { Message, MessageReactionType } from '@microsoft/spark.api';
 import { useNavigate } from 'react-router';
 
 import useConversationScope from '../../hooks/useConversationScope';
@@ -20,15 +20,13 @@ import { EditIcon, SearchIcon } from './icons';
 import MessageActionsMoreMenu from './MessageActionsMoreMenu';
 
 interface MessageActionsProps extends ToolbarProps {
-  // Whether the message is sent or received
   userSentMessage: boolean;
   value: Message;
   onMessageAction: (action: MessageActionUIPayload) => Promise<void>;
-  reactionSender: MessageUser | undefined;
 }
 
 const MessageActionsToolbar: FC<MessageActionsProps> = memo(
-  ({ userSentMessage, value, onMessageAction, reactionSender, ...props }) => {
+  ({ userSentMessage, value, onMessageAction, ...props }) => {
     const classes = useMessageActionsToolbarClasses();
     const navigate = useNavigate();
     const conversationType = useConversationScope(value.id);
@@ -46,10 +44,9 @@ const MessageActionsToolbar: FC<MessageActionsProps> = memo(
           id: value.id,
           type: 'messageReaction',
           reactionType,
-          user: reactionSender,
         });
       },
-      [onMessageAction, value.id, reactionSender]
+      [onMessageAction, value.id]
     );
 
     const handleEdit = useCallback(() => {
@@ -118,7 +115,6 @@ const MessageActionsToolbar: FC<MessageActionsProps> = memo(
                 key="Edit"
                 icon={<EditIcon />}
                 className={classes.toolbarButton}
-                disabled
                 onClick={handleEdit}
               />
             </Tooltip>

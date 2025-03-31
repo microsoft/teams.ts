@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { FC, memo, useEffect, useRef } from 'react';
 import { Button } from '@fluentui/react-components';
 
 import Logger from '../components/Logger/Logger';
@@ -37,10 +37,11 @@ function isCardPayloadEventData(data: any): data is ICardPayloadEvent {
   );
 }
 
-export default function CardsScreen() {
+const childLog = Logger.child('CardsScreen');
+
+const NewCardsScreen: FC = memo(() => {
   const cardsClasses = useNewCardsScreenClasses();
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  const childLog = Logger.child('CardsScreen');
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -101,4 +102,7 @@ export default function CardsScreen() {
       ></iframe>
     </div>
   );
-}
+});
+
+NewCardsScreen.displayName = 'NewCardsScreen';
+export default NewCardsScreen;

@@ -27,4 +27,5 @@ const ActionSetCard: FC<ActionSetCardProps> = ({ value }) => {
   );
 };
 
+ActionSetCard.displayName = 'ActionSetCard';
 export default ActionSetCard;

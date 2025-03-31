@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActionSet, ICard, Card, Element, Icon, TextBlock } from '@microsoft/spark.cards';
+import { FC, memo, useCallback, useEffect, useRef, useState } from 'react';
+import { ActionSet, Card, Element, ICard, Icon, TextBlock } from '@microsoft/spark.cards';
 import estree from 'prettier/plugins/estree';
 import parserTypeScript from 'prettier/plugins/typescript';
 import prettier from 'prettier/standalone';
@@ -27,7 +27,7 @@ const placeholderCard = new Card(
   })
 );
 
-export default function CardDesigner({ value, onChange }: CardDesignerProps) {
+const CardDesigner: FC<CardDesignerProps> = memo(({ value, onChange }) => {
   const classes = useCardDesignerClasses();
   const [card, setCard] = useState<ICard>(value || new Card());
   const [typescript, setTypescript] = useState<string>();
@@ -126,4 +126,8 @@ export default function CardDesigner({ value, onChange }: CardDesignerProps) {
       <CardDesignerEditor value={card} typescript={formatted} onChange={onEditorUpdate} />
     </div>
   );
-}
+});
+
+CardDesigner.displayName = 'CardDesigner';
+
+export default CardDesigner;
