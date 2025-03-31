@@ -60,6 +60,12 @@ export class TeamsToolkitAttribute implements IProjectAttribute {
             'teamsapp.local.yml',
             'deploy.1.with.envs.VITE_CLIENT_SECRET',
             '${{SECRET_BOT_PASSWORD}}'
+          ),
+          new FileYamlSet(
+            targetDir,
+            'teamsapp.local.yml',
+            'deploy.1.with.envs.VITE_TENANT_ID',
+            '${{AAD_APP_TENANT_ID}}'
           )
         )
       )

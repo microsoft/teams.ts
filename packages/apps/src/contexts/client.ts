@@ -56,4 +56,8 @@ export interface IClientContext {
    * such as scrolling to or activating a specific piece of content.
    */
   readonly subPageId?: string;
+  /**
+   * The MSAL entra token.
+   */
+  readonly authToken?: string;
 }

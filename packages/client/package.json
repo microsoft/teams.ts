@@ -34,11 +34,13 @@
     "test": "npx jest"
   },
   "dependencies": {
+    "@azure/msal-browser": "^4.9.1",
     "uuid": "^11.0.5"
   },
   "peerDependencies": {
     "@microsoft/spark.api": "*",
-    "@microsoft/spark.common": "*"
+    "@microsoft/spark.common": "*",
+    "@microsoft/teams-js": "^2.35.0"
   },
   "devDependencies": {
     "@microsoft/spark.config": "*",
