@@ -1,9 +1,9 @@
+import * as msal from '@azure/msal-browser';
 import * as http from '@microsoft/spark.common/http';
 import { ILogger, ConsoleLogger } from '@microsoft/spark.common/logging';
-
 import * as teamsJs from '@microsoft/teams-js';
-import * as msal from '@azure/msal-browser';
-import { acquireMsalAccessToken, buildMsalConfig } from './msalUtils';
+
+import { acquireMsalAccessToken, buildMsalConfig } from './msal-utils';
 
 export type MsalOptions = {
   /**

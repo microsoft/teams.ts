@@ -1,5 +1,4 @@
 import * as msal from '@azure/msal-browser';
-
 import { ILogger } from '@microsoft/spark.common/logging';
 
 /**
