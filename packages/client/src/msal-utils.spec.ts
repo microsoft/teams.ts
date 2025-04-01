@@ -1,6 +1,6 @@
 import { InteractionRequiredAuthError, LogLevel } from '@azure/msal-browser';
 
-import { acquireMsalAccessToken, buildMsalConfig, fallbackSilentRequestScopes } from './msalUtils';
+import { acquireMsalAccessToken, buildMsalConfig, fallbackSilentRequestScopes } from './msal-utils';
 
 const mockClientId = 'mock-client-id';
 const mockLogger = {

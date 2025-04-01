@@ -3,8 +3,8 @@ const msalCreateNPCAppMock = jest.fn();
 const msalInitializeMock = jest.fn();
 const httpClientPostMock = jest.fn();
 
-import * as MsalUtils from './msalUtils';
 import { App } from './app';
+import * as MsalUtils from './msal-utils';
 
 jest.mock('@microsoft/teams-js', () => {
   return {
