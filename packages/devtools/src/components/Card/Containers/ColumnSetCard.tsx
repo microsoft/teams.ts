@@ -25,4 +25,6 @@ const ColumnSetCard: FC<ColumnSetCardProps> = ({ value }) => {
   );
 };
 
+ColumnSetCard.displayName = 'ColumnSetCard';
+
 export default ColumnSetCard;

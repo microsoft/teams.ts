@@ -19,13 +19,14 @@ export let AutoFillAndSendMessage = noOp;
 export let useDevModeOnRoute = noOpDevModeOnRoute;
 export let useDevModeSendMessage = noOpDevModeSendMessage;
 
+const childLog = Logger.child('AutoFillAndSendMessage');
+
 // Conditional compilation
 if (import.meta.env.DEV) {
   let hasDevMessageBeenSent = false;
 
   AutoFillAndSendMessage = () => {
     const devMessage = import.meta.env.VITE_DEV_MESSAGE || null;
-    const childLog = Logger.child('AutoFillAndSendMessage');
 
     if (!devMessage) return;
 

@@ -1,41 +1,61 @@
+import * as msal from '@azure/msal-browser';
 import * as http from '@microsoft/spark.common/http';
 import { ILogger, ConsoleLogger } from '@microsoft/spark.common/logging';
-import { Credentials } from '@microsoft/spark.api';
+import * as teamsJs from '@microsoft/teams-js';
 
-import * as window from './window';
-import { Context, mapContext } from './context';
+import { acquireMsalAccessToken, buildMsalConfig } from './msal-utils';
 
-export type AppOptions = Partial<Credentials> & {
+export type MsalOptions = {
   /**
-   * the app base url
+   * Optional MSAL configuration. This parameter is used to construct an MSAL instance in order
+   * to make authenticated function calls. If omitted, a default configuration is created.
+   */
+  readonly configuration?: msal.Configuration;
+  /**
+   * Default token request options used when acquiring a token.
+   */
+  readonly defaultSilentRequest?: msal.SilentRequest;
+};
+
+export type AppOptions = {
+  /**
+   * The app base url.
    */
   readonly baseUrl?: string;
 
+  /** App tenant ID */
+  readonly tenantId?: string;
+
   /**
-   * logger instance to use
+   * Logger instance to use.
    */
   readonly logger?: ILogger;
-};
-
-type AppConnect = {
-  /**
-   * the app id
-   */
-  readonly id: string;
 
   /**
-   * the app name
+   * Options to control how MSAL is initialized and used.
    */
-  readonly name: {
-    readonly short: string;
-    readonly full: string;
-  };
+  readonly msalOptions?: MsalOptions;
 };
+
+type AppState =
+  | {
+      phase: 'stopped' | 'starting';
+      startedAt?: never;
+      msalInstance?: never;
+      context?: never;
+    }
+  | {
+      phase: 'started';
+      startedAt: Date;
+      msalInstance: msal.IPublicClientApplication;
+      context: teamsJs.app.Context;
+    };
 
 export class App {
   readonly options: AppOptions;
   readonly http: http.Client;
-  readonly parent: window.Client;
+  readonly clientId: string;
+  protected _state: AppState = { phase: 'stopped' };
 
   /**
    * the apps logger
@@ -46,138 +66,100 @@ export class App {
   protected _log: ILogger;
 
   /**
-   * the app id
+   * the date/time when the app was successfully started.
    */
-  get id() {
-    return this._id;
+  get startedAt() {
+    return this._state?.startedAt;
   }
-  protected _id?: string;
 
-  /**
-   * the app name
-   */
-  get name() {
-    return this._name;
+  /** the msal instance used in this app. undefined until the app is started. */
+  get msalInstance() {
+    return this._state.msalInstance;
   }
-  protected _name?: string;
 
-  /**
-   * the app/window context
-   */
-  get context() {
-    if (!this._context) {
-      throw new Error('app not connected');
+  constructor(clientId: string, options: AppOptions = {}) {
+    if (!clientId) {
+      throw new Error('Invalid client ID.');
     }
 
-    return this._context;
-  }
-  protected _context?: Context;
-
-  /**
-   * the date/time when the app
-   * successfully connected
-   */
-  get connectedAt() {
-    return this._connectedAt;
-  }
-  protected _connectedAt?: Date;
-
-  /**
-   * the sdk runtime
-   */
-  get runtime() {
-    if (!this._runtime) {
-      throw new Error('app not connected');
-    }
-
-    return this._runtime;
-  }
-  protected _runtime?: window.Runtime;
-
-  constructor(options?: AppOptions) {
-    this.options = options || {};
+    this.clientId = clientId;
+    this.options = options;
     this._log = options?.logger || new ConsoleLogger('@spark/client');
     this.http = new http.Client({ baseUrl: options?.baseUrl });
-    this.parent = new window.Client(this.log);
   }
 
   /**
-   * connect to the host app
+   * Starts the library and initializes the dependent teams-js and MSAL libraries.
+   * @returns A promise that will be fulfilled when the app has started, or
+   *          rejected if the initialization fails or times out.
    */
-  async connect() {
-    if (this.connectedAt) {
-      return this.context;
+  async start(): Promise<void> {
+    if (this._state.phase !== 'stopped') {
+      this._log.debug(`app already ${this._state.phase}`);
+      return;
     }
 
-    const res = await this.http.get<AppConnect>('/');
-    this._id = res.data.id;
-    this._name = res.data.name.short;
+    this._log.debug('app starting');
+    this._state = { phase: 'starting' };
 
-    if (this._name) {
-      this._log = this.options.logger || new ConsoleLogger(`@spark/${this._name}`);
-    }
+    await teamsJs.app.initialize();
+    const context = await teamsJs.app.getContext();
 
-    const { runtime } = await this.parent.initialize();
-    this._runtime = runtime;
+    const msalConfig =
+      this.options.msalOptions?.configuration ?? buildMsalConfig(this.clientId, this._log);
+    const msalInstance = await msal.createNestablePublicClientApplication(msalConfig);
+    await msalInstance.initialize();
 
-    const context = await this.parent.getContext();
-    this._context = mapContext(context);
-
-    this._connectedAt = new Date();
-    return this.context;
+    this._state = { phase: 'started', msalInstance, context, startedAt: new Date() };
+    this._log.debug('app started');
   }
 
   /**
-   * execute a server-side function
-   * @param name the unique function name
-   * @param data the data to send
-   * @returns the function response
+   * Execute a server-side function
+   * @param name The unique function name
+   * @param data The data to send
+   * @param options Options
+   * @param options.msalTokenRequest Optional MSAL token request.
+   * If omitted, a default token request is used.
+   * @param options.requestHeaders Optional additional request headers.
+   * @returns The function response
    */
-  async exec<T = any>(name: string, data?: any) {
+  async exec<T = unknown>(
+    name: string,
+    data?: unknown,
+    options?: { msalTokenRequest?: msal.SilentRequest; requestHeaders?: Record<string, string> }
+  ): Promise<T> {
+    if (this._state.phase !== 'started') {
+      throw new Error('App not started');
+    }
+
+    const { context } = this._state;
+    const accessToken = await acquireMsalAccessToken(
+      this._state.msalInstance,
+      options?.msalTokenRequest ?? this.options.msalOptions?.defaultSilentRequest,
+      this._log
+    );
+
     const res = await this.http.post<T>(`/api/functions/${name}`, data, {
       headers: {
-        'x-spark-app-id': this.context.app.id,
-        'x-spark-app-session-id': this.context.app.sessionId,
-        'x-spark-app-client-id': this.options.clientId,
-        'x-spark-app-client-secret':
-          'clientSecret' in this.options ? this.options.clientSecret : undefined,
-        'x-spark-app-tenant-id': 'tenantId' in this.options ? this.options.tenantId : undefined,
-        'x-spark-tenant-id': this.context.user?.tenant?.id,
-        'x-spark-user-id': this.context.user?.id,
-        'x-spark-team-id': this.context.team?.internalId,
-        'x-spark-message-id': this.context.app.parentMessageId,
-        'x-spark-channel-id': this.context.channel?.id,
-        'x-spark-chat-id': this.context.chat?.id,
-        'x-spark-meeting-id': this.context.meeting?.id,
-        'x-spark-page-id': this.context.page.id,
-        'x-spark-sub-page-id': this.context.page.subPageId,
+        'x-spark-app-id': context.app.appId?.toString(),
+        'x-spark-app-session-id': context.app.sessionId,
+        'x-spark-app-client-id': this.clientId,
+        'x-spark-app-tenant-id': this.options.tenantId,
+        'x-spark-tenant-id': context.user?.tenant?.id,
+        'x-spark-user-id': context.user?.id,
+        'x-spark-team-id': context.team?.internalId,
+        'x-spark-message-id': context.app.parentMessageId,
+        'x-spark-channel-id': context.channel?.id,
+        'x-spark-chat-id': context.chat?.id,
+        'x-spark-meeting-id': context.meeting?.id,
+        'x-spark-page-id': context.page.id,
+        'x-spark-sub-page-id': context.page.subPageId,
+        authorization: `Bearer ${accessToken}`,
+        ...(options?.requestHeaders ?? {}),
       },
     });
 
     return res.data;
-  }
-
-  /**
-   * get the auth user
-   */
-  async getUser() {
-    const res = await this.parent.authentication.getUser();
-    return res;
-  }
-
-  /**
-   * get the auth users token
-   */
-  async getUserToken(params?: window.AuthTokenRequestParams) {
-    const token = await this.parent.authentication.getToken(params);
-    return token;
-  }
-
-  /**
-   * get chat members
-   */
-  async getChatMembers() {
-    const members = await this.parent.conversation.getMembers();
-    return members;
   }
 }

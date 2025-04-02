@@ -1,186 +1,187 @@
-import { FC, useState, useRef, useCallback, memo } from 'react';
+import { FC, memo, useCallback, useState } from 'react';
 import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogBody,
-  DialogContent,
-  DialogSurface,
-  DialogTitle,
   Menu,
   MenuItem,
   MenuList,
   MenuPopover,
   MenuTrigger,
-  Textarea,
-  Toast,
-  ToastTitle,
-  useToastController,
   Toolbar,
   ToolbarButton,
   ToolbarProps,
   ToolbarDivider,
-  useId,
   Tooltip,
 } from '@fluentui/react-components';
 import {
   AttachRegular,
+  DismissFilled,
+  DismissRegular,
   bundleIcon,
   FluentIcon,
   SendFilled,
   SendRegular,
+  CheckmarkFilled,
+  CheckmarkRegular,
 } from '@fluentui/react-icons/lib/fonts';
-import { Card } from '@microsoft/spark.cards';
+import { Attachment } from '@microsoft/spark.api';
 import { useNavigate } from 'react-router';
 
 import { useCardStore } from '../../../stores/CardStore';
-import Logger from '../../Logger/Logger';
 
 import { useCBToolbarClasses } from './ComposeBoxToolbar.styles';
+import CancelEditDialog from './CancelEditDialog';
+import PasteCardDialog from './PasteCardDialog';
 
 interface ComposeBoxToolbarProps extends ToolbarProps {
-  onSend?: (attachments?: any[]) => void;
-  onAttachment?: (attachment: any) => void;
+  onSendMessage?: (attachments?: Attachment[]) => void;
+  onAttachment: (attachment: Attachment) => void;
   hasContent?: boolean;
+  editMode?: boolean;
+  onEditCancel?: () => void;
+  onEditComplete?: () => void;
+  disabled?: boolean;
+  draftMessage?: string;
+  editingMessageId?: string;
 }
 
+const Dismiss = bundleIcon(DismissFilled as FluentIcon, DismissRegular as FluentIcon);
+const Checkmark = bundleIcon(CheckmarkFilled as FluentIcon, CheckmarkRegular as FluentIcon);
 const Send = bundleIcon(SendFilled as FluentIcon, SendRegular as FluentIcon);
 
-const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = ({
-  onSend,
-  onAttachment,
-  hasContent = false,
-  ...props
-}) => {
-  const classes = useCBToolbarClasses();
-  const navigate = useNavigate();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [jsonInput, setJsonInput] = useState('');
-  const [menuOpen, setMenuOpen] = useState(false);
-  const dialogTitleId = useId('dialog-title');
-  const textareaId = useId('json-input');
-  const jsonInputRef = useRef<HTMLTextAreaElement>(null);
-  const { currentCard } = useCardStore();
-  const { dispatchToast } = useToastController();
-  const childLog = Logger.child('ComposeBoxToolbar');
+const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = memo(
+  ({
+    onSendMessage,
+    onAttachment,
+    hasContent = false,
+    editMode = false,
+    onEditCancel,
+    onEditComplete,
+    draftMessage,
+    disabled = false,
+    editingMessageId = undefined,
+    ...props
+  }) => {
+    const classes = useCBToolbarClasses();
+    const navigate = useNavigate();
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
+    const { setDraftMessage, setEditingMessageId } = useCardStore();
 
-  const handleNavigateToCards = () => {
-    navigate('/cards');
-    setMenuOpen(false);
-  };
+    const handleCancelDialogOpen = useCallback(() => {
+      setIsConfirmCancelOpen(true);
+    }, []);
 
-  const handleSaveJson = useCallback(() => {
-    try {
-      const card = JSON.parse(jsonInput) as Card;
+    const handleCancelDialogClose = useCallback(() => {
+      setIsConfirmCancelOpen(false);
+    }, []);
 
-      if (onAttachment) {
-        onAttachment({
-          type: 'card',
-          content: card,
-          contentType: 'application/vnd.microsoft.card.adaptive',
-        });
-      } else if (onSend) {
-        onSend([
-          {
-            type: 'card',
-            content: card,
-            contentType: 'application/vnd.microsoft.card.adaptive',
-          },
-        ]);
+    const handleConfirmCancel = useCallback(() => {
+      if (onEditCancel) {
+        onEditCancel();
       }
+      handleCancelDialogClose();
+    }, [onEditCancel, handleCancelDialogClose]);
 
-      setIsDialogOpen(false);
-      setJsonInput('');
-    } catch (error) {
-      childLog.debug('Failed to parse JSON:', error);
-      dispatchToast(
-        <Toast>
-          <ToastTitle>Failed to parse JSON. Please check your input and try again.</ToastTitle>
-        </Toast>,
-        { intent: 'error' }
-      );
-    }
-  }, [childLog, jsonInput, onAttachment, onSend, dispatchToast]);
-
-  const handleSend = useCallback(() => {
-    if (onSend) {
-      if (currentCard) {
-        onSend([
-          {
-            contentType: 'application/vnd.microsoft.card.adaptive',
-            content: currentCard,
-          },
-        ]);
-      } else if (hasContent) {
-        onSend();
+    const handleNavigateToCards = useCallback(() => {
+      setDraftMessage(draftMessage);
+      if (editingMessageId) {
+        setEditingMessageId(editingMessageId);
       }
-    }
-  }, [onSend, hasContent, currentCard]);
+      navigate('/cards', {
+        state: {
+          isEditing: editMode,
+        },
+      });
+      setMenuOpen(false);
+    }, [draftMessage, editMode, navigate, setDraftMessage, setEditingMessageId, editingMessageId]);
 
-  return (
-    <Toolbar aria-label="New message actions" {...props} className={classes.toolbar}>
-      <Menu open={menuOpen} onOpenChange={(_e, data) => setMenuOpen(data.open)}>
-        <MenuTrigger disableButtonEnhancement>
-          <Tooltip content="Attach file" relationship="label">
+    const handleSend = useCallback(() => {
+      if (onSendMessage && hasContent) {
+        onSendMessage();
+      }
+    }, [onSendMessage, hasContent]);
+
+    return (
+      <Toolbar aria-label="Message actions" {...props} className={classes.toolbar}>
+        <Menu open={menuOpen} onOpenChange={(_e, data) => setMenuOpen(data.open)}>
+          <MenuTrigger disableButtonEnhancement>
+            <Tooltip content="Attach file" relationship="label">
+              <ToolbarButton
+                aria-label="Attach file"
+                icon={<AttachRegular />}
+                className={classes.toolbarButton}
+                disabled={disabled}
+              />
+            </Tooltip>
+          </MenuTrigger>
+          <MenuPopover>
+            <MenuList>
+              <MenuItem
+                onClick={() => {
+                  setIsDialogOpen(true);
+                  setMenuOpen(false);
+                }}
+                disabled={disabled}
+              >
+                Paste custom JSON
+              </MenuItem>
+              <MenuItem onClick={handleNavigateToCards} disabled={disabled}>
+                Open card designer
+              </MenuItem>
+            </MenuList>
+          </MenuPopover>
+        </Menu>
+        <PasteCardDialog
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          onSave={onAttachment}
+          disabled={disabled}
+        />
+        <ToolbarDivider />
+        {editMode ? (
+          <>
+            <Tooltip content="Cancel" relationship="label">
+              <ToolbarButton
+                data-tid="cancel-button"
+                aria-label="Cancel"
+                className={classes.toolbarButton}
+                onClick={handleCancelDialogOpen}
+                icon={<Dismiss tabIndex={-1} />}
+                disabled={disabled}
+              />
+            </Tooltip>
+            <Tooltip content="Done" relationship="label">
+              <ToolbarButton
+                data-tid="done-button"
+                aria-label="Done"
+                className={classes.toolbarButton}
+                onClick={onEditComplete}
+                icon={<Checkmark tabIndex={-1} />}
+                disabled={disabled || !hasContent}
+              />
+            </Tooltip>
+          </>
+        ) : (
+          <Tooltip content="Send message" relationship="label">
             <ToolbarButton
-              aria-label="Attach file"
-              icon={<AttachRegular />}
+              data-tid="send-button"
+              aria-label="Send message"
               className={classes.toolbarButton}
+              onClick={handleSend}
+              icon={<Send tabIndex={-1} />}
+              disabled={disabled || !hasContent}
             />
           </Tooltip>
-        </MenuTrigger>
-        <MenuPopover>
-          <MenuList>
-            <MenuItem
-              onClick={() => {
-                setIsDialogOpen(true);
-                setMenuOpen(false);
-              }}
-            >
-              Paste custom JSON
-            </MenuItem>
-            <MenuItem onClick={handleNavigateToCards}>Open card designer</MenuItem>
-          </MenuList>
-        </MenuPopover>
-      </Menu>
-      <Dialog open={isDialogOpen} onOpenChange={(_e, data) => setIsDialogOpen(data.open)}>
-        <DialogSurface>
-          <DialogBody>
-            <DialogTitle id={dialogTitleId}>Paste Card JSON</DialogTitle>
-            <DialogContent>
-              <Textarea
-                id={textareaId}
-                ref={jsonInputRef}
-                value={jsonInput}
-                onChange={(e) => setJsonInput(e.target.value)}
-                placeholder="Paste your card JSON here..."
-                className={classes.jsonTextarea}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button appearance="secondary" onClick={() => setIsDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button appearance="primary" onClick={handleSaveJson}>
-                Attach card
-              </Button>
-            </DialogActions>
-          </DialogBody>
-        </DialogSurface>
-      </Dialog>
-      <ToolbarDivider />
-      <Tooltip content="Send message" relationship="label">
-        <ToolbarButton
-          data-tid="send-button"
-          aria-label="Send message"
-          className={classes.toolbarButton}
-          onClick={handleSend}
-          icon={<Send tabIndex={-1} />}
-          disabled={!hasContent}
+        )}
+        <CancelEditDialog
+          isOpen={isConfirmCancelOpen}
+          onCancel={handleCancelDialogClose}
+          onDiscard={handleConfirmCancel}
         />
-      </Tooltip>
-    </Toolbar>
-  );
-};
+      </Toolbar>
+    );
+  }
+);
 
-export default memo(ComposeBoxToolbar);
+ComposeBoxToolbar.displayName = 'ComposeToolbar';
+export default ComposeBoxToolbar;

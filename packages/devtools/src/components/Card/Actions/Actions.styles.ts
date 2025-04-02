@@ -1,15 +1,15 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
-export const useExecuteActionCardClasses = makeStyles({
+const useActionCardStyles = makeStyles({
   button: {
     display: 'inline-flex',
-    padding: '0.25rem 0.75rem',
-    gap: '0.25rem',
+    padding: `${tokens.spacingVerticalXXS}, ${tokens.spacingHorizontalM}`,
+    gap: tokens.spacingHorizontalXXS,
     fontWeight: tokens.fontWeightSemibold,
   },
   positiveStyle: {
     backgroundColor: tokens.colorPaletteBlueBackground2,
-    border: `1px solid ${tokens.colorPaletteBlueBorderActive}`,
+    border: `${tokens.strokeWidthThin} solid ${tokens.colorPaletteBlueBorderActive}`,
     color: tokens.colorNeutralForegroundOnBrand,
     ':hover': {
       backgroundColor: tokens.colorPaletteRoyalBlueBorderActive,
@@ -17,22 +17,19 @@ export const useExecuteActionCardClasses = makeStyles({
   },
   destructiveStyle: {
     backgroundColor: tokens.colorPaletteRedBackground2,
-    border: `1px solid ${tokens.colorPaletteRedBorderActive}`,
+    border: `${tokens.strokeWidthThin} solid ${tokens.colorPaletteRedBorderActive}`,
     color: tokens.colorNeutralForeground1,
     ':hover': {
       backgroundColor: tokens.colorPaletteRedBackground3,
     },
   },
-});
-
-export const useOpenUrlActionCardClasses = makeStyles({
-  positiveStyle: {
+  openUrlPositiveStyle: {
     color: tokens.colorNeutralForegroundOnBrand,
     ':hover': {
       backgroundColor: tokens.colorPaletteRoyalBlueBorderActive,
     },
   },
-  destructiveStyle: {
+  openUrlDestructiveStyle: {
     color: tokens.colorNeutralForeground1,
     ':hover': {
       color: tokens.colorPaletteRedForeground2,
@@ -42,3 +39,5 @@ export const useOpenUrlActionCardClasses = makeStyles({
     },
   },
 });
+
+export default useActionCardStyles;

@@ -22,18 +22,19 @@ const ChatMessageContainer: FC<MessageProps> = memo(({ value, isConnected = fals
   const sendDirection = value.from?.user?.id === 'devtools' ? 'sent' : 'received';
   const ariaLabel = sendDirection === 'sent' ? 'Sent message at' : 'Received message at';
 
+  const messageRowClasses = mergeClasses(
+    classes.messageRow,
+    sendDirection === 'sent' ? classes.messageGroupSent : classes.messageGroupReceived
+  );
+
   return (
-    <article
-      id={`chat-message-row-${value.id}`}
-      className={mergeClasses(
-        classes.messageRow,
-        sendDirection === 'sent' ? classes.messageGroupSent : classes.messageGroupReceived
-      )}
-    >
+    <article id={`chat-message-row-${value.id}`} className={messageRowClasses}>
       <div className={classes.messageContainer}>
-        <div className={classes.badgeMessageContainer}>
-          {sendDirection === 'received' && <ChatAvatarWrapper isConnected={isConnected} />}
-          <div className={classes.timeMessageContainer}>
+        <div data-ed className={classes.badgeMessageContainer}>
+          {sendDirection === 'received' && (
+            <ChatAvatarWrapper id={`avatar-${value.id}`} isConnected={isConnected} />
+          )}
+          <div data-ed className={classes.timeMessageContainer}>
             {value.createdDateTime ? (
               <Tooltip
                 content={formatMessageTooltipTime(value.createdDateTime)}
@@ -51,9 +52,7 @@ const ChatMessageContainer: FC<MessageProps> = memo(({ value, isConnected = fals
                   {formatMessageTime(value.createdDateTime)}
                 </time>
               </Tooltip>
-            ) : (
-              <span className={classes.timestamp}>Timestamp unavailable</span>
-            )}
+            ) : null}
             {children}
           </div>
         </div>

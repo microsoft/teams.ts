@@ -3,9 +3,13 @@ description: devtools import rules
 globs: packages/devtools/, *.tsx, *.ts
 alwaysApply: true
 ---
-
-# Devtools import rules
-
+---
+description: Import rules in Spark
+globs: *.tsx, packages/devtools, *.ts
+alwaysApply: true
+---
+---
+The linter error "Import order needs to be fixed" can be quick resolved by running `npm run lint:fix`. See below for a summary of those rules.
 Sort imports using the convention shown below. See [App.tsx](mdc:packages/devtools/src/App.tsx) as an example. 
 `
 // imports from external packages are first, sorted alphabetically by package name, except react imports should always be the first import

@@ -1,6 +1,10 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
-const useClasses = makeStyles({
+const useChatScreenClasses = makeStyles({
+  flexRow: {
+    display: 'flex',
+    flexDirection: 'row',
+  },
   sideBar: {
     display: 'flex',
     flexDirection: 'column',
@@ -8,10 +12,15 @@ const useClasses = makeStyles({
     height: '100%',
     width: '11rem',
     backgroundColor: tokens.colorNeutralBackground1,
-    borderRight: `1px solid ${tokens.colorNeutralStencil1}`,
-    '@media (max-width: 700px)': {
+    borderRight: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStencil1}`,
+    '@media (max-width: 43.75rem)': {
       display: 'none',
     },
+  },
+  chatContainer: {
+    display: 'flex',
+    flexDirection: 'column-reverse',
+    minHeight: 0,
   },
   messagesList: {
     maxWidth: '65.125rem',
@@ -20,21 +29,30 @@ const useClasses = makeStyles({
     width: '100%',
     display: 'flex',
     flexDirection: 'column-reverse',
-    padding: '10px 0',
     flex: 1,
-    overflowY: 'auto',
+    '@media (max-width: 31rem)': {
+      minWidth: 'unset',
+      overflowX: 'hidden',
+    },
   },
   composeContainer: {
     backgroundColor: tokens.colorNeutralBackground3,
+    overflowX: 'hidden',
+    position: 'sticky',
+    bottom: 0,
+    width: '100%',
   },
   composeInner: {
     maxWidth: '65.125rem',
     minWidth: '31rem',
     margin: '0 auto',
+    '@media (max-width: 31rem)': {
+      minWidth: 'unset',
+    },
   },
   typingIndicator: {
-    height: '30px',
-    paddingLeft: '50px',
+    height: '1.875rem',
+    paddingLeft: '1.875rem',
   },
   bannerContainer: {
     backgroundColor: tokens.colorSubtleBackground,
@@ -42,4 +60,4 @@ const useClasses = makeStyles({
   },
 });
 
-export default useClasses;
+export default useChatScreenClasses;

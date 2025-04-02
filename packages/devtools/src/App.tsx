@@ -126,7 +126,7 @@ export default function App() {
             </main>
           </Body1>
         </BrowserRouter>
-        <Toaster />
+        <Toaster position="top" />
       </MetadataContext.Provider>
     </FluentProvider>
   );

@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { Button, Tooltip } from '@fluentui/react-components';
 import { IOpenUrlAction } from '@microsoft/spark.cards';
 
-import { useOpenUrlActionCardClasses } from './Actions.styles';
+import useActionCardStyles from './Actions.styles';
 
 export interface OpenUrlActionCardProps {
   readonly value: IOpenUrlAction;
@@ -21,14 +21,14 @@ const OpenUrlActionCard: FC<OpenUrlActionCardProps> = ({ value }) => {
 };
 
 const OpenUrlActionCardContent: FC<OpenUrlActionCardProps> = ({ value }) => {
-  const classes = useOpenUrlActionCardClasses();
+  const classes = useActionCardStyles();
 
   // Determine which style variant to use based on action style
   const styleVariant =
     value.style === 'positive'
-      ? classes.positiveStyle
+      ? classes.openUrlPositiveStyle
       : value.style === 'destructive'
-        ? classes.destructiveStyle
+        ? classes.openUrlDestructiveStyle
         : '';
 
   return (
@@ -42,5 +42,8 @@ const OpenUrlActionCardContent: FC<OpenUrlActionCardProps> = ({ value }) => {
     </Button>
   );
 };
+
+OpenUrlActionCard.displayName = 'OpenUrlActionCard';
+OpenUrlActionCardContent.displayName = 'OpenUrlActionCardContent';
 
 export default OpenUrlActionCard;

@@ -2,10 +2,8 @@ import { makeStyles } from '@fluentui/react-components';
 
 export const useCBToolbarClasses = makeStyles({
   toolbar: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-    margin: '0.5rem',
+    height: '100%',
+    marginRight: '0.25rem',
   },
   toolbarButton: {
     minWidth: '0',
@@ -13,8 +11,9 @@ export const useCBToolbarClasses = makeStyles({
     height: '2rem',
     padding: '0',
   },
+  // For dialog to paste JSON to be converted to a card
   jsonTextarea: {
-    minHeight: '250px',
+    minHeight: '15.625rem',
     height: '100%',
     overflowY: 'hidden',
     overflowX: 'hidden',

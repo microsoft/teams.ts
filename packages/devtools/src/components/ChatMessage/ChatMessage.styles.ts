@@ -1,6 +1,6 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
-export const useChatMessageStyles = makeStyles({
+const useChatMessageStyles = makeStyles({
   // Main container
   messageContainer: {
     display: 'flex',
@@ -45,11 +45,8 @@ export const useChatMessageStyles = makeStyles({
     display: 'block',
   },
   messageText: {
-    display: 'inline-block',
-    '& p': {
-      display: 'inline',
-      margin: 0,
-    },
+    display: 'block',
+    whiteSpace: 'pre-wrap',
   },
   messageDeleted: {
     fontStyle: 'italic',
@@ -105,7 +102,7 @@ export const useChatMessageStyles = makeStyles({
     backgroundColor: 'white',
     width: '0.25rem',
     height: '1rem',
-    marginLeft: '4px',
+    marginLeft: tokens.spacingHorizontalXXS,
     verticalAlign: 'text-bottom',
     animationName: {
       '0%, 100%': {
@@ -125,7 +122,7 @@ export const useChatMessageStyles = makeStyles({
     display: 'flex',
     flexDirection: 'row',
     visibility: 'hidden',
-    gap: '0.5rem',
+    gap: tokens.spacingHorizontalS,
   },
   reactionContainerSent: {
     justifyContent: 'flex-end',
@@ -148,7 +145,7 @@ export const useChatMessageStyles = makeStyles({
   },
   feedbackContainer: {
     display: 'flex',
-    gap: '0.5rem',
+    gap: tokens.spacingHorizontalS,
   },
 
   // Attachments
@@ -163,3 +160,5 @@ export const useChatMessageStyles = makeStyles({
     marginTop: tokens.spacingVerticalS,
   },
 });
+
+export default useChatMessageStyles;

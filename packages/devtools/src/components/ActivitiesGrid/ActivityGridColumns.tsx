@@ -134,4 +134,5 @@ const useActivityGridColumns = ({
   );
 };
 
+useActivityGridColumns.displayName = 'useActivityGridColumns';
 export default useActivityGridColumns;

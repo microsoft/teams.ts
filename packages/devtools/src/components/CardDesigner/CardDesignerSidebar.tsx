@@ -1,21 +1,21 @@
-import { useCallback, useState } from 'react';
+import { FC, memo, useCallback, useState } from 'react';
 import { Button, Title3 } from '@fluentui/react-components';
 import {
-  FluentIcon,
   AddFilled,
+  BadgeRegular,
+  CheckboxUncheckedRegular,
+  CodeRegular,
+  ColumnTripleRegular,
+  DocumentOnePageColumnsRegular,
+  FilmstripPlayRegular,
+  FluentIcon,
+  ImageRegular,
+  InfoRegular,
+  TableImageRegular,
+  TableLightningRegular,
   TableRegular,
   TextFontSizeRegular,
   TextWordCountRegular,
-  TableLightningRegular,
-  BadgeRegular,
-  CodeRegular,
-  ColumnTripleRegular,
-  CheckboxUncheckedRegular,
-  DocumentOnePageColumnsRegular,
-  InfoRegular,
-  ImageRegular,
-  TableImageRegular,
-  FilmstripPlayRegular,
 } from '@fluentui/react-icons/lib/fonts';
 import {
   ActionSet,
@@ -195,7 +195,7 @@ const groups: CardGroup[] = [
   },
 ];
 
-export default function CardDesignerSidebar({ onSelect }: CardDesignerSidebarProps) {
+const CardDesignerSidebar: FC<CardDesignerSidebarProps> = memo(({ onSelect }) => {
   const classes = useCardDesignerSidebarClasses();
   const [isClickDisabled, setIsClickDisabled] = useState(false);
 
@@ -241,4 +241,8 @@ export default function CardDesignerSidebar({ onSelect }: CardDesignerSidebarPro
       ))}
     </div>
   );
-}
+});
+
+CardDesignerSidebar.displayName = 'CardDesignerSidebar';
+
+export default CardDesignerSidebar;
