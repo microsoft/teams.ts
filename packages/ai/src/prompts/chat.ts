@@ -61,17 +61,17 @@ export type ChatPromptSendOptions<TOptions extends Record<string, any> = Record<
   readonly onChunk?: TextChunkHandler;
 };
 
-export type ChatPromptPlugin<N extends string, U extends {}> = {
+export type ChatPromptPlugin<TPluginName extends string, TPluginUseArgs extends {}> = {
   /**
    * Unique name of the plugin
    */
-  name: N;
+  name: TPluginName;
 
   /**
    * The function is set to initialize the plugin
    * @param args - Arguments to initialize the plugin
    */
-  usePlugin?: (args: U) => void;
+  usePlugin?: (args: TPluginUseArgs) => void;
 
   /**
    * Optionally passed in to modify the functions array that
@@ -129,9 +129,9 @@ export interface IChatPrompt<
   function(name: string, description: string, handler: FunctionHandler): this;
   function(name: string, description: string, parameters: Schema, handler: FunctionHandler): this;
 
-  usePlugin<K extends TChatPromptPlugins[number]['name']>(
-    name: K,
-    args: Extract<TChatPromptPlugins[number], { name: K }>['usePlugin'] extends (
+  usePlugin<TPluginName extends TChatPromptPlugins[number]['name']>(
+    name: TPluginName,
+    args: Extract<TChatPromptPlugins[number], { name: TPluginName }>['usePlugin'] extends (
       args: infer U
     ) => void
       ? U
