@@ -1,6 +1,7 @@
 import type { ChatPromptPlugin, Function, Schema } from '@microsoft/spark.ai';
 import { Client, ClientOptions } from '@modelcontextprotocol/sdk/client/index.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
+import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 
 export type McpClientPluginParams = {
   name: string;
@@ -12,6 +13,11 @@ export type McpClientPluginParams = {
  * A map of Mcp client params keyed off of their corresponding urls
  */
 export type McpClientPluginParamsCache = Record<string, McpClientPluginParams[]>;
+
+/**
+ * A function that creates a transport for the Mcp client
+ */
+export type CreateTransport = (url: string) => Transport;
 
 export type McpClientPluginOptions = ClientOptions & {
   /**
@@ -32,6 +38,12 @@ export type McpClientPluginOptions = ClientOptions & {
    * @default {}
    */
   readonly cache?: McpClientPluginParamsCache;
+
+  /**
+   * A function that creates a transport for the Mcp client
+   * @default (url) => new SSEClientTransport(url)
+   */
+  createTransport?: CreateTransport;
 };
 
 export interface McpClientPluginUseParams {
@@ -75,12 +87,22 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
 
   private readonly _mcpServerUrlsByParams: Record<string, McpClientPluginParams[] | undefined> = {};
 
+  private createTransport: CreateTransport;
+
   constructor(options?: McpClientPluginOptions) {
-    const { name: mcpClientName, version, cache, ...clientOptions } = options || {};
+    const {
+      name: mcpClientName,
+      version,
+      cache,
+      createTransport,
+      ...clientOptions
+    } = options || {};
     this._name = mcpClientName || 'mcpClient';
     this._version = version || '0.0.0';
     this._cache = cache || {};
     this._clientOptions = clientOptions;
+    this.createTransport =
+      createTransport ?? ((url: string) => new SSEClientTransport(new URL(url)));
   }
 
   usePlugin(args: { url: string; params?: McpClientPluginParams[] }) {
@@ -159,13 +181,16 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
         description: tool.description ?? '',
         schema: tool.inputSchema as Schema,
       }));
+    } catch (e) {
+      console.error(e);
+      throw e;
     } finally {
       await client.close();
     }
   }
 
   private makeMcpClientPlugin(serverUrl: string) {
-    const transport = new SSEClientTransport(new URL(serverUrl));
+    const transport = this.createTransport(serverUrl);
 
     const client = new Client(
       {
