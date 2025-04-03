@@ -1,12 +1,12 @@
 import { Function, FunctionHandler } from '../function';
 import { LocalMemory } from '../local-memory';
-import { IMcpClient, McpClientParams } from '../mcp';
 import { IMemory } from '../memory';
 import { ContentPart, Message, ModelMessage, SystemMessage, UserMessage } from '../message';
 import { IChatModel, TextChunkHandler } from '../models';
 import { Schema } from '../schema';
 import { ITemplate } from '../template';
 import { StringTemplate } from '../templates';
+import { WithRequired } from '../utils/types';
 
 export type ChatPromptOptions<TOptions extends Record<string, any> = Record<string, any>> = {
   /**
@@ -41,11 +41,6 @@ export type ChatPromptOptions<TOptions extends Record<string, any> = Record<stri
    * the conversation history
    */
   readonly messages?: Message[] | IMemory;
-
-  /**
-   * The Mcp client for handling Mcp server communication
-   */
-  readonly mcpClient?: IMcpClient;
 };
 
 export type ChatPromptSendOptions<TOptions extends Record<string, any> = Record<string, any>> = {
@@ -66,12 +61,36 @@ export type ChatPromptSendOptions<TOptions extends Record<string, any> = Record<
   readonly onChunk?: TextChunkHandler;
 };
 
+export type ChatPromptPlugin<N extends string, U extends {}> = {
+  /**
+   * Unique name of the plugin
+   */
+  name: N;
+
+  /**
+   * The function is set to initialize the plugin
+   * @param args - Arguments to initialize the plugin
+   */
+  usePlugin?: (args: U) => void;
+
+  /**
+   * Optionally passed in to modify the functions array that
+   * is passed to the model
+   * @param functions
+   * @returns Functions
+   */
+  onBuildFunctions?: (functions: Function[]) => Function[] | Promise<Function[]>;
+};
+
 /**
  * a prompt that can interface with a
  * chat model that provides utility like
  * streaming and function calling
  */
-export interface IChatPrompt<TOptions extends Record<string, any> = Record<string, any>> {
+export interface IChatPrompt<
+  TOptions extends Record<string, any> = Record<string, any>,
+  TChatPromptPlugins extends readonly ChatPromptPlugin<string, any>[] = [],
+> {
   /**
    * the prompt name
    */
@@ -93,6 +112,11 @@ export interface IChatPrompt<TOptions extends Record<string, any> = Record<strin
   readonly functions: Array<Function>;
 
   /**
+   * the chat model
+   */
+  plugins: TChatPromptPlugins;
+
+  /**
    * add another chat prompt as a
    */
   use(prompt: IChatPrompt): this;
@@ -105,8 +129,14 @@ export interface IChatPrompt<TOptions extends Record<string, any> = Record<strin
   function(name: string, description: string, handler: FunctionHandler): this;
   function(name: string, description: string, parameters: Schema, handler: FunctionHandler): this;
 
-  mcp(url: string): this;
-  mcp(url: string, params?: McpClientParams[]): this;
+  usePlugin<K extends TChatPromptPlugins[number]['name']>(
+    name: K,
+    args: Extract<TChatPromptPlugins[number], { name: K }>['usePlugin'] extends (
+      args: infer U
+    ) => void
+      ? U
+      : never
+  ): this;
 
   /**
    * call a function
@@ -127,8 +157,10 @@ export interface IChatPrompt<TOptions extends Record<string, any> = Record<strin
  * chat model that provides utility like
  * streaming and function calling
  */
-export class ChatPrompt<TOptions extends Record<string, any> = Record<string, any>>
-  implements IChatPrompt<TOptions>
+export class ChatPrompt<
+  TOptions extends Record<string, any> = Record<string, any>,
+  TChatPromptPlugins extends readonly ChatPromptPlugin<string, any>[] = [],
+> implements IChatPrompt<TOptions, TChatPromptPlugins>
 {
   get name() {
     return this._name;
@@ -150,19 +182,20 @@ export class ChatPrompt<TOptions extends Record<string, any> = Record<string, an
   }
   protected readonly _functions: Record<string, Function> = {};
 
+  get plugins() {
+    return this._plugins;
+  }
+  protected readonly _plugins: TChatPromptPlugins;
+
   protected readonly _role: 'system' | 'user';
   protected readonly _template: ITemplate;
   protected readonly _model: IChatModel<TOptions>;
 
-  protected readonly _mcpClient?: IMcpClient;
-  protected readonly _mcpFunctions: Record<string, McpClientParams[] | undefined> = {};
-
-  constructor(options: ChatPromptOptions<TOptions>) {
+  constructor(options: ChatPromptOptions<TOptions>, plugins?: TChatPromptPlugins) {
     this._name = options.name || 'chat';
     this._description = options.description || 'an agent you can chat with';
     this._role = options.role || 'system';
     this._model = options.model;
-    this._mcpClient = options.mcpClient;
     this._template = Array.isArray(options.instructions)
       ? new StringTemplate(options.instructions.join('\n'))
       : typeof options.instructions !== 'object'
@@ -173,6 +206,8 @@ export class ChatPrompt<TOptions extends Record<string, any> = Record<string, an
       typeof options.messages === 'object' && !Array.isArray(options.messages)
         ? options.messages
         : new LocalMemory({ messages: options.messages || [] });
+
+    this._plugins = plugins || ([] as unknown as TChatPromptPlugins);
   }
 
   use(prompt: ChatPrompt): this;
@@ -218,14 +253,22 @@ export class ChatPrompt<TOptions extends Record<string, any> = Record<string, an
     return this;
   }
 
-  mcp(url: string, params?: McpClientParams[]): this {
-    if (!this._mcpClient) {
-      throw new Error(
-        'McpClient not provided. Pass mcpClient in ChatPrompt options to use Mcp features.'
-      );
+  usePlugin<K extends TChatPromptPlugins[number]['name']>(
+    name: K,
+    args: Extract<TChatPromptPlugins[number], { name: K }>['usePlugin'] extends (
+      args: infer U
+    ) => void
+      ? U
+      : never
+  ): this {
+    const plugin = this._plugins.find((p) => p.name === name);
+    if (!plugin) {
+      throw new Error(`Plugin "${name}" not found`);
     }
 
-    this._mcpFunctions[url] = params;
+    if (plugin.usePlugin) {
+      plugin.usePlugin(args);
+    }
 
     return this;
   }
@@ -262,20 +305,22 @@ export class ChatPrompt<TOptions extends Record<string, any> = Record<string, an
       };
     }
 
-    const fnsCopy = { ...this._functions };
-    if (this._mcpClient) {
-      const args = Object.entries(this._mcpFunctions).map(([url, params]) => ({
-        url,
-        params,
-      }));
-
-      if (args.length > 0) {
-        const functions = await this._mcpClient.buildFunctions(args);
-        functions.forEach((fn) => {
-          fnsCopy[fn.name] = fn;
-        });
-      }
+    let functions = Object.values(this._functions);
+    const pluginsWithOnBuildFunctions = this._plugins.filter(
+      (plugin): plugin is WithRequired<TChatPromptPlugins[number], 'onBuildFunctions'> =>
+        plugin.onBuildFunctions != null
+    );
+    for (const plugin of pluginsWithOnBuildFunctions) {
+      functions = await plugin.onBuildFunctions(functions);
     }
+
+    const fnMap = functions.reduce(
+      (acc, fn) => {
+        acc[fn.name] = fn;
+        return acc;
+      },
+      {} as Record<string, Function>
+    );
 
     const res = await this._model.send(
       {
@@ -286,7 +331,7 @@ export class ChatPrompt<TOptions extends Record<string, any> = Record<string, an
         system,
         messages,
         request: options.request,
-        functions: fnsCopy,
+        functions: fnMap,
         onChunk: async (chunk) => {
           if (!chunk || !onChunk) return;
           buffer += chunk;

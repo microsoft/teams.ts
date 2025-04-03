@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "manifestVersion": "1.15",
   "id": "${{TEAMS_APP_ID}}",
-  "packageName": "com.package.mcpclient",
+  "packageName": "com.package.mcpclientplugin",
   "name": {
-    "short": "mcpclient-${{APP_NAME_SUFFIX}}",
-    "full": "Mcpclient"
+    "short": "mcpclientplugin-${{APP_NAME_SUFFIX}}",
+    "full": "McpclientPlugin"
   },
   "developer": {
     "name": "Microsoft",
@@ -44,10 +44,7 @@
       "supportsFiles": false
     }
   ],
-  "validDomains": [
-    "${{BOT_DOMAIN}}",
-    "*.botframework.com"
-  ],
+  "validDomains": ["${{BOT_DOMAIN}}", "*.botframework.com"],
   "webApplicationInfo": {
     "id": "${{BOT_ID}}",
     "resource": "api://botid-${{BOT_ID}}"

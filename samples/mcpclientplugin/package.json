@@ -1,5 +1,5 @@
 {
-  "name": "@samples/mcpclient",
+  "name": "@samples/mcpclientplugin",
   "version": "0.0.0",
   "license": "MIT",
   "private": true,
@@ -20,7 +20,7 @@
     "@microsoft/spark.ai": "*",
     "@microsoft/spark.dev": "*",
     "@microsoft/spark.openai": "*",
-    "@microsoft/spark.mcpclient": "*",
+    "@microsoft/spark.mcpclientplugin": "*",
     "@modelcontextprotocol/sdk": "1.5.0"
   },
   "devDependencies": {
