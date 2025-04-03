@@ -131,9 +131,9 @@ export interface IChatPrompt<
 
   usePlugin<TPluginName extends TChatPromptPlugins[number]['name']>(
     name: TPluginName,
-    args: Extract<TChatPromptPlugins[number], { name: TPluginName }>['usePlugin'] extends (
-      args: infer U
-    ) => void
+    args: Extract<TChatPromptPlugins[number], { name: TPluginName }>['usePlugin'] extends
+      | ((args: infer U) => void)
+      | undefined
       ? U
       : never
   ): this;
@@ -255,9 +255,9 @@ export class ChatPrompt<
 
   usePlugin<K extends TChatPromptPlugins[number]['name']>(
     name: K,
-    args: Extract<TChatPromptPlugins[number], { name: K }>['usePlugin'] extends (
-      args: infer U
-    ) => void
+    args: Extract<TChatPromptPlugins[number], { name: K }>['usePlugin'] extends
+      | ((args: infer U) => void)
+      | undefined
       ? U
       : never
   ): this {
