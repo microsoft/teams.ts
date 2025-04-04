@@ -12,7 +12,7 @@ type TestPluginArgs = { value: string };
 
 const mockPlugin: ChatPromptPlugin<'test', TestPluginArgs> = {
   name: 'test',
-  usePlugin: jest.fn(),
+  onUsePlugin: jest.fn(),
   onBuildFunctions: jest.fn().mockImplementation((functions) => [
     ...functions,
     {
@@ -89,7 +89,7 @@ describe('ChatPrompt', () => {
 
   describe('plugin system', () => {
     it('should use plugin', () => {
-      const mockUsePlugin = mockPlugin.usePlugin as jest.Mock;
+      const mockUsePlugin = mockPlugin.onUsePlugin as jest.Mock;
       chatPrompt.usePlugin('test', { value: 'test' });
       expect(mockUsePlugin).toHaveBeenCalledWith({ value: 'test' });
     });
