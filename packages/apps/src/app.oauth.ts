@@ -1,50 +1,26 @@
 import {
-  IActivity,
   ISignInTokenExchangeInvokeActivity,
   ISignInVerifyStateInvokeActivity,
   TokenExchangeInvokeResponse,
 } from '@microsoft/spark.api';
 import * as graph from '@microsoft/spark.graph';
 import { AxiosError } from 'axios';
-
-import { IStorage } from '@microsoft/spark.common';
 import { App } from './app';
 import * as contexts from './contexts';
-
-function buildOauthFlowKey(conversationId: string, userId: string): string {
-  return `auth/${conversationId}/${userId}`;
-}
-
-export async function saveOauthFlowState(
-  storage: IStorage,
-  activity: IActivity,
-  connectionName: string
-) {
-  const key = buildOauthFlowKey(activity.conversation.id, activity.from.id);
-  await storage.set(key, connectionName);
-}
-
-export async function getOauthFlowState(
-  storage: IStorage,
-  activity: IActivity
-): Promise<string | undefined> {
-  const key = buildOauthFlowKey(activity.conversation.id, activity.from.id);
-  return await storage.get(key);
-}
-
-export async function deleteOauthFlowState(storage: IStorage, activity: IActivity): Promise<void> {
-  const key = buildOauthFlowKey(activity.conversation.id, activity.from.id);
-  await storage.delete(key);
-}
 
 export async function onTokenExchange(
   this: App,
   ctx: contexts.IActivityContext<ISignInTokenExchangeInvokeActivity>
 ) {
-  const { api, activity, storage } = ctx;
+  const { api, activity, log } = ctx;
+
+  if (this.defaultConnectionName !== activity.value.connectionName) {
+    log.warn(
+      `default connection name "${this.defaultConnectionName}" does not match activity connection name "${activity.value.connectionName}"`
+    );
+  }
 
   try {
-    await saveOauthFlowState(storage, activity, activity.value.connectionName);
     const token = await api.users.token.exchange({
       channelId: activity.channelId,
       userId: activity.from.id,
@@ -85,12 +61,10 @@ export async function onVerifyState(
   this: App,
   ctx: contexts.IActivityContext<ISignInVerifyStateInvokeActivity>
 ) {
-  const { log, api, activity, storage } = ctx;
+  const { log, api, activity } = ctx;
 
   try {
-    const connectionName: string | undefined = await getOauthFlowState(storage, activity);
-
-    if (!connectionName || !activity.value.state) {
+    if (!activity.value.state) {
       log.warn(
         `auth state not found for conversation "${activity.conversation.id}" and user "${activity.from.id}"`
       );
@@ -100,7 +74,7 @@ export async function onVerifyState(
     const token = await api.users.token.get({
       channelId: activity.channelId,
       userId: activity.from.id,
-      connectionName,
+      connectionName: this.defaultConnectionName,
       code: activity.value.state,
     });
 
@@ -110,7 +84,6 @@ export async function onVerifyState(
       })
     );
 
-    await deleteOauthFlowState(storage, activity);
     this.events.emit('signin', { ...ctx, token });
     return { status: 200 };
   } catch (error) {

@@ -1,10 +1,10 @@
 import { ActivityLike, ConversationReference, isInvokeResponse } from '@microsoft/spark.api';
 
-import { App } from './app';
 import { ApiClient } from './api';
-import { ISender } from './types';
+import { App } from './app';
 import { ActivityContext, IActivityContext } from './contexts';
 import { IActivityEvent } from './events';
+import { ISender } from './types';
 
 /**
  * activity handler called when an inbound activity is received
@@ -113,6 +113,7 @@ export async function $process(this: App, sender: ISender, event: IActivityEvent
     ref,
     storage: this.storage,
     isSignedIn: !!userToken,
+    connectionName: this.defaultConnectionName,
   });
 
   if (routes.length === 0) {
