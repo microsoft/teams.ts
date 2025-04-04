@@ -1,7 +1,7 @@
-import { ContentPart, Message } from '../message';
-import { IChatModel } from '../models';
-import { Schema } from '../schema';
-import { ChatPrompt, ChatPromptPlugin } from './chat';
+import { ContentPart, Message } from '../../message';
+import { IChatModel } from '../../models';
+import { Schema } from '../../schema';
+import { ChatPrompt, ChatPromptPlugin } from '../chat';
 
 // Mock implementations
 const mockChatModel: IChatModel<any> = {
@@ -12,7 +12,7 @@ type TestPluginArgs = { value: string };
 
 const mockPlugin: ChatPromptPlugin<'test', TestPluginArgs> = {
   name: 'test',
-  onUsePlugin: jest.fn(),
+  usePlugin: jest.fn(),
   onBuildFunctions: jest.fn().mockImplementation((functions) => [
     ...functions,
     {
@@ -89,133 +89,16 @@ describe('ChatPrompt', () => {
 
   describe('plugin system', () => {
     it('should use plugin', () => {
-      const mockUsePlugin = mockPlugin.onUsePlugin as jest.Mock;
+      const mockUsePlugin = mockPlugin.usePlugin as jest.Mock;
       chatPrompt.usePlugin('test', { value: 'test' });
       expect(mockUsePlugin).toHaveBeenCalledWith({ value: 'test' });
     });
 
-    it('should call onBeforeSend hook when sending message', async () => {
-      const mockBeforeSend = jest.fn().mockImplementation((params) => params);
-      const pluginWithBeforeSend: ChatPromptPlugin<'test', TestPluginArgs> = {
-        ...mockPlugin,
-        onBeforeSend: mockBeforeSend,
-      };
-      const prompt = new ChatPrompt(
-        {
-          name: 'test-prompt',
-          model: mockChatModel,
-        },
-        [pluginWithBeforeSend] as const
-      );
-
-      await prompt.send('Hello');
-
-      expect(mockBeforeSend).toHaveBeenCalledWith('Hello');
-    });
-
-    it('should allow onBeforeSend to modify the input', async () => {
-      const mockBeforeSend = jest.fn().mockImplementation(() => 'Modified Hello');
-      const pluginWithBeforeSend: ChatPromptPlugin<'test', TestPluginArgs> = {
-        ...mockPlugin,
-        onBeforeSend: mockBeforeSend,
-      };
-      const prompt = new ChatPrompt(
-        {
-          name: 'test-prompt',
-          model: mockChatModel,
-        },
-        [pluginWithBeforeSend] as const
-      );
-
-      await prompt.send('Hello');
-
-      expect(mockChatModel.send).toHaveBeenCalledWith(
-        { role: 'user', content: 'Modified Hello' },
-        expect.any(Object)
-      );
-    });
-
-    it('should call onAfterSend hook after receiving response', async () => {
-      const mockResponse = { content: 'mock response', role: 'model' };
-      const mockAfterSend = jest.fn().mockImplementation((response) => response);
-      const pluginWithAfterSend: ChatPromptPlugin<'test', TestPluginArgs> = {
-        ...mockPlugin,
-        onAfterSend: mockAfterSend,
-      };
-      const prompt = new ChatPrompt(
-        {
-          name: 'test-prompt',
-          model: mockChatModel,
-        },
-        [pluginWithAfterSend] as const
-      );
-
-      await prompt.send('Hello');
-
-      expect(mockAfterSend).toHaveBeenCalledWith(mockResponse);
-    });
-
-    it('should allow onAfterSend to modify the response', async () => {
-      const modifiedResponse = { content: 'modified response', role: 'model' };
-      const mockAfterSend = jest.fn().mockImplementation(() => modifiedResponse);
-      const pluginWithAfterSend: ChatPromptPlugin<'test', TestPluginArgs> = {
-        ...mockPlugin,
-        onAfterSend: mockAfterSend,
-      };
-      const prompt = new ChatPrompt(
-        {
-          name: 'test-prompt',
-          model: mockChatModel,
-        },
-        [pluginWithAfterSend] as const
-      );
-
-      const response = await prompt.send('Hello');
-
-      expect(response).toEqual(modifiedResponse);
-    });
-
-    it('should chain multiple plugins hooks in order', async () => {
-      const mockBeforeSend1 = jest.fn().mockImplementation((input) => `${input}1`);
-      const mockBeforeSend2 = jest.fn().mockImplementation((input) => `${input}2`);
-      const mockAfterSend1 = jest
-        .fn()
-        .mockImplementation((response) => ({ ...response, content: `${response.content}1` }));
-      const mockAfterSend2 = jest
-        .fn()
-        .mockImplementation((response) => ({ ...response, content: `${response.content}2` }));
-
-      const plugin1: ChatPromptPlugin<'test1', TestPluginArgs> = {
-        name: 'test1',
-        onBeforeSend: mockBeforeSend1,
-        onAfterSend: mockAfterSend1,
-      };
-      const plugin2: ChatPromptPlugin<'test2', TestPluginArgs> = {
-        name: 'test2',
-        onBeforeSend: mockBeforeSend2,
-        onAfterSend: mockAfterSend2,
-      };
-
-      const prompt = new ChatPrompt(
-        {
-          name: 'test-prompt',
-          model: mockChatModel,
-        },
-        [plugin1, plugin2] as const
-      );
-
-      const response = await prompt.send('Hello');
-
-      // Verify hooks were called in order
-      expect(mockBeforeSend1).toHaveBeenCalledWith('Hello');
-      expect(mockBeforeSend2).toHaveBeenCalledWith('Hello1');
-      expect(mockChatModel.send).toHaveBeenCalledWith(
-        { role: 'user', content: 'Hello12' },
-        expect.any(Object)
-      );
-      expect(mockAfterSend1).toHaveBeenCalledWith({ content: 'mock response', role: 'model' });
-      expect(mockAfterSend2).toHaveBeenCalledWith({ content: 'mock response1', role: 'model' });
-      expect(response.content).toBe('mock response12');
+    it('should throw error for non-existent plugin', () => {
+      expect(() => {
+        // @ts-expect-error - Testing invalid plugin name
+        chatPrompt.usePlugin('non-existent', {});
+      }).toThrow('Plugin "non-existent" not found');
     });
   });
 

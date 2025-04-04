@@ -7,6 +7,7 @@ import { Schema } from '../schema';
 import { ITemplate } from '../template';
 import { StringTemplate } from '../templates';
 import { WithRequired } from '../utils/types';
+import { IAiPlugin } from './plugin';
 
 export type ChatPromptOptions<TOptions extends Record<string, any> = Record<string, any>> = {
   /**
@@ -61,27 +62,6 @@ export type ChatPromptSendOptions<TOptions extends Record<string, any> = Record<
   readonly onChunk?: TextChunkHandler;
 };
 
-export type ChatPromptPlugin<TPluginName extends string, TPluginUseArgs extends {}> = {
-  /**
-   * Unique name of the plugin
-   */
-  name: TPluginName;
-
-  /**
-   * The function is set to initialize the plugin
-   * @param args - Arguments to initialize the plugin
-   */
-  usePlugin?: (args: TPluginUseArgs) => void;
-
-  /**
-   * Optionally passed in to modify the functions array that
-   * is passed to the model
-   * @param functions
-   * @returns Functions
-   */
-  onBuildFunctions?: (functions: Function[]) => Function[] | Promise<Function[]>;
-};
-
 /**
  * a prompt that can interface with a
  * chat model that provides utility like
@@ -131,7 +111,7 @@ export interface IChatPrompt<
 
   usePlugin<TPluginName extends TChatPromptPlugins[number]['name']>(
     name: TPluginName,
-    args: Extract<TChatPromptPlugins[number], { name: TPluginName }>['usePlugin'] extends
+    args: Extract<TChatPromptPlugins[number], { name: TPluginName }>['onUsePlugin'] extends
       | ((args: infer U) => void)
       | undefined
       ? U
@@ -151,6 +131,21 @@ export interface IChatPrompt<
     options?: ChatPromptSendOptions<TOptions>
   ): Promise<Pick<ModelMessage, 'content'> & Omit<ModelMessage, 'content'>>;
 }
+
+export type ChatPromptPlugin<TPluginName extends string, TPluginUseArgs extends {}> = IAiPlugin<
+  TPluginName,
+  TPluginUseArgs,
+  Parameters<IChatPrompt['send']>[0],
+  ReturnType<IChatPrompt['send']>
+> & {
+  /**
+   * Optionally passed in to modify the functions array that
+   * is passed to the model
+   * @param functions
+   * @returns Functions
+   */
+  onBuildFunctions?: (functions: Function[]) => Function[] | Promise<Function[]>;
+};
 
 /**
  * a prompt that can interface with a
@@ -255,7 +250,7 @@ export class ChatPrompt<
 
   usePlugin<K extends TChatPromptPlugins[number]['name']>(
     name: K,
-    args: Extract<TChatPromptPlugins[number], { name: K }>['usePlugin'] extends
+    args: Extract<TChatPromptPlugins[number], { name: K }>['onUsePlugin'] extends
       | ((args: infer U) => void)
       | undefined
       ? U
@@ -266,8 +261,8 @@ export class ChatPrompt<
       throw new Error(`Plugin "${name}" not found`);
     }
 
-    if (plugin.usePlugin) {
-      plugin.usePlugin(args);
+    if (plugin.onUsePlugin) {
+      plugin.onUsePlugin(args);
     }
 
     return this;
@@ -283,7 +278,16 @@ export class ChatPrompt<
     return await fn.handler(args || {});
   }
 
-  async send(input: string | ContentPart[], options: ChatPromptSendOptions<TOptions> = {}) {
+  async send(
+    input: string | ContentPart[],
+    options: ChatPromptSendOptions<TOptions> = {}
+  ): Promise<Pick<ModelMessage, 'content'> & Omit<ModelMessage, 'content'>> {
+    for (const plugin of this.plugins) {
+      if (plugin.onBeforeSend) {
+        input = await plugin.onBeforeSend(input);
+      }
+    }
+
     const { onChunk } = options;
 
     if (typeof input === 'string') {
@@ -346,6 +350,16 @@ export class ChatPrompt<
       }
     );
 
-    return { ...res, content: res.content || '' };
+    let output: Pick<ModelMessage, 'content'> & Omit<ModelMessage, 'content'> = {
+      ...res,
+      content: res.content || '',
+    };
+    for (const plugin of this.plugins) {
+      if (plugin.onAfterSend) {
+        output = await plugin.onAfterSend(output);
+      }
+    }
+
+    return output;
   }
 }
