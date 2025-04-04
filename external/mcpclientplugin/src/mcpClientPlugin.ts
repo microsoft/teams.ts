@@ -105,7 +105,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
       createTransport ?? ((url: string) => new SSEClientTransport(new URL(url)));
   }
 
-  usePlugin(args: { url: string; params?: McpClientPluginParams[] }) {
+  onUsePlugin(args: { url: string; params?: McpClientPluginParams[] }) {
     this._mcpServerUrlsByParams[args.url] = args.params;
   }
 
