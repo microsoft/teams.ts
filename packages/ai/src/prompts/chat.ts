@@ -349,7 +349,7 @@ export class ChatPrompt<
 
     let output: Awaited<ReturnType<typeof this._model.send>> = {
       ...res,
-      content: res.content,
+      content: res.content || '',
     };
     for (const plugin of this.plugins) {
       if (plugin.onAfterSend) {
