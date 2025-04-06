@@ -23,7 +23,9 @@ app.on('message', async ({ send, activity }) => {
   await send({ type: 'typing' });
 
   const result = await prompt.send(activity.text);
-  await send(result.content);
+  if (result.content) {
+    await send(result.content);
+  }
 });
 
 (async () => {
