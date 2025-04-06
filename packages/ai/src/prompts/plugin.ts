@@ -1,5 +1,3 @@
-type BaseResult<T> = T extends PromiseLike<infer U> ? U : T;
-
 export interface IAiPlugin<
   TPluginName extends string = string,
   TPluginUseArgs extends {} = {},
@@ -31,6 +29,6 @@ export interface IAiPlugin<
    * @returns the modified output result of the send function
    */
   onAfterSend?: (
-    response: BaseResult<TAfterSendResponse>
-  ) => BaseResult<TAfterSendResponse> | Promise<BaseResult<TAfterSendResponse>>;
+    response: Awaited<TAfterSendResponse>
+  ) => Awaited<TAfterSendResponse> | Promise<Awaited<TAfterSendResponse>>;
 }

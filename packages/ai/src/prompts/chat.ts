@@ -129,7 +129,7 @@ export interface IChatPrompt<
   send(
     input: string | ContentPart[],
     options?: ChatPromptSendOptions<TOptions>
-  ): Promise<Pick<ModelMessage, 'content'> & Omit<ModelMessage, 'content'> & { content: string }>;
+  ): Promise<Pick<ModelMessage, 'content'> & Omit<ModelMessage, 'content'>>;
 }
 
 export type ChatPromptPlugin<TPluginName extends string, TPluginUseArgs extends {}> = IAiPlugin<
@@ -278,10 +278,7 @@ export class ChatPrompt<
     return await fn.handler(args || {});
   }
 
-  async send(
-    input: string | ContentPart[],
-    options: ChatPromptSendOptions<TOptions> = {}
-  ): Promise<Pick<ModelMessage, 'content'> & Omit<ModelMessage, 'content'> & { content: string }> {
+  async send(input: string | ContentPart[], options: ChatPromptSendOptions<TOptions> = {}) {
     for (const plugin of this.plugins) {
       if (plugin.onBeforeSend) {
         input = await plugin.onBeforeSend(input);
@@ -350,10 +347,9 @@ export class ChatPrompt<
       }
     );
 
-    let output: Pick<ModelMessage, 'content'> &
-      Omit<ModelMessage, 'content'> & { content: string } = {
+    let output: Awaited<ReturnType<typeof this._model.send>> = {
       ...res,
-      content: res.content || '',
+      content: res.content,
     };
     for (const plugin of this.plugins) {
       if (plugin.onAfterSend) {
