@@ -1,7 +1,7 @@
 import { ChatPrompt } from '@microsoft/spark.ai';
 import { App } from '@microsoft/spark.apps';
 import { DevtoolsPlugin } from '@microsoft/spark.dev';
-import { McpClientPlugin } from '@microsoft/spark.mcpclientplugin';
+import { McpClientPlugin } from '@microsoft/spark.mcpclient';
 import { OpenAIChatModel } from '@microsoft/spark.openai';
 
 const app = new App({

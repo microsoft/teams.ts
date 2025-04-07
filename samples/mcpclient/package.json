@@ -1,5 +1,5 @@
 {
-  "name": "@samples/mcpclientplugin",
+  "name": "@samples/mcpclient",
   "version": "0.0.0",
   "license": "MIT",
   "private": true,
@@ -11,8 +11,8 @@
   ],
   "scripts": {
     "clean": "npx rimraf ./dist",
-    "build": "npx tsup",
-    "start": "node .",
+    "build": "npx tsc",
+    "start": "node -r dotenv/config .",
     "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\""
   },
   "dependencies": {
@@ -20,8 +20,8 @@
     "@microsoft/spark.ai": "*",
     "@microsoft/spark.dev": "*",
     "@microsoft/spark.openai": "*",
-    "@microsoft/spark.mcpclientplugin": "*",
-    "@modelcontextprotocol/sdk": "1.5.0"
+    "@microsoft/spark.mcpclient": "*",
+    "@modelcontextprotocol/sdk": "^1.9.0"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",
@@ -29,7 +29,6 @@
     "nodemon": "^3.1.4",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
-    "tsup": "^8.4.0",
     "typescript": "^5.4.5"
   }
 }

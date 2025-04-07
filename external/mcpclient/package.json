@@ -1,5 +1,5 @@
 {
-  "name": "@microsoft/spark.mcpclientplugin",
+  "name": "@microsoft/spark.mcpclient",
   "version": "0.1.0",
   "license": "MIT",
   "main": "./dist/index.js",
@@ -27,7 +27,7 @@
     "test": "npx jest"
   },
   "peerDependencies": {
-    "@modelcontextprotocol/sdk": "1.5.0",
+    "@modelcontextprotocol/sdk": "^1.9.0",
     "@microsoft/spark.ai": "*"
   },
   "devDependencies": {
