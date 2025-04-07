@@ -1,11 +1,10 @@
-import { AxiosError } from 'axios';
 import {
   ISignInTokenExchangeInvokeActivity,
   ISignInVerifyStateInvokeActivity,
   TokenExchangeInvokeResponse,
 } from '@microsoft/spark.api';
 import * as graph from '@microsoft/spark.graph';
-
+import { AxiosError } from 'axios';
 import { App } from './app';
 import * as contexts from './contexts';
 
@@ -13,11 +12,15 @@ export async function onTokenExchange(
   this: App,
   ctx: contexts.IActivityContext<ISignInTokenExchangeInvokeActivity>
 ) {
-  const { api, activity, storage } = ctx;
-  const key = `auth/${activity.conversation.id}/${activity.from.id}`;
+  const { api, activity, log } = ctx;
+
+  if (this.oauth.defaultConnectionName !== activity.value.connectionName) {
+    log.warn(
+      `default connection name "${this.oauth.defaultConnectionName}" does not match activity connection name "${activity.value.connectionName}"`
+    );
+  }
 
   try {
-    await storage.set(key, activity.value.connectionName);
     const token = await api.users.token.exchange({
       channelId: activity.channelId,
       userId: activity.from.id,
@@ -58,13 +61,10 @@ export async function onVerifyState(
   this: App,
   ctx: contexts.IActivityContext<ISignInVerifyStateInvokeActivity>
 ) {
-  const { log, api, activity, storage } = ctx;
-  const key = `auth/${activity.conversation.id}/${activity.from.id}`;
+  const { log, api, activity } = ctx;
 
   try {
-    const connectionName: string | undefined = await storage.get(key);
-
-    if (!connectionName || !activity.value.state) {
+    if (!activity.value.state) {
       log.warn(
         `auth state not found for conversation "${activity.conversation.id}" and user "${activity.from.id}"`
       );
@@ -74,7 +74,7 @@ export async function onVerifyState(
     const token = await api.users.token.get({
       channelId: activity.channelId,
       userId: activity.from.id,
-      connectionName,
+      connectionName: this.oauth.defaultConnectionName,
       code: activity.value.state,
     });
 
@@ -84,7 +84,6 @@ export async function onVerifyState(
       })
     );
 
-    await storage.delete(key);
     this.events.emit('signin', { ...ctx, token });
     return { status: 200 };
   } catch (error) {
