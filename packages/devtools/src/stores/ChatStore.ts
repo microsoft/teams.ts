@@ -16,6 +16,65 @@ import { ActivityEvent } from '../types/Event';
 const typingTimers: Record<string, NodeJS.Timeout> = {};
 const streamingTimers: Record<string, NodeJS.Timeout> = {};
 
+const DEFAULT_TIMER_DURATION = 3000;
+
+interface MessageBase {
+  id: string;
+  replyToId?: string;
+  messageType: 'message';
+  body: {
+    content: string;
+    contentType: 'text';
+    textContent: string;
+  };
+  from: {
+    conversation: {
+      id: string;
+      displayName: string;
+    };
+    user?: {
+      id: string;
+      displayName: string;
+    };
+  };
+  createdDateTime: string;
+}
+
+const createMessageBase = (event: ActivityEvent<any>): MessageBase => ({
+  id: event.body.id,
+  replyToId: event.body.replyToId,
+  messageType: 'message',
+  body: {
+    content: event.body.text,
+    contentType: 'text',
+    textContent: event.body.text,
+  },
+  from: {
+    conversation: {
+      id: event.body.conversation.id,
+      displayName: event.body.conversation.name,
+    },
+    user: event.body.from
+      ? {
+          id: event.body.from.id,
+          displayName: event.body.from.name,
+        }
+      : undefined,
+  },
+  createdDateTime: (event.body.timestamp || new Date()).toUTCString(),
+});
+
+const getFeedbackState = (event: ActivityEvent<any>) => ({
+  feedbackLoopEnabled: event.type === 'activity.sent' ? (event.body.channelData?.feedbackLoopEnabled ?? true) : false
+});
+
+const clearTimer = (timers: Record<string, NodeJS.Timeout>, id: string) => {
+  if (timers[id]) {
+    clearInterval(timers[id]);
+    delete timers[id];
+  }
+};
+
 export interface ChatStore {
   readonly chat: Chat;
   readonly messages: Record<string, Array<Message>>;
@@ -132,45 +191,42 @@ export const useChatStore = create<ChatStore>()(
         }),
       onActivity: (event: ActivityEvent) =>
         set((state) => {
-          if (event.type !== 'activity.received' && event.type !== 'activity.sent') return state;
-
-          if (event.body.channelData?.feedbackLoopEnabled) {
-            state.feedback[event.body.id] = true;
-          } else {
-            state.feedback[event.body.id] = false;
+          if (event.type !== 'activity.received' && event.type !== 'activity.sent') {
+            return state;
           }
+
+          const newState = {
+            ...state,
+            feedback: {
+              ...state.feedback,
+              [event.body.id]: getFeedbackState(event).feedbackLoopEnabled,
+            },
+          };
 
           switch (event.body.type) {
             case 'typing':
-              return state.onTypingActivity({ ...event, body: event.body }, state);
+              return state.onTypingActivity({ ...event, body: event.body }, newState);
             case 'message':
             case 'messageUpdate':
             case 'messageReaction':
             case 'messageDelete':
-              return state.onMessageActivity({ ...event, body: event.body }, state);
+              return state.onMessageActivity({ ...event, body: event.body }, newState);
           }
 
-          return { ...state };
+          return newState;
         }),
       onTypingActivity: (event, state) => {
-        if (typingTimers[event.chat.id]) {
-          clearInterval(typingTimers[event.chat.id]);
-          delete typingTimers[event.chat.id];
-        }
+        clearTimer(typingTimers, event.chat.id);
 
         typingTimers[event.chat.id] = setTimeout(() => {
-          if (typingTimers[event.chat.id]) {
-            clearInterval(typingTimers[event.chat.id]);
-            delete typingTimers[event.chat.id];
-          }
-
+          clearTimer(typingTimers, event.chat.id);
           state.typing[event.chat.id] = false;
 
           set((state) => ({
             ...state,
             typing: { ...state.typing },
           }));
-        }, 3000);
+        }, DEFAULT_TIMER_DURATION);
 
         state.typing[event.chat.id] = true;
 
@@ -202,37 +258,25 @@ export const useChatStore = create<ChatStore>()(
           return state.onStreamMessageActivity(event, state);
         }
 
+        const baseMessage = createMessageBase(event);
         state.put(event.chat.id, {
-          id: event.body.id,
-          replyToId: event.body.replyToId,
-          messageType: 'message',
+          ...baseMessage,
           attachments: event.body.attachments,
           attachmentLayout: event.body.attachmentLayout,
           reactions: [],
-          body: {
-            content: event.body.text,
-            contentType: 'text',
-            textContent: event.body.text,
+          channelData: {
+            ...event.body.channelData,
+            ...getFeedbackState(event)
           },
-          from: {
-            conversation: {
-              id: event.body.conversation.id,
-              displayName: event.body.conversation.name,
-            },
-            user: event.body.from
-              ? {
-                  id: event.body.from.id,
-                  displayName: event.body.from.name,
-                }
-              : undefined,
-          },
-          createdDateTime: (event.body.timestamp
-            ? new Date(event.body.timestamp)
-            : new Date()
-          ).toUTCString(),
-        });
+        } as Message);
 
-        return state;
+        return {
+          ...state,
+          feedback: {
+            ...state.feedback,
+            [event.body.id]: getFeedbackState(event).feedbackLoopEnabled
+          }
+        };
       },
       onMessageUpdateActivity: (event, state) => {
         const messages = state.messages[event.chat.id] || [];
@@ -249,11 +293,6 @@ export const useChatStore = create<ChatStore>()(
 
           message.body.content = event.body.text;
           message.body.textContent = event.body.text;
-        }
-
-        // Update attachments if present in the value
-        if (event.body.value?.attachments) {
-          message.attachments = event.body.value.attachments;
         }
 
         message.lastModifiedDateTime = (event.body.timestamp || new Date()).toUTCString();
@@ -305,16 +344,10 @@ export const useChatStore = create<ChatStore>()(
         };
       },
       onStreamChunkActivity: (event, state) => {
-        if (streamingTimers[event.body.id]) {
-          clearInterval(streamingTimers[event.body.id]);
-          delete streamingTimers[event.body.id];
-        }
+        clearTimer(streamingTimers, event.body.id);
 
         streamingTimers[event.body.id] = setTimeout(() => {
-          if (streamingTimers[event.body.id]) {
-            clearInterval(streamingTimers[event.body.id]);
-            delete streamingTimers[event.body.id];
-          }
+          clearTimer(streamingTimers, event.body.id);
 
           set((state) => ({
             ...state,
@@ -322,32 +355,21 @@ export const useChatStore = create<ChatStore>()(
               ...state.streaming,
               [event.body.id]: false,
             },
+            feedback: {
+              ...state.feedback,
+              [event.body.id]: getFeedbackState(event).feedbackLoopEnabled
+            }
           }));
-        }, 3000);
+        }, DEFAULT_TIMER_DURATION);
 
+        const baseMessage = createMessageBase(event);
         state.put(event.chat.id, {
-          id: event.body.id,
-          replyToId: event.body.replyToId,
-          messageType: 'message',
-          body: {
-            content: event.body.text,
-            contentType: 'text',
-            textContent: event.body.text,
+          ...baseMessage,
+          channelData: {
+            ...event.body.channelData,
+            ...getFeedbackState(event)
           },
-          from: {
-            conversation: {
-              id: event.body.conversation.id,
-              displayName: event.body.conversation.name,
-            },
-            user: event.body.from
-              ? {
-                  id: event.body.from.id,
-                  displayName: event.body.from.name,
-                }
-              : undefined,
-          },
-          createdDateTime: (event.body.timestamp || new Date()).toUTCString(),
-        });
+        } as Message);
 
         return {
           ...state,
@@ -355,39 +377,25 @@ export const useChatStore = create<ChatStore>()(
             ...state.streaming,
             [event.body.id]: true,
           },
+          feedback: {
+            ...state.feedback,
+            [event.body.id]: getFeedbackState(event).feedbackLoopEnabled
+          }
         };
       },
       onStreamMessageActivity: (event, state) => {
-        if (streamingTimers[event.body.id]) {
-          clearInterval(streamingTimers[event.body.id]);
-          delete streamingTimers[event.body.id];
-        }
+        clearTimer(streamingTimers, event.body.id);
 
+        const baseMessage = createMessageBase(event);
         state.put(event.chat.id, {
-          id: event.body.id,
-          replyToId: event.body.replyToId,
-          messageType: 'message',
+          ...baseMessage,
           attachments: event.body.attachments,
           attachmentLayout: event.body.attachmentLayout,
-          body: {
-            content: event.body.text,
-            contentType: 'text',
-            textContent: event.body.text,
+          channelData: {
+            ...event.body.channelData,
+            ...getFeedbackState(event)
           },
-          from: {
-            conversation: {
-              id: event.body.conversation.id,
-              displayName: event.body.conversation.name,
-            },
-            user: event.body.from
-              ? {
-                  id: event.body.from.id,
-                  displayName: event.body.from.name,
-                }
-              : undefined,
-          },
-          createdDateTime: (event.body.timestamp || new Date()).toUTCString(),
-        });
+        } as Message);
 
         return {
           ...state,
@@ -395,6 +403,10 @@ export const useChatStore = create<ChatStore>()(
             ...state.streaming,
             [event.body.id]: false,
           },
+          feedback: {
+            ...state.feedback,
+            [event.body.id]: getFeedbackState(event).feedbackLoopEnabled
+          }
         };
       },
     })
