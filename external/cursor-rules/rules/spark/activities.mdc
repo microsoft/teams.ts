@@ -1,0 +1,283 @@
+# Activity Handling Patterns
+
+## Message Activities
+
+### Basic Echo Bot
+
+```typescript
+import { App } from '@microsoft/spark.apps';
+import { ConsoleLogger } from '@microsoft/spark.common/logging';
+import { DevtoolsPlugin } from '@microsoft/spark.dev';
+
+const app = new App({
+  logger: new ConsoleLogger('@samples/echo', { level: 'debug' }),
+  plugins: [new DevtoolsPlugin()],
+});
+
+app.onMessage(async ({ send, activity }) => {
+  await send({ type: 'typing' });
+  await send(`you said "${activity.text}"`);
+});
+```
+
+### AI-Powered Bot
+
+```typescript
+app.onMessage(async ({ send, stream, activity }) => {
+  // Handle state
+  let state = storage.get(activity.from.id);
+  if (!state) {
+    state = {
+      status: false,
+      messages: [],
+    };
+    storage.set(activity.from.id, state);
+  }
+
+  // AI Processing
+  const prompt = new ChatPrompt({
+    messages: state.messages,
+    instructions: template,
+    model: new OpenAIChatModel({
+      model: 'gpt-4',
+      apiKey: process.env.OPENAI_API_KEY,
+    }),
+  })
+    .function('get_status', 'get status', () => state.status)
+    .function('update_status', 'update status', (value) => {
+      state.status = value;
+      storage.set(activity.from.id, state);
+    });
+
+  // Stream response
+  await prompt.send(activity.text, {
+    onChunk: (chunk) => {
+      stream.emit(new MessageActivity(chunk).addFeedback());
+    },
+  });
+});
+```
+
+### Message Reactions
+
+```typescript
+app.on('messageReaction', async ({ activity }) => {
+  const { type, from } = activity;
+
+  switch (type) {
+    case 'like':
+      await handleLike(from);
+      break;
+    case 'heart':
+      await handleHeart(from);
+      break;
+  }
+});
+```
+
+## Dialog Activities
+
+### Task Module
+
+```typescript
+app.onDialog('taskModule', async ({ send, activity }) => {
+  // Handle submission
+  if (activity.type === 'submit') {
+    const { name, email } = activity.value;
+    await processSettings({ name, email });
+    await send({ type: 'dialogResponse', success: true });
+    return;
+  }
+
+  // Initial load
+  await send({
+    type: 'dialog',
+    card: new TaskModuleCard()
+      .setTitle('Settings')
+      .addInput('name', 'Name', InputType.Text)
+      .addInput('email', 'Email', InputType.Email)
+      .addSubmitButton('Save'),
+  });
+});
+```
+
+### Dialog Lifecycle
+
+```typescript
+// Dialog open
+app.onDialog('settings', async ({ send }) => {
+  await send({
+    type: 'dialog',
+    title: 'Settings',
+    url: 'https://...',
+    fallbackUrl: 'https://...',
+  });
+});
+
+// Dialog submit
+app.onDialogSubmit('settings', async ({ value, send }) => {
+  await updateSettings(value);
+  await send({ type: 'dialogResponse', success: true });
+});
+```
+
+## Message Extensions
+
+### Search
+
+```typescript
+app.onQuery('search', async ({ query }) => {
+  const results = await searchDatabase(query);
+  return {
+    attachments: results.map((item) =>
+      new AdaptiveCard()
+        .addTextBlock(item.title)
+        .addTextBlock(item.description)
+        .addAction(new SubmitAction().setTitle('Select').setData({ id: item.id }))
+    ),
+  };
+});
+```
+
+### Action Commands
+
+```typescript
+app.onSubmitAction('create', async ({ data }) => {
+  const newItem = await createItem(data);
+  return {
+    type: 'message',
+    card: new AdaptiveCard().addTextBlock('Created Successfully').addFactSet([
+      { name: 'ID', value: newItem.id },
+      { name: 'Title', value: newItem.title },
+    ]),
+  };
+});
+```
+
+### Link Unfurling
+
+```typescript
+app.onQueryLink(async ({ url }) => {
+  const preview = await generatePreview(url);
+  return {
+    attachments: [
+      new AdaptiveCard()
+        .addTextBlock(preview.title)
+        .addImage(preview.image)
+        .addTextBlock(preview.description),
+    ],
+  };
+});
+```
+
+## Event Activities
+
+### Conversation Events
+
+```typescript
+// Member added
+app.on('conversationUpdate', async ({ activity, send }) => {
+  if (activity.membersAdded) {
+    for (const member of activity.membersAdded) {
+      await send(`Welcome ${member.name}!`);
+    }
+  }
+});
+
+// Member removed
+app.on('conversationUpdate', async ({ activity }) => {
+  if (activity.membersRemoved) {
+    for (const member of activity.membersRemoved) {
+      await logMemberRemoval(member);
+    }
+  }
+});
+```
+
+### Meeting Events
+
+```typescript
+// Meeting start
+app.on('meetingStart', async ({ activity, send }) => {
+  const { meeting } = activity;
+  await send(createMeetingStartCard(meeting));
+});
+
+// Meeting end
+app.on('meetingEnd', async ({ activity }) => {
+  const { meeting } = activity;
+  await storeMeetingSummary(meeting);
+});
+```
+
+## Command Activities
+
+### Command Handling
+
+```typescript
+app.onMessage(async ({ send, activity }) => {
+  if (!activity.text.startsWith('/')) return;
+
+  const [command, ...args] = activity.text.slice(1).split(' ');
+
+  switch (command) {
+    case 'help':
+      await send(createHelpCard());
+      break;
+    case 'settings':
+      await send(createSettingsModule());
+      break;
+    case 'status':
+      await send(await getStatus(...args));
+      break;
+    default:
+      await send('Unknown command. Type /help for available commands.');
+  }
+});
+```
+
+### Command Results
+
+```typescript
+app.on('commandResult', async ({ activity, send }) => {
+  const { command, result } = activity;
+
+  await send(
+    new MessageActivity().addCard(
+      new AdaptiveCard().addTextBlock(`Command: ${command}`).addFactSet(Object.entries(result))
+    )
+  );
+});
+```
+
+## State Management
+
+### Conversation State
+
+```typescript
+const state = new ConversationState({
+  storage: new LocalStorage(),
+  namespace: `conversation:${conversationId}`,
+});
+
+app.onMessage(async ({ activity }) => {
+  const conversationData = await state.get();
+  conversationData.messageCount++;
+  await state.save();
+});
+```
+
+### User State
+
+```typescript
+const userState = new UserState({
+  storage: new LocalStorage(),
+  namespace: `user:${activity.from.id}`,
+});
+
+app.onMessage(async ({ activity }) => {
+  const userData = await userState.get();
+  userData.lastActivity = new Date();
+  await userState.save();
+});
+```

@@ -1,0 +1,209 @@
+# Teams Cards & UI Patterns
+
+## Adaptive Cards
+
+### Basic Card
+```typescript
+const card = new AdaptiveCard()
+  .addTextBlock('Hello Teams!')
+  .addImage('https://example.com/image.png')
+  .addActionSet([
+    new SubmitAction()
+      .setTitle('Click Me')
+      .setData({ type: 'buttonClick' })
+  ]);
+
+await context.sendActivity(MessageFactory.attachment(card));
+```
+
+### Input Form
+```typescript
+const form = new AdaptiveCard()
+  .addTextBlock('Please fill out the form')
+  .addInput('name', 'Name', InputType.Text)
+  .addInput('email', 'Email', InputType.Email)
+  .addInput('date', 'Start Date', InputType.Date)
+  .addInput('choice', 'Department', InputType.Choice, {
+    choices: [
+      { title: 'Engineering', value: 'eng' },
+      { title: 'Marketing', value: 'mkt' },
+      { title: 'Sales', value: 'sales' }
+    ]
+  })
+  .addActionSet([
+    new SubmitAction()
+      .setTitle('Submit')
+      .setData({ type: 'formSubmit' })
+  ]);
+```
+
+### Rich Content
+```typescript
+const article = new AdaptiveCard()
+  .addTextBlock('Article Title', { size: 'large', weight: 'bolder' })
+  .addTextBlock('Author Name', { size: 'medium', isSubtle: true })
+  .addImage('hero.jpg', { size: 'stretch' })
+  .addTextBlock('Article content...', { wrap: true })
+  .addFactSet([
+    { title: 'Published', value: '2025-04-07' },
+    { title: 'Category', value: 'Technology' }
+  ])
+  .addActionSet([
+    new OpenUrlAction()
+      .setTitle('Read More')
+      .setUrl('https://example.com/article'),
+    new SubmitAction()
+      .setTitle('Save')
+      .setData({ type: 'saveArticle', id: '123' })
+  ]);
+```
+
+## Task Modules
+
+### Settings Module
+```typescript
+app.onDialog('settings', async ({ send }) => {
+  const card = new TaskModuleCard()
+    .setTitle('User Settings')
+    .setSubtitle('Configure your preferences')
+    .addSection('Notifications', [
+      new Toggle('emailNotifications', 'Email Notifications'),
+      new Toggle('pushNotifications', 'Push Notifications')
+    ])
+    .addSection('Display', [
+      new Dropdown('theme', 'Theme', [
+        { title: 'Light', value: 'light' },
+        { title: 'Dark', value: 'dark' }
+      ]),
+      new Dropdown('language', 'Language', [
+        { title: 'English', value: 'en' },
+        { title: 'Spanish', value: 'es' }
+      ])
+    ])
+    .addSubmitButton('Save')
+    .addCancelButton();
+
+  await send({ type: 'dialog', card });
+});
+```
+
+### Multi-Step Form
+```typescript
+const steps = {
+  personal: new TaskModuleCard()
+    .setTitle('Personal Information')
+    .addInput('name', 'Full Name', InputType.Text)
+    .addInput('email', 'Email', InputType.Email)
+    .addActionSet([
+      new SubmitAction()
+        .setTitle('Next')
+        .setData({ step: 'personal', next: 'work' })
+    ]),
+  
+  work: new TaskModuleCard()
+    .setTitle('Work Information')
+    .addInput('company', 'Company', InputType.Text)
+    .addInput('role', 'Role', InputType.Text)
+    .addActionSet([
+      new SubmitAction()
+        .setTitle('Back')
+        .setData({ step: 'work', next: 'personal' }),
+      new SubmitAction()
+        .setTitle('Next')
+        .setData({ step: 'work', next: 'review' })
+    ])
+};
+
+app.onDialogSubmit('registration', async ({ value, send }) => {
+  const { step, next } = value;
+  await state.update(step, value);
+  
+  if (next === 'review') {
+    const data = await state.getAll();
+    await send({
+      type: 'dialog',
+      card: createReviewCard(data)
+    });
+    return;
+  }
+  
+  await send({
+    type: 'dialog',
+    card: steps[next]
+  });
+});
+```
+
+## Interactive Cards
+
+### Live Updates
+```typescript
+app.on('cardAction', async ({ activity }) => {
+  const { action, messageId } = activity;
+  
+  switch (action.type) {
+    case 'like':
+      await updateLikes(messageId);
+      await send(MessageActivity.updateCard(
+        messageId,
+        createUpdatedCard(await getLikes(messageId))
+      ));
+      break;
+      
+    case 'refresh':
+      const newData = await fetchLatestData();
+      await send(MessageActivity.updateCard(
+        messageId,
+        createRefreshedCard(newData)
+      ));
+      break;
+  }
+});
+```
+
+### Progressive Loading
+```typescript
+app.on('cardAction', async ({ activity }) => {
+  const { action } = activity;
+  
+  if (action.type === 'loadMore') {
+    const { page } = action.data;
+    const items = await loadPage(page);
+    
+    await send(MessageActivity.updateCard(
+      activity.replyToId,
+      new AdaptiveCard()
+        .addItems(createItemCards(items))
+        .addActionSet([
+          new SubmitAction()
+            .setTitle('Load More')
+            .setData({ 
+              type: 'loadMore',
+              page: page + 1
+            })
+        ])
+    ));
+  }
+});
+```
+
+### Real-time Updates
+```typescript
+app.on('dataUpdate', async ({ data, conversations }) => {
+  const card = new AdaptiveCard()
+    .addTextBlock('Live Update')
+    .addFactSet(Object.entries(data))
+    .addActionSet([
+      new SubmitAction()
+        .setTitle('Refresh')
+        .setData({ type: 'refresh' })
+    ]);
+
+  // Update card in all active conversations
+  for (const conversation of conversations) {
+    await send(MessageActivity.updateCard(
+      conversation.messageId,
+      card
+    ));
+  }
+});
