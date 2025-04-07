@@ -1,36 +1,36 @@
-import { AxiosError } from 'axios';
-import { ILogger, ConsoleLogger } from '@microsoft/spark.common/logging';
-import { LocalStorage, IStorage } from '@microsoft/spark.common/storage';
 import { EventEmitter } from '@microsoft/spark.common/events';
 import * as http from '@microsoft/spark.common/http';
+import { ConsoleLogger, ILogger } from '@microsoft/spark.common/logging';
+import { IStorage, LocalStorage } from '@microsoft/spark.common/storage';
+import { AxiosError } from 'axios';
 
 import {
-  IToken,
-  Credentials,
-  ConversationReference,
-  JsonWebToken,
-  toActivityParams,
   ActivityLike,
+  ConversationReference,
+  Credentials,
+  IToken,
+  JsonWebToken,
   StripMentionsTextOptions,
+  toActivityParams,
 } from '@microsoft/spark.api';
 
 import pkg from '../package.json';
 
+import { AppClient } from './api';
+import { IEvents } from './events';
 import * as manifest from './manifest';
 import * as middleware from './middleware';
-import { Router } from './router';
-import { IEvents } from './events';
+import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
-import { OAuthSettings } from './oauth';
-import { AppClient } from './api';
+import { Router } from './router';
 import { IPlugin } from './types';
 
-import { $process } from './app.process';
-import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
-import { message, on, use } from './app.routing';
 import { configTab, func, tab } from './app.embed';
+import { event, onActivity, onActivityResponse, onActivitySent, onError } from './app.events';
 import { onTokenExchange, onVerifyState } from './app.oauth';
-import { event, onError, onActivity, onActivitySent, onActivityResponse } from './app.events';
+import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
+import { $process } from './app.process';
+import { message, on, use } from './app.routing';
 import { Container } from './container';
 
 /**
@@ -120,6 +120,13 @@ export class App {
     return this.tokens.bot?.appDisplayName || this.tokens.graph?.appDisplayName;
   }
 
+  get oauth() {
+    return {
+      ...this.options.oauth,
+      ...DEFAULT_OAUTH_SETTINGS,
+    };
+  }
+
   /**
    * the apps manifest
    */
@@ -169,7 +176,6 @@ export class App {
     this.log = this.options.logger || new ConsoleLogger('@spark/app');
     this.storage = this.options.storage || new LocalStorage();
     this._manifest = this.options.manifest || {};
-
     if (!options.client) {
       this.client = new http.Client({
         headers: {

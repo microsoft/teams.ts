@@ -1,7 +1,6 @@
 import {
   Activity,
   ActivityLike,
-  SentActivity,
   cardAttachment,
   ConversationAccount,
   ConversationReference,
@@ -9,6 +8,7 @@ import {
   MessageActivity,
   MessageDeleteActivity,
   MessageUpdateActivity,
+  SentActivity,
   toActivityParams,
   TokenExchangeResource,
   TokenExchangeState,
@@ -60,6 +60,12 @@ export interface IActivityContextOptions<T extends Activity = Activity> {
   isSignedIn?: boolean;
 
   /**
+   * the default connection name to use for the app
+   * @default `graph`
+   */
+  connectionName: string;
+
+  /**
    * extra data
    */
   [key: string]: any;
@@ -71,11 +77,6 @@ export interface IActivityContextOptions<T extends Activity = Activity> {
 }
 
 type SignInOptions = {
-  /**
-   * The name of the auth connection to use
-   * @default `graph`
-   */
-  connectionName: string;
   /**
    * The text to display on the oauth card
    * @default `Please Sign In...`
@@ -130,8 +131,7 @@ export interface IActivityContext<T extends Activity = Activity>
   signout: (name?: string) => Promise<void>;
 }
 
-const DEFAULT_SIGNIN_OPTIONS: SignInOptions = {
-  connectionName: 'graph',
+export const DEFAULT_SIGNIN_OPTIONS: SignInOptions = {
   oauthCardText: 'Please Sign In...',
   signInButtonText: 'Sign In',
 };
@@ -145,6 +145,7 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
   storage!: IStorage;
   stream: IStreamer;
   isSignedIn?: boolean;
+  connectionName: string;
   next!: (context?: IActivityContext) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
   [key: string]: any;
 
@@ -157,6 +158,7 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
     Object.assign(this, value);
     this._plugin = plugin;
     this.stream = plugin.createStream(value.ref);
+    this.connectionName = value.connectionName;
 
     if (value.activity.type === 'message') {
       value.activity = MessageActivity.from(value.activity).toInterface();
@@ -186,7 +188,7 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
   }
 
   async signin(options?: Partial<SignInOptions>) {
-    const { connectionName, oauthCardText, signInButtonText, overrideSignInActivity } = {
+    const { oauthCardText, signInButtonText, overrideSignInActivity } = {
       ...DEFAULT_SIGNIN_OPTIONS,
       ...options,
     };
@@ -197,7 +199,7 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
       const res = await this.api.users.token.get({
         channelId: this.activity.channelId,
         userId: this.activity.from.id,
-        connectionName,
+        connectionName: this.connectionName,
       });
 
       return res.token;
@@ -205,9 +207,16 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
       // noop
     }
 
-    // create new 1:1 conversation with user to do SSO
-    // because groupchats don't support it.
+    const tokenExchangeState: TokenExchangeState = {
+      connectionName: this.connectionName,
+      conversation: convo,
+      relatesTo: this.activity.relatesTo,
+      msAppId: this.appId,
+    };
+
     if (this.activity.conversation.isGroup) {
+      // create new 1:1 conversation with user to do SSO
+      // because groupchats don't support it.
       const res = await this.api.conversations.create({
         tenantId: this.activity.conversation.tenantId,
         isGroup: false,
@@ -218,13 +227,6 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
       await this.send({ type: 'message', text: oauthCardText });
       convo.conversation = { id: res.id } as ConversationAccount;
     }
-
-    const tokenExchangeState: TokenExchangeState = {
-      connectionName,
-      conversation: convo,
-      relatesTo: this.activity.relatesTo,
-      msAppId: this.appId,
-    };
 
     const state = Buffer.from(JSON.stringify(tokenExchangeState)).toString('base64');
     const resource = await this.api.bots.signIn.getResource({ state });
@@ -241,7 +243,7 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
         attachments: [
           cardAttachment('oauth', {
             text: oauthCardText,
-            connectionName,
+            connectionName: this.connectionName,
             tokenExchangeResource: resource.tokenExchangeResource,
             tokenPostResource: resource.tokenPostResource,
             buttons: [
@@ -275,6 +277,7 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
       storage: this.storage,
       stream: this.stream,
       isSignedIn: this.isSignedIn,
+      connectionName: this.connectionName,
       next: this.next.bind(this),
       reply: this.reply.bind(this),
       send: this.send.bind(this),
