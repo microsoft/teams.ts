@@ -20,7 +20,7 @@ import { AppClient } from './api';
 import { IEvents } from './events';
 import * as manifest from './manifest';
 import * as middleware from './middleware';
-import { OAuthSettings } from './oauth';
+import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { IPlugin } from './types';
@@ -71,12 +71,6 @@ export type AppOptions = Partial<Credentials> & {
    * Activity Options
    */
   readonly activity?: AppActivityOptions;
-
-  /**
-   * The default connection name to use for the app
-   * @default 'graph'
-   */
-  readonly defaultConnectionName?: string;
 };
 
 export type AppActivityOptions = {
@@ -111,13 +105,6 @@ export class App {
   readonly client: http.Client;
   readonly storage: IStorage;
   readonly credentials?: Credentials;
-  /**
-   * The name of the default connection to use for the app
-   * @default 'graph'
-   * The plan is to support multiple connections, but we are
-   * waiting on the Teams Client to support the protocol.
-   */
-  readonly defaultConnectionName: string;
 
   /**
    * the apps id
@@ -131,6 +118,13 @@ export class App {
    */
   get name() {
     return this.tokens.bot?.appDisplayName || this.tokens.graph?.appDisplayName;
+  }
+
+  get oauth() {
+    return {
+      ...this.options.oauth,
+      ...DEFAULT_OAUTH_SETTINGS,
+    };
   }
 
   /**
@@ -182,7 +176,6 @@ export class App {
     this.log = this.options.logger || new ConsoleLogger('@spark/app');
     this.storage = this.options.storage || new LocalStorage();
     this._manifest = this.options.manifest || {};
-    this.defaultConnectionName = this.options.defaultConnectionName ?? 'graph';
     if (!options.client) {
       this.client = new http.Client({
         headers: {

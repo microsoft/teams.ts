@@ -14,9 +14,9 @@ export async function onTokenExchange(
 ) {
   const { api, activity, log } = ctx;
 
-  if (this.defaultConnectionName !== activity.value.connectionName) {
+  if (this.oauth.defaultConnectionName !== activity.value.connectionName) {
     log.warn(
-      `default connection name "${this.defaultConnectionName}" does not match activity connection name "${activity.value.connectionName}"`
+      `default connection name "${this.oauth.defaultConnectionName}" does not match activity connection name "${activity.value.connectionName}"`
     );
   }
 
@@ -74,7 +74,7 @@ export async function onVerifyState(
     const token = await api.users.token.get({
       channelId: activity.channelId,
       userId: activity.from.id,
-      connectionName: this.defaultConnectionName,
+      connectionName: this.oauth.defaultConnectionName,
       code: activity.value.state,
     });
 
