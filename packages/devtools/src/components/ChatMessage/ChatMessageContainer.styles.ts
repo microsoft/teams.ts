@@ -52,6 +52,12 @@ const useChatContainerClasses = makeStyles({
   sentTime: {
     textAlign: 'end',
   },
+
+  timestampContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: tokens.spacingHorizontalM,
+  }
 });
 
 export default useChatContainerClasses;
