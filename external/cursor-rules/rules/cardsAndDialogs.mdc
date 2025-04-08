@@ -8,7 +8,11 @@ alwaysApply: false
 
 # Teams Cards & UI Patterns
 
+
 ## Adaptive Cards
+
+Adaptive cards can be sent to a Teams client instead of simple string messages. These cards contain lots of rich UI, input fields, and action buttons.
+For action buttons, the handlers must return an invoke response. You typically don't "send" a message in these handlers. You simply return a response (as exemplified below).
 
 ### Basic Card
 ```typescript
@@ -18,7 +22,7 @@ const card = new Card()
     new Image('https://example.com/image.png')
   )
   .addActions(
-    new SubmitAction()
+    new ExecuteAction()
       .withTitle('Click Me')
       .withData({ type: 'buttonClick' })
   );
@@ -28,7 +32,7 @@ await send(card)
 
 ### Handling card actions
 ```typescript
-app.on("card.action", async ({ activity, send, api }) => {
+app.on("card.action", async ({ activity, api }) => {
   const adaptiveCardActionData = activity.value?.action?.data; // Corresponds to the data of the invoked button or action
   if (!adaptiveCardActionData) return;
   if (adaptiveCardActionData.type !== "buttonClick") {
@@ -84,7 +88,7 @@ const form = new Card()
       .withId('choice')
   )
   .addActions(
-    new SubmitAction()
+    new ExecuteAction()
       .withTitle('Submit')
       .withData({ type: 'formSubmit' })
   );
@@ -112,13 +116,22 @@ const article = new Card()
   .addActions(
     new OpenUrlAction('https://example.com/article')
       .withTitle('Read More'),
-    new SubmitAction()
-      .withTitle('Save')
-      .withData({ type: 'saveArticle', id: '123' })
+    // Opens up a dialog
+    new TaskFetchAction({})
+      .withTitle("Fill more details about author")
+      .withData(new TaskFetchData("author_details"))
+      .withStyle("positive"),
+    new ExecuteAction({
+      title: "Mark as read",
+    })
+      .withStyle("default")
+      .withData({ action: "mark_as_read" }),
   );
 ```
 
-## Task Modules (aka Dialogs)
+## Dialogs (aka Task Modules)
+
+Cards can cause dialogs to open up which can contain more cards or other rich experiences. When a dialog is opened, the client invokes a "dialog.open" invoke event. This event must return what should be rendered in the dialog (a card, or a message). The response could choose to "continue" to send more messages in the dialog, or send a message to end the experience.
 
 ### Settings Module
 ```typescript
@@ -220,7 +233,7 @@ const steps = {
     )
 };
 
-app.on('dialog.submit', async ({ value, send }) => {
+app.on('dialog.submit', async ({ value }) => {
   const { step, next } = value;
   await state.update(step, value);
   
