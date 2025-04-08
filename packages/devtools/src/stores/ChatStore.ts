@@ -65,7 +65,8 @@ const createMessageBase = (event: ActivityEvent<any>): MessageBase => ({
 });
 
 const getFeedbackState = (event: ActivityEvent<any>) => ({
-  feedbackLoopEnabled: event.type === 'activity.sent' ? (event.body.channelData?.feedbackLoopEnabled ?? true) : false
+  feedbackLoopEnabled:
+    event.type === 'activity.sent' ? (event.body.channelData?.feedbackLoopEnabled ?? true) : false,
 });
 
 const clearTimer = (timers: Record<string, NodeJS.Timeout>, id: string) => {
@@ -266,7 +267,7 @@ export const useChatStore = create<ChatStore>()(
           reactions: [],
           channelData: {
             ...event.body.channelData,
-            ...getFeedbackState(event)
+            ...getFeedbackState(event),
           },
         } as Message);
 
@@ -274,8 +275,8 @@ export const useChatStore = create<ChatStore>()(
           ...state,
           feedback: {
             ...state.feedback,
-            [event.body.id]: getFeedbackState(event).feedbackLoopEnabled
-          }
+            [event.body.id]: getFeedbackState(event).feedbackLoopEnabled,
+          },
         };
       },
       onMessageUpdateActivity: (event, state) => {
@@ -357,8 +358,8 @@ export const useChatStore = create<ChatStore>()(
             },
             feedback: {
               ...state.feedback,
-              [event.body.id]: getFeedbackState(event).feedbackLoopEnabled
-            }
+              [event.body.id]: getFeedbackState(event).feedbackLoopEnabled,
+            },
           }));
         }, DEFAULT_TIMER_DURATION);
 
@@ -367,7 +368,7 @@ export const useChatStore = create<ChatStore>()(
           ...baseMessage,
           channelData: {
             ...event.body.channelData,
-            ...getFeedbackState(event)
+            ...getFeedbackState(event),
           },
         } as Message);
 
@@ -379,8 +380,8 @@ export const useChatStore = create<ChatStore>()(
           },
           feedback: {
             ...state.feedback,
-            [event.body.id]: getFeedbackState(event).feedbackLoopEnabled
-          }
+            [event.body.id]: getFeedbackState(event).feedbackLoopEnabled,
+          },
         };
       },
       onStreamMessageActivity: (event, state) => {
@@ -393,7 +394,7 @@ export const useChatStore = create<ChatStore>()(
           attachmentLayout: event.body.attachmentLayout,
           channelData: {
             ...event.body.channelData,
-            ...getFeedbackState(event)
+            ...getFeedbackState(event),
           },
         } as Message);
 
@@ -405,8 +406,8 @@ export const useChatStore = create<ChatStore>()(
           },
           feedback: {
             ...state.feedback,
-            [event.body.id]: getFeedbackState(event).feedbackLoopEnabled
-          }
+            [event.body.id]: getFeedbackState(event).feedbackLoopEnabled,
+          },
         };
       },
     })
