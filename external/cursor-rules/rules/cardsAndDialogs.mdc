@@ -8,11 +8,13 @@ alwaysApply: false
 
 # Teams Cards & UI Patterns
 
+The majority of imports for the patterns described here are from '@microsoft/spark.cards' package.
+
 
 ## Adaptive Cards
 
 Adaptive cards can be sent to a Teams client instead of simple string messages. These cards contain lots of rich UI, input fields, and action buttons.
-For action buttons, the handlers must return an invoke response. You typically don't "send" a message in these handlers. You simply return a response (as exemplified below).
+For action buttons, the handlers must return an invoke response. You typically don't "send" a message in these handlers. You simply return a response (as exemplified below). These responses can only send a message or a different card.
 
 ### Basic Card
 ```typescript
@@ -44,6 +46,7 @@ app.on("card.action", async ({ activity, api }) => {
     value: {
       message: "Not sure what you mean!",
       code: "UNKNOWN_ACTION",
+      // MUST return this innerHttpError field
       innerHttpError: {
         body: {
           message: "Not sure what you mean!",
@@ -60,6 +63,13 @@ app.on("card.action", async ({ activity, api }) => {
     type: "application/vnd.microsoft.activity.message",
     value: "You just clicked a button!",
   };
+
+  // Alternatively send a card back
+  return {
+      statusCode: 200,
+      type: "application/vnd.microsoft.card.adaptive",
+      value: new Card().withBody(new TextBlock('You clicked a button!')),
+    };
 });
 ```
 
@@ -233,8 +243,10 @@ const steps = {
     )
 };
 
-app.on('dialog.submit', async ({ value }) => {
-  const { step, next } = value;
+app.on('dialog.submit', async ({ activity }) => {
+  // The data field from the adaptive cards are sent back in the
+  // value.data field.
+  const { step, next } = activity.value.data ?? {};
   await state.update(step, value);
   
   if (next === "confirm") {
