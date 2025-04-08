@@ -122,7 +122,7 @@ const article = new Card()
 
 ### Settings Module
 ```typescript
-app.onDialog('settings', async ({ send }) => {
+app.on('dialog.open', async () => {
   const card = new Card()
     .withBody(
       new TextBlock('User Settings')
