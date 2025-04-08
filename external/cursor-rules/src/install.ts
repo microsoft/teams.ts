@@ -1,5 +1,14 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from 'fs';
 import { join, resolve } from 'path';
+import { findManagedSections, updateManagedSectionContent } from './managedSections';
 
 function getAllMdcFiles(dir: string): string[] {
   const files: string[] = [];
@@ -14,6 +23,12 @@ function getAllMdcFiles(dir: string): string[] {
   }
 
   return files;
+}
+
+function updateManagedSection(filePath: string, sectionId: string, newContent: string): void {
+  const content = readFileSync(filePath, 'utf-8');
+  const updatedContent = updateManagedSectionContent(content, sectionId, newContent);
+  writeFileSync(filePath, updatedContent);
 }
 
 function copyRules(): void {
@@ -40,8 +55,24 @@ function copyRules(): void {
         mkdirSync(destDir, { recursive: true });
       }
 
-      copyFileSync(src, dest);
-      console.log(`Copied ${relativePath} to .cursor/rules/`);
+      // If destination file exists, preserve managed sections
+      if (existsSync(dest)) {
+        const srcContent = readFileSync(src, 'utf-8');
+        const sections = findManagedSections(srcContent);
+
+        // First copy the file to preserve any non-managed content
+        copyFileSync(src, dest);
+
+        // Then update any managed sections that existed in the source
+        for (const section of sections) {
+          updateManagedSection(dest, section.id, section.content);
+        }
+
+        console.log(`Updated ${relativePath} in .cursor/rules/ preserving managed sections`);
+      } else {
+        copyFileSync(src, dest);
+        console.log(`Copied ${relativePath} to .cursor/rules/`);
+      }
     }
 
     console.log('Successfully installed Spark cursor rules');

@@ -6,9 +6,11 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc && cp -r rules dist/",
+    "clean": "npx rimraf ./dist",
+    "build": "npx tsc",
     "prepare": "npm run build",
-    "postinstall": "node dist/install.js"
+    "postinstall": "node dist/install.js",
+    "test": "npx jest"
   },
   "keywords": [
     "microsoft",
@@ -26,5 +28,9 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@types/jest": "^29.5.14",
+    "ts-jest": "^29.3.1"
   }
 }

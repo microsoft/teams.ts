@@ -1,0 +1,226 @@
+---
+description: Describes how to use AI abstractions to invoke LLMs, tool calling, and AI workflows
+globs: 
+alwaysApply: false
+---
+<!-- @managed-content-start: AI details -->
+<!-- Details within this section can be automatically modified. Place your own conteint outside this area. -->
+
+# AI Integration Patterns
+
+## Chat Models
+
+### Basic Chat
+
+```typescript
+const prompt = new ChatPrompt({
+  model: new OpenAIModel({
+    model: 'gpt-4',
+    apiKey: process.env.OPENAI_API_KEY,
+  }),
+  instructions: 'You are a helpful assistant.',
+});
+
+const response = await prompt.send('Hello!');
+await send(response.content);
+```
+
+### Streaming Responses
+
+```typescript
+const prompt = new ChatPrompt({
+  model: new OpenAIModel(...),
+  instructions: template,
+});
+
+await prompt.send(input, {
+  onChunk: (chunk) => {
+    stream.emit(new MessageActivity(chunk));
+  },
+});
+```
+
+## Function Calling
+
+### Basic Functions
+
+```typescript
+const prompt = new ChatPrompt({
+  model: new OpenAIModel(),
+  instructions: template,
+}).function(
+  'get_weather',
+  'Get weather data',
+  // schema for the parameters
+  {
+    type: "object",
+    properties: {
+      location: {
+        type: "string"
+      },
+      category: {
+        unit: { type: 'string', enum: ['celsius', 'fahrenheit'] }
+      }
+    }
+  },
+  async ({ location, unit }) => {
+    return await weatherApi.get(location, unit);
+  }
+);
+```
+
+### Function Chaining
+
+```typescript
+const prompt = new ChatPrompt({
+  model: new OpenAIModel(),
+})
+  .function('search_products', 'Search product database', async (query) => {
+    return await db.products.search(query);
+  })
+  .function('get_inventory', 'Get inventory levels', async (productId) => {
+    return await db.inventory.get(productId);
+  })
+  .function('place_order', 'Place an order', async (orderDetails) => {
+    return await orders.create(orderDetails);
+  });
+```
+
+## Assistant Chaining
+
+```typescript
+const researcher = new ChatPrompt({
+  model: new OpenAIModel(),
+  instructions: researcherTemplate,
+});
+
+const writer = new ChatPrompt({
+  model: new OpenAIModel(),
+  instructions: writerTemplate,
+});
+
+const reviewer = new ChatPrompt({
+  model: new OpenAIModel(),
+  instructions: reviewerTemplate,
+});
+
+// Chain assistants
+const research = await researcher.send(topic);
+const draft = await writer.send(research.content);
+const final = await reviewer.send(draft.content);
+```
+
+// ... existing code ...
+
+## Tool Calls
+
+### Registering Tools
+Tools can be registered using the `function` method, which supports both simple and schema-based function definitions:
+
+```typescript
+// Simple function registration
+prompt.function(
+  'search_web',
+  'Search the web for information',
+  async (query: string) => {
+    return await webSearch(query);
+  }
+);
+
+// Schema-based function registration
+prompt.function(
+  'create_user',
+  'Create a new user in the system',
+  {
+    type: 'object',
+    properties: {
+      username: { type: 'string' },
+      email: { type: 'string', format: 'email' },
+      age: { type: 'number', minimum: 13 }
+    },
+    required: ['username', 'email']
+  },
+  async (params) => {
+    return await users.create(params);
+  }
+);
+```
+
+### Invoking Tools
+Tools can be called directly using the `call` method:
+
+```typescript
+const searchResults = await prompt.call('search_web', 'quantum computing');
+const newUser = await prompt.call('create_user', {
+  username: 'alice',
+  email: 'alice@example.com',
+  age: 25
+});
+```
+
+## Prompt Routing
+
+### Basic Routing
+The `use` method allows you to register other prompts as callable functions:
+
+```typescript
+const mathSolver = new ChatPrompt({
+  name: 'math',
+  description: 'Solves mathematical problems',
+  model: new OpenAIModel(),
+  instructions: 'You are a mathematics expert.'
+});
+
+const mainPrompt = new ChatPrompt({
+  model: new OpenAIModel(),
+  instructions: 'You are a general assistant.'
+})
+  .use(mathSolver);  // registers with name 'math'
+```
+
+### Named Routing
+You can also register prompts with custom names:
+
+```typescript
+const mainPrompt = new ChatPrompt({
+  model: new OpenAIModel(),
+  instructions: 'You are a general assistant.'
+})
+  .use('calculator', mathSolver)  // registers with custom name
+  .use('researcher', researchPrompt);
+
+// The prompts can now be used through function calling
+const result = await mainPrompt.send(
+  "What's the square root of 256 plus the population of France?"
+);
+```
+
+### Chained Routing
+Prompts can be chained together for complex workflows:
+
+```typescript
+const dataAnalyst = new ChatPrompt({
+  name: 'analyst',
+  model: new OpenAIModel(),
+  instructions: 'You analyze data and create insights.'
+});
+
+const reporter = new ChatPrompt({
+  name: 'reporter',
+  model: new OpenAIModel(),
+  instructions: 'You create reports from analysis.'
+});
+
+const workflow = new ChatPrompt({
+  model: new OpenAIModel(),
+  instructions: 'You coordinate data analysis workflows.'
+})
+  .use(dataAnalyst)
+  .use(reporter);
+
+// The workflow prompt can now orchestrate between the analyst and reporter
+const response = await workflow.send(
+  "Analyze our Q3 sales data and create a summary report."
+);
+```
+<!-- @managed-content-end: AI details -->

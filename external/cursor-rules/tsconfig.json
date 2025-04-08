@@ -1,15 +1,9 @@
 {
+  "extends": "@microsoft/spark.config/tsconfig.node.json",
   "compilerOptions": {
-    "target": "es2018",
-    "module": "commonjs",
     "outDir": "dist",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "rootDir": "src"
   },
-  "include": ["src"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.spec.*", "src/**/*.test.*"]
 }

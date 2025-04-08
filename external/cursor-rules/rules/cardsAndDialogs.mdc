@@ -1,0 +1,367 @@
+---
+description: Describes how to use Adaptive cards, and dialogs in context of a microsoft spark application.
+globs: 
+alwaysApply: false
+---
+<!-- @managed-content-start: CardsAndDialogs details -->
+<!-- Details within this section can be automatically modified. Place your own conteint outside this area. -->
+
+# Teams Cards & UI Patterns
+
+## Adaptive Cards
+
+### Basic Card
+```typescript
+const card = new Card()
+  .withBody(
+    new TextBlock('Hello Teams!'),
+    new Image('https://example.com/image.png')
+  )
+  .addActions(
+    new SubmitAction()
+      .withTitle('Click Me')
+      .withData({ type: 'buttonClick' })
+  );
+
+await send(card)
+```
+
+### Handling card actions
+```typescript
+app.on("card.action", async ({ activity, send, api }) => {
+  const adaptiveCardActionData = activity.value?.action?.data; // Corresponds to the data of the invoked button or action
+  if (!data) return;
+  if (data !== "buttonClick") {
+    send("Not sure what you mean!")
+    // Must return an AdaptiveCardActionErrorResponse
+    return {
+    statusCode: 400,
+    type: "application/vnd.microsoft.error",
+    value: {
+      message: "Not sure what you mean!",
+      code: "UNKNOWN_ACTION",
+      innerHttpError: {
+        body: {
+          message: "Not sure what you mean!",
+        },
+        statusCode: 400,
+      },
+    },
+  }; 
+  }
+  send("Got it!")
+  // Must return an AdaptiveCardActionMessageResponse or AdaptiveCardActionCardResponse
+  return {
+    statusCode: 200,
+    type: "application/vnd.microsoft.activity.message",
+    value: "You just clicked a button!",
+  };
+});
+```
+
+### Input Form
+```typescript
+const form = new Card()
+  .withBody(
+    new TextBlock('Please fill out the form'),
+    new TextInput()
+      .withLabel('Name')
+      .withId('name')
+      .withStyle('text'),
+    new TextInput()
+      .withLabel('Email')
+      .withId('email')
+      .withStyle('email'),
+    new DateInput()
+      .withLabel('Start Date')
+      .withId('date'),
+    new ChoiceSetInput(
+      new Choice('Engineering', 'eng'),
+      new Choice('Marketing', 'mkt'),
+      new Choice('Sales', 'sales')
+    )
+      .withLabel('Department')
+      .withId('choice')
+  )
+  .addActions(
+    new SubmitAction()
+      .withTitle('Submit')
+      .withData({ type: 'formSubmit' })
+  );
+```
+
+### Rich Content
+```typescript
+const article = new Card()
+  .withBody(
+    new TextBlock('Article Title')
+      .withSize('large')
+      .withWeight('bolder'),
+    new TextBlock('Author Name')
+      .withSize('medium')
+      .withSubtle(),
+    new Image('hero.jpg')
+      .withSize('stretch'),
+    new TextBlock('Article content...')
+      .withWrap(),
+    new FactSet(
+      new Fact('Published', '2025-04-07'),
+      new Fact('Category', 'Technology')
+    )
+  )
+  .addActions(
+    new OpenUrlAction('https://example.com/article')
+      .withTitle('Read More'),
+    new SubmitAction()
+      .withTitle('Save')
+      .withData({ type: 'saveArticle', id: '123' })
+  );
+```
+
+## Task Modules (aka Dialogs)
+
+### Settings Module
+```typescript
+app.onDialog('settings', async ({ send }) => {
+  const card = new Card()
+    .withBody(
+      new TextBlock('User Settings')
+        .withSize('large')
+        .withWeight('bolder'),
+      new TextBlock('Configure your preferences')
+        .withSize('medium')
+        .withSubtle(),
+      new Container()
+        .withBody(
+          new TextBlock('Notifications')
+            .withWeight('bolder'),
+          new ToggleInput('Email Notifications')
+            .withId('emailNotifications'),
+          new ToggleInput('Push Notifications')
+            .withId('pushNotifications')
+        ),
+      new Container()
+        .withBody(
+          new TextBlock('Display')
+            .withWeight('bolder'),
+          new ChoiceSetInput(
+            new Choice('Light', 'light'),
+            new Choice('Dark', 'dark')
+          )
+            .withLabel('Theme')
+            .withId('theme'),
+          new ChoiceSetInput(
+            new Choice('English', 'en'),
+            new Choice('Spanish', 'es')
+          )
+            .withLabel('Language')
+            .withId('language')
+        )
+    )
+    .addActions(
+      new SubmitAction()
+        .withTitle('Save'),
+      new SubmitAction()
+        .withTitle('Cancel')
+        .withData({ type: 'cancel' })
+    );
+
+  await send({ type: 'dialog', card });
+});
+```
+
+### Multi-Step Form
+```typescript
+const steps = {
+  personal: new Card()
+    .withBody(
+      new TextBlock('Personal Information')
+        .withSize('large')
+        .withWeight('bolder'),
+      new TextInput()
+        .withLabel('Full Name')
+        .withId('name'),
+      new TextInput()
+        .withLabel('Email')
+        .withId('email')
+        .withStyle('email')
+    )
+    .addActions(
+      new SubmitAction()
+        .withTitle('Next')
+        .withData({ step: 'personal', next: 'work' })
+    ),
+  
+  work: new Card()
+    .withBody(
+      new TextBlock('Work Information')
+        .withSize('large')
+        .withWeight('bolder'),
+      new TextInput()
+        .withLabel('Company')
+        .withId('company'),
+      new TextInput()
+        .withLabel('Role')
+        .withId('role')
+    )
+    .addActions(
+      new SubmitAction()
+        .withTitle('Back')
+        .withData({ step: 'work', next: 'personal' }),
+      new SubmitAction()
+        .withTitle('Next')
+        .withData({ step: 'work', next: 'review' })
+    )
+};
+
+app.onDialogSubmit('registration', async ({ value, send }) => {
+  const { step, next } = value;
+  await state.update(step, value);
+  
+  if (next === 'review') {
+    const data = await state.getAll();
+    await send({
+      type: 'dialog',
+      card: createReviewCard(data)
+    });
+    return;
+  }
+  
+  await send({
+    type: 'dialog',
+    card: steps[next]
+  });
+});
+```
+
+## Interactive Cards
+
+### Live Updates
+```typescript
+app.on("card.action", async ({ activity, send, api }) => {
+  const data = activity.value?.action?.data;
+  if (!data) return;
+
+  switch (data.type) {
+    case 'like':
+      await updateLikes(activity.messageId);
+      const likes = await getLikes(activity.messageId);
+      return {
+        statusCode: 200,
+        type: "application/vnd.microsoft.card.adaptive",
+        value: createUpdatedCard(likes)
+      };
+      
+    case 'refresh':
+      const newData = await fetchLatestData();
+      return {
+        statusCode: 200,
+        type: "application/vnd.microsoft.card.adaptive",
+        value: createRefreshedCard(newData)
+      };
+
+    default:
+      return {
+        statusCode: 400,
+        type: "application/vnd.microsoft.error",
+        value: {
+          message: "Unknown action type",
+          code: "UNKNOWN_ACTION",
+          innerHttpError: {
+            body: {
+              message: "Unknown action type",
+            },
+            statusCode: 400,
+          },
+        },
+      };
+  }
+});
+```
+
+### Progressive Loading
+```typescript
+app.on("card.action", async ({ activity, send, api }) => {
+  const data = activity.value?.action?.data;
+  if (!data || data.type !== 'loadMore') {
+    return {
+      statusCode: 400,
+      type: "application/vnd.microsoft.error",
+      value: {
+        message: "Invalid action",
+        code: "INVALID_ACTION",
+        innerHttpError: {
+          body: {
+            message: "Invalid action",
+          },
+          statusCode: 400,
+        },
+      },
+    };
+  }
+
+  const { page } = data;
+  const items = await loadPage(page);
+  
+  return {
+    statusCode: 200,
+    type: "application/vnd.microsoft.card.adaptive",
+    value: new Card()
+      .withBody(createItemCards(items))
+      .addActions(
+        new SubmitAction()
+          .withTitle('Load More')
+          .withData({ 
+            type: 'loadMore',
+            page: page + 1
+          })
+      )
+  };
+});
+```
+
+### Real-time Updates
+```typescript
+app.on("card.action", async ({ activity, send, api }) => {
+  const data = activity.value?.action?.data;
+  if (!data || data.type !== 'refresh') {
+    return {
+      statusCode: 400,
+      type: "application/vnd.microsoft.error",
+      value: {
+        message: "Invalid action",
+        code: "INVALID_ACTION",
+        innerHttpError: {
+          body: {
+            message: "Invalid action",
+          },
+          statusCode: 400,
+        },
+      },
+    };
+  }
+
+  const newData = await fetchLatestData();
+  const card = new Card()
+    .withBody(
+      new TextBlock('Live Update'),
+      new FactSet(
+        ...Object.entries(newData).map(([title, value]) => new Fact(title, String(value)))
+      )
+    )
+    .addActions(
+      new SubmitAction()
+        .withTitle('Refresh')
+        .withData({ type: 'refresh' })
+    );
+
+  // For real-time updates to multiple conversations, you would need to use a different mechanism
+  // like a broadcast or webhook to notify all active conversations
+  return {
+    statusCode: 200,
+    type: "application/vnd.microsoft.card.adaptive",
+    value: card
+  };
+});
+```
+<!-- @managed-content-end: CardsAndDialogs details -->
