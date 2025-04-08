@@ -151,11 +151,13 @@ const ChatMessage: FC<ChatMessageProps> = memo(
                     <MessageAttachments attachments={value.attachments} classes={classes} />
                   )}
                 </div>
-                {feedback && (
+                {feedback && sendDirection === 'received' && (
                   <FeedbackUI
                     displayName={value.from?.application?.displayName || 'App'}
                     onDialogOpenChange={setIsFeedbackDialogOpen}
                     isFeedbackDialogOpen={isFeedbackDialogOpen}
+                    value={value}
+                    streaming={streaming}
                   />
                 )}
               </div>

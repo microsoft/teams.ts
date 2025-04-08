@@ -2,14 +2,22 @@ import { makeStyles, tokens } from '@fluentui/react-components';
 
 const useMessageClasses = makeStyles({
   feedbackContainer: {
-    display: 'block',
+    display: 'flex',
+    alignItems: 'center',
+    gap: tokens.spacingHorizontalM,
     padding: '0.25rem 0',
     marginTop: '0.5rem',
   },
   feedbackButton: {
-    borderRadius: tokens.borderRadiusXLarge,
-    width: '1.5rem',
-    height: '1.5rem',
+    minWidth: 'auto',
+    padding: 0,
+  },
+  feedbackText: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: tokens.spacingHorizontalM,
+    fontSize: tokens.fontSizeBase100,
+    marginLeft: tokens.spacingHorizontalM,
   },
   feedbackIcon: {
     width: '1.25rem',
