@@ -152,7 +152,7 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = memo(
                 disabled={disabled}
               />
             </Tooltip>
-            <Tooltip content={`Done(${isMac ? '⌘' : 'Ctrl'} Enter)`} relationship="label">
+            <Tooltip content={`Done (${isMac ? '⌘' : 'Ctrl'} Enter)`} relationship="label">
               <ToolbarButton
                 data-tid="done-button"
                 className={classes.toolbarButton}
