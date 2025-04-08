@@ -13,23 +13,26 @@ alwaysApply: false
 ### Basic Chat
 
 ```typescript
-const prompt = new ChatPrompt({
-  model: new OpenAIModel({
-    model: 'gpt-4',
-    apiKey: process.env.OPENAI_API_KEY,
-  }),
-  instructions: 'You are a helpful assistant.',
+app.on('message', async ({ send, stream, activity }) => {
+  const prompt = new ChatPrompt({
+    model: new OpenAIChatModel({
+      model: 'gpt-4',
+      apiKey: process.env.OPENAI_API_KEY,
+      endpoint: process.env.OPENAI_ENDPOINT, // Mainly used for azure open ai
+    }),
+    instructions: 'You are a helpful assistant.',
+  });
+  
+  const response = await prompt.send('Hello!');
+  await send(response.content);
 });
-
-const response = await prompt.send('Hello!');
-await send(response.content);
 ```
 
 ### Streaming Responses
 
 ```typescript
 const prompt = new ChatPrompt({
-  model: new OpenAIModel(...),
+  model: new OpenAIChatModel(...),
   instructions: template,
 });
 
@@ -46,7 +49,7 @@ await prompt.send(input, {
 
 ```typescript
 const prompt = new ChatPrompt({
-  model: new OpenAIModel(),
+  model: new OpenAIChatModel(),
   instructions: template,
 }).function(
   'get_weather',
@@ -73,7 +76,7 @@ const prompt = new ChatPrompt({
 
 ```typescript
 const prompt = new ChatPrompt({
-  model: new OpenAIModel(),
+  model: new OpenAIChatModel(),
 })
   .function('search_products', 'Search product database', async (query) => {
     return await db.products.search(query);
@@ -90,17 +93,17 @@ const prompt = new ChatPrompt({
 
 ```typescript
 const researcher = new ChatPrompt({
-  model: new OpenAIModel(),
+  model: new OpenAIChatModel(),
   instructions: researcherTemplate,
 });
 
 const writer = new ChatPrompt({
-  model: new OpenAIModel(),
+  model: new OpenAIChatModel(),
   instructions: writerTemplate,
 });
 
 const reviewer = new ChatPrompt({
-  model: new OpenAIModel(),
+  model: new OpenAIChatModel(),
   instructions: reviewerTemplate,
 });
 
@@ -172,7 +175,7 @@ const mathSolver = new ChatPrompt({
 });
 
 const mainPrompt = new ChatPrompt({
-  model: new OpenAIModel(),
+  model: new OpenAIChatModel(),
   instructions: 'You are a general assistant.'
 })
   .use(mathSolver);  // registers with name 'math'
@@ -183,7 +186,7 @@ You can also register prompts with custom names:
 
 ```typescript
 const mainPrompt = new ChatPrompt({
-  model: new OpenAIModel(),
+  model: new OpenAIChatModel(),
   instructions: 'You are a general assistant.'
 })
   .use('calculator', mathSolver)  // registers with custom name
@@ -201,18 +204,18 @@ Prompts can be chained together for complex workflows:
 ```typescript
 const dataAnalyst = new ChatPrompt({
   name: 'analyst',
-  model: new OpenAIModel(),
+  model: new OpenAIChatModel(),
   instructions: 'You analyze data and create insights.'
 });
 
 const reporter = new ChatPrompt({
   name: 'reporter',
-  model: new OpenAIModel(),
+  model: new OpenAIChatModel(),
   instructions: 'You create reports from analysis.'
 });
 
 const workflow = new ChatPrompt({
-  model: new OpenAIModel(),
+  model: new OpenAIChatModel(),
   instructions: 'You coordinate data analysis workflows.'
 })
   .use(dataAnalyst)

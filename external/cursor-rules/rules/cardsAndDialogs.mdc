@@ -30,8 +30,8 @@ await send(card)
 ```typescript
 app.on("card.action", async ({ activity, send, api }) => {
   const adaptiveCardActionData = activity.value?.action?.data; // Corresponds to the data of the invoked button or action
-  if (!data) return;
-  if (data !== "buttonClick") {
+  if (!adaptiveCardActionData) return;
+  if (adaptiveCardActionData.type !== "buttonClick") {
     send("Not sure what you mean!")
     // Must return an AdaptiveCardActionErrorResponse
     return {
@@ -131,8 +131,7 @@ app.onDialog('settings', async ({ send }) => {
       new TextBlock('Configure your preferences')
         .withSize('medium')
         .withSubtle(),
-      new Container()
-        .withBody(
+      new Container(
           new TextBlock('Notifications')
             .withWeight('bolder'),
           new ToggleInput('Email Notifications')
@@ -140,8 +139,7 @@ app.onDialog('settings', async ({ send }) => {
           new ToggleInput('Push Notifications')
             .withId('pushNotifications')
         ),
-      new Container()
-        .withBody(
+      new Container(
           new TextBlock('Display')
             .withWeight('bolder'),
           new ChoiceSetInput(
@@ -166,7 +164,15 @@ app.onDialog('settings', async ({ send }) => {
         .withData({ type: 'cancel' })
     );
 
-  await send({ type: 'dialog', card });
+    return {
+      statusCode: 200,
+      task: {
+        type: 'continue',
+        value: {
+          card: cardAttachment('adaptive', card)
+        }
+      }
+    }
 });
 ```
 
@@ -214,154 +220,29 @@ const steps = {
     )
 };
 
-app.onDialogSubmit('registration', async ({ value, send }) => {
+app.on('dialog.submit', async ({ value, send }) => {
   const { step, next } = value;
   await state.update(step, value);
   
-  if (next === 'review') {
-    const data = await state.getAll();
-    await send({
-      type: 'dialog',
-      card: createReviewCard(data)
-    });
-    return;
-  }
-  
-  await send({
-    type: 'dialog',
-    card: steps[next]
-  });
-});
-```
-
-## Interactive Cards
-
-### Live Updates
-```typescript
-app.on("card.action", async ({ activity, send, api }) => {
-  const data = activity.value?.action?.data;
-  if (!data) return;
-
-  switch (data.type) {
-    case 'like':
-      await updateLikes(activity.messageId);
-      const likes = await getLikes(activity.messageId);
-      return {
-        statusCode: 200,
-        type: "application/vnd.microsoft.card.adaptive",
-        value: createUpdatedCard(likes)
-      };
-      
-    case 'refresh':
-      const newData = await fetchLatestData();
-      return {
-        statusCode: 200,
-        type: "application/vnd.microsoft.card.adaptive",
-        value: createRefreshedCard(newData)
-      };
-
-    default:
-      return {
-        statusCode: 400,
-        type: "application/vnd.microsoft.error",
-        value: {
-          message: "Unknown action type",
-          code: "UNKNOWN_ACTION",
-          innerHttpError: {
-            body: {
-              message: "Unknown action type",
-            },
-            statusCode: 400,
-          },
-        },
-      };
-  }
-});
-```
-
-### Progressive Loading
-```typescript
-app.on("card.action", async ({ activity, send, api }) => {
-  const data = activity.value?.action?.data;
-  if (!data || data.type !== 'loadMore') {
+  if (next === "confirm") {
     return {
-      statusCode: 400,
-      type: "application/vnd.microsoft.error",
-      value: {
-        message: "Invalid action",
-        code: "INVALID_ACTION",
-        innerHttpError: {
-          body: {
-            message: "Invalid action",
-          },
-          statusCode: 400,
-        },
-      },
-    };
+      statusCode: 200,
+      task: {
+        type: "message",
+        value: "Thanks for your feedback!"
+      }
+    }
   }
-
-  const { page } = data;
-  const items = await loadPage(page);
   
   return {
     statusCode: 200,
-    type: "application/vnd.microsoft.card.adaptive",
-    value: new Card()
-      .withBody(createItemCards(items))
-      .addActions(
-        new SubmitAction()
-          .withTitle('Load More')
-          .withData({ 
-            type: 'loadMore',
-            page: page + 1
-          })
-      )
-  };
-});
-```
-
-### Real-time Updates
-```typescript
-app.on("card.action", async ({ activity, send, api }) => {
-  const data = activity.value?.action?.data;
-  if (!data || data.type !== 'refresh') {
-    return {
-      statusCode: 400,
-      type: "application/vnd.microsoft.error",
+    task: {
+      type: 'continue',
       value: {
-        message: "Invalid action",
-        code: "INVALID_ACTION",
-        innerHttpError: {
-          body: {
-            message: "Invalid action",
-          },
-          statusCode: 400,
-        },
-      },
-    };
+        card: cardAttachment('adaptive', steps[next])
+      }
+    }
   }
-
-  const newData = await fetchLatestData();
-  const card = new Card()
-    .withBody(
-      new TextBlock('Live Update'),
-      new FactSet(
-        ...Object.entries(newData).map(([title, value]) => new Fact(title, String(value)))
-      )
-    )
-    .addActions(
-      new SubmitAction()
-        .withTitle('Refresh')
-        .withData({ type: 'refresh' })
-    );
-
-  // For real-time updates to multiple conversations, you would need to use a different mechanism
-  // like a broadcast or webhook to notify all active conversations
-  return {
-    statusCode: 200,
-    type: "application/vnd.microsoft.card.adaptive",
-    value: card
-  };
 });
 ```
 <!-- @managed-content-end: CardsAndDialogs details -->
