@@ -49,7 +49,7 @@ await prompt.send(input, {
 
 ```typescript
 const prompt = new ChatPrompt({
-  model: new OpenAIChatModel(),
+  model: new OpenAIChatModel(...),
   instructions: template,
 }).function(
   'get_weather',
@@ -76,7 +76,7 @@ const prompt = new ChatPrompt({
 
 ```typescript
 const prompt = new ChatPrompt({
-  model: new OpenAIChatModel(),
+  model: new OpenAIChatModel(...),
 })
   .function('search_products', 'Search product database', async (query) => {
     return await db.products.search(query);
@@ -103,7 +103,7 @@ const writer = new ChatPrompt({
 });
 
 const reviewer = new ChatPrompt({
-  model: new OpenAIChatModel(),
+  model: new OpenAIChatModel(...),
   instructions: reviewerTemplate,
 });
 
@@ -186,7 +186,7 @@ You can also register prompts with custom names:
 
 ```typescript
 const mainPrompt = new ChatPrompt({
-  model: new OpenAIChatModel(),
+  model: new OpenAIChatModel(...),
   instructions: 'You are a general assistant.'
 })
   .use('calculator', mathSolver)  // registers with custom name
@@ -204,18 +204,18 @@ Prompts can be chained together for complex workflows:
 ```typescript
 const dataAnalyst = new ChatPrompt({
   name: 'analyst',
-  model: new OpenAIChatModel(),
+  model: new OpenAIChatModel(...),
   instructions: 'You analyze data and create insights.'
 });
 
 const reporter = new ChatPrompt({
   name: 'reporter',
-  model: new OpenAIChatModel(),
+  model: new OpenAIChatModel(...),
   instructions: 'You create reports from analysis.'
 });
 
 const workflow = new ChatPrompt({
-  model: new OpenAIChatModel(),
+  model: new OpenAIChatModel(...),
   instructions: 'You coordinate data analysis workflows.'
 })
   .use(dataAnalyst)
