@@ -6,6 +6,8 @@ import { IChatModel, TextChunkHandler } from '../models';
 import { Schema } from '../schema';
 import { ITemplate } from '../template';
 import { StringTemplate } from '../templates';
+import { WithRequired } from '../utils/types';
+import { IAiPlugin } from './plugin';
 
 export type ChatPromptOptions<TOptions extends Record<string, any> = Record<string, any>> = {
   /**
@@ -65,7 +67,10 @@ export type ChatPromptSendOptions<TOptions extends Record<string, any> = Record<
  * chat model that provides utility like
  * streaming and function calling
  */
-export interface IChatPrompt<TOptions extends Record<string, any> = Record<string, any>> {
+export interface IChatPrompt<
+  TOptions extends Record<string, any> = Record<string, any>,
+  TChatPromptPlugins extends readonly ChatPromptPlugin<string, any>[] = [],
+> {
   /**
    * the prompt name
    */
@@ -87,6 +92,11 @@ export interface IChatPrompt<TOptions extends Record<string, any> = Record<strin
   readonly functions: Array<Function>;
 
   /**
+   * the chat model
+   */
+  plugins: TChatPromptPlugins;
+
+  /**
    * add another chat prompt as a
    */
   use(prompt: IChatPrompt): this;
@@ -98,6 +108,15 @@ export interface IChatPrompt<TOptions extends Record<string, any> = Record<strin
    */
   function(name: string, description: string, handler: FunctionHandler): this;
   function(name: string, description: string, parameters: Schema, handler: FunctionHandler): this;
+
+  usePlugin<TPluginName extends TChatPromptPlugins[number]['name']>(
+    name: TPluginName,
+    args: Extract<TChatPromptPlugins[number], { name: TPluginName }>['onUsePlugin'] extends
+      | ((args: infer U) => void)
+      | undefined
+      ? U
+      : never
+  ): this;
 
   /**
    * call a function
@@ -113,13 +132,30 @@ export interface IChatPrompt<TOptions extends Record<string, any> = Record<strin
   ): Promise<Pick<ModelMessage, 'content'> & Omit<ModelMessage, 'content'>>;
 }
 
+export type ChatPromptPlugin<TPluginName extends string, TPluginUseArgs extends {}> = IAiPlugin<
+  TPluginName,
+  TPluginUseArgs,
+  Parameters<IChatPrompt['send']>[0],
+  ReturnType<IChatPrompt['send']>
+> & {
+  /**
+   * Optionally passed in to modify the functions array that
+   * is passed to the model
+   * @param functions
+   * @returns Functions
+   */
+  onBuildFunctions?: (functions: Function[]) => Function[] | Promise<Function[]>;
+};
+
 /**
  * a prompt that can interface with a
  * chat model that provides utility like
  * streaming and function calling
  */
-export class ChatPrompt<TOptions extends Record<string, any> = Record<string, any>>
-  implements IChatPrompt<TOptions>
+export class ChatPrompt<
+  TOptions extends Record<string, any> = Record<string, any>,
+  TChatPromptPlugins extends readonly ChatPromptPlugin<string, any>[] = [],
+> implements IChatPrompt<TOptions, TChatPromptPlugins>
 {
   get name() {
     return this._name;
@@ -141,11 +177,16 @@ export class ChatPrompt<TOptions extends Record<string, any> = Record<string, an
   }
   protected readonly _functions: Record<string, Function> = {};
 
+  get plugins() {
+    return this._plugins;
+  }
+  protected readonly _plugins: TChatPromptPlugins;
+
   protected readonly _role: 'system' | 'user';
   protected readonly _template: ITemplate;
   protected readonly _model: IChatModel<TOptions>;
 
-  constructor(options: ChatPromptOptions<TOptions>) {
+  constructor(options: ChatPromptOptions<TOptions>, plugins?: TChatPromptPlugins) {
     this._name = options.name || 'chat';
     this._description = options.description || 'an agent you can chat with';
     this._role = options.role || 'system';
@@ -160,6 +201,8 @@ export class ChatPrompt<TOptions extends Record<string, any> = Record<string, an
       typeof options.messages === 'object' && !Array.isArray(options.messages)
         ? options.messages
         : new LocalMemory({ messages: options.messages || [] });
+
+    this._plugins = plugins || ([] as unknown as TChatPromptPlugins);
   }
 
   use(prompt: ChatPrompt): this;
@@ -205,6 +248,26 @@ export class ChatPrompt<TOptions extends Record<string, any> = Record<string, an
     return this;
   }
 
+  usePlugin<K extends TChatPromptPlugins[number]['name']>(
+    name: K,
+    args: Extract<TChatPromptPlugins[number], { name: K }>['onUsePlugin'] extends
+      | ((args: infer U) => void)
+      | undefined
+      ? U
+      : never
+  ): this {
+    const plugin = this._plugins.find((p) => p.name === name);
+    if (!plugin) {
+      throw new Error(`Plugin "${name}" not found`);
+    }
+
+    if (plugin.onUsePlugin) {
+      plugin.onUsePlugin(args);
+    }
+
+    return this;
+  }
+
   async call<A extends { [key: string]: any }, R = any>(name: string, args?: A): Promise<R> {
     const fn = this._functions[name];
 
@@ -216,6 +279,12 @@ export class ChatPrompt<TOptions extends Record<string, any> = Record<string, an
   }
 
   async send(input: string | ContentPart[], options: ChatPromptSendOptions<TOptions> = {}) {
+    for (const plugin of this.plugins) {
+      if (plugin.onBeforeSend) {
+        input = await plugin.onBeforeSend(input);
+      }
+    }
+
     const { onChunk } = options;
 
     if (typeof input === 'string') {
@@ -237,6 +306,23 @@ export class ChatPrompt<TOptions extends Record<string, any> = Record<string, an
       };
     }
 
+    let functions = Object.values(this._functions);
+    const pluginsWithOnBuildFunctions = this._plugins.filter(
+      (plugin): plugin is WithRequired<TChatPromptPlugins[number], 'onBuildFunctions'> =>
+        plugin.onBuildFunctions != null
+    );
+    for (const plugin of pluginsWithOnBuildFunctions) {
+      functions = await plugin.onBuildFunctions(functions);
+    }
+
+    const fnMap = functions.reduce(
+      (acc, fn) => {
+        acc[fn.name] = fn;
+        return acc;
+      },
+      {} as Record<string, Function>
+    );
+
     const res = await this._model.send(
       {
         role: 'user',
@@ -246,7 +332,7 @@ export class ChatPrompt<TOptions extends Record<string, any> = Record<string, an
         system,
         messages,
         request: options.request,
-        functions: this._functions,
+        functions: fnMap,
         onChunk: async (chunk) => {
           if (!chunk || !onChunk) return;
           buffer += chunk;
@@ -261,6 +347,16 @@ export class ChatPrompt<TOptions extends Record<string, any> = Record<string, an
       }
     );
 
-    return { ...res, content: res.content || '' };
+    let output: Awaited<ReturnType<typeof this._model.send>> = {
+      ...res,
+      content: res.content || '',
+    };
+    for (const plugin of this.plugins) {
+      if (plugin.onAfterSend) {
+        output = await plugin.onAfterSend(output);
+      }
+    }
+
+    return output;
   }
 }

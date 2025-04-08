@@ -1,6 +1,6 @@
 # Samples: MCP (Model Context Protocol)
 
-A bot that acts as an MCP server and client.
+A bot that acts as an MCP server.
 
 ## Run
 

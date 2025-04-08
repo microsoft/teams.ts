@@ -1,5 +1,5 @@
 {
-  "name": "@samples/mcp",
+  "name": "@samples/mcpclient",
   "version": "0.0.0",
   "license": "MIT",
   "private": true,
@@ -13,25 +13,18 @@
     "clean": "npx rimraf ./dist",
     "build": "npx tsc",
     "start": "node -r dotenv/config .",
-    "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\"",
-    "inspect": "npx cross-env SERVER_PORT=9000 npx @modelcontextprotocol/inspector -e NODE_NO_WARNINGS=1 -e PORT=3000 node -r dotenv/config ."
+    "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\""
   },
   "dependencies": {
-    "@microsoft/spark.api": "*",
     "@microsoft/spark.apps": "*",
-    "@microsoft/spark.cards": "*",
-    "@microsoft/spark.common": "*",
+    "@microsoft/spark.ai": "*",
     "@microsoft/spark.dev": "*",
-    "@microsoft/spark.graph": "*",
-    "@microsoft/spark.mcp": "*",
     "@microsoft/spark.openai": "*",
+    "@microsoft/spark.mcpclient": "*",
     "@modelcontextprotocol/sdk": "^1.9.0"
   },
   "devDependencies": {
-    "@microsoft/spark.config": "*",
-    "@modelcontextprotocol/inspector": "^0.6.0",
     "@types/node": "^22.5.4",
-    "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
     "nodemon": "^3.1.4",
     "rimraf": "^6.0.1",
