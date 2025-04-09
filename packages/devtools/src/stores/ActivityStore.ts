@@ -41,7 +41,7 @@ export const useActivityStore = create<ActivityStore>()(
       }),
     findByMessageId: (messageId: string) => {
       const state = get();
-      return state.list.find(event => event.body?.id === messageId);
+      return state.list.find((event) => event.body?.id === messageId);
     },
   }))
 );

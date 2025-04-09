@@ -57,7 +57,7 @@ const useChatContainerClasses = makeStyles({
     display: 'flex',
     alignItems: 'center',
     gap: tokens.spacingHorizontalM,
-  }
+  },
 });
 
 export default useChatContainerClasses;

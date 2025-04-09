@@ -5,12 +5,12 @@ import { Message, MessageUser, MessageReaction } from '@microsoft/spark.api';
 import { useChatStore } from '../../stores/ChatStore';
 import { MessageActionUIPayload } from '../../types/MessageActionUI';
 import { hasMarkdownContent } from '../../utils/markdown';
+import Feedback from '../Feedback/Feedback';
 import MessageActionsToolbar from '../MessageActionsToolbar/MessageActionsToolbar';
 import { MarkdownContent } from '../MarkdownContent';
 
 import ChatMessageDeleted from './MessageUpdate/ChatMessageDeleted';
 import useChatMessageStyles from './ChatMessage.styles';
-import FeedbackUI from './FeedbackUI';
 import MessageAttachments from './MessageAttachments';
 import MessageReactionButton from './MessageReactionButton';
 
@@ -152,7 +152,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
                   )}
                 </div>
                 {feedback && sendDirection === 'received' && (
-                  <FeedbackUI
+                  <Feedback
                     displayName={value.from?.application?.displayName || 'App'}
                     onDialogOpenChange={setIsFeedbackDialogOpen}
                     isFeedbackDialogOpen={isFeedbackDialogOpen}

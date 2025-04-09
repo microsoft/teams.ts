@@ -29,11 +29,11 @@ import { useChatStore } from '../../stores/ChatStore';
 import { createFeedbackActivity } from '../../utils/createFeedbackActivity';
 import Logger from '../Logger/Logger';
 
-import useMessageClasses from './FeedbackUI.styles';
+import useMessageClasses from './Feedback.styles';
 
 const childLog = Logger.child('FeedbackUI');
 
-interface FeedbackUIProps {
+interface FeedbackProps {
   displayName: string;
   onDialogOpenChange: (isOpen: boolean) => void;
   isFeedbackDialogOpen: boolean;
@@ -48,7 +48,7 @@ const ThumbDislikeIcon = bundleIcon(
   ThumbDislikeRegular as FluentIcon
 );
 
-const FeedbackUI: FC<FeedbackUIProps> = ({
+const Feedback: FC<FeedbackProps> = ({
   displayName,
   onDialogOpenChange,
   isFeedbackDialogOpen,
@@ -196,6 +196,6 @@ const FeedbackUI: FC<FeedbackUIProps> = ({
   );
 };
 
-export default FeedbackUI;
+export default Feedback;
 
-FeedbackUI.displayName = 'FeedbackUI';
+Feedback.displayName = 'Feedback';
