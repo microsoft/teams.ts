@@ -221,7 +221,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
         <div className={mergeClasses(classes.chatContainer, screenClasses.scrollbarContainer)}>
           <div id="messages-list" className={classes.messagesList}>
             {chat &&
-              (messages[chat.id] || []).map((message) => (
+              (messages[chat.id] || []).map((message: Message) => (
                 <ChatMessageContainer key={message.id} value={message} isConnected={isConnected}>
                   {currentlyEditingMessageId === message.id ? (
                     <ChatMessageEdit
