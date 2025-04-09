@@ -1,5 +1,13 @@
 # @microsoft/spark.cli
 
+## 0.2.5
+
+### Patch Changes
+
+- add mcp client, ai plugins, devtools improvements
+- Updated dependencies
+    - @microsoft/spark.common@0.2.5
+
 ## 0.2.4
 
 ### Patch Changes

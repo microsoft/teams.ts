@@ -1,5 +1,16 @@
 # @microsoft/spark.devtools
 
+## 0.2.5
+
+### Patch Changes
+
+- add mcp client, ai plugins, devtools improvements
+- Updated dependencies
+    - @microsoft/spark.api@0.2.5
+    - @microsoft/spark.apps@0.2.5
+    - @microsoft/spark.cards@0.2.5
+    - @microsoft/spark.common@0.2.5
+
 ## 0.2.4
 
 ### Patch Changes

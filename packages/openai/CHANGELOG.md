@@ -1,5 +1,11 @@
 # @microsoft/spark.openai
 
+## 0.2.5
+
+### Patch Changes
+
+- add mcp client, ai plugins, devtools improvements
+
 ## 0.2.4
 
 ### Patch Changes

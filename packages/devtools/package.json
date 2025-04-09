@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/spark.devtools",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "private": true,
   "files": [
     "dist",
