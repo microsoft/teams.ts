@@ -1,24 +1,12 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@microsoft/spark.config/tsconfig.node.json",
   "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-    "target": "ES2022",
-    "lib": ["ES2023"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "composite": true,
+    "jsx": "react-jsx",
+    "rootDir": "."
   },
   "include": ["vite.config.ts"]
 }
