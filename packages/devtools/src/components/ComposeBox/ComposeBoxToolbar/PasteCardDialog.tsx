@@ -16,9 +16,9 @@ import {
   useModalAttributes,
   useToastController,
 } from '@fluentui/react-components';
-import { CardAttachmentType, Attachment, cardAttachment } from '@microsoft/teams.api';
+import { Attachment } from '@microsoft/teams.api';
 
-import { VALID_CARD_TYPES } from '../../../types/ValidCardTypes';
+import { useCardValidation } from '../../../hooks/useCardValidation';
 import { isMacOS } from '../../../utils/get-os';
 
 /**
@@ -59,70 +59,19 @@ const PasteCardDialog: FC<PasteCardDialogProps> = memo(
     const cancelButtonRef = useRef<HTMLButtonElement>(null);
     const navigationAttributes = useArrowNavigationGroup({ circular: true });
     const { modalAttributes } = useModalAttributes();
+    const { validateCardInput } = useCardValidation();
 
     const classes = useClasses();
 
-    /**
-     * Validates card JSON input and wraps it in an attachment structure if valid.
-     * The original card content remains unchanged inside the attachment wrapper.
-     * @param input - The JSON string to validate
-     * @returns Object containing validation result and wrapped card attachment if successful
-     */
-    const validateCardInput = (
-      input: string
-    ): {
-      isValid: boolean;
-      attachment?: Attachment;
-      error?: string;
-    } => {
-      if (!input.trim()) {
-        return { isValid: false, error: 'Please enter JSON content.' };
-      }
-
-      try {
-        const trimmedInput = input.trim();
-        const cardContent = JSON.parse(trimmedInput);
-
-        /**
-         * Determine the attachment type while preserving the original card content.
-         * - For AdaptiveCard: use 'adaptive' as the wrapper type
-         * - For other cards: use their native type
-         */
-        const attachmentType =
-          cardContent?.type === 'AdaptiveCard'
-            ? 'adaptive'
-            : (cardContent?.type as CardAttachmentType);
-
-        if (!attachmentType || !VALID_CARD_TYPES.includes(attachmentType)) {
-          return {
-            isValid: false,
-            error: `Invalid card type. Expected one of: ${VALID_CARD_TYPES.join(', ')}`,
-          };
-        }
-
-        /** Create attachment structure that wraps but does not modify the original card */
-        return {
-          isValid: true,
-          attachment: cardAttachment(attachmentType, cardContent),
-        };
-      } catch (error) {
-        const errorMessage =
-          error instanceof SyntaxError
-            ? `Invalid JSON format: ${error.message}`
-            : 'Invalid card structure. Please verify the card format.';
-        return { isValid: false, error: errorMessage };
-      }
-    };
-
     const handleSave = () => {
-      const { isValid, attachment, error } = validateCardInput(jsonInput);
+      const { isValid, attachment, error, isUnsupportedType } = validateCardInput(jsonInput);
 
       if (!isValid || !attachment) {
         dispatchToast(
           <Toast>
             <ToastTitle>{error}</ToastTitle>
           </Toast>,
-          { intent: 'error' }
+          { intent: isUnsupportedType ? 'warning' : 'error' }
         );
         return;
       }
