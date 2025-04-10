@@ -14,10 +14,22 @@ import { Settings } from './settings';
   const context: IContext = { settings, envs };
 
   envs.select(settings.env);
-  yargs(hideBin(process.argv))
+
+  const argv = hideBin(process.argv);
+  const yargsInstance = yargs(argv)
     .scriptName('spark')
+    .version()
     .command(commands.New(context))
     .command(commands.Env(context))
     .command(commands.Config(context))
-    .parse();
+    .demandCommand(1, 'Please specify a command')
+    .showHelpOnFail(true)
+    .recommendCommands();
+
+  // Show help when no arguments are provided
+  if (argv.length === 0) {
+    yargsInstance.showHelp();
+  } else {
+    yargsInstance.parse();
+  }
 })();
