@@ -11,6 +11,15 @@ const orderImports = {
   create(context) {
     return {
       Program(node) {
+        // Get the filename to determine if it's a test file
+        const filename = context.getFilename();
+        const isTestFile = /\.(?:spec|test)\.[jt]sx?$/.test(filename);
+
+        // Skip the rule for test files
+        if (isTestFile) {
+          return;
+        }
+
         const sourceCode = context.getSourceCode();
         const imports = node.body.filter((node) => node.type === 'ImportDeclaration');
 
