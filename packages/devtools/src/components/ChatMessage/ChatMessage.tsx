@@ -24,7 +24,7 @@ interface ChatMessageProps {
 }
 
 const ChatMessage: FC<ChatMessageProps> = memo(
-  ({ content, streaming = false, feedback = true, sendDirection, value, onMessageAction }) => {
+  ({ content, streaming = false, feedback = false, sendDirection, value, onMessageAction }) => {
     const classes = useChatMessageStyles();
     const { deletedMessages, chat } = useChatStore();
     const isDeleted = deletedMessages[chat.id]?.some((m) => m.id === value.id);
