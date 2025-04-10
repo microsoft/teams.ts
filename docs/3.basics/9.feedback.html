@@ -23,9 +23,9 @@
         <link rel="stylesheet" href="../fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
-        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
-        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
@@ -157,7 +157,7 @@ an indication of whether the message was useful/correct or not. This feature can
 with LLM's for training.</p>
 <h2 id="enable-message-feedback"><a class="header" href="#enable-message-feedback">Enable Message Feedback</a></h2>
 <pre><code class="language-typescript">app.on('message', async ({ send }) =&gt; {
-    await send(MessageSendActivity('hi!').feedback());
+    await send(MessageSendActivity('hi!').addFeedback());
 });
 </code></pre>
 <p><img src="https://github.com/microsoft/spark.js/blob/main/assets/screenshots/feedback_message.png?raw=true" alt="Feedback Message" /></p>
