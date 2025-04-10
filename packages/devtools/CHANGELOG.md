@@ -1,5 +1,16 @@
 # @microsoft/spark.devtools
 
+## 0.2.6
+
+### Patch Changes
+
+- fix cli for lower node versions
+- Updated dependencies
+    - @microsoft/spark.api@0.2.6
+    - @microsoft/spark.apps@0.2.6
+    - @microsoft/spark.cards@0.2.6
+    - @microsoft/spark.common@0.2.6
+
 ## 0.2.5
 
 ### Patch Changes

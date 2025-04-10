@@ -1,5 +1,13 @@
 # @microsoft/spark.graph
 
+## 0.2.6
+
+### Patch Changes
+
+- fix cli for lower node versions
+- Updated dependencies
+    - @microsoft/spark.common@0.2.6
+
 ## 0.2.5
 
 ### Patch Changes

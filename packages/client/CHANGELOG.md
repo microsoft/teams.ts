@@ -1,5 +1,11 @@
 # @microsoft/spark.client
 
+## 0.2.6
+
+### Patch Changes
+
+- fix cli for lower node versions
+
 ## 0.2.5
 
 ### Patch Changes
