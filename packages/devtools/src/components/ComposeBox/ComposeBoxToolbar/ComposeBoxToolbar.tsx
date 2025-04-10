@@ -26,6 +26,7 @@ import { Attachment } from '@microsoft/spark.api';
 import { useNavigate } from 'react-router';
 
 import { useCardStore } from '../../../stores/CardStore';
+import { isMacOS } from '../../../utils/get-os';
 
 import { useCBToolbarClasses } from './ComposeBoxToolbar.styles';
 import CancelEditDialog from './CancelEditDialog';
@@ -66,6 +67,7 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = memo(
     const [menuOpen, setMenuOpen] = useState(false);
     const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
     const { setDraftMessage, setEditingMessageId } = useCardStore();
+    const isMac = isMacOS();
 
     const handleCancelDialogOpen = useCallback(() => {
       setIsConfirmCancelOpen(true);
@@ -150,10 +152,9 @@ const ComposeBoxToolbar: FC<ComposeBoxToolbarProps> = memo(
                 disabled={disabled}
               />
             </Tooltip>
-            <Tooltip content="Done" relationship="label">
+            <Tooltip content={`Done (${isMac ? '⌘' : 'Ctrl'} Enter)`} relationship="label">
               <ToolbarButton
                 data-tid="done-button"
-                aria-label="Done"
                 className={classes.toolbarButton}
                 onClick={onEditComplete}
                 icon={<Checkmark tabIndex={-1} />}

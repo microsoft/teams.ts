@@ -7,10 +7,11 @@ export interface ActivityStore {
   readonly list: Array<ActivityEvent>;
   readonly byId: Record<string, ActivityEvent>;
   readonly put: (event: ActivityEvent) => void;
+  readonly findByMessageId: (messageId: string) => ActivityEvent | undefined;
 }
 
 export const useActivityStore = create<ActivityStore>()(
-  devtools((set) => ({
+  devtools((set, get) => ({
     list: [],
     byId: {},
     put: (event) =>
@@ -38,5 +39,9 @@ export const useActivityStore = create<ActivityStore>()(
           byId: byId,
         };
       }),
+    findByMessageId: (messageId: string) => {
+      const state = get();
+      return state.list.find((event) => event.body?.id === messageId);
+    },
   }))
 );
