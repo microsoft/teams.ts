@@ -18,8 +18,8 @@ import {
 } from '@fluentui/react-components';
 import { CardAttachmentType, Attachment, cardAttachment } from '@microsoft/spark.api';
 
-import useOperatingSystem from '../../../hooks/useOperatingSystem';
 import { VALID_CARD_TYPES } from '../../../types/ValidCardTypes';
+import { isMacOS } from '../../../utils/get-os';
 
 /**
  * Props for the PasteCardDialog component
@@ -52,7 +52,7 @@ const useClasses = makeStyles({
  */
 const PasteCardDialog: FC<PasteCardDialogProps> = memo(
   ({ isOpen, onClose, onSave, disabled = false }) => {
-    const { isMac } = useOperatingSystem();
+    const isMac = isMacOS();
     const [jsonInput, setJsonInput] = useState('');
     const { dispatchToast } = useToastController();
     const saveButtonRef = useRef<HTMLButtonElement>(null);

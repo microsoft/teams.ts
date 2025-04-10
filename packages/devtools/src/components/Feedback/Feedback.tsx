@@ -22,11 +22,11 @@ import {
 } from '@fluentui/react-icons/lib/fonts';
 import type { Message } from '@microsoft/spark.api';
 
-import useOperatingSystem from '../../hooks/useOperatingSystem';
 import useSparkApi from '../../hooks/useSparkApi';
 import { useActivityStore } from '../../stores/ActivityStore';
 import { useChatStore } from '../../stores/ChatStore';
-import { createFeedbackActivity } from '../../utils/createFeedbackActivity';
+import { createFeedbackActivity } from '../../utils/create-feedback';
+import { isMacOS } from '../../utils/get-os';
 import Logger from '../Logger/Logger';
 
 import useMessageClasses from './Feedback.styles';
@@ -63,7 +63,7 @@ const Feedback: FC<FeedbackProps> = ({
   const { findByMessageId } = useActivityStore();
   const sparkApi = useSparkApi();
   const { chat } = useChatStore();
-  const { isMac } = useOperatingSystem();
+  const isMac = isMacOS();
 
   const handleFeedbackClick = (like: boolean) => {
     setIsLike(like);
