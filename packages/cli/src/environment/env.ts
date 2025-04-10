@@ -45,9 +45,7 @@ export class Env implements IEnv {
   }
 
   list(where?: (item: KeyValue, i: number) => boolean) {
-    return this.items
-      .entries()
-      .toArray()
+    return Array.from(this.items.entries())
       .map(([key, value]) => ({ key, value }))
       .filter((item, i) => (where ? where(item, i) : true));
   }
