@@ -6,10 +6,22 @@ import {
 
 import { IActivityContext } from './activity';
 
-export interface IActivitySignInContext
-  extends IActivityContext<ISignInTokenExchangeInvokeActivity | ISignInVerifyStateInvokeActivity> {
+export interface IActivitySignInTokenExchangeContext
+  extends IActivityContext<ISignInTokenExchangeInvokeActivity> {
   /**
    * the token response of the signin request
    */
   token: TokenResponse;
 }
+
+export interface IActivitySignInVerifyStateContext
+  extends IActivityContext<ISignInVerifyStateInvokeActivity> {
+  /**
+   * the token response of the signin request
+   */
+  token: TokenResponse;
+}
+
+export type IActivitySignInContext =
+  | IActivitySignInTokenExchangeContext
+  | IActivitySignInVerifyStateContext;
