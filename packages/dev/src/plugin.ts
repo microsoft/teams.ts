@@ -2,7 +2,7 @@ import http from 'http';
 import path from 'path';
 
 import express from 'express';
-import io from 'socket.io';
+import { WebSocket, WebSocketServer } from 'ws';
 import * as uuid from 'uuid';
 
 import { ActivityParams, ConversationReference, IToken } from '@microsoft/spark.api';
@@ -62,8 +62,8 @@ export class DevtoolsPlugin implements ISender {
 
   protected http: http.Server;
   protected express: express.Application;
-  protected io: io.Server;
-  protected sockets = new Map<string, io.Socket>();
+  protected ws: WebSocketServer;
+  protected sockets = new Map<string, WebSocket>();
   protected pending: Record<string, ResolveRejctPromise> = {};
   protected pages: Array<Page> = [];
 
@@ -71,8 +71,8 @@ export class DevtoolsPlugin implements ISender {
     const dist = path.join(__dirname, 'devtools-web');
     this.express = express();
     this.http = http.createServer(this.express);
-    this.io = new io.Server(this.http, { path: '/devtools/sockets' });
-    this.io.on('connection', this.onSocketConnection.bind(this));
+    this.ws = new WebSocketServer({ server: this.http, path: '/devtools/sockets' });
+    this.ws.on('connection', this.onSocketConnection.bind(this));
     this.express.use('/devtools', express.static(dist));
     this.express.get('/devtools/*', (_, res) => {
       res.sendFile(path.join(dist, 'index.html'));
@@ -170,8 +170,9 @@ export class DevtoolsPlugin implements ISender {
     return this.httpPlugin.createStream(ref);
   }
 
-  protected onSocketConnection(socket: io.Socket) {
-    this.sockets.set(socket.id, socket);
+  protected onSocketConnection(socket: WebSocket) {
+    const id = uuid.v4();
+    this.sockets.set(id, socket);
     socket.emit('metadata', {
       id: uuid.v4(),
       type: 'metadata',
@@ -184,20 +185,19 @@ export class DevtoolsPlugin implements ISender {
     });
 
     socket.on('disconnect', () => {
-      this.sockets.delete(socket.id);
+      this.sockets.delete(id);
     });
   }
 
   protected emitToSockets(event: IEvent) {
     for (const socket of this.sockets.values()) {
-      socket.emit(event.type, event);
+      socket.send(JSON.stringify(event));
     }
   }
 
   protected emitActivityToSockets(event: ActivityEvent) {
     for (const socket of this.sockets.values()) {
-      socket.emit('activity', event);
-      socket.emit(event.type, event);
+      socket.send(JSON.stringify(event));
     }
   }
 }
