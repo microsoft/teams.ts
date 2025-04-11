@@ -4,6 +4,7 @@ import {
   cardAttachment,
   ConversationAccount,
   ConversationReference,
+  InvokeActivity,
   InvokeResponse,
   MessageActivity,
   MessageDeleteActivity,
@@ -18,6 +19,7 @@ import {
 import { ILogger } from '@microsoft/spark.common/logging';
 import { IStorage } from '@microsoft/spark.common/storage';
 
+import { SupportedInvokeResponse } from '@microsoft/spark.api/dist/models/invoke-response';
 import { ApiClient } from '../api';
 import { ISender, IStreamer } from '../types';
 
@@ -119,6 +121,22 @@ export interface IActivityContext<T extends Activity = Activity>
   reply: (activity: ActivityLike) => Promise<SentActivity>;
 
   /**
+   * respond to the inbound activity
+   * @param response response to send
+   */
+  response: (
+    response: T extends InvokeActivity
+      ? T['name'] extends SupportedInvokeResponse
+        ? InvokeResponse<T['name']>['body'] | InvokeResponse<T['name']>
+        : never
+      : never
+  ) => T extends InvokeActivity
+    ? T['name'] extends SupportedInvokeResponse
+      ? InvokeResponse<T['name']>['body'] | InvokeResponse<T['name']>
+      : never
+    : never;
+
+  /**
    * trigger user signin flow for the activity sender
    * @param options options for the signin flow
    */
@@ -179,6 +197,20 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
 
   async send(activity: ActivityLike) {
     return await this._plugin.send(toActivityParams(activity), this.ref);
+  }
+
+  response(
+    response: T extends InvokeActivity
+      ? T['name'] extends SupportedInvokeResponse
+        ? InvokeResponse<T['name']>['body'] | InvokeResponse<T['name']>
+        : never
+      : never
+  ): T extends InvokeActivity
+    ? T['name'] extends SupportedInvokeResponse
+      ? InvokeResponse<T['name']>['body'] | InvokeResponse<T['name']>
+      : never
+    : never {
+    return response as any;
   }
 
   async reply(activity: ActivityLike) {
@@ -267,7 +299,7 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
     });
   }
 
-  toInterface(): IActivityContext {
+  toInterface(): IActivityContext<T> {
     return {
       activity: this.activity,
       api: this.api,
@@ -283,6 +315,7 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
       send: this.send.bind(this),
       signin: this.signin.bind(this),
       signout: this.signout.bind(this),
+      response: this.response.bind(this),
     };
   }
 }
