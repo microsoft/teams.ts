@@ -65,9 +65,7 @@ export class EnvStorage {
   }
 
   list(where?: (item: IEnv, i: number) => boolean) {
-    return this._store
-      .values()
-      .toArray()
+    return Array.from(this._store.values())
       .filter((item, i) => (where ? where(item, i) : true));
   }
 
