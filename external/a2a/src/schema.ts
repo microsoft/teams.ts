@@ -1,4 +1,5 @@
 // === JSON-RPC Base Structures
+/* eslint-disable */
 
 /**
  * Base interface for identifying JSON-RPC messages.

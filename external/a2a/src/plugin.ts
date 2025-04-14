@@ -170,7 +170,7 @@ export class A2APlugin implements ISender {
       if (err instanceof A2AError) {
         err.taskId = request.id || undefined;
       } else {
-        err = A2AError.internalError('internal error', err);
+        throw A2AError.internalError('internal error', err);
       }
 
       next(err);

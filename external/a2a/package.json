@@ -36,8 +36,8 @@
     "jsonwebtoken": "^9.0.2"
   },
   "peerDependencies": {
-    "@microsoft/spark.ai": "*",
     "@microsoft/spark.apps": "*",
+    "@microsoft/spark.api": "*",
     "@microsoft/spark.common": "*"
   },
   "devDependencies": {

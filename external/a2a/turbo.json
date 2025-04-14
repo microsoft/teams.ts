@@ -6,7 +6,7 @@
       "outputs": [".next/**", "!.next/cache/**"],
       "cache": false,
       "dependsOn": [
-        "@microsoft/spark.ai#build",
+        "@microsoft/spark.api#build",
         "@microsoft/spark.apps#build",
         "@microsoft/spark.common#build",
         "@microsoft/spark.dev#build"

@@ -46,7 +46,7 @@ export type McpClientPluginOptions = ClientOptions & {
   createTransport?: CreateTransport;
 };
 
-export interface McpClientPluginUseParams {
+export type McpClientPluginUseParams = {
   /**
    * The url of the Mcp server to use
    */
@@ -58,7 +58,7 @@ export interface McpClientPluginUseParams {
    * or use the cached params if provided
    */
   params?: McpClientPluginParams[];
-}
+};
 
 export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientPluginUseParams> {
   readonly name = 'mcpClient';
