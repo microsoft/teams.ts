@@ -1,6 +1,10 @@
 import { InteractionRequiredAuthError, LogLevel } from '@azure/msal-browser';
 
-import { acquireMsalAccessToken, buildMsalConfig, fallbackSilentRequestScopes } from './msal-utils';
+import {
+  acquireMsalAccessToken,
+  buildMsalConfig,
+  getStandardExecSilentRequest,
+} from './msal-utils';
 
 const mockClientId = 'mock-client-id';
 const mockLogger = {
@@ -17,9 +21,19 @@ describe('msalUtils', () => {
     jest.clearAllMocks();
   });
 
-  describe('fallbackSilentRequestScopes', () => {
-    it('should contain the expected scopes', () => {
-      expect(fallbackSilentRequestScopes).toEqual(['User.Read']);
+  describe('getStandardExecSilentRequest', () => {
+    it('builds a silent request object with default permission', () => {
+      const request = getStandardExecSilentRequest(mockClientId);
+      expect(request).toEqual({
+        scopes: ['api://mock-client-id/access_as_user'],
+      });
+    });
+
+    it('builds a silent request object with custom permission', () => {
+      const request = getStandardExecSilentRequest(mockClientId, 'my_custom_permission');
+      expect(request).toEqual({
+        scopes: ['api://mock-client-id/my_custom_permission'],
+      });
     });
   });
 
@@ -83,11 +97,11 @@ describe('msalUtils', () => {
 
   describe('acquireMsalAccessToken', () => {
     const accessToken = 'access token';
+    const request = { scopes: ['whatever', 'whatever.else'] };
 
     it('should call acquireTokenSilent with the correct request', async () => {
       const acquireTokenSilent = jest.fn().mockResolvedValue({ accessToken });
       const acquireTokenPopup = jest.fn().mockRejectedValue(new Error('Oh noes!'));
-      const request = { scopes: ['whatever', 'whatever.else'] };
 
       const result = await acquireMsalAccessToken(
         { acquireTokenSilent, acquireTokenPopup },
@@ -100,29 +114,12 @@ describe('msalUtils', () => {
       expect(result).toEqual(accessToken);
     });
 
-    it('should call acquireTokenSilent with default request', async () => {
-      const acquireTokenSilent = jest.fn().mockResolvedValue({ accessToken });
-      const acquireTokenPopup = jest.fn().mockRejectedValue(new Error('Oh noes!'));
-
-      const result = await acquireMsalAccessToken(
-        { acquireTokenSilent, acquireTokenPopup },
-        undefined,
-        mockLogger
-      );
-
-      expect(acquireTokenSilent).toHaveBeenCalledWith({
-        scopes: [...fallbackSilentRequestScopes],
-      });
-      expect(acquireTokenPopup).not.toHaveBeenCalled();
-      expect(result).toEqual(accessToken);
-    });
-
     it('should throw if acquireTokenSilent fails and is not an InteractionRequiredAuthError', async () => {
       const acquireTokenSilent = jest.fn().mockRejectedValue(new Error('Oh noes!'));
       const acquireTokenPopup = jest.fn().mockResolvedValue({ accessToken });
 
       await expect(
-        acquireMsalAccessToken({ acquireTokenSilent, acquireTokenPopup }, undefined, mockLogger)
+        acquireMsalAccessToken({ acquireTokenSilent, acquireTokenPopup }, request, mockLogger)
       ).rejects.toThrow('Oh noes!');
       expect(acquireTokenSilent).toHaveBeenCalledTimes(1);
       expect(acquireTokenPopup).not.toHaveBeenCalled();
@@ -135,7 +132,7 @@ describe('msalUtils', () => {
 
       const result = await acquireMsalAccessToken(
         { acquireTokenSilent, acquireTokenPopup },
-        undefined,
+        request,
         mockLogger
       );
 
@@ -150,7 +147,7 @@ describe('msalUtils', () => {
       const acquireTokenPopup = jest.fn().mockRejectedValue(new Error('Oh noes!'));
 
       await expect(
-        acquireMsalAccessToken({ acquireTokenSilent, acquireTokenPopup }, undefined, mockLogger)
+        acquireMsalAccessToken({ acquireTokenSilent, acquireTokenPopup }, request, mockLogger)
       ).rejects.toThrow('Oh noes!');
       expect(acquireTokenSilent).toHaveBeenCalledTimes(1);
       expect(acquireTokenPopup).toHaveBeenCalledTimes(1);
