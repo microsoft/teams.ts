@@ -375,6 +375,7 @@ export class App {
         (this._tokens.bot.expiration != null && this._tokens.bot.expiration < Date.now()) ||
         force
       ) {
+        this.log.debug('Refreshing bot token');
         const botResponse = await this.api.bots.token.get(this.credentials);
         this._tokens.bot = new JsonWebToken(botResponse.access_token);
       }
@@ -389,6 +390,7 @@ export class App {
         (this._tokens.graph.expiration != null && this._tokens.graph.expiration < Date.now()) ||
         force
       ) {
+        this.log.debug('Refreshing graph token');
         const graphResponse = await this.api.bots.token.getGraph(this.credentials);
         this._tokens.graph = new JsonWebToken(graphResponse.access_token);
       }
