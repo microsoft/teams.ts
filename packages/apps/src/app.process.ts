@@ -24,6 +24,8 @@ export async function $process(this: App, sender: ISender, event: IActivityEvent
     serviceUrl = serviceUrl.slice(0, serviceUrl.length - 1);
   }
 
+  await this.refreshTokens();
+
   let userToken: string | undefined;
   let appToken =
     this.tenantTokens.get(token.tenantId || 'common') || this._tokens.graph?.toString();

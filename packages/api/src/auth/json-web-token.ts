@@ -62,6 +62,14 @@ export class JsonWebToken implements IToken {
     return CallerIds.azure;
   }
 
+  get expiration(): number | undefined {
+    if (this._payload.exp) {
+      return this._payload.exp * 1000;
+    }
+
+    return undefined;
+  }
+
   private readonly _value: string;
   private readonly _payload: JsonWebTokenPayload;
 

@@ -157,10 +157,10 @@ export class App {
   /**
    * the apps auth tokens
    */
-  get tokens() {
+  get tokens(): AppTokens {
     return this._tokens;
   }
-  protected _tokens: AppTokens = {};
+  protected _tokens: Partial<Record<keyof AppTokens, JsonWebToken>> = {};
 
   protected container = new Container();
   protected plugins: Array<IPlugin> = [];
@@ -291,12 +291,7 @@ export class App {
 
     try {
       if (this.credentials) {
-        const botResponse = await this.api.bots.token.get(this.credentials);
-        const graphResponse = await this.api.bots.token.getGraph(this.credentials);
-        this._tokens = {
-          bot: new JsonWebToken(botResponse.access_token),
-          graph: new JsonWebToken(graphResponse.access_token),
-        };
+        await this.refreshTokens();
       }
 
       // initialize plugins
@@ -320,6 +315,39 @@ export class App {
       this.startedAt = new Date();
     } catch (error: any) {
       this.onError({ error });
+    }
+  }
+
+  protected async refreshTokens() {
+    await this.refreshBotToken();
+    await this.refreshGraphToken();
+  }
+
+  protected async refreshBotToken(force = false) {
+    if (this.credentials) {
+      // Only do it if the token isn't there, or if it's expired, or if force is true
+      if (
+        !this._tokens.bot ||
+        (this._tokens.bot.expiration != null && this._tokens.bot.expiration < Date.now()) ||
+        force
+      ) {
+        const botResponse = await this.api.bots.token.get(this.credentials);
+        this._tokens.bot = new JsonWebToken(botResponse.access_token);
+      }
+    }
+  }
+
+  protected async refreshGraphToken(force = false) {
+    if (this.credentials) {
+      // Only do it if the token isn't there, or if it's expired, or if force is true
+      if (
+        !this._tokens.graph ||
+        (this._tokens.graph.expiration != null && this._tokens.graph.expiration < Date.now()) ||
+        force
+      ) {
+        const graphResponse = await this.api.bots.token.getGraph(this.credentials);
+        this._tokens.graph = new JsonWebToken(graphResponse.access_token);
+      }
     }
   }
 

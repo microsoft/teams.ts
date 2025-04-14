@@ -35,6 +35,12 @@ export interface IToken {
   fromId: string;
 
   /**
+   * the expiration of the token since epoch
+   * in milliseconds
+   */
+  expiration?: number;
+
+  /**
    * string form of the token
    */
   toString(): string;
