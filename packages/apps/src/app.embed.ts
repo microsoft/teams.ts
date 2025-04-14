@@ -20,7 +20,7 @@ export function func<TData>(
     `/api/functions/${name}`,
     withClientAuth({
       logger: log,
-      entraTokenValidator: this.entryTokenValidator,
+      entraTokenValidator: this.entraTokenValidator,
       ...this.credentials,
     }),
     async (req: ClientAuthRequest, res) => {
