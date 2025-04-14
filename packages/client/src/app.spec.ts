@@ -256,7 +256,7 @@ describe('App', () => {
       expect(acquireMsalAccessTokenSpy).toHaveBeenCalledTimes(1);
       expect(acquireMsalAccessTokenSpy).toHaveBeenLastCalledWith(
         app.msalInstance,
-        undefined,
+        { scopes: ['api://mock-client-id/access_as_user'] },
         app.log
       );
       expect(httpClientPostMock).toHaveBeenCalledTimes(1);
@@ -266,10 +266,7 @@ describe('App', () => {
         {
           headers: {
             authorization: `Bearer ${mockAccessToken}`,
-            'x-spark-app-client-id': 'mock-client-id',
-            'x-spark-app-id': 'mock-app-id',
             'x-spark-app-session-id': 'mock-session-id',
-            'x-spark-app-tenant-id': 'mock-app-tenant-id',
             'x-spark-channel-id': 'mock-channel-id',
             'x-spark-chat-id': 'mock-chat-id',
             'x-spark-meeting-id': 'mock-meeting-id',
@@ -277,8 +274,6 @@ describe('App', () => {
             'x-spark-page-id': 'mock-page-id',
             'x-spark-sub-page-id': 'mock-sub-page-id',
             'x-spark-team-id': undefined,
-            'x-spark-tenant-id': 'mock-tenant-id',
-            'x-spark-user-id': 'mock-user-id',
           },
         }
       );
@@ -293,14 +288,33 @@ describe('App', () => {
       await app.start();
       await app.exec('myFunction', undefined, {
         msalTokenRequest: {
-          scopes: ['Analytics.Read'],
+          scopes: ['my_custom_scope'],
         },
       });
 
       expect(acquireMsalAccessTokenSpy).toHaveBeenCalledTimes(1);
       expect(acquireMsalAccessTokenSpy).toHaveBeenLastCalledWith(
         app.msalInstance,
-        { scopes: ['Analytics.Read'] },
+        { scopes: ['my_custom_scope'] },
+        app.log
+      );
+      expect(httpClientPostMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('should invoke a remote function with custom permission', async () => {
+      httpClientPostMock.mockResolvedValue({
+        data: 'mock result',
+      });
+      const app = new App(mockClientId, { logger: mockLogger });
+      await app.start();
+      await app.exec('myFunction', undefined, {
+        permission: 'my_custom_permission',
+      });
+
+      expect(acquireMsalAccessTokenSpy).toHaveBeenCalledTimes(1);
+      expect(acquireMsalAccessTokenSpy).toHaveBeenLastCalledWith(
+        app.msalInstance,
+        { scopes: ['api://mock-client-id/my_custom_permission'] },
         app.log
       );
       expect(httpClientPostMock).toHaveBeenCalledTimes(1);
@@ -321,7 +335,7 @@ describe('App', () => {
       expect(acquireMsalAccessTokenSpy).toHaveBeenCalledTimes(1);
       expect(acquireMsalAccessTokenSpy).toHaveBeenLastCalledWith(
         app.msalInstance,
-        undefined,
+        { scopes: ['api://mock-client-id/access_as_user'] },
         app.log
       );
       expect(httpClientPostMock).toHaveBeenCalledTimes(1);
