@@ -1,4 +1,4 @@
-# Teams: mcpclientpluginplugin
+# Spark: MCP Client (Model Context Protocol)
 
 <p>
     <a href="https://www.npmjs.com/package/@microsoft/spark.mcpclient" target="_blank">

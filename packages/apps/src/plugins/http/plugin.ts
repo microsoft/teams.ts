@@ -225,11 +225,22 @@ export class HttpPlugin implements ISender {
           serviceUrl: activity.serviceUrl || '',
         };
 
+    const ref: ConversationReference = {
+      serviceUrl: activity.serviceUrl || token.serviceUrl,
+      activityId: activity.id,
+      bot: activity.recipient,
+      channelId: activity.channelId,
+      conversation: activity.conversation,
+      locale: activity.locale,
+      user: activity.from,
+    };
+
     this.pending[activity.id] = res;
     this.$onActivity({
       sender: this,
       activity,
       token,
+      ref,
     });
   }
 }

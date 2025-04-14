@@ -81,6 +81,11 @@ export type ChannelData = {
    * Starts at 1 for the first message and increments from there.
    */
   streamSequence?: number;
+
+  /**
+   * misc
+   */
+  [key: string]: any;
 };
 
 export * from './channel-info';

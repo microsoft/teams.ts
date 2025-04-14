@@ -110,10 +110,21 @@ export class DevtoolsPlugin implements ISender {
         process: (token, activity) => {
           return new Promise((resolve, reject) => {
             this.pending[activity.id] = { resolve, reject };
+            const ref: ConversationReference = {
+              serviceUrl: activity.serviceUrl || token.serviceUrl,
+              activityId: activity.id,
+              bot: activity.recipient,
+              channelId: activity.channelId,
+              conversation: activity.conversation,
+              locale: activity.locale,
+              user: activity.from,
+            };
+
             this.$onActivity({
               sender: this.httpPlugin,
               token,
               activity,
+              ref,
             });
           });
         },

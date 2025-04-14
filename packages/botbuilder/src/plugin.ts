@@ -12,7 +12,14 @@ import {
   Plugin,
   manifest,
 } from '@microsoft/spark.apps';
-import { $Activity, Activity, Credentials, IToken, JsonWebToken } from '@microsoft/spark.api';
+import {
+  $Activity,
+  Activity,
+  ConversationReference,
+  Credentials,
+  IToken,
+  JsonWebToken,
+} from '@microsoft/spark.api';
 import * as $http from '@microsoft/spark.common/http';
 
 import {
@@ -119,11 +126,24 @@ export class BotBuilderPlugin extends HttpPlugin implements ISender {
           return next();
         }
 
+        const token = new JsonWebToken(authorization);
+        const activity = new $Activity(context.activity as any) as Activity;
+        const ref: ConversationReference = {
+          serviceUrl: activity.serviceUrl || token.serviceUrl,
+          activityId: activity.id,
+          bot: activity.recipient,
+          channelId: activity.channelId,
+          conversation: activity.conversation,
+          locale: activity.locale,
+          user: activity.from,
+        };
+
         this.pending[context.activity.id] = res;
         this.$onActivity({
           sender: this,
-          token: new JsonWebToken(authorization),
-          activity: new $Activity(context.activity as any) as Activity,
+          token,
+          activity,
+          ref,
         });
       });
     } catch (err) {
