@@ -33,6 +33,8 @@ import { $process } from './app.process';
 import { message, on, use } from './app.routing';
 import { Container } from './container';
 
+export const REFRESH_TOKEN_BUFFER_MS = 1000 * 60 * 5; // 5 minutes
+
 /**
  * App initialization options
  */
@@ -160,7 +162,7 @@ export class App {
   get tokens(): AppTokens {
     return this._tokens;
   }
-  protected _tokens: Partial<Record<keyof AppTokens, JsonWebToken>> = {};
+  protected _tokens: AppTokens = {};
 
   protected container = new Container();
   protected plugins: Array<IPlugin> = [];
@@ -372,7 +374,8 @@ export class App {
       // Only do it if the token isn't there, or if it's expired, or if force is true
       if (
         !this._tokens.bot ||
-        (this._tokens.bot.expiration != null && this._tokens.bot.expiration < Date.now()) ||
+        (this._tokens.bot.expiration != null &&
+          this._tokens.bot.expiration < Date.now() + REFRESH_TOKEN_BUFFER_MS) ||
         force
       ) {
         this.log.debug('Refreshing bot token');
@@ -387,7 +390,8 @@ export class App {
       // Only do it if the token isn't there, or if it's expired, or if force is true
       if (
         !this._tokens.graph ||
-        (this._tokens.graph.expiration != null && this._tokens.graph.expiration < Date.now()) ||
+        (this._tokens.graph.expiration != null &&
+          this._tokens.graph.expiration < Date.now() + REFRESH_TOKEN_BUFFER_MS) ||
         force
       ) {
         this.log.debug('Refreshing graph token');

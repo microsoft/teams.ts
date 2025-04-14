@@ -1,6 +1,6 @@
 import { JsonWebToken } from '@microsoft/spark.api';
 import jwt from 'jsonwebtoken';
-import { App } from './app';
+import { App, REFRESH_TOKEN_BUFFER_MS } from './app';
 import { HttpPlugin } from './plugins';
 import { IPluginStartEvent } from './types';
 
@@ -60,11 +60,49 @@ describe('token refresh', () => {
     expect(app.testTokens.bot?.toString()).toBe(mockBotToken);
   });
 
+  it('should refresh bot token when not expired but within buffer', async () => {
+    // Set expired token with expiration in payload
+    const expiredToken = jwt.sign(
+      {
+        exp: Math.floor((Date.now() + REFRESH_TOKEN_BUFFER_MS - 1) / 1000),
+        aud: 'test-audience',
+        iss: 'test-issuer',
+      },
+      'test-secret',
+      { algorithm: 'HS256' }
+    );
+    app.testTokens.bot = new JsonWebToken(expiredToken);
+
+    await app.testRefreshTokens();
+
+    expect(app.api.bots.token.get).toHaveBeenCalledWith(app.credentials);
+    expect(app.testTokens.bot?.toString()).toBe(mockBotToken);
+  });
+
   it('should refresh graph token when expired', async () => {
     // Set expired token with expiration in payload
     const expiredToken = jwt.sign(
       {
         exp: Math.floor((Date.now() - 1000) / 1000),
+        aud: 'test-audience',
+        iss: 'test-issuer',
+      },
+      'test-secret',
+      { algorithm: 'HS256' }
+    );
+    app.testTokens.graph = new JsonWebToken(expiredToken);
+
+    await app.testRefreshTokens();
+
+    expect(app.api.bots.token.getGraph).toHaveBeenCalledWith(app.credentials);
+    expect(app.testTokens.graph?.toString()).toBe(mockGraphToken);
+  });
+
+  it('should refresh graph token when not expired but within buffer', async () => {
+    // Set expired token with expiration in payload
+    const expiredToken = jwt.sign(
+      {
+        exp: Math.floor((Date.now() + REFRESH_TOKEN_BUFFER_MS - 1) / 1000),
         aud: 'test-audience',
         iss: 'test-issuer',
       },
