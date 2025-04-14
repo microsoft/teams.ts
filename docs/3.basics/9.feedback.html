@@ -162,7 +162,9 @@ with LLM's for training.</p>
 </code></pre>
 <p><img src="https://github.com/microsoft/spark.js/blob/main/assets/screenshots/feedback_message.png?raw=true" alt="Feedback Message" /></p>
 <h2 id="handling-message-feedback"><a class="header" href="#handling-message-feedback">Handling Message Feedback</a></h2>
+<p>Return a status: 200 upon receiving <code>message.submit.feedback</code>.</p>
 <pre><code class="language-typescript">app.on('message.submit.feedback', ({ log, activity }) =&gt; {
+    // Your storage logic here...
     log.debug(activity);
     return { status: 200 };
 });
