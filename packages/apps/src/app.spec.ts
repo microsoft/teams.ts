@@ -20,17 +20,15 @@ class TestApp extends App {
     return this._tokens;
   }
 
-  public async testRefreshBotToken() {
-    return this.refreshBotToken();
-  }
-
-  public async testRefreshGraphToken() {
-    return this.refreshGraphToken();
+  public async testRefreshTokens() {
+    return this.refreshTokens();
   }
 }
 
 describe('token refresh', () => {
   let app: TestApp;
+  const mockGraphToken = jwt.sign({ access_token: 'mock-graph-token' }, 'test-secret');
+  const mockBotToken = jwt.sign({ access_token: 'mock-bot-token' }, 'test-secret');
 
   beforeEach(() => {
     app = new TestApp({
@@ -38,12 +36,12 @@ describe('token refresh', () => {
       clientSecret: 'test-client-secret',
       plugins: [new TestHttpPlugin()],
     });
+
+    app.api.bots.token.getGraph = jest.fn().mockResolvedValue({ access_token: mockGraphToken });
+    app.api.bots.token.get = jest.fn().mockResolvedValue({ access_token: mockBotToken });
   });
 
   it('should refresh bot token when expired', async () => {
-    const mockToken = jwt.sign({ access_token: 'mock-bot-token' }, 'test-secret');
-    app.api.bots.token.get = jest.fn().mockResolvedValue({ access_token: mockToken });
-
     // Set expired token with expiration in payload
     const expiredToken = jwt.sign(
       {
@@ -56,16 +54,13 @@ describe('token refresh', () => {
     );
     app.testTokens.bot = new JsonWebToken(expiredToken);
 
-    await app.testRefreshBotToken();
+    await app.testRefreshTokens();
 
     expect(app.api.bots.token.get).toHaveBeenCalledWith(app.credentials);
-    expect(app.testTokens.bot?.toString()).toBe(mockToken);
+    expect(app.testTokens.bot?.toString()).toBe(mockBotToken);
   });
 
   it('should refresh graph token when expired', async () => {
-    const mockToken = jwt.sign({ access_token: 'mock-graph-token' }, 'test-secret');
-    app.api.bots.token.getGraph = jest.fn().mockResolvedValue({ access_token: mockToken });
-
     // Set expired token with expiration in payload
     const expiredToken = jwt.sign(
       {
@@ -78,10 +73,10 @@ describe('token refresh', () => {
     );
     app.testTokens.graph = new JsonWebToken(expiredToken);
 
-    await app.testRefreshGraphToken();
+    await app.testRefreshTokens();
 
     expect(app.api.bots.token.getGraph).toHaveBeenCalledWith(app.credentials);
-    expect(app.testTokens.graph?.toString()).toBe(mockToken);
+    expect(app.testTokens.graph?.toString()).toBe(mockGraphToken);
   });
 
   it('should not refresh bot token if not expired', async () => {
@@ -99,18 +94,15 @@ describe('token refresh', () => {
     // the function should never be called
     app.api.bots.token.get = jest.fn();
 
-    await app.testRefreshBotToken();
+    await app.testRefreshTokens();
 
     expect(app.api.bots.token.get).not.toHaveBeenCalled();
     expect(app.testTokens.bot?.toString()).toBe(existingToken);
   });
 
   it('should refresh both tokens on app start', async () => {
-    const newBotToken = jwt.sign({ access_token: 'new-bot-token' }, 'test-secret');
-    const newGraphToken = jwt.sign({ access_token: 'new-graph-token' }, 'test-secret');
-
-    app.api.bots.token.get = jest.fn().mockResolvedValue({ access_token: newBotToken });
-    app.api.bots.token.getGraph = jest.fn().mockResolvedValue({ access_token: newGraphToken });
+    app.api.bots.token.get = jest.fn().mockResolvedValue({ access_token: mockBotToken });
+    app.api.bots.token.getGraph = jest.fn().mockResolvedValue({ access_token: mockGraphToken });
 
     await app.start();
 
