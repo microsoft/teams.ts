@@ -1,0 +1,149 @@
+---
+description: Basics on how a spark application receives various types of events and is set up.
+globs: 
+alwaysApply: false
+---
+<!-- @managed-content-start: activities details -->
+<!-- Details within this section can be automatically modified. Place your own conteint outside this area. -->
+
+# Activity Handling Patterns
+
+## Message Activities
+
+### Basic Echo Bot
+
+```typescript
+import { App } from '@microsoft/spark.apps';
+import { ConsoleLogger } from '@microsoft/spark.common/logging';
+import { DevtoolsPlugin } from '@microsoft/spark.dev';
+
+const app = new App({
+  logger: new ConsoleLogger('@samples/echo', { level: 'debug' }),
+  plugins: [new DevtoolsPlugin()],
+});
+
+app.on("message", async ({ send, activity }) => {
+  await send({ type: 'typing' });
+  await send(`you said "${activity.text}"`);
+});
+```
+
+### Message Reactions
+
+```typescript
+app.on('messageReaction', async ({ activity }) => {
+  const { type, from } = activity;
+
+  switch (type) {
+    case 'like':
+      await handleLike(from);
+      break;
+    case 'heart':
+      await handleHeart(from);
+      break;
+  }
+});
+```
+
+### Task Module
+
+```typescript
+app.on('dialog.open', async ({ send }) => {
+  const card = new Card()
+    .withBody(
+      new TextBlock('Settings')
+        .withSize('large')
+        .withWeight('bolder'),
+      new TextInput()
+        .withLabel('Name')
+        .withId('name')
+        .withStyle('text'),
+      new TextInput()
+        .withLabel('Email')
+        .withId('email')
+        .withStyle('email')
+    )
+    .addActions(
+      new SubmitAction()
+        .withTitle('Save')
+        .withData({ type: 'submit' })
+    );
+
+  await send({
+    type: 'dialog',
+    card
+  });
+});
+
+app.onDialogSubmit('taskModule', async ({ value, send }) => {
+  if (value.type === 'submit') {
+    const { name, email } = value;
+    await processSettings({ name, email });
+    return {
+      statusCode: 200,
+      type: 'application/vnd.microsoft.activity.message',
+      value: 'Settings saved successfully'
+    };
+  }
+});
+```
+
+### Dialog Lifecycle
+
+```typescript
+import { cardAttachment } from '@microsoft/spark.api';
+
+app.onDialog('settings', async () => {
+  const card = new Card()
+    .withBody(
+      new TextBlock('Settings')
+        .withSize('large')
+        .withWeight('bolder'),
+      new Container(
+          new TextBlock('Preferences')
+            .withWeight('bolder'),
+          new ToggleInput('Enable Notifications')
+            .withId('notifications'),
+          new ChoiceSetInput(
+            new Choice('Light', 'light'),
+            new Choice('Dark', 'dark')
+          )
+            .withLabel('Theme')
+            .withId('theme')
+        )
+    )
+    .addActions(
+      new SubmitAction()
+        .withTitle('Save')
+        .withData({ type: 'save' })
+    );
+
+  return {
+    'task': {
+      type: 'continue',
+      value: {
+        title: 'User Settings',
+        height: 300,
+        width: 400,
+        card: cardAttachment("adaptive",card),
+      }
+    }
+  }
+});
+
+app.onDialogSubmit('settings', async ({ value }) => {
+  if (value.type === 'save') {
+    await updateSettings(value);
+    return {
+      statusCode: 200,
+      "body": {
+        task: {
+          type: "message",
+          value: "Settings saved successfully"
+        }
+      }
+    };
+  }
+});
+```
+<!-- @managed-content-end: activities details -->

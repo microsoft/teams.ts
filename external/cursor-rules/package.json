@@ -1,0 +1,36 @@
+{
+  "name": "@microsoft/spark.cursor-rules",
+  "version": "0.1.0",
+  "description": "Cursor rules for Microsoft Teams Spark development",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "npx rimraf ./dist",
+    "build": "npx tsc",
+    "prepare": "npm run build",
+    "postinstall": "node dist/install.js",
+    "test": "npx jest"
+  },
+  "keywords": [
+    "microsoft",
+    "teams",
+    "spark",
+    "cursor",
+    "rules"
+  ],
+  "author": "Microsoft",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@types/jest": "^29.5.14",
+    "ts-jest": "^29.3.1"
+  }
+}

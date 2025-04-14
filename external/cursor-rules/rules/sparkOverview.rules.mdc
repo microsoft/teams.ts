@@ -1,0 +1,107 @@
+---
+description: Interacting with @microsoft.spark packages. These are helpful for being able to create bots for Microsoft Teams.
+globs: 
+alwaysApply: false
+---
+# Spark.js Overview & Package Capabilities
+
+## Core Infrastructure
+
+### @microsoft/spark.apps
+Primary entry point and server package. This is the foundation of every Teams app/bot.
+
+What it provides:
+- Server setup and initialization
+- Activity handling pipeline
+- Plugin system for extensibility
+- OAuth flow management
+- Dialog/task module handling
+- State management
+- Event routing
+- Message extension support
+- Tab hosting capabilities
+
+When to use:
+- You need to build a Teams bot/app
+- You want to handle Teams activities
+- You need to process user interactions
+
+Examples: See @.cursor/rules/spark/activities.mdc for activity handling patterns and real-world usage examples.
+
+### @microsoft/spark.api 
+Teams platform models and communication layer.
+
+What it provides:
+- Activity models (messages, events, etc)
+- Conversation tracking
+- Teams clients for API calls
+- Token management
+- Authentication helpers
+- API response types
+- Activity type definitions
+- Channel abstraction
+
+When to use:
+- You need to interact with Teams APIs
+- You're handling Teams activities
+- You need platform models
+
+Examples: See @.cursor/rules/spark/auth.mdc for authentication patterns and API usage examples.
+
+## AI & Intelligence
+
+### @microsoft/spark.ai
+AI capabilities and prompt management.
+
+What it provides:
+- Chat prompt management
+- Function calling system
+- Memory management (short/long term)
+- Multi-modal support (text, audio, image)
+- Model abstractions
+- Template system
+- State orchestration
+- Streaming support
+- Use with `@microsoft/spark.openai` to import OpenAI or Azure OpenAI models
+
+When to use:
+- You're building AI-powered features
+- You need LLM integration
+- You want memory management
+- You need multi-modal AI support
+
+Examples: See @.cursor/rules/spark/ai.mdc for detailed AI integration patterns and examples.
+
+## UI & Interaction
+
+### @microsoft/spark.cards
+Teams card creation and management.
+
+What it provides:
+- Adaptive Card builders
+- Card templating
+- Action handling
+- Input validation
+- Card updating
+- Teams-specific card features
+- Feedback components
+- Suggested actions
+
+When to use:
+- You need rich message formatting
+- You want interactive cards
+- You're building task modules
+- You need user input forms
+
+Examples: See @.cursor/rules/spark/cards.mdc for comprehensive card patterns and interactive UI examples.
+
+## Package Relationships
+
+Core Flow:
+1. @microsoft/spark.apps provides the server
+2. Uses @microsoft/spark.api for Teams communication or Graph communication
+3. Leverages @microsoft/spark.cards for richer UI patterns (i.e. more than simple text messages)
+4. Can use @microsoft/spark.ai for AI intelligence
+
+Development:
+1. Use DevtoolsPlugin() from `@microsoft/spark.dev` as an `App` plugin. This will automatically spin up a devtools UI to help you send and receive messages, monitor activities etc.

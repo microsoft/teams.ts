@@ -1,0 +1,273 @@
+---
+description: Describes how to use Adaptive cards, and dialogs in context of a microsoft spark application.
+globs: 
+alwaysApply: false
+---
+<!-- @managed-content-start: CardsAndDialogs details -->
+<!-- Details within this section can be automatically modified. Place your own conteint outside this area. -->
+
+# Teams Cards & UI Patterns
+
+The majority of imports for the patterns described here are from '@microsoft/spark.cards' package.
+
+
+## Adaptive Cards
+
+Adaptive cards can be sent to a Teams client instead of simple string messages. These cards contain lots of rich UI, input fields, and action buttons.
+For action buttons, the handlers must return an invoke response. You typically don't "send" a message in these handlers. You simply return a response (as exemplified below). These responses can only send a message or a different card.
+
+### Basic Card
+```typescript
+const card = new Card()
+  .withBody(
+    new TextBlock('Hello Teams!'),
+    new Image('https://example.com/image.png')
+  )
+  .addActions(
+    new ExecuteAction()
+      .withTitle('Click Me')
+      .withData({ type: 'buttonClick' })
+  );
+
+await send(card)
+```
+
+### Handling card actions
+```typescript
+app.on("card.action", async ({ activity, api }) => {
+  const adaptiveCardActionData = activity.value?.action?.data; // Corresponds to the data of the invoked button or action
+  if (!adaptiveCardActionData) return;
+  if (adaptiveCardActionData.type !== "buttonClick") {
+    send("Not sure what you mean!")
+    // Must return an AdaptiveCardActionErrorResponse
+    return {
+    statusCode: 400,
+    type: "application/vnd.microsoft.error",
+    value: {
+      message: "Not sure what you mean!",
+      code: "UNKNOWN_ACTION",
+      // MUST return this innerHttpError field
+      innerHttpError: {
+        body: {
+          message: "Not sure what you mean!",
+        },
+        statusCode: 400,
+      },
+    },
+  }; 
+  }
+  send("Got it!")
+  // Must return an AdaptiveCardActionMessageResponse or AdaptiveCardActionCardResponse
+  return {
+    statusCode: 200,
+    type: "application/vnd.microsoft.activity.message",
+    value: "You just clicked a button!",
+  };
+
+  // Alternatively send a card back
+  return {
+      statusCode: 200,
+      type: "application/vnd.microsoft.card.adaptive",
+      value: new Card().withBody(new TextBlock('You clicked a button!')),
+    };
+});
+```
+
+### Input Form
+```typescript
+const form = new Card()
+  .withBody(
+    new TextBlock('Please fill out the form'),
+    new TextInput()
+      .withLabel('Name')
+      .withId('name')
+      .withStyle('text'),
+    new TextInput()
+      .withLabel('Email')
+      .withId('email')
+      .withStyle('email'),
+    new DateInput()
+      .withLabel('Start Date')
+      .withId('date'),
+    new ChoiceSetInput(
+      new Choice('Engineering', 'eng'),
+      new Choice('Marketing', 'mkt'),
+      new Choice('Sales', 'sales')
+    )
+      .withLabel('Department')
+      .withId('choice')
+  )
+  .addActions(
+    new ExecuteAction()
+      .withTitle('Submit')
+      .withData({ type: 'formSubmit' })
+  );
+```
+
+### Rich Content
+```typescript
+const article = new Card()
+  .withBody(
+    new TextBlock('Article Title')
+      .withSize('large')
+      .withWeight('bolder'),
+    new TextBlock('Author Name')
+      .withSize('medium')
+      .withSubtle(),
+    new Image('hero.jpg')
+      .withSize('stretch'),
+    new TextBlock('Article content...')
+      .withWrap(),
+    new FactSet(
+      new Fact('Published', '2025-04-07'),
+      new Fact('Category', 'Technology')
+    )
+  )
+  .addActions(
+    new OpenUrlAction('https://example.com/article')
+      .withTitle('Read More'),
+    // Opens up a dialog
+    new TaskFetchAction({})
+      .withTitle("Fill more details about author")
+      .withData(new TaskFetchData("author_details"))
+      .withStyle("positive"),
+    new ExecuteAction({
+      title: "Mark as read",
+    })
+      .withStyle("default")
+      .withData({ action: "mark_as_read" }),
+  );
+```
+
+## Dialogs (aka Task Modules)
+
+Cards can cause dialogs to open up which can contain more cards or other rich experiences. When a dialog is opened, the client invokes a "dialog.open" invoke event. This event must return what should be rendered in the dialog (a card, or a message). The response could choose to "continue" to send more messages in the dialog, or send a message to end the experience.
+
+### Settings Module
+```typescript
+app.on('dialog.open', async () => {
+  const card = new Card()
+    .withBody(
+      new TextBlock('User Settings')
+        .withSize('large')
+        .withWeight('bolder'),
+      new TextBlock('Configure your preferences')
+        .withSize('medium')
+        .withSubtle(),
+      new Container(
+          new TextBlock('Notifications')
+            .withWeight('bolder'),
+          new ToggleInput('Email Notifications')
+            .withId('emailNotifications'),
+          new ToggleInput('Push Notifications')
+            .withId('pushNotifications')
+        ),
+      new Container(
+          new TextBlock('Display')
+            .withWeight('bolder'),
+          new ChoiceSetInput(
+            new Choice('Light', 'light'),
+            new Choice('Dark', 'dark')
+          )
+            .withLabel('Theme')
+            .withId('theme'),
+          new ChoiceSetInput(
+            new Choice('English', 'en'),
+            new Choice('Spanish', 'es')
+          )
+            .withLabel('Language')
+            .withId('language')
+        )
+    )
+    .addActions(
+      new SubmitAction()
+        .withTitle('Save'),
+      new SubmitAction()
+        .withTitle('Cancel')
+        .withData({ type: 'cancel' })
+    );
+
+    return {
+      statusCode: 200,
+      task: {
+        type: 'continue',
+        value: {
+          card: cardAttachment('adaptive', card)
+        }
+      }
+    }
+});
+```
+
+### Multi-Step Form
+```typescript
+const steps = {
+  personal: new Card()
+    .withBody(
+      new TextBlock('Personal Information')
+        .withSize('large')
+        .withWeight('bolder'),
+      new TextInput()
+        .withLabel('Full Name')
+        .withId('name'),
+      new TextInput()
+        .withLabel('Email')
+        .withId('email')
+        .withStyle('email')
+    )
+    .addActions(
+      new SubmitAction()
+        .withTitle('Next')
+        .withData({ step: 'personal', next: 'work' })
+    ),
+  
+  work: new Card()
+    .withBody(
+      new TextBlock('Work Information')
+        .withSize('large')
+        .withWeight('bolder'),
+      new TextInput()
+        .withLabel('Company')
+        .withId('company'),
+      new TextInput()
+        .withLabel('Role')
+        .withId('role')
+    )
+    .addActions(
+      new SubmitAction()
+        .withTitle('Back')
+        .withData({ step: 'work', next: 'personal' }),
+      new SubmitAction()
+        .withTitle('Next')
+        .withData({ step: 'work', next: 'review' })
+    )
+};
+
+app.on('dialog.submit', async ({ activity }) => {
+  // The data field from the adaptive cards are sent back in the
+  // value.data field.
+  const { step, next } = activity.value.data ?? {};
+  await state.update(step, value);
+  
+  if (next === "confirm") {
+    return {
+      statusCode: 200,
+      task: {
+        type: "message",
+        value: "Thanks for your feedback!"
+      }
+    }
+  }
+  
+  return {
+    statusCode: 200,
+    task: {
+      type: 'continue',
+      value: {
+        card: cardAttachment('adaptive', steps[next])
+      }
+    }
+  }
+});
+```
+<!-- @managed-content-end: CardsAndDialogs details -->
