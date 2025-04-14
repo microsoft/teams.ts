@@ -290,9 +290,7 @@ export class App {
     this.port = +(port || process.env.PORT || 3000);
 
     try {
-      if (this.credentials) {
-        await this.refreshTokens();
-      }
+      await this.refreshTokens();
 
       // initialize plugins
       for (const plugin of this.plugins) {
@@ -315,39 +313,6 @@ export class App {
       this.startedAt = new Date();
     } catch (error: any) {
       this.onError({ error });
-    }
-  }
-
-  protected async refreshTokens() {
-    await this.refreshBotToken();
-    await this.refreshGraphToken();
-  }
-
-  protected async refreshBotToken(force = false) {
-    if (this.credentials) {
-      // Only do it if the token isn't there, or if it's expired, or if force is true
-      if (
-        !this._tokens.bot ||
-        (this._tokens.bot.expiration != null && this._tokens.bot.expiration < Date.now()) ||
-        force
-      ) {
-        const botResponse = await this.api.bots.token.get(this.credentials);
-        this._tokens.bot = new JsonWebToken(botResponse.access_token);
-      }
-    }
-  }
-
-  protected async refreshGraphToken(force = false) {
-    if (this.credentials) {
-      // Only do it if the token isn't there, or if it's expired, or if force is true
-      if (
-        !this._tokens.graph ||
-        (this._tokens.graph.expiration != null && this._tokens.graph.expiration < Date.now()) ||
-        force
-      ) {
-        const graphResponse = await this.api.bots.token.getGraph(this.credentials);
-        this._tokens.graph = new JsonWebToken(graphResponse.access_token);
-      }
     }
   }
 
@@ -392,6 +357,42 @@ export class App {
 
     const res = await this.http.send(toActivityParams(activity), ref);
     return res;
+  }
+
+  /**
+   * Refresh the tokens for the app
+   */
+  protected async refreshTokens() {
+    await this.refreshBotToken();
+    await this.refreshGraphToken();
+  }
+
+  private async refreshBotToken(force = false) {
+    if (this.credentials) {
+      // Only do it if the token isn't there, or if it's expired, or if force is true
+      if (
+        !this._tokens.bot ||
+        (this._tokens.bot.expiration != null && this._tokens.bot.expiration < Date.now()) ||
+        force
+      ) {
+        const botResponse = await this.api.bots.token.get(this.credentials);
+        this._tokens.bot = new JsonWebToken(botResponse.access_token);
+      }
+    }
+  }
+
+  private async refreshGraphToken(force = false) {
+    if (this.credentials) {
+      // Only do it if the token isn't there, or if it's expired, or if force is true
+      if (
+        !this._tokens.graph ||
+        (this._tokens.graph.expiration != null && this._tokens.graph.expiration < Date.now()) ||
+        force
+      ) {
+        const graphResponse = await this.api.bots.token.getGraph(this.credentials);
+        this._tokens.graph = new JsonWebToken(graphResponse.access_token);
+      }
+    }
   }
 
   /**
