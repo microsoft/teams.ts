@@ -256,7 +256,7 @@ export class A2APlugin implements ISender {
         'a2a.request.id': req.id,
         'a2a.task': item.task,
         'a2a.history': item.history,
-        'a2a.streaming': false,
+        'a2a.streaming': req.method === 'tasks/sendSubscribe',
       };
 
       this.$onActivity({ sender: this, token, activity, ref });

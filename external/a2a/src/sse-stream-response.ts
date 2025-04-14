@@ -83,6 +83,10 @@ export class SSEStreamResponse implements IStreamer {
     this.attachments = [];
     this.channelData = {};
     this.entities = [];
+
+    if (!this._res.writableEnded) {
+      this._res.end();
+    }
   }
 
   protected async flush() {
@@ -162,7 +166,7 @@ export class SSEStreamResponse implements IStreamer {
       activity.type === 'typing' || activity.type === 'message'
         ? ({
             id: task.id,
-            final: false,
+            final: activity.type === 'message',
             status: {
               state: activity.type === 'typing' ? 'working' : 'completed',
               message: {

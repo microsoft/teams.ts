@@ -30,15 +30,11 @@ These packages were designed with the following mentality to ensure longevity an
 
 ### Low Dependency
 
-[BotBuilder](https://github.com/microsoft/botbuilder-js) has struggled to support new LTS versions of node due to many dependencies being deprecated or requiring major version bumps (eg requires code changes to update).
-
 By providing interfaces and default internal implementations, we mitigate this risk.
 
 > ℹ️ **Note**: when necessary we will still use an external dependency, namely when an internal implementation is non-trivial.
 
 ### Unopinionated
-
-[BotBuilder](https://github.com/microsoft/botbuilder-js) is a highly opinionated **Framework**, meaning it dictates many of the dos/don'ts of development with its packages.
 
 This goal of this project is that they be a set of unopinionated packages that export simple abstractions for development in **Microsoft Teams**, leaving the app design descisions to the developer.
 
@@ -103,7 +99,9 @@ $: npm run test
 - [`@samples/auth`](./samples/auth/README.md)
 - [`@samples/lights`](./samples/lights/README.md)
 - [`@samples/tab`](./samples/tab/README.md)
+- [`@samples/a2a`](./samples/a2a/README.md)
 - [`@samples/mcp`](./samples/mcp/README.md)
+- [`@samples/mcpclient`](./samples/mcpclient/README.md)
 
 ## Links
 
