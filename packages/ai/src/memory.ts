@@ -1,4 +1,4 @@
-import { IListStorage } from '@microsoft/spark.common';
+import { IListStorage } from '@microsoft/teams.common';
 
 import { Message } from './message';
 

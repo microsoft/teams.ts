@@ -1,4 +1,4 @@
-import { ConversationReference, SentActivity } from '@microsoft/spark.api';
+import { ConversationReference, SentActivity } from '@microsoft/teams.api';
 
 import { ISender } from './sender';
 

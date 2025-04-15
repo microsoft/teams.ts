@@ -44,7 +44,7 @@ In Teams, the app manifest requires specific setup to have invoke permissions. T
 
 ## Invoke Aliases
 
-The `@microsoft/spark.api` package includes a set of aliases for the `name` field of invoke activities. These aliases are used to simplify the syntax of invoking activities in your application.
+The `@microsoft/teams.api` package includes a set of aliases for the `name` field of invoke activities. These aliases are used to simplify the syntax of invoking activities in your application.
 
 Please see the subsequent sections for more information on the aliases that are available.
 

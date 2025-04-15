@@ -1,4 +1,4 @@
-import { ILogger } from '@microsoft/spark.common';
+import { ILogger } from '@microsoft/teams.common';
 
 import { App } from './app';
 import { IPlugin, IPluginActivityEvent, IPluginErrorEvent, ISender, PluginName } from './types';

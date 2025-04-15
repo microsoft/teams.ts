@@ -1,8 +1,8 @@
-import { Client } from '@microsoft/spark.api';
+import { Client } from '@microsoft/teams.api';
 
 let api: Client | null = null;
 
-const useSparkApi = () => {
+const useTeamsApi = () => {
   if (!api) {
     api = new Client('', {
       headers: { 'x-teams-devtools': 'true' },
@@ -12,4 +12,4 @@ const useSparkApi = () => {
   return api;
 };
 
-export default useSparkApi;
+export default useTeamsApi;

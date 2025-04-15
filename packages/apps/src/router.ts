@@ -1,4 +1,4 @@
-import { Activity } from '@microsoft/spark.api';
+import { Activity } from '@microsoft/teams.api';
 
 import { EVENT_ALIASES, IRoutes, INVOKE_ALIASES } from './routes';
 import { RouteHandler } from './types';

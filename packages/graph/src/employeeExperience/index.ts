@@ -1,4 +1,4 @@
-import * as http from '@microsoft/spark.common/http';
+import * as http from '@microsoft/teams.common/http';
 
 import pkg from 'src/../package.json';
 import { LearningProvidersClient } from './learningProviders';
@@ -16,7 +16,7 @@ export class EmployeeExperienceClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `spark[graph]/${pkg.version}`,
+          'User-Agent': `teams[graph]/${pkg.version}`,
         },
       });
     } else if ('request' in options) {
@@ -24,7 +24,7 @@ export class EmployeeExperienceClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `spark[graph]/${pkg.version}`,
+          'User-Agent': `teams[graph]/${pkg.version}`,
         },
       });
     } else {
@@ -33,7 +33,7 @@ export class EmployeeExperienceClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `spark[graph]/${pkg.version}`,
+          'User-Agent': `teams[graph]/${pkg.version}`,
           ...options.headers,
         },
       });

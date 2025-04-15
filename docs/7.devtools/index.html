@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>🛠️ DevTools - Spark.JS</title>
+        <title>🛠️ DevTools - Teams SDK: Typescript</title>
 
 
         <!-- Custom HTML head -->
@@ -23,9 +23,9 @@
         <link rel="stylesheet" href="../fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
-        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
-        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
@@ -119,10 +119,10 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Spark.JS</h1>
+                    <h1 class="menu-title">Teams SDK: Typescript</h1>
 
                     <div class="right-buttons">
-                        <a href="http://github.com/microsoft/spark.js" title="Git repository" aria-label="Git repository">
+                        <a href="http://github.com/microsoft/teams.ts" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
 
@@ -155,8 +155,8 @@
 <p>The developer tools can be used to locally interact with an app to streamline the testing/development process,
 preventing you from needing to deploy/register the app or expose a public endpoint.</p>
 <p>The devtools can easily be added to any project by importing the <code>DevtoolsPlugin</code> as shown below:</p>
-<pre><code class="language-typescript">import { App } from '@microsoft/spark.apps';
-import { DevtoolsPlugin } from '@microsoft/spark.dev';
+<pre><code class="language-typescript">import { App } from '@microsoft/teams.apps';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 // add the DevtoolsPlugin (allowing us to emulate teams localhost and inspect traffic)
 const app = new App({

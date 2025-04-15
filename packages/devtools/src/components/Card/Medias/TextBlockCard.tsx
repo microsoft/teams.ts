@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { ITextBlock } from '@microsoft/spark.cards';
+import { ITextBlock } from '@microsoft/teams.cards';
 
 import { MarkdownContent } from '../../MarkdownContent';
 

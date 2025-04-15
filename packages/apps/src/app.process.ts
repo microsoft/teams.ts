@@ -1,4 +1,4 @@
-import { ActivityLike, isInvokeResponse } from '@microsoft/spark.api';
+import { ActivityLike, isInvokeResponse } from '@microsoft/teams.api';
 
 import { ApiClient } from './api';
 import { App } from './app';
@@ -23,6 +23,8 @@ export async function $process(this: App, sender: ISender, event: IActivityEvent
   if (serviceUrl.endsWith('/')) {
     serviceUrl = serviceUrl.slice(0, serviceUrl.length - 1);
   }
+
+  await this.refreshTokens();
 
   let userToken: string | undefined;
   let appToken =

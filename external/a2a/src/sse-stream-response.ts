@@ -1,7 +1,5 @@
 import express from 'express';
 
-import { EventEmitter } from '@microsoft/spark.common';
-import { IStreamer, IStreamerEvents } from '@microsoft/spark.apps';
 import {
   ActivityParams,
   Attachment,
@@ -11,7 +9,9 @@ import {
   IMessageActivity,
   MessageActivity,
   TypingActivity,
-} from '@microsoft/spark.api';
+} from '@microsoft/teams.api';
+import { IStreamer, IStreamerEvents } from '@microsoft/teams.apps';
+import { EventEmitter } from '@microsoft/teams.common';
 
 import { SendTaskStreamingResponse, Task, TaskStatusUpdateEvent } from './schema';
 

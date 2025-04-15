@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { Button, mergeClasses, Tooltip } from '@fluentui/react-components';
-import { IExecuteAction } from '@microsoft/spark.cards';
+import { IExecuteAction } from '@microsoft/teams.cards';
 
 import useActionCardStyles from './Actions.styles';
 

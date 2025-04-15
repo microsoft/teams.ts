@@ -1,4 +1,4 @@
-import { EventHandler } from '@microsoft/spark.common';
+import { EventHandler } from '@microsoft/teams.common';
 
 import * as schema from './schema';
 import { TaskContext } from './types';

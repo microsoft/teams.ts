@@ -1,4 +1,4 @@
-import { Activity, ConversationAccount } from '@microsoft/spark.api';
+import { Activity, ConversationAccount } from '@microsoft/teams.api';
 
 export interface IEvent<T = any> {
   readonly id: string;

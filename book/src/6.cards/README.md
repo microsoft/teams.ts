@@ -7,7 +7,7 @@ The Adaptive Card framework is used across many Microsoft products, including Te
 ## Typescript/Javascript
 
 ```typescript
-import { Card, ColumnSet, Column, Image, CodeBlock } from '@microsoft/spark.cards';
+import { Card, ColumnSet, Column, Image, CodeBlock } from '@microsoft/teams.cards';
 
 Card([ColumnSet([Column([Image('...')]), Column([CodeBlock({ codeSnippet: '...' })])])]);
 ```

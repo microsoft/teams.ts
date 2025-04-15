@@ -2,8 +2,8 @@ import {
   ISignInTokenExchangeInvokeActivity,
   ISignInVerifyStateInvokeActivity,
   TokenExchangeInvokeResponse,
-} from '@microsoft/spark.api';
-import * as graph from '@microsoft/spark.graph';
+} from '@microsoft/teams.api';
+import * as graph from '@microsoft/teams.graph';
 import { AxiosError } from 'axios';
 import { App } from './app';
 import * as contexts from './contexts';

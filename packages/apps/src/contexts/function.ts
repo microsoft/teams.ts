@@ -1,4 +1,4 @@
-import { ILogger } from '@microsoft/spark.common';
+import { ILogger } from '@microsoft/teams.common';
 
 import { AppClient } from '../api';
 import { IClientContext } from './client';

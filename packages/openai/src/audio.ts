@@ -1,5 +1,5 @@
-import { IAudioModel, TextToAudioParams, AudioToTextParams } from '@microsoft/spark.ai';
-import { ILogger, ConsoleLogger } from '@microsoft/spark.common/logging';
+import { IAudioModel, TextToAudioParams, AudioToTextParams } from '@microsoft/teams.ai';
+import { ILogger, ConsoleLogger } from '@microsoft/teams.common/logging';
 
 import OpenAI, { toFile } from 'openai';
 import { Fetch } from 'openai/core.mjs';
@@ -22,7 +22,7 @@ export class OpenAIAudioModel implements IAudioModel {
 
   constructor(readonly options: OpenAIAudioPluginOptions) {
     this._log =
-      options.logger || new ConsoleLogger(`@microsoft/spark.openai/${this.options.model}`);
+      options.logger || new ConsoleLogger(`@microsoft/teams.openai/${this.options.model}`);
     this._openai = new OpenAI({
       apiKey: options.apiKey,
       baseURL: options.baseUrl,

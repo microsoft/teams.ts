@@ -1,14 +1,14 @@
 {
-  "name": "@microsoft/spark.cli",
-  "version": "0.2.6",
+  "name": "@microsoft/teams.cli",
+  "version": "0.2.9",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
-  "homepage": "https://github.com/microsoft/spark.js",
-  "bugs": "https://github.com/microsoft/spark.js/issues",
+  "homepage": "https://github.com/microsoft/teams.ts",
+  "bugs": "https://github.com/microsoft/teams.ts/issues",
   "bin": {
-    "spark": "./dist/index.js"
+    "teams": "./dist/index.js"
   },
   "files": [
     "dist",
@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/microsoft/spark.js.git",
+    "url": "https://github.com/microsoft/teams.ts.git",
     "directory": "packages/cli"
   },
   "keywords": [
@@ -40,7 +40,7 @@
     "test": "npx jest"
   },
   "dependencies": {
-    "@microsoft/spark.common": "*",
+    "@microsoft/teams.common": "*",
     "change-case": "^5.4.4",
     "handlebars": "^4.7.8",
     "yaml": "^2.7.0",
@@ -48,7 +48,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@microsoft/spark.config": "*",
+    "@microsoft/teams.config": "*",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.10.7",
     "@types/yargs": "^17.0.33",

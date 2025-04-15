@@ -1,5 +1,5 @@
 import { FC, memo } from 'react';
-import { Element } from '@microsoft/spark.cards';
+import { Element } from '@microsoft/teams.cards';
 
 import ActionSetCard from './Containers/ActionSetCard';
 import ColumnSetCard from './Containers/ColumnSetCard';

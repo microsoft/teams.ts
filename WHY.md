@@ -55,7 +55,7 @@ is key to a smooth development workflow when onboarding new devs.
 Today the process of getting an app up and running minimally has come a long way,
 but its still much more difficult than competitors.
 
-With the `@microsoft/spark.cli`/`@microsoft/spark.dev`, the new codebase which is more concise in its syntax,
+With the `@microsoft/teams.cli`/`@microsoft/teams.dev`, the new codebase which is more concise in its syntax,
 apps can now be scaffolded and started with one command, and developed locally.
 
 ## Developer Tooling
@@ -70,7 +70,7 @@ an easy to use local development flow that requires no boilerplate, just a plugi
 
 Going back to the fragmentation, we offer many AI utilities at Microsoft including Semantic Kernel,
 AutoGen, and Teams AI. These are great offerings but they are fragmented and don't work well together.
-Our customers get confused by which to use and when, which is why we created the `@microsoft/spark.ai` package.
+Our customers get confused by which to use and when, which is why we created the `@microsoft/teams.ai` package.
 
 This package integrates well with the other app/bot packages and provides a low opinion interface to work
 with LLM's.
@@ -78,13 +78,13 @@ with LLM's.
 ## Adaptive Cards
 
 Today we have many adaptive cards designers and libraries. They are once again fragmented which causes confusion.
-The new `@microsoft/spark.cards` package provides up to date typings and function implementations for cards to be used
-easily, and the `@microsoft/spark.devtools` package provides a designer and testing frontend for developers to easily
+The new `@microsoft/teams.cards` package provides up to date typings and function implementations for cards to be used
+easily, and the `@microsoft/teams.devtools` package provides a designer and testing frontend for developers to easily
 build their apps/cards.
 
 ## BotBuilder/M365 Agents SDK
 
-This new SDK works with the botbuilder via a plugin in `@microsoft/spark.botbuilder` and it will work with the
+This new SDK works with the botbuilder via a plugin in `@microsoft/teams.botbuilder` and it will work with the
 M365 Agents SDK when it is released as well. Its important that we provide migration paths for customers
 using legacy packages like botbuilder, but that want all the benefits of the new SDK.
 
@@ -94,5 +94,5 @@ with the legacy api.
 
 ## Pro Code vs No Code
 
-Both! with the `@microsoft/spark.cli` copilot command, you can use an intelligent agent to help automate
+Both! with the `@microsoft/teams.cli` copilot command, you can use an intelligent agent to help automate
 adding/managing features you want to add to your bot.

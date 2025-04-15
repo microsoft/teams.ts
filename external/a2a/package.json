@@ -1,5 +1,5 @@
 {
-  "name": "@microsoft/spark.a2a",
+  "name": "@microsoft/teams.a2a",
   "version": "0.2.6",
   "license": "MIT",
   "main": "./dist/index.js",
@@ -36,12 +36,12 @@
     "jsonwebtoken": "^9.0.2"
   },
   "peerDependencies": {
-    "@microsoft/spark.apps": "*",
-    "@microsoft/spark.api": "*",
-    "@microsoft/spark.common": "*"
+    "@microsoft/teams.apps": "*",
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.common": "*"
   },
   "devDependencies": {
-    "@microsoft/spark.config": "*",
+    "@microsoft/teams.config": "*",
     "@types/jest": "^29.5.12",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.0.2",

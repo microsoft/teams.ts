@@ -1,6 +1,6 @@
 import { FC, memo, useCallback, useState } from 'react';
 import { mergeClasses, Popover, PopoverSurface, PopoverTrigger } from '@fluentui/react-components';
-import { Message, MessageUser, MessageReaction } from '@microsoft/spark.api';
+import { Message, MessageUser, MessageReaction } from '@microsoft/teams.api';
 
 import { useChatStore } from '../../stores/ChatStore';
 import { MessageActionUIPayload } from '../../types/MessageActionUI';

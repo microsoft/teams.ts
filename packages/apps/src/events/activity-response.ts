@@ -1,4 +1,4 @@
-import { Activity, ConversationReference, InvokeResponse } from '@microsoft/spark.api';
+import { Activity, ConversationReference, InvokeResponse } from '@microsoft/teams.api';
 
 import { IEvent } from '../types';
 

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>🗃️ Custom Logger - Spark.JS</title>
+        <title>🗃️ Custom Logger - Teams SDK: Typescript</title>
 
 
         <!-- Custom HTML head -->
@@ -23,9 +23,9 @@
         <link rel="stylesheet" href="../fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
-        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
-        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
@@ -119,10 +119,10 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Spark.JS</h1>
+                    <h1 class="menu-title">Teams SDK: Typescript</h1>
 
                     <div class="right-buttons">
-                        <a href="http://github.com/microsoft/spark.js" title="Git repository" aria-label="Git repository">
+                        <a href="http://github.com/microsoft/teams.ts" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
 
@@ -154,9 +154,9 @@
                         <h1 id="-custom-logger"><a class="header" href="#-custom-logger">🗃️ Custom Logger</a></h1>
 <p>The <code>App</code> will provide a default logger, but you can also provide your own.
 The default <code>Logger</code> instance will be set to <code>ConsoleLogger</code> from the
-<code>@microsoft/spark.common</code> package.</p>
-<pre><code class="language-typescript">import { App } from '@microsoft/spark.apps';
-import { ConsoleLogger } from '@microsoft/spark.common';
+<code>@microsoft/teams.common</code> package.</p>
+<pre><code class="language-typescript">import { App } from '@microsoft/teams.apps';
+import { ConsoleLogger } from '@microsoft/teams.common';
 
 // initialize app with custom console logger
 // set to debug log level

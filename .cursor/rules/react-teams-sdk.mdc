@@ -1,5 +1,5 @@
 ---
-description: React development in Spark
+description: React development in Teams
 globs: *.tsx, packages/devtools, *.ts
 alwaysApply: true
 ---
@@ -11,7 +11,7 @@ alwaysApply: true
 ## React rules
 - Follow react conventions from https://18.react.dev/
 - Prefer functional components using FC imported from 'react' like { FC }. Fix React function components that do not follow this convention.
-- Keep imports from @microsoft/spark.___ as is, and do not modify or update the syntax of the import.
+- Keep imports from @microsoft/teams.___ as is, and do not modify or update the syntax of the import.
 - Keep <></> React components when they exist.
 
 ## FluentUI

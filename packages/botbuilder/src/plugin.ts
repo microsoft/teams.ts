@@ -1,6 +1,13 @@
 import express from 'express';
 
-import { ILogger } from '@microsoft/spark.common';
+import {
+  $Activity,
+  Activity,
+  ConversationReference,
+  Credentials,
+  IToken,
+  JsonWebToken,
+} from '@microsoft/teams.api';
 import {
   Dependency,
   Event,
@@ -11,16 +18,9 @@ import {
   Logger,
   Plugin,
   manifest,
-} from '@microsoft/spark.apps';
-import {
-  $Activity,
-  Activity,
-  ConversationReference,
-  Credentials,
-  IToken,
-  JsonWebToken,
-} from '@microsoft/spark.api';
-import * as $http from '@microsoft/spark.common/http';
+} from '@microsoft/teams.apps';
+import { ILogger } from '@microsoft/teams.common';
+import * as $http from '@microsoft/teams.common/http';
 
 import {
   ActivityHandler,

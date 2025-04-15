@@ -1,7 +1,13 @@
-import { URL } from 'node:url';
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import { URL } from 'node:url';
 
+import {
+  Activity,
+  ActivityParams,
+  ConversationReference,
+  JsonWebToken,
+} from '@microsoft/teams.api';
 import {
   Dependency,
   Event,
@@ -13,24 +19,18 @@ import {
   Logger,
   Plugin,
   Storage,
-} from '@microsoft/spark.apps';
-import {
-  Activity,
-  ActivityParams,
-  ConversationReference,
-  JsonWebToken,
-} from '@microsoft/spark.api';
-import { EventEmitter, EventHandler, ILogger, IStorage } from '@microsoft/spark.common';
+} from '@microsoft/teams.apps';
+import { EventEmitter, EventHandler, ILogger, IStorage } from '@microsoft/teams.common';
 
 import pkg from '../package.json';
 
-import * as schema from './schema';
 import * as middleware from './middleware';
+import * as schema from './schema';
 
 import { A2AError } from './error';
-import { TaskContext, TaskStoreItem } from './types';
 import { Router, TaskEvents } from './router';
 import { SSEStreamResponse } from './sse-stream-response';
+import { TaskContext, TaskStoreItem } from './types';
 import { activityToMessage, messageToActivity } from './utils';
 
 export type A2AOptions = {

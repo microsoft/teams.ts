@@ -1,4 +1,4 @@
-import { IMessageUpdateActivity } from '@microsoft/spark.api';
+import { IMessageUpdateActivity } from '@microsoft/teams.api';
 
 import { RouteHandler } from '../types';
 import { IActivityContext } from '../contexts';

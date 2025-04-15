@@ -1,7 +1,7 @@
 # 🤖 AI
 
 Tools that make it easier to integrate apps with LLM's and enabling multi-agent scenarios.
-The `@microsoft/spark.ai` package has three main components:
+The `@microsoft/teams.ai` package has three main components:
 
 ## 🧠 Models
 
@@ -9,7 +9,7 @@ A `Model` is the component that interfaces with the LLM,
 being given some `input` and returning the `output`.
 
 It is in the model implementation that the individual LLM features (ie Streaming/Tools etc)
-are made compatible with the more general features of the `@microsoft/spark.ai` package.
+are made compatible with the more general features of the `@microsoft/teams.ai` package.
 
 ## 📄 Templates
 

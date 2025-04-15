@@ -1,3 +1,3 @@
-import { IActivity } from '@microsoft/spark.api';
+import { IActivity } from '@microsoft/teams.api';
 
 export type ConversationType = IActivity['conversation']['conversationType'];

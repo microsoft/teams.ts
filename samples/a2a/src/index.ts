@@ -1,9 +1,9 @@
-import { ChatPrompt } from '@microsoft/spark.ai';
-import { App } from '@microsoft/spark.apps';
-import { ConsoleLogger } from '@microsoft/spark.common/logging';
-import { DevtoolsPlugin } from '@microsoft/spark.dev';
-import { A2APlugin } from '@microsoft/spark.a2a';
-import { OpenAIChatModel } from '@microsoft/spark.openai';
+import { A2APlugin } from '@microsoft/teams.a2a';
+import { ChatPrompt } from '@microsoft/teams.ai';
+import { App } from '@microsoft/teams.apps';
+import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
+import { OpenAIChatModel } from '@microsoft/teams.openai';
 
 import pkg from '../package.json';
 

@@ -1,4 +1,4 @@
-import { Activity, Attachment, Entity, MessageActivity } from '@microsoft/spark.api';
+import { Activity, Attachment, Entity, MessageActivity } from '@microsoft/teams.api';
 
 import { Message } from '../schema';
 

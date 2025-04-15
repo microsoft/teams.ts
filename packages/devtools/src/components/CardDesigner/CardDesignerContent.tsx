@@ -1,5 +1,5 @@
 import { FC, memo } from 'react';
-import { ICard, Card } from '@microsoft/spark.cards';
+import { ICard, Card } from '@microsoft/teams.cards';
 
 import AdaptiveCard from '../Card/AdaptiveCard';
 

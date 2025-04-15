@@ -1,6 +1,6 @@
 import { FC, memo } from 'react';
 import { mergeClasses, Tooltip } from '@fluentui/react-components';
-import { IBadge } from '@microsoft/spark.cards';
+import { IBadge } from '@microsoft/teams.cards';
 
 import { useBadgeCardStyles } from './Medias.styles';
 import IconCard from './IconCard';

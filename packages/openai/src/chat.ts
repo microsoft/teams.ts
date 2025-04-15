@@ -4,8 +4,8 @@ import {
   LocalMemory,
   Message,
   ModelMessage,
-} from '@microsoft/spark.ai';
-import { ConsoleLogger, ILogger } from '@microsoft/spark.common/logging';
+} from '@microsoft/teams.ai';
+import { ConsoleLogger, ILogger } from '@microsoft/teams.common/logging';
 
 import '@azure/openai/types';
 import OpenAI, { AzureOpenAI } from 'openai';
@@ -54,7 +54,7 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
 
   constructor(readonly options: OpenAIChatModelOptions | AzureOpenAIChatModelOptions) {
     this._log =
-      options.logger || new ConsoleLogger(`@microsoft/spark.openai/${this.options.model}`);
+      options.logger || new ConsoleLogger(`@microsoft/teams.openai/${this.options.model}`);
     this._openai =
       'endpoint' in options
         ? new AzureOpenAI({

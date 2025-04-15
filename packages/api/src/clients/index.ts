@@ -1,4 +1,4 @@
-import * as http from '@microsoft/spark.common/http';
+import * as http from '@microsoft/teams.common/http';
 
 import { BotClient } from './bot';
 import { UserClient } from './user';
