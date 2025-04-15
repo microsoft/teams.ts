@@ -1,5 +1,11 @@
 # @microsoft/teams.apps
 
+## 0.2.7
+
+### Patch Changes
+
+- package rename
+
 ## 0.2.6
 
 ### Patch Changes
@@ -72,9 +78,9 @@
 
 - fix middleware bug in removeMentionsText
 - Updated dependencies
-    - @microsoft/teams.api@0.0.6
-    - @microsoft/teams.common@0.0.6
-    - @microsoft/teams.graph@0.0.6
+  - @microsoft/teams.api@0.0.6
+  - @microsoft/teams.common@0.0.6
+  - @microsoft/teams.graph@0.0.6
 
 ## 0.0.5
 
@@ -82,9 +88,9 @@
 
 - add removeMentionsText util and middleware, update docs
 - Updated dependencies
-    - @microsoft/teams.api@0.0.5
-    - @microsoft/teams.common@0.0.5
-    - @microsoft/teams.graph@0.0.5
+  - @microsoft/teams.api@0.0.5
+  - @microsoft/teams.common@0.0.5
+  - @microsoft/teams.graph@0.0.5
 
 ## 0.0.4
 
@@ -92,9 +98,9 @@
 
 - fix auth credential error
 - Updated dependencies
-    - @microsoft/teams.api@0.0.4
-    - @microsoft/teams.common@0.0.4
-    - @microsoft/teams.graph@0.0.4
+  - @microsoft/teams.api@0.0.4
+  - @microsoft/teams.common@0.0.4
+  - @microsoft/teams.graph@0.0.4
 
 ## 0.0.3
 
@@ -102,9 +108,9 @@
 
 - add support for more types of bot authentication, devtools fixes
 - Updated dependencies
-    - @microsoft/teams.api@0.0.3
-    - @microsoft/teams.common@0.0.3
-    - @microsoft/teams.graph@0.0.3
+  - @microsoft/teams.api@0.0.3
+  - @microsoft/teams.common@0.0.3
+  - @microsoft/teams.graph@0.0.3
 
 ## 0.0.2
 
@@ -112,9 +118,9 @@
 
 - fix cli binary name
 - Updated dependencies
-    - @microsoft/teams.api@0.0.2
-    - @microsoft/teams.common@0.0.2
-    - @microsoft/teams.graph@0.0.2
+  - @microsoft/teams.api@0.0.2
+  - @microsoft/teams.common@0.0.2
+  - @microsoft/teams.graph@0.0.2
 
 ## 0.0.1
 
@@ -122,6 +128,6 @@
 
 - port to new repository
 - Updated dependencies
-    - @microsoft/teams.api@0.0.1
-    - @microsoft/teams.common@0.0.1
-    - @microsoft/teams.graph@0.0.1
+  - @microsoft/teams.api@0.0.1
+  - @microsoft/teams.common@0.0.1
+  - @microsoft/teams.graph@0.0.1

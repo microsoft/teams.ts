@@ -1,5 +1,11 @@
 # @microsoft/teams.mcp
 
+## 0.2.7
+
+### Patch Changes
+
+- package rename
+
 ## 0.2.6
 
 ### Patch Changes

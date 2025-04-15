@@ -1,12 +1,12 @@
 {
   "name": "@microsoft/teams.js",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "private": true,
   "homepage": "https://github.com/microsoft/teams.js",
   "bugs": "https://github.com/microsoft/teams.js/issues",
   "packageManager": "npm@10.8.1",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "repository": {
     "type": "git",
