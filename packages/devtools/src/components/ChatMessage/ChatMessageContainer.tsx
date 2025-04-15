@@ -1,6 +1,6 @@
 import { FC, memo } from 'react';
 import { mergeClasses, Text, Tooltip } from '@fluentui/react-components';
-import { Message } from '@microsoft/spark.api';
+import { Message } from '@microsoft/teams.api';
 
 import {
   formatMessageDateTime,

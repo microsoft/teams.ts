@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Attachment, Message } from '@microsoft/spark.api';
+import { Attachment, Message } from '@microsoft/teams.api';
 
 import { useCardStore } from '../../stores/CardStore';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';

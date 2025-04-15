@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
-import { IColumnSet } from '@microsoft/spark.cards';
+import { IColumnSet } from '@microsoft/teams.cards';
 
 import useContainerClasses from './Containers.styles';
 import ColumnCard from './ColumnCard';

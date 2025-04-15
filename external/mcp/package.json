@@ -1,19 +1,19 @@
 {
-  "name": "@microsoft/spark.mcp",
+  "name": "@microsoft/teams.mcp",
   "version": "0.2.6",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
-  "homepage": "https://github.com/microsoft/spark.js",
-  "bugs": "https://github.com/microsoft/spark.js/issues",
+  "homepage": "https://github.com/microsoft/teams.js",
+  "bugs": "https://github.com/microsoft/teams.js/issues",
   "files": [
     "dist",
     "README.md"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/microsoft/spark.js.git",
+    "url": "https://github.com/microsoft/teams.js.git",
     "directory": "packages/mcp"
   },
   "keywords": [
@@ -37,19 +37,19 @@
     "zod": "^3.24.2"
   },
   "peerDependencies": {
-    "@microsoft/spark.ai": "*",
-    "@microsoft/spark.apps": "*",
-    "@microsoft/spark.common": "*",
-    "@microsoft/spark.dev": "*",
+    "@microsoft/teams.ai": "*",
+    "@microsoft/teams.apps": "*",
+    "@microsoft/teams.common": "*",
+    "@microsoft/teams.dev": "*",
     "@modelcontextprotocol/sdk": "^1.9.0"
   },
   "peerDependenciesMeta": {
-    "@microsoft/spark.dev": {
+    "@microsoft/teams.dev": {
       "optional": true
     }
   },
   "devDependencies": {
-    "@microsoft/spark.config": "*",
+    "@microsoft/teams.config": "*",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.0.2",
     "jest": "^29.7.0",

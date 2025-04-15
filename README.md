@@ -1,19 +1,19 @@
-# <img src="./assets/icons/icon.png" width="50px" /> Spark.JS
+# <img src="./assets/icons/icon.png" width="50px" /> Teams.JS
 
 <a href="#">
-    <img src="https://img.shields.io/github/package-json/v/microsoft/spark.js?label=npm" />
+    <img src="https://img.shields.io/github/package-json/v/microsoft/teams.js?label=npm" />
 </a>
-<a href="https://github.com/microsoft/spark.js/actions/workflows/pages/pages-build-deployment">
-    <img src="https://img.shields.io/github/actions/workflow/status/microsoft/spark.js/pages/pages-build-deployment?label=documentation" />
+<a href="https://github.com/microsoft/teams.js/actions/workflows/pages/pages-build-deployment">
+    <img src="https://img.shields.io/github/actions/workflow/status/microsoft/teams.js/pages/pages-build-deployment?label=documentation" />
 </a>
 
 a suite of packages used to build on the Teams Platform.
 
-<a href="https://microsoft.github.io/spark.js/2.getting-started/1.create-application.html" target="_blank">
+<a href="https://microsoft.github.io/teams.js/2.getting-started/1.create-application.html" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 
-- [Documentation](https://microsoft.github.io/spark.js)
+- [Documentation](https://microsoft.github.io/teams.js)
 - [Why?](#why)
 - [Design Philosophy](#design-philosophy)
 - [Scripts](#scripts)
@@ -82,19 +82,19 @@ $: npm run test
 
 ## Packages
 
-- [`@microsoft/spark.apps`](./packages/apps/README.md)
-- [`@microsoft/spark.ai`](./packages/ai/README.md)
-- [`@microsoft/spark.api`](./packages/api/README.md)
-- [`@microsoft/spark.botbuilder`](./packages/botbuilder/README.md)
-- [`@microsoft/spark.cards`](./packages/cards/README.md)
-- [`@microsoft/spark.cli`](./packages/cli/README.md)
-- [`@microsoft/spark.client`](./packages/client/README.md)
-- [`@microsoft/spark.common`](./packages/common/README.md)
-- [`@microsoft/spark.config`](./packages/config/README.md)
-- [`@microsoft/spark.dev`](./packages/dev/README.md)
-- [`@microsoft/spark.devtools`](./packages/devtools/README.md)
-- [`@microsoft/spark.graph`](./packages/graph/README.md)
-- [`@microsoft/spark.openai`](./packages/openai/README.md)
+- [`@microsoft/teams.apps`](./packages/apps/README.md)
+- [`@microsoft/teams.ai`](./packages/ai/README.md)
+- [`@microsoft/teams.api`](./packages/api/README.md)
+- [`@microsoft/teams.botbuilder`](./packages/botbuilder/README.md)
+- [`@microsoft/teams.cards`](./packages/cards/README.md)
+- [`@microsoft/teams.cli`](./packages/cli/README.md)
+- [`@microsoft/teams.client`](./packages/client/README.md)
+- [`@microsoft/teams.common`](./packages/common/README.md)
+- [`@microsoft/teams.config`](./packages/config/README.md)
+- [`@microsoft/teams.dev`](./packages/dev/README.md)
+- [`@microsoft/teams.devtools`](./packages/devtools/README.md)
+- [`@microsoft/teams.graph`](./packages/graph/README.md)
+- [`@microsoft/teams.openai`](./packages/openai/README.md)
 
 ## Samples
 

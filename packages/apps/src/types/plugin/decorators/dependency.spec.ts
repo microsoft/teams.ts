@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { ILogger, IStorage } from '@microsoft/spark.common';
+import { ILogger, IStorage } from '@microsoft/teams.common';
 
 import { HttpPlugin } from '../../../plugins';
 import { Plugin } from './plugin';

@@ -6,7 +6,7 @@ import {
   IMessageActivity,
   IMessageUpdateActivity,
   ITypingActivity,
-} from '@microsoft/spark.api';
+} from '@microsoft/teams.api';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 

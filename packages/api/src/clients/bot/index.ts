@@ -1,4 +1,4 @@
-import { Client, ClientOptions } from '@microsoft/spark.common/http';
+import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
 import { BotSignInClient } from './sign-in';
 import { BotTokenClient } from './token';

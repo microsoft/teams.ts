@@ -2,8 +2,8 @@ import http from 'http';
 import express from 'express';
 import cors from 'cors';
 
-import { ILogger } from '@microsoft/spark.common';
-import * as $http from '@microsoft/spark.common/http';
+import { ILogger } from '@microsoft/teams.common';
+import * as $http from '@microsoft/teams.common/http';
 
 import {
   Activity,
@@ -12,7 +12,7 @@ import {
   ConversationReference,
   IToken,
   Client,
-} from '@microsoft/spark.api';
+} from '@microsoft/teams.api';
 
 import {
   IStreamer,

@@ -1,4 +1,4 @@
-# @microsoft/spark.cards
+# @microsoft/teams.cards
 
 ## 0.2.6
 

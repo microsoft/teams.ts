@@ -22,7 +22,7 @@ import {
   CheckmarkFilled,
   CheckmarkRegular,
 } from '@fluentui/react-icons/lib/fonts';
-import { Attachment } from '@microsoft/spark.api';
+import { Attachment } from '@microsoft/teams.api';
 import { useNavigate } from 'react-router';
 
 import { useCardStore } from '../../../stores/CardStore';

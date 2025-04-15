@@ -1,44 +1,44 @@
 # Teams: mcpclientpluginplugin
 
 <p>
-    <a href="https://www.npmjs.com/package/@microsoft/spark.mcpclient" target="_blank">
-        <img src="https://img.shields.io/npm/v/@microsoft/spark.mcpclient" />
+    <a href="https://www.npmjs.com/package/@microsoft/teams.mcpclient" target="_blank">
+        <img src="https://img.shields.io/npm/v/@microsoft/teams.mcpclient" />
     </a>
-    <a href="https://www.npmjs.com/package/@microsoft/spark.mcpclient?activeTab=code" target="_blank">
-        <img src="https://img.shields.io/bundlephobia/min/@microsoft/spark.mcpclient" />
+    <a href="https://www.npmjs.com/package/@microsoft/teams.mcpclient?activeTab=code" target="_blank">
+        <img src="https://img.shields.io/bundlephobia/min/@microsoft/teams.mcpclient" />
     </a>
-    <a href="https://www.npmjs.com/package/@microsoft/spark.mcpclient?activeTab=dependencies" target="_blank">
-        <img src="https://img.shields.io/librariesio/release/npm/@microsoft/spark.mcpclient" />
+    <a href="https://www.npmjs.com/package/@microsoft/teams.mcpclient?activeTab=dependencies" target="_blank">
+        <img src="https://img.shields.io/librariesio/release/npm/@microsoft/teams.mcpclient" />
     </a>
-    <a href="https://www.npmjs.com/package/@microsoft/spark.mcpclient" target="_blank">
-        <img src="https://img.shields.io/npm/dw/@microsoft/spark.mcpclient" />
+    <a href="https://www.npmjs.com/package/@microsoft/teams.mcpclient" target="_blank">
+        <img src="https://img.shields.io/npm/dw/@microsoft/teams.mcpclient" />
     </a>
-    <a href="https://microsoft.github.io/spark.js" target="_blank">
+    <a href="https://microsoft.github.io/teams.js" target="_blank">
         <img src="https://img.shields.io/badge/📖 docs-open-blue" />
     </a>
 </p>
 
 High level MCP Client Plugin which allows connecting to various sse servers and consume exposed tools.
 
-<a href="https://microsoft.github.io/spark.js/2.getting-started/1.create-application.html" target="_blank">
+<a href="https://microsoft.github.io/teams.js/2.getting-started/1.create-application.html" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 
 ## Install
 
 ```bash
-npm install @microsoft/spark.mcpclient
+npm install @microsoft/teams.mcpclient
 ```
 
 ## Overview
 
-The MCP Client Plugin enables seamless integration with Model Context Protocol (MCP) servers through SSE (Server-Sent Events). It allows you to connect to various MCP servers and consume their exposed tools within your Spark.js applications.
+The MCP Client Plugin enables seamless integration with Model Context Protocol (MCP) servers through SSE (Server-Sent Events). It allows you to connect to various MCP servers and consume their exposed tools within your Teams.js applications.
 
 ## Usage
 
 ```typescript
-import { ChatPrompt } from '@microsoft/spark.ai';
-import { McpClientPlugin } from '@microsoft/spark.mcpclient';
+import { ChatPrompt } from '@microsoft/teams.ai';
+import { McpClientPlugin } from '@microsoft/teams.mcpclient';
 
 const prompt = new ChatPrompt(
     {

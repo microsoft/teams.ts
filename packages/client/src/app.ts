@@ -1,6 +1,6 @@
 import * as msal from '@azure/msal-browser';
-import * as http from '@microsoft/spark.common/http';
-import { ILogger, ConsoleLogger } from '@microsoft/spark.common/logging';
+import * as http from '@microsoft/teams.common/http';
+import { ILogger, ConsoleLogger } from '@microsoft/teams.common/logging';
 import * as teamsJs from '@microsoft/teams-js';
 
 import {
@@ -96,7 +96,7 @@ export class App {
 
     this.clientId = clientId;
     this.options = options;
-    this._log = options?.logger || new ConsoleLogger('@spark/client');
+    this._log = options?.logger || new ConsoleLogger('@teams/client');
     this.http = new http.Client({ baseUrl: options?.baseUrl });
   }
 
@@ -151,14 +151,14 @@ export class App {
     const res = await this.http.post<T>(`/api/functions/${name}`, data, {
       headers: {
         authorization: `Bearer ${accessToken}`,
-        'x-spark-app-session-id': context.app.sessionId,
-        'x-spark-channel-id': context.channel?.id,
-        'x-spark-chat-id': context.chat?.id,
-        'x-spark-meeting-id': context.meeting?.id,
-        'x-spark-message-id': context.app.parentMessageId,
-        'x-spark-page-id': context.page.id,
-        'x-spark-sub-page-id': context.page.subPageId,
-        'x-spark-team-id': context.team?.internalId,
+        'x-teams-app-session-id': context.app.sessionId,
+        'x-teams-channel-id': context.channel?.id,
+        'x-teams-chat-id': context.chat?.id,
+        'x-teams-meeting-id': context.meeting?.id,
+        'x-teams-message-id': context.app.parentMessageId,
+        'x-teams-page-id': context.page.id,
+        'x-teams-sub-page-id': context.page.subPageId,
+        'x-teams-team-id': context.team?.internalId,
         ...(options?.requestHeaders ?? {}),
       },
     });

@@ -1,4 +1,4 @@
-import { IMessageDeleteActivity } from '@microsoft/spark.api';
+import { IMessageDeleteActivity } from '@microsoft/teams.api';
 
 import { RouteHandler } from '../types';
 import { IActivityContext } from '../contexts';

@@ -8,7 +8,7 @@ import {
   makeStyles,
 } from '@fluentui/react-components';
 import { AttachRegular } from '@fluentui/react-icons';
-import { Card } from '@microsoft/spark.cards';
+import { Card } from '@microsoft/teams.cards';
 import { useNavigate, useLocation } from 'react-router';
 
 import CardDesigner from '../components/CardDesigner/CardDesigner';

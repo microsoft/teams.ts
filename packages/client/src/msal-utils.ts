@@ -1,5 +1,5 @@
 import * as msal from '@azure/msal-browser';
-import { ILogger } from '@microsoft/spark.common/logging';
+import { ILogger } from '@microsoft/teams.common/logging';
 
 /**
  * Gets a silent request used to acquire an Entra access token for invoking remote functions on behalf of a user.

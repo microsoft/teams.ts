@@ -20,9 +20,9 @@ import {
   ThumbDislikeRegular,
   ThumbLikeRegular,
 } from '@fluentui/react-icons/lib/fonts';
-import type { Message } from '@microsoft/spark.api';
+import type { Message } from '@microsoft/teams.api';
 
-import useSparkApi from '../../hooks/useSparkApi';
+import useTeamsApi from '../../hooks/useTeamsApi';
 import { useActivityStore } from '../../stores/ActivityStore';
 import { useChatStore } from '../../stores/ChatStore';
 import { createFeedbackActivity } from '../../utils/create-feedback';
@@ -61,7 +61,7 @@ const Feedback: FC<FeedbackProps> = ({
   const [feedbackText, setFeedbackText] = useState('');
   const [showFeedbackSent, setShowFeedbackSent] = useState(false);
   const { findByMessageId } = useActivityStore();
-  const sparkApi = useSparkApi();
+  const teamsApi = useTeamsApi();
   const { chat } = useChatStore();
   const isMac = isMacOS();
 
@@ -100,7 +100,7 @@ const Feedback: FC<FeedbackProps> = ({
         isStreaming: streaming,
       });
 
-      await sparkApi.conversations.activities(chat.id).create(activity);
+      await teamsApi.conversations.activities(chat.id).create(activity);
       setShowFeedbackSent(true);
       handleDialogClose();
     } catch (error) {

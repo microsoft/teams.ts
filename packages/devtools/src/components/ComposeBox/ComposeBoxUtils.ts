@@ -1,4 +1,4 @@
-import { Attachment } from '@microsoft/spark.api';
+import { Attachment } from '@microsoft/teams.api';
 
 /**
  * Processes HTML content from ContentEditableArea to plain text

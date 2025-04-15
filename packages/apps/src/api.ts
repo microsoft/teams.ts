@@ -1,6 +1,6 @@
-import * as http from '@microsoft/spark.common/http';
-import * as api from '@microsoft/spark.api';
-import * as graph from '@microsoft/spark.graph';
+import * as http from '@microsoft/teams.common/http';
+import * as api from '@microsoft/teams.api';
+import * as graph from '@microsoft/teams.graph';
 
 export class AppClient extends api.Client {
   /**

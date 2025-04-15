@@ -1,5 +1,5 @@
 {
-  "extends": "@microsoft/spark.config/tsconfig.esm.json",
+  "extends": "@microsoft/teams.config/tsconfig.esm.json",
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src"

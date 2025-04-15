@@ -1,7 +1,7 @@
-import { EventEmitter } from '@microsoft/spark.common/events';
-import * as http from '@microsoft/spark.common/http';
-import { ConsoleLogger, ILogger } from '@microsoft/spark.common/logging';
-import { IStorage, LocalStorage } from '@microsoft/spark.common/storage';
+import { EventEmitter } from '@microsoft/teams.common/events';
+import * as http from '@microsoft/teams.common/http';
+import { ConsoleLogger, ILogger } from '@microsoft/teams.common/logging';
+import { IStorage, LocalStorage } from '@microsoft/teams.common/storage';
 import { AxiosError } from 'axios';
 
 import {
@@ -12,7 +12,7 @@ import {
   JsonWebToken,
   StripMentionsTextOptions,
   toActivityParams,
-} from '@microsoft/spark.api';
+} from '@microsoft/teams.api';
 
 import pkg from '../package.json';
 
@@ -173,10 +173,10 @@ export class App {
   protected startedAt?: Date;
   protected port?: number;
 
-  private readonly _userAgent = `spark[apps]/${pkg.version}`;
+  private readonly _userAgent = `teams[apps]/${pkg.version}`;
 
   constructor(readonly options: AppOptions = {}) {
-    this.log = this.options.logger || new ConsoleLogger('@spark/app');
+    this.log = this.options.logger || new ConsoleLogger('@teams/app');
     this.storage = this.options.storage || new LocalStorage();
     this._manifest = this.options.manifest || {};
     if (!options.client) {

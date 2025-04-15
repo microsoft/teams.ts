@@ -1,6 +1,6 @@
 import { FC, memo } from 'react';
 import { Button, mergeClasses, Tooltip } from '@fluentui/react-components';
-import { MessageReaction } from '@microsoft/spark.api';
+import { MessageReaction } from '@microsoft/teams.api';
 
 import { messageReactions } from '../../types/MessageReactionsEmoji';
 

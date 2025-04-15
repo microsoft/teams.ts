@@ -13,7 +13,7 @@ app.on('invoke', async ({ activity }) => {
 });
 ```
 
-The name of the invoke activity for Adaptive Cards is `adaptiveCard/action`. However, the `@microsoft/spark.api` package includes an alias for this invoke activity, `card.action`.
+The name of the invoke activity for Adaptive Cards is `adaptiveCard/action`. However, the `@microsoft/teams.api` package includes an alias for this invoke activity, `card.action`.
 
 See the next section for more information on the `value` field of the invoke activity.
 

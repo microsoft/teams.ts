@@ -1,6 +1,6 @@
 import { FC, memo, useCallback } from 'react';
 import { Link, mergeClasses } from '@fluentui/react-components';
-import { MessageUser } from '@microsoft/spark.api';
+import { MessageUser } from '@microsoft/teams.api';
 
 import { MessageActionUIPayload } from '../../../types/MessageActionUI';
 import useChatMessageStyles from '../ChatMessage.styles';

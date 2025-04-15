@@ -1,4 +1,4 @@
-import { InvokeActivity, InvokeResponse } from '@microsoft/spark.api';
+import { InvokeActivity, InvokeResponse } from '@microsoft/teams.api';
 
 import { RouteHandler } from '../../types';
 import { IActivityContext } from '../../contexts';

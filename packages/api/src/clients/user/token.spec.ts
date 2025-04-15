@@ -1,4 +1,4 @@
-import { Client } from '@microsoft/spark.common/http';
+import { Client } from '@microsoft/teams.common/http';
 
 import { UserTokenClient } from './token';
 

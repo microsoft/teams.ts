@@ -1,5 +1,5 @@
 import { FC, memo } from 'react';
-import { Message } from '@microsoft/spark.api';
+import { Message } from '@microsoft/teams.api';
 import { useLocation } from 'react-router';
 
 import { useCardStore } from '../../../stores/CardStore';

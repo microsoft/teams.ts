@@ -1,5 +1,5 @@
 import * as uuid from 'uuid';
-import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/spark.common';
+import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/teams.common';
 
 import { ErrorMessageResponse, MessageRequest, MessageResponse } from './message';
 
@@ -25,7 +25,7 @@ export class WindowClient {
 
   constructor(logger?: ILogger) {
     this.id = 0;
-    this.log = logger?.child('window') || new ConsoleLogger('@microsoft/spark.client/window');
+    this.log = logger?.child('window') || new ConsoleLogger('@microsoft/teams.client/window');
     this.requests = new EventEmitter();
     this.responses = new EventEmitter();
     window.addEventListener('message', this.onMessage.bind(this));

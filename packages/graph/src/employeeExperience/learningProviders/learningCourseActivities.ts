@@ -1,5 +1,5 @@
 import { getInjectedUrl } from '@utils/url';
-import * as http from '@microsoft/spark.common/http';
+import * as http from '@microsoft/teams.common/http';
 
 import pkg from 'src/../package.json';
 import type { Endpoints } from './learningCourseActivities-types.ts';
@@ -22,7 +22,7 @@ export class LearningCourseActivitiesClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `spark[graph]/${pkg.version}`,
+          'User-Agent': `teams[graph]/${pkg.version}`,
         },
       });
     } else if ('request' in options) {
@@ -30,7 +30,7 @@ export class LearningCourseActivitiesClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `spark[graph]/${pkg.version}`,
+          'User-Agent': `teams[graph]/${pkg.version}`,
         },
       });
     } else {
@@ -39,7 +39,7 @@ export class LearningCourseActivitiesClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `spark[graph]/${pkg.version}`,
+          'User-Agent': `teams[graph]/${pkg.version}`,
           ...options.headers,
         },
       });
@@ -175,7 +175,7 @@ export class LearningCourseActivitiesClient {
   /**
    * `POST /employeeExperience/learningProviders/{learningProvider-id}/learningCourseActivities`
    *
-   * Create a new learningCourseActivity object. A learning course activity can be one of two types: 
+   * Create a new learningCourseActivity object. A learning course activity can be one of two types:
 - Assignment
 - Self-initiated Use this method to create either type of activity.
    */

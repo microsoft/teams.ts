@@ -9,7 +9,7 @@ import {
   MenuPopover,
 } from '@fluentui/react-components';
 import { FluentIcon } from '@fluentui/react-icons';
-import { Message } from '@microsoft/spark.api';
+import { Message } from '@microsoft/teams.api';
 
 import { ConversationType } from '../../types/ConversationType';
 import { MessageActionUIPayload } from '../../types/MessageActionUI';

@@ -6,8 +6,8 @@ preventing you from needing to deploy/register the app or expose a public endpoi
 The devtools can easily be added to any project by importing the `DevtoolsPlugin` as shown below:
 
 ```typescript
-import { App } from '@microsoft/spark.apps';
-import { DevtoolsPlugin } from '@microsoft/spark.dev';
+import { App } from '@microsoft/teams.apps';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 // add the DevtoolsPlugin (allowing us to emulate teams localhost and inspect traffic)
 const app = new App({

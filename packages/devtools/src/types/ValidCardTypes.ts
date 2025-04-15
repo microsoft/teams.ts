@@ -1,4 +1,4 @@
-import { CardAttachmentType } from '@microsoft/spark.api';
+import { CardAttachmentType } from '@microsoft/teams.api';
 
 export const VALID_CARD_TYPES = [
   'adaptive',

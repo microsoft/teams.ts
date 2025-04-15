@@ -14,9 +14,9 @@ import {
   TokenExchangeState,
   TokenPostResource,
   TypingActivity,
-} from '@microsoft/spark.api';
-import { ILogger } from '@microsoft/spark.common/logging';
-import { IStorage } from '@microsoft/spark.common/storage';
+} from '@microsoft/teams.api';
+import { ILogger } from '@microsoft/teams.common/logging';
+import { IStorage } from '@microsoft/teams.common/storage';
 
 import { ApiClient } from '../api';
 import { ISender, IStreamer } from '../types';

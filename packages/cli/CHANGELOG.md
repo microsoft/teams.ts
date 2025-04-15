@@ -1,4 +1,4 @@
-# @microsoft/spark.cli
+# @microsoft/teams.cli
 
 ## 0.2.6
 
@@ -6,7 +6,7 @@
 
 - fix cli for lower node versions
 - Updated dependencies
-    - @microsoft/spark.common@0.2.6
+    - @microsoft/teams.common@0.2.6
 
 ## 0.2.5
 
@@ -14,7 +14,7 @@
 
 - add mcp client, ai plugins, devtools improvements
 - Updated dependencies
-    - @microsoft/spark.common@0.2.5
+    - @microsoft/teams.common@0.2.5
 
 ## 0.2.4
 
@@ -22,7 +22,7 @@
 
 - fix reflect-metadata dependency
 - Updated dependencies
-    - @microsoft/spark.common@0.2.4
+    - @microsoft/teams.common@0.2.4
 
 ## 0.2.3
 
@@ -30,7 +30,7 @@
 
 - devtools fixes, plugins refactor, ai package fixes, new cli ttk configuration
 - Updated dependencies
-    - @microsoft/spark.common@0.2.3
+    - @microsoft/teams.common@0.2.3
 
 ## 0.2.2
 
@@ -38,7 +38,7 @@
 
 - add mcp package and update ai package with use method
 - Updated dependencies
-    - @microsoft/spark.common@0.2.2
+    - @microsoft/teams.common@0.2.2
 
 ## 0.2.1
 
@@ -46,7 +46,7 @@
 
 - change @azure/openai from peer dependency to regular
 - Updated dependencies
-    - @microsoft/spark.common@0.2.1
+    - @microsoft/teams.common@0.2.1
 
 ## 0.2.0
 
@@ -57,7 +57,7 @@
 ### Patch Changes
 
 - Updated dependencies
-    - @microsoft/spark.common@0.2.0
+    - @microsoft/teams.common@0.2.0
 
 ## 0.1.3
 
@@ -65,7 +65,7 @@
 
 - add template logic to cli for more accurate templates/configs
 - Updated dependencies
-    - @microsoft/spark.common@0.1.3
+    - @microsoft/teams.common@0.1.3
 
 ## 0.1.2
 
@@ -73,9 +73,9 @@
 
 - fix bug in `next` routing method
 - Updated dependencies
-    - @microsoft/spark.ai@0.1.2
-    - @microsoft/spark.common@0.1.2
-    - @microsoft/spark.openai@0.1.2
+    - @microsoft/teams.ai@0.1.2
+    - @microsoft/teams.common@0.1.2
+    - @microsoft/teams.openai@0.1.2
 
 ## 0.1.1
 
@@ -83,9 +83,9 @@
 
 - adaptive cards action invoke response fix, tests for cards
 - Updated dependencies
-    - @microsoft/spark.ai@0.1.1
-    - @microsoft/spark.common@0.1.1
-    - @microsoft/spark.openai@0.1.1
+    - @microsoft/teams.ai@0.1.1
+    - @microsoft/teams.common@0.1.1
+    - @microsoft/teams.openai@0.1.1
 
 ## 0.1.0
 
@@ -96,9 +96,9 @@
 ### Patch Changes
 
 - Updated dependencies
-    - @microsoft/spark.ai@0.1.0
-    - @microsoft/spark.common@0.1.0
-    - @microsoft/spark.openai@0.1.0
+    - @microsoft/teams.ai@0.1.0
+    - @microsoft/teams.common@0.1.0
+    - @microsoft/teams.openai@0.1.0
 
 ## 0.0.6
 
@@ -106,9 +106,9 @@
 
 - fix middleware bug in removeMentionsText
 - Updated dependencies
-    - @microsoft/spark.ai@0.0.6
-    - @microsoft/spark.common@0.0.6
-    - @microsoft/spark.openai@0.0.6
+    - @microsoft/teams.ai@0.0.6
+    - @microsoft/teams.common@0.0.6
+    - @microsoft/teams.openai@0.0.6
 
 ## 0.0.5
 
@@ -116,9 +116,9 @@
 
 - add removeMentionsText util and middleware, update docs
 - Updated dependencies
-    - @microsoft/spark.ai@0.0.5
-    - @microsoft/spark.common@0.0.5
-    - @microsoft/spark.openai@0.0.5
+    - @microsoft/teams.ai@0.0.5
+    - @microsoft/teams.common@0.0.5
+    - @microsoft/teams.openai@0.0.5
 
 ## 0.0.4
 
@@ -126,9 +126,9 @@
 
 - fix auth credential error
 - Updated dependencies
-    - @microsoft/spark.ai@0.0.4
-    - @microsoft/spark.common@0.0.4
-    - @microsoft/spark.openai@0.0.4
+    - @microsoft/teams.ai@0.0.4
+    - @microsoft/teams.common@0.0.4
+    - @microsoft/teams.openai@0.0.4
 
 ## 0.0.3
 
@@ -136,9 +136,9 @@
 
 - add support for more types of bot authentication, devtools fixes
 - Updated dependencies
-    - @microsoft/spark.ai@0.0.3
-    - @microsoft/spark.common@0.0.3
-    - @microsoft/spark.openai@0.0.3
+    - @microsoft/teams.ai@0.0.3
+    - @microsoft/teams.common@0.0.3
+    - @microsoft/teams.openai@0.0.3
 
 ## 0.0.2
 
@@ -146,9 +146,9 @@
 
 - fix cli binary name
 - Updated dependencies
-    - @microsoft/spark.ai@0.0.2
-    - @microsoft/spark.common@0.0.2
-    - @microsoft/spark.openai@0.0.2
+    - @microsoft/teams.ai@0.0.2
+    - @microsoft/teams.common@0.0.2
+    - @microsoft/teams.openai@0.0.2
 
 ## 0.0.1
 
@@ -156,6 +156,6 @@
 
 - port to new repository
 - Updated dependencies
-    - @microsoft/spark.ai@0.0.1
-    - @microsoft/spark.common@0.0.1
-    - @microsoft/spark.openai@0.0.1
+    - @microsoft/teams.ai@0.0.1
+    - @microsoft/teams.common@0.0.1
+    - @microsoft/teams.openai@0.0.1

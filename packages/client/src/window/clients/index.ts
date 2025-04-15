@@ -1,4 +1,4 @@
-import { ILogger } from '@microsoft/spark.common';
+import { ILogger } from '@microsoft/teams.common';
 
 import { Context, FrameContext, HostClientType, Theme } from '../types';
 import { WindowClient } from '../window-client';

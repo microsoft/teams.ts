@@ -1,33 +1,33 @@
-# Spark: Api
+# Teams: Api
 
 <p>
-    <a href="https://www.npmjs.com/package/@microsoft/spark.api" target="_blank">
-        <img src="https://img.shields.io/npm/v/@microsoft/spark.api" />
+    <a href="https://www.npmjs.com/package/@microsoft/teams.api" target="_blank">
+        <img src="https://img.shields.io/npm/v/@microsoft/teams.api" />
     </a>
-    <a href="https://www.npmjs.com/package/@microsoft/spark.api?activeTab=code" target="_blank">
-        <img src="https://img.shields.io/bundlephobia/min/@microsoft/spark.api" />
+    <a href="https://www.npmjs.com/package/@microsoft/teams.api?activeTab=code" target="_blank">
+        <img src="https://img.shields.io/bundlephobia/min/@microsoft/teams.api" />
     </a>
-    <a href="https://www.npmjs.com/package/@microsoft/spark.api?activeTab=dependencies" target="_blank">
-        <img src="https://img.shields.io/librariesio/release/npm/@microsoft/spark.api" />
+    <a href="https://www.npmjs.com/package/@microsoft/teams.api?activeTab=dependencies" target="_blank">
+        <img src="https://img.shields.io/librariesio/release/npm/@microsoft/teams.api" />
     </a>
-    <a href="https://www.npmjs.com/package/@microsoft/spark.api" target="_blank">
-        <img src="https://img.shields.io/npm/dw/@microsoft/spark.api" />
+    <a href="https://www.npmjs.com/package/@microsoft/teams.api" target="_blank">
+        <img src="https://img.shields.io/npm/dw/@microsoft/teams.api" />
     </a>
-    <a href="https://microsoft.github.io/spark.js" target="_blank">
+    <a href="https://microsoft.github.io/teams.js" target="_blank">
         <img src="https://img.shields.io/badge/📖 docs-open-blue" />
     </a>
 </p>
 
 Model and client implementations used to send and receive requests from Teams.
 
-<a href="https://microsoft.github.io/spark.js/2.getting-started/1.create-application.html" target="_blank">
+<a href="https://microsoft.github.io/teams.js/2.getting-started/1.create-application.html" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 
 ## Install
 
 ```bash
-$: npm install @microsoft/spark.api
+$: npm install @microsoft/teams.api
 ```
 
 ## Dependencies

@@ -1,4 +1,4 @@
-import { EventEmitter } from '@microsoft/spark.common';
+import { EventEmitter } from '@microsoft/teams.common';
 import {
   ActivityParams,
   Attachment,
@@ -9,7 +9,7 @@ import {
   IMessageActivity,
   MessageActivity,
   TypingActivity,
-} from '@microsoft/spark.api';
+} from '@microsoft/teams.api';
 
 import { IStreamer, IStreamerEvents } from '../../types';
 

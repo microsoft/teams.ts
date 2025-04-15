@@ -1,34 +1,34 @@
-# Spark: Bot Builder
+# Teams: Bot Builder
 
 <p>
-    <a href="https://www.npmjs.com/package/@microsoft/spark.botbuilder" target="_blank">
-        <img src="https://img.shields.io/npm/v/@microsoft/spark.botbuilder" />
+    <a href="https://www.npmjs.com/package/@microsoft/teams.botbuilder" target="_blank">
+        <img src="https://img.shields.io/npm/v/@microsoft/teams.botbuilder" />
     </a>
-    <a href="https://www.npmjs.com/package/@microsoft/spark.botbuilder?activeTab=code" target="_blank">
-        <img src="https://img.shields.io/bundlephobia/min/@microsoft/spark.botbuilder" />
+    <a href="https://www.npmjs.com/package/@microsoft/teams.botbuilder?activeTab=code" target="_blank">
+        <img src="https://img.shields.io/bundlephobia/min/@microsoft/teams.botbuilder" />
     </a>
-    <a href="https://www.npmjs.com/package/@microsoft/spark.botbuilder?activeTab=dependencies" target="_blank">
-        <img src="https://img.shields.io/librariesio/release/npm/@microsoft/spark.botbuilder" />
+    <a href="https://www.npmjs.com/package/@microsoft/teams.botbuilder?activeTab=dependencies" target="_blank">
+        <img src="https://img.shields.io/librariesio/release/npm/@microsoft/teams.botbuilder" />
     </a>
-    <a href="https://www.npmjs.com/package/@microsoft/spark.botbuilder" target="_blank">
-        <img src="https://img.shields.io/npm/dw/@microsoft/spark.botbuilder" />
+    <a href="https://www.npmjs.com/package/@microsoft/teams.botbuilder" target="_blank">
+        <img src="https://img.shields.io/npm/dw/@microsoft/teams.botbuilder" />
     </a>
-    <a href="https://microsoft.github.io/spark.js" target="_blank">
+    <a href="https://microsoft.github.io/teams.js" target="_blank">
         <img src="https://img.shields.io/badge/📖 docs-open-blue" />
     </a>
 </p>
 
-A package used to make the `@microsoft/spark.apps` package backwards compatible with legacy bots built using
+A package used to make the `@microsoft/teams.apps` package backwards compatible with legacy bots built using
 `BotBuilder`.
 
-<a href="https://microsoft.github.io/spark.js/2.getting-started/1.create-application.html" target="_blank">
+<a href="https://microsoft.github.io/teams.js/2.getting-started/1.create-application.html" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 
 ## Install
 
 ```bash
-$: npm install @microsoft/spark.botbuilder
+$: npm install @microsoft/teams.botbuilder
 ```
 
 ## Dependencies

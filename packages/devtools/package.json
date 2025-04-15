@@ -1,5 +1,5 @@
 {
-  "name": "@microsoft/spark.devtools",
+  "name": "@microsoft/teams.devtools",
   "version": "0.2.6",
   "private": true,
   "files": [
@@ -23,10 +23,10 @@
     "@codemirror/lang-json": "^6.0.1",
     "@fluentui/react-components": "^9.6.0",
     "@fluentui/react-icons": "^2.0.274",
-    "@microsoft/spark.api": "*",
-    "@microsoft/spark.apps": "*",
-    "@microsoft/spark.cards": "*",
-    "@microsoft/spark.common": "*",
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.apps": "*",
+    "@microsoft/teams.cards": "*",
+    "@microsoft/teams.common": "*",
     "@uiw/codemirror-themes-all": "^4.23.9",
     "codemirror": "^6.0.1",
     "date-fns": "^4.1.0",

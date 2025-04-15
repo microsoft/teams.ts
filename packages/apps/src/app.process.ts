@@ -1,4 +1,4 @@
-import { ActivityLike, ConversationReference, isInvokeResponse } from '@microsoft/spark.api';
+import { ActivityLike, ConversationReference, isInvokeResponse } from '@microsoft/teams.api';
 
 import { ApiClient } from './api';
 import { App } from './app';

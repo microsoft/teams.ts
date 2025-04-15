@@ -1,4 +1,4 @@
-import { JsonWebToken } from '@microsoft/spark.api';
+import { JsonWebToken } from '@microsoft/teams.api';
 import jwt from 'jsonwebtoken';
 import { App, REFRESH_TOKEN_BUFFER_MS } from './app';
 import { HttpPlugin } from './plugins';

@@ -1,6 +1,6 @@
 /** @type {import('tsup').Options} */
 module.exports = {
-  ...require('@microsoft/spark.config/tsup.config'),
+  ...require('@microsoft/teams.config/tsup.config'),
   minify: true,
   bundle: true,
   sourcemap: 'inline',

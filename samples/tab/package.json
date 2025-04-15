@@ -17,18 +17,18 @@
     "build:client": "npx vite build --outDir dist/client"
   },
   "dependencies": {
-    "@microsoft/spark.api": "*",
-    "@microsoft/spark.apps": "*",
-    "@microsoft/spark.cards": "*",
-    "@microsoft/spark.client": "*",
-    "@microsoft/spark.common": "*",
-    "@microsoft/spark.dev": "*",
-    "@microsoft/spark.graph": "*",
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.apps": "*",
+    "@microsoft/teams.cards": "*",
+    "@microsoft/teams.client": "*",
+    "@microsoft/teams.common": "*",
+    "@microsoft/teams.dev": "*",
+    "@microsoft/teams.graph": "*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@microsoft/spark.config": "*",
+    "@microsoft/teams.config": "*",
     "@types/node": "^22.5.4",
     "@vitejs/plugin-react": "^4.3.4",
     "dotenv": "^16.4.5",

@@ -16,7 +16,7 @@ import {
   useModalAttributes,
   useToastController,
 } from '@fluentui/react-components';
-import { CardAttachmentType, Attachment, cardAttachment } from '@microsoft/spark.api';
+import { CardAttachmentType, Attachment, cardAttachment } from '@microsoft/teams.api';
 
 import { VALID_CARD_TYPES } from '../../../types/ValidCardTypes';
 import { isMacOS } from '../../../utils/get-os';

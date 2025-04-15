@@ -63,9 +63,9 @@ jest.mock('@azure/msal-browser', () => {
   };
 });
 
-jest.mock('@microsoft/spark.common/http', () => {
+jest.mock('@microsoft/teams.common/http', () => {
   return {
-    ...jest.requireActual('@microsoft/spark.common/http'),
+    ...jest.requireActual('@microsoft/teams.common/http'),
     Client: jest.fn().mockImplementation(() => {
       return {
         post: httpClientPostMock,
@@ -266,14 +266,14 @@ describe('App', () => {
         {
           headers: {
             authorization: `Bearer ${mockAccessToken}`,
-            'x-spark-app-session-id': 'mock-session-id',
-            'x-spark-channel-id': 'mock-channel-id',
-            'x-spark-chat-id': 'mock-chat-id',
-            'x-spark-meeting-id': 'mock-meeting-id',
-            'x-spark-message-id': 'mock-parent-message-id',
-            'x-spark-page-id': 'mock-page-id',
-            'x-spark-sub-page-id': 'mock-sub-page-id',
-            'x-spark-team-id': undefined,
+            'x-teams-app-session-id': 'mock-session-id',
+            'x-teams-channel-id': 'mock-channel-id',
+            'x-teams-chat-id': 'mock-chat-id',
+            'x-teams-meeting-id': 'mock-meeting-id',
+            'x-teams-message-id': 'mock-parent-message-id',
+            'x-teams-page-id': 'mock-page-id',
+            'x-teams-sub-page-id': 'mock-sub-page-id',
+            'x-teams-team-id': undefined,
           },
         }
       );

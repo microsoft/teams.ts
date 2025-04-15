@@ -1,6 +1,6 @@
-# Spark: DevTools
+# Teams: DevTools
 
-A web frontend for the `DevToolsPlugin` in the package `@microsoft/spark.dev`.  
+A web frontend for the `DevToolsPlugin` in the package `@microsoft/teams.dev`.  
 The devtools allow help you:
 
 - Chat with your app locally without needing to publish your app or interact with teams directly💬
@@ -8,14 +8,14 @@ The devtools allow help you:
 - Inspect logs from your app live🗃️⚡
 - Build/debug/send cards🪪
 
-<a href="https://microsoft.github.io/spark.js/2.getting-started/1.create-application.html" target="_blank">
+<a href="https://microsoft.github.io/teams.js/2.getting-started/1.create-application.html" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 
 ## Install
 
 ```bash
-$: npm install @microsoft/spark.devtools
+$: npm install @microsoft/teams.devtools
 ```
 
 ## Dependencies

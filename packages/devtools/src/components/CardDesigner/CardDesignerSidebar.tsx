@@ -32,7 +32,7 @@ import {
   Media,
   RichTextBlock,
   TextBlock,
-} from '@microsoft/spark.cards';
+} from '@microsoft/teams.cards';
 
 import { useCardDesignerSidebarClasses } from './CardDesignerSidebar.styles';
 

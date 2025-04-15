@@ -1,4 +1,4 @@
-# @microsoft/spark.config
+# @microsoft/teams.config
 
 ## 0.2.6
 

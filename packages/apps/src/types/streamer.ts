@@ -1,5 +1,5 @@
-import { IMessageActivity, ITypingActivity, SentActivity } from '@microsoft/spark.api';
-import { IEventEmitter } from '@microsoft/spark.common';
+import { IMessageActivity, ITypingActivity, SentActivity } from '@microsoft/teams.api';
+import { IEventEmitter } from '@microsoft/teams.common';
 
 /**
  * the minimum events a streamer

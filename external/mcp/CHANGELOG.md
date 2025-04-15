@@ -1,4 +1,4 @@
-# @microsoft/spark.mcp
+# @microsoft/teams.mcp
 
 ## 0.2.6
 

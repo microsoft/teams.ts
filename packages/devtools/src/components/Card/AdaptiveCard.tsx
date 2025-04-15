@@ -1,6 +1,6 @@
 import { ComponentProps, memo } from 'react';
 import { makeStyles, mergeClasses, tokens } from '@fluentui/react-components';
-import * as cards from '@microsoft/spark.cards';
+import * as cards from '@microsoft/teams.cards';
 
 import ActionCard from './Actions/ActionCard';
 import Card from './Card';

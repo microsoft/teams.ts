@@ -1,4 +1,4 @@
-# @microsoft/spark.common
+# @microsoft/teams.common
 
 ## 0.2.6
 

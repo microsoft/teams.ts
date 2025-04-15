@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
-import { IImageSet } from '@microsoft/spark.cards';
+import { IImageSet } from '@microsoft/teams.cards';
 
 import ImageCard from '../Medias/ImageCard';
 

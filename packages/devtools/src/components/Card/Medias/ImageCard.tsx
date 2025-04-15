@@ -1,5 +1,5 @@
 import { FC, memo } from 'react';
-import { IImage } from '@microsoft/spark.cards';
+import { IImage } from '@microsoft/teams.cards';
 
 import { useImageCardClasses } from './Medias.styles';
 

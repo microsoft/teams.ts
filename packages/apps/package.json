@@ -1,12 +1,12 @@
 {
-  "name": "@microsoft/spark.apps",
+  "name": "@microsoft/teams.apps",
   "version": "0.2.6",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
-  "homepage": "https://github.com/microsoft/spark.js",
-  "bugs": "https://github.com/microsoft/spark.js/issues",
+  "homepage": "https://github.com/microsoft/teams.js",
+  "bugs": "https://github.com/microsoft/teams.js/issues",
   "files": [
     "dist",
     "README.md"
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/microsoft/spark.js.git",
+    "url": "https://github.com/microsoft/teams.js.git",
     "directory": "packages/apps"
   },
   "keywords": [
@@ -46,12 +46,12 @@
     "reflect-metadata": "^0.2.2"
   },
   "peerDependencies": {
-    "@microsoft/spark.api": "*",
-    "@microsoft/spark.common": "*",
-    "@microsoft/spark.graph": "*"
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.common": "*",
+    "@microsoft/teams.graph": "*"
   },
   "devDependencies": {
-    "@microsoft/spark.config": "*",
+    "@microsoft/teams.config": "*",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.12",
