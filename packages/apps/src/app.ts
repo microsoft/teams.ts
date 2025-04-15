@@ -33,6 +33,8 @@ import { $process } from './app.process';
 import { message, on, use } from './app.routing';
 import { Container } from './container';
 
+export const REFRESH_TOKEN_BUFFER_MS = 1000 * 60 * 5; // 5 minutes
+
 /**
  * App initialization options
  */
@@ -158,7 +160,7 @@ export class App {
   /**
    * the apps auth tokens
    */
-  get tokens() {
+  get tokens(): AppTokens {
     return this._tokens;
   }
   protected _tokens: AppTokens = {};
@@ -298,14 +300,7 @@ export class App {
     this.port = +(port || process.env.PORT || 3000);
 
     try {
-      if (this.credentials) {
-        const botResponse = await this.api.bots.token.get(this.credentials);
-        const graphResponse = await this.api.bots.token.getGraph(this.credentials);
-        this._tokens = {
-          bot: new JsonWebToken(botResponse.access_token),
-          graph: new JsonWebToken(graphResponse.access_token),
-        };
-      }
+      await this.refreshTokens();
 
       // initialize plugins
       for (const plugin of this.plugins) {
@@ -372,6 +367,46 @@ export class App {
 
     const res = await this.http.send(toActivityParams(activity), ref);
     return res;
+  }
+
+  /**
+   * Refresh the tokens for the app
+   */
+  protected async refreshTokens() {
+    await this.refreshBotToken();
+    await this.refreshGraphToken();
+  }
+
+  private async refreshBotToken(force = false) {
+    if (this.credentials) {
+      // Only do it if the token isn't there, or if it's expired, or if force is true
+      if (
+        !this._tokens.bot ||
+        (this._tokens.bot.expiration != null &&
+          this._tokens.bot.expiration < Date.now() + REFRESH_TOKEN_BUFFER_MS) ||
+        force
+      ) {
+        this.log.debug('Refreshing bot token');
+        const botResponse = await this.api.bots.token.get(this.credentials);
+        this._tokens.bot = new JsonWebToken(botResponse.access_token);
+      }
+    }
+  }
+
+  private async refreshGraphToken(force = false) {
+    if (this.credentials) {
+      // Only do it if the token isn't there, or if it's expired, or if force is true
+      if (
+        !this._tokens.graph ||
+        (this._tokens.graph.expiration != null &&
+          this._tokens.graph.expiration < Date.now() + REFRESH_TOKEN_BUFFER_MS) ||
+        force
+      ) {
+        this.log.debug('Refreshing graph token');
+        const graphResponse = await this.api.bots.token.getGraph(this.credentials);
+        this._tokens.graph = new JsonWebToken(graphResponse.access_token);
+      }
+    }
   }
 
   /**
