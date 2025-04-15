@@ -1,3 +1,2 @@
-export * from './app';
-export * from './context';
-export * as types from './window/types';
+export { App } from './app';
+export type { AppOptions, ExecOptions, MsalOptions } from './app';
