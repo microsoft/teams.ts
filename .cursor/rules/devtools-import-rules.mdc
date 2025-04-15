@@ -15,7 +15,7 @@ Sort imports using the convention shown below. See [App.tsx](mdc:packages/devtoo
 // imports from external packages are first, sorted alphabetically by package name, except react imports should always be the first import
 import { FC } from 'react';
 import { Button } from '@fluentui/react-components';
-import { MessageActivity } from '@microsoft/teams.js';
+import { MessageActivity } from '@microsoft/teams.ts';
 // Note intentional line break here
 
 // imports from devtools package should start with farthest from current file to closest to current file, then sorted alphabetically by filename

@@ -3,8 +3,8 @@
   "version": "0.2.7",
   "private": true,
   "license": "MIT",
-  "homepage": "https://github.com/microsoft/teams.js",
-  "bugs": "https://github.com/microsoft/teams.js/issues",
+  "homepage": "https://github.com/microsoft/teams.ts",
+  "bugs": "https://github.com/microsoft/teams.ts/issues",
   "files": [
     "eslint.config.js",
     "jest.config.js",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/microsoft/teams.js.git",
+    "url": "https://github.com/microsoft/teams.ts.git",
     "directory": "packages/config"
   },
   "scripts": {

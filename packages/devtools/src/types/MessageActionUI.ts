@@ -2,7 +2,7 @@ import { MessageReactionType, $MessageActivity, MessageUser } from '@microsoft/t
 
 export type MessageActionType = Exclude<$MessageActivity['type'], 'message'>;
 // TODO: Add more?
-// https://github.com/microsoft/teams.js/issues/88
+// https://github.com/microsoft/teams.ts/issues/88
 
 export interface MessageActionUIPayload {
   id: string;

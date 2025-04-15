@@ -30,11 +30,11 @@ Adaptive Cards typings and builders for type safe and intuitive card design.
 
 ## [`@microsoft/teams.cli`](https://www.npmjs.com/package/@microsoft/teams.cli)
 
-A CLI for building apps using `@microsoft/teams.js`.
+A CLI for building apps using `@microsoft/teams.ts`.
 
 ## [`@microsoft/teams.client`](https://www.npmjs.com/package/@microsoft/teams.client)
 
-A client used to create app/bot surfaces such as tabs using `@microsoft/teams.js`.
+A client used to create app/bot surfaces such as tabs using `@microsoft/teams.ts`.
 
 ## [`@microsoft/teams.common`](https://www.npmjs.com/package/@microsoft/teams.common)
 

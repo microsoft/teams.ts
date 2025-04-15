@@ -1,19 +1,19 @@
 # <img src="./assets/icons/icon.png" width="50px" /> Teams.JS
 
 <a href="#">
-    <img src="https://img.shields.io/github/package-json/v/microsoft/teams.js?label=npm" />
+    <img src="https://img.shields.io/github/package-json/v/microsoft/teams.ts?label=npm" />
 </a>
-<a href="https://github.com/microsoft/teams.js/actions/workflows/pages/pages-build-deployment">
-    <img src="https://img.shields.io/github/actions/workflow/status/microsoft/teams.js/pages/pages-build-deployment?label=documentation" />
+<a href="https://github.com/microsoft/teams.ts/actions/workflows/pages/pages-build-deployment">
+    <img src="https://img.shields.io/github/actions/workflow/status/microsoft/teams.ts/pages/pages-build-deployment?label=documentation" />
 </a>
 
 a suite of packages used to build on the Teams Platform.
 
-<a href="https://microsoft.github.io/teams.js/2.getting-started/1.create-application.html" target="_blank">
+<a href="https://microsoft.github.io/teams.ts/2.getting-started/1.create-application.html" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 
-- [Documentation](https://microsoft.github.io/teams.js)
+- [Documentation](https://microsoft.github.io/teams.ts)
 - [Why?](#why)
 - [Design Philosophy](#design-philosophy)
 - [Scripts](#scripts)
