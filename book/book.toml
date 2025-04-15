@@ -3,7 +3,7 @@ authors = ["aacebo <aacebowork@gmail.com>"]
 language = "en"
 multilingual = false
 src = "src"
-title = "Teams.JS"
+title = "Teams SDK: Typescript"
 
 [build]
 build-dir = "../docs"

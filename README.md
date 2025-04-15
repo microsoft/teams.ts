@@ -1,4 +1,4 @@
-# <img src="./assets/icons/icon.png" width="50px" /> Teams.JS
+# <img src="./assets/icons/icon.png" width="50px" /> Teams SDK: Typescript
 
 <a href="#">
     <img src="https://img.shields.io/github/package-json/v/microsoft/teams.ts?label=npm" />
