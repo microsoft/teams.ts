@@ -41,3 +41,7 @@ yarn-error.log*
 
 # Cursor
 .specstory
+
+# Ignore code assistant files for this project
+/memory-bank
+.clinerules
