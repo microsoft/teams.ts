@@ -1,5 +1,16 @@
 # @microsoft/teams.devtools
 
+## 0.2.9
+
+### Patch Changes
+
+- config fetch response fix
+- Updated dependencies
+    - @microsoft/teams.api@0.2.9
+    - @microsoft/teams.apps@0.2.9
+    - @microsoft/teams.cards@0.2.9
+    - @microsoft/teams.common@0.2.9
+
 ## 0.2.8
 
 ### Patch Changes
