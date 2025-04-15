@@ -1,5 +1,11 @@
 # @microsoft/teams.cards
 
+## 0.2.8
+
+### Patch Changes
+
+- fix docs links
+
 ## 0.2.7
 
 ### Patch Changes

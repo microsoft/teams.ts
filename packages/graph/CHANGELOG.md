@@ -1,5 +1,13 @@
 # @microsoft/teams.graph
 
+## 0.2.8
+
+### Patch Changes
+
+- fix docs links
+- Updated dependencies
+    - @microsoft/teams.common@0.2.8
+
 ## 0.2.7
 
 ### Patch Changes
