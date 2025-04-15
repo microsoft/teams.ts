@@ -3,7 +3,11 @@ import * as http from '@microsoft/spark.common/http';
 import { ILogger, ConsoleLogger } from '@microsoft/spark.common/logging';
 import * as teamsJs from '@microsoft/teams-js';
 
-import { acquireMsalAccessToken, buildMsalConfig } from './msal-utils';
+import {
+  acquireMsalAccessToken,
+  buildMsalConfig,
+  getStandardExecSilentRequest,
+} from './msal-utils';
 
 export type MsalOptions = {
   /**
@@ -50,6 +54,14 @@ type AppState =
       msalInstance: msal.IPublicClientApplication;
       context: teamsJs.app.Context;
     };
+
+type ExecOptions = (
+  | { msalTokenRequest: msal.SilentRequest; permission?: never }
+  | { msalTokenRequest?: never; permission: string }
+  | { msalTokenRequest?: never; permission?: never }
+) & {
+  requestHeaders?: Record<string, string>;
+};
 
 export class App {
   readonly options: AppOptions;
@@ -124,11 +136,7 @@ export class App {
    * @param options.requestHeaders Optional additional request headers.
    * @returns The function response
    */
-  async exec<T = unknown>(
-    name: string,
-    data?: unknown,
-    options?: { msalTokenRequest?: msal.SilentRequest; requestHeaders?: Record<string, string> }
-  ): Promise<T> {
+  async exec<T = unknown>(name: string, data?: unknown, options?: ExecOptions): Promise<T> {
     if (this._state.phase !== 'started') {
       throw new Error('App not started');
     }
@@ -136,26 +144,21 @@ export class App {
     const { context } = this._state;
     const accessToken = await acquireMsalAccessToken(
       this._state.msalInstance,
-      options?.msalTokenRequest ?? this.options.msalOptions?.defaultSilentRequest,
+      options?.msalTokenRequest ?? getStandardExecSilentRequest(this.clientId, options?.permission),
       this._log
     );
 
     const res = await this.http.post<T>(`/api/functions/${name}`, data, {
       headers: {
-        'x-spark-app-id': context.app.appId?.toString(),
+        authorization: `Bearer ${accessToken}`,
         'x-spark-app-session-id': context.app.sessionId,
-        'x-spark-app-client-id': this.clientId,
-        'x-spark-app-tenant-id': this.options.tenantId,
-        'x-spark-tenant-id': context.user?.tenant?.id,
-        'x-spark-user-id': context.user?.id,
-        'x-spark-team-id': context.team?.internalId,
-        'x-spark-message-id': context.app.parentMessageId,
         'x-spark-channel-id': context.channel?.id,
         'x-spark-chat-id': context.chat?.id,
         'x-spark-meeting-id': context.meeting?.id,
+        'x-spark-message-id': context.app.parentMessageId,
         'x-spark-page-id': context.page.id,
         'x-spark-sub-page-id': context.page.subPageId,
-        authorization: `Bearer ${accessToken}`,
+        'x-spark-team-id': context.team?.internalId,
         ...(options?.requestHeaders ?? {}),
       },
     });

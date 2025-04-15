@@ -2,7 +2,10 @@
     "id": "$\{{AAD_APP_OBJECT_ID}}",
     "appId": "$\{{BOT_ID}}",
     "displayName": "{{ toPascalCase name }}$\{{APP_NAME_SUFFIX}}",
-    "identifierUris": [],
+    "identifierUris": [
+        "api://$\{{BOT_ID}}"
+    ],
+
     "signInAudience": "AzureADMultipleOrgs",
     "api": {
         "requestedAccessTokenVersion": 2,

@@ -107,6 +107,7 @@ export class App {
   readonly client: http.Client;
   readonly storage: IStorage;
   readonly credentials?: Credentials;
+  readonly entraTokenValidator?: middleware.EntraTokenValidator;
 
   /**
    * the apps id
@@ -235,6 +236,13 @@ export class App {
         tenantId,
         token,
       };
+    }
+
+    if (clientId) {
+      this.entraTokenValidator = new middleware.EntraTokenValidator({
+        clientId,
+        tenantId: tenantId || 'common',
+      });
     }
 
     // add/validate plugins
