@@ -28,6 +28,7 @@
         <link rel="stylesheet" href="../../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/css/pagetoc.css">
 
 
         <!-- Provide site root to javascript -->
@@ -151,7 +152,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="activity-message-update"><a class="header" href="#activity-message-update">Activity: Message Update</a></h1>
+                        <div class="content-wrap">
+                            <h1 id="activity-message-update"><a class="header" href="#activity-message-update">Activity: Message Update</a></h1>
 <pre><code class="language-typescript">app.on('messageUpdate', async ({ activity }) =&gt; {});
 </code></pre>
 <p>Message update activities represent an update of an existing message activity within a conversation. The updated activity is referred to by the <code>id</code> and <code>conversation</code> fields within the activity, and the message update activity contains all fields in the revised message activity.</p>
@@ -171,6 +173,10 @@
 <li><a href="https://learn.microsoft.com/en-us/microsoftteams/platform/bots/build-conversational-capability#receive-edit-message-activity">Microsoft Teams: Message Update</a></li>
 </ul>
 
+                        </div>
+                        <div id="sidetoc">
+                            <nav id="pagetoc"></nav>
+                        </div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
@@ -217,6 +223,7 @@
         <script src="../../book.js"></script>
 
         <!-- Custom JS scripts -->
+        <script src="../../theme/pagetoc.js"></script>
 
 
     </div>
