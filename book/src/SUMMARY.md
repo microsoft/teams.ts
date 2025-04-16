@@ -13,7 +13,6 @@
     - [Templates](./3.cli/3.templates.md)
     - [Environments](./3.cli/4.environments.md)
     - [Configuration](./3.cli/5.configuration.md)
-    - [Examples](./3.cli/6.examples.md)
 - [Basics](./4.basics/README.md)
     - [Listening To Activities](./4.basics/1.on-activity.md)
     - [Listening To Messages](./4.basics/2.on-message.md)

@@ -36,19 +36,6 @@ teams new my-app
 
 This will create a new directory called `my-app` with a basic Teams application using the default template.
 
-## Command Structure
-
-The CLI follows a consistent command structure:
-
-```
-teams <command> [subcommand] [options]
-```
-
-For example:
-
-```sh
-teams new my-app --template echo --start
-```
 
 ## Getting Help
 
@@ -69,4 +56,3 @@ The following sections provide detailed documentation for each CLI command, incl
 - [Templates](./3.templates.md): Available project templates and their features
 - [Environments](./4.environments.md): Managing environment variables and configurations
 - [Configuration](./5.configuration.md): Configuring your Teams applications
-- [Examples](./6.examples.md): Common usage examples and patterns
