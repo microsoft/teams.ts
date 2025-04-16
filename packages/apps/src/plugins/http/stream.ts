@@ -62,7 +62,8 @@ export class HttpStream implements IStreamer {
       .withId(this.id)
       .addAttachments(...this.attachments)
       .addEntities(...this.entities)
-      .addStreamFinal();
+      .addStreamFinal()
+      .withChannelData(this.channelData);
 
     const res = await this.send(activity);
     this.events.emit('close', res);
