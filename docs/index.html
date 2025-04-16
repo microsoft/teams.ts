@@ -23,17 +23,18 @@
         <link rel="stylesheet" href="fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
 
-        <!-- Provide site root to javascript -->
+        <!-- Provide site root and default themes to javascript -->
         <script>
-            var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "ayu" : "ayu";
+            const path_to_root = "";
+            const default_light_theme = "ayu";
+            const default_dark_theme = "ayu";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc.js"></script>
@@ -43,8 +44,8 @@
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
 
                 if (theme.startsWith('"') && theme.endsWith('"')) {
                     localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
@@ -58,7 +59,8 @@
 
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script>
-            var theme;
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             const html = document.documentElement;
@@ -71,8 +73,8 @@
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
@@ -108,6 +110,7 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
@@ -151,44 +154,80 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="-teams-sdk-typescript-documentation"><a class="header" href="#-teams-sdk-typescript-documentation">📖 Teams SDK: Typescript: Documentation</a></h1>
-<p>Microsoft Teams is a feature rich messaging platform. It provides features that developers can use
-to create immersive app experiences, below are some of the different packages/features that can be used with this SDK.</p>
-<h2 id="microsoftteamsapps"><a class="header" href="#microsoftteamsapps"><a href="https://www.npmjs.com/package/@microsoft/teams.apps"><code>@microsoft/teams.apps</code></a></a></h2>
-<p>Tools for building server side apps for Microsoft Teams.</p>
-<h2 id="microsoftteamsapi"><a class="header" href="#microsoftteamsapi"><a href="https://www.npmjs.com/package/@microsoft/teams.api"><code>@microsoft/teams.api</code></a></a></h2>
-<p>Core types and client implementations for the Teams Platform API,
-used for fetching data, authentication, and sending activities.</p>
-<h2 id="microsoftteamsai"><a class="header" href="#microsoftteamsai"><a href="https://www.npmjs.com/package/@microsoft/teams.ai"><code>@microsoft/teams.ai</code></a></a></h2>
-<p>Tools that make it easier to integrate apps with LLM's and enabling
-multi-agent scenarios.</p>
-<h2 id="microsoftteamsbotbuilder"><a class="header" href="#microsoftteamsbotbuilder"><a href="https://www.npmjs.com/package/@microsoft/teams.botbuilder"><code>@microsoft/teams.botbuilder</code></a></a></h2>
-<p>A plugin implementation, allowing developers to integrate an existing <code>botbuilder</code>
-<code>Adapter</code> into a project using Teams. This plugin allows you to use <code>botbuilder</code>
-as the <code>Sender</code> and <code>Receiver</code> of activities, while still being able to leverage
-Teams's new typings and routing system.</p>
-<h2 id="microsoftteamscards"><a class="header" href="#microsoftteamscards"><a href="https://www.npmjs.com/package/@microsoft/teams.cards"><code>@microsoft/teams.cards</code></a></a></h2>
-<p>Adaptive Cards typings and builders for type safe and intuitive card design.</p>
-<h2 id="microsoftteamscli"><a class="header" href="#microsoftteamscli"><a href="https://www.npmjs.com/package/@microsoft/teams.cli"><code>@microsoft/teams.cli</code></a></a></h2>
-<p>A CLI for building apps using <code>@microsoft/teams.ts</code>.</p>
-<h2 id="microsoftteamsclient"><a class="header" href="#microsoftteamsclient"><a href="https://www.npmjs.com/package/@microsoft/teams.client"><code>@microsoft/teams.client</code></a></a></h2>
-<p>A client used to create app/bot surfaces such as tabs using <code>@microsoft/teams.ts</code>.</p>
-<h2 id="microsoftteamscommon"><a class="header" href="#microsoftteamscommon"><a href="https://www.npmjs.com/package/@microsoft/teams.common"><code>@microsoft/teams.common</code></a></a></h2>
-<p>Common implementations used by all the packages, for example <code>logging</code>.</p>
-<h2 id="microsoftteamsdev"><a class="header" href="#microsoftteamsdev"><a href="https://www.npmjs.com/package/@microsoft/teams.dev"><code>@microsoft/teams.dev</code></a></a></h2>
-<p>Developer tools to streamline the development process.</p>
-<h2 id="microsoftteamsgraph"><a class="header" href="#microsoftteamsgraph"><a href="https://www.npmjs.com/package/@microsoft/teams.graph"><code>@microsoft/teams.graph</code></a></a></h2>
-<p>MSGraph api client.</p>
-<h2 id="microsoftteamsopenai"><a class="header" href="#microsoftteamsopenai"><a href="https://www.npmjs.com/package/@microsoft/teams.openai"><code>@microsoft/teams.openai</code></a></a></h2>
-<p>AI model implementations for <code>OpenAI</code>, allowing you to integrate your models
-with the core <code>@microsoft/teams.ai</code> package.</p>
+                        <h1 id="-welcome-to-sparkjs"><a class="header" href="#-welcome-to-sparkjs">👋 Welcome to Spark.JS</a></h1>
+<p>Spark.JS is a modern, flexible SDK that empowers developers to build powerful applications, bots, and AI agents for Microsoft Teams with less code and fewer dependencies. It provides a cohesive set of tools and abstractions that work together seamlessly, allowing you to focus on creating intelligent and effective solutions rather than managing complex configurations and boilerplate code.</p>
+<h2 id="-key-features"><a class="header" href="#-key-features">✨ Key Features</a></h2>
+<ul>
+<li><strong>🧩 Streamlined Development</strong> - Minimize boilerplate code and reduce setup complexity</li>
+<li><strong>🔄 Unified Tooling</strong> - A cohesive suite that consolidates functionality previously spread across multiple libraries</li>
+<li><strong>🤖 AI-Native Abstractions</strong> - Built-in support for integrating AI capabilities into your Teams applications</li>
+<li><strong>🛠️ Integrated Developer Tools</strong> - Local development, debugging, and testing tools built right in</li>
+<li><strong>📦 Low Dependency</strong> - Designed for longevity with minimal external dependencies</li>
+<li><strong>🔌 Flexible &amp; Unopinionated</strong> - Provides tools and abstractions without dictating application architecture</li>
+</ul>
+<h2 id="-quick-start"><a class="header" href="#-quick-start">🚀 Quick Start</a></h2>
+<p>Get up and running with a new Spark.JS application in just three steps:</p>
+<pre><code class="language-bash"># 1. Install the CLI
+npm install -g @microsoft/spark.cli@latest
+
+# 2. Create a new project
+spark new my-teams-app --start
+
+# 3. Open your browser
+# The app is now running at http://localhost:3978
+</code></pre>
+<p>That's it! Your application is now running locally. For more detailed instructions, check out the <a href="../2.getting-started/README.html">Getting Started</a> guide.</p>
+<h2 id="-where-to-next"><a class="header" href="#-where-to-next">🧭 Where to Next?</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>If you want to...</th><th>Go to...</th></tr></thead><tbody>
+<tr><td><strong>Learn the basics</strong></td><td><a href="../2.getting-started/README.html">Getting Started</a></td></tr>
+<tr><td><strong>Create a bot</strong></td><td><a href="../4.basics/2.on-message.html">Basics: Listening to Messages</a></td></tr>
+<tr><td><strong>Build an AI agent</strong></td><td><a href="../9.ai/README.html">AI Integration</a></td></tr>
+<tr><td><strong>Create interactive cards</strong></td><td><a href="../7.cards/README.html">Cards</a></td></tr>
+<tr><td><strong>Add message extensions</strong></td><td><a href="../6.message-extensions/README.html">Message Extensions</a></td></tr>
+<tr><td><strong>Test your app locally</strong></td><td><a href="../8.devtools/README.html">DevTools</a></td></tr>
+<tr><td><strong>Use the CLI</strong></td><td><a href="../3.cli/README.html">CLI Reference</a></td></tr>
+</tbody></table>
+</div>
+<h2 id="-package-overview"><a class="header" href="#-package-overview">📦 Package Overview</a></h2>
+<p>Spark.JS is organized into focused packages that work together seamlessly:</p>
+<h3 id="core-functionality"><a class="header" href="#core-functionality">Core Functionality</a></h3>
+<ul>
+<li><a href="https://www.npmjs.com/package/@microsoft/spark.apps"><code>@microsoft/spark.apps</code></a> - Tools for building server-side apps for Microsoft Teams</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/spark.api"><code>@microsoft/spark.api</code></a> - Core types and client implementations for the Teams Platform API</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/spark.client"><code>@microsoft/spark.client</code></a> - Client for creating app/bot surfaces such as tabs</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/spark.common"><code>@microsoft/spark.common</code></a> - Common implementations used by all packages (e.g., logging)</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/spark.config"><code>@microsoft/spark.config</code></a> - Configuration management for Spark applications</li>
+</ul>
+<h3 id="ai--integration"><a class="header" href="#ai--integration">AI &amp; Integration</a></h3>
+<ul>
+<li><a href="https://www.npmjs.com/package/@microsoft/spark.ai"><code>@microsoft/spark.ai</code></a> - Tools for integrating apps with LLMs and enabling multi-agent scenarios
+<ul>
+<li><strong>Models</strong>: Interface with LLMs, handling input/output</li>
+<li><strong>Templates</strong>: Parse instructions with support for custom templating languages</li>
+<li><strong>Prompts</strong>: Orchestrate everything with state management and function definitions</li>
+</ul>
+</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/spark.openai"><code>@microsoft/spark.openai</code></a> - AI model implementations for OpenAI</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/spark.graph"><code>@microsoft/spark.graph</code></a> - Microsoft Graph API client</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/spark.botbuilder"><code>@microsoft/spark.botbuilder</code></a> - Integration with existing BotBuilder adapters</li>
+</ul>
+<h3 id="ui--experience"><a class="header" href="#ui--experience">UI &amp; Experience</a></h3>
+<ul>
+<li><a href="https://www.npmjs.com/package/@microsoft/spark.cards"><code>@microsoft/spark.cards</code></a> - Adaptive Cards typings and builders for type-safe card design</li>
+</ul>
+<h3 id="developer-tools"><a class="header" href="#developer-tools">Developer Tools</a></h3>
+<ul>
+<li><a href="https://www.npmjs.com/package/@microsoft/spark.cli"><code>@microsoft/spark.cli</code></a> - CLI for building apps with project scaffolding and AI-assisted development</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/spark.dev"><code>@microsoft/spark.dev</code></a> - Developer tools to streamline the development process</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/spark.devtools"><code>@microsoft/spark.devtools</code></a> - Local development and debugging tools</li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
 
-                            <a rel="next prefetch" href="2.getting-started/1.create-application.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="2.getting-started/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -199,13 +238,29 @@ with the core <code>@microsoft/teams.ai</code> package.</p>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
 
-                    <a rel="next prefetch" href="2.getting-started/1.create-application.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="2.getting-started/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 
