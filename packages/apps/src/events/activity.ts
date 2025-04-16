@@ -1,4 +1,4 @@
-import { Activity, IToken } from '@microsoft/teams.api';
+import { Activity, ConversationReference, IToken } from '@microsoft/teams.api';
 
 import { IEvent, ISender } from '../types';
 
