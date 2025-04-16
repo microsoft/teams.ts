@@ -28,6 +28,7 @@
         <link rel="stylesheet" href="../../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/css/pagetoc.css">
 
 
         <!-- Provide site root to javascript -->
@@ -151,7 +152,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="activity-read-receipt-event"><a class="header" href="#activity-read-receipt-event">Activity: Read Receipt Event</a></h1>
+                        <div class="content-wrap">
+                            <h1 id="activity-read-receipt-event"><a class="header" href="#activity-read-receipt-event">Activity: Read Receipt Event</a></h1>
 <p>A read receipt event is sent when a user has read a message, and in the UI shows as an eye icon next to the message.</p>
 <pre><code class="language-typescript">app.on('readReceipt', async ({ activity }) =&gt; {});
 </code></pre>
@@ -164,6 +166,10 @@
 <li><a href="https://learn.microsoft.com/en-us/microsoftteams/platform/bots/build-conversational-capability#receive-a-read-receipt">Microsoft Teams: Read Receipts</a></li>
 </ul>
 
+                        </div>
+                        <div id="sidetoc">
+                            <nav id="pagetoc"></nav>
+                        </div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
@@ -210,6 +216,7 @@
         <script src="../../book.js"></script>
 
         <!-- Custom JS scripts -->
+        <script src="../../theme/pagetoc.js"></script>
 
 
     </div>
