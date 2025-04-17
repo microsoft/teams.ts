@@ -1,6 +1,6 @@
 # Documentation
 
-This section provides guidelines for contributing to the documentation of the Spark.js project.
+This section provides guidelines for contributing to the documentation of the Teams.ts project.
 
 ## Overview
 
