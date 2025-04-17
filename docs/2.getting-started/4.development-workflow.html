@@ -155,9 +155,9 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="-development-workflow"><a class="header" href="#-development-workflow">🔄 Development Workflow</a></h1>
-<p>This guide covers best practices for developing Spark applications, including common development tasks, testing strategies, and deployment considerations.</p>
+<p>This guide covers best practices for developing Teams AI SDK applications, including common development tasks, testing strategies, and deployment considerations.</p>
 <h2 id="development-cycle"><a class="header" href="#development-cycle">Development Cycle</a></h2>
-<p>A typical development workflow with Spark follows these steps:</p>
+<p>A typical development workflow with Teams AI SDK follows these steps:</p>
 <ol>
 <li><strong>Plan</strong>: Determine what functionality you need to implement</li>
 <li><strong>Code</strong>: Write the necessary code in your project</li>
@@ -168,7 +168,7 @@
 <p>Let's explore each of these steps in more detail.</p>
 <h2 id="common-development-tasks"><a class="header" href="#common-development-tasks">Common Development Tasks</a></h2>
 <h3 id="adding-activity-handlers"><a class="header" href="#adding-activity-handlers">Adding Activity Handlers</a></h3>
-<p>The most common task in Spark development is adding handlers for different types of activities:</p>
+<p>The most common task in Teams AI SDK development is adding handlers for different types of activities:</p>
 <pre><code class="language-typescript">// Handle text messages
 app.on('message', async ({ send, activity }) =&gt; {
   await send(`You said: "${activity.text}"`);
@@ -190,7 +190,7 @@ app.on('event', async ({ activity, send }) =&gt; {
 </code></pre>
 <h3 id="creating-adaptive-cards"><a class="header" href="#creating-adaptive-cards">Creating Adaptive Cards</a></h3>
 <p>To create interactive experiences, you can use Adaptive Cards:</p>
-<pre><code class="language-typescript">import { AdaptiveCard, TextBlock, ActionSet, SubmitAction } from '@microsoft/spark.cards';
+<pre><code class="language-typescript">import { AdaptiveCard, TextBlock, ActionSet, SubmitAction } from '@microsoft/teams.cards';
 
 app.on('message', async ({ send, activity }) =&gt; {
   if (activity.text === 'show card') {
@@ -295,8 +295,8 @@ describe('Message Handler', () =&gt; {
 </code></pre>
 <h3 id="integration-testing"><a class="header" href="#integration-testing">Integration Testing</a></h3>
 <p>For testing the entire application flow:</p>
-<pre><code class="language-typescript">import { App } from '@microsoft/spark.apps';
-import { createTestClient } from '@microsoft/spark.dev/testing';
+<pre><code class="language-typescript">import { App } from '@microsoft/teams.apps';
+import { createTestClient } from '@microsoft/teams.dev/testing';
 
 describe('Bot Integration Tests', () =&gt; {
   let app: App;
@@ -324,7 +324,7 @@ describe('Bot Integration Tests', () =&gt; {
 <li>
 <p>Create a root package.json:</p>
 <pre><code class="language-json">{
-  "name": "my-spark-apps",
+  "name": "my-teams-apps",
   "private": true,
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
@@ -362,7 +362,7 @@ describe('Bot Integration Tests', () =&gt; {
 </li>
 <li>
 <p>Organize your projects:</p>
-<pre><code>my-spark-apps/
+<pre><code>my-teams-apps/
 ├── apps/
 │   ├── bot-app/
 │   └── tab-app/
@@ -401,7 +401,7 @@ npm run build --workspace=packages/shared-ui
 <li>Configure your hosting platform with the necessary environment variables</li>
 </ol>
 <h3 id="hosting-options"><a class="header" href="#hosting-options">Hosting Options</a></h3>
-<p>Spark applications can be hosted on various platforms:</p>
+<p>Teams AI SDK applications can be hosted on various platforms:</p>
 <ul>
 <li><strong>Azure App Service</strong>: Microsoft's recommended hosting for Teams applications</li>
 <li><strong>Azure Functions</strong>: For serverless deployment</li>
@@ -419,12 +419,12 @@ npm run build --workspace=packages/shared-ui
 <li>Test the deployed application in Teams</li>
 </ol>
 <h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
-<h3 id="follow-sparkjs-principles"><a class="header" href="#follow-sparkjs-principles">Follow Spark.JS Principles</a></h3>
+<h3 id="follow-teamsts-principles"><a class="header" href="#follow-teamsts-principles">Follow Teams.TS Principles</a></h3>
 <p>As outlined in the project's core principles:</p>
 <ol>
 <li><strong>Low Dependency</strong>: Minimize external dependencies to avoid compatibility issues</li>
-<li><strong>Unopinionated Design</strong>: Use Spark as a flexible toolkit, not a rigid framework</li>
-<li><strong>Tool Consolidation</strong>: Leverage the integrated tools in the Spark ecosystem</li>
+<li><strong>Unopinionated Design</strong>: Use Teams AI SDK as a flexible toolkit, not a rigid framework</li>
+<li><strong>Tool Consolidation</strong>: Leverage the integrated tools in the Teams AI SDK ecosystem</li>
 </ol>
 <h3 id="code-organization"><a class="header" href="#code-organization">Code Organization</a></h3>
 <ul>
@@ -467,7 +467,7 @@ npm run build --workspace=packages/shared-ui
 <p>Now that you understand the development workflow:</p>
 <ol>
 <li><strong>Explore specific features</strong> like AI integration, Adaptive Cards, or authentication</li>
-<li><strong>Build more complex applications</strong> by combining different Spark packages</li>
+<li><strong>Build more complex applications</strong> by combining different Teams AI SDK packages</li>
 <li><strong>Deploy your application</strong> to a production environment</li>
 </ol>
 <p>Check out the next guide on <a href="./5.next-steps.html">Next Steps</a> for guidance on where to go from here based on your specific needs.</p>

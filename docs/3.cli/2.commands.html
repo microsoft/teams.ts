@@ -242,7 +242,7 @@
 <div class="table-wrapper"><table><thead><tr><th style="text-align: left">Template</th><th style="text-align: left">Description</th></tr></thead><tbody>
 <tr><td style="text-align: left"><code>echo</code></td><td style="text-align: left">A simple echo bot that responds to messages</td></tr>
 <tr><td style="text-align: left"><code>tab</code></td><td style="text-align: left">A Teams tab application with React</td></tr>
-<tr><td style="text-align: left"><code>ai</code></td><td style="text-align: left">A bot with AI capabilities using Teams.AI</td></tr>
+<tr><td style="text-align: left"><code>ai</code></td><td style="text-align: left">A bot with AI capabilities using OpenAI</td></tr>
 <tr><td style="text-align: left"><code>graph</code></td><td style="text-align: left">An application with Microsoft Graph integration</td></tr>
 <tr><td style="text-align: left"><code>mcp</code></td><td style="text-align: left">A Model Context Protocol server template</td></tr>
 </tbody></table>
@@ -255,7 +255,7 @@
 <pre><code class="language-sh">teams new my-echo-app --template echo --start
 </code></pre>
 <p>Create an application with Teams Toolkit configuration:</p>
-<pre><code class="language-sh">teams new my-ttk-app --ttk local
+<pre><code class="language-sh">teams new my-ttk-app --ttk basic
 </code></pre>
 <p>Create an application with a client ID and secret:</p>
 <pre><code class="language-sh">teams new my-auth-app --client-id "your-client-id" --client-secret "your-client-secret"
@@ -285,7 +285,7 @@
 </div>
 <h4 id="examples-1"><a class="header" href="#examples-1">Examples</a></h4>
 <p>Add Teams Toolkit configuration for local development:</p>
-<pre><code class="language-sh">teams config add ttk.local
+<pre><code class="language-sh">teams config add ttk.basic
 </code></pre>
 <h3 id="config-remove-subcommand"><a class="header" href="#config-remove-subcommand"><code>config remove</code> Subcommand</a></h3>
 <h4 id="syntax-3"><a class="header" href="#syntax-3">Syntax</a></h4>
@@ -298,7 +298,7 @@
 </div>
 <h4 id="examples-2"><a class="header" href="#examples-2">Examples</a></h4>
 <p>Remove Teams Toolkit configuration:</p>
-<pre><code class="language-sh">teams config remove ttk.local
+<pre><code class="language-sh">teams config remove ttk.basic
 </code></pre>
 <h2 id="env-command"><a class="header" href="#env-command"><code>env</code> Command</a></h2>
 <p>The <code>env</code> command helps you manage environment variables and configurations.</p>
@@ -310,11 +310,11 @@
 </code></pre>
 <h3 id="subcommands-1"><a class="header" href="#subcommands-1">Subcommands</a></h3>
 <div class="table-wrapper"><table><thead><tr><th style="text-align: left">Subcommand</th><th style="text-align: left">Description</th></tr></thead><tbody>
-<tr><td style="text-align: left"><code>list</code></td><td style="text-align: left">List all available environments</td></tr>
-<tr><td style="text-align: left"><code>select &lt;name&gt;</code></td><td style="text-align: left">Select an environment to use</td></tr>
-<tr><td style="text-align: left"><code>set &lt;key&gt; &lt;value&gt;</code></td><td style="text-align: left">Set an environment variable</td></tr>
-<tr><td style="text-align: left"><code>del &lt;key&gt;</code></td><td style="text-align: left">Remove an environment variable</td></tr>
-<tr><td style="text-align: left"><code>export</code></td><td style="text-align: left">Export environment variables</td></tr>
+<tr><td style="text-align: left"><code>list</code></td><td style="text-align: left">List all created environments</td></tr>
+<tr><td style="text-align: left"><code>select &lt;name&gt;</code></td><td style="text-align: left">Select or create an environment.</td></tr>
+<tr><td style="text-align: left"><code>set &lt;key&gt; &lt;value&gt;</code></td><td style="text-align: left">Set an environment variable in the selected environment.</td></tr>
+<tr><td style="text-align: left"><code>del &lt;key&gt;</code></td><td style="text-align: left">Remove an environment variable in the selected environment.</td></tr>
+<tr><td style="text-align: left"><code>export</code></td><td style="text-align: left">Export environment variables to a .env file in the current working directory.</td></tr>
 </tbody></table>
 </div>
 <h3 id="env-list-subcommand"><a class="header" href="#env-list-subcommand"><code>env list</code> Subcommand</a></h3>

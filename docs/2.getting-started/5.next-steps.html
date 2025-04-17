@@ -155,9 +155,9 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="-next-steps"><a class="header" href="#-next-steps">🧭 Next Steps</a></h1>
-<p>Now that you've created your first Spark application and understand the basics of development, you're ready to explore more advanced topics. This guide will help you navigate the rest of the documentation based on your specific interests and needs.</p>
+<p>Now that you've created your first Teams AI SDK application and understand the basics of development, you're ready to explore more advanced topics. This guide will help you navigate the rest of the documentation based on your specific interests and needs.</p>
 <h2 id="where-to-go-next"><a class="header" href="#where-to-go-next">Where to Go Next</a></h2>
-<p>Depending on what you want to build, you might want to focus on different areas of the Spark.JS documentation:</p>
+<p>Depending on what you want to build, you might want to focus on different areas of the Teams.TS documentation:</p>
 <h3 id="building-a-bot"><a class="header" href="#building-a-bot">Building a Bot</a></h3>
 <p>If you're building a conversational bot:</p>
 <ol>
@@ -177,7 +177,7 @@
 <h3 id="adding-ai-capabilities"><a class="header" href="#adding-ai-capabilities">Adding AI Capabilities</a></h3>
 <p>If you want to add AI features to your application:</p>
 <ol>
-<li><strong><a href="../8.ai/README.html">AI Overview</a></strong>: Get an introduction to AI capabilities in Spark</li>
+<li><strong><a href="../8.ai/README.html">AI Overview</a></strong>: Get an introduction to AI capabilities in Teams AI SDK</li>
 <li><strong><a href="../8.ai/1.chat/README.html">Chat</a></strong>: Implement conversational AI</li>
 <li><strong><a href="../8.ai/2.audio/README.html">Audio</a></strong>: Work with audio processing</li>
 <li><strong><a href="../8.ai/3.image/README.html">Image</a></strong>: Add image generation or analysis</li>
@@ -192,7 +192,7 @@
 <li><strong><a href="../7.devtools/4.devtools-development.html">DevTools Development</a></strong>: Extend the DevTools</li>
 </ol>
 <h2 id="sample-projects-to-explore"><a class="header" href="#sample-projects-to-explore">Sample Projects to Explore</a></h2>
-<p>The Spark.JS repository includes several sample projects that demonstrate different capabilities:</p>
+<p>The Teams.TS repository includes several sample projects that demonstrate different capabilities:</p>
 <h3 id="echo-bot"><a class="header" href="#echo-bot">Echo Bot</a></h3>
 <p>The Echo bot sample (<code>samples/echo</code>) demonstrates a simple bot that echoes back messages:</p>
 <pre><code class="language-typescript">app.on('message', async ({ send, activity }) =&gt; {
@@ -231,8 +231,8 @@ app.function('hello-world', async ({ log, data }) =&gt; {
 </code></pre>
 <h3 id="ai-integration"><a class="header" href="#ai-integration">AI Integration</a></h3>
 <p>The AI samples demonstrate how to use AI capabilities:</p>
-<pre><code class="language-typescript">import { OpenAIClient } from '@microsoft/spark.openai';
-import { App } from '@microsoft/spark.apps';
+<pre><code class="language-typescript">import { OpenAIClient } from '@microsoft/teams.openai';
+import { App } from '@microsoft/teams.apps';
 
 const app = new App();
 const openai = new OpenAIClient({ apiKey: process.env.OPENAI_API_KEY });
@@ -309,7 +309,7 @@ app.on('message', async ({ activity, send }) =&gt; {
 });
 </code></pre>
 <h2 id="building-your-first-real-application"><a class="header" href="#building-your-first-real-application">Building Your First Real Application</a></h2>
-<p>Now that you have the knowledge to get started, here's a suggested approach for building your first real Spark application:</p>
+<p>Now that you have the knowledge to get started, here's a suggested approach for building your first real Teams AI SDK application:</p>
 <ol>
 <li><strong>Define your requirements</strong>: What problem are you trying to solve?</li>
 <li><strong>Choose the right template</strong>: Select the template that best matches your needs</li>
@@ -323,21 +323,21 @@ app.on('message', async ({ activity, send }) =&gt; {
 <ul>
 <li><strong>Check the documentation</strong>: The answer might be in another section</li>
 <li><strong>Look at the samples</strong>: The sample projects demonstrate many common patterns</li>
-<li><strong>GitHub Issues</strong>: Check existing issues or create a new one on the <a href="https://github.com/microsoft/spark.js/issues">Spark.JS GitHub repository</a></li>
+<li><strong>GitHub Issues</strong>: Check existing issues or create a new one on the <a href="https://github.com/microsoft/teams.ts/issues">Teams.TS GitHub repository</a></li>
 <li><strong>Microsoft Q&amp;A</strong>: Ask questions on <a href="https://learn.microsoft.com/en-us/answers/topics/teams-development.html">Microsoft Q&amp;A</a></li>
 </ul>
-<h2 id="contributing-to-sparkjs"><a class="header" href="#contributing-to-sparkjs">Contributing to Spark.JS</a></h2>
-<p>If you'd like to contribute to Spark.JS:</p>
+<h2 id="contributing-to-teamsts"><a class="header" href="#contributing-to-teamsts">Contributing to Teams.TS</a></h2>
+<p>If you'd like to contribute to Teams.TS:</p>
 <ol>
-<li><strong>Fork the repository</strong>: Create your own fork of the <a href="https://github.com/microsoft/spark.js">Spark.JS repository</a></li>
+<li><strong>Fork the repository</strong>: Create your own fork of the <a href="https://github.com/microsoft/teams.ts">Teams.TS repository</a></li>
 <li><strong>Make your changes</strong>: Implement your feature or fix</li>
 <li><strong>Submit a pull request</strong>: Follow the contribution guidelines in the repository</li>
 <li><strong>Engage with feedback</strong>: Respond to review comments and make necessary adjustments</li>
 </ol>
 <p>We welcome contributions that align with the project's goals of simplicity, low dependencies, and improved developer experience.</p>
 <h2 id="conclusion"><a class="header" href="#conclusion">Conclusion</a></h2>
-<p>You've now completed the Getting Started section of the Spark.JS documentation! You have the knowledge to create, run, and develop Spark applications. As you continue your journey, refer back to this documentation and explore the specific sections that are most relevant to your needs.</p>
-<p>Happy building with Spark.JS!</p>
+<p>You've now completed the Getting Started section of the Teams.TS documentation! You have the knowledge to create, run, and develop Teams AI SDK applications. As you continue your journey, refer back to this documentation and explore the specific sections that are most relevant to your needs.</p>
+<p>Happy building with Teams.TS!</p>
 
                     </main>
 

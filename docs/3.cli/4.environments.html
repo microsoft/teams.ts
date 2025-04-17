@@ -155,142 +155,42 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="environments"><a class="header" href="#environments">Environments</a></h1>
-<p>The Teams CLI provides tools for managing environment variables and configurations across different deployment environments. This page explains how to use the <code>env</code> command to manage your application's environments.</p>
-<h2 id="environment-overview"><a class="header" href="#environment-overview">Environment Overview</a></h2>
-<p>When developing Teams applications, you often need to manage different sets of environment variables for different deployment environments (e.g., development, testing, production). The Teams CLI's <code>env</code> command helps you:</p>
+<p>The Teams CLI provides tools for managing environment variables that can be exported to a <code>.env</code> file. This page explains how to use the <code>env</code> command to manage your environment variables.</p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>The Teams CLI's <code>env</code> command helps you:</p>
 <ul>
-<li>Create and manage multiple environments</li>
-<li>Switch between environments</li>
-<li>Set and manage environment variables</li>
-<li>Export environment variables for use in your application</li>
+<li>List and manage environment variables</li>
+<li>Set and remove environment variables</li>
+<li>Export variables to a <code>.env</code> file</li>
 </ul>
-<h2 id="environment-files"><a class="header" href="#environment-files">Environment Files</a></h2>
-<p>The Teams CLI stores environment variables in <code>.env</code> files in your project directory. Each environment has its own file, named according to the environment:</p>
-<ul>
-<li><code>.env.local</code> - Local development environment</li>
-<li><code>.env.dev</code> - Development environment</li>
-<li><code>.env.test</code> - Testing environment</li>
-<li><code>.env.prod</code> - Production environment</li>
-</ul>
-<p>You can also create custom environment files with any name you choose.</p>
-<h2 id="managing-environments"><a class="header" href="#managing-environments">Managing Environments</a></h2>
-<h3 id="listing-environments"><a class="header" href="#listing-environments">Listing Environments</a></h3>
-<p>To see all available environments in your project:</p>
+<h2 id="available-commands"><a class="header" href="#available-commands">Available Commands</a></h2>
+<p>Here are the available environment management commands:</p>
+<pre><code class="language-sh">teams env list               # List environments (alias: ls)
+teams env select &lt;name&gt;      # Select an environment
+teams env set &lt;key&gt; [value]  # Set an environment key
+teams env del &lt;key&gt;          # Delete an environment key
+teams env export [name]      # Export an environment to a .env file in your current working directory
+</code></pre>
+<h3 id="listing-environment-variables"><a class="header" href="#listing-environment-variables">Listing Environment Variables</a></h3>
+<p>To see all environment variables:</p>
 <pre><code class="language-sh">teams env list
+# or
+teams env ls
 </code></pre>
-<p>This will display a list of all environments, with the currently selected environment marked.</p>
-<p>Example output:</p>
-<pre><code>Available environments:
-  local
-  dev
-* prod (current)
-  test
+<h3 id="managing-environment-variables"><a class="header" href="#managing-environment-variables">Managing Environment Variables</a></h3>
+<p>To set an environment variable:</p>
+<pre><code class="language-sh">teams env set &lt;key&gt; [value]
 </code></pre>
-<h3 id="selecting-an-environment"><a class="header" href="#selecting-an-environment">Selecting an Environment</a></h3>
-<p>To switch to a different environment:</p>
-<pre><code class="language-sh">teams env select &lt;environment-name&gt;
-</code></pre>
-<p>For example, to switch to the development environment:</p>
-<pre><code class="language-sh">teams env select dev
-</code></pre>
-<p>This will set the specified environment as the active environment for your application.</p>
-<h2 id="managing-environment-variables"><a class="header" href="#managing-environment-variables">Managing Environment Variables</a></h2>
-<h3 id="setting-environment-variables"><a class="header" href="#setting-environment-variables">Setting Environment Variables</a></h3>
-<p>To set an environment variable in the current environment:</p>
-<pre><code class="language-sh">teams env set &lt;key&gt; &lt;value&gt;
-</code></pre>
-<p>For example:</p>
-<pre><code class="language-sh">teams env set CLIENT_ID "your-client-id"
-</code></pre>
-<p>You can also set multiple variables at once:</p>
-<pre><code class="language-sh">teams env set CLIENT_ID "your-client-id" CLIENT_SECRET "your-client-secret"
-</code></pre>
-<h3 id="removing-environment-variables"><a class="header" href="#removing-environment-variables">Removing Environment Variables</a></h3>
-<p>To remove an environment variable from the current environment:</p>
+<p>To remove an environment variable:</p>
 <pre><code class="language-sh">teams env del &lt;key&gt;
 </code></pre>
-<p>For example:</p>
-<pre><code class="language-sh">teams env del CLIENT_ID
-</code></pre>
 <h3 id="exporting-environment-variables"><a class="header" href="#exporting-environment-variables">Exporting Environment Variables</a></h3>
-<p>To export all environment variables from the current environment:</p>
-<pre><code class="language-sh">teams env export
+<p>To export environment variables to a <code>.env</code> file in your current working directory:</p>
+<pre><code class="language-sh">teams env export [name]
 </code></pre>
-<p>This will display all environment variables in a format that can be used in scripts or copied to other environments.</p>
-<p>Example output:</p>
-<pre><code>CLIENT_ID=your-client-id
-CLIENT_SECRET=your-client-secret
-PORT=3978
-NODE_ENV=production
-</code></pre>
-<h2 id="environment-variable-best-practices"><a class="header" href="#environment-variable-best-practices">Environment Variable Best Practices</a></h2>
-<h3 id="sensitive-information"><a class="header" href="#sensitive-information">Sensitive Information</a></h3>
-<p>Never commit sensitive information like API keys, client secrets, or passwords to your source code repository. Instead:</p>
-<ol>
-<li>Use environment variables to store sensitive information</li>
-<li>Add <code>.env*</code> files to your <code>.gitignore</code> file</li>
-<li>Provide a <code>.env.example</code> file with placeholder values as a template</li>
-</ol>
-<h3 id="environment-specific-configuration"><a class="header" href="#environment-specific-configuration">Environment-Specific Configuration</a></h3>
-<p>Use different environments for different stages of your application lifecycle:</p>
-<ul>
-<li><strong>Local</strong>: For local development and testing</li>
-<li><strong>Dev</strong>: For shared development environments</li>
-<li><strong>Test</strong>: For testing and QA</li>
-<li><strong>Prod</strong>: For production deployment</li>
-</ul>
-<h3 id="variable-naming-conventions"><a class="header" href="#variable-naming-conventions">Variable Naming Conventions</a></h3>
-<p>Follow these conventions for environment variable names:</p>
-<ul>
-<li>Use UPPERCASE_WITH_UNDERSCORES</li>
-<li>Use descriptive names that indicate the purpose of the variable</li>
-<li>Group related variables with common prefixes (e.g., <code>OPENAI_API_KEY</code>, <code>OPENAI_MODEL</code>)</li>
-</ul>
-<h2 id="using-environment-variables-in-your-application"><a class="header" href="#using-environment-variables-in-your-application">Using Environment Variables in Your Application</a></h2>
-<h3 id="in-nodejs"><a class="header" href="#in-nodejs">In Node.js</a></h3>
-<p>You can access environment variables in your Node.js application using <code>process.env</code>:</p>
-<pre><code class="language-typescript">const clientId = process.env.CLIENT_ID;
-const clientSecret = process.env.CLIENT_SECRET;
-
-console.log(`Using client ID: ${clientId}`);
-</code></pre>
-<h3 id="with-dotenv"><a class="header" href="#with-dotenv">With dotenv</a></h3>
-<p>The Teams CLI automatically integrates with the <a href="https://www.npmjs.com/package/dotenv">dotenv</a> package. In your application, you can load the current environment variables:</p>
-<pre><code class="language-typescript">import dotenv from 'dotenv';
-
-// Load environment variables from the current environment
-dotenv.config();
-
-// Or load from a specific environment
-dotenv.config({ path: '.env.dev' });
-</code></pre>
-<h2 id="environment-templates"><a class="header" href="#environment-templates">Environment Templates</a></h2>
-<p>You can create environment templates to share common configuration patterns without sharing sensitive information:</p>
-<ol>
-<li>Create a template file (e.g., <code>.env.template</code>)</li>
-<li>Include all required variables with placeholder values</li>
-<li>Document each variable's purpose with comments</li>
-<li>Share the template with your team</li>
-</ol>
-<p>Example template:</p>
-<pre><code># API Configuration
-CLIENT_ID=your-client-id-here
-CLIENT_SECRET=your-client-secret-here
-
-# Server Configuration
-PORT=3978
-NODE_ENV=development
-
-# Feature Flags
-ENABLE_STREAMING=true
-ENABLE_LOGGING=true
-</code></pre>
-<h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
-<ul>
-<li><a href="./5.configuration.html">Configure your application</a></li>
-<li><a href="./6.examples.html">See common usage examples</a></li>
-<li><a href="../7.devtools/README.html">Learn about Teams Toolkit integration</a></li>
-</ul>
+<blockquote>
+<p>Note that selecting an environment in the CLI does not automatically add it to your app. You have to manually export it to create the <code>.env</code> file.</p>
+</blockquote>
 
                     </main>
 

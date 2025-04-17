@@ -155,9 +155,9 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="-project-structure"><a class="header" href="#-project-structure">📁 Project Structure</a></h1>
-<p>After creating a Spark application with the CLI, you'll have a new directory containing several files and subdirectories. This guide explains the purpose of each component and how they work together.</p>
+<p>After creating a Teams AI SDK (v2) application with the CLI, you'll have a new directory containing several files and subdirectories. This guide explains the purpose of each component and how they work together.</p>
 <h2 id="common-structure"><a class="header" href="#common-structure">Common Structure</a></h2>
-<p>Regardless of which template you choose, all Spark applications share a similar base structure:</p>
+<p>Regardless of which template you choose, all Teams AI SDK (v2) applications share a similar base structure:</p>
 <pre><code>my-app/
 ├── .gitignore           # Git ignore file with common exclusions
 ├── package.json         # Project metadata and dependencies
@@ -183,9 +183,9 @@
     "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\""
   },
   "dependencies": {
-    "@microsoft/spark.api": "*",
-    "@microsoft/spark.apps": "*",
-    "@microsoft/spark.common": "*",
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.apps": "*",
+    "@microsoft/teams.common": "*",
     // Additional dependencies based on template
   },
   "devDependencies": {
@@ -216,7 +216,7 @@
 }
 </code></pre>
 <h3 id="srcindexts"><a class="header" href="#srcindexts">src/index.ts</a></h3>
-<p>This is the main entry point for your application. Its content varies based on the template, but it typically initializes a Spark App instance and sets up event handlers.</p>
+<p>This is the main entry point for your application. Its content varies based on the template, but it typically initializes a Teams AI SDK App instance and sets up event handlers.</p>
 <h2 id="template-specific-structures"><a class="header" href="#template-specific-structures">Template-Specific Structures</a></h2>
 <p>Each template adds specific files and directories to support its functionality:</p>
 <h3 id="echo-template"><a class="header" href="#echo-template">Echo Template</a></h3>
@@ -227,9 +227,9 @@
     └── index.ts         # Echo bot implementation
 </code></pre>
 <p><strong>src/index.ts</strong>:</p>
-<pre><code class="language-typescript">import { App } from '@microsoft/spark.apps';
-import { ConsoleLogger } from '@microsoft/spark.common/logging';
-import { DevtoolsPlugin } from '@microsoft/spark.dev';
+<pre><code class="language-typescript">import { App } from '@microsoft/teams.apps';
+import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 const app = new App({
   logger: new ConsoleLogger('@samples/echo', { level: 'debug' }),
@@ -258,9 +258,9 @@ app.on('message', async ({ send, activity }) =&gt; {
 </code></pre>
 <p><strong>src/index.ts</strong>:</p>
 <pre><code class="language-typescript">import path from 'path';
-import { App } from '@microsoft/spark.apps';
-import { ConsoleLogger } from '@microsoft/spark.common/logging';
-import { DevtoolsPlugin } from '@microsoft/spark.dev';
+import { App } from '@microsoft/teams.apps';
+import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 const app = new App({
   logger: new ConsoleLogger('@samples/tab', { level: 'debug' }),
@@ -278,7 +278,7 @@ app.function('hello-world', async ({ log, data }) =&gt; {
 })();
 </code></pre>
 <h3 id="ai-template"><a class="header" href="#ai-template">AI Template</a></h3>
-<p>The AI template creates a bot with AI capabilities using Spark.AI:</p>
+<p>The AI template creates a bot with AI capabilities:</p>
 <pre><code>my-ai-app/
 ├── (common structure)
 ├── .env                 # Environment variables (including API keys)
@@ -319,7 +319,7 @@ app.function('hello-world', async ({ log, data }) =&gt; {
 <li><strong>Explore the code</strong> to understand how it works</li>
 <li><strong>Make changes</strong> to customize it for your needs</li>
 </ol>
-<p>Check out the next guide on <a href="./3.running-your-app.html">Running Your App</a> to learn how to start and test your Spark application.</p>
+<p>Check out the next guide on <a href="./3.running-your-app.html">Running Your App</a> to learn how to start and test your Teams AI SDK application.</p>
 
                     </main>
 

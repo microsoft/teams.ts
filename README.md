@@ -17,11 +17,11 @@ A comprehensive suite of packages designed to simplify and streamline developmen
 
 # For Users
 
-## What is Spark.JS?
+## What is Teams AI SDK (v2)?
 
-Spark.JS is a modern flexible SDK that empowers developers to build powerful applications bots and AI agents for Microsoft Teams with less code and fewer dependencies. It provides a cohesive set of tools and abstractions that work together seamlessly allowing you to focus on creating intelligent and effective solutions rather than managing complex configurations and boilerplate code.
+Teams AI SDK (v2) is a modern flexible SDK that empowers developers to build powerful applications bots and AI agents for Microsoft Teams with less code and fewer dependencies. It provides a cohesive set of tools and abstractions that work together seamlessly allowing you to focus on creating intelligent and effective solutions rather than managing complex configurations and boilerplate code.
 
-Microsoft Teams development often involves working with multiple disconnected libraries and tools. Spark.JS unifies this experience by consolidating functionality previously spread across `teams-js` `botbuilder` `teamsfx` and `adaptivecards` into a single cohesive suite of packages with consistent interfaces and improved developer experience.
+Microsoft Teams development often involves working with multiple disconnected libraries and tools. Teams AI SDK (v2) unifies this experience by consolidating functionality previously spread across `teams-js` `botbuilder` `teamsfx` and `adaptivecards` into a single cohesive suite of packages with consistent interfaces and improved developer experience.
 
 ## Key Features
 
@@ -35,7 +35,7 @@ Microsoft Teams development often involves working with multiple disconnected li
 
 ## Prerequisites
 
-Before getting started with Spark.JS ensure you have:
+Before getting started with Teams AI SDK (v2) ensure you have:
 
 - [Node.js](https://nodejs.org/en/download) >= 20
 
@@ -43,10 +43,10 @@ Before getting started with Spark.JS ensure you have:
 
 ```bash
 # Install the CLI
-npm install -g @microsoft/spark.cli@latest
+npm install -g @microsoft/teams.cli@latest
 
 # Create a new project
-spark new my-teams-app
+teams new my-teams-app
 # Optional flags:
 # --template <template-name> - Select a base template for the project
 # --ttk <config-name> - Include a Teams Toolkit configuration
@@ -59,43 +59,43 @@ cd my-teams-app
 npm run dev
 ```
 
-> **Note:** If you don't want to install the CLI globally you can also use `npx @microsoft/spark.cli <command>`.
+> **Note:** If you don't want to install the CLI globally you can also use `npx @microsoft/teams.cli <command>`.
 
 ## Architecture Overview
 
-<img src="./assets/architecture.jpg" width="700px" alt="Spark.JS Architecture Diagram" />
+<img src="./assets/architecture.jpg" width="700px" alt="Teams AI SDK (v2) Architecture Diagram" />
 
-Spark.JS unifies the Teams development experience by bringing together capabilities previously spread across multiple libraries and tools into a single cohesive suite of packages.
+Teams AI SDK (v2) unifies the Teams development experience by bringing together capabilities previously spread across multiple libraries and tools into a single cohesive suite of packages.
 
 ## Packages
 
 ### Core Functionality
-- [`@microsoft/spark.apps`](./packages/apps/README.md) - Tools for building server-side apps for Microsoft Teams ([Documentation](https://microsoft.github.io/spark.js/1.welcome/#microsoftsparkapps))
-- [`@microsoft/spark.api`](./packages/api/README.md) - Core types and client implementations for the Teams Platform API used for fetching data authentication and sending activities ([Documentation](https://microsoft.github.io/spark.js/1.welcome/#microsoftsparkapi))
-- [`@microsoft/spark.client`](./packages/client/README.md) - A client used to create app/bot surfaces such as tabs using Spark.JS ([Documentation](https://microsoft.github.io/spark.js/1.welcome/#microsoftsparkclient))
-- [`@microsoft/spark.common`](./packages/common/README.md) - Common implementations used by all packages for example logging ([Documentation](https://microsoft.github.io/spark.js/1.welcome/#microsoftsparkcommon))
-- [`@microsoft/spark.config`](./packages/config/README.md) - Configuration management for Spark applications ([Documentation](https://microsoft.github.io/spark.js/1.welcome/#microsoftsparkconfig))
+- [`@microsoft/teams.apps`](./packages/apps/README.md) - Tools for building server-side apps for Microsoft Teams ([Documentation](https://microsoft.github.io/teams.ts/1.welcome/#microsoftteamsapps))
+- [`@microsoft/teams.api`](./packages/api/README.md) - Core types and client implementations for the Teams Platform API used for fetching data authentication and sending activities ([Documentation](https://microsoft.github.io/teams.ts/1.welcome/#microsoftteamsapi))
+- [`@microsoft/teams.client`](./packages/client/README.md) - A client used to create app/bot surfaces such as tabs using Teams AI SDK (v2) ([Documentation](https://microsoft.github.io/teams.ts/1.welcome/#microsoftteamsclient))
+- [`@microsoft/teams.common`](./packages/common/README.md) - Common implementations used by all packages for example logging ([Documentation](https://microsoft.github.io/teams.ts/1.welcome/#microsoftteamscommon))
+- [`@microsoft/teams.config`](./packages/config/README.md) - Configuration management for Teams AI SDK (v2) applications ([Documentation](https://microsoft.github.io/teams.ts/1.welcome/#microsoftteamsconfig))
 
 ### AI & Integration
-- [`@microsoft/spark.ai`](./packages/ai/README.md) - Tools that make it easier to integrate apps with LLMs and enable multi-agent scenarios ([Documentation](https://microsoft.github.io/spark.js/8.ai/)) with three main components:
-  - **Models**: Interface with LLMs handling input/output and making LLM features compatible with Spark
+- [`@microsoft/teams.ai`](./packages/ai/README.md) - Tools that make it easier to integrate apps with LLMs and enable multi-agent scenarios ([Documentation](https://microsoft.github.io/teams.ts/8.ai/)) with three main components:
+  - **Models**: Interface with LLMs handling input/output and making LLM features compatible with Teams AI SDK (v2)
   - **Templates**: Parse instructions or "System Prompts" with support for custom templating languages
   - **Prompts**: Orchestrate everything handling state management function definitions and model/template invocation
-- [`@microsoft/spark.openai`](./packages/openai/README.md) - AI model implementations for OpenAI allowing you to integrate your models with the core `@microsoft/spark.ai` package ([Documentation](https://microsoft.github.io/spark.js/1.welcome/#microsoftsparkopenai))
-- [`@microsoft/spark.graph`](./packages/graph/README.md) - Microsoft Graph API client for seamless integration with Microsoft 365 services ([Documentation](https://microsoft.github.io/spark.js/1.welcome/#microsoftsparkgraph))
-- [`@microsoft/spark.botbuilder`](./packages/botbuilder/README.md) - A plugin implementation allowing developers to integrate an existing `botbuilder` Adapter into a project using Spark while still leveraging Spark's new typings and routing system ([Documentation](https://microsoft.github.io/spark.js/1.welcome/#microsoftsparkbotbuilder))
+- [`@microsoft/teams.openai`](./packages/openai/README.md) - AI model implementations for OpenAI allowing you to integrate your models with the core `@microsoft/teams.ai` package ([Documentation](https://microsoft.github.io/teams.ts/1.welcome/#microsoftteamsopenai))
+- [`@microsoft/teams.graph`](./packages/graph/README.md) - Microsoft Graph API client for seamless integration with Microsoft 365 services ([Documentation](https://microsoft.github.io/teams.ts/1.welcome/#microsoftteamsgraph))
+- [`@microsoft/teams.botbuilder`](./packages/botbuilder/README.md) - A plugin implementation allowing developers to integrate an existing `botbuilder` Adapter into a project using Teams AI SDK (v2) while still leveraging Teams AI SDK (v2)'s new typings and routing system ([Documentation](https://microsoft.github.io/teams.ts/1.welcome/#microsoftteamsbotbuilder))
 
 ### UI & Experience
-- [`@microsoft/spark.cards`](./packages/cards/README.md) - Adaptive Cards typings and builders for type-safe and intuitive card design ([Documentation](https://microsoft.github.io/spark.js/1.welcome/#microsoftsparkcards))
+- [`@microsoft/teams.cards`](./packages/cards/README.md) - Adaptive Cards typings and builders for type-safe and intuitive card design ([Documentation](https://microsoft.github.io/teams.ts/1.welcome/#microsoftteamscards))
 
 ### Developer Tools
-- [`@microsoft/spark.cli`](./packages/cli/README.md) - A CLI for building apps using Spark.JS with support for project scaffolding and AI-assisted development ([Documentation](https://microsoft.github.io/spark.js/1.welcome/#microsoftsparkcli))
-- [`@microsoft/spark.dev`](./packages/dev/README.md) - Developer tools to streamline the development process ([Documentation](https://microsoft.github.io/spark.js/1.welcome/#microsoftsparkdev))
-- [`@microsoft/spark.devtools`](./packages/devtools/README.md) - Local development and debugging tools for testing your Spark applications ([Documentation](https://microsoft.github.io/spark.js/7.devtools/))
+- [`@microsoft/teams.cli`](./packages/cli/README.md) - A CLI for building apps using Teams AI SDK (v2) with support for project scaffolding and AI-assisted development ([Documentation](https://microsoft.github.io/teams.ts/1.welcome/#microsoftteamscli))
+- [`@microsoft/teams.dev`](./packages/dev/README.md) - Developer tools to streamline the development process ([Documentation](https://microsoft.github.io/teams.ts/1.welcome/#microsoftteamsdev))
+- [`@microsoft/teams.devtools`](./packages/devtools/README.md) - Local development and debugging tools for testing your Teams AI SDK (v2) applications ([Documentation](https://microsoft.github.io/teams.ts/7.devtools/))
 
 ## Sample Applications
 
-Explore these sample applications to see Spark.JS in action:
+Explore these sample applications to see Teams AI SDK (v2) in action:
 
 - [`@samples/echo`](./samples/echo/README.md) - Basic echo bot implementation
 - [`@samples/botbuilder`](./samples/botbuilder/README.md) - BotBuilder integration example
@@ -106,16 +106,16 @@ Explore these sample applications to see Spark.JS in action:
 
 ## User Resources
 
-- [Documentation](https://microsoft.github.io/spark.js)
-  - [Welcome & Package Overview](https://microsoft.github.io/spark.js/1.welcome/)
-  - [Getting Started Guide](https://microsoft.github.io/spark.js/2.getting-started/)
-  - [Basic Concepts](https://microsoft.github.io/spark.js/3.basics/)
-  - [Dialogs](https://microsoft.github.io/spark.js/4.dialogs/)
-  - [Message Extensions](https://microsoft.github.io/spark.js/5.message-extensions/)
-  - [Cards](https://microsoft.github.io/spark.js/6.cards/)
-  - [DevTools](https://microsoft.github.io/spark.js/7.devtools/)
-  - [AI Integration](https://microsoft.github.io/spark.js/8.ai/)
-  - [Activity Handling](https://microsoft.github.io/spark.js/9.activity/)
+- [Documentation](https://microsoft.github.io/teams.ts)
+  - [Welcome & Package Overview](https://microsoft.github.io/teams.ts/1.welcome/)
+  - [Getting Started Guide](https://microsoft.github.io/teams.ts/2.getting-started/)
+  - [Basic Concepts](https://microsoft.github.io/teams.ts/3.basics/)
+  - [Dialogs](https://microsoft.github.io/teams.ts/4.dialogs/)
+  - [Message Extensions](https://microsoft.github.io/teams.ts/5.message-extensions/)
+  - [Cards](https://microsoft.github.io/teams.ts/6.cards/)
+  - [DevTools](https://microsoft.github.io/teams.ts/7.devtools/)
+  - [AI Integration](https://microsoft.github.io/teams.ts/8.ai/)
+  - [Activity Handling](https://microsoft.github.io/teams.ts/9.activity/)
 - [Teams Developer Portal](https://dev.teams.microsoft.com/apps)
 - [Support](./SUPPORT.md)
 
@@ -125,10 +125,10 @@ Explore these sample applications to see Spark.JS in action:
 
 ## Project Structure
 
-Spark.JS uses a monorepo structure managed by npm workspaces and Turbo for efficient builds and dependency management. The repository is organized as follows:
+Teams AI SDK (v2) uses a monorepo structure managed by npm workspaces and Turbo for efficient builds and dependency management. The repository is organized as follows:
 
-- `/packages` - Core packages that make up the Spark.JS SDK
-- `/samples` - Example applications demonstrating Spark.JS usage
+- `/packages` - Core packages that make up the Teams AI SDK (v2) SDK
+- `/samples` - Example applications demonstrating Teams AI SDK (v2) usage
 - `/book` - Source for the documentation (written in Markdown)
 - `/docs` - Built documentation (auto-generated from `/book`)
 - `/assets` - Images and other static assets
@@ -138,8 +138,8 @@ Spark.JS uses a monorepo structure managed by npm workspaces and Turbo for effic
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/microsoft/spark.js.git
-   cd spark.js
+   git clone https://github.com/microsoft/teams.ts.git
+   cd teams.ts
    ```
 
 2. **Install dependencies**
@@ -175,7 +175,7 @@ npm run test
 
 ## Documentation Development
 
-Spark.JS uses `mdbook` for documentation. The source files are in Markdown format in the `book/src` directory.
+Teams AI SDK (v2) uses `mdbook` for documentation. The source files are in Markdown format in the `book/src` directory.
 
 ### Prerequisites for Documentation Development
 
@@ -221,7 +221,7 @@ Spark.JS uses `mdbook` for documentation. The source files are in Markdown forma
 
 ## Contributing Guidelines
 
-We welcome contributions to Spark.JS! Whether you're fixing bugs improving documentation or proposing new features your help is appreciated.
+We welcome contributions to Teams AI SDK (v2)! Whether you're fixing bugs improving documentation or proposing new features your help is appreciated.
 
 ### Contribution Process
 
@@ -242,6 +242,6 @@ For more detailed information please see:
 
 - [Code of Conduct](./CODE_OF_CONDUCT.md)
 - [Contribution Guidelines](./CONTRIBUTING.MD)
-- [Documentation Guide](https://microsoft.github.io/spark.js/9.contributing/)
+- [Documentation Guide](https://microsoft.github.io/teams.ts/9.contributing/)
 - [Release Notes](./RELEASE.md)
 - [Security Policy](./SECURITY.md)

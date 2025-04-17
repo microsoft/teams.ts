@@ -181,12 +181,13 @@
 </ul>
 <h4 id="project-structure"><a class="header" href="#project-structure">Project Structure</a></h4>
 <pre><code>my-echo-app/
+├── appPackage/
 ├── .env
 ├── package.json
 ├── tsconfig.json
 ├── src/
-│   └── index.ts
-└── README.md
+  └── index.ts
+└── tsup.config.js
 </code></pre>
 <h4 id="example-usage"><a class="header" href="#example-usage">Example Usage</a></h4>
 <p>Create a new Echo bot:</p>
@@ -199,19 +200,21 @@ npm run dev
 </code></pre>
 <h4 id="code-example"><a class="header" href="#code-example">Code Example</a></h4>
 <p>The main application logic in <code>src/index.ts</code> looks like this:</p>
-<pre><code class="language-typescript">import { App } from '@microsoft/teams.js';
+<pre><code class="language-typescript">import { App } from '@microsoft/teams.apps';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
-// Create a new Teams application
-const app = new App();
-
-// Handle incoming messages
-app.on('message', async ({ activity, send }) =&gt; {
-  // Echo back the message text
-  await send(`You said: ${activity.text}`);
+const app = new App({
+  plugins: [new DevtoolsPlugin()],
 });
 
-// Start the application
-app.start();
+app.on('message', async ({ send, activity }) =&gt; {
+  await send({ type: 'typing' });
+  await send(`you said "${activity.text}"`);
+});
+
+(async () =&gt; {
+  await app.start(+(process.env.PORT || 3000));
+})();
 </code></pre>
 <h3 id="tab-template"><a class="header" href="#tab-template">Tab Template</a></h3>
 <p>The Tab template creates a Teams tab application using React. It's designed for building rich, interactive web experiences within Microsoft Teams.</p>
@@ -224,15 +227,22 @@ app.start();
 </ul>
 <h4 id="project-structure-1"><a class="header" href="#project-structure-1">Project Structure</a></h4>
 <pre><code>my-tab-app/
-├── .env
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
+├── appPackage/
 ├── src/
 │   ├── index.ts          # Server-side entry point
-│   └── client/           # Client-side React application
-│       ├── index.tsx     # Client entry point
-│       └── components/   # React components
+│   └── Tab/           # Client-side React application
+│       ├── App.css 
+│       ├── App.tsx
+│       ├── vite-end.d.ts
+│       └── client.tsx
+├── index.html
+├── nodemon.json
+├── package.json
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+├── tsup.config.ts
+├── vite.config.js
 └── README.md
 </code></pre>
 <h4 id="example-usage-1"><a class="header" href="#example-usage-1">Example Usage</a></h4>

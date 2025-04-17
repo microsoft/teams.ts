@@ -159,11 +159,9 @@
 <h2 id="configuration-overview"><a class="header" href="#configuration-overview">Configuration Overview</a></h2>
 <p>The <code>config</code> command allows you to add or remove specific configurations to your Teams application. These configurations can include:</p>
 <ul>
-<li>Teams Toolkit integration</li>
-<li>Authentication settings</li>
-<li>Deployment configurations</li>
-<li>Other project-specific settings</li>
+<li>Teams Toolkit integrations</li>
 </ul>
+<p>Adding a configuration involves adding scaffolding files and updating project metadata, such as package.json.</p>
 <h2 id="using-the-config-command"><a class="header" href="#using-the-config-command">Using the Config Command</a></h2>
 <p>The <code>config</code> command has two main subcommands:</p>
 <ul>
@@ -174,129 +172,30 @@
 <p>To add a configuration to your project:</p>
 <pre><code class="language-sh">teams config add &lt;configuration-name&gt;
 </code></pre>
-<p>For example, to add Teams Toolkit configuration for local development:</p>
-<pre><code class="language-sh">teams config add ttk.local
-</code></pre>
 <h3 id="removing-configurations"><a class="header" href="#removing-configurations">Removing Configurations</a></h3>
 <p>To remove a configuration from your project:</p>
 <pre><code class="language-sh">teams config remove &lt;configuration-name&gt;
 </code></pre>
-<p>For example, to remove Teams Toolkit configuration:</p>
-<pre><code class="language-sh">teams config remove ttk.local
-</code></pre>
+<p>This will delete files added by the configuration and undo changes made to other metadata files, such as <code>package.json</code>.</p>
 <h2 id="available-configurations"><a class="header" href="#available-configurations">Available Configurations</a></h2>
 <h3 id="teams-toolkit-integration"><a class="header" href="#teams-toolkit-integration">Teams Toolkit Integration</a></h3>
-<p>The Teams Toolkit configuration (<code>ttk</code>) adds the necessary files and settings to make your application compatible with the Microsoft Teams Toolkit extension for Visual Studio Code.</p>
+<p>The Teams Toolkit configuration (<code>ttk</code>) adds the necessary files and settings to make your application compatible with the <a href="https://marketplace.visualstudio.com/items?itemName=TeamsDevApp.ms-teams-vscode-extension">Microsoft Teams Toolkit extension for Visual Studio Code</a>.</p>
 <h4 id="adding-teams-toolkit-configuration"><a class="header" href="#adding-teams-toolkit-configuration">Adding Teams Toolkit Configuration</a></h4>
-<pre><code class="language-sh">teams config add ttk.&lt;environment&gt;
+<pre><code class="language-sh">teams config add ttk.&lt;setting&gt;
 </code></pre>
-<p>Where <code>&lt;environment&gt;</code> can be:</p>
+<p>Where <code>&lt;setting&gt;</code> can be:</p>
 <ul>
-<li><code>local</code>: For local development</li>
-<li><code>dev</code>: For development environment</li>
-<li><code>test</code>: For testing environment</li>
-<li><code>prod</code>: For production environment</li>
+<li><code>basic</code>: For basic bot development in Teams.</li>
+<li><code>embed</code>: For apps that will embed tabs int Teams.</li>
+<li><code>oauth</code>: <code>basic</code> configuration along with user authentication.</li>
 </ul>
 <p>For example:</p>
-<pre><code class="language-sh">teams config add ttk.local
+<pre><code class="language-sh">teams config add ttk.basic
 </code></pre>
-<p>This will:</p>
-<ol>
-<li>Create or update the <code>.env.local</code> file with Teams Toolkit-specific variables</li>
-<li>Create a <code>teamsapp.yml</code> file if it doesn't exist</li>
-<li>Add Teams Toolkit-specific settings to your project</li>
-</ol>
-<h4 id="removing-teams-toolkit-configuration"><a class="header" href="#removing-teams-toolkit-configuration">Removing Teams Toolkit Configuration</a></h4>
-<pre><code class="language-sh">teams config remove ttk.&lt;environment&gt;
-</code></pre>
-<p>For example:</p>
-<pre><code class="language-sh">teams config remove ttk.local
-</code></pre>
-<p>This will remove Teams Toolkit-specific settings from your project, but will not delete any files.</p>
-<h3 id="authentication-configuration"><a class="header" href="#authentication-configuration">Authentication Configuration</a></h3>
-<p>The authentication configuration (<code>auth</code>) adds the necessary files and settings to enable authentication in your application.</p>
-<h4 id="adding-authentication-configuration"><a class="header" href="#adding-authentication-configuration">Adding Authentication Configuration</a></h4>
-<pre><code class="language-sh">teams config add auth
-</code></pre>
-<p>This will:</p>
-<ol>
-<li>Add authentication-related packages to your <code>package.json</code></li>
-<li>Create authentication helper files in your project</li>
-<li>Update your environment files with authentication-related variables</li>
-</ol>
-<h4 id="removing-authentication-configuration"><a class="header" href="#removing-authentication-configuration">Removing Authentication Configuration</a></h4>
-<pre><code class="language-sh">teams config remove auth
-</code></pre>
-<p>This will remove authentication-specific settings from your project, but will not delete any files.</p>
-<h2 id="configuration-files"><a class="header" href="#configuration-files">Configuration Files</a></h2>
-<p>The Teams CLI creates and modifies several configuration files in your project:</p>
-<h3 id="packagejson"><a class="header" href="#packagejson">package.json</a></h3>
-<p>The CLI may add dependencies or scripts to your <code>package.json</code> file when adding configurations.</p>
-<p>Example additions:</p>
-<pre><code class="language-json">{
-  "dependencies": {
-    "@microsoft/teams.auth": "^0.2.0"
-  },
-  "devDependencies": {
-    "@microsoft/teams.devtools": "^0.2.0"
-  }
-}
-</code></pre>
-<h3 id="teamsappyml"><a class="header" href="#teamsappyml">teamsapp.yml</a></h3>
-<p>When adding Teams Toolkit configuration, the CLI creates or updates a <code>teamsapp.yml</code> file in your project root. This file contains configuration for the Teams Toolkit extension.</p>
-<p>Example:</p>
-<pre><code class="language-yaml">version: 1.0.0
-projectId: 00000000-0000-0000-0000-000000000000
-environment: local
-applicationName: My Teams App
-components:
-  - name: bot
-    path: .
-    type: bot
-    sso: false
-    endpoint: https://localhost:3978/api/messages
-</code></pre>
-<h3 id="env-files"><a class="header" href="#env-files">.env Files</a></h3>
-<p>The CLI updates environment files (<code>.env.&lt;environment&gt;</code>) with configuration-specific variables.</p>
-<p>Example additions to <code>.env.local</code>:</p>
-<pre><code># Teams Toolkit Configuration
-TEAMS_APP_ID=00000000-0000-0000-0000-000000000000
-BOT_ID=00000000-0000-0000-0000-000000000000
-BOT_PASSWORD=your-bot-password
-</code></pre>
-<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
-<h3 id="version-control"><a class="header" href="#version-control">Version Control</a></h3>
-<p>Always add configuration files to version control, except for environment files containing secrets. This ensures that all team members have the same configuration.</p>
-<p>Add the following to your <code>.gitignore</code> file:</p>
-<pre><code># Environment files
-.env.*
-!.env.example
-
-# Local configuration
-*.local.*
-</code></pre>
-<h3 id="documentation"><a class="header" href="#documentation">Documentation</a></h3>
-<p>Document any custom configurations in your project's README.md file, including:</p>
-<ul>
-<li>Required environment variables</li>
-<li>Configuration steps</li>
-<li>Dependencies</li>
-</ul>
-<h3 id="configuration-validation"><a class="header" href="#configuration-validation">Configuration Validation</a></h3>
-<p>After adding a configuration, validate that it works correctly:</p>
-<ol>
-<li>Check that all required files were created</li>
-<li>Verify that environment variables are set correctly</li>
-<li>Test the functionality that depends on the configuration</li>
-</ol>
+<blockquote>
+<p>Only one of these configurations should be applied to the project otherwise it can lead to undefined behavior.</p>
+</blockquote>
 <h2 id="troubleshooting"><a class="header" href="#troubleshooting">Troubleshooting</a></h2>
-<h3 id="configuration-conflicts"><a class="header" href="#configuration-conflicts">Configuration Conflicts</a></h3>
-<p>If you encounter conflicts between different configurations:</p>
-<ol>
-<li>Check for duplicate entries in configuration files</li>
-<li>Ensure environment variables don't conflict</li>
-<li>Try removing and re-adding the configurations in a different order</li>
-</ol>
 <h3 id="missing-dependencies"><a class="header" href="#missing-dependencies">Missing Dependencies</a></h3>
 <p>If you see errors about missing dependencies after adding a configuration:</p>
 <pre><code class="language-sh">npm install
@@ -316,11 +215,9 @@ BOT_PASSWORD=your-bot-password
 </code></pre>
 </li>
 </ol>
-<h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
+<h2 id="resources"><a class="header" href="#resources">Resources</a></h2>
 <ul>
-<li><a href="./6.examples.html">See common usage examples</a></li>
-<li><a href="../7.devtools/README.html">Learn about Teams Toolkit integration</a></li>
-<li><a href="../3.basics/7.auth.html">Explore authentication options</a></li>
+<li><a href="https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/teams-toolkit-fundamentals">Learn about Teams Toolkit</a></li>
 </ul>
 
                     </main>
@@ -331,7 +228,7 @@ BOT_PASSWORD=your-bot-password
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../3.cli/6.examples.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../4.basics/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -345,7 +242,7 @@ BOT_PASSWORD=your-bot-password
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../3.cli/6.examples.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../4.basics/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

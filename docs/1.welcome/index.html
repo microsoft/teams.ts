@@ -154,8 +154,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="-welcome-to-sparkjs"><a class="header" href="#-welcome-to-sparkjs">👋 Welcome to Spark.JS</a></h1>
-<p>Spark.JS is a modern, flexible SDK that empowers developers to build powerful applications, bots, and AI agents for Microsoft Teams with less code and fewer dependencies. It provides a cohesive set of tools and abstractions that work together seamlessly, allowing you to focus on creating intelligent and effective solutions rather than managing complex configurations and boilerplate code.</p>
+                        <h1 id="-welcome-to-teams-ai-sdk-v2"><a class="header" href="#-welcome-to-teams-ai-sdk-v2">👋 Welcome to Teams AI SDK (v2)</a></h1>
+<p>Teams AI SDK (v2) is a modern, flexible SDK that empowers developers to build powerful applications, bots, and AI agents for Microsoft Teams with less code and fewer dependencies. It provides a cohesive set of tools and abstractions that work together seamlessly, allowing you to focus on creating intelligent and effective solutions rather than managing complex configurations and boilerplate code.</p>
 <h2 id="-key-features"><a class="header" href="#-key-features">✨ Key Features</a></h2>
 <ul>
 <li><strong>🧩 Streamlined Development</strong> - Minimize boilerplate code and reduce setup complexity</li>
@@ -166,12 +166,12 @@
 <li><strong>🔌 Flexible &amp; Unopinionated</strong> - Provides tools and abstractions without dictating application architecture</li>
 </ul>
 <h2 id="-quick-start"><a class="header" href="#-quick-start">🚀 Quick Start</a></h2>
-<p>Get up and running with a new Spark.JS application in just three steps:</p>
+<p>Get up and running with a new Teams AI SDK (v2) application in just three steps:</p>
 <pre><code class="language-bash"># 1. Install the CLI
-npm install -g @microsoft/spark.cli@latest
+npm install -g @microsoft/teams.cli@latest
 
 # 2. Create a new project
-spark new my-teams-app --start
+teams new my-teams-app --start
 
 # 3. Open your browser
 # The app is now running at http://localhost:3978
@@ -189,37 +189,37 @@ spark new my-teams-app --start
 </tbody></table>
 </div>
 <h2 id="-package-overview"><a class="header" href="#-package-overview">📦 Package Overview</a></h2>
-<p>Spark.JS is organized into focused packages that work together seamlessly:</p>
+<p>Teams AI SDK (v2) is organized into focused packages that work together seamlessly:</p>
 <h3 id="core-functionality"><a class="header" href="#core-functionality">Core Functionality</a></h3>
 <ul>
-<li><a href="https://www.npmjs.com/package/@microsoft/spark.apps"><code>@microsoft/spark.apps</code></a> - Tools for building server-side apps for Microsoft Teams</li>
-<li><a href="https://www.npmjs.com/package/@microsoft/spark.api"><code>@microsoft/spark.api</code></a> - Core types and client implementations for the Teams Platform API</li>
-<li><a href="https://www.npmjs.com/package/@microsoft/spark.client"><code>@microsoft/spark.client</code></a> - Client for creating app/bot surfaces such as tabs</li>
-<li><a href="https://www.npmjs.com/package/@microsoft/spark.common"><code>@microsoft/spark.common</code></a> - Common implementations used by all packages (e.g., logging)</li>
-<li><a href="https://www.npmjs.com/package/@microsoft/spark.config"><code>@microsoft/spark.config</code></a> - Configuration management for Spark applications</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/teams.apps"><code>@microsoft/teams.apps</code></a> - Tools for building server-side apps for Microsoft Teams</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/teams.api"><code>@microsoft/teams.api</code></a> - Core types and client implementations for the Teams Platform API</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/teams.client"><code>@microsoft/teams.client</code></a> - Client for creating app/bot surfaces such as tabs</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/teams.common"><code>@microsoft/teams.common</code></a> - Common implementations used by all packages (e.g., logging)</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/teams.config"><code>@microsoft/teams.config</code></a> - Configuration management for Teams AI SDK applications</li>
 </ul>
 <h3 id="ai--integration"><a class="header" href="#ai--integration">AI &amp; Integration</a></h3>
 <ul>
-<li><a href="https://www.npmjs.com/package/@microsoft/spark.ai"><code>@microsoft/spark.ai</code></a> - Tools for integrating apps with LLMs and enabling multi-agent scenarios
+<li><a href="https://www.npmjs.com/package/@microsoft/teams.ai"><code>@microsoft/teams.ai</code></a> - Tools for integrating apps with LLMs and enabling multi-agent scenarios
 <ul>
 <li><strong>Models</strong>: Interface with LLMs, handling input/output</li>
 <li><strong>Templates</strong>: Parse instructions with support for custom templating languages</li>
 <li><strong>Prompts</strong>: Orchestrate everything with state management and function definitions</li>
 </ul>
 </li>
-<li><a href="https://www.npmjs.com/package/@microsoft/spark.openai"><code>@microsoft/spark.openai</code></a> - AI model implementations for OpenAI</li>
-<li><a href="https://www.npmjs.com/package/@microsoft/spark.graph"><code>@microsoft/spark.graph</code></a> - Microsoft Graph API client</li>
-<li><a href="https://www.npmjs.com/package/@microsoft/spark.botbuilder"><code>@microsoft/spark.botbuilder</code></a> - Integration with existing BotBuilder adapters</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/teams.openai"><code>@microsoft/teams.openai</code></a> - AI model implementations for OpenAI</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/teams.graph"><code>@microsoft/teams.graph</code></a> - Microsoft Graph API client</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/teams.botbuilder"><code>@microsoft/teams.botbuilder</code></a> - Integration with existing BotBuilder adapters</li>
 </ul>
 <h3 id="ui--experience"><a class="header" href="#ui--experience">UI &amp; Experience</a></h3>
 <ul>
-<li><a href="https://www.npmjs.com/package/@microsoft/spark.cards"><code>@microsoft/spark.cards</code></a> - Adaptive Cards typings and builders for type-safe card design</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/teams.cards"><code>@microsoft/teams.cards</code></a> - Adaptive Cards typings and builders for type-safe card design</li>
 </ul>
 <h3 id="developer-tools"><a class="header" href="#developer-tools">Developer Tools</a></h3>
 <ul>
-<li><a href="https://www.npmjs.com/package/@microsoft/spark.cli"><code>@microsoft/spark.cli</code></a> - CLI for building apps with project scaffolding and AI-assisted development</li>
-<li><a href="https://www.npmjs.com/package/@microsoft/spark.dev"><code>@microsoft/spark.dev</code></a> - Developer tools to streamline the development process</li>
-<li><a href="https://www.npmjs.com/package/@microsoft/spark.devtools"><code>@microsoft/spark.devtools</code></a> - Local development and debugging tools</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/teams.cli"><code>@microsoft/teams.cli</code></a> - CLI for building apps with project scaffolding and AI-assisted development</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/teams.dev"><code>@microsoft/teams.dev</code></a> - Developer tools to streamline the development process</li>
+<li><a href="https://www.npmjs.com/package/@microsoft/teams.devtools"><code>@microsoft/teams.devtools</code></a> - Local development and debugging tools</li>
 </ul>
 
                     </main>

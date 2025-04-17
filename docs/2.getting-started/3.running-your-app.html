@@ -155,9 +155,9 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="-running-your-app"><a class="header" href="#-running-your-app">🏃‍♂️ Running Your App</a></h1>
-<p>Once you've created your Spark application, you'll want to run it locally to test and develop it. This guide covers how to start your application, use the integrated DevTools, and common debugging techniques.</p>
+<p>Once you've created your Teams AI SDK application, you'll want to run it locally to test and develop it. This guide covers how to start your application, use the integrated DevTools, and common debugging techniques.</p>
 <h2 id="starting-your-application"><a class="header" href="#starting-your-application">Starting Your Application</a></h2>
-<p>Spark applications include several npm scripts for different development tasks:</p>
+<p>Teams AI SDK applications include several npm scripts for different development tasks:</p>
 <h3 id="development-mode"><a class="header" href="#development-mode">Development Mode</a></h3>
 <p>For active development with auto-reload when files change:</p>
 <pre><code class="language-sh">npm run dev
@@ -182,7 +182,7 @@ npm start
 </ol>
 <p>Use this approach to test your application in a production-like environment.</p>
 <h2 id="using-devtools"><a class="header" href="#using-devtools">Using DevTools</a></h2>
-<p>Spark includes powerful integrated development tools through the <code>DevtoolsPlugin</code>. This plugin is automatically included in the templates and provides a local chat interface, activity inspector, and card designer.</p>
+<p>Teams AI SDK includes powerful integrated development tools through the <code>DevtoolsPlugin</code>. This plugin is automatically included in the templates and provides a local chat interface, activity inspector, and card designer.</p>
 <h3 id="accessing-devtools"><a class="header" href="#accessing-devtools">Accessing DevTools</a></h3>
 <p>When your application is running, DevTools are available at:</p>
 <pre><code>http://localhost:3000/devtools
@@ -216,7 +216,7 @@ npm start
 </ol>
 <p><img src="../../../assets/screenshots/card_designer_typescript_editor.png" alt="Card Designer" /></p>
 <h2 id="environment-configuration"><a class="header" href="#environment-configuration">Environment Configuration</a></h2>
-<p>Spark applications use <code>.env</code> files for configuration. If you created your app with the <code>--ttk</code> option, these files are already set up.</p>
+<p>Teams AI SDK applications use <code>.env</code> files for configuration. If you created your app with the <code>--ttk</code> option, these files are already set up.</p>
 <h3 id="basic-configuration"><a class="header" href="#basic-configuration">Basic Configuration</a></h3>
 <p>A typical <code>.env</code> file might include:</p>
 <pre><code># Server configuration
@@ -240,7 +240,7 @@ APP_PASSWORD=your-app-password
 </ul>
 <h2 id="debugging-techniques"><a class="header" href="#debugging-techniques">Debugging Techniques</a></h2>
 <h3 id="console-logging"><a class="header" href="#console-logging">Console Logging</a></h3>
-<p>Spark provides a built-in logging system:</p>
+<p>Teams AI SDK provides a built-in logging system:</p>
 <pre><code class="language-typescript">app.on('message', async ({ log, activity }) =&gt; {
   log.info('Received message:', activity.text);
   log.debug('Full activity:', activity);
@@ -325,7 +325,7 @@ lsof -i :3000
 <li><strong>Create Adaptive Cards</strong> for rich interactive experiences</li>
 <li><strong>Integrate with external services</strong> like databases or APIs</li>
 </ol>
-<p>Check out the next guide on <a href="./4.development-workflow.html">Development Workflow</a> to learn best practices for developing Spark applications.</p>
+<p>Check out the next guide on <a href="./4.development-workflow.html">Development Workflow</a> to learn best practices for developing Teams AI SDK applications.</p>
 
                     </main>
 
