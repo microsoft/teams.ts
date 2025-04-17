@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>👋 Welcome - Teams SDK: Typescript</title>
+        <title>👋 Welcome - Teams AI SDK (v2): Typescript</title>
 
 
         <!-- Custom HTML head -->
@@ -122,7 +122,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Teams SDK: Typescript</h1>
+                    <h1 class="menu-title">Teams AI SDK (v2): Typescript</h1>
 
                     <div class="right-buttons">
                         <a href="http://github.com/microsoft/teams.ts" title="Git repository" aria-label="Git repository">
@@ -154,8 +154,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="-welcome-to-teams-ai-sdk-v2"><a class="header" href="#-welcome-to-teams-ai-sdk-v2">👋 Welcome to Teams AI SDK (v2)</a></h1>
-<p>Teams AI SDK (v2) is a modern, flexible SDK that empowers developers to build powerful applications, bots, and AI agents for Microsoft Teams with less code and fewer dependencies. It provides a cohesive set of tools and abstractions that work together seamlessly, allowing you to focus on creating intelligent and effective solutions rather than managing complex configurations and boilerplate code.</p>
+                        <h1 id="-welcome-to-teams-ai-sdk"><a class="header" href="#-welcome-to-teams-ai-sdk">👋 Welcome to Teams AI SDK</a></h1>
+<p>Teams AI SDK is a modern, flexible SDK that empowers developers to build powerful applications, bots, and AI agents for Microsoft Teams with less code and fewer dependencies. It provides a cohesive set of tools and abstractions that work together seamlessly, allowing you to focus on creating intelligent and effective solutions rather than managing complex configurations and boilerplate code.</p>
 <h2 id="-key-features"><a class="header" href="#-key-features">✨ Key Features</a></h2>
 <ul>
 <li><strong>🧩 Streamlined Development</strong> - Minimize boilerplate code and reduce setup complexity</li>
@@ -166,7 +166,7 @@
 <li><strong>🔌 Flexible &amp; Unopinionated</strong> - Provides tools and abstractions without dictating application architecture</li>
 </ul>
 <h2 id="-quick-start"><a class="header" href="#-quick-start">🚀 Quick Start</a></h2>
-<p>Get up and running with a new Teams AI SDK (v2) application in just three steps:</p>
+<p>Get up and running with a new Teams AI SDK application in just three steps:</p>
 <pre><code class="language-bash"># 1. Install the CLI
 npm install -g @microsoft/teams.cli@latest
 
@@ -189,7 +189,7 @@ teams new my-teams-app --start
 </tbody></table>
 </div>
 <h2 id="-package-overview"><a class="header" href="#-package-overview">📦 Package Overview</a></h2>
-<p>Teams AI SDK (v2) is organized into focused packages that work together seamlessly:</p>
+<p>Teams AI SDK is organized into focused packages that work together seamlessly:</p>
 <h3 id="core-functionality"><a class="header" href="#core-functionality">Core Functionality</a></h3>
 <ul>
 <li><a href="https://www.npmjs.com/package/@microsoft/teams.apps"><code>@microsoft/teams.apps</code></a> - Tools for building server-side apps for Microsoft Teams</li>
@@ -245,22 +245,6 @@ teams new my-teams-app --start
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script>
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 

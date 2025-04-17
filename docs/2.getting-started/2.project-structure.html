@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Project Structure - Teams SDK: Typescript</title>
+        <title>Project Structure - Teams AI SDK (v2): Typescript</title>
 
 
         <!-- Custom HTML head -->
@@ -122,7 +122,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Teams SDK: Typescript</h1>
+                    <h1 class="menu-title">Teams AI SDK (v2): Typescript</h1>
 
                     <div class="right-buttons">
                         <a href="http://github.com/microsoft/teams.ts" title="Git repository" aria-label="Git repository">
@@ -155,9 +155,9 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="-project-structure"><a class="header" href="#-project-structure">📁 Project Structure</a></h1>
-<p>After creating a Teams AI SDK (v2) application with the CLI, you'll have a new directory containing several files and subdirectories. This guide explains the purpose of each component and how they work together.</p>
+<p>After creating a Teams AI SDK application with the CLI, you'll have a new directory containing several files and subdirectories. This guide explains the purpose of each component and how they work together.</p>
 <h2 id="common-structure"><a class="header" href="#common-structure">Common Structure</a></h2>
-<p>Regardless of which template you choose, all Teams AI SDK (v2) applications share a similar base structure:</p>
+<p>Regardless of which template you choose, all Teams AI SDK applications share a similar base structure:</p>
 <pre><code>my-app/
 ├── .gitignore           # Git ignore file with common exclusions
 ├── package.json         # Project metadata and dependencies
@@ -350,22 +350,6 @@ app.function('hello-world', async ({ log, data }) =&gt; {
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script>
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 
