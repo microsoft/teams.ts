@@ -26,7 +26,14 @@ import { Router } from './router';
 import { IPlugin } from './types';
 
 import { configTab, func, tab } from './app.embed';
-import { event, onActivity, onActivityResponse, onActivitySent, onError } from './app.events';
+import {
+  event,
+  onActivity,
+  onActivityResponse,
+  onActivitySent,
+  onError,
+  pluginEvent,
+} from './app.events';
 import { onTokenExchange, onVerifyState } from './app.oauth';
 import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
 import { $process } from './app.process';
@@ -170,6 +177,7 @@ export class App {
   protected router = new Router();
   protected tenantTokens = new LocalStorage<string>({}, { max: 20000 });
   protected events = new EventEmitter<IEvents>();
+  protected pluginEvents = new EventEmitter<Record<string, any>>();
   protected startedAt?: Date;
   protected port?: number;
 
@@ -395,6 +403,14 @@ export class App {
    * @param cb the callback to invoke
    */
   event = event;
+
+  /**
+   * subscribe to a plugin event
+   * @param plugin the plugin to subscribe to. The plugin must support events
+   * @param name the event to subscribe to
+   * @param cb the callback to invoke
+   */
+  pluginEvent = pluginEvent;
 
   /**
    * add a plugin

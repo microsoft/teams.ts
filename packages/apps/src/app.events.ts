@@ -1,7 +1,6 @@
 import { EventHandler } from '@microsoft/teams.common';
 
 import { App } from './app';
-import { ISender } from './types';
 import {
   IActivityEvent,
   IActivityResponseEvent,
@@ -9,6 +8,7 @@ import {
   IErrorEvent,
   IEvents,
 } from './events';
+import { IPlugin, IPluginWithEvents, ISender } from './types';
 
 /**
  * subscribe to an event
@@ -21,6 +21,30 @@ export function event<Name extends keyof IEvents>(
   cb: EventHandler<IEvents[Name]>
 ) {
   this.events.on(name, cb);
+  return this;
+}
+
+type PluginWithEvents<TPlugin extends IPlugin> =
+  TPlugin extends IPluginWithEvents<infer TEvents> ? TEvents : never;
+
+type PluginConstructor = { new (...args: any[]): IPlugin & PluginWithEvents<any> };
+type PluginInstance = IPlugin & PluginWithEvents<any>;
+
+export function pluginEvent<
+  TPlugin extends PluginConstructor | PluginInstance,
+  Name extends keyof PluginWithEvents<
+    TPlugin extends PluginConstructor ? InstanceType<TPlugin> : TPlugin
+  > &
+    string,
+>(
+  this: App,
+  _plugin: TPlugin,
+  name: Name,
+  cb: EventHandler<
+    PluginWithEvents<TPlugin extends PluginConstructor ? InstanceType<TPlugin> : TPlugin>[Name]
+  >
+) {
+  this.pluginEvents.on(name, cb);
   return this;
 }
 

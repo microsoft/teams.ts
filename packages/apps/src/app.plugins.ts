@@ -6,8 +6,8 @@ import {
   DependencyMetadata,
   PLUGIN_DEPENDENCIES_METADATA_KEY,
 } from './types/plugin/decorators/dependency';
-import { PLUGIN_METADATA_KEY, PluginOptions } from './types/plugin/decorators/plugin';
 import { EventMetadata, PLUGIN_EVENTS_METADATA_KEY } from './types/plugin/decorators/event';
+import { PLUGIN_METADATA_KEY, PluginOptions } from './types/plugin/decorators/plugin';
 
 /**
  * add a plugin
@@ -80,6 +80,10 @@ export function inject(this: App, plugin: IPlugin) {
     } else if (name === 'activity') {
       handler = (event: IPluginActivityEvent) => {
         this.onActivity(plugin as ISender, event);
+      };
+    } else if (name === 'custom') {
+      handler = (name: string, event: unknown) => {
+        this.pluginEvents.emit(name, event);
       };
     }
 
