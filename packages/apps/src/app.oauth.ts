@@ -36,7 +36,7 @@ export async function onTokenExchange(
       })
     );
 
-    this.events.emit('signin', { ...ctx, token });
+    this.events.emit('signin', { ...ctx, token, isSignedIn: true });
     return { status: 200 };
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -84,8 +84,8 @@ export async function onVerifyState(
       })
     );
 
-    this.events.emit('signin', { ...ctx, token });
-    return { status: 200 };
+    this.events.emit('signin', { ...ctx, token, isSignedIn: true });
+    return { status: 200, body: {} };
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.status !== 404 && error.status !== 400 && error.status !== 412) {
