@@ -31,7 +31,7 @@ prompt.function(
 );
 
 const app = new App({
-  logger: new ConsoleLogger('@samples/echo', { level: 'debug' }),
+  logger: new ConsoleLogger('@samples/mcp', { level: 'debug' }),
   plugins: [
     new DevtoolsPlugin(),
     new McpPlugin({

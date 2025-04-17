@@ -43,4 +43,9 @@ export type ConversationReference = {
    * Service endpoint where operations concerning the referenced conversation may be performed
    */
   serviceUrl: string;
+
+  /**
+   * other
+   */
+  [key: string]: any;
 };

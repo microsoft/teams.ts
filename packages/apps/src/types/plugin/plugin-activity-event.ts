@@ -21,4 +21,9 @@ export interface IPluginActivityEvent extends ConversationReference {
    * inbound request activity payload
    */
   readonly activity: Activity;
+
+  /**
+   * the conversation reference
+   */
+  readonly ref: ConversationReference;
 }

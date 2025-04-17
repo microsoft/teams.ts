@@ -1,4 +1,4 @@
-import { ActivityLike, ConversationReference, isInvokeResponse } from '@microsoft/teams.api';
+import { ActivityLike, isInvokeResponse } from '@microsoft/teams.api';
 
 import { ApiClient } from './api';
 import { App } from './app';
@@ -12,7 +12,7 @@ import { ISender } from './types';
  * @param event the received activity event
  */
 export async function $process(this: App, sender: ISender, event: IActivityEvent) {
-  const { token, activity } = event;
+  const { token, activity, ref } = event;
 
   this.log.debug(
     `activity/${activity.type}${activity.type === 'invoke' ? `/${activity.name}` : ''}`
@@ -60,16 +60,6 @@ export async function $process(this: App, sender: ISender, event: IActivityEvent
     client.clone({ token: () => userToken })
   );
 
-  const ref: ConversationReference = {
-    serviceUrl,
-    activityId: activity.id,
-    bot: activity.recipient,
-    channelId: activity.channelId,
-    conversation: activity.conversation,
-    locale: activity.locale,
-    user: activity.from,
-  };
-
   const routes = this.router.select(activity);
 
   for (let i = this.plugins.length - 1; i > -1; i--) {
@@ -82,6 +72,7 @@ export async function $process(this: App, sender: ISender, event: IActivityEvent
           sender: sender,
           activity,
           token,
+          ref,
         });
 
         return next();

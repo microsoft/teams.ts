@@ -1,4 +1,4 @@
-import { Activity, IToken } from '@microsoft/teams.api';
+import { Activity, ConversationReference, IToken } from '@microsoft/teams.api';
 
 import { IEvent, ISender } from '../types';
 
@@ -21,4 +21,9 @@ export interface IActivityEvent extends IEvent {
    * inbound request activity payload
    */
   activity: Activity;
+
+  /**
+   * the conversation reference
+   */
+  ref: ConversationReference;
 }
