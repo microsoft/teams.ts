@@ -1,6 +1,6 @@
-# 👋 Welcome to Teams AI SDK (v2)
+# 👋 Welcome to Teams AI SDK
 
-Teams AI SDK (v2) is a modern, flexible SDK that empowers developers to build powerful applications, bots, and AI agents for Microsoft Teams with less code and fewer dependencies. It provides a cohesive set of tools and abstractions that work together seamlessly, allowing you to focus on creating intelligent and effective solutions rather than managing complex configurations and boilerplate code.
+Teams AI SDK is a modern, flexible SDK that empowers developers to build powerful applications, bots, and AI agents for Microsoft Teams with less code and fewer dependencies. It provides a cohesive set of tools and abstractions that work together seamlessly, allowing you to focus on creating intelligent and effective solutions rather than managing complex configurations and boilerplate code.
 
 ## ✨ Key Features
 
@@ -13,7 +13,7 @@ Teams AI SDK (v2) is a modern, flexible SDK that empowers developers to build po
 
 ## 🚀 Quick Start
 
-Get up and running with a new Teams AI SDK (v2) application in just three steps:
+Get up and running with a new Teams AI SDK application in just three steps:
 
 ```bash
 # 1. Install the CLI
@@ -42,7 +42,7 @@ That's it! Your application is now running locally. For more detailed instructio
 
 ## 📦 Package Overview
 
-Teams AI SDK (v2) is organized into focused packages that work together seamlessly:
+Teams AI SDK is organized into focused packages that work together seamlessly:
 
 ### Core Functionality
 
