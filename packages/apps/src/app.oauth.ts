@@ -85,7 +85,7 @@ export async function onVerifyState(
     );
 
     this.events.emit('signin', { ...ctx, token, isSignedIn: true });
-    return { status: 200, body: {} };
+    return { status: 200 };
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.status !== 404 && error.status !== 400 && error.status !== 412) {
