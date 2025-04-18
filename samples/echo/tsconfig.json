@@ -4,5 +4,8 @@
     "outDir": "dist",
     "rootDir": "src"
   },
+  "ts-node": {
+    "transpileOnly": true
+  },
   "include": ["src/**/*.ts"]
 }
