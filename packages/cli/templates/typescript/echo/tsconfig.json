@@ -19,5 +19,8 @@
     "outDir": "dist",
     "rootDir": "src",
     "types": ["node"]
+  },
+  "ts-node": {
+    "transpileOnly": true
   }
 }
