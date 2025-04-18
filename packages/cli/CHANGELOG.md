@@ -1,5 +1,13 @@
 # @microsoft/teams.cli
 
+## 0.2.11
+
+### Patch Changes
+
+- dev plugin bug fix
+- Updated dependencies
+    - @microsoft/teams.common@0.2.11
+
 ## 0.2.10
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.config",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "private": true,
   "license": "MIT",
   "homepage": "https://github.com/microsoft/teams.ts",

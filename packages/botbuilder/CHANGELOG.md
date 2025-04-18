@@ -1,5 +1,11 @@
 # @microsoft/teams.botbuilder
 
+## 0.2.11
+
+### Patch Changes
+
+- dev plugin bug fix
+
 ## 0.2.10
 
 ### Patch Changes

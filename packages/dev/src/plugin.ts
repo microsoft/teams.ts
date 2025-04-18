@@ -174,16 +174,18 @@ export class DevtoolsPlugin implements ISender {
     const id = uuid.v4();
     this.sockets.set(id, socket);
 
-    socket.send(JSON.stringify({
-      id: uuid.v4(),
-      type: 'metadata',
-      body: {
-        id: this.id?.toString(),
-        name: this.name?.toString(),
-        pages: this.pages,
-      },
-      sentAt: new Date(),
-    }));
+    socket.send(
+      JSON.stringify({
+        id: uuid.v4(),
+        type: 'metadata',
+        body: {
+          id: this.id?.toString(),
+          name: this.name?.toString(),
+          pages: this.pages,
+        },
+        sentAt: new Date(),
+      })
+    );
 
     socket.on('disconnect', () => {
       this.sockets.delete(id);
