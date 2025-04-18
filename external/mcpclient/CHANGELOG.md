@@ -1,5 +1,11 @@
 # @microsoft/teams.mcpclient
 
+## 0.2.12
+
+### Patch Changes
+
+- app startup fetch token bugfix
+
 ## 0.2.11
 
 ### Patch Changes

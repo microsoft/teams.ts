@@ -1,5 +1,13 @@
 # @microsoft/teams.cli
 
+## 0.2.12
+
+### Patch Changes
+
+- app startup fetch token bugfix
+- Updated dependencies
+    - @microsoft/teams.common@0.2.12
+
 ## 0.2.11
 
 ### Patch Changes

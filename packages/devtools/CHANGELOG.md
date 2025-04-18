@@ -1,5 +1,16 @@
 # @microsoft/teams.devtools
 
+## 0.2.12
+
+### Patch Changes
+
+- app startup fetch token bugfix
+- Updated dependencies
+    - @microsoft/teams.api@0.2.12
+    - @microsoft/teams.apps@0.2.12
+    - @microsoft/teams.cards@0.2.12
+    - @microsoft/teams.common@0.2.12
+
 ## 0.2.11
 
 ### Patch Changes

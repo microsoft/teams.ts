@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.ai",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
