@@ -1,6 +1,6 @@
 import { makeStyles, tokens } from '@fluentui/react-components';
 
-const useMessageClasses = makeStyles({
+const useFeedbackClasses = makeStyles({
   feedbackContainer: {
     display: 'flex',
     alignItems: 'center',
@@ -12,7 +12,7 @@ const useMessageClasses = makeStyles({
     minWidth: 'auto',
     padding: 0,
   },
-  feedbackText: {
+  feedbackSentText: {
     display: 'flex',
     alignItems: 'center',
     gap: tokens.spacingHorizontalM,
@@ -23,10 +23,6 @@ const useMessageClasses = makeStyles({
     width: '1.25rem',
     height: '1.25rem',
   },
-  dialogSurface: {
-    maxWidth: '37.5rem',
-    minWidth: '30rem',
-  },
   headerIcon: {
     color: tokens.colorBrandForeground1,
     fontSize: '1.25rem',
@@ -34,10 +30,7 @@ const useMessageClasses = makeStyles({
   dialogTitle: {
     gap: tokens.spacingHorizontalM,
     display: 'flex',
-    alignItems: 'center',
-    margin: 0,
-    marginBottom: tokens.spacingVerticalL,
-    minWidth: 0,
+    alignItems: 'center'
   },
   dialogContent: {
     display: 'flex',
@@ -50,6 +43,9 @@ const useMessageClasses = makeStyles({
     justifyContent: 'flex-end',
     marginTop: tokens.spacingVerticalL,
   },
+  textarea: {
+    width: '100%',
+  }
 });
 
-export default useMessageClasses;
+export default useFeedbackClasses;
