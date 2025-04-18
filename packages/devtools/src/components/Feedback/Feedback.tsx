@@ -62,7 +62,7 @@ const CustomFeedbackForm: FC<{
         <Text>Custom feedback form coming to DevTools soon...</Text>
       </DialogTitle>
       <DialogContent id="dialog-content" className={classes.dialogContent}>
-        <Text>For now, please use the default feedback form.</Text>
+        <Text>For now, please use the default feedback form or test on Teams client.</Text>
       </DialogContent>
       <DialogActions>
         <Button appearance="secondary" onClick={handleDialogClose} ref={cancelButtonRef}>

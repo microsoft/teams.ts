@@ -5,8 +5,8 @@ const useFeedbackClasses = makeStyles({
     display: 'flex',
     alignItems: 'center',
     gap: tokens.spacingHorizontalM,
-    padding: '0.25rem 0',
-    marginTop: '0.5rem',
+    padding: `${tokens.spacingHorizontalM}`,
+    paddingTop: 0,
   },
   feedbackButton: {
     minWidth: 'auto',
