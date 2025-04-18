@@ -6,7 +6,7 @@ import { IPlugin } from './plugin';
 /**
  * a plugin that can send activities
  */
-export interface ISender extends IPlugin {
+export type ISender<TCustomEvents extends {} | undefined = undefined> = IPlugin<TCustomEvents> & {
   /**
    * called by the `App`
    * to send an activity
@@ -18,4 +18,4 @@ export interface ISender extends IPlugin {
    * to create a new activity stream
    */
   createStream(ref: ConversationReference): IStreamer;
-}
+};
