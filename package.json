@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.ts",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "private": true,
   "homepage": "https://github.com/microsoft/teams.ts",
   "bugs": "https://github.com/microsoft/teams.ts/issues",
@@ -37,9 +37,7 @@
     "lint": "npx turbo lint",
     "lint:fix": "npx turbo lint:fix",
     "test": "npx turbo test --concurrency=100%",
-    "fmt": "npx prettier --write \"**/*.{js,ts,tsx,md,json}\"",
-    "docs:build": "mdbook build book",
-    "docs:serve": "mdbook serve book"
+    "fmt": "npx prettier --write \"**/*.{js,ts,tsx,md,json}\""
   },
   "devDependencies": {
     "@changesets/cli": "latest",

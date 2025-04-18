@@ -1,5 +1,16 @@
 # @microsoft/teams.devtools
 
+## 0.2.10
+
+### Patch Changes
+
+- fix docs links and fix a couple minor issues
+- Updated dependencies
+    - @microsoft/teams.common@0.2.10
+    - @microsoft/teams.cards@0.2.10
+    - @microsoft/teams.apps@0.2.10
+    - @microsoft/teams.api@0.2.10
+
 ## 0.2.9
 
 ### Patch Changes

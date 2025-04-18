@@ -41,6 +41,12 @@ export interface IToken {
   expiration?: number;
 
   /**
+   * check if the token is expired
+   * @param bufferMs default 5min
+   */
+  isExpired(bufferMs?: number): boolean;
+
+  /**
    * string form of the token
    */
   toString(): string;

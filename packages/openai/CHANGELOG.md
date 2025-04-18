@@ -1,5 +1,11 @@
 # @microsoft/teams.openai
 
+## 0.2.10
+
+### Patch Changes
+
+- fix docs links and fix a couple minor issues
+
 ## 0.2.9
 
 ### Patch Changes

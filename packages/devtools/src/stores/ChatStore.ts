@@ -40,29 +40,35 @@ interface MessageBase {
   createdDateTime: string;
 }
 
-const createMessageBase = (event: ActivityEvent<any>): MessageBase => ({
-  id: event.body.id,
-  replyToId: event.body.replyToId,
-  messageType: 'message',
-  body: {
-    content: event.body.text,
-    contentType: 'text',
-    textContent: event.body.text,
-  },
-  from: {
-    conversation: {
-      id: event.body.conversation.id,
-      displayName: event.body.conversation.name,
+const createMessageBase = (
+  event: ActivityEvent<IMessageActivity | ITypingActivity>
+): MessageBase => {
+  const streamId = event.body.entities?.find((e) => e.type === 'streaminfo')?.streamId;
+
+  return {
+    id: streamId || event.body.id,
+    replyToId: event.body.replyToId,
+    messageType: 'message',
+    body: {
+      content: event.body.text || '',
+      contentType: 'text',
+      textContent: event.body.text || '',
     },
-    user: event.body.from
-      ? {
-          id: event.body.from.id,
-          displayName: event.body.from.name,
-        }
-      : undefined,
-  },
-  createdDateTime: (event.body.timestamp || new Date()).toUTCString(),
-});
+    from: {
+      conversation: {
+        id: event.body.conversation.id,
+        displayName: event.body.conversation.name || event.chat.name || '??',
+      },
+      user: event.body.from
+        ? {
+            id: event.body.from.id,
+            displayName: event.body.from.name,
+          }
+        : undefined,
+    },
+    createdDateTime: (event.body.timestamp || new Date()).toUTCString(),
+  };
+};
 
 const getFeedbackState = (event: ActivityEvent<any>) => ({
   feedbackLoopEnabled:
@@ -385,9 +391,9 @@ export const useChatStore = create<ChatStore>()(
         };
       },
       onStreamMessageActivity: (event, state) => {
-        clearTimer(streamingTimers, event.body.id);
-
         const baseMessage = createMessageBase(event);
+        clearTimer(streamingTimers, baseMessage.id);
+
         state.put(event.chat.id, {
           ...baseMessage,
           attachments: event.body.attachments,

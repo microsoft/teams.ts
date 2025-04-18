@@ -93,13 +93,13 @@ const groups: CardGroup[] = [
         label: 'ImageSet',
         value: new ImageSet(
           new Image(
-            'https://github.com/aacebo/teams-sdk-js/blob/main/assets/icons/teams.png?raw=true',
+            'https://github.com/microsoft/teams.ts/blob/main/assets/icons/teams.png?raw=true',
             {
               size: 'medium',
             }
           ),
           new Image(
-            'https://github.com/aacebo/teams-sdk-js/blob/main/assets/icons/teams.png?raw=true',
+            'https://github.com/microsoft/teams.ts/blob/main/assets/icons/teams.png?raw=true',
             {
               size: 'medium',
             }
@@ -107,8 +107,8 @@ const groups: CardGroup[] = [
         ),
         typescript: [
           'ImageSet([',
-          '\tImage("https://github.com/aacebo/teams-sdk-js/blob/main/assets/icons/teams.png?raw=true", { size: "medium" }),',
-          '\tImage("https://github.com/aacebo/teams-sdk-js/blob/main/assets/icons/teams.png?raw=true"), {size: "medium" }',
+          '\tImage("https://github.com/microsoft/teams.ts/blob/main/assets/icons/teams.png?raw=true", { size: "medium" }),',
+          '\tImage("https://github.com/microsoft/teams.ts/blob/main/assets/icons/teams.png?raw=true"), {size: "medium" }',
           '])',
         ].join('\n'),
       },
@@ -167,11 +167,11 @@ const groups: CardGroup[] = [
         icon: ImageRegular as FluentIcon,
         label: 'Image',
         value: new Image(
-          'https://github.com/aacebo/teams-sdk-js/blob/main/assets/icons/teams.png?raw=true',
+          'https://github.com/microsoft/teams.ts/blob/main/assets/icons/teams.png?raw=true',
           { size: 'medium' }
         ),
         typescript:
-          'Image("https://github.com/aacebo/teams-sdk-js/blob/main/assets/icons/teams.png?raw=true", { size: "medium"} )',
+          'Image("https://github.com/microsoft/teams.ts/blob/main/assets/icons/teams.png?raw=true", { size: "medium"} )',
       },
       {
         icon: FilmstripPlayRegular as FluentIcon,

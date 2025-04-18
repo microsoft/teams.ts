@@ -13,14 +13,14 @@
     <a href="https://www.npmjs.com/package/@microsoft/teams.client" target="_blank">
         <img src="https://img.shields.io/npm/dw/@microsoft/teams.client" />
     </a>
-    <a href="https://microsoft.github.io/teams.ts" target="_blank">
+    <a href="https://microsoft.github.io/teams-ai" target="_blank">
         <img src="https://img.shields.io/badge/📖 docs-open-blue" />
     </a>
 </p>
 
 A client used to create app/bot surfaces such as tabs.
 
-<a href="https://microsoft.github.io/teams.ts/2.getting-started/1.create-application.html" target="_blank">
+<a href="https://microsoft.github.io/teams-ai" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 

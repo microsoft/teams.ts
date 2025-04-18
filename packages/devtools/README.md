@@ -8,7 +8,7 @@ The devtools allow help you:
 - Inspect logs from your app live🗃️⚡
 - Build/debug/send cards🪪
 
-<a href="https://microsoft.github.io/teams.ts/2.getting-started/1.create-application.html" target="_blank">
+<a href="https://microsoft.github.io/teams-ai" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 

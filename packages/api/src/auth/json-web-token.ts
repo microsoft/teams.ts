@@ -78,6 +78,11 @@ export class JsonWebToken implements IToken {
     this._payload = jwtDecode(value);
   }
 
+  isExpired(bufferMs = 1000 * 60 * 5) {
+    if (!this.expiration) return false;
+    return this.expiration < Date.now() + bufferMs;
+  }
+
   toString() {
     return this._value;
   }
