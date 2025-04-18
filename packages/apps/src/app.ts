@@ -298,7 +298,7 @@ export class App {
     this.port = +(port || process.env.PORT || 3000);
 
     try {
-      await this.refreshTokens();
+      await this.refreshTokens(true);
 
       // initialize plugins
       for (const plugin of this.plugins) {

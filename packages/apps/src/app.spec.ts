@@ -1,8 +1,11 @@
 import { JsonWebToken } from '@microsoft/teams.api';
 import jwt from 'jsonwebtoken';
-import { App, REFRESH_TOKEN_BUFFER_MS } from './app';
+
+import { App } from './app';
 import { HttpPlugin } from './plugins';
 import { IPluginStartEvent } from './types';
+
+const REFRESH_TOKEN_BUFFER_MS = 1000 * 60 * 5;
 
 class TestHttpPlugin extends HttpPlugin {
   async onStart(_event: IPluginStartEvent) {
