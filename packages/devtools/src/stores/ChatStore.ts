@@ -71,8 +71,7 @@ const createMessageBase = (
 };
 
 const getFeedbackState = (event: ActivityEvent<any>) => ({
-  feedbackLoopEnabled:
-    event.body.channelData?.feedbackLoopEnabled ? true : false,
+  feedbackLoopEnabled: event.body.channelData?.feedbackLoopEnabled ? true : false,
 });
 
 const clearTimer = (timers: Record<string, NodeJS.Timeout>, id: string) => {
@@ -237,7 +236,7 @@ export const useChatStore = create<ChatStore>()(
 
         state.typing[event.chat.id] = true;
 
-        const streamEntity = event.body.entities?.find(e => e.type === 'streaminfo');
+        const streamEntity = event.body.entities?.find((e) => e.type === 'streaminfo');
         if (streamEntity?.streamType === 'streaming') {
           return state.onStreamChunkActivity(event, state);
         }
@@ -262,7 +261,7 @@ export const useChatStore = create<ChatStore>()(
       onMessageSendActivity: (event, state) => {
         state.typing[state.chat.id] = false;
 
-        const streamEntity = event.body.entities?.find(e => e.type === 'streaminfo');
+        const streamEntity = event.body.entities?.find((e) => e.type === 'streaminfo');
         if (streamEntity?.streamType === 'final') {
           return state.onStreamMessageActivity(event, state);
         }
@@ -353,7 +352,7 @@ export const useChatStore = create<ChatStore>()(
         };
       },
       onStreamChunkActivity: (event, state) => {
-        const streamEntity = event.body.entities?.find(e => e.type === 'streaminfo');
+        const streamEntity = event.body.entities?.find((e) => e.type === 'streaminfo');
         const streamId = streamEntity?.streamId || event.body.id;
 
         clearTimer(streamingTimers, streamId);
@@ -396,7 +395,7 @@ export const useChatStore = create<ChatStore>()(
         };
       },
       onStreamMessageActivity: (event, state) => {
-        const streamEntity = event.body.entities?.find(e => e.type === 'streaminfo');
+        const streamEntity = event.body.entities?.find((e) => e.type === 'streaminfo');
         const streamId = streamEntity?.streamId || event.body.id;
         const baseMessage = createMessageBase(event);
 

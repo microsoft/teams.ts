@@ -30,7 +30,7 @@ const useFeedbackClasses = makeStyles({
   dialogTitle: {
     gap: tokens.spacingHorizontalM,
     display: 'flex',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   dialogContent: {
     display: 'flex',
@@ -45,7 +45,7 @@ const useFeedbackClasses = makeStyles({
   },
   textarea: {
     width: '100%',
-  }
+  },
 });
 
 export default useFeedbackClasses;
