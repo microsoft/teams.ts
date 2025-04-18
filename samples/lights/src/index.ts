@@ -1,7 +1,7 @@
 import { App } from '@microsoft/teams.apps';
 import { ChatPrompt, Message } from '@microsoft/teams.ai';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
-import { AzureOpenAIChatModelOptions, OpenAIChatModel } from '@microsoft/teams.openai';
+import { OpenAIChatModel } from '@microsoft/teams.openai';
 import { LocalStorage } from '@microsoft/teams.common/storage';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 import { MessageActivity } from '@microsoft/teams.api';
