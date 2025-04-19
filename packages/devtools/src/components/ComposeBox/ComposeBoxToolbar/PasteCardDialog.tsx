@@ -146,9 +146,12 @@ const PasteCardDialog: FC<PasteCardDialogProps> = memo(
                 className={classes.textarea}
                 rows={10}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                  if (e.key === 'Enter' && (!isMac ? e.ctrlKey : e.metaKey)) {
                     e.preventDefault();
                     handleSave();
+                  }
+                  if (e.key === 'Escape') {
+                    onClose();
                   }
                 }}
               />

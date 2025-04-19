@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:watch": "tsc -b && vite build --watch --mode development",
+    "build:watch": "NODE_ENV=development tsc -b && vite build --watch",
     "lint": "eslint . ",
     "lint:fix": "eslint . --fix",
     "fmt": "prettier --write \"src/**/*.{js,ts,tsx,md,json}\"",

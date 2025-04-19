@@ -1,4 +1,4 @@
-import { FC, memo, useCallback, useState } from 'react';
+import { FC, memo, useCallback, useRef, useState } from 'react';
 import { mergeClasses, Popover, PopoverSurface, PopoverTrigger } from '@fluentui/react-components';
 import { Message, MessageUser, MessageReaction } from '@microsoft/teams.api';
 
@@ -33,6 +33,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
     const [openedByKeyboard, setOpenedByKeyboard] = useState(false);
     const [reactionSender, setReactionSender] = useState<MessageUser | undefined>();
     const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false);
+    const feedbackRef = useRef(false);
 
     const handleMessageKeyDown = useCallback(
       (event: React.KeyboardEvent) => {
@@ -101,6 +102,10 @@ const ChatMessage: FC<ChatMessageProps> = memo(
       [value.id, value.reactions, value.from?.user, sendDirection, onMessageAction]
     );
 
+    if (feedback && sendDirection === 'received') {
+      feedbackRef.current = true;
+    }
+
     if (isDeleted) {
       return (
         <ChatMessageDeleted
@@ -120,7 +125,14 @@ const ChatMessage: FC<ChatMessageProps> = memo(
 
     return (
       <>
-        <div id={labelId} aria-labelledby={labelId} className={classes.messageContainer}>
+        <div
+          id={labelId}
+          aria-labelledby={labelId}
+          className={mergeClasses(
+            classes.messageContainer,
+            sendDirection === 'sent' ? classes.sent : classes.received
+          )}
+        >
           <Popover
             open={isPopoverOpen && !isFeedbackDialogOpen}
             onOpenChange={handlePopoverChange}
@@ -139,11 +151,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
                 onKeyDown={handleMessageKeyDown}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
-                className={mergeClasses(
-                  classes.messageBody,
-                  sendDirection === 'sent' ? classes.sent : classes.received,
-                  streaming && classes.streaming
-                )}
+                className={mergeClasses(classes.messageBody, streaming && classes.streaming)}
               >
                 <div className={classes.messageContent}>
                   {messageContent}
@@ -151,15 +159,6 @@ const ChatMessage: FC<ChatMessageProps> = memo(
                     <MessageAttachments attachments={value.attachments} classes={classes} />
                   )}
                 </div>
-                {feedback && sendDirection === 'received' && (
-                  <Feedback
-                    displayName={value.from?.application?.displayName || 'App'}
-                    onDialogOpenChange={setIsFeedbackDialogOpen}
-                    isFeedbackDialogOpen={isFeedbackDialogOpen}
-                    value={value}
-                    streaming={streaming}
-                  />
-                )}
               </div>
             </PopoverTrigger>
             <PopoverSurface className={classes.popoverSurface} data-message-toolbar={value.id}>
@@ -170,25 +169,34 @@ const ChatMessage: FC<ChatMessageProps> = memo(
               />
             </PopoverSurface>
           </Popover>
-          {value.reactions && value.reactions.length > 0 && (
-            <div
-              className={mergeClasses(
-                classes.reactionContainer,
-                value.reactions.length > 0 && classes.reactionContainerVisible,
-                sendDirection === 'sent' && classes.reactionContainerSent
-              )}
-            >
-              {value.reactions.map((reaction) => (
-                <MessageReactionButton
-                  key={`${reaction.type}-${reaction.user?.id}`}
-                  reaction={reaction}
-                  isFromUser={reaction.user?.id === reactionSender?.id}
-                  onReactionClick={() => handleReactionClick(reaction)}
-                />
-              ))}
-            </div>
+          {feedbackRef.current && (
+            <Feedback
+              displayName={value.from?.application?.displayName || 'App'}
+              onDialogOpenChange={setIsFeedbackDialogOpen}
+              isFeedbackDialogOpen={isFeedbackDialogOpen}
+              value={value}
+              streaming={streaming}
+            />
           )}
         </div>
+        {value.reactions && value.reactions.length > 0 && (
+          <div
+            className={mergeClasses(
+              classes.reactionContainer,
+              value.reactions.length > 0 && classes.reactionContainerVisible,
+              sendDirection === 'sent' && classes.reactionContainerSent
+            )}
+          >
+            {value.reactions.map((reaction) => (
+              <MessageReactionButton
+                key={`${reaction.type}-${reaction.user?.id}`}
+                reaction={reaction}
+                isFromUser={reaction.user?.id === reactionSender?.id}
+                onReactionClick={() => handleReactionClick(reaction)}
+              />
+            ))}
+          </div>
+        )}
       </>
     );
   }
