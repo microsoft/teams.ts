@@ -34,7 +34,7 @@ import Logger from '../Logger/Logger';
 
 import useMessageClasses from './Feedback.styles';
 
-const childLog = Logger.child('FeedbackUI');
+const childLog = Logger.child('Feedback');
 
 interface FeedbackProps {
   displayName: string;
@@ -200,6 +200,7 @@ const Feedback: FC<FeedbackProps> = ({
                       handleSubmit();
                     }
                     if (e.key === 'Escape') {
+                      e.preventDefault();
                       handleDialogClose();
                     }
                   }}

@@ -1,4 +1,4 @@
-import { FC, memo, useCallback, useState } from 'react';
+import { FC, memo, useCallback, useRef, useState } from 'react';
 import { mergeClasses, Popover, PopoverSurface, PopoverTrigger } from '@fluentui/react-components';
 import { Message, MessageUser, MessageReaction } from '@microsoft/teams.api';
 
@@ -33,6 +33,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
     const [openedByKeyboard, setOpenedByKeyboard] = useState(false);
     const [reactionSender, setReactionSender] = useState<MessageUser | undefined>();
     const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false);
+    const feedbackRef = useRef(false);
 
     const handleMessageKeyDown = useCallback(
       (event: React.KeyboardEvent) => {
@@ -101,6 +102,10 @@ const ChatMessage: FC<ChatMessageProps> = memo(
       [value.id, value.reactions, value.from?.user, sendDirection, onMessageAction]
     );
 
+    if (feedback && sendDirection === 'received') {
+      feedbackRef.current = true;
+    }
+
     if (isDeleted) {
       return (
         <ChatMessageDeleted
@@ -164,7 +169,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
               />
             </PopoverSurface>
           </Popover>
-          {feedback && sendDirection === 'received' ? (
+          {feedbackRef.current && (
             <Feedback
               displayName={value.from?.application?.displayName || 'App'}
               onDialogOpenChange={setIsFeedbackDialogOpen}
@@ -172,26 +177,26 @@ const ChatMessage: FC<ChatMessageProps> = memo(
               value={value}
               streaming={streaming}
             />
-          ) : null}
-          {value.reactions && value.reactions.length > 0 && (
-            <div
-              className={mergeClasses(
-                classes.reactionContainer,
-                value.reactions.length > 0 && classes.reactionContainerVisible,
-                sendDirection === 'sent' && classes.reactionContainerSent
-              )}
-            >
-              {value.reactions.map((reaction) => (
-                <MessageReactionButton
-                  key={`${reaction.type}-${reaction.user?.id}`}
-                  reaction={reaction}
-                  isFromUser={reaction.user?.id === reactionSender?.id}
-                  onReactionClick={() => handleReactionClick(reaction)}
-                />
-              ))}
-            </div>
           )}
         </div>
+        {value.reactions && value.reactions.length > 0 && (
+          <div
+            className={mergeClasses(
+              classes.reactionContainer,
+              value.reactions.length > 0 && classes.reactionContainerVisible,
+              sendDirection === 'sent' && classes.reactionContainerSent
+            )}
+          >
+            {value.reactions.map((reaction) => (
+              <MessageReactionButton
+                key={`${reaction.type}-${reaction.user?.id}`}
+                reaction={reaction}
+                isFromUser={reaction.user?.id === reactionSender?.id}
+                onReactionClick={() => handleReactionClick(reaction)}
+              />
+            ))}
+          </div>
+        )}
       </>
     );
   }

@@ -135,9 +135,11 @@ const useChatMessageStyles = makeStyles({
     minHeight: '1rem',
     minWidth: '1rem',
     transition: 'background-color 0.2s ease, color 0.2s ease',
+    // Hardcoded margin value because griffel doesn't appear to respect negative spacing tokens
+    marginTop: '-0.5rem',
   },
   reactionFromUser: {
-    border: `1px solid ${tokens.colorNeutralStrokeAccessibleSelected}`,
+    border: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStrokeAccessibleSelected}`,
   },
 
   // Popover and feedback styles
