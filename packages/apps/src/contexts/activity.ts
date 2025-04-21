@@ -259,11 +259,11 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
     );
   }
 
-  async signout(name = 'graph') {
+  async signout() {
     await this.api.users.token.signOut({
       channelId: this.activity.channelId,
       userId: this.activity.from.id,
-      connectionName: name,
+      connectionName: this.connectionName,
     });
   }
 
