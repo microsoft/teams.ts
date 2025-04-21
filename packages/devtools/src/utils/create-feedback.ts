@@ -4,7 +4,7 @@ import type {
   ConversationAccount,
   Entity,
   IMessageSubmitActionInvokeActivity,
-} from '@microsoft/spark.api';
+} from '@microsoft/teams.api';
 
 interface CreateFeedbackActivityParams {
   channelId?: ChannelID;

@@ -1,4 +1,4 @@
-import { InstallUpdateActivity } from '@microsoft/spark.api';
+import { InstallUpdateActivity } from '@microsoft/teams.api';
 
 import { RouteHandler } from '../types';
 import { IActivityContext } from '../contexts';

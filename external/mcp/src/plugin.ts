@@ -1,8 +1,8 @@
 import { Readable, Writable } from 'stream';
 
-import { IChatPrompt } from '@microsoft/spark.ai';
-import { ILogger } from '@microsoft/spark.common';
-import { DevtoolsPlugin } from '@microsoft/spark.dev';
+import { IChatPrompt } from '@microsoft/teams.ai';
+import { ILogger } from '@microsoft/teams.common';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
 import {
   Dependency,
   HttpPlugin,
@@ -10,7 +10,7 @@ import {
   IPluginStartEvent,
   Logger,
   Plugin,
-} from '@microsoft/spark.apps';
+} from '@microsoft/teams.apps';
 
 import { ServerOptions } from '@modelcontextprotocol/sdk/server/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';

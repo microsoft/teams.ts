@@ -1,4 +1,4 @@
-import { Card } from '@microsoft/spark.cards';
+import { Card } from '@microsoft/teams.cards';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 

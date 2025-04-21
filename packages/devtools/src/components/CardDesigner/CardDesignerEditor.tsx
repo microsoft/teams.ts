@@ -4,7 +4,7 @@ import { json } from '@codemirror/lang-json';
 import { EditorState } from '@codemirror/state';
 import { ViewUpdate } from '@codemirror/view';
 import { SelectTabData, SelectTabEvent, Tab, TabList, TabValue } from '@fluentui/react-components';
-import { ICard } from '@microsoft/spark.cards';
+import { ICard } from '@microsoft/teams.cards';
 import { atomone } from '@uiw/codemirror-themes-all';
 import { basicSetup, EditorView } from 'codemirror';
 

@@ -2,7 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import * as uuid from 'uuid';
 
-import { Activity, JsonWebToken } from '@microsoft/spark.api';
+import { Activity, JsonWebToken } from '@microsoft/teams.api';
 
 import { RouteContext } from '../../../context';
 

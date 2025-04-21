@@ -1,4 +1,40 @@
-# @microsoft/spark.dev
+# @microsoft/teams.dev
+
+## 0.2.12
+
+### Patch Changes
+
+- app startup fetch token bugfix
+
+## 0.2.11
+
+### Patch Changes
+
+- dev plugin bug fix
+
+## 0.2.10
+
+### Patch Changes
+
+- fix docs links and fix a couple minor issues
+
+## 0.2.9
+
+### Patch Changes
+
+- config fetch response fix
+
+## 0.2.8
+
+### Patch Changes
+
+- fix docs links
+
+## 0.2.7
+
+### Patch Changes
+
+- package rename
 
 ## 0.2.6
 
@@ -72,10 +108,10 @@
 
 - fix middleware bug in removeMentionsText
 - Updated dependencies
-    - @microsoft/spark.apps@0.0.6
-    - @microsoft/spark.api@0.0.6
-    - @microsoft/spark.common@0.0.6
-    - @microsoft/spark.graph@0.0.6
+    - @microsoft/teams.apps@0.0.6
+    - @microsoft/teams.api@0.0.6
+    - @microsoft/teams.common@0.0.6
+    - @microsoft/teams.graph@0.0.6
 
 ## 0.0.5
 
@@ -83,10 +119,10 @@
 
 - add removeMentionsText util and middleware, update docs
 - Updated dependencies
-    - @microsoft/spark.api@0.0.5
-    - @microsoft/spark.apps@0.0.5
-    - @microsoft/spark.common@0.0.5
-    - @microsoft/spark.graph@0.0.5
+    - @microsoft/teams.api@0.0.5
+    - @microsoft/teams.apps@0.0.5
+    - @microsoft/teams.common@0.0.5
+    - @microsoft/teams.graph@0.0.5
 
 ## 0.0.4
 
@@ -94,10 +130,10 @@
 
 - fix auth credential error
 - Updated dependencies
-    - @microsoft/spark.api@0.0.4
-    - @microsoft/spark.apps@0.0.4
-    - @microsoft/spark.common@0.0.4
-    - @microsoft/spark.graph@0.0.4
+    - @microsoft/teams.api@0.0.4
+    - @microsoft/teams.apps@0.0.4
+    - @microsoft/teams.common@0.0.4
+    - @microsoft/teams.graph@0.0.4
 
 ## 0.0.3
 
@@ -105,10 +141,10 @@
 
 - add support for more types of bot authentication, devtools fixes
 - Updated dependencies
-    - @microsoft/spark.api@0.0.3
-    - @microsoft/spark.apps@0.0.3
-    - @microsoft/spark.common@0.0.3
-    - @microsoft/spark.graph@0.0.3
+    - @microsoft/teams.api@0.0.3
+    - @microsoft/teams.apps@0.0.3
+    - @microsoft/teams.common@0.0.3
+    - @microsoft/teams.graph@0.0.3
 
 ## 0.0.2
 
@@ -116,10 +152,10 @@
 
 - fix cli binary name
 - Updated dependencies
-    - @microsoft/spark.api@0.0.2
-    - @microsoft/spark.apps@0.0.2
-    - @microsoft/spark.common@0.0.2
-    - @microsoft/spark.graph@0.0.2
+    - @microsoft/teams.api@0.0.2
+    - @microsoft/teams.apps@0.0.2
+    - @microsoft/teams.common@0.0.2
+    - @microsoft/teams.graph@0.0.2
 
 ## 0.0.1
 
@@ -127,7 +163,7 @@
 
 - port to new repository
 - Updated dependencies
-    - @microsoft/spark.api@0.0.1
-    - @microsoft/spark.apps@0.0.1
-    - @microsoft/spark.common@0.0.1
-    - @microsoft/spark.graph@0.0.1
+    - @microsoft/teams.api@0.0.1
+    - @microsoft/teams.apps@0.0.1
+    - @microsoft/teams.common@0.0.1
+    - @microsoft/teams.graph@0.0.1

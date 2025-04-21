@@ -17,7 +17,7 @@ import { Settings } from './settings';
 
   const argv = hideBin(process.argv);
   const yargsInstance = yargs(argv)
-    .scriptName('spark')
+    .scriptName('teams')
     .version()
     .command(commands.New(context))
     .command(commands.Env(context))

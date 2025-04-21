@@ -1,5 +1,5 @@
 import { Body1, Subtitle2 } from '@fluentui/react-components';
-import { IFact } from '@microsoft/spark.cards';
+import { IFact } from '@microsoft/teams.cards';
 
 import useContainerClasses from './Containers.styles';
 

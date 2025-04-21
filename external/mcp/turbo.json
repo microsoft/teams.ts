@@ -6,10 +6,10 @@
       "outputs": [".next/**", "!.next/cache/**"],
       "cache": false,
       "dependsOn": [
-        "@microsoft/spark.ai#build",
-        "@microsoft/spark.apps#build",
-        "@microsoft/spark.common#build",
-        "@microsoft/spark.dev#build"
+        "@microsoft/teams.ai#build",
+        "@microsoft/teams.apps#build",
+        "@microsoft/teams.common#build",
+        "@microsoft/teams.dev#build"
       ]
     }
   }

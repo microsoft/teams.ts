@@ -16,7 +16,7 @@ import {
   useModalAttributes,
   useToastController,
 } from '@fluentui/react-components';
-import { CardAttachmentType, Attachment, cardAttachment } from '@microsoft/spark.api';
+import { CardAttachmentType, Attachment, cardAttachment } from '@microsoft/teams.api';
 
 import { VALID_CARD_TYPES } from '../../../types/ValidCardTypes';
 import { isMacOS } from '../../../utils/get-os';
@@ -146,9 +146,12 @@ const PasteCardDialog: FC<PasteCardDialogProps> = memo(
                 className={classes.textarea}
                 rows={10}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                  if (e.key === 'Enter' && (!isMac ? e.ctrlKey : e.metaKey)) {
                     e.preventDefault();
                     handleSave();
+                  }
+                  if (e.key === 'Escape') {
+                    onClose();
                   }
                 }}
               />

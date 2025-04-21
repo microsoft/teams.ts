@@ -1,5 +1,5 @@
-import { ConsoleLogger } from '@microsoft/spark.common/logging';
+import { ConsoleLogger } from '@microsoft/teams.common/logging';
 
-const Logger = new ConsoleLogger('@spark/devtools');
+const Logger = new ConsoleLogger('@teams/devtools');
 
 export default Logger;

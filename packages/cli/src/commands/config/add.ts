@@ -3,7 +3,7 @@ import path from 'node:path';
 import url from 'node:url';
 
 import { CommandModule } from 'yargs';
-import { String } from '@microsoft/spark.common';
+import { String } from '@microsoft/teams.common';
 
 import { Project } from '../../project';
 import { IContext } from '../../context';

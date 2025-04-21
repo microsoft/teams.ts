@@ -1,6 +1,6 @@
 import { FC, memo, useCallback, useMemo, useState } from 'react';
 import { Image } from '@fluentui/react-components';
-import { Attachment } from '@microsoft/spark.api';
+import { Attachment } from '@microsoft/teams.api';
 
 import { AttachmentType } from '../../types/Attachment';
 import AttachmentsContainer from '../AttachmentsContainer/AttachmentsContainer';

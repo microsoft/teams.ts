@@ -9,7 +9,7 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       {
         type: 'input',
         name: 'name',
-        message: 'Package name (without @microsoft/spark. prefix):',
+        message: 'Package name (without @microsoft/teams. prefix):',
       },
       {
         type: 'input',
@@ -32,7 +32,7 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       {
         type: 'add',
         path: 'packages/{{name}}/jest.config.js',
-        template: "module.exports = require('@microsoft/spark.config/jest.config');\n",
+        template: "module.exports = require('@microsoft/teams.config/jest.config');\n",
       },
       {
         type: 'add',
@@ -42,7 +42,7 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       {
         type: 'add',
         path: 'packages/{{name}}/tsup.config.js',
-        template: "module.exports = require('@microsoft/spark.config/tsup.config');\n",
+        template: "module.exports = require('@microsoft/teams.config/tsup.config');\n",
       },
       {
         type: 'add',

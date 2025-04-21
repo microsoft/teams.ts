@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
-import { IContainer } from '@microsoft/spark.cards';
+import { IContainer } from '@microsoft/teams.cards';
 
 import Card from '../Card';
 

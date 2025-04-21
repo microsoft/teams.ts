@@ -5,8 +5,8 @@ import express from 'express';
 import { WebSocket, WebSocketServer } from 'ws';
 import * as uuid from 'uuid';
 
-import { ActivityParams, ConversationReference, IToken } from '@microsoft/spark.api';
-import { ILogger, String } from '@microsoft/spark.common';
+import { ActivityParams, ConversationReference, IToken } from '@microsoft/teams.api';
+import { ILogger, String } from '@microsoft/teams.common';
 import {
   HttpPlugin,
   Logger,
@@ -21,7 +21,7 @@ import {
   Event,
   IErrorEvent,
   IActivityEvent,
-} from '@microsoft/spark.apps';
+} from '@microsoft/teams.apps';
 
 import pkg from '../package.json';
 
@@ -173,16 +173,19 @@ export class DevtoolsPlugin implements ISender {
   protected onSocketConnection(socket: WebSocket) {
     const id = uuid.v4();
     this.sockets.set(id, socket);
-    socket.emit('metadata', {
-      id: uuid.v4(),
-      type: 'metadata',
-      body: {
-        id: this.id?.toString(),
-        name: this.name?.toString(),
-        pages: this.pages,
-      },
-      sentAt: new Date(),
-    });
+
+    socket.send(
+      JSON.stringify({
+        id: uuid.v4(),
+        type: 'metadata',
+        body: {
+          id: this.id?.toString(),
+          name: this.name?.toString(),
+          pages: this.pages,
+        },
+        sentAt: new Date(),
+      })
+    );
 
     socket.on('disconnect', () => {
       this.sockets.delete(id);

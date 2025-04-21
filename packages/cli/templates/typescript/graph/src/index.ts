@@ -1,7 +1,7 @@
-import { MessageActivity } from '@microsoft/spark.api';
-import { App } from '@microsoft/spark.apps';
-import { DevtoolsPlugin } from '@microsoft/spark.dev';
-import { Card, CodeBlock } from '@microsoft/spark.cards';
+import { MessageActivity } from '@microsoft/teams.api';
+import { App } from '@microsoft/teams.apps';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
+import { Card, CodeBlock } from '@microsoft/teams.cards';
 
 const app = new App({
   plugins: [new DevtoolsPlugin()],

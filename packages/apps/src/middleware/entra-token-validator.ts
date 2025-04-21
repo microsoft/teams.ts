@@ -1,7 +1,7 @@
 import jwt, { type JwtPayload } from 'jsonwebtoken';
 import jwksClient, { JwksClient } from 'jwks-rsa';
 
-import { ILogger } from '@microsoft/spark.common';
+import { ILogger } from '@microsoft/teams.common';
 
 /**
  * Entra token validator parameters

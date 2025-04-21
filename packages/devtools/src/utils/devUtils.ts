@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Attachment, Message } from '@microsoft/spark.api';
+import { Attachment, Message } from '@microsoft/teams.api';
 import { useLocation } from 'react-router';
 
 import Logger from '../components/Logger/Logger';

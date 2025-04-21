@@ -1,5 +1,5 @@
-import { Activity, InvokeResponse, IToken } from '@microsoft/spark.api';
-import { ILogger } from '@microsoft/spark.common/logging';
+import { Activity, InvokeResponse, IToken } from '@microsoft/teams.api';
+import { ILogger } from '@microsoft/teams.common/logging';
 
 export type RouteContext = {
   readonly port: number;

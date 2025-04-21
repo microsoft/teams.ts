@@ -1,4 +1,4 @@
-import { Activity, ConversationReference, IToken } from '@microsoft/spark.api';
+import { Activity, ConversationReference, IToken } from '@microsoft/teams.api';
 
 import { ISender } from './sender';
 

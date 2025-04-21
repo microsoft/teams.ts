@@ -1,8 +1,8 @@
-import { ChatPrompt } from '@microsoft/spark.ai';
-import { App } from '@microsoft/spark.apps';
-import { DevtoolsPlugin } from '@microsoft/spark.dev';
-import { McpClientPlugin } from '@microsoft/spark.mcpclient';
-import { OpenAIChatModel } from '@microsoft/spark.openai';
+import { ChatPrompt } from '@microsoft/teams.ai';
+import { App } from '@microsoft/teams.apps';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
+import { McpClientPlugin } from '@microsoft/teams.mcpclient';
+import { OpenAIChatModel } from '@microsoft/teams.openai';
 
 const app = new App({
   plugins: [new DevtoolsPlugin()],

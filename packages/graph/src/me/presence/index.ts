@@ -1,5 +1,5 @@
 import { getInjectedUrl } from '@utils/url';
-import * as http from '@microsoft/spark.common/http';
+import * as http from '@microsoft/teams.common/http';
 
 import pkg from 'src/../package.json';
 import type { Endpoints } from './index-types.ts';
@@ -23,7 +23,7 @@ export class PresenceClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `spark[graph]/${pkg.version}`,
+          'User-Agent': `teams[graph]/${pkg.version}`,
         },
       });
     } else if ('request' in options) {
@@ -31,7 +31,7 @@ export class PresenceClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `spark[graph]/${pkg.version}`,
+          'User-Agent': `teams[graph]/${pkg.version}`,
         },
       });
     } else {
@@ -40,7 +40,7 @@ export class PresenceClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `spark[graph]/${pkg.version}`,
+          'User-Agent': `teams[graph]/${pkg.version}`,
           ...options.headers,
         },
       });

@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { Button, Tooltip } from '@fluentui/react-components';
-import { IOpenUrlAction } from '@microsoft/spark.cards';
+import { IOpenUrlAction } from '@microsoft/teams.cards';
 
 import useActionCardStyles from './Actions.styles';
 

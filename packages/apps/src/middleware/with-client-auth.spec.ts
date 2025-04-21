@@ -14,14 +14,14 @@ const tokenValidatorMock = {
 };
 const mockRequestHeaders = {
   Authorization: 'Bearer valid-token',
-  'X-Spark-App-Session-Id': 'test-app-session-id',
-  'X-Spark-Page-Id': 'test-page-id',
-  'X-Spark-Channel-Id': 'test-channel-id',
-  'X-Spark-Chat-Id': 'test-chat-id',
-  'X-Spark-Meeting-Id': 'test-meeting-id',
-  'X-Spark-Message-Id': 'test-message-id',
-  'X-Spark-Sub-Page-Id': 'test-sub-page-id',
-  'X-Spark-Team-Id': 'test-team-id',
+  'X-Teams-App-Session-Id': 'test-app-session-id',
+  'X-Teams-Page-Id': 'test-page-id',
+  'X-Teams-Channel-Id': 'test-channel-id',
+  'X-Teams-Chat-Id': 'test-chat-id',
+  'X-Teams-Meeting-Id': 'test-meeting-id',
+  'X-Teams-Message-Id': 'test-message-id',
+  'X-Teams-Sub-Page-Id': 'test-sub-page-id',
+  'X-Teams-Team-Id': 'test-team-id',
 } as const;
 
 describe('withClientAuth Middleware', () => {
@@ -81,8 +81,8 @@ describe('withClientAuth Middleware', () => {
 
   it.each`
     missingHeader
-    ${'X-Spark-App-Session-Id'}
-    ${'X-Spark-Page-Id'}
+    ${'X-Teams-App-Session-Id'}
+    ${'X-Teams-Page-Id'}
   `('should return 401 if the $missingHeader header is missing', async ({ missingHeader }) => {
     mockRequest.header = (headerName: keyof typeof mockRequestHeaders) =>
       headerName === missingHeader ? undefined : mockRequestHeaders[headerName];

@@ -1,4 +1,4 @@
-import { Activity } from '@microsoft/spark.api';
+import { Activity } from '@microsoft/teams.api';
 
 export function getActivityPath(activity: Activity): string {
   const path: Array<string> = [activity.type];

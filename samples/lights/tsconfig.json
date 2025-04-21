@@ -1,8 +1,11 @@
 {
-  "extends": "@microsoft/spark.config/tsconfig.node.json",
+  "extends": "@microsoft/teams.config/tsconfig.node.json",
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src"
+  },
+  "ts-node": {
+    "transpileOnly": true
   },
   "include": ["src/**/*.ts"]
 }

@@ -1,7 +1,7 @@
 import { ComponentProps, FC, Suspense, lazy, memo } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
 import { FluentIcon } from '@fluentui/react-icons/lib/fonts';
-import { IIcon } from '@microsoft/spark.cards';
+import { IIcon } from '@microsoft/teams.cards';
 
 import { useIconCardStyles } from './Medias.styles';
 

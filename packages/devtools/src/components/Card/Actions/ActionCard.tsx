@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Action } from '@microsoft/spark.cards';
+import { Action } from '@microsoft/teams.cards';
 
 import ExecuteActionCard from './ExecuteActionCard';
 import OpenUrlActionCard from './OpenUrlActionCard';

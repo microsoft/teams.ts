@@ -1,8 +1,8 @@
-import { App } from '@microsoft/spark.apps';
-import { ChatPrompt, Message } from '@microsoft/spark.ai';
-import { LocalStorage } from '@microsoft/spark.common/storage';
-import { DevtoolsPlugin } from '@microsoft/spark.dev';
-import { OpenAIChatModel } from '@microsoft/spark.openai';
+import { App } from '@microsoft/teams.apps';
+import { ChatPrompt, Message } from '@microsoft/teams.ai';
+import { LocalStorage } from '@microsoft/teams.common/storage';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
+import { OpenAIChatModel } from '@microsoft/teams.openai';
 
 const storage = new LocalStorage<Array<Message>>();
 const app = new App({
