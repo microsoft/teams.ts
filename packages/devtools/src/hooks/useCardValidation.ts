@@ -1,4 +1,4 @@
-import { CardAttachmentType, Attachment, cardAttachment } from '@microsoft/spark.api';
+import { CardAttachmentType, Attachment, cardAttachment } from '@microsoft/teams.api';
 
 import { isTeamsUnsupportedCardType } from '../types/TeamsCardTypes';
 import { VALID_CARD_TYPES } from '../types/ValidCardTypes';
