@@ -3,7 +3,7 @@ import { Client, ClientOptions } from '@modelcontextprotocol/sdk/client/index.js
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 
-type McpClientServerDetails = {
+type McpClientToolDetails = {
   name: string;
   description: string;
   schema: Schema;
@@ -12,7 +12,8 @@ type McpClientServerDetails = {
 type PromiseOrValue<T> = T | Promise<T>;
 type ValueOrFactory<T> = T | (() => PromiseOrValue<T>);
 
-type McpClientPluginArgs = {
+type McpClientPluginParams = {
+  availableTools?: McpClientToolDetails[];
   /**
    * optional headers to pass in per request
    */
@@ -40,26 +41,10 @@ type McpClientPluginArgs = {
   onError?: (error: any) => PromiseOrValue<any>;
 };
 
-type AllOrNothing<T extends Record<string, any>> = T | Partial<Record<keyof T, never>>;
-
-export type McpClientPluginParams = McpClientPluginArgs & AllOrNothing<McpClientServerDetails>;
-
-const getServerDetails = (params: McpClientPluginParams): McpClientServerDetails | null => {
-  if (params.schema != null) {
-    return {
-      name: params.name,
-      description: params.description,
-      schema: params.schema,
-    };
-  }
-
-  return null;
-};
-
 /**
  * A map of Mcp client params keyed off of their corresponding urls
  */
-export type McpClientPluginParamsCache = Record<string, McpClientPluginParams[]>;
+export type McpClientPluginParamsCache = Record<string, McpClientPluginParams>;
 
 /**
  * A function that creates a transport for the Mcp client
@@ -104,7 +89,7 @@ export interface McpClientPluginUseParams {
    * If not provided, the client will fetch the params from the server
    * or use the cached params if provided
    */
-  params?: McpClientPluginParams[];
+  params?: McpClientPluginParams;
 }
 
 export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientPluginUseParams> {
@@ -132,7 +117,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
   }
   protected _cache: McpClientPluginParamsCache;
 
-  private readonly _mcpServerUrlsByParams: Record<string, McpClientPluginParams[] | undefined> = {};
+  private readonly _mcpServerUrlsByParams: Record<string, McpClientPluginParams | undefined> = {};
 
   private createTransport: CreateTransport | null;
 
@@ -151,7 +136,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     this.createTransport = createTransport ?? null;
   }
 
-  onUsePlugin(args: { url: string; params?: McpClientPluginParams[] }) {
+  onUsePlugin(args: { url: string; params?: McpClientPluginParams }) {
     this._mcpServerUrlsByParams[args.url] = args.params;
   }
 
@@ -159,8 +144,9 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     // First, handle all fetching needs
     const fetchNeeded = Object.entries(this._mcpServerUrlsByParams)
       .map(([url, params]) => {
-        const paramsToFetch = (params ?? this._cache[url] ?? []).some(getServerDetails);
-        if (!paramsToFetch) {
+        const paramsToFetch =
+          params?.availableTools ?? this._cache[url].availableTools ?? undefined;
+        if (paramsToFetch == null) {
           return url;
         }
         return null;
@@ -171,7 +157,10 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     if (fetchNeeded.length > 0) {
       const tools = await this.getTools(fetchNeeded);
       for (const [url, params] of Object.entries(tools)) {
-        this._cache[url] = params;
+        this._cache[url] = {
+          ...this._cache[url],
+          availableTools: params,
+        };
       }
     }
 
@@ -179,34 +168,33 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     const allFunctions: Function[] = [];
 
     for (const [url, params] of Object.entries(this._mcpServerUrlsByParams)) {
-      const resolvedParams = (params ?? this._cache[url] ?? []).filter(
-        (p): p is McpClientServerDetails & McpClientPluginArgs => p.schema != null
-      );
+      const resolvedParams = params ?? this._cache[url];
+      const paramsWithOtherArgs =
+        resolvedParams?.availableTools?.map((serverDetail) => {
+          const { availableTools, ...otherParams } = resolvedParams;
+          return {
+            ...serverDetail,
+            otherParams,
+          };
+        }) ?? [];
 
-      const functions = resolvedParams.map((param) => ({
+      const functions = paramsWithOtherArgs.map((param) => ({
         name: param.name,
         description: param.description,
         parameters: param.schema || {},
         handler: async (args: any) => {
-          const [client, transport] = this.makeMcpClientPlugin(url, param.headers);
+          const [client, transport] = await this.makeMcpClientPlugin(
+            url,
+            param.otherParams.headers
+          );
           try {
             await client.connect(transport);
             const result = await client.callTool({
               name: param.name,
               arguments: args,
             });
-            if (param.onSuccess) {
-              return await param.onSuccess(result.content);
-            }
 
             return result.content;
-          } catch (e) {
-            console.error(e);
-            if (param.onError) {
-              return await param.onError(e);
-            }
-
-            throw e;
           } finally {
             await client.close();
           }
@@ -219,7 +207,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     return incomingFunctions.concat(allFunctions);
   }
 
-  async getTools(urls: string[]): Promise<McpClientPluginParamsCache> {
+  async getTools(urls: string[]): Promise<Record<string, McpClientToolDetails[]>> {
     const toolCallResult = await Promise.all(
       urls.map(async (url) => {
         const tools = await this.fetchTools(url);
@@ -230,8 +218,11 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     return Object.fromEntries(toolCallResult);
   }
 
-  private async fetchTools(url: string, headers?: ValueOrFactory<Record<string, string>>): Promise<McpClientPluginParams[]> {
-    const [client, transport] = this.makeMcpClientPlugin(url, headers);
+  private async fetchTools(
+    url: string,
+    headers?: ValueOrFactory<Record<string, string>>
+  ): Promise<McpClientToolDetails[]> {
+    const [client, transport] = await this.makeMcpClientPlugin(url, headers);
     try {
       await client.connect(transport);
       const tools = await client.listTools();
@@ -248,8 +239,16 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     }
   }
 
-  private makeMcpClientPlugin(serverUrl: string, headers: ValueOrFactory<Record<string, string>> | undefined) {
-    const transport = this.createTransport?(serverUrl) ?? await buildSSEClientTransport(serverUrl, headers);
+  private async makeMcpClientPlugin(
+    serverUrl: string,
+    headers: ValueOrFactory<Record<string, string>> | undefined
+  ) {
+    let transport: Transport;
+    if (this.createTransport != null) {
+      transport = this.createTransport(serverUrl);
+    } else {
+      transport = await buildSSEClientTransport(serverUrl, headers);
+    }
 
     const client = new Client(
       {
@@ -266,9 +265,9 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
 const buildSSEClientTransport = async (
   url: string,
   headers: ValueOrFactory<Record<string, string>> | undefined
-) => {
+): Promise<SSEClientTransport> => {
   const resolvedHeaders = typeof headers === 'function' ? await headers() : headers;
-  // We need to include headers like this because of 
+  // We need to include headers like this because of
   // https://github.com/modelcontextprotocol/typescript-sdk/issues/118
   return new SSEClientTransport(new URL(url), {
     requestInit: {
