@@ -235,7 +235,7 @@ function editProfileCard() {
 
   return card;
 }
-// :snippet-end
+// :snippet-end:
 
 // :snippet-start: input-validation
 function createProfileCardInputValidation() {
@@ -270,12 +270,10 @@ const app = new App({
   plugins: [new DevtoolsPlugin()],
 });
 
-// :snippet-start: message-handler
 app.on('message', async ({ send, activity }) => {
   await send({ type: 'typing' });
 
   switch (activity.text.toLowerCase()) {
-    // :remove-start:
     case '!basic':
       await send(createBasicCard());
       break;
@@ -294,14 +292,12 @@ app.on('message', async ({ send, activity }) => {
     case '!json':
       await send(createJsonCard());
       break;
-    // :remove-end:
     case '!profile':
       await send(editProfileCard());
       break;
     case '!profile-input-validation':
       await send(createProfileCardInputValidation());
       break;
-    // :remove-start:
     default:
       await send(
         new Card().withBody(
@@ -312,11 +308,10 @@ app.on('message', async ({ send, activity }) => {
           new TextBlock('!actions - Show card with multiple action types')
         )
       );
-    // :remove-end:
   }
 });
-// :snippet-end:
 
+// :snippet-start: message-handler
 app.on('card.action', async ({ activity, send }) => {
   const data = activity.value?.action?.data;
   if (!data?.action) {
@@ -337,6 +332,7 @@ app.on('card.action', async ({ activity, send }) => {
   console.debug('Received action data:', data);
 
   switch (data.action) {
+    // :remove-start:
     case 'submit_basic':
       await send(`Notification preference set to: ${data.notify}`);
       break;
@@ -353,6 +349,7 @@ app.on('card.action', async ({ activity, send }) => {
       );
       break;
 
+    // :remove-end:
     case 'submit_feedback':
       await send(`Feedback received: ${data.feedback}`);
       break;
@@ -388,6 +385,7 @@ app.on('card.action', async ({ activity, send }) => {
     value: 'Action processed successfully',
   } satisfies AdaptiveCardActionMessageResponse;
 });
+// :snippet-end:
 
 (async () => {
   await app.start(+(process.env.PORT || 3000));
