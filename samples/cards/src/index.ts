@@ -172,13 +172,21 @@ function createActionCard() {
     }),
     new TextInput({ id: 'feedback' }).withLabel('Feedback').withPlaceholder('Enter your feedback'),
     // :snippet-start: multiple-actions-card
+    /**
+     * import {
+     *  Card,
+     *  ExecuteAction,
+     *  OpenUrlAction,
+     *  ActionSet,
+     * } from "@microsoft/teams.cards";
+     */
     new ActionSet(
       new ExecuteAction({ title: 'Submit Feedback' })
         .withData({ action: 'submit_feedback' })
         .withAssociatedInputs('auto'),
       new OpenUrlAction('https://adaptivecards.microsoft.com').withTitle('Learn More')
-      // :snippet-end:
     )
+    // :snippet-end:
   );
 }
 
@@ -191,6 +199,7 @@ function createActionCardMixed() {
     new TextInput({ id: 'feedback' }).withLabel('Feedback').withPlaceholder('Enter your feedback'),
     new ActionSet(
       // :snippet-start: single-action
+      /** import { ExecuteAction } from "@microsoft/teams.cards"; */
       new ExecuteAction({ title: 'Submit Feedback' })
         .withData({ action: 'submit_feedback' })
         .withAssociatedInputs('auto'),
