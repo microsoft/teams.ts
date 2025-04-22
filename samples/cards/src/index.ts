@@ -9,6 +9,8 @@ import {
   ChoiceSetInput,
   DateInput,
   ExecuteAction,
+  ICard,
+  NumberInput,
   OpenUrlAction,
   TextBlock,
   TextInput,
@@ -16,9 +18,19 @@ import {
 } from '@microsoft/teams.cards';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
-// 1. Basic Card with Text and Toggle
 function createBasicCard() {
-  return new Card(
+  // :snippet-start: basic-card-building
+  /**
+ import {
+  Card,
+  TextBlock,
+  ToggleInput,
+  ExecuteAction,
+  ActionSet,
+} from "@microsoft/teams.cards";
+*/
+
+  const card = new Card(
     new TextBlock('Hello world', { wrap: true, weight: 'bolder' }),
     new ToggleInput('Notify me').withId('notify'),
     new ActionSet(
@@ -27,9 +39,20 @@ function createBasicCard() {
         .withAssociatedInputs('auto')
     )
   );
+  // :snippet-end:
+
+  return card;
 }
 
-// 2. Form Card with Multiple Inputs
+// @ts-expect-error
+function invalidCard() {
+  // :snippet-start: improved-type-checking
+  // @ts-expect-error: "huge" is not a valid size for TextBlock
+  const textBlock = new TextBlock('Valid', { size: 'huge' });
+  // :snippet-end:
+}
+
+// :snippet-start: form-card
 function createFormCard() {
   return new Card().withBody(
     new TextBlock('Please fill out the below form:', {
@@ -56,8 +79,59 @@ function createFormCard() {
     )
   );
 }
+// :snippet-end:
 
-// 3. Task Management Card
+function createJsonCard() {
+  // :snippet-start: raw-card-json
+  const rawCard: ICard = {
+    type: 'AdaptiveCard',
+    body: [
+      {
+        text: 'Please fill out the below form to send a game purchase request.',
+        wrap: true,
+        type: 'TextBlock',
+        style: 'heading',
+      },
+      {
+        columns: [
+          {
+            width: 'stretch',
+            items: [
+              {
+                choices: [
+                  { title: 'Call of Duty', value: 'call_of_duty' },
+                  { title: "Death's Door", value: 'deaths_door' },
+                  { title: 'Grand Theft Auto V', value: 'grand_theft' },
+                  { title: 'Minecraft', value: 'minecraft' },
+                ],
+                style: 'filtered',
+                placeholder: 'Search for a game',
+                id: 'choiceGameSingle',
+                type: 'Input.ChoiceSet',
+                label: 'Game:',
+              },
+            ],
+            type: 'Column',
+          },
+        ],
+        type: 'ColumnSet',
+      },
+    ],
+    actions: [
+      {
+        title: 'Request purchase',
+        type: 'Action.Execute',
+        data: { action: 'purchase_item' },
+      },
+    ],
+    version: '1.5',
+  };
+  // :snippet-end:
+
+  return rawCard;
+}
+
+// :snippet-start: task-form-card
 function createTaskCard() {
   return new Card().withBody(
     new TextBlock('Create New Task', {
@@ -88,8 +162,8 @@ function createTaskCard() {
     )
   );
 }
+// :snippet-end:
 
-// 4. Card with Multiple Actions
 function createActionCard() {
   return new Card().withBody(
     new TextBlock('Multiple Action Types Demo', {
@@ -97,23 +171,111 @@ function createActionCard() {
       weight: 'bolder',
     }),
     new TextInput({ id: 'feedback' }).withLabel('Feedback').withPlaceholder('Enter your feedback'),
+    // :snippet-start: multiple-actions-card
     new ActionSet(
       new ExecuteAction({ title: 'Submit Feedback' })
         .withData({ action: 'submit_feedback' })
         .withAssociatedInputs('auto'),
-      new OpenUrlAction('Learn More').withUrl('https://adaptivecards.microsoft.com')
+      new OpenUrlAction('https://adaptivecards.microsoft.com').withTitle('Learn More')
+      // :snippet-end:
     )
   );
 }
+
+function createActionCardMixed() {
+  return new Card().withBody(
+    new TextBlock('Single Action Types Demo', {
+      size: 'large',
+      weight: 'bolder',
+    }),
+    new TextInput({ id: 'feedback' }).withLabel('Feedback').withPlaceholder('Enter your feedback'),
+    new ActionSet(
+      // :snippet-start: single-action
+      new ExecuteAction({ title: 'Submit Feedback' })
+        .withData({ action: 'submit_feedback' })
+        .withAssociatedInputs('auto'),
+      // :snippet-end:
+      // :snippet-start: raw-json-action
+      {
+        type: 'Action.OpenUrl',
+        url: 'https://adaptivecards.microsoft.com',
+        title: 'Learn More',
+      } as const
+      // :snippet-end:
+    )
+  );
+}
+
+// :snippet-start: inputs-included
+function editProfileCard() {
+  const card = new Card().withBody(
+    new TextInput({ id: 'name' }).withLabel('Name').withValue('John Doe'),
+    new TextInput({ id: 'email', label: 'Email', value: 'john@contoso.com' }),
+    new ToggleInput('Subscribe to newsletter').withId('subscribe').withValue('false'),
+    new ActionSet(
+      new ExecuteAction({ title: 'Save' })
+        .withData({
+          action: 'save_profile',
+          entityId: '12345', // This will come back once the user submits
+        })
+        .withAssociatedInputs('auto')
+    )
+  );
+
+  // Data received in handler
+  /**
+  {
+    action: "save_profile",
+    entityId: "12345",     // From action data
+    name: "John Doe",      // From name input
+    email: "john@doe.com", // From email input
+    subscribe: "true"      // From toggle input (as string)
+  }
+  */
+
+  return card;
+}
+// :snippet-end
+
+// :snippet-start: input-validation
+function createProfileCardInputValidation() {
+  const ageInput = new NumberInput({ id: 'age' })
+    .withLabel('Age')
+    .withRequired(true)
+    .withMin(0)
+    .withMax(120);
+
+  const nameInput = new TextInput({ id: 'name' })
+    .withLabel('Name')
+    .withRequired()
+    .withError('Name is required!'); // Custom error messages
+  const card = new Card().withBody(
+    nameInput,
+    ageInput,
+    new TextInput({ id: 'location' }).withLabel('Location'),
+    new ActionSet(
+      new ExecuteAction({ title: 'Save' })
+        .withData({
+          action: 'save_profile',
+        })
+        .withAssociatedInputs('auto') // All inputs should be validated
+    )
+  );
+
+  return card;
+}
+// :snippet-end:
 
 const app = new App({
   plugins: [new DevtoolsPlugin()],
 });
 
+// :snippet-start: message-handler
 app.on('message', async ({ send, activity }) => {
   await send({ type: 'typing' });
 
   switch (activity.text.toLowerCase()) {
+    // :remove-start:
     case '!basic':
       await send(createBasicCard());
       break;
@@ -126,6 +288,20 @@ app.on('message', async ({ send, activity }) => {
     case '!actions':
       await send(createActionCard());
       break;
+    case '!mixed-action':
+      await send(createActionCardMixed());
+      break;
+    case '!json':
+      await send(createJsonCard());
+      break;
+    // :remove-end:
+    case '!profile':
+      await send(editProfileCard());
+      break;
+    case '!profile-input-validation':
+      await send(createProfileCardInputValidation());
+      break;
+    // :remove-start:
     default:
       await send(
         new Card().withBody(
@@ -136,8 +312,10 @@ app.on('message', async ({ send, activity }) => {
           new TextBlock('!actions - Show card with multiple action types')
         )
       );
+    // :remove-end:
   }
 });
+// :snippet-end:
 
 app.on('card.action', async ({ activity, send }) => {
   const data = activity.value?.action?.data;
@@ -155,6 +333,8 @@ app.on('card.action', async ({ activity, send }) => {
       },
     } satisfies AdaptiveCardActionErrorResponse;
   }
+
+  console.debug('Received action data:', data);
 
   switch (data.action) {
     case 'submit_basic':
@@ -175,6 +355,16 @@ app.on('card.action', async ({ activity, send }) => {
 
     case 'submit_feedback':
       await send(`Feedback received: ${data.feedback}`);
+      break;
+
+    case 'purchase_item':
+      await send(`Purchase request received for game: ${data.choiceGameSingle}`);
+      break;
+
+    case 'save_profile':
+      await send(
+        `Profile saved!\nName: ${data.name}\nEmail: ${data.email}\nSubscribed: ${data.subscribe}`
+      );
       break;
 
     default:
