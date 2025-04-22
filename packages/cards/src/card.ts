@@ -122,11 +122,6 @@ export class Card implements ICard {
   type: 'AdaptiveCard';
 
   /**
-   * The Adaptive Card schema.
-   */
-  $schema: string;
-
-  /**
    * Schema version that this card requires. If a client is lower than this version, the fallbackText will be rendered. NOTE: Version is not required for cards within an Action.ShowCard. However, it is required for the top-level card.
    */
   version: '1.0' | '1.1' | '1.2' | '1.3' | '1.4' | '1.5' | '1.6';
@@ -199,17 +194,11 @@ export class Card implements ICard {
   constructor(...body: Element[]) {
     this.type = 'AdaptiveCard';
     this.body = body;
-    this.$schema = 'http://adaptivecards.io/schemas/adaptive-card.json';
     this.version = '1.6';
   }
 
   withOptions(value: CardOptions) {
     Object.assign(this, value);
-    return this;
-  }
-
-  withSchema(value: string) {
-    this.$schema = value;
     return this;
   }
 
