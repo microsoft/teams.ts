@@ -93,6 +93,11 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         path: 'samples/{{name}}/src/index.ts',
         templateFile: 'templates/sample-index.ts.hbs',
       },
+      {
+        type: 'add',
+        path: 'samples/{{name}}/.gitignore',
+        templateFile: 'templates/sample-gitignore.hbs',
+      },
     ],
   });
 }
