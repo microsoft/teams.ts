@@ -246,18 +246,18 @@ const app = new App({
   plugins: [new DevtoolsPlugin()],
 });
 
-const cardGeneratorByName: Record<string, { generateCard: () => ICard; description: string }> = {
-  basic: { generateCard: createBasicCard, description: 'Show basic card with toggle' },
-  form: { generateCard: createFormCard, description: 'Show form with multiple inputs' },
-  actions: { generateCard: createActionCard, description: 'Show card with multiple action types' },
+const cardGeneratorByName: Record<string, { generator: () => ICard; description: string }> = {
+  basic: { generator: createBasicCard, description: 'Show basic card with toggle' },
+  form: { generator: createFormCard, description: 'Show form with multiple inputs' },
+  actions: { generator: createActionCard, description: 'Show card with multiple action types' },
   'mixed-action': {
-    generateCard: createActionCardMixed,
+    generator: createActionCardMixed,
     description: 'Show card with mixed action types',
   },
-  json: { generateCard: createJsonCard, description: 'Show card with raw JSON' },
-  profile: { generateCard: editProfileCard, description: 'Show card with profile editing' },
+  json: { generator: createJsonCard, description: 'Show card with raw JSON' },
+  profile: { generator: editProfileCard, description: 'Show card with profile editing' },
   'profile-input-validation': {
-    generateCard: createProfileCardInputValidation,
+    generator: createProfileCardInputValidation,
     description: 'Show card with input validation',
   },
 };
@@ -270,7 +270,7 @@ app.on('message', async ({ send, activity }) => {
   const cardGenerator = cardGeneratorByName[activity.text.toLowerCase().slice(1)];
 
   if (cardGenerator) {
-    const card: ICard = cardGenerator.generateCard();
+    const card: ICard = cardGenerator.generator();
     await send(card);
     return;
   }
