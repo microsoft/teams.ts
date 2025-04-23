@@ -55,7 +55,7 @@ type AppState =
       context: teamsJs.app.Context;
     };
 
-type ExecOptions = (
+export type ExecOptions = (
   | { msalTokenRequest: msal.SilentRequest; permission?: never }
   | { msalTokenRequest?: never; permission: string }
   | { msalTokenRequest?: never; permission?: never }

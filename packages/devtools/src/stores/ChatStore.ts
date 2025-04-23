@@ -71,8 +71,7 @@ const createMessageBase = (
 };
 
 const getFeedbackState = (event: ActivityEvent<any>) => ({
-  feedbackLoopEnabled:
-    event.type === 'activity.sent' ? (event.body.channelData?.feedbackLoopEnabled ?? true) : false,
+  feedbackLoopEnabled: event.body.channelData?.feedbackLoopEnabled ? true : false,
 });
 
 const clearTimer = (timers: Record<string, NodeJS.Timeout>, id: string) => {
@@ -237,7 +236,8 @@ export const useChatStore = create<ChatStore>()(
 
         state.typing[event.chat.id] = true;
 
-        if (event.body.channelData?.streamType === 'streaming') {
+        const streamEntity = event.body.entities?.find((e) => e.type === 'streaminfo');
+        if (streamEntity?.streamType === 'streaming') {
           return state.onStreamChunkActivity(event, state);
         }
 
@@ -261,7 +261,8 @@ export const useChatStore = create<ChatStore>()(
       onMessageSendActivity: (event, state) => {
         state.typing[state.chat.id] = false;
 
-        if (event.body.channelData?.streamType === 'final') {
+        const streamEntity = event.body.entities?.find((e) => e.type === 'streaminfo');
+        if (streamEntity?.streamType === 'final') {
           return state.onStreamMessageActivity(event, state);
         }
 
@@ -351,20 +352,23 @@ export const useChatStore = create<ChatStore>()(
         };
       },
       onStreamChunkActivity: (event, state) => {
-        clearTimer(streamingTimers, event.body.id);
+        const streamEntity = event.body.entities?.find((e) => e.type === 'streaminfo');
+        const streamId = streamEntity?.streamId || event.body.id;
 
-        streamingTimers[event.body.id] = setTimeout(() => {
-          clearTimer(streamingTimers, event.body.id);
+        clearTimer(streamingTimers, streamId);
+
+        streamingTimers[streamId] = setTimeout(() => {
+          clearTimer(streamingTimers, streamId);
 
           set((state) => ({
             ...state,
             streaming: {
               ...state.streaming,
-              [event.body.id]: false,
+              [streamId]: false,
             },
             feedback: {
               ...state.feedback,
-              [event.body.id]: getFeedbackState(event).feedbackLoopEnabled,
+              [streamId]: getFeedbackState(event).feedbackLoopEnabled,
             },
           }));
         }, DEFAULT_TIMER_DURATION);
@@ -382,17 +386,20 @@ export const useChatStore = create<ChatStore>()(
           ...state,
           streaming: {
             ...state.streaming,
-            [event.body.id]: true,
+            [streamId]: true,
           },
           feedback: {
             ...state.feedback,
-            [event.body.id]: getFeedbackState(event).feedbackLoopEnabled,
+            [streamId]: getFeedbackState(event).feedbackLoopEnabled,
           },
         };
       },
       onStreamMessageActivity: (event, state) => {
+        const streamEntity = event.body.entities?.find((e) => e.type === 'streaminfo');
+        const streamId = streamEntity?.streamId || event.body.id;
         const baseMessage = createMessageBase(event);
-        clearTimer(streamingTimers, baseMessage.id);
+
+        clearTimer(streamingTimers, streamId);
 
         state.put(event.chat.id, {
           ...baseMessage,
@@ -408,11 +415,11 @@ export const useChatStore = create<ChatStore>()(
           ...state,
           streaming: {
             ...state.streaming,
-            [event.body.id]: false,
+            [streamId]: false,
           },
           feedback: {
             ...state.feedback,
-            [event.body.id]: getFeedbackState(event).feedbackLoopEnabled,
+            [streamId]: getFeedbackState(event).feedbackLoopEnabled,
           },
         };
       },
