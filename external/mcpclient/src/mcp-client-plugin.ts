@@ -64,13 +64,13 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     const fetchNeeded = Object.entries(this._mcpServerUrlsByParams)
       .map(([url, params]) => {
         const paramsToFetch =
-          params?.availableTools ?? this._cache[url].availableTools ?? undefined;
+          params?.availableTools ?? this._cache[url]?.availableTools ?? undefined;
         if (paramsToFetch == null) {
-          return url;
+          return { url, ...params };
         }
         return null;
       })
-      .filter((url): url is string => url != null);
+      .filter((res): res is NonNullable<typeof res> => res != null);
 
     // Fetch all needed params in parallel
     if (fetchNeeded.length > 0) {
@@ -126,10 +126,12 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     return incomingFunctions.concat(allFunctions);
   }
 
-  async getTools(urls: string[]): Promise<Record<string, McpClientToolDetails[]>> {
+  async getTools(
+    params: ({ url: string } & Pick<McpClientPluginParams, 'headers'>)[]
+  ): Promise<Record<string, McpClientToolDetails[]>> {
     const toolCallResult = await Promise.all(
-      urls.map(async (url) => {
-        const tools = await this.fetchTools(url);
+      params.map(async ({ url, headers }) => {
+        const tools = await this.fetchTools(url, headers);
         return [url, tools];
       })
     );

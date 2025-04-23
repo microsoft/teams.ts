@@ -17,27 +17,6 @@ type McpClientPluginParams = {
    * optional headers to pass in per request
    */
   headers?: ValueOrFactory<Record<string, string>>;
-
-  /**
-   * an optional function to call on a successful response
-   * @param response the response from the server
-   * @returns a value to be treated as a successful response
-   *
-   * Use this to intercept successful responses and override them
-   */
-  onSuccess?: (response: unknown) => PromiseOrValue<any>;
-
-  /**
-   * an optional function to call on an error response.
-   * If the function returns a value, it will override the error
-   * and be treated as a successful response
-   * If it throws, it'll be treated as an error
-   *
-   * Use this to intercept errors and handle them in a custom way
-   * @param error the error from the server
-   * @returns a successful response override
-   */
-  onError?: (error: any) => PromiseOrValue<any>;
 };
 
 /**
