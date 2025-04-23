@@ -30,9 +30,8 @@ export class TaskFetchAction extends SubmitAction implements ITaskFetchAction {
     return new TaskFetchAction(options.data, options);
   }
 
-  withData(value: ITaskFetchData & { [key: string]: any } = { type: 'task/fetch' }) {
-    super.withData(value);
-
+  withData(value: MSTeamsData<ITaskFetchData>) {
+    this.data = value;
     return this;
   }
 
