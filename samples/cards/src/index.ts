@@ -279,45 +279,42 @@ const app = new App({
   plugins: [new DevtoolsPlugin()],
 });
 
+const cardGeneratorByName: Record<string, { generator: () => ICard; description: string }> = {
+  basic: { generator: createBasicCard, description: 'Show basic card with toggle' },
+  form: { generator: createFormCard, description: 'Show form with multiple inputs' },
+  task: { generator: createTaskCard, description: 'Show task management card' },
+  actions: { generator: createActionCard, description: 'Show card with multiple action types' },
+  'mixed-action': {
+    generator: createActionCardMixed,
+    description: 'Show card with mixed action types',
+  },
+  json: { generator: createJsonCard, description: 'Show card with raw JSON' },
+  profile: { generator: editProfileCard, description: 'Show card with profile editing' },
+  'profile-input-validation': {
+    generator: createProfileCardInputValidation,
+    description: 'Show card with input validation',
+  },
+};
+
+const usageCard = new Card().withBody(
+  new TextBlock('Available commands:', { weight: 'bolder' }),
+  ...Object.entries(cardGeneratorByName).map(
+    ([command, { description }]) => new TextBlock(`!${command} - ${description}`)
+  )
+);
+
 app.on('message', async ({ send, activity }) => {
   await send({ type: 'typing' });
 
-  switch (activity.text.toLowerCase()) {
-    case '!basic':
-      await send(createBasicCard());
-      break;
-    case '!form':
-      await send(createFormCard());
-      break;
-    case '!task':
-      await send(createTaskCard());
-      break;
-    case '!actions':
-      await send(createActionCard());
-      break;
-    case '!mixed-action':
-      await send(createActionCardMixed());
-      break;
-    case '!json':
-      await send(createJsonCard());
-      break;
-    case '!profile':
-      await send(editProfileCard());
-      break;
-    case '!profile-input-validation':
-      await send(createProfileCardInputValidation());
-      break;
-    default:
-      await send(
-        new Card().withBody(
-          new TextBlock('Available commands:', { weight: 'bolder' }),
-          new TextBlock('!basic - Show basic card with toggle'),
-          new TextBlock('!form - Show form with multiple inputs'),
-          new TextBlock('!task - Show task management card'),
-          new TextBlock('!actions - Show card with multiple action types')
-        )
-      );
+  const cardGenerator = cardGeneratorByName[activity.text.toLowerCase().slice(1)];
+
+  if (cardGenerator) {
+    const card = cardGenerator.generator();
+    await send(card);
+    return;
   }
+
+  await send(usageCard);
 });
 
 // :snippet-start: message-handler
