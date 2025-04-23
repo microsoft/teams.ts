@@ -131,39 +131,6 @@ function createJsonCard() {
   return rawCard;
 }
 
-// :snippet-start: task-form-card
-function createTaskCard() {
-  return new Card().withBody(
-    new TextBlock('Create New Task', {
-      size: 'large',
-      weight: 'bolder',
-    }),
-    new TextInput({ id: 'title' }).withLabel('Task Title').withPlaceholder('Enter task title'),
-    new TextInput({ id: 'description' })
-      .withLabel('Description')
-      .withPlaceholder('Enter task details')
-      .withMultiLine(true),
-    new ChoiceSetInput(
-      { title: 'High', value: 'high' },
-      { title: 'Medium', value: 'medium' },
-      { title: 'Low', value: 'low' }
-    )
-      .withId('priority')
-      .withLabel('Priority')
-      .withValue('medium'),
-    new DateInput({ id: 'due_date' })
-      .withLabel('Due Date')
-      .withValue(new Date().toISOString().split('T')[0]),
-    new ActionSet(
-      new ExecuteAction({ title: 'Create Task' })
-        .withData({ action: 'create_task' })
-        .withAssociatedInputs('auto')
-        .withStyle('positive')
-    )
-  );
-}
-// :snippet-end:
-
 function createActionCard() {
   return new Card().withBody(
     new TextBlock('Multiple Action Types Demo', {
@@ -279,43 +246,78 @@ const app = new App({
   plugins: [new DevtoolsPlugin()],
 });
 
-const cardGeneratorByName: Record<string, { generator: () => ICard; description: string }> = {
-  basic: { generator: createBasicCard, description: 'Show basic card with toggle' },
-  form: { generator: createFormCard, description: 'Show form with multiple inputs' },
-  task: { generator: createTaskCard, description: 'Show task management card' },
-  actions: { generator: createActionCard, description: 'Show card with multiple action types' },
+const cardGeneratorByName: Record<string, { generateCard: () => ICard; description: string }> = {
+  basic: { generateCard: createBasicCard, description: 'Show basic card with toggle' },
+  form: { generateCard: createFormCard, description: 'Show form with multiple inputs' },
+  actions: { generateCard: createActionCard, description: 'Show card with multiple action types' },
   'mixed-action': {
-    generator: createActionCardMixed,
+    generateCard: createActionCardMixed,
     description: 'Show card with mixed action types',
   },
-  json: { generator: createJsonCard, description: 'Show card with raw JSON' },
-  profile: { generator: editProfileCard, description: 'Show card with profile editing' },
+  json: { generateCard: createJsonCard, description: 'Show card with raw JSON' },
+  profile: { generateCard: editProfileCard, description: 'Show card with profile editing' },
   'profile-input-validation': {
-    generator: createProfileCardInputValidation,
+    generateCard: createProfileCardInputValidation,
     description: 'Show card with input validation',
   },
 };
 
-const usageCard = new Card().withBody(
-  new TextBlock('Available commands:', { weight: 'bolder' }),
-  ...Object.entries(cardGeneratorByName).map(
-    ([command, { description }]) => new TextBlock(`!${command} - ${description}`)
-  )
-);
-
+// :snippet-start: sending-adaptive-card-e2e
 app.on('message', async ({ send, activity }) => {
   await send({ type: 'typing' });
+  // :remove-start:
 
   const cardGenerator = cardGeneratorByName[activity.text.toLowerCase().slice(1)];
 
   if (cardGenerator) {
-    const card = cardGenerator.generator();
+    const card: ICard = cardGenerator.generateCard();
     await send(card);
     return;
   }
+  const usageCard = new Card().withBody(
+    new TextBlock('Available commands:', { weight: 'bolder' }),
+    ...Object.entries(cardGeneratorByName).map(
+      ([command, { description }]) => new TextBlock(`!${command} - ${description}`)
+    )
+  );
 
   await send(usageCard);
+
+  // :remove-end:
+  const card = new Card().withBody(
+    new TextBlock('Create New Task', {
+      size: 'large',
+      weight: 'bolder',
+    }),
+    new TextInput({ id: 'title' }).withLabel('Task Title').withPlaceholder('Enter task title'),
+    new TextInput({ id: 'description' })
+      .withLabel('Description')
+      .withPlaceholder('Enter task details')
+      .withMultiLine(true),
+    new ChoiceSetInput(
+      { title: 'High', value: 'high' },
+      { title: 'Medium', value: 'medium' },
+      { title: 'Low', value: 'low' }
+    )
+      .withId('priority')
+      .withLabel('Priority')
+      .withValue('medium'),
+    new DateInput({ id: 'due_date' })
+      .withLabel('Due Date')
+      .withValue(new Date().toISOString().split('T')[0]),
+    new ActionSet(
+      new ExecuteAction({ title: 'Create Task' })
+        .withData({ action: 'create_task' })
+        .withAssociatedInputs('auto')
+        .withStyle('positive')
+    )
+  );
+  await send(card);
+  // Or build a complex activity out that includes the card:
+  // const message  = new MessageActivity('Enter this form').addCard('adaptive', card);
+  // await send(message);
 });
+// :snippet-end:
 
 // :snippet-start: message-handler
 app.on('card.action', async ({ activity, send }) => {
