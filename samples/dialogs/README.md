@@ -1,16 +1,24 @@
-# Sample: dialogs
+# Sample: cards
 
-a sample demonstrating various types of dialogs (aka. task-modules) in Teams
+a demo of dialogs in Teams
+
+## Prerequisites
+
+- Node.js version 20 or later
+- An Microsoft 365 development account. If you don't have one, you can get one for free by signing up for the [Microsoft 365 Developer Program](https://developer.microsoft.com/microsoft-365/dev-program).
 
 ## Run
 
 ```bash
 npm install
-npm run dev
 ```
 
-## Features
+To run on teams, run:
 
-- Example of using dialogs functionality with Teams
-- Built with Teams.ts SDK
-- TypeScript for type safety and modern development
+```bash
+npx @microsoft/teams.cli config add ttk.basic
+```
+
+This will add all the ttk related configs.
+
+Then run the sample via ttk.
