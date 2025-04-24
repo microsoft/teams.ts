@@ -43,8 +43,7 @@ export class TaskFetchAction extends SubmitAction implements ITaskFetchAction {
   }
 
   withValue(value: TaskFetchDataValues) {
-    const { msteams, ...rest } = value;
-    Object.assign(this.data, rest);
+    super.withData({ ...value, msteams: { type: 'task/fetch' } });
     return this;
   }
 }
