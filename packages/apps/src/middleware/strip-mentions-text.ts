@@ -1,4 +1,4 @@
-import * as api from '@microsoft/spark.api';
+import * as api from '@microsoft/teams.api';
 
 import { IActivityContext } from '../contexts';
 

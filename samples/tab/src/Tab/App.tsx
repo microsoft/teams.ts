@@ -1,6 +1,6 @@
 import React from 'react';
-import * as client from '@microsoft/spark.client';
-import { ConsoleLogger } from '@microsoft/spark.common';
+import * as client from '@microsoft/teams.client';
+import { ConsoleLogger } from '@microsoft/teams.common';
 
 import './App.css';
 

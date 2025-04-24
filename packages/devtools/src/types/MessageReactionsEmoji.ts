@@ -1,4 +1,4 @@
-import { MessageReactionType } from '@microsoft/spark.api';
+import { MessageReactionType } from '@microsoft/teams.api';
 
 export type MessageReactionsEmoji = Array<{
   readonly label: string;

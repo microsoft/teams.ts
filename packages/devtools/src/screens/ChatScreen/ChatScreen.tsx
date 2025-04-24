@@ -5,7 +5,7 @@ import {
   MessageUpdateActivity,
   MessageDeleteActivity,
   MessageReaction,
-} from '@microsoft/spark.api';
+} from '@microsoft/teams.api';
 
 import ChatMessageEdit from '../../components/ChatMessage/MessageUpdate/ChatMessageEdit';
 import Chat from '../../components/Chat/Chat';
@@ -14,7 +14,7 @@ import ChatMessageContainer from '../../components/ChatMessage/ChatMessageContai
 import ComposeBox from '../../components/ComposeBox/ComposeBox';
 import Logger from '../../components/Logger/Logger';
 import TypingIndicator from '../../components/TypingIndicator/TypingIndicator';
-import useSparkApi from '../../hooks/useSparkApi';
+import useTeamsApi from '../../hooks/useTeamsApi';
 import { useCardStore } from '../../stores/CardStore';
 import { useChatStore } from '../../stores/ChatStore';
 import { MessageActionUIPayload } from '../../types/MessageActionUI';
@@ -46,7 +46,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
   const { editingMessageId, clearCurrentCard, setEditingMessageId } = useCardStore();
   const [messageHistory, setMessageHistory] = useState<Partial<Message>[]>([]);
   const [currentlyEditingMessageId, setCurrentlyEditingMessageId] = useState<string | null>(null);
-  const sparkApi = useSparkApi();
+  const teamsApi = useTeamsApi();
 
   const handleCardProcessed = useCallback(() => {
     childLog.info('Card processed, clearing from store');
@@ -99,7 +99,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
                     }
                   : undefined,
               });
-              await sparkApi.conversations.activities(chat.id).create(updateActivity);
+              await teamsApi.conversations.activities(chat.id).create(updateActivity);
               removeDeletedMessage(chat.id, action.id);
             } else if (!action.eventType) {
               // Regular edit
@@ -112,7 +112,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
               id: action.id,
               channelData: { eventType: 'softDeleteMessage' },
             });
-            await sparkApi.conversations.activities(chat.id).create(deleteActivity);
+            await teamsApi.conversations.activities(chat.id).create(deleteActivity);
             addDeletedMessage(chat.id, originalMessage);
             break;
 
@@ -129,7 +129,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
               });
             }
 
-            await sparkApi.conversations.activities(chat.id).create({
+            await teamsApi.conversations.activities(chat.id).create({
               id: action.id,
               type: 'messageReaction',
               reactionsAdded: added,
@@ -141,7 +141,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
         childLog.error('Error handling message action:', err);
       }
     },
-    [chat.id, getMessageById, sparkApi.conversations, addDeletedMessage, removeDeletedMessage]
+    [chat.id, getMessageById, teamsApi.conversations, addDeletedMessage, removeDeletedMessage]
   );
 
   const handleConfirmCancel = useCallback(() => {
@@ -175,20 +175,20 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
           value: messageBody,
         });
 
-        await sparkApi.conversations.activities(chat.id).create(updateActivity);
+        await teamsApi.conversations.activities(chat.id).create(updateActivity);
         setCurrentlyEditingMessageId(null);
         setEditingMessageId(null);
       } catch (err) {
         childLog.error('Error updating message:', err);
       }
     },
-    [getMessageById, sparkApi.conversations, chat.id, setEditingMessageId]
+    [getMessageById, teamsApi.conversations, chat.id, setEditingMessageId]
   );
 
   const onSendMessage = useCallback(
     async (message: Partial<Message>) => {
       try {
-        await sparkApi.conversations.activities(chat.id).create({
+        await teamsApi.conversations.activities(chat.id).create({
           type: 'message',
           text: message.body?.content || '',
           attachments: message.attachments || [],
@@ -197,7 +197,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
         childLog.error('Error sending message:', err);
       }
     },
-    [sparkApi, chat?.id]
+    [teamsApi, chat?.id]
   );
 
   const handleMessageHistory = useCallback((message: Partial<Message>) => {

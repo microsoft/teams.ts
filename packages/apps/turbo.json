@@ -6,9 +6,9 @@
       "outputs": [".next/**", "!.next/cache/**"],
       "cache": false,
       "dependsOn": [
-        "@microsoft/spark.api#build",
-        "@microsoft/spark.common#build",
-        "@microsoft/spark.graph#build"
+        "@microsoft/teams.api#build",
+        "@microsoft/teams.common#build",
+        "@microsoft/teams.graph#build"
       ]
     }
   }

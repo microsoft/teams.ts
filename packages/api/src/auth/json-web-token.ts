@@ -62,12 +62,25 @@ export class JsonWebToken implements IToken {
     return CallerIds.azure;
   }
 
+  get expiration(): number | undefined {
+    if (this._payload.exp) {
+      return this._payload.exp * 1000;
+    }
+
+    return undefined;
+  }
+
   private readonly _value: string;
   private readonly _payload: JsonWebTokenPayload;
 
   constructor(value: string) {
     this._value = value;
     this._payload = jwtDecode(value);
+  }
+
+  isExpired(bufferMs = 1000 * 60 * 5) {
+    if (!this.expiration) return false;
+    return this.expiration < Date.now() + bufferMs;
   }
 
   toString() {

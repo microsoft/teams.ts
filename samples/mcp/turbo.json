@@ -6,14 +6,14 @@
       "outputs": [".next/**", "!.next/cache/**"],
       "cache": false,
       "dependsOn": [
-        "@microsoft/spark.api#build",
-        "@microsoft/spark.apps#build",
-        "@microsoft/spark.cards#build",
-        "@microsoft/spark.common#build",
-        "@microsoft/spark.dev#build",
-        "@microsoft/spark.graph#build",
-        "@microsoft/spark.openai#build",
-        "@microsoft/spark.mcp#build"
+        "@microsoft/teams.api#build",
+        "@microsoft/teams.apps#build",
+        "@microsoft/teams.cards#build",
+        "@microsoft/teams.common#build",
+        "@microsoft/teams.dev#build",
+        "@microsoft/teams.graph#build",
+        "@microsoft/teams.openai#build",
+        "@microsoft/teams.mcp#build"
       ]
     }
   }

@@ -1,4 +1,4 @@
-import { ICard } from '@microsoft/spark.cards';
+import { ICard } from '@microsoft/teams.cards';
 
 import { ActivityParams } from '../clients';
 

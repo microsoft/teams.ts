@@ -2,7 +2,7 @@ import {
   ISignInTokenExchangeInvokeActivity,
   ISignInVerifyStateInvokeActivity,
   TokenResponse,
-} from '@microsoft/spark.api';
+} from '@microsoft/teams.api';
 
 import { IActivityContext } from './activity';
 

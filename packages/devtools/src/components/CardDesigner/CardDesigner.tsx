@@ -1,5 +1,5 @@
 import { FC, memo, useCallback, useEffect, useRef, useState } from 'react';
-import { ActionSet, Card, Element, ICard, Icon, TextBlock } from '@microsoft/spark.cards';
+import { ActionSet, Card, Element, ICard, Icon, TextBlock } from '@microsoft/teams.cards';
 import estree from 'prettier/plugins/estree';
 import parserTypeScript from 'prettier/plugins/typescript';
 import prettier from 'prettier/standalone';

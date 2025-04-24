@@ -1,5 +1,5 @@
 import { FC, memo, useEffect, useState } from 'react';
-import { ICodeBlock } from '@microsoft/spark.cards';
+import { ICodeBlock } from '@microsoft/teams.cards';
 import hljs from 'highlight.js/lib/core';
 import bash from 'highlight.js/lib/languages/bash';
 import c from 'highlight.js/lib/languages/c';

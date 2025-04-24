@@ -1,10 +1,18 @@
 import * as msal from '@azure/msal-browser';
-import { ILogger } from '@microsoft/spark.common/logging';
+import { ILogger } from '@microsoft/teams.common/logging';
 
 /**
- * Token request scopes used as a fallback when acquiring a token silently.
+ * Gets a silent request used to acquire an Entra access token for invoking remote functions on behalf of a user.
+ * @param remoteClientId The client ID of the remote application.
+ * @param permission The permission to request. Defaults to 'access_as_user'.
+ * @returns
  */
-export const fallbackSilentRequestScopes: readonly string[] = ['User.Read'] as const;
+export const getStandardExecSilentRequest = (
+  remoteClientId: string,
+  permission = 'access_as_user'
+): msal.SilentRequest => ({
+  scopes: [`api://${remoteClientId}/${permission}`],
+});
 
 /**
  * Builds a default MSAL configuration for the specified client ID.
@@ -52,19 +60,15 @@ export const buildMsalConfig = (clientId: string, logger: ILogger): msal.Configu
  * and if that fails with an InteractionRequiredAuthError, it falls back to acquiring the
  * token via a popup.
  * @param msalInstance The MSAL instance to use for acquiring the token.
- * @param request The token request object. If not provided, a default request with fallback scopes is used.
+ * @param request The token request object.
  * @param logger The logger instance to use for logging errors.
  * @returns A promise that resolves to the acquired access token.
  */
 export const acquireMsalAccessToken = async (
   msalInstance: Pick<msal.IPublicClientApplication, 'acquireTokenSilent' | 'acquireTokenPopup'>,
-  request: msal.SilentRequest | undefined,
+  request: msal.SilentRequest,
   logger: ILogger
 ): Promise<string> => {
-  request = request ?? {
-    scopes: [...fallbackSilentRequestScopes],
-  };
-
   try {
     const response = await msalInstance.acquireTokenSilent(request);
     return response.accessToken;

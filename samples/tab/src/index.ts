@@ -1,8 +1,8 @@
 import path from 'path';
 
-import { App } from '@microsoft/spark.apps';
-import { ConsoleLogger } from '@microsoft/spark.common/logging';
-import { DevtoolsPlugin } from '@microsoft/spark.dev';
+import { App } from '@microsoft/teams.apps';
+import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 const app = new App({
   logger: new ConsoleLogger('@samples/tab', { level: 'debug' }),

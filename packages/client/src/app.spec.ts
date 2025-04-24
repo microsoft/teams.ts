@@ -63,9 +63,9 @@ jest.mock('@azure/msal-browser', () => {
   };
 });
 
-jest.mock('@microsoft/spark.common/http', () => {
+jest.mock('@microsoft/teams.common/http', () => {
   return {
-    ...jest.requireActual('@microsoft/spark.common/http'),
+    ...jest.requireActual('@microsoft/teams.common/http'),
     Client: jest.fn().mockImplementation(() => {
       return {
         post: httpClientPostMock,
@@ -256,7 +256,7 @@ describe('App', () => {
       expect(acquireMsalAccessTokenSpy).toHaveBeenCalledTimes(1);
       expect(acquireMsalAccessTokenSpy).toHaveBeenLastCalledWith(
         app.msalInstance,
-        undefined,
+        { scopes: ['api://mock-client-id/access_as_user'] },
         app.log
       );
       expect(httpClientPostMock).toHaveBeenCalledTimes(1);
@@ -266,19 +266,14 @@ describe('App', () => {
         {
           headers: {
             authorization: `Bearer ${mockAccessToken}`,
-            'x-spark-app-client-id': 'mock-client-id',
-            'x-spark-app-id': 'mock-app-id',
-            'x-spark-app-session-id': 'mock-session-id',
-            'x-spark-app-tenant-id': 'mock-app-tenant-id',
-            'x-spark-channel-id': 'mock-channel-id',
-            'x-spark-chat-id': 'mock-chat-id',
-            'x-spark-meeting-id': 'mock-meeting-id',
-            'x-spark-message-id': 'mock-parent-message-id',
-            'x-spark-page-id': 'mock-page-id',
-            'x-spark-sub-page-id': 'mock-sub-page-id',
-            'x-spark-team-id': undefined,
-            'x-spark-tenant-id': 'mock-tenant-id',
-            'x-spark-user-id': 'mock-user-id',
+            'x-teams-app-session-id': 'mock-session-id',
+            'x-teams-channel-id': 'mock-channel-id',
+            'x-teams-chat-id': 'mock-chat-id',
+            'x-teams-meeting-id': 'mock-meeting-id',
+            'x-teams-message-id': 'mock-parent-message-id',
+            'x-teams-page-id': 'mock-page-id',
+            'x-teams-sub-page-id': 'mock-sub-page-id',
+            'x-teams-team-id': undefined,
           },
         }
       );
@@ -293,14 +288,33 @@ describe('App', () => {
       await app.start();
       await app.exec('myFunction', undefined, {
         msalTokenRequest: {
-          scopes: ['Analytics.Read'],
+          scopes: ['my_custom_scope'],
         },
       });
 
       expect(acquireMsalAccessTokenSpy).toHaveBeenCalledTimes(1);
       expect(acquireMsalAccessTokenSpy).toHaveBeenLastCalledWith(
         app.msalInstance,
-        { scopes: ['Analytics.Read'] },
+        { scopes: ['my_custom_scope'] },
+        app.log
+      );
+      expect(httpClientPostMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('should invoke a remote function with custom permission', async () => {
+      httpClientPostMock.mockResolvedValue({
+        data: 'mock result',
+      });
+      const app = new App(mockClientId, { logger: mockLogger });
+      await app.start();
+      await app.exec('myFunction', undefined, {
+        permission: 'my_custom_permission',
+      });
+
+      expect(acquireMsalAccessTokenSpy).toHaveBeenCalledTimes(1);
+      expect(acquireMsalAccessTokenSpy).toHaveBeenLastCalledWith(
+        app.msalInstance,
+        { scopes: ['api://mock-client-id/my_custom_permission'] },
         app.log
       );
       expect(httpClientPostMock).toHaveBeenCalledTimes(1);
@@ -321,7 +335,7 @@ describe('App', () => {
       expect(acquireMsalAccessTokenSpy).toHaveBeenCalledTimes(1);
       expect(acquireMsalAccessTokenSpy).toHaveBeenLastCalledWith(
         app.msalInstance,
-        undefined,
+        { scopes: ['api://mock-client-id/access_as_user'] },
         app.log
       );
       expect(httpClientPostMock).toHaveBeenCalledTimes(1);

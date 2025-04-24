@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
-import { IActionSet } from '@microsoft/spark.cards';
+import { IActionSet } from '@microsoft/teams.cards';
 
 import ActionCard from '../Actions/ActionCard';
 

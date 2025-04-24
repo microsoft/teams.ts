@@ -1,9 +1,9 @@
-import { ChatPrompt } from '@microsoft/spark.ai';
-import { App } from '@microsoft/spark.apps';
-import { ConsoleLogger } from '@microsoft/spark.common/logging';
-import { DevtoolsPlugin } from '@microsoft/spark.dev';
-import { McpPlugin } from '@microsoft/spark.mcp';
-import { OpenAIChatModel } from '@microsoft/spark.openai';
+import { ChatPrompt } from '@microsoft/teams.ai';
+import { App } from '@microsoft/teams.apps';
+import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
+import { McpPlugin } from '@microsoft/teams.mcp';
+import { OpenAIChatModel } from '@microsoft/teams.openai';
 
 const prompt = new ChatPrompt({
   model: new OpenAIChatModel({

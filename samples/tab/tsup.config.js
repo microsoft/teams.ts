@@ -1,4 +1,4 @@
-const base = require('@microsoft/spark.config/tsup.config');
+const base = require('@microsoft/teams.config/tsup.config');
 
 /**
  * @type {import('tsup').Options}

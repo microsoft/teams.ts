@@ -16,7 +16,7 @@ export type ConfigResponse = {
   /**
    * @member {ConfigResponseConfig} [config] The ConfigResponse config of BotConfigAuth or TaskModuleResponse
    */
-  config: ConfigAuth | TaskModuleResponse;
+  config: ConfigAuth | TaskModuleResponse['task'];
 
   /**
    * @member {string} [responseType] The type of response 'config'.

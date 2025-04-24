@@ -1,4 +1,4 @@
-import { IconName } from '@microsoft/spark.cards';
+import { IconName } from '@microsoft/teams.cards';
 
 /**
  * a custom Page that can be added

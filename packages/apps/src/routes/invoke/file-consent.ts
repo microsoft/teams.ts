@@ -1,4 +1,4 @@
-import { IFileConsentInvokeActivity, InvokeResponse } from '@microsoft/spark.api';
+import { IFileConsentInvokeActivity, InvokeResponse } from '@microsoft/teams.api';
 
 import { RouteHandler } from '../../types';
 import { IActivityContext } from '../../contexts';

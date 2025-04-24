@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
 
-import { String } from '@microsoft/spark.common';
+import { String } from '@microsoft/teams.common';
 import { CommandModule } from 'yargs';
 import { z } from 'zod';
 

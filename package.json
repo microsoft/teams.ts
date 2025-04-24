@@ -1,16 +1,16 @@
 {
-  "name": "@microsoft/spark.js",
-  "version": "0.2.6",
+  "name": "@microsoft/teams.ts",
+  "version": "0.2.12",
   "private": true,
-  "homepage": "https://github.com/microsoft/spark.js",
-  "bugs": "https://github.com/microsoft/spark.js/issues",
+  "homepage": "https://github.com/microsoft/teams.ts",
+  "bugs": "https://github.com/microsoft/teams.ts/issues",
   "packageManager": "npm@10.8.1",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/microsoft/spark.js.git"
+    "url": "https://github.com/microsoft/teams.ts.git"
   },
   "workspaces": [
     "packages/*",
@@ -38,12 +38,12 @@
     "lint:fix": "npx turbo lint:fix",
     "test": "npx turbo test --concurrency=100%",
     "fmt": "npx prettier --write \"**/*.{js,ts,tsx,md,json}\"",
-    "docs:build": "mdbook build book",
-    "docs:serve": "mdbook serve book"
+    "validate:snippets": "node ./scripts/validate-snippets.js"
   },
   "devDependencies": {
     "@changesets/cli": "latest",
     "@turbo/gen": "^2.4.4",
+    "bluehawk": "^1.6.0",
     "prettier": "^3.2.5",
     "turbo": "^2.4.0",
     "typescript": "^5.4.5"

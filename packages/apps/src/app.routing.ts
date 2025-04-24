@@ -1,4 +1,4 @@
-import { InvokeResponse } from '@microsoft/spark.api';
+import { InvokeResponse } from '@microsoft/teams.api';
 
 import { App } from './app';
 import { IActivityContext } from './contexts';

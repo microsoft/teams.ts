@@ -1,4 +1,4 @@
-import { Card, CodeBlock } from '@microsoft/spark.cards';
+import { Card, CodeBlock } from '@microsoft/teams.cards';
 
 import { MessageActivity } from '../message';
 import { toActivityParams } from './to-activity-params';

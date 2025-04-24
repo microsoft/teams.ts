@@ -1,4 +1,4 @@
-import { Activity } from '@microsoft/spark.api';
+import { Activity } from '@microsoft/teams.api';
 
 import { RouteHandler } from '../types';
 import { IActivityContext } from '../contexts';

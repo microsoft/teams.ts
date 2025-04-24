@@ -1,7 +1,7 @@
-import { EventEmitter } from '@microsoft/spark.common/events';
-import * as http from '@microsoft/spark.common/http';
-import { ConsoleLogger, ILogger } from '@microsoft/spark.common/logging';
-import { IStorage, LocalStorage } from '@microsoft/spark.common/storage';
+import { EventEmitter } from '@microsoft/teams.common/events';
+import * as http from '@microsoft/teams.common/http';
+import { ConsoleLogger, ILogger } from '@microsoft/teams.common/logging';
+import { IStorage, LocalStorage } from '@microsoft/teams.common/storage';
 import { AxiosError } from 'axios';
 
 import {
@@ -12,7 +12,7 @@ import {
   JsonWebToken,
   StripMentionsTextOptions,
   toActivityParams,
-} from '@microsoft/spark.api';
+} from '@microsoft/teams.api';
 
 import pkg from '../package.json';
 
@@ -105,6 +105,7 @@ export class App {
   readonly client: http.Client;
   readonly storage: IStorage;
   readonly credentials?: Credentials;
+  readonly entraTokenValidator?: middleware.EntraTokenValidator;
 
   /**
    * the apps id
@@ -157,7 +158,7 @@ export class App {
   /**
    * the apps auth tokens
    */
-  get tokens() {
+  get tokens(): AppTokens {
     return this._tokens;
   }
   protected _tokens: AppTokens = {};
@@ -170,10 +171,10 @@ export class App {
   protected startedAt?: Date;
   protected port?: number;
 
-  private readonly _userAgent = `spark[apps]/${pkg.version}`;
+  private readonly _userAgent = `teams[apps]/${pkg.version}`;
 
   constructor(readonly options: AppOptions = {}) {
-    this.log = this.options.logger || new ConsoleLogger('@spark/app');
+    this.log = this.options.logger || new ConsoleLogger('@teams/app');
     this.storage = this.options.storage || new LocalStorage();
     this._manifest = this.options.manifest || {};
     if (!options.client) {
@@ -235,6 +236,13 @@ export class App {
       };
     }
 
+    if (clientId) {
+      this.entraTokenValidator = new middleware.EntraTokenValidator({
+        clientId,
+        tenantId: tenantId || 'common',
+      });
+    }
+
     // add/validate plugins
     const plugins = this.options.plugins || [];
     let httpPlugin = plugins.find((p) => {
@@ -290,14 +298,7 @@ export class App {
     this.port = +(port || process.env.PORT || 3000);
 
     try {
-      if (this.credentials) {
-        const botResponse = await this.api.bots.token.get(this.credentials);
-        const graphResponse = await this.api.bots.token.getGraph(this.credentials);
-        this._tokens = {
-          bot: new JsonWebToken(botResponse.access_token),
-          graph: new JsonWebToken(graphResponse.access_token),
-        };
-      }
+      await this.refreshTokens(true);
 
       // initialize plugins
       for (const plugin of this.plugins) {
@@ -451,4 +452,37 @@ export class App {
   protected onActivity = onActivity;
   protected onActivitySent = onActivitySent;
   protected onActivityResponse = onActivityResponse;
+
+  ///
+  /// Token
+  ///
+
+  /**
+   * Refresh the tokens for the app
+   */
+  protected async refreshTokens(force = false) {
+    return Promise.all([this.refreshBotToken(force), this.refreshGraphToken(force)]);
+  }
+
+  protected async refreshBotToken(force = false) {
+    if (!this.credentials) return;
+    if (!this.tokens.bot?.isExpired() && !force) return;
+    if (this.tokens.bot) {
+      this.log.debug('refreshing bot token');
+    }
+
+    const botResponse = await this.api.bots.token.get(this.credentials);
+    this._tokens.bot = new JsonWebToken(botResponse.access_token);
+  }
+
+  protected async refreshGraphToken(force = false) {
+    if (!this.credentials) return;
+    if (!this.tokens.graph?.isExpired() && !force) return;
+    if (this.tokens.graph) {
+      this.log.debug('refreshing graph token');
+    }
+
+    const graphResponse = await this.api.bots.token.getGraph(this.credentials);
+    this._tokens.graph = new JsonWebToken(graphResponse.access_token);
+  }
 }

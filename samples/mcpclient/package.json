@@ -16,11 +16,11 @@
     "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\""
   },
   "dependencies": {
-    "@microsoft/spark.apps": "*",
-    "@microsoft/spark.ai": "*",
-    "@microsoft/spark.dev": "*",
-    "@microsoft/spark.openai": "*",
-    "@microsoft/spark.mcpclient": "*",
+    "@microsoft/teams.apps": "*",
+    "@microsoft/teams.ai": "*",
+    "@microsoft/teams.dev": "*",
+    "@microsoft/teams.openai": "*",
+    "@microsoft/teams.mcpclient": "*",
     "@modelcontextprotocol/sdk": "^1.9.0"
   },
   "devDependencies": {

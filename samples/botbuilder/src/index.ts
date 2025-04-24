@@ -1,7 +1,7 @@
-import { App } from '@microsoft/spark.apps';
-import { ConsoleLogger } from '@microsoft/spark.common/logging';
-import { BotBuilderPlugin } from '@microsoft/spark.botbuilder';
-import { DevtoolsPlugin } from '@microsoft/spark.dev';
+import { App } from '@microsoft/teams.apps';
+import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { BotBuilderPlugin } from '@microsoft/teams.botbuilder';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
 import { TeamsActivityHandler } from 'botbuilder';
 
 export class ActivityHandler extends TeamsActivityHandler {
@@ -21,7 +21,7 @@ const app = new App({
 });
 
 app.on('message', async ({ send }) => {
-  await send('hi from spark...');
+  await send('hi from teams...');
 });
 
 (async () => {

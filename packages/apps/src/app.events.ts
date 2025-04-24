@@ -1,4 +1,4 @@
-import { EventHandler } from '@microsoft/spark.common';
+import { EventHandler } from '@microsoft/teams.common';
 
 import { App } from './app';
 import { ISender } from './types';

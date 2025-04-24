@@ -1,8 +1,8 @@
-import { App } from '@microsoft/spark.apps';
-import { ConsoleLogger } from '@microsoft/spark.common/logging';
-import { MessageActivity } from '@microsoft/spark.api';
-import { Card, CodeBlock, Column, ColumnSet, TextBlock } from '@microsoft/spark.cards';
-import { DevtoolsPlugin } from '@microsoft/spark.dev';
+import { App } from '@microsoft/teams.apps';
+import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { MessageActivity } from '@microsoft/teams.api';
+import { Card, CodeBlock, Column, ColumnSet, TextBlock } from '@microsoft/teams.cards';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 const app = new App({
   logger: new ConsoleLogger('@samples/auth', { level: 'debug' }),

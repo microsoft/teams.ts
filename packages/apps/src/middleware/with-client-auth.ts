@@ -1,11 +1,13 @@
 import express from 'express';
 
-import { ILogger } from '@microsoft/spark.common';
-import { Credentials } from '@microsoft/spark.api';
+import { ILogger } from '@microsoft/teams.common';
+import { Credentials } from '@microsoft/teams.api';
 
 import { IClientContext } from '../contexts';
+import { EntraTokenValidator } from './entra-token-validator';
 
 export type WithClientAuthParams = Partial<Credentials> & {
+  entraTokenValidator?: Pick<EntraTokenValidator, 'validateAccessToken' | 'getTokenPayload'>;
   readonly logger: ILogger;
 };
 
@@ -14,45 +16,43 @@ export type ClientAuthRequest = express.Request & {
 };
 
 export function withClientAuth(params: WithClientAuthParams) {
+  const entraTokenValidator = params.entraTokenValidator;
   const log = params.logger;
-  const clientId = params.clientId;
-  const tenantId = 'tenantId' in params ? params.tenantId : undefined;
 
-  return (req: ClientAuthRequest, res: express.Response, next: express.NextFunction) => {
-    const appClientId = req.header('X-Spark-App-Client-Id');
-    const appTenantId = req.header('X-Spark-App-Tenant-Id');
-    const appSessionId = req.header('X-Spark-App-Session-Id');
-    const pageId = req.header('X-Spark-Page-Id');
+  return async (req: ClientAuthRequest, res: express.Response, next: express.NextFunction) => {
+    const appSessionId = req.header('X-Teams-App-Session-Id');
+    const pageId = req.header('X-Teams-Page-Id');
     const authorization = req.header('Authorization')?.split(' ');
     const authToken =
       authorization?.length === 2 && authorization[0].toLowerCase() === 'bearer'
         ? authorization[1]
-        : undefined;
+        : '';
 
-    if (
-      !pageId ||
-      !appSessionId ||
-      appClientId !== clientId ||
-      (tenantId && appTenantId !== tenantId)
-    ) {
+    const validatedToken = !entraTokenValidator
+      ? null
+      : await entraTokenValidator.validateAccessToken(log, authToken);
+
+    if (!pageId || !appSessionId || !validatedToken || !entraTokenValidator) {
       log.debug('unauthorized');
       res.status(401).send('unauthorized');
       return;
     }
 
+    const tokenPayload = entraTokenValidator.getTokenPayload(validatedToken);
+
     req.context = {
-      pageId,
+      appId: tokenPayload?.['appId'],
       appSessionId,
-      appId: req.header('X-Spark-App-Id'),
-      tenantId: req.header('X-Spark-Tenant-Id'),
-      userId: req.header('X-Spark-User-Id'),
-      teamId: req.header('X-Spark-Team-Id'),
-      messageId: req.header('X-Spark-Message-Id'),
-      channelId: req.header('X-Spark-Channel-Id'),
-      chatId: req.header('X-Spark-Chat-Id'),
-      meetingId: req.header('X-Spark-Meeting-Id'),
-      subPageId: req.header('X-Spark-Sub-Page-Id'),
       authToken,
+      channelId: req.header('X-Teams-Channel-Id'),
+      chatId: req.header('X-Teams-Chat-Id'),
+      meetingId: req.header('X-Teams-Meeting-Id'),
+      messageId: req.header('X-Teams-Message-Id'),
+      pageId,
+      subPageId: req.header('X-Teams-Sub-Page-Id'),
+      teamId: req.header('X-Teams-Team-Id'),
+      tenantId: tokenPayload?.['tid'],
+      userId: tokenPayload?.['oid'],
     };
 
     next();

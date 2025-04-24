@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Attachment } from '@microsoft/spark.api';
+import { Attachment } from '@microsoft/teams.api';
 import { useLocation } from 'react-router';
 
 import { useCardStore } from '../../stores/CardStore';

@@ -8,7 +8,7 @@ import {
   ToolbarProps,
   Tooltip,
 } from '@fluentui/react-components';
-import { Message, MessageReactionType } from '@microsoft/spark.api';
+import { Message, MessageReactionType } from '@microsoft/teams.api';
 import { useNavigate } from 'react-router';
 
 import useConversationScope from '../../hooks/useConversationScope';

@@ -1,4 +1,4 @@
-import { ActivityParams, ConversationReference, SentActivity } from '@microsoft/spark.api';
+import { ActivityParams, ConversationReference, SentActivity } from '@microsoft/teams.api';
 
 import { IStreamer } from '../streamer';
 import { IPlugin } from './plugin';
