@@ -265,8 +265,8 @@ export class ChatPrompt<
       throw new Error(`Plugin "${name}" not found`);
     }
 
-    this._log.debug(`Using plugin "${name}" with args:`, args);
     if (plugin.onUsePlugin) {
+      this._log.debug(`Using plugin "${name}" with args:`, args);
       plugin.onUsePlugin(args);
       this._log.debug(`Successfully initialized plugin "${name}"`);
     }
@@ -285,7 +285,7 @@ export class ChatPrompt<
   }
 
   async send(input: string | ContentPart[], options: ChatPromptSendOptions<TOptions> = {}) {
-    this._log.debug('Processing plugins before send');
+    this._log.debug(`Processing plugins before send (${this.plugins.length} plugins found)`);
     for (const plugin of this.plugins) {
       if (plugin.onBeforeSend) {
         this._log.debug(`Running onBeforeSend for plugin "${plugin.name}"`);
@@ -392,7 +392,7 @@ export class ChatPrompt<
       })));
     }
 
-    this._log.debug('Processing plugins after send');
+    this._log.debug(`Processing plugins after send (${this.plugins.length} plugins found)`);
     for (const plugin of this.plugins) {
       if (plugin.onAfterSend) {
         this._log.debug(`Running onAfterSend for plugin "${plugin.name}"`);

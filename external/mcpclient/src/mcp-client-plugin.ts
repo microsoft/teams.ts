@@ -2,6 +2,7 @@ import type { ChatPromptPlugin, Function, Schema } from '@microsoft/spark.ai';
 import { Client, ClientOptions } from '@modelcontextprotocol/sdk/client/index.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
+import { ConsoleLogger, ILogger } from '@microsoft/spark.common/logging';
 
 export type McpClientPluginParams = {
   name: string;
@@ -44,6 +45,12 @@ export type McpClientPluginOptions = ClientOptions & {
    * @default (url) => new SSEClientTransport(url)
    */
   createTransport?: CreateTransport;
+
+  /**
+   * Logger instance to use for logging
+   * If not provided, a ConsoleLogger will be used
+   */
+  logger?: ILogger;
 };
 
 export interface McpClientPluginUseParams {
@@ -88,6 +95,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
   private readonly _mcpServerUrlsByParams: Record<string, McpClientPluginParams[] | undefined> = {};
 
   private createTransport: CreateTransport;
+  protected readonly log: ILogger;
 
   constructor(options?: McpClientPluginOptions) {
     const {
@@ -95,6 +103,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
       version,
       cache,
       createTransport,
+      logger,
       ...clientOptions
     } = options || {};
     this._name = mcpClientName || 'mcpClient';
@@ -103,6 +112,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     this._clientOptions = clientOptions;
     this.createTransport =
       createTransport ?? ((url: string) => new SSEClientTransport(new URL(url)));
+    this.log = logger?.child(this._name) || new ConsoleLogger(this._name);
   }
 
   onUsePlugin(args: { url: string; params?: McpClientPluginParams[] }) {
@@ -115,7 +125,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
       .map(([url, params]) => {
         const paramsToFetch = params ?? this._cache[url] ?? undefined;
         if (paramsToFetch == null) {
-          console.debug(`[MCP Client] Need to fetch tools for URL: ${url}`);
+          this.log.debug(`Need to fetch tools for URL: ${url}`);
           return url;
         }
         return null;
@@ -124,11 +134,11 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
 
     // Fetch all needed params in parallel
     if (fetchNeeded.length > 0) {
-      console.debug(`[MCP Client] Fetching tools for ${fetchNeeded.length} URLs`);
+      this.log.debug(`Fetching tools for ${fetchNeeded.length} URLs`);
       const tools = await this.getTools(fetchNeeded);
       for (const [url, params] of Object.entries(tools)) {
         this._cache[url] = params;
-        console.debug(`[MCP Client] Cached ${params.length} tools for URL: ${url}`);
+        this.log.debug(`Cached ${params.length} tools for URL: ${url}`);
       }
     }
 
@@ -137,14 +147,14 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
 
     for (const [url, params] of Object.entries(this._mcpServerUrlsByParams)) {
       const resolvedParams = params ?? this._cache[url] ?? [];
-      console.debug(`[MCP Client] Building ${resolvedParams.length} functions for URL: ${url}`);
+      this.log.debug(`Building ${resolvedParams.length} functions for URL: ${url}`);
 
       const functions = resolvedParams.map((param) => ({
         name: param.name,
         description: param.description,
         parameters: param.schema || {},
         handler: async (args: any) => {
-          console.debug(`[MCP Client] Executing function ${param.name} with args:`, args);
+          this.log.debug(`Executing function ${param.name} with args:`, args);
           const [client, transport] = this.makeMcpClientPlugin(url);
           try {
             await client.connect(transport);
@@ -152,7 +162,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
               name: param.name,
               arguments: args,
             });
-            console.debug(`[MCP Client] Successfully executed ${param.name}`);
+            this.log.debug(`Successfully executed ${param.name}`);
             return result.content;
           } finally {
             await client.close();
@@ -163,7 +173,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
       allFunctions.push(...functions);
     }
 
-    console.debug(`[MCP Client] Built ${allFunctions.length} total functions`);
+    this.log.debug(`Built ${allFunctions.length} total functions`);
     return incomingFunctions.concat(allFunctions);
   }
 
@@ -179,20 +189,20 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
   }
 
   private async fetchTools(url: string): Promise<McpClientPluginParams[]> {
-    console.debug(`[MCP Client] Fetching tools from server: ${url}`);
+    this.log.debug(`Fetching tools from server: ${url}`);
     const [client, transport] = this.makeMcpClientPlugin(url);
     try {
       await client.connect(transport);
       const tools = await client.listTools();
-      console.debug(`[MCP Client] Successfully discovered ${tools.tools.length} tools from ${url}`);
-      console.debug('[MCP Client] Tools discovered:', JSON.stringify(tools.tools, null, 2));
+      this.log.debug(`Successfully discovered ${tools.tools.length} tools from ${url}`);
+      this.log.debug('Tools discovered:', JSON.stringify(tools.tools, null, 2));
       return tools.tools.map((tool) => ({
         name: tool.name,
         description: tool.description ?? '',
         schema: tool.inputSchema as Schema,
       }));
     } catch (e) {
-      console.error(`[MCP Client] Error fetching tools from ${url}:`, e);
+      this.log.error(`Error fetching tools from ${url}:`, e);
       throw e;
     } finally {
       await client.close();
