@@ -2,10 +2,10 @@ import { ISubmitAction, MSTeamsData, SubmitAction, SubmitActionOptions } from '.
 
 export type TaskFetchActionOptions = SubmitActionOptions & { data: MSTeamsData<ITaskFetchData> };
 
-export type ValidTaskFetchDataValues = {
+export type TaskFetchDataValues = {
   [key: string]: any;
 } & {
-  /** type is special */
+  /** type is special so we shouldn't allow overriding it */
   type?: never;
 };
 
@@ -22,7 +22,7 @@ export class TaskFetchAction extends SubmitAction implements ITaskFetchAction {
    */
   data: MSTeamsData<ITaskFetchData>;
 
-  constructor(value?: ValidTaskFetchDataValues, options: SubmitActionOptions = {}) {
+  constructor(value?: TaskFetchDataValues, options: SubmitActionOptions = {}) {
     super(options);
     Object.assign(this, options);
     this.data = {
@@ -42,7 +42,7 @@ export class TaskFetchAction extends SubmitAction implements ITaskFetchAction {
     return this;
   }
 
-  withValue(value: ValidTaskFetchDataValues) {
+  withValue(value: TaskFetchDataValues) {
     const { msteams, ...rest } = value;
     Object.assign(this.data, rest);
     return this;
@@ -58,7 +58,7 @@ export class TaskFetchData implements MSTeamsData<ITaskFetchData> {
     type: 'task/fetch' as const,
   };
 
-  constructor(data?: ValidTaskFetchDataValues) {
+  constructor(data?: TaskFetchDataValues) {
     // omit the msteams property if it exists
     if (data) {
       const { msteams, ...rest } = data;
