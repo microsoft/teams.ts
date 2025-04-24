@@ -86,12 +86,12 @@ $: npm run test
 > the `@microsoft/teams.cli` and follow the
 > [Getting Started](https://microsoft.github.io/teams-ai/2.getting-started/1.create-application.html) documentation!
 
-- [`@samples/echo`](./samples/echo/README.md)
-- [`@samples/botbuilder`](./samples/botbuilder/README.md)
-- [`@samples/auth`](./samples/auth/README.md)
-- [`@samples/lights`](./samples/lights/README.md)
-- [`@samples/tab`](./samples/tab/README.md)
-- [`@samples/mcp`](./samples/mcp/README.md)
+- [`@tests/echo`](./samples/echo/README.md)
+- [`@tests/botbuilder`](./samples/botbuilder/README.md)
+- [`@tests/auth`](./samples/auth/README.md)
+- [`@tests/lights`](./samples/lights/README.md)
+- [`@tests/tab`](./samples/tab/README.md)
+- [`@tests/mcp`](./samples/mcp/README.md)
 
 ## Links
 
