@@ -1,6 +1,7 @@
 import {
   AdaptiveCardActionErrorResponse,
   AdaptiveCardActionMessageResponse,
+  MessageActivity,
 } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import {
@@ -302,6 +303,33 @@ const usageCard = new Card().withBody(
     ([command, { description }]) => new TextBlock(`!${command} - ${description}`)
   )
 );
+
+// :snippet-start: sending-adaptive-card-e2e
+app.on(
+  'message',
+  async ({
+    send,
+    activity,
+    // :remove-start:
+    next,
+    // :remove-end:
+  }) => {
+    // :remove-start:
+    if (activity.text !== 'basic') {
+      await next();
+      return;
+    }
+    // :remove-end:
+    await send({ type: 'typing' });
+    const card: ICard = new Card().withBody(new TextBlock(`Hello ${activity.from.name}`));
+
+    await send(card);
+
+    // Or send it with some text
+    await send(new MessageActivity('Got your message!').addCard('adaptive', card));
+  }
+);
+// :snippet-end:
 
 app.on('message', async ({ send, activity }) => {
   await send({ type: 'typing' });

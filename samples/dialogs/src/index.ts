@@ -264,6 +264,8 @@ app.on('dialog.submit', async ({ activity, send, next }) => {
       )
       .addActions(
         new SubmitAction().withTitle('Submit').withData({
+          // This same handler will get called, so we need to identify the step
+          // in the returned data
           submissiondialogtype: 'webpage_dialog_step_2',
           // Carry forward data from previous step
           name,
@@ -271,9 +273,11 @@ app.on('dialog.submit', async ({ activity, send, next }) => {
       );
     return {
       task: {
+        // This indicates that the dialog flow should continue
         type: 'continue',
         value: {
-          title: `Thanks ${name} - get email`,
+          // Here we customize the title based on the previous response
+          title: `Thanks ${name} - Get Email`,
           card: cardAttachment('adaptive', nextStepCard),
         },
       },
