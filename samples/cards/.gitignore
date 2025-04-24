@@ -1,5 +1,4 @@
 teams*.yml
-appPackage/
 env/
 infra/
 node_modules/
