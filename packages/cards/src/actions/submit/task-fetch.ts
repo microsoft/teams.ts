@@ -2,6 +2,13 @@ import { ISubmitAction, MSTeamsData, SubmitAction, SubmitActionOptions } from '.
 
 export type TaskFetchActionOptions = SubmitActionOptions & { data: MSTeamsData<ITaskFetchData> };
 
+export type ValidTaskFetchDataValues = {
+  [key: string]: any;
+} & {
+  /** type is special */
+  type?: never;
+};
+
 export interface ITaskFetchAction extends ISubmitAction {
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
@@ -15,7 +22,7 @@ export class TaskFetchAction extends SubmitAction implements ITaskFetchAction {
    */
   data: MSTeamsData<ITaskFetchData>;
 
-  constructor(value?: Record<string, any>, options: SubmitActionOptions = {}) {
+  constructor(value?: ValidTaskFetchDataValues, options: SubmitActionOptions = {}) {
     super(options);
     Object.assign(this, options);
     this.data = {
@@ -35,7 +42,7 @@ export class TaskFetchAction extends SubmitAction implements ITaskFetchAction {
     return this;
   }
 
-  withValue(value: Record<string, any>) {
+  withValue(value: ValidTaskFetchDataValues) {
     const { msteams, ...rest } = value;
     Object.assign(this.data, rest);
     return this;
@@ -51,7 +58,7 @@ export class TaskFetchData implements MSTeamsData<ITaskFetchData> {
     type: 'task/fetch' as const,
   };
 
-  constructor(data?: Record<string, any>) {
+  constructor(data?: ValidTaskFetchDataValues) {
     // omit the msteams property if it exists
     if (data) {
       const { msteams, ...rest } = data;
