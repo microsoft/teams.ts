@@ -1,4 +1,4 @@
-# Samples: Bot Builder
+# Agent: Bot Builder
 
 A bot that implements a Bot Builder Adapter.
 

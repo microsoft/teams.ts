@@ -1,4 +1,4 @@
-# Samples: Echo
+# Agent: Echo
 
 A bot that echos back what the user said to it.
 

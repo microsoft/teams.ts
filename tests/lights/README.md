@@ -1,4 +1,4 @@
-# Samples: Lights
+# Agent: Lights
 
 An AI powered bot that can turn the lights on and off.
 

@@ -1,4 +1,4 @@
-# Samples: Tab
+# Agent: Tab
 
 A bot that hosts custom tab content.
 
