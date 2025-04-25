@@ -88,7 +88,7 @@ app.on('message', async ({ send, activity, next }) => {
 
 // Handle messages that start with stream <query>
 // :snippet-start: streaming-chat
-app.on('message', async ({ stream, activity, next }) => {
+app.on('message', async ({ stream, send, activity, next }) => {
   // :remove-start:
   const commandAndQuery = streamCommand(activity.text);
   if (!commandAndQuery) {
@@ -112,7 +112,11 @@ app.on('message', async ({ stream, activity, next }) => {
     },
   });
 
-  console.log('final response', response.content);
+  if (activity.conversation.isGroup && response.content) {
+    // If the conversation is a group chat, we need to send the final response
+    // back to the group chat
+    await send(response.content);
+  }
 });
 // :snippet-end:
 
