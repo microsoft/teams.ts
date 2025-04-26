@@ -337,7 +337,7 @@ export class Activity<T extends string = string> implements IActivity<T> {
   }
 
   /**
-   * Get or create the base AI entity structure
+   * Get or create the base message entity.
    */
   private ensureSingleRootLevelMessageEntity(): MessageEntity {
     let mesageEntity = this.entities?.find(
