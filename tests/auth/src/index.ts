@@ -26,8 +26,9 @@ app.on('message', async ({ log, signin, api, isSignedIn }) => {
   log.info(`user "${me.displayName}" already signed in!`);
 });
 
-app.event('signin', async ({ send, api }) => {
-      // do something with the token...
+app.event('signin', async ({ send, api, token }) => {
+  const me = await api.user.me.get();
+  await send(`user "${me.displayName}" signed in. Here's the token: ${token}`);
 });
 // :snippet-end:
 

@@ -24,6 +24,8 @@ source ~/.zshrc # or ~/.bashrc
 
 - Run `cargo install mdbook` to install the mdbook CLI globally.
 - Run `cargo install mdbook-theme` to install the theme CLI.
+- Run `cargo install mdbook-mermaid` to install the mermaid preprocessor.
+- Run `cargo install mdbook-alerts` to install the alerts preprocessor.
 
 ## Running the book locally
 
