@@ -1,8 +1,8 @@
+import { ConsoleLogger, ILogger } from '@microsoft/spark.common';
 import type { ChatPromptPlugin, Function, Schema } from '@microsoft/teams.ai';
 import { Client, ClientOptions } from '@modelcontextprotocol/sdk/client/index.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
-import { ConsoleLogger, ILogger } from '@microsoft/spark.common/logging';
 
 export type McpClientPluginParams = {
   name: string;
