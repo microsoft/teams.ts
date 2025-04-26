@@ -362,7 +362,15 @@ export class Activity<T extends string = string> implements IActivity<T> {
    */
   addAiGenerated() {
     const messageEntity: AIMessageEntity = this.ensureSingleRootLevelMessageEntity();
-    messageEntity.additionalType = ['AIGeneratedContent'];
+    if (!messageEntity.additionalType?.includes('AIGeneratedContent')) {
+      return this;
+    }
+
+    if (!messageEntity.additionalType) {
+      messageEntity.additionalType = [];
+    }
+
+    messageEntity.additionalType.push(`AIGeneratedContent`);
     return this;
   }
 
