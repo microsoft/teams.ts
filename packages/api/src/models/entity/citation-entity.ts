@@ -1,5 +1,4 @@
 import { MessageEntity } from './message-entity';
-import { SensitiveUsageEntity } from './sensitive-usage-entity';
 
 export type CitationIconName =
   | 'Microsoft Word'
@@ -28,7 +27,7 @@ export type CitationEntity = MessageEntity & {
   /**
    * Required as 'Citation'
    */
-  citations?: Claim[];
+  citation?: Claim[];
 };
 
 export type Claim = {
@@ -100,27 +99,7 @@ export type Claim = {
     /**
      * Sensitivity content information
      */
-    usageInfo?: {
-      /**
-       * Unique identifier for the usage info
-       */
-      '@id': string;
-
-      /**
-       * Description of the usage info
-       */
-      description: string;
-
-      /**
-       * Name of the usage info
-       */
-      name: string;
-
-      /**
-       * Position of the usage info
-       */
-      position?: number;
-    };
+    usageInfo?: CitationUsageInfo;
   };
 };
 
@@ -162,5 +141,27 @@ export type CitationAppearance = {
   /**
    * Sensitivity content information
    */
-  usageInfo?: SensitiveUsageEntity;
+  usageInfo?: CitationUsageInfo;
+};
+
+export type CitationUsageInfo = {
+  /**
+   * Unique identifier for the usage info
+   */
+  '@id': string;
+
+  /**
+   * Description of the usage info
+   */
+  description: string;
+
+  /**
+   * Name of the usage info
+   */
+  name: string;
+
+  /**
+   * Position of the usage info
+   */
+  position?: number;
 };

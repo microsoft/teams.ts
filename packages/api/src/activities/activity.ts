@@ -362,7 +362,7 @@ export class Activity<T extends string = string> implements IActivity<T> {
    */
   addAiGenerated() {
     const messageEntity: AIMessageEntity = this.ensureSingleRootLevelMessageEntity();
-    if (!messageEntity.additionalType?.includes('AIGeneratedContent')) {
+    if (messageEntity.additionalType?.includes('AIGeneratedContent')) {
       return this;
     }
 
@@ -396,7 +396,6 @@ export class Activity<T extends string = string> implements IActivity<T> {
     }
 
     messageEntity.citation.push({
-      type: 'https://schema.org/Message',
       '@type': 'Claim',
       position,
       appearance: {
