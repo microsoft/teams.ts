@@ -23,7 +23,8 @@
     "@microsoft/teams.ai": "*",
     "@microsoft/teams.openai": "*",
     "@microsoft/teams.dev": "*",
-    "@microsoft/teams.cards": "*"
+    "@microsoft/teams.cards": "*",
+    "fuse.js": "^7.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",

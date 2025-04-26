@@ -1,5 +1,5 @@
 import { ChatPrompt, IChatModel, Message } from '@microsoft/teams.ai';
-import { ActivityLike, IMessageActivity } from '@microsoft/teams.api';
+import { ActivityLike, IMessageActivity, MessageActivity } from '@microsoft/teams.api';
 
 // :snippet-start: stateful-prompts-state-initialization
 // Simple in-memory store for conversation histories
@@ -50,7 +50,11 @@ export const handleStatefulConversation = async (
   const result = await prompt.send(activity.text);
 
   if (result) {
-    await send(result.content ?? 'I did not generate a response.');
+    await send(
+      result.content != null
+        ? new MessageActivity(result.content).addAiGenerated()
+        : 'I did not generate a response.'
+    );
   }
 
   console.log('Messages after sending to prompt:', existingMessages);

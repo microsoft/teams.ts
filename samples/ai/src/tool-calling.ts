@@ -1,5 +1,5 @@
 import { ChatPrompt, IChatModel } from '@microsoft/teams.ai';
-import { ActivityLike, SentActivity } from '@microsoft/teams.api';
+import { ActivityLike, IMessageActivity, SentActivity } from '@microsoft/teams.api';
 
 interface PokemonSearch {
   pokemonName: string;
@@ -7,11 +7,11 @@ interface PokemonSearch {
 
 export const handlePokemonToolCalling = async (
   model: IChatModel,
-  query: string,
+  activity: IMessageActivity,
   send: (activity: ActivityLike) => Promise<SentActivity>
 ) => {
   // :snippet-start: single-function-calling
-  // query could be something like "pikachu"
+  // activity could have text like 'pikachu'
   const prompt = new ChatPrompt({
     instructions: 'You are a helpful assistant that can look up Pokemon for the user.',
     model,
@@ -52,18 +52,18 @@ export const handlePokemonToolCalling = async (
     );
 
   // The LLM will then produce a final response to be sent back to the user
-  const result = await prompt.send(query);
+  const result = await prompt.send(activity.text);
   await send(result.content ?? 'Sorry I could not find that pokemon');
   // :snippet-end:
 };
 
 export const handleGetWeatherToolCalling = async (
   model: IChatModel,
-  query: string,
+  activity: IMessageActivity,
   send: (activity: ActivityLike) => Promise<SentActivity>
 ) => {
   // :snippet-start: multiple-function-calling
-  // query could be something like "what's my weather?"
+  // activity.text could be something like "what's my weather?"
   // The LLM will need to first figure out the user's location
   // Then pass that in to the weatherSearch
   const prompt = new ChatPrompt({
@@ -115,7 +115,7 @@ export const handleGetWeatherToolCalling = async (
     );
 
   // The LLM will then produce a final response to be sent back to the user
-  const result = await prompt.send(query);
+  const result = await prompt.send(activity.text);
   await send(result.content ?? 'Sorry I could not figure it out');
   // :snippet-end:
 };

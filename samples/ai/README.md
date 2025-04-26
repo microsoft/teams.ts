@@ -39,10 +39,12 @@ OPENAI_API_KEY=<sk-your_openai_api_key>
 
 2. From Teams, or DevTools, use any of the following commands to trigger specific scenarios.
 
-| Scenario               | Usage                                | Description                                                 |
-| ---------------------- | ------------------------------------ | ----------------------------------------------------------- |
-| Simple LLM check       | `hi`                                 | This is to show basic ChatPrompts working                   |
-| Streaming              | `streaming <your query>`             | Shows streaming working                                     |
-| Function calling       | `pokemon <your pokemon query>`       | Shows function calling working                              |
-| Multi-Function calling | `weather <what is my weather like?>` | Shows multi-function calling working                        |
-| Stateful interactions  | `<any query not matching above`      | Shows messages being persisted across multiple interactions |
+| Scenario               | Usage                                             | Description                                                 |
+| ---------------------- | ------------------------------------------------- | ----------------------------------------------------------- |
+| Simple LLM check       | `hi`                                              | This is to show basic ChatPrompts working                   |
+| Streaming              | `streaming <your query>`                          | Shows streaming working                                     |
+| Function calling       | `pokemon <your pokemon query>`                    | Shows function calling working                              |
+| Multi-Function calling | `weather <what is my weather like?>`              | Shows multi-function calling working                        |
+| Feedback               | `feedback <any text>`                             | Shows feedback loop                                         |
+| Rag                    | `rag <any query preferably from the rag dataset>` | Shows rag pattern and citation                              |
+| Stateful interactions  | `<any query not matching above`                   | Shows messages being persisted across multiple interactions |

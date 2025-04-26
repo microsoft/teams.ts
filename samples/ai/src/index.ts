@@ -5,8 +5,16 @@ import { ChatPrompt } from '@microsoft/teams.ai';
 import { OpenAIChatModel } from '@microsoft/teams.openai';
 // :snippet-end:
 import { MessageActivity } from '@microsoft/teams.api';
+import {
+  feedbackLoopCommand,
+  pokemonCommand,
+  ragCommand,
+  streamCommand,
+  weatherCommand,
+} from './commands';
+import { storedFeedbackByMessageId } from './feedback';
+import { handleDocumentationSearch } from './simple-rag';
 import { handleStatefulConversation } from './stateful-prompts';
-import { handleGetWeatherToolCalling, handlePokemonToolCalling } from './tool-calling';
 
 const app = new App({
   plugins: [new DevtoolsPlugin()],
@@ -49,42 +57,39 @@ app.on('message', async ({ send, activity, next }) => {
 });
 // :snippet-end:
 
-/**
- *
- * @param commandStr the user-facing command string
- * @param commandName the name of the command
- * @returns
- */
-const extractCommandAndQueryForCommand =
-  <TCommandName extends string>(commandStr: string, commandName: TCommandName) =>
-  (text: string): { commandName: TCommandName; query: string } | null => {
-    const parts = text.split(' ');
-    const command = parts.at(0);
-    if (!command) {
-      return null;
-    }
-    if (command === commandStr) {
-      return { commandName: commandName, query: parts.slice(1).join(' ') };
-    }
-    return null;
-  };
-
-const pokemonCommand = extractCommandAndQueryForCommand('pokemon', 'pokemon-tool-calling');
-const weatherCommand = extractCommandAndQueryForCommand('weather', 'get-weather-tool-calling');
-const streamCommand = extractCommandAndQueryForCommand('stream', 'streaming-chat');
-
 // Handle "<supported-command> <query>" message
 app.on('message', async ({ send, activity, next }) => {
-  const commandAndQuery = pokemonCommand(activity.text) || weatherCommand(activity.text);
+  if (activity.text.toLowerCase().startsWith('docs ')) {
+    await handleDocumentationSearch(
+      model,
+      {
+        ...activity,
+        text: activity.text.slice(5),
+      },
+      send
+    );
+    return;
+  }
+
+  const commandAndQuery = [pokemonCommand, weatherCommand, feedbackLoopCommand, ragCommand]
+    .map((command) => command(activity.text))
+    .find(Boolean);
   if (!commandAndQuery) {
     await next();
     return;
   }
-  const { commandName, query } = commandAndQuery;
-  if (commandName === 'pokemon-tool-calling') {
-    await handlePokemonToolCalling(model, query, send);
-  } else if (commandName === 'get-weather-tool-calling') {
-    await handleGetWeatherToolCalling(model, query, send);
+  const { commandName, query, handler } = commandAndQuery;
+  if (!handler) {
+    console.warn(`Command ${commandName} does not have a supplied handler`);
+  } else {
+    await handler(
+      model,
+      {
+        ...activity,
+        text: query,
+      },
+      send
+    );
   }
 });
 
@@ -130,6 +135,31 @@ app.on('message', async ({ stream, send, activity, next }) => {
 app.on('message', async ({ send, activity }) => {
   await handleStatefulConversation(model, activity, send);
 });
+
+// :snippet-start: feedback-loop-handler
+app.on('message.submit.feedback', async ({ activity }) => {
+  const { reaction, feedback: feedbackJson } = activity.value.actionValue;
+  if (activity.replyToId == null) {
+    console.warn(`No replyToId found for messageId ${activity.id}`);
+    return;
+  }
+  const existingFeedback = storedFeedbackByMessageId.get(activity.replyToId);
+  /**
+   * feedbackJson looks like:
+   * {"feedbackText":"Nice!"}
+   */
+  if (!existingFeedback) {
+    console.warn(`No feedback found for messageId ${activity.id}`);
+  } else {
+    storedFeedbackByMessageId.set(activity.id, {
+      ...existingFeedback,
+      likes: existingFeedback.likes + (reaction === 'like' ? 1 : 0),
+      dislikes: existingFeedback.dislikes + (reaction === 'dislike' ? 1 : 0),
+      feedbacks: [...existingFeedback.feedbacks, feedbackJson],
+    });
+  }
+});
+// :snippet-end:
 
 (async () => {
   await app.start(+(process.env.PORT || 3000));
