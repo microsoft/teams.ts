@@ -223,6 +223,7 @@ export class HttpPlugin implements ISender {
           from: 'azure',
           fromId: '',
           serviceUrl: activity.serviceUrl || '',
+          isExpired: () => false,
         };
 
     this.pending[activity.id] = res;

@@ -13,7 +13,7 @@
     <a href="https://www.npmjs.com/package/@microsoft/teams.common" target="_blank">
         <img src="https://img.shields.io/npm/dw/@microsoft/teams.common" />
     </a>
-    <a href="https://microsoft.github.io/teams.ts" target="_blank">
+    <a href="https://microsoft.github.io/teams-ai" target="_blank">
         <img src="https://img.shields.io/badge/📖 docs-open-blue" />
     </a>
 </p>
@@ -21,7 +21,7 @@
 Common modules used to provide utility functionality to the other packages while
 minimizing external dependencies.
 
-<a href="https://microsoft.github.io/teams.ts/2.getting-started/1.create-application.html" target="_blank">
+<a href="https://microsoft.github.io/teams-ai" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 

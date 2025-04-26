@@ -1,5 +1,29 @@
 # @microsoft/teams.graph
 
+## 0.2.12
+
+### Patch Changes
+
+- app startup fetch token bugfix
+- Updated dependencies
+    - @microsoft/teams.common@0.2.12
+
+## 0.2.11
+
+### Patch Changes
+
+- dev plugin bug fix
+- Updated dependencies
+    - @microsoft/teams.common@0.2.11
+
+## 0.2.10
+
+### Patch Changes
+
+- fix docs links and fix a couple minor issues
+- Updated dependencies
+    - @microsoft/teams.common@0.2.10
+
 ## 0.2.9
 
 ### Patch Changes

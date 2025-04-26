@@ -1,9 +1,9 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
-import fs from 'node:fs';
 
-import { IProjectAttribute } from '../project-attribute';
 import { Compound, Copy, FileJsonSet, FileYamlSet, If } from '../operations';
+import { IProjectAttribute } from '../project-attribute';
 
 export class TeamsToolkitAttribute implements IProjectAttribute {
   readonly id: string;
@@ -27,13 +27,13 @@ export class TeamsToolkitAttribute implements IProjectAttribute {
         targetDir,
         'package.json',
         'scripts.dev:teamsfx',
-        'npx env-cmd --silent -f .env npm run dev'
+        "NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev"
       ),
       new FileJsonSet(
         targetDir,
         'package.json',
         'scripts.dev:teamsfx:testtool',
-        'npx env-cmd --silent -f .env npm run dev'
+        "NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev"
       ),
       new FileJsonSet(
         targetDir,

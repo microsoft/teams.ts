@@ -13,7 +13,7 @@
     <a href="https://www.npmjs.com/package/@microsoft/teams.botbuilder" target="_blank">
         <img src="https://img.shields.io/npm/dw/@microsoft/teams.botbuilder" />
     </a>
-    <a href="https://microsoft.github.io/teams.ts" target="_blank">
+    <a href="https://microsoft.github.io/teams-ai" target="_blank">
         <img src="https://img.shields.io/badge/📖 docs-open-blue" />
     </a>
 </p>
@@ -21,7 +21,7 @@
 A package used to make the `@microsoft/teams.apps` package backwards compatible with legacy bots built using
 `BotBuilder`.
 
-<a href="https://microsoft.github.io/teams.ts/2.getting-started/1.create-application.html" target="_blank">
+<a href="https://microsoft.github.io/teams-ai" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 

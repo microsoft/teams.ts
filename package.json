@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.ts",
-  "version": "0.2.9",
+  "version": "0.2.12",
   "private": true,
   "homepage": "https://github.com/microsoft/teams.ts",
   "bugs": "https://github.com/microsoft/teams.ts/issues",
@@ -15,7 +15,7 @@
   "workspaces": [
     "packages/*",
     "external/*",
-    "samples/*"
+    "tests/*"
   ],
   "keywords": [
     "microsoft",
@@ -31,19 +31,19 @@
     "clean": "npx turbo clean",
     "build": "npx turbo build",
     "build:packages": "npx turbo build --filter=./packages/*",
-    "build:samples": "npx turbo build --filter=./samples/*",
+    "build:tests": "npx turbo build --filter=./tests/*",
     "build:external": "npx turbo build --filter=./external/*",
     "dev": "npx turbo dev",
     "lint": "npx turbo lint",
     "lint:fix": "npx turbo lint:fix",
     "test": "npx turbo test --concurrency=100%",
     "fmt": "npx prettier --write \"**/*.{js,ts,tsx,md,json}\"",
-    "docs:build": "mdbook build book",
-    "docs:serve": "mdbook serve book"
+    "validate:snippets": "node ./scripts/validate-snippets.js"
   },
   "devDependencies": {
     "@changesets/cli": "latest",
     "@turbo/gen": "^2.4.4",
+    "bluehawk": "^1.6.0",
     "prettier": "^3.2.5",
     "turbo": "^2.4.0",
     "typescript": "^5.4.5"
