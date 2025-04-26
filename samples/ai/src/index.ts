@@ -4,6 +4,7 @@ import { DevtoolsPlugin } from '@microsoft/teams.dev';
 import { ChatPrompt } from '@microsoft/teams.ai';
 import { OpenAIChatModel } from '@microsoft/teams.openai';
 // :snippet-end:
+import { MessageActivity } from '@microsoft/teams.api';
 import { handleStatefulConversation } from './stateful-prompts';
 import { handleGetWeatherToolCalling, handlePokemonToolCalling } from './tool-calling';
 
@@ -23,7 +24,7 @@ const model = new OpenAIChatModel({
 app.on('message', async ({ send, activity, next }) => {
   // :remove-start:
   if (activity.text.toLowerCase() !== 'hi') {
-    next();
+    await next();
     return;
   }
   // :remove-end:
@@ -41,7 +42,8 @@ app.on('message', async ({ send, activity, next }) => {
 
   const response = await prompt.send(activity.text);
   if (response.content) {
-    await send(response.content);
+    const activity = new MessageActivity(response.content).addAiGenerated();
+    await send(activity);
     // Ahoy, matey! 🏴‍☠️ How be ye doin' this fine day on th' high seas? What can this ol’ salty sea dog help ye with? 🚢☠️
   }
 });
@@ -75,7 +77,7 @@ const streamCommand = extractCommandAndQueryForCommand('stream', 'streaming-chat
 app.on('message', async ({ send, activity, next }) => {
   const commandAndQuery = pokemonCommand(activity.text) || weatherCommand(activity.text);
   if (!commandAndQuery) {
-    next();
+    await next();
     return;
   }
   const { commandName, query } = commandAndQuery;
@@ -92,7 +94,7 @@ app.on('message', async ({ stream, send, activity, next }) => {
   // :remove-start:
   const commandAndQuery = streamCommand(activity.text);
   if (!commandAndQuery) {
-    next();
+    await next();
     return;
   }
   const { query } = commandAndQuery;
@@ -100,7 +102,7 @@ app.on('message', async ({ stream, send, activity, next }) => {
   // const query = activity.text;
 
   const prompt = new ChatPrompt({
-    instructions: 'You are a friendly assistant who responds on wordy prose',
+    instructions: 'You are a friendly assistant who responds in terse language',
     model,
   });
 
@@ -112,10 +114,14 @@ app.on('message', async ({ stream, send, activity, next }) => {
     },
   });
 
-  if (activity.conversation.isGroup && response.content) {
+  if (activity.conversation.isGroup) {
     // If the conversation is a group chat, we need to send the final response
     // back to the group chat
-    await send(response.content);
+    const activity = new MessageActivity(response.content).addAiGenerated();
+    await send(activity);
+  } else {
+    // We wrap the final response with an AI Generated indicator
+    stream.emit(new MessageActivity().addAiGenerated());
   }
 });
 // :snippet-end:
