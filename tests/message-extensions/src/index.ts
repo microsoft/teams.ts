@@ -3,7 +3,13 @@ import { App } from '@microsoft/teams.apps';
 import { Card } from '@microsoft/teams.cards';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
-import { createCard, createConversationMembersCard, createDummyCards, createLinkUnfurlCard, createMessageDetailsCard } from './card';
+import {
+  createCard,
+  createConversationMembersCard,
+  createDummyCards,
+  createLinkUnfurlCard,
+  createMessageDetailsCard,
+} from './card';
 
 const app = new App({
   logger: new ConsoleLogger('@tests/message-extensions', { level: 'debug' }),
@@ -15,31 +21,33 @@ app.on('message', async ({ send, activity }) => {
   await send(`you said "${activity.text}"`);
 });
 
+// :snippet-start: message-ext-query-link
 app.on('message.ext.query-link', async ({ activity }) => {
   const { url } = activity.value;
 
   if (!url) {
     return {
       status: 400,
-      body: {}
+      body: {},
     };
   }
 
   const { card, thumbnail } = createLinkUnfurlCard(url);
   const attachment = {
     ...cardAttachment('adaptive', card),
-    preview: cardAttachment('thumbnail', thumbnail)
+    preview: cardAttachment('thumbnail', thumbnail),
   };
 
   return {
     composeExtension: {
       type: 'result',
       attachmentLayout: 'list',
-      attachments: [attachment]
-    }
+      attachments: [attachment],
+    },
   };
 });
-
+// :snippet-end: message-ext-query-link
+// :snippet-start: message-ext-submit
 app.on('message.ext.submit', async ({ send, activity }) => {
   const { commandId } = activity.value;
   let card: Card;
@@ -61,11 +69,13 @@ app.on('message.ext.submit', async ({ send, activity }) => {
     body: {},
   };
 });
+// :snippet-end: message-ext-submit
 
+// :snippet-start: message-ext-open
 app.on('message.ext.open', async ({ activity, api }) => {
-  const conversationId = activity.conversation.id
-  const members = await api.conversations.members(conversationId).get()
-  const card = createConversationMembersCard(members)
+  const conversationId = activity.conversation.id;
+  const members = await api.conversations.members(conversationId).get();
+  const card = createConversationMembersCard(members);
 
   return {
     status: 200,
@@ -77,39 +87,42 @@ app.on('message.ext.open', async ({ activity, api }) => {
           height: 'small',
           width: 'small',
           card: cardAttachment('adaptive', card),
-        }
-      }
-    }
-  }
+        },
+      },
+    },
+  };
 });
+// :snippet-end: message-ext-open
 
+// :snippet-start: message-ext-query
 app.on('message.ext.query', async ({ activity }) => {
   const { commandId } = activity.value;
   const searchQuery = activity.value.parameters![0].value;
 
   if (commandId == 'searchQuery') {
     const cards = await createDummyCards(searchQuery);
-    const attachments = cards.map(({card, thumbnail}) => { 
+    const attachments = cards.map(({ card, thumbnail }) => {
       return {
         ...cardAttachment('adaptive', card),
-        preview: cardAttachment('thumbnail', thumbnail)
-      }
+        preview: cardAttachment('thumbnail', thumbnail),
+      };
     });
 
     return {
       composeExtension: {
         type: 'result',
         attachmentLayout: 'list',
-        attachments: attachments
-      }
+        attachments: attachments,
+      },
     };
   }
 
   return {
     status: 400,
-    body: {}
+    body: {},
   };
 });
+// :snippet-end: message-ext-query
 
 (async () => {
   await app.start();

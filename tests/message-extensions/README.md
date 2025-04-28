@@ -6,13 +6,13 @@ A Teams app that show cases three message extensions features:
 - search commands
 - link unfurling
 
-<!-- 
+<!--
 Potential features to showcase
 
 General
 - jit install
 
-Action command 
+Action command
  - where command context is 'composeBox'
  - action previews
 
