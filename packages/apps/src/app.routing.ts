@@ -3,15 +3,15 @@ import { InvokeResponse } from '@microsoft/teams.api';
 import { App } from './app';
 import { IActivityContext } from './contexts';
 import { IRoutes } from './routes';
-import { RouteHandler } from './types';
+import { IPlugin, RouteHandler } from './types';
 
 /**
  * subscribe to an event
  * @param name event to subscribe to
  * @param cb callback to invoke
  */
-export function on<Name extends keyof IRoutes>(
-  this: App,
+export function on<TPlugin extends IPlugin, Name extends keyof IRoutes>(
+  this: App<TPlugin>,
   name: Name,
   cb: Exclude<IRoutes[Name], undefined>
 ) {
@@ -47,7 +47,10 @@ export function message(
  * register a middleware
  * @param cb callback to invoke
  */
-export function use(this: App, cb: RouteHandler<IActivityContext, void | InvokeResponse>) {
+export function use<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
+  cb: RouteHandler<IActivityContext, void | InvokeResponse>
+) {
   this.router.use(cb);
   return this;
 }

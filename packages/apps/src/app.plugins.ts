@@ -13,7 +13,7 @@ import { PLUGIN_METADATA_KEY, PluginOptions } from './types/plugin/decorators/pl
  * add a plugin
  * @param plugin plugin to add
  */
-export function plugin(this: App, plugin: IPlugin) {
+export function plugin<TPlugin extends IPlugin>(this: App<TPlugin>, plugin: TPlugin) {
   const { name } = getMetadata(plugin);
 
   if (this.getPlugin(name)) {
@@ -29,7 +29,10 @@ export function plugin(this: App, plugin: IPlugin) {
 /**
  * get a plugin
  */
-export function getPlugin(this: App, name: PluginName): IPlugin | undefined {
+export function getPlugin<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
+  name: PluginName
+): IPlugin | undefined {
   return this.plugins.find((plugin) => {
     const metadata = getMetadata(plugin);
     return metadata.name === name;
@@ -39,7 +42,7 @@ export function getPlugin(this: App, name: PluginName): IPlugin | undefined {
 /**
  * inject fields/events into a plugin
  */
-export function inject(this: App, plugin: IPlugin) {
+export function inject<TPlugin extends IPlugin>(this: App<TPlugin>, plugin: IPlugin) {
   const { name, dependencies, events } = getMetadata(plugin);
 
   // inject dependencies

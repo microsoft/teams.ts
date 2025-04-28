@@ -17,7 +17,6 @@ import {
 import pkg from '../package.json';
 
 import { AppClient } from './api';
-import { IEvents } from './events';
 import * as manifest from './manifest';
 import * as middleware from './middleware';
 import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
@@ -27,12 +26,13 @@ import { IPlugin } from './types';
 
 import { configTab, func, tab } from './app.embed';
 import {
+  AppEvents,
   event,
   onActivity,
   onActivityResponse,
   onActivitySent,
   onError,
-  pluginEvent,
+  PluginEvents,
 } from './app.events';
 import { onTokenExchange, onVerifyState } from './app.oauth';
 import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
@@ -107,7 +107,7 @@ export type AppTokens = {
 /**
  * The orchestrator for receiving/sending activities
  */
-export class App {
+export class App<TPlugin extends IPlugin = IPlugin> {
   readonly api: AppClient;
   readonly log: ILogger;
   readonly http: HttpPlugin;
@@ -173,11 +173,10 @@ export class App {
   protected _tokens: AppTokens = {};
 
   protected container = new Container();
-  protected plugins: Array<IPlugin> = [];
+  protected plugins: Array<TPlugin> = [];
   protected router = new Router();
   protected tenantTokens = new LocalStorage<string>({}, { max: 20000 });
-  protected events = new EventEmitter<IEvents>();
-  protected pluginEvents = new EventEmitter<Record<string, any>>();
+  protected events = new EventEmitter<AppEvents<TPlugin, PluginEvents<TPlugin>>>();
   protected startedAt?: Date;
   protected port?: number;
 
@@ -403,14 +402,6 @@ export class App {
    * @param cb the callback to invoke
    */
   event = event;
-
-  /**
-   * subscribe to a plugin event
-   * @param plugin the plugin to subscribe to. The plugin must support events
-   * @param name the event to subscribe to
-   * @param cb the callback to invoke
-   */
-  pluginEvent = pluginEvent;
 
   /**
    * add a plugin

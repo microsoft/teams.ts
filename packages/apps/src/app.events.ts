@@ -11,44 +11,41 @@ import {
 import { IPlugin, IPluginWithEvents, ISender } from './types';
 
 /**
+ * Combines Plugin events with default events
+ * Prioritizes default IEvents
+ */
+export type AppEvents<TPlugin extends IPlugin, TPluginEvents extends PluginEvents<TPlugin>> = {
+  [key in keyof IEvents | keyof TPluginEvents]: key extends keyof IEvents
+    ? IEvents[key]
+    : key extends keyof TPluginEvents
+      ? TPluginEvents[key]
+      : never;
+};
+
+/**
  * subscribe to an event
  * @param name the event to subscribe to
  * @param cb the callback to invoke
  */
-export function event<Name extends keyof IEvents>(
-  this: App,
+export function event<
+  TPlugin extends IPlugin,
+  Name extends keyof AppEvents<TPlugin, PluginEvents<TPlugin>>,
+>(
+  this: App<TPlugin>,
   name: Name,
-  cb: EventHandler<IEvents[Name]>
+  cb: EventHandler<AppEvents<TPlugin, PluginEvents<TPlugin>>[Name]>
 ) {
   this.events.on(name, cb);
   return this;
 }
 
-type PluginWithEvents<TPlugin extends IPlugin> =
-  TPlugin extends IPluginWithEvents<infer TEvents> ? TEvents : never;
+export type PluginEvents<TPlugin extends IPlugin> =
+  TPlugin extends IPluginWithEvents<infer TEvents> ? TEvents : {};
 
-type PluginConstructor = { new (...args: any[]): IPlugin & PluginWithEvents<any> };
-type PluginInstance = IPlugin & PluginWithEvents<any>;
+type PluginConstructor = { new (...args: any[]): IPlugin & PluginEvents<any> };
+type PluginInstance = IPlugin & PluginEvents<any>;
 
-export function pluginEvent<
-  TPlugin extends PluginConstructor | PluginInstance,
-  Name extends keyof PluginWithEvents<
-    TPlugin extends PluginConstructor ? InstanceType<TPlugin> : TPlugin
-  > &
-    string,
->(
-  this: App,
-  _plugin: TPlugin,
-  name: Name,
-  cb: EventHandler<
-    PluginWithEvents<TPlugin extends PluginConstructor ? InstanceType<TPlugin> : TPlugin>[Name]
-  >
-) {
-  this.pluginEvents.on(name, cb);
-  return this;
-}
-
-export async function onError(this: App, event: IErrorEvent) {
+export async function onError<TPlugin extends IPlugin>(this: App<TPlugin>, event: IErrorEvent) {
   for (const plugin of this.plugins) {
     if (plugin.onError) {
       await plugin.onError(event);
@@ -58,12 +55,20 @@ export async function onError(this: App, event: IErrorEvent) {
   this.events.emit('error', event);
 }
 
-export async function onActivity(this: App, sender: ISender, event: IActivityEvent) {
+export async function onActivity<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
+  sender: ISender,
+  event: IActivityEvent
+) {
   this.events.emit('activity', event);
   await this.process(sender, { ...event, sender });
 }
 
-export async function onActivitySent(this: App, sender: ISender, event: IActivitySentEvent) {
+export async function onActivitySent<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
+  sender: ISender,
+  event: IActivitySentEvent
+) {
   for (const plugin of this.plugins) {
     if (plugin.onActivitySent) {
       await plugin.onActivitySent({
@@ -76,8 +81,8 @@ export async function onActivitySent(this: App, sender: ISender, event: IActivit
   this.events.emit('activity.sent', { ...event, sender });
 }
 
-export async function onActivityResponse(
-  this: App,
+export async function onActivityResponse<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
   sender: ISender,
   event: IActivityResponseEvent
 ) {
