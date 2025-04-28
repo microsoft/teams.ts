@@ -1,8 +1,6 @@
 import { Readable, Writable } from 'stream';
 
 import { IChatPrompt } from '@microsoft/teams.ai';
-import { ILogger } from '@microsoft/teams.common';
-import { DevtoolsPlugin } from '@microsoft/teams.dev';
 import {
   Dependency,
   HttpPlugin,
@@ -11,15 +9,17 @@ import {
   Logger,
   Plugin,
 } from '@microsoft/teams.apps';
+import { ILogger } from '@microsoft/teams.common';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 import { ServerOptions } from '@modelcontextprotocol/sdk/server/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
-import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
-import { z } from 'zod';
 import { jsonSchemaToZod } from 'json-schema-to-zod';
+import { z } from 'zod';
 
 import pkg from '../package.json';
 import { IConnection } from './connection';
@@ -117,10 +117,6 @@ export class McpPlugin implements IPlugin {
   readonly devtoolsPlugin?: DevtoolsPlugin;
 
   readonly server: McpServer;
-  readonly prompt: McpServer['prompt'];
-  readonly tool: McpServer['tool'];
-  readonly resource: McpServer['resource'];
-
   protected id: number = -1;
   protected inspector: string;
   protected connections: Record<number, IConnection> = {};
@@ -145,10 +141,6 @@ export class McpPlugin implements IPlugin {
     if (!(options instanceof McpServer) && options.transport) {
       this.transport = options.transport;
     }
-
-    this.prompt = this.server.prompt.bind(this.server);
-    this.tool = this.server.tool.bind(this.server);
-    this.resource = this.server.resource.bind(this.server);
   }
 
   /**
@@ -161,6 +153,30 @@ export class McpPlugin implements IPlugin {
       this.server.tool(fn.name, fn.description, schema.shape, this.onToolCall(fn.name, prompt));
     }
 
+    return this;
+  }
+
+  /**
+   * Pass through call to the underlying MCP server
+   */
+  tool(...params: Parameters<McpServer['tool']>) {
+    this.server.tool(...params);
+    return this;
+  }
+
+  /**
+   * Pass through call to the underlying MCP server
+   */
+  prompt(...params: Parameters<McpServer['prompt']>) {
+    this.server.prompt(...params);
+    return this;
+  }
+
+  /**
+   * Pass through call to the underlying MCP server
+   */
+  resource(...params: Parameters<McpServer['resource']>) {
+    this.server.resource(...params);
     return this;
   }
 
