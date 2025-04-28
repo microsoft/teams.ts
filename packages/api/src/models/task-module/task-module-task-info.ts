@@ -27,13 +27,13 @@ export type TaskModuleTaskInfo = {
 
   /**
    * @member {string} [url] The URL of what is loaded as an iframe inside the
-   * task module. One of url or card is required.
+   * task module. One of url or card is required but not both.
    */
   url?: string;
 
   /**
    * @member {Attachment} [card] The JSON for the Adaptive card to appear in
-   * the task module.
+   * the task module. One of url or card is required but not both.
    */
   card?: Attachment;
 

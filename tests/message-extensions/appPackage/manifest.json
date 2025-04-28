@@ -1,0 +1,144 @@
+{
+    "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.20/MicrosoftTeams.schema.json",
+    "version": "1.0.0",
+    "manifestVersion": "1.20",
+    "id": "${{TEAMS_APP_ID}}",
+    "name": {
+        "short": "message-extensions-${{APP_NAME_SUFFIX}}",
+        "full": "Message Extensions App"
+    },
+    "developer": {
+        "name": "Microsoft",
+        "mpnId": "",
+        "websiteUrl": "https://microsoft.com",
+        "privacyUrl": "https://privacy.microsoft.com/privacystatement",
+        "termsOfUseUrl": "https://www.microsoft.com/legal/terms-of-use"
+    },
+    "description": {
+        "short": "Sample app that show cases message extensions capabilities",
+        "full": "Sample app that show cases message extensions capabilities"
+    },
+    "icons": {
+        "outline": "outline.png",
+        "color": "color.png"
+    },
+    "accentColor": "#FFFFFF",
+    "staticTabs": [
+        {
+            "entityId": "conversations",
+            "scopes": [
+                "personal"
+            ]
+        },
+        {
+            "entityId": "about",
+            "scopes": [
+                "personal"
+            ]
+        }
+    ],
+    "bots": [
+        {
+            "botId": "${{BOT_ID}}",
+            "scopes": [
+                "personal",
+                "team",
+                "groupChat"
+            ],
+            "isNotificationOnly": false,
+            "supportsCalling": false,
+            "supportsVideo": false,
+            "supportsFiles": false
+        }
+    ],
+    "composeExtensions": [
+        {
+            "botId": "${{BOT_ID}}",
+            
+            "commands": [
+                {
+                    "id": "createCard",
+                    "type": "action",
+                    "context": [
+                        "compose",
+                        "commandBox"
+                    ],
+                    "description": "Command to run action to create a card from the compose box.",
+                    "title": "Create Card",
+                    "parameters": [
+                        {
+                            "name": "title",
+                            "title": "Card title",
+                            "description": "Title for the card",
+                            "inputType": "text"
+                        },
+                        {
+                            "name": "subTitle",
+                            "title": "Subtitle",
+                            "description": "Subtitle for the card",
+                            "inputType": "text"
+                        },
+                        {
+                            "name": "text",
+                            "title": "Text",
+                            "description": "Text for the card",
+                            "inputType": "textarea"
+                        }
+                    ]
+                },
+                {
+                    "id": "getMessageDetails",
+                    "type": "action",
+                    "context": [
+                        "message"
+                    ],
+                    "description": "Command to run action on message context.",
+                    "title": "Get Message Details"
+                },
+                {
+                    "id": "fetchConversationMembers",
+                    "description": "Fetch the conversation members",
+                    "title": "Fetch Conversation Members",
+                    "type": "action",
+                    "fetchTask": true,
+                    "context": [
+                        "compose"
+                    ]
+                },
+                {
+                    "id": "searchQuery",
+                    "context": [
+                      "compose",
+                      "commandBox"
+                    ],
+                    "description": "Test command to run query",
+                    "title": "Search query",
+                    "type": "query",
+                    "parameters": [
+                      {
+                        "name": "searchQuery",
+                        "title": "Search Query",
+                        "description": "Your search query",
+                        "inputType": "text"
+                      }
+                    ]
+                }
+            ],
+            "messageHandlers": [
+                {
+                    "type": "link",
+                    "value": {
+                        "domains": [
+                            "www.test.com"
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "validDomains": [
+        "${{BOT_DOMAIN}}",
+        "*.botframework.com",
+        "*.com"
+    ]
+}
