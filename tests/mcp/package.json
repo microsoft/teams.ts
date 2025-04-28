@@ -1,0 +1,41 @@
+{
+  "name": "@tests/mcp",
+  "version": "0.0.0",
+  "license": "MIT",
+  "private": true,
+  "main": "dist/index",
+  "types": "dist/index",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "clean": "npx rimraf ./dist",
+    "build": "npx tsc",
+    "start": "node -r dotenv/config .",
+    "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\"",
+    "inspect": "npx cross-env SERVER_PORT=9000 npx @modelcontextprotocol/inspector -e NODE_NO_WARNINGS=1 -e PORT=3000 node -r dotenv/config ."
+  },
+  "dependencies": {
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.apps": "*",
+    "@microsoft/teams.cards": "*",
+    "@microsoft/teams.common": "*",
+    "@microsoft/teams.dev": "*",
+    "@microsoft/teams.graph": "*",
+    "@microsoft/teams.mcp": "*",
+    "@microsoft/teams.openai": "*",
+    "@modelcontextprotocol/sdk": "^1.9.0"
+  },
+  "devDependencies": {
+    "@microsoft/teams.config": "*",
+    "@modelcontextprotocol/inspector": "^0.6.0",
+    "@types/node": "^22.5.4",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5",
+    "nodemon": "^3.1.4",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
