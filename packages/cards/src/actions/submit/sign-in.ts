@@ -26,7 +26,7 @@ export class SignInAction extends SubmitAction implements ISignInAction {
   }
 
   withData(value: ISignInData) {
-    this.data.msteams = value;
+    super.withData({ msteams: value });
     return this;
   }
 

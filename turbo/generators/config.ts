@@ -57,46 +57,46 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
     ],
   });
 
-  // Sample generator for creating new samples
-  plop.setGenerator('Sample', {
-    description: 'Create a new sample',
+  // Generator for creating new applications in tests
+  plop.setGenerator('Application', {
+    description: 'Create a new Teams AI v2 application',
     prompts: [
       {
         type: 'input',
         name: 'name',
-        message: 'Sample name:',
+        message: 'Application name:',
       },
       {
         type: 'input',
         name: 'description',
-        message: 'Sample description:',
+        message: 'Application description:',
       },
     ],
     actions: [
       {
         type: 'add',
-        path: 'samples/{{name}}/package.json',
-        templateFile: 'templates/sample-package.json.hbs',
+        path: 'tests/{{name}}/package.json',
+        templateFile: 'templates/test-package.json.hbs',
       },
       {
         type: 'add',
-        path: 'samples/{{name}}/README.md',
-        templateFile: 'templates/sample-README.md.hbs',
+        path: 'tests/{{name}}/README.md',
+        templateFile: 'templates/test-README.md.hbs',
       },
       {
         type: 'add',
-        path: 'samples/{{name}}/tsconfig.json',
-        templateFile: 'templates/sample-tsconfig.json.hbs',
+        path: 'tests/{{name}}/tsconfig.json',
+        templateFile: 'templates/test-tsconfig.json.hbs',
       },
       {
         type: 'add',
-        path: 'samples/{{name}}/src/index.ts',
-        templateFile: 'templates/sample-index.ts.hbs',
+        path: 'tests/{{name}}/src/index.ts',
+        templateFile: 'templates/test-index.ts.hbs',
       },
       {
         type: 'add',
-        path: 'samples/{{name}}/.gitignore',
-        templateFile: 'templates/sample-gitignore.hbs',
+        path: 'tests/{{name}}/.gitignore',
+        templateFile: 'templates/test-gitignore.hbs',
       },
     ],
   });

@@ -2,6 +2,13 @@ import { ISubmitAction, MSTeamsData, SubmitAction, SubmitActionOptions } from '.
 
 export type TaskFetchActionOptions = SubmitActionOptions & { data: MSTeamsData<ITaskFetchData> };
 
+export type TaskFetchDataValues = {
+  [key: string]: any;
+} & {
+  /** type is special so we shouldn't allow overriding it */
+  type?: never;
+};
+
 export interface ITaskFetchAction extends ISubmitAction {
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
@@ -15,46 +22,46 @@ export class TaskFetchAction extends SubmitAction implements ITaskFetchAction {
    */
   data: MSTeamsData<ITaskFetchData>;
 
-  constructor(value?: any, options: SubmitActionOptions = {}) {
+  constructor(value?: TaskFetchDataValues, options: SubmitActionOptions = {}) {
     super(options);
     Object.assign(this, options);
-    this.data = { msteams: new TaskFetchData(value) };
+    this.data = {
+      ...value,
+      msteams: {
+        type: 'task/fetch',
+      },
+    };
   }
 
   static from(options: TaskFetchActionOptions) {
-    return new TaskFetchAction(options.data.msteams.data, options);
+    return new TaskFetchAction(options.data, options);
   }
 
-  withData(value: ITaskFetchData) {
-    this.data.msteams = value;
+  withData(value: MSTeamsData<ITaskFetchData>) {
+    this.data = value;
     return this;
   }
 
-  withValue(value: any) {
-    this.data.msteams.data = value;
+  withValue(value: TaskFetchDataValues) {
+    super.withData({ ...value, msteams: { type: 'task/fetch' } });
     return this;
   }
 }
 
 export interface ITaskFetchData {
   type: 'task/fetch';
-
-  /**
-   * The data value sent with the `task/fetch` invoke.
-   */
-  data?: any;
 }
 
-export class TaskFetchData implements ITaskFetchData {
-  type: 'task/fetch';
+export class TaskFetchData implements MSTeamsData<ITaskFetchData> {
+  msteams = {
+    type: 'task/fetch' as const,
+  };
 
-  /**
-   * The data value sent with the `task/fetch` invoke.
-   */
-  data?: any;
-
-  constructor(data?: any) {
-    this.type = 'task/fetch';
-    this.data = data;
+  constructor(data?: TaskFetchDataValues) {
+    // omit the msteams property if it exists
+    if (data) {
+      const { msteams, ...rest } = data;
+      Object.assign(this, rest);
+    }
   }
 }
