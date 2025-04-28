@@ -11,7 +11,7 @@ export type McpClientToolDetails = {
 export type PromiseOrValue<T> = T | Promise<T>;
 export type ValueOrFactory<T> = T | (() => PromiseOrValue<T>);
 
-type McpClientPluginParams = {
+export type McpClientPluginParams = {
   availableTools?: McpClientToolDetails[];
   /**
    * optional headers to pass in per request
@@ -69,5 +69,3 @@ export interface McpClientPluginUseParams {
    */
   params?: McpClientPluginParams;
 }
-
-export { McpClientPluginParams };

@@ -1,5 +1,5 @@
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
-import { ValueOrFactory } from './mcp-client-types.js';
+import { ValueOrFactory } from './mcp-client-types';
 
 /**
  * Creates an SSE client transport with the given URL and headers

@@ -8,7 +8,7 @@ import {
   McpClientPluginUseParams,
   McpClientToolDetails,
   ValueOrFactory,
-} from './mcp-client-types.js';
+} from './mcp-client-types';
 import { buildSSEClientTransport } from './mcp-transport.js';
 
 export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientPluginUseParams> {
@@ -164,12 +164,9 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     serverUrl: string,
     headers: ValueOrFactory<Record<string, string>> | undefined
   ) {
-    let transport;
-    if (this.createTransport != null) {
-      transport = this.createTransport(serverUrl);
-    } else {
-      transport = await buildSSEClientTransport(serverUrl, headers);
-    }
+    const transport = this.createTransport
+      ? this.createTransport(serverUrl)
+      : await buildSSEClientTransport(serverUrl, headers);
 
     const client = new Client(
       {
