@@ -2,9 +2,6 @@
 
 # ✍ Writing Documentation
 
-> [**ℹ️ Note**]
-> Do not make edits to the `/docs/` directory, as these files are auto-generated.
-
 One of the most important aspects of a library is great documentation. If you make any code changes, please be sure to update the documentation to reflect the changes. Please see below for details on how to edit the documentation.
 
 ## Introducing `mdbook`

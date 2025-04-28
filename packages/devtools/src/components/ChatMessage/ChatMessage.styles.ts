@@ -8,6 +8,7 @@ const useChatMessageStyles = makeStyles({
     '&:focus': {
       outline: 'none',
     },
+    borderRadius: tokens.borderRadiusMedium,
   },
 
   // Message body styles
@@ -16,13 +17,13 @@ const useChatMessageStyles = makeStyles({
     position: 'relative',
     padding: `${tokens.spacingVerticalM} ${tokens.spacingHorizontalM}`,
     borderRadius: tokens.borderRadiusMedium,
-    border: `2px solid ${tokens.colorSubtleBackground}`,
+    border: `${tokens.strokeWidthThick} solid ${tokens.colorSubtleBackground}`,
     width: '100%',
     wordWrap: 'break-word',
     overflowWrap: 'break-word',
     whiteSpace: 'pre-wrap',
     '&:focus': {
-      outline: `2px solid ${tokens.colorNeutralForeground2Link}`,
+      outline: `${tokens.strokeWidthThick} solid ${tokens.colorNeutralForeground2Link}`,
       borderRadius: tokens.borderRadiusMedium,
     },
     '& a': {
@@ -72,24 +73,24 @@ const useChatMessageStyles = makeStyles({
   },
   // Streaming state styles
   streaming: {
-    border: '2px solid transparent',
+    border: `${tokens.strokeWidthThick} solid ${tokens.colorSubtleBackground}`,
     borderRadius: tokens.borderRadiusMedium,
     // TODO: Use proper Teams colors
     animationName: {
       '0%': {
-        border: '2px solid rgba(70, 79, 235, 1)',
+        border: `${tokens.strokeWidthThick} solid rgba(70, 79, 235, 1)`,
       },
       '25%': {
-        border: '2px solid rgba(71, 207, 250, 1)',
+        border: `${tokens.strokeWidthThick} solid rgba(71, 207, 250, 1)`,
       },
       '50%': {
-        border: '2px solid rgba(180, 124, 248, 1)',
+        border: `${tokens.strokeWidthThick} solid rgba(180, 124, 248, 1)`,
       },
       '75%': {
-        border: '2px solid rgba(71, 207, 250, 1)',
+        border: `${tokens.strokeWidthThick} solid rgba(71, 207, 250, 1)`,
       },
       '100%': {
-        border: '2px solid rgba(70, 79, 235, 1)',
+        border: `${tokens.strokeWidthThick} solid rgba(70, 79, 235, 1)`,
       },
     },
     animationDuration: '4s',
@@ -134,9 +135,11 @@ const useChatMessageStyles = makeStyles({
     minHeight: '1rem',
     minWidth: '1rem',
     transition: 'background-color 0.2s ease, color 0.2s ease',
+    // Hardcoded margin value because griffel doesn't appear to respect negative spacing tokens
+    marginTop: '-0.5rem',
   },
   reactionFromUser: {
-    border: `1px solid ${tokens.colorNeutralStrokeAccessibleSelected}`,
+    border: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStrokeAccessibleSelected}`,
   },
 
   // Popover and feedback styles

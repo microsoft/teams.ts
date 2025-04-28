@@ -32,9 +32,8 @@ $: npm install @microsoft/teams.cards
 
 ## Links
 
-- [AdaptiveCards.io](https://adaptivecards.io/)
-- [Teams Adaptive Cards Designer](https://aka.ms/acdesignerbeta)
-- [Teams Adaptive Cards Schema Explorer](https://aka.ms/acexplorer)
+- [Adaptive Cards documentation](https://adaptivecards.microsoft.com/)
+- [Adaptive Cards Designer](https://adaptivecards.microsoft.com/designer)
 
 ## Dependencies
 
