@@ -13,10 +13,7 @@
     "clean": "npx rimraf ./dist",
     "build": "npx tsc",
     "start": "node .",
-    "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\"",
-    "dev:teamsfx": "npx env-cmd --silent -f .env npm run dev",
-    "dev:teamsfx:testtool": "npx env-cmd --silent -f .env npm run dev",
-    "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
+    "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\""
   },
   "dependencies": {
     "@microsoft/teams.api": "*",
