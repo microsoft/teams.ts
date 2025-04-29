@@ -1,4 +1,5 @@
 import { SubmitAction } from '../actions';
+
 import { TextRun } from './text-run';
 
 describe('TextRun', () => {

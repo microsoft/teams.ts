@@ -34,17 +34,16 @@
     "build:tests": "npx turbo build --filter=./tests/*",
     "build:external": "npx turbo build --filter=./external/*",
     "dev": "npx turbo dev",
-    "lint": "npx turbo lint",
-    "lint:fix": "npx turbo lint:fix",
+    "lint": "npx turbo lint --concurrency=100%",
+    "lint:fix": "npx turbo lint:fix --concurrency=100%",
     "test": "npx turbo test --concurrency=100%",
-    "fmt": "npx prettier --write \"**/*.{js,ts,tsx,md,json}\"",
+    "fmt": "npx turbo fmt --concurrency=100%",
     "validate:snippets": "node ./scripts/validate-snippets.js"
   },
   "devDependencies": {
     "@changesets/cli": "latest",
     "@turbo/gen": "^2.4.4",
     "bluehawk": "^1.6.0",
-    "prettier": "^3.2.5",
     "turbo": "^2.4.0",
     "typescript": "^5.4.5"
   }

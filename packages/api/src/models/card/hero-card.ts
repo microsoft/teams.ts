@@ -1,5 +1,4 @@
 import { CardAction } from './card-action';
-
 import { CardImage } from './card-image';
 
 /**

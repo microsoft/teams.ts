@@ -2,11 +2,12 @@ import http from 'http';
 import path from 'path';
 
 import express from 'express';
-import { WebSocket, WebSocketServer } from 'ws';
+
 import * as uuid from 'uuid';
 
+import { WebSocket, WebSocketServer } from 'ws';
+
 import { ActivityParams, ConversationReference, IToken } from '@microsoft/teams.api';
-import { ILogger, String } from '@microsoft/teams.common';
 import {
   HttpPlugin,
   Logger,
@@ -22,11 +23,12 @@ import {
   IErrorEvent,
   IActivityEvent,
 } from '@microsoft/teams.apps';
+import { ILogger, String } from '@microsoft/teams.common';
 
 import pkg from '../package.json';
 
-import { router } from './routes';
 import { ActivityEvent, IEvent } from './event';
+import { router } from './routes';
 import { Page } from './types';
 
 type ResolveRejctPromise<T = any> = {

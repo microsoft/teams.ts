@@ -1,4 +1,5 @@
 import * as msal from '@azure/msal-browser';
+
 import { ILogger } from '@microsoft/teams.common/logging';
 
 /**

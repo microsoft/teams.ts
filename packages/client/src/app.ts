@@ -1,8 +1,9 @@
 import * as msal from '@azure/msal-browser';
+
+import * as teamsJs from '@microsoft/teams-js';
 import * as http from '@microsoft/teams.common/http';
 import { ILogger, ConsoleLogger } from '@microsoft/teams.common/logging';
 import * as graph from '@microsoft/teams.graph';
-import * as teamsJs from '@microsoft/teams-js';
 
 import { buildGraphClient } from './graph-utils';
 import {
@@ -142,13 +143,6 @@ export class App {
     this._log.debug('app started');
   }
 
-  private appStateGuard(): AppState & { phase: 'started' } {
-    if (this._state.phase !== 'started') {
-      throw new Error('App not started');
-    }
-    return this._state;
-  }
-
   /**
    * Execute a server-side function
    * @param name The unique function name
@@ -214,5 +208,12 @@ export class App {
     } catch (ex) {
       return false;
     }
+  }
+
+  private appStateGuard(): AppState & { phase: 'started' } {
+    if (this._state.phase !== 'started') {
+      throw new Error('App not started');
+    }
+    return this._state;
   }
 }

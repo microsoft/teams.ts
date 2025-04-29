@@ -1,5 +1,4 @@
 import { AssociatedInputs } from '../../common';
-
 import { Action, IAction } from '../base';
 
 export type SubmitActionOptions = Omit<ISubmitAction, 'type' | 'data'>;

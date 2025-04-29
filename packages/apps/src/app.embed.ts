@@ -2,8 +2,8 @@ import npath from 'path';
 
 import { App } from './app';
 import { IFunctionContext } from './contexts';
-import { ClientAuthRequest, withClientAuth } from './middleware';
 import * as manifest from './manifest';
+import { ClientAuthRequest, withClientAuth } from './middleware';
 
 /**
  * add/update a function that can be called remotely

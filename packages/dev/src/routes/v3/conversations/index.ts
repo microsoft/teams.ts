@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { RouteContext } from '../../context';
+
 import * as activities from './activities';
 
 export function router(ctx: RouteContext) {

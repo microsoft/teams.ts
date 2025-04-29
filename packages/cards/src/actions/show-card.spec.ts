@@ -1,5 +1,6 @@
 import { Card } from '../card';
 import { Badge } from '../medias';
+
 import { ShowCardAction } from './show-card';
 
 describe('Actions.ShowCard', () => {

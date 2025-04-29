@@ -1,6 +1,6 @@
+import { IMessageActivity } from './message';
 import { IMessageDeleteActivity } from './message-delete';
 import { IMessageReactionActivity } from './message-reaction';
-import { IMessageActivity } from './message';
 import { IMessageUpdateActivity } from './message-update';
 
 export type $MessageActivity =

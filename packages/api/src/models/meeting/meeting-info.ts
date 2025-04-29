@@ -1,4 +1,5 @@
 import { Account, ConversationAccount } from '../account';
+
 import { MeetingDetails } from './meeting-details';
 
 /**

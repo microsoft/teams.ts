@@ -1,8 +1,8 @@
 import { Activity } from '@microsoft/teams.api';
 
+import { IActivityContext } from './contexts';
 import { EVENT_ALIASES, IRoutes, INVOKE_ALIASES } from './routes';
 import { RouteHandler } from './types';
-import { IActivityContext } from './contexts';
 
 type Route<Name extends keyof IRoutes = keyof IRoutes> = {
   readonly name?: Name;
