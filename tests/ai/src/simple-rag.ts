@@ -1,6 +1,7 @@
 import { ChatPrompt, IChatModel } from '@microsoft/teams.ai';
 import { ActivityLike, IMessageActivity, MessageActivity } from '@microsoft/teams.api';
 import Fuse from 'fuse.js';
+import { ILogger } from '../../../packages/common/dist/logging/logger';
 
 interface DocumentationItem {
   id: string;
@@ -47,7 +48,8 @@ const fuse = new Fuse(documentationCorpus, {
 export const handleDocumentationSearch = async (
   model: IChatModel,
   activity: IMessageActivity,
-  send: (activity: ActivityLike) => Promise<any>
+  send: (activity: ActivityLike) => Promise<any>,
+  log: ILogger
 ) => {
   const citedDocs: DocumentationItem[] = [];
   const documentation = new ChatPrompt({
@@ -101,7 +103,7 @@ export const handleDocumentationSearch = async (
       });
     }
     // :snippet-end:
-    console.log(messageActivity);
+    log.info(messageActivity);
     await send(messageActivity);
   }
 };

@@ -5,6 +5,7 @@ import { ChatPrompt } from '@microsoft/teams.ai';
 import { OpenAIChatModel } from '@microsoft/teams.openai';
 // :snippet-end:
 import { MessageActivity } from '@microsoft/teams.api';
+import { ConsoleLogger } from '@microsoft/teams.common';
 import {
   feedbackLoopCommand,
   pokemonCommand,
@@ -16,7 +17,10 @@ import { storedFeedbackByMessageId } from './feedback';
 import { handleDocumentationSearch } from './simple-rag';
 import { handleStatefulConversation } from './stateful-prompts';
 
+const logger = new ConsoleLogger('@tests/ai');
+
 const app = new App({
+  logger,
   plugins: [new DevtoolsPlugin()],
 });
 
@@ -58,7 +62,7 @@ app.on('message', async ({ send, activity, next }) => {
 // :snippet-end:
 
 // Handle "<supported-command> <query>" message
-app.on('message', async ({ send, activity, next }) => {
+app.on('message', async ({ send, activity, next, log }) => {
   if (activity.text.toLowerCase().startsWith('docs ')) {
     await handleDocumentationSearch(
       model,
@@ -66,7 +70,8 @@ app.on('message', async ({ send, activity, next }) => {
         ...activity,
         text: activity.text.slice(5),
       },
-      send
+      send,
+      log
     );
     return;
   }
@@ -80,7 +85,7 @@ app.on('message', async ({ send, activity, next }) => {
   }
   const { commandName, query, handler } = commandAndQuery;
   if (!handler) {
-    console.warn(`Command ${commandName} does not have a supplied handler`);
+    log.warn(`Command ${commandName} does not have a supplied handler`);
   } else {
     await handler(
       model,
@@ -88,7 +93,8 @@ app.on('message', async ({ send, activity, next }) => {
         ...activity,
         text: query,
       },
-      send
+      send,
+      log
     );
   }
 });
@@ -132,15 +138,15 @@ app.on('message', async ({ stream, send, activity, next }) => {
 // :snippet-end:
 
 // Fall through conversation handler
-app.on('message', async ({ send, activity }) => {
-  await handleStatefulConversation(model, activity, send);
+app.on('message', async ({ send, activity, log }) => {
+  await handleStatefulConversation(model, activity, send, log);
 });
 
 // :snippet-start: feedback-loop-handler
-app.on('message.submit.feedback', async ({ activity }) => {
+app.on('message.submit.feedback', async ({ activity, log }) => {
   const { reaction, feedback: feedbackJson } = activity.value.actionValue;
   if (activity.replyToId == null) {
-    console.warn(`No replyToId found for messageId ${activity.id}`);
+    log.warn(`No replyToId found for messageId ${activity.id}`);
     return;
   }
   const existingFeedback = storedFeedbackByMessageId.get(activity.replyToId);
@@ -149,7 +155,7 @@ app.on('message.submit.feedback', async ({ activity }) => {
    * {"feedbackText":"Nice!"}
    */
   if (!existingFeedback) {
-    console.warn(`No feedback found for messageId ${activity.id}`);
+    log.warn(`No feedback found for messageId ${activity.id}`);
   } else {
     storedFeedbackByMessageId.set(activity.id, {
       ...existingFeedback,

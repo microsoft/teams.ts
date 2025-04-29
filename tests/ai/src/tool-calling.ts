@@ -1,5 +1,6 @@
 import { ChatPrompt, IChatModel } from '@microsoft/teams.ai';
 import { ActivityLike, IMessageActivity, SentActivity } from '@microsoft/teams.api';
+import { ILogger } from '../../../packages/common/dist/logging/logger';
 
 interface PokemonSearch {
   pokemonName: string;
@@ -8,7 +9,8 @@ interface PokemonSearch {
 export const handlePokemonToolCalling = async (
   model: IChatModel,
   activity: IMessageActivity,
-  send: (activity: ActivityLike) => Promise<SentActivity>
+  send: (activity: ActivityLike) => Promise<SentActivity>,
+  log: ILogger
 ) => {
   // :snippet-start: single-function-calling
   // activity could have text like 'pikachu'
@@ -35,7 +37,7 @@ export const handlePokemonToolCalling = async (
       // The cooresponding function will be called
       // automatically if the LLM decides to call this function
       async ({ pokemonName }: PokemonSearch) => {
-        console.log('Searching for pokemon', pokemonName);
+        log.info('Searching for pokemon', pokemonName);
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
         if (!response.ok) {
           throw new Error('Pokemon not found');
@@ -60,7 +62,8 @@ export const handlePokemonToolCalling = async (
 export const handleGetWeatherToolCalling = async (
   model: IChatModel,
   activity: IMessageActivity,
-  send: (activity: ActivityLike) => Promise<SentActivity>
+  send: (activity: ActivityLike) => Promise<SentActivity>,
+  log: ILogger
 ) => {
   // :snippet-start: multiple-function-calling
   // activity.text could be something like "what's my weather?"
@@ -80,7 +83,7 @@ export const handleGetWeatherToolCalling = async (
         const locations = ['Seattle', 'San Francisco', 'New York'];
         const randomIndex = Math.floor(Math.random() * locations.length);
         const location = locations[randomIndex];
-        console.log('Found user location', location);
+        log.info('Found user location', location);
         return location;
       }
     )
@@ -109,7 +112,7 @@ export const handleGetWeatherToolCalling = async (
           return 'Sorry, I could not find the weather for that location';
         }
 
-        console.log('Found weather', weather);
+        log.info('Found weather', weather);
         return weather;
       }
     );

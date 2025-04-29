@@ -1,5 +1,6 @@
 import { ChatPrompt, IChatModel, Message } from '@microsoft/teams.ai';
 import { ActivityLike, IMessageActivity, MessageActivity } from '@microsoft/teams.api';
+import { ILogger } from '../../../packages/common/dist/logging/logger';
 
 // :snippet-start: stateful-prompts-state-initialization
 // Simple in-memory store for conversation histories
@@ -31,14 +32,15 @@ const getOrCreateConversationHistory = (conversationId: string) => {
 export const handleStatefulConversation = async (
   model: IChatModel,
   activity: IMessageActivity,
-  send: (activity: ActivityLike) => Promise<any>
+  send: (activity: ActivityLike) => Promise<any>,
+  log: ILogger
 ) => {
-  console.log('Received message', activity.text);
+  log.info('Received message', activity.text);
 
   // Retrieve existing conversation history or initialize new one
   const existingMessages = getOrCreateConversationHistory(activity.conversation.id);
 
-  console.log('Existing messages before sending to prompt', existingMessages);
+  log.info('Existing messages before sending to prompt', existingMessages);
 
   // Create prompt with existing messages
   const prompt = new ChatPrompt({
@@ -57,6 +59,6 @@ export const handleStatefulConversation = async (
     );
   }
 
-  console.log('Messages after sending to prompt:', existingMessages);
+  log.info('Messages after sending to prompt:', existingMessages);
 };
 // :snippet-end:

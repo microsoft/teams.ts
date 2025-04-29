@@ -1,5 +1,6 @@
 import { IChatModel } from '@microsoft/teams.ai';
 import { ActivityLike, IMessageActivity, SentActivity } from '@microsoft/teams.api';
+import { ILogger } from '../../../packages/common/dist/logging/logger';
 import { handleFeedbackLoop } from './feedback';
 import { handleDocumentationSearch } from './simple-rag';
 import { handleGetWeatherToolCalling, handlePokemonToolCalling } from './tool-calling';
@@ -7,7 +8,8 @@ import { handleGetWeatherToolCalling, handlePokemonToolCalling } from './tool-ca
 export type CommandHandler = (
   model: IChatModel,
   query: IMessageActivity,
-  send: (activity: ActivityLike) => Promise<SentActivity>
+  send: (activity: ActivityLike) => Promise<SentActivity>,
+  log: ILogger
 ) => Promise<void>;
 
 /**
