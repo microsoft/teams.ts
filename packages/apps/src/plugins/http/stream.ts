@@ -8,10 +8,12 @@ import {
   Entity,
   IMessageActivity,
   MessageActivity,
+  SentActivity,
   TypingActivity,
 } from '@microsoft/teams.api';
 
 import { IStreamer, IStreamerEvents } from '../../types';
+import { promises } from '../../utils';
 
 export class HttpStream implements IStreamer {
   readonly events = new EventEmitter<IStreamerEvents>();
@@ -26,8 +28,8 @@ export class HttpStream implements IStreamer {
   protected entities: Entity[] = [];
   protected queue: Array<Partial<IMessageActivity>> = [];
 
+  private _result?: SentActivity;
   private _timeout?: NodeJS.Timeout;
-  private _failures: number = 0;
 
   constructor(client: Client, ref: ConversationReference) {
     this.client = client;
@@ -52,7 +54,7 @@ export class HttpStream implements IStreamer {
   }
 
   async close() {
-    if (!this.queue.length) return;
+    if (this._result) return this._result;
 
     while (!this.id || this.queue.length) {
       await new Promise((resolve) => setTimeout(resolve, 200));
@@ -65,7 +67,7 @@ export class HttpStream implements IStreamer {
       .addStreamFinal()
       .withChannelData(this.channelData);
 
-    const res = await this.send(activity);
+    const res = await promises.retry(this.send(activity));
     this.events.emit('close', res);
 
     this.index = 0;
@@ -74,69 +76,61 @@ export class HttpStream implements IStreamer {
     this.attachments = [];
     this.channelData = {};
     this.entities = [];
+    this._result = res;
+    return res;
   }
 
   protected async flush() {
-    try {
-      if (!this.queue.length) return;
-      if (this._timeout) {
-        clearTimeout(this._timeout);
-        this._timeout = undefined;
+    if (!this.queue.length) return;
+    if (this._timeout) {
+      clearTimeout(this._timeout);
+      this._timeout = undefined;
+    }
+
+    const size = Math.round(this.queue.length / 10);
+    let i = 0;
+
+    while (this.queue.length && i <= size) {
+      const activity = this.queue.shift();
+
+      if (!activity) continue;
+
+      if (activity.text) {
+        this.text += activity.text;
       }
 
-      const size = Math.round(this.queue.length / 10);
-      let i = 0;
-
-      while (this.queue.length && i <= size) {
-        const activity = this.queue.shift();
-
-        if (!activity) continue;
-
-        if (activity.text) {
-          this.text += activity.text;
-        }
-
-        if (activity.attachments) {
-          this.attachments = [...(this.attachments || []), ...activity.attachments];
-        }
-
-        if (activity.channelData) {
-          this.channelData = {
-            ...this.channelData,
-            ...activity.channelData,
-          };
-        }
-
-        if (activity.entities) {
-          this.entities = [...(this.entities || []), ...activity.entities];
-        }
-
-        i++;
+      if (activity.attachments) {
+        this.attachments = [...(this.attachments || []), ...activity.attachments];
       }
 
-      this.index++;
-      const activity = new TypingActivity({ id: this.id })
-        .withText(this.text)
-        .addStreamUpdate(this.index);
-
-      const res = await this.send(activity);
-      this.events.emit('chunk', res);
-
-      if (!this.id) {
-        this.id = res.id;
+      if (activity.channelData) {
+        this.channelData = {
+          ...this.channelData,
+          ...activity.channelData,
+        };
       }
 
-      this._failures = 0;
-
-      if (this.queue.length) {
-        this._timeout = setTimeout(this.flush.bind(this), 500);
+      if (activity.entities) {
+        this.entities = [...(this.entities || []), ...activity.entities];
       }
-    } catch (err) {
-      this._failures += 2;
 
-      if (this.queue.length) {
-        this._timeout = setTimeout(this.flush.bind(this), (this._failures + 1) * 500);
-      }
+      i++;
+    }
+
+    this.index++;
+    const activity = new TypingActivity({ id: this.id })
+      .withText(this.text)
+      .addStreamUpdate(this.index);
+
+    const res = await promises.retry(this.send(activity));
+    this.events.emit('chunk', res);
+
+    if (!this.id) {
+      this.id = res.id;
+    }
+
+    if (this.queue.length) {
+      this._timeout = setTimeout(this.flush.bind(this), 500);
     }
   }
 
@@ -151,12 +145,14 @@ export class HttpStream implements IStreamer {
       const res = await this.client.conversations
         .activities(this.ref.conversation.id)
         .update(activity.id, activity);
+
       return { ...activity, ...res };
     }
 
     const res = await this.client.conversations
       .activities(this.ref.conversation.id)
       .create(activity);
+
     return { ...activity, ...res };
   }
 }

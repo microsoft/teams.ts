@@ -43,6 +43,7 @@
   "peerDependencies": {
     "@microsoft/teams.api": "*",
     "@microsoft/teams.common": "*",
+    "@microsoft/teams.graph": "*",
     "@microsoft/teams-js": "^2.35.0"
   },
   "devDependencies": {

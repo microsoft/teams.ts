@@ -154,11 +154,12 @@ export async function $process(this: App, sender: ISender, event: IActivityEvent
   try {
     let res = await next();
 
+    await context.stream.close();
+
     if (!res || !isInvokeResponse(res)) {
       res = { status: 200, body: res };
     }
 
-    await context.stream.close();
     this.onActivityResponse(sender, {
       ...ref,
       sender,
