@@ -33,6 +33,6 @@ $: npm install @microsoft/teams.botbuilder
 
 ## Dependencies
 
-- [`uuid`](https://www.npmjs.com/package/uuid)
-- [`botbuilder-core`](https://www.npmjs.com/package/botbuilder-core)
-- [`botframework-connector`](https://www.npmjs.com/package/botframework-connector)
+-   [`uuid`](https://www.npmjs.com/package/uuid)
+-   [`botbuilder-core`](https://www.npmjs.com/package/botbuilder-core)
+-   [`botframework-connector`](https://www.npmjs.com/package/botframework-connector)

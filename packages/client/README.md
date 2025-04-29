@@ -34,4 +34,4 @@ $: npm install @microsoft/teams.client
 
 ## Links
 
-- https://learn.microsoft.com/en-us/microsoftteams/platform/tabs/what-are-tabs?tabs=personal
+-   https://learn.microsoft.com/en-us/microsoftteams/platform/tabs/what-are-tabs?tabs=personal
