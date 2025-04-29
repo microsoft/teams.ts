@@ -2,7 +2,6 @@ import { isCard } from '@microsoft/teams.cards';
 
 import { ActivityParams } from '../../clients';
 import { ActivityLike } from '../../models';
-
 import { MessageActivity } from '../message';
 
 /**

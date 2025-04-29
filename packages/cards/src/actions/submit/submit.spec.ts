@@ -5,10 +5,11 @@ describe('Actions.Submit', () => {
     const action = new SubmitAction()
       .withAssociatedInputs('auto')
       .withData()
-      .withData({ hello: 'world' });
+      .withData({ hello: 'world' })
+      .withData({ msteams: { foo: 'bar' } });
 
     expect(action.associatedInputs).toEqual('auto');
-    expect(action.data).toEqual({ msteams: { hello: 'world' } });
+    expect(action.data).toEqual({ msteams: { foo: 'bar' }, hello: 'world' });
   });
 
   it('should build from interface', () => {

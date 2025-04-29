@@ -1,7 +1,3 @@
-import { EventEmitter } from '@microsoft/teams.common/events';
-import * as http from '@microsoft/teams.common/http';
-import { ConsoleLogger, ILogger } from '@microsoft/teams.common/logging';
-import { IStorage, LocalStorage } from '@microsoft/teams.common/storage';
 import { AxiosError } from 'axios';
 
 import {
@@ -13,18 +9,14 @@ import {
   StripMentionsTextOptions,
   toActivityParams,
 } from '@microsoft/teams.api';
+import { EventEmitter } from '@microsoft/teams.common/events';
+import * as http from '@microsoft/teams.common/http';
+import { ConsoleLogger, ILogger } from '@microsoft/teams.common/logging';
+import { IStorage, LocalStorage } from '@microsoft/teams.common/storage';
 
 import pkg from '../package.json';
 
 import { AppClient } from './api';
-import { IEvents } from './events';
-import * as manifest from './manifest';
-import * as middleware from './middleware';
-import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
-import { HttpPlugin } from './plugins';
-import { Router } from './router';
-import { IPlugin } from './types';
-
 import { configTab, func, tab } from './app.embed';
 import { event, onActivity, onActivityResponse, onActivitySent, onError } from './app.events';
 import { onTokenExchange, onVerifyState } from './app.oauth';
@@ -32,6 +24,13 @@ import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
 import { $process } from './app.process';
 import { message, on, use } from './app.routing';
 import { Container } from './container';
+import { IEvents } from './events';
+import * as manifest from './manifest';
+import * as middleware from './middleware';
+import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
+import { HttpPlugin } from './plugins';
+import { Router } from './router';
+import { IPlugin } from './types';
 
 /**
  * App initialization options
@@ -372,45 +371,45 @@ export class App {
    * @param name event to subscribe to
    * @param cb callback to invoke
    */
-  on = on;
+  on = on; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * subscribe to a message event for a specific pattern
    * @param pattern pattern to match against message text
    * @param cb callback to invoke
    */
-  message = message;
+  message = message; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * register a middleware
    * @param cb callback to invoke
    */
-  use = use;
+  use = use; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * subscribe to an event
    * @param name the event to subscribe to
    * @param cb the callback to invoke
    */
-  event = event;
+  event = event; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * add a plugin
    * @param plugin plugin to add
    */
-  plugin = plugin;
+  plugin = plugin; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * get a plugin
    */
-  getPlugin = getPlugin;
+  getPlugin = getPlugin; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * add/update a function that can be called remotely
    * @param name The unique function name
    * @param cb The callback to handle the function
    */
-  function = func;
+  function = func; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * add/update a static tab.
@@ -420,38 +419,38 @@ export class App {
    * @param name A unique identifier for the entity which the tab displays.
    * @param path The path to the web `dist` folder.
    */
-  tab = tab;
+  tab = tab; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * add a configurable tab
    * @remark scopes defaults to `team`
    * @param url The url to use when configuring the tab.
    */
-  configTab = configTab;
+  configTab = configTab; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * activity handler called when an inbound activity is received
    * @param sender the plugin to use for sending activities
    * @param event the received activity event
    */
-  process = $process;
+  process = $process; // eslint-disable-line @typescript-eslint/member-ordering
 
   ///
   /// OAuth
   ///
 
-  protected onTokenExchange = onTokenExchange;
-  protected onVerifyState = onVerifyState;
+  protected onTokenExchange = onTokenExchange; // eslint-disable-line @typescript-eslint/member-ordering
+  protected onVerifyState = onVerifyState; // eslint-disable-line @typescript-eslint/member-ordering
 
   ///
   /// Events
   ///
 
-  protected inject = inject;
-  protected onError = onError;
-  protected onActivity = onActivity;
-  protected onActivitySent = onActivitySent;
-  protected onActivityResponse = onActivityResponse;
+  protected inject = inject; // eslint-disable-line @typescript-eslint/member-ordering
+  protected onError = onError; // eslint-disable-line @typescript-eslint/member-ordering
+  protected onActivity = onActivity; // eslint-disable-line @typescript-eslint/member-ordering
+  protected onActivitySent = onActivitySent; // eslint-disable-line @typescript-eslint/member-ordering
+  protected onActivityResponse = onActivityResponse; // eslint-disable-line @typescript-eslint/member-ordering
 
   ///
   /// Token

@@ -1,5 +1,4 @@
 import { ConversationReference, O365ConnectorCardActionQuery } from '../../models';
-
 import { IActivity } from '../activity';
 
 export interface IExecuteActionInvokeActivity extends IActivity<'invoke'> {

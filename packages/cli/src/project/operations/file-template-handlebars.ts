@@ -1,11 +1,12 @@
-import path from 'node:path';
 import fs from 'node:fs';
+import path from 'node:path';
 
 import Handlebars from 'handlebars';
+
 import { String } from '@microsoft/teams.common';
 
-import { IProjectAttributeOperation } from '../project-attribute';
 import { IProject } from '../project';
+import { IProjectAttributeOperation } from '../project-attribute';
 
 export class FileTemplateHandlebars implements IProjectAttributeOperation {
   readonly name = 'file.template.handlebars';

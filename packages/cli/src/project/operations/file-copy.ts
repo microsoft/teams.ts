@@ -1,9 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
+
 import { String } from '@microsoft/teams.common';
 
-import { IProjectAttributeOperation } from '../project-attribute';
 import { IProject } from '../project';
+import { IProjectAttributeOperation } from '../project-attribute';
 
 export class FileCopy implements IProjectAttributeOperation {
   readonly name = 'file.copy';

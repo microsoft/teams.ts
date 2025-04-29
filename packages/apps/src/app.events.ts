@@ -1,7 +1,6 @@
 import { EventHandler } from '@microsoft/teams.common';
 
 import { App } from './app';
-import { ISender } from './types';
 import {
   IActivityEvent,
   IActivityResponseEvent,
@@ -9,6 +8,7 @@ import {
   IErrorEvent,
   IEvents,
 } from './events';
+import { ISender } from './types';
 
 /**
  * subscribe to an event

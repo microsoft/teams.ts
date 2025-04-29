@@ -1,4 +1,5 @@
 import { MessageActivity } from '../message';
+
 import { stripMentionsText } from './strip-mentions-text';
 
 describe('Activity Utils', () => {

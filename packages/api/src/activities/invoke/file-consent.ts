@@ -1,5 +1,4 @@
 import { ConversationReference, FileConsentCardResponse } from '../../models';
-
 import { IActivity } from '../activity';
 
 export interface IFileConsentInvokeActivity extends IActivity<'invoke'> {

@@ -26,7 +26,7 @@ export class InvokeAction extends SubmitAction implements IInvokeAction {
   }
 
   withData(value: IInvokeData) {
-    this.data.msteams = value;
+    super.withData({ msteams: value });
     return this;
   }
 

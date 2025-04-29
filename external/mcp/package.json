@@ -30,7 +30,8 @@
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
-    "test": "npx jest"
+    "test": "npx jest",
+    "fmt": "npx prettier --write \"**/*.{js,ts,tsx,md,json}\""
   },
   "dependencies": {
     "json-schema-to-zod": "^2.6.0",

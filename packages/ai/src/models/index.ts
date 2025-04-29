@@ -1,6 +1,6 @@
 import { IAudioModel } from './audio';
-import { IImageModel } from './image';
 import { IChatModel } from './chat';
+import { IImageModel } from './image';
 
 export type Model = IChatModel | IAudioModel | IImageModel;
 
