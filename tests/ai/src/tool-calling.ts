@@ -13,7 +13,6 @@ export const handlePokemonToolCalling = async (
   log: ILogger
 ) => {
   // :snippet-start: single-function-calling
-  // activity could have text like 'pikachu'
   const prompt = new ChatPrompt({
     instructions: 'You are a helpful assistant that can look up Pokemon for the user.',
     model,
@@ -54,6 +53,7 @@ export const handlePokemonToolCalling = async (
     );
 
   // The LLM will then produce a final response to be sent back to the user
+  // activity.text could have text like 'pikachu'
   const result = await prompt.send(activity.text);
   await send(result.content ?? 'Sorry I could not find that pokemon');
   // :snippet-end:
