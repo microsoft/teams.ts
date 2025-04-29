@@ -26,7 +26,7 @@ export class IMBackAction extends SubmitAction implements IIMBackAction {
   }
 
   withData(value: IIMBackData) {
-    this.data.msteams = value;
+    super.withData({ msteams: value });
     return this;
   }
 

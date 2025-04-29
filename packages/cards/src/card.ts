@@ -1,7 +1,7 @@
 import { Action, SelectAction } from './actions';
 import { IAuth, Refresh, VerticalAlignment } from './common';
-import { IBackgroundImage } from './medias';
 import { Element } from './element';
+import { IBackgroundImage } from './medias';
 
 /**
  * An Adaptive Card, containing a free-form body of card elements, and an optional set of actions.

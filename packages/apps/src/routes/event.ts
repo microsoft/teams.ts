@@ -1,7 +1,7 @@
 import { EventActivity } from '@microsoft/teams.api';
 
-import { RouteHandler } from '../types';
 import { IActivityContext } from '../contexts';
+import { RouteHandler } from '../types';
 
 export type EventActivityRoutes = {
   [K in EventActivity['name'] as EventAliases[K]]?: RouteHandler<

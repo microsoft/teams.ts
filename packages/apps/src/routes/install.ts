@@ -1,7 +1,7 @@
 import { InstallUpdateActivity } from '@microsoft/teams.api';
 
-import { RouteHandler } from '../types';
 import { IActivityContext } from '../contexts';
+import { RouteHandler } from '../types';
 
 export type InstallActivityRoutes = {
   [K in InstallUpdateActivity['action'] as `install.${K}`]?: RouteHandler<

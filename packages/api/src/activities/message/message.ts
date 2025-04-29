@@ -12,7 +12,6 @@ import {
   SuggestedActions,
   TextFormat,
 } from '../../models';
-
 import { IActivity, Activity } from '../activity';
 import { stripMentionsText, StripMentionsTextOptions } from '../utils';
 

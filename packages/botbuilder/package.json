@@ -35,7 +35,8 @@
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
-    "test": "npx jest"
+    "test": "npx jest",
+    "fmt": "npx prettier --write \"**/*.{js,ts,tsx,md,json}\""
   },
   "peerDependencies": {
     "@microsoft/teams.api": "*",

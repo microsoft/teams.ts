@@ -23,8 +23,11 @@
   ],
   "scripts": {
     "clean": "npx rimraf ./dist",
+    "lint": "npx eslint",
+    "lint:fix": "npx eslint --fix",
     "build": "npx tsup",
-    "test": "npx jest"
+    "test": "npx jest",
+    "fmt": "npx prettier --write \"**/*.{js,ts,tsx,md,json}\""
   },
   "peerDependencies": {
     "@modelcontextprotocol/sdk": "^1.9.0",

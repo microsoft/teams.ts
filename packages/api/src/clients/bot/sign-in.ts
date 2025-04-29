@@ -1,4 +1,5 @@
 import qs from 'qs';
+
 import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
 import { SignInUrlResponse } from '../../models';

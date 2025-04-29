@@ -1,5 +1,5 @@
-import * as http from '@microsoft/teams.common/http';
 import * as api from '@microsoft/teams.api';
+import * as http from '@microsoft/teams.common/http';
 import * as graph from '@microsoft/teams.graph';
 
 export class AppClient extends api.Client {

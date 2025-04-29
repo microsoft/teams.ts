@@ -1,4 +1,13 @@
-export type SensitiveUsageEntity = {
+import { MessageEntity } from './message-entity';
+
+export type SensitiveUsageEntity = MessageEntity & {
+  /**
+   * As part of the usage field
+   */
+  usageInfo?: SensitiveUsage;
+};
+
+export type SensitiveUsage = {
   readonly type: 'https://schema.org/Message';
 
   /**

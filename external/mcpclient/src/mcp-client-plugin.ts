@@ -1,7 +1,8 @@
-import type { ChatPromptPlugin, Function, Schema } from '@microsoft/teams.ai';
 import { Client, ClientOptions } from '@modelcontextprotocol/sdk/client/index.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
+
+import type { ChatPromptPlugin, Function, Schema } from '@microsoft/teams.ai';
 
 export type McpClientPluginParams = {
   name: string;
@@ -46,7 +47,7 @@ export type McpClientPluginOptions = ClientOptions & {
   createTransport?: CreateTransport;
 };
 
-export interface McpClientPluginUseParams {
+export type McpClientPluginUseParams = {
   /**
    * The url of the Mcp server to use
    */
@@ -58,7 +59,7 @@ export interface McpClientPluginUseParams {
    * or use the cached params if provided
    */
   params?: McpClientPluginParams[];
-}
+};
 
 export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientPluginUseParams> {
   readonly name = 'mcpClient';

@@ -1,4 +1,4 @@
-import { SensitiveUsageEntity } from './sensitive-usage-entity';
+import { MessageEntity } from './message-entity';
 
 export type CitationIconName =
   | 'Microsoft Word'
@@ -23,9 +23,14 @@ export type CitationIconName =
   | 'Text'
   | 'PDF';
 
-export type CitationEntity = {
-  readonly type: 'https://schema.org/Message';
+export type CitationEntity = MessageEntity & {
+  /**
+   * Required as 'Citation'
+   */
+  citation?: Claim[];
+};
 
+export type Claim = {
   /**
    * Required as 'Claim'
    */
@@ -94,7 +99,7 @@ export type CitationEntity = {
     /**
      * Sensitivity content information
      */
-    usageInfo?: SensitiveUsageEntity;
+    usageInfo?: CitationUsageInfo;
   };
 };
 
@@ -136,5 +141,27 @@ export type CitationAppearance = {
   /**
    * Sensitivity content information
    */
-  usageInfo?: SensitiveUsageEntity;
+  usageInfo?: CitationUsageInfo;
+};
+
+export type CitationUsageInfo = {
+  /**
+   * Unique identifier for the usage info
+   */
+  '@id': string;
+
+  /**
+   * Description of the usage info
+   */
+  description: string;
+
+  /**
+   * Name of the usage info
+   */
+  name: string;
+
+  /**
+   * Position of the usage info
+   */
+  position?: number;
 };

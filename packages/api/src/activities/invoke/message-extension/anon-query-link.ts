@@ -1,5 +1,4 @@
 import { AppBasedLinkQuery, ConversationReference } from '../../../models';
-
 import { IActivity } from '../../activity';
 
 export interface IMessageExtensionAnonQueryLinkInvokeActivity extends IActivity<'invoke'> {
