@@ -21,7 +21,7 @@ app.on('install.add', async ({ send }) => {
     1. Basic message handling - echoing back what you say<br>
     2. Link unfurling - creating preview cards when you paste URLs<br>
     3. Message extension commands - handling card creation and message details.
-  `
+  `;
   await send(greeting);
 });
 

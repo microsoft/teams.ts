@@ -1,7 +1,8 @@
 import { ActionSet, Card, Element, Image, OpenUrlAction, TextBlock } from '@microsoft/teams.cards';
 import { Account, Message, ThumbnailCard } from '@microsoft/teams.api';
 
-const IMAGE_URL = 'https://github.com/microsoft/teams-agent-accelerator-samples/raw/main/python/memory-sample-agent/docs/images/memory-thumbnail.png';
+const IMAGE_URL =
+  'https://github.com/microsoft/teams-agent-accelerator-samples/raw/main/python/memory-sample-agent/docs/images/memory-thumbnail.png';
 
 // :snippet-start: message-ext-create-card
 interface FormData {
