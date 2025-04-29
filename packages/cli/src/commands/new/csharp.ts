@@ -4,8 +4,8 @@ import url from 'node:url';
 
 import { CommandModule } from 'yargs';
 
-import { Project } from '../../project';
 import { IContext } from '../../context';
+import { Project } from '../../project';
 
 type Args = {
   readonly name: string;

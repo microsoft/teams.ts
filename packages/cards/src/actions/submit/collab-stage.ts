@@ -46,7 +46,7 @@ export class CollabStageAction extends SubmitAction implements ICollabStageActio
   }
 
   withData(value: ICollabStageData) {
-    this.data.msteams = value;
+    super.withData({ msteams: value });
     return this;
   }
 

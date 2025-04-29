@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
-import { JsonWebToken } from './json-web-token';
 import { CallerIds } from './caller';
+import { JsonWebToken } from './json-web-token';
 
 describe('JsonWebToken', () => {
   it('should be from bot', () => {

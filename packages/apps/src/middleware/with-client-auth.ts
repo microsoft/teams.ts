@@ -1,9 +1,10 @@
 import express from 'express';
 
-import { ILogger } from '@microsoft/teams.common';
 import { Credentials } from '@microsoft/teams.api';
+import { ILogger } from '@microsoft/teams.common';
 
 import { IClientContext } from '../contexts';
+
 import { EntraTokenValidator } from './entra-token-validator';
 
 export type WithClientAuthParams = Partial<Credentials> & {

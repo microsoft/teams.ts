@@ -35,6 +35,7 @@
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
     "test": "npx jest",
+    "fmt": "npx prettier --write \"**/*.{js,ts,tsx,md,json}\"",
     "generate": "npx quicktype -s schema -l typescript ./manifest.schema.json -o ./src/manifest.ts --prefer-unions --prefer-types --just-types"
   },
   "dependencies": {

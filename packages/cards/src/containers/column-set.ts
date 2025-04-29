@@ -1,6 +1,6 @@
 import { HorizontalAlignment } from '../common';
-import { IContainerElement, ContainerElement } from './base';
 
+import { IContainerElement, ContainerElement } from './base';
 import { IColumn } from './column';
 import { ContainerStyle } from './container';
 

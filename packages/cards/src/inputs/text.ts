@@ -1,4 +1,5 @@
 import { Action } from '../actions';
+
 import { IInputElement, InputElement } from './base';
 
 /**

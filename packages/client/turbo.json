@@ -5,7 +5,11 @@
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"],
       "cache": false,
-      "dependsOn": ["@microsoft/teams.api#build", "@microsoft/teams.common#build"]
+      "dependsOn": [
+        "@microsoft/teams.api#build",
+        "@microsoft/teams.common#build",
+        "@microsoft/teams.graph#build"
+      ]
     }
   }
 }
