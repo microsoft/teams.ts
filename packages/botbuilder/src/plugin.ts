@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { ILogger } from '@microsoft/teams.common';
+import { $Activity, Activity, Credentials, IToken, JsonWebToken } from '@microsoft/teams.api';
 import {
   Dependency,
   Event,
@@ -12,7 +12,7 @@ import {
   Plugin,
   manifest,
 } from '@microsoft/teams.apps';
-import { $Activity, Activity, Credentials, IToken, JsonWebToken } from '@microsoft/teams.api';
+import { ILogger } from '@microsoft/teams.common';
 import * as $http from '@microsoft/teams.common/http';
 
 import {
@@ -44,10 +44,10 @@ export class BotBuilderPlugin extends HttpPlugin implements ISender {
   declare readonly manifest: Partial<manifest.Manifest>;
 
   @Dependency({ optional: true })
-  declare readonly botToken?: IToken;
+  declare readonly botToken?: () => IToken;
 
   @Dependency({ optional: true })
-  declare readonly graphToken?: IToken;
+  declare readonly graphToken?: () => IToken;
 
   @Dependency({ optional: true })
   readonly credentials?: Credentials;
