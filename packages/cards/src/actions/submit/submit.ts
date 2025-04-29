@@ -1,6 +1,6 @@
 import { AssociatedInputs } from '../../common';
 
-import { IAction, Action } from '../base';
+import { Action, IAction } from '../base';
 
 export type SubmitActionOptions = Omit<ISubmitAction, 'type' | 'data'>;
 
@@ -52,12 +52,19 @@ export class SubmitAction extends Action implements ISubmitAction {
     return this;
   }
 
-  withData(value: Record<string, any> = {}) {
+  withData(value: Record<string, any> = { msteams: {} }) {
+    const { msteams, ...rest } = value;
     if (!this.data) {
-      this.data = { msteams: {} };
+      this.data = { msteams };
     }
 
-    this.data.msteams = value;
+    Object.assign(this.data, {
+      msteams: {
+        ...this.data.msteams,
+        ...msteams,
+      },
+      ...rest,
+    });
     return this;
   }
 }
