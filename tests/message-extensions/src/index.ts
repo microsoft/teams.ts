@@ -1,6 +1,6 @@
 import { cardAttachment } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
-import { Card } from '@microsoft/teams.cards';
+import { ICard } from '@microsoft/teams.cards';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 import {
@@ -10,7 +10,6 @@ import {
   createLinkUnfurlCard,
   createMessageDetailsCard,
 } from './card';
-
 const app = new App({
   logger: new ConsoleLogger('@tests/message-extensions', { level: 'debug' }),
   plugins: [new DevtoolsPlugin()],
@@ -26,16 +25,13 @@ app.on('message.ext.query-link', async ({ activity }) => {
   const { url } = activity.value;
 
   if (!url) {
-    return {
-      status: 400,
-      body: {},
-    };
+    return { status: 400 };
   }
 
   const { card, thumbnail } = createLinkUnfurlCard(url);
   const attachment = {
-    ...cardAttachment('adaptive', card),
-    preview: cardAttachment('thumbnail', thumbnail),
+    ...cardAttachment('adaptive', card), // expanded card in the compose box...
+    preview: cardAttachment('thumbnail', thumbnail), //preview card in the compose box...
   };
 
   return {
@@ -48,9 +44,9 @@ app.on('message.ext.query-link', async ({ activity }) => {
 });
 // :snippet-end: message-ext-query-link
 // :snippet-start: message-ext-submit
-app.on('message.ext.submit', async ({ send, activity }) => {
+app.on('message.ext.submit', async ({ activity }) => {
   const { commandId } = activity.value;
-  let card: Card;
+  let card: ICard;
 
   if (commandId === 'createCard') {
     // activity.value.commandContext == "compose"
@@ -62,11 +58,12 @@ app.on('message.ext.submit', async ({ send, activity }) => {
     throw new Error(`Unknown commandId: ${commandId}`);
   }
 
-  await send(card);
-
   return {
-    status: 200,
-    body: {},
+    composeExtension: {
+      type: 'result',
+      attachmentLayout: 'list',
+      attachments: [cardAttachment('adaptive', card)],
+    },
   };
 });
 // :snippet-end: message-ext-submit
@@ -78,16 +75,13 @@ app.on('message.ext.open', async ({ activity, api }) => {
   const card = createConversationMembersCard(members);
 
   return {
-    status: 200,
-    body: {
-      task: {
-        type: 'continue',
-        value: {
-          title: 'Conversation members',
-          height: 'small',
-          width: 'small',
-          card: cardAttachment('adaptive', card),
-        },
+    task: {
+      type: 'continue',
+      value: {
+        title: 'Conversation members',
+        height: 'small',
+        width: 'small',
+        card: cardAttachment('adaptive', card),
       },
     },
   };
@@ -103,8 +97,8 @@ app.on('message.ext.query', async ({ activity }) => {
     const cards = await createDummyCards(searchQuery);
     const attachments = cards.map(({ card, thumbnail }) => {
       return {
-        ...cardAttachment('adaptive', card),
-        preview: cardAttachment('thumbnail', thumbnail),
+        ...cardAttachment('adaptive', card), // expanded card in the compose box...
+        preview: cardAttachment('thumbnail', thumbnail), // preview card in the compose box...
       };
     });
 
@@ -117,10 +111,7 @@ app.on('message.ext.query', async ({ activity }) => {
     };
   }
 
-  return {
-    status: 400,
-    body: {},
-  };
+  return { status: 400 };
 });
 // :snippet-end: message-ext-query
 

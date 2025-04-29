@@ -1,11 +1,13 @@
 import { ActionSet, Card, Element, Image, OpenUrlAction, TextBlock } from '@microsoft/teams.cards';
 import { Account, Message, ThumbnailCard } from '@microsoft/teams.api';
 
+// :snippet-start: message-ext-create-card
 interface FormData {
   title: string;
   subTitle: string;
   text: string;
 }
+
 
 export function createCard(data: FormData) {
   const cardImageUrl =
@@ -29,7 +31,9 @@ export function createCard(data: FormData) {
     })
   );
 }
+// :snippet-end: message-ext-create-card
 
+// :snippet-start: message-ext-create-message-details-card
 export function createMessageDetailsCard(messagePayload: Message) {
   const cardElements: Element[] = [
     new TextBlock('Message Details', {
@@ -96,7 +100,9 @@ export function createMessageDetailsCard(messagePayload: Message) {
 
   return new Card(...cardElements);
 }
+// :snippet-end: message-ext-create-message-details-card
 
+// :snippet-start: message-ext-create-conversation-members-card
 export function createConversationMembersCard(members: Account[]) {
   const membersList = members.map((member) => member.name).join(', ');
 
@@ -113,7 +119,9 @@ export function createConversationMembersCard(members: Account[]) {
     })
   );
 }
+// :snippet-end: message-ext-create-conversation-members-card
 
+// :snippet-start: message-ext-create-dummy-cards
 export async function createDummyCards(searchQuery: string) {
   const dummyItems = [
     {
@@ -149,7 +157,9 @@ export async function createDummyCards(searchQuery: string) {
 
   return cards;
 }
+// :snippet-end: message-ext-create-dummy-cards
 
+// :snippet-start: message-ext-create-link-unfurl-card
 export function createLinkUnfurlCard(url: string) {
   const thumbnail = {
     title: 'Unfurled Link',
@@ -180,3 +190,4 @@ export function createLinkUnfurlCard(url: string) {
     thumbnail,
   };
 }
+// :snippet-end: message-ext-create-link-unfurl-card
