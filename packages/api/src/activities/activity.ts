@@ -305,7 +305,7 @@ export class Activity<T extends string = string> implements IActivity<T> {
   }
 
   withChannelData(value: ChannelData) {
-    this.channelData = value;
+    this.channelData = { ...this.channelData, ...value };
     return this;
   }
 
