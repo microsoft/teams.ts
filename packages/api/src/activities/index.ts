@@ -1,12 +1,12 @@
-import { EventActivity } from './event';
-import { InvokeActivity } from './invoke';
-import { ConversationActivity } from './conversation';
-import { $MessageActivity } from './message';
 import { CommandActivity } from './command';
+import { ConversationActivity } from './conversation';
+import { EventActivity } from './event';
+import { IHandoffActivity } from './handoff';
 import { InstallUpdateActivity } from './install-update';
+import { InvokeActivity } from './invoke';
+import { $MessageActivity } from './message';
 import { ITraceActivity } from './trace';
 import { ITypingActivity } from './typing';
-import { IHandoffActivity } from './handoff';
 
 export type Activity =
   | $MessageActivity

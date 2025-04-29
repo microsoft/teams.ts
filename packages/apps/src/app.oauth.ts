@@ -1,10 +1,12 @@
+import { AxiosError } from 'axios';
+
 import {
   ISignInTokenExchangeInvokeActivity,
   ISignInVerifyStateInvokeActivity,
   TokenExchangeInvokeResponse,
 } from '@microsoft/teams.api';
 import * as graph from '@microsoft/teams.graph';
-import { AxiosError } from 'axios';
+
 import { App } from './app';
 import * as contexts from './contexts';
 

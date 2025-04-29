@@ -1,7 +1,7 @@
 import { VerticalAlignment } from '../common';
 import { Element } from '../element';
-import { IContainerElement, ContainerElement } from './base';
 
+import { IContainerElement, ContainerElement } from './base';
 import { ContainerStyle } from './container';
 
 /**

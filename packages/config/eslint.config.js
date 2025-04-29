@@ -1,6 +1,7 @@
 const eslint = require('@eslint/js');
 const tseslint = require('typescript-eslint');
-const prettier = require('eslint-plugin-prettier/recommended');
+const prettierPlugin = require('eslint-plugin-prettier/recommended');
+const importPlugin = require('eslint-plugin-import');
 
 /** @type {import("eslint").Linter.Config} */
 module.exports = tseslint.config(
@@ -15,7 +16,8 @@ module.exports = tseslint.config(
   {
     extends: [
       eslint.configs.recommended,
-      prettier,
+      prettierPlugin,
+      importPlugin.flatConfigs.recommended,
       ...tseslint.configs.recommended
     ],
     ignores: [
@@ -27,10 +29,31 @@ module.exports = tseslint.config(
     files: ['src/**/*.ts'],
     rules: {
       'grouped-accessor-pairs': ['error', 'getBeforeSet'],
+      'import/no-unresolved': 'off',
+      'import/named': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-duplicate-enum-values': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
+      'import/order': [
+        'error',
+        {
+          'newlines-between': 'always-and-inside-groups',
+          'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object', 'type'],
+          'pathGroups': [
+            {
+              'pattern': '@microsoft/**',
+              'group': 'external',
+              'position': 'after'
+            }
+          ],
+          'alphabetize': {
+            'order': 'asc',
+            'caseInsensitive': true
+          },
+          'pathGroupsExcludedImportTypes': []
+        }
+      ],
       '@typescript-eslint/member-ordering': [
         'error',
         {

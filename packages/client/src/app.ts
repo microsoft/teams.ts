@@ -1,8 +1,9 @@
 import * as msal from '@azure/msal-browser';
+
+import * as teamsJs from '@microsoft/teams-js';
 import * as http from '@microsoft/teams.common/http';
 import { ILogger, ConsoleLogger } from '@microsoft/teams.common/logging';
 import * as graph from '@microsoft/teams.graph';
-import * as teamsJs from '@microsoft/teams-js';
 
 import { buildGraphClient } from './graph-utils';
 import {

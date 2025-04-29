@@ -1,6 +1,6 @@
-import { IProjectAttribute } from './project-attribute';
-import { Project, ProjectLanguage } from './project';
 import * as attributes from './attributes';
+import { Project, ProjectLanguage } from './project';
+import { IProjectAttribute } from './project-attribute';
 
 export class ProjectBuilder {
   private _path?: string;

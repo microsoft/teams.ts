@@ -1,4 +1,5 @@
 import { Account, ConversationAccount } from '../models';
+
 import { Activity } from './activity';
 
 describe('Activity', () => {

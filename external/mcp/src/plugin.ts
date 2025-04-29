@@ -1,8 +1,14 @@
 import { Readable, Writable } from "stream";
 
+import { ServerOptions } from "@modelcontextprotocol/sdk/server/index.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import { jsonSchemaToZod } from "json-schema-to-zod";
+import { z } from "zod";
+
 import { IChatPrompt } from "@microsoft/teams.ai";
-import { ILogger } from "@microsoft/teams.common";
-import { DevtoolsPlugin } from "@microsoft/teams.dev";
 import {
   Dependency,
   HttpPlugin,
@@ -11,17 +17,11 @@ import {
   Logger,
   Plugin,
 } from "@microsoft/teams.apps";
-
-import { ServerOptions } from "@modelcontextprotocol/sdk/server/index.js";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-
-import { z } from "zod";
-import { jsonSchemaToZod } from "json-schema-to-zod";
+import { ILogger } from "@microsoft/teams.common";
+import { DevtoolsPlugin } from "@microsoft/teams.dev";
 
 import pkg from "../package.json";
+
 import { IConnection } from "./connection";
 
 /**

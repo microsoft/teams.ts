@@ -1,4 +1,3 @@
-import { EventEmitter } from '@microsoft/teams.common';
 import {
   ActivityParams,
   Attachment,
@@ -11,6 +10,7 @@ import {
   SentActivity,
   TypingActivity,
 } from '@microsoft/teams.api';
+import { EventEmitter } from '@microsoft/teams.common';
 
 import { IStreamer, IStreamerEvents } from '../../types';
 import { promises } from '../../utils';

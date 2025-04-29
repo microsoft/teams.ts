@@ -1,5 +1,6 @@
 import { VerticalAlignment } from '../common';
 import { Element } from '../element';
+
 import { IContainerElement, ContainerElement } from './base';
 
 /**

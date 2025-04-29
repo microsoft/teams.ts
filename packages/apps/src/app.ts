@@ -1,7 +1,3 @@
-import { EventEmitter } from '@microsoft/teams.common/events';
-import * as http from '@microsoft/teams.common/http';
-import { ConsoleLogger, ILogger } from '@microsoft/teams.common/logging';
-import { IStorage, LocalStorage } from '@microsoft/teams.common/storage';
 import { AxiosError } from 'axios';
 
 import {
@@ -13,18 +9,14 @@ import {
   StripMentionsTextOptions,
   toActivityParams,
 } from '@microsoft/teams.api';
+import { EventEmitter } from '@microsoft/teams.common/events';
+import * as http from '@microsoft/teams.common/http';
+import { ConsoleLogger, ILogger } from '@microsoft/teams.common/logging';
+import { IStorage, LocalStorage } from '@microsoft/teams.common/storage';
 
 import pkg from '../package.json';
 
 import { AppClient } from './api';
-import { IEvents } from './events';
-import * as manifest from './manifest';
-import * as middleware from './middleware';
-import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
-import { HttpPlugin } from './plugins';
-import { Router } from './router';
-import { IPlugin } from './types';
-
 import { configTab, func, tab } from './app.embed';
 import { event, onActivity, onActivityResponse, onActivitySent, onError } from './app.events';
 import { onTokenExchange, onVerifyState } from './app.oauth';
@@ -32,6 +24,13 @@ import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
 import { $process } from './app.process';
 import { message, on, use } from './app.routing';
 import { Container } from './container';
+import { IEvents } from './events';
+import * as manifest from './manifest';
+import * as middleware from './middleware';
+import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
+import { HttpPlugin } from './plugins';
+import { Router } from './router';
+import { IPlugin } from './types';
 
 /**
  * App initialization options

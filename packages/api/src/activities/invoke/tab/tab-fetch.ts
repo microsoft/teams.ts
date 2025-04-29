@@ -1,5 +1,4 @@
 import { ConversationReference, TabRequest } from '../../../models';
-
 import { IActivity } from '../../activity';
 
 export interface ITabFetchInvokeActivity extends IActivity<'invoke'> {

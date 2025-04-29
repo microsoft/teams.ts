@@ -1,5 +1,4 @@
 import { ConversationReference, TaskModuleRequest } from '../../../models';
-
 import { IActivity } from '../../activity';
 
 export interface ITaskFetchInvokeActivity extends IActivity<'invoke'> {

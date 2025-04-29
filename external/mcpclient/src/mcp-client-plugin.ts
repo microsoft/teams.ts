@@ -1,7 +1,8 @@
-import type { ChatPromptPlugin, Function, Schema } from '@microsoft/teams.ai';
 import { Client, ClientOptions } from '@modelcontextprotocol/sdk/client/index.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
+
+import type { ChatPromptPlugin, Function, Schema } from '@microsoft/teams.ai';
 
 export type McpClientPluginParams = {
   name: string;

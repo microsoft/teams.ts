@@ -3,12 +3,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
 
-import { String } from '@microsoft/teams.common';
 import { CommandModule } from 'yargs';
 import { z } from 'zod';
 
-import { Project } from '../../project';
+import { String } from '@microsoft/teams.common';
+
 import { IContext } from '../../context';
+import { Project } from '../../project';
 
 const ArgsSchema = z.object({
   name: z.string(),
