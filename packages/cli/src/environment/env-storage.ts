@@ -20,6 +20,22 @@ export class EnvStorage {
     this._settings = settings;
   }
 
+  static load(settings: Settings) {
+    const storage = new EnvStorage(settings);
+    const base = path.join(os.homedir(), 'teams.sdk', 'environments');
+
+    if (!fs.existsSync(base)) {
+      return storage;
+    }
+
+    for (const name of fs.readdirSync(base, { recursive: true })) {
+      const env = Env.load(path.basename(name.toString(), '.env'));
+      storage.add(env);
+    }
+
+    return storage;
+  }
+
   getByName(name: string) {
     return this._store.get(name);
   }
@@ -66,21 +82,5 @@ export class EnvStorage {
 
   list(where?: (item: IEnv, i: number) => boolean) {
     return Array.from(this._store.values()).filter((item, i) => (where ? where(item, i) : true));
-  }
-
-  static load(settings: Settings) {
-    const storage = new EnvStorage(settings);
-    const base = path.join(os.homedir(), 'teams.sdk', 'environments');
-
-    if (!fs.existsSync(base)) {
-      return storage;
-    }
-
-    for (const name of fs.readdirSync(base, { recursive: true })) {
-      const env = Env.load(path.basename(name.toString(), '.env'));
-      storage.add(env);
-    }
-
-    return storage;
   }
 }

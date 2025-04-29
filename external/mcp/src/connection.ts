@@ -1,4 +1,4 @@
-import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 
 export interface IConnection {
   readonly id: number;

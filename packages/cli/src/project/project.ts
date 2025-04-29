@@ -42,6 +42,25 @@ export class Project implements IProject {
     this._attributes = attributes;
   }
 
+  static builder() {
+    return new ProjectBuilder();
+  }
+
+  static load() {
+    const language = fs.existsSync(path.join(process.cwd(), 'package.json'))
+      ? 'typescript'
+      : undefined;
+
+    if (!language) {
+      throw new Error('invalid project');
+    }
+
+    return new ProjectBuilder()
+      .withPath(process.cwd())
+      .withName(path.basename(process.cwd()))
+      .withLanguage(language);
+  }
+
   async up() {
     for (const attribute of this._attributes) {
       const op = await attribute[this._language](this._path);
@@ -62,24 +81,5 @@ export class Project implements IProject {
         language: this.language,
       });
     }
-  }
-
-  static builder() {
-    return new ProjectBuilder();
-  }
-
-  static load() {
-    const language = fs.existsSync(path.join(process.cwd(), 'package.json'))
-      ? 'typescript'
-      : undefined;
-
-    if (!language) {
-      throw new Error('invalid project');
-    }
-
-    return new ProjectBuilder()
-      .withPath(process.cwd())
-      .withName(path.basename(process.cwd()))
-      .withLanguage(language);
   }
 }

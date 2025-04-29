@@ -142,13 +142,6 @@ export class App {
     this._log.debug('app started');
   }
 
-  private appStateGuard(): AppState & { phase: 'started' } {
-    if (this._state.phase !== 'started') {
-      throw new Error('App not started');
-    }
-    return this._state;
-  }
-
   /**
    * Execute a server-side function
    * @param name The unique function name
@@ -214,5 +207,12 @@ export class App {
     } catch (ex) {
       return false;
     }
+  }
+
+  private appStateGuard(): AppState & { phase: 'started' } {
+    if (this._state.phase !== 'started') {
+      throw new Error('App not started');
+    }
+    return this._state;
   }
 }

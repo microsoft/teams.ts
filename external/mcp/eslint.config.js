@@ -1,1 +1,1 @@
-module.exports = require('@microsoft/teams.config/eslint.config');
+module.exports = require("@microsoft/teams.config/eslint.config");

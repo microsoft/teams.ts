@@ -32,6 +32,31 @@ export class Env implements IEnv {
     this.name = name;
   }
 
+  static load(name: string) {
+    const env = new Env(name);
+    const base = path.join(os.homedir(), 'teams.sdk', 'environments');
+    const file = path.join(base, `${name}.env`);
+
+    if (!fs.existsSync(file)) {
+      return env;
+    }
+
+    const content = fs.readFileSync(file, 'utf8');
+    const lines = content.split('\n');
+
+    for (const [key, value] of lines.map((line) =>
+      line
+        .trim()
+        .split('=', 2)
+        .map((v) => v.trim())
+    )) {
+      if (!key) continue;
+      env.set(key, value);
+    }
+
+    return env;
+  }
+
   get(key: string) {
     return this.items.get(key);
   }
@@ -77,31 +102,6 @@ export class Env implements IEnv {
 
     const file = path.join(base, `${this.name}.env`);
     fs.writeFileSync(file, this.toString(), 'utf8');
-  }
-
-  static load(name: string) {
-    const env = new Env(name);
-    const base = path.join(os.homedir(), 'teams.sdk', 'environments');
-    const file = path.join(base, `${name}.env`);
-
-    if (!fs.existsSync(file)) {
-      return env;
-    }
-
-    const content = fs.readFileSync(file, 'utf8');
-    const lines = content.split('\n');
-
-    for (const [key, value] of lines.map((line) =>
-      line
-        .trim()
-        .split('=', 2)
-        .map((v) => v.trim())
-    )) {
-      if (!key) continue;
-      env.set(key, value);
-    }
-
-    return env;
   }
 
   delete() {
