@@ -1,26 +1,25 @@
 import { ActionSet, Card, Element, Image, OpenUrlAction, TextBlock } from '@microsoft/teams.cards';
 import { Account, Message, ThumbnailCard } from '@microsoft/teams.api';
 
+const IMAGE_URL = 'https://github.com/microsoft/teams-agent-accelerator-samples/raw/main/python/memory-sample-agent/docs/images/memory-thumbnail.png';
+
 // :snippet-start: message-ext-create-card
 interface FormData {
   title: string;
-  subTitle: string;
+  subtitle: string;
   text: string;
 }
 
-
 export function createCard(data: FormData) {
-  const cardImageUrl =
-    'https://github.com/microsoft/teams-agent-accelerator-samples/raw/main/python/memory-sample-agent/docs/images/memory-thumbnail.png';
   return new Card(
-    new Image(cardImageUrl),
+    new Image(IMAGE_URL),
     new TextBlock(data.title, {
       size: 'large',
       weight: 'bolder',
       color: 'accent',
       style: 'heading',
     }),
-    new TextBlock(data.subTitle, {
+    new TextBlock(data.subtitle, {
       size: 'small',
       weight: 'lighter',
       color: 'good',
@@ -166,7 +165,7 @@ export function createLinkUnfurlCard(url: string) {
     text: url,
     images: [
       {
-        url: 'https://raw.githubusercontent.com/microsoft/botframework-sdk/master/icon.png',
+        url: IMAGE_URL,
       },
     ],
   } as ThumbnailCard;
