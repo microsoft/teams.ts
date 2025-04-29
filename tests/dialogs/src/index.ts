@@ -1,5 +1,5 @@
 import { cardAttachment, MessageActivity } from '@microsoft/teams.api';
-import { App, HttpPlugin } from '@microsoft/teams.apps';
+import { App } from '@microsoft/teams.apps';
 import {
   Card,
   ICard,
@@ -8,6 +8,7 @@ import {
   TaskFetchData,
   TextInput,
 } from '@microsoft/teams.cards';
+import { ConsoleLogger } from '@microsoft/teams.common';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -16,19 +17,19 @@ dotenv.config({
   path: path.join(__dirname, '..', 'env', '.env.local'),
 });
 
-const httpPlugin = new HttpPlugin();
+const logger = new ConsoleLogger('@tests/dialogs');
 
 if (!process.env['BOT_ENDPOINT']) {
-  console.warn('No remote endpoing detected. Using webpages for dialog will not work as expected');
+  logger.warn('No remote endpoing detected. Using webpages for dialog will not work as expected');
 }
 
-httpPlugin.get('/', (_req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'customform.html'));
+const app = new App({
+  logger,
+  plugins: [new DevtoolsPlugin()],
 });
 
-const app = new App({
-  plugins: [new DevtoolsPlugin(), httpPlugin],
-});
+// Hosts a static webpage at /tabs/dialog-form
+app.tab('dialog-form', path.join(__dirname, 'views', 'customform'));
 
 // :snippet-start: dialog-entry-point
 app.on('message', async ({ send }) => {
@@ -92,6 +93,10 @@ app.on('dialog.open', async ({ activity }) => {
 // :snippet-end:
 */
 
+app.event('error', ({ error }) => {
+  logger.error('Error', error);
+});
+
 app.on('dialog.open', async ({ activity, next }) => {
   const dialogType = activity.value.data.opendialogtype;
 
@@ -141,7 +146,7 @@ app.on('dialog.open', async ({ activity, next }) => {
           // server as the agent. This server needs to be publicly accessible,
           // needs to set up teams.js client library (https://www.npmjs.com/package/@microsoft/teams-js)
           // and needs to be registered in the manifest.
-          url: process.env['BOT_ENDPOINT'],
+          url: `${process.env['BOT_ENDPOINT']}/tabs/dialog-form`,
           width: 1000,
           height: 800,
         },
