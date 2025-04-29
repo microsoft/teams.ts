@@ -1,6 +1,15 @@
-import { Readable, Writable } from 'stream';
+import { Readable, Writable } from "stream";
 
-import { IChatPrompt } from '@microsoft/teams.ai';
+import { ServerOptions } from "@modelcontextprotocol/sdk/server/index.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+
+import { jsonSchemaToZod } from "json-schema-to-zod";
+import { z } from "zod";
+
+import { IChatPrompt } from "@microsoft/teams.ai";
 import {
   Dependency,
   HttpPlugin,
@@ -8,21 +17,13 @@ import {
   IPluginStartEvent,
   Logger,
   Plugin,
-} from '@microsoft/teams.apps';
-import { ILogger } from '@microsoft/teams.common';
-import { DevtoolsPlugin } from '@microsoft/teams.dev';
+} from "@microsoft/teams.apps";
+import { ILogger } from "@microsoft/teams.common";
+import { DevtoolsPlugin } from "@microsoft/teams.dev";
 
-import { ServerOptions } from '@modelcontextprotocol/sdk/server/index.js';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import pkg from "../package.json";
 
-import { jsonSchemaToZod } from 'json-schema-to-zod';
-import { z } from 'zod';
-
-import pkg from '../package.json';
-import { IConnection } from './connection';
+import { IConnection } from "./connection";
 
 /**
  * MCP transport options for sse
@@ -31,7 +32,7 @@ export type McpSSETransportOptions = {
   /**
    * the transport type
    */
-  readonly type: 'sse';
+  readonly type: "sse";
 
   /**
    * the url path
@@ -47,7 +48,7 @@ export type McpStdioTransportOptions = {
   /**
    * the transport type
    */
-  readonly type: 'stdio';
+  readonly type: "stdio";
 
   /**
    * stdin to use
@@ -98,13 +99,13 @@ export type McpPluginOptions = ServerOptions & {
  * use the underlying Server instance available via the server property.
  */
 @Plugin({
-  name: 'mcp',
+  name: "mcp",
   version: pkg.version,
   description: [
-    'High-level MCP server that provides a simpler API for working with resources, tools, and prompts.',
-    'For advanced usage (like sending notifications or setting custom request handlers),',
-    'use the underlying Server instance available via the server property.',
-  ].join('\n'),
+    "High-level MCP server that provides a simpler API for working with resources, tools, and prompts.",
+    "For advanced usage (like sending notifications or setting custom request handlers),",
+    "use the underlying Server instance available via the server property.",
+  ].join("\n"),
 })
 export class McpPlugin implements IPlugin {
   @Logger()
@@ -120,22 +121,24 @@ export class McpPlugin implements IPlugin {
   protected id: number = -1;
   protected inspector: string;
   protected connections: Record<number, IConnection> = {};
-  protected transport: McpSSETransportOptions | McpStdioTransportOptions = { type: 'sse' };
+  protected transport: McpSSETransportOptions | McpStdioTransportOptions = {
+    type: "sse",
+  };
 
   constructor(options: McpServer | McpPluginOptions = {}) {
     this.inspector =
       options instanceof McpServer
-        ? 'http://localhost:5173'
-        : options.inspector || 'http://localhost:5173';
+        ? "http://localhost:5173"
+        : options.inspector || "http://localhost:5173";
     this.server =
       options instanceof McpServer
         ? options
         : new McpServer(
             {
-              name: options.name || 'mcp',
-              version: options.version || '0.0.0',
+              name: options.name || "mcp",
+              version: options.version || "0.0.0",
             },
-            options
+            options,
           );
 
     if (!(options instanceof McpServer) && options.transport) {
@@ -149,8 +152,15 @@ export class McpPlugin implements IPlugin {
    */
   use(prompt: IChatPrompt) {
     for (const fn of prompt.functions) {
-      const schema: z.AnyZodObject = eval(jsonSchemaToZod(fn.parameters, { module: 'cjs' }));
-      this.server.tool(fn.name, fn.description, schema.shape, this.onToolCall(fn.name, prompt));
+      const schema: z.AnyZodObject = eval(
+        jsonSchemaToZod(fn.parameters, { module: "cjs" }),
+      );
+      this.server.tool(
+        fn.name,
+        fn.description,
+        schema.shape,
+        this.onToolCall(fn.name, prompt),
+      );
     }
 
     return this;
@@ -159,7 +169,7 @@ export class McpPlugin implements IPlugin {
   /**
    * Pass through call to the underlying MCP server
    */
-  tool(...params: Parameters<McpServer['tool']>) {
+  tool(...params: Parameters<McpServer["tool"]>) {
     this.server.tool(...params);
     return this;
   }
@@ -167,7 +177,7 @@ export class McpPlugin implements IPlugin {
   /**
    * Pass through call to the underlying MCP server
    */
-  prompt(...params: Parameters<McpServer['prompt']>) {
+  prompt(...params: Parameters<McpServer["prompt"]>) {
     this.server.prompt(...params);
     return this;
   }
@@ -175,19 +185,19 @@ export class McpPlugin implements IPlugin {
   /**
    * Pass through call to the underlying MCP server
    */
-  resource(...params: Parameters<McpServer['resource']>) {
+  resource(...params: Parameters<McpServer["resource"]>) {
     this.server.resource(...params);
     return this;
   }
 
   onInit() {
     this.devtoolsPlugin?.addPage({
-      name: 'mcp',
-      displayName: 'MCP',
+      name: "mcp",
+      displayName: "MCP",
       url: this.inspector,
     });
 
-    if (this.transport.type === 'sse') {
+    if (this.transport.type === "sse") {
       return this.onInitSSE(this.httpPlugin, this.transport);
     }
 
@@ -195,10 +205,12 @@ export class McpPlugin implements IPlugin {
   }
 
   onStart({ port }: IPluginStartEvent) {
-    if (this.transport.type === 'sse') {
-      this.logger.info(`listening at http://localhost:${port}${this.transport.path || '/mcp'}`);
+    if (this.transport.type === "sse") {
+      this.logger.info(
+        `listening at http://localhost:${port}${this.transport.path || "/mcp"}`,
+      );
     } else {
-      this.logger.info('listening on stdin');
+      this.logger.info("listening on stdin");
     }
   }
 
@@ -208,12 +220,15 @@ export class McpPlugin implements IPlugin {
   }
 
   protected onInitSSE(http: HttpPlugin, options: McpSSETransportOptions) {
-    const path = options.path || '/mcp';
+    const path = options.path || "/mcp";
 
     http.get(path, (_, res) => {
       this.id++;
-      this.logger.debug('connecting...');
-      const transport = new SSEServerTransport(`${path}/${this.id}/messages`, res);
+      this.logger.debug("connecting...");
+      const transport = new SSEServerTransport(
+        `${path}/${this.id}/messages`,
+        res,
+      );
       this.connections[this.id] = {
         id: this.id,
         transport,
@@ -228,7 +243,7 @@ export class McpPlugin implements IPlugin {
       const { transport } = this.connections[id];
 
       if (!transport) {
-        res.status(401).send('unauthorized');
+        res.status(401).send("unauthorized");
         return;
       }
 
@@ -248,8 +263,8 @@ export class McpPlugin implements IPlugin {
         return {
           content: [
             {
-              type: 'text',
-              text: typeof res === 'string' ? res : JSON.stringify(res),
+              type: "text",
+              text: typeof res === "string" ? res : JSON.stringify(res),
             },
           ],
         };
@@ -260,7 +275,7 @@ export class McpPlugin implements IPlugin {
           isError: true,
           content: [
             {
-              type: 'text',
+              type: "text",
               text: err.toString(),
             },
           ],
@@ -270,15 +285,17 @@ export class McpPlugin implements IPlugin {
   }
 
   protected isCallToolResult(value: any): value is CallToolResult {
-    if (!!value || !('content' in value)) return false;
+    if (!!value || !("content" in value)) return false;
     const { content } = value;
 
     return (
       Array.isArray(content) &&
       content.every(
         (item) =>
-          'type' in item &&
-          (item.type === 'text' || item.type === 'image' || item.type === 'resource')
+          "type" in item &&
+          (item.type === "text" ||
+            item.type === "image" ||
+            item.type === "resource"),
       )
     );
   }
