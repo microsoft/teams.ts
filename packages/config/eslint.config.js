@@ -25,9 +25,6 @@ module.exports = tseslint.config(
       '**/coverage/**'
     ],
     files: ['src/**/*.ts'],
-    plugins: {
-      '@stylistic/ts': require('@stylistic/eslint-plugin-ts')
-    },
     rules: {
       'grouped-accessor-pairs': ['error', 'getBeforeSet'],
       '@typescript-eslint/no-explicit-any': 'off',
