@@ -132,6 +132,7 @@ describe('Activity', () => {
         {
           type: 'https://schema.org/Message',
           '@type': 'Message',
+          '@id': '',
           '@context': 'https://schema.org',
           additionalType: ['AIGeneratedContent'],
         },
@@ -159,14 +160,21 @@ describe('Activity', () => {
       expect(activity.entities).toEqual([
         {
           type: 'https://schema.org/Message',
-          '@type': 'Claim',
-          position: 0,
-          appearance: {
-            '@type': 'DigitalDocument',
-            abstract: 'test',
-            name: 'test',
-            encodingFormat: 'application/vnd.microsoft.card.adaptive',
-          },
+          '@type': 'Message',
+          '@id': '',
+          '@context': 'https://schema.org',
+          citation: [
+            expect.objectContaining({
+              '@type': 'Claim',
+              position: 0,
+              appearance: {
+                '@type': 'DigitalDocument',
+                abstract: 'test',
+                name: 'test',
+                encodingFormat: 'application/vnd.microsoft.card.adaptive',
+              },
+            }),
+          ],
         },
       ]);
     });
@@ -182,18 +190,25 @@ describe('Activity', () => {
       expect(activity.entities).toEqual([
         {
           type: 'https://schema.org/Message',
-          '@type': 'Claim',
-          position: 0,
-          appearance: {
-            '@type': 'DigitalDocument',
-            abstract: 'test',
-            name: 'test',
-            encodingFormat: 'application/vnd.microsoft.card.adaptive',
-            image: {
-              '@type': 'ImageObject',
-              name: 'GIF',
-            },
-          },
+          '@type': 'Message',
+          '@id': '',
+          '@context': 'https://schema.org',
+          citation: [
+            expect.objectContaining({
+              '@type': 'Claim',
+              position: 0,
+              appearance: {
+                '@type': 'DigitalDocument',
+                abstract: 'test',
+                name: 'test',
+                encodingFormat: 'application/vnd.microsoft.card.adaptive',
+                image: {
+                  '@type': 'ImageObject',
+                  name: 'GIF',
+                },
+              },
+            }),
+          ],
         },
       ]);
     });
