@@ -1,6 +1,7 @@
-import type { Schema } from '@microsoft/teams.ai';
 import { ClientOptions } from '@modelcontextprotocol/sdk/client/index.js';
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
+
+import type { Schema } from '@microsoft/teams.ai';
 
 export type McpClientToolDetails = {
   name: string;
@@ -56,7 +57,7 @@ export type McpClientPluginOptions = ClientOptions & {
   createTransport?: CreateTransport;
 };
 
-export interface McpClientPluginUseParams {
+export type McpClientPluginUseParams = {
   /**
    * The url of the Mcp server to use
    */
@@ -68,4 +69,4 @@ export interface McpClientPluginUseParams {
    * or use the cached params if provided
    */
   params?: McpClientPluginParams;
-}
+};
