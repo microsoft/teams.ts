@@ -7,6 +7,7 @@ import { Schema } from '../schema';
 import { ITemplate } from '../template';
 import { StringTemplate } from '../templates';
 import { WithRequired } from '../utils/types';
+
 import { IAiPlugin } from './plugin';
 
 export type ChatPromptOptions<TOptions extends Record<string, any> = Record<string, any>> = {

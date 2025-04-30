@@ -1,7 +1,7 @@
 import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
-import { Account, Resource } from '../../models';
 import { Activity } from '../../activities';
+import { Account, Resource } from '../../models';
 
 export type ActivityParams = Pick<Activity, 'type'> & Partial<Activity>;
 

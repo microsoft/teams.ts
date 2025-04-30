@@ -1,4 +1,5 @@
 import { SubmitAction } from '../actions';
+
 import { Image } from './image';
 
 describe('Image', () => {

@@ -1,7 +1,7 @@
 import { InvokeActivity, InvokeResponse } from '@microsoft/teams.api';
 
-import { RouteHandler } from '../../types';
 import { IActivityContext } from '../../contexts';
+import { RouteHandler } from '../../types';
 
 import { FileConsentActivityRoutes } from './file-consent';
 import { MessageExtensionSubmitActivityRoutes } from './message-extension-submit';

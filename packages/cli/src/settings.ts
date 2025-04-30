@@ -16,18 +16,6 @@ export class Settings implements ISettings {
     this.env = value?.env || 'dev';
   }
 
-  save() {
-    const base = path.join(os.homedir(), 'teams.sdk');
-    const file = path.join(base, 'settings.json');
-
-    if (!fs.existsSync(base)) {
-      fs.mkdirSync(base, { recursive: true });
-      return;
-    }
-
-    fs.writeFileSync(file, JSON.stringify(this), 'utf8');
-  }
-
   static load() {
     const base = path.join(os.homedir(), 'teams.sdk');
     const file = path.join(base, 'settings.json');
@@ -38,5 +26,17 @@ export class Settings implements ISettings {
 
     const value: ISettings = JSON.parse(fs.readFileSync(file, 'utf8'));
     return new Settings(value);
+  }
+
+  save() {
+    const base = path.join(os.homedir(), 'teams.sdk');
+    const file = path.join(base, 'settings.json');
+
+    if (!fs.existsSync(base)) {
+      fs.mkdirSync(base, { recursive: true });
+      return;
+    }
+
+    fs.writeFileSync(file, JSON.stringify(this), 'utf8');
   }
 }

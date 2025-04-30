@@ -1,4 +1,5 @@
 import { SubmitAction } from '../actions';
+
 import { Icon } from './icon';
 
 describe('Icon', () => {

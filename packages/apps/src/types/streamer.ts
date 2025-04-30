@@ -32,5 +32,5 @@ export interface IStreamer {
   /**
    * close the stream
    */
-  close(): void | Promise<void>;
+  close(): SentActivity | undefined | Promise<SentActivity | undefined>;
 }

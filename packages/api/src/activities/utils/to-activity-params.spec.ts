@@ -1,6 +1,7 @@
 import { Card, CodeBlock } from '@microsoft/teams.cards';
 
 import { MessageActivity } from '../message';
+
 import { toActivityParams } from './to-activity-params';
 
 describe('Activity Utils', () => {

@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import { ILogger, IStorage } from '@microsoft/teams.common';
 
 import { HttpPlugin } from '../../../plugins';
-import { Plugin } from './plugin';
+
 import {
   Dependency,
   PLUGIN_DEPENDENCIES_METADATA_KEY,
@@ -11,6 +11,7 @@ import {
   Logger,
   Storage,
 } from './dependency';
+import { Plugin } from './plugin';
 
 describe('@Dependency', () => {
   it('should have field', () => {

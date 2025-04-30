@@ -1,6 +1,13 @@
+import {
+  ActivityHandler,
+  CloudAdapter,
+  ConfigurationBotFrameworkAuthentication,
+  ConfigurationServiceClientCredentialFactory,
+} from 'botbuilder';
+
 import express from 'express';
 
-import { ILogger } from '@microsoft/teams.common';
+import { $Activity, Activity, Credentials, IToken, JsonWebToken } from '@microsoft/teams.api';
 import {
   Dependency,
   Event,
@@ -12,15 +19,8 @@ import {
   Plugin,
   manifest,
 } from '@microsoft/teams.apps';
-import { $Activity, Activity, Credentials, IToken, JsonWebToken } from '@microsoft/teams.api';
+import { ILogger } from '@microsoft/teams.common';
 import * as $http from '@microsoft/teams.common/http';
-
-import {
-  ActivityHandler,
-  CloudAdapter,
-  ConfigurationBotFrameworkAuthentication,
-  ConfigurationServiceClientCredentialFactory,
-} from 'botbuilder';
 
 import pkg from '../package.json';
 

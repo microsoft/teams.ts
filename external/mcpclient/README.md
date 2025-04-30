@@ -51,5 +51,5 @@ const prompt = new ChatPrompt(
 
 ## Features
 
-- 🔌 Automatic tool discovery from MCP servers
-- 💾 Optional caching of tool parameters (if you'd like to avoid the discovery call or only pass in a subset of tools)
+-   🔌 Automatic tool discovery from MCP servers
+-   💾 Optional caching of tool parameters (if you'd like to avoid the discovery call or only pass in a subset of tools)

@@ -74,7 +74,8 @@
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "build": "npx tsup",
-    "test": "npx jest"
+    "test": "npx jest",
+    "fmt": "npx prettier --write \"**/*.{js,ts,tsx,md,json}\""
   },
   "dependencies": {
     "axios": "^1.8.2"
