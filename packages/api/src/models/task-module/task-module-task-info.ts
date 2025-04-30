@@ -45,7 +45,7 @@ export type BaseTaskModuleTaskInfo = {
 export type CardTaskModuleTaskInfo = BaseTaskModuleTaskInfo & {
   /**
    * @member {Attachment} [card] The JSON for the Adaptive card to appear in
-   * the task module. One of url or card is required, but not both.
+   * the task module.
    */
   card: Attachment;
 };
@@ -58,7 +58,7 @@ export type CardTaskModuleTaskInfo = BaseTaskModuleTaskInfo & {
 export type UrlTaskModuleTaskInfo = BaseTaskModuleTaskInfo & {
   /**
    * @member {string} [url] The URL of what is loaded as an iframe inside the
-   * task module. One of url or card is required, but not both.
+   * task module.
    */
   url: string;
 };
