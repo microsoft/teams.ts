@@ -121,7 +121,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
       for (const [url, tools] of Object.entries(allFetchedTools)) {
         this._cache[url] = {
           ...this._cache[url],
-          lastAttemptedFetch: Date.now(),
+          lastAttemptedFetch: tools === 'unavailable' ? undefined : Date.now(),
           availableTools: tools === 'unavailable' ? undefined : tools,
         };
       }
