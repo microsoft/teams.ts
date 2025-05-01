@@ -163,13 +163,81 @@ describe('McpClientPlugin', () => {
       plugin.onUsePlugin({ url: 'http://test.com' });
 
       // Wait for 2 ms for the timeout to happen
-      await new Promise((resolve) => setTimeout(resolve, 2));
+      await new Promise((resolve) => setTimeout(resolve, 5));
 
       const functions = await plugin.onBuildFunctions([]);
 
       expect(mockListTools).toHaveBeenCalled();
       expect(functions).toHaveLength(1);
       expect(functions[0].name).toBe('new-tool');
+    });
+
+    test('refetches when cache is expired for a specific server', async () => {
+      const schema: Schema = {
+        type: 'object',
+        properties: {},
+        required: [],
+      };
+
+      const oldToolServer1: McpClientToolDetails[] = [
+        {
+          name: 'old-tool-server1',
+          description: 'Old tool',
+          schema,
+        },
+      ];
+      const oldToolServer2: McpClientToolDetails[] = [
+        {
+          name: 'old-tool-server2',
+          description: 'Old tool',
+          schema,
+        },
+      ];
+
+      const newTools = [
+        {
+          name: 'new-tool-server-2',
+          description: 'New tool',
+          inputSchema: {
+            type: 'object' as const,
+            properties: {},
+            required: [] as string[],
+          },
+        },
+      ];
+
+      const plugin = new McpClientPlugin({
+        refetchTimeoutMs: undefined, // Use default refetch timeout
+        cache: {
+          'http://server1.com': {
+            availableTools: oldToolServer1,
+          },
+          'http://server2.com': {
+            availableTools: oldToolServer2,
+          },
+        },
+      });
+
+      mockListTools.mockResolvedValue({ tools: newTools });
+
+      plugin.onUsePlugin({ url: 'http://server1.com' });
+      plugin.onUsePlugin({
+        url: 'http://server2.com',
+        params: {
+          refetchTimeoutMs: 1,
+        },
+      });
+
+      // Wait for 2 ms for the timeout to happen
+      await new Promise((resolve) => setTimeout(resolve, 2));
+
+      const functions = await plugin.onBuildFunctions([]);
+
+      expect(mockListTools).toHaveBeenCalledTimes(1);
+      expect(functions).toHaveLength(2);
+      expect(functions.map((f) => f.name)).toEqual(
+        [...oldToolServer1, ...newTools].map((t) => t.name)
+      );
     });
 
     test('fetches tools from multiple servers in parallel', async () => {

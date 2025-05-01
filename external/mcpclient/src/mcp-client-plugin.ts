@@ -87,45 +87,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
   }
 
   async onBuildFunctions(incomingFunctions: Function[]): Promise<Function[]> {
-    // First, handle all fetching needs
-    const fetchNeeded = Object.entries(this._mcpServerUrlsByParams)
-      .map(([url, params]) => {
-        // If availableTools are being supplied, then we use them
-        // and don't need to fetch anything
-        if (params?.availableTools) {
-          return null;
-        }
-
-        const cachedParams = this._cache[url];
-        if (cachedParams?.availableTools == null || cachedParams.availableTools.length === 0) {
-          // If we don't have a cached value, we need to fetch
-          return { url, ...params };
-        }
-
-        const maxAge = params?.refetchTimeoutMs ?? this.refetchTimeoutMs;
-        if (
-          !cachedParams.lastAttemptedFetch ||
-          Date.now() - cachedParams.lastAttemptedFetch > maxAge
-        ) {
-          // If we have a cached value and it's still valid, we don't need to fetch
-          return { url, ...params };
-        }
-
-        return null;
-      })
-      .filter((res): res is NonNullable<typeof res> => res != null);
-
-    // Fetch all needed params in parallel
-    if (fetchNeeded.length > 0) {
-      const allFetchedTools = await this.getTools(fetchNeeded);
-      for (const [url, tools] of Object.entries(allFetchedTools)) {
-        this._cache[url] = {
-          ...this._cache[url],
-          lastAttemptedFetch: tools === 'unavailable' ? undefined : Date.now(),
-          availableTools: tools === 'unavailable' ? undefined : tools,
-        };
-      }
-    }
+    await this.fetchToolsIfNeeded();
 
     // Now create all functions
     const allFunctions: Function[] = [];
@@ -161,6 +123,48 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     }
 
     return incomingFunctions.concat(allFunctions);
+  }
+
+  private async fetchToolsIfNeeded() {
+    // First, handle all fetching needs
+    const fetchNeededObjects = Object.entries(this._mcpServerUrlsByParams)
+      .map(([url, params]) => {
+        // If availableTools are being supplied, then we use them
+        // and don't need to fetch anything
+        if (params?.availableTools) {
+          return null;
+        }
+
+        const cachedParams = this._cache[url];
+        if (cachedParams?.availableTools == null || cachedParams.availableTools.length === 0) {
+          // If we don't have a cached value, we need to fetch
+          return { url, ...params };
+        }
+
+        const maxAge = params?.refetchTimeoutMs ?? this.refetchTimeoutMs;
+        if (
+          !cachedParams.lastAttemptedFetch ||
+          Date.now() - cachedParams.lastAttemptedFetch > maxAge
+        ) {
+          // If we have a cached value and it's still valid, we don't need to fetch
+          return { url, ...params };
+        }
+
+        return null;
+      })
+      .filter((res): res is NonNullable<typeof res> => res != null);
+
+    // Fetch all needed params in parallel
+    if (fetchNeededObjects.length > 0) {
+      const allFetchedTools = await this.getTools(fetchNeededObjects);
+      for (const [url, tools] of Object.entries(allFetchedTools)) {
+        this._cache[url] = {
+          ...this._cache[url],
+          lastAttemptedFetch: tools === 'unavailable' ? undefined : Date.now(),
+          availableTools: tools === 'unavailable' ? undefined : tools,
+        };
+      }
+    }
   }
 
   private async getTools(
