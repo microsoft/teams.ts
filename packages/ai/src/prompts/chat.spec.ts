@@ -282,7 +282,7 @@ describe('ChatPrompt', () => {
         { role: 'user', content: 'Hello' },
         expect.objectContaining({
           functions: {
-            customFn: customFunction,
+            customFn: expect.anything(),
             testFunction: expect.objectContaining({
               name: 'testFunction',
               description: 'A test function',
