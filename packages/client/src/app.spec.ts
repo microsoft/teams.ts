@@ -3,6 +3,8 @@ const msalCreateNPCAppMock = jest.fn();
 const msalInitializeMock = jest.fn();
 const httpClientPostMock = jest.fn();
 
+import * as msal from '@azure/msal-browser';
+
 import { App } from './app';
 import * as graphUtils from './graph-utils';
 import * as MsalUtils from './msal-utils';
@@ -85,7 +87,7 @@ const mockLogger = {
 };
 
 const mockClientId = 'mock-client-id';
-const mockAppTenantId = 'mock-app-tenant-id';
+const mockRemoteAppClientId = 'mock-remote-client-id';
 const mockDate = new Date('2025-10-01T00:00:00Z');
 const mockAccessToken = 'eyJ0MockAccessTokenKmydpg';
 
@@ -115,9 +117,9 @@ describe('App', () => {
     it('supports default options', () => {
       const app = new App(mockClientId);
       expect(app.options).toEqual({
-        baseUrl: undefined,
         logger: undefined,
         msalOptions: undefined,
+        remoteApiOptions: undefined,
       });
       expect(app.clientId).toEqual(mockClientId);
       expect(app.startedAt).toBeUndefined();
@@ -129,8 +131,10 @@ describe('App', () => {
 
     it('supports custom options', () => {
       const customOptions = {
-        tenantId: mockAppTenantId,
-        baseUrl: 'https://example.com',
+        remoteApiOptions: {
+          baseUrl: 'https://example.com',
+          remoteAppClientId: mockRemoteAppClientId,
+        },
         logger: mockLogger,
         msalOptions: {
           configuration: { auth: { clientId: mockClientId } },
@@ -142,6 +146,25 @@ describe('App', () => {
       expect(app.startedAt).toBeUndefined();
       expect(app.msalInstance).toBeUndefined();
       expect(app.log).toEqual(mockLogger);
+    });
+
+    it('supports using a pre-configured MSAL instance', async () => {
+      const mockMsalInstance = {
+        initialize: jest.fn(),
+      } as unknown as msal.IPublicClientApplication;
+
+      const customOptions = {
+        remoteApiOptions: {
+          baseUrl: 'https://example.com',
+          remoteAppClientId: mockRemoteAppClientId,
+        },
+        logger: mockLogger,
+        msalOptions: {
+          msalInstance: mockMsalInstance,
+        },
+      };
+      const app = new App(mockClientId, customOptions);
+      expect(app.msalInstance).toBeUndefined();
     });
 
     it('throws if client ID is invalid', () => {
@@ -206,6 +229,30 @@ describe('App', () => {
         { scopes: ['user.read'] },
         app.log
       );
+    });
+
+    it('uses a pre-configured MSAL instance without initializing it', async () => {
+      const mockMsalInstance = {
+        initialize: jest.fn(),
+      } as unknown as msal.IPublicClientApplication;
+
+      const customOptions = {
+        remoteApiOptions: {
+          baseUrl: 'https://example.com',
+          remoteAppClientId: mockRemoteAppClientId,
+        },
+        logger: mockLogger,
+        msalOptions: {
+          msalInstance: mockMsalInstance,
+        },
+      };
+      const app = new App(mockClientId, customOptions);
+
+      await app.start();
+      expect(msalCreateNPCAppMock).not.toHaveBeenCalled();
+      expect(msalInitializeMock).not.toHaveBeenCalled();
+      expect(app.msalInstance).toEqual(mockMsalInstance);
+      expect(mockMsalInstance.initialize).not.toHaveBeenCalled();
     });
 
     it('can disable scope consent pre-warming', async () => {
@@ -295,7 +342,6 @@ describe('App', () => {
       });
       const app = new App(mockClientId, {
         logger: mockLogger,
-        tenantId: mockAppTenantId,
         msalOptions: { prewarmScopes: false },
       });
       await app.start();
@@ -326,6 +372,32 @@ describe('App', () => {
         }
       );
       expect(result).toEqual('mock result');
+    });
+
+    it('should invoke a remote function with custom token request', async () => {
+      httpClientPostMock.mockResolvedValue({
+        data: 'mock result',
+      });
+      const mockRemoteAppResource = 'api://my_custom_resource';
+      const app = new App(mockClientId, {
+        logger: mockLogger,
+        msalOptions: { prewarmScopes: false },
+        remoteApiOptions: { remoteAppResource: mockRemoteAppResource },
+      });
+      await app.start();
+      await app.exec('myFunction', undefined, {
+        msalTokenRequest: {
+          scopes: ['my_custom_scope'],
+        },
+      });
+
+      expect(acquireMsalAccessTokenSpy).toHaveBeenCalledTimes(1);
+      expect(acquireMsalAccessTokenSpy).toHaveBeenLastCalledWith(
+        app.msalInstance,
+        { scopes: ['my_custom_scope'] },
+        app.log
+      );
+      expect(httpClientPostMock).toHaveBeenCalledTimes(1);
     });
 
     it('should invoke a remote function with custom token request', async () => {
