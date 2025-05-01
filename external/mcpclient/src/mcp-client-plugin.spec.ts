@@ -16,15 +16,11 @@ class MockTransport implements Transport {
 }
 
 describe('McpClientPlugin', () => {
-  // let mockConnect: jest.SpyInstance;
-  // let mockClose: jest.SpyInstance;
   let mockListTools: jest.SpyInstance;
   let mockCallTool: jest.SpyInstance;
 
   beforeEach(() => {
     jest.resetAllMocks();
-
-    // Spy on client methods
     jest.spyOn(Client.prototype, 'connect').mockResolvedValue();
     jest.spyOn(Client.prototype, 'close').mockResolvedValue();
     mockListTools = jest.spyOn(Client.prototype, 'listTools').mockResolvedValue({ tools: [] });
