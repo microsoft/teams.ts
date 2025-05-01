@@ -32,4 +32,4 @@ $: npm install @microsoft/teams.mcp
 
 ## Dependencies
 
-- [`@modelcontextprotocol/sdk`](https://www.npmjs.com/package/@modelcontextprotocol/sdk)
+-   [`@modelcontextprotocol/sdk`](https://www.npmjs.com/package/@modelcontextprotocol/sdk)

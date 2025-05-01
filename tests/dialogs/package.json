@@ -1,0 +1,35 @@
+{
+  "name": "@tests/dialogs",
+  "version": "0.0.0",
+  "license": "MIT",
+  "private": true,
+  "main": "dist/index",
+  "types": "dist/index",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "clean": "npx rimraf ./dist",
+    "build": "npx tsc",
+    "start": "node -r dotenv/config .",
+    "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\"",
+    "dev:teamsfx": "NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
+    "dev:teamsfx:testtool": "NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
+    "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
+  },
+  "dependencies": {
+    "@microsoft/teams.ai": "*",
+    "@microsoft/teams.apps": "*",
+    "@microsoft/teams.cards": "*",
+    "@microsoft/teams.dev": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.4",
+    "dotenv": "^16.5.0",
+    "env-cmd": "latest",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}

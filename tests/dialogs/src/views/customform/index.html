@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Microsoft Teams Task Module Demo</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <script src="https://statics.teams.cdn.office.net/sdk/v1.11.0/js/MicrosoftTeams.min.js"></script>
+  <style>
+    body { margin: 0; padding: 10px; }
+    .form-group { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <form id="customForm">
+      <div class="form-group">
+        <label>Name:</label>
+        <input type="text" class="form-control" id="name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label>Email:</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+
+  <script>
+    microsoftTeams.initialize();
+    
+    document.getElementById('customForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      let formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        submissiondialogtype: 'webpage_dialog'
+      };
+      microsoftTeams.tasks.submitTask(formData);
+    });
+  </script>
+</body>
+</html>

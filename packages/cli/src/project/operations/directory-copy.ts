@@ -1,8 +1,8 @@
-import path from 'node:path';
 import fs from 'node:fs';
+import path from 'node:path';
 
-import { IProjectAttributeOperation } from '../project-attribute';
 import { IProject } from '../project';
+import { IProjectAttributeOperation } from '../project-attribute';
 
 import { FileCopy } from './file-copy';
 import { FileTemplateHandlebars } from './file-template-handlebars';

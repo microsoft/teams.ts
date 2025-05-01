@@ -1,5 +1,6 @@
-import { JsonWebToken } from '@microsoft/teams.api';
 import jwt from 'jsonwebtoken';
+
+import { JsonWebToken } from '@microsoft/teams.api';
 
 import { App } from './app';
 import { HttpPlugin } from './plugins';

@@ -1,0 +1,6 @@
+teams*.yml
+env/
+.env
+infra/
+node_modules/
+.vscode/

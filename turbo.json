@@ -30,6 +30,9 @@
     },
     "test": {
       "cache": false
+    },
+    "fmt": {
+      "cache": false
     }
   }
 }

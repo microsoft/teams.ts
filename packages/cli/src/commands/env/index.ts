@@ -1,11 +1,12 @@
 import { CommandModule } from 'yargs';
 
 import { IContext } from '../../context';
-import { Set } from './set';
+
 import { Del } from './del';
+import { Export } from './export';
 import { List } from './list';
 import { Select } from './select';
-import { Export } from './export';
+import { Set } from './set';
 
 export function Env(context: IContext): CommandModule<{}, {}> {
   return {

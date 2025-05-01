@@ -14,7 +14,10 @@
     "build": "npx tsc",
     "start": "node -r dotenv/config .",
     "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\"",
-    "inspect": "npx cross-env SERVER_PORT=9000 npx @modelcontextprotocol/inspector -e NODE_NO_WARNINGS=1 -e PORT=3000 node -r dotenv/config ."
+    "inspect": "npx cross-env SERVER_PORT=9000 npx @modelcontextprotocol/inspector -e NODE_NO_WARNINGS=1 -e PORT=3000 node -r dotenv/config .",
+    "dev:teamsfx": "NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
+    "dev:teamsfx:testtool": "NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
+    "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
   },
   "dependencies": {
     "@microsoft/teams.api": "*",
@@ -25,7 +28,8 @@
     "@microsoft/teams.graph": "*",
     "@microsoft/teams.mcp": "*",
     "@microsoft/teams.openai": "*",
-    "@modelcontextprotocol/sdk": "^1.9.0"
+    "@modelcontextprotocol/sdk": "^1.9.0",
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
@@ -36,6 +40,7 @@
     "nodemon": "^3.1.4",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "env-cmd": "latest"
   }
 }

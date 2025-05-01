@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.apps",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -35,6 +35,7 @@
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
     "test": "npx jest",
+    "fmt": "npx prettier --write \"**/*.{js,ts,tsx,md,json}\"",
     "generate": "npx quicktype -s schema -l typescript ./manifest.schema.json -o ./src/manifest.ts --prefer-unions --prefer-types --just-types"
   },
   "dependencies": {

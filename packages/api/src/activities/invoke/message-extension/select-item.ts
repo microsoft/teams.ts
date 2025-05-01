@@ -1,5 +1,4 @@
 import { ConversationReference } from '../../../models';
-
 import { IActivity } from '../../activity';
 
 export interface IMessageExtensionSelectItemInvokeActivity extends IActivity<'invoke'> {

@@ -1,9 +1,7 @@
-import cors from 'cors';
-import express from 'express';
 import http from 'http';
 
-import { ILogger } from '@microsoft/teams.common';
-import * as $http from '@microsoft/teams.common/http';
+import cors from 'cors';
+import express from 'express';
 
 import {
   Activity,
@@ -13,7 +11,12 @@ import {
   IToken,
   JsonWebToken,
 } from '@microsoft/teams.api';
+import { ILogger } from '@microsoft/teams.common';
+import * as $http from '@microsoft/teams.common/http';
 
+import pkg from '../../../package.json';
+import { IActivityEvent, IErrorEvent } from '../../events';
+import { Manifest } from '../../manifest';
 import {
   Dependency,
   Event,
@@ -26,9 +29,6 @@ import {
   Plugin,
 } from '../../types';
 
-import pkg from '../../../package.json';
-import { IActivityEvent, IErrorEvent } from '../../events';
-import { Manifest } from '../../manifest';
 import { HttpStream } from './stream';
 
 /**

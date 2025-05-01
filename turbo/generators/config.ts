@@ -1,6 +1,37 @@
 import type { PlopTypes } from '@turbo/gen';
+import fs from 'fs';
+import path from 'path';
 
 export default function generator(plop: PlopTypes.NodePlopAPI): void {
+  // Action for creating an app package
+  plop.setActionType('createAppPackage', (answers, config, plop) => {
+    if (!plop) {
+      throw new Error('Plop instance is not available');
+    }
+
+    if (!answers['name']) {
+      throw new Error('App name is required');
+    }
+    const appPackagePath = path.join(
+      plop.getDestBasePath(),
+      'samples',
+      answers['name'],
+      'appPackage'
+    );
+    const appPackageContent = JSON.stringify(
+      {
+        name: answers.name,
+        description: answers.description,
+        version: '1.0.0',
+      },
+      null,
+      2
+    );
+
+    fs.writeFileSync(appPackagePath, appPackageContent);
+    return `App package created at ${appPackagePath}`;
+  });
+
   // Package generator for creating new packages
   plop.setGenerator('Package', {
     description: 'Create a new package',
@@ -71,6 +102,12 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         name: 'description',
         message: 'Application description:',
       },
+      {
+        type: 'confirm',
+        name: 'runnableOnTeams',
+        message: 'Runnable to Teams?',
+        default: true,
+      },
     ],
     actions: [
       {
@@ -97,6 +134,19 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         type: 'add',
         path: 'tests/{{name}}/.gitignore',
         templateFile: 'templates/test-gitignore.hbs',
+      },
+      {
+        type: 'addMany',
+        skip: ({ runnableOnTeams }) => {
+          if (!runnableOnTeams) {
+            return `Skipping app package generation for non-runnable sample`;
+          }
+
+          console.log('Generating app package...');
+          return false;
+        },
+        destination: 'samples/{{name}}/appPackage/',
+        templateFiles: 'templates/appPackage/**',
       },
     ],
   });
