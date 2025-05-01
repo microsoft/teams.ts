@@ -4,7 +4,7 @@ import { json } from '@codemirror/lang-json';
 import { EditorState } from '@codemirror/state';
 import { ViewUpdate } from '@codemirror/view';
 import { SelectTabData, SelectTabEvent, Tab, TabList, TabValue } from '@fluentui/react-components';
-import { ICard } from '@microsoft/teams.cards';
+import { IAdaptiveCard } from '@microsoft/teams.cards';
 import { atomone } from '@uiw/codemirror-themes-all';
 import { basicSetup, EditorView } from 'codemirror';
 
@@ -16,9 +16,9 @@ const jsonEditorLog = Logger.child('CardDesignerJsonEditor');
 const typescriptEditorLog = Logger.child('CardDesignerTypescriptEditor');
 
 export interface CardDesignerEditorProps {
-  readonly value?: ICard;
+  readonly value?: IAdaptiveCard;
   readonly typescript?: string;
-  readonly onChange?: (value: ICard) => void;
+  readonly onChange?: (value: IAdaptiveCard) => void;
 }
 
 const CardDesignerEditor: FC<CardDesignerEditorProps> = memo(({ value, typescript, onChange }) => {
@@ -56,8 +56,8 @@ const CardDesignerEditor: FC<CardDesignerEditorProps> = memo(({ value, typescrip
 });
 
 export interface CardDesignerJsonEditorProps {
-  readonly value?: ICard;
-  readonly onChange?: (value: ICard) => void;
+  readonly value?: IAdaptiveCard;
+  readonly onChange?: (value: IAdaptiveCard) => void;
 }
 
 const CardDesignerJsonEditor: FC<CardDesignerJsonEditorProps> = memo(({ value, onChange }) => {

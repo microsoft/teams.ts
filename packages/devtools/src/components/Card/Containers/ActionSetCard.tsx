@@ -14,12 +14,7 @@ const ActionSetCard: FC<ActionSetCardProps> = ({ value }) => {
   const classes = useContainerClasses();
 
   return (
-    <div
-      className={mergeClasses(
-        classes.container,
-        value.spacing ? classes[value.spacing] : classes.default
-      )}
-    >
+    <div className={mergeClasses(classes.container, classes[value.spacing ?? 'Default'])}>
       {value.actions?.map((action, index) => {
         return <ActionCard key={`action-${index}`} value={action} />;
       })}

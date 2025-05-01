@@ -1,5 +1,12 @@
 import { FC, memo, useCallback, useEffect, useRef, useState } from 'react';
-import { ActionSet, Card, Element, ICard, Icon, TextBlock } from '@microsoft/teams.cards';
+import {
+  ActionSet,
+  AdaptiveCard,
+  CardElement,
+  IAdaptiveCard,
+  Icon,
+  TextBlock,
+} from '@microsoft/teams.cards';
 import estree from 'prettier/plugins/estree';
 import parserTypeScript from 'prettier/plugins/typescript';
 import prettier from 'prettier/standalone';
@@ -10,11 +17,11 @@ import CardDesignerEditor from './CardDesignerEditor';
 import CardDesignerSidebar from './CardDesignerSidebar';
 
 export interface CardDesignerProps {
-  readonly value?: ICard;
-  readonly onChange?: (value: ICard) => void;
+  readonly value?: IAdaptiveCard;
+  readonly onChange?: (value: IAdaptiveCard) => void;
 }
 
-const placeholderCard = new Card(
+const placeholderCard = new AdaptiveCard(
   new Icon('Warning'),
   new TextBlock('Use this site instead of this Cards editor page:', {
     wrap: true,
@@ -29,7 +36,7 @@ const placeholderCard = new Card(
 
 const CardDesigner: FC<CardDesignerProps> = memo(({ value, onChange }) => {
   const classes = useCardDesignerClasses();
-  const [card, setCard] = useState<ICard>(value || new Card());
+  const [card, setCard] = useState<IAdaptiveCard>(value || new AdaptiveCard());
   const [typescript, setTypescript] = useState<string>();
   const [formatted, setFormatted] = useState<string>();
   const isUpdatingRef = useRef(false);
@@ -79,7 +86,7 @@ const CardDesigner: FC<CardDesignerProps> = memo(({ value, onChange }) => {
     }
   }, [card]);
 
-  const onSelect = useCallback((el: Element, ts: string) => {
+  const onSelect = useCallback((el: CardElement, ts: string) => {
     // Prevent duplicate additions
     if (isAddingElementRef.current) return;
     isAddingElementRef.current = true;
@@ -110,7 +117,7 @@ const CardDesigner: FC<CardDesignerProps> = memo(({ value, onChange }) => {
     }
   }, []);
 
-  const onEditorUpdate = useCallback((updatedCard: ICard) => {
+  const onEditorUpdate = useCallback((updatedCard: IAdaptiveCard) => {
     isUpdatingRef.current = true;
     setCard(updatedCard);
     // Allow other effects to run before clearing the flag

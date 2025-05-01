@@ -5,25 +5,28 @@ const useContainerClasses = makeStyles({
     flexWrap: 'wrap',
     flex: '1 1 auto',
   },
-  none: {
+  None: {
     gap: '0',
   },
-  small: {
+  ExtraSmall: {
     gap: '1px',
   },
-  default: {
+  Small: {
+    gap: '1px',
+  },
+  Default: {
     gap: tokens.spacingHorizontalXS,
   },
-  medium: {
+  Medium: {
     gap: tokens.spacingHorizontalS,
   },
-  large: {
+  Large: {
     gap: tokens.spacingHorizontalM,
   },
-  extraLarge: {
+  ExtraLarge: {
     gap: tokens.spacingHorizontalL,
   },
-  padding: {
+  Padding: {
     gap: tokens.spacingHorizontalXL,
   },
 });

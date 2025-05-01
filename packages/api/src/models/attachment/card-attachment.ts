@@ -1,4 +1,4 @@
-import { ICard } from '@microsoft/teams.cards';
+import { IAdaptiveCard } from '@microsoft/teams.cards';
 
 import { AnimationCard, AudioCard, HeroCard, ThumbnailCard, VideoCard } from '../card';
 import { OAuthCard } from '../oauth';
@@ -18,7 +18,7 @@ export type CardAttachmentType = keyof CardAttachmentTypes;
 export type CardAttachmentTypes = {
   adaptive: {
     contentType: 'application/vnd.microsoft.card.adaptive';
-    content: ICard;
+    content: IAdaptiveCard;
   };
   animation: {
     contentType: 'application/vnd.microsoft.card.animation';

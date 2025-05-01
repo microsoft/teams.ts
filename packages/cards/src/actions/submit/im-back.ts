@@ -1,4 +1,5 @@
-import { ISubmitAction, MSTeamsData, SubmitAction, SubmitActionOptions } from './submit';
+import { ISubmitAction, SubmitAction, SubmitActionOptions } from '../../core';
+import { MSTeamsData } from './ms-teams-data';
 
 export type IMBackActionOptions = SubmitActionOptions & { data: MSTeamsData<IIMBackData> };
 

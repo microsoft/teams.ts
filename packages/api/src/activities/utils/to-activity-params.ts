@@ -1,4 +1,4 @@
-import { isCard } from '@microsoft/teams.cards';
+import { isAdaptiveCard } from '@microsoft/teams.cards';
 
 import { ActivityParams } from '../../clients';
 import { ActivityLike } from '../../models';
@@ -16,7 +16,7 @@ export function toActivityParams(activity: ActivityLike): ActivityParams {
       type: 'message',
       text: activity,
     };
-  } else if (isCard(activity)) {
+  } else if (isAdaptiveCard(activity)) {
     activity = new MessageActivity().addCard('adaptive', activity);
   }
 
