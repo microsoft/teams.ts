@@ -276,7 +276,26 @@ export class ChatPrompt<
       throw new Error(`function "${name}" not found`);
     }
 
-    return await fn.handler(args || {});
+    const processedArgs = args || {};
+
+    // Execute beforeFunctionCall hooks
+    for (const plugin of this.plugins) {
+      if (plugin.onBeforeFunctionCall) {
+        await plugin.onBeforeFunctionCall(name, processedArgs);
+      }
+    }
+
+    // Call the function
+    let result = await fn.handler(processedArgs);
+
+    // Execute afterFunctionCall hooks
+    for (const plugin of this.plugins) {
+      if (plugin.onAfterFunctionCall) {
+        result = await plugin.onAfterFunctionCall(name, processedArgs, result);
+      }
+    }
+
+    return result;
   }
 
   async send(input: string | ContentPart[], options: ChatPromptSendOptions<TOptions> = {}) {
@@ -318,7 +337,31 @@ export class ChatPrompt<
 
     const fnMap = functions.reduce(
       (acc, fn) => {
-        acc[fn.name] = fn;
+        acc[fn.name] = {
+          ...fn,
+          handler: async (args: any) => {
+            const processedArgs = args || {};
+
+            // Execute beforeFunctionCall hooks
+            for (const plugin of this.plugins) {
+              if (plugin.onBeforeFunctionCall) {
+                await plugin.onBeforeFunctionCall(fn.name, processedArgs);
+              }
+            }
+
+            // Call the function
+            let result = await fn.handler(processedArgs);
+
+            // Execute afterFunctionCall hooks
+            for (const plugin of this.plugins) {
+              if (plugin.onAfterFunctionCall) {
+                result = await plugin.onAfterFunctionCall(fn.name, processedArgs, result);
+              }
+            }
+
+            return result;
+          },
+        };
         return acc;
       },
       {} as Record<string, Function>
