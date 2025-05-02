@@ -314,16 +314,13 @@ export class ChatPrompt<
       functions = await plugin.onBuildFunctions(functions);
     }
 
-    const fnMap = functions.reduce(
-      (acc, fn) => {
-        acc[fn.name] = {
-          ...fn,
-          handler: (args: any) => this.executeFunction(fn.name, fn, args),
-        };
-        return acc;
-      },
-      {} as Record<string, Function>
-    );
+    const fnMap = functions.reduce((acc, fn) => {
+      acc[fn.name] = {
+        ...fn,
+        handler: (args: any) => this.executeFunction(fn.name, fn, args),
+      };
+      return acc;
+    }, {} as Record<string, Function>);
 
     const res = await this._model.send(
       {

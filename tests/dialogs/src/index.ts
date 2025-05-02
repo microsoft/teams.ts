@@ -43,7 +43,7 @@ app.on("message", async ({ send }) => {
     text: "Select the examples you want to see!",
     size: "Large",
     weight: "Bolder",
-  }).withActions([
+  }).withActions(
     // raw action
     {
       type: "Action.Submit",
@@ -66,8 +66,8 @@ app.on("message", async ({ send }) => {
       .withValue(new TaskFetchData({ opendialogtype: "multi_step_form" })),
     new TaskFetchAction({})
       .withTitle("Mixed Example")
-      .withValue(new TaskFetchData({ opendialogtype: "mixed_example" })),
-  ]);
+      .withValue(new TaskFetchData({ opendialogtype: "mixed_example" }))
+  );
 
   // Send the card as an attachment
   await send(new MessageActivity("Enter this form").addCard("adaptive", card));
@@ -117,11 +117,11 @@ app.on("dialog.open", async ({ activity, next }) => {
     )
       // Inside the dialog, the card actions for submitting the card must be
       // of type Action.Submit
-      .withActions([
+      .withActions(
         new SubmitAction()
           .withTitle("Submit")
-          .withData({ submissiondialogtype: "simple_form" }),
-      ]);
+          .withData({ submissiondialogtype: "simple_form" })
+      );
 
     // Return an object with the task value that renders a card
     return {
@@ -178,11 +178,11 @@ app.on("dialog.open", async ({ activity, next }) => {
     )
       // Inside the dialog, the card actions for submitting the card must be
       // of type Action.Submit
-      .withActions([
+      .withActions(
         new SubmitAction()
           .withTitle("Submit")
-          .withData({ submissiondialogtype: "webpage_dialog_step_1" }),
-      ]);
+          .withData({ submissiondialogtype: "webpage_dialog_step_1" })
+      );
 
     // Return an object with the task value that renders a card
     return {
@@ -267,15 +267,15 @@ app.on("dialog.submit", async ({ activity, send, next }) => {
         .withIsRequired()
         .withId("email")
         .withPlaceholder("Enter your email")
-    ).withActions([
+    ).withActions(
       new SubmitAction().withTitle("Submit").withData({
         // This same handler will get called, so we need to identify the step
         // in the returned data
         submissiondialogtype: "webpage_dialog_step_2",
         // Carry forward data from previous step
         name,
-      }),
-    ]);
+      })
+    );
     return {
       task: {
         // This indicates that the dialog flow should continue
