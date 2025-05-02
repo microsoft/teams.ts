@@ -22,7 +22,7 @@ function createBasicCard() {
   // :snippet-start: basic-card-building
   /**
  import {
-  Card,
+  AdaptiveCard,
   TextBlock,
   ToggleInput,
   ExecuteAction,
@@ -145,7 +145,7 @@ function createActionCard() {
     // :snippet-start: multiple-actions-card
     /**
      * import {
-     *  Card,
+     *  AdaptiveCard,
      *  ExecuteAction,
      *  OpenUrlAction,
      *  ActionSet,
