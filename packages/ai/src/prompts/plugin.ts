@@ -31,4 +31,24 @@ export interface IAiPlugin<
   onAfterSend?: (
     response: Awaited<TAfterSendResponse>
   ) => Awaited<TAfterSendResponse> | Promise<Awaited<TAfterSendResponse>>;
+
+  /**
+   * Called before a function is executed, allowing modification of the arguments
+   * @param functionName the name of the function being called
+   * @param args the arguments being passed to the function
+   */
+  onBeforeFunctionCall?: (functionName: string, args: Record<string, any>) => void | Promise<void>;
+
+  /**
+   * Called after a function is executed, allowing modification of the result
+   * @param functionName the name of the function that was called
+   * @param args the arguments that were passed to the function
+   * @param result the result returned by the function
+   * @returns the modified result
+   */
+  onAfterFunctionCall?: (
+    functionName: string,
+    args: Record<string, any>,
+    result: any
+  ) => any | Promise<any>;
 }

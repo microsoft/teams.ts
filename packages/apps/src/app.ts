@@ -261,8 +261,8 @@ export class App {
     this.container.register('name', { useValue: this.name });
     this.container.register('manifest', { useValue: this.manifest });
     this.container.register('credentials', { useValue: this.credentials });
-    this.container.register('botToken', { useFactory: () => this.tokens.bot });
-    this.container.register('graphToken', { useFactory: () => this.tokens.graph });
+    this.container.register('botToken', { useValue: () => this.tokens.bot });
+    this.container.register('graphToken', { useValue: () => this.tokens.graph });
     this.container.register('ILogger', { useValue: this.log });
     this.container.register('IStorage', { useValue: this.storage });
     this.container.register(this.client.constructor.name, { useFactory: () => this.client });

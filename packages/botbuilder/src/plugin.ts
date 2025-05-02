@@ -44,10 +44,10 @@ export class BotBuilderPlugin extends HttpPlugin implements ISender {
   declare readonly manifest: Partial<manifest.Manifest>;
 
   @Dependency({ optional: true })
-  declare readonly botToken?: IToken;
+  declare readonly botToken?: () => IToken;
 
   @Dependency({ optional: true })
-  declare readonly graphToken?: IToken;
+  declare readonly graphToken?: () => IToken;
 
   @Dependency({ optional: true })
   readonly credentials?: Credentials;
