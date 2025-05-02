@@ -1,3 +1,5 @@
+import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
+
 import { Function, FunctionHandler } from '../function';
 import { LocalMemory } from '../local-memory';
 import { IMemory } from '../memory';
@@ -9,7 +11,6 @@ import { StringTemplate } from '../templates';
 import { WithRequired } from '../utils/types';
 
 import { IAiPlugin } from './plugin';
-import { ILogger, ConsoleLogger } from '@microsoft/spark.common/logging';
 
 export type ChatPromptOptions<TOptions extends Record<string, any> = Record<string, any>> = {
   /**
@@ -157,8 +158,7 @@ export type ChatPromptPlugin<TPluginName extends string, TPluginUseArgs extends 
 export class ChatPrompt<
   TOptions extends Record<string, any> = Record<string, any>,
   TChatPromptPlugins extends readonly ChatPromptPlugin<string, any>[] = [],
-> implements IChatPrompt<TOptions, TChatPromptPlugins>
-{
+> implements IChatPrompt<TOptions, TChatPromptPlugins> {
   get name() {
     return this._name;
   }
@@ -206,7 +206,7 @@ export class ChatPrompt<
         : new LocalMemory({ messages: options.messages || [] });
 
     this._plugins = plugins || ([] as unknown as TChatPromptPlugins);
-    this._log = new ConsoleLogger(`@microsoft/spark.ai/prompts/${this._name}`);
+    this._log = new ConsoleLogger(`@microsoft/teams.ai/prompts/${this._name}`);
   }
 
   use(prompt: IChatPrompt): this;
@@ -335,25 +335,33 @@ export class ChatPrompt<
     );
 
     if (Object.keys(fnMap).length > 0) {
-      this._log.debug('Available functions for LLM:', Object.keys(fnMap).map(name => {
-        const fn = fnMap[name];
-        const paramDescriptions = ('properties' in fn.parameters && fn.parameters.properties) ? 
-          Object.entries(fn.parameters.properties as Record<string, { description?: string }>)
-            .reduce((acc, [key, prop]) => ({
-              ...acc,
-              [key]: prop.description
-            }), {} as Record<string, string | undefined>) 
-          : {};
-        
-        return {
-          name,
-          description: fn.description,
-          parameters: {
-            schema: fn.parameters,
-            descriptions: paramDescriptions
-          }
-        };
-      }));
+      this._log.debug(
+        'Available functions for LLM:',
+        Object.keys(fnMap).map((name) => {
+          const fn = fnMap[name];
+          const paramDescriptions =
+            'properties' in fn.parameters && fn.parameters.properties
+              ? Object.entries(
+                fn.parameters.properties as Record<string, { description?: string }>
+              ).reduce(
+                (acc, [key, prop]) => ({
+                  ...acc,
+                  [key]: prop.description,
+                }),
+                {} as Record<string, string | undefined>
+              )
+              : {};
+
+          return {
+            name,
+            description: fn.description,
+            parameters: {
+              schema: fn.parameters,
+              descriptions: paramDescriptions,
+            },
+          };
+        })
+      );
     }
 
     const res = await this._model.send(
@@ -387,11 +395,14 @@ export class ChatPrompt<
 
     // Log function calls if present
     if (output.function_calls && output.function_calls.length > 0) {
-      this._log.debug('LLM requested function calls:', output.function_calls.map(call => ({
-        name: call.name,
-        id: call.id,
-        arguments: call.arguments
-      })));
+      this._log.debug(
+        'LLM requested function calls:',
+        output.function_calls.map((call) => ({
+          name: call.name,
+          id: call.id,
+          arguments: call.arguments,
+        }))
+      );
     }
 
     this._log.debug(`Processing plugins after send (${this.plugins.length} plugins found)`);

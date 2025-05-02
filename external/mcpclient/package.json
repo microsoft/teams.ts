@@ -32,7 +32,7 @@
   "peerDependencies": {
     "@modelcontextprotocol/sdk": "^1.9.0",
     "@microsoft/teams.ai": "*",
-    "@microsoft/spark.common": "*"
+    "@microsoft/teams.common": "*"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
