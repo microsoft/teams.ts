@@ -1,4 +1,5 @@
 import { ISubmitAction, SubmitAction, SubmitActionOptions } from '../../core';
+
 import { MSTeamsData } from './ms-teams-data';
 
 export type TaskFetchActionOptions = SubmitActionOptions & { data: MSTeamsData<ITaskFetchData> };
