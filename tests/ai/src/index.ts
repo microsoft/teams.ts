@@ -1,23 +1,23 @@
-import { App } from '@microsoft/teams.apps';
-import { DevtoolsPlugin } from '@microsoft/teams.dev';
+import { App } from "@microsoft/teams.apps";
+import { DevtoolsPlugin } from "@microsoft/teams.dev";
 // :snippet-start: ai-imports
-import { ChatPrompt } from '@microsoft/teams.ai';
-import { OpenAIChatModel } from '@microsoft/teams.openai';
+import { ChatPrompt } from "@microsoft/teams.ai";
+import { OpenAIChatModel } from "@microsoft/teams.openai";
 // :snippet-end:
-import { MessageActivity } from '@microsoft/teams.api';
-import { ConsoleLogger } from '@microsoft/teams.common';
+import { MessageActivity } from "@microsoft/teams.api";
+import { ConsoleLogger } from "@microsoft/teams.common";
 import {
   feedbackLoopCommand,
   pokemonCommand,
   ragCommand,
   streamCommand,
   weatherCommand,
-} from './commands';
-import { storedFeedbackByMessageId } from './feedback';
-import { handleDocumentationSearch } from './simple-rag';
-import { handleStatefulConversation } from './stateful-prompts';
+} from "./commands";
+import { storedFeedbackByMessageId } from "./feedback";
+import { handleDocumentationSearch } from "./simple-rag";
+import { handleStatefulConversation } from "./stateful-prompts";
 
-const logger = new ConsoleLogger('@tests/ai');
+const logger = new ConsoleLogger("@tests/ai");
 
 const app = new App({
   logger,
@@ -33,9 +33,9 @@ const model = new OpenAIChatModel({
 
 // Handle "hi" message
 // :snippet-start: simple-chat
-app.on('message', async ({ send, activity, next }) => {
+app.on("message", async ({ send, activity, next }) => {
   // :remove-start:
-  if (activity.text.toLowerCase() !== 'hi') {
+  if (activity.text.toLowerCase() !== "hi") {
     await next();
     return;
   }
@@ -48,7 +48,7 @@ app.on('message', async ({ send, activity, next }) => {
   });
 
   const prompt = new ChatPrompt({
-    instructions: 'You are a friendly assistant who talks like a pirate',
+    instructions: "You are a friendly assistant who talks like a pirate",
     model,
   });
 
@@ -62,8 +62,8 @@ app.on('message', async ({ send, activity, next }) => {
 // :snippet-end:
 
 // Handle "<supported-command> <query>" message
-app.on('message', async ({ send, activity, next, log }) => {
-  if (activity.text.toLowerCase().startsWith('docs ')) {
+app.on("message", async ({ send, activity, next, log }) => {
+  if (activity.text.toLowerCase().startsWith("docs ")) {
     await handleDocumentationSearch(
       model,
       {
@@ -71,12 +71,17 @@ app.on('message', async ({ send, activity, next, log }) => {
         text: activity.text.slice(5),
       },
       send,
-      log
+      log,
     );
     return;
   }
 
-  const commandAndQuery = [pokemonCommand, weatherCommand, feedbackLoopCommand, ragCommand]
+  const commandAndQuery = [
+    pokemonCommand,
+    weatherCommand,
+    feedbackLoopCommand,
+    ragCommand,
+  ]
     .map((command) => command(activity.text))
     .find(Boolean);
   if (!commandAndQuery) {
@@ -94,14 +99,14 @@ app.on('message', async ({ send, activity, next, log }) => {
         text: query,
       },
       send,
-      log
+      log,
     );
   }
 });
 
 // Handle messages that start with stream <query>
 // :snippet-start: streaming-chat
-app.on('message', async ({ stream, send, activity, next }) => {
+app.on("message", async ({ stream, send, activity, next }) => {
   // :remove-start:
   const commandAndQuery = streamCommand(activity.text);
   if (!commandAndQuery) {
@@ -113,7 +118,7 @@ app.on('message', async ({ stream, send, activity, next }) => {
   // const query = activity.text;
 
   const prompt = new ChatPrompt({
-    instructions: 'You are a friendly assistant who responds in terse language',
+    instructions: "You are a friendly assistant who responds in terse language",
     model,
   });
 
@@ -138,12 +143,12 @@ app.on('message', async ({ stream, send, activity, next }) => {
 // :snippet-end:
 
 // Fall through conversation handler
-app.on('message', async ({ send, activity, log }) => {
+app.on("message", async ({ send, activity, log }) => {
   await handleStatefulConversation(model, activity, send, log);
 });
 
 // :snippet-start: feedback-loop-handler
-app.on('message.submit.feedback', async ({ activity, log }) => {
+app.on("message.submit.feedback", async ({ activity, log }) => {
   const { reaction, feedback: feedbackJson } = activity.value.actionValue;
   if (activity.replyToId == null) {
     log.warn(`No replyToId found for messageId ${activity.id}`);
@@ -159,8 +164,8 @@ app.on('message.submit.feedback', async ({ activity, log }) => {
   } else {
     storedFeedbackByMessageId.set(activity.id, {
       ...existingFeedback,
-      likes: existingFeedback.likes + (reaction === 'like' ? 1 : 0),
-      dislikes: existingFeedback.dislikes + (reaction === 'dislike' ? 1 : 0),
+      likes: existingFeedback.likes + (reaction === "like" ? 1 : 0),
+      dislikes: existingFeedback.dislikes + (reaction === "dislike" ? 1 : 0),
       feedbacks: [...existingFeedback.feedbacks, feedbackJson],
     });
   }
