@@ -2,8 +2,7 @@ import { ClientOptions } from '@modelcontextprotocol/sdk/client/index.js';
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 
 import type { Schema } from '@microsoft/teams.ai';
-
-import { ILogger } from '../../../packages/common/dist/logging/logger';
+import { ILogger } from '@microsoft/teams.common';
 
 export type McpClientToolDetails = {
   name: string;

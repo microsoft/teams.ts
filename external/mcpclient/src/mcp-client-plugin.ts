@@ -2,8 +2,9 @@ import { Client, ClientOptions } from '@modelcontextprotocol/sdk/client/index.js
 
 import { ChatPromptPlugin, Function, Schema } from '@microsoft/teams.ai';
 
+import { ILogger } from '@microsoft/teams.common';
+
 import { ConsoleLogger } from '../../../packages/common/dist/logging/console';
-import { ILogger } from '../../../packages/common/dist/logging/logger';
 
 import {
   CreateTransport,
