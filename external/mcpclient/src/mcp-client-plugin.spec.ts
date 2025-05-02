@@ -7,12 +7,12 @@ import { McpClientPlugin } from './mcp-client-plugin';
 import { CreateTransport, McpClientPluginParams, McpClientToolDetails } from './mcp-client-types';
 
 class MockTransport implements Transport {
-  async connect(): Promise<void> {}
-  async disconnect(): Promise<void> {}
-  async send(): Promise<void> {}
-  onMessage(): void {}
-  async start(): Promise<void> {}
-  async close(): Promise<void> {}
+  async connect(): Promise<void> { }
+  async disconnect(): Promise<void> { }
+  async send(): Promise<void> { }
+  onMessage(): void { }
+  async start(): Promise<void> { }
+  async close(): Promise<void> { }
 }
 
 describe('McpClientPlugin', () => {
@@ -30,7 +30,7 @@ describe('McpClientPlugin', () => {
   });
 
   describe('onUsePlugin', () => {
-    test('stores plugin parameters', async () => {
+    it('stores plugin parameters', async () => {
       const plugin = new McpClientPlugin();
       const schema: Schema = {
         type: 'object',
@@ -60,7 +60,7 @@ describe('McpClientPlugin', () => {
   });
 
   describe('onBuildFunctions', () => {
-    test('fetches tools when not cached', async () => {
+    it('fetches tools when not cached', async () => {
       const plugin = new McpClientPlugin();
       const testTools = [
         {
@@ -84,7 +84,7 @@ describe('McpClientPlugin', () => {
       expect(functions[0].name).toBe('remote-tool');
     });
 
-    test('uses cached tools when available and not expired', async () => {
+    it('uses cached tools when available and not expired', async () => {
       const schema: Schema = {
         type: 'object',
         properties: {},
@@ -118,7 +118,7 @@ describe('McpClientPlugin', () => {
       expect(functions[0].name).toBe('cached-tool');
     });
 
-    test('refetches when cache is expired', async () => {
+    it('refetches when cache is expired', async () => {
       const schema: Schema = {
         type: 'object',
         properties: {},
@@ -168,7 +168,7 @@ describe('McpClientPlugin', () => {
       expect(functions[0].name).toBe('new-tool');
     });
 
-    test('refetches when cache is expired for a specific server', async () => {
+    it('refetches when cache is expired for a specific server', async () => {
       const schema: Schema = {
         type: 'object',
         properties: {},
@@ -236,7 +236,7 @@ describe('McpClientPlugin', () => {
       );
     });
 
-    test('fetches tools from multiple servers in parallel', async () => {
+    it('fetches tools from multiple servers in parallel', async () => {
       const plugin = new McpClientPlugin();
 
       const schema: Schema = {
@@ -293,7 +293,7 @@ describe('McpClientPlugin', () => {
       }
     );
 
-    test('handles server unavailability with skipIfUnavailable=false', async () => {
+    it('handles server unavailability with skipIfUnavailable=false', async () => {
       const plugin = new McpClientPlugin();
       mockListTools.mockRejectedValue(new Error('Server error'));
 
@@ -308,7 +308,7 @@ describe('McpClientPlugin', () => {
   });
 
   describe('function execution', () => {
-    test('calls tool with arguments and returns result', async () => {
+    it('calls tool with arguments and returns result', async () => {
       const plugin = new McpClientPlugin();
       const schema: Schema = {
         type: 'object',
@@ -341,7 +341,7 @@ describe('McpClientPlugin', () => {
   });
 
   describe('custom transport', () => {
-    test('uses custom transport when provided', async () => {
+    it('uses custom transport when provided', async () => {
       const mockTransport = new MockTransport();
       const createTransport = jest.fn(() => mockTransport) as CreateTransport;
 
