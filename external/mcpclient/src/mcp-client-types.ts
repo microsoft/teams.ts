@@ -19,12 +19,27 @@ export type McpClientPluginParams = {
    * optional headers to pass in per request
    */
   headers?: ValueOrFactory<Record<string, string>>;
+  /**
+   * If the server is not available, it marks it as unavailable
+   * and will not try to use it again until the cache is cleared
+   * @default true
+   */
+  skipIfUnavailable?: boolean;
+
+  /**
+   * Number of milliseconds to wait before refetching the available tools
+   * If the tools are supplied, this has no effect.
+   * @default: uses the plugin's `refetchTimeoutMs` value
+   */
+  refetchTimeoutMs?: number;
 };
+
+export type McpClientPluginCachedParams = Pick<McpClientPluginParams, 'availableTools' | 'headers'>;
 
 /**
  * A map of Mcp client params keyed off of their corresponding urls
  */
-export type McpClientPluginParamsCache = Record<string, McpClientPluginParams>;
+export type McpClientPluginParamsCache = Record<string, McpClientPluginCachedParams>;
 
 /**
  * A function that creates a transport for the Mcp client
@@ -62,6 +77,12 @@ export type McpClientPluginOptions = ClientOptions & {
    * If not provided, a ConsoleLogger will be used
    */
   logger?: ILogger;
+
+  /**
+   * Number of milliseconds to wait before refetching the available tools
+   * @default: 1 day
+   */
+  refetchTimeoutMs?: number;
 };
 
 export type McpClientPluginUseParams = {
