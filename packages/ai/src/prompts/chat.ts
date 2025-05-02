@@ -72,7 +72,7 @@ export type ChatPromptSendOptions<TOptions extends Record<string, any> = Record<
  */
 export interface IChatPrompt<
   TOptions extends Record<string, any> = Record<string, any>,
-  TChatPromptPlugins extends readonly ChatPromptPlugin<string, any>[] = []
+  TChatPromptPlugins extends readonly ChatPromptPlugin<string, any>[] = [],
 > {
   /**
    * the prompt name
@@ -157,7 +157,7 @@ export type ChatPromptPlugin<TPluginName extends string, TPluginUseArgs extends 
  */
 export class ChatPrompt<
   TOptions extends Record<string, any> = Record<string, any>,
-  TChatPromptPlugins extends readonly ChatPromptPlugin<string, any>[] = []
+  TChatPromptPlugins extends readonly ChatPromptPlugin<string, any>[] = [],
 > implements IChatPrompt<TOptions, TChatPromptPlugins>
 {
   get name() {
@@ -198,8 +198,8 @@ export class ChatPrompt<
     this._template = Array.isArray(options.instructions)
       ? new StringTemplate(options.instructions.join('\n'))
       : typeof options.instructions !== 'object'
-      ? new StringTemplate(options.instructions)
-      : options.instructions;
+        ? new StringTemplate(options.instructions)
+        : options.instructions;
 
     this._messages =
       typeof options.messages === 'object' && !Array.isArray(options.messages)
@@ -324,13 +324,16 @@ export class ChatPrompt<
       functions = await plugin.onBuildFunctions(functions);
     }
 
-    const fnMap = functions.reduce((acc, fn) => {
-      acc[fn.name] = {
-        ...fn,
-        handler: (args: any) => this.executeFunction(fn.name, fn, args),
-      };
-      return acc;
-    }, {} as Record<string, Function>);
+    const fnMap = functions.reduce(
+      (acc, fn) => {
+        acc[fn.name] = {
+          ...fn,
+          handler: (args: any) => this.executeFunction(fn.name, fn, args),
+        };
+        return acc;
+      },
+      {} as Record<string, Function>
+    );
 
     if (Object.keys(fnMap).length > 0) {
       this._log.debug(

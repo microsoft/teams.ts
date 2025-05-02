@@ -138,7 +138,7 @@ export class McpPlugin implements IPlugin {
               name: options.name || "mcp",
               version: options.version || "0.0.0",
             },
-            options
+            options,
           );
 
     if (!(options instanceof McpServer) && options.transport) {
@@ -153,13 +153,13 @@ export class McpPlugin implements IPlugin {
   use(prompt: IChatPrompt) {
     for (const fn of prompt.functions) {
       const schema: z.AnyZodObject = eval(
-        jsonSchemaToZod(fn.parameters, { module: "cjs" })
+        jsonSchemaToZod(fn.parameters, { module: "cjs" }),
       );
       this.server.tool(
         fn.name,
         fn.description,
         schema.shape,
-        this.onToolCall(fn.name, prompt)
+        this.onToolCall(fn.name, prompt),
       );
     }
 
@@ -207,7 +207,7 @@ export class McpPlugin implements IPlugin {
   onStart({ port }: IPluginStartEvent) {
     if (this.transport.type === "sse") {
       this.logger.info(
-        `listening at http://localhost:${port}${this.transport.path || "/mcp"}`
+        `listening at http://localhost:${port}${this.transport.path || "/mcp"}`,
       );
     } else {
       this.logger.info("listening on stdin");
@@ -227,7 +227,7 @@ export class McpPlugin implements IPlugin {
       this.logger.debug("connecting...");
       const transport = new SSEServerTransport(
         `${path}/${this.id}/messages`,
-        res
+        res,
       );
       this.connections[this.id] = {
         id: this.id,
@@ -295,7 +295,7 @@ export class McpPlugin implements IPlugin {
           "type" in item &&
           (item.type === "text" ||
             item.type === "image" ||
-            item.type === "resource")
+            item.type === "resource"),
       )
     );
   }
