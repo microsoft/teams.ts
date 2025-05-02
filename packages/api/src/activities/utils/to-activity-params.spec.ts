@@ -1,29 +1,29 @@
-import { AdaptiveCard, CodeBlock } from "@microsoft/teams.cards";
+import { AdaptiveCard, CodeBlock } from '@microsoft/teams.cards';
 
-import { MessageActivity } from "../message";
+import { MessageActivity } from '../message';
 
-import { toActivityParams } from "./to-activity-params";
+import { toActivityParams } from './to-activity-params';
 
-describe("Activity Utils", () => {
-  describe("toActivityParams", () => {
-    it("should convert `string` to message activity", () => {
-      const activity = toActivityParams("testing123");
+describe('Activity Utils', () => {
+  describe('toActivityParams', () => {
+    it('should convert `string` to message activity', () => {
+      const activity = toActivityParams('testing123');
       expect(activity).toEqual({
-        type: "message",
-        text: "testing123",
+        type: 'message',
+        text: 'testing123',
       });
     });
 
-    it("should convert card to message activity with card attachment", () => {
+    it('should convert card to message activity with card attachment', () => {
       const card = new AdaptiveCard(
         new CodeBlock({
-          language: "TypeScript",
-          codeSnippet: "let test = 1",
+          language: 'TypeScript',
+          codeSnippet: 'let test = 1',
         })
       );
 
       const activity = toActivityParams(card);
-      expect(activity).toEqual(new MessageActivity().addCard("adaptive", card));
+      expect(activity).toEqual(new MessageActivity().addCard('adaptive', card));
     });
   });
 });
