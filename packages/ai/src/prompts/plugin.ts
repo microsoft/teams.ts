@@ -2,7 +2,7 @@ export interface IAiPlugin<
   TPluginName extends string = string,
   TPluginUseArgs extends {} = {},
   TBeforeSendParams = unknown,
-  TAfterSendResponse = unknown,
+  TAfterSendResponse = unknown
 > {
   /**
    * Unique name of the plugin
