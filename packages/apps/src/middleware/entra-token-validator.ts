@@ -43,7 +43,7 @@ export class EntraTokenValidator {
     // multi tenant applications allow tokens issued by any tenant, unless the
     // allowedTenantIds option is provided to limit the set of allowed issuers.
     const isMultiTenant = ['common', 'organizations', 'consumers'].some((val) => tenantId === val);
-    this.validIssuerTenantIds = isMultiTenant ? (options?.allowedTenantIds ?? []) : [this.tenantId];
+    this.validIssuerTenantIds = isMultiTenant ? options?.allowedTenantIds ?? [] : [this.tenantId];
 
     this.keyClient = getJwksClient({
       jwksUri: `https://login.microsoftonline.com/${tenantId}/discovery/v2.0/keys`,
