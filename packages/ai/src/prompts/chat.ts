@@ -45,6 +45,12 @@ export type ChatPromptOptions<TOptions extends Record<string, any> = Record<stri
    * the conversation history
    */
   readonly messages?: Message[] | IMemory;
+
+  /**
+   * Logger instance to use for logging
+   * If not provided, a ConsoleLogger will be used
+   */
+  logger?: ILogger;
 };
 
 export type ChatPromptSendOptions<TOptions extends Record<string, any> = Record<string, any>> = {
@@ -98,7 +104,6 @@ export interface IChatPrompt<
    * the chat model
    */
   plugins: TChatPromptPlugins;
-
   /**
    * add another chat prompt as a
    */
@@ -206,7 +211,7 @@ export class ChatPrompt<
         : new LocalMemory({ messages: options.messages || [] });
 
     this._plugins = plugins || ([] as unknown as TChatPromptPlugins);
-    this._log = new ConsoleLogger(`@microsoft/teams.ai/prompts/${this._name}`);
+    this._log = options.logger || new ConsoleLogger(`@microsoft/teams.ai/prompts/${this._name}`);
   }
 
   use(prompt: IChatPrompt): this;
@@ -342,14 +347,14 @@ export class ChatPrompt<
           const paramDescriptions =
             'properties' in fn.parameters && fn.parameters.properties
               ? Object.entries(
-                  fn.parameters.properties as Record<string, { description?: string }>
-                ).reduce(
-                  (acc, [key, prop]) => ({
-                    ...acc,
-                    [key]: prop.description,
-                  }),
-                  {} as Record<string, string | undefined>
-                )
+                fn.parameters.properties as Record<string, { description?: string }>
+              ).reduce(
+                (acc, [key, prop]) => ({
+                  ...acc,
+                  [key]: prop.description,
+                }),
+                {} as Record<string, string | undefined>
+              )
               : {};
 
           return {

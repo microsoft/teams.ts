@@ -172,7 +172,11 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
           lastAttemptedFetch: tools === 'unavailable' ? undefined : Date.now(),
           availableTools: tools === 'unavailable' ? undefined : tools,
         };
-        this.log.debug(`Cached ${tools.length} tools for URL: ${url}`);
+        if (tools === 'unavailable') {
+          this.log.warn(`Tools unavailable for URL: ${url}`);
+        } else {
+          this.log.debug(`Cached ${tools.length} tools for URL: ${url}`);
+        }
       }
     }
   }
@@ -207,10 +211,10 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
         schema: tool.inputSchema as Schema,
       }));
     } catch (e) {
+      this.log.error(`Error fetching tools from ${url}:`, e);
       if (skipIfUnavailable || skipIfUnavailable == null) {
         return 'unavailable';
       }
-      this.log.error(`Error fetching tools from ${url}:`, e);
       throw e;
     } finally {
       await client.close();

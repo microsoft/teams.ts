@@ -3,10 +3,13 @@ import { App } from "@microsoft/teams.apps";
 import { DevtoolsPlugin } from "@microsoft/teams.dev";
 import { McpClientPlugin } from "@microsoft/teams.mcpclient";
 import { OpenAIChatModel } from "@microsoft/teams.openai";
+import { ConsoleLogger } from '../../../packages/common/dist/logging/console';
 
 const app = new App({
   plugins: [new DevtoolsPlugin()],
 });
+
+const logger = new ConsoleLogger('mcp-client', { level: 'debug' });
 
 // :snippet-start: mcp-client-prompt-config
 const prompt = new ChatPrompt(
@@ -17,12 +20,13 @@ const prompt = new ChatPrompt(
       model: "gpt-4o-mini",
       apiKey: process.env.OPENAI_API_KEY,
     }),
+    logger
   },
   // Tell the prompt that the plugin needs to be used
   // Here you may also pass in additional configurations such as
   // a tool-cache, which can be used to limit the tools that are used
   // or improve performance
-  [new McpClientPlugin()],
+  [new McpClientPlugin({ logger })],
 )
   // Here we are saying you can use any tool from localhost:3000/mcp
   // (that is the URL for the server we built using the mcp plugin)
