@@ -27,13 +27,13 @@ export class TeamsToolkitAttribute implements IProjectAttribute {
         targetDir,
         'package.json',
         'scripts.dev:teamsfx',
-        "NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev"
+        'NODE_OPTIONS=\'--inspect=9239\' npx env-cmd -f .env npm run dev'
       ),
       new FileJsonSet(
         targetDir,
         'package.json',
         'scripts.dev:teamsfx:testtool',
-        "NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev"
+        'NODE_OPTIONS=\'--inspect=9239\' npx env-cmd -f .env npm run dev'
       ),
       new FileJsonSet(
         targetDir,

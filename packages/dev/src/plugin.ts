@@ -95,7 +95,7 @@ export class DevtoolsPlugin implements ISender {
       new String()
         .bold(
           new String().yellow(
-            `⚠️  Devtools are not secure and should not be used production environments ⚠️`
+            '⚠️  Devtools are not secure and should not be used production environments ⚠️'
           )
         )
         .toString()

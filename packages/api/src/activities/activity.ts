@@ -349,7 +349,7 @@ export class Activity<T extends string = string> implements IActivity<T> {
       messageEntity.additionalType = [];
     }
 
-    messageEntity.additionalType.push(`AIGeneratedContent`);
+    messageEntity.additionalType.push('AIGeneratedContent');
     return this;
   }
 
