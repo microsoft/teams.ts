@@ -102,7 +102,7 @@ describe('ConsoleLogger', () => {
     ${undefined} | ${'test*'}
     ${'test*'}   | ${'nonMatching*'}
   `(
-    `should respect logging pattern when environment variable is $envPattern and option pattern is $optionPattern`,
+    'should respect logging pattern when environment variable is $envPattern and option pattern is $optionPattern',
     ({ envPattern, optionPattern }) => {
       if (envPattern) {
         process.env.LOG = envPattern;

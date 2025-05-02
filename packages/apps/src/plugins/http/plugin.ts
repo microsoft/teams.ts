@@ -1,16 +1,15 @@
 import http from 'http';
 
 import cors from 'cors';
-
 import express from 'express';
 
 import {
   Activity,
   ActivityParams,
-  JsonWebToken,
+  Client,
   ConversationReference,
   IToken,
-  Client,
+  JsonWebToken,
 } from '@microsoft/teams.api';
 import { ILogger } from '@microsoft/teams.common';
 import * as $http from '@microsoft/teams.common/http';
@@ -19,15 +18,15 @@ import pkg from '../../../package.json';
 import { IActivityEvent, IErrorEvent } from '../../events';
 import { Manifest } from '../../manifest';
 import {
-  IStreamer,
-  ISender,
-  IPluginStartEvent,
-  IPluginErrorEvent,
-  IPluginActivityResponseEvent,
-  Plugin,
-  Logger,
   Dependency,
   Event,
+  IPluginActivityResponseEvent,
+  IPluginErrorEvent,
+  IPluginStartEvent,
+  ISender,
+  IStreamer,
+  Logger,
+  Plugin,
 } from '../../types';
 
 import { HttpStream } from './stream';
@@ -51,10 +50,10 @@ export class HttpPlugin implements ISender {
   readonly manifest!: Partial<Manifest>;
 
   @Dependency({ optional: true })
-  readonly botToken?: IToken;
+  readonly botToken?: () => IToken;
 
   @Dependency({ optional: true })
-  readonly graphToken?: IToken;
+  readonly graphToken?: () => IToken;
 
   @Event('error')
   readonly $onError!: (event: IErrorEvent) => void;
@@ -166,7 +165,7 @@ export class HttpPlugin implements ISender {
     const api = new Client(
       ref.serviceUrl,
       this.client.clone({
-        token: () => this.botToken,
+        token: this.botToken,
       })
     );
 
@@ -192,7 +191,7 @@ export class HttpPlugin implements ISender {
       new Client(
         ref.serviceUrl,
         this.client.clone({
-          token: () => this.botToken,
+          token: this.botToken,
         })
       ),
       ref

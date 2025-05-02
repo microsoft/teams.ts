@@ -218,6 +218,144 @@ describe('ChatPrompt', () => {
       expect(mockAfterSend2).toHaveBeenCalledWith({ content: 'mock response1', role: 'model' });
       expect(response.content).toBe('mock response12');
     });
+
+    it('should call onBeforeFunctionCall hook when calling a function', async () => {
+      const mockBeforeFunctionCall = jest.fn();
+      const pluginWithBeforeFunctionCall: ChatPromptPlugin<'test', TestPluginArgs> = {
+        ...mockPlugin,
+        onBeforeFunctionCall: mockBeforeFunctionCall,
+      };
+      const prompt = new ChatPrompt(
+        {
+          name: 'test-prompt',
+          model: mockChatModel,
+        },
+        [pluginWithBeforeFunctionCall] as const
+      );
+
+      const handler = jest.fn().mockResolvedValue('function result');
+      const args = { param: 'test' };
+      prompt.function('testFn', 'Test function', handler);
+      await prompt.call('testFn', args);
+
+      expect(mockBeforeFunctionCall).toHaveBeenCalledWith('testFn', args);
+    });
+
+    it('should call onAfterFunctionCall hook with function result', async () => {
+      const mockAfterFunctionCall = jest.fn((_name, _args, result) => result);
+      const pluginWithAfterFunctionCall: ChatPromptPlugin<'test', TestPluginArgs> = {
+        ...mockPlugin,
+        onAfterFunctionCall: mockAfterFunctionCall,
+      };
+      const prompt = new ChatPrompt(
+        {
+          name: 'test-prompt',
+          model: mockChatModel,
+        },
+        [pluginWithAfterFunctionCall] as const
+      );
+
+      const expectedResult = 'function result';
+      const handler = jest.fn().mockResolvedValue(expectedResult);
+      const args = { param: 'test' };
+      prompt.function('testFn', 'Test function', handler);
+      await prompt.call('testFn', args);
+
+      expect(mockAfterFunctionCall).toHaveBeenCalledWith('testFn', args, expectedResult);
+    });
+
+    it('should allow onAfterFunctionCall to modify the result', async () => {
+      const modifiedResult = 'modified result';
+      const mockAfterFunctionCall = jest.fn().mockReturnValue(modifiedResult);
+      const pluginWithAfterFunctionCall: ChatPromptPlugin<'test', TestPluginArgs> = {
+        ...mockPlugin,
+        onAfterFunctionCall: mockAfterFunctionCall,
+      };
+      const prompt = new ChatPrompt(
+        {
+          name: 'test-prompt',
+          model: mockChatModel,
+        },
+        [pluginWithAfterFunctionCall] as const
+      );
+
+      const handler = jest.fn().mockResolvedValue('original result');
+      prompt.function('testFn', 'Test function', handler);
+      const result = await prompt.call('testFn', { param: 'test' });
+
+      expect(result).toBe(modifiedResult);
+    });
+
+    it('should chain multiple plugins function call hooks in order', async () => {
+      const mockBeforeFunctionCall1 = jest.fn();
+      const mockBeforeFunctionCall2 = jest.fn();
+      const mockAfterFunctionCall1 = jest.fn((_name, _args, result) => `${result}1`);
+      const mockAfterFunctionCall2 = jest.fn((_name, _args, result) => `${result}2`);
+
+      const plugin1: ChatPromptPlugin<'test1', TestPluginArgs> = {
+        name: 'test1',
+        onBeforeFunctionCall: mockBeforeFunctionCall1,
+        onAfterFunctionCall: mockAfterFunctionCall1,
+      };
+      const plugin2: ChatPromptPlugin<'test2', TestPluginArgs> = {
+        name: 'test2',
+        onBeforeFunctionCall: mockBeforeFunctionCall2,
+        onAfterFunctionCall: mockAfterFunctionCall2,
+      };
+
+      const prompt = new ChatPrompt(
+        {
+          name: 'test-prompt',
+          model: mockChatModel,
+        },
+        [plugin1, plugin2] as const
+      );
+
+      const handler = jest.fn().mockResolvedValue('result');
+      const args = { param: 'test' };
+      prompt.function('testFn', 'Test function', handler);
+      const result = await prompt.call('testFn', args);
+
+      // Verify hooks were called in order
+      expect(mockBeforeFunctionCall1).toHaveBeenCalledWith('testFn', args);
+      expect(mockBeforeFunctionCall2).toHaveBeenCalledWith('testFn', args);
+      expect(mockAfterFunctionCall1).toHaveBeenCalledWith('testFn', args, 'result');
+      expect(mockAfterFunctionCall2).toHaveBeenCalledWith('testFn', args, 'result1');
+      expect(result).toBe('result12');
+    });
+
+    it('should support async function call hooks', async () => {
+      const mockBeforeFunctionCall = jest.fn().mockImplementation(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      });
+      const mockAfterFunctionCall = jest.fn().mockImplementation(async (_name, _args, result) => {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        return `${result} async`;
+      });
+
+      const pluginWithAsyncHooks: ChatPromptPlugin<'test', TestPluginArgs> = {
+        ...mockPlugin,
+        onBeforeFunctionCall: mockBeforeFunctionCall,
+        onAfterFunctionCall: mockAfterFunctionCall,
+      };
+
+      const prompt = new ChatPrompt(
+        {
+          name: 'test-prompt',
+          model: mockChatModel,
+        },
+        [pluginWithAsyncHooks] as const
+      );
+
+      const handler = jest.fn().mockResolvedValue('result');
+      const args = { param: 'test' };
+      prompt.function('testFn', 'Test function', handler);
+      const result = await prompt.call('testFn', args);
+
+      expect(mockBeforeFunctionCall).toHaveBeenCalledWith('testFn', args);
+      expect(mockAfterFunctionCall).toHaveBeenCalledWith('testFn', args, 'result');
+      expect(result).toBe('result async');
+    });
   });
 
   describe('send', () => {
@@ -282,7 +420,7 @@ describe('ChatPrompt', () => {
         { role: 'user', content: 'Hello' },
         expect.objectContaining({
           functions: {
-            customFn: customFunction,
+            customFn: expect.anything(),
             testFunction: expect.objectContaining({
               name: 'testFunction',
               description: 'A test function',

@@ -144,7 +144,7 @@ export function Typescript(_: IContext): CommandModule<{}, z.infer<typeof ArgsSc
           shell: true,
         });
       } else {
-        console.log(`Next steps to start the app:`);
+        console.log('Next steps to start the app:');
         console.log(`cd ${name} && npm install && npm run dev`);
       }
     },
