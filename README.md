@@ -12,7 +12,7 @@ a suite of packages used to build on the Teams Platform.
 
 - [Scripts](#scripts)
 - [Packages](#packages)
-- [Samples](#samples)
+- [Tests](#tests)
 
 ## Scripts
 
@@ -38,7 +38,7 @@ $: npm run fmt
 
 ### Dev
 
-> for apps/samples only
+> for apps/tests only
 
 ```bash
 $: npm run dev
@@ -77,21 +77,21 @@ $: npm run test
 - [`@microsoft/teams.mcp`](./external/mcp/README.md)
 - [`@microsoft/teams.mcpclient`](./external/mcpclient/README.md)
 
-## Samples
+## Test apps
 
 > ℹ️ used to test the SDK or as a visual sample of how certain features can be implemented.
 
-> ⚠️ **WARNING** these samples are changed often and are not intended to be used outside the
+> ⚠️ **WARNING** these apps are changed often and are not intended to be used outside the
 > projects monorepo. To easily setup a new project please use the **templates** available via
 > the `@microsoft/teams.cli` and follow the
 > [Getting Started](https://microsoft.github.io/teams-ai/2.getting-started/1.create-application.html) documentation!
 
-- [`@samples/echo`](./samples/echo/README.md)
-- [`@samples/botbuilder`](./samples/botbuilder/README.md)
-- [`@samples/auth`](./samples/auth/README.md)
-- [`@samples/lights`](./samples/lights/README.md)
-- [`@samples/tab`](./samples/tab/README.md)
-- [`@samples/mcp`](./samples/mcp/README.md)
+- [`@tests/echo`](./tests/echo/README.md)
+- [`@tests/botbuilder`](./tests/botbuilder/README.md)
+- [`@tests/auth`](./tests/auth/README.md)
+- [`@tests/lights`](./tests/lights/README.md)
+- [`@tests/tab`](./tests/tab/README.md)
+- [`@tests/mcp`](./tests/mcp/README.md)
 
 ## Links
 

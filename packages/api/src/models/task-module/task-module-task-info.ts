@@ -2,11 +2,10 @@ import { Attachment } from '../attachment';
 
 /**
  *
- * An interface representing TaskModuleTaskInfo.
- * Metadata for a Task Module.
+ * An interface representing BaseTaskModuleTaskInfo.
  *
  */
-export type TaskModuleTaskInfo = {
+export type BaseTaskModuleTaskInfo = {
   /**
    * @member {string} [title] Appears below the app name and to the right of
    * the app icon.
@@ -26,18 +25,6 @@ export type TaskModuleTaskInfo = {
   width?: number | 'small' | 'medium' | 'large';
 
   /**
-   * @member {string} [url] The URL of what is loaded as an iframe inside the
-   * task module. One of url or card is required.
-   */
-  url?: string;
-
-  /**
-   * @member {Attachment} [card] The JSON for the Adaptive card to appear in
-   * the task module.
-   */
-  card?: Attachment;
-
-  /**
    * @member {string} [fallbackUrl] If a client does not support the task
    * module feature, this URL is opened in a browser tab.
    */
@@ -49,3 +36,37 @@ export type TaskModuleTaskInfo = {
    */
   completionBotId?: string;
 };
+
+/**
+ *
+ * An interface representing CardTaskModuleTaskInfo.
+ *
+ */
+export type CardTaskModuleTaskInfo = BaseTaskModuleTaskInfo & {
+  /**
+   * @member {Attachment} [card] The JSON for the Adaptive card to appear in
+   * the task module.
+   */
+  card: Attachment;
+};
+
+/**
+ *
+ * An interface representing UrlTaskModuleTaskInfo.
+ *
+ */
+export type UrlTaskModuleTaskInfo = BaseTaskModuleTaskInfo & {
+  /**
+   * @member {string} [url] The URL of what is loaded as an iframe inside the
+   * task module.
+   */
+  url: string;
+};
+
+/**
+ *
+ * An interface representing TaskModuleTaskInfo.
+ * Metadata for a Task Module.
+ *
+ */
+export type TaskModuleTaskInfo = CardTaskModuleTaskInfo | UrlTaskModuleTaskInfo;

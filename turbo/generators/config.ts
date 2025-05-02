@@ -1,6 +1,37 @@
 import type { PlopTypes } from '@turbo/gen';
+import fs from 'fs';
+import path from 'path';
 
 export default function generator(plop: PlopTypes.NodePlopAPI): void {
+  // Action for creating an app package
+  plop.setActionType('createAppPackage', (answers, config, plop) => {
+    if (!plop) {
+      throw new Error('Plop instance is not available');
+    }
+
+    if (!answers['name']) {
+      throw new Error('App name is required');
+    }
+    const appPackagePath = path.join(
+      plop.getDestBasePath(),
+      'samples',
+      answers['name'],
+      'appPackage'
+    );
+    const appPackageContent = JSON.stringify(
+      {
+        name: answers.name,
+        description: answers.description,
+        version: '1.0.0',
+      },
+      null,
+      2
+    );
+
+    fs.writeFileSync(appPackagePath, appPackageContent);
+    return `App package created at ${appPackagePath}`;
+  });
+
   // Package generator for creating new packages
   plop.setGenerator('Package', {
     description: 'Create a new package',
@@ -57,46 +88,65 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
     ],
   });
 
-  // Sample generator for creating new samples
-  plop.setGenerator('Sample', {
-    description: 'Create a new sample',
+  // Generator for creating new applications in tests
+  plop.setGenerator('Application', {
+    description: 'Create a new Teams AI v2 application',
     prompts: [
       {
         type: 'input',
         name: 'name',
-        message: 'Sample name:',
+        message: 'Application name:',
       },
       {
         type: 'input',
         name: 'description',
-        message: 'Sample description:',
+        message: 'Application description:',
+      },
+      {
+        type: 'confirm',
+        name: 'runnableOnTeams',
+        message: 'Runnable to Teams?',
+        default: true,
       },
     ],
     actions: [
       {
         type: 'add',
-        path: 'samples/{{name}}/package.json',
-        templateFile: 'templates/sample-package.json.hbs',
+        path: 'tests/{{name}}/package.json',
+        templateFile: 'templates/test-package.json.hbs',
       },
       {
         type: 'add',
-        path: 'samples/{{name}}/README.md',
-        templateFile: 'templates/sample-README.md.hbs',
+        path: 'tests/{{name}}/README.md',
+        templateFile: 'templates/test-README.md.hbs',
       },
       {
         type: 'add',
-        path: 'samples/{{name}}/tsconfig.json',
-        templateFile: 'templates/sample-tsconfig.json.hbs',
+        path: 'tests/{{name}}/tsconfig.json',
+        templateFile: 'templates/test-tsconfig.json.hbs',
       },
       {
         type: 'add',
-        path: 'samples/{{name}}/src/index.ts',
-        templateFile: 'templates/sample-index.ts.hbs',
+        path: 'tests/{{name}}/src/index.ts',
+        templateFile: 'templates/test-index.ts.hbs',
       },
       {
         type: 'add',
-        path: 'samples/{{name}}/.gitignore',
-        templateFile: 'templates/sample-gitignore.hbs',
+        path: 'tests/{{name}}/.gitignore',
+        templateFile: 'templates/test-gitignore.hbs',
+      },
+      {
+        type: 'addMany',
+        skip: ({ runnableOnTeams }) => {
+          if (!runnableOnTeams) {
+            return `Skipping app package generation for non-runnable sample`;
+          }
+
+          console.log('Generating app package...');
+          return false;
+        },
+        destination: 'samples/{{name}}/appPackage/',
+        templateFiles: 'templates/appPackage/**',
       },
     ],
   });

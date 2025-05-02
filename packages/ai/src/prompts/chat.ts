@@ -7,6 +7,7 @@ import { Schema } from '../schema';
 import { ITemplate } from '../template';
 import { StringTemplate } from '../templates';
 import { WithRequired } from '../utils/types';
+
 import { IAiPlugin } from './plugin';
 import { ILogger, ConsoleLogger } from '@microsoft/spark.common/logging';
 
@@ -208,10 +209,10 @@ export class ChatPrompt<
     this._log = new ConsoleLogger(`@microsoft/spark.ai/prompts/${this._name}`);
   }
 
-  use(prompt: ChatPrompt): this;
-  use(name: string, prompt: ChatPrompt): this;
+  use(prompt: IChatPrompt): this;
+  use(name: string, prompt: IChatPrompt): this;
   use(...args: any[]) {
-    const prompt: ChatPrompt = args.length === 1 ? args[0] : args[1];
+    const prompt: IChatPrompt = args.length === 1 ? args[0] : args[1];
     const name: string = args.length === 1 ? prompt.name : args[0];
     this._functions[name] = {
       name,
@@ -276,12 +277,10 @@ export class ChatPrompt<
 
   async call<A extends { [key: string]: any }, R = any>(name: string, args?: A): Promise<R> {
     const fn = this._functions[name];
-
     if (!fn) {
       throw new Error(`function "${name}" not found`);
     }
-
-    return await fn.handler(args || {});
+    return this.executeFunction(name, fn, args);
   }
 
   async send(input: string | ContentPart[], options: ChatPromptSendOptions<TOptions> = {}) {
@@ -326,7 +325,10 @@ export class ChatPrompt<
 
     const fnMap = functions.reduce(
       (acc, fn) => {
-        acc[fn.name] = fn;
+        acc[fn.name] = {
+          ...fn,
+          handler: (args: any) => this.executeFunction(fn.name, fn, args),
+        };
         return acc;
       },
       {} as Record<string, Function>
@@ -401,5 +403,32 @@ export class ChatPrompt<
     }
 
     return output;
+  }
+
+  protected async executeFunction<R = any>(
+    name: string,
+    fn: Function,
+    args?: Record<string, any>
+  ): Promise<R> {
+    const processedArgs = args || {};
+
+    // Execute beforeFunctionCall hooks
+    for (const plugin of this.plugins) {
+      if (plugin.onBeforeFunctionCall) {
+        await plugin.onBeforeFunctionCall(name, processedArgs);
+      }
+    }
+
+    // Call the function
+    let result = await fn.handler(processedArgs);
+
+    // Execute afterFunctionCall hooks
+    for (const plugin of this.plugins) {
+      if (plugin.onAfterFunctionCall) {
+        result = await plugin.onAfterFunctionCall(name, processedArgs, result);
+      }
+    }
+
+    return result;
   }
 }

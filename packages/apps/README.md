@@ -32,4 +32,4 @@ $: npm install @microsoft/teams.apps
 
 ## Dependencies
 
-- [`express`](https://www.npmjs.com/package/express)
+-   [`express`](https://www.npmjs.com/package/express)

@@ -1,5 +1,11 @@
 # @microsoft/teams.config
 
+## 0.2.13
+
+### Patch Changes
+
+- bugfixes, devtools updates, mcp client updates
+
 ## 0.2.12
 
 ### Patch Changes

@@ -32,4 +32,4 @@ $: npm install @microsoft/teams.openai
 
 ## Dependencies
 
-- [`openai`](https://www.npmjs.com/package/openai)
+-   [`openai`](https://www.npmjs.com/package/openai)

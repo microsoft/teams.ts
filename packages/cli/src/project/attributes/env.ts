@@ -1,5 +1,5 @@
-import { IProjectAttribute } from '../project-attribute';
 import { Compound, FileEnvSet } from '../operations';
+import { IProjectAttribute } from '../project-attribute';
 
 export class EnvAttribute implements IProjectAttribute {
   readonly id = 'env';

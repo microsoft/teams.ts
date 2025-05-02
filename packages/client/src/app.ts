@@ -1,12 +1,16 @@
 import * as msal from '@azure/msal-browser';
+
+import * as teamsJs from '@microsoft/teams-js';
 import * as http from '@microsoft/teams.common/http';
 import { ILogger, ConsoleLogger } from '@microsoft/teams.common/logging';
-import * as teamsJs from '@microsoft/teams-js';
+import * as graph from '@microsoft/teams.graph';
 
+import { buildGraphClient } from './graph-utils';
 import {
   acquireMsalAccessToken,
   buildMsalConfig,
   getStandardExecSilentRequest,
+  hasConsentForScopes,
 } from './msal-utils';
 
 export type MsalOptions = {
@@ -16,9 +20,12 @@ export type MsalOptions = {
    */
   readonly configuration?: msal.Configuration;
   /**
-   * Default token request options used when acquiring a token.
+   * Options to control scope consent pre-warming. If explicitly set to false, no pre-warming is performed.
+   * If no value is provided, the default scope (i.e. ".default") is pre-warmed. If a set of scopes is
+   * provided, the specified scopes are pre-warmed. The scopes should be for a single resource, and they
+   * should not mix the .default scope with named scopes.
    */
-  readonly defaultSilentRequest?: msal.SilentRequest;
+  readonly prewarmScopes?: false | string[];
 };
 
 export type AppOptions = {
@@ -66,6 +73,7 @@ export type ExecOptions = (
 export class App {
   readonly options: AppOptions;
   readonly http: http.Client;
+  readonly graph: graph.Client;
   readonly clientId: string;
   protected _state: AppState = { phase: 'stopped' };
 
@@ -98,6 +106,7 @@ export class App {
     this.options = options;
     this._log = options?.logger || new ConsoleLogger('@teams/client');
     this.http = new http.Client({ baseUrl: options?.baseUrl });
+    this.graph = buildGraphClient(() => this.appStateGuard(), this._log);
   }
 
   /**
@@ -123,6 +132,14 @@ export class App {
     await msalInstance.initialize();
 
     this._state = { phase: 'started', msalInstance, context, startedAt: new Date() };
+
+    // pre-warm consent for the specified scopes
+    if (this.options.msalOptions?.prewarmScopes !== false) {
+      const scopes = this.options.msalOptions?.prewarmScopes ?? ['.default'];
+      this._log.debug(`prewarming consent for scopes: ${scopes.join(', ')}`);
+      await this.ensureConsentForScopes(scopes);
+    }
+
     this._log.debug('app started');
   }
 
@@ -137,13 +154,10 @@ export class App {
    * @returns The function response
    */
   async exec<T = unknown>(name: string, data?: unknown, options?: ExecOptions): Promise<T> {
-    if (this._state.phase !== 'started') {
-      throw new Error('App not started');
-    }
+    const { msalInstance, context } = this.appStateGuard();
 
-    const { context } = this._state;
     const accessToken = await acquireMsalAccessToken(
-      this._state.msalInstance,
+      msalInstance,
       options?.msalTokenRequest ?? getStandardExecSilentRequest(this.clientId, options?.permission),
       this._log
     );
@@ -164,5 +178,42 @@ export class App {
     });
 
     return res.data;
+  }
+
+  /**
+   * Tests whether the user has consented to the specified scopes without prompting the user for consent.
+   * @param scopes The scopes to check consent for.The scopes should be for a single resource, and they
+   * should not mix the .default scope with named scopes.
+   * @returns A promise that resolves to a boolean indicating whether the user has consented to the scopes.
+   */
+  async hasConsentForScopes(scopes: string[]): Promise<boolean> {
+    const { msalInstance } = this.appStateGuard();
+
+    return await hasConsentForScopes(msalInstance, scopes, this.log);
+  }
+
+  /**
+   * Tests whether the user has consented to the specified scopes, and prompts them if not. This is useful for ensuring
+   * that the user has consented to the required scopes before calling a graph API or other resource.
+   * @param scopes - The scopes to prewarm consent for. The scopes should be for a single resource, and they
+   * should not mix the .default scope with named scopes.
+   * @returns A value indicating whether consent has been acquired for the specified scopes.
+   */
+  async ensureConsentForScopes(scopes: string[]): Promise<boolean> {
+    const { msalInstance } = this.appStateGuard();
+
+    try {
+      const token = await acquireMsalAccessToken(msalInstance, { scopes }, this.log);
+      return !!token;
+    } catch (ex) {
+      return false;
+    }
+  }
+
+  private appStateGuard(): AppState & { phase: 'started' } {
+    if (this._state.phase !== 'started') {
+      throw new Error('App not started');
+    }
+    return this._state;
   }
 }

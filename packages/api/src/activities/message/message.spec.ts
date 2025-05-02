@@ -1,6 +1,7 @@
 import { Card, TextBlock } from '@microsoft/teams.cards';
 
 import { Account, cardAttachment } from '../../models';
+
 import { MessageActivity } from './message';
 
 describe('MessageActivity', () => {

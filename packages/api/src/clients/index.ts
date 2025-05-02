@@ -1,10 +1,10 @@
 import * as http from '@microsoft/teams.common/http';
 
 import { BotClient } from './bot';
-import { UserClient } from './user';
 import { ConversationClient } from './conversation';
-import { TeamClient } from './team';
 import { MeetingClient } from './meeting';
+import { TeamClient } from './team';
+import { UserClient } from './user';
 
 export class Client {
   readonly serviceUrl: string;

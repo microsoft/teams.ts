@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.client",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -34,7 +34,8 @@
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "build": "npx tsup",
-    "test": "npx jest"
+    "test": "npx jest",
+    "fmt": "npx prettier --write \"**/*.{js,ts,tsx,md,json}\""
   },
   "dependencies": {
     "@azure/msal-browser": "^4.9.1",
@@ -43,6 +44,7 @@
   "peerDependencies": {
     "@microsoft/teams.api": "*",
     "@microsoft/teams.common": "*",
+    "@microsoft/teams.graph": "*",
     "@microsoft/teams-js": "^2.35.0"
   },
   "devDependencies": {

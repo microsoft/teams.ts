@@ -1,4 +1,5 @@
 import { Account } from '../../models';
+
 import { MessageReactionActivity } from './message-reaction';
 
 describe('MessageReactionActivity', () => {
