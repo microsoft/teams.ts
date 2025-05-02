@@ -478,7 +478,7 @@ describe('App', () => {
       );
     });
 
-    it("returns false if acquireMsalAccessToken doesn't return a token", async () => {
+    it('returns false if acquireMsalAccessToken doesn\'t return a token', async () => {
       acquireMsalAccessTokenSpy.mockResolvedValue('');
       const app = new App(mockClientId, {
         logger: mockLogger,

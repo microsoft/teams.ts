@@ -30,10 +30,14 @@ $: npm run build
 $: npm run clean
 ```
 
-### Format
+### Lint
 
 ```bash
-$: npm run fmt
+$: npm run lint
+```
+
+```bash
+$: npm run lint:fix
 ```
 
 ### Dev

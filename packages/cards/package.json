@@ -32,8 +32,7 @@
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "build": "npx tsup",
-    "test": "npx jest",
-    "fmt": "npx prettier --write \"**/*.{js,ts,tsx,md,json}\""
+    "test": "npx jest"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
