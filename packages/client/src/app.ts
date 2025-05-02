@@ -23,18 +23,16 @@ export type MsalOptions = (
        * This is useful if you want to use a custom MSAL instance or if you want to share the
        * same MSAL instance across multiple apps.
        */
-      readonly msalInstance: msal.IPublicClientApplication;
+      readonly msalInstance?: msal.IPublicClientApplication;
       readonly configuration?: never;
     }
   | {
       readonly msalInstance?: never;
-
       /**
        * MSAL configuration to use when constructing an MSAL instance used
        * to make authenticated function calls to remote endpoints. */
-      readonly configuration: msal.Configuration;
+      readonly configuration?: msal.Configuration;
     }
-  | { readonly msalInstance?: never; readonly configuration?: never }
 ) & {
   /**
    * Options to control scope consent pre-warming. If explicitly set to false, no pre-warming is performed.
@@ -96,9 +94,8 @@ type AppState =
  * ExecOptions is used to specify options for the exec method.
  */
 export type ExecOptions = (
-  | { readonly msalTokenRequest: msal.SilentRequest; readonly permission?: never }
-  | { readonly msalTokenRequest?: never; readonly permission: string }
-  | { readonly msalTokenRequest?: never; readonly permission?: never }
+  | { readonly msalTokenRequest?: msal.SilentRequest; readonly permission?: never }
+  | { readonly msalTokenRequest?: never; readonly permission?: string }
 ) & {
   readonly requestHeaders?: Record<string, string>;
 };
@@ -106,7 +103,7 @@ export type ExecOptions = (
 /**
  * The main entry point for this library. This class streamlines Microsoft Teams app development
  * by simplifying the process of managing authentication, interacting with Microsoft Graph APIs,
- * and executing server-side functions. This
+ * and executing server-side functions.
  */
 export class App {
   readonly options: AppOptions;
