@@ -1,5 +1,16 @@
 # @microsoft/teams.devtools
 
+## 0.2.14
+
+### Patch Changes
+
+- fix cli bug and add mcp client customizations like headers and logging
+- Updated dependencies
+  - @microsoft/teams.api@0.2.14
+  - @microsoft/teams.apps@0.2.14
+  - @microsoft/teams.cards@0.2.14
+  - @microsoft/teams.common@0.2.14
+
 ## 0.2.13
 
 ### Patch Changes

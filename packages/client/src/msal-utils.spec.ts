@@ -24,14 +24,14 @@ describe('msalUtils', () => {
 
   describe('getStandardExecSilentRequest', () => {
     it('builds a silent request object with default permission', () => {
-      const request = getStandardExecSilentRequest(mockClientId);
+      const request = getStandardExecSilentRequest(`api://${mockClientId}`);
       expect(request).toEqual({
         scopes: ['api://mock-client-id/access_as_user'],
       });
     });
 
     it('builds a silent request object with custom permission', () => {
-      const request = getStandardExecSilentRequest(mockClientId, 'my_custom_permission');
+      const request = getStandardExecSilentRequest(`api://${mockClientId}`, 'my_custom_permission');
       expect(request).toEqual({
         scopes: ['api://mock-client-id/my_custom_permission'],
       });

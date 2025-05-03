@@ -13,12 +13,27 @@ import {
   hasConsentForScopes,
 } from './msal-utils';
 
-export type MsalOptions = {
-  /**
-   * Optional MSAL configuration. This parameter is used to construct an MSAL instance in order
-   * to make authenticated function calls. If omitted, a default configuration is created.
-   */
-  readonly configuration?: msal.Configuration;
+/**
+ * Options to control how MSAL is initialized and used.
+ */
+export type MsalOptions = (
+  | {
+      /**
+       * MSAL instance to use when making authenticated function calls to remote endpoints.
+       * This is useful if you want to use a custom MSAL instance or if you want to share the
+       * same MSAL instance across multiple apps.
+       */
+      readonly msalInstance?: msal.IPublicClientApplication;
+      readonly configuration?: never;
+    }
+  | {
+      readonly msalInstance?: never;
+      /**
+       * MSAL configuration to use when constructing an MSAL instance used
+       * to make authenticated function calls to remote endpoints. */
+      readonly configuration?: msal.Configuration;
+    }
+) & {
   /**
    * Options to control scope consent pre-warming. If explicitly set to false, no pre-warming is performed.
    * If no value is provided, the default scope (i.e. ".default") is pre-warmed. If a set of scopes is
@@ -28,15 +43,25 @@ export type MsalOptions = {
   readonly prewarmScopes?: false | string[];
 };
 
-export type AppOptions = {
+export type RemoteApiOptions = {
   /**
-   * The app base url.
+   * The remote API base URL. If omitted, it's assumed that the remote API is hosted in the same domain as the app.
    */
   readonly baseUrl?: string;
 
-  /** App tenant ID */
-  readonly tenantId?: string;
+  /**
+   * The default resource name when building a token request for the Entra token to include when invoking
+   * a remote function. This is useful when the API is hosted in an different AAD app from
+   * the caller and is typically in the format 'api://<remoteAppClientId>'.
+   * When invoking @see exec with default options or a permission name,
+   * this value is used to build a token request in the format of '<remoteAppResource>/<permission>'.
+   * If omitted, it's assumed that the API is hosted in the same AAD app as the caller, and the
+   * token request is made for 'api://<clientId>/permission'.
+   */
+  readonly remoteAppResource?: string;
+};
 
+export type AppOptions = {
   /**
    * Logger instance to use.
    */
@@ -46,6 +71,9 @@ export type AppOptions = {
    * Options to control how MSAL is initialized and used.
    */
   readonly msalOptions?: MsalOptions;
+
+  /** Options to control how remote APIs are invoked. */
+  readonly remoteApiOptions?: RemoteApiOptions;
 };
 
 type AppState =
@@ -62,14 +90,21 @@ type AppState =
       context: teamsJs.app.Context;
     };
 
+/**
+ * ExecOptions is used to specify options for the exec method.
+ */
 export type ExecOptions = (
-  | { msalTokenRequest: msal.SilentRequest; permission?: never }
-  | { msalTokenRequest?: never; permission: string }
-  | { msalTokenRequest?: never; permission?: never }
+  | { readonly msalTokenRequest?: msal.SilentRequest; readonly permission?: never }
+  | { readonly msalTokenRequest?: never; readonly permission?: string }
 ) & {
-  requestHeaders?: Record<string, string>;
+  readonly requestHeaders?: Record<string, string>;
 };
 
+/**
+ * The main entry point for this library. This class streamlines Microsoft Teams app development
+ * by simplifying the process of managing authentication, interacting with Microsoft Graph APIs,
+ * and executing server-side functions.
+ */
 export class App {
   readonly options: AppOptions;
   readonly http: http.Client;
@@ -78,7 +113,7 @@ export class App {
   protected _state: AppState = { phase: 'stopped' };
 
   /**
-   * the apps logger
+   * The apps logger
    */
   get log() {
     return this._log;
@@ -86,13 +121,13 @@ export class App {
   protected _log: ILogger;
 
   /**
-   * the date/time when the app was successfully started.
+   * The date/time when the app was successfully started.
    */
   get startedAt() {
     return this._state?.startedAt;
   }
 
-  /** the msal instance used in this app. undefined until the app is started. */
+  /** The msal instance used in this app. undefined until the app is started. */
   get msalInstance() {
     return this._state.msalInstance;
   }
@@ -105,7 +140,7 @@ export class App {
     this.clientId = clientId;
     this.options = options;
     this._log = options?.logger || new ConsoleLogger('@teams/client');
-    this.http = new http.Client({ baseUrl: options?.baseUrl });
+    this.http = new http.Client({ baseUrl: options?.remoteApiOptions?.baseUrl });
     this.graph = buildGraphClient(() => this.appStateGuard(), this._log);
   }
 
@@ -126,10 +161,13 @@ export class App {
     await teamsJs.app.initialize();
     const context = await teamsJs.app.getContext();
 
-    const msalConfig =
-      this.options.msalOptions?.configuration ?? buildMsalConfig(this.clientId, this._log);
-    const msalInstance = await msal.createNestablePublicClientApplication(msalConfig);
-    await msalInstance.initialize();
+    let msalInstance = this.options.msalOptions?.msalInstance;
+    if (!msalInstance) {
+      const msalConfig =
+        this.options.msalOptions?.configuration ?? buildMsalConfig(this.clientId, this._log);
+      msalInstance = await msal.createNestablePublicClientApplication(msalConfig);
+      await msalInstance.initialize();
+    }
 
     this._state = { phase: 'started', msalInstance, context, startedAt: new Date() };
 
@@ -156,9 +194,12 @@ export class App {
   async exec<T = unknown>(name: string, data?: unknown, options?: ExecOptions): Promise<T> {
     const { msalInstance, context } = this.appStateGuard();
 
+    const remoteAppResource =
+      this.options.remoteApiOptions?.remoteAppResource ?? `api://${this.clientId}`;
     const accessToken = await acquireMsalAccessToken(
       msalInstance,
-      options?.msalTokenRequest ?? getStandardExecSilentRequest(this.clientId, options?.permission),
+      options?.msalTokenRequest ??
+        getStandardExecSilentRequest(remoteAppResource, options?.permission),
       this._log
     );
 
