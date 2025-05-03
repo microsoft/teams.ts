@@ -29,6 +29,12 @@ jobs:
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Skip check
+        if: steps.pr.outputs.skip == 'true'
+        run: |
+          echo "Skipping template sync verification as 'skip-test-verification' was found in PR description"
+          exit 0
+
       - name: Verify template sync
         if: steps.pr.outputs.skip != 'true'
         run: |
