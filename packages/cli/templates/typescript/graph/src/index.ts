@@ -20,7 +20,7 @@ app.event('signin', async ({ send, userGraph }) => {
   const me = await userGraph.me.get();
 
   await send(
-    new MessageActivity(`Hello ${me.displayName} 👋!`).addCard(
+    new MessageActivity(`hello ${me.displayName} 👋!`).addCard(
       'adaptive',
       new Card(
         new CodeBlock({
