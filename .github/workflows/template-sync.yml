@@ -1,0 +1,68 @@
+name: Template Sync Verification
+on:
+  pull_request:
+    paths:
+      - "packages/cli/templates/typescript/**"
+      - "tests/*/**"
+
+jobs:
+  verify-template-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Check PR description
+        id: pr
+        run: |
+          if [[ "${{ github.event.pull_request.body }}" == *"skip-test-verification"* ]]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Verify changed files
+        if: steps.pr.outputs.skip != 'true'
+        id: verify-changes
+        uses: tj-actions/verify-changed-files@v16
+        with:
+          files: |
+            packages/cli/templates/typescript/**
+            tests/*/**
+
+      - name: Verify template sync
+        if: steps.pr.outputs.skip != 'true' && steps.verify-changes.outputs.files_changed == 'true'
+        run: |
+          changed_files="${{ steps.verify-changes.outputs.changed_files }}"
+          status=0
+
+          while IFS= read -r file; do
+            # Check template changes
+            if [[ "$file" == packages/cli/templates/typescript/* ]]; then
+              template_name=$(echo "$file" | sed -n 's|packages/cli/templates/typescript/\([^/]*\)/.*|\1|p')
+              if [ ! -z "$template_name" ]; then
+                test_path="tests/${template_name}"
+                if [ ! -f "$test_path" ]; then
+                  echo "::error::Template changed but no corresponding test changes found. If this is expected, please add 'skip-test-verification' to the PR description."
+                  echo "Template: $file"
+                  echo "Expected test at: $test_path"
+                  status=1
+                fi
+              fi
+            fi
+            
+            # Check test changes
+            if [[ "$file" == tests/*/* ]]; then
+              test_name=$(echo "$file" | sed -n 's|tests/\([^/]*\)/.*|\1|p')
+              if [ ! -z "$test_name" ]; then
+                template_path="packages/cli/templates/typescript/${test_name}"
+                if [ ! -f "$template_path" ]; then
+                  echo "::error::Test changed but no corresponding template changes found. If this is expected, please add 'skip-test-verification' to the PR description."
+                  echo "Test: $file"
+                  echo "Expected template at: $template_path"
+                  status=1
+                fi
+              fi
+            fi
+          done <<< "$changed_files"
+
+          exit $status
