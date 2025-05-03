@@ -36,29 +36,62 @@ jobs:
           status=0
 
           while IFS= read -r file; do
-            # Check template changes
+            # Extract directory names for comparison
             if [[ "$file" == packages/cli/templates/typescript/* ]]; then
               template_name=$(echo "$file" | sed -n 's|packages/cli/templates/typescript/\([^/]*\)/.*|\1|p')
               if [ ! -z "$template_name" ]; then
-                test_path="tests/${template_name}"
-                if [ ! -f "$test_path" ]; then
-                  echo "::error::Template changed but no corresponding test changes found. If this is expected, please add 'skip-test-verification' to the PR description."
-                  echo "Template: $file"
-                  echo "Expected test at: $test_path"
+                # Check if any test files in the corresponding directory were changed
+                test_changes=false
+                while IFS= read -r test_file; do
+                  if [[ "$test_file" == tests/${template_name}/* ]]; then
+                    test_changes=true
+                    break
+                  fi
+                done <<< "$changed_files"
+                
+                if [ "$test_changes" = false ]; then
+                  # Collect all template changes for this directory
+                  template_changes=""
+                  while IFS= read -r changed_template; do
+                    if [[ "$changed_template" == packages/cli/templates/typescript/${template_name}/* ]]; then
+                      template_changes+="    $changed_template"$'\n'
+                    fi
+                  done <<< "$changed_files"
+                  
+                  echo "::error::Changes detected in template files but no corresponding changes in tests/${template_name}/:"
+                  echo "Changed files:"
+                  echo "$template_changes"
+                  echo "Expected corresponding changes in: tests/${template_name}/"
+                  echo "If this is expected, please add 'skip-test-verification' to the PR description."
                   status=1
                 fi
               fi
-            fi
-            
-            # Check test changes
-            if [[ "$file" == tests/*/* ]]; then
+            elif [[ "$file" == tests/*/* ]]; then
               test_name=$(echo "$file" | sed -n 's|tests/\([^/]*\)/.*|\1|p')
               if [ ! -z "$test_name" ]; then
-                template_path="packages/cli/templates/typescript/${test_name}"
-                if [ ! -f "$template_path" ]; then
-                  echo "::error::Test changed but no corresponding template changes found. If this is expected, please add 'skip-test-verification' to the PR description."
-                  echo "Test: $file"
-                  echo "Expected template at: $template_path"
+                # Check if any template files in the corresponding directory were changed
+                template_changes=false
+                while IFS= read -r template_file; do
+                  if [[ "$template_file" == packages/cli/templates/typescript/${test_name}/* ]]; then
+                    template_changes=true
+                    break
+                  fi
+                done <<< "$changed_files"
+                
+                if [ "$template_changes" = false ]; then
+                  # Collect all test changes for this directory
+                  test_changes=""
+                  while IFS= read -r changed_test; do
+                    if [[ "$changed_test" == tests/${test_name}/* ]]; then
+                      test_changes+="    $changed_test"$'\n'
+                    fi
+                  done <<< "$changed_files"
+                  
+                  echo "::error::Changes detected in test files but no corresponding changes in packages/cli/templates/typescript/${test_name}/:"
+                  echo "Changed files:"
+                  echo "$test_changes"
+                  echo "Expected corresponding changes in: packages/cli/templates/typescript/${test_name}/"
+                  echo "If this is expected, please add 'skip-test-verification' to the PR description."
                   status=1
                 fi
               fi
