@@ -2,7 +2,7 @@ import { MessageActivity } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
-import { MockReminderService } from './mockReminderService';
+import { MockReminderService } from './mock-reminder-service';
 
 const app = new App({
   logger: new ConsoleLogger('@tests/echo', { level: 'debug' }),
@@ -24,7 +24,7 @@ const myConversationIdStorage = new Map<string, string>();
 
 // Installation is just one place to get the conversation id. All activities
 // have the conversation id, so you can use any activity to get it.
-app.on('install.add', async ({ activity, send}) => {
+app.on('install.add', async ({ activity, send }) => {
   // Save the conversation id in 
   myConversationIdStorage.set(activity.from.aadObjectId!, activity.conversation.id);
 
