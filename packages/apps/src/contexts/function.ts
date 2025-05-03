@@ -1,6 +1,6 @@
 import { ILogger } from '@microsoft/teams.common';
 
-import { ApiClient, AppGraphClient } from '../api';
+import { ApiClient, GraphClient } from '../api';
 
 import { IClientContext } from './client';
 
@@ -13,7 +13,7 @@ export interface IFunctionContext<T = any> extends IClientContext {
   /**
    * the app graph client
    */
-  appGraph: AppGraphClient;
+  appGraph: GraphClient;
 
   /**
    * the app logger instance

@@ -3,7 +3,7 @@ import { ActivityLike, ConversationReference, isInvokeResponse } from '@microsof
 
 
 
-import { ApiClient, AppGraphClient, UserGraphClient } from './api';
+import { ApiClient, GraphClient } from './api';
 import { App } from './app';
 import { ActivityContext, IActivityContext } from './contexts';
 import { IActivityEvent } from './events';
@@ -57,10 +57,10 @@ export async function $process(this: App, sender: ISender, event: IActivityEvent
 
   const client = this.client.clone();
   const apiClient = new ApiClient(serviceUrl, this.client.clone({ token: () => this.tokens.bot }));
-  const userGraph = new UserGraphClient(
+  const userGraph = new GraphClient(
     client.clone({ token: () => userToken })
   );
-  const appGraph = new AppGraphClient(
+  const appGraph = new GraphClient(
     client.clone({ token: () => appToken })
   );
 

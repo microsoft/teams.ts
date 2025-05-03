@@ -18,7 +18,7 @@ import {
 import { ILogger } from '@microsoft/teams.common/logging';
 import { IStorage } from '@microsoft/teams.common/storage';
 
-import { ApiClient, AppGraphClient, UserGraphClient } from '../api';
+import { ApiClient, GraphClient } from '../api';
 import { ISender, IStreamer } from '../types';
 
 export interface IActivityContextOptions<T extends Activity = Activity> {
@@ -50,12 +50,12 @@ export interface IActivityContextOptions<T extends Activity = Activity> {
   /**
    * the app graph client
    */
-  appGraph: AppGraphClient;
+  appGraph: GraphClient;
 
   /**
    * the user graph client
    */
-  userGraph: UserGraphClient;
+  userGraph: GraphClient;
 
   /**
    * app storage instance
@@ -152,8 +152,8 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
   ref!: ConversationReference;
   log!: ILogger;
   api!: ApiClient;
-  appGraph!: AppGraphClient;
-  userGraph!: UserGraphClient;
+  appGraph!: GraphClient;
+  userGraph!: GraphClient;
   storage!: IStorage;
   stream: IStreamer;
   isSignedIn?: boolean;
