@@ -30,7 +30,7 @@ const prompt = new ChatPrompt(
   // Alternatively, you can use a different server hosted somewhere else
   // Here we are using the mcp server hosted on an Azure Function
   .usePlugin("mcpClient", {
-    url: "https://pokemonmcp.azurewebsites.net/runtime/webhooks/mcp/sse",
+    url: "https://githubmcpnew.azurewebsites.net/runtime/webhooks/mcp/sse",
     params: {
       headers: {
         // If your server requires authentication, you can pass in Bearer or other
