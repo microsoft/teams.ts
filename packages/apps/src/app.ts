@@ -1,6 +1,5 @@
 import { AxiosError } from 'axios';
 
-import * as api from '@microsoft/teams.api';
 import {
   ActivityLike,
   ConversationReference,
@@ -15,11 +14,10 @@ import * as http from '@microsoft/teams.common/http';
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common/logging';
 import { IStorage, LocalStorage } from '@microsoft/teams.common/storage';
 
-import * as graph from '@microsoft/teams.graph';
-
 import pkg from '../package.json';
 
 
+import { ApiClient, GraphClient } from './api';
 import { configTab, func, tab } from './app.embed';
 import { event, onActivity, onActivityResponse, onActivitySent, onError } from './app.events';
 import { onTokenExchange, onVerifyState } from './app.oauth';
@@ -101,8 +99,8 @@ export type AppTokens = {
  * The orchestrator for receiving/sending activities
  */
 export class App {
-  readonly api: api.Client;
-  readonly graph: graph.Client;
+  readonly api: ApiClient;
+  readonly graph: GraphClient;
   readonly log: ILogger;
   readonly http: HttpPlugin;
   readonly client: http.Client;
@@ -208,12 +206,12 @@ export class App {
       });
     }
 
-    this.api = new api.Client(
+    this.api = new ApiClient(
       'https://smba.trafficmanager.net/teams',
       this.client.clone({ token: () => this._tokens.bot }),
     );
 
-    this.graph = new graph.Client(
+    this.graph = new GraphClient(
       this.client.clone({ token: () => this._tokens.graph }),
     );
 
