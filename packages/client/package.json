@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.client",
-  "version": "0.2.9",
+  "version": "0.2.14",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -43,6 +43,7 @@
   "peerDependencies": {
     "@microsoft/teams.api": "*",
     "@microsoft/teams.common": "*",
+    "@microsoft/teams.graph": "*",
     "@microsoft/teams-js": "^2.35.0"
   },
   "devDependencies": {

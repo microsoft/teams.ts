@@ -4,6 +4,7 @@ import {
   acquireMsalAccessToken,
   buildMsalConfig,
   getStandardExecSilentRequest,
+  hasConsentForScopes,
 } from './msal-utils';
 
 const mockClientId = 'mock-client-id';
@@ -23,14 +24,14 @@ describe('msalUtils', () => {
 
   describe('getStandardExecSilentRequest', () => {
     it('builds a silent request object with default permission', () => {
-      const request = getStandardExecSilentRequest(mockClientId);
+      const request = getStandardExecSilentRequest(`api://${mockClientId}`);
       expect(request).toEqual({
         scopes: ['api://mock-client-id/access_as_user'],
       });
     });
 
     it('builds a silent request object with custom permission', () => {
-      const request = getStandardExecSilentRequest(mockClientId, 'my_custom_permission');
+      const request = getStandardExecSilentRequest(`api://${mockClientId}`, 'my_custom_permission');
       expect(request).toEqual({
         scopes: ['api://mock-client-id/my_custom_permission'],
       });
@@ -151,6 +152,48 @@ describe('msalUtils', () => {
       ).rejects.toThrow('Oh noes!');
       expect(acquireTokenSilent).toHaveBeenCalledTimes(1);
       expect(acquireTokenPopup).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('hasConsentForScopes', () => {
+    it('returns true when a token can be silently acquired', async () => {
+      const acquireTokenSilent = jest.fn();
+      const scopes = ['scope1', 'scope2'];
+
+      const result = await hasConsentForScopes({ acquireTokenSilent }, scopes, mockLogger);
+      expect(acquireTokenSilent).toHaveBeenCalledTimes(1);
+      expect(acquireTokenSilent).toHaveBeenCalledWith({ scopes });
+      expect(result).toEqual(true);
+    });
+
+    it('returns false when user consent is needed', async () => {
+      const interactionError = new InteractionRequiredAuthError('Interaction required');
+      const acquireTokenSilent = jest.fn().mockRejectedValue(interactionError);
+      const scopes = ['scope1', 'scope2'];
+
+      const result = await hasConsentForScopes({ acquireTokenSilent }, scopes, mockLogger);
+
+      expect(acquireTokenSilent).toHaveBeenCalledTimes(1);
+      expect(acquireTokenSilent).toHaveBeenCalledWith({ scopes });
+      expect(result).toEqual(false);
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        'debug',
+        'hasConsentForScopes failed',
+        interactionError
+      );
+    });
+
+    it('returns false when a random exception appears', async () => {
+      const error = new Error('Oh noes!');
+      const acquireTokenSilent = jest.fn().mockRejectedValue(error);
+      const scopes = ['scope1', 'scope2'];
+
+      const result = await hasConsentForScopes({ acquireTokenSilent }, scopes, mockLogger);
+
+      expect(acquireTokenSilent).toHaveBeenCalledTimes(1);
+      expect(acquireTokenSilent).toHaveBeenCalledWith({ scopes });
+      expect(result).toEqual(false);
+      expect(mockLogger.log).toHaveBeenCalledWith('error', 'hasConsentForScopes failed', error);
     });
   });
 });

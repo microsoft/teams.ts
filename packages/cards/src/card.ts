@@ -1,7 +1,7 @@
 import { Action, SelectAction } from './actions';
 import { IAuth, Refresh, VerticalAlignment } from './common';
-import { IBackgroundImage } from './medias';
 import { Element } from './element';
+import { IBackgroundImage } from './medias';
 
 /**
  * An Adaptive Card, containing a free-form body of card elements, and an optional set of actions.
@@ -124,7 +124,7 @@ export class Card implements ICard {
   /**
    * The Adaptive Card schema.
    */
-  $schema: string;
+  $schema?: string;
 
   /**
    * Schema version that this card requires. If a client is lower than this version, the fallbackText will be rendered. NOTE: Version is not required for cards within an Action.ShowCard. However, it is required for the top-level card.
@@ -199,7 +199,6 @@ export class Card implements ICard {
   constructor(...body: Element[]) {
     this.type = 'AdaptiveCard';
     this.body = body;
-    this.$schema = 'http://adaptivecards.io/schemas/adaptive-card.json';
     this.version = '1.6';
   }
 

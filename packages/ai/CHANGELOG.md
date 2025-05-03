@@ -1,5 +1,35 @@
 # @microsoft/teams.ai
 
+## 0.2.14
+
+### Patch Changes
+
+- fix cli bug and add mcp client customizations like headers and logging
+
+## 0.2.13
+
+### Patch Changes
+
+- bugfixes, devtools updates, mcp client updates
+
+## 0.2.12
+
+### Patch Changes
+
+- app startup fetch token bugfix
+
+## 0.2.11
+
+### Patch Changes
+
+- dev plugin bug fix
+
+## 0.2.10
+
+### Patch Changes
+
+- fix docs links and fix a couple minor issues
+
 ## 0.2.9
 
 ### Patch Changes
@@ -90,7 +120,7 @@
 
 - fix middleware bug in removeMentionsText
 - Updated dependencies
-    - @microsoft/teams.common@0.0.6
+  - @microsoft/teams.common@0.0.6
 
 ## 0.0.5
 
@@ -98,7 +128,7 @@
 
 - add removeMentionsText util and middleware, update docs
 - Updated dependencies
-    - @microsoft/teams.common@0.0.5
+  - @microsoft/teams.common@0.0.5
 
 ## 0.0.4
 
@@ -106,7 +136,7 @@
 
 - fix auth credential error
 - Updated dependencies
-    - @microsoft/teams.common@0.0.4
+  - @microsoft/teams.common@0.0.4
 
 ## 0.0.3
 
@@ -114,7 +144,7 @@
 
 - add support for more types of bot authentication, devtools fixes
 - Updated dependencies
-    - @microsoft/teams.common@0.0.3
+  - @microsoft/teams.common@0.0.3
 
 ## 0.0.2
 
@@ -122,7 +152,7 @@
 
 - fix cli binary name
 - Updated dependencies
-    - @microsoft/teams.common@0.0.2
+  - @microsoft/teams.common@0.0.2
 
 ## 0.0.1
 
@@ -130,4 +160,4 @@
 
 - port to new repository
 - Updated dependencies
-    - @microsoft/teams.common@0.0.1
+  - @microsoft/teams.common@0.0.1

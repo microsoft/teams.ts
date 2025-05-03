@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.mcpclient",
-  "version": "0.2.9",
+  "version": "0.2.14",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -23,6 +23,8 @@
   ],
   "scripts": {
     "clean": "npx rimraf ./dist",
+    "lint": "npx eslint",
+    "lint:fix": "npx eslint --fix",
     "build": "npx tsup",
     "test": "npx jest"
   },

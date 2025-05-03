@@ -3,12 +3,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
 
-import { String } from '@microsoft/teams.common';
 import { CommandModule } from 'yargs';
 import { z } from 'zod';
 
-import { Project } from '../../project';
+import { String } from '@microsoft/teams.common';
+
 import { IContext } from '../../context';
+import { Project } from '../../project';
 
 const ArgsSchema = z.object({
   name: z.string(),
@@ -143,7 +144,7 @@ export function Typescript(_: IContext): CommandModule<{}, z.infer<typeof ArgsSc
           shell: true,
         });
       } else {
-        console.log(`Next steps to start the app:`);
+        console.log('Next steps to start the app:');
         console.log(`cd ${name} && npm install && npm run dev`);
       }
     },

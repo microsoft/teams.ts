@@ -1,7 +1,8 @@
-import { FC, useState } from 'react';
+import { FC, useRef, useState } from 'react';
 import {
   Button,
   Dialog,
+  DialogActions,
   DialogBody,
   DialogContent,
   DialogSurface,
@@ -10,6 +11,8 @@ import {
   Text,
   Textarea,
   Tooltip,
+  useArrowNavigationGroup,
+  useModalAttributes,
 } from '@fluentui/react-components';
 import {
   ArrowRepeatAll24Filled,
@@ -31,7 +34,7 @@ import Logger from '../Logger/Logger';
 
 import useMessageClasses from './Feedback.styles';
 
-const childLog = Logger.child('FeedbackUI');
+const childLog = Logger.child('Feedback');
 
 interface FeedbackProps {
   displayName: string;
@@ -48,6 +51,28 @@ const ThumbDislikeIcon = bundleIcon(
   ThumbDislikeRegular as FluentIcon
 );
 
+const CustomFeedbackForm: FC<{
+  cancelButtonRef: React.RefObject<HTMLButtonElement>;
+  classes: ReturnType<typeof useMessageClasses>;
+  handleDialogClose: () => void;
+}> = ({ cancelButtonRef, classes, handleDialogClose }) => {
+  return (
+    <DialogBody>
+      <DialogTitle>
+        <Text>Custom feedback form coming to DevTools soon...</Text>
+      </DialogTitle>
+      <DialogContent id="dialog-content" className={classes.dialogContent}>
+        <Text>For now, please use the default feedback form or test on Teams client.</Text>
+      </DialogContent>
+      <DialogActions>
+        <Button appearance="secondary" onClick={handleDialogClose} ref={cancelButtonRef}>
+          Cancel
+        </Button>
+      </DialogActions>
+    </DialogBody>
+  );
+};
+
 const Feedback: FC<FeedbackProps> = ({
   displayName,
   onDialogOpenChange,
@@ -61,9 +86,14 @@ const Feedback: FC<FeedbackProps> = ({
   const [feedbackText, setFeedbackText] = useState('');
   const [showFeedbackSent, setShowFeedbackSent] = useState(false);
   const { findByMessageId } = useActivityStore();
+  const navigationAttributes = useArrowNavigationGroup({ circular: true });
+  const { modalAttributes } = useModalAttributes();
   const teamsApi = useTeamsApi();
   const { chat } = useChatStore();
   const isMac = isMacOS();
+
+  const submitButtonRef = useRef<HTMLButtonElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleFeedbackClick = (like: boolean) => {
     setIsLike(like);
@@ -127,7 +157,7 @@ const Feedback: FC<FeedbackProps> = ({
           onClick={() => handleFeedbackClick(false)}
         />
         {showFeedbackSent && (
-          <div className={classes.feedbackText}>
+          <div className={classes.feedbackSentText}>
             <Text italic>Feedback sent</Text>
             <Link as="button" onClick={() => setShowFeedbackSent(false)}>
               Clear
@@ -136,66 +166,69 @@ const Feedback: FC<FeedbackProps> = ({
         )}
       </div>
 
-      <Dialog inertTrapFocus open={isFeedbackDialogOpen} onOpenChange={() => handleDialogClose()}>
-        <DialogSurface aria-describedby="dialog-content" className={classes.dialogSurface}>
-          <DialogBody>
-            <DialogTitle className={classes.dialogTitle}>
-              <ArrowRepeatAll24Filled
-                className={classes.headerIcon}
-                aria-hidden="true"
-                role="presentation"
-              />
-              {`Submit feedback to ${displayName}`}
-            </DialogTitle>
-            <DialogContent id="dialog-content" className={classes.dialogContent}>
-              {feedbackType === 'custom' ? (
-                <>
-                  <Text>Custom feedback form coming soon...</Text>
-                  <div className={classes.submitContainer}>
-                    <Button appearance="primary" onClick={handleSubmit}>
-                      Submit
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <Text>{isLike ? 'What did you like?' : 'What could be improved?'}</Text>
-                  <Textarea
-                    placeholder="Give as much detail as you can, but don't include any private or sensitive information."
-                    resize="none"
-                    rows={4}
-                    value={feedbackText}
-                    onChange={(e) => setFeedbackText(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-                        handleSubmit();
-                      }
-                    }}
-                  />
-                  <Text>
-                    We'll also share the content you're providing feedback on to help improve future
-                    responses.
-                  </Text>
-                  <div className={classes.submitContainer}>
-                    <Tooltip
-                      content={`Submit (${isMac ? '⌘' : 'Ctrl'} Enter)`}
-                      relationship="label"
-                    >
-                      <Button appearance="primary" onClick={handleSubmit}>
-                        Submit
-                      </Button>
-                    </Tooltip>
-                  </div>
-                </>
-              )}
-            </DialogContent>
-          </DialogBody>
+      <Dialog open={isFeedbackDialogOpen} {...modalAttributes}>
+        <DialogSurface aria-describedby="dialog-content">
+          {feedbackType === 'custom' ? (
+            <CustomFeedbackForm
+              cancelButtonRef={cancelButtonRef}
+              classes={classes}
+              handleDialogClose={handleDialogClose}
+            />
+          ) : (
+            <DialogBody>
+              <DialogTitle className={classes.dialogTitle}>
+                <ArrowRepeatAll24Filled
+                  className={classes.headerIcon}
+                  aria-hidden="true"
+                  role="presentation"
+                />
+                {`Submit feedback to ${displayName}`}
+              </DialogTitle>
+              <DialogContent id="dialog-content" className={classes.dialogContent}>
+                <Text>{isLike ? 'What did you like?' : 'What could be improved?'}</Text>
+                <Textarea
+                  value={feedbackText}
+                  onChange={(e) => {
+                    setFeedbackText(e.target.value);
+                  }}
+                  placeholder="Give as much detail as you can, but don't include any private or sensitive information."
+                  rows={4}
+                  className={classes.textarea}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && (!isMac ? e.ctrlKey : e.metaKey)) {
+                      e.preventDefault();
+                      handleSubmit();
+                    }
+                    if (e.key === 'Escape') {
+                      e.preventDefault();
+                      handleDialogClose();
+                    }
+                  }}
+                />
+                <Text>
+                  We'll also share the content you're providing feedback on to help improve future
+                  responses.
+                </Text>
+              </DialogContent>
+              <DialogActions {...navigationAttributes}>
+                <Tooltip content={`Cancel (${isMac ? '⌘' : 'Ctrl'} Escape)`} relationship="label">
+                  <Button appearance="secondary" onClick={handleDialogClose} ref={cancelButtonRef}>
+                    Cancel
+                  </Button>
+                </Tooltip>
+                <Tooltip content={`Submit (${isMac ? '⌘' : 'Ctrl'} Enter)`} relationship="label">
+                  <Button appearance="primary" onClick={handleSubmit} ref={submitButtonRef}>
+                    Submit
+                  </Button>
+                </Tooltip>
+              </DialogActions>
+            </DialogBody>
+          )}
         </DialogSurface>
       </Dialog>
     </>
   );
 };
 
-export default Feedback;
-
 Feedback.displayName = 'Feedback';
+export default Feedback;

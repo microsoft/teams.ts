@@ -1,10 +1,12 @@
+import { AxiosError } from 'axios';
+
 import {
   ISignInTokenExchangeInvokeActivity,
   ISignInVerifyStateInvokeActivity,
   TokenExchangeInvokeResponse,
 } from '@microsoft/teams.api';
 import * as graph from '@microsoft/teams.graph';
-import { AxiosError } from 'axios';
+
 import { App } from './app';
 import * as contexts from './contexts';
 import { IPlugin } from './types';
@@ -37,7 +39,7 @@ export async function onTokenExchange<TPlugin extends IPlugin>(
       })
     );
 
-    this.events.emit('signin', { ...ctx, token });
+    this.events.emit('signin', { ...ctx, token, isSignedIn: true });
     return { status: 200 };
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -85,7 +87,7 @@ export async function onVerifyState<TPlugin extends IPlugin>(
       })
     );
 
-    this.events.emit('signin', { ...ctx, token });
+    this.events.emit('signin', { ...ctx, token, isSignedIn: true });
     return { status: 200 };
   } catch (error) {
     if (error instanceof AxiosError) {

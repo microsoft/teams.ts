@@ -16,10 +16,10 @@ import { IPlugin, IPluginWithEvents, ISender } from './types';
  */
 export type AppEvents<TPlugin extends IPlugin, TPluginEvents extends PluginEvents<TPlugin>> = {
   [key in keyof IEvents | keyof TPluginEvents]: key extends keyof IEvents
-    ? IEvents[key]
-    : key extends keyof TPluginEvents
-      ? TPluginEvents[key]
-      : never;
+  ? IEvents[key]
+  : key extends keyof TPluginEvents
+  ? TPluginEvents[key]
+  : never;
 };
 
 /**
@@ -42,7 +42,7 @@ export function event<
 export type PluginEvents<TPlugin extends IPlugin> =
   TPlugin extends IPluginWithEvents<infer TEvents> ? TEvents : {};
 
-type PluginConstructor = { new (...args: any[]): IPlugin & PluginEvents<any> };
+type PluginConstructor = { new(...args: any[]): IPlugin & PluginEvents<any> };
 type PluginInstance = IPlugin & PluginEvents<any>;
 
 export async function onError<TPlugin extends IPlugin>(this: App<TPlugin>, event: IErrorEvent) {

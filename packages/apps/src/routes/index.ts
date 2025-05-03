@@ -2,12 +2,12 @@ import { IActivityContext } from '../contexts';
 import { RouteHandler } from '../types';
 
 import { ActivityRoutes } from './activity';
-import { InvokeActivityRoutes } from './invoke';
-import { InstallActivityRoutes } from './install';
 import { ConversationUpdateActivityRoutes } from './conversation-update';
-import { MessageUpdateActivityRoutes } from './message-update';
-import { MessageDeleteActivityRoutes } from './message-delete';
 import { EventActivityRoutes } from './event';
+import { InstallActivityRoutes } from './install';
+import { InvokeActivityRoutes } from './invoke';
+import { MessageDeleteActivityRoutes } from './message-delete';
+import { MessageUpdateActivityRoutes } from './message-update';
 
 export interface IRoutes
   extends ActivityRoutes,

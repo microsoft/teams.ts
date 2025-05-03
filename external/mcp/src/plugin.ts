@@ -1,8 +1,15 @@
 import { Readable, Writable } from 'stream';
 
+import { ServerOptions } from '@modelcontextprotocol/sdk/server/index.js';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+
+import { jsonSchemaToZod } from 'json-schema-to-zod';
+import { z } from 'zod';
+
 import { IChatPrompt } from '@microsoft/teams.ai';
-import { ILogger } from '@microsoft/teams.common';
-import { DevtoolsPlugin } from '@microsoft/teams.dev';
 import {
   Dependency,
   HttpPlugin,
@@ -11,17 +18,11 @@ import {
   Logger,
   Plugin,
 } from '@microsoft/teams.apps';
-
-import { ServerOptions } from '@modelcontextprotocol/sdk/server/index.js';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
-import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-
-import { z } from 'zod';
-import { jsonSchemaToZod } from 'json-schema-to-zod';
+import { ILogger } from '@microsoft/teams.common';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 import pkg from '../package.json';
+
 import { IConnection } from './connection';
 
 /**
@@ -117,14 +118,12 @@ export class McpPlugin implements IPlugin {
   readonly devtoolsPlugin?: DevtoolsPlugin;
 
   readonly server: McpServer;
-  readonly prompt: McpServer['prompt'];
-  readonly tool: McpServer['tool'];
-  readonly resource: McpServer['resource'];
-
   protected id: number = -1;
   protected inspector: string;
   protected connections: Record<number, IConnection> = {};
-  protected transport: McpSSETransportOptions | McpStdioTransportOptions = { type: 'sse' };
+  protected transport: McpSSETransportOptions | McpStdioTransportOptions = {
+    type: 'sse',
+  };
 
   constructor(options: McpServer | McpPluginOptions = {}) {
     this.inspector =
@@ -135,20 +134,16 @@ export class McpPlugin implements IPlugin {
       options instanceof McpServer
         ? options
         : new McpServer(
-            {
-              name: options.name || 'mcp',
-              version: options.version || '0.0.0',
-            },
-            options
-          );
+          {
+            name: options.name || 'mcp',
+            version: options.version || '0.0.0',
+          },
+          options,
+        );
 
     if (!(options instanceof McpServer) && options.transport) {
       this.transport = options.transport;
     }
-
-    this.prompt = this.server.prompt.bind(this.server);
-    this.tool = this.server.tool.bind(this.server);
-    this.resource = this.server.resource.bind(this.server);
   }
 
   /**
@@ -157,10 +152,41 @@ export class McpPlugin implements IPlugin {
    */
   use(prompt: IChatPrompt) {
     for (const fn of prompt.functions) {
-      const schema: z.AnyZodObject = eval(jsonSchemaToZod(fn.parameters, { module: 'cjs' }));
-      this.server.tool(fn.name, fn.description, schema.shape, this.onToolCall(fn.name, prompt));
+      const schema: z.AnyZodObject = eval(
+        jsonSchemaToZod(fn.parameters, { module: 'cjs' }),
+      );
+      this.server.tool(
+        fn.name,
+        fn.description,
+        schema.shape,
+        this.onToolCall(fn.name, prompt),
+      );
     }
 
+    return this;
+  }
+
+  /**
+   * Pass through call to the underlying MCP server
+   */
+  tool(...params: Parameters<McpServer['tool']>) {
+    this.server.tool(...params);
+    return this;
+  }
+
+  /**
+   * Pass through call to the underlying MCP server
+   */
+  prompt(...params: Parameters<McpServer['prompt']>) {
+    this.server.prompt(...params);
+    return this;
+  }
+
+  /**
+   * Pass through call to the underlying MCP server
+   */
+  resource(...params: Parameters<McpServer['resource']>) {
+    this.server.resource(...params);
     return this;
   }
 
@@ -180,7 +206,9 @@ export class McpPlugin implements IPlugin {
 
   onStart({ port }: IPluginStartEvent) {
     if (this.transport.type === 'sse') {
-      this.logger.info(`listening at http://localhost:${port}${this.transport.path || '/mcp'}`);
+      this.logger.info(
+        `listening at http://localhost:${port}${this.transport.path || '/mcp'}`,
+      );
     } else {
       this.logger.info('listening on stdin');
     }
@@ -197,7 +225,10 @@ export class McpPlugin implements IPlugin {
     http.get(path, (_, res) => {
       this.id++;
       this.logger.debug('connecting...');
-      const transport = new SSEServerTransport(`${path}/${this.id}/messages`, res);
+      const transport = new SSEServerTransport(
+        `${path}/${this.id}/messages`,
+        res,
+      );
       this.connections[this.id] = {
         id: this.id,
         transport,
@@ -262,7 +293,9 @@ export class McpPlugin implements IPlugin {
       content.every(
         (item) =>
           'type' in item &&
-          (item.type === 'text' || item.type === 'image' || item.type === 'resource')
+          (item.type === 'text' ||
+            item.type === 'image' ||
+            item.type === 'resource'),
       )
     );
   }

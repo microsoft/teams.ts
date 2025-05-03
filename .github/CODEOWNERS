@@ -1,0 +1,11 @@
+/\\*  @microsoft/teams-ai-admins
+/.github/  @microsoft/teams-ai-admins
+
+# Cards
+/packages/cards/ @dclaux
+
+# Client
+/packages/client/ @ydogandjiev @Jesperholmbergmsft
+
+# DevTools
+/packages/devtools/ @corinagum

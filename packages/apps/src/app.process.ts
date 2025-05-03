@@ -158,11 +158,12 @@ export async function $process<TPlugin extends IPlugin>(
   try {
     let res = await next();
 
+    await context.stream.close();
+
     if (!res || !isInvokeResponse(res)) {
       res = { status: 200, body: res };
     }
 
-    await context.stream.close();
     this.onActivityResponse(sender, {
       ...ref,
       sender,

@@ -2,11 +2,12 @@ import http from 'http';
 import path from 'path';
 
 import express from 'express';
-import { WebSocket, WebSocketServer } from 'ws';
+
 import * as uuid from 'uuid';
 
+import { WebSocket, WebSocketServer } from 'ws';
+
 import { ActivityParams, ConversationReference, IToken } from '@microsoft/teams.api';
-import { ILogger, String } from '@microsoft/teams.common';
 import {
   HttpPlugin,
   Logger,
@@ -22,11 +23,12 @@ import {
   IErrorEvent,
   IActivityEvent,
 } from '@microsoft/teams.apps';
+import { ILogger, String } from '@microsoft/teams.common';
 
 import pkg from '../package.json';
 
-import { router } from './routes';
 import { ActivityEvent, IEvent } from './event';
+import { router } from './routes';
 import { Page } from './types';
 
 type ResolveRejctPromise<T = any> = {
@@ -93,7 +95,7 @@ export class DevtoolsPlugin implements ISender {
       new String()
         .bold(
           new String().yellow(
-            `⚠️  Devtools are not secure and should not be used production environments ⚠️`
+            '⚠️  Devtools are not secure and should not be used production environments ⚠️'
           )
         )
         .toString()
@@ -173,16 +175,19 @@ export class DevtoolsPlugin implements ISender {
   protected onSocketConnection(socket: WebSocket) {
     const id = uuid.v4();
     this.sockets.set(id, socket);
-    socket.emit('metadata', {
-      id: uuid.v4(),
-      type: 'metadata',
-      body: {
-        id: this.id?.toString(),
-        name: this.name?.toString(),
-        pages: this.pages,
-      },
-      sentAt: new Date(),
-    });
+
+    socket.send(
+      JSON.stringify({
+        id: uuid.v4(),
+        type: 'metadata',
+        body: {
+          id: this.id?.toString(),
+          name: this.name?.toString(),
+          pages: this.pages,
+        },
+        sentAt: new Date(),
+      })
+    );
 
     socket.on('disconnect', () => {
       this.sockets.delete(id);

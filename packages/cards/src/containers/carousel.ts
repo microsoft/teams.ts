@@ -4,6 +4,7 @@ import { VerticalAlignment } from '../common';
 import { Element } from '../element';
 import { Layout } from '../layouts';
 import { IBackgroundImage } from '../medias';
+
 import { ContainerStyle } from './container';
 
 /**

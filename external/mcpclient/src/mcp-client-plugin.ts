@@ -1,64 +1,17 @@
-import type { ChatPromptPlugin, Function, Schema } from '@microsoft/teams.ai';
 import { Client, ClientOptions } from '@modelcontextprotocol/sdk/client/index.js';
-import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
-import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 
-export type McpClientPluginParams = {
-  name: string;
-  description: string;
-  schema: Schema;
-};
+import { ChatPromptPlugin, Function, Schema } from '@microsoft/teams.ai';
 
-/**
- * A map of Mcp client params keyed off of their corresponding urls
- */
-export type McpClientPluginParamsCache = Record<string, McpClientPluginParams[]>;
-
-/**
- * A function that creates a transport for the Mcp client
- */
-export type CreateTransport = (url: string) => Transport;
-
-export type McpClientPluginOptions = ClientOptions & {
-  /**
-   * the Mcp client name
-   * @default 'mcpClient'
-   */
-  readonly name?: string;
-
-  /**
-   * the Mcp client version
-   * @default 0.0.0
-   */
-  readonly version?: string;
-
-  /**
-   * A saved cache of tool params for their corresponding server urls
-   * If not provided, the client will fetch the params from the server
-   * @default {}
-   */
-  readonly cache?: McpClientPluginParamsCache;
-
-  /**
-   * A function that creates a transport for the Mcp client
-   * @default (url) => new SSEClientTransport(url)
-   */
-  createTransport?: CreateTransport;
-};
-
-export interface McpClientPluginUseParams {
-  /**
-   * The url of the Mcp server to use
-   */
-  url: string;
-
-  /**
-   * The params to use for the Mcp server
-   * If not provided, the client will fetch the params from the server
-   * or use the cached params if provided
-   */
-  params?: McpClientPluginParams[];
-}
+import {
+  CreateTransport,
+  McpClientPluginCachedParams,
+  McpClientPluginOptions,
+  McpClientPluginParams,
+  McpClientPluginUseParams,
+  McpClientToolDetails,
+  ValueOrFactory,
+} from './mcp-client-types';
+import { buildSSEClientTransport } from './mcp-transport';
 
 export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientPluginUseParams> {
   readonly name = 'mcpClient';
@@ -83,11 +36,16 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
   get cache() {
     return this._cache;
   }
-  protected _cache: McpClientPluginParamsCache;
+  protected _cache: Record<string, McpClientPluginCachedParams & { lastAttemptedFetch?: number }>;
 
-  private readonly _mcpServerUrlsByParams: Record<string, McpClientPluginParams[] | undefined> = {};
+  get refetchTimeoutMs() {
+    return this._refetchTimeoutMs;
+  }
+  protected _refetchTimeoutMs: number;
 
-  private createTransport: CreateTransport;
+  private readonly _mcpServerUrlsByParams: Record<string, McpClientPluginParams | undefined> = {};
+
+  private createTransport: CreateTransport | null;
 
   constructor(options?: McpClientPluginOptions) {
     const {
@@ -95,58 +53,65 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
       version,
       cache,
       createTransport,
+      refetchTimeoutMs,
       ...clientOptions
     } = options || {};
     this._name = mcpClientName || 'mcpClient';
     this._version = version || '0.0.0';
-    this._cache = cache || {};
+    if (cache != null) {
+      this._cache = {};
+      for (const [url, params] of Object.entries(cache)) {
+        this._cache[url] = {
+          ...params,
+          lastAttemptedFetch: Date.now(),
+        };
+      }
+    } else {
+      this._cache = {};
+    }
     this._clientOptions = clientOptions;
-    this.createTransport =
-      createTransport ?? ((url: string) => new SSEClientTransport(new URL(url)));
+    this.createTransport = createTransport ?? null;
+    this._refetchTimeoutMs = refetchTimeoutMs || 24 * 60 * 60 * 1000; // 1 day
   }
 
-  onUsePlugin(args: { url: string; params?: McpClientPluginParams[] }) {
+  onUsePlugin(args: { url: string; params?: McpClientPluginParams }) {
     this._mcpServerUrlsByParams[args.url] = args.params;
+    if (args.params?.availableTools && args.params.availableTools.length > 0) {
+      this._cache[args.url] = {
+        ...this._cache[args.url],
+        // If the tools are being supplied, we assume they are up to date
+        lastAttemptedFetch: Date.now(),
+        availableTools: args.params.availableTools,
+      };
+    }
   }
 
   async onBuildFunctions(incomingFunctions: Function[]): Promise<Function[]> {
-    // First, handle all fetching needs
-    const fetchNeeded = Object.entries(this._mcpServerUrlsByParams)
-      .map(([url, params]) => {
-        const paramsToFetch = params ?? this._cache[url] ?? undefined;
-        if (paramsToFetch == null) {
-          return url;
-        }
-        return null;
-      })
-      .filter((url): url is string => url != null);
-
-    // Fetch all needed params in parallel
-    if (fetchNeeded.length > 0) {
-      const tools = await this.getTools(fetchNeeded);
-      for (const [url, params] of Object.entries(tools)) {
-        this._cache[url] = params;
-      }
-    }
+    await this.fetchToolsIfNeeded();
 
     // Now create all functions
     const allFunctions: Function[] = [];
 
     for (const [url, params] of Object.entries(this._mcpServerUrlsByParams)) {
-      const resolvedParams = params ?? this._cache[url] ?? [];
+      const availableTools = this._cache[url]?.availableTools;
+      if (!availableTools) {
+        // If we don't have any tools, we can't create any functions
+        continue;
+      }
 
-      const functions = resolvedParams.map((param) => ({
-        name: param.name,
-        description: param.description,
-        parameters: param.schema || {},
+      const functions = availableTools.map((availableTool) => ({
+        name: availableTool.name,
+        description: availableTool.description,
+        parameters: availableTool.schema || {},
         handler: async (args: any) => {
-          const [client, transport] = this.makeMcpClientPlugin(url);
+          const [client, transport] = await this.makeMcpClientPlugin(url, params?.headers);
           try {
             await client.connect(transport);
             const result = await client.callTool({
-              name: param.name,
+              name: availableTool.name,
               arguments: args,
             });
+
             return result.content;
           } finally {
             await client.close();
@@ -160,10 +125,54 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     return incomingFunctions.concat(allFunctions);
   }
 
-  async getTools(urls: string[]): Promise<McpClientPluginParamsCache> {
+  private async fetchToolsIfNeeded() {
+    // First, handle all fetching needs
+    const fetchNeededObjects = Object.entries(this._mcpServerUrlsByParams)
+      .map(([url, params]) => {
+        // If availableTools are being supplied, then we use them
+        // and don't need to fetch anything
+        if (params?.availableTools) {
+          return null;
+        }
+
+        const cachedParams = this._cache[url];
+        if (cachedParams?.availableTools == null || cachedParams.availableTools.length === 0) {
+          // If we don't have a cached value, we need to fetch
+          return { url, ...params };
+        }
+
+        const maxAge = params?.refetchTimeoutMs ?? this.refetchTimeoutMs;
+        if (
+          !cachedParams.lastAttemptedFetch ||
+          Date.now() - cachedParams.lastAttemptedFetch > maxAge
+        ) {
+          // If we have a cached value and it's still valid, we don't need to fetch
+          return { url, ...params };
+        }
+
+        return null;
+      })
+      .filter((res): res is NonNullable<typeof res> => res != null);
+
+    // Fetch all needed params in parallel
+    if (fetchNeededObjects.length > 0) {
+      const allFetchedTools = await this.getTools(fetchNeededObjects);
+      for (const [url, tools] of Object.entries(allFetchedTools)) {
+        this._cache[url] = {
+          ...this._cache[url],
+          lastAttemptedFetch: tools === 'unavailable' ? undefined : Date.now(),
+          availableTools: tools === 'unavailable' ? undefined : tools,
+        };
+      }
+    }
+  }
+
+  private async getTools(
+    params: ({ url: string } & Pick<McpClientPluginParams, 'headers' | 'skipIfUnavailable'>)[]
+  ): Promise<Record<string, McpClientToolDetails[] | 'unavailable'>> {
     const toolCallResult = await Promise.all(
-      urls.map(async (url) => {
-        const tools = await this.fetchTools(url);
+      params.map(async ({ url, headers, skipIfUnavailable }) => {
+        const tools = await this.fetchTools(url, headers, skipIfUnavailable);
         return [url, tools];
       })
     );
@@ -171,17 +180,24 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     return Object.fromEntries(toolCallResult);
   }
 
-  private async fetchTools(url: string): Promise<McpClientPluginParams[]> {
-    const [client, transport] = this.makeMcpClientPlugin(url);
+  private async fetchTools(
+    url: string,
+    headers?: ValueOrFactory<Record<string, string>>,
+    skipIfUnavailable?: boolean
+  ): Promise<McpClientToolDetails[] | 'unavailable'> {
+    const [client, transport] = await this.makeMcpClientPlugin(url, headers);
     try {
       await client.connect(transport);
-      const tools = await client.listTools();
-      return tools.tools.map((tool) => ({
+      const listToolsResult = await client.listTools();
+      return listToolsResult.tools.map((tool) => ({
         name: tool.name,
         description: tool.description ?? '',
         schema: tool.inputSchema as Schema,
       }));
     } catch (e) {
+      if (skipIfUnavailable || skipIfUnavailable == null) {
+        return 'unavailable';
+      }
       console.error(e);
       throw e;
     } finally {
@@ -189,8 +205,13 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     }
   }
 
-  private makeMcpClientPlugin(serverUrl: string) {
-    const transport = this.createTransport(serverUrl);
+  private async makeMcpClientPlugin(
+    serverUrl: string,
+    headers: ValueOrFactory<Record<string, string>> | undefined
+  ) {
+    const transport = this.createTransport
+      ? this.createTransport(serverUrl)
+      : await buildSSEClientTransport(serverUrl, headers);
 
     const client = new Client(
       {

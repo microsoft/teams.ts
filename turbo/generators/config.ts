@@ -1,7 +1,38 @@
 import type { PlopTypes } from '@turbo/gen';
+import fs from 'fs';
+import path from 'path';
 
 export default function generator(plop: PlopTypes.NodePlopAPI): void {
-  // create a generator
+  // Action for creating an app package
+  plop.setActionType('createAppPackage', (answers, config, plop) => {
+    if (!plop) {
+      throw new Error('Plop instance is not available');
+    }
+
+    if (!answers['name']) {
+      throw new Error('App name is required');
+    }
+    const appPackagePath = path.join(
+      plop.getDestBasePath(),
+      'samples',
+      answers['name'],
+      'appPackage'
+    );
+    const appPackageContent = JSON.stringify(
+      {
+        name: answers.name,
+        description: answers.description,
+        version: '1.0.0',
+      },
+      null,
+      2
+    );
+
+    fs.writeFileSync(appPackagePath, appPackageContent);
+    return `App package created at ${appPackagePath}`;
+  });
+
+  // Package generator for creating new packages
   plop.setGenerator('Package', {
     description: 'Create a new package',
     // gather information from the user
@@ -53,6 +84,69 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         type: 'add',
         path: 'packages/{{name}}/README.md',
         templateFile: 'templates/README.md.hbs',
+      },
+    ],
+  });
+
+  // Generator for creating new applications in tests
+  plop.setGenerator('Application', {
+    description: 'Create a new Teams AI v2 application',
+    prompts: [
+      {
+        type: 'input',
+        name: 'name',
+        message: 'Application name:',
+      },
+      {
+        type: 'input',
+        name: 'description',
+        message: 'Application description:',
+      },
+      {
+        type: 'confirm',
+        name: 'runnableOnTeams',
+        message: 'Runnable to Teams?',
+        default: true,
+      },
+    ],
+    actions: [
+      {
+        type: 'add',
+        path: 'tests/{{name}}/package.json',
+        templateFile: 'templates/test-package.json.hbs',
+      },
+      {
+        type: 'add',
+        path: 'tests/{{name}}/README.md',
+        templateFile: 'templates/test-README.md.hbs',
+      },
+      {
+        type: 'add',
+        path: 'tests/{{name}}/tsconfig.json',
+        templateFile: 'templates/test-tsconfig.json.hbs',
+      },
+      {
+        type: 'add',
+        path: 'tests/{{name}}/src/index.ts',
+        templateFile: 'templates/test-index.ts.hbs',
+      },
+      {
+        type: 'add',
+        path: 'tests/{{name}}/.gitignore',
+        templateFile: 'templates/test-gitignore.hbs',
+      },
+      {
+        type: 'addMany',
+        skip: ({ runnableOnTeams }) => {
+          if (!runnableOnTeams) {
+            return `Skipping app package generation for non-runnable sample`;
+          }
+
+          console.log('Generating app package...');
+          return false;
+        },
+        destination: 'samples/{{name}}/appPackage/',
+        templateFiles: 'templates/appPackage/**',
       },
     ],
   });

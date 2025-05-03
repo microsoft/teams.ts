@@ -1,7 +1,3 @@
-import { EventEmitter } from '@microsoft/teams.common/events';
-import * as http from '@microsoft/teams.common/http';
-import { ConsoleLogger, ILogger } from '@microsoft/teams.common/logging';
-import { IStorage, LocalStorage } from '@microsoft/teams.common/storage';
 import { AxiosError } from 'axios';
 
 import {
@@ -13,16 +9,14 @@ import {
   StripMentionsTextOptions,
   toActivityParams,
 } from '@microsoft/teams.api';
+import { EventEmitter } from '@microsoft/teams.common/events';
+import * as http from '@microsoft/teams.common/http';
+import { ConsoleLogger, ILogger } from '@microsoft/teams.common/logging';
+import { IStorage, LocalStorage } from '@microsoft/teams.common/storage';
 
 import pkg from '../package.json';
 
 import { AppClient } from './api';
-import * as manifest from './manifest';
-import * as middleware from './middleware';
-import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
-import { HttpPlugin } from './plugins';
-import { Router } from './router';
-import { IPlugin } from './types';
 
 import { configTab, func, tab } from './app.embed';
 import {
@@ -39,8 +33,12 @@ import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
 import { $process } from './app.process';
 import { message, on, use } from './app.routing';
 import { Container } from './container';
-
-export const REFRESH_TOKEN_BUFFER_MS = 1000 * 60 * 5; // 5 minutes
+import * as manifest from './manifest';
+import * as middleware from './middleware';
+import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
+import { HttpPlugin } from './plugins';
+import { Router } from './router';
+import { IPlugin } from './types';
 
 /**
  * App initialization options
@@ -271,8 +269,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     this.container.register('name', { useValue: this.name });
     this.container.register('manifest', { useValue: this.manifest });
     this.container.register('credentials', { useValue: this.credentials });
-    this.container.register('botToken', { useFactory: () => this.tokens.bot });
-    this.container.register('graphToken', { useFactory: () => this.tokens.graph });
+    this.container.register('botToken', { useValue: () => this.tokens.bot });
+    this.container.register('graphToken', { useValue: () => this.tokens.graph });
     this.container.register('ILogger', { useValue: this.log });
     this.container.register('IStorage', { useValue: this.storage });
     this.container.register(this.client.constructor.name, { useFactory: () => this.client });
@@ -307,7 +305,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     this.port = +(port || process.env.PORT || 3000);
 
     try {
-      await this.refreshTokens();
+      await this.refreshTokens(true);
 
       // initialize plugins
       for (const plugin of this.plugins) {
@@ -381,45 +379,45 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param name event to subscribe to
    * @param cb callback to invoke
    */
-  on = on;
+  on = on; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * subscribe to a message event for a specific pattern
    * @param pattern pattern to match against message text
    * @param cb callback to invoke
    */
-  message = message;
+  message = message; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * register a middleware
    * @param cb callback to invoke
    */
-  use = use;
+  use = use; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * subscribe to an event
    * @param name the event to subscribe to
    * @param cb the callback to invoke
    */
-  event = event;
+  event = event; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * add a plugin
    * @param plugin plugin to add
    */
-  plugin = plugin;
+  plugin = plugin; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * get a plugin
    */
-  getPlugin = getPlugin;
+  getPlugin = getPlugin; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * add/update a function that can be called remotely
    * @param name The unique function name
    * @param cb The callback to handle the function
    */
-  function = func;
+  function = func; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * add/update a static tab.
@@ -429,79 +427,69 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param name A unique identifier for the entity which the tab displays.
    * @param path The path to the web `dist` folder.
    */
-  tab = tab;
+  tab = tab; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * add a configurable tab
    * @remark scopes defaults to `team`
    * @param url The url to use when configuring the tab.
    */
-  configTab = configTab;
+  configTab = configTab; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * activity handler called when an inbound activity is received
    * @param sender the plugin to use for sending activities
    * @param event the received activity event
    */
-  process = $process;
+  process = $process; // eslint-disable-line @typescript-eslint/member-ordering
 
   ///
   /// OAuth
   ///
 
-  protected onTokenExchange = onTokenExchange;
-  protected onVerifyState = onVerifyState;
+  protected onTokenExchange = onTokenExchange; // eslint-disable-line @typescript-eslint/member-ordering
+  protected onVerifyState = onVerifyState; // eslint-disable-line @typescript-eslint/member-ordering
 
   ///
   /// Events
   ///
 
-  protected inject = inject;
-  protected onError = onError;
-  protected onActivity = onActivity;
-  protected onActivitySent = onActivitySent;
-  protected onActivityResponse = onActivityResponse;
+  protected inject = inject; // eslint-disable-line @typescript-eslint/member-ordering
+  protected onError = onError; // eslint-disable-line @typescript-eslint/member-ordering
+  protected onActivity = onActivity; // eslint-disable-line @typescript-eslint/member-ordering
+  protected onActivitySent = onActivitySent; // eslint-disable-line @typescript-eslint/member-ordering
+  protected onActivityResponse = onActivityResponse; // eslint-disable-line @typescript-eslint/member-ordering
 
   ///
   /// Token
   ///
+
   /**
    * Refresh the tokens for the app
    */
-  protected async refreshTokens() {
-    await this.refreshBotToken();
-    await this.refreshGraphToken();
+  protected async refreshTokens(force = false) {
+    return Promise.all([this.refreshBotToken(force), this.refreshGraphToken(force)]);
   }
 
-  private async refreshBotToken(force = false) {
-    if (this.credentials) {
-      // Only do it if the token isn't there, or if it's expired, or if force is true
-      if (
-        !this._tokens.bot ||
-        (this._tokens.bot.expiration != null &&
-          this._tokens.bot.expiration < Date.now() + REFRESH_TOKEN_BUFFER_MS) ||
-        force
-      ) {
-        this.log.debug('Refreshing bot token');
-        const botResponse = await this.api.bots.token.get(this.credentials);
-        this._tokens.bot = new JsonWebToken(botResponse.access_token);
-      }
+  protected async refreshBotToken(force = false) {
+    if (!this.credentials) return;
+    if (!this.tokens.bot?.isExpired() && !force) return;
+    if (this.tokens.bot) {
+      this.log.debug('refreshing bot token');
     }
+
+    const botResponse = await this.api.bots.token.get(this.credentials);
+    this._tokens.bot = new JsonWebToken(botResponse.access_token);
   }
 
-  private async refreshGraphToken(force = false) {
-    if (this.credentials) {
-      // Only do it if the token isn't there, or if it's expired, or if force is true
-      if (
-        !this._tokens.graph ||
-        (this._tokens.graph.expiration != null &&
-          this._tokens.graph.expiration < Date.now() + REFRESH_TOKEN_BUFFER_MS) ||
-        force
-      ) {
-        this.log.debug('Refreshing graph token');
-        const graphResponse = await this.api.bots.token.getGraph(this.credentials);
-        this._tokens.graph = new JsonWebToken(graphResponse.access_token);
-      }
+  protected async refreshGraphToken(force = false) {
+    if (!this.credentials) return;
+    if (!this.tokens.graph?.isExpired() && !force) return;
+    if (this.tokens.graph) {
+      this.log.debug('refreshing graph token');
     }
+
+    const graphResponse = await this.api.bots.token.getGraph(this.credentials);
+    this._tokens.graph = new JsonWebToken(graphResponse.access_token);
   }
 }

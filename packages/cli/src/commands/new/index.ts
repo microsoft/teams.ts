@@ -1,8 +1,9 @@
 import { CommandModule } from 'yargs';
 
 import { IContext } from '../../context';
-import { Typescript } from './typescript';
+
 import { CSharp } from './csharp';
+import { Typescript } from './typescript';
 
 export function New(context: IContext): CommandModule<{}, {}> {
   return {

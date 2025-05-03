@@ -1,9 +1,9 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
-import fs from 'node:fs';
 
-import { IProjectAttribute } from '../project-attribute';
 import { Compound, Copy } from '../operations';
+import { IProjectAttribute } from '../project-attribute';
 
 export class TemplateAttribute implements IProjectAttribute {
   readonly id: string;

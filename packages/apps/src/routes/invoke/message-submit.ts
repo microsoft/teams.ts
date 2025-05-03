@@ -1,7 +1,7 @@
 import { IMessageSubmitActionInvokeActivity, InvokeResponse } from '@microsoft/teams.api';
 
-import { RouteHandler } from '../../types';
 import { IActivityContext } from '../../contexts';
+import { RouteHandler } from '../../types';
 
 export type MessageSubmitActivityRoutes = {
   [K in IMessageSubmitActionInvokeActivity['value']['actionName'] as `message.submit.${K}`]?: RouteHandler<

@@ -1,17 +1,18 @@
 import * as msal from '@azure/msal-browser';
+
 import { ILogger } from '@microsoft/teams.common/logging';
 
 /**
  * Gets a silent request used to acquire an Entra access token for invoking remote functions on behalf of a user.
- * @param remoteClientId The client ID of the remote application.
+ * @param resource The resource to use, e.g 'api://<clientId>'.
  * @param permission The permission to request. Defaults to 'access_as_user'.
  * @returns
  */
 export const getStandardExecSilentRequest = (
-  remoteClientId: string,
+  resource: string,
   permission = 'access_as_user'
 ): msal.SilentRequest => ({
-  scopes: [`api://${remoteClientId}/${permission}`],
+  scopes: [`${resource}/${permission}`],
 });
 
 /**
@@ -89,5 +90,35 @@ export const acquireMsalAccessToken = async (
   } catch (ex) {
     logger.error('acquireTokenPopup failed', ex);
     throw ex;
+  }
+};
+
+/**
+ * Tests whether the user has consented to the specified scopes by attempting to acquire a token silently.
+ * If the token acquisition is successful, it indicates that the user has consented to the scopes.
+ * If it fails, it indicates that the user has not consented to the scopes.
+ * @param msalInstance The MSAL instance to use.
+ * @param scopes The scopes to check consent for. The scopes should not mix resources, or mix default scope with non-default scopes.
+ * @param logger The logger instance to use.
+ * @returns A promise that resolves to a boolean indicating whether the user has consented to the scopes.
+ */
+export const hasConsentForScopes = async (
+  msalInstance: Pick<msal.IPublicClientApplication, 'acquireTokenSilent'>,
+  scopes: string[],
+  logger: ILogger
+): Promise<boolean> => {
+  try {
+    await msalInstance.acquireTokenSilent({
+      scopes,
+    });
+
+    return true;
+  } catch (ex) {
+    // InteractionRequiredAuthError indicates that the user has not consented to the requested scope yet.
+    // This is not an error, but may be interesting when trouble shooting.
+    const acquireTokenPopupNeeded = ex instanceof msal.InteractionRequiredAuthError;
+    const logLevel = acquireTokenPopupNeeded ? 'debug' : 'error';
+    logger.log(logLevel, 'hasConsentForScopes failed', ex);
+    return false;
   }
 };

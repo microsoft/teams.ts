@@ -1,5 +1,4 @@
 import { Account, ChannelData } from '../../models';
-
 import { IActivity } from '../activity';
 
 export interface IConversationUpdateActivity extends IActivity<'conversationUpdate'> {

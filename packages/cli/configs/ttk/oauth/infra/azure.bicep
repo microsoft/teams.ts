@@ -60,9 +60,9 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
         {
           name: 'BOT_PASSWORD'
           value: botAadAppClientSecret
-        },
+        }
         {
-          name: 'OAUTH_CONNECTION_NAME',
+          name: 'OAUTH_CONNECTION_NAME'
           value: oauthConnectionName
         }
       ]
@@ -78,7 +78,7 @@ module azureBotRegistration './botRegistration/azurebot.bicep' = {
     resourceBaseName: resourceBaseName
     botAadAppClientId: botAadAppClientId
     botAppDomain: webApp.properties.defaultHostName
-    botDisplayName: botDisplayName,
+    botDisplayName: botDisplayName
     oauthConnectionName: oauthConnectionName
   }
 }
