@@ -35,35 +35,45 @@ jobs:
           template_changes=()
           test_changes=()
 
+          # Create associative arrays to track directories and their files
+          declare -A template_dirs test_dirs
+
           # Group files by directory
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             if [[ $file == packages/cli/templates/typescript/* ]]; then
               dir=$(echo "$file" | sed -n 's|packages/cli/templates/typescript/\([^/]*\)/.*|\1|p')
               if [ ! -z "$dir" ]; then
-                template_changes+=("$dir")
+                # Append the file to the directory's list
+                template_dirs["$dir"]="${template_dirs["$dir"]}${file}"$'\n'
               fi
             elif [[ $file == tests/* ]]; then
               dir=$(echo "$file" | sed -n 's|tests/\([^/]*\)/.*|\1|p')
               if [ ! -z "$dir" ]; then
-                test_changes+=("$dir")
+                # Append the file to the directory's list
+                test_dirs["$dir"]="${test_dirs["$dir"]}${file}"$'\n'
               fi
             fi
           done
 
-          # Check for missing corresponding changes
-          for dir in "${template_changes[@]}"; do
-            if [[ ! " ${test_changes[@]} " =~ " ${dir} " ]]; then
-              echo "::error::Template files changed but no corresponding test changes found:"
-              echo "Changed files in: packages/cli/templates/typescript/$dir"
+          # Check template directories without matching test changes
+          for dir in "${!template_dirs[@]}"; do
+            if [[ -z "${test_dirs[$dir]}" ]]; then
+              echo "::error::Changes detected in template directory but no corresponding test changes found"
+              echo "Template directory: packages/cli/templates/typescript/$dir"
+              echo "Changed files:"
+              echo "${template_dirs[$dir]}"
               echo "Expected changes in: tests/$dir"
               status=1
             fi
           done
 
-          for dir in "${test_changes[@]}"; do
-            if [[ ! " ${template_changes[@]} " =~ " ${dir} " ]]; then
-              echo "::error::Test files changed but no corresponding template changes found:"
-              echo "Changed files in: tests/$dir"
+          # Check test directories without matching template changes
+          for dir in "${!test_dirs[@]}"; do
+            if [[ -z "${template_dirs[$dir]}" ]]; then
+              echo "::error::Changes detected in test directory but no corresponding template changes found"
+              echo "Test directory: tests/$dir"
+              echo "Changed files:"
+              echo "${test_dirs[$dir]}"
               echo "Expected changes in: packages/cli/templates/typescript/$dir"
               status=1
             fi
