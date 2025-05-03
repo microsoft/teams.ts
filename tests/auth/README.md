@@ -6,6 +6,8 @@ Run this first to get all the config files:
 teams config add ttk.oauth
 ```
 
+Then run via TTK.
+
 ## Teams Toolkit Configuration: Oauth
 
 Use this if you want to enable user authentication in your Teams application.
