@@ -1,7 +1,7 @@
 import { MessageActivity } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
-import { DevtoolsPlugin } from '@microsoft/teams.dev';
 import { Card, CodeBlock } from '@microsoft/teams.cards';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 const app = new App({
   plugins: [new DevtoolsPlugin()],
@@ -16,8 +16,8 @@ app.on('message', async ({ log, signin, isSignedIn }) => {
   log.info('user already signed in!');
 });
 
-app.event('signin', async ({ send, api }) => {
-  const me = await api.user.me.get();
+app.event('signin', async ({ send, userGraph }) => {
+  const me = await userGraph.me.get();
 
   await send(
     new MessageActivity(`hello ${me.displayName} 👋!`).addCard(
