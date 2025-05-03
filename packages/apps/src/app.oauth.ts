@@ -100,3 +100,5 @@ export async function onVerifyState<TPlugin extends IPlugin>(
     return { status: 412 };
   }
 }
+export type OnTokenExchange<TPlugin extends IPlugin> = typeof onTokenExchange<TPlugin>;
+export type OnVerifyState<TPlugin extends IPlugin> = typeof onVerifyState<TPlugin>;

@@ -25,10 +25,9 @@ import {
   onActivity,
   onActivityResponse,
   onActivitySent,
-  onError,
-  PluginEvents,
+  onError
 } from './app.events';
-import { onTokenExchange, onVerifyState } from './app.oauth';
+import { OnTokenExchange, onTokenExchange, OnVerifyState, onVerifyState } from './app.oauth';
 import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
 import { $process } from './app.process';
 import { message, on, use } from './app.routing';
@@ -43,7 +42,7 @@ import { IPlugin } from './types';
 /**
  * App initialization options
  */
-export type AppOptions = Partial<Credentials> & {
+export type AppOptions<TPlugin extends IPlugin> = Partial<Credentials> & {
   /**
    * http client or client options used to make api requests
    */
@@ -62,7 +61,7 @@ export type AppOptions = Partial<Credentials> & {
   /**
    * plugins to extend the apps functionality
    */
-  readonly plugins?: Array<IPlugin>;
+  readonly plugins?: Array<TPlugin>;
 
   /**
    * OAuth Settings
@@ -174,13 +173,13 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected plugins: Array<TPlugin> = [];
   protected router = new Router();
   protected tenantTokens = new LocalStorage<string>({}, { max: 20000 });
-  protected events = new EventEmitter<AppEvents<TPlugin, PluginEvents<TPlugin>>>();
+  protected events = new EventEmitter<AppEvents<TPlugin>>();
   protected startedAt?: Date;
   protected port?: number;
 
   private readonly _userAgent = `teams[apps]/${pkg.version}`;
 
-  constructor(readonly options: AppOptions = {}) {
+  constructor(readonly options: AppOptions<TPlugin> = {}) {
     this.log = this.options.logger || new ConsoleLogger('@teams/app');
     this.storage = this.options.storage || new LocalStorage();
     this._manifest = this.options.manifest || {};
@@ -251,7 +250,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     }
 
     // add/validate plugins
-    const plugins = this.options.plugins || [];
+    const plugins: Array<TPlugin> = this.options.plugins || [];
     let httpPlugin = plugins.find((p) => {
       const meta = getMetadata(p);
       return meta.name === 'http';
@@ -259,7 +258,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     if (!httpPlugin) {
       httpPlugin = new HttpPlugin();
-      plugins.unshift(httpPlugin);
+      plugins.unshift(httpPlugin as any);
     }
 
     this.http = httpPlugin;
@@ -447,8 +446,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /// OAuth
   ///
 
-  protected onTokenExchange = onTokenExchange; // eslint-disable-line @typescript-eslint/member-ordering
-  protected onVerifyState = onVerifyState; // eslint-disable-line @typescript-eslint/member-ordering
+  protected onTokenExchange: OnTokenExchange<TPlugin> = onTokenExchange; // eslint-disable-line @typescript-eslint/member-ordering
+  protected onVerifyState: OnVerifyState<TPlugin> = onVerifyState; // eslint-disable-line @typescript-eslint/member-ordering
 
   ///
   /// Events

@@ -10,15 +10,19 @@ import {
 } from './events';
 import { IPlugin, IPluginWithEvents, ISender } from './types';
 
+// type PluginEvents<TPlugin extends IPlugin, TPluginEvents extends PluginEvents<TPlugin>> = {
+
+// }
+
 /**
  * Combines Plugin events with default events
  * Prioritizes default IEvents
  */
-export type AppEvents<TPlugin extends IPlugin, TPluginEvents extends PluginEvents<TPlugin>> = {
-  [key in keyof IEvents | keyof TPluginEvents]: key extends keyof IEvents
+export type AppEvents<TPlugin extends IPlugin> = {
+  [key in keyof IEvents | keyof PluginEvents<TPlugin>]: key extends keyof IEvents
   ? IEvents[key]
-  : key extends keyof TPluginEvents
-  ? TPluginEvents[key]
+  : key extends keyof PluginEvents<TPlugin>
+  ? PluginEvents<TPlugin>[key]
   : never;
 };
 
@@ -29,11 +33,11 @@ export type AppEvents<TPlugin extends IPlugin, TPluginEvents extends PluginEvent
  */
 export function event<
   TPlugin extends IPlugin,
-  Name extends keyof AppEvents<TPlugin, PluginEvents<TPlugin>>,
+  Name extends keyof AppEvents<TPlugin>,
 >(
   this: App<TPlugin>,
   name: Name,
-  cb: EventHandler<AppEvents<TPlugin, PluginEvents<TPlugin>>[Name]>
+  cb: EventHandler<AppEvents<TPlugin>[Name]>
 ) {
   this.events.on(name, cb);
   return this;
@@ -42,8 +46,9 @@ export function event<
 export type PluginEvents<TPlugin extends IPlugin> =
   TPlugin extends IPluginWithEvents<infer TEvents> ? TEvents : {};
 
-type PluginConstructor = { new(...args: any[]): IPlugin & PluginEvents<any> };
-type PluginInstance = IPlugin & PluginEvents<any>;
+export type PluginConstructor = { new(...args: any[]): IPlugin & PluginEvents<any> };
+export type PluginInstance = InstanceType<PluginConstructor>;
+// type PluginInstance = IPlugin & PluginEvents<any>;
 
 export async function onError<TPlugin extends IPlugin>(this: App<TPlugin>, event: IErrorEvent) {
   for (const plugin of this.plugins) {

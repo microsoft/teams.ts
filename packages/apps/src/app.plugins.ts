@@ -74,7 +74,7 @@ export function inject<TPlugin extends IPlugin>(this: App<TPlugin>, plugin: IPlu
 
   // inject event handlers
   for (const { key, name } of events) {
-    let handler = (..._: any[]) => {};
+    let handler = (..._: any[]) => { };
 
     if (name === 'error') {
       handler = (event: IPluginErrorEvent) => {
@@ -86,7 +86,7 @@ export function inject<TPlugin extends IPlugin>(this: App<TPlugin>, plugin: IPlu
       };
     } else if (name === 'custom') {
       handler = (name: string, event: unknown) => {
-        this.pluginEvents.emit(name, event);
+        this.events.emit(name as any, event);
       };
     }
 
