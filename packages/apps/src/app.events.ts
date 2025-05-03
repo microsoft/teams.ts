@@ -10,19 +10,24 @@ import {
 } from './events';
 import { IPlugin, IPluginWithEvents, ISender } from './types';
 
-// type PluginEvents<TPlugin extends IPlugin, TPluginEvents extends PluginEvents<TPlugin>> = {
+type UnionToIntersection<U> =
+  (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
 
-// }
+type PluginEvents<T> =
+  T extends IPluginWithEvents<infer Events> ? Events : {};
 
-/**
- * Combines Plugin events with default events
- * Prioritizes default IEvents
- */
-export type AppEvents<TPlugin extends IPlugin> = {
-  [key in keyof IEvents | keyof PluginEvents<TPlugin>]: key extends keyof IEvents
-  ? IEvents[key]
-  : key extends keyof PluginEvents<TPlugin>
-  ? PluginEvents<TPlugin>[key]
+type MergePluginEventMaps<TPlugins> =
+  UnionToIntersection<
+    TPlugins extends readonly unknown[] ? PluginEvents<TPlugins[number]> : PluginEvents<TPlugins>
+  >;
+
+// Prioritizes the keys of IEvents, and merges all the Events for the Plugins
+export type AppEvents<TPlugins> = {
+  [K in keyof IEvents | keyof MergePluginEventMaps<TPlugins>]:
+  K extends keyof IEvents
+  ? IEvents[K]
+  : K extends keyof MergePluginEventMaps<TPlugins>
+  ? MergePluginEventMaps<TPlugins>[K]
   : never;
 };
 
@@ -42,9 +47,6 @@ export function event<
   this.events.on(name, cb);
   return this;
 }
-
-export type PluginEvents<TPlugin extends IPlugin> =
-  TPlugin extends IPluginWithEvents<infer TEvents> ? TEvents : {};
 
 export type PluginConstructor = { new(...args: any[]): IPlugin & PluginEvents<any> };
 export type PluginInstance = InstanceType<PluginConstructor>;
