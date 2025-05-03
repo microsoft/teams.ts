@@ -21,19 +21,11 @@ jobs:
             tests/**
 
       - name: Check PR description
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
         id: pr
         run: |
-          if [[ "${{ github.event.pull_request.body }}" == *"skip-test-verification"* ]]; then
-            echo "skip=true" >> $GITHUB_OUTPUT
-          else
-            echo "skip=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Skip check
-        if: steps.pr.outputs.skip == 'true'
-        run: |
-          echo "Skipping template sync verification as 'skip-test-verification' was found in PR description"
-          exit 0
+          echo "skip=$([[ "$PR_BODY" == *"skip-test-verification"* ]] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
 
       - name: Verify template sync
         if: steps.pr.outputs.skip != 'true'
