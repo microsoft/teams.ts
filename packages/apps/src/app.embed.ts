@@ -4,6 +4,7 @@ import { App } from './app';
 import { IFunctionContext } from './contexts';
 import * as manifest from './manifest';
 import { ClientAuthRequest, withClientAuth } from './middleware';
+import { IPlugin } from './types';
 
 /**
  * add/update a function that can be called remotely
@@ -50,8 +51,8 @@ export function func<TData>(
  * @param name A unique identifier for the entity which the tab displays.
  * @param path The path to the web `dist` folder.
  */
-export function tab(
-  this: App,
+export function tab<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
   name: string,
   path: string,
   options?: Partial<Omit<manifest.StaticTab, 'contentUrl' | 'entityId'>>
