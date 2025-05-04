@@ -1,6 +1,7 @@
 import { ILogger } from '@microsoft/teams.common';
 
 import { App } from './app';
+import { IEvents } from './events';
 import { IPlugin, IPluginActivityEvent, IPluginErrorEvent, ISender, PluginName } from './types';
 import {
   DependencyMetadata,
@@ -38,6 +39,12 @@ export function getPlugin<TPlugin extends IPlugin>(
     return metadata.name === name;
   });
 }
+
+type TupleUnion<U extends string, R extends any[] = []> = {
+  [S in U]: Exclude<U, S> extends never ? [...R, S] : TupleUnion<Exclude<U, S>, [...R, S]>;
+}[U];
+
+const allIEventKeys: TupleUnion<keyof IEvents> = ['activity', 'error', 'start', 'signin', 'activity.response', 'activity.sent'];
 
 /**
  * inject fields/events into a plugin
@@ -86,6 +93,9 @@ export function inject<TPlugin extends IPlugin>(this: App<TPlugin>, plugin: IPlu
       };
     } else if (name === 'custom') {
       handler = (name: string, event: unknown) => {
+        if (allIEventKeys.includes(name as keyof IEvents)) {
+          throw new Error(`event "${name}" is reserved by app-events but a custom event is trying to use it`);
+        }
         this.events.emit(name as any, event);
       };
     }
