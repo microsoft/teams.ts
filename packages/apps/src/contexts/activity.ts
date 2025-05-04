@@ -14,12 +14,12 @@ import {
   TokenExchangeState,
   TokenPostResource,
   TypingActivity,
-} from '@microsoft/teams.api';
-import { ILogger } from '@microsoft/teams.common/logging';
-import { IStorage } from '@microsoft/teams.common/storage';
+} from "@microsoft/teams.api";
+import { ILogger } from "@microsoft/teams.common/logging";
+import { IStorage } from "@microsoft/teams.common/storage";
 
-import { ApiClient, GraphClient } from '../api';
-import { ISender, IStreamer } from '../types';
+import { ApiClient, GraphClient } from "../api";
+import { ISender, IStreamer } from "../types";
 
 export interface IActivityContextOptions<T extends Activity = Activity> {
   /**
@@ -83,7 +83,9 @@ export interface IActivityContextOptions<T extends Activity = Activity> {
   /**
    * call the next event/middleware handler
    */
-  next: (context?: IActivityContext) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
+  next: (
+    context?: IActivityContext
+  ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 }
 
 type SignInOptions = {
@@ -142,11 +144,12 @@ export interface IActivityContext<T extends Activity = Activity>
 }
 
 export const DEFAULT_SIGNIN_OPTIONS: SignInOptions = {
-  oauthCardText: 'Please Sign In...',
-  signInButtonText: 'Sign In',
+  oauthCardText: "Please Sign In...",
+  signInButtonText: "Sign In",
 };
 
-export class ActivityContext<T extends Activity = Activity> implements IActivityContext<T> {
+export class ActivityContext<T extends Activity = Activity>
+  implements IActivityContext<T> {
   appId!: string;
   activity!: T;
   ref!: ConversationReference;
@@ -158,7 +161,9 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
   stream: IStreamer;
   isSignedIn?: boolean;
   connectionName: string;
-  next!: (context?: IActivityContext) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
+  next!: (
+    context?: IActivityContext
+  ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
   [key: string]: any;
 
   protected _plugin: ISender;
@@ -172,19 +177,19 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
     this.stream = plugin.createStream(value.ref);
     this.connectionName = value.connectionName;
 
-    if (value.activity.type === 'message') {
+    if (value.activity.type === "message") {
       value.activity = MessageActivity.from(value.activity).toInterface();
     }
 
-    if (value.activity.type === 'messageUpdate') {
+    if (value.activity.type === "messageUpdate") {
       value.activity = MessageUpdateActivity.from(value.activity).toInterface();
     }
 
-    if (value.activity.type === 'messageDelete') {
+    if (value.activity.type === "messageDelete") {
       value.activity = MessageDeleteActivity.from(value.activity).toInterface();
     }
 
-    if (value.activity.type === 'typing') {
+    if (value.activity.type === "typing") {
       value.activity = TypingActivity.from(value.activity).toInterface();
     }
   }
@@ -196,6 +201,12 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
   async reply(activity: ActivityLike) {
     activity = toActivityParams(activity);
     activity.replyToId = this.activity.id;
+    if (activity.type === 'message' && activity.text) {
+      const blockQuote = this.buildBlockQuoteForActivity();
+      if (blockQuote) {
+        activity.text = `${blockQuote}\r\n${activity.text}`;
+      }
+    }
     return this.send(activity);
   }
 
@@ -236,11 +247,13 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
         members: [this.activity.from],
       });
 
-      await this.send({ type: 'message', text: oauthCardText });
+      await this.send({ type: "message", text: oauthCardText });
       convo.conversation = { id: res.id } as ConversationAccount;
     }
 
-    const state = Buffer.from(JSON.stringify(tokenExchangeState)).toString('base64');
+    const state = Buffer.from(JSON.stringify(tokenExchangeState)).toString(
+      "base64"
+    );
     const resource = await this.api.bots.signIn.getResource({ state });
 
     await this.send(
@@ -249,18 +262,18 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
         resource.tokenPostResource,
         resource.signInLink
       ) ?? {
-        type: 'message',
-        inputHint: 'acceptingInput',
+        type: "message",
+        inputHint: "acceptingInput",
         recipient: this.activity.from,
         attachments: [
-          cardAttachment('oauth', {
+          cardAttachment("oauth", {
             text: oauthCardText,
             connectionName: this.connectionName,
             tokenExchangeResource: resource.tokenExchangeResource,
             tokenPostResource: resource.tokenPostResource,
             buttons: [
               {
-                type: 'signin',
+                type: "signin",
                 title: signInButtonText,
                 value: resource.signInLink,
               },
@@ -277,6 +290,25 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
       userId: this.activity.from.id,
       connectionName: this.connectionName,
     });
+  }
+
+  private buildBlockQuoteForActivity(): string | null {
+    if (this.activity.type === "message" && this.activity.text) {
+      const maxLength = 120;
+      const truncatedText =
+        this.activity.text.length > maxLength
+          ? `${this.activity.text.substring(0, maxLength)}...`
+          : this.activity.text;
+
+      return `<blockquote itemscope="" itemtype="http://schema.skype.com/Reply" itemid="${this.activity.id}">
+<strong itemprop="mri" itemid="${this.activity.from.id}">${this.activity.from.name}</strong><span itemprop="time" itemid="${this.activity.id}"></span>
+<p itemprop="preview">${truncatedText}</p>
+</blockquote>`;
+    } else {
+      this.log.debug('Skipping building blockquote for activity type:', this.activity.type);
+    }
+
+    return null;
   }
 
   toInterface(): IActivityContext {
