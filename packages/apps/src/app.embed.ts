@@ -11,8 +11,8 @@ import { IPlugin } from './types';
  * @param name The unique function name
  * @param cb The callback to handle the function
  */
-export function func<TData>(
-  this: App,
+export function func<TPlugin extends IPlugin, TData>(
+  this: App<TPlugin>,
   name: string,
   cb: (context: IFunctionContext<TData>) => any | Promise<any>
 ) {
@@ -88,8 +88,8 @@ export function tab<TPlugin extends IPlugin>(
  * @remark scopes defaults to `team`
  * @param url The url to use when configuring the tab.
  */
-export function configTab(
-  this: App,
+export function configTab<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
   url: string,
   options?: Partial<Omit<manifest.ConfigurableTab, 'configurationUrl'>>
 ) {
