@@ -14,12 +14,12 @@ import {
   TokenExchangeState,
   TokenPostResource,
   TypingActivity,
-} from "@microsoft/teams.api";
-import { ILogger } from "@microsoft/teams.common/logging";
-import { IStorage } from "@microsoft/teams.common/storage";
+} from '@microsoft/teams.api';
+import { ILogger } from '@microsoft/teams.common/logging';
+import { IStorage } from '@microsoft/teams.common/storage';
 
-import { ApiClient, GraphClient } from "../api";
-import { ISender, IStreamer } from "../types";
+import { ApiClient, GraphClient } from '../api';
+import { ISender, IStreamer } from '../types';
 
 export interface IActivityContextOptions<T extends Activity = Activity> {
   /**
@@ -144,8 +144,8 @@ export interface IActivityContext<T extends Activity = Activity>
 }
 
 export const DEFAULT_SIGNIN_OPTIONS: SignInOptions = {
-  oauthCardText: "Please Sign In...",
-  signInButtonText: "Sign In",
+  oauthCardText: 'Please Sign In...',
+  signInButtonText: 'Sign In',
 };
 
 export class ActivityContext<T extends Activity = Activity>
@@ -177,19 +177,19 @@ export class ActivityContext<T extends Activity = Activity>
     this.stream = plugin.createStream(value.ref);
     this.connectionName = value.connectionName;
 
-    if (value.activity.type === "message") {
+    if (value.activity.type === 'message') {
       value.activity = MessageActivity.from(value.activity).toInterface();
     }
 
-    if (value.activity.type === "messageUpdate") {
+    if (value.activity.type === 'messageUpdate') {
       value.activity = MessageUpdateActivity.from(value.activity).toInterface();
     }
 
-    if (value.activity.type === "messageDelete") {
+    if (value.activity.type === 'messageDelete') {
       value.activity = MessageDeleteActivity.from(value.activity).toInterface();
     }
 
-    if (value.activity.type === "typing") {
+    if (value.activity.type === 'typing') {
       value.activity = TypingActivity.from(value.activity).toInterface();
     }
   }
@@ -247,12 +247,12 @@ export class ActivityContext<T extends Activity = Activity>
         members: [this.activity.from],
       });
 
-      await this.send({ type: "message", text: oauthCardText });
+      await this.send({ type: 'message', text: oauthCardText });
       convo.conversation = { id: res.id } as ConversationAccount;
     }
 
     const state = Buffer.from(JSON.stringify(tokenExchangeState)).toString(
-      "base64"
+      'base64'
     );
     const resource = await this.api.bots.signIn.getResource({ state });
 
@@ -262,18 +262,18 @@ export class ActivityContext<T extends Activity = Activity>
         resource.tokenPostResource,
         resource.signInLink
       ) ?? {
-        type: "message",
-        inputHint: "acceptingInput",
+        type: 'message',
+        inputHint: 'acceptingInput',
         recipient: this.activity.from,
         attachments: [
-          cardAttachment("oauth", {
+          cardAttachment('oauth', {
             text: oauthCardText,
             connectionName: this.connectionName,
             tokenExchangeResource: resource.tokenExchangeResource,
             tokenPostResource: resource.tokenPostResource,
             buttons: [
               {
-                type: "signin",
+                type: 'signin',
                 title: signInButtonText,
                 value: resource.signInLink,
               },
@@ -293,7 +293,7 @@ export class ActivityContext<T extends Activity = Activity>
   }
 
   private buildBlockQuoteForActivity(): string | null {
-    if (this.activity.type === "message" && this.activity.text) {
+    if (this.activity.type === 'message' && this.activity.text) {
       const maxLength = 120;
       const truncatedText =
         this.activity.text.length > maxLength
@@ -311,6 +311,7 @@ export class ActivityContext<T extends Activity = Activity>
     return null;
   }
 
+  // eslint-disable-next-line @typescript-eslint/member-ordering
   toInterface(): IActivityContext {
     return {
       activity: this.activity,
