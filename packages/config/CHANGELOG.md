@@ -1,5 +1,11 @@
 # @microsoft/teams.config
 
+## 0.2.14
+
+### Patch Changes
+
+- fix cli bug and add mcp client customizations like headers and logging
+
 ## 0.2.13
 
 ### Patch Changes

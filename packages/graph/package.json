@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.graph",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

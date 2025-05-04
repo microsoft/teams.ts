@@ -156,8 +156,7 @@ export type ChatPromptPlugin<TPluginName extends string, TPluginUseArgs extends 
 export class ChatPrompt<
   TOptions extends Record<string, any> = Record<string, any>,
   TChatPromptPlugins extends readonly ChatPromptPlugin<string, any>[] = [],
-> implements IChatPrompt<TOptions, TChatPromptPlugins>
-{
+> implements IChatPrompt<TOptions, TChatPromptPlugins> {
   get name() {
     return this._name;
   }
