@@ -5,7 +5,7 @@ import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import { App } from './app';
 import { IErrorEvent } from './events';
 import { HttpPlugin } from './plugins';
-import { IBasePlugin, IPlugin, IPluginStartEvent } from './types';
+import { IPlugin, IPluginStartEvent } from './types';
 import { Event, Plugin } from './types/plugin/decorators';
 
 interface ITestEvents {
@@ -121,7 +121,7 @@ describe('app.plugin', () => {
             version: '0.0.1',
             description: 'test-plugin',
         })
-        class LifecyclePlugin implements IBasePlugin {
+        class LifecyclePlugin implements IPlugin {
 
             onInit(): void {
                 lifecycleOrder.push('onInit');
@@ -153,7 +153,7 @@ describe('app.plugin', () => {
             version: '0.0.1',
             description: 'test-plugin',
         })
-        class ErrorPlugin implements IBasePlugin {
+        class ErrorPlugin implements IPlugin {
             onStart(_event: IPluginStartEvent): void {
                 throw new Error('test error');
             }
