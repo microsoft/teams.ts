@@ -2,8 +2,9 @@
 
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import { App } from './app';
+import { IErrorEvent } from './events';
 import { HttpPlugin } from './plugins';
-import { IPlugin, IPluginStartEvent } from './types';
+import { IBasePlugin, IPlugin, IPluginStartEvent } from './types';
 import { Event, Plugin } from './types/plugin/decorators';
 
 interface TestEvents {
@@ -60,5 +61,114 @@ describe('app.plugin', () => {
 
         testPlugin.testEmit();
         expect(receivedEvent).toEqual({ message: 'hello' });
+    });
+
+    it('should throw error when registering duplicate plugin names', () => {
+        const plugin1 = new TestPlugin();
+        const plugin2 = new TestPlugin();
+        const app = new App({
+            logger: new ConsoleLogger('test', { level: 'debug' }),
+            plugins: [plugin1]
+        });
+
+        expect(() => {
+            app.plugin(plugin2);
+        }).toThrow('duplicate plugin "testPlugin" found');
+    });
+
+    it('should prevent plugins from using reserved event names', async () => {
+        @Plugin({
+            name: 'reservedPlugin',
+            version: '0.0.1',
+            description: 'test-plugin',
+        })
+        class ReservedEventPlugin implements IPlugin<{ 'activity': { foo: string } }> {
+            __eventType!: { 'activity': { foo: string } };
+
+            @Event('custom')
+            emit!: <Name extends 'activity'>(name: Name, arg: { foo: string }) => void;
+
+            onStart(_event: IPluginStartEvent): void | Promise<void> {
+                // No-op for tests
+            }
+
+            testEmit() {
+                this.emit('activity', { foo: 'bar' });
+            }
+        }
+
+        const app = new App({
+            logger: new ConsoleLogger('test', { level: 'debug' }),
+            plugins: [new ReservedEventPlugin()]
+        });
+
+        await app.start();
+        const plugin = app.getPlugin('reservedPlugin') as ReservedEventPlugin;
+
+        expect(() => {
+            plugin.testEmit();
+        }).toThrow('event "activity" is reserved by app-events');
+    });
+
+    it('should call plugin lifecycle methods in correct order', async () => {
+        const lifecycleOrder: string[] = [];
+
+        @Plugin({
+            name: 'lifecyclePlugin',
+            version: '0.0.1',
+            description: 'test-plugin',
+        })
+        class LifecyclePlugin implements IBasePlugin {
+
+            onInit(): void {
+                lifecycleOrder.push('onInit');
+            }
+
+            onStart(_event: IPluginStartEvent): void {
+                lifecycleOrder.push('onStart');
+            }
+
+            onStop(): void {
+                lifecycleOrder.push('onStop');
+            }
+        }
+
+        const app = new App({
+            logger: new ConsoleLogger('test', { level: 'debug' }),
+            plugins: [new LifecyclePlugin(), new TestHttpPlugin()]
+        });
+
+        await app.start();
+        await app.stop();
+
+        expect(lifecycleOrder).toEqual(['onInit', 'onStart', 'onStop']);
+    });
+
+    it('should propagate plugin errors to app error handler', async () => {
+        @Plugin({
+            name: 'errorPlugin',
+            version: '0.0.1',
+            description: 'test-plugin',
+        })
+        class ErrorPlugin implements IBasePlugin {
+            onStart(_event: IPluginStartEvent): void {
+                throw new Error('test error');
+            }
+        }
+
+        const app = new App({
+            logger: new ConsoleLogger('test', { level: 'debug' }),
+            plugins: [new ErrorPlugin(), new TestHttpPlugin()]
+        });
+
+        let errorReceived = null as Error | null;
+        app.event('error', (event: IErrorEvent) => {
+            errorReceived = event.error;
+        });
+
+        await app.start();
+
+        expect(errorReceived).toBeDefined();
+        expect(errorReceived?.message).toBe('test error');
     });
 });
