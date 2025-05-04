@@ -134,12 +134,12 @@ export class McpPlugin implements IPlugin {
       options instanceof McpServer
         ? options
         : new McpServer(
-            {
-              name: options.name || 'mcp',
-              version: options.version || '0.0.0',
-            },
-            options,
-          );
+          {
+            name: options.name || 'mcp',
+            version: options.version || '0.0.0',
+          },
+          options,
+        );
 
     if (!(options instanceof McpServer) && options.transport) {
       this.transport = options.transport;

@@ -4,15 +4,15 @@ import { ILogger } from '@microsoft/teams.common/logging';
 
 /**
  * Gets a silent request used to acquire an Entra access token for invoking remote functions on behalf of a user.
- * @param remoteClientId The client ID of the remote application.
+ * @param resource The resource to use, e.g 'api://<clientId>'.
  * @param permission The permission to request. Defaults to 'access_as_user'.
  * @returns
  */
 export const getStandardExecSilentRequest = (
-  remoteClientId: string,
+  resource: string,
   permission = 'access_as_user'
 ): msal.SilentRequest => ({
-  scopes: [`api://${remoteClientId}/${permission}`],
+  scopes: [`${resource}/${permission}`],
 });
 
 /**
