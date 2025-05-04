@@ -24,8 +24,8 @@ export function on<TPlugin extends IPlugin, Name extends keyof IRoutes>(
  * @param pattern pattern to match against message text
  * @param cb callback to invoke
  */
-export function message(
-  this: App,
+export function message<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
   pattern: string | RegExp,
   cb: Exclude<IRoutes['message'], undefined>
 ) {
