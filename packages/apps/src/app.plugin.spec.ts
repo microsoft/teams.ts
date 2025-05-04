@@ -1,13 +1,14 @@
 
 
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
+
 import { App } from './app';
 import { IErrorEvent } from './events';
 import { HttpPlugin } from './plugins';
 import { IBasePlugin, IPlugin, IPluginStartEvent } from './types';
 import { Event, Plugin } from './types/plugin/decorators';
 
-interface TestEvents {
+interface ITestEvents {
     test: {
         message: string;
     }
@@ -28,11 +29,12 @@ class TestHttpPlugin extends HttpPlugin {
     version: '0.0.1',
     description: 'test-plugin',
 })
-class TestPlugin implements IPlugin<TestEvents> {
-    __eventType!: TestEvents;
+class TestPlugin implements IPlugin<ITestEvents> {
 
     @Event('custom')
-    emit!: <Name extends keyof TestEvents>(name: Name, arg: TestEvents[Name]) => void;
+    emit!: <Name extends keyof ITestEvents>(name: Name, arg: ITestEvents[Name]) => void;
+
+    __eventType!: ITestEvents;
 
     testEmit() {
         this.emit('test', { message: 'hello' });
@@ -46,7 +48,7 @@ class TestPlugin implements IPlugin<TestEvents> {
 describe('app.plugin', () => {
     it('plugins should be able to emit events that reach the app', async () => {
         // Create an App with our test plugin
-        const testPlugin = new TestPlugin()
+        const testPlugin = new TestPlugin();
         const app = new App({
             logger: new ConsoleLogger('test', { level: 'debug' }),
             plugins: [testPlugin, new TestHttpPlugin()]
@@ -83,10 +85,11 @@ describe('app.plugin', () => {
             description: 'test-plugin',
         })
         class ReservedEventPlugin implements IPlugin<{ 'activity': { foo: string } }> {
-            __eventType!: { 'activity': { foo: string } };
 
             @Event('custom')
             emit!: <Name extends 'activity'>(name: Name, arg: { foo: string }) => void;
+
+            __eventType!: { 'activity': { foo: string } };
 
             onStart(_event: IPluginStartEvent): void | Promise<void> {
                 // No-op for tests
