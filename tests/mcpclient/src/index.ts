@@ -1,15 +1,16 @@
 import { ChatPrompt } from "@microsoft/teams.ai";
 import { App } from "@microsoft/teams.apps";
+import { ConsoleLogger } from '@microsoft/teams.common';
 import { DevtoolsPlugin } from "@microsoft/teams.dev";
 import { McpClientPlugin } from "@microsoft/teams.mcpclient";
 import { OpenAIChatModel } from "@microsoft/teams.openai";
-import { ConsoleLogger } from '../../../packages/common/dist/logging/console';
-
-const app = new App({
-  plugins: [new DevtoolsPlugin()],
-});
 
 const logger = new ConsoleLogger('mcp-client', { level: 'debug' });
+const app = new App({
+  plugins: [new DevtoolsPlugin()],
+  logger
+});
+
 
 // :snippet-start: mcp-client-prompt-config
 const prompt = new ChatPrompt(
