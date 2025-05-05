@@ -2,6 +2,8 @@ import { Client, ClientOptions } from '@modelcontextprotocol/sdk/client/index.js
 
 import { ChatPromptPlugin, Function, Schema } from '@microsoft/teams.ai';
 
+import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
+
 import {
   CreateTransport,
   McpClientPluginCachedParams,
@@ -38,6 +40,11 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
   }
   protected _cache: Record<string, McpClientPluginCachedParams & { lastAttemptedFetch?: number }>;
 
+  get log() {
+    return this._log;
+  }
+  protected readonly _log: ILogger;
+
   get refetchTimeoutMs() {
     return this._refetchTimeoutMs;
   }
@@ -53,6 +60,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
       version,
       cache,
       createTransport,
+      logger,
       refetchTimeoutMs,
       ...clientOptions
     } = options || {};
@@ -71,6 +79,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     }
     this._clientOptions = clientOptions;
     this.createTransport = createTransport ?? null;
+    this._log = logger?.child(this._name) || new ConsoleLogger(this._name);
     this._refetchTimeoutMs = refetchTimeoutMs || 24 * 60 * 60 * 1000; // 1 day
   }
 
@@ -163,6 +172,11 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
           lastAttemptedFetch: tools === 'unavailable' ? undefined : Date.now(),
           availableTools: tools === 'unavailable' ? undefined : tools,
         };
+        if (tools === 'unavailable') {
+          this.log.warn(`Tools unavailable for URL: ${url}`);
+        } else {
+          this.log.debug(`Cached ${tools.length} tools for URL: ${url}`);
+        }
       }
     }
   }
@@ -189,16 +203,18 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     try {
       await client.connect(transport);
       const listToolsResult = await client.listTools();
+      this.log.debug(`Successfully discovered ${listToolsResult.tools.length} tools from ${url}`);
+      this.log.debug('Tools discovered:', JSON.stringify(listToolsResult.tools, null, 2));
       return listToolsResult.tools.map((tool) => ({
         name: tool.name,
         description: tool.description ?? '',
         schema: tool.inputSchema as Schema,
       }));
     } catch (e) {
+      this.log.error(`Error fetching tools from ${url}:`, e);
       if (skipIfUnavailable || skipIfUnavailable == null) {
         return 'unavailable';
       }
-      console.error(e);
       throw e;
     } finally {
       await client.close();

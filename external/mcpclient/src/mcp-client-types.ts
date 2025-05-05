@@ -2,6 +2,7 @@ import { ClientOptions } from '@modelcontextprotocol/sdk/client/index.js';
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 
 import type { Schema } from '@microsoft/teams.ai';
+import { ILogger } from '@microsoft/teams.common';
 
 export type McpClientToolDetails = {
   name: string;
@@ -70,6 +71,12 @@ export type McpClientPluginOptions = ClientOptions & {
    * @default (url) => new SSEClientTransport(url)
    */
   createTransport?: CreateTransport;
+
+  /**
+   * Logger instance to use for logging
+   * If not provided, a ConsoleLogger will be used
+   */
+  logger?: ILogger;
 
   /**
    * Number of milliseconds to wait before refetching the available tools
