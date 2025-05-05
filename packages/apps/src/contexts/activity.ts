@@ -292,26 +292,6 @@ export class ActivityContext<T extends Activity = Activity>
     });
   }
 
-  private buildBlockQuoteForActivity(): string | null {
-    if (this.activity.type === 'message' && this.activity.text) {
-      const maxLength = 120;
-      const truncatedText =
-        this.activity.text.length > maxLength
-          ? `${this.activity.text.substring(0, maxLength)}...`
-          : this.activity.text;
-
-      return `<blockquote itemscope="" itemtype="http://schema.skype.com/Reply" itemid="${this.activity.id}">
-<strong itemprop="mri" itemid="${this.activity.from.id}">${this.activity.from.name}</strong><span itemprop="time" itemid="${this.activity.id}"></span>
-<p itemprop="preview">${truncatedText}</p>
-</blockquote>`;
-    } else {
-      this.log.debug('Skipping building blockquote for activity type:', this.activity.type);
-    }
-
-    return null;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/member-ordering
   toInterface(): IActivityContext {
     return {
       activity: this.activity,
@@ -331,5 +311,24 @@ export class ActivityContext<T extends Activity = Activity>
       signin: this.signin.bind(this),
       signout: this.signout.bind(this),
     };
+  }
+
+  private buildBlockQuoteForActivity(): string | null {
+    if (this.activity.type === 'message' && this.activity.text) {
+      const maxLength = 120;
+      const truncatedText =
+        this.activity.text.length > maxLength
+          ? `${this.activity.text.substring(0, maxLength)}...`
+          : this.activity.text;
+
+      return `<blockquote itemscope="" itemtype="http://schema.skype.com/Reply" itemid="${this.activity.id}">
+<strong itemprop="mri" itemid="${this.activity.from.id}">${this.activity.from.name}</strong><span itemprop="time" itemid="${this.activity.id}"></span>
+<p itemprop="preview">${truncatedText}</p>
+</blockquote>`;
+    } else {
+      this.log.debug('Skipping building blockquote for activity type:', this.activity.type);
+    }
+
+    return null;
   }
 }
