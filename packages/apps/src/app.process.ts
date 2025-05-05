@@ -1,6 +1,9 @@
 import { ActivityLike, ConversationReference, isInvokeResponse } from '@microsoft/teams.api';
 
-import { ApiClient } from './api';
+
+
+
+import { ApiClient, GraphClient } from './api';
 import { App } from './app';
 import { ActivityContext, IActivityContext } from './contexts';
 import { IActivityEvent } from './events';
@@ -53,11 +56,12 @@ export async function $process(this: App, sender: ISender, event: IActivityEvent
   }
 
   const client = this.client.clone();
-  const api = new ApiClient(
-    serviceUrl,
-    client.clone({ token: () => this.tokens.bot }),
-    client.clone({ token: () => appToken }),
+  const apiClient = new ApiClient(serviceUrl, this.client.clone({ token: () => this.tokens.bot }));
+  const userGraph = new GraphClient(
     client.clone({ token: () => userToken })
+  );
+  const appGraph = new GraphClient(
+    client.clone({ token: () => appToken })
   );
 
   const ref: ConversationReference = {
@@ -108,7 +112,9 @@ export async function $process(this: App, sender: ISender, event: IActivityEvent
   const context = new ActivityContext(sender, {
     ...event,
     next,
-    api,
+    api: apiClient,
+    userGraph,
+    appGraph,
     appId: this.id || '',
     log: this.log,
     tokens: this.tokens,

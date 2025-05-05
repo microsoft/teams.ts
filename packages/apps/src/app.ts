@@ -16,7 +16,8 @@ import { IStorage, LocalStorage } from '@microsoft/teams.common/storage';
 
 import pkg from '../package.json';
 
-import { AppClient } from './api';
+
+import { ApiClient, GraphClient } from './api';
 import { configTab, func, tab } from './app.embed';
 import { event, onActivity, onActivityResponse, onActivitySent, onError } from './app.events';
 import { onTokenExchange, onVerifyState } from './app.oauth';
@@ -98,7 +99,8 @@ export type AppTokens = {
  * The orchestrator for receiving/sending activities
  */
 export class App {
-  readonly api: AppClient;
+  readonly api: ApiClient;
+  readonly graph: GraphClient;
   readonly log: ILogger;
   readonly http: HttpPlugin;
   readonly client: http.Client;
@@ -170,7 +172,7 @@ export class App {
   protected startedAt?: Date;
   protected port?: number;
 
-  private readonly _userAgent = `teams[apps]/${pkg.version}`;
+  private readonly _userAgent = `teams.ts[apps]/${pkg.version}`;
 
   constructor(readonly options: AppOptions = {}) {
     this.log = this.options.logger || new ConsoleLogger('@teams/app');
@@ -204,10 +206,13 @@ export class App {
       });
     }
 
-    this.api = new AppClient(
+    this.api = new ApiClient(
       'https://smba.trafficmanager.net/teams',
       this.client.clone({ token: () => this._tokens.bot }),
-      this.client.clone({ token: () => this._tokens.graph })
+    );
+
+    this.graph = new GraphClient(
+      this.client.clone({ token: () => this._tokens.graph }),
     );
 
     // initialize credentials

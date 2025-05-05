@@ -32,6 +32,7 @@ export function func<TData>(
         ...req.context,
         log,
         api: this.api,
+        appGraph: this.graph,
         data: req.body,
       });
 

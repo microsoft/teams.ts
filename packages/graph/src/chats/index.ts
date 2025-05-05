@@ -30,7 +30,7 @@ export class ChatsClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `teams[graph]/${pkg.version}`,
+          'User-Agent': `teams.ts[graph]/${pkg.version}`,
         },
       });
     } else if ('request' in options) {
@@ -38,7 +38,7 @@ export class ChatsClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `teams[graph]/${pkg.version}`,
+          'User-Agent': `teams.ts[graph]/${pkg.version}`,
         },
       });
     } else {
@@ -47,7 +47,7 @@ export class ChatsClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `teams[graph]/${pkg.version}`,
+          'User-Agent': `teams.ts[graph]/${pkg.version}`,
           ...options.headers,
         },
       });
