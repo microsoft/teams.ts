@@ -27,6 +27,8 @@ coverage
 out/
 build
 dist
+bin
+obj
 
 
 # Debug

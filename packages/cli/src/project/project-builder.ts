@@ -5,7 +5,7 @@ import { IProjectAttribute } from './project-attribute';
 export class ProjectBuilder {
   private _path?: string;
   private _name?: string;
-  private _language?: ProjectLanguage;
+  private _language: ProjectLanguage = 'typescript';
   private readonly _attributes: Array<IProjectAttribute> = [];
 
   withPath(path: string) {
