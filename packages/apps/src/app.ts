@@ -172,7 +172,7 @@ export class App {
   protected startedAt?: Date;
   protected port?: number;
 
-  private readonly _userAgent = `teams[apps]/${pkg.version}`;
+  private readonly _userAgent = `teams.ts[apps]/${pkg.version}`;
 
   constructor(readonly options: AppOptions = {}) {
     this.log = this.options.logger || new ConsoleLogger('@teams/app');
