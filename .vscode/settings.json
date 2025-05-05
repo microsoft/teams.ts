@@ -1,8 +1,4 @@
 {
   "typescript.preferences.quoteStyle": "single",
-  "css.lint.unknownAtRules": "ignore",
-  "editor.formatOnSave": false,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
-  }
+  "css.lint.unknownAtRules": "ignore"
 }
