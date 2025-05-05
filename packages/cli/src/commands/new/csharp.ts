@@ -18,9 +18,11 @@ type Args = {
 export function CSharp(_: IContext): CommandModule<{}, Args> {
   return {
     command: 'csharp <name>',
-    aliases: ['c#', 'dotnet', '.net'],
+    aliases: ['cs'],
     describe: '⚠️BETA⚠️ create a new csharp app project',
-    builder: (b) => {
+    builder: async (b) => {
+      const changeCase = await import('change-case');
+
       return b
         .positional('name', {
           alias: 'n',
@@ -28,12 +30,10 @@ export function CSharp(_: IContext): CommandModule<{}, Args> {
           describe: 'the apps name',
           demandOption: true,
           coerce: (name: string) => {
-            return name
-              .trim()
-              .toLowerCase()
-              .replace(/\s+/g, '-')
-              .replace(/^[._]/, '')
-              .replace(/[^a-z\d\-~]+/g, '-');
+            return changeCase.pascalCase(
+              name.trim(),
+              { delimiter: '.' }
+            );
           },
         })
         .option('template', {
@@ -60,10 +60,6 @@ export function CSharp(_: IContext): CommandModule<{}, Args> {
         .check(({ name }) => {
           if (fs.existsSync(path.join(process.cwd(), name))) {
             throw new Error(`"${name}" already exists!`);
-          }
-
-          if (!/^(?:@[a-z\d\-*~][a-z\d\-*._~]*\/)?[a-z\d\-~][a-z\d\-._~]*$/.test(name)) {
-            throw new Error(`"${name}" is not a valid package name`);
           }
 
           return true;

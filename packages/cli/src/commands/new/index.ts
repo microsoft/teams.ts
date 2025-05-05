@@ -19,6 +19,6 @@ export function New(context: IContext): CommandModule<{}, {}> {
 
       return args;
     },
-    handler: () => {},
+    handler: () => { },
   };
 }
