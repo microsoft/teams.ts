@@ -19,7 +19,7 @@ export function CSharp(_: IContext): CommandModule<{}, Args> {
   return {
     command: 'csharp <name>',
     aliases: ['c#', 'dotnet', '.net'],
-    describe: '!!BETA!! create a new csharp app project',
+    describe: '⚠️BETA⚠️ create a new csharp app project',
     builder: (b) => {
       return b
         .positional('name', {
