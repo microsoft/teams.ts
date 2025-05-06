@@ -1,5 +1,11 @@
 # @microsoft/teams.cards
 
+## 2.0.0-preview.2
+
+### Patch Changes
+
+- Add MCP client template
+
 ## 2.0.0-preview.1
 
 ### Patch Changes

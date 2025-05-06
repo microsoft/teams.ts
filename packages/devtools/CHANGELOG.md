@@ -1,5 +1,16 @@
 # @microsoft/teams.devtools
 
+## 2.0.0-preview.2
+
+### Patch Changes
+
+- Add MCP client template
+- Updated dependencies
+  - @microsoft/teams.api@2.0.0-preview.2
+  - @microsoft/teams.apps@2.0.0-preview.2
+  - @microsoft/teams.cards@2.0.0-preview.2
+  - @microsoft/teams.common@2.0.0-preview.2
+
 ## 2.0.0-preview.1
 
 ### Patch Changes

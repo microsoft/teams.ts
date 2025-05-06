@@ -1,18 +1,18 @@
-import { ChatPrompt } from "@microsoft/teams.ai";
-import { App } from "@microsoft/teams.apps";
-import { ConsoleLogger } from '@microsoft/teams.common';
-import { DevtoolsPlugin } from "@microsoft/teams.dev";
+import { ChatPrompt } from '@microsoft/teams.ai';
+import { App } from '@microsoft/teams.apps';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
 import { McpClientPlugin } from "@microsoft/teams.mcpclient";
-import { OpenAIChatModel } from "@microsoft/teams.openai";
+import { OpenAIChatModel } from '@microsoft/teams.openai';
+import { ConsoleLogger } from '@microsoft/teams.common';
 
 const logger = new ConsoleLogger('mcp-client', { level: 'debug' });
 const app = new App({
-  plugins: [new DevtoolsPlugin()],
-  logger
+  plugins: [
+    new DevtoolsPlugin(),
+  ],
+  logger,
 });
 
-
-// :snippet-start: mcp-client-prompt-config
 const prompt = new ChatPrompt(
   {
     instructions:
@@ -29,32 +29,26 @@ const prompt = new ChatPrompt(
   // or improve performance
   [new McpClientPlugin({ logger })],
 )
-  // Here we are saying you can use any tool from localhost:3000/mcp
-  // (that is the URL for the server we built using the mcp plugin)
-  .usePlugin("mcpClient", { url: "http://localhost:3000/mcp" })
-  // Alternatively, you can use a different server hosted somewhere else
-  // Here we are using the mcp server hosted on an Azure Function
   .usePlugin("mcpClient", {
-    url: "https://githubmcpnew.azurewebsites.net/runtime/webhooks/mcp/sse",
+    url: "http://my-remote-mcp-server.com/mcp/sse",
+    // Optional parameters to pass in
     params: {
       headers: {
         // If your server requires authentication, you can pass in Bearer or other
         // authentication headers here
-        "x-functions-key": process.env.AZURE_FUNCTION_KEY!,
+        "special-auth-token": 'Bearer 123',
       },
     },
   });
 
-app.on("message", async ({ send, activity }) => {
-  await send({ type: "typing" });
-
+app.on('message', async ({ send, activity }) => {
+  await send({ type: 'typing' });
   const result = await prompt.send(activity.text);
   if (result.content) {
     await send(result.content);
   }
 });
-// :snippet-end:
 
 (async () => {
-  await app.start(+(process.env.PORT || 3002));
+  await app.start();
 })();

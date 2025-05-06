@@ -1,5 +1,15 @@
 # @microsoft/teams.client
 
+## 2.0.0-preview.2
+
+### Patch Changes
+
+- Add MCP client template
+- Updated dependencies
+  - @microsoft/teams.api@2.0.0-preview.2
+  - @microsoft/teams.common@2.0.0-preview.2
+  - @microsoft/teams.graph@2.0.0-preview.2
+
 ## 2.0.0-preview.1
 
 ### Patch Changes
