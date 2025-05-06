@@ -27,6 +27,6 @@ module.exports = {
     // },
   },
   testEnvironment: 'node',
-  silent: false,
+  silent: true,
   verbose: true,
 };

@@ -1,14 +1,14 @@
-import { Card } from '@microsoft/teams.cards';
+import { AdaptiveCard } from '@microsoft/teams.cards';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
 interface CardStore {
-  currentCard: Card | null;
+  currentCard: AdaptiveCard | null;
   editingMessageId: string | null;
   draftMessage: string | null;
   targetComponent: 'compose' | 'edit' | null;
   processedCardIds: Set<string>;
-  setCurrentCard: (card: Card | null, target?: 'compose' | 'edit') => void;
+  setCurrentCard: (card: AdaptiveCard | null, target?: 'compose' | 'edit') => void;
   setDraftMessage: (message?: string) => void;
   setEditingMessageId: (id: string | null) => void;
   clearCurrentCard: () => void;

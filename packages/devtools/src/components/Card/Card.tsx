@@ -1,5 +1,5 @@
 import { FC, memo } from 'react';
-import { Element } from '@microsoft/teams.cards';
+import { CardElement } from '@microsoft/teams.cards';
 
 import ActionSetCard from './Containers/ActionSetCard';
 import ColumnSetCard from './Containers/ColumnSetCard';
@@ -13,7 +13,7 @@ import ImageCard from './Medias/ImageCard';
 import TextBlockCard from './Medias/TextBlockCard';
 
 export interface CardProps {
-  readonly value: Element;
+  readonly value: CardElement;
 }
 
 const Card: FC<CardProps> = memo(({ value }) => {

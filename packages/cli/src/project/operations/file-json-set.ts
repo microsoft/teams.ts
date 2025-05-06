@@ -113,7 +113,11 @@ export class FileJsonSet implements IProjectAttributeOperation {
       if (!parts.length) {
         current[key] = value;
       } else {
-        current = current[key] || {};
+        if (!current[key]) {
+          current[key] = {};
+        }
+
+        current = current[key];
       }
     }
 

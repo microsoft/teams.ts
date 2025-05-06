@@ -15,9 +15,9 @@ const ImageCard: FC<ImageCardProps> = memo(({ value }) => {
       src={value.url}
       draggable={false}
       className={
-        value.size && value.size === 'stretch'
+        value.size && value.size === 'Stretch'
           ? classes.stretch
-          : value.size && value.size !== 'auto'
+          : value.size && value.size !== 'Auto'
             ? classes[`width${value.size}`]
             : 'auto'
       }

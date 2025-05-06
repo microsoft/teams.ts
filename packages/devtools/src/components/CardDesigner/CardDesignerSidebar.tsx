@@ -23,7 +23,7 @@ import {
   CodeBlock,
   ColumnSet,
   Container,
-  Element,
+  CardElement,
   Fact,
   FactSet,
   Icon,
@@ -37,7 +37,7 @@ import {
 import { useCardDesignerSidebarClasses } from './CardDesignerSidebar.styles';
 
 export interface CardDesignerSidebarProps {
-  readonly onSelect?: (el: Element, ts: string) => void;
+  readonly onSelect?: (el: CardElement, ts: string) => void;
 }
 
 interface CardGroup {
@@ -45,7 +45,7 @@ interface CardGroup {
   readonly cards: {
     readonly icon?: FluentIcon;
     readonly label: string;
-    readonly value: Element;
+    readonly value: CardElement;
     readonly typescript: string;
   }[];
 }
@@ -95,13 +95,13 @@ const groups: CardGroup[] = [
           new Image(
             'https://github.com/microsoft/teams.ts/blob/main/assets/icons/teams.png?raw=true',
             {
-              size: 'medium',
+              size: 'Medium',
             }
           ),
           new Image(
             'https://github.com/microsoft/teams.ts/blob/main/assets/icons/teams.png?raw=true',
             {
-              size: 'medium',
+              size: 'Medium',
             }
           )
         ),
@@ -127,11 +127,11 @@ const groups: CardGroup[] = [
         icon: BadgeRegular as FluentIcon,
         label: 'Badge',
         value: new Badge({
-          style: 'attention',
+          style: 'Attention',
           icon: 'Warning',
           text: 'an error badge example...',
-          shape: 'rounded',
-          size: 'extraLarge',
+          shape: 'Rounded',
+          size: 'ExtraLarge',
         }),
         typescript: [
           'Badge({',
@@ -168,7 +168,7 @@ const groups: CardGroup[] = [
         label: 'Image',
         value: new Image(
           'https://github.com/microsoft/teams.ts/blob/main/assets/icons/teams.png?raw=true',
-          { size: 'medium' }
+          { size: 'Medium' }
         ),
         typescript:
           'Image("https://github.com/microsoft/teams.ts/blob/main/assets/icons/teams.png?raw=true", { size: "medium"} )',
@@ -200,7 +200,7 @@ const CardDesignerSidebar: FC<CardDesignerSidebarProps> = memo(({ onSelect }) =>
   const [isClickDisabled, setIsClickDisabled] = useState(false);
 
   const handleCardClick = useCallback(
-    (card: { value: Element; typescript: string }) => {
+    (card: { value: CardElement; typescript: string }) => {
       if (!onSelect || isClickDisabled) return;
 
       // Disable clicking temporarily to prevent double-clicks

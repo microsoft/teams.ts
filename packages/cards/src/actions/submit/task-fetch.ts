@@ -1,4 +1,6 @@
-import { ISubmitAction, MSTeamsData, SubmitAction, SubmitActionOptions } from './submit';
+import { ISubmitAction, SubmitAction, SubmitActionOptions } from '../../core';
+
+import { MSTeamsData } from './ms-teams-data';
 
 export type TaskFetchActionOptions = SubmitActionOptions & { data: MSTeamsData<ITaskFetchData> };
 
@@ -43,7 +45,7 @@ export class TaskFetchAction extends SubmitAction implements ITaskFetchAction {
   }
 
   withValue(value: TaskFetchDataValues) {
-    super.withData({ ...value, msteams: { type: 'task/fetch' } });
+    super.withData({ ...this.data, ...value, msteams: { type: 'task/fetch' } });
     return this;
   }
 }

@@ -13,8 +13,8 @@ export interface ImageSetCardProps {
 const ImageSetCard: FC<ImageSetCardProps> = ({ value }) => {
   const classes = useContainerClasses();
   return (
-    <div className={mergeClasses(value.spacing ? classes[value.spacing] : classes.default)}>
-      {value.images.map((image, index) => {
+    <div className={mergeClasses(classes[value.spacing ?? 'Default'])}>
+      {value.images?.map((image, index) => {
         return <ImageCard key={`image-${index}`} value={image} />;
       })}
     </div>

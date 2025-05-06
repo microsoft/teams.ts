@@ -33,7 +33,7 @@ export async function onTokenExchange<TPlugin extends IPlugin>(
       },
     });
 
-    ctx.api.user = new graph.Client(
+    ctx.userGraph = new graph.Client(
       this.client.clone({
         token: token.token,
       })
@@ -81,7 +81,7 @@ export async function onVerifyState<TPlugin extends IPlugin>(
       code: activity.value.state,
     });
 
-    ctx.api.user = new graph.Client(
+    ctx.userGraph = new graph.Client(
       this.client.clone({
         token: token.token,
       })

@@ -13,35 +13,35 @@ const BadgeCardContent: FC<BadgeCardProps> = memo(({ value }) => {
   const classes = useBadgeCardStyles();
 
   // Determine shape class
-  const shapeClass = value.shape === 'circular' ? classes.circular : classes.rounded;
+  const shapeClass = value.shape === 'Circular' ? classes.circular : classes.rounded;
 
   // Determine size class
   let sizeClass = classes.sizeMedium;
-  if (value.size === 'large') {
+  if (value.size === 'Large') {
     sizeClass = classes.sizeLarge;
-  } else if (value.size === 'extraLarge') {
+  } else if (value.size === 'ExtraLarge') {
     sizeClass = classes.sizeExtraLarge;
   }
 
   // Determine style class
   let styleClass = classes.styleDefault;
   switch (value.style) {
-    case 'subtle':
+    case 'Subtle':
       styleClass = classes.styleSubtle;
       break;
-    case 'informative':
+    case 'Informative':
       styleClass = classes.styleInformative;
       break;
-    case 'accent':
+    case 'Accent':
       styleClass = classes.styleAccent;
       break;
-    case 'good':
+    case 'Good':
       styleClass = classes.styleGood;
       break;
-    case 'attention':
+    case 'Attention':
       styleClass = classes.styleAttention;
       break;
-    case 'warning':
+    case 'Warning':
       styleClass = classes.styleWarning;
       break;
     default:
@@ -49,10 +49,10 @@ const BadgeCardContent: FC<BadgeCardProps> = memo(({ value }) => {
   }
 
   // Determine icon position
-  const iconPositionClass = value.iconPosition === 'after' ? classes.iconAfter : classes.iconBefore;
+  const iconPositionClass = value.iconPosition === 'After' ? classes.iconAfter : classes.iconBefore;
 
   // Determine appearance class
-  const appearanceClass = value.appearance === 'tint' ? classes.appearanceTint : '';
+  const appearanceClass = value.appearance === 'Tint' ? classes.appearanceTint : '';
 
   return (
     <div

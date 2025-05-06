@@ -1,11 +1,11 @@
 import { FC } from 'react';
-import { Action } from '@microsoft/teams.cards';
+import { CardAction } from '@microsoft/teams.cards';
 
 import ExecuteActionCard from './ExecuteActionCard';
 import OpenUrlActionCard from './OpenUrlActionCard';
 
 export interface ActionCardProps {
-  readonly value: Action;
+  readonly value: CardAction;
 }
 
 const ActionCard: FC<ActionCardProps> = ({ value }) => {

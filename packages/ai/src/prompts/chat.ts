@@ -1,3 +1,5 @@
+import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
+
 import { Function, FunctionHandler } from '../function';
 import { LocalMemory } from '../local-memory';
 import { IMemory } from '../memory';
@@ -43,6 +45,12 @@ export type ChatPromptOptions<TOptions extends Record<string, any> = Record<stri
    * the conversation history
    */
   readonly messages?: Message[] | IMemory;
+
+  /**
+   * Logger instance to use for logging
+   * If not provided, a ConsoleLogger will be used
+   */
+  logger?: ILogger;
 };
 
 export type ChatPromptSendOptions<TOptions extends Record<string, any> = Record<string, any>> = {
@@ -70,7 +78,7 @@ export type ChatPromptSendOptions<TOptions extends Record<string, any> = Record<
  */
 export interface IChatPrompt<
   TOptions extends Record<string, any> = Record<string, any>,
-  TChatPromptPlugins extends readonly ChatPromptPlugin<string, any>[] = [],
+  TChatPromptPlugins extends readonly ChatPromptPlugin<string, any>[] = []
 > {
   /**
    * the prompt name
@@ -96,7 +104,6 @@ export interface IChatPrompt<
    * the chat model
    */
   plugins: TChatPromptPlugins;
-
   /**
    * add another chat prompt as a
    */
@@ -185,6 +192,7 @@ export class ChatPrompt<
   protected readonly _role: 'system' | 'user';
   protected readonly _template: ITemplate;
   protected readonly _model: IChatModel<TOptions>;
+  protected readonly _log: ILogger;
 
   constructor(options: ChatPromptOptions<TOptions>, plugins?: TChatPromptPlugins) {
     this._name = options.name || 'chat';
@@ -194,8 +202,8 @@ export class ChatPrompt<
     this._template = Array.isArray(options.instructions)
       ? new StringTemplate(options.instructions.join('\n'))
       : typeof options.instructions !== 'object'
-        ? new StringTemplate(options.instructions)
-        : options.instructions;
+      ? new StringTemplate(options.instructions)
+      : options.instructions;
 
     this._messages =
       typeof options.messages === 'object' && !Array.isArray(options.messages)
@@ -203,6 +211,7 @@ export class ChatPrompt<
         : new LocalMemory({ messages: options.messages || [] });
 
     this._plugins = plugins || ([] as unknown as TChatPromptPlugins);
+    this._log = options.logger || new ConsoleLogger(`@microsoft/teams.ai/prompts/${this._name}`);
   }
 
   use(prompt: IChatPrompt): this;
@@ -258,11 +267,14 @@ export class ChatPrompt<
   ): this {
     const plugin = this._plugins.find((p) => p.name === name);
     if (!plugin) {
+      this._log.debug(`Plugin "${name}" not found`);
       throw new Error(`Plugin "${name}" not found`);
     }
 
     if (plugin.onUsePlugin) {
+      this._log.debug(`Using plugin "${name}" with args:`, args);
       plugin.onUsePlugin(args);
+      this._log.debug(`Successfully initialized plugin "${name}"`);
     }
 
     return this;
@@ -277,8 +289,10 @@ export class ChatPrompt<
   }
 
   async send(input: string | ContentPart[], options: ChatPromptSendOptions<TOptions> = {}) {
+    this._log.debug(`Processing plugins before send (${this.plugins.length} plugins found)`);
     for (const plugin of this.plugins) {
       if (plugin.onBeforeSend) {
+        this._log.debug(`Running onBeforeSend for plugin "${plugin.name}"`);
         input = await plugin.onBeforeSend(input);
       }
     }
@@ -302,6 +316,7 @@ export class ChatPrompt<
         role: this._role,
         content: prompt,
       };
+      this._log.debug('System instructions for LLM:', prompt);
     }
 
     let functions = Object.values(this._functions);
@@ -313,16 +328,43 @@ export class ChatPrompt<
       functions = await plugin.onBuildFunctions(functions);
     }
 
-    const fnMap = functions.reduce(
-      (acc, fn) => {
-        acc[fn.name] = {
-          ...fn,
-          handler: (args: any) => this.executeFunction(fn.name, fn, args),
-        };
-        return acc;
-      },
-      {} as Record<string, Function>
-    );
+    const fnMap = functions.reduce((acc, fn) => {
+      acc[fn.name] = {
+        ...fn,
+        handler: (args: any) => this.executeFunction(fn.name, fn, args),
+      };
+      return acc;
+    }, {} as Record<string, Function>);
+
+    if (Object.keys(fnMap).length > 0) {
+      this._log.debug(
+        'Available functions for LLM:',
+        Object.keys(fnMap).map((name) => {
+          const fn = fnMap[name];
+          const paramDescriptions =
+            'properties' in fn.parameters && fn.parameters.properties
+              ? Object.entries(
+                fn.parameters.properties as Record<string, { description?: string }>
+              ).reduce(
+                (acc, [key, prop]) => ({
+                  ...acc,
+                  [key]: prop.description,
+                }),
+                {} as Record<string, string | undefined>
+              )
+              : {};
+
+          return {
+            name,
+            description: fn.description,
+            parameters: {
+              schema: fn.parameters,
+              descriptions: paramDescriptions,
+            },
+          };
+        })
+      );
+    }
 
     const res = await this._model.send(
       {
@@ -352,8 +394,23 @@ export class ChatPrompt<
       ...res,
       content: res.content || '',
     };
+
+    // Log function calls if present
+    if (output.function_calls && output.function_calls.length > 0) {
+      this._log.debug(
+        'LLM requested function calls:',
+        output.function_calls.map((call) => ({
+          name: call.name,
+          id: call.id,
+          arguments: call.arguments,
+        }))
+      );
+    }
+
+    this._log.debug(`Processing plugins after send (${this.plugins.length} plugins found)`);
     for (const plugin of this.plugins) {
       if (plugin.onAfterSend) {
+        this._log.debug(`Running onAfterSend for plugin "${plugin.name}"`);
         output = await plugin.onAfterSend(output);
       }
     }

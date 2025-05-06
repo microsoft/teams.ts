@@ -33,6 +33,7 @@ export function func<TPlugin extends IPlugin, TData>(
         ...req.context,
         log,
         api: this.api,
+        appGraph: this.graph,
         data: req.body,
       });
 

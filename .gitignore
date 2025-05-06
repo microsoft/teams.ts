@@ -6,7 +6,7 @@ node_modules
 .pnp.js
 
 # Local env files
-env
+tests/*/env
 .env
 .env.local
 .env.development.local
@@ -27,6 +27,8 @@ coverage
 out/
 build
 dist
+bin
+obj
 
 
 # Debug

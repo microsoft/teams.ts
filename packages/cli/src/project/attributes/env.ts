@@ -1,4 +1,4 @@
-import { Compound, FileEnvSet } from '../operations';
+import { Compound, FileEnvSet, FileJsonSet } from '../operations';
 import { IProjectAttribute } from '../project-attribute';
 
 export class EnvAttribute implements IProjectAttribute {
@@ -21,7 +21,12 @@ export class EnvAttribute implements IProjectAttribute {
     return new Compound(new FileEnvSet(targetDir, this._filename, this._key, this._value));
   }
 
-  csharp(_: string) {
-    return new Compound();
+  async csharp(targetDir: string) {
+    const changeCase = await import('change-case');
+    const key = changeCase.pascalCase(this._key, {
+      delimiter: '.'
+    });
+
+    return new Compound(new FileJsonSet(targetDir, this._filename, key, this._value));
   }
 }

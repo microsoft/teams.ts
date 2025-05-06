@@ -4,13 +4,13 @@ export const useImageCardClasses = makeStyles({
   auto: {
     width: 'auto',
   },
-  widthsmall: {
+  widthSmall: {
     width: '4rem',
   },
-  widthmedium: {
+  widthMedium: {
     width: '8rem',
   },
-  widthlarge: {
+  widthLarge: {
     width: '12rem',
   },
   stretch: {

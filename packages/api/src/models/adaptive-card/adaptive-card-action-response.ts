@@ -1,4 +1,4 @@
-import { ICard } from '@microsoft/teams.cards';
+import { IAdaptiveCard } from '@microsoft/teams.cards';
 
 import { HttpError } from '../error';
 import { OAuthCard } from '../oauth';
@@ -34,7 +34,7 @@ export type AdaptiveCardActionCardResponse = {
   /**
    * The card response object.
    */
-  value: ICard;
+  value: IAdaptiveCard;
 };
 
 /**

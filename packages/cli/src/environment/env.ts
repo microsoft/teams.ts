@@ -14,7 +14,6 @@ export interface IEnv {
   set(key: string, value: string): void;
   del(key: string): void;
   list(where?: (item: KeyValue, i: number) => boolean): Array<KeyValue>;
-  toString(): string;
 
   activate(): void;
   deactivate(): void;
@@ -73,12 +72,6 @@ export class Env implements IEnv {
     return Array.from(this.items.entries())
       .map(([key, value]) => ({ key, value }))
       .filter((item, i) => (where ? where(item, i) : true));
-  }
-
-  toString() {
-    return this.list()
-      .map(({ key, value }) => `${key}=${value}`)
-      .join('\n');
   }
 
   activate() {

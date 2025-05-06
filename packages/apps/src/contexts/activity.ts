@@ -18,7 +18,7 @@ import {
 import { ILogger } from '@microsoft/teams.common/logging';
 import { IStorage } from '@microsoft/teams.common/storage';
 
-import { ApiClient } from '../api';
+import { ApiClient, GraphClient } from '../api';
 import { ISender, IStreamer } from '../types';
 
 export interface IActivityContextOptions<T extends Activity = Activity> {
@@ -48,6 +48,16 @@ export interface IActivityContextOptions<T extends Activity = Activity> {
   api: ApiClient;
 
   /**
+   * the app graph client
+   */
+  appGraph: GraphClient;
+
+  /**
+   * the user graph client
+   */
+  userGraph: GraphClient;
+
+  /**
    * app storage instance
    */
   storage: IStorage;
@@ -73,7 +83,9 @@ export interface IActivityContextOptions<T extends Activity = Activity> {
   /**
    * call the next event/middleware handler
    */
-  next: (context?: IActivityContext) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
+  next: (
+    context?: IActivityContext
+  ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 }
 
 type SignInOptions = {
@@ -136,17 +148,22 @@ export const DEFAULT_SIGNIN_OPTIONS: SignInOptions = {
   signInButtonText: 'Sign In',
 };
 
-export class ActivityContext<T extends Activity = Activity> implements IActivityContext<T> {
+export class ActivityContext<T extends Activity = Activity>
+  implements IActivityContext<T> {
   appId!: string;
   activity!: T;
   ref!: ConversationReference;
   log!: ILogger;
   api!: ApiClient;
+  appGraph!: GraphClient;
+  userGraph!: GraphClient;
   storage!: IStorage;
   stream: IStreamer;
   isSignedIn?: boolean;
   connectionName: string;
-  next!: (context?: IActivityContext) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
+  next!: (
+    context?: IActivityContext
+  ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
   [key: string]: any;
 
   protected _plugin: ISender;
@@ -184,6 +201,12 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
   async reply(activity: ActivityLike) {
     activity = toActivityParams(activity);
     activity.replyToId = this.activity.id;
+    if (activity.type === 'message' && activity.text) {
+      const blockQuote = this.buildBlockQuoteForActivity();
+      if (blockQuote) {
+        activity.text = `${blockQuote}\r\n${activity.text}`;
+      }
+    }
     return this.send(activity);
   }
 
@@ -228,7 +251,9 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
       convo.conversation = { id: res.id } as ConversationAccount;
     }
 
-    const state = Buffer.from(JSON.stringify(tokenExchangeState)).toString('base64');
+    const state = Buffer.from(JSON.stringify(tokenExchangeState)).toString(
+      'base64'
+    );
     const resource = await this.api.bots.signIn.getResource({ state });
 
     await this.send(
@@ -271,6 +296,8 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
     return {
       activity: this.activity,
       api: this.api,
+      appGraph: this.appGraph,
+      userGraph: this.userGraph,
       appId: this.appId,
       log: this.log,
       ref: this.ref,
@@ -284,5 +311,24 @@ export class ActivityContext<T extends Activity = Activity> implements IActivity
       signin: this.signin.bind(this),
       signout: this.signout.bind(this),
     };
+  }
+
+  private buildBlockQuoteForActivity(): string | null {
+    if (this.activity.type === 'message' && this.activity.text) {
+      const maxLength = 120;
+      const truncatedText =
+        this.activity.text.length > maxLength
+          ? `${this.activity.text.substring(0, maxLength)}...`
+          : this.activity.text;
+
+      return `<blockquote itemscope="" itemtype="http://schema.skype.com/Reply" itemid="${this.activity.id}">
+<strong itemprop="mri" itemid="${this.activity.from.id}">${this.activity.from.name}</strong><span itemprop="time" itemid="${this.activity.id}"></span>
+<p itemprop="preview">${truncatedText}</p>
+</blockquote>`;
+    } else {
+      this.log.debug('Skipping building blockquote for activity type:', this.activity.type);
+    }
+
+    return null;
   }
 }
