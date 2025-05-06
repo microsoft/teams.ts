@@ -9,6 +9,7 @@ import { ChatsClient } from './chats';
 import { CommunicationsClient } from './communications';
 import { EmployeeExperienceClient } from './employeeExperience';
 import { MeClient } from './me';
+import { SitesClient } from './sites';
 import { SolutionsClient } from './solutions';
 import { TeamsClient } from './teams';
 import { TeamsTemplatesClient } from './teamsTemplates';
@@ -122,6 +123,15 @@ export class Client {
    */
   get me() {
     return new MeClient(this.http);
+  }
+
+  /**
+   * `/sites`
+   *
+   * Provides operations to manage the collection of site entities.
+   */
+  get sites() {
+    return new SitesClient(this.http);
   }
 
   /**
