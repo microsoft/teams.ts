@@ -2,10 +2,17 @@ import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
-const app = new App({
-  logger: new ConsoleLogger('@tests/auth', { level: 'debug' }),
-  plugins: [new DevtoolsPlugin()],
+// :snippet-start: oauth-config
+const app = new App({ 
+  oauth: { // oauth configurations
+    // the name of the auth connection to use.
+    // it should be the same as the OAuth connection name defined in the Azure Bot configuration.
+    defaultConnectionName: 'graph' 
+  },
+  logger: new ConsoleLogger('@tests/auth', { level: 'debug' }), // optional
+  plugins: [new DevtoolsPlugin()], // optional
 });
+// :snippet-end: oauth-config
 
 // :snippet-start: auth-signout
 app.message('/signout', async ({ send, signout, isSignedIn }) => {
@@ -18,7 +25,12 @@ app.message('/signout', async ({ send, signout, isSignedIn }) => {
 // :snippet-start: auth-signin
 app.on('message', async ({ log, signin, userGraph, isSignedIn }) => {
   if (!isSignedIn) {
-    await signin(); // call signin for your auth connection...
+    await signin({
+      // optional. This will work with explicit oauth.
+      oauthCardText: 'Sign in to your account',
+      // optional. This will work with explicit oauth.
+      signInButtonText: 'Sign in' 
+    }); // call signin for your auth connection...
     return;
   }
 
@@ -28,7 +40,7 @@ app.on('message', async ({ log, signin, userGraph, isSignedIn }) => {
 
 app.event('signin', async ({ send, userGraph, token }) => {
   const me = await userGraph.me.get();
-  await send(`user "${me.displayName}" signed in. Here's the token: ${token}`);
+  await send(`user "${me.displayName}" signed in. Here's the token: ${JSON.stringify(token)}`);
 });
 // :snippet-end:
 
