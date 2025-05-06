@@ -2,7 +2,7 @@ import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
-// :snippet-start: oauth-config
+// :snippet-start: auth-config
 const app = new App({ 
   oauth: { // oauth configurations
     // the name of the auth connection to use.
@@ -12,7 +12,7 @@ const app = new App({
   logger: new ConsoleLogger('@tests/auth', { level: 'debug' }), // optional
   plugins: [new DevtoolsPlugin()], // optional
 });
-// :snippet-end: oauth-config
+// :snippet-end: auth-config
 
 // :snippet-start: auth-signout
 app.message('/signout', async ({ send, signout, isSignedIn }) => {
