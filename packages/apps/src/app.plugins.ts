@@ -23,7 +23,9 @@ export function plugin<TPlugin extends IPlugin>(this: App<TPlugin>, plugin: TPlu
 
   this.plugins.push(plugin);
   this.container.register(name, { useValue: plugin });
-  this.container.register(plugin.constructor.name, { useValue: plugin });
+  if (plugin.constructor.name !== name) {
+    this.container.register(plugin.constructor.name, { useValue: plugin });
+  }
   return this;
 }
 

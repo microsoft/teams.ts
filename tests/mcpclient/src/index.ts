@@ -5,14 +5,13 @@ import { DevtoolsPlugin } from "@microsoft/teams.dev";
 import { McpClientPlugin } from "@microsoft/teams.mcpclient";
 import { OpenAIChatModel } from "@microsoft/teams.openai";
 
-const logger = new ConsoleLogger('mcp-client', { level: 'debug' });
 const app = new App({
   plugins: [new DevtoolsPlugin()],
-  logger
 });
 
 
 // :snippet-start: mcp-client-prompt-config
+const logger = new ConsoleLogger('mcp-client', { level: 'debug' });
 const prompt = new ChatPrompt(
   {
     instructions:
@@ -35,7 +34,7 @@ const prompt = new ChatPrompt(
   // Alternatively, you can use a different server hosted somewhere else
   // Here we are using the mcp server hosted on an Azure Function
   .usePlugin("mcpClient", {
-    url: "https://githubmcpnew.azurewebsites.net/runtime/webhooks/mcp/sse",
+    url: "https://aiacceleratormcp.azurewebsites.net/runtime/webhooks/mcp/sse",
     params: {
       headers: {
         // If your server requires authentication, you can pass in Bearer or other
