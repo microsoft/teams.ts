@@ -131,7 +131,7 @@ export class MembersClient {
   /**
    * `GET /chats/{chat-id}/members/{conversationMember-id}`
    *
-   * Retrieve a conversationMember from a chat or channel.
+   * Retrieve a conversationMember from a chat.
    */
   async get(
     params?: Endpoints['GET /chats/{chat-id}/members/{conversationMember-id}']['parameters'],

@@ -14,7 +14,7 @@ export interface Endpoints {
    */
   'GET /chats/{chat-id}/members': Operation<'/chats/{chat-id}/members', 'get'>;
   /**
-   * Retrieve a conversationMember from a chat or channel.
+   * Retrieve a conversationMember from a chat.
    */
   'GET /chats/{chat-id}/members/{conversationMember-id}': Operation<
     '/chats/{chat-id}/members/{conversationMember-id}',

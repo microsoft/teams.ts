@@ -26,7 +26,7 @@ export interface Endpoints {
     'patch'
   >;
   /**
-   * Send a new chatMessage in the specified channel or a chat.
+   * Send a new chatMessage in the specified chat. This API can&#x27;t create a new chat; you must use the list chats method to retrieve the ID of an existing chat before you can create a chat message.
    */
   'POST /chats/{chat-id}/messages': Operation<'/chats/{chat-id}/messages', 'post'>;
 }

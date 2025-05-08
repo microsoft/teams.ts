@@ -2,7 +2,6 @@ import * as http from '@microsoft/teams.common/http';
 
 import pkg from 'src/../package.json';
 import { AppCatalogsClient } from './appCatalogs';
-import { AppRoleAssignmentsClient } from './appRoleAssignments';
 import { ApplicationTemplatesClient } from './applicationTemplates';
 import { ApplicationsClient } from './applications';
 import { ChatsClient } from './chats';
@@ -61,15 +60,6 @@ export class Client {
    */
   get appCatalogs() {
     return new AppCatalogsClient(this.http);
-  }
-
-  /**
-   * `/appRoleAssignments`
-   *
-   * Provides operations to manage the collection of appRoleAssignment entities.
-   */
-  get appRoleAssignments() {
-    return new AppRoleAssignmentsClient(this.http);
   }
 
   /**

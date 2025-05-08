@@ -4,6 +4,7 @@ import * as http from '@microsoft/teams.common/http';
 import pkg from 'src/../package.json';
 import type { Endpoints } from './index-types.ts';
 import { DriveRestoreArtifactsClient } from './driveRestoreArtifacts';
+import { DriveRestoreArtifactsBulkAdditionRequestsClient } from './driveRestoreArtifactsBulkAdditionRequests';
 
 /**
  * /solutions/backupRestore/oneDriveForBusinessRestoreSessions
@@ -50,6 +51,18 @@ export class OneDriveForBusinessRestoreSessionsClient {
    */
   driveRestoreArtifacts(oneDriveForBusinessRestoreSessionId: string) {
     return new DriveRestoreArtifactsClient(oneDriveForBusinessRestoreSessionId, this.http);
+  }
+
+  /**
+   * `/solutions/backupRestore/oneDriveForBusinessRestoreSessions/{oneDriveForBusinessRestoreSession-id}/driveRestoreArtifactsBulkAdditionRequests`
+   *
+   * Provides operations to manage the driveRestoreArtifactsBulkAdditionRequests property of the microsoft.graph.oneDriveForBusinessRestoreSession entity.
+   */
+  driveRestoreArtifactsBulkAdditionRequests(oneDriveForBusinessRestoreSessionId: string) {
+    return new DriveRestoreArtifactsBulkAdditionRequestsClient(
+      oneDriveForBusinessRestoreSessionId,
+      this.http
+    );
   }
 
   /**

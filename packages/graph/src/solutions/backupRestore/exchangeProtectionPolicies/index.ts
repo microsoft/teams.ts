@@ -5,6 +5,7 @@ import pkg from 'src/../package.json';
 import type { Endpoints } from './index-types.ts';
 import { MailboxInclusionRulesClient } from './mailboxInclusionRules';
 import { MailboxProtectionUnitsClient } from './mailboxProtectionUnits';
+import { MailboxProtectionUnitsBulkAdditionJobsClient } from './mailboxProtectionUnitsBulkAdditionJobs';
 
 /**
  * /solutions/backupRestore/exchangeProtectionPolicies
@@ -60,6 +61,15 @@ export class ExchangeProtectionPoliciesClient {
    */
   mailboxProtectionUnits(exchangeProtectionPolicyId: string) {
     return new MailboxProtectionUnitsClient(exchangeProtectionPolicyId, this.http);
+  }
+
+  /**
+   * `/solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnitsBulkAdditionJobs`
+   *
+   * Provides operations to manage the mailboxProtectionUnitsBulkAdditionJobs property of the microsoft.graph.exchangeProtectionPolicy entity.
+   */
+  mailboxProtectionUnitsBulkAdditionJobs(exchangeProtectionPolicyId: string) {
+    return new MailboxProtectionUnitsBulkAdditionJobsClient(exchangeProtectionPolicyId, this.http);
   }
 
   /**

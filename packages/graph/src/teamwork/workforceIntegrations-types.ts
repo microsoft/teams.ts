@@ -29,7 +29,6 @@ export interface Endpoints {
   >;
   /**
    * Create a new workforceIntegration object.
-You can set up which entities you want to receive Shifts synchronous change notifications on and set entities to configure filtering by WFM rules eligibility for, including swap requests.
    */
   'POST /teamwork/workforceIntegrations': Operation<'/teamwork/workforceIntegrations', 'post'>;
 }

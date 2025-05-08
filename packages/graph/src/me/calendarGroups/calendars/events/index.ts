@@ -9,9 +9,11 @@ import { CalendarClient } from './calendar';
 import { CancelClient } from './cancel';
 import { DeclineClient } from './decline';
 import { DismissReminderClient } from './dismissReminder';
+import { ExceptionOccurrencesClient } from './exceptionOccurrences';
 import { ExtensionsClient } from './extensions';
 import { ForwardClient } from './forward';
 import { InstancesClient } from './instances';
+import { PermanentDeleteClient } from './permanentDelete';
 import { SnoozeReminderClient } from './snoozeReminder';
 import { TentativelyAcceptClient } from './tentativelyAccept';
 
@@ -111,6 +113,15 @@ export class EventsClient {
   }
 
   /**
+   * `/me/calendarGroups/{calendarGroup-id}/calendars/{calendar-id}/events/{event-id}/exceptionOccurrences`
+   *
+   * Provides operations to manage the exceptionOccurrences property of the microsoft.graph.event entity.
+   */
+  exceptionOccurrences(eventId: string) {
+    return new ExceptionOccurrencesClient(eventId, this.http);
+  }
+
+  /**
    * `/me/calendarGroups/{calendarGroup-id}/calendars/{calendar-id}/events/{event-id}/extensions`
    *
    * Provides operations to manage the extensions property of the microsoft.graph.event entity.
@@ -135,6 +146,15 @@ export class EventsClient {
    */
   instances(eventId: string) {
     return new InstancesClient(eventId, this.http);
+  }
+
+  /**
+   * `/me/calendarGroups/{calendarGroup-id}/calendars/{calendar-id}/events/{event-id}/permanentDelete`
+   *
+   * Provides operations to call the permanentDelete method.
+   */
+  permanentDelete(eventId: string) {
+    return new PermanentDeleteClient(eventId, this.http);
   }
 
   /**

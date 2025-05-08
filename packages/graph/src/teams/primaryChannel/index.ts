@@ -3,6 +3,7 @@ import * as http from '@microsoft/teams.common/http';
 
 import pkg from 'src/../package.json';
 import type { Endpoints } from './index-types.ts';
+import { AllMembersClient } from './allMembers';
 import { ArchiveClient } from './archive';
 import { CompleteMigrationClient } from './completeMigration';
 import { FilesFolderClient } from './filesFolder';
@@ -53,6 +54,15 @@ export class PrimaryChannelClient {
         },
       });
     }
+  }
+
+  /**
+   * `/teams/{team-id}/primaryChannel/allMembers`
+   *
+   * Provides operations to manage the allMembers property of the microsoft.graph.channel entity.
+   */
+  get allMembers() {
+    return new AllMembersClient(this.http);
   }
 
   /**

@@ -29,7 +29,7 @@ export interface Endpoints {
     'patch'
   >;
   /**
-   * Send a new reply to a chatMessage in a specified channel.
+   * Create a new reply to a chatMessage in a specified channel.
    */
   'POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies': Operation<
     '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies',

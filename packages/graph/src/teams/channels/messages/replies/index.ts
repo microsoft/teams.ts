@@ -231,7 +231,7 @@ export class RepliesClient {
   /**
    * `POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies`
    *
-   * Send a new reply to a chatMessage in a specified channel.
+   * Create a new reply to a chatMessage in a specified channel.
    */
   async create(
     body: Endpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies']['body'],

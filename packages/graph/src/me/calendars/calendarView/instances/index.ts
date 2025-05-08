@@ -9,8 +9,10 @@ import { CalendarClient } from './calendar';
 import { CancelClient } from './cancel';
 import { DeclineClient } from './decline';
 import { DismissReminderClient } from './dismissReminder';
+import { ExceptionOccurrencesClient } from './exceptionOccurrences';
 import { ExtensionsClient } from './extensions';
 import { ForwardClient } from './forward';
+import { PermanentDeleteClient } from './permanentDelete';
 import { SnoozeReminderClient } from './snoozeReminder';
 import { TentativelyAcceptClient } from './tentativelyAccept';
 
@@ -110,6 +112,15 @@ export class InstancesClient {
   }
 
   /**
+   * `/me/calendars/{calendar-id}/calendarView/{event-id}/instances/{event-id1}/exceptionOccurrences`
+   *
+   * Provides operations to manage the exceptionOccurrences property of the microsoft.graph.event entity.
+   */
+  exceptionOccurrences(eventId1: string) {
+    return new ExceptionOccurrencesClient(eventId1, this.http);
+  }
+
+  /**
    * `/me/calendars/{calendar-id}/calendarView/{event-id}/instances/{event-id1}/extensions`
    *
    * Provides operations to manage the extensions property of the microsoft.graph.event entity.
@@ -125,6 +136,15 @@ export class InstancesClient {
    */
   forward(eventId1: string) {
     return new ForwardClient(eventId1, this.http);
+  }
+
+  /**
+   * `/me/calendars/{calendar-id}/calendarView/{event-id}/instances/{event-id1}/permanentDelete`
+   *
+   * Provides operations to call the permanentDelete method.
+   */
+  permanentDelete(eventId1: string) {
+    return new PermanentDeleteClient(eventId1, this.http);
   }
 
   /**
@@ -148,7 +168,7 @@ export class InstancesClient {
   /**
    * `GET /me/calendars/{calendar-id}/calendarView/{event-id}/instances`
    *
-   * The occurrences of a recurring series, if the event is a series master. This property includes occurrences that are part of the recurrence pattern, and exceptions that have been modified, but does not include occurrences that have been cancelled from the series. Navigation property. Read-only. Nullable.
+   * The occurrences of a recurring series, if the event is a series master. This property includes occurrences that are part of the recurrence pattern, and exceptions modified, but doesn&#x27;t include occurrences cancelled from the series. Navigation property. Read-only. Nullable.
    */
   async list(
     params?: Endpoints['GET /me/calendars/{calendar-id}/calendarView/{event-id}/instances']['parameters'],
@@ -187,7 +207,7 @@ export class InstancesClient {
   /**
    * `GET /me/calendars/{calendar-id}/calendarView/{event-id}/instances/{event-id1}`
    *
-   * The occurrences of a recurring series, if the event is a series master. This property includes occurrences that are part of the recurrence pattern, and exceptions that have been modified, but does not include occurrences that have been cancelled from the series. Navigation property. Read-only. Nullable.
+   * The occurrences of a recurring series, if the event is a series master. This property includes occurrences that are part of the recurrence pattern, and exceptions modified, but doesn&#x27;t include occurrences cancelled from the series. Navigation property. Read-only. Nullable.
    */
   async get(
     params?: Endpoints['GET /me/calendars/{calendar-id}/calendarView/{event-id}/instances/{event-id1}']['parameters'],

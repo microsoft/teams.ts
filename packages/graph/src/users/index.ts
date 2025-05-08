@@ -180,8 +180,7 @@ export class UsersClient {
   /**
    * `POST /users`
    *
-   * Create a new user.
-The request body contains the user to create. At a minimum, you must specify the required properties for the user. You can optionally specify any other writable properties.
+   * Create a new user object.
    */
   async create(
     body: Endpoints['POST /users']['body'],

@@ -7,6 +7,7 @@ import { CalendarPermissionsClient } from './calendarPermissions';
 import { CalendarViewClient } from './calendarView';
 import { EventsClient } from './events';
 import { GetScheduleClient } from './getSchedule';
+import { PermanentDeleteClient } from './permanentDelete';
 
 /**
  * /me/calendar
@@ -80,6 +81,15 @@ export class CalendarClient {
    */
   get getSchedule() {
     return new GetScheduleClient(this.http);
+  }
+
+  /**
+   * `/me/calendar/permanentDelete`
+   *
+   * Provides operations to call the permanentDelete method.
+   */
+  get permanentDelete() {
+    return new PermanentDeleteClient(this.http);
   }
 
   /**

@@ -9,14 +9,14 @@ export interface Endpoints {
     'delete'
   >;
   /**
-   * Retrieve the list of callTranscript objects associated with a scheduled onlineMeeting. This API doesn&#x27;t support getting call transcripts from channel meetings.
+   * Retrieve the list of callTranscript objects associated with a scheduled onlineMeeting. This API supports the retrieval of call recordings from private chat meetings and channel meetings. However, private channel meetings are not supported at this time.
    */
   'GET /users/{user-id}/onlineMeetings/{onlineMeeting-id}/transcripts': Operation<
     '/users/{user-id}/onlineMeetings/{onlineMeeting-id}/transcripts',
     'get'
   >;
   /**
-   * Retrieve a callTranscript object associated with a scheduled onlineMeeting. This API doesn&#x27;t support getting call transcripts from channel meetings. Retrieving the transcript returns the metadata of the single transcript associated with the online meeting. Retrieving the content of the transcript returns the stream of text associated with the transcript.
+   * Retrieve a callTranscript object associated with a scheduled onlineMeeting. This API supports the retrieval of call transcripts from private chat meetings and channel meetings. However, private channel meetings are not supported at this time. Retrieving the transcript returns the metadata of the single transcript associated with the online meeting. Retrieving the content of the transcript returns the stream of text associated with the transcript.
    */
   'GET /users/{user-id}/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}': Operation<
     '/users/{user-id}/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}',

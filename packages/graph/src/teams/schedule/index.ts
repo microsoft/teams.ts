@@ -3,6 +3,7 @@ import * as http from '@microsoft/teams.common/http';
 
 import pkg from 'src/../package.json';
 import type { Endpoints } from './index-types.ts';
+import { DayNotesClient } from './dayNotes';
 import { OfferShiftRequestsClient } from './offerShiftRequests';
 import { OpenShiftChangeRequestsClient } from './openShiftChangeRequests';
 import { OpenShiftsClient } from './openShifts';
@@ -10,6 +11,7 @@ import { SchedulingGroupsClient } from './schedulingGroups';
 import { ShareClient } from './share';
 import { ShiftsClient } from './shifts';
 import { SwapShiftsChangeRequestsClient } from './swapShiftsChangeRequests';
+import { TimeCardsClient } from './timeCards';
 import { TimeOffReasonsClient } from './timeOffReasons';
 import { TimeOffRequestsClient } from './timeOffRequests';
 import { TimesOffClient } from './timesOff';
@@ -53,6 +55,15 @@ export class ScheduleClient {
         },
       });
     }
+  }
+
+  /**
+   * `/teams/{team-id}/schedule/dayNotes`
+   *
+   * Provides operations to manage the dayNotes property of the microsoft.graph.schedule entity.
+   */
+  get dayNotes() {
+    return new DayNotesClient(this.http);
   }
 
   /**
@@ -116,6 +127,15 @@ export class ScheduleClient {
    */
   get swapShiftsChangeRequests() {
     return new SwapShiftsChangeRequestsClient(this.http);
+  }
+
+  /**
+   * `/teams/{team-id}/schedule/timeCards`
+   *
+   * Provides operations to manage the timeCards property of the microsoft.graph.schedule entity.
+   */
+  get timeCards() {
+    return new TimeCardsClient(this.http);
   }
 
   /**

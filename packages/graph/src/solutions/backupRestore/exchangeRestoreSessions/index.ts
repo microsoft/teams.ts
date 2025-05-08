@@ -5,6 +5,7 @@ import pkg from 'src/../package.json';
 import type { Endpoints } from './index-types.ts';
 import { GranularMailboxRestoreArtifactsClient } from './granularMailboxRestoreArtifacts';
 import { MailboxRestoreArtifactsClient } from './mailboxRestoreArtifacts';
+import { MailboxRestoreArtifactsBulkAdditionRequestsClient } from './mailboxRestoreArtifactsBulkAdditionRequests';
 
 /**
  * /solutions/backupRestore/exchangeRestoreSessions
@@ -60,6 +61,18 @@ export class ExchangeRestoreSessionsClient {
    */
   mailboxRestoreArtifacts(exchangeRestoreSessionId: string) {
     return new MailboxRestoreArtifactsClient(exchangeRestoreSessionId, this.http);
+  }
+
+  /**
+   * `/solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests`
+   *
+   * Provides operations to manage the mailboxRestoreArtifactsBulkAdditionRequests property of the microsoft.graph.exchangeRestoreSession entity.
+   */
+  mailboxRestoreArtifactsBulkAdditionRequests(exchangeRestoreSessionId: string) {
+    return new MailboxRestoreArtifactsBulkAdditionRequestsClient(
+      exchangeRestoreSessionId,
+      this.http
+    );
   }
 
   /**

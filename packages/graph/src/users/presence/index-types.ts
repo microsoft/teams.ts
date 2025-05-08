@@ -6,7 +6,7 @@ export interface Endpoints {
    */
   'DELETE /users/{user-id}/presence': Operation<'/users/{user-id}/presence', 'delete'>;
   /**
-   * Get a user&#x27;s presence information.
+   * Set a presence status message for a user. An optional expiration date and time can be supplied.
    */
   'GET /users/{user-id}/presence': Operation<'/users/{user-id}/presence', 'get'>;
   /**

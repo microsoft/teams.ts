@@ -19,8 +19,7 @@ export interface Endpoints {
    */
   'PATCH /users/{user-id}': Operation<'/users/{user-id}', 'patch'>;
   /**
-   * Create a new user.
-The request body contains the user to create. At a minimum, you must specify the required properties for the user. You can optionally specify any other writable properties.
+   * Create a new user object.
    */
   'POST /users': Operation<'/users', 'post'>;
 }

@@ -5,6 +5,7 @@ import pkg from 'src/../package.json';
 import type { Endpoints } from './index-types.ts';
 import { SiteInclusionRulesClient } from './siteInclusionRules';
 import { SiteProtectionUnitsClient } from './siteProtectionUnits';
+import { SiteProtectionUnitsBulkAdditionJobsClient } from './siteProtectionUnitsBulkAdditionJobs';
 
 /**
  * /solutions/backupRestore/sharePointProtectionPolicies
@@ -60,6 +61,15 @@ export class SharePointProtectionPoliciesClient {
    */
   siteProtectionUnits(sharePointProtectionPolicyId: string) {
     return new SiteProtectionUnitsClient(sharePointProtectionPolicyId, this.http);
+  }
+
+  /**
+   * `/solutions/backupRestore/sharePointProtectionPolicies/{sharePointProtectionPolicy-id}/siteProtectionUnitsBulkAdditionJobs`
+   *
+   * Provides operations to manage the siteProtectionUnitsBulkAdditionJobs property of the microsoft.graph.sharePointProtectionPolicy entity.
+   */
+  siteProtectionUnitsBulkAdditionJobs(sharePointProtectionPolicyId: string) {
+    return new SiteProtectionUnitsBulkAdditionJobsClient(sharePointProtectionPolicyId, this.http);
   }
 
   /**

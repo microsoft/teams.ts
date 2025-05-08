@@ -5,6 +5,7 @@ import pkg from 'src/../package.json';
 import type { Endpoints } from './index-types.ts';
 import { DriveInclusionRulesClient } from './driveInclusionRules';
 import { DriveProtectionUnitsClient } from './driveProtectionUnits';
+import { DriveProtectionUnitsBulkAdditionJobsClient } from './driveProtectionUnitsBulkAdditionJobs';
 
 /**
  * /solutions/backupRestore/oneDriveForBusinessProtectionPolicies
@@ -60,6 +61,18 @@ export class OneDriveForBusinessProtectionPoliciesClient {
    */
   driveProtectionUnits(oneDriveForBusinessProtectionPolicyId: string) {
     return new DriveProtectionUnitsClient(oneDriveForBusinessProtectionPolicyId, this.http);
+  }
+
+  /**
+   * `/solutions/backupRestore/oneDriveForBusinessProtectionPolicies/{oneDriveForBusinessProtectionPolicy-id}/driveProtectionUnitsBulkAdditionJobs`
+   *
+   * Provides operations to manage the driveProtectionUnitsBulkAdditionJobs property of the microsoft.graph.oneDriveForBusinessProtectionPolicy entity.
+   */
+  driveProtectionUnitsBulkAdditionJobs(oneDriveForBusinessProtectionPolicyId: string) {
+    return new DriveProtectionUnitsBulkAdditionJobsClient(
+      oneDriveForBusinessProtectionPolicyId,
+      this.http
+    );
   }
 
   /**

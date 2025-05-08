@@ -4,6 +4,7 @@ import * as http from '@microsoft/teams.common/http';
 import pkg from 'src/../package.json';
 import type { Endpoints } from './index-types.ts';
 import { SiteRestoreArtifactsClient } from './siteRestoreArtifacts';
+import { SiteRestoreArtifactsBulkAdditionRequestsClient } from './siteRestoreArtifactsBulkAdditionRequests';
 
 /**
  * /solutions/backupRestore/sharePointRestoreSessions
@@ -50,6 +51,18 @@ export class SharePointRestoreSessionsClient {
    */
   siteRestoreArtifacts(sharePointRestoreSessionId: string) {
     return new SiteRestoreArtifactsClient(sharePointRestoreSessionId, this.http);
+  }
+
+  /**
+   * `/solutions/backupRestore/sharePointRestoreSessions/{sharePointRestoreSession-id}/siteRestoreArtifactsBulkAdditionRequests`
+   *
+   * Provides operations to manage the siteRestoreArtifactsBulkAdditionRequests property of the microsoft.graph.sharePointRestoreSession entity.
+   */
+  siteRestoreArtifactsBulkAdditionRequests(sharePointRestoreSessionId: string) {
+    return new SiteRestoreArtifactsBulkAdditionRequestsClient(
+      sharePointRestoreSessionId,
+      this.http
+    );
   }
 
   /**

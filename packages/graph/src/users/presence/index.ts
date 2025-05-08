@@ -123,7 +123,7 @@ export class PresenceClient {
   /**
    * `GET /users/{user-id}/presence`
    *
-   * Get a user&#x27;s presence information.
+   * Set a presence status message for a user. An optional expiration date and time can be supplied.
    */
   async get(
     params?: Endpoints['GET /users/{user-id}/presence']['parameters'],

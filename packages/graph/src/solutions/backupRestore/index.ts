@@ -5,11 +5,13 @@ import pkg from 'src/../package.json';
 import type { Endpoints } from './index-types.ts';
 import { DriveInclusionRulesClient } from './driveInclusionRules';
 import { DriveProtectionUnitsClient } from './driveProtectionUnits';
+import { DriveProtectionUnitsBulkAdditionJobsClient } from './driveProtectionUnitsBulkAdditionJobs';
 import { EnableClient } from './enable';
 import { ExchangeProtectionPoliciesClient } from './exchangeProtectionPolicies';
 import { ExchangeRestoreSessionsClient } from './exchangeRestoreSessions';
 import { MailboxInclusionRulesClient } from './mailboxInclusionRules';
 import { MailboxProtectionUnitsClient } from './mailboxProtectionUnits';
+import { MailboxProtectionUnitsBulkAdditionJobsClient } from './mailboxProtectionUnitsBulkAdditionJobs';
 import { OneDriveForBusinessProtectionPoliciesClient } from './oneDriveForBusinessProtectionPolicies';
 import { OneDriveForBusinessRestoreSessionsClient } from './oneDriveForBusinessRestoreSessions';
 import { ProtectionPoliciesClient } from './protectionPolicies';
@@ -21,6 +23,7 @@ import { SharePointProtectionPoliciesClient } from './sharePointProtectionPolici
 import { SharePointRestoreSessionsClient } from './sharePointRestoreSessions';
 import { SiteInclusionRulesClient } from './siteInclusionRules';
 import { SiteProtectionUnitsClient } from './siteProtectionUnits';
+import { SiteProtectionUnitsBulkAdditionJobsClient } from './siteProtectionUnitsBulkAdditionJobs';
 
 /**
  * /solutions/backupRestore
@@ -79,6 +82,15 @@ export class BackupRestoreClient {
   }
 
   /**
+   * `/solutions/backupRestore/driveProtectionUnitsBulkAdditionJobs`
+   *
+   * Provides operations to manage the driveProtectionUnitsBulkAdditionJobs property of the microsoft.graph.backupRestoreRoot entity.
+   */
+  get driveProtectionUnitsBulkAdditionJobs() {
+    return new DriveProtectionUnitsBulkAdditionJobsClient(this.http);
+  }
+
+  /**
    * `/solutions/backupRestore/enable`
    *
    * Provides operations to call the enable method.
@@ -121,6 +133,15 @@ export class BackupRestoreClient {
    */
   get mailboxProtectionUnits() {
     return new MailboxProtectionUnitsClient(this.http);
+  }
+
+  /**
+   * `/solutions/backupRestore/mailboxProtectionUnitsBulkAdditionJobs`
+   *
+   * Provides operations to manage the mailboxProtectionUnitsBulkAdditionJobs property of the microsoft.graph.backupRestoreRoot entity.
+   */
+  get mailboxProtectionUnitsBulkAdditionJobs() {
+    return new MailboxProtectionUnitsBulkAdditionJobsClient(this.http);
   }
 
   /**
@@ -220,6 +241,15 @@ export class BackupRestoreClient {
    */
   get siteProtectionUnits() {
     return new SiteProtectionUnitsClient(this.http);
+  }
+
+  /**
+   * `/solutions/backupRestore/siteProtectionUnitsBulkAdditionJobs`
+   *
+   * Provides operations to manage the siteProtectionUnitsBulkAdditionJobs property of the microsoft.graph.backupRestoreRoot entity.
+   */
+  get siteProtectionUnitsBulkAdditionJobs() {
+    return new SiteProtectionUnitsBulkAdditionJobsClient(this.http);
   }
 
   /**
