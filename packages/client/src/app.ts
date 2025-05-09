@@ -1,17 +1,17 @@
-import * as msal from "@azure/msal-browser";
+import * as msal from '@azure/msal-browser';
 
-import * as teamsJs from "@microsoft/teams-js";
-import * as http from "@microsoft/teams.common/http";
-import { ILogger, ConsoleLogger } from "@microsoft/teams.common/logging";
-import * as graph from "@microsoft/teams.graph";
+import * as teamsJs from '@microsoft/teams-js';
+import * as http from '@microsoft/teams.common/http';
+import { ILogger, ConsoleLogger } from '@microsoft/teams.common/logging';
+import * as graph from '@microsoft/teams.graph';
 
-import { buildGraphClient } from "./graph-utils";
+import { buildGraphClient } from './graph-utils';
 import {
   acquireMsalAccessToken,
   buildMsalConfig,
   getStandardExecSilentRequest,
   hasConsentForScopes,
-} from "./msal-utils";
+} from './msal-utils';
 
 /**
  * Options to control how MSAL is initialized and used.
@@ -78,12 +78,12 @@ export type AppOptions = {
 
 type AppState =
   | {
-      phase: "stopped" | "starting";
+      phase: 'stopped' | 'starting';
       startedAt?: never;
       msalInstance?: never;
     }
   | {
-      phase: "started";
+      phase: 'started';
       startedAt: Date;
       msalInstance: msal.IPublicClientApplication;
     };
@@ -111,7 +111,7 @@ export class App {
   readonly http: http.Client;
   readonly graph: graph.Client;
   readonly clientId: string;
-  protected _state: AppState = { phase: "stopped" };
+  protected _state: AppState = { phase: 'stopped' };
 
   /**
    * The apps logger
@@ -135,12 +135,12 @@ export class App {
 
   constructor(clientId: string, options: AppOptions = {}) {
     if (!clientId) {
-      throw new Error("Invalid client ID.");
+      throw new Error('Invalid client ID.');
     }
 
     this.clientId = clientId;
     this.options = options;
-    this._log = options?.logger || new ConsoleLogger("@teams/client");
+    this._log = options?.logger || new ConsoleLogger('@teams/client');
     this.http = new http.Client({
       baseUrl: options?.remoteApiOptions?.baseUrl,
     });
@@ -153,13 +153,13 @@ export class App {
    *          rejected if the initialization fails or times out.
    */
   async start(): Promise<void> {
-    if (this._state.phase !== "stopped") {
+    if (this._state.phase !== 'stopped') {
       this._log.debug(`app already ${this._state.phase}`);
       return;
     }
 
-    this._log.debug("app starting");
-    this._state = { phase: "starting" };
+    this._log.debug('app starting');
+    this._state = { phase: 'starting' };
 
     await teamsJs.app.initialize();
 
@@ -173,16 +173,16 @@ export class App {
       );
     }
 
-    this._state = { phase: "started", msalInstance, startedAt: new Date() };
+    this._state = { phase: 'started', msalInstance, startedAt: new Date() };
 
     // pre-warm consent for the specified scopes
     if (this.options.msalOptions?.prewarmScopes !== false) {
-      const scopes = this.options.msalOptions?.prewarmScopes ?? [".default"];
-      this._log.debug(`prewarming consent for scopes: ${scopes.join(", ")}`);
+      const scopes = this.options.msalOptions?.prewarmScopes ?? ['.default'];
+      this._log.debug(`prewarming consent for scopes: ${scopes.join(', ')}`);
       await this.ensureConsentForScopes(scopes);
     }
 
-    this._log.debug("app started");
+    this._log.debug('app started');
   }
 
   /**
@@ -216,14 +216,14 @@ export class App {
     const res = await this.http.post<T>(`/api/functions/${name}`, data, {
       headers: {
         authorization: `Bearer ${accessToken}`,
-        "x-teams-app-session-id": context.app.sessionId,
-        "x-teams-channel-id": context.channel?.id,
-        "x-teams-chat-id": context.chat?.id,
-        "x-teams-meeting-id": context.meeting?.id,
-        "x-teams-message-id": context.app.parentMessageId || undefined,
-        "x-teams-page-id": context.page.id || undefined,
-        "x-teams-sub-page-id": context.page.subPageId || undefined,
-        "x-teams-team-id": context.team?.internalId,
+        'x-teams-app-session-id': context.app.sessionId,
+        'x-teams-channel-id': context.channel?.id,
+        'x-teams-chat-id': context.chat?.id,
+        'x-teams-meeting-id': context.meeting?.id,
+        'x-teams-message-id': context.app.parentMessageId || undefined,
+        'x-teams-page-id': context.page.id || undefined,
+        'x-teams-sub-page-id': context.page.subPageId || undefined,
+        'x-teams-team-id': context.team?.internalId,
         ...(options?.requestHeaders ?? {}),
       },
     });
@@ -265,9 +265,9 @@ export class App {
     }
   }
 
-  private appStateGuard(): AppState & { phase: "started" } {
-    if (this._state.phase !== "started") {
-      throw new Error("App not started");
+  private appStateGuard(): AppState & { phase: 'started' } {
+    if (this._state.phase !== 'started') {
+      throw new Error('App not started');
     }
     return this._state;
   }
