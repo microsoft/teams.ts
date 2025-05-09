@@ -20,14 +20,16 @@ import { ApiClient, GraphClient } from './api';
 
 import { configTab, func, tab } from './app.embed';
 import {
-  AppEvents,
   event,
   onActivity,
   onActivityResponse,
   onActivitySent,
-  onError
+  onError,
 } from './app.events';
-import { OnTokenExchange, onTokenExchange, OnVerifyState, onVerifyState } from './app.oauth';
+import {
+  onTokenExchange,
+  onVerifyState
+} from './app.oauth';
 import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
 import { $process } from './app.process';
 import { message, on, use } from './app.routing';
@@ -37,7 +39,7 @@ import * as middleware from './middleware';
 import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
-import { IPlugin } from './types';
+import { AppEvents, IPlugin } from './types';
 
 /**
  * App initialization options
@@ -154,7 +156,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       ],
       webApplicationInfo: {
         id: this.credentials?.clientId || '??',
-        resource: `api://\${{BOT_DOMAIN}}/${this.credentials?.clientId || '??'}`,
+        resource: `api://\${{BOT_DOMAIN}}/${this.credentials?.clientId || '??'
+          }`,
         ...this._manifest.webApplicationInfo,
       },
       ...this._manifest,
@@ -214,20 +217,22 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     this.api = new ApiClient(
       'https://smba.trafficmanager.net/teams',
-      this.client.clone({ token: () => this._tokens.bot }),
+      this.client.clone({ token: () => this._tokens.bot })
     );
 
     this.graph = new GraphClient(
-      this.client.clone({ token: () => this._tokens.graph }),
+      this.client.clone({ token: () => this._tokens.graph })
     );
 
     // initialize credentials
     const clientId = this.options.clientId || process.env.CLIENT_ID;
     const clientSecret =
-      ('clientSecret' in this.options ? this.options.clientSecret : undefined) ||
-      process.env.CLIENT_SECRET;
+      ('clientSecret' in this.options
+        ? this.options.clientSecret
+        : undefined) || process.env.CLIENT_SECRET;
     const tenantId =
-      ('tenantId' in this.options ? this.options.tenantId : undefined) || process.env.TENANT_ID;
+      ('tenantId' in this.options ? this.options.tenantId : undefined) ||
+      process.env.TENANT_ID;
     const token = 'token' in this.options ? this.options.token : undefined;
 
     if (clientId && clientSecret) {
@@ -262,6 +267,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     if (!httpPlugin) {
       httpPlugin = new HttpPlugin();
+      // Casting to any here because a default HttpPlugin is not assignable to TPlugin
+      // without a silly level of indirection.
       plugins.unshift(httpPlugin as any);
     }
 
@@ -273,10 +280,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     this.container.register('manifest', { useValue: this.manifest });
     this.container.register('credentials', { useValue: this.credentials });
     this.container.register('botToken', { useValue: () => this.tokens.bot });
-    this.container.register('graphToken', { useValue: () => this.tokens.graph });
+    this.container.register('graphToken', {
+      useValue: () => this.tokens.graph,
+    });
     this.container.register('ILogger', { useValue: this.log });
     this.container.register('IStorage', { useValue: this.storage });
-    this.container.register(this.client.constructor.name, { useFactory: () => this.client });
+    this.container.register(this.client.constructor.name, {
+      useFactory: () => this.client,
+    });
 
     for (const plugin of plugins) {
       this.plugin(plugin);
@@ -284,12 +295,16 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     if (this.options.activity?.mentions?.stripText) {
       const options = this.options.activity?.mentions?.stripText;
-      this.use(middleware.stripMentionsText(typeof options === 'boolean' ? {} : options));
+      this.use(
+        middleware.stripMentionsText(
+          typeof options === 'boolean' ? {} : options
+        )
+      );
     }
 
     // default event handlers
-    this.on('signin.token-exchange', this.onTokenExchange.bind(this));
-    this.on('signin.verify-state', this.onVerifyState.bind(this));
+    this.on('signin.token-exchange', (...args) => this.onTokenExchange(...args));
+    this.on('signin.verify-state', (...args) => this.onVerifyState(...args));
     this.event('error', ({ error }) => {
       this.log.error(error.message);
 
@@ -450,8 +465,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /// OAuth
   ///
 
-  protected onTokenExchange: OnTokenExchange<TPlugin> = onTokenExchange; // eslint-disable-line @typescript-eslint/member-ordering
-  protected onVerifyState: OnVerifyState<TPlugin> = onVerifyState; // eslint-disable-line @typescript-eslint/member-ordering
+  protected onTokenExchange = onTokenExchange; // eslint-disable-line @typescript-eslint/member-ordering
+  protected onVerifyState = onVerifyState; // eslint-disable-line @typescript-eslint/member-ordering
 
   ///
   /// Events
@@ -471,7 +486,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * Refresh the tokens for the app
    */
   protected async refreshTokens(force = false) {
-    return Promise.all([this.refreshBotToken(force), this.refreshGraphToken(force)]);
+    return Promise.all([
+      this.refreshBotToken(force),
+      this.refreshGraphToken(force),
+    ]);
   }
 
   protected async refreshBotToken(force = false) {

@@ -1,5 +1,3 @@
-
-
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 
 import { App } from './app';
@@ -11,6 +9,7 @@ import { Event, Plugin } from './types/plugin/decorators';
 interface ITestEvents {
     test: {
         message: string;
+        bar: number;
     }
 }
 
@@ -30,14 +29,13 @@ class TestHttpPlugin extends HttpPlugin {
     description: 'test-plugin',
 })
 class TestPlugin implements IPlugin<ITestEvents> {
+    __eventType!: ITestEvents;
 
     @Event('custom')
     emit!: <Name extends keyof ITestEvents>(name: Name, arg: ITestEvents[Name]) => void;
 
-    __eventType!: ITestEvents;
-
     testEmit() {
-        this.emit('test', { message: 'hello' });
+        this.emit('test', { message: 'hello', bar: 1 });
     }
 
     onStart(_event: IPluginStartEvent): void | Promise<void> {
@@ -54,15 +52,18 @@ describe('app.plugin', () => {
             plugins: [testPlugin, new TestHttpPlugin()]
         });
 
-        let receivedEvent;
+        let receivedEventMessage: string = '';
         app.event('test', event => {
-            receivedEvent = event;
+            // Make sure message is typed correctly
+            receivedEventMessage = event.message;
+            // @ts-expect-error - event should be correctly typed to ITestEvents
+            event.nonExistentProperty = 'bar';
         });
 
         await app.start();
 
         testPlugin.testEmit();
-        expect(receivedEvent).toEqual({ message: 'hello' });
+        expect(receivedEventMessage).toEqual('hello');
     });
 
     it('should throw error when registering duplicate plugin names', () => {

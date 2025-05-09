@@ -7,7 +7,7 @@ import { IPlugin } from './plugin';
 /**
  * a plugin that can send activities
  */
-export type ISender<TCustomEvents extends {} | undefined = undefined> = IPlugin<TCustomEvents> & {
+export interface ISender<TCustomEvents extends {} = {}> extends IPlugin<TCustomEvents> {
   /**
    * called by the `App`
    * to send an activity
