@@ -24,7 +24,9 @@
   "scripts": {
     "clean": "npx rimraf ./dist",
     "build": "npx tsc",
-    "test": "npx jest"
+    "test": "npx jest",
+    "lint": "npx eslint",
+    "lint:fix": "npx eslint --fix"
   },
   "peerDependencies": {
     "@microsoft/teams.common": "*"

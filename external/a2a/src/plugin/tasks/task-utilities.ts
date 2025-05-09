@@ -1,6 +1,7 @@
-import * as schema from "../schema";
-import { TaskAndHistory, TaskContext, TaskUpdate } from "../types/a2a-types";
-import { getCurrentTimestamp } from "./task-utils";
+import * as schema from '../schema';
+import { TaskAndHistory, TaskContext, TaskUpdate } from '../types/a2a-types';
+
+import { getCurrentTimestamp } from './task-utils';
 
 /**
  * Handles task-specific operations like state transitions and updates
@@ -38,29 +39,29 @@ export class TaskUtilities {
     currentState: schema.TaskState
   ): schema.TaskState | null {
     switch (currentState) {
-      case "completed":
-      case "failed":
-      case "canceled":
+      case 'completed':
+      case 'failed':
+      case 'canceled':
         // In the original sample, they chose to restart the task.
         // A stricter approach could be to throw an error here.
         // Might make sense to make this behavior configurable.
         throw new Error(`Cannot transition from final state: ${currentState}`);
-      case "input-required":
+      case 'input-required':
         // If the previous state was "input-required", we can assume the task is still in progress.
-        return "working";
-      case "working":
+        return 'working';
+      case 'working':
         return null;
-      case "submitted":
+      case 'submitted':
         // The orgiinal sample considered this odd, but didn't care
         return null;
-      case "unknown":
+      case 'unknown':
         // Let the caller handle this case
         return null;
     }
   }
 
   createStateUpdate(state: schema.TaskState): TaskUpdate {
-    if (state === "submitted") {
+    if (state === 'submitted') {
       // If this is a new task, we reset the message
       return { state, message: null };
     }
@@ -68,9 +69,39 @@ export class TaskUtilities {
     return { state };
   }
 
+  /**
+   * Creates a status update event object
+   */
+  createTaskStatusEvent(
+    taskId: string,
+    status: schema.TaskStatus,
+    final: boolean
+  ): schema.TaskStatusUpdateEvent {
+    return {
+      id: taskId,
+      status: status,
+      final: final,
+    };
+  }
+
+  /**
+   * Creates an artifact update event object
+   */
+  createTaskArtifactEvent(
+    taskId: string,
+    artifact: schema.Artifact,
+    final: boolean
+  ): schema.TaskArtifactUpdateEvent {
+    return {
+      id: taskId,
+      artifact: artifact,
+      final: final,
+    };
+  }
+
   private applyStatusUpdate(
     current: TaskAndHistory,
-    update: Omit<schema.TaskStatus, "timestamp">
+    update: Omit<schema.TaskStatus, 'timestamp'>
   ): TaskAndHistory {
     const newTask = { ...current.task };
     const newHistory = [...current.history];
@@ -82,7 +113,7 @@ export class TaskUtilities {
       timestamp: getCurrentTimestamp(), // Always update timestamp
     };
     // If the update includes an agent message, add it to history
-    if (update.message?.role === "agent") {
+    if (update.message?.role === 'agent') {
       newHistory.push(update.message);
     }
 
@@ -148,37 +179,7 @@ export class TaskUtilities {
 
   private isTaskStatusUpdate(
     update: TaskUpdate
-  ): update is Omit<schema.TaskStatus, "timestamp"> {
-    return "state" in update;
-  }
-
-  /**
-   * Creates a status update event object
-   */
-  createTaskStatusEvent(
-    taskId: string,
-    status: schema.TaskStatus,
-    final: boolean
-  ): schema.TaskStatusUpdateEvent {
-    return {
-      id: taskId,
-      status: status,
-      final: final,
-    };
-  }
-
-  /**
-   * Creates an artifact update event object
-   */
-  createTaskArtifactEvent(
-    taskId: string,
-    artifact: schema.Artifact,
-    final: boolean
-  ): schema.TaskArtifactUpdateEvent {
-    return {
-      id: taskId,
-      artifact: artifact,
-      final: final,
-    };
+  ): update is Omit<schema.TaskStatus, 'timestamp'> {
+    return 'state' in update;
   }
 }

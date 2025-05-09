@@ -1,18 +1,19 @@
-import { ILogger } from "@microsoft/teams.common";
-import * as schema from "./schema";
-import { A2APlugin } from "./server";
-import { createSuccessResponse, normalizeError } from "./serverUtils";
-import { TaskManager } from "./tasks/task-manager";
+import { ILogger } from '@microsoft/teams.common';
+
+import * as schema from './schema';
+import { A2APlugin } from './server';
+import { createSuccessResponse, normalizeError } from './serverUtils';
+import { TaskManager } from './tasks/task-manager';
 import {
   ITaskStore,
   TaskAndHistory,
   TaskContext,
   TaskUpdate,
-} from "./types/a2a-types";
-import { AccumulateArtifacts, Respond } from "./types/event-types";
-import { Result } from "./types/type-utils";
+} from './types/a2a-types';
+import { AccumulateArtifacts, Respond } from './types/event-types';
+import { Result } from './types/type-utils';
 
-interface TaskOperationContext {
+interface ITaskOperationContext {
   taskManager: TaskManager;
   taskStore: ITaskStore;
   logger: ILogger;
@@ -36,7 +37,7 @@ export async function onSendRequest(
   const { id: taskId, message, sessionId, metadata } = req.params;
 
   // Load or create task AND history
-  let currentData = await this._taskManager.loadOrCreateTaskAndHistory(
+  const currentData = await this._taskManager.loadOrCreateTaskAndHistory(
     taskId,
     message,
     sessionId,
@@ -50,7 +51,7 @@ export async function onSendRequest(
   );
 
   // Create operation context with references that can be updated
-  const operationContext: TaskOperationContext = {
+  const operationContext: ITaskOperationContext = {
     taskManager: this._taskManager,
     taskStore: this._taskStore,
     logger: this._logger,
@@ -65,7 +66,7 @@ export async function onSendRequest(
   const accumulateArtifacts = createArtifactsFunction(operationContext, cb);
 
   // Emit the event to process the task
-  this.emit("a2a:receive", {
+  this.emit('a2a:receive', {
     taskContext,
     respond,
     accumulateArtifacts,
@@ -73,7 +74,7 @@ export async function onSendRequest(
 }
 
 async function updateTask(
-  ctx: TaskOperationContext,
+  ctx: ITaskOperationContext,
   update: TaskUpdate
 ): Promise<Result<TaskAndHistory>> {
   try {
@@ -100,7 +101,7 @@ async function updateTask(
 }
 
 async function handleUpdateError(
-  ctx: TaskOperationContext,
+  ctx: ITaskOperationContext,
   error: unknown,
   currentData: TaskAndHistory
 ): Promise<Result<TaskAndHistory>> {
@@ -129,21 +130,20 @@ async function handleUpdateError(
   return {
     success: false,
     error: new Error(
-      `Handler failed: ${
-        error instanceof Error ? error.message : String(error)
+      `Handler failed: ${error instanceof Error ? error.message : String(error)
       }`
     ),
   };
 }
 
 function createRespondFunction(
-  ctx: TaskOperationContext,
+  ctx: ITaskOperationContext,
   callback: (result?: schema.SendTaskResponse) => void
 ): Respond {
   return async (update) => {
     ctx.logger.debug(`Responding to task ${ctx.taskId}`);
     let responseValue: TaskUpdate;
-    if (typeof update === "string") {
+    if (typeof update === 'string') {
       responseValue = ctx.taskManager.createCompletedTaskState(update);
     } else {
       responseValue = update;
@@ -182,7 +182,7 @@ function createRespondFunction(
 }
 
 function createArtifactsFunction(
-  ctx: TaskOperationContext,
+  ctx: ITaskOperationContext,
   callback: (result?: schema.SendTaskResponse) => void
 ): AccumulateArtifacts {
   return async (artifact) => {

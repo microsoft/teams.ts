@@ -1,10 +1,10 @@
-import * as schema from "../schema";
+import * as schema from '../schema';
 
 // Helper type for the simplified store
 export type TaskAndHistory = {
     task: schema.Task;
     history: schema.Message[];
-}
+};
 
 /**
  * Simplified interface for task storage providers.
@@ -30,7 +30,7 @@ export interface ITaskStore {
 /**
  * Context object provided to the TaskHandler.
  */
-export interface TaskContext {
+export interface TaskContext { // eslint-disable-line @typescript-eslint/naming-convention
     /**
      * The current state of the task when the handler is invoked or resumed.
      * Note: This is a snapshot. For the absolute latest state during async operations,
@@ -63,6 +63,6 @@ export interface TaskContext {
  * or a complete Artifact object.
  */
 export type TaskUpdate =
-    | Omit<schema.TaskStatus, "timestamp">
+    | Omit<schema.TaskStatus, 'timestamp'>
     | schema.Artifact
     | schema.Artifact[];

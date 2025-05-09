@@ -14,7 +14,7 @@ export async function onGetTaskRequest(
     const data = await this._taskStore.load(taskId);
     if (!data) {
         cb(normalizeError(A2AError.taskNotFound(taskId), taskId));
-        return
+        return;
     }
     // Return only the task object as per spec
     cb(createSuccessResponse(taskId, data.task));

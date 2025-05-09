@@ -1,9 +1,10 @@
-import { Response } from "express";
-import * as schema from "./schema";
-import { A2AError } from "./types/a2a-error";
+import { Response } from 'express';
+
+import * as schema from './schema';
+import { A2AError } from './types/a2a-error';
 
 const isType =
-  <T extends schema.A2ARequest["method"]>(type: T) =>
+  <T extends schema.A2ARequest['method']>(type: T) =>
   (
     req: schema.A2ARequest
   ): req is Extract<schema.A2ARequest, { method: T }> => {
@@ -14,7 +15,7 @@ const isType =
  * Validates if the reqest is of the expected type.
  * If not, it sends a 400 response with an error message.
  */
-export const validateRequest = <T extends schema.A2ARequest["method"]>(
+export const validateRequest = <T extends schema.A2ARequest['method']>(
   type: T,
   req: schema.A2ARequest,
   res: Response
@@ -27,7 +28,7 @@ export const validateRequest = <T extends schema.A2ARequest["method"]>(
     .status(400)
     .send(
       A2AError.invalidRequest(
-        "Invalid JSON-RPC request structure"
+        'Invalid JSON-RPC request structure'
       ).toJSONRPCError()
     );
   return false;
@@ -39,10 +40,10 @@ export const createSuccessResponse = <T>(
 ): schema.JSONRPCResponse<T, schema.A2AError> => {
   if (taskId === null) {
     // This shouldn't happen for methods that expect a response, but safeguard
-    throw A2AError.internalError("Cannot create success response for null ID.");
+    throw A2AError.internalError('Cannot create success response for null ID.');
   }
   return {
-    jsonrpc: "2.0",
+    jsonrpc: '2.0',
     id: taskId,
     result: result,
   };
@@ -54,7 +55,7 @@ export const createErrorResponse = (
 ): schema.JSONRPCResponse<null, schema.A2AError> => {
   // For errors, ID should be the same as request ID, or null if that couldn't be determined
   return {
-    jsonrpc: "2.0",
+    jsonrpc: '2.0',
     id: id, // Can be null if request ID was invalid/missing
     error: error,
   };
@@ -74,7 +75,7 @@ export const normalizeError = (
     a2aError = A2AError.internalError(error.message, { stack: error.stack });
   } else {
     // Unknown error type
-    a2aError = A2AError.internalError("An unknown error occurred.", error);
+    a2aError = A2AError.internalError('An unknown error occurred.', error);
   }
 
   // Ensure Task ID context is present if possible
@@ -83,8 +84,8 @@ export const normalizeError = (
   }
 
   console.error(
-    `Error processing request (Task: ${a2aError.taskId ?? "N/A"}, ReqID: ${
-      reqId ?? "N/A"
+    `Error processing request (Task: ${a2aError.taskId ?? 'N/A'}, ReqID: ${
+      reqId ?? 'N/A'
     }):`,
     a2aError
   );

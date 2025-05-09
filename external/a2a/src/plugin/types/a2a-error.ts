@@ -1,4 +1,4 @@
-import * as schema from "../schema";
+import * as schema from '../schema';
 
 /**
  * Custom error class for A2A server operations, incorporating JSON-RPC error codes.
@@ -15,28 +15,13 @@ export class A2AError extends Error implements schema.A2AError {
     taskId?: string | number
   ) {
     super(message);
-    this.name = "A2AError";
+    this.name = 'A2AError';
     this.code = code;
     this.data = data;
     this.taskId = taskId; // Store associated task ID if provided
   }
 
-  /**
-   * Formats the error into a standard JSON-RPC error object structure.
-   */
-  toJSONRPCError(): schema.JSONRPCError<unknown> {
-    const errorObject: schema.JSONRPCError<unknown> = {
-      code: this.code,
-      message: this.message,
-    };
-    if (this.data !== undefined) {
-      errorObject.data = this.data;
-    }
-    return errorObject;
-  }
-
   // Static factory methods for common errors
-
   static parseError(message: string, data?: unknown): A2AError {
     return new A2AError(schema.ErrorCodeParseError, message, data);
   }
@@ -81,7 +66,7 @@ export class A2AError extends Error implements schema.A2AError {
   static pushNotificationNotSupported(): A2AError {
     return new A2AError(
       schema.ErrorCodePushNotificationNotSupported,
-      "Push Notification is not supported"
+      'Push Notification is not supported'
     );
   }
 
@@ -90,5 +75,19 @@ export class A2AError extends Error implements schema.A2AError {
       schema.ErrorCodeUnsupportedOperation,
       `Unsupported operation: ${operation}`
     );
+  }
+
+  /**
+   * Formats the error into a standard JSON-RPC error object structure.
+   */
+  toJSONRPCError(): schema.JSONRPCError<unknown> {
+    const errorObject: schema.JSONRPCError<unknown> = {
+      code: this.code,
+      message: this.message,
+    };
+    if (this.data !== undefined) {
+      errorObject.data = this.data;
+    }
+    return errorObject;
   }
 }

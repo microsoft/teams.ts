@@ -1,2 +1,2 @@
-export * from "./plugin/server";
-export * from "./plugin/types/event-types";
+export * from './plugin/server';
+export * from './plugin/types/event-types';

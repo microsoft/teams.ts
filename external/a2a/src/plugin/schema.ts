@@ -23,7 +23,7 @@ export interface JSONRPCMessage extends JSONRPCMessageIdentifier {
      * @default "2.0"
      * @const "2.0"
      */
-    jsonrpc?: "2.0";
+    jsonrpc?: '2.0';
 }
 
 /**
@@ -92,13 +92,13 @@ export interface JSONRPCResponse<R = unknown | null, E = unknown | null>
  * @description An enumeration.
  */
 export type TaskState =
-    | "submitted"
-    | "working"
-    | "input-required"
-    | "completed"
-    | "canceled"
-    | "failed"
-    | "unknown";
+    | 'submitted'
+    | 'working'
+    | 'input-required'
+    | 'completed'
+    | 'canceled'
+    | 'failed'
+    | 'unknown';
 
 /**
  * Defines the authentication schemes and credentials for an agent.
@@ -312,7 +312,7 @@ export type FileContent = FileContentBytes | FileContentUri;
  * Represents a part of a message containing text content.
  */
 export interface TextPart {
-    type: "text";
+    type: 'text';
 
     /**
      * The text content.
@@ -332,7 +332,7 @@ export interface FilePart {
     /**
      * Type identifier for this part.
      */
-    type: "file";
+    type: 'file';
 
     /**
      * The file content, provided either inline or via URI.
@@ -352,7 +352,7 @@ export interface DataPart {
     /**
      * Type identifier for this part.
      */
-    type: "data";
+    type: 'data';
 
     /**
      * The structured data content as a JSON object.
@@ -423,7 +423,7 @@ export interface Message {
     /**
      * The role of the sender (user or agent).
      */
-    role: "user" | "agent";
+    role: 'user' | 'agent';
 
     /**
      * The content of the message, composed of one or more parts.
@@ -737,7 +737,7 @@ export interface SendTaskRequest extends JSONRPCRequest {
     /**
      * Method name for sending a task message.
      */
-    method: "tasks/send";
+    method: 'tasks/send';
     /**
      * Parameters for the send task method.
      */
@@ -751,7 +751,7 @@ export interface GetTaskRequest extends JSONRPCRequest {
     /**
      * Method name for getting task status.
      */
-    method: "tasks/get";
+    method: 'tasks/get';
     /**
      * Parameters for the get task method.
      */
@@ -765,7 +765,7 @@ export interface CancelTaskRequest extends JSONRPCRequest {
     /**
      * Method name for canceling a task.
      */
-    method: "tasks/cancel";
+    method: 'tasks/cancel';
     /**
      * Parameters for the cancel task method.
      */
@@ -779,7 +779,7 @@ export interface SetTaskPushNotificationRequest extends JSONRPCRequest {
     /**
      * Method name for setting a task notifications.
      */
-    method: "tasks/pushNotification/set";
+    method: 'tasks/pushNotification/set';
     /**
      * Parameters for the set task push notification method.
      */
@@ -793,7 +793,7 @@ export interface GetTaskPushNotificationRequest extends JSONRPCRequest {
     /**
      * Method name for getting task notification configuration.
      */
-    method: "tasks/pushNotification/get";
+    method: 'tasks/pushNotification/get';
     /**
      * Parameters for the get task push notification config method.
      */
@@ -807,7 +807,7 @@ export interface TaskResubscriptionRequest extends JSONRPCRequest {
     /**
      * Method name for resubscribing to task updates.
      */
-    method: "tasks/resubscribe";
+    method: 'tasks/resubscribe';
     /**
      * Parameters for the task resubscription method.
      */
@@ -821,7 +821,7 @@ export interface SendTaskStreamingRequest extends JSONRPCRequest {
     /**
      * Method name for sending a task message and subscribing to updates.
      */
-    method: "tasks/sendSubscribe";
+    method: 'tasks/sendSubscribe';
     /**
      * Parameters for the streaming task send method.
      */

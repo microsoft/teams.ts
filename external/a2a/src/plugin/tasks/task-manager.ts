@@ -1,33 +1,35 @@
-import { ILogger } from "@microsoft/teams.common";
-import * as schema from "../schema";
+import { ILogger } from '@microsoft/teams.common';
+
+import * as schema from '../schema';
 import {
   ITaskStore,
   TaskAndHistory,
   TaskContext,
   TaskUpdate,
-} from "../types/a2a-types";
+} from '../types/a2a-types';
+
 import {
   getCurrentTimestamp,
   isArtifactUpdate,
   isTaskStatusUpdate,
-} from "./task-utils";
+} from './task-utils';
 
 // Handle state transitions for existing tasks
 export const finalStates: schema.TaskState[] = [
-  "completed",
-  "failed",
-  "canceled",
+  'completed',
+  'failed',
+  'canceled',
 ];
 
 export class TaskManager {
-  constructor(private taskStore: ITaskStore, private logger: ILogger) {}
+  constructor(private taskStore: ITaskStore, private logger: ILogger) { }
 
   applyUpdateToTaskAndHistory(
     current: TaskAndHistory,
     update: TaskUpdate
   ): TaskAndHistory {
-    let newTask = { ...current.task }; // Shallow copy task
-    let newHistory = [...current.history]; // Shallow copy history
+    const newTask = { ...current.task }; // Shallow copy task
+    const newHistory = [...current.history]; // Shallow copy history
 
     if (isTaskStatusUpdate(update)) {
       // Merge status update
@@ -37,7 +39,7 @@ export class TaskManager {
         timestamp: getCurrentTimestamp(), // Always update timestamp
       };
       // If the update includes an agent message, add it to history
-      if (update.message?.role === "agent") {
+      if (update.message?.role === 'agent') {
         newHistory.push(update.message);
       }
     } else if (
@@ -73,56 +75,21 @@ export class TaskManager {
     return { task: newTask, history: newHistory };
   }
 
-  // Helper methods for artifact handling
-  private findArtifactIndex(
-    artifacts: schema.Artifact[],
-    update: schema.Artifact
-  ): number {
-    if (update.index !== undefined) {
-      return update.index < artifacts.length ? update.index : -1;
-    }
-    return update.name
-      ? artifacts.findIndex((a) => a.name === update.name)
-      : -1;
-  }
-
-  private appendToArtifact(
-    existing: schema.Artifact,
-    update: schema.Artifact
-  ): schema.Artifact {
-    // Create a deep copy for modification to avoid mutating original
-    const artifact = JSON.parse(JSON.stringify(existing));
-    artifact.parts.push(...update.parts);
-    if (update.metadata) {
-      artifact.metadata = { ...(artifact.metadata || {}), ...update.metadata };
-    }
-    if (update.lastChunk !== undefined) artifact.lastChunk = update.lastChunk;
-    if (update.description) artifact.description = update.description;
-    return artifact;
-  }
-
-  private sortArtifacts(artifacts: schema.Artifact[]): void {
-    if (artifacts.some((a) => a.index !== undefined)) {
-      artifacts.sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
-    }
-  }
-
-  // State transition helper
   stateChangeOnNewRequest(
     currentState: schema.TaskState
   ): schema.TaskState | null {
     switch (currentState) {
-      case "completed":
-      case "failed":
-      case "canceled":
+      case 'completed':
+      case 'failed':
+      case 'canceled':
         // Reset to submitted when receiving message in final state
-        return "submitted";
-      case "input-required":
+        return 'submitted';
+      case 'input-required':
         // If the previous state was "input-required", transition to working
-        return "working";
-      case "working":
-      case "submitted":
-      case "unknown":
+        return 'working';
+      case 'working':
+      case 'submitted':
+      case 'unknown':
         // No state change needed
         return null;
     }
@@ -143,7 +110,7 @@ export class TaskManager {
         id: taskId,
         sessionId: sessionId ?? undefined, // Store undefined if null
         status: {
-          state: "submitted", // Start as submitted
+          state: 'submitted', // Start as submitted
           timestamp: getCurrentTimestamp(),
           message: null, // Initial user message goes only to history for now
         },
@@ -164,9 +131,9 @@ export class TaskManager {
       // Use the state transition helper
       const newState = this.stateChangeOnNewRequest(data.task.status.state);
       if (newState) {
-        const stateUpdate: Omit<schema.TaskStatus, "timestamp"> = {
+        const stateUpdate: Omit<schema.TaskStatus, 'timestamp'> = {
           state: newState,
-          message: newState === "submitted" ? null : data.task.status.message,
+          message: newState === 'submitted' ? null : data.task.status.message,
         };
         data = this.applyUpdateToTaskAndHistory(data, stateUpdate);
         this.logger.debug(
@@ -203,12 +170,12 @@ export class TaskManager {
 
   createFailedTaskState(failureText: string): TaskUpdate {
     return {
-      state: "failed",
+      state: 'failed',
       message: {
-        role: "agent",
+        role: 'agent',
         parts: [
           {
-            type: "text",
+            type: 'text',
             text: failureText,
           },
         ],
@@ -218,20 +185,19 @@ export class TaskManager {
 
   createCompletedTaskState(text?: string): TaskUpdate {
     return {
-      state: "completed",
+      state: 'completed',
       message: {
-        role: "agent",
+        role: 'agent',
         parts: [
           {
-            type: "text",
-            text: text ?? "task completed",
+            type: 'text',
+            text: text ?? 'task completed',
           },
         ],
       },
     };
   }
 
-  // Event creation helpers
   createTaskStatusEvent(
     taskId: string,
     status: schema.TaskStatus,
@@ -254,5 +220,39 @@ export class TaskManager {
       artifact: artifact,
       final: final,
     };
+  }
+
+  // Private helper methods
+  private findArtifactIndex(
+    artifacts: schema.Artifact[],
+    update: schema.Artifact
+  ): number {
+    if (update.index !== undefined) {
+      return update.index < artifacts.length ? update.index : -1;
+    }
+    return update.name
+      ? artifacts.findIndex((a) => a.name === update.name)
+      : -1;
+  }
+
+  private appendToArtifact(
+    existing: schema.Artifact,
+    update: schema.Artifact
+  ): schema.Artifact {
+    // Create a deep copy for modification to avoid mutating original
+    const artifact = JSON.parse(JSON.stringify(existing));
+    artifact.parts.push(...update.parts);
+    if (update.metadata) {
+      artifact.metadata = { ...(artifact.metadata || {}), ...update.metadata };
+    }
+    if (update.lastChunk !== undefined) artifact.lastChunk = update.lastChunk;
+    if (update.description) artifact.description = update.description;
+    return artifact;
+  }
+
+  private sortArtifacts(artifacts: schema.Artifact[]): void {
+    if (artifacts.some((a) => a.index !== undefined)) {
+      artifacts.sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
+    }
   }
 }

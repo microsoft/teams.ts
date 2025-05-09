@@ -1,4 +1,5 @@
 import { IStorage } from '@microsoft/teams.common';
+
 import { ITaskStore, TaskAndHistory } from '../types/a2a-types';
 
 export class TaskStore implements ITaskStore {
