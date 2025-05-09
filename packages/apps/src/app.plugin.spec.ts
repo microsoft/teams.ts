@@ -107,12 +107,14 @@ describe('app.plugin', () => {
             plugins: [new ReservedEventPlugin()]
         });
 
+        let eventFn = jest.fn()
+        app.event('activity', eventFn);
+
         await app.start();
         const plugin = app.getPlugin('reservedPlugin') as ReservedEventPlugin;
 
-        expect(() => {
-            plugin.testEmit();
-        }).toThrow('event "activity" is reserved by app-events');
+        plugin.testEmit()
+        expect(eventFn).not.toHaveBeenCalled();
     });
 
     it('should call plugin lifecycle methods in correct order', async () => {
