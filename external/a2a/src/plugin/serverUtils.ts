@@ -1,6 +1,6 @@
 import { Response } from 'express';
-import { A2AError } from './models/A2AError';
 import * as schema from './schema';
+import { A2AError } from './types/a2a-error';
 
 const isType = <T extends schema.A2ARequest['method']>(type: T) => (req: schema.A2ARequest): req is Extract<schema.A2ARequest, { method: T }> => {
     return req.method === type;
@@ -32,7 +32,7 @@ export const validateRequest = <T extends schema.A2ARequest['method']>(type: T, 
 export const createSuccessResponse = <T>(
     taskId: number | string | null,
     result: T
-): schema.JSONRPCResponse<T> => {
+): schema.JSONRPCResponse<T, schema.A2AError> => {
     if (taskId === null) {
         // This shouldn't happen for methods that expect a response, but safeguard
         throw A2AError.internalError(
@@ -49,7 +49,7 @@ export const createSuccessResponse = <T>(
 export const createErrorResponse = (
     id: number | string | null | undefined,
     error: schema.JSONRPCError<unknown>
-): schema.JSONRPCResponse<null, unknown> => {
+): schema.JSONRPCResponse<null, schema.A2AError> => {
     // For errors, ID should be the same as request ID, or null if that couldn't be determined
     return {
         jsonrpc: "2.0",
@@ -63,7 +63,7 @@ export const normalizeError = (
     error: any,
     reqId: number | string | null | undefined,
     taskId?: string
-): schema.JSONRPCResponse<null, unknown> => {
+): schema.JSONRPCResponse<null, schema.A2AError> => {
     let a2aError: A2AError;
     if (error instanceof A2AError) {
         a2aError = error;

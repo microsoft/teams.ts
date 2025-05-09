@@ -1,5 +1,5 @@
 import * as schema from '../schema';
-import { TaskAndHistory, TaskContext, TaskUpdate } from '../types';
+import { TaskAndHistory, TaskContext, TaskUpdate } from '../types/a2a-types';
 import { getCurrentTimestamp } from "./utils";
 
 /**

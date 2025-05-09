@@ -1,6 +1,6 @@
 import { ILogger } from '@microsoft/teams.common';
 import * as schema from "../schema";
-import { ITaskStore, TaskAndHistory, TaskContext, TaskUpdate } from '../types';
+import { ITaskStore, TaskAndHistory, TaskContext, TaskUpdate } from '../types/a2a-types';
 import { getCurrentTimestamp, isArtifactUpdate, isTaskStatusUpdate } from './utils';
 
 // Handle state transitions for existing tasks
@@ -187,5 +187,33 @@ export class TaskManager {
 
     isFinalState(current: TaskAndHistory,): boolean {
         return finalStates.includes(current.task.status.state);
+    }
+
+    createFailedTaskState(failureText: string): TaskUpdate {
+        return {
+            state: "failed",
+            message: {
+                role: "agent",
+                parts: [{
+                    type: 'text',
+                    text: failureText
+                }],
+            }
+        } satisfies TaskUpdate;
+    }
+
+    createCompletedTaskState(text?: string): TaskUpdate {
+        return {
+            state: "completed",
+            message: {
+                role: "agent",
+                parts: [
+                    {
+                        type: "text",
+                        text: text ?? 'task completed',
+                    },
+                ],
+            },
+        }
     }
 }

@@ -1,28 +1,17 @@
 import { Dependency, Event, HttpPlugin, IPlugin, Logger, Plugin, Storage } from '@microsoft/teams.apps';
 import { ILogger, IStorage } from '@microsoft/teams.common';
-import express, { Response } from 'express';
+import express from 'express';
 import { isTaskRequest } from './middleware/isTaskRequest';
-import { A2AError } from './models/A2AError';
 import * as schema from './schema';
-import { createSuccessResponse, normalizeError } from './serverUtils';
+import { onGetTaskRequest } from './server.on-get-request';
+import { onSendRequest } from './server.on-send-request';
 import { TaskManager } from './tasks/task-manager';
 import { TaskStore } from './tasks/task-store';
-import { ITaskStore, TaskAndHistory, TaskContext, TaskUpdate } from './types';
+import { A2AError } from './types/a2a-error';
+import { ITaskStore } from './types/a2a-types';
+import { A2AEvents } from './types/event-types';
 
-export type Respond = (taskUpdate: TaskUpdate | string) => Promise<void>;
-export type AccumulateArtifacts = (artifact: schema.Artifact | schema.Artifact[]) => Promise<void>;
 
-type Success<T> = {
-    success: true;
-    result: T;
-};
-
-type Failure = {
-    success: false;
-    error: Error;
-};
-
-type Result<T> = Success<T> | Failure;
 
 interface A2APluginOptions {
     /**
@@ -43,14 +32,6 @@ interface A2APluginOptions {
     taskStore?: ITaskStore;
 }
 
-interface A2AEvents {
-    'a2a:receive': {
-        taskContext: TaskContext;
-        respond: Respond;
-        accumulateArtifacts: AccumulateArtifacts;
-    }
-}
-
 @Plugin({
     name: 'a2a',
     description: 'A2A Plugin',
@@ -58,10 +39,6 @@ interface A2AEvents {
 })
 export class A2APlugin implements IPlugin<A2AEvents> {
     __eventType!: A2AEvents;
-
-    private _card: schema.AgentCard;
-    private _path: string;
-    private _taskManager!: TaskManager;
 
     @Event('custom')
     readonly emit!: <Name extends keyof A2AEvents>(name: Name, arg: A2AEvents[Name]) => void;
@@ -72,10 +49,13 @@ export class A2APlugin implements IPlugin<A2AEvents> {
     @Storage()
     readonly _storage!: IStorage;
 
-    private _taskStore!: ITaskStore;
-
     @Logger()
-    private readonly _logger!: ILogger;
+    protected readonly _logger!: ILogger;
+
+    protected _card: schema.AgentCard;
+    protected _path: string;
+    protected _taskManager!: TaskManager;
+    protected _taskStore!: ITaskStore;
 
     constructor(options: A2APluginOptions) {
         this._card = options.agentCard;
@@ -116,7 +96,7 @@ export class A2APlugin implements IPlugin<A2AEvents> {
                 case 'tasks/sendSubscribe':
                     throw new Error('sendSubscribe not implemented yet');
                 case 'tasks/get':
-                    return this.onTaskGetRequest(request, res);
+                    return this.onTaskGetRequest(request, res, next);
                 case 'tasks/cancel':
                     throw new Error('cancel not implemented yet');
                 default:
@@ -133,20 +113,20 @@ export class A2APlugin implements IPlugin<A2AEvents> {
         }
     }
 
-    private async onTaskGetRequest(
-        req: schema.A2ARequest,
-        res: express.Response
-    ) {
-        const { id: taskId } = req.params;
-        if (!taskId) throw A2AError.invalidParams("Missing task ID.");
+    onSendRequest = onSendRequest
+    onGetTaskRequest = onGetTaskRequest
 
-        // Load both task and history
-        const data = await this._taskStore.load(taskId);
-        if (!data) {
-            throw A2AError.taskNotFound(taskId);
-        }
-        // Return only the task object as per spec
-        this.sendJsonResponse(res, taskId, data.task);
+    private async onTaskGetRequest(
+        req: schema.GetTaskRequest,
+        res: express.Response,
+        next: express.NextFunction
+    ) {
+        await this.onGetTaskRequest(req, (result) => {
+            res.json(result);
+            if (result?.error) {
+                next(result.error);
+            }
+        })
     }
 
     private async onTaskSendRequest(
@@ -154,151 +134,11 @@ export class A2APlugin implements IPlugin<A2AEvents> {
         res: express.Response,
         next: express.NextFunction
     ) {
-        const { id: taskId, message, sessionId, metadata } = req.params;
-
-        // Load or create task AND history
-        let currentData = await this._taskManager.loadOrCreateTaskAndHistory(
-            taskId,
-            message,
-            sessionId,
-            metadata
-        );
-
-        const context = this._taskManager.createTaskContext(
-            currentData.task,
-            message,
-            currentData.history
-        );
-
-        const updateTask = async (update: TaskUpdate): Promise<Result<TaskAndHistory>> => {
-            try {
-                currentData = await this._taskManager.applyUpdateToTaskAndHistory(currentData, update);
-                await this._taskStore.save(currentData);
-                context.task = currentData.task;
-                return {
-                    success: true,
-                    result: currentData,
-                };
-            } catch (error) {
-                // Convert error to failure state
-                const failUpdate = {
-                    state: "failed",
-                    message: {
-                        role: "agent",
-                        parts: [{
-                            type: 'text',
-                            text: `Handler failed: ${error instanceof Error
-                                ? error.message
-                                : String(error)
-                                }`
-                        }],
-                    },
-                } satisfies TaskUpdate;
-                currentData = await this._taskManager.applyUpdateToTaskAndHistory(currentData, failUpdate);
-                try {
-                    await this._taskStore.save(currentData);
-                } catch (saveError) {
-                    console.error(
-                        `Failed to save task ${taskId} after handler error:`,
-                        saveError
-                    );
-                }
-
-                return {
-                    success: false,
-                    error: new Error(`Handler failed: ${error instanceof Error
-                        ? error.message
-                        : String(error)
-                        }`),
-                }
+        await this.onSendRequest(req, (result) => {
+            res.json(result);
+            if (result?.error) {
+                next(result.error);
             }
-        }
-
-        const respond: Respond = async (update) => {
-            this._logger.debug(`Responding to task ${taskId}`);
-            let responseValue: TaskUpdate;
-            if (typeof update === 'string') {
-                responseValue = {
-                    state: "completed",
-                    message: {
-                        role: "agent",
-                        parts: [
-                            {
-                                type: "text",
-                                text: 'task completed',
-                            },
-                        ],
-                    },
-                } satisfies TaskUpdate;
-            } else {
-                responseValue = update;
-            }
-            let result = await updateTask(responseValue);
-
-            if (result.success) {
-                if (!this._taskManager.isFinalState(result.result)) {
-                    this._logger.info(`Task ${taskId} is not in a final state, so automatically setting to completed.`);
-                    // By default, we will set the task to "completed" state
-                    result = await updateTask({
-                        state: "completed",
-                        message: {
-                            role: "agent",
-                            parts: [
-                                {
-                                    type: "text",
-                                    text: 'task completed',
-                                },
-                            ],
-                        },
-                    });
-                }
-            }
-
-            if (!result.success) {
-                this._logger.error(`Failed to save task during response: ${result.error}`);
-                next(normalizeError(result.error, req.id, taskId))
-            }
-
-            try {
-                this.sendJsonResponse(res, taskId, currentData.task);
-            } catch (error) {
-                this._logger.error(`Failed to send response: ${error}`);
-                next(normalizeError(error, req.id, taskId))
-            }
-        }
-
-        const accumulateArtifacts: AccumulateArtifacts = async (artifact) => {
-            const result = await updateTask(artifact);
-            if (!result.success) {
-                this._logger.error(`Failed to accumulate artifacts: ${result.error}`);
-                next(normalizeError(result.error, req.id, taskId))
-            }
-        }
-
-
-        this.emit('a2a:receive', {
-            taskContext: context,
-            respond,
-            accumulateArtifacts
         })
-
-        // The loop finished, send the final task state
-    }
-
-    /** Sends a standard JSON success response */
-    private sendJsonResponse<T>(
-        res: Response,
-        taskId: number | string | null,
-        result: T
-    ): void {
-        if (taskId === null) {
-            console.warn(
-                "Attempted to send JSON response for a request with null ID."
-            );
-            // Should this be an error? Or just log and ignore?
-            // For 'tasks/send' etc., ID should always be present.
-            return;
-        }
-        res.json(createSuccessResponse(taskId, result));
     }
 }

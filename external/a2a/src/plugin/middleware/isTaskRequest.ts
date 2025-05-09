@@ -1,7 +1,7 @@
 import express from 'express';
 
-import { A2AError } from '../models/A2AError';
 import * as schema from '../schema';
+import { A2AError } from '../types/a2a-error';
 
 export function isTaskRequest() {
   return (req: express.Request, res: express.Response, next: express.NextFunction) => {

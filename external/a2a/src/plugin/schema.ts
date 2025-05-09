@@ -82,7 +82,7 @@ export interface JSONRPCResponse<R = unknown | null, E = unknown | null>
      * Should be null or omitted if the request was successful.
      * @default null
      */
-    error?: JSONRPCError<E> | null;
+    error?: E | null;
 }
 
 // === Core A2A Data Structures

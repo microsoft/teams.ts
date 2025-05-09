@@ -1,4 +1,4 @@
-import * as schema from "./schema";
+import * as schema from "../schema";
 
 // Helper type for the simplified store
 export type TaskAndHistory = {
