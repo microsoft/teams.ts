@@ -4,11 +4,12 @@ import { Dependency, EmitPluginEvent, Event, HttpPlugin, IPlugin, Logger, Plugin
 import { ILogger, IStorage } from '@microsoft/teams.common';
 
 import * as schema from '../common/schema';
+
 import { isTaskRequest } from './middleware/isTaskRequest';
-import { onGetTaskRequest } from './server.on-get-request';
-import { onSendRequest } from './server.on-send-request';
+import { onGetTaskRequest } from './plugin.on-get-request';
+import { onSendRequest } from './plugin.on-send-request';
 import { TaskManager } from './tasks/task-manager';
-import { ITaskStore } from './tasks/task-store';
+import { TaskStore } from './tasks/task-store';
 import { A2AError } from './types/a2a-error';
 import { A2AEvents } from './types/event-types';
 
@@ -28,7 +29,7 @@ interface IA2APluginOptions {
      * taskStore which stores the tasks that are sent to the agent
      * or that the agent sends. If not provided, the App's storage will be used.
      */
-    taskStore?: ITaskStore;
+    taskStore?: TaskStore;
 }
 
 @Plugin({
@@ -54,7 +55,7 @@ export class A2APlugin implements IPlugin<A2AEvents> {
     protected _card: schema.AgentCard;
     protected _path: string;
     protected _taskManager!: TaskManager;
-    protected _taskStore!: ITaskStore;
+    protected _taskStore!: TaskStore;
 
     constructor(options: IA2APluginOptions) {
         this._card = options.agentCard;
