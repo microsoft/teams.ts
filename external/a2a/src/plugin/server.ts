@@ -8,9 +8,8 @@ import * as schema from './schema';
 import { onGetTaskRequest } from './server.on-get-request';
 import { onSendRequest } from './server.on-send-request';
 import { TaskManager } from './tasks/task-manager';
-import { TaskStore } from './tasks/task-store';
+import { ITaskStore } from './tasks/task-store';
 import { A2AError } from './types/a2a-error';
-import { ITaskStore } from './types/a2a-types';
 import { A2AEvents } from './types/event-types';
 
 interface IA2APluginOptions {

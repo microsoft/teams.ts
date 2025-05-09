@@ -30,7 +30,7 @@ export interface ITaskStore {
 /**
  * Context object provided to the TaskHandler.
  */
-export interface TaskContext { // eslint-disable-line @typescript-eslint/naming-convention
+export type TaskContext = {
     /**
      * The current state of the task when the handler is invoked or resumed.
      * Note: This is a snapshot. For the absolute latest state during async operations,
