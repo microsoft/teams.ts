@@ -107,13 +107,13 @@ describe('app.plugin', () => {
             plugins: [new ReservedEventPlugin()]
         });
 
-        let eventFn = jest.fn()
+        const eventFn = jest.fn();
         app.event('activity', eventFn);
 
         await app.start();
         const plugin = app.getPlugin('reservedPlugin') as ReservedEventPlugin;
 
-        plugin.testEmit()
+        plugin.testEmit();
         expect(eventFn).not.toHaveBeenCalled();
     });
 
