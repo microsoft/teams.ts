@@ -86,7 +86,9 @@ export interface IBasePlugin {
 export type IPluginWithEvents<TEvents extends {}> = IBasePlugin & {
   /**
    * The event types that this plugin can emit. This is just a type, but we need it
-   * for the type system to pick it up.
+   * for the type system to pick it up. You don't actually need to assign this to 
+   * anything.
+   * Simply having `__eventType!: MyEvents` works.
    */
   __eventType: TEvents;
 

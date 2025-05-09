@@ -1,5 +1,3 @@
-
-
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 
 import { App } from './app';
@@ -54,15 +52,18 @@ describe('app.plugin', () => {
             plugins: [testPlugin, new TestHttpPlugin()]
         });
 
-        let receivedEvent;
+        let receivedEventMessage: string = '';
         app.event('test', event => {
-            receivedEvent = event;
+            // Make sure message is typed correctly
+            receivedEventMessage = event.message;
+            // @ts-expect-error - event should be correctly typed to ITestEvents
+            event.nonExistentProperty = 'bar';
         });
 
         await app.start();
 
         testPlugin.testEmit();
-        expect(receivedEvent).toEqual({ message: 'hello' });
+        expect(receivedEventMessage).toEqual('hello');
     });
 
     it('should throw error when registering duplicate plugin names', () => {
