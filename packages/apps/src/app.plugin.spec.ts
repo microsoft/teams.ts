@@ -3,7 +3,7 @@ import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import { App } from './app';
 import { IErrorEvent } from './events';
 import { HttpPlugin } from './plugins';
-import { IPlugin, IPluginStartEvent } from './types';
+import { EmitPluginEvent, IPlugin, IPluginStartEvent } from './types';
 import { Event, Plugin } from './types/plugin/decorators';
 
 interface ITestEvents {
@@ -29,10 +29,11 @@ class TestHttpPlugin extends HttpPlugin {
     description: 'test-plugin',
 })
 class TestPlugin implements IPlugin<ITestEvents> {
-    __eventType!: ITestEvents;
 
     @Event('custom')
-    emit!: <Name extends keyof ITestEvents>(name: Name, arg: ITestEvents[Name]) => void;
+    private emit!: EmitPluginEvent<ITestEvents>;
+
+    __eventType!: ITestEvents;
 
     testEmit() {
         this.emit('test', { message: 'hello', bar: 1 });
