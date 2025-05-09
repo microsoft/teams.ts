@@ -1,6 +1,6 @@
 import express from 'express';
 
-import * as schema from '../schema';
+import * as schema from '../../common/schema';
 import { A2AError } from '../types/a2a-error';
 
 export function isTaskRequest() {

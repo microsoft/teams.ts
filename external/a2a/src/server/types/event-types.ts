@@ -1,4 +1,4 @@
-import * as schema from '../schema';
+import * as schema from '../../common/schema';
 
 import { TaskContext, TaskUpdate } from './a2a-types';
 

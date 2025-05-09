@@ -1,4 +1,4 @@
-import * as schema from '../schema';
+import * as schema from '../../common/schema';
 import { TaskAndHistory, TaskContext, TaskUpdate } from '../types/a2a-types';
 
 import { getCurrentTimestamp } from './task-utils';

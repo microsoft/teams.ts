@@ -1,6 +1,6 @@
 import { ILogger } from '@microsoft/teams.common';
 
-import * as schema from '../schema';
+import * as schema from '../../common/schema';
 import {
   ITaskStore,
   TaskAndHistory,

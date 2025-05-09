@@ -1,15 +1,15 @@
 import { Response } from 'express';
 
-import * as schema from './schema';
+import * as schema from '../common/schema';
 import { A2AError } from './types/a2a-error';
 
 const isType =
   <T extends schema.A2ARequest['method']>(type: T) =>
-  (
-    req: schema.A2ARequest
-  ): req is Extract<schema.A2ARequest, { method: T }> => {
-    return req.method === type;
-  };
+    (
+      req: schema.A2ARequest
+    ): req is Extract<schema.A2ARequest, { method: T }> => {
+      return req.method === type;
+    };
 
 /**
  * Validates if the reqest is of the expected type.
@@ -84,8 +84,7 @@ export const normalizeError = (
   }
 
   console.error(
-    `Error processing request (Task: ${a2aError.taskId ?? 'N/A'}, ReqID: ${
-      reqId ?? 'N/A'
+    `Error processing request (Task: ${a2aError.taskId ?? 'N/A'}, ReqID: ${reqId ?? 'N/A'
     }):`,
     a2aError
   );

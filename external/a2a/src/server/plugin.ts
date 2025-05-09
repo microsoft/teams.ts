@@ -3,8 +3,8 @@ import express from 'express';
 import { Dependency, EmitPluginEvent, Event, HttpPlugin, IPlugin, Logger, Plugin, Storage } from '@microsoft/teams.apps';
 import { ILogger, IStorage } from '@microsoft/teams.common';
 
+import * as schema from '../common/schema';
 import { isTaskRequest } from './middleware/isTaskRequest';
-import * as schema from './schema';
 import { onGetTaskRequest } from './server.on-get-request';
 import { onSendRequest } from './server.on-send-request';
 import { TaskManager } from './tasks/task-manager';
