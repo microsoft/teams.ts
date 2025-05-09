@@ -1,2 +1,2 @@
-// Export your package functionality here
-export * from './plugin/server';
+export * from "./plugin/server";
+export * from "./plugin/types/event-types";

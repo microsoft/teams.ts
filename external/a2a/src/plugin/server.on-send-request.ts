@@ -1,102 +1,198 @@
-import * as schema from './schema';
-import { A2APlugin } from './server';
-import { createSuccessResponse, normalizeError } from './serverUtils';
-import { TaskAndHistory, TaskUpdate } from './types/a2a-types';
-import { AccumulateArtifacts, Respond } from './types/event-types';
-import { Result } from './types/type-utils';
+import { ILogger } from "@microsoft/teams.common";
+import * as schema from "./schema";
+import { A2APlugin } from "./server";
+import { createSuccessResponse, normalizeError } from "./serverUtils";
+import { TaskManager } from "./tasks/task-manager";
+import {
+  ITaskStore,
+  TaskAndHistory,
+  TaskContext,
+  TaskUpdate,
+} from "./types/a2a-types";
+import { AccumulateArtifacts, Respond } from "./types/event-types";
+import { Result } from "./types/type-utils";
 
+interface TaskOperationContext {
+  taskManager: TaskManager;
+  taskStore: ITaskStore;
+  logger: ILogger;
+  taskId: string;
+  reqId: number | string | null;
+  contextRef: { current: TaskContext };
+  dataRef: { current: TaskAndHistory };
+}
+
+/**
+ * Handles the tasks/send request by processing the user message and setting up event handlers
+ *
+ * @param req - The request containing the task parameters
+ * @param cb - The callback to call with the response
+ */
 export async function onSendRequest(
-    this: A2APlugin,
-    req: schema.SendTaskRequest,
-    cb: (result?: schema.SendTaskResponse) => void
+  this: A2APlugin,
+  req: schema.SendTaskRequest,
+  cb: (result?: schema.SendTaskResponse) => void
 ) {
-    const { id: taskId, message, sessionId, metadata } = req.params;
-    // Load or create task AND history
-    let currentData = await this._taskManager.loadOrCreateTaskAndHistory(
-        taskId,
-        message,
-        sessionId,
-        metadata
+  const { id: taskId, message, sessionId, metadata } = req.params;
+
+  // Load or create task AND history
+  let currentData = await this._taskManager.loadOrCreateTaskAndHistory(
+    taskId,
+    message,
+    sessionId,
+    metadata
+  );
+
+  const taskContext = this._taskManager.createTaskContext(
+    currentData.task,
+    message,
+    currentData.history
+  );
+
+  // Create operation context with references that can be updated
+  const operationContext: TaskOperationContext = {
+    taskManager: this._taskManager,
+    taskStore: this._taskStore,
+    logger: this._logger,
+    taskId,
+    reqId: req.id || null,
+    contextRef: { current: taskContext },
+    dataRef: { current: currentData },
+  };
+
+  // Create the helper functions with operation context
+  const respond = createRespondFunction(operationContext, cb);
+  const accumulateArtifacts = createArtifactsFunction(operationContext, cb);
+
+  // Emit the event to process the task
+  this.emit("a2a:receive", {
+    taskContext,
+    respond,
+    accumulateArtifacts,
+  });
+}
+
+async function updateTask(
+  ctx: TaskOperationContext,
+  update: TaskUpdate
+): Promise<Result<TaskAndHistory>> {
+  try {
+    // Apply the update to the task
+    const updatedData = await ctx.taskManager.applyUpdateToTaskAndHistory(
+      ctx.dataRef.current,
+      update
     );
 
-    const context = this._taskManager.createTaskContext(
-        currentData.task,
-        message,
-        currentData.history
+    // Save the updated task
+    await ctx.taskStore.save(updatedData);
+
+    // Update the task context reference
+    ctx.contextRef.current.task = updatedData.task;
+
+    // Return success result
+    return {
+      success: true,
+      data: updatedData,
+    };
+  } catch (error) {
+    return handleUpdateError(ctx, error, ctx.dataRef.current);
+  }
+}
+
+async function handleUpdateError(
+  ctx: TaskOperationContext,
+  error: unknown,
+  currentData: TaskAndHistory
+): Promise<Result<TaskAndHistory>> {
+  // Convert error to failure state
+  const failedUpdate = ctx.taskManager.createFailedTaskState(
+    `Handler failed: ${error instanceof Error ? error.message : String(error)}`
+  );
+
+  // Apply failure state to task
+  const failedData = await ctx.taskManager.applyUpdateToTaskAndHistory(
+    currentData,
+    failedUpdate
+  );
+
+  // Try to save the failed state
+  try {
+    await ctx.taskStore.save(failedData);
+  } catch (saveError) {
+    ctx.logger.error(
+      `Failed to save task ${ctx.taskId} after handler error:`,
+      saveError
     );
+  }
 
-    const updateTask = async (update: TaskUpdate): Promise<Result<TaskAndHistory>> => {
-        try {
-            currentData = await this._taskManager.applyUpdateToTaskAndHistory(currentData, update);
-            await this._taskStore.save(currentData);
-            context.task = currentData.task;
-            return {
-                success: true,
-                data: currentData,
-            };
-        } catch (error) {
-            // Convert error to failure state
-            const failedUpdate = this._taskManager.createFailedTaskState(`Handler failed: ${error instanceof Error
-                ? error.message
-                : String(error)
-                }`);
-            currentData = await this._taskManager.applyUpdateToTaskAndHistory(currentData, failedUpdate);
-            try {
-                await this._taskStore.save(currentData);
-            } catch (saveError) {
-                this._logger.error(
-                    `Failed to save task ${taskId} after handler error:`,
-                    saveError
-                );
-            }
+  // Return failure result with original error
+  return {
+    success: false,
+    error: new Error(
+      `Handler failed: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    ),
+  };
+}
 
-            return {
-                success: false,
-                error: new Error(`Handler failed: ${error instanceof Error
-                    ? error.message
-                    : String(error)
-                    }`),
-            }
-        }
+function createRespondFunction(
+  ctx: TaskOperationContext,
+  callback: (result?: schema.SendTaskResponse) => void
+): Respond {
+  return async (update) => {
+    ctx.logger.debug(`Responding to task ${ctx.taskId}`);
+    let responseValue: TaskUpdate;
+    if (typeof update === "string") {
+      responseValue = ctx.taskManager.createCompletedTaskState(update);
+    } else {
+      responseValue = update;
     }
 
-    const respond: Respond = async (update) => {
-        this._logger.debug(`Responding to task ${taskId}`);
-        let responseValue: TaskUpdate;
-        if (typeof update === 'string') {
-            responseValue = this._taskManager.createCompletedTaskState(update);
-        } else {
-            responseValue = update;
-        }
-        let result = await updateTask(responseValue);
+    let result = await updateTask(ctx, responseValue);
+
+    // Update the current data reference with the latest version
+    if (result.success) {
+      ctx.dataRef.current = result.data;
+
+      if (!ctx.taskManager.isFinalState(result.data)) {
+        ctx.logger.info(
+          `Task ${ctx.taskId} is not in a final state, so automatically setting to completed.`
+        );
+        // By default, we will set the task to "completed" state
+        result = await updateTask(
+          ctx,
+          ctx.taskManager.createCompletedTaskState()
+        );
 
         if (result.success) {
-            if (!this._taskManager.isFinalState(result.data)) {
-                this._logger.info(`Task ${taskId} is not in a final state, so automatically setting to completed.`);
-                // By default, we will set the task to "completed" state
-                result = await updateTask(this._taskManager.createCompletedTaskState());
-            }
+          ctx.dataRef.current = result.data;
         }
-
-        if (!result.success) {
-            this._logger.error(`Failed to save task during response: ${result.error}`);
-            cb(normalizeError(result.error, req.id, taskId))
-        }
-
-        cb(createSuccessResponse(taskId, currentData.task))
+      }
     }
 
-    const accumulateArtifacts: AccumulateArtifacts = async (artifact) => {
-        const result = await updateTask(artifact);
-        if (!result.success) {
-            this._logger.error(`Failed to accumulate artifacts: ${result.error}`);
-            cb(normalizeError(result.error, req.id, taskId))
-        }
+    if (!result.success) {
+      ctx.logger.error(`Failed to save task during response: ${result.error}`);
+      callback(normalizeError(result.error, ctx.reqId, ctx.taskId));
+      return;
     }
 
-    this.emit('a2a:receive', {
-        taskContext: context,
-        respond,
-        accumulateArtifacts
-    })
+    callback(createSuccessResponse(ctx.taskId, ctx.dataRef.current.task));
+  };
+}
+
+function createArtifactsFunction(
+  ctx: TaskOperationContext,
+  callback: (result?: schema.SendTaskResponse) => void
+): AccumulateArtifacts {
+  return async (artifact) => {
+    const result = await updateTask(ctx, artifact);
+
+    if (result.success) {
+      ctx.dataRef.current = result.data;
+    } else {
+      ctx.logger.error(`Failed to accumulate artifacts: ${result.error}`);
+      callback(normalizeError(result.error, ctx.reqId, ctx.taskId));
+    }
+  };
 }
