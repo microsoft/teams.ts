@@ -9,6 +9,7 @@ import { Event, Plugin } from './types/plugin/decorators';
 interface ITestEvents {
     test: {
         message: string;
+        bar: number;
     }
 }
 
@@ -28,14 +29,13 @@ class TestHttpPlugin extends HttpPlugin {
     description: 'test-plugin',
 })
 class TestPlugin implements IPlugin<ITestEvents> {
+    __eventType!: ITestEvents;
 
     @Event('custom')
     emit!: <Name extends keyof ITestEvents>(name: Name, arg: ITestEvents[Name]) => void;
 
-    __eventType!: ITestEvents;
-
     testEmit() {
-        this.emit('test', { message: 'hello' });
+        this.emit('test', { message: 'hello', bar: 1 });
     }
 
     onStart(_event: IPluginStartEvent): void | Promise<void> {
