@@ -55,7 +55,7 @@ export type TaskContext = {
      * Optional, as history might not always be available or relevant.
      */
     history?: schema.Message[];
-}
+};
 
 /**
  * Represents the possible types of updates a TaskHandler can yield.

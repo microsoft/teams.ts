@@ -6,7 +6,7 @@ module.exports = (async () => {
 
   return tseslint.config(
     {
-      ignores: ["src/plugin/schema.ts"],
+      ignores: ["src/server/schema.ts"],
     },
     ...config
   );

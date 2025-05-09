@@ -1,5 +1,5 @@
+import { A2APlugin } from './plugin';
 import * as schema from './schema';
-import { A2APlugin } from './server';
 import { createSuccessResponse, normalizeError } from './serverUtils';
 import { A2AError } from './types/a2a-error';
 
