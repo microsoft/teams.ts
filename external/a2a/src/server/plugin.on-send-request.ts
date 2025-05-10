@@ -2,6 +2,7 @@ import { ILogger } from '@microsoft/teams.common';
 
 import * as schema from '../common/schema';
 
+import { Result } from '../common/type-utils';
 import { A2APlugin } from './plugin';
 import { createSuccessResponse, normalizeError } from './serverUtils';
 import { TaskManager } from './tasks/task-manager';
@@ -12,7 +13,6 @@ import {
   TaskUpdate,
 } from './types/a2a-types';
 import { AccumulateArtifacts, Respond } from './types/event-types';
-import { Result } from './types/type-utils';
 
 interface ITaskOperationContext {
   taskManager: TaskManager;
@@ -67,7 +67,7 @@ export async function onSendRequest(
   const accumulateArtifacts = createArtifactsFunction(operationContext, cb);
 
   // Emit the event to process the task
-  this.emit('a2a:receive', {
+  this.emit('a2a:message', {
     taskContext,
     respond,
     accumulateArtifacts,
