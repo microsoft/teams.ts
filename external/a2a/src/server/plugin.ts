@@ -5,6 +5,7 @@ import { ILogger, IStorage } from '@microsoft/teams.common';
 
 import * as schema from '../common/schema';
 
+import { A2AAgentManager } from '../client/a2a-agent-manager';
 import { isTaskRequest } from './middleware/isTaskRequest';
 import { onGetTaskRequest } from './plugin.on-get-request';
 import { onSendRequest } from './plugin.on-send-request';
@@ -41,7 +42,6 @@ export class A2APlugin implements IPlugin<A2AEvents> {
     @Event('custom')
     protected readonly emit!: EmitPluginEvent<A2AEvents>;
 
-
     @Dependency()
     protected readonly _httpPlugin!: HttpPlugin;
 
@@ -56,10 +56,15 @@ export class A2APlugin implements IPlugin<A2AEvents> {
     protected _path: string;
     protected _taskManager!: TaskManager;
     protected _taskStore!: TaskStore;
+    protected _clientManager!: A2AAgentManager;
+    public get clientManager(): A2AAgentManager {
+        return this._clientManager;
+    }
 
     constructor(options: IA2APluginOptions) {
         this._card = options.agentCard;
         this._path = options.path || '/a2a';
+        this._clientManager = new A2AAgentManager();
         if (options.taskStore) {
             this._taskStore = options.taskStore;
         }
