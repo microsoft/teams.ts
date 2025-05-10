@@ -3,6 +3,7 @@ import { ILogger } from '@microsoft/teams.common';
 import * as schema from '../common/schema';
 
 import { Result } from '../common/type-utils';
+
 import { A2APlugin } from './plugin';
 import { createSuccessResponse, normalizeError } from './serverUtils';
 import { TaskManager } from './tasks/task-manager';
