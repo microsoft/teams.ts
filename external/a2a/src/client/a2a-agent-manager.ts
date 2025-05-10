@@ -1,6 +1,8 @@
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
-import type { AgentCard, Task, TaskSendParams } from '../common/schema';
+
 import { A2AAgentClient, A2AAgentClientOptions } from './a2a-agent-client';
+
+import type { AgentCard, Task, TaskSendParams } from '../common/schema';
 
 export type AgentCardWithDetails = { alias: string, url: string, card: AgentCard };
 

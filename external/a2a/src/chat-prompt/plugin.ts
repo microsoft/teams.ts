@@ -1,5 +1,7 @@
-import { Function as ChatFunction, ChatPromptPlugin } from '@microsoft/teams.ai';
 import camelCase from 'camelcase';
+
+import { Function as ChatFunction, ChatPromptPlugin } from '@microsoft/teams.ai';
+
 import { A2AAgentManager, AgentCardWithDetails } from '../client/a2a-agent-manager';
 import * as schema from '../common/schema';
 import { generateRequestId } from '../common/uuid';
