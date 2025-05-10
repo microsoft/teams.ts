@@ -3,6 +3,7 @@ import express from 'express';
 import { Dependency, EmitPluginEvent, Event, HttpPlugin, IPlugin, Logger, Plugin, Storage } from '@microsoft/teams.apps';
 import { ILogger, IStorage } from '@microsoft/teams.common';
 
+import { A2AAgentManager } from '../client/a2a-agent-manager';
 import * as schema from '../common/schema';
 
 import { isTaskRequest } from './middleware/isTaskRequest';
