@@ -1,14 +1,11 @@
-import camelCase from 'camelcase';
-
 import { Function as ChatFunction, ChatPromptPlugin } from '@microsoft/teams.ai';
-
-import { A2AAgentManager } from '../client/a2a-agent-manager';
-
+import camelCase from 'camelcase';
+import { A2AAgentManager, AgentCardWithDetails } from '../client/a2a-agent-manager';
+import * as schema from '../common/schema';
 import { generateRequestId } from '../common/uuid';
 
-import * as schema from '../common/schema';
-
 export type A2APluginParams = {
+  agentAlias: string;
   url: string;
   agentCard?: schema.AgentCard;
   buildFunctionMetadata?: BuildFunctionMetadata;
@@ -56,17 +53,17 @@ export class A2AClientPlugin implements ChatPromptPlugin<'a2a', A2APluginParams>
   }
 
   onUsePlugin(args: A2APluginParams) {
-    this._manager.use(args.url, args.agentCard);
-    // Store per-agent config (excluding agentCard)
-    const { url, agentCard, ...rest } = args;
-    this._agentConfig.set(url, rest);
+    this._manager.use(args.agentAlias, args.url, args.agentCard);
+    // Store per-agent config (excluding agentCard and url)
+    const { agentAlias, url, agentCard, ...rest } = args;
+    this._agentConfig.set(agentAlias, rest);
   }
 
   async onBuildFunctions(functions: ChatFunction[]): Promise<ChatFunction[]> {
-    const cards = await this._manager.getAgentCards();
+    const cards: AgentCardWithDetails[] = await this._manager.getAgentCards();
     const allFunctions: ChatFunction[] = [];
-    for (const card of cards) {
-      const agentConfig = this._agentConfig.get(card.url) || {};
+    for (const { alias, card } of cards) {
+      const agentConfig = this._agentConfig.get(alias) || {};
       const buildFunctionMetadata = agentConfig.buildFunctionMetadata || this.buildFunctionMetadata || this._defaultFunctionMetadata;
       const buildTaskSendParams = agentConfig.buildTaskSendParams || this.buildTaskSendParams || this._defaultBuildTaskSendParams;
       const { name, description } = buildFunctionMetadata(card);
@@ -89,7 +86,7 @@ export class A2AClientPlugin implements ChatPromptPlugin<'a2a', A2APluginParams>
             throw new Error(`An input message is required to call Agent ${name}!`);
           }
           const sendParams = buildTaskSendParams(card, agentMessage);
-          const result = await this._manager.sendTask(card.url, sendParams);
+          const result = await this._manager.sendTask(alias, sendParams);
           return result;
         },
       });
@@ -102,7 +99,8 @@ export class A2AClientPlugin implements ChatPromptPlugin<'a2a', A2APluginParams>
    * If the user supplies a buildPrompt function, it is used. Otherwise, a default is built.
    */
   async onBuildPrompt(systemPrompt: string | undefined): Promise<string | undefined> {
-    const agentCards = await this._manager.getAgentCards();
+    const cardsWithMeta: AgentCardWithDetails[] = await this._manager.getAgentCards();
+    const agentCards = cardsWithMeta.map(({ card }) => card);
     // If user supplied a buildPrompt, use it
     if (typeof this.buildPrompt === 'function') {
       return this.buildPrompt(systemPrompt, agentCards);

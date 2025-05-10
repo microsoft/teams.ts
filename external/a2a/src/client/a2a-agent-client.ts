@@ -1,5 +1,4 @@
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
-
 import { ErrorCodeInternalError, JSONRPCError, JSONRPCResponse, type A2ARequest, type A2AResponse, type AgentCard, type SendTaskRequest, type SendTaskResponse, type Task, type TaskSendParams } from '../common/schema';
 import { generateRequestId } from '../common/uuid';
 
