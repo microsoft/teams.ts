@@ -63,6 +63,9 @@ export class A2APlugin implements IPlugin<A2AEvents> {
 
     constructor(options: IA2APluginOptions) {
         this._card = options.agentCard;
+        if (this._card.capabilities.streaming) {
+            this._logger.warn('A2APlugin does not support streaming yet, but the agent card indicates it does');
+        }
         this._path = options.path || '/a2a';
         this._clientManager = new A2AAgentManager();
         if (options.taskStore) {
