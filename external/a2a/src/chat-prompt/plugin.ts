@@ -6,38 +6,7 @@ import { A2AAgentManager, AgentCardWithDetails } from '../client/a2a-agent-manag
 import * as schema from '../common/schema';
 import { generateRequestId } from '../common/uuid';
 
-export type A2APluginParams = {
-  key: string;
-  url: string;
-  agentCard?: schema.AgentCard;
-  buildFunctionMetadata?: BuildFunctionMetadata;
-  buildTaskSendParams?: BuildTaskSendParams;
-};
-
-export type BuildFunctionMetadata = (card: schema.AgentCard) => { name: string; description: string };
-export type BuildTaskSendParams = (card: schema.AgentCard, input: string) => schema.TaskSendParams;
-
-/**
- * Options for constructing an A2APlugin.
- */
-export type A2APluginOptions = {
-  /**
-   * Optional A2AAgentManager instance to use for agent management.
-   */
-  manager?: A2AAgentManager;
-  /**
-   * Optional function to customize the function name and description for each agent card.
-   */
-  buildFunctionMetadata?: BuildFunctionMetadata;
-  /**
-   * Optional function to customize the prompt given all agent cards.
-   */
-  buildPrompt?: (systemPrompt: string | undefined, agentCards: schema.AgentCard[]) => string | undefined;
-  /**
-   * Optional function to customize TaskSendParams given the input and context.
-   */
-  buildTaskSendParams?: BuildTaskSendParams;
-};
+import { A2APluginOptions, A2APluginParams, BuildFunctionMetadata, BuildTaskSendParams } from './types';
 
 export class A2AClientPlugin implements ChatPromptPlugin<'a2a', A2APluginParams> {
   readonly name = 'a2a';
