@@ -7,7 +7,7 @@ import * as schema from '../common/schema';
 import { generateRequestId } from '../common/uuid';
 
 export type A2APluginParams = {
-  agentAlias: string;
+  key: string;
   url: string;
   agentCard?: schema.AgentCard;
   buildFunctionMetadata?: BuildFunctionMetadata;
@@ -55,17 +55,17 @@ export class A2AClientPlugin implements ChatPromptPlugin<'a2a', A2APluginParams>
   }
 
   onUsePlugin(args: A2APluginParams) {
-    this._manager.use(args.agentAlias, args.url, args.agentCard);
+    this._manager.use(args.key, args.url, args.agentCard);
     // Store per-agent config (excluding agentCard and url)
-    const { agentAlias, url, agentCard, ...rest } = args;
-    this._agentConfig.set(agentAlias, rest);
+    const { key, url, agentCard, ...rest } = args;
+    this._agentConfig.set(key, rest);
   }
 
   async onBuildFunctions(functions: ChatFunction[]): Promise<ChatFunction[]> {
     const cards: AgentCardWithDetails[] = await this._manager.getAgentCards();
     const allFunctions: ChatFunction[] = [];
-    for (const { alias, card } of cards) {
-      const agentConfig = this._agentConfig.get(alias) || {};
+    for (const { key, card } of cards) {
+      const agentConfig = this._agentConfig.get(key) || {};
       const buildFunctionMetadata = agentConfig.buildFunctionMetadata || this.buildFunctionMetadata || this._defaultFunctionMetadata;
       const buildTaskSendParams = agentConfig.buildTaskSendParams || this.buildTaskSendParams || this._defaultBuildTaskSendParams;
       const { name, description } = buildFunctionMetadata(card);
@@ -88,7 +88,7 @@ export class A2AClientPlugin implements ChatPromptPlugin<'a2a', A2APluginParams>
             throw new Error(`An input message is required to call Agent ${name}!`);
           }
           const sendParams = buildTaskSendParams(card, agentMessage);
-          const result = await this._manager.sendTask(alias, sendParams);
+          const result = await this._manager.sendTask(key, sendParams);
           return result;
         },
       });
