@@ -29,8 +29,9 @@
     "lint:fix": "npx eslint --fix"
   },
   "peerDependencies": {
-    "@microsoft/teams.common": "*",
-    "@microsoft/teams.apps": "*"
+    "@microsoft/teams.common": "2.0.0-preview.2",
+    "@microsoft/teams.apps": "2.0.0-preview.2",
+    "@microsoft/teams.ai": "2.0.0-preview.2"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
