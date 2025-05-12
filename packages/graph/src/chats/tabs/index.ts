@@ -148,7 +148,7 @@ export class TabsClient {
   /**
    * `PATCH /chats/{chat-id}/tabs/{teamsTab-id}`
    *
-   * Update the properties of the specified tab in a chat.
+   * Update the properties of the specified tab in a chat. 
 This can be used to configure the content of the tab.
    */
   async update(
@@ -178,7 +178,7 @@ This can be used to configure the content of the tab.
   /**
    * `POST /chats/{chat-id}/tabs`
    *
-   * Add (pin) a tab to the specified chat.
+   * Add (pin) a tab to the specified chat. 
 The corresponding app must already be installed in the chat.
    */
   async create(

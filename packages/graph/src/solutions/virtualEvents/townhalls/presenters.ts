@@ -118,7 +118,7 @@ export class PresentersClient {
   /**
    * `GET /solutions/virtualEvents/townhalls/{virtualEventTownhall-id}/presenters/{virtualEventPresenter-id}`
    *
-   * Read the properties and relationships of a virtualEventPresenter object. Currently the supported virtual event types are:
+   * Read the properties and relationships of a virtualEventPresenter object. Currently the supported virtual event types are: 
 - virtualEventTownhall
 - virtualEventWebinar
    */
@@ -180,7 +180,7 @@ export class PresentersClient {
   /**
    * `POST /solutions/virtualEvents/townhalls/{virtualEventTownhall-id}/presenters`
    *
-   * Create a new virtualEventPresenter object on a virtual event. Currently, the following types of virtual events are supported:
+   * Create a new virtualEventPresenter object on a virtual event. Currently, the following types of virtual events are supported: 
 - virtualEventTownhall
 - virtualEventWebinar
    */
