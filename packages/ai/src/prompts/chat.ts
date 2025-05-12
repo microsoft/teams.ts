@@ -319,8 +319,8 @@ export class ChatPrompt<
 
     for (const plugin of this.plugins) {
       if (plugin.onBuildPrompt) {
-        const nextPrompt = await plugin.onBuildPrompt(prompt) || '';
-        if (nextPrompt !== prompt) {
+        const nextPrompt = await plugin.onBuildPrompt(prompt);
+        if (nextPrompt != null && nextPrompt !== prompt) {
           this._log.debug(`Plugin "${plugin.name}" modified the system prompt`);
           prompt = nextPrompt;
         }
