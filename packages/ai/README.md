@@ -2,7 +2,7 @@
 
 <p>
     <a href="https://www.npmjs.com/package/@microsoft/teams.ai" target="_blank">
-        <img src="https://img.shields.io/npm/v/@microsoft/teams.ai" />
+        <img src="https://img.shields.io/npm/v/@microsoft/teams.ai/preview" />
     </a>
     <a href="https://www.npmjs.com/package/@microsoft/teams.ai?activeTab=code" target="_blank">
         <img src="https://img.shields.io/bundlephobia/min/@microsoft/teams.ai" />
