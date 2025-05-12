@@ -16,8 +16,9 @@ const whitelist = [
   /^\/communications(.*)$/,
   /^\/employeeExperience\/learningProviders(.*)$/,
   /^\/me$/,
-  /^\/me\/calendar(.*)$/,
-  /^\/me\/calendars(.*)$/,
+  // omit the exceptionOccurrences folders as they are quite large
+  /^\/me\/calendar(?!.*\/exceptionOccurrences)(.*)$/,
+  /^\/me\/calendars(?!.*\/exceptionOccurrences)(.*)$/,
   /^\/me\/chats(.*)$/,
   /^\/me\/photo(.*)$/,
   /^\/me\/presence(.*)$/,

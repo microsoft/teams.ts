@@ -9,7 +9,6 @@ import { CalendarClient } from './calendar';
 import { CancelClient } from './cancel';
 import { DeclineClient } from './decline';
 import { DismissReminderClient } from './dismissReminder';
-import { ExceptionOccurrencesClient } from './exceptionOccurrences';
 import { ExtensionsClient } from './extensions';
 import { ForwardClient } from './forward';
 import { PermanentDeleteClient } from './permanentDelete';
@@ -110,15 +109,6 @@ export class InstancesClient {
    */
   dismissReminder(eventId1: string) {
     return new DismissReminderClient(eventId1, this.http);
-  }
-
-  /**
-   * `/me/calendarGroups/{calendarGroup-id}/calendars/{calendar-id}/calendarView/{event-id}/instances/{event-id1}/exceptionOccurrences`
-   *
-   * Provides operations to manage the exceptionOccurrences property of the microsoft.graph.event entity.
-   */
-  exceptionOccurrences(eventId1: string) {
-    return new ExceptionOccurrencesClient(eventId1, this.http);
   }
 
   /**
