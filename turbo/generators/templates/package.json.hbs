@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.{{name}}",
-  "version": "0.1.0",
+  "version": "{{> currentVersion}}",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -26,7 +26,8 @@
     "build": "npx tsc",
     "test": "npx jest",
     "lint": "npx eslint",
-    "lint:fix": "npx eslint --fix"
+    "lint:fix": "npx eslint --fix",
+    "test": "npx jest"
   },
   "peerDependencies": {
     "@microsoft/teams.common": "*"
