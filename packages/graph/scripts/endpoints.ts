@@ -2,7 +2,7 @@ import camelcase from 'camelcase';
 import fs from 'fs';
 import handlebars from 'handlebars';
 import { OpenAPIV3 } from 'openapi-types';
-import npath from 'path';
+import npath from 'path/posix';
 import * as prettier from 'prettier';
 import sortKeys from 'sort-keys';
 import yaml from 'yaml';
@@ -30,6 +30,7 @@ const whitelist = [
   /^\/me\/calendar(.*)$/,
   /^\/me\/presence(.*)$/,
   /^\/solutions(.*)$/,
+  /^\/sites(.*)$/,
 ];
 
 const patterns = {

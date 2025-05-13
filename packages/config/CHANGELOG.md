@@ -1,5 +1,23 @@
 # @microsoft/teams.config
 
+## 2.0.0-preview.2
+
+### Patch Changes
+
+- Add MCP client template
+
+## 2.0.0-preview.1
+
+### Patch Changes
+
+- fix cli template versions
+
+## 2.0.0-preview.0
+
+### Major Changes
+
+- v2 preview release
+
 ## 0.2.14
 
 ### Patch Changes

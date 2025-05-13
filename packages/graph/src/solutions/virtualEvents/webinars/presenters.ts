@@ -21,7 +21,7 @@ export class PresentersClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `teams[graph]/${pkg.version}`,
+          'User-Agent': `teams.ts[graph]/${pkg.version}`,
         },
       });
     } else if ('request' in options) {
@@ -29,7 +29,7 @@ export class PresentersClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `teams[graph]/${pkg.version}`,
+          'User-Agent': `teams.ts[graph]/${pkg.version}`,
         },
       });
     } else {
@@ -38,7 +38,7 @@ export class PresentersClient {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `teams[graph]/${pkg.version}`,
+          'User-Agent': `teams.ts[graph]/${pkg.version}`,
           ...options.headers,
         },
       });
@@ -175,7 +175,7 @@ export class PresentersClient {
   /**
    * `POST /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters`
    *
-   * Create a new virtualEventPresenter object on a virtual event. Currently, the following types of virtual events are supported:
+   * Create a new virtualEventPresenter object on a virtual event. Currently, the following types of virtual events are supported: 
 - virtualEventTownhall
 - virtualEventWebinar
    */

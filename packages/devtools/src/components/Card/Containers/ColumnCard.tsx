@@ -13,12 +13,7 @@ export interface ColumnCardProps {
 const ColumnCard: FC<ColumnCardProps> = ({ value }) => {
   const classes = useContainerClasses();
   return (
-    <div
-      className={mergeClasses(
-        classes.container,
-        value.spacing ? classes[value.spacing] : classes.default
-      )}
-    >
+    <div className={mergeClasses(classes.container, classes[value.spacing ?? 'Default'])}>
       {value.items?.map((item, index) => {
         return <Card key={`column-item-${index}`} value={item} />;
       })}

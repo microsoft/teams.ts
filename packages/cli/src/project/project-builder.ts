@@ -3,9 +3,15 @@ import { Project, ProjectLanguage } from './project';
 import { IProjectAttribute } from './project-attribute';
 
 export class ProjectBuilder {
+  get path() { return this._path; }
   private _path?: string;
+
+  get name() { return this._name; }
   private _name?: string;
-  private _language?: ProjectLanguage;
+
+  get language() { return this._language; }
+  private _language: ProjectLanguage = 'typescript';
+
   private readonly _attributes: Array<IProjectAttribute> = [];
 
   withPath(path: string) {
@@ -23,7 +29,8 @@ export class ProjectBuilder {
     return this;
   }
 
-  addEnv(key: string, value: string, filename = '.env') {
+  addEnv(key: string, value: string, filename?: string) {
+    filename = filename || (this._language === 'typescript' ? '.env' : 'appsettings.Development.json');
     this._attributes.push(new attributes.EnvAttribute(filename, key, value));
     return this;
   }

@@ -9,6 +9,7 @@ import { ChatsClient } from './chats';
 import { CommunicationsClient } from './communications';
 import { EmployeeExperienceClient } from './employeeExperience';
 import { MeClient } from './me';
+import { SitesClient } from './sites';
 import { SolutionsClient } from './solutions';
 import { TeamsClient } from './teams';
 import { TeamsTemplatesClient } from './teamsTemplates';
@@ -29,7 +30,7 @@ export class Client {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `teams[graph]/${pkg.version}`,
+          'User-Agent': `teams.ts[graph]/${pkg.version}`,
         },
       });
     } else if ('request' in options) {
@@ -37,7 +38,7 @@ export class Client {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `teams[graph]/${pkg.version}`,
+          'User-Agent': `teams.ts[graph]/${pkg.version}`,
         },
       });
     } else {
@@ -46,7 +47,7 @@ export class Client {
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `teams[graph]/${pkg.version}`,
+          'User-Agent': `teams.ts[graph]/${pkg.version}`,
           ...options.headers,
         },
       });
@@ -122,6 +123,15 @@ export class Client {
    */
   get me() {
     return new MeClient(this.http);
+  }
+
+  /**
+   * `/sites`
+   *
+   * Provides operations to manage the collection of site entities.
+   */
+  get sites() {
+    return new SitesClient(this.http);
   }
 
   /**

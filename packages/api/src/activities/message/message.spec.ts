@@ -1,4 +1,4 @@
-import { Card, TextBlock } from '@microsoft/teams.cards';
+import { AdaptiveCard, TextBlock } from '@microsoft/teams.cards';
 
 import { Account, cardAttachment } from '../../models';
 
@@ -13,7 +13,7 @@ describe('MessageActivity', () => {
 
   it('should build', () => {
     const expiration = new Date();
-    const card = new Card(new TextBlock('hello world'));
+    const card = new AdaptiveCard(new TextBlock('hello world'));
     const activity = new MessageActivity('test')
       .withText('hello ')
       .withSpeak('say something')
@@ -66,12 +66,14 @@ describe('MessageActivity', () => {
       },
     ]);
 
-    expect(activity.attachments).toStrictEqual([cardAttachment('adaptive', card)]);
+    expect(activity.attachments).toStrictEqual([
+      cardAttachment('adaptive', card),
+    ]);
   });
 
   it('should build from interface', () => {
     const expiration = new Date();
-    const card = new Card(new TextBlock('hello world'));
+    const card = new AdaptiveCard(new TextBlock('hello world'));
     const activity = MessageActivity.from(
       new MessageActivity('test')
         .withText('hello ')
@@ -127,7 +129,9 @@ describe('MessageActivity', () => {
       },
     ]);
 
-    expect(activity.attachments).toStrictEqual([cardAttachment('adaptive', card)]);
+    expect(activity.attachments).toStrictEqual([
+      cardAttachment('adaptive', card),
+    ]);
   });
 
   describe('removeMentionsText', () => {

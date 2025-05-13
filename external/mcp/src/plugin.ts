@@ -159,7 +159,7 @@ export class McpPlugin implements IPlugin {
         fn.name,
         fn.description,
         schema.shape,
-        this.onToolCall(fn.name, prompt),
+        this.onToolCall(fn.name, prompt)
       );
     }
 
@@ -227,7 +227,7 @@ export class McpPlugin implements IPlugin {
       this.logger.debug('connecting...');
       const transport = new SSEServerTransport(
         `${path}/${this.id}/messages`,
-        res,
+        res
       );
       this.connections[this.id] = {
         id: this.id,

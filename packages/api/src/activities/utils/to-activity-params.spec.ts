@@ -1,4 +1,4 @@
-import { Card, CodeBlock } from '@microsoft/teams.cards';
+import { AdaptiveCard, CodeBlock } from '@microsoft/teams.cards';
 
 import { MessageActivity } from '../message';
 
@@ -15,7 +15,7 @@ describe('Activity Utils', () => {
     });
 
     it('should convert card to message activity with card attachment', () => {
-      const card = new Card(
+      const card = new AdaptiveCard(
         new CodeBlock({
           language: 'TypeScript',
           codeSnippet: 'let test = 1',

@@ -12,12 +12,7 @@ export interface FactSetCardProps {
 const FactSetCard: FC<FactSetCardProps> = ({ value }) => {
   const classes = useContainerClasses();
   return (
-    <div
-      className={mergeClasses(
-        classes.container,
-        value.spacing ? classes[value.spacing] : classes.default
-      )}
-    >
+    <div className={mergeClasses(classes.container, classes[value.spacing ?? 'Default'])}>
       {value.facts?.map((fact, index) => {
         return <FactCard key={`fact-${index}`} value={fact} />;
       })}

@@ -4,14 +4,15 @@ import { App } from './app';
 import { IFunctionContext } from './contexts';
 import * as manifest from './manifest';
 import { ClientAuthRequest, withClientAuth } from './middleware';
+import { IPlugin } from './types';
 
 /**
  * add/update a function that can be called remotely
  * @param name The unique function name
  * @param cb The callback to handle the function
  */
-export function func<TData>(
-  this: App,
+export function func<TPlugin extends IPlugin, TData>(
+  this: App<TPlugin>,
   name: string,
   cb: (context: IFunctionContext<TData>) => any | Promise<any>
 ) {
@@ -51,8 +52,8 @@ export function func<TData>(
  * @param name A unique identifier for the entity which the tab displays.
  * @param path The path to the web `dist` folder.
  */
-export function tab(
-  this: App,
+export function tab<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
   name: string,
   path: string,
   options?: Partial<Omit<manifest.StaticTab, 'contentUrl' | 'entityId'>>
@@ -88,8 +89,8 @@ export function tab(
  * @remark scopes defaults to `team`
  * @param url The url to use when configuring the tab.
  */
-export function configTab(
-  this: App,
+export function configTab<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
   url: string,
   options?: Partial<Omit<manifest.ConfigurableTab, 'configurationUrl'>>
 ) {

@@ -2,7 +2,7 @@
 
 <p>
     <a href="https://www.npmjs.com/package/@microsoft/teams.mcpclient" target="_blank">
-        <img src="https://img.shields.io/npm/v/@microsoft/teams.mcpclient" />
+        <img src="https://img.shields.io/npm/v/@microsoft/teams.mcpclient/preview" />
     </a>
     <a href="https://www.npmjs.com/package/@microsoft/teams.mcpclient?activeTab=code" target="_blank">
         <img src="https://img.shields.io/bundlephobia/min/@microsoft/teams.mcpclient" />
@@ -37,16 +37,16 @@ The MCP Client Plugin enables seamless integration with Model Context Protocol (
 ## Usage
 
 ```typescript
-import { ChatPrompt } from '@microsoft/teams.ai';
-import { McpClientPlugin } from '@microsoft/teams.mcpclient';
+import { ChatPrompt } from "@microsoft/teams.ai";
+import { McpClientPlugin } from "@microsoft/teams.mcpclient";
 
 const prompt = new ChatPrompt(
     {
-        instructions: 'You are a helpful assistant.',
+        instructions: "You are a helpful assistant.",
         model: yourModel,
     },
     [new McpClientPlugin()]
-).usePlugin('mcpClient', { url: 'http://your-mcp-server/mcp' });
+).usePlugin("mcpClient", { url: "http://your-mcp-server/mcp" });
 ```
 
 ## Features

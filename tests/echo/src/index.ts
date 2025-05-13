@@ -9,9 +9,9 @@ const app = new App({
   plugins: [new DevtoolsPlugin()],
 });
 
-app.on('message', async ({ send, activity }) => {
-  await send({ type: 'typing' });
-  await send(`you said "${activity.text}"`);
+app.on('message', async ({ reply, activity }) => {
+  await reply({ type: 'typing' });
+  await reply(`you said "${activity.text}"`);
 });
 
 

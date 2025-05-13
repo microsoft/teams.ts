@@ -6,7 +6,7 @@ import ActionCard from './Actions/ActionCard';
 import Card from './Card';
 
 export interface AdaptiveCardProps extends ComponentProps<'div'> {
-  readonly value: cards.ICard;
+  readonly value: cards.IAdaptiveCard;
 }
 
 const useAdaptiveCardStyles = makeStyles({
@@ -21,7 +21,7 @@ const useAdaptiveCardStyles = makeStyles({
   },
 });
 
-const AdaptiveCard = memo(({ value }: AdaptiveCardProps) => {
+const AdaptiveCardComponent = memo(({ value }: AdaptiveCardProps) => {
   const classes = useAdaptiveCardStyles();
   return (
     <div className={mergeClasses(classes.root)}>
@@ -44,6 +44,6 @@ const AdaptiveCard = memo(({ value }: AdaptiveCardProps) => {
   );
 });
 
-AdaptiveCard.displayName = 'AdaptiveCard';
+AdaptiveCardComponent.displayName = 'AdaptiveCard';
 
-export default AdaptiveCard;
+export default AdaptiveCardComponent;

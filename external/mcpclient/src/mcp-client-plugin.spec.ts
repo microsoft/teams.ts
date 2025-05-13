@@ -4,29 +4,42 @@ import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import type { Schema } from '@microsoft/teams.ai';
 
 import { McpClientPlugin } from './mcp-client-plugin';
-import { CreateTransport, McpClientPluginParams, McpClientToolDetails } from './mcp-client-types';
+import {
+  CreateTransport,
+  McpClientPluginParams,
+  McpClientToolDetails,
+} from './mcp-client-types';
 
 class MockTransport implements Transport {
-  async connect(): Promise<void> { }
-  async disconnect(): Promise<void> { }
-  async send(): Promise<void> { }
-  onMessage(): void { }
-  async start(): Promise<void> { }
-  async close(): Promise<void> { }
+  async connect(): Promise<void> {}
+  async disconnect(): Promise<void> {}
+  async send(): Promise<void> {}
+  onMessage(): void {}
+  async start(): Promise<void> {}
+  async close(): Promise<void> {}
 }
 
 describe('McpClientPlugin', () => {
   let mockListTools: jest.SpyInstance;
   let mockCallTool: jest.SpyInstance;
+  const mockDate = new Date('2025-05-19T16:05:00Z');
 
   beforeEach(() => {
     jest.resetAllMocks();
     jest.spyOn(Client.prototype, 'connect').mockResolvedValue();
     jest.spyOn(Client.prototype, 'close').mockResolvedValue();
-    mockListTools = jest.spyOn(Client.prototype, 'listTools').mockResolvedValue({ tools: [] });
+    mockListTools = jest
+      .spyOn(Client.prototype, 'listTools')
+      .mockResolvedValue({ tools: [] });
     mockCallTool = jest
       .spyOn(Client.prototype, 'callTool')
       .mockResolvedValue({ content: 'result' });
+
+    jest.useFakeTimers().setSystemTime(mockDate);
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   describe('onUsePlugin', () => {
@@ -111,7 +124,9 @@ describe('McpClientPlugin', () => {
       const functions = await plugin.onBuildFunctions([]);
 
       if (mockListTools.mock.calls.length > 0) {
-        throw new Error('Expected listTools to not be called ' + mockListTools.mock.calls);
+        throw new Error(
+          'Expected listTools to not be called ' + mockListTools.mock.calls
+        );
       }
       expect(mockListTools).not.toHaveBeenCalled();
       expect(functions).toHaveLength(1);
@@ -159,7 +174,7 @@ describe('McpClientPlugin', () => {
       plugin.onUsePlugin({ url: 'http://test.com' });
 
       // Wait for 2 ms for the timeout to happen
-      await new Promise((resolve) => setTimeout(resolve, 5));
+      jest.advanceTimersByTime(2);
 
       const functions = await plugin.onBuildFunctions([]);
 
@@ -225,7 +240,7 @@ describe('McpClientPlugin', () => {
       });
 
       // Wait for 2 ms for the timeout to happen
-      await new Promise((resolve) => setTimeout(resolve, 2));
+      jest.advanceTimersByTime(2);
 
       const functions = await plugin.onBuildFunctions([]);
 
@@ -303,7 +318,9 @@ describe('McpClientPlugin', () => {
           skipIfUnavailable: false,
         },
       });
-      await expect(() => plugin.onBuildFunctions([])).rejects.toThrow('Server error');
+      await expect(() => plugin.onBuildFunctions([])).rejects.toThrow(
+        'Server error'
+      );
     });
   });
 

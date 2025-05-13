@@ -1,0 +1,116 @@
+import { getInjectedUrl } from '@utils/url';
+import * as http from '@microsoft/teams.common/http';
+
+import pkg from 'src/../package.json';
+import type { Endpoints } from './columnPositions-types.ts';
+
+/**
+ * /sites/{site-id}/contentTypes/{contentType-id}/columnPositions
+ * Provides operations to manage the columnPositions property of the microsoft.graph.contentType entity.
+ */
+export class ColumnPositionsClient {
+  protected baseUrl = '/sites/{site-id}/contentTypes/{contentType-id}/columnPositions';
+  protected http: http.Client;
+
+  constructor(
+    protected readonly contentTypeId: string,
+    options?: http.Client | http.ClientOptions
+  ) {
+    if (!options) {
+      this.http = new http.Client({
+        baseUrl: 'https://graph.microsoft.com/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': `teams.ts[graph]/${pkg.version}`,
+        },
+      });
+    } else if ('request' in options) {
+      this.http = options.clone({
+        baseUrl: 'https://graph.microsoft.com/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': `teams.ts[graph]/${pkg.version}`,
+        },
+      });
+    } else {
+      this.http = new http.Client({
+        ...options,
+        baseUrl: 'https://graph.microsoft.com/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': `teams.ts[graph]/${pkg.version}`,
+          ...options.headers,
+        },
+      });
+    }
+  }
+
+  /**
+   * `GET /sites/{site-id}/contentTypes/{contentType-id}/columnPositions`
+   *
+   * Column order information in a content type.
+   */
+  async list(
+    params?: Endpoints['GET /sites/{site-id}/contentTypes/{contentType-id}/columnPositions']['parameters'],
+    config?: http.RequestConfig
+  ) {
+    const url = getInjectedUrl(
+      '/sites/{site-id}/contentTypes/{contentType-id}/columnPositions',
+      [
+        { name: '$top', in: 'query' },
+        { name: '$skip', in: 'query' },
+        { name: '$search', in: 'query' },
+        { name: '$filter', in: 'query' },
+        { name: '$count', in: 'query' },
+        { name: '$orderby', in: 'query' },
+        { name: '$select', in: 'query' },
+        { name: '$expand', in: 'query' },
+        { name: 'site-id', in: 'path' },
+        { name: 'contentType-id', in: 'path' },
+      ],
+      {
+        ...(params || {}),
+        'contentType-id': this.contentTypeId,
+      }
+    );
+
+    return this.http
+      .get(url, config)
+      .then(
+        (res) =>
+          res.data as Endpoints['GET /sites/{site-id}/contentTypes/{contentType-id}/columnPositions']['response']
+      );
+  }
+
+  /**
+   * `GET /sites/{site-id}/contentTypes/{contentType-id}/columnPositions/{columnDefinition-id}`
+   *
+   * Column order information in a content type.
+   */
+  async get(
+    params?: Endpoints['GET /sites/{site-id}/contentTypes/{contentType-id}/columnPositions/{columnDefinition-id}']['parameters'],
+    config?: http.RequestConfig
+  ) {
+    const url = getInjectedUrl(
+      '/sites/{site-id}/contentTypes/{contentType-id}/columnPositions/{columnDefinition-id}',
+      [
+        { name: '$select', in: 'query' },
+        { name: '$expand', in: 'query' },
+        { name: 'site-id', in: 'path' },
+        { name: 'contentType-id', in: 'path' },
+        { name: 'columnDefinition-id', in: 'path' },
+      ],
+      {
+        ...(params || {}),
+        'contentType-id': this.contentTypeId,
+      }
+    );
+
+    return this.http
+      .get(url, config)
+      .then(
+        (res) =>
+          res.data as Endpoints['GET /sites/{site-id}/contentTypes/{contentType-id}/columnPositions/{columnDefinition-id}']['response']
+      );
+  }
+}

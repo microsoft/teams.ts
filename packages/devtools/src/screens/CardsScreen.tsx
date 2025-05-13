@@ -8,7 +8,7 @@ import {
   makeStyles,
 } from '@fluentui/react-components';
 import { AttachRegular } from '@fluentui/react-icons';
-import { Card } from '@microsoft/teams.cards';
+import { AdaptiveCard } from '@microsoft/teams.cards';
 import { useNavigate, useLocation } from 'react-router';
 
 import CardDesigner from '../components/CardDesigner/CardDesigner';
@@ -35,7 +35,7 @@ const CardsScreen: FC = memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleAttachCard = (card: Card) => {
+  const handleAttachCard = (card: AdaptiveCard) => {
     const isEditing = location.state?.isEditing ?? false;
     childLog.debug('Attaching card in mode:', isEditing ? 'edit' : 'compose');
     childLog.info('Setting card in store:');

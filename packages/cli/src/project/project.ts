@@ -49,7 +49,9 @@ export class Project implements IProject {
   static load() {
     const language = fs.existsSync(path.join(process.cwd(), 'package.json'))
       ? 'typescript'
-      : undefined;
+      : fs.existsSync(path.join(process.cwd(), 'appsettings.json'))
+        ? 'csharp'
+        : undefined;
 
     if (!language) {
       throw new Error('invalid project');

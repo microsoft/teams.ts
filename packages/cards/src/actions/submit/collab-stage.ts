@@ -1,6 +1,8 @@
 import { ITabInfo } from '../../common';
 
-import { ISubmitAction, MSTeamsData, SubmitAction, SubmitActionOptions } from './submit';
+import { ISubmitAction, SubmitAction, SubmitActionOptions } from '../../core';
+
+import { MSTeamsData } from './ms-teams-data';
 
 export type CollabStageActionOptions = SubmitActionOptions & {
   data: MSTeamsData<ICollabStageData>;

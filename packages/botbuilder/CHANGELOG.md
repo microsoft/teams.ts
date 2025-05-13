@@ -1,5 +1,41 @@
 # @microsoft/teams.botbuilder
 
+## 2.0.0-preview.2
+
+### Patch Changes
+
+- Add MCP client template
+- Updated dependencies
+  - @microsoft/teams.api@2.0.0-preview.2
+  - @microsoft/teams.apps@2.0.0-preview.2
+  - @microsoft/teams.common@2.0.0-preview.2
+  - @microsoft/teams.graph@2.0.0-preview.2
+
+## 2.0.0-preview.1
+
+### Patch Changes
+
+- fix cli template versions
+- Updated dependencies
+  - @microsoft/teams.api@2.0.0-preview.1
+  - @microsoft/teams.apps@2.0.0-preview.1
+  - @microsoft/teams.common@2.0.0-preview.1
+  - @microsoft/teams.graph@2.0.0-preview.1
+
+## 2.0.0-preview.0
+
+### Major Changes
+
+- v2 preview release
+
+### Patch Changes
+
+- Updated dependencies
+  - @microsoft/teams.common@2.0.0-preview.0
+  - @microsoft/teams.graph@2.0.0-preview.0
+  - @microsoft/teams.apps@2.0.0-preview.0
+  - @microsoft/teams.api@2.0.0-preview.0
+
 ## 0.2.14
 
 ### Patch Changes

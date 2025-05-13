@@ -1,4 +1,3 @@
-export * from './submit';
 export * from './im-back';
 export * from './invoke';
 export * from './message-back';

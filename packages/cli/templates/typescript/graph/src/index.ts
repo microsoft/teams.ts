@@ -1,19 +1,19 @@
 import { MessageActivity } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
-import { Card, CodeBlock } from '@microsoft/teams.cards';
+import { AdaptiveCard, CodeBlock } from '@microsoft/teams.cards';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 const app = new App({
   plugins: [new DevtoolsPlugin()],
 });
 
-app.on('message', async ({ log, signin, isSignedIn }) => {
+app.on("message", async ({ log, signin, isSignedIn }) => {
   if (!isSignedIn) {
     await signin();
     return;
   }
 
-  log.info('user already signed in!');
+  log.info("user already signed in!");
 });
 
 app.event('signin', async ({ send, userGraph }) => {
@@ -21,8 +21,8 @@ app.event('signin', async ({ send, userGraph }) => {
 
   await send(
     new MessageActivity(`hello ${me.displayName} 👋!`).addCard(
-      'adaptive',
-      new Card(
+      "adaptive",
+      new AdaptiveCard(
         new CodeBlock({
           codeSnippet: JSON.stringify(me, null, 2),
         })

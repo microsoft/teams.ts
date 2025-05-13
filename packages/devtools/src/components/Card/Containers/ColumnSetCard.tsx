@@ -12,12 +12,7 @@ export interface ColumnSetCardProps {
 const ColumnSetCard: FC<ColumnSetCardProps> = ({ value }) => {
   const classes = useContainerClasses();
   return (
-    <div
-      className={mergeClasses(
-        classes.container,
-        value.spacing ? classes[value.spacing] : classes.default
-      )}
-    >
+    <div className={mergeClasses(classes.container, classes[value.spacing ?? 'Default'])}>
       {value.columns?.map((column, index) => {
         return <ColumnCard key={`column-${index}`} value={column} />;
       })}
