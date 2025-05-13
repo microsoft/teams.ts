@@ -170,7 +170,7 @@ const plugin = new A2APlugin();
 
 const chatPrompt = new ChatPrompt({
     plugins: [plugin],
-}).use("a2a", {
+}).usePlugin("a2a", {
     key: "my-agent",
     url: "https://my-agent.com/a2a",
 });
