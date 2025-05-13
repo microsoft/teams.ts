@@ -156,21 +156,6 @@ function createRespondFunction(
     // Update the current data reference with the latest version
     if (result.success) {
       ctx.dataRef.current = result.data;
-
-      if (!ctx.taskManager.isFinalState(result.data)) {
-        ctx.logger.info(
-          `Task ${ctx.taskId} is not in a final state, so automatically setting to completed.`
-        );
-        // By default, we will set the task to "completed" state
-        result = await updateTask(
-          ctx,
-          ctx.taskManager.createCompletedTaskState()
-        );
-
-        if (result.success) {
-          ctx.dataRef.current = result.data;
-        }
-      }
     }
 
     if (!result.success) {
