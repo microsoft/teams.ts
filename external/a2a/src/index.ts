@@ -1,7 +1,8 @@
 export * from './chat-prompt/plugin';
 export * from './chat-prompt/types';
-export * from './client/a2a-agent-client';
-export * from './client/a2a-agent-manager';
+export * from './client/agent-client';
+export * from './client/agent-manager';
+export * from './client/agent-task-store';
 export * from './common/schema';
 export * as schema from './common/schema';
 export * from './server/plugin';

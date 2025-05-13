@@ -1,7 +1,6 @@
-
-
-import { A2AAgentManager } from '../client/a2a-agent-manager';
+import { AgentManager } from '../client/agent-manager';
 import * as schema from '../common/schema';
+import { TaskAndHistory } from '../server/types/a2a-types';
 
 /**
  * Parameters for registering an agent with the A2A plugin.
@@ -30,8 +29,14 @@ export type A2APluginParams = {
     buildTaskSendParams?: BuildTaskSendParams;
 };
 
+export type AgentPromptParams = {
+    card: schema.AgentCard;
+    latestTask?: TaskAndHistory | null;
+};
+
 export type BuildFunctionMetadata = (card: schema.AgentCard) => { name: string; description: string };
-export type BuildTaskSendParams = (card: schema.AgentCard, input: string) => schema.TaskSendParams;
+export type BuildTaskSendParams = (card: schema.AgentCard, input: string, continueTaskId?: string | null, metadata?: Record<string, any>) => schema.TaskSendParams;
+export type BuildPrompt = (incomingSystemPrompt: string | undefined, agentDetails: AgentPromptParams[]) => string | undefined;
 
 /**
  * Options for constructing an A2APlugin.
@@ -40,7 +45,7 @@ export type A2APluginOptions = {
     /**
      * Optional A2AAgentManager instance to use for agent management.
      */
-    manager?: A2AAgentManager;
+    manager?: AgentManager;
     /**
      * Optional function to customize the function name and description for each agent card.
      */
@@ -48,7 +53,7 @@ export type A2APluginOptions = {
     /**
      * Optional function to customize the prompt given all agent cards.
      */
-    buildPrompt?: (systemPrompt: string | undefined, agentCards: schema.AgentCard[]) => string | undefined;
+    buildPrompt?: BuildPrompt;
     /**
      * Optional function to customize TaskSendParams given the input and context.
      */

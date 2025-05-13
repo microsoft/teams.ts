@@ -39,11 +39,18 @@ class RpcError extends Error {
     }
 }
 
+export class AgentCardNotFoundError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'AgentCardNotFoundError';
+    }
+}
+
 /**
  * A2AAgentClient can be constructed with either a baseUrl (to fetch the agent card) or a direct AgentCard object.
  * Optionally, a custom fetch implementation can be provided.
  */
-export class A2AAgentClient {
+export class AgentClient {
     private _agentCard: AgentCard | null;
 
     private _baseUrl: string;
@@ -78,17 +85,22 @@ export class A2AAgentClient {
         const base = new URL(this._baseUrl).origin;
         const cardUrl = `${base}/.well-known/agent.json`;
         this._logger.debug(`Fetching agent card from ${cardUrl}`);
-        const response = await this._fetchImpl(cardUrl, { method: 'GET', headers: { Accept: 'application/json' } });
-        if (!response.ok) {
-            this._logger.error(`Failed to fetch agent card: ${response.status} ${response.statusText}`);
-            throw new Error(`Failed to fetch agent card: ${response.status} ${response.statusText}`);
+        try {
+            const response = await this._fetchImpl(cardUrl, { method: 'GET', headers: { Accept: 'application/json' } });
+            if (!response.ok) {
+                this._logger.error(`Failed to fetch agent card: ${response.status} ${response.statusText}`);
+                throw new AgentCardNotFoundError(`Failed to fetch agent card: ${response.status} ${response.statusText}`);
+            }
+            // TODO: validate using something like zod?
+            const card = (await response.json()) as AgentCard;
+            this._logger.debug(`Agent card fetched successfully from ${cardUrl}`, card);
+            this._agentCard = card;
+            this._a2aUrl = card.url;
+            return card;
+        } catch (error) {
+            this._logger.error(`Failed to fetch agent card: ${error}`);
+            throw new AgentCardNotFoundError(`Failed to fetch agent card: ${error}`);
         }
-        // TODO: validate using something like zod?
-        const card = (await response.json()) as AgentCard;
-        this._logger.debug(`Agent card fetched successfully from ${cardUrl}`, card);
-        this._agentCard = card;
-        this._a2aUrl = card.url;
-        return card;
     }
 
     /**
