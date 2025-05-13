@@ -11,7 +11,7 @@ import { generateRequestId } from '../common/uuid';
 
 import {
   A2APluginOptions,
-  A2APluginParams,
+  A2APluginUseParams,
   AgentPromptParams,
   BuildFunctionMetadata,
   BuildPrompt,
@@ -19,22 +19,22 @@ import {
 } from './types';
 
 export class A2AClientPlugin
-  implements ChatPromptPlugin<'a2a', A2APluginParams> {
+  implements ChatPromptPlugin<'a2a', A2APluginUseParams> {
   readonly name = 'a2a';
   protected _manager: AgentManager;
   protected buildFunctionMetadata?: BuildFunctionMetadata;
   protected buildPrompt?: BuildPrompt;
   protected buildTaskSendParams?: BuildTaskSendParams;
-  protected _agentConfig: Map<string, Partial<A2APluginParams>> = new Map();
+  protected _agentConfig: Map<string, Partial<A2APluginUseParams>> = new Map();
 
   constructor(options: A2APluginOptions = {}) {
-    this._manager = options.manager ?? new AgentManager();
+    this._manager = options.manager instanceof AgentManager ? options.manager : new AgentManager(options.manager);
     this.buildFunctionMetadata = options.buildFunctionMetadata;
     this.buildPrompt = options.buildPrompt;
     this.buildTaskSendParams = options.buildTaskSendParams;
   }
 
-  onUsePlugin(args: A2APluginParams) {
+  onUsePlugin(args: A2APluginUseParams) {
     this._manager.use(args.key, args.url, args.agentCard);
     // Store per-agent config (excluding agentCard and url)
     const { key, url, agentCard, ...rest } = args;

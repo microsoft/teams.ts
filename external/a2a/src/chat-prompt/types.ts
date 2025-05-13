@@ -1,4 +1,4 @@
-import { AgentManager } from '../client/agent-manager';
+import { AgentManager, AgentManagerOptions } from '../client/agent-manager';
 import * as schema from '../common/schema';
 import { TaskAndHistory } from '../server/types/a2a-types';
 
@@ -6,7 +6,7 @@ import { TaskAndHistory } from '../server/types/a2a-types';
  * Parameters for registering an agent with the A2A plugin.
  * usage: new ChatPrompt(..., [new A2APlugin(...)]).use(A2APluginParams)
  */
-export type A2APluginParams = {
+export type A2APluginUseParams = {
     /**
      * Unique key for this agent (used for config and lookup)
      */
@@ -45,7 +45,7 @@ export type A2APluginOptions = {
     /**
      * Optional A2AAgentManager instance to use for agent management.
      */
-    manager?: AgentManager;
+    manager?: AgentManager | AgentManagerOptions;
     /**
      * Optional function to customize the function name and description for each agent card.
      */
