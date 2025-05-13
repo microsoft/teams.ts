@@ -151,7 +151,7 @@ function createRespondFunction(
       responseValue = update;
     }
 
-    let result = await updateTask(ctx, responseValue);
+    const result = await updateTask(ctx, responseValue);
 
     // Update the current data reference with the latest version
     if (result.success) {
