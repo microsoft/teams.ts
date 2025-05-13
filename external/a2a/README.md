@@ -29,7 +29,8 @@ Teams AI Library allows your applications to easily be accessible via Teams. How
 Configuring the App to use the A2APlugin simply requires the `AgentCard`.
 
 ```ts
-import { schema } from "@microsoft/teams.a2a";
+import { schema, A2APlugin } from "@microsoft/teams.a2a";
+import { App } from "@microsoft/teams.apps";
 
 declare const myAgentCard: AgentCard;
 
