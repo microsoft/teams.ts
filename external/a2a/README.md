@@ -125,37 +125,36 @@ A2A is most effective when used with an LLM. The `A2AClientPlugin` can be used t
 sequenceDiagram
     participant User
     participant ChatPrompt
-    participant A2APlugin
-    participant A2AManager
-    participant A2AAgentClient
-    participant SubPrompt
+    participant A2AClientPlugin
+    participant AgentManager
+    participant AgentClient
     participant LLM
     participant TargetAgent
 
     alt config
         User->>ChatPrompt: "use" with A2A server details
-        ChatPrompt->>A2APlugin: configure usable a2a server<br/>similar to what we do with mcp-client
-        A2APlugin->>A2AManager: register new potential client
+        ChatPrompt->>A2AClientPlugin: configure usable a2a server
+        A2AClientPlugin->>AgentManager: register new potential client
     end
     alt send
         User->>ChatPrompt: Send initial message
-        ChatPrompt->>A2APlugin: configure system prompt
-        A2APlugin->>A2AManager: get agent cards
-        A2AManager->>A2AAgentClient: for each get agent card
-        A2AAgentClient-->>A2AManager: agent card
-        A2AManager-->>A2APlugin: all agent cards
-        A2APlugin-->>ChatPrompt: updated system prompt<br/>with agent descriptions
-        ChatPrompt->>A2APlugin: configure tool-calls (onBuildFunctions)
-        A2APlugin-->>ChatPrompt: Configured tool calls<br/>with agent name/descriptions
-        ChatPrompt->>LLM: send-mesage
+        ChatPrompt->>A2AClientPlugin: configure system prompt
+        A2AClientPlugin->>AgentManager: get agent cards
+        AgentManager->>AgentClient: for each get agent card
+        AgentClient-->>AgentManager: agent card
+        AgentManager-->>A2AClientPlugin: all agent cards
+        A2AClientPlugin-->>ChatPrompt: updated system prompt
+        ChatPrompt->>A2AClientPlugin: configure tool-calls (onBuildFunctions)
+        A2AClientPlugin-->>ChatPrompt: Configured tool calls
+        ChatPrompt->>LLM: send-message
         LLM-->>ChatPrompt: Call A2A TargetAgent
-        ChatPrompt->>A2APlugin: Handler for calling A2A TargetAgent
-        A2APlugin->>A2AManager: Call TargetAgent with message
-        A2AManager->>A2AAgentClient: Call TargetAgent with message
-        TargetAgent-->>A2AAgentClient: Return task (e.g., completed, input-required)
-        A2AAgentClient->>A2AManager: Result task
-        A2AManager->>A2APlugin: Result task
-        A2APlugin->>ChatPrompt: Result task
+        ChatPrompt->>A2AClientPlugin: Handler for calling A2A TargetAgent
+        A2AClientPlugin->>AgentManager: Call TargetAgent with message
+        AgentManager->>AgentClient: Call TargetAgent with message
+        TargetAgent-->>AgentClient: Return task (e.g., completed, input-required)
+        AgentClient->>AgentManager: Result task
+        AgentManager->>A2AClientPlugin: Result task
+        A2AClientPlugin->>ChatPrompt: Result task
         ChatPrompt-->>User: Respond with final result or follow-up
     end
 ```
