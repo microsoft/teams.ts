@@ -15,10 +15,6 @@ const useAttachmentsContainerClasses = makeStyles({
     userSelect: "none",
   },
   inlineAttachmentCard: {
-    // backgroundColor: tokens.colorNeutralBackground2,
-    // border: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStroke1}`,
-    // borderRadius: tokens.borderRadiusSmall,
-    // marginBottom: tokens.spacingVerticalXXS,
     overflow: "hidden",
     position: "relative",
     height: "fit-content",
@@ -36,7 +32,6 @@ const useAttachmentsContainerClasses = makeStyles({
     },
   },
   inlineCardContent: {
-    // padding: tokens.spacingHorizontalS,
     width: "var(--card-width-standard)",
     overflow: "auto",
     '&[data-target-width="veryNarrow"]': {
