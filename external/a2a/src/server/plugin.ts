@@ -44,7 +44,7 @@ interface IA2APluginOptions {
     description: 'A2A Plugin',
     version: '1.0.0',
 })
-export class A2APlugin implements IPlugin<A2AEvents> {
+export class A2APlugin implements IPlugin {
     @Event('custom')
     protected readonly emit!: EmitPluginEvent<A2AEvents>;
 
