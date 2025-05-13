@@ -6,7 +6,7 @@ import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
 import {
   CreateTransport,
-  McpClientPluginCachedParams,
+  McpClientPluginCachedValue,
   McpClientPluginOptions,
   McpClientPluginParams,
   McpClientPluginUseParams,
@@ -38,7 +38,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
   get cache() {
     return this._cache;
   }
-  protected _cache: Record<string, McpClientPluginCachedParams & { lastAttemptedFetch?: number }>;
+  protected _cache: Record<string, McpClientPluginCachedValue & { lastAttemptedFetch?: number }>;
 
   get log() {
     return this._log;

@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 
 export const PLUGIN_EVENTS_METADATA_KEY = 'teams:plugin:events';
-export type PluginEventName = 'error' | 'activity';
+export type PluginEventName = 'error' | 'activity' | 'custom';
 export type EventMetadata = {
   /**
    * the property name

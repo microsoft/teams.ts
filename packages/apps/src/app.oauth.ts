@@ -9,9 +9,10 @@ import * as graph from '@microsoft/teams.graph';
 
 import { App } from './app';
 import * as contexts from './contexts';
+import { IPlugin } from './types';
 
-export async function onTokenExchange(
-  this: App,
+export async function onTokenExchange<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
   ctx: contexts.IActivityContext<ISignInTokenExchangeInvokeActivity>
 ) {
   const { api, activity, log } = ctx;
@@ -59,8 +60,8 @@ export async function onTokenExchange(
   }
 }
 
-export async function onVerifyState(
-  this: App,
+export async function onVerifyState<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
   ctx: contexts.IActivityContext<ISignInVerifyStateInvokeActivity>
 ) {
   const { log, api, activity } = ctx;

@@ -16,27 +16,35 @@ import { IStorage, LocalStorage } from '@microsoft/teams.common/storage';
 
 import pkg from '../package.json';
 
-
 import { ApiClient, GraphClient } from './api';
+
 import { configTab, func, tab } from './app.embed';
-import { event, onActivity, onActivityResponse, onActivitySent, onError } from './app.events';
-import { onTokenExchange, onVerifyState } from './app.oauth';
+import {
+  event,
+  onActivity,
+  onActivityResponse,
+  onActivitySent,
+  onError,
+} from './app.events';
+import {
+  onTokenExchange,
+  onVerifyState
+} from './app.oauth';
 import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
 import { $process } from './app.process';
 import { message, on, use } from './app.routing';
 import { Container } from './container';
-import { IEvents } from './events';
 import * as manifest from './manifest';
 import * as middleware from './middleware';
 import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
-import { IPlugin } from './types';
+import { AppEvents, IPlugin } from './types';
 
 /**
  * App initialization options
  */
-export type AppOptions = Partial<Credentials> & {
+export type AppOptions<TPlugin extends IPlugin> = Partial<Credentials> & {
   /**
    * http client or client options used to make api requests
    */
@@ -55,7 +63,7 @@ export type AppOptions = Partial<Credentials> & {
   /**
    * plugins to extend the apps functionality
    */
-  readonly plugins?: Array<IPlugin>;
+  readonly plugins?: Array<TPlugin>;
 
   /**
    * OAuth Settings
@@ -98,7 +106,7 @@ export type AppTokens = {
 /**
  * The orchestrator for receiving/sending activities
  */
-export class App {
+export class App<TPlugin extends IPlugin = IPlugin> {
   readonly api: ApiClient;
   readonly graph: GraphClient;
   readonly log: ILogger;
@@ -148,7 +156,8 @@ export class App {
       ],
       webApplicationInfo: {
         id: this.credentials?.clientId || '??',
-        resource: `api://\${{BOT_DOMAIN}}/${this.credentials?.clientId || '??'}`,
+        resource: `api://\${{BOT_DOMAIN}}/${this.credentials?.clientId || '??'
+          }`,
         ...this._manifest.webApplicationInfo,
       },
       ...this._manifest,
@@ -165,16 +174,16 @@ export class App {
   protected _tokens: AppTokens = {};
 
   protected container = new Container();
-  protected plugins: Array<IPlugin> = [];
+  protected plugins: Array<TPlugin> = [];
   protected router = new Router();
   protected tenantTokens = new LocalStorage<string>({}, { max: 20000 });
-  protected events = new EventEmitter<IEvents>();
+  protected events = new EventEmitter<AppEvents<TPlugin>>();
   protected startedAt?: Date;
   protected port?: number;
 
   private readonly _userAgent = `teams.ts[apps]/${pkg.version}`;
 
-  constructor(readonly options: AppOptions = {}) {
+  constructor(readonly options: AppOptions<TPlugin> = {}) {
     this.log = this.options.logger || new ConsoleLogger('@teams/app');
     this.storage = this.options.storage || new LocalStorage();
     this._manifest = this.options.manifest || {};
@@ -208,20 +217,22 @@ export class App {
 
     this.api = new ApiClient(
       'https://smba.trafficmanager.net/teams',
-      this.client.clone({ token: () => this._tokens.bot }),
+      this.client.clone({ token: () => this._tokens.bot })
     );
 
     this.graph = new GraphClient(
-      this.client.clone({ token: () => this._tokens.graph }),
+      this.client.clone({ token: () => this._tokens.graph })
     );
 
     // initialize credentials
     const clientId = this.options.clientId || process.env.CLIENT_ID;
     const clientSecret =
-      ('clientSecret' in this.options ? this.options.clientSecret : undefined) ||
-      process.env.CLIENT_SECRET;
+      ('clientSecret' in this.options
+        ? this.options.clientSecret
+        : undefined) || process.env.CLIENT_SECRET;
     const tenantId =
-      ('tenantId' in this.options ? this.options.tenantId : undefined) || process.env.TENANT_ID;
+      ('tenantId' in this.options ? this.options.tenantId : undefined) ||
+      process.env.TENANT_ID;
     const token = 'token' in this.options ? this.options.token : undefined;
 
     if (clientId && clientSecret) {
@@ -248,7 +259,7 @@ export class App {
     }
 
     // add/validate plugins
-    const plugins = this.options.plugins || [];
+    const plugins: Array<TPlugin> = this.options.plugins || [];
     let httpPlugin = plugins.find((p) => {
       const meta = getMetadata(p);
       return meta.name === 'http';
@@ -256,7 +267,9 @@ export class App {
 
     if (!httpPlugin) {
       httpPlugin = new HttpPlugin();
-      plugins.unshift(httpPlugin);
+      // Casting to any here because a default HttpPlugin is not assignable to TPlugin
+      // without a silly level of indirection.
+      plugins.unshift(httpPlugin as any);
     }
 
     this.http = httpPlugin;
@@ -267,10 +280,14 @@ export class App {
     this.container.register('manifest', { useValue: this.manifest });
     this.container.register('credentials', { useValue: this.credentials });
     this.container.register('botToken', { useValue: () => this.tokens.bot });
-    this.container.register('graphToken', { useValue: () => this.tokens.graph });
+    this.container.register('graphToken', {
+      useValue: () => this.tokens.graph,
+    });
     this.container.register('ILogger', { useValue: this.log });
     this.container.register('IStorage', { useValue: this.storage });
-    this.container.register(this.client.constructor.name, { useFactory: () => this.client });
+    this.container.register(this.client.constructor.name, {
+      useFactory: () => this.client,
+    });
 
     for (const plugin of plugins) {
       this.plugin(plugin);
@@ -278,12 +295,16 @@ export class App {
 
     if (this.options.activity?.mentions?.stripText) {
       const options = this.options.activity?.mentions?.stripText;
-      this.use(middleware.stripMentionsText(typeof options === 'boolean' ? {} : options));
+      this.use(
+        middleware.stripMentionsText(
+          typeof options === 'boolean' ? {} : options
+        )
+      );
     }
 
     // default event handlers
-    this.on('signin.token-exchange', this.onTokenExchange.bind(this));
-    this.on('signin.verify-state', this.onVerifyState.bind(this));
+    this.on('signin.token-exchange', (...args) => this.onTokenExchange(...args));
+    this.on('signin.verify-state', (...args) => this.onVerifyState(...args));
     this.event('error', ({ error }) => {
       this.log.error(error.message);
 
@@ -465,7 +486,10 @@ export class App {
    * Refresh the tokens for the app
    */
   protected async refreshTokens(force = false) {
-    return Promise.all([this.refreshBotToken(force), this.refreshGraphToken(force)]);
+    return Promise.all([
+      this.refreshBotToken(force),
+      this.refreshGraphToken(force),
+    ]);
   }
 
   protected async refreshBotToken(force = false) {

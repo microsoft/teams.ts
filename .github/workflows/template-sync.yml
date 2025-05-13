@@ -1,0 +1,81 @@
+name: Template Sync Verification
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "packages/cli/templates/typescript/**"
+      - "tests/*/**"
+
+jobs:
+  verify-template-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v46
+        with:
+          files: |
+            packages/cli/templates/typescript/**
+            tests/**
+
+      - name: Check PR description
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        id: pr
+        run: |
+          echo "skip=$([[ "$PR_BODY" == *"skip-test-verification"* ]] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+
+      - name: Verify template sync
+        if: steps.pr.outputs.skip != 'true'
+        run: |
+          status=0
+          template_changes=()
+          test_changes=()
+
+          # Create associative arrays to track directories and their files
+          declare -A template_dirs test_dirs
+
+          # Group files by directory
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            if [[ $file == packages/cli/templates/typescript/* ]]; then
+              dir=$(echo "$file" | sed -n 's|packages/cli/templates/typescript/\([^/]*\)/.*|\1|p')
+              if [ ! -z "$dir" ]; then
+                # Append the file to the directory's list
+                template_dirs["$dir"]="${template_dirs["$dir"]}${file}"$'\n'
+              fi
+            elif [[ $file == tests/* ]]; then
+              dir=$(echo "$file" | sed -n 's|tests/\([^/]*\)/.*|\1|p')
+              if [ ! -z "$dir" ]; then
+                # Append the file to the directory's list
+                test_dirs["$dir"]="${test_dirs["$dir"]}${file}"$'\n'
+              fi
+            fi
+          done
+
+          # Check template directories without matching test changes
+          for dir in "${!template_dirs[@]}"; do
+            if [[ -z "${test_dirs[$dir]}" ]]; then
+              echo "::error::Changes detected in template directory but no corresponding test changes found"
+              echo "Template directory: packages/cli/templates/typescript/$dir"
+              echo "Changed files:"
+              echo "${template_dirs[$dir]}"
+              echo "Expected changes in: tests/$dir"
+              status=1
+            fi
+          done
+
+          # Check test directories without matching template changes
+          for dir in "${!test_dirs[@]}"; do
+            if [[ -z "${template_dirs[$dir]}" ]]; then
+              echo "::error::Changes detected in test directory but no corresponding template changes found"
+              echo "Test directory: tests/$dir"
+              echo "Changed files:"
+              echo "${test_dirs[$dir]}"
+              echo "Expected changes in: packages/cli/templates/typescript/$dir"
+              status=1
+            fi
+          done
+
+          exit $status

@@ -8,7 +8,7 @@ import { IChatModel, TextChunkHandler } from '../models';
 import { Schema } from '../schema';
 import { ITemplate } from '../template';
 import { StringTemplate } from '../templates';
-import { WithRequired } from '../utils/types';
+import { PromiseOrValue, WithRequired } from '../utils/types';
 
 import { IAiPlugin } from './plugin';
 
@@ -152,7 +152,13 @@ export type ChatPromptPlugin<TPluginName extends string, TPluginUseArgs extends 
    * @param functions
    * @returns Functions
    */
-  onBuildFunctions?: (functions: Function[]) => Function[] | Promise<Function[]>;
+  onBuildFunctions?: (functions: Function[]) => PromiseOrValue<Function[]>;
+  /**
+   * Optionally passed in to modify the system prompt before it is sent to the model.
+   * @param systemPrompt The system prompt string (or undefined)
+   * @returns The modified system prompt string (or undefined)
+   */
+  onBuildPrompt?: (systemPrompt: string | undefined) => PromiseOrValue<string | undefined>;
 };
 
 /**
@@ -202,8 +208,8 @@ export class ChatPrompt<
     this._template = Array.isArray(options.instructions)
       ? new StringTemplate(options.instructions.join('\n'))
       : typeof options.instructions !== 'object'
-      ? new StringTemplate(options.instructions)
-      : options.instructions;
+        ? new StringTemplate(options.instructions)
+        : options.instructions;
 
     this._messages =
       typeof options.messages === 'object' && !Array.isArray(options.messages)
@@ -309,7 +315,17 @@ export class ChatPrompt<
 
     let buffer = '';
     let system: SystemMessage | UserMessage | undefined = undefined;
-    const prompt = await this._template.render();
+    let prompt = await this._template.render();
+
+    for (const plugin of this.plugins) {
+      if (plugin.onBuildPrompt) {
+        const nextPrompt = await plugin.onBuildPrompt(prompt);
+        if (nextPrompt != null && nextPrompt !== prompt) {
+          this._log.debug(`Plugin "${plugin.name}" modified the system prompt`);
+          prompt = nextPrompt;
+        }
+      }
+    }
 
     if (prompt) {
       system = {

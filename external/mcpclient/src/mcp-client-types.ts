@@ -20,8 +20,8 @@ export type McpClientPluginParams = {
    */
   headers?: ValueOrFactory<Record<string, string>>;
   /**
-   * If the server is not available, it marks it as unavailable
-   * and will not try to use it again until the cache is cleared
+   * If the server is not available, it does not cause a failure
+   * and simply skips using the server
    * @default true
    */
   skipIfUnavailable?: boolean;
@@ -34,12 +34,12 @@ export type McpClientPluginParams = {
   refetchTimeoutMs?: number;
 };
 
-export type McpClientPluginCachedParams = Pick<McpClientPluginParams, 'availableTools' | 'headers'>;
+export type McpClientPluginCachedValue = Pick<McpClientPluginParams, 'availableTools' | 'headers'>;
 
 /**
  * A map of Mcp client params keyed off of their corresponding urls
  */
-export type McpClientPluginParamsCache = Record<string, McpClientPluginCachedParams>;
+export type McpClientPluginParamsCache = Record<string, McpClientPluginCachedValue>;
 
 /**
  * A function that creates a transport for the Mcp client

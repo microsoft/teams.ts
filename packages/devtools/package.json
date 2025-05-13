@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:watch": "NODE_ENV=development tsc -b && vite build --watch",
+    "build:watch": "npx cross-env NODE_ENV=development tsc -b && npx cross-env NODE_ENV=development vite build --watch",
     "lint": "eslint . ",
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",

@@ -356,6 +356,95 @@ describe('ChatPrompt', () => {
       expect(mockAfterFunctionCall).toHaveBeenCalledWith('testFn', args, 'result');
       expect(result).toBe('result async');
     });
+
+    it('should call onBuildPrompt hook and allow it to modify the system prompt', async () => {
+      const mockOnBuildPrompt = jest.fn().mockImplementation((prompt) => `Modified: ${prompt}`);
+      const pluginWithOnBuildPrompt: ChatPromptPlugin<'test', TestPluginArgs> = {
+        ...mockPlugin,
+        onBuildPrompt: mockOnBuildPrompt,
+      };
+      const prompt = new ChatPrompt(
+        {
+          name: 'test-prompt',
+          description: 'A test prompt',
+          model: mockChatModel,
+          instructions: 'Original instructions',
+        },
+        [pluginWithOnBuildPrompt] as const
+      );
+
+      await prompt.send('Hello');
+
+      expect(mockOnBuildPrompt).toHaveBeenCalledWith('Original instructions');
+      expect(mockChatModel.send).toHaveBeenCalledWith(
+        { role: 'user', content: 'Hello' },
+        expect.objectContaining({
+          system: { role: 'system', content: 'Modified: Original instructions' },
+        })
+      );
+    });
+
+    it('should not modify the system prompt if onBuildPrompt returns undefined', async () => {
+      const mockOnBuildPrompt = jest.fn().mockImplementation(() => undefined);
+      const pluginWithOnBuildPrompt: ChatPromptPlugin<'test', TestPluginArgs> = {
+        ...mockPlugin,
+        onBuildPrompt: mockOnBuildPrompt,
+      };
+      const prompt = new ChatPrompt(
+        {
+          name: 'test-prompt',
+          description: 'A test prompt',
+          model: mockChatModel,
+          instructions: 'Original instructions',
+        },
+        [pluginWithOnBuildPrompt] as const
+      );
+
+      await prompt.send('Hello');
+
+      expect(mockOnBuildPrompt).toHaveBeenCalledWith('Original instructions');
+      expect(mockChatModel.send).toHaveBeenCalledWith(
+        { role: 'user', content: 'Hello' },
+        expect.objectContaining({
+          system: { role: 'system', content: 'Original instructions' },
+        })
+      );
+    });
+
+    it('should chain multiple onBuildPrompt hooks in order', async () => {
+      const onBuildPrompt1 = jest.fn().mockImplementation((prompt) => `First: ${prompt}`);
+      const onBuildPrompt2 = jest.fn().mockImplementation((prompt) => `Second: ${prompt}`);
+      const plugin1: ChatPromptPlugin<'plugin1', TestPluginArgs> = {
+        ...mockPlugin,
+        name: 'plugin1',
+        onBuildPrompt: onBuildPrompt1,
+      };
+      const plugin2: ChatPromptPlugin<'plugin2', TestPluginArgs> = {
+        ...mockPlugin,
+        name: 'plugin2',
+        onBuildPrompt: onBuildPrompt2,
+      };
+      const prompt = new ChatPrompt(
+        {
+          name: 'test-prompt',
+          description: 'A test prompt',
+          model: mockChatModel,
+          instructions: 'Original instructions',
+        },
+        [plugin1, plugin2] as const
+      );
+
+      await prompt.send('Hello');
+
+      expect(onBuildPrompt1).toHaveBeenCalledWith('Original instructions');
+      expect(onBuildPrompt2).toHaveBeenCalledWith('First: Original instructions');
+      expect(mockChatModel.send).toHaveBeenCalledWith(
+        { role: 'user', content: 'Hello' },
+        expect.objectContaining({
+          system: { role: 'system', content: 'Second: First: Original instructions' },
+        })
+      );
+    });
   });
 
   describe('send', () => {

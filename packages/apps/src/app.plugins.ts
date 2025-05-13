@@ -1,6 +1,7 @@
 import { ILogger } from '@microsoft/teams.common';
 
 import { App } from './app';
+import { allIEventKeys, IEvents } from './events';
 import { IPlugin, IPluginActivityEvent, IPluginErrorEvent, ISender, PluginName } from './types';
 import {
   DependencyMetadata,
@@ -13,7 +14,7 @@ import { PLUGIN_METADATA_KEY, PluginOptions } from './types/plugin/decorators/pl
  * add a plugin
  * @param plugin plugin to add
  */
-export function plugin(this: App, plugin: IPlugin) {
+export function plugin<TPlugin extends IPlugin>(this: App<TPlugin>, plugin: TPlugin) {
   const { name } = getMetadata(plugin);
 
   if (this.getPlugin(name)) {
@@ -22,14 +23,19 @@ export function plugin(this: App, plugin: IPlugin) {
 
   this.plugins.push(plugin);
   this.container.register(name, { useValue: plugin });
-  this.container.register(plugin.constructor.name, { useValue: plugin });
+  if (plugin.constructor.name !== name) {
+    this.container.register(plugin.constructor.name, { useValue: plugin });
+  }
   return this;
 }
 
 /**
  * get a plugin
  */
-export function getPlugin(this: App, name: PluginName): IPlugin | undefined {
+export function getPlugin<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
+  name: PluginName
+): IPlugin | undefined {
   return this.plugins.find((plugin) => {
     const metadata = getMetadata(plugin);
     return metadata.name === name;
@@ -39,7 +45,7 @@ export function getPlugin(this: App, name: PluginName): IPlugin | undefined {
 /**
  * inject fields/events into a plugin
  */
-export function inject(this: App, plugin: IPlugin) {
+export function inject<TPlugin extends IPlugin>(this: App<TPlugin>, plugin: IPlugin) {
   const { name, dependencies, events } = getMetadata(plugin);
 
   // inject dependencies
@@ -71,7 +77,7 @@ export function inject(this: App, plugin: IPlugin) {
 
   // inject event handlers
   for (const { key, name } of events) {
-    let handler = (..._: any[]) => {};
+    let handler = (..._: any[]) => { };
 
     if (name === 'error') {
       handler = (event: IPluginErrorEvent) => {
@@ -80,6 +86,14 @@ export function inject(this: App, plugin: IPlugin) {
     } else if (name === 'activity') {
       handler = (event: IPluginActivityEvent) => {
         this.onActivity(plugin as ISender, event);
+      };
+    } else if (name === 'custom') {
+      handler = (name: string, event: unknown) => {
+        if (allIEventKeys.includes(name as keyof IEvents)) {
+          this.log.warn(`event "${name}" is reserved by core app-events but an plugin is trying to emit it`);
+          return;
+        }
+        this.events.emit(name as any, event);
       };
     }
 

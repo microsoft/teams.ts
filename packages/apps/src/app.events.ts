@@ -6,25 +6,26 @@ import {
   IActivityResponseEvent,
   IActivitySentEvent,
   IErrorEvent,
-  IEvents,
 } from './events';
-import { ISender } from './types';
+import { AppEvents, IPlugin, ISender } from './types';
 
 /**
  * subscribe to an event
  * @param name the event to subscribe to
  * @param cb the callback to invoke
  */
-export function event<Name extends keyof IEvents>(
-  this: App,
-  name: Name,
-  cb: EventHandler<IEvents[Name]>
-) {
+export function event<
+  TPlugin extends IPlugin,
+  Name extends keyof AppEvents<TPlugin>
+>(this: App<TPlugin>, name: Name, cb: EventHandler<AppEvents<TPlugin>[Name]>) {
   this.events.on(name, cb);
   return this;
 }
 
-export async function onError(this: App, event: IErrorEvent) {
+export async function onError<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
+  event: IErrorEvent
+) {
   for (const plugin of this.plugins) {
     if (plugin.onError) {
       await plugin.onError(event);
@@ -34,12 +35,20 @@ export async function onError(this: App, event: IErrorEvent) {
   this.events.emit('error', event);
 }
 
-export async function onActivity(this: App, sender: ISender, event: IActivityEvent) {
+export async function onActivity<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
+  sender: ISender,
+  event: IActivityEvent
+) {
   this.events.emit('activity', event);
   await this.process(sender, { ...event, sender });
 }
 
-export async function onActivitySent(this: App, sender: ISender, event: IActivitySentEvent) {
+export async function onActivitySent<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
+  sender: ISender,
+  event: IActivitySentEvent
+) {
   for (const plugin of this.plugins) {
     if (plugin.onActivitySent) {
       await plugin.onActivitySent({
@@ -52,8 +61,8 @@ export async function onActivitySent(this: App, sender: ISender, event: IActivit
   this.events.emit('activity.sent', { ...event, sender });
 }
 
-export async function onActivityResponse(
-  this: App,
+export async function onActivityResponse<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
   sender: ISender,
   event: IActivityResponseEvent
 ) {

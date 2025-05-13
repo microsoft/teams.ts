@@ -2,7 +2,7 @@
 
 <p>
     <a href="https://www.npmjs.com/package/@microsoft/teams.graph" target="_blank">
-        <img src="https://img.shields.io/npm/v/@microsoft/teams.graph" />
+        <img src="https://img.shields.io/npm/v/@microsoft/teams.graph/preview" />
     </a>
     <a href="https://www.npmjs.com/package/@microsoft/teams.graph?activeTab=code" target="_blank">
         <img src="https://img.shields.io/bundlephobia/min/@microsoft/teams.graph" />

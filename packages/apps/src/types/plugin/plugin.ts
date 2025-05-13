@@ -27,11 +27,15 @@ export type OnErrorPluginEvent = (event: IErrorEvent) => void;
  */
 export type OnActivityPluginEvent = (event: IActivityEvent) => void;
 
-/**
- * a component for extending the base
- * `App` functionality
- */
-export interface IPlugin {
+export interface IPlugin<TEvents extends {} = {}> {
+  /**
+   * The event types that this plugin can emit. This is just a type, but we need it
+   * for the type system to pick it up. You don't actually need to assign this to 
+   * anything.
+   * Simply having `__eventType!: MyEvents` works.
+   */
+  __eventType?: TEvents;
+
   /**
    * lifecycle method called by the `App`
    * once during initialization
@@ -86,3 +90,10 @@ export interface IPlugin {
    */
   createStream?(ref: ConversationReference): IStreamer;
 }
+
+export type EmitPluginEvent<TEvents extends {}> = <Name extends keyof TEvents>(
+  name: Name,
+  arg: TEvents[Name]
+) => void;
+
+export type PluginWithEvents<TEvents extends {}> = Pick<Required<IPlugin<TEvents>>, '__eventType'>;

@@ -7,14 +7,18 @@ import { ApiClient, GraphClient } from './api';
 import { App } from './app';
 import { ActivityContext, IActivityContext } from './contexts';
 import { IActivityEvent } from './events';
-import { ISender } from './types';
+import { IPlugin, ISender } from './types';
 
 /**
  * activity handler called when an inbound activity is received
  * @param sender the plugin to use for sending activities
  * @param event the received activity event
  */
-export async function $process(this: App, sender: ISender, event: IActivityEvent) {
+export async function $process<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
+  sender: ISender,
+  event: IActivityEvent
+) {
   const { token, activity } = event;
 
   this.log.debug(
