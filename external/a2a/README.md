@@ -20,11 +20,16 @@
 
 This is a plugin that enables your Teams agent to be used as an A2A agent.
 
+> [!NOTE]
+> The A2A protocol is still early in development and hence this package is fairly experimental.
+
 -   [What is A2A?](https://google.github.io/A2A)
+
+## Server
 
 Teams AI Library allows your applications to easily be accessible via Teams. However, using this plugin, you can also enable your agent to be used as an A2A agent so that it can be used by other A2A clients.
 
-## Configuration
+### Configuration
 
 Configuring the App to use the A2APlugin simply requires the `AgentCard`.
 
@@ -45,7 +50,7 @@ const app = new App({
 
 With this simple configuration, the A2APlugin will listen for A2A requests on the `/a2a` path and return the agent card when requested.
 
-## Agent Card
+### Agent Card
 
 The plugin automatically exposes the agent card at the path `/.well-known/agent.json`.
 
@@ -59,7 +64,7 @@ sequenceDiagram
     A2APlugin->>A2A Client: Return agent card
 ```
 
-## A2A Requests
+### A2A Requests
 
 ```mermaid
 sequenceDiagram
@@ -88,4 +93,89 @@ app.event(
         await respond(result);
     }
 );
+```
+
+## Client
+
+The A2A client is able to call different A2A servers. You are able to use the `AgentManager` to call different A2A Servers.
+
+```ts
+import { AgentManager } from "@microsoft/teams.a2a";
+
+const agentManager = new AgentManager();
+
+agentManager.use("my-agent", "https://my-agent.com/a2a");
+await agentManager.sendTask("my-agent", {
+    id: continueTaskId || generateRequestId().toString(),
+    message: {
+      role: 'user',
+      parts: [{ type: 'text' as const, text: message }],
+    },
+    {},
+});
+```
+
+If you are using the `A2APlugin` described above, you can use the `clientManger` property in that plugin object to get an instance of the `AgentManager` and use it to send tasks proactively to different A2A servers.
+
+### Chat Prompt
+
+A2A is most effective when used with an LLM. The `A2AClientPlugin` can be used to add a plugin to your chat prompt that will allow you to automatically include A2A agents as a possible source of interaction. The interaction can be outlined as below:
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant ChatPrompt
+    participant A2APlugin
+    participant A2AManager
+    participant A2AAgentClient
+    participant SubPrompt
+    participant LLM
+    participant TargetAgent
+
+    alt config
+        User->>ChatPrompt: "use" with A2A server details
+        ChatPrompt->>A2APlugin: configure usable a2a server<br/>similar to what we do with mcp-client
+        A2APlugin->>A2AManager: register new potential client
+    end
+    alt send
+        User->>ChatPrompt: Send initial message
+        ChatPrompt->>A2APlugin: configure system prompt
+        A2APlugin->>A2AManager: get agent cards
+        A2AManager->>A2AAgentClient: for each get agent card
+        A2AAgentClient-->>A2AManager: agent card
+        A2AManager-->>A2APlugin: all agent cards
+        A2APlugin-->>ChatPrompt: updated system prompt<br/>with agent descriptions
+        ChatPrompt->>A2APlugin: configure tool-calls (onBuildFunctions)
+        A2APlugin-->>ChatPrompt: Configured tool calls<br/>with agent name/descriptions
+        ChatPrompt->>LLM: send-mesage
+        LLM-->>ChatPrompt: Call A2A TargetAgent
+        ChatPrompt->>A2APlugin: Handler for calling A2A TargetAgent
+        A2APlugin->>A2AManager: Call TargetAgent with message
+        A2AManager->>A2AAgentClient: Call TargetAgent with message
+        TargetAgent-->>A2AAgentClient: Return task (e.g., completed, input-required)
+        A2AAgentClient->>A2AManager: Result task
+        A2AManager->>A2APlugin: Result task
+        A2APlugin->>ChatPrompt: Result task
+        ChatPrompt-->>User: Respond with final result or follow-up
+    end
+```
+
+Usage:
+
+```ts
+import { A2APlugin } from "@microsoft/teams.a2a";
+import { ChatPrompt } from "@microsoft/teams.ai";
+
+const plugin = new A2APlugin();
+
+const chatPrompt = new ChatPrompt({
+    plugins: [plugin],
+}).use("a2a", {
+    key: "my-agent",
+    url: "https://my-agent.com/a2a",
+});
+
+const result = await chatPrompt.sendMessage("Hello, world!");
+
+console.log(result);
 ```
