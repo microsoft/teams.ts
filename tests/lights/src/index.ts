@@ -1,25 +1,25 @@
-import { App } from '@microsoft/teams.apps';
+import '@azure/openai/types';
 import { ChatPrompt, Message } from '@microsoft/teams.ai';
+import { MessageActivity } from '@microsoft/teams.api';
+import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
-import { OpenAIChatModel } from '@microsoft/teams.openai';
 import { LocalStorage } from '@microsoft/teams.common/storage';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
-import { MessageActivity } from '@microsoft/teams.api';
-import '@azure/openai/types';
+import { OpenAIChatModel } from '@microsoft/teams.openai';
 
-interface MessageFeedback {
+interface IMessageFeedback {
   messageId: string;
   reaction: 'like' | 'dislike';
   feedback?: string;
 }
 
-interface StorageState {
+interface IStorageState {
   status: boolean;
   messages: Message[];
-  feedback: MessageFeedback[];
+  feedback: IMessageFeedback[];
 }
 
-const storage = new LocalStorage<StorageState>();
+const storage = new LocalStorage<IStorageState>();
 
 const app = new App({
   logger: new ConsoleLogger('@tests/lights', { level: 'debug' }),
