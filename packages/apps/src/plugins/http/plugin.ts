@@ -82,9 +82,10 @@ export class HttpPlugin implements ISender {
   protected express: express.Application;
   protected pending: Record<string, express.Response> = {};
 
-  constructor() {
+  constructor(server?: http.Server) {
     this.express = express();
-    this._server = http.createServer(this.express);
+    this._server = server || http.createServer();
+    this._server.on('request', this.express);
     this.get = this.express.get.bind(this.express);
     this.post = this.express.post.bind(this.express);
     this.patch = this.express.patch.bind(this.express);
@@ -115,15 +116,15 @@ export class HttpPlugin implements ISender {
     });
 
     return await new Promise<void>((resolve, reject) => {
-      this._server = this.express.listen(port, async (err) => {
-        if (err) {
-          this.$onError({ error: err });
-          reject(err);
-          return;
-        }
-
+      this._server = this._server.listen(port, async () => {        
         this.logger.info(`listening on port ${port} 🚀`);
         resolve();
+      });
+
+      this._server.on('error', (err) => {
+        this.$onError({ error: err });
+        reject(err);
+        return;
       });
     });
   }
