@@ -57,7 +57,7 @@ jobs:
           # Check template directories without matching test changes
           for dir in "${!template_dirs[@]}"; do
             if [[ -z "${test_dirs[$dir]}" ]]; then
-              echo "::error::Changes detected in template directory but no corresponding test changes found"
+              echo "::error::Changes detected in template directory but no corresponding test changes found (use skip-test-verification in PR description to skip this check)"
               echo "Template directory: packages/cli/templates/typescript/$dir"
               echo "Changed files:"
               echo "${template_dirs[$dir]}"
@@ -69,7 +69,7 @@ jobs:
           # Check test directories without matching template changes
           for dir in "${!test_dirs[@]}"; do
             if [[ -z "${template_dirs[$dir]}" ]]; then
-              echo "::error::Changes detected in test directory but no corresponding template changes found"
+              echo "::error::Changes detected in test directory but no corresponding template changes found (use skip-test-verification in PR description to skip this check)"
               echo "Test directory: tests/$dir"
               echo "Changed files:"
               echo "${test_dirs[$dir]}"
