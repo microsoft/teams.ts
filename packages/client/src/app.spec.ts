@@ -60,9 +60,10 @@ jest.mock('@microsoft/teams-js', () => {
 jest.mock('@azure/msal-browser', () => {
   return {
     ...jest.requireActual('@azure/msal-browser'),
-    createNestablePublicClientApplication: msalCreateNPCAppMock.mockResolvedValue({
-      initialize: msalInitializeMock,
-    }),
+    createNestablePublicClientApplication:
+      msalCreateNPCAppMock.mockResolvedValue({
+        initialize: msalInitializeMock,
+      }),
   };
 });
 
@@ -194,7 +195,7 @@ describe('App', () => {
           },
         },
       });
-      expect(msalInitializeMock).toHaveBeenCalledTimes(1);
+      expect(msalInitializeMock).not.toHaveBeenCalled();
       expect(app.startedAt).toEqual(mockDate);
       expect(app.msalInstance).toBeDefined();
       expect(acquireMsalAccessTokenSpy).toHaveBeenCalledTimes(1);
@@ -212,7 +213,10 @@ describe('App', () => {
         },
       };
       const app = new App(mockClientId, {
-        msalOptions: { configuration: msalConfig, prewarmScopes: ['user.read'] },
+        msalOptions: {
+          configuration: msalConfig,
+          prewarmScopes: ['user.read'],
+        },
       });
       await app.start();
 
@@ -220,7 +224,7 @@ describe('App', () => {
       expect(teamsJsInitializeMock).toHaveBeenCalledWith();
       expect(msalCreateNPCAppMock).toHaveBeenCalledTimes(1);
       expect(msalCreateNPCAppMock).toHaveBeenCalledWith(msalConfig);
-      expect(msalInitializeMock).toHaveBeenCalledTimes(1);
+      expect(msalInitializeMock).not.toHaveBeenCalled();
       expect(app.startedAt).toEqual(mockDate);
       expect(app.msalInstance).toBeDefined();
       expect(acquireMsalAccessTokenSpy).toHaveBeenCalledTimes(1);
@@ -270,7 +274,7 @@ describe('App', () => {
       expect(teamsJsInitializeMock).toHaveBeenCalledWith();
       expect(msalCreateNPCAppMock).toHaveBeenCalledTimes(1);
       expect(msalCreateNPCAppMock).toHaveBeenCalledWith(msalConfig);
-      expect(msalInitializeMock).toHaveBeenCalledTimes(1);
+      expect(msalInitializeMock).not.toHaveBeenCalled();
       expect(app.startedAt).toEqual(mockDate);
       expect(app.msalInstance).toBeDefined();
       expect(acquireMsalAccessTokenSpy).not.toHaveBeenCalled();
@@ -468,11 +472,15 @@ describe('App', () => {
         app.log
       );
       expect(httpClientPostMock).toHaveBeenCalledTimes(1);
-      expect(httpClientPostMock).toHaveBeenCalledWith('/api/functions/myFunction', undefined, {
-        headers: expect.objectContaining({
-          'x-custom-correlation-id': 'gggg-uuuu-iiii-dddd',
-        }),
-      });
+      expect(httpClientPostMock).toHaveBeenCalledWith(
+        '/api/functions/myFunction',
+        undefined,
+        {
+          headers: expect.objectContaining({
+            'x-custom-correlation-id': 'gggg-uuuu-iiii-dddd',
+          }),
+        }
+      );
     });
   });
 
@@ -488,20 +496,30 @@ describe('App', () => {
     it('throws if invoked before the app is started', () => {
       const app = new App(mockClientId);
       expect(buildGraphClientSpy).toHaveBeenCalledTimes(1);
-      expect(buildGraphClientSpy).toHaveBeenCalledWith(expect.any(Function), app.log);
+      expect(buildGraphClientSpy).toHaveBeenCalledWith(
+        expect.any(Function),
+        app.log
+      );
 
-      expect(() => buildGraphClientSpy.mock.calls[0][0]()).toThrow('App not started');
+      expect(() => buildGraphClientSpy.mock.calls[0][0]()).toThrow(
+        'App not started'
+      );
     });
 
     it('provides a healthy msal instance once the app is started', async () => {
       const app = new App(mockClientId);
       expect(buildGraphClientSpy).toHaveBeenCalledTimes(1);
-      expect(buildGraphClientSpy).toHaveBeenCalledWith(expect.any(Function), app.log);
+      expect(buildGraphClientSpy).toHaveBeenCalledWith(
+        expect.any(Function),
+        app.log
+      );
       await app.start();
 
       const msalInstance = buildGraphClientSpy.mock.calls[0][0]();
       expect(msalInstance).toBeDefined();
-      expect(msalInstance).toEqual(expect.objectContaining({ msalInstance: app.msalInstance }));
+      expect(msalInstance).toEqual(
+        expect.objectContaining({ msalInstance: app.msalInstance })
+      );
     });
   });
 
@@ -510,7 +528,9 @@ describe('App', () => {
 
     it('should throw if not started', async () => {
       const app = new App(mockClientId);
-      await expect(app.hasConsentForScopes(scopes)).rejects.toThrow('App not started');
+      await expect(app.hasConsentForScopes(scopes)).rejects.toThrow(
+        'App not started'
+      );
     });
 
     it('should query MSAL for consent', async () => {
@@ -522,7 +542,11 @@ describe('App', () => {
 
       expect(await app.hasConsentForScopes(scopes)).toEqual(true);
       expect(hasMsalConsentForScopesSpy).toHaveBeenCalledTimes(1);
-      expect(hasMsalConsentForScopesSpy).toHaveBeenCalledWith(app.msalInstance, scopes, mockLogger);
+      expect(hasMsalConsentForScopesSpy).toHaveBeenCalledWith(
+        app.msalInstance,
+        scopes,
+        mockLogger
+      );
     });
   });
 
@@ -531,7 +555,9 @@ describe('App', () => {
 
     it('should throw if not started', async () => {
       const app = new App(mockClientId);
-      await expect(app.ensureConsentForScopes(scopes)).rejects.toThrow('App not started');
+      await expect(app.ensureConsentForScopes(scopes)).rejects.toThrow(
+        'App not started'
+      );
     });
 
     it('should query MSAL for consent', async () => {

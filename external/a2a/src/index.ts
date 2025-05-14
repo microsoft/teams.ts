@@ -6,5 +6,6 @@ export * from './client/agent-task-store';
 export * from './common/schema';
 export * as schema from './common/schema';
 export * from './server/plugin';
+export * from './server/types/a2a-types';
 export * from './server/types/event-types';
 
