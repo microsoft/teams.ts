@@ -116,15 +116,14 @@ export class HttpPlugin implements ISender {
     });
 
     return await new Promise<void>((resolve, reject) => {
-      this._server = this._server.listen(port, async () => {        
-        this.logger.info(`listening on port ${port} 🚀`);
-        resolve();
-      });
-
       this._server.on('error', (err) => {
         this.$onError({ error: err });
         reject(err);
-        return;
+      });
+
+      this._server.listen(port, () => {        
+        this.logger.info(`listening on port ${port} 🚀`);
+        resolve();
       });
     });
   }
