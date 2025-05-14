@@ -163,7 +163,7 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
           console.log("Generating app package...");
           return false;
         },
-        destination: "samples/{{name}}/appPackage/",
+        destination: "tests/{{name}}/appPackage/",
         templateFiles: "templates/appPackage/**",
       },
     ],
