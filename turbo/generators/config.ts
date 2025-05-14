@@ -134,6 +134,10 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       },
       {
         type: "add",
+        path: "tests/{{name}}/eslint.config.js",
+      },
+      {
+        type: "add",
         path: "tests/{{name}}/tsconfig.json",
         templateFile: "templates/test-tsconfig.json.hbs",
       },
