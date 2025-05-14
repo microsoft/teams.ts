@@ -1,5 +1,6 @@
 import { ChatPrompt, IChatModel } from '@microsoft/teams.ai';
 import { ActivityLike, IMessageActivity, SentActivity } from '@microsoft/teams.api';
+
 import { ILogger } from '../../../packages/common/dist/logging/logger';
 
 interface PokemonSearch {

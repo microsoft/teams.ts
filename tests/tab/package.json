@@ -11,6 +11,8 @@
   ],
   "scripts": {
     "clean": "npx rimraf ./dist",
+    "lint": "npx eslint",
+    "lint:fix": "npx eslint --fix",
     "start": "node -r dotenv/config .",
     "dev": "npx nodemon",
     "build": "npx tsup && npm run build:client",

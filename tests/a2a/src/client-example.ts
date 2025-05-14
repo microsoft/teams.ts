@@ -1,9 +1,9 @@
-import { A2AClientPlugin, AgentManager } from "@microsoft/teams.a2a";
-import { ChatPrompt } from "@microsoft/teams.ai";
-import { App } from "@microsoft/teams.apps";
+import { A2AClientPlugin, AgentManager } from '@microsoft/teams.a2a';
+import { ChatPrompt } from '@microsoft/teams.ai';
+import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
-import { DevtoolsPlugin } from "@microsoft/teams.dev";
-import { OpenAIChatModel } from "@microsoft/teams.openai";
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
+import { OpenAIChatModel } from '@microsoft/teams.openai';
 
 const logger = new ConsoleLogger('a2a-client', { level: 'debug' });
 
@@ -21,16 +21,16 @@ const prompt = new ChatPrompt(
     logger,
     model: new OpenAIChatModel({
       apiKey: process.env.OPENAI_API_KEY,
-      model: "gpt-4o-mini",
+      model: 'gpt-4o-mini',
     }),
   },
   // Add the A2AClientPlugin to the prompt
   [new A2AClientPlugin()]
 )
   // Provide the agent's server URL
-  .usePlugin("a2a", {
-    key: "my-weather-agent",
-    url: "http://localhost:4000/a2a",
+  .usePlugin('a2a', {
+    key: 'my-weather-agent',
+    url: 'http://localhost:4000/a2a',
   });
 // :snippet-end:
 
@@ -41,17 +41,17 @@ const prompt = new ChatPrompt(
 // :remove-end:
 const directlyUserAgentManager = async (message: string) => {
   const agentManager = new AgentManager();
-  agentManager.use("my-agent", "https://my-agent.com/a2a");
+  agentManager.use('my-agent', 'https://my-agent.com/a2a');
 
-  const taskId = "my-task-id"; // Generated or reused from previous task
-  await agentManager.sendTask("my-agent", {
+  const taskId = 'my-task-id'; // Generated or reused from previous task
+  await agentManager.sendTask('my-agent', {
     id: taskId,
     message: {
       role: 'user',
       parts: [{ type: 'text' as const, text: message }],
     },
   });
-}
+};
 // :snippet-end:
 
 const handler = async (message: string) => {
@@ -63,8 +63,8 @@ const handler = async (message: string) => {
   // :snippet-end:
 };
 
-app.on("message", async ({ send, activity }) => {
-  await send({ type: "typing" });
+app.on('message', async ({ send, activity }) => {
+  await send({ type: 'typing' });
   const result = await handler(activity.text);
   if (result.content) {
     await send(result.content);

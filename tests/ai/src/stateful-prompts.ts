@@ -1,5 +1,6 @@
 import { ChatPrompt, IChatModel, Message } from '@microsoft/teams.ai';
 import { ActivityLike, IMessageActivity, MessageActivity } from '@microsoft/teams.api';
+
 import { ILogger } from '../../../packages/common/dist/logging/logger';
 
 // :snippet-start: stateful-prompts-state-initialization

@@ -11,6 +11,8 @@
   ],
   "scripts": {
     "clean": "npx rimraf ./dist",
+    "lint": "npx eslint",
+    "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
     "start": "node -r dotenv/config .",
     "server": "npx nodemon -w \"./src/server-example.ts\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/server-example.ts\"",

@@ -1,6 +1,8 @@
+import Fuse from 'fuse.js';
+
 import { ChatPrompt, IChatModel } from '@microsoft/teams.ai';
 import { ActivityLike, IMessageActivity, MessageActivity } from '@microsoft/teams.api';
-import Fuse from 'fuse.js';
+
 import { ILogger } from '../../../packages/common/dist/logging/logger';
 
 interface DocumentationItem {
