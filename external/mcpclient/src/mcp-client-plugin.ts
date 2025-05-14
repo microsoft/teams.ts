@@ -113,7 +113,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
         description: availableTool.description,
         parameters: availableTool.schema || {},
         handler: async (args: any) => {
-          const [client, transport] = await this.makeMcpClientPlugin(url, params?.headers);
+          const [client, transport] = await this.makeMcpClient(url, params?.headers);
           try {
             await client.connect(transport);
             const result = await client.callTool({
@@ -199,7 +199,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     headers?: ValueOrFactory<Record<string, string>>,
     skipIfUnavailable?: boolean
   ): Promise<McpClientToolDetails[] | 'unavailable'> {
-    const [client, transport] = await this.makeMcpClientPlugin(url, headers);
+    const [client, transport] = await this.makeMcpClient(url, headers);
     try {
       await client.connect(transport);
       const listToolsResult = await client.listTools();
@@ -221,7 +221,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     }
   }
 
-  private async makeMcpClientPlugin(
+  private async makeMcpClient(
     serverUrl: string,
     headers: ValueOrFactory<Record<string, string>> | undefined
   ) {
