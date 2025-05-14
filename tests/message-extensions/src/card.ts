@@ -12,13 +12,13 @@ const IMAGE_URL =
   'https://github.com/microsoft/teams-agent-accelerator-samples/raw/main/python/memory-sample-agent/docs/images/memory-thumbnail.png';
 
 // :snippet-start: message-ext-create-card
-interface FormData {
+interface IFormData {
   title: string;
   subtitle: string;
   text: string;
 }
 
-export function createCard(data: FormData) {
+export function createCard(data: IFormData) {
   return new AdaptiveCard(
     new Image(IMAGE_URL),
     new TextBlock(data.title, {
