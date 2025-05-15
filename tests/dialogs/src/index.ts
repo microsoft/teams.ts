@@ -308,5 +308,5 @@ app.on('dialog.submit', async ({ activity, send, next }) => {
 // :snippet-end:
 
 (async () => {
-  await app.start(+(process.env.PORT || 3000));
+  await app.start(+(process.env.PORT || 3978));
 })();

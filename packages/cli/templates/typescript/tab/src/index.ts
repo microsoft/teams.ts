@@ -14,5 +14,5 @@ app.function('hello-world', async ({ log, data }) => {
 });
 
 (async () => {
-  await app.start(+(process.env.PORT || 3000));
+  await app.start(+(process.env.PORT || 3978));
 })();
