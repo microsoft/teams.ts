@@ -1,11 +1,11 @@
 using Microsoft.Teams.Api.Activities;
 using Microsoft.Teams.Apps;
 using Microsoft.Teams.Apps.Annotations;
-using Microsoft.Teams.Apps.Routing;
+using Microsoft.Teams.Apps.Activities;
 
 namespace Echo;
 
-[ActivityController("main")]
+[TeamsController("main")]
 public class MainController
 {
     [Message]
