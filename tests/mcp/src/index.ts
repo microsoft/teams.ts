@@ -1,9 +1,11 @@
+import { AuthInfo } from '@modelcontextprotocol/sdk/server/auth/types.js';
+
+import { z } from 'zod';
+
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 import { McpPlugin } from '@microsoft/teams.mcp';
-import { AuthInfo } from '@modelcontextprotocol/sdk/server/auth/types.js';
-import { z } from 'zod';
 
 // :snippet-start: mcp-server-plugin-config
 const mcpServerPlugin = new McpPlugin({
@@ -91,7 +93,7 @@ mcpServerPlugin.tool(
       content: [
         {
           type: 'text',
-          text: `User was notified`,
+          text: 'User was notified',
         },
       ],
     };

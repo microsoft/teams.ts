@@ -42,19 +42,23 @@ export class Project implements IProject {
     this._attributes = attributes;
   }
 
+  static detectLanguage(): ProjectLanguage | undefined {
+    return fs.existsSync(path.join(process.cwd(), 'package.json'))
+      ? 'typescript'
+        : fs.readdirSync(process.cwd()).some(file => file.endsWith('.sln'))
+      ? 'csharp'
+        : undefined;
+  }
+
   static builder() {
     return new ProjectBuilder();
   }
 
   static load() {
-    const language = fs.existsSync(path.join(process.cwd(), 'package.json'))
-      ? 'typescript'
-      : fs.existsSync(path.join(process.cwd(), 'appsettings.json'))
-        ? 'csharp'
-        : undefined;
+    const language = this.detectLanguage();
 
     if (!language) {
-      throw new Error('invalid project');
+      throw new Error('Invalid project. Directory should contain a package.json (typescript) or .sln (csharp) file.');
     }
 
     return new ProjectBuilder()

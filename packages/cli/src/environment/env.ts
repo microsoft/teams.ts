@@ -33,7 +33,7 @@ export class Env implements IEnv {
 
   static load(name: string) {
     const env = new Env(name);
-    const base = path.join(os.homedir(), 'teams.sdk', 'environments');
+    const base = path.join(os.homedir(), 'teams.cli', 'environments');
     const file = path.join(base, `${name}.env`);
 
     if (!fs.existsSync(file)) {
@@ -87,7 +87,7 @@ export class Env implements IEnv {
   }
 
   save() {
-    const base = path.join(os.homedir(), 'teams.sdk', 'environments');
+    const base = path.join(os.homedir(), 'teams.cli', 'environments');
 
     if (!fs.existsSync(base)) {
       fs.mkdirSync(base, { recursive: true });
@@ -98,7 +98,7 @@ export class Env implements IEnv {
   }
 
   delete() {
-    const base = path.join(os.homedir(), 'teams.sdk', 'environments');
+    const base = path.join(os.homedir(), 'teams.cli', 'environments');
     const file = path.join(base, `${this.name}.env`);
 
     if (!fs.existsSync(file)) {

@@ -8,6 +8,7 @@ import { z } from 'zod';
 
 import { IContext } from '../../context';
 import { Project } from '../../project';
+import { Settings } from '../../settings';
 
 const ArgsSchema = z.object({
   name: z.string(),
@@ -19,10 +20,13 @@ const ArgsSchema = z.object({
 });
 
 export function CSharp(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema>> {
+  const isCSharp = Settings.load().language == 'csharp';
+  const ttkPath = path.resolve(url.fileURLToPath(import.meta.url), '../..', 'configs', 'ttk');
+
   return {
-    command: 'csharp <name>',
+    command: ['csharp <name>', ...(isCSharp ? ['$0 <name>'] : [])],
     aliases: ['cs'],
-    describe: '⚠️BETA⚠️ create a new csharp app project',
+    describe: 'create a new csharp app project',
     builder: async (b) => {
       const changeCase = await import('change-case');
 
@@ -33,10 +37,9 @@ export function CSharp(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
           describe: 'the apps name',
           demandOption: true,
           coerce: (name: string) => {
-            return changeCase.pascalCase(
-              name.trim(),
-              { delimiter: '.' }
-            );
+            return changeCase.pascalCase(name.trim(), {
+              delimiter: '.',
+            });
           },
         })
         .option('template', {
@@ -58,9 +61,9 @@ export function CSharp(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
           alias: 'ttk',
           type: 'string',
           describe: 'include Teams Toolkit configuration',
-          choices: fs.readdirSync(
-            path.resolve(url.fileURLToPath(import.meta.url), '../..', 'configs', 'ttk')
-          ),
+          choices: fs.readdirSync(ttkPath)
+            .filter((type) => fs.existsSync(path.join(ttkPath, type, 'csharp')))
+            .flat()
         })
         .option('client-id', {
           type: 'string',
@@ -89,27 +92,29 @@ export function CSharp(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
         .addTemplate(template);
 
       if (ttk) {
-        builder.addTeamsToolkit('basic');
+        builder.addTeamsToolkit(ttk);
       }
 
+      const appSettingsPath = `${name}/appsettings.Development.json`;
+
       if (clientId) {
-        builder.addEnv('TEAMS_CLIENT_ID', clientId);
+        builder.addEnv('Teams.ClientId', clientId, appSettingsPath);
       }
 
       if (clientSecret) {
-        builder.addEnv('TEAMS_CLIENT_SECRET', clientSecret);
+        builder.addEnv('Teams.ClientSecret', clientSecret, appSettingsPath);
       }
 
       if (process.env.OPENAI_API_KEY) {
-        builder.addEnv('OPENAI_API_KEY', process.env.OPENAI_API_KEY);
+        builder.addEnv('OPENAI_API_KEY', process.env.OPENAI_API_KEY, appSettingsPath);
       }
 
       if (process.env.AZURE_OPENAI_API_KEY) {
-        builder.addEnv('OPENAI_API_KEY', process.env.AZURE_OPENAI_API_KEY);
+        builder.addEnv('OPENAI_API_KEY', process.env.AZURE_OPENAI_API_KEY, appSettingsPath);
       }
 
       if (process.env.AZURE_OPENAI_ENDPOINT) {
-        builder.addEnv('OPENAI_ENDPOINT', process.env.AZURE_OPENAI_ENDPOINT);
+        builder.addEnv('OPENAI_ENDPOINT', process.env.AZURE_OPENAI_ENDPOINT, appSettingsPath);
       }
 
       const project = builder.build();
@@ -117,14 +122,14 @@ export function CSharp(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
       console.log(`✅ App "${name}" created successfully at ${projectDir}`);
 
       if (start) {
-        console.log(`cd ${name} && dotnet run`);
-        cp.spawnSync(`cd ${name} && dotnet run`, {
+        console.log(`cd ${name}/${name} && dotnet run`);
+        cp.spawnSync(`cd ${name}/${name} && dotnet run`, {
           stdio: 'inherit',
           shell: true,
         });
       } else {
         console.log('Next steps to start the app:');
-        console.log(`cd ${name} && dotnet run`);
+        console.log(`cd ${name}/${name} && dotnet run`);
       }
     },
   };

@@ -1,6 +1,8 @@
 import { IChatModel } from '@microsoft/teams.ai';
 import { ActivityLike, IMessageActivity, SentActivity } from '@microsoft/teams.api';
+
 import { ILogger } from '../../../packages/common/dist/logging/logger';
+
 import { handleFeedbackLoop } from './feedback';
 import { handleDocumentationSearch } from './simple-rag';
 import { handleGetWeatherToolCalling, handlePokemonToolCalling } from './tool-calling';

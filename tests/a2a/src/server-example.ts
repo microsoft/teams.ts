@@ -1,38 +1,38 @@
-import { A2APlugin, schema, TaskUpdate } from "@microsoft/teams.a2a";
-import { ChatPrompt } from "@microsoft/teams.ai";
-import { App } from "@microsoft/teams.apps";
+import { A2APlugin, schema, TaskUpdate } from '@microsoft/teams.a2a';
+import { ChatPrompt } from '@microsoft/teams.ai';
+import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
-import { OpenAIChatModel } from "@microsoft/teams.openai";
+import { OpenAIChatModel } from '@microsoft/teams.openai';
 
 const logger = new ConsoleLogger('a2a-server', { level: 'debug' });
 
-const PORT = +(process.env.PORT || 4000)
+const PORT = +(process.env.PORT || 4000);
 
 // :snippet-start: a2a-server-app-initialization-example
 // import { A2APlugin, schema } from "@microsoft/teams.a2a";
 // import { App } from "@microsoft/teams.apps";
 const agentCard: schema.AgentCard = {
-    name: "Weather Agent",
-    description: "An agent that can tell you the weather",
+    name: 'Weather Agent',
+    description: 'An agent that can tell you the weather',
     url: `http://localhost:${PORT}/a2a`,
     provider: {
-        organization: "Weather Co.",
+        organization: 'Weather Co.',
     },
-    version: "0.0.1",
+    version: '0.0.1',
     capabilities: {},
     skills: [
         {
             // Expose various skills that this agent can perform
-            id: "get_weather",
-            name: "Get Weather",
-            description: "Get the weather for a given location",
-            tags: ["weather", "get", "location"],
+            id: 'get_weather',
+            name: 'Get Weather',
+            description: 'Get the weather for a given location',
+            tags: ['weather', 'get', 'location'],
             examples: [
                 // Give concrete examples on how to contact the agent
-                "Get the weather for London",
-                "What is the weather",
-                "What's the weather in Tokyo?",
-                "How is the current temperature in San Francisco?",
+                'Get the weather for London',
+                'What is the weather',
+                'What\'s the weather in Tokyo?',
+                'How is the current temperature in San Francisco?',
             ],
         },
     ],
@@ -52,7 +52,7 @@ const myEventHandler = async (userMessage: string): Promise<TaskUpdate | string>
         instructions: 'You are a weather agent that can tell you the weather for a given location',
         model: new OpenAIChatModel({
             apiKey: process.env.OPENAI_API_KEY,
-            model: "gpt-4o-mini",
+            model: 'gpt-4o-mini',
         }),
     }).function('location', 'The location to get the weather for', {
         type: 'object',
@@ -75,11 +75,11 @@ const myEventHandler = async (userMessage: string): Promise<TaskUpdate | string>
                 type: 'text',
                 text: 'Please provide a location'
             }]
-        }
+        };
     } else {
-        return result.content!
+        return result.content!;
     }
-}
+};
 
 // :snippet-start: a2a-server-event-handler-example
 app.event('a2a:message', async ({ respond, taskContext }) => {
@@ -94,7 +94,7 @@ app.event('a2a:message', async ({ respond, taskContext }) => {
                     text: 'My agent currently only supports text input'
                 }
             ]
-        })
+        });
         return;
     }
     const result: string | TaskUpdate = await myEventHandler(textInput);

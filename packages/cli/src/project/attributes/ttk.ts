@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
 
-import { Compound, Copy, FileJsonSet, FileYamlSet, If } from '../operations';
+import { Compound, Copy, FileJsonSet, FileUpdate, FileYamlSet, If } from '../operations';
 import { IProjectAttribute } from '../project-attribute';
 
 export class TeamsToolkitAttribute implements IProjectAttribute {
@@ -19,7 +19,7 @@ export class TeamsToolkitAttribute implements IProjectAttribute {
   typescript(targetDir: string) {
     return new Compound(
       new Copy(
-        path.resolve(url.fileURLToPath(import.meta.url), '../..', 'configs', 'ttk', this.name),
+        path.resolve(url.fileURLToPath(import.meta.url), '../..', 'configs', 'ttk', this.name, 'typescript'),
         targetDir
       ),
       new FileJsonSet(targetDir, 'package.json', 'devDependencies.env-cmd', 'latest'),
@@ -72,7 +72,90 @@ export class TeamsToolkitAttribute implements IProjectAttribute {
     );
   }
 
-  csharp(_: string) {
-    return new Compound();
+  csharp(targetDir: string) {
+    // Get the .sln file in the target directory
+    const slnFile = fs.readdirSync(targetDir).find((file) => file.endsWith('.sln'));
+    if (!slnFile) {
+      throw new Error('No .sln file found in the target directory');
+    }
+
+    // Get .sln file name
+    const slnFileName = path.basename(slnFile, '.sln');
+
+    // Get the .slnlaunch.user file in the target directory
+    let launchUserFile = fs.readdirSync(targetDir).find((file) => file.endsWith('.slnlaunch.user'));
+    if (!launchUserFile) {
+      // create the file
+      launchUserFile = `${slnFileName}.slnlaunch.user`;
+      fs.writeFileSync(path.join(targetDir, launchUserFile), JSON.stringify([], null, 2));
+    }
+
+    return new Compound(
+      new Copy(
+        path.resolve(url.fileURLToPath(import.meta.url), '../..', 'configs', 'ttk', this.name, 'csharp'),
+        targetDir
+      ),
+      new FileUpdate(targetDir, launchUserFile, (content) => {
+        const jsonArray = JSON.parse(content);
+        const ttkDebugProfiles = [
+          {
+            'Name': 'Microsoft Teams (browser)',
+            'Projects': [
+              {
+                'Path': 'TeamsApp\\TeamsApp.ttkproj',
+                'Action': 'StartWithoutDebugging',
+                'DebugTarget': 'Microsoft Teams (browser)'
+              },
+              {
+                'Path': `${slnFileName}\\${slnFileName}.csproj`,
+                'Action': 'Start',
+                'DebugTarget': 'Start Project'
+              }
+            ]
+          },
+          {
+            'Name': 'Microsoft Teams (browser) (skip update Teams App)',
+            'Projects': [
+              {
+                'Path': 'TeamsApp\\TeamsApp.ttkproj',
+                'Action': 'StartWithoutDebugging',
+                'DebugTarget': 'Microsoft Teams (browser) (skip update Teams App)'
+              },
+              {
+                'Path': `${slnFileName}\\${slnFileName}.csproj`,
+                'Action': 'Start',
+                'DebugTarget': 'Start Project'
+              }
+            ]
+          }
+        ];
+
+        jsonArray.push(...ttkDebugProfiles);
+        return JSON.stringify(jsonArray, null, 2);
+      }),
+      new FileUpdate(targetDir, slnFile, (content) => {
+        const lines = content.split(/\r?\n/);
+        const insertIndex = lines.findIndex(line => line.trim().startsWith('Global'));
+
+        if (insertIndex === -1) {
+          console.error('Error: Global section not found in .sln');
+          throw new Error('Global section not found in .sln');
+        }
+
+        const projectTypeGuid = '{GAE04EC0-301F-11D3-BF4B-00C04F79EFBD}';
+        const projectName = 'TeamsApp';
+        const projectPath = 'TeamsApp\\TeamsApp.ttkproj';
+        const projectInstanceGuid = '{HAJ04EC0-301F-11D3-BF4B-00C04F79EFCE}';
+
+        const projectBlock = [
+          `Project("${projectTypeGuid}") = "${projectName}", "${projectPath}", "${projectInstanceGuid}"`,
+          'EndProject'
+        ];
+
+        lines.splice(insertIndex, 0, ...projectBlock);
+
+        return lines.join('\r\n');
+      })
+    );
   }
 }
