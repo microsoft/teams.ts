@@ -2,7 +2,7 @@ name: Template Sync Verification
 on:
   workflow_dispatch:
   pull_request:
-    types: [opened, edited]
+    types: [edited, synchronize]
     paths:
       - "packages/cli/templates/typescript/**"
       - "tests/*/**"
