@@ -103,10 +103,9 @@ function isDimensionsChangedMessage(
   );
 }
 
-export const adaptiveCardToolsBaseUrl =
-  "https://fd3f-50-46-250-16.ngrok-free.app";
+export const adaptiveCardToolsBaseUrl = "https://adaptivecards.microsoft.com";
 
-const rendererUrl = `${adaptiveCardToolsBaseUrl}/renderer`;
+const rendererUrl = `${adaptiveCardToolsBaseUrl}/renderer.html`;
 
 let currentCardId = 0;
 
