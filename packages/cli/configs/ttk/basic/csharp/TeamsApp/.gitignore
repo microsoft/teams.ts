@@ -8,3 +8,5 @@ appsettings.Development.json
 
 # User-specific files
 *.user
+!*.slnLaunch.user
+
