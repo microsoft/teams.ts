@@ -81,20 +81,21 @@ type AppState =
       phase: 'stopped' | 'starting';
       startedAt?: never;
       msalInstance?: never;
-      context?: never;
     }
   | {
       phase: 'started';
       startedAt: Date;
       msalInstance: msal.IPublicClientApplication;
-      context: teamsJs.app.Context;
     };
 
 /**
  * ExecOptions is used to specify options for the exec method.
  */
 export type ExecOptions = (
-  | { readonly msalTokenRequest?: msal.SilentRequest; readonly permission?: never }
+  | {
+      readonly msalTokenRequest?: msal.SilentRequest;
+      readonly permission?: never;
+    }
   | { readonly msalTokenRequest?: never; readonly permission?: string }
 ) & {
   readonly requestHeaders?: Record<string, string>;
@@ -140,7 +141,9 @@ export class App {
     this.clientId = clientId;
     this.options = options;
     this._log = options?.logger || new ConsoleLogger('@teams/client');
-    this.http = new http.Client({ baseUrl: options?.remoteApiOptions?.baseUrl });
+    this.http = new http.Client({
+      baseUrl: options?.remoteApiOptions?.baseUrl,
+    });
     this.graph = buildGraphClient(() => this.appStateGuard(), this._log);
   }
 
@@ -159,17 +162,18 @@ export class App {
     this._state = { phase: 'starting' };
 
     await teamsJs.app.initialize();
-    const context = await teamsJs.app.getContext();
 
     let msalInstance = this.options.msalOptions?.msalInstance;
     if (!msalInstance) {
       const msalConfig =
-        this.options.msalOptions?.configuration ?? buildMsalConfig(this.clientId, this._log);
-      msalInstance = await msal.createNestablePublicClientApplication(msalConfig);
-      await msalInstance.initialize();
+        this.options.msalOptions?.configuration ??
+        buildMsalConfig(this.clientId, this._log);
+      msalInstance = await msal.createNestablePublicClientApplication(
+        msalConfig
+      );
     }
 
-    this._state = { phase: 'started', msalInstance, context, startedAt: new Date() };
+    this._state = { phase: 'started', msalInstance, startedAt: new Date() };
 
     // pre-warm consent for the specified scopes
     if (this.options.msalOptions?.prewarmScopes !== false) {
@@ -191,11 +195,17 @@ export class App {
    * @param options.requestHeaders Optional additional request headers.
    * @returns The function response
    */
-  async exec<T = unknown>(name: string, data?: unknown, options?: ExecOptions): Promise<T> {
-    const { msalInstance, context } = this.appStateGuard();
+  async exec<T = unknown>(
+    name: string,
+    data?: unknown,
+    options?: ExecOptions
+  ): Promise<T> {
+    const { msalInstance } = this.appStateGuard();
+    const context = await teamsJs.app.getContext();
 
     const remoteAppResource =
-      this.options.remoteApiOptions?.remoteAppResource ?? `api://${this.clientId}`;
+      this.options.remoteApiOptions?.remoteAppResource ??
+      `api://${this.clientId}`;
     const accessToken = await acquireMsalAccessToken(
       msalInstance,
       options?.msalTokenRequest ??
@@ -210,9 +220,9 @@ export class App {
         'x-teams-channel-id': context.channel?.id,
         'x-teams-chat-id': context.chat?.id,
         'x-teams-meeting-id': context.meeting?.id,
-        'x-teams-message-id': context.app.parentMessageId,
-        'x-teams-page-id': context.page.id,
-        'x-teams-sub-page-id': context.page.subPageId,
+        'x-teams-message-id': context.app.parentMessageId || undefined,
+        'x-teams-page-id': context.page.id || undefined,
+        'x-teams-sub-page-id': context.page.subPageId || undefined,
         'x-teams-team-id': context.team?.internalId,
         ...(options?.requestHeaders ?? {}),
       },
@@ -244,7 +254,11 @@ export class App {
     const { msalInstance } = this.appStateGuard();
 
     try {
-      const token = await acquireMsalAccessToken(msalInstance, { scopes }, this.log);
+      const token = await acquireMsalAccessToken(
+        msalInstance,
+        { scopes },
+        this.log
+      );
       return !!token;
     } catch (ex) {
       return false;
