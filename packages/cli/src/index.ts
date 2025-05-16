@@ -22,6 +22,7 @@ import { Settings } from './settings';
     .command(commands.New(context))
     .command(commands.Env(context))
     .command(commands.Config(context))
+    .command(commands.SetLang(context))
     .demandCommand(1, 'Please specify a command')
     .showHelpOnFail(true)
     .recommendCommands();

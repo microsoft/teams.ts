@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import Handlebars from 'handlebars';
-
 import { String } from '@microsoft/teams.common';
+
+import { HandlebarsTemplate } from '../handlebars';
 
 import { IProject } from '../project';
 import { IProjectAttributeOperation } from '../project-attribute';
@@ -34,28 +34,7 @@ export class FileTemplateHandlebars implements IProjectAttributeOperation {
         .toString()
     );
 
-    const changeCase = await import('change-case');
-    const template = Handlebars.compile(content, { strict: true });
-    const rendered = template(project, {
-      helpers: {
-        capitalize: (text: string) => {
-          if (!text) return '';
-          return changeCase.capitalCase(text);
-        },
-        toPascalCase: (text: string) => {
-          if (!text) return '';
-          return changeCase.pascalCase(text);
-        },
-        toDotCase: (text: string) => {
-          if (!text) return '';
-          return changeCase.dotCase(text);
-        },
-        toKebabCase: (text: string) => {
-          if (!text) return '';
-          return changeCase.kebabCase(text);
-        },
-      },
-    });
+    const rendered = await HandlebarsTemplate.render(content, { strict: true }, project);
 
     fs.writeFileSync(this._to, rendered, 'utf8');
     process.stdout.write('✔️\n');

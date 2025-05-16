@@ -1,5 +1,16 @@
 # @microsoft/teams.botbuilder
 
+## 2.0.0-preview.3
+
+### Patch Changes
+
+- add csharp support to CLI officially, add a2a support via new package, devtools updates
+- Updated dependencies
+  - @microsoft/teams.api@2.0.0-preview.3
+  - @microsoft/teams.apps@2.0.0-preview.3
+  - @microsoft/teams.common@2.0.0-preview.3
+  - @microsoft/teams.graph@2.0.0-preview.3
+
 ## 2.0.0-preview.2
 
 ### Patch Changes

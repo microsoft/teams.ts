@@ -23,7 +23,7 @@ export class EnvStorage {
 
   static load(settings: Settings) {
     const storage = new EnvStorage(settings);
-    const base = path.join(os.homedir(), 'teams.sdk', 'environments');
+    const base = path.join(os.homedir(), 'teams.cli', 'environments');
 
     if (!fs.existsSync(base)) {
       return storage;
