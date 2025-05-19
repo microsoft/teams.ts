@@ -1,9 +1,11 @@
+import Fuse from 'fuse.js';
+
 import { ChatPrompt, IChatModel } from '@microsoft/teams.ai';
 import { ActivityLike, IMessageActivity, MessageActivity } from '@microsoft/teams.api';
-import Fuse from 'fuse.js';
+
 import { ILogger } from '../../../packages/common/dist/logging/logger';
 
-interface DocumentationItem {
+interface IDocumentationItem {
   id: string;
   title: string;
   content: string;
@@ -51,7 +53,7 @@ export const handleDocumentationSearch = async (
   send: (activity: ActivityLike) => Promise<any>,
   log: ILogger
 ) => {
-  const citedDocs: DocumentationItem[] = [];
+  const citedDocs: IDocumentationItem[] = [];
   const documentation = new ChatPrompt({
     instructions: [
       'You are an expert at helping developers understand documentation.',

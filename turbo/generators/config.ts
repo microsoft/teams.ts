@@ -59,11 +59,12 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       {
         type: "add",
         path: "packages/{{name}}/package.json",
-        templateFile: "templates/package.json.hbs",
+        templateFile: "templates/package/package.json.hbs",
       },
       {
         type: "add",
         path: "packages/{{name}}/eslint.config.js",
+        template: "module.exports = require('@microsoft/teams.config/eslint.config');\n",
       },
       {
         type: "add",
@@ -79,7 +80,7 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       {
         type: "add",
         path: "packages/{{name}}/tsconfig.json",
-        templateFile: "templates/tsconfig.json.hbs",
+        templateFile: "templates/package/tsconfig.json",
       },
       {
         type: "add",
@@ -90,19 +91,19 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       {
         type: "add",
         path: "packages/{{name}}/turbo.json",
-        templateFile: "templates/turbo.json.hbs",
+        templateFile: "templates/package/turbo.json",
       },
       {
         type: "add",
         path: "packages/{{name}}/README.md",
-        templateFile: "templates/README.md.hbs",
+        templateFile: "templates/package/README.md.hbs",
       },
     ],
   });
 
   // Generator for creating new applications in tests
-  plop.setGenerator("Application", {
-    description: "Create a new Teams AI v2 application",
+  plop.setGenerator("Test Application", {
+    description: "Create a new Teams AI v2 test application",
     prompts: [
       {
         type: "input",
@@ -125,27 +126,32 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       {
         type: "add",
         path: "tests/{{name}}/package.json",
-        templateFile: "templates/test-package.json.hbs",
+        templateFile: "templates/tests/package.json.hbs",
       },
       {
         type: "add",
         path: "tests/{{name}}/README.md",
-        templateFile: "templates/test-README.md.hbs",
+        templateFile: "templates/tests/README.md.hbs",
+      },
+      {
+        type: "add",
+        path: "tests/{{name}}/eslint.config.js",
+        template: "module.exports = require('@microsoft/teams.config/eslint.config');\n",
       },
       {
         type: "add",
         path: "tests/{{name}}/tsconfig.json",
-        templateFile: "templates/test-tsconfig.json.hbs",
+        templateFile: "templates/tests/tsconfig.json",
       },
       {
         type: "add",
         path: "tests/{{name}}/src/index.ts",
-        templateFile: "templates/test-index.ts.hbs",
+        templateFile: "templates/tests/index.ts",
       },
       {
         type: "add",
         path: "tests/{{name}}/.gitignore",
-        templateFile: "templates/test-gitignore.hbs",
+        templateFile: "templates/tests/.gitignore",
       },
       {
         type: "addMany",
@@ -157,7 +163,7 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
           console.log("Generating app package...");
           return false;
         },
-        destination: "samples/{{name}}/appPackage/",
+        destination: "tests/{{name}}/appPackage/",
         templateFiles: "templates/appPackage/**",
       },
     ],

@@ -1,8 +1,9 @@
-import { App } from '@microsoft/teams.apps';
-import { ConsoleLogger } from '@microsoft/teams.common/logging';
-import { BotBuilderPlugin } from '@microsoft/teams.botbuilder';
-import { DevtoolsPlugin } from '@microsoft/teams.dev';
 import { TeamsActivityHandler } from 'botbuilder';
+
+import { App } from '@microsoft/teams.apps';
+import { BotBuilderPlugin } from '@microsoft/teams.botbuilder';
+import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 export class ActivityHandler extends TeamsActivityHandler {
   constructor() {

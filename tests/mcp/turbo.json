@@ -13,7 +13,8 @@
         "@microsoft/teams.dev#build",
         "@microsoft/teams.graph#build",
         "@microsoft/teams.openai#build",
-        "@microsoft/teams.mcp#build"
+        "@microsoft/teams.mcp#build",
+        "@microsoft/teams.mcpclient#build"
       ]
     }
   }

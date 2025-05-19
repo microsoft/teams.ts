@@ -1,8 +1,9 @@
 import { ChatPrompt, IChatModel } from '@microsoft/teams.ai';
 import { ActivityLike, IMessageActivity, SentActivity } from '@microsoft/teams.api';
+
 import { ILogger } from '../../../packages/common/dist/logging/logger';
 
-interface PokemonSearch {
+interface IPokemonSearch {
   pokemonName: string;
 }
 
@@ -35,7 +36,7 @@ export const handlePokemonToolCalling = async (
       },
       // The cooresponding function will be called
       // automatically if the LLM decides to call this function
-      async ({ pokemonName }: PokemonSearch) => {
+      async ({ pokemonName }: IPokemonSearch) => {
         log.info('Searching for pokemon', pokemonName);
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
         if (!response.ok) {

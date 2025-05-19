@@ -320,7 +320,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param port port to listen on
    */
   async start(port?: number | string) {
-    this.port = +(port || process.env.PORT || 3000);
+    this.port = +(port || process.env.PORT || 3978);
 
     try {
       await this.refreshTokens(true);

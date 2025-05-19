@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { HandlebarsTemplate } from '../handlebars';
 import { IProject } from '../project';
 import { IProjectAttributeOperation } from '../project-attribute';
 
@@ -39,21 +40,27 @@ export class DirectoryCopy implements IProjectAttributeOperation {
       const stat = fs.statSync(path.resolve(this._from, item));
       const isHandlebars = item.endsWith('.hbs');
 
+      let toItem = item;
+      if (isHandlebars) {
+        toItem = await HandlebarsTemplate.render(item, { strict: true }, project);
+        toItem = toItem.replace('.hbs', '');
+      }
+
       if (stat.isDirectory()) {
         operations.push(
-          new DirectoryCopy(path.resolve(this._from, item), path.resolve(this._to, item))
+          new DirectoryCopy(path.resolve(this._from, item), path.resolve(this._to, toItem))
         );
       } else {
         if (isHandlebars) {
           operations.push(
             new FileTemplateHandlebars(
               path.resolve(this._from, item),
-              path.resolve(this._to, item.replace('.hbs', ''))
+              path.resolve(this._to, toItem)
             )
           );
         } else {
           operations.push(
-            new FileCopy(path.resolve(this._from, item), path.resolve(this._to, item))
+            new FileCopy(path.resolve(this._from, item), path.resolve(this._to, toItem))
           );
         }
       }
@@ -85,21 +92,27 @@ export class DirectoryCopy implements IProjectAttributeOperation {
       const stat = fs.statSync(path.resolve(this._from, item));
       const isHandlebars = item.endsWith('.hbs');
 
+      let toItem = item;
+      if (isHandlebars) {
+        toItem = await HandlebarsTemplate.render(item, { strict: true }, project);
+        toItem = toItem.replace('.hbs', '');
+      }
+
       if (stat.isDirectory()) {
         operations.push(
-          new DirectoryCopy(path.resolve(this._from, item), path.resolve(this._to, item))
+          new DirectoryCopy(path.resolve(this._from, item), path.resolve(this._to, toItem))
         );
       } else {
         if (isHandlebars) {
           operations.push(
             new FileTemplateHandlebars(
               path.resolve(this._from, item),
-              path.resolve(this._to, item.replace('.hbs', ''))
+              path.resolve(this._to, toItem)
             )
           );
         } else {
           operations.push(
-            new FileCopy(path.resolve(this._from, item), path.resolve(this._to, item))
+            new FileCopy(path.resolve(this._from, item), path.resolve(this._to, toItem))
           );
         }
       }

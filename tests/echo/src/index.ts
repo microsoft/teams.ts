@@ -2,6 +2,7 @@ import { MessageActivity } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
+
 import { MockReminderService } from './mock-reminder-service';
 
 const app = new App({
@@ -39,9 +40,9 @@ const sendProactiveNotification = async (userId: string) => {
   if (!conversationId) {
     return;
   }
-  const activity = new MessageActivity(`Hey! It's been a while. How are you?`);
+  const activity = new MessageActivity('Hey! It\'s been a while. How are you?');
   await app.send(conversationId, activity);
-}
+};
 // :snippet-end:
 
 (async () => {

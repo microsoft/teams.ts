@@ -4,20 +4,25 @@ import path from 'path';
 
 import { z } from 'zod';
 
+import { ProjectLanguage } from './project/project';
+
 const Schema = z.object({
   env: z.string(),
+  language: z.enum(['typescript', 'csharp']).optional(),
 });
 
 export type ISettings = z.infer<typeof Schema>;
 export class Settings implements ISettings {
   env: string;
+  language?: ProjectLanguage;
 
   constructor(value?: ISettings) {
     this.env = value?.env || 'dev';
+    this.language = value?.language;
   }
 
   static load() {
-    const base = path.join(os.homedir(), 'teams.sdk');
+    const base = path.join(os.homedir(), 'teams.cli');
     const file = path.join(base, 'settings.json');
 
     if (!fs.existsSync(file)) {
@@ -29,12 +34,11 @@ export class Settings implements ISettings {
   }
 
   save() {
-    const base = path.join(os.homedir(), 'teams.sdk');
+    const base = path.join(os.homedir(), 'teams.cli');
     const file = path.join(base, 'settings.json');
 
     if (!fs.existsSync(base)) {
       fs.mkdirSync(base, { recursive: true });
-      return;
     }
 
     fs.writeFileSync(file, JSON.stringify(this), 'utf8');

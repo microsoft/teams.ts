@@ -27,11 +27,14 @@
     "@tests/mcp": "0.0.0",
     "@tests/mcpclient": "0.0.0",
     "@tests/message-extensions": "0.0.0",
-    "@tests/tab": "0.0.0"
+    "@tests/tab": "0.0.0",
+    "@microsoft/teams.a2a": "0.1.0",
+    "@tests/a2a": "0.0.0"
   },
   "changesets": [
     "four-bats-enter",
     "giant-swans-build",
+    "new-olives-rest",
     "social-ghosts-move"
   ]
 }

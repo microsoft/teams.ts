@@ -1,3 +1,4 @@
+import { Account, Message, ThumbnailCard } from '@microsoft/teams.api';
 import {
   ActionSet,
   AdaptiveCard,
@@ -5,36 +6,35 @@ import {
   Image,
   OpenUrlAction,
   TextBlock,
-} from "@microsoft/teams.cards";
-import { Account, Message, ThumbnailCard } from "@microsoft/teams.api";
+} from '@microsoft/teams.cards';
 
 const IMAGE_URL =
-  "https://github.com/microsoft/teams-agent-accelerator-samples/raw/main/python/memory-sample-agent/docs/images/memory-thumbnail.png";
+  'https://github.com/microsoft/teams-agent-accelerator-samples/raw/main/python/memory-sample-agent/docs/images/memory-thumbnail.png';
 
 // :snippet-start: message-ext-create-card
-interface FormData {
+interface IFormData {
   title: string;
   subtitle: string;
   text: string;
 }
 
-export function createCard(data: FormData) {
+export function createCard(data: IFormData) {
   return new AdaptiveCard(
     new Image(IMAGE_URL),
     new TextBlock(data.title, {
-      size: "Large",
-      weight: "Bolder",
-      color: "Accent",
-      style: "heading",
+      size: 'Large',
+      weight: 'Bolder',
+      color: 'Accent',
+      style: 'heading',
     }),
     new TextBlock(data.subtitle, {
-      size: "Small",
-      weight: "Lighter",
-      color: "Good",
+      size: 'Small',
+      weight: 'Lighter',
+      color: 'Good',
     }),
     new TextBlock(data.text, {
       wrap: true,
-      spacing: "Medium",
+      spacing: 'Medium',
     })
   );
 }
@@ -43,20 +43,20 @@ export function createCard(data: FormData) {
 // :snippet-start: message-ext-create-message-details-card
 export function createMessageDetailsCard(messagePayload: Message) {
   const cardElements: CardElement[] = [
-    new TextBlock("Message Details", {
-      size: "Large",
-      weight: "Bolder",
-      color: "Accent",
-      style: "heading",
+    new TextBlock('Message Details', {
+      size: 'Large',
+      weight: 'Bolder',
+      color: 'Accent',
+      style: 'heading',
     }),
   ];
 
   if (messagePayload?.body?.content) {
     cardElements.push(
-      new TextBlock("Content", {
-        size: "Medium",
-        weight: "Bolder",
-        spacing: "Medium",
+      new TextBlock('Content', {
+        size: 'Medium',
+        weight: 'Bolder',
+        spacing: 'Medium',
       }),
       new TextBlock(messagePayload.body.content)
     );
@@ -64,16 +64,16 @@ export function createMessageDetailsCard(messagePayload: Message) {
 
   if (messagePayload?.attachments?.length) {
     cardElements.push(
-      new TextBlock("Attachments", {
-        size: "Medium",
-        weight: "Bolder",
-        spacing: "Medium",
+      new TextBlock('Attachments', {
+        size: 'Medium',
+        weight: 'Bolder',
+        spacing: 'Medium',
       }),
       new TextBlock(
         `Number of attachments: ${messagePayload.attachments.length}`,
         {
           wrap: true,
-          spacing: "Small",
+          spacing: 'Small',
         }
       )
     );
@@ -81,28 +81,28 @@ export function createMessageDetailsCard(messagePayload: Message) {
 
   if (messagePayload?.createdDateTime) {
     cardElements.push(
-      new TextBlock("Created Date", {
-        size: "Medium",
-        weight: "Bolder",
-        spacing: "Medium",
+      new TextBlock('Created Date', {
+        size: 'Medium',
+        weight: 'Bolder',
+        spacing: 'Medium',
       }),
       new TextBlock(messagePayload.createdDateTime, {
         wrap: true,
-        spacing: "Small",
+        spacing: 'Small',
       })
     );
   }
 
   if (messagePayload?.linkToMessage) {
     cardElements.push(
-      new TextBlock("Message Link", {
-        size: "Medium",
-        weight: "Bolder",
-        spacing: "Medium",
+      new TextBlock('Message Link', {
+        size: 'Medium',
+        weight: 'Bolder',
+        spacing: 'Medium',
       }),
       new ActionSet(
         new OpenUrlAction(messagePayload.linkToMessage, {
-          title: "Go to message",
+          title: 'Go to message',
         })
       )
     );
@@ -114,18 +114,18 @@ export function createMessageDetailsCard(messagePayload: Message) {
 
 // :snippet-start: message-ext-create-conversation-members-card
 export function createConversationMembersCard(members: Account[]) {
-  const membersList = members.map((member) => member.name).join(", ");
+  const membersList = members.map((member) => member.name).join(', ');
 
   return new AdaptiveCard(
-    new TextBlock("Conversation members", {
-      size: "Medium",
-      weight: "Bolder",
-      color: "Accent",
-      style: "heading",
+    new TextBlock('Conversation members', {
+      size: 'Medium',
+      weight: 'Bolder',
+      color: 'Accent',
+      style: 'heading',
     }),
     new TextBlock(membersList, {
       wrap: true,
-      spacing: "Small",
+      spacing: 'Small',
     })
   );
 }
@@ -135,27 +135,27 @@ export function createConversationMembersCard(members: Account[]) {
 export async function createDummyCards(searchQuery: string) {
   const dummyItems = [
     {
-      title: "Item 1",
+      title: 'Item 1',
       description: `This is the first item and this is your search query: ${searchQuery}`,
     },
-    { title: "Item 2", description: "This is the second item" },
-    { title: "Item 3", description: "This is the third item" },
-    { title: "Item 4", description: "This is the fourth item" },
-    { title: "Item 5", description: "This is the fifth item" },
+    { title: 'Item 2', description: 'This is the second item' },
+    { title: 'Item 3', description: 'This is the third item' },
+    { title: 'Item 4', description: 'This is the fourth item' },
+    { title: 'Item 5', description: 'This is the fifth item' },
   ];
 
   const cards = dummyItems.map((item) => {
     return {
       card: new AdaptiveCard(
         new TextBlock(item.title, {
-          size: "Large",
-          weight: "Bolder",
-          color: "Accent",
-          style: "heading",
+          size: 'Large',
+          weight: 'Bolder',
+          color: 'Accent',
+          style: 'heading',
         }),
         new TextBlock(item.description, {
           wrap: true,
-          spacing: "Medium",
+          spacing: 'Medium',
         })
       ),
       thumbnail: {
@@ -182,7 +182,7 @@ export async function createDummyCards(searchQuery: string) {
 // :snippet-start: message-ext-create-link-unfurl-card
 export function createLinkUnfurlCard(url: string) {
   const thumbnail = {
-    title: "Unfurled Link",
+    title: 'Unfurled Link',
     text: url,
     images: [
       {
@@ -192,16 +192,16 @@ export function createLinkUnfurlCard(url: string) {
   } as ThumbnailCard;
 
   const card = new AdaptiveCard(
-    new TextBlock("Unfurled Link", {
-      size: "Large",
-      weight: "Bolder",
-      color: "Accent",
-      style: "heading",
+    new TextBlock('Unfurled Link', {
+      size: 'Large',
+      weight: 'Bolder',
+      color: 'Accent',
+      style: 'heading',
     }),
     new TextBlock(url, {
-      size: "Small",
-      weight: "Lighter",
-      color: "Good",
+      size: 'Small',
+      weight: 'Lighter',
+      color: 'Good',
     })
   );
 

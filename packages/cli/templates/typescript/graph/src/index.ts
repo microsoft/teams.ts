@@ -32,5 +32,5 @@ app.event('signin', async ({ send, userGraph }) => {
 });
 
 (async () => {
-  await app.start(+(process.env.PORT || 3000));
+  await app.start(+(process.env.PORT || 3978));
 })();
