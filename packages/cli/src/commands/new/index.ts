@@ -17,8 +17,9 @@ export function New(context: IContext): CommandModule<{}, {}> {
     builder: (b) => {
       return b
         .command(Typescript(context))
-        .command(CSharp(context));
-    },
+        .command(CSharp(context))
+        .strict();
+      },
     handler: () => { },
   };
 }

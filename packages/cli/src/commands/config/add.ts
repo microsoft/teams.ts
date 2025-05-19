@@ -35,6 +35,12 @@ export function Add(_: IContext): CommandModule<{}, Args> {
               .map((type) => `${name}.${type}`);
           })
           .flat(),
+      }).check(() => {
+        if (!Project.detectLanguage()) {
+          throw new Error('Invalid project. Directory should contain a package.json (typescript) or .sln (csharp) file.');
+        }
+
+        return true;
       });
     },
     handler: async ({ name }) => {
