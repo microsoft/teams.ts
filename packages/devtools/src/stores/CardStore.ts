@@ -1,14 +1,17 @@
-import { AdaptiveCard } from '@microsoft/teams.cards';
-import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { IAdaptiveCard } from "@microsoft/teams.cards";
+import { create } from "zustand";
+import { devtools } from "zustand/middleware";
 
 interface CardStore {
-  currentCard: AdaptiveCard | null;
+  currentCard: IAdaptiveCard | null;
   editingMessageId: string | null;
   draftMessage: string | null;
-  targetComponent: 'compose' | 'edit' | null;
+  targetComponent: "compose" | "edit" | null;
   processedCardIds: Set<string>;
-  setCurrentCard: (card: AdaptiveCard | null, target?: 'compose' | 'edit') => void;
+  setCurrentCard: (
+    card: IAdaptiveCard | null,
+    target?: "compose" | "edit",
+  ) => void;
   setDraftMessage: (message?: string) => void;
   setEditingMessageId: (id: string | null) => void;
   clearCurrentCard: () => void;
@@ -23,13 +26,14 @@ export const useCardStore = create<CardStore>()(
     draftMessage: null,
     targetComponent: null,
     processedCardIds: new Set<string>(),
-    setCurrentCard: (card, target = 'compose') =>
+    setCurrentCard: (card, target = "compose") =>
       set((state) => ({
         currentCard: card,
         targetComponent: target,
         draftMessage: state.draftMessage,
       })),
-    setDraftMessage: (message?: string) => set({ draftMessage: message ?? null }),
+    setDraftMessage: (message?: string) =>
+      set({ draftMessage: message ?? null }),
     setEditingMessageId: (id: string | null) => set({ editingMessageId: id }),
     clearCurrentCard: () => set({ currentCard: null, targetComponent: null }),
     addProcessedCardId: (id) =>
@@ -37,5 +41,5 @@ export const useCardStore = create<CardStore>()(
         processedCardIds: new Set([...state.processedCardIds, id]),
       })),
     clearProcessedCardIds: () => set({ processedCardIds: new Set<string>() }),
-  }))
+  })),
 );
