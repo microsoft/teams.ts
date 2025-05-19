@@ -44,8 +44,8 @@ export class ProjectBuilder {
     return this;
   }
 
-  addTeamsToolkit(name: string) {
-    this._attributes.push(new attributes.TeamsToolkitAttribute(name));
+  addAgentsToolkit(name: string) {
+    this._attributes.push(new attributes.AgentsToolkitAttribute(name));
     return this;
   }
 
