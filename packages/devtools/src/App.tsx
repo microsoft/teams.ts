@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useCallback, useRef, useDebugValue, useState } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+  useDebugValue,
+  useState,
+} from "react";
 import {
   Body1,
   FluentProvider,
@@ -6,28 +13,29 @@ import {
   teamsDarkTheme,
   teamsLightTheme,
   Toaster,
-} from '@fluentui/react-components';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
+} from "@fluentui/react-components";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 
-import ActivitiesScreen from './screens/ActivitiesScreen/ActivitiesScreen';
-import ChatScreen from './screens/ChatScreen/ChatScreen';
-import Logger from './components/Logger/Logger';
-import PageNav from './components/PageNav/PageNav';
-import CardsScreen from './screens/CardsScreen';
-import CustomScreen from './screens/CustomScreen';
-import useTheme from './hooks/useTheme';
-import { useActivityStore } from './stores/ActivityStore';
-import { useChatStore } from './stores/ChatStore';
-import { MetadataContext, useMetadataStore } from './stores/MetadataStore';
-import { ActivityEvent } from './types/Event';
-import { Page } from './types/Page';
-import useAppClasses from './App.styles';
-import { SocketClient } from './socket-client';
+import ActivitiesScreen from "./screens/ActivitiesScreen/ActivitiesScreen";
+import ChatScreen from "./screens/ChatScreen/ChatScreen";
+import Logger from "./components/Logger/Logger";
+import PageNav from "./components/PageNav/PageNav";
+import CardsScreen from "./screens/CardsScreen";
+import CustomScreen from "./screens/CustomScreen";
+import useTheme from "./hooks/useTheme";
+import { useActivityStore } from "./stores/ActivityStore";
+import { useChatStore } from "./stores/ChatStore";
+import { MetadataContext, useMetadataStore } from "./stores/MetadataStore";
+import { ActivityEvent } from "./types/Event";
+import { Page } from "./types/Page";
+import useAppClasses from "./App.styles";
+import { SocketClient } from "./socket-client";
 
 const socket = new SocketClient();
 
 // Memoized selectors
-const selectMetadataPages = (state: any) => state.metadata?.pages as Page[] | undefined;
+const selectMetadataPages = (state: any) =>
+  state.metadata?.pages as Page[] | undefined;
 const selectPutActivity = (state: any) => state.put;
 const selectOnActivity = (state: any) => state.onActivity;
 const selectSetMetadata = (state: any) => state.set;
@@ -40,19 +48,22 @@ export default function App() {
 
   // Use specific selectors with debug values
   const metadataPages = useMetadataStore(selectMetadataPages);
-  useDebugValue(metadataPages?.length ?? 0, (count) => `${count} metadata pages`);
+  useDebugValue(
+    metadataPages?.length ?? 0,
+    (count) => `${count} metadata pages`,
+  );
 
   const putActivity = useActivityStore(selectPutActivity);
   const onActivity = useChatStore(selectOnActivity);
   const setMetadata = useMetadataStore(selectSetMetadata);
 
   const handleConnect = useCallback(() => {
-    Logger.info('Connected to server...');
+    Logger.info("Connected to server...");
     setConnected(true);
   }, []);
 
   const handleDisconnect = useCallback(() => {
-    Logger.info('Disconnected from server...');
+    Logger.info("Disconnected from server...");
     setConnected(false);
   }, []);
 
@@ -64,37 +75,37 @@ export default function App() {
         onActivity(event);
       });
     },
-    [putActivity, onActivity]
+    [putActivity, onActivity],
   );
 
   const handleMetadata = useCallback(
     (event: { body: any }) => {
       setMetadata(event.body);
     },
-    [setMetadata]
+    [setMetadata],
   );
 
   useEffect(() => {
     const socket = socketRef.current;
 
-    socket.on('connect', handleConnect);
-    socket.on('disconnect', handleDisconnect);
-    socket.on('activity', handleActivity);
-    socket.on('metadata', handleMetadata);
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+    socket.on("activity", handleActivity);
+    socket.on("metadata", handleMetadata);
 
     socket.connect();
 
     return () => {
-      socket.off('connect');
-      socket.off('disconnect');
-      socket.off('activity');
-      socket.off('metadata');
+      socket.off("connect");
+      socket.off("disconnect");
+      socket.off("activity");
+      socket.off("metadata");
       socket.disconnect();
     };
   }, [handleConnect, handleDisconnect, handleActivity, handleMetadata]);
 
   const fluentTheme = useMemo(() => {
-    return theme === 'dark' ? teamsDarkTheme : teamsLightTheme;
+    return theme === "dark" ? teamsDarkTheme : teamsLightTheme;
   }, [theme]);
 
   return (
@@ -115,11 +126,18 @@ export default function App() {
             <PageNav connected={connected} />
             <main id="page-content" className={classes.mainContent}>
               <Routes>
-                <Route path="" element={<ChatScreen isConnected={connected} />} />
+                <Route
+                  path=""
+                  element={<ChatScreen isConnected={connected} />}
+                />
                 <Route path="cards" element={<CardsScreen />} />
                 <Route path="activities" element={<ActivitiesScreen />} />
                 {metadataPages?.map((page: Page) => (
-                  <Route key={page.name} path={page.name} element={<CustomScreen {...page} />} />
+                  <Route
+                    key={page.name}
+                    path={page.name}
+                    element={<CustomScreen {...page} />}
+                  />
                 ))}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
@@ -132,4 +150,4 @@ export default function App() {
   );
 }
 
-App.displayName = 'App';
+App.displayName = "App";
