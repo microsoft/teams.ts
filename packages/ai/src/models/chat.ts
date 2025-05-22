@@ -30,6 +30,12 @@ export type ChatSendOptions<TOptions = Record<string, any>> = {
    * stream chunk
    */
   readonly onChunk?: TextChunkHandler;
+
+  /**
+   * disable automatic function calling
+   * @default false
+   */
+  readonly disableAutomaticFunctionCalling?: boolean;
 };
 
 /**

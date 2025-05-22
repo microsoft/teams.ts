@@ -403,6 +403,7 @@ export class ChatPrompt<
             return;
           }
         },
+        disableAutomaticFunctionCalling: options.disableAutomaticFunctionCalling,
       }
     );
 

@@ -12,6 +12,7 @@ import {
   pokemonCommand,
   ragCommand,
   streamCommand,
+  structuredOutputCommand,
   weatherCommand,
 } from './commands';
 import { storedFeedbackByMessageId } from './feedback';
@@ -25,11 +26,16 @@ const app = new App({
   plugins: [new DevtoolsPlugin()],
 });
 
-const model = new OpenAIChatModel({
+console.log({
   apiKey: process.env.AZURE_OPENAI_API_KEY || process.env.OPENAI_API_KEY,
   endpoint: process.env.AZURE_OPENAI_ENDPOINT,
   apiVersion: process.env.AZURE_OPENAI_API_VERSION,
-  model: process.env.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME!,
+  model: process.env.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME,
+});
+
+const model = new OpenAIChatModel({
+  apiKey: process.env.OPENAI_API_KEY,
+  model: 'gpt-4o',
 });
 
 // Handle "hi" message
@@ -82,6 +88,7 @@ app.on('message', async ({ send, activity, next, log }) => {
     weatherCommand,
     feedbackLoopCommand,
     ragCommand,
+    structuredOutputCommand,
   ]
     .map((command) => command(activity.text))
     .find(Boolean);
