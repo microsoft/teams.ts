@@ -124,6 +124,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
             return result.content;
           } catch (e) {
             this.log.error(`Error calling tool ${availableTool.name} on ${url}:`, e);
+            throw e;
           } finally {
             await client.close();
           }
