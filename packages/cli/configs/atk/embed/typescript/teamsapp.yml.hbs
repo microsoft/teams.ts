@@ -1,33 +1,48 @@
 # yaml-language-server: $schema=https://aka.ms/teams-toolkit/1.0.0/yaml.schema.json
 #
-# The teamsapp.yml composes automation tasks for Teams Toolkit when running other environment configurations.
-# This file is used when selecting the Provision, Deploy, or Publish menu items in the Teams Toolkit for Visual Studio Code window
+# The teamsapp.yml composes automation tasks for M365 Agents Toolkit when running other environment configurations.
+# This file is used when selecting the Provision, Deploy, or Publish menu items in the M365 Agents Toolkit for Visual Studio Code window
 # or with the TeamsFx CLI commands.
 # i.e. `teamsfx provision --env {environment name}` or `teamsfx deploy --env {environment name}`.
 #
-# You can customize this file. Visit https://aka.ms/teamsfx-v5.0-guide for more info about Teams Toolkit project files.
+# You can customize this file. Visit https://aka.ms/teamsfx-v5.0-guide for more info about M365 Agents Toolkit project files.
 version: 1.0.0
 
 environmentFolderPath: ./env
 
-# Defines what the `provision` lifecycle step does with Teams Toolkit.
+# Defines what the `provision` lifecycle step does with M365 Agents Toolkit.
 # Runs with the Provision menu or CLI using `teamsfx provision --env {environment name}`.
 provision:
+  - uses: aadApp/create
+    with:
+      # Note: when you run aadApp/update, the Microsoft Entra app name will be updated
+      # based on the definition in manifest. If you don't want to change the
+      # name, make sure the name in Microsoft Entra manifest is the same with the name
+      # defined here.
+      name: {{ toPascalCase name }}
+      # If the value is false, the action will not generate client secret for you
+      generateClientSecret: true
+      # Authenticate users with a Microsoft work or school account in your
+      # organization's Microsoft Entra tenant (for example, single tenant).
+      signInAudience: AzureADMultipleOrgs
+    # Write the information of created resources into environment file for the
+    # specified environment variable(s).
+    writeToEnvironmentFile:
+      clientId: BOT_ID
+      # Environment variable that starts with `SECRET_` will be stored to the
+      # .env.{envName}.user environment file
+      clientSecret: SECRET_BOT_PASSWORD
+      objectId: AAD_APP_OBJECT_ID
+      tenantId: AAD_APP_TENANT_ID
+      authority: AAD_APP_OAUTH_AUTHORITY
+      authorityHost: AAD_APP_OAUTH_AUTHORITY_HOST
+
   # Automates the creation of a Teams app registration and saves the App ID to an environment file.
   - uses: teamsApp/create
     with:
       name: {{ toPascalCase name }}$\{{APP_NAME_SUFFIX}}
     writeToEnvironmentFile:
       teamsAppId: TEAMS_APP_ID
-
-  # Automates the creation an Azure AD app registration which is required for a bot.
-  # The Bot ID (AAD app client ID) and Bot Password (AAD app client secret) are saved to an environment file.
-  - uses: botAadApp/create
-    with:
-      name: {{ toPascalCase name }}$\{{APP_NAME_SUFFIX}}
-    writeToEnvironmentFile:
-      botId: BOT_ID
-      botPassword: SECRET_BOT_PASSWORD
 
   # Automates the creation of infrastructure defined in ARM templates to host the bot.
   # The created resource IDs are saved to an environment file.
@@ -38,8 +53,16 @@ provision:
       templates:
         - path: ./infra/azure.bicep
           parameters: ./infra/azure.parameters.json
-          deploymentName: Create-resources-for-tab
+          deploymentName: Create-resources-for-{{ toKebabCase name }}-$\{{TEAMSFX_ENV}}
       bicepCliVersion: v0.9.1
+
+  - uses: aadApp/update
+    with:
+      # This task sets the SPA redirect URI order to enable Nested App Authentication (NAA) for the embed app.
+      # Relative path to this file. Environment variables in manifest will
+      # be replaced before apply to Microsoft Entra app.
+      manifestPath: ./aad.manifest.json
+      outputFilePath: ./build/aad.manifest.$\{{TEAMSFX_ENV}}.json
 
   # Optional: Automates schema and error checking of the Teams app manifest and outputs the results in the console.
   - uses: teamsApp/validateManifest
@@ -64,7 +87,7 @@ provision:
     with:
       appPackagePath: ./appPackage/build/appPackage.$\{{TEAMSFX_ENV}}.zip
 
-# Defines what the `deploy` lifecycle step does with Teams Toolkit.
+# Defines what the `deploy` lifecycle step does with M365 Agents Toolkit.
 # Runs with the Deploy menu or CLI using `teamsfx deploy --env {environment name}`.
 deploy:
   # Install any dependencies and build the web app using NPM
@@ -88,7 +111,7 @@ deploy:
       # custom environment variable.
       resourceId: $\{{BOT_AZURE_APP_SERVICE_RESOURCE_ID}}
 
-# Defines what the `publish` lifecycle step does with Teams Toolkit.
+# Defines what the `publish` lifecycle step does with M365 Agents Toolkit.
 # Runs with the Deploy menu or CLI using `teamsfx publish --env {environment name}`.
 publish:
   # Optional: Automates schema and error checking of the Teams app manifest and outputs the results in the console.

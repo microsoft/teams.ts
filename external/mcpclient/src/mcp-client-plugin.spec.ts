@@ -11,12 +11,12 @@ import {
 } from './mcp-client-types';
 
 class MockTransport implements Transport {
-  async connect(): Promise<void> {}
-  async disconnect(): Promise<void> {}
-  async send(): Promise<void> {}
-  onMessage(): void {}
-  async start(): Promise<void> {}
-  async close(): Promise<void> {}
+  async connect(): Promise<void> { }
+  async disconnect(): Promise<void> { }
+  async send(): Promise<void> { }
+  onMessage(): void { }
+  async start(): Promise<void> { }
+  async close(): Promise<void> { }
 }
 
 describe('McpClientPlugin', () => {
@@ -354,6 +354,38 @@ describe('McpClientPlugin', () => {
         arguments: { arg: 'value' },
       });
       expect(result).toBe('result');
+    });
+
+    it('logs and rethrows errors from tool handler', async () => {
+      const error = new Error('Tool failed');
+      mockCallTool.mockRejectedValueOnce(error);
+      const mockLogger = {
+        error: jest.fn(),
+        child: () => mockLogger,
+        debug: jest.fn(),
+        warn: jest.fn(),
+      };
+      const schema: Schema = {
+        type: 'object',
+        properties: {},
+        required: [],
+      };
+      const testTool: McpClientToolDetails = {
+        name: 'fail-tool',
+        description: 'Always fails',
+        schema,
+      };
+      const plugin = new McpClientPlugin({ logger: mockLogger as any });
+      plugin.onUsePlugin({
+        url: 'http://fail.com',
+        params: { availableTools: [testTool] },
+      });
+      const functions = await plugin.onBuildFunctions([]);
+      await expect(functions[0].handler({})).rejects.toThrow('Tool failed');
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining('Error calling tool fail-tool on http://fail.com:'),
+        error
+      );
     });
   });
 

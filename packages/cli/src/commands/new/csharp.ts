@@ -13,7 +13,7 @@ import { Settings } from '../../settings';
 const ArgsSchema = z.object({
   name: z.string(),
   template: z.string(),
-  ttk: z.string().optional(),
+  atk: z.string().optional(),
   start: z.boolean().optional(),
   clientId: z.string().optional(),
   clientSecret: z.string().optional(),
@@ -21,7 +21,7 @@ const ArgsSchema = z.object({
 
 export function CSharp(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema>> {
   const isCSharp = Settings.load().language == 'csharp';
-  const ttkPath = path.resolve(url.fileURLToPath(import.meta.url), '../..', 'configs', 'ttk');
+  const atkPath = path.resolve(url.fileURLToPath(import.meta.url), '../..', 'configs', 'atk');
 
   return {
     command: ['csharp <name>', ...(isCSharp ? ['$0 <name>'] : [])],
@@ -58,11 +58,11 @@ export function CSharp(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
           default: false,
         })
         .option('toolkit', {
-          alias: 'ttk',
+          alias: 'atk',
           type: 'string',
-          describe: 'include Teams Toolkit configuration',
-          choices: fs.readdirSync(ttkPath)
-            .filter((type) => fs.existsSync(path.join(ttkPath, type, 'csharp')))
+          describe: 'include M365 Agents Toolkit configuration',
+          choices: fs.readdirSync(atkPath)
+            .filter((type) => fs.existsSync(path.join(atkPath, type, 'csharp')))
             .flat()
         })
         .option('client-id', {
@@ -83,7 +83,7 @@ export function CSharp(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
           return true;
         });
     },
-    handler: async ({ name, template, start, ttk, clientId, clientSecret }) => {
+    handler: async ({ name, template, start, atk, clientId, clientSecret }) => {
       const projectDir = path.join(process.cwd(), name);
       const builder = Project.builder()
         .withPath(projectDir)
@@ -91,8 +91,8 @@ export function CSharp(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
         .withLanguage('csharp')
         .addTemplate(template);
 
-      if (ttk) {
-        builder.addTeamsToolkit(ttk);
+      if (atk) {
+        builder.addAgentsToolkit(atk);
       }
 
       const appSettingsPath = `${name}/appsettings.Development.json`;

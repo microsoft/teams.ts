@@ -15,7 +15,7 @@ import { Settings } from '../../settings';
 const ArgsSchema = z.object({
   name: z.string(),
   template: z.string(),
-  ttk: z.string().optional(),
+  atk: z.string().optional(),
   start: z.boolean().optional(),
   clientId: z.string().optional(),
   clientSecret: z.string().optional(),
@@ -23,7 +23,7 @@ const ArgsSchema = z.object({
 
 export function Typescript(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema>> {
   const isTypescript = Settings.load().language == 'typescript';
-  const ttkPath = path.resolve(url.fileURLToPath(import.meta.url), '../..', 'configs', 'ttk');
+  const atkPath = path.resolve(url.fileURLToPath(import.meta.url), '../..', 'configs', 'atk');
 
   return {
     command: ['typescript <name>', ...(isTypescript ? ['$0 <name>'] : [])],
@@ -61,11 +61,11 @@ export function Typescript(_: IContext): CommandModule<{}, z.infer<typeof ArgsSc
           default: false,
         })
         .option('toolkit', {
-          alias: 'ttk',
+          alias: 'atk',
           type: 'string',
-          describe: 'include Teams Toolkit configuration',
-          choices: fs.readdirSync(ttkPath)
-          .filter((type) => fs.existsSync(path.join(ttkPath, type, 'typescript')))
+          describe: 'include M365 Agents Toolkit configuration',
+          choices: fs.readdirSync(atkPath)
+          .filter((type) => fs.existsSync(path.join(atkPath, type, 'typescript')))
           .flat()
         })
         .option('client-id', {
@@ -101,7 +101,7 @@ export function Typescript(_: IContext): CommandModule<{}, z.infer<typeof ArgsSc
           return true;
         });
     },
-    handler: async ({ name, template, ttk, start, clientId, clientSecret }) => {
+    handler: async ({ name, template, atk, start, clientId, clientSecret }) => {
       const projectDir = path.join(process.cwd(), name);
       const builder = Project.builder()
         .withPath(projectDir)
@@ -109,8 +109,8 @@ export function Typescript(_: IContext): CommandModule<{}, z.infer<typeof ArgsSc
         .withLanguage('typescript')
         .addTemplate(template);
 
-      if (ttk) {
-        builder.addTeamsToolkit(ttk);
+      if (atk) {
+        builder.addAgentsToolkit(atk);
       }
 
       if (clientId) {

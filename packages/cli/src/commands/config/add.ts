@@ -28,10 +28,10 @@ export function Add(_: IContext): CommandModule<{}, Args> {
           .map((name) => {
             // If no language is detected, default to configs available for typescript
             const language = Project.detectLanguage() ?? 'typescript';
-            const ttkPath = path.join(configsPath, name);
+            const atkPath = path.join(configsPath, name);
 
-            return fs.readdirSync(ttkPath)
-              .filter((type) => fs.existsSync(path.join(ttkPath, type, language)))
+            return fs.readdirSync(atkPath)
+              .filter((type) => fs.existsSync(path.join(atkPath, type, language)))
               .map((type) => `${name}.${type}`);
           })
           .flat(),
@@ -41,8 +41,8 @@ export function Add(_: IContext): CommandModule<{}, Args> {
       const [type, subType] = name.split('.');
       const builder = Project.load();
 
-      if (type === 'ttk') {
-        builder.addTeamsToolkit(subType);
+      if (type === 'atk') {
+        builder.addAgentsToolkit(subType);
       }
 
       const project = builder.build();
