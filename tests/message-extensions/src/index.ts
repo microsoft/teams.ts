@@ -1,3 +1,5 @@
+import path from 'path';
+
 import { cardAttachment } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { IAdaptiveCard } from '@microsoft/teams.cards';
@@ -10,8 +12,7 @@ import {
   createDummyCards,
   createLinkUnfurlCard,
   createMessageDetailsCard,
-} from "./card";
-import path from "path";
+} from './card';
 
 const app = new App({
   logger: new ConsoleLogger('@tests/message-extensions', { level: 'debug' }),
@@ -132,31 +133,31 @@ app.on('message.ext.query', async ({ activity }) => {
 // :snippet-end: message-ext-query
 
 // :snippet-start: message-ext-select-item
-app.on("message.ext.select-item", async ({ activity, send }) => {
+app.on('message.ext.select-item', async ({ activity, send }) => {
   const { option } = activity.value;
 
   await send(`Selected item: ${option}`);
 
   return {
     status: 200,
-  }
+  };
 });
 // :snippet-end: message-ext-select-item
 
 // :snippet-start: message-ext-query-settings-url
-app.on("message.ext.query-settings-url", async ({ activity }) => {
+app.on('message.ext.query-settings-url', async ({ activity }) => {
   // Get user settings from storage if available
-  const userSettings = await app.storage.get(activity.from.id) || { selectedOption: '' }
+  const userSettings = await app.storage.get(activity.from.id) || { selectedOption: '' };
   const escapedSelectedOption = encodeURIComponent(userSettings.selectedOption);
 
   return {
     composeExtension: {
-      type: "config",
+      type: 'config',
       suggestedActions: {
         actions: [
           {
-            type: "openUrl",
-            title: "Settings",
+            type: 'openUrl',
+            title: 'Settings',
             // ensure the bot endpoint is set in the environment variables
             // process.env.BOT_ENDPOINT is not populated by default in the Teams Toolkit setup. 
             value: `${process.env.BOT_ENDPOINT}/tabs/settings?selectedOption=${escapedSelectedOption}`
@@ -169,28 +170,28 @@ app.on("message.ext.query-settings-url", async ({ activity }) => {
 // :snippet-end: message-ext-query-settings-url
 
 // :snippet-start: message-ext-setting
-app.on("message.ext.setting", async ({ activity, send }) => {
-  const { state } = activity.value
-  if (state == "CancelledByUser") {
+app.on('message.ext.setting', async ({ activity, send }) => {
+  const { state } = activity.value;
+  if (state == 'CancelledByUser') {
     return {
       status: 400
-    }
+    };
   }
   const selectedOption = state;
   
   // Save the selected option to storage
-  await app.storage.set(activity.from.id, { selectedOption })
+  await app.storage.set(activity.from.id, { selectedOption });
   
-  await send(`Selected option: ${selectedOption}`)
+  await send(`Selected option: ${selectedOption}`);
 
   return {
     status: 200
-  }
+  };
 });
 // :snippet-end: message-ext-setting
 
 // :snippet-start: message-ext-serve-html
-app.tab(`settings`, path.resolve(__dirname));
+app.tab('settings', path.resolve(__dirname));
 // :snippet-end: message-ext-serve-html
 
 (async () => {
