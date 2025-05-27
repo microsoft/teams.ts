@@ -18,8 +18,9 @@ export function New(context: IContext): CommandModule<{}, {}> {
       return b
         .command(Typescript(context))
         .command(CSharp(context))
-        .strict();
-      },
+        .strict()
+        .demandCommand(1, 'You must specify a project type');
+    },
     handler: () => { },
   };
 }
