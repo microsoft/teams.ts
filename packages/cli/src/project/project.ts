@@ -58,7 +58,7 @@ export class Project implements IProject {
     const language = this.detectLanguage();
 
     if (!language) {
-      throw new Error('Invalid project. Directory should contain a package.json (typescript) or .sln (csharp) file.');
+      throw new Error('Are you in the right folder? Expected a package.json (Typescript) or .sln (C#) file.');
     }
 
     return new ProjectBuilder()

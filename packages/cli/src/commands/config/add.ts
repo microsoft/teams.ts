@@ -37,7 +37,7 @@ export function Add(_: IContext): CommandModule<{}, Args> {
           .flat(),
       }).check(() => {
         if (!Project.detectLanguage()) {
-          throw new Error('Invalid project. Directory should contain a package.json (typescript) or .sln (csharp) file.');
+          throw new Error('Are you in the right folder? Expected a package.json (Typescript) or .sln (C#) file.');
         }
 
         return true;
