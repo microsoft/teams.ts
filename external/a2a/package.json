@@ -29,9 +29,9 @@
     "lint:fix": "npx eslint --fix"
   },
   "peerDependencies": {
-    "@microsoft/teams.common": "2.0.0-preview.3",
+    "@microsoft/teams.ai": "2.0.0-preview.3",
     "@microsoft/teams.apps": "2.0.0-preview.3",
-    "@microsoft/teams.ai": "2.0.0-preview.3"
+    "@microsoft/teams.common": "2.0.0-preview.3"
   },
   "devDependencies": {
     "@microsoft/teams.config": "2.0.0-preview.3",
@@ -41,5 +41,8 @@
     "rimraf": "^6.0.1",
     "ts-jest": "^29.2.5",
     "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "camelcase": "^8.0.0"
   }
 }
