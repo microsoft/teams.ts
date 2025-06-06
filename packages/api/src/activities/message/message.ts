@@ -12,7 +12,7 @@ import {
   SuggestedActions,
   TextFormat,
 } from '../../models';
-import { IActivity, Activity } from '../activity';
+import { Activity, IActivity } from '../activity';
 import { stripMentionsText, StripMentionsTextOptions } from '../utils';
 
 export interface IMessageActivity extends IActivity<'message'> {
@@ -315,7 +315,7 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
    */
   addMention(account: Account, options: AddMentionOptions = {}) {
     const text = options.text || account.name;
-    const addText = options.addText || true;
+    const addText = options.addText ?? true;
 
     if (addText) {
       this.addText(`<at>${text}</at>`);
