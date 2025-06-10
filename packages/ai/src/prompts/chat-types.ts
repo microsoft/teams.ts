@@ -10,7 +10,7 @@ import { PromiseOrValue } from '../utils/types';
 
 import { IAiPlugin } from './plugin';
 
-export type ChatPromptOptions<TOptions extends Record<string, any> = Record<string, any>, TRawReturnType extends Record<string, any> = Record<string, any>> = {
+export type ChatPromptOptions<TOptions extends Record<string, any> = Record<string, any>> = {
     /**
      * the name of the prompt
      */
@@ -24,7 +24,7 @@ export type ChatPromptOptions<TOptions extends Record<string, any> = Record<stri
     /**
      * the model to send messages to
      */
-    readonly model: IChatModel<TOptions, TRawReturnType>;
+    readonly model: IChatModel<TOptions>;
 
     /**
      * the defining characteristics/objective
@@ -82,7 +82,6 @@ export type ChatPromptSendOptions<TOptions extends Record<string, any> = Record<
  */
 export interface IChatPrompt<
     TOptions extends Record<string, any> = Record<string, any>,
-    TRawReturnType extends Record<string, any> = Record<string, any>,
     TChatPromptPlugins extends readonly ChatPromptPlugin<string, any>[] = []
 > {
     /**
@@ -142,7 +141,7 @@ export interface IChatPrompt<
     send(
         input: string | ContentPart[],
         options?: ChatPromptSendOptions<TOptions>
-    ): Promise<ModelMessage<TRawReturnType>>;
+    ): Promise<ModelMessage>;
 }
 
 export type ChatPromptPlugin<TPluginName extends string, TPluginUseArgs extends {}> = IAiPlugin<
