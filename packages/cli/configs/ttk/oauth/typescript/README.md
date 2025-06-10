@@ -1,4 +1,4 @@
-# Teams Toolkit Configuration: Oauth
+# Microsoft 365 Agents Toolkit Configuration: Oauth
 
 Use this if you want to enable user authentication in your Teams application.
 
