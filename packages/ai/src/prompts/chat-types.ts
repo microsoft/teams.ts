@@ -70,9 +70,9 @@ export type ChatPromptSendOptions<TOptions extends Record<string, any> = Record<
 
     /**
      * disable automatic function calling
-     * @default false
+     * @default true
      */
-    readonly disableAutomaticFunctionCalling?: boolean;
+    readonly enableAutomaticFunctionCalling?: boolean;
 };
 
 /**

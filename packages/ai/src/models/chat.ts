@@ -33,9 +33,9 @@ export type ChatSendOptions<TOptions = Record<string, any>> = {
 
   /**
    * disable automatic function calling
-   * @default false
+   * @default true
    */
-  readonly disableAutomaticFunctionCalling?: boolean;
+  readonly enableAutomaticFunctionCalling?: boolean;
 };
 
 /**
