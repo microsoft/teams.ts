@@ -35,6 +35,12 @@ export function Add(_: IContext): CommandModule<{}, Args> {
               .map((type) => `${name}.${type}`);
           })
           .flat(),
+      }).check(() => {
+        if (!Project.detectLanguage()) {
+          throw new Error('Are you in the right folder? Expected a package.json (Typescript) or .sln (C#) file.');
+        }
+
+        return true;
       });
     },
     handler: async ({ name }) => {
