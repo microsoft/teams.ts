@@ -5,4 +5,5 @@ export type Prompt = IChatPrompt | IAudioPrompt;
 
 export * from './audio';
 export * from './chat';
+export * from './chat-types';
 
