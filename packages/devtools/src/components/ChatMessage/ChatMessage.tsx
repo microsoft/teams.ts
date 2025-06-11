@@ -4,10 +4,9 @@ import { Message, MessageUser, MessageReaction } from '@microsoft/teams.api';
 
 import { useChatStore } from '../../stores/ChatStore';
 import { MessageActionUIPayload } from '../../types/MessageActionUI';
-import { hasMarkdownContent } from '../../utils/markdown';
 import Feedback from '../Feedback/Feedback';
+import HtmlMessageContent from '../HtmlMessageContent/HtmlMessageContent';
 import MessageActionsToolbar from '../MessageActionsToolbar/MessageActionsToolbar';
-import { MarkdownContent } from '../MarkdownContent';
 
 import ChatMessageDeleted from './MessageUpdate/ChatMessageDeleted';
 import useChatMessageStyles from './ChatMessage.styles';
@@ -117,12 +116,6 @@ const ChatMessage: FC<ChatMessageProps> = memo(
       );
     }
 
-    const messageContent = hasMarkdownContent(content) ? (
-      <MarkdownContent content={content} />
-    ) : (
-      <div className={classes.messageText}>{content}</div>
-    );
-
     return (
       <>
         <div
@@ -154,7 +147,7 @@ const ChatMessage: FC<ChatMessageProps> = memo(
                 className={mergeClasses(classes.messageBody, streaming && classes.streaming)}
               >
                 <div className={classes.messageContent}>
-                  {messageContent}
+                  <HtmlMessageContent content={content} />
                   {value.attachments && value.attachments.length > 0 && (
                     <MessageAttachments attachments={value.attachments} classes={classes} />
                   )}

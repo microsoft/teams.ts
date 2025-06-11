@@ -5,21 +5,21 @@ import url from 'node:url';
 import { Compound, Copy, FileJsonSet, FileUpdate, FileYamlSet, If } from '../operations';
 import { IProjectAttribute } from '../project-attribute';
 
-export class TeamsToolkitAttribute implements IProjectAttribute {
+export class AgentsToolkitAttribute implements IProjectAttribute {
   readonly id: string;
   readonly name: string;
-  readonly alias = 'ttk';
-  readonly description = 'include Teams Toolkit configuration';
+  readonly alias = 'atk';
+  readonly description = 'include M365 Agents Toolkit configuration';
 
   constructor(name: string) {
-    this.id = `ttk[${name}]`;
+    this.id = `atk[${name}]`;
     this.name = name;
   }
 
   typescript(targetDir: string) {
     return new Compound(
       new Copy(
-        path.resolve(url.fileURLToPath(import.meta.url), '../..', 'configs', 'ttk', this.name, 'typescript'),
+        path.resolve(url.fileURLToPath(import.meta.url), '../..', 'configs', 'atk', this.name, 'typescript'),
         targetDir
       ),
       new FileJsonSet(targetDir, 'package.json', 'devDependencies.env-cmd', 'latest'),
@@ -92,12 +92,12 @@ export class TeamsToolkitAttribute implements IProjectAttribute {
 
     return new Compound(
       new Copy(
-        path.resolve(url.fileURLToPath(import.meta.url), '../..', 'configs', 'ttk', this.name, 'csharp'),
+        path.resolve(url.fileURLToPath(import.meta.url), '../..', 'configs', 'atk', this.name, 'csharp'),
         targetDir
       ),
       new FileUpdate(targetDir, launchUserFile, (content) => {
         const jsonArray = JSON.parse(content);
-        const ttkDebugProfiles = [
+        const atkDebugProfiles = [
           {
             'Name': 'Microsoft Teams (browser)',
             'Projects': [
@@ -130,7 +130,7 @@ export class TeamsToolkitAttribute implements IProjectAttribute {
           }
         ];
 
-        jsonArray.push(...ttkDebugProfiles);
+        jsonArray.push(...atkDebugProfiles);
         return JSON.stringify(jsonArray, null, 2);
       }),
       new FileUpdate(targetDir, slnFile, (content) => {

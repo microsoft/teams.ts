@@ -1,5 +1,11 @@
 # @microsoft/teams.config
 
+## 2.0.0-preview.4
+
+### Patch Changes
+
+- Integrate Adaptive Cards designer with DevTools, some bug fixes, naming updates
+
 ## 2.0.0-preview.3
 
 ### Patch Changes
