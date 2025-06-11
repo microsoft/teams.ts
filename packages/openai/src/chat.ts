@@ -278,7 +278,7 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
       };
 
       if (message.tool_calls && message.tool_calls.length > 0) {
-        if (!!options.enableAutomaticFunctionCalling) {
+        if (options.enableAutomaticFunctionCalling !== false) {
           return this.send(modelMessage, {
             ...options,
             messages: memory,
