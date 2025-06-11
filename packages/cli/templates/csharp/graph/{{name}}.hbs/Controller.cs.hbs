@@ -1,0 +1,55 @@
+using Microsoft.Teams.Api.Activities;
+using Microsoft.Teams.Apps;
+using Microsoft.Teams.Apps.Events;
+using Microsoft.Teams.Apps.Activities;
+using Microsoft.Teams.Apps.Annotations;
+using Microsoft.Graph.Models;
+using Microsoft.Teams.Apps.Plugins;
+
+namespace {{name}};
+
+[TeamsController]
+public class Controller
+{
+    [Message("/signout")]
+    public async Task OnSignOutMessage(IContext<MessageActivity> context)
+    {
+        if (!context.IsSignedIn)
+        {
+            await context.Send("you are not signed in!");
+            return;
+        }
+
+        await context.SignOut(); // call `SignOut()` for your auth connection...
+        await context.Send("you have been signed out!");
+    }
+
+    [Message]
+    public async Task OnMessage(IContext<MessageActivity> context)
+    {
+        Console.WriteLine("Hi how are you?");
+        if (!context.IsSignedIn)
+        {
+            await context.SignIn(new SignInOptions()
+            {
+                // Customize the OAuth card text (only applies to OAuth flow, not SSO)
+                OAuthCardText = "Sign in to your account",
+                SignInButtonText = "Sign In"
+            }); // call `SignIn() for your auth connection...
+
+            return;
+        }
+
+        var me = await context.UserGraph.Me.GetAsync();
+        await context.Send($"user '{me!.DisplayName}' is already signed in!");
+    }
+
+    [Event("signin")]
+    public async Task OnSignIn(IPlugin plugin, Microsoft.Teams.Apps.Events.SignInEvent @event) {
+        var token = @event.Token;
+        var context = @event.Context;
+
+        var me = await context.UserGraph.Me.GetAsync();
+        await context.Send($"user \"{me!.DisplayName}\" signed in. Here's the token: {token.Token}");
+    }
+}
