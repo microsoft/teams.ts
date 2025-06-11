@@ -54,7 +54,7 @@ const getEffectiveAttributes = ({name, attribs } : {name: string, attribs: Recor
 }
 
 const renderNode = (node: any, key: number = 0): React.ReactNode => {
-  if (node.type === 'text' && !!node.data.trim())  {
+  if (node.type === 'text')  {
     return <span key={key}>{node.data}</span>;
   }
 
@@ -75,8 +75,10 @@ const renderNode = (node: any, key: number = 0): React.ReactNode => {
       case 'ol':
       case 'p':
       case 'pre':
+      case 's':
       case 'span':
       case 'strong':
+      case 'u':
       case 'ul':
         {
           const Component = node.name;
