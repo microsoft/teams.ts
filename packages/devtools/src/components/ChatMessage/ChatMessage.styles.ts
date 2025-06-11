@@ -16,12 +16,12 @@ const useChatMessageStyles = makeStyles({
     display: 'block',
     position: 'relative',
     padding: `${tokens.spacingVerticalM} ${tokens.spacingHorizontalM}`,
+    boxSizing: 'border-box',
     borderRadius: tokens.borderRadiusMedium,
     border: `${tokens.strokeWidthThick} solid ${tokens.colorSubtleBackground}`,
     width: '100%',
     wordWrap: 'break-word',
     overflowWrap: 'break-word',
-    whiteSpace: 'pre-wrap',
     '&:focus': {
       outline: `${tokens.strokeWidthThick} solid ${tokens.colorNeutralForeground2Link}`,
       borderRadius: tokens.borderRadiusMedium,
