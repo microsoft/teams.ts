@@ -15,7 +15,7 @@ export const handleStructuredOutput = async (
   const prompt = new ChatPrompt({
     instructions: 'You are a helpful assistant. You MUST use the tools provided to you to respond to the user',
     model,
-    messages
+    messages,
   }).function('stucturify', 'Structurify the response', {
     type: 'object',
     properties: {
@@ -34,9 +34,9 @@ export const handleStructuredOutput = async (
   }, () => {
     throw new Error('Not implemented');
   });
-  const result = await prompt.send(activity.text, { enableAutomaticFunctionCalling: true });
+  const result = await prompt.send(activity.text, { enableAutomaticFunctionCalling: false });
   const functionCallArgs = result.function_calls?.[0].arguments;
-  await send(`The LLM responed with the following structured output: ${JSON.stringify(functionCallArgs, undefined, 2)}. And the raw response was: ${JSON.stringify(result.raw, undefined, 2)}`);
+  await send(`The LLM responed with the following structured output: ${JSON.stringify(functionCallArgs, undefined, 2)}"`);
 
   const firstCall = result.function_calls?.[0];
   if (firstCall?.name === 'pong') {
@@ -48,6 +48,6 @@ export const handleStructuredOutput = async (
     });
     const result = await prompt.send('What should we do next?', { messages, enableAutomaticFunctionCalling: true });
     const functionCallArgs = result.function_calls?.[0].arguments;
-    await send(`The LLM responed with the following structured output: ${JSON.stringify(functionCallArgs, undefined, 2)}. And the raw response was: ${JSON.stringify(result.raw, undefined, 2)}`);
+    await send(`The LLM responed with the following structured output: ${JSON.stringify(functionCallArgs, undefined, 2)}.`);
   }
 };

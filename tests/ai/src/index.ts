@@ -26,13 +26,6 @@ const app = new App({
   plugins: [new DevtoolsPlugin()],
 });
 
-console.log({
-  apiKey: process.env.AZURE_OPENAI_API_KEY || process.env.OPENAI_API_KEY,
-  endpoint: process.env.AZURE_OPENAI_ENDPOINT,
-  apiVersion: process.env.AZURE_OPENAI_API_VERSION,
-  model: process.env.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME,
-});
-
 const model = new OpenAIChatModel({
   apiKey: process.env.OPENAI_API_KEY,
   model: 'gpt-4o',

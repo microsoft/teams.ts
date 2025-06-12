@@ -284,7 +284,7 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
             messages: memory,
           });
         } else {
-          this._log.debug(`Automatic function calling is disabled, skipping function call (total calls: ${message.tool_calls.length})`);
+          this._log.debug(`Automatic function calling is disabled, skipping function call execution (total calls: ${message.tool_calls.length})`);
         }
       }
 
