@@ -34,7 +34,7 @@ export const handleStructuredOutput = async (
   }, () => {
     throw new Error('Not implemented');
   });
-  const result = await prompt.send(activity.text, { enableAutomaticFunctionCalling: false });
+  const result = await prompt.send(activity.text, { autoFunctionCalling: false });
   const functionCallArgs = result.function_calls?.[0].arguments;
   await send(`The LLM responed with the following structured output: ${JSON.stringify(functionCallArgs, undefined, 2)}"`);
 
@@ -46,7 +46,7 @@ export const handleStructuredOutput = async (
       function_id: firstCall.id,
       content: 'pong',
     });
-    const result = await prompt.send('What should we do next?', { messages, enableAutomaticFunctionCalling: true });
+    const result = await prompt.send('What should we do next?', { messages, autoFunctionCalling: true });
     const functionCallArgs = result.function_calls?.[0].arguments;
     await send(`The LLM responed with the following structured output: ${JSON.stringify(functionCallArgs, undefined, 2)}.`);
   }

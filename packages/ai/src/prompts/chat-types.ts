@@ -69,10 +69,10 @@ export type ChatPromptSendOptions<TOptions extends Record<string, any> = Record<
     readonly onChunk?: TextChunkHandler;
 
     /**
-     * disable automatic function calling
+     * enable/disable automatic function calling
      * @default true
      */
-    readonly enableAutomaticFunctionCalling?: boolean;
+    readonly autoFunctionCalling?: boolean;
 };
 
 /**

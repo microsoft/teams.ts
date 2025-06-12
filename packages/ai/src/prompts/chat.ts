@@ -254,7 +254,7 @@ export class ChatPrompt<
             return;
           }
         },
-        enableAutomaticFunctionCalling: options.enableAutomaticFunctionCalling,
+        autoFunctionCalling: options.autoFunctionCalling,
       }
     );
 
