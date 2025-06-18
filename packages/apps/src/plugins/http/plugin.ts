@@ -121,7 +121,7 @@ export class HttpPlugin implements ISender {
         reject(err);
       });
 
-      this._server.listen(port, () => {        
+      this._server.listen(port, () => {
         this.logger.info(`listening on port ${port} 🚀`);
         resolve();
       });
@@ -194,7 +194,8 @@ export class HttpPlugin implements ISender {
           token: this.botToken,
         })
       ),
-      ref
+      ref,
+      this.logger
     );
   }
 

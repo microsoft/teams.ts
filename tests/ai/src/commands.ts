@@ -1,14 +1,16 @@
-import { IChatModel } from '@microsoft/teams.ai';
 import { ActivityLike, IMessageActivity, SentActivity } from '@microsoft/teams.api';
+
+import { OpenAIChatModel } from '@microsoft/teams.openai';
 
 import { ILogger } from '../../../packages/common/dist/logging/logger';
 
 import { handleFeedbackLoop } from './feedback';
 import { handleDocumentationSearch } from './simple-rag';
+import { handleStructuredOutput } from './structured-output';
 import { handleGetWeatherToolCalling, handlePokemonToolCalling } from './tool-calling';
 
 export type CommandHandler = (
-  model: IChatModel,
+  model: OpenAIChatModel,
   query: IMessageActivity,
   send: (activity: ActivityLike) => Promise<SentActivity>,
   log: ILogger
@@ -26,19 +28,19 @@ const extractCommandAndQueryForCommand =
     commandName: TCommandName,
     handler: CommandHandler | undefined
   ) =>
-  (
-    text: string
-  ): { commandName: TCommandName; query: string; handler: CommandHandler | undefined } | null => {
-    const parts = text.split(' ');
-    const command = parts.at(0);
-    if (!command) {
+    (
+      text: string
+    ): { commandName: TCommandName; query: string; handler: CommandHandler | undefined } | null => {
+      const parts = text.split(' ');
+      const command = parts.at(0);
+      if (!command) {
+        return null;
+      }
+      if (command === commandStr) {
+        return { commandName: commandName, query: parts.slice(1).join(' '), handler };
+      }
       return null;
-    }
-    if (command === commandStr) {
-      return { commandName: commandName, query: parts.slice(1).join(' '), handler };
-    }
-    return null;
-  };
+    };
 
 export const pokemonCommand = extractCommandAndQueryForCommand(
   'pokemon',
@@ -64,4 +66,9 @@ export const ragCommand = extractCommandAndQueryForCommand(
   'rag',
   'simple-rag',
   handleDocumentationSearch
+);
+export const structuredOutputCommand = extractCommandAndQueryForCommand(
+  'structured-output',
+  'structured-output',
+  handleStructuredOutput
 );
