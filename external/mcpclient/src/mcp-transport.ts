@@ -1,4 +1,5 @@
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 
 import { ValueOrFactory } from './mcp-client-types';
 
@@ -28,6 +29,20 @@ export async function buildSSEClientTransport(
           ...init,
           headers,
         });
+      },
+    },
+  });
+}
+
+export async function buildStreamableHttpClientTransport(
+  url: string,
+  headers: ValueOrFactory<Record<string, string>> | undefined
+): Promise<StreamableHTTPClientTransport> {
+  const resolvedHeaders = typeof headers === 'function' ? await headers() : headers;
+  return new StreamableHTTPClientTransport(new URL(url), {
+    requestInit: {
+      headers: {
+        ...resolvedHeaders,
       },
     },
   });
