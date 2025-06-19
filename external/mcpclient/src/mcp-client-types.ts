@@ -12,6 +12,11 @@ export type McpClientToolDetails = {
 
 export type PromiseOrValue<T> = T | Promise<T>;
 export type ValueOrFactory<T> = T | (() => PromiseOrValue<T>);
+/**
+ * The type of transport to use
+ * Note that the sse transport will soon be deprecated because it was
+ * deprecated in the MCP SDK.
+ */
 export type McpClientTransportType = 'sse' | 'http';
 
 export type McpClientPluginParams = {
