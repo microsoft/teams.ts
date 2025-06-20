@@ -51,9 +51,6 @@ const prompt = new ChatPrompt(
     },
   }).usePlugin('mcpClient', {
     url: 'https://learn.microsoft.com/api/mcp',
-    params: {
-      transport: 'http',
-    },
   });
 
 app.on('message', async ({ send, activity }) => {
