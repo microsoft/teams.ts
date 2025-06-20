@@ -17,12 +17,12 @@ export type ValueOrFactory<T> = T | (() => PromiseOrValue<T>);
  * Note that the sse transport will soon be deprecated because it was
  * deprecated in the MCP SDK.
  */
-export type McpClientTransportType = 'sse' | 'http';
+export type McpClientTransportType = 'sse' | 'streamable-http';
 
 export type McpClientPluginParams = {
   /**
    * The type of transport to use
-   * @default 'http'
+   * @default 'streamable-http'
    */
   transport?: McpClientTransportType;
 
@@ -105,7 +105,7 @@ export type McpClientPluginUseParams = {
 
   /**
    * The type of transport to use
-   * @default 'http'
+   * @default 'streamable-http'
    */
   transport?: McpClientTransportType;
 

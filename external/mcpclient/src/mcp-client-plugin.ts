@@ -239,7 +239,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
       switch (transportType) {
         case 'sse':
           return buildSSEClientTransport(serverUrl, headers);
-        case 'http':
+        case 'streamable-http':
         default:
           return buildStreamableHttpClientTransport(serverUrl, headers);
       }
