@@ -10,14 +10,19 @@ export interface IClientContext {
   readonly appSessionId: string;
 
   /**
-   * The Microsoft Entra tenant ID of the current user.
+   * The Microsoft Entra tenant ID of the current user, extracted from request auth  token.
    */
-  readonly tenantId?: string;
+  readonly tenantId: string;
 
   /**
-   * The Microsoft Entra object id of the current user.
+   * The Microsoft Entra object id of the current user, extracted from the request auth token.
    */
-  readonly userId?: string;
+  readonly userId: string;
+
+  /**
+   * The name of the current user, extracted from the request auth token.
+   */
+  readonly userName: string;
 
   /**
    * The Microsoft Teams ID for the team with which the content is associated.
@@ -41,7 +46,7 @@ export interface IClientContext {
   readonly chatId?: string;
 
   /**
-   * Meeting Id used by tab when running in meeting context
+   * Meeting ID used by tab when running in meeting context
    */
   readonly meetingId?: string;
 
@@ -56,8 +61,9 @@ export interface IClientContext {
    * such as scrolling to or activating a specific piece of content.
    */
   readonly subPageId?: string;
+
   /**
    * The MSAL entra token.
    */
-  readonly authToken?: string;
+  readonly authToken: string;
 }
