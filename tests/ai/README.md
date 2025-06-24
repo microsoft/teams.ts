@@ -4,8 +4,8 @@ a sample demonstrating various ai capabilities
 
 ## Prerequisites
 
-- Node.js version 20 or later
-- An Microsoft 365 development account. If you don't have one, you can get one for free by signing up for the [Microsoft 365 Developer Program](https://developer.microsoft.com/microsoft-365/dev-program).
+-   Node.js version 20 or later
+-   An Microsoft 365 development account. If you don't have one, you can get one for free by signing up for the [Microsoft 365 Developer Program](https://developer.microsoft.com/microsoft-365/dev-program).
 
 ## Run
 
@@ -48,3 +48,4 @@ OPENAI_API_KEY=<sk-your_openai_api_key>
 | Feedback               | `feedback <any text>`                             | Shows feedback loop                                         |
 | Rag                    | `rag <any query preferably from the rag dataset>` | Shows rag pattern and citation                              |
 | Stateful interactions  | `<any query not matching above`                   | Shows messages being persisted across multiple interactions |
+| Structured output      | `structured-output <any query>`                   | Shows structured output working                             |

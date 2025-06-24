@@ -10,7 +10,7 @@ import {
   SentActivity,
   TypingActivity,
 } from '@microsoft/teams.api';
-import { EventEmitter } from '@microsoft/teams.common';
+import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/teams.common';
 
 import { IStreamer, IStreamerEvents } from '../../types';
 import { promises } from '../../utils';
@@ -30,10 +30,12 @@ export class HttpStream implements IStreamer {
 
   private _result?: SentActivity;
   private _timeout?: NodeJS.Timeout;
+  private _logger: ILogger;
 
-  constructor(client: Client, ref: ConversationReference) {
+  constructor(client: Client, ref: ConversationReference, logger?: ILogger) {
     this.client = client;
     this.ref = ref;
+    this._logger = logger?.child('stream') || new ConsoleLogger('@teams/http/stream');
   }
 
   emit(activity: Partial<IMessageActivity> | string) {
@@ -54,8 +56,15 @@ export class HttpStream implements IStreamer {
   }
 
   async close() {
-    if (!this.index && !this.queue.length) return;
-    if (this._result) return this._result;
+    if (!this.index && !this.queue.length) {
+      this._logger.debug('closed with no content');
+      return;
+    }
+
+    if (this._result) {
+      this._logger.debug('already closed');
+      return this._result;
+    }
 
     while (!this.id || this.queue.length) {
       await new Promise((resolve) => setTimeout(resolve, 200));
@@ -68,7 +77,10 @@ export class HttpStream implements IStreamer {
       .addStreamFinal()
       .withChannelData(this.channelData);
 
-    const res = await promises.retry(this.send(activity));
+    const res = await promises.retry(() => this.send(activity), {
+      logger: this._logger
+    });
+
     this.events.emit('close', res);
 
     this.index = 0;
@@ -78,6 +90,7 @@ export class HttpStream implements IStreamer {
     this.channelData = {};
     this.entities = [];
     this._result = res;
+    this._logger.debug(res);
     return res;
   }
 
@@ -88,10 +101,9 @@ export class HttpStream implements IStreamer {
       this._timeout = undefined;
     }
 
-    const size = Math.round(this.queue.length / 10);
     let i = 0;
 
-    while (this.queue.length && i <= size) {
+    while (this.queue.length && i < 10) {
       const activity = this.queue.shift();
 
       if (!activity) continue;
@@ -118,13 +130,18 @@ export class HttpStream implements IStreamer {
       i++;
     }
 
-    this.index++;
+    if (i === 0) return;
+
     const activity = new TypingActivity({ id: this.id })
       .withText(this.text)
-      .addStreamUpdate(this.index);
+      .addStreamUpdate(this.index + 1);
 
-    const res = await promises.retry(this.send(activity));
+    const res = await promises.retry(() => this.send(activity), {
+      logger: this._logger
+    });
+
     this.events.emit('chunk', res);
+    this.index++;
 
     if (!this.id) {
       this.id = res.id;

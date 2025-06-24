@@ -32,9 +32,11 @@
     "@tests/a2a": "0.0.0"
   },
   "changesets": [
+    "evil-cycles-change",
     "four-bats-enter",
     "giant-swans-build",
     "new-olives-rest",
+    "smooth-hoops-float",
     "social-ghosts-move",
     "violet-friends-march"
   ]

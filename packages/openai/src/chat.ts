@@ -58,27 +58,27 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
     this._openai =
       'endpoint' in options
         ? new AzureOpenAI({
-            apiKey: options.apiKey,
-            apiVersion: options.apiVersion,
-            endpoint: options.endpoint?.replace(/\/$/, ''),
-            deployment: options.model,
-            azureADTokenProvider: options.azureADTokenProvider,
-            baseURL: options.baseUrl?.replace(/\/$/, ''),
-            organization: options.organization,
-            project: options.project,
-            defaultHeaders: options.headers,
-            fetch: options.fetch,
-            timeout: options.timeout,
-          })
+          apiKey: options.apiKey,
+          apiVersion: options.apiVersion,
+          endpoint: options.endpoint?.replace(/\/$/, ''),
+          deployment: options.model,
+          azureADTokenProvider: options.azureADTokenProvider,
+          baseURL: options.baseUrl?.replace(/\/$/, ''),
+          organization: options.organization,
+          project: options.project,
+          defaultHeaders: options.headers,
+          fetch: options.fetch,
+          timeout: options.timeout,
+        })
         : new OpenAI({
-            apiKey: options.apiKey,
-            baseURL: options.baseUrl?.replace(/\/$/, ''),
-            organization: options.organization,
-            project: options.project,
-            defaultHeaders: options.headers,
-            fetch: options.fetch,
-            timeout: options.timeout,
-          });
+          apiKey: options.apiKey,
+          baseURL: options.baseUrl?.replace(/\/$/, ''),
+          organization: options.organization,
+          project: options.project,
+          defaultHeaders: options.headers,
+          fetch: options.fetch,
+          timeout: options.timeout,
+        });
   }
 
   async send(
@@ -137,13 +137,13 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
           Object.keys(options.functions || {}).length === 0
             ? undefined
             : Object.values(options.functions || {}).map((fn) => ({
-                type: 'function',
-                function: {
-                  name: fn.name,
-                  description: fn.description,
-                  parameters: fn.parameters,
-                },
-              })),
+              type: 'function',
+              function: {
+                name: fn.name,
+                description: fn.description,
+                parameters: fn.parameters,
+              },
+            })),
         messages: messages.map((message) => {
           if (message.role === 'model') {
             return {
@@ -179,15 +179,15 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
                 typeof message.content === 'string'
                   ? message.content
                   : message.content.map((p) => {
-                      if (p.type === 'image_url') {
-                        return {
-                          type: p.type,
-                          image_url: { url: p.image_url },
-                        };
-                      }
+                    if (p.type === 'image_url') {
+                      return {
+                        type: p.type,
+                        image_url: { url: p.image_url },
+                      };
+                    }
 
-                      return p;
-                    }),
+                    return p;
+                  }),
             };
           }
 
@@ -278,10 +278,14 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
       };
 
       if (message.tool_calls && message.tool_calls.length > 0) {
-        return this.send(modelMessage, {
-          ...options,
-          messages: memory,
-        });
+        if (options.autoFunctionCalling !== false) {
+          return this.send(modelMessage, {
+            ...options,
+            messages: memory,
+          });
+        } else {
+          this._log.debug(`Automatic function calling is disabled, skipping function call execution (total calls: ${message.tool_calls.length})`);
+        }
       }
 
       await memory.push(modelMessage);

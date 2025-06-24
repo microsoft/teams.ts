@@ -12,6 +12,7 @@ import {
   pokemonCommand,
   ragCommand,
   streamCommand,
+  structuredOutputCommand,
   weatherCommand,
 } from './commands';
 import { storedFeedbackByMessageId } from './feedback';
@@ -82,6 +83,7 @@ app.on('message', async ({ send, activity, next, log }) => {
     weatherCommand,
     feedbackLoopCommand,
     ragCommand,
+    structuredOutputCommand,
   ]
     .map((command) => command(activity.text))
     .find(Boolean);
