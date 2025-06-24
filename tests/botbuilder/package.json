@@ -1,6 +1,6 @@
 {
   "name": "@tests/botbuilder",
-  "version": "0.0.1-preview.5",
+  "version": "0.0.1-preview.6",
   "license": "MIT",
   "private": true,
   "main": "dist/index",
@@ -18,17 +18,17 @@
     "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\""
   },
   "dependencies": {
-    "@microsoft/teams.api": "2.0.0-preview.5",
-    "@microsoft/teams.apps": "2.0.0-preview.5",
-    "@microsoft/teams.botbuilder": "2.0.0-preview.5",
-    "@microsoft/teams.cards": "2.0.0-preview.5",
-    "@microsoft/teams.common": "2.0.0-preview.5",
-    "@microsoft/teams.dev": "2.0.0-preview.5",
-    "@microsoft/teams.graph": "2.0.0-preview.5",
+    "@microsoft/teams.api": "2.0.0-preview.6",
+    "@microsoft/teams.apps": "2.0.0-preview.6",
+    "@microsoft/teams.botbuilder": "2.0.0-preview.6",
+    "@microsoft/teams.cards": "2.0.0-preview.6",
+    "@microsoft/teams.common": "2.0.0-preview.6",
+    "@microsoft/teams.dev": "2.0.0-preview.6",
+    "@microsoft/teams.graph": "2.0.0-preview.6",
     "botbuilder": "4.23.1"
   },
   "devDependencies": {
-    "@microsoft/teams.config": "2.0.0-preview.5",
+    "@microsoft/teams.config": "2.0.0-preview.6",
     "@types/node": "^22.0.2",
     "dotenv": "^16.4.5",
     "nodemon": "^3.1.4",

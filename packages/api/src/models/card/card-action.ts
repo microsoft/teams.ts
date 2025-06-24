@@ -7,13 +7,14 @@ export type CardActionType =
   | 'showImage'
   | 'downloadFile'
   | 'signin'
-  | 'call';
+  | 'call'
+  | 'invoke';
 
 export type CardAction = {
   /**
    * The type of action implemented by this button. Possible values include: 'openUrl', 'imBack',
    * 'postBack', 'playAudio', 'playVideo', 'showImage', 'downloadFile', 'signin', 'call',
-   * messageBack', 'openApp'
+   * messageBack', 'openApp', 'invoke'
    */
   type: CardActionType;
 

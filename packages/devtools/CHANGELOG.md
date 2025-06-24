@@ -1,5 +1,16 @@
 # @microsoft/teams.devtools
 
+## 2.0.0-preview.6
+
+### Patch Changes
+
+- Disable automatic function calling, and show structured output
+- Updated dependencies
+  - @microsoft/teams.api@2.0.0-preview.6
+  - @microsoft/teams.apps@2.0.0-preview.6
+  - @microsoft/teams.cards@2.0.0-preview.6
+  - @microsoft/teams.common@2.0.0-preview.6
+
 ## 2.0.0-preview.5
 
 ### Patch Changes

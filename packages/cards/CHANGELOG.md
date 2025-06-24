@@ -1,5 +1,11 @@
 # @microsoft/teams.cards
 
+## 2.0.0-preview.6
+
+### Patch Changes
+
+- Disable automatic function calling, and show structured output
+
 ## 2.0.0-preview.5
 
 ### Patch Changes
