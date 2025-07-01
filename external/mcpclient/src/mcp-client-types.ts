@@ -12,8 +12,20 @@ export type McpClientToolDetails = {
 
 export type PromiseOrValue<T> = T | Promise<T>;
 export type ValueOrFactory<T> = T | (() => PromiseOrValue<T>);
+/**
+ * The type of transport to use
+ * Note that the sse transport will soon be deprecated because it was
+ * deprecated in the MCP SDK.
+ */
+export type McpClientTransportType = 'sse' | 'streamable-http';
 
 export type McpClientPluginParams = {
+  /**
+   * The type of transport to use
+   * @default 'streamable-http'
+   */
+  transport?: McpClientTransportType;
+
   availableTools?: McpClientToolDetails[];
   /**
    * optional headers to pass in per request
@@ -34,7 +46,7 @@ export type McpClientPluginParams = {
   refetchTimeoutMs?: number;
 };
 
-export type McpClientPluginCachedValue = Pick<McpClientPluginParams, 'availableTools' | 'headers'>;
+export type McpClientPluginCachedValue = Pick<McpClientPluginParams, 'availableTools' | 'headers' | 'transport'>;
 
 /**
  * A map of Mcp client params keyed off of their corresponding urls
@@ -90,6 +102,12 @@ export type McpClientPluginUseParams = {
    * The url of the Mcp server to use
    */
   url: string;
+
+  /**
+   * The type of transport to use
+   * @default 'streamable-http'
+   */
+  transport?: McpClientTransportType;
 
   /**
    * The params to use for the Mcp server

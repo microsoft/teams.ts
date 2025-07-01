@@ -1,10 +1,13 @@
 import npath from 'path';
 
+import { ActivityLike } from '@microsoft/teams.api';
+
 import { App } from './app';
 import { IFunctionContext } from './contexts';
 import * as manifest from './manifest';
 import { ClientAuthRequest, withClientAuth } from './middleware';
 import { IPlugin } from './types';
+import { functionContext } from './utils';
 
 /**
  * add/update a function that can be called remotely
@@ -29,12 +32,28 @@ export function func<TPlugin extends IPlugin, TData>(
         throw new Error('expected client context');
       }
 
+      const getCurrentConversationId =
+        functionContext.getConversationIdResolver(
+          this,
+          log.child('getCurrentConversationId'),
+          req.context
+        );
+
+      const send = async (activity: ActivityLike) => {
+        const conversationId = await getCurrentConversationId();
+        return !conversationId
+          ? null
+          : await this.send(conversationId, activity);
+      };
+
       const data = await cb({
         ...req.context,
         log,
         api: this.api,
         appGraph: this.graph,
         data: req.body,
+        getCurrentConversationId,
+        send,
       });
 
       res.send(data);

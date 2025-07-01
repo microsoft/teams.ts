@@ -1,6 +1,6 @@
 {
   "name": "@tests/echo",
-  "version": "0.0.1-preview.6",
+  "version": "0.0.1-preview.7",
   "license": "MIT",
   "private": true,
   "main": "dist/index",
@@ -21,15 +21,15 @@
     "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
   },
   "dependencies": {
-    "@microsoft/teams.api": "2.0.0-preview.6",
-    "@microsoft/teams.apps": "2.0.0-preview.6",
-    "@microsoft/teams.cards": "2.0.0-preview.6",
-    "@microsoft/teams.common": "2.0.0-preview.6",
-    "@microsoft/teams.dev": "2.0.0-preview.6",
-    "@microsoft/teams.graph": "2.0.0-preview.6"
+    "@microsoft/teams.api": "2.0.0-preview.7",
+    "@microsoft/teams.apps": "2.0.0-preview.7",
+    "@microsoft/teams.cards": "2.0.0-preview.7",
+    "@microsoft/teams.common": "2.0.0-preview.7",
+    "@microsoft/teams.dev": "2.0.0-preview.7",
+    "@microsoft/teams.graph": "2.0.0-preview.7"
   },
   "devDependencies": {
-    "@microsoft/teams.config": "2.0.0-preview.6",
+    "@microsoft/teams.config": "2.0.0-preview.7",
     "@types/node": "^22.5.4",
     "dotenv": "^16.4.5",
     "nodemon": "^3.1.4",

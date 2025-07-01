@@ -42,6 +42,15 @@ const prompt = new ChatPrompt(
         'x-functions-key': process.env.AZURE_FUNCTION_KEY!,
       },
     },
+  }).usePlugin('mcpClient', {
+    url: 'https://aiacceleratormcp.azurewebsites.net/runtime/webhooks/mcp/sse',
+    params: {
+      headers: {
+        'x-functions-key': process.env.AZURE_FUNCTION_KEY!,
+      },
+    },
+  }).usePlugin('mcpClient', {
+    url: 'https://learn.microsoft.com/api/mcp',
   });
 
 app.on('message', async ({ send, activity }) => {

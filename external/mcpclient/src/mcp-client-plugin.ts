@@ -11,9 +11,10 @@ import {
   McpClientPluginParams,
   McpClientPluginUseParams,
   McpClientToolDetails,
+  McpClientTransportType,
   ValueOrFactory,
 } from './mcp-client-types';
-import { buildSSEClientTransport } from './mcp-transport';
+import { buildSSEClientTransport, buildStreamableHttpClientTransport } from './mcp-transport';
 
 export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientPluginUseParams> {
   readonly name = 'mcpClient';
@@ -88,6 +89,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     if (args.params?.availableTools && args.params.availableTools.length > 0) {
       this._cache[args.url] = {
         ...this._cache[args.url],
+        transport: args.params?.transport,
         // If the tools are being supplied, we assume they are up to date
         lastAttemptedFetch: Date.now(),
         availableTools: args.params.availableTools,
@@ -113,7 +115,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
         description: availableTool.description,
         parameters: availableTool.schema || {},
         handler: async (args: any) => {
-          const [client, transport] = await this.makeMcpClient(url, params?.headers);
+          const [client, transport] = await this.makeMcpClient(url, params?.headers, params?.transport);
           try {
             await client.connect(transport);
             const result = await client.callTool({
@@ -185,11 +187,11 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
   }
 
   private async getTools(
-    params: ({ url: string } & Pick<McpClientPluginParams, 'headers' | 'skipIfUnavailable'>)[]
+    params: ({ url: string } & Pick<McpClientPluginParams, 'headers' | 'skipIfUnavailable' | 'transport'>)[]
   ): Promise<Record<string, McpClientToolDetails[] | 'unavailable'>> {
     const toolCallResult = await Promise.all(
-      params.map(async ({ url, headers, skipIfUnavailable }) => {
-        const tools = await this.fetchTools(url, headers, skipIfUnavailable);
+      params.map(async ({ url, headers, skipIfUnavailable, transport }) => {
+        const tools = await this.fetchTools(url, headers, transport, skipIfUnavailable);
         return [url, tools];
       })
     );
@@ -199,10 +201,11 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
 
   private async fetchTools(
     url: string,
-    headers?: ValueOrFactory<Record<string, string>>,
-    skipIfUnavailable?: boolean
+    headers: ValueOrFactory<Record<string, string>> | undefined,
+    transportType: McpClientTransportType | undefined,
+    skipIfUnavailable: boolean | undefined
   ): Promise<McpClientToolDetails[] | 'unavailable'> {
-    const [client, transport] = await this.makeMcpClient(url, headers);
+    const [client, transport] = await this.makeMcpClient(url, headers, transportType);
     try {
       await client.connect(transport);
       const listToolsResult = await client.listTools();
@@ -226,11 +229,22 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
 
   private async makeMcpClient(
     serverUrl: string,
-    headers: ValueOrFactory<Record<string, string>> | undefined
+    headers: ValueOrFactory<Record<string, string>> | undefined,
+    transportType: McpClientTransportType | undefined,
   ) {
-    const transport = this.createTransport
-      ? this.createTransport(serverUrl)
-      : await buildSSEClientTransport(serverUrl, headers);
+    const buildTransport = () => {
+      if (this.createTransport) {
+        return this.createTransport(serverUrl);
+      }
+      switch (transportType) {
+        case 'sse':
+          return buildSSEClientTransport(serverUrl, headers);
+        case 'streamable-http':
+        default:
+          return buildStreamableHttpClientTransport(serverUrl, headers);
+      }
+    };
+    const transport = await buildTransport();
 
     const client = new Client(
       {

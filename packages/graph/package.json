@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.graph",
-  "version": "2.0.0-preview.6",
+  "version": "2.0.0-preview.7",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -35,11 +35,11 @@
     "gen:endpoints": "npx ts-node ./scripts/endpoints.ts"
   },
   "dependencies": {
-    "@microsoft/teams.common": "2.0.0-preview.6",
+    "@microsoft/teams.common": "2.0.0-preview.7",
     "qs": "^6.13.0"
   },
   "devDependencies": {
-    "@microsoft/teams.config": "2.0.0-preview.6",
+    "@microsoft/teams.config": "2.0.0-preview.7",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.0.2",
     "@types/qs": "^6.9.15",

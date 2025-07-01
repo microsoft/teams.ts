@@ -13,14 +13,17 @@
 npx changeset add
 ```
 
-1. Run `npm i` again - `package-lock.json` updates
-1. Update root `package.json` manually
+1. ONLY select all the packages that start with @microsoft/teams.\*. NOT the test packages.
 
 ## Apply Changeset
 
 ```bash
 npx changeset version
 ```
+
+1. Run `npm i` again - `package-lock.json` updates
+1. Update root `package.json` manually
+1. Run `npm run build` to ensure everything is built correctly
 
 ## Publish Changeset
 

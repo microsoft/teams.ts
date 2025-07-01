@@ -1,5 +1,16 @@
 # @microsoft/teams.a2a
 
+## 2.0.0-preview.7
+
+### Patch Changes
+
+- - Add streamable http support to MCPClient
+  - Adds a way to "send" messages from a tab-app to the associated conversation
+- Updated dependencies
+  - @microsoft/teams.ai@2.0.0-preview.7
+  - @microsoft/teams.apps@2.0.0-preview.7
+  - @microsoft/teams.common@2.0.0-preview.7
+
 ## 2.0.0-preview.6
 
 ### Patch Changes

@@ -23,6 +23,10 @@ const mcpServerPlugin = new McpPlugin({
   {
     input: z.string().describe('the text to echo back'),
   },
+  {
+    readOnlyHint: true,
+    idempotentHint: true
+  },
   async ({ input }) => {
     return {
       content: [
@@ -67,6 +71,10 @@ mcpServerPlugin.tool(
   {
     input: z.string().describe('the text to echo back'),
     userAadObjectId: z.string().describe('the user to alert'),
+  },
+  {
+    readOnlyHint: true,
+    idempotentHint: true
   },
   async ({ input, userAadObjectId }, { authInfo }) => {
     if (!isAuthValid(authInfo)) {

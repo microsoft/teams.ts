@@ -8,7 +8,10 @@ import { IClientContext } from '../contexts';
 import { EntraTokenValidator } from './entra-token-validator';
 
 export type WithClientAuthParams = Partial<Credentials> & {
-  entraTokenValidator?: Pick<EntraTokenValidator, 'validateAccessToken' | 'getTokenPayload'>;
+  entraTokenValidator?: Pick<
+    EntraTokenValidator,
+    'validateAccessToken' | 'getTokenPayload'
+  >;
   readonly logger: ILogger;
 };
 
@@ -20,7 +23,11 @@ export function withClientAuth(params: WithClientAuthParams) {
   const entraTokenValidator = params.entraTokenValidator;
   const log = params.logger;
 
-  return async (req: ClientAuthRequest, res: express.Response, next: express.NextFunction) => {
+  return async (
+    req: ClientAuthRequest,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
     const appSessionId = req.header('X-Teams-App-Session-Id');
     const pageId = req.header('X-Teams-Page-Id');
     const authorization = req.header('Authorization')?.split(' ');
@@ -32,14 +39,20 @@ export function withClientAuth(params: WithClientAuthParams) {
     const validatedToken = !entraTokenValidator
       ? null
       : await entraTokenValidator.validateAccessToken(log, authToken);
+    const tokenPayload =
+      validatedToken && entraTokenValidator?.getTokenPayload(validatedToken);
 
-    if (!pageId || !appSessionId || !validatedToken || !entraTokenValidator) {
+    if (
+      !pageId ||
+      !appSessionId ||
+      !validatedToken ||
+      !entraTokenValidator ||
+      !tokenPayload
+    ) {
       log.debug('unauthorized');
       res.status(401).send('unauthorized');
       return;
     }
-
-    const tokenPayload = entraTokenValidator.getTokenPayload(validatedToken);
 
     req.context = {
       appId: tokenPayload?.['appId'],
@@ -52,8 +65,9 @@ export function withClientAuth(params: WithClientAuthParams) {
       pageId,
       subPageId: req.header('X-Teams-Sub-Page-Id'),
       teamId: req.header('X-Teams-Team-Id'),
-      tenantId: tokenPayload?.['tid'],
-      userId: tokenPayload?.['oid'],
+      tenantId: tokenPayload['tid'],
+      userId: tokenPayload['oid'],
+      userName: tokenPayload['name'],
     };
 
     next();
