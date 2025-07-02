@@ -103,9 +103,7 @@ export class UserTokenClient {
 
     const res = await this.http.post<TokenResponse>(
       `https://token.botframework.com/api/usertoken/exchange?${q}`,
-      {
-        exchangeRequest: params.exchangeRequest,
-      }
+      params.exchangeRequest
     );
 
     return res.data;
