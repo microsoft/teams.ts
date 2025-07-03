@@ -128,10 +128,8 @@ describe('UserTokenClient', () => {
     expect(spy).toHaveBeenCalledWith(
       'https://token.botframework.com/api/usertoken/exchange?userId=1&connectionName=graph&channelId=msteams',
       {
-        exchangeRequest: {
-          uri: 'http://localhost',
-          token: 'test',
-        },
+        uri: 'http://localhost',
+        token: 'test',
       }
     );
   });
