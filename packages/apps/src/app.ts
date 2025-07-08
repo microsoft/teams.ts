@@ -132,8 +132,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
   get oauth() {
     return {
-      ...this.options.oauth,
       ...DEFAULT_OAUTH_SETTINGS,
+      ...this.options.oauth,
     };
   }
 
