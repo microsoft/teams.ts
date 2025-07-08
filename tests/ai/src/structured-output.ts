@@ -6,6 +6,10 @@ import {
 } from '@microsoft/teams.api';
 import { OpenAIChatModel } from '@microsoft/teams.openai';
 
+const actualFunction = (_args: any) => {
+  return 'pong';
+};
+
 export const handleStructuredOutput = async (
   model: OpenAIChatModel,
   activity: IMessageActivity,
@@ -34,20 +38,34 @@ export const handleStructuredOutput = async (
   }, () => {
     throw new Error('Not implemented');
   });
-  const result = await prompt.send(activity.text, { autoFunctionCalling: false });
+
+  // :snippet-start: structured-output
+  const result = await prompt.send(activity.text, {
+    autoFunctionCalling: false // Disable automatic function calling
+  });
+  // Extract the function call arguments from the result
   const functionCallArgs = result.function_calls?.[0].arguments;
-  await send(`The LLM responed with the following structured output: ${JSON.stringify(functionCallArgs, undefined, 2)}"`);
+  await send(`The LLM responed with the following structured output: ${JSON.stringify(functionCallArgs, undefined, 2)}"`); // :remove:
 
   const firstCall = result.function_calls?.[0];
+  // :remove-start:
   if (firstCall?.name === 'pong') {
     console.log('ponging');
+    // :remove-end:
+    const fnResult = actualFunction(firstCall.arguments);
     messages.push({
       role: 'function',
       function_id: firstCall.id,
-      content: 'pong',
+      content: fnResult,
     });
-    const result = await prompt.send('What should we do next?', { messages, autoFunctionCalling: true });
-    const functionCallArgs = result.function_calls?.[0].arguments;
+
+    // Optionally, you can call the chat prompt again after updating the messages with the results
+    const result = await prompt.send('What should we do next?', {
+      messages,
+      autoFunctionCalling: true // You can enable it here if you want
+    });
+    const functionCallArgs = result.function_calls?.[0].arguments; // Extract the function call arguments
     await send(`The LLM responed with the following structured output: ${JSON.stringify(functionCallArgs, undefined, 2)}.`);
+    // :snippet-end:
   }
 };
