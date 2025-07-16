@@ -18,7 +18,7 @@ import * as $http from '@microsoft/teams.common/http';
 import pkg from '../../../package.json';
 import { IActivityEvent, IErrorEvent } from '../../events';
 import { Manifest } from '../../manifest';
-import { withJwtValidation, JwtValidatedRequest } from '../../middleware/jwt-validation-middleware';
+import { JwtValidatedRequest, withJwtValidation } from '../../middleware/jwt-validation-middleware';
 import {
   Dependency,
   Event,
@@ -117,17 +117,16 @@ export class HttpPlugin implements ISender {
   }
 
   onInit() {
-    if (this.skipAuth) {
-      // Setup /api/messages route without authentication
-      this.express.post('/api/messages', this.onRequestWithoutAuth.bind(this));
-    } else {
+    const messageHandlers = [this.onRequest.bind(this)];
+    if (!this.skipAuth) {
       // Setup /api/messages route with JWT validation middleware
       const jwtMiddleware = withJwtValidation({
         credentials: this.credentials,
         logger: this.logger
       });
-      this.express.post('/api/messages', jwtMiddleware, this.onRequest.bind(this));
+      messageHandlers.unshift(jwtMiddleware);
     }
+    this.express.post('/api/messages', ...messageHandlers);
   }
 
   async onStart({ port }: IPluginStartEvent) {
@@ -220,35 +219,6 @@ export class HttpPlugin implements ISender {
       this.logger
     );
   }
-
-
-  /**
-   * handles incoming http request without authentication
-   * @param req the incoming http request
-   * @param res the http response
-   */
-  protected async onRequestWithoutAuth(
-    req: express.Request,
-    res: express.Response,
-    _next: express.NextFunction
-  ) {
-    const activity: Activity = req.body;
-    const mockToken: IToken = {
-      appId: '',
-      from: 'azure',
-      fromId: '',
-      serviceUrl: activity.serviceUrl || '',
-      isExpired: () => false,
-    };
-
-    this.pending[activity.id] = res;
-    this.$onActivity({
-      sender: this,
-      activity,
-      token: mockToken,
-    });
-  }
-
   /**
    * validates an incoming http request
    * @param req the incoming http request
