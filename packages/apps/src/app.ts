@@ -79,6 +79,11 @@ export type AppOptions<TPlugin extends IPlugin> = Partial<Credentials> & {
    * Activity Options
    */
   readonly activity?: AppActivityOptions;
+
+  /**
+   * Skip authentication for HTTP requests
+   */
+  readonly skipAuth?: boolean;
 };
 
 export type AppActivityOptions = {
@@ -266,10 +271,12 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     }) as HttpPlugin | undefined;
 
     if (!httpPlugin) {
-      httpPlugin = new HttpPlugin();
+      httpPlugin = new HttpPlugin(undefined, { skipAuth: this.options.skipAuth });
       // Casting to any here because a default HttpPlugin is not assignable to TPlugin
       // without a silly level of indirection.
       plugins.unshift(httpPlugin as any);
+    } else if (this.options.skipAuth) {
+      this.log.warn('skipAuth option has no effect when a custom HTTP plugin is provided. Configure authentication on the plugin directly.');
     }
 
     this.http = httpPlugin;

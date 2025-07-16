@@ -9,8 +9,7 @@ import {
   Client,
   ConversationReference,
   Credentials,
-  IToken,
-  JsonWebToken
+  IToken
 } from '@microsoft/teams.api';
 
 import { ILogger } from '@microsoft/teams.common';
@@ -19,6 +18,7 @@ import * as $http from '@microsoft/teams.common/http';
 import pkg from '../../../package.json';
 import { IActivityEvent, IErrorEvent } from '../../events';
 import { Manifest } from '../../manifest';
+import { withJwtValidation, JwtValidatedRequest } from '../../middleware/jwt-validation-middleware';
 import {
   Dependency,
   Event,
@@ -30,7 +30,6 @@ import {
   Logger,
   Plugin,
 } from '../../types';
-import { createServiceTokenValidator, JwtValidator } from '../../utils/jwt-validator';
 
 
 import { HttpStream } from './stream';
@@ -88,9 +87,10 @@ export class HttpPlugin implements ISender {
 
   protected express: express.Application;
   protected pending: Record<string, express.Response> = {};
-  protected serviceTokenValidator: JwtValidator | null = null;
+  protected skipAuth: boolean;
 
-  constructor(server?: http.Server) {
+  constructor(server?: http.Server, options?: { skipAuth?: boolean }) {
+    this.skipAuth = options?.skipAuth ?? false;
     this.express = express();
     this._server = server || http.createServer();
     this._server.on('request', this.express);
@@ -104,7 +104,6 @@ export class HttpPlugin implements ISender {
 
     this.express.use(cors());
     this.express.use('/api*', express.json());
-    this.express.post('/api/messages', this.onRequest.bind(this));
   }
 
   /**
@@ -118,16 +117,16 @@ export class HttpPlugin implements ISender {
   }
 
   onInit() {
-    if (process.env.NODE_ENV !== 'local' && this.credentials?.clientId) {
-      this.logger.debug(`initializing service token validator for ${this.credentials.clientId}`);
-      this.serviceTokenValidator = createServiceTokenValidator(
-        this.credentials.clientId,
-        this.credentials.tenantId,
-        undefined,
-        this.logger
-      );
+    if (this.skipAuth) {
+      // Setup /api/messages route without authentication
+      this.express.post('/api/messages', this.onRequestWithoutAuth.bind(this));
     } else {
-      this.logger.debug('no client id found, skipping service token validator');
+      // Setup /api/messages route with JWT validation middleware
+      const jwtMiddleware = withJwtValidation({
+        credentials: this.credentials,
+        logger: this.logger
+      });
+      this.express.post('/api/messages', jwtMiddleware, this.onRequest.bind(this));
     }
   }
 
@@ -222,51 +221,46 @@ export class HttpPlugin implements ISender {
     );
   }
 
+
+  /**
+   * handles incoming http request without authentication
+   * @param req the incoming http request
+   * @param res the http response
+   */
+  protected async onRequestWithoutAuth(
+    req: express.Request,
+    res: express.Response,
+    _next: express.NextFunction
+  ) {
+    const activity: Activity = req.body;
+    const mockToken: IToken = {
+      appId: '',
+      from: 'azure',
+      fromId: '',
+      serviceUrl: activity.serviceUrl || '',
+      isExpired: () => false,
+    };
+
+    this.pending[activity.id] = res;
+    this.$onActivity({
+      sender: this,
+      activity,
+      token: mockToken,
+    });
+  }
+
   /**
    * validates an incoming http request
    * @param req the incoming http request
    * @param res the http response
    */
   protected async onRequest(
-    req: express.Request,
+    req: JwtValidatedRequest,
     res: express.Response,
     _next: express.NextFunction
   ) {
-    const authorization = req.headers.authorization?.replace('Bearer ', '');
-
-    if (!authorization && process.env.NODE_ENV !== 'local') {
-      res.status(401).send('unauthorized');
-      return;
-    }
-
     const activity: Activity = req.body;
-    let token: IToken;
-    if (this.serviceTokenValidator) {
-      if (!authorization) {
-        res.status(401).send('unauthorized no authorization header');
-        return;
-      }
-
-      // Use cached validator with per-request service URL validation
-      const validationResult = await this.serviceTokenValidator.validateAccessToken(authorization, activity.serviceUrl ? {
-        validateServiceUrl: { expectedServiceUrl: activity.serviceUrl }
-      } : undefined);
-      if (validationResult) {
-        this.logger.debug(`validated service token for activity ${activity.id}`);
-        token = new JsonWebToken(authorization);
-      } else {
-        res.status(401).send('Invalid token');
-        return;
-      }
-    } else {
-      token = {
-        appId: '',
-        from: 'azure',
-        fromId: '',
-        serviceUrl: activity.serviceUrl || '',
-        isExpired: () => false,
-      };
-    }
+    const token: IToken = req.validatedToken!;
 
     this.pending[activity.id] = res;
     this.$onActivity({

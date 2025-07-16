@@ -3,7 +3,7 @@ import jwksRsa, { JwksClient, SigningKey } from 'jwks-rsa';
 
 import { ILogger } from '@microsoft/teams.common';
 
-import { assertNever } from './asserts';
+import { assertNever } from '../../utils/asserts';
 
 const DEFAULTS = {
   clockTolerance: 300 // 5 minutes
@@ -61,10 +61,10 @@ export class JwtValidator {
   /**
    * Validates a JWT token using the configured options
    */
-  validateAccessToken = async (
+  async validateAccessToken(
     rawToken: string,
     overrideOptions?: Pick<IJwtValidationOptions, 'validateServiceUrl' | 'validateScope'>
-  ): Promise<JwtPayload | null> => {
+  ): Promise<JwtPayload | null> {
     if (!rawToken) {
       throw new Error('No token provided');
     }
@@ -86,7 +86,7 @@ export class JwtValidator {
         clockTolerance: verifyOptions.clockTolerance,
         algorithms: verifyOptions.algorithms
       });
-      jwt.verify(rawToken, this.getSigningKey, verifyOptions, (err, decoded) => {
+      jwt.verify(rawToken, this.getSigningKey.bind(this), verifyOptions, (err, decoded) => {
         if (err) {
           this.logger?.error('JWT verification failed:', err);
           resolve(null);
@@ -112,9 +112,9 @@ export class JwtValidator {
         }
       });
     });
-  };
+  }
 
-  private getJwksClient = () => {
+  private getJwksClient() {
     switch (this.options.jwksUriOptions.type) {
       case 'tenantId':
         {
@@ -146,9 +146,9 @@ export class JwtValidator {
       default:
         assertNever(this.options.jwksUriOptions, `Unknown JWKS URI options type: ${this.options.jwksUriOptions}`);
     }
-  };
+  }
 
-  private getSigningKey = (header: JwtHeader, callback: SignCallback): void => {
+  private getSigningKey(header: JwtHeader, callback: SignCallback): void {
     const jwksClient = this.getJwksClient();
     jwksClient?.getSigningKey(header.kid, (err: Error | null, key: SigningKey | undefined): void => {
       if (err) {
@@ -159,9 +159,9 @@ export class JwtValidator {
       const signingKey = key?.getPublicKey();
       callback(null, signingKey);
     });
-  };
+  }
 
-  private validateIssuer = (iss: string | undefined): void => {
+  private validateIssuer(iss: string | undefined): void {
     if (!this.options.validateIssuer) {
       return; // No issuer validation configured
     }
@@ -206,9 +206,9 @@ export class JwtValidator {
         throw new Error(`Token issuer '${iss}' not in allowed tenant IDs: ${allowedTenantIds.join(', ')}`);
       }
     }
-  };
+  }
 
-  private validateScope = (scp: string | undefined, overrideValidateScope?: { requiredScope: string }): void => {
+  private validateScope(scp: string | undefined, overrideValidateScope?: { requiredScope: string }): void {
     const validateScope = overrideValidateScope || this.options.validateScope;
     if (validateScope) {
       const scopes = scp ?? '';
@@ -216,9 +216,9 @@ export class JwtValidator {
         throw new Error(`Token missing required scope: ${validateScope.requiredScope}`);
       }
     }
-  };
+  }
 
-  private validateServiceUrl = (serviceUrl: string | undefined, overrideValidateServiceUrl?: { expectedServiceUrl: string }): void => {
+  private validateServiceUrl(serviceUrl: string | undefined, overrideValidateServiceUrl?: { expectedServiceUrl: string }): void {
     const validateServiceUrl = overrideValidateServiceUrl || this.options.validateServiceUrl;
     if (validateServiceUrl) {
       if (!serviceUrl) {
@@ -232,16 +232,16 @@ export class JwtValidator {
         throw new Error(`Service URL mismatch. Token: ${normalizedTokenUrl}, Expected: ${normalizedExpectedUrl}`);
       }
     }
-  };
+  }
 
-  private performCustomValidations = (
+  private performCustomValidations(
     payload: JwtPayload,
     overrideOptions?: Pick<IJwtValidationOptions, 'validateServiceUrl' | 'validateScope'>
-  ): void => {
+  ): void {
     this.validateIssuer(payload.iss);
     this.validateScope(payload.scp, overrideOptions?.validateScope);
     this.validateServiceUrl(payload.serviceurl, overrideOptions?.validateServiceUrl);
-  };
+  }
 }
 
 // Factory functions for common scenarios
