@@ -60,17 +60,9 @@ export function withJwtValidation(params: JwtValidationParams) {
         res.status(401).send('Invalid token');
         return;
       }
-    } else {
-      // For local development, create a mock token
-      const activity: Activity = req.body;
-      req.validatedToken = {
-        appId: '',
-        from: 'azure',
-        fromId: '',
-        serviceUrl: activity.serviceUrl || '',
-        isExpired: () => false,
-      };
-      next();
     }
+
+    logger.debug('Skipping JWT validation in local environment');
+    next();
   };
 }

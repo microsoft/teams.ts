@@ -230,7 +230,18 @@ export class HttpPlugin implements ISender {
     _next: express.NextFunction
   ) {
     const activity: Activity = req.body;
-    const token: IToken = req.validatedToken!;
+    let token: IToken | undefined;
+    if (req.validatedToken) {
+      token = req.validatedToken;
+    } else {
+      token = {
+        appId: '',
+        from: 'azure',
+        fromId: '',
+        serviceUrl: activity.serviceUrl || '',
+        isExpired: () => false,
+      };
+    }
 
     this.pending[activity.id] = res;
     this.$onActivity({
