@@ -3,7 +3,7 @@ import jwksRsa, { JwksClient, SigningKey } from 'jwks-rsa';
 
 import { ILogger } from '@microsoft/teams.common';
 
-import { asserts } from '.';
+import { assertNever } from './asserts';
 
 const DEFAULTS = {
   clockTolerance: 300 // 5 minutes
@@ -144,7 +144,7 @@ export class JwtValidator {
           return this.jwksCache.get(this.options.jwksUriOptions.uri)!;
         }
       default:
-        asserts.assertNever(this.options.jwksUriOptions, `Unknown JWKS URI options type: ${this.options.jwksUriOptions}`);
+        assertNever(this.options.jwksUriOptions, `Unknown JWKS URI options type: ${this.options.jwksUriOptions}`);
     }
   };
 
