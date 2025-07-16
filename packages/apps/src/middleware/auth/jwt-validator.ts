@@ -1,7 +1,7 @@
 import jwt, { type JwtHeader, type JwtPayload, type SignCallback } from 'jsonwebtoken';
 import jwksRsa, { JwksClient, SigningKey } from 'jwks-rsa';
 
-import { ILogger } from '@microsoft/teams.common';
+import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
 import { assertNever } from '../../utils/asserts';
 
@@ -55,7 +55,7 @@ export class JwtValidator {
 
   constructor(options: IJwtValidationOptions, logger?: ILogger) {
     this.options = options;
-    this.logger = logger;
+    this.logger = logger ?? new ConsoleLogger('jwt-validator');
   }
 
   /**

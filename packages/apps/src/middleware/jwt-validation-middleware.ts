@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { Activity, Credentials, IToken, JsonWebToken } from '@microsoft/teams.api';
-import { ILogger } from '@microsoft/teams.common';
+import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
 import { createServiceTokenValidator } from './auth/jwt-validator';
 
@@ -15,7 +15,7 @@ export type JwtValidatedRequest = express.Request & {
 };
 
 export function withJwtValidation(params: JwtValidationParams) {
-  const { credentials, logger } = params;
+  const { credentials, logger = new ConsoleLogger('jwt-validation-middleware') } = params;
 
   // Create service token validator if credentials are provided and not in local env
   const serviceTokenValidator = (process.env.NODE_ENV !== 'local' && credentials?.clientId)
