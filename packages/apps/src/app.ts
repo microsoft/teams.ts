@@ -2,6 +2,7 @@ import { AxiosError } from 'axios';
 
 import {
   ActivityLike,
+  ChannelID,
   ConversationReference,
   Credentials,
   IToken,
@@ -512,5 +513,34 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     const graphResponse = await this.api.bots.token.getGraph(this.credentials);
     this._tokens.graph = new JsonWebToken(graphResponse.access_token);
+  }
+
+  protected async getUserToken(
+    channelId: ChannelID,
+    userId: string
+  ): Promise<string | undefined> {
+    const res = await this.api.users.token.get({
+      channelId,
+      userId,
+      connectionName: this.oauth.defaultConnectionName,
+    });
+
+    return res.token;
+  }
+
+  protected async getOrRefreshTenantToken(tenantId?: string) {
+    let appToken =
+      this.tenantTokens.get(tenantId || 'common') || this._tokens.graph?.toString();
+    if (this.credentials && !appToken) {
+      const { access_token } = await this.api.bots.token.getGraph({
+        ...this.credentials,
+        tenantId: tenantId,
+      });
+
+      appToken = access_token;
+      this.tenantTokens.set(tenantId || 'common', access_token);
+    }
+
+    return appToken;
   }
 }

@@ -33,28 +33,19 @@ export async function $process<TPlugin extends IPlugin>(
 
   await this.refreshTokens();
 
+  // Get User token
   let userToken: string | undefined;
-  let appToken =
-    this.tenantTokens.get(token.tenantId || 'common') || this._tokens.graph?.toString();
 
   try {
-    const res = await this.api.users.token.get({
-      channelId: activity.channelId,
-      userId: activity.from.id,
-      connectionName: this.oauth.defaultConnectionName,
-    });
+    userToken = await this.getUserToken(activity.channelId, activity.from.id);
+  } catch (err) {
+    // noop
+  }
 
-    userToken = res.token;
 
-    if (this.credentials && !appToken) {
-      const { access_token } = await this.api.bots.token.getGraph({
-        ...this.credentials,
-        tenantId: event.token.tenantId,
-      });
-
-      appToken = access_token;
-      this.tenantTokens.set(token.tenantId || 'common', access_token);
-    }
+  let appToken: string | undefined;
+  try {
+    appToken = await this.getOrRefreshTenantToken(token.tenantId || 'common');
   } catch (err) {
     // noop
   }
