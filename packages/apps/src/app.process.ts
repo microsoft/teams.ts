@@ -33,7 +33,6 @@ export async function $process<TPlugin extends IPlugin>(
 
   await this.refreshTokens();
 
-  // Get User token
   let userToken: string | undefined;
 
   try {
