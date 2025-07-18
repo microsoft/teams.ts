@@ -518,7 +518,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected async getUserToken(
     channelId: ChannelID,
     userId: string
-  ): Promise<string | undefined> {
+  ) {
     const res = await this.api.users.token.get({
       channelId,
       userId,
