@@ -51,11 +51,6 @@ export function withJwtValidation(params: JwtValidationParams) {
       return;
     }
 
-    if (!authorization) {
-      res.status(401).send('unauthorized no authorization header');
-      return;
-    }
-
     const activity: Activity = req.body;
     // Use cached validator with per-request service URL validation
     const validationResult = await serviceTokenValidator.validateAccessToken(authorization, activity.serviceUrl ? {
