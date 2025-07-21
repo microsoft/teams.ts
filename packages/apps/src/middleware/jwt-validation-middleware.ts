@@ -3,7 +3,7 @@ import express from 'express';
 import { Activity, Credentials, IToken, JsonWebToken } from '@microsoft/teams.api';
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
-import { createServiceTokenValidator } from './auth/jwt-validator';
+import { createServiceTokenValidator, JwtValidator } from './auth/jwt-validator';
 
 export type JwtValidationParams = {
   credentials?: Credentials;
@@ -18,15 +18,19 @@ export function withJwtValidation(params: JwtValidationParams) {
   const { credentials, logger: inputLogger } = params;
   const logger = inputLogger?.child('jwt-validation-middleware') ?? new ConsoleLogger('jwt-validation-middleware');
 
-  // Create service token validator if credentials are provided and not in local env
-  const serviceTokenValidator = (process.env.NODE_ENV !== 'local' && credentials?.clientId)
-    ? createServiceTokenValidator(
+  // Create service token validator if credentials are provided
+  let serviceTokenValidator: JwtValidator | null;
+  if (credentials?.clientId) {
+    serviceTokenValidator = createServiceTokenValidator(
       credentials.clientId,
       credentials.tenantId,
       undefined,
       logger
-    )
-    : null;
+    );
+  } else {
+    logger.debug('No credentials provided, skipping service token validation');
+    serviceTokenValidator = null;
+  }
 
   return async (
     req: JwtValidatedRequest,
