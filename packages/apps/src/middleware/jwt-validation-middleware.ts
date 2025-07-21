@@ -33,12 +33,6 @@ export function withJwtValidation(params: JwtValidationParams) {
     res: express.Response,
     next: express.NextFunction
   ) => {
-    if (process.env.NODE_ENV === 'local') {
-      logger.debug('Skipping JWT validation in local environment');
-      next();
-      return;
-    }
-
     const authorization = req.headers.authorization?.replace('Bearer ', '');
 
     if (!authorization) {
