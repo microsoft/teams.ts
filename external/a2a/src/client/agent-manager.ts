@@ -27,7 +27,7 @@ export class AgentManager {
 
     constructor(options: AgentManagerOptions = {}) {
         const { agentCards, taskStoreFactory, ...sharedOptions } = options;
-        this._logger = sharedOptions.logger ?? new ConsoleLogger('A2AAgentManager');
+        this._logger = sharedOptions.logger?.child('A2AAgentManager') ?? new ConsoleLogger('A2AAgentManager');
         this._defaultOptions = sharedOptions;
         this._taskStoreFactory = taskStoreFactory ?? new InMemoryTaskStoreFactory();
         if (agentCards) {

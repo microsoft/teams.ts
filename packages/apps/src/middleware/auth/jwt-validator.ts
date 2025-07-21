@@ -55,7 +55,7 @@ export class JwtValidator {
 
   constructor(options: IJwtValidationOptions, logger?: ILogger) {
     this.options = options;
-    this.logger = logger ?? new ConsoleLogger('jwt-validator');
+    this.logger = logger?.child('jwt-validator') ?? new ConsoleLogger('jwt-validator');
   }
 
   /**

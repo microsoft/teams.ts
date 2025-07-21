@@ -15,7 +15,8 @@ export type JwtValidatedRequest = express.Request & {
 };
 
 export function withJwtValidation(params: JwtValidationParams) {
-  const { credentials, logger = new ConsoleLogger('jwt-validation-middleware') } = params;
+  const { credentials, logger: inputLogger } = params;
+  const logger = inputLogger?.child('jwt-validation-middleware') ?? new ConsoleLogger('jwt-validation-middleware');
 
   // Create service token validator if credentials are provided and not in local env
   const serviceTokenValidator = (process.env.NODE_ENV !== 'local' && credentials?.clientId)
