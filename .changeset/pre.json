@@ -32,6 +32,7 @@
     "@tests/a2a": "0.0.0"
   },
   "changesets": [
+    "chatty-numbers-knock",
     "evil-cycles-change",
     "four-bats-enter",
     "giant-swans-build",

@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch A2A Client",
+      "request": "launch",
+      "runtimeArgs": ["run-script", "dev", "--preserve-symlinks"],
+      "cwd": "${workspaceFolder}/tests/mcpclient",
+      "runtimeExecutable": "npm",
+      "type": "node",
+      "env": {
+        "LOG_LEVEL": "debug"
+      }
+    }
+  ]
+}
