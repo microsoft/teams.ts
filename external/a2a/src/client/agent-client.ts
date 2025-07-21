@@ -71,7 +71,7 @@ export class AgentClient {
         this._agentCard = options.agentCard ?? null;
         this._fetchImpl = options.fetchImpl ?? fetch;
         this._a2aUrl = this._agentCard?.url ?? null;
-        this._logger = options.logger?.child('A2AClient') ?? new ConsoleLogger('A2AAgentClient');
+        this._logger = options.logger?.child('A2AAgentClient') ?? new ConsoleLogger('A2AAgentClient');
     }
 
     /**
