@@ -537,7 +537,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
   protected async getOrRefreshTenantToken(tenantId?: string) {
     let appToken =
-      this.tenantTokens.get(tenantId || 'common');
+      this.tenantTokens.get(tenantId || 'common') || this._tokens.graph?.toString();
     if (this.credentials && !appToken) {
       const { access_token } = await this.api.bots.token.getGraph({
         ...this.credentials,
