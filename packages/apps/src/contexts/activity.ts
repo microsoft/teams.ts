@@ -265,6 +265,7 @@ export class ActivityContext<T extends Activity = Activity>
         type: 'message',
         inputHint: 'acceptingInput',
         recipient: this.activity.from,
+        conversation: convo.conversation,
         attachments: [
           cardAttachment('oauth', {
             text: oauthCardText,
