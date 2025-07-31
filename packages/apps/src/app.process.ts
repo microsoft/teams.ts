@@ -112,6 +112,7 @@ export async function $process<TPlugin extends IPlugin>(
     appId: this.id || '',
     log: this.log,
     tokens: this.tokens,
+    userToken: userToken,
     ref,
     storage: this.storage,
     isSignedIn: !!userToken,

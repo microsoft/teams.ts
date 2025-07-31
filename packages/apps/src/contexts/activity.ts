@@ -76,6 +76,11 @@ export interface IActivityContextOptions<T extends Activity = Activity> {
   connectionName: string;
 
   /**
+   * the user token for the activity context
+   */
+  userToken?: string;
+
+  /**
    * extra data
    */
   [key: string]: any;
