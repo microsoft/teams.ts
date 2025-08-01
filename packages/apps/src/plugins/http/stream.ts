@@ -98,17 +98,17 @@ export class HttpStream implements IStreamer {
   protected async flush() {
     // if locked or no queue, return early
     if (!this.queue.length || this._flushing) return;
-    
-    if (this._timeout) {
-      clearTimeout(this._timeout);
-      this._timeout = undefined;
-    }
 
-    let i = 0;
     this._flushing = true;
-    let res;
 
     try {
+      if (this._timeout) {
+        clearTimeout(this._timeout);
+        this._timeout = undefined;
+      }
+
+      let i = 0;
+      
       while (this.queue.length && i < 10) {
         const activity = this.queue.shift();
 
@@ -142,22 +142,22 @@ export class HttpStream implements IStreamer {
         .withText(this.text)
         .addStreamUpdate(this.index + 1);
 
-      res = await promises.retry(() => this.send(activity), {
+      const res = await promises.retry(() => this.send(activity), {
         logger: this._logger
       });
+
+      this.events.emit('chunk', res);
+      this.index++;
+
+      if (!this.id) {
+        this.id = res.id;
+      }
+
+      if (this.queue.length) {
+        this._timeout = setTimeout(this.flush.bind(this), 500);
+      }
     } finally {
       this._flushing = false;
-    }
-
-    this.events.emit('chunk', res);
-    this.index++;
-
-    if (!this.id) {
-      this.id = res.id;
-    }
-
-    if (this.queue.length) {
-      this._timeout = setTimeout(this.flush.bind(this), 500);
     }
   }
 
