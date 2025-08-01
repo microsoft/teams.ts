@@ -31,6 +31,7 @@ export class HttpStream implements IStreamer {
   private _result?: SentActivity;
   private _timeout?: NodeJS.Timeout;
   private _logger: ILogger;
+  private _flushing: boolean = false;
 
   constructor(client: Client, ref: ConversationReference, logger?: ILogger) {
     this.client = client;
@@ -95,50 +96,58 @@ export class HttpStream implements IStreamer {
   }
 
   protected async flush() {
-    if (!this.queue.length) return;
+    // if locked or no queue, return early
+    if (!this.queue.length || this._flushing) return;
+    
     if (this._timeout) {
       clearTimeout(this._timeout);
       this._timeout = undefined;
     }
 
     let i = 0;
+    this._flushing = true;
+    let res;
 
-    while (this.queue.length && i < 10) {
-      const activity = this.queue.shift();
+    try {
+      while (this.queue.length && i < 10) {
+        const activity = this.queue.shift();
 
-      if (!activity) continue;
+        if (!activity) continue;
 
-      if (activity.text) {
-        this.text += activity.text;
+        if (activity.text) {
+          this.text += activity.text;
+        }
+
+        if (activity.attachments) {
+          this.attachments = [...(this.attachments || []), ...activity.attachments];
+        }
+
+        if (activity.channelData) {
+          this.channelData = {
+            ...this.channelData,
+            ...activity.channelData,
+          };
+        }
+
+        if (activity.entities) {
+          this.entities = [...(this.entities || []), ...activity.entities];
+        }
+
+        i++;
       }
 
-      if (activity.attachments) {
-        this.attachments = [...(this.attachments || []), ...activity.attachments];
-      }
+      if (i === 0) return;
 
-      if (activity.channelData) {
-        this.channelData = {
-          ...this.channelData,
-          ...activity.channelData,
-        };
-      }
+      const activity = new TypingActivity({ id: this.id })
+        .withText(this.text)
+        .addStreamUpdate(this.index + 1);
 
-      if (activity.entities) {
-        this.entities = [...(this.entities || []), ...activity.entities];
-      }
-
-      i++;
+      res = await promises.retry(() => this.send(activity), {
+        logger: this._logger
+      });
+    } finally {
+      this._flushing = false;
     }
-
-    if (i === 0) return;
-
-    const activity = new TypingActivity({ id: this.id })
-      .withText(this.text)
-      .addStreamUpdate(this.index + 1);
-
-    const res = await promises.retry(() => this.send(activity), {
-      logger: this._logger
-    });
 
     this.events.emit('chunk', res);
     this.index++;
