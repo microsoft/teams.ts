@@ -45,4 +45,19 @@ export class TemplateAttribute implements IProjectAttribute {
       targetDir
     );
   }
+
+  python(targetDir: string) {
+    fs.mkdirSync(targetDir, { recursive: true });
+
+    return new Copy(
+      path.resolve(
+        url.fileURLToPath(import.meta.url),
+        '../..',
+        'templates',
+        'python',
+        this.name
+      ),
+      targetDir
+    );
+  }
 }

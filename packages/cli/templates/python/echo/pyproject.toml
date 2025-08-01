@@ -1,0 +1,16 @@
+[project]
+name = "echo-bot"
+version = "0.1.0"
+description = "A Microsoft Teams echo bot using teams.py"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.12"
+
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.dependencies]
+dotenv = ">=0.9.9"
+microsoft-teams-app = { git = "https://github.com/microsoft/teams.py.git", subdirectory = "packages/app" }
+microsoft-teams-api = { git = "https://github.com/microsoft/teams.py.git", subdirectory = "packages/api" }
+microsoft-teams-common = { git = "https://github.com/microsoft/teams.py.git", subdirectory = "packages/common" }
+microsoft-teams-cards = { git = "https://github.com/microsoft/teams.py.git", subdirectory = "packages/cards" }
