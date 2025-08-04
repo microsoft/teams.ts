@@ -76,6 +76,11 @@ export interface IActivityContextOptions<T extends Activity = Activity> {
   connectionName: string;
 
   /**
+   * the user token for the activity context
+   */
+  userToken?: string;
+
+  /**
    * extra data
    */
   [key: string]: any;
@@ -265,6 +270,7 @@ export class ActivityContext<T extends Activity = Activity>
         type: 'message',
         inputHint: 'acceptingInput',
         recipient: this.activity.from,
+        conversation: convo.conversation,
         attachments: [
           cardAttachment('oauth', {
             text: oauthCardText,
