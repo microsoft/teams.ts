@@ -16,10 +16,13 @@ export function New(context: IContext): CommandModule<{}, {}> {
     aliases: 'n',
     describe: `create a new app project${language ? ` in ${language}` : ''}. You can update language with the "set-lang" command.`,
     builder: (b) => {
-      return b
+      let builder = b
         .command(Typescript(context))
-        .command(CSharp(context))
-        .command(Python(context))
+        .command(CSharp(context));
+      if (process.env.ENABLE_EXPERIMENTAL_PYTHON_OPTIONS === 'true' || process.env.ENABLE_EXPERIMENTAL_PYTHON_OPTIONS === '1') {
+        builder = builder.command(Python(context));
+      }
+      return builder
         .strict()
         .demandCommand(1, 'You must specify a project type');
     },

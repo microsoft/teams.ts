@@ -50,8 +50,7 @@
         "type": "debugpy",
         "request": "launch",
         "program": "${workspaceFolder}/src/main.py",
-        "console": "integratedTerminal",
-        "python": "${workspaceFolder}/.venv/Scripts/python.exe"
+        "console": "integratedTerminal"
     },
     {
       "name": "Start Test Tool",

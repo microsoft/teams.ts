@@ -5,26 +5,28 @@ import { z } from 'zod';
 import { IContext } from '../../context';
 import { Settings } from '../../settings';
 
-
 const ArgsSchema = z.object({
     language: z.string(),
   });
-
 
 export function SetLang(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema>> {
   const language = Settings.load().language ?? '';
   const currentLanguage = language ? `It is currently set to ${language}.` : '';
 
+  const pythonEnabled = process.env.ENABLE_EXPERIMENTAL_PYTHON_OPTIONS === 'true' || process.env.ENABLE_EXPERIMENTAL_PYTHON_OPTIONS === '1';
+  const choices = pythonEnabled
+    ? ['ts', 'cs', 'py', 'typescript', 'csharp', 'python']
+    : ['ts', 'cs', 'typescript', 'csharp'];
 
   return {
     command: 'set-lang <language>',
-    describe: `set the programming language for the project (typescript, csharp, or python). ${currentLanguage}`,
+    describe: `set the programming language for the project (typescript, csharp${pythonEnabled ? ', or python' : ''}). ${currentLanguage}`,
     builder: (b) => {
       return b
         .positional('language', {
-          describe: 'programming language to use (typescript, csharp, or python)',
+          describe: `programming language to use (typescript, csharp${pythonEnabled ? ', or python' : ''})`,
           type: 'string',
-          choices: ['ts', 'cs', 'py', 'typescript', 'csharp', 'python'],
+          choices,
           demandOption: true,
         });
     },
@@ -34,11 +36,11 @@ export function SetLang(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchem
         settings.language = 'typescript';
       } else if (['cs', 'csharp'].includes(language)) {
         settings.language = 'csharp';
-      } else if (['py', 'python'].includes(language)) {
+      } else if (pythonEnabled && ['py', 'python'].includes(language)) {
         settings.language = 'python';
       } else {
         throw new Error(
-          `Unknown language "${language}". Supported values: ts, typescript, cs, csharp, py, python.`
+          `Unknown language "${language}". Supported values: ts, typescript, cs, csharp${pythonEnabled ? ', py, python' : ''}.`
         );
       }
       settings.save();

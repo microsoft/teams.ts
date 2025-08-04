@@ -49,7 +49,11 @@ export class Project implements IProject {
     if (fs.readdirSync(process.cwd()).some(file => file.endsWith('.sln'))) {
       return 'csharp';
     }
-    if (fs.existsSync(path.join(process.cwd(), 'pyproject.toml'))) {
+    if (
+      fs.existsSync(path.join(process.cwd(), 'pyproject.toml')) &&
+      (process.env.ENABLE_EXPERIMENTAL_PYTHON_OPTIONS === 'true' ||
+        process.env.ENABLE_EXPERIMENTAL_PYTHON_OPTIONS === '1')
+    ) {
       return 'python';
     }
     return undefined;
@@ -63,7 +67,7 @@ export class Project implements IProject {
     const language = this.detectLanguage();
 
     if (!language) {
-      throw new Error('Are you in the right folder? Expected a package.json (Typescript), pyproject.toml (Python), or .sln (C#) file.');
+      throw new Error('Are you in the right folder? Expected a package.json (Typescript), .sln (C#), or pyproject.toml (Python, requires ENABLE_EXPERIMENTAL_PYTHON_OPTIONS=true).');
     }
 
     return new ProjectBuilder()
