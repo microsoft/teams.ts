@@ -13,9 +13,6 @@ async def handle_greeting(ctx: ActivityContext[MessageActivity]) -> None:
 
 @app.on_message
 async def handle_message(ctx: ActivityContext[MessageActivity]):
-    """Handle message activities using the new generated handler system."""
-    print(f"[GENERATED onMessage] Message received: {ctx.activity.text}")
-    print(f"[GENERATED onMessage] From: {ctx.activity.from_}")
 
     await ctx.send(f"You said '{ctx.activity.text}'")
 

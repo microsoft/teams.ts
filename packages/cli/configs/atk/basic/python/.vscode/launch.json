@@ -49,7 +49,7 @@
         "name": "Start",
         "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder}/src/main.py",
+        "program": "poetry install; poetry run python src/main.py",
         "console": "integratedTerminal",
     },
     {

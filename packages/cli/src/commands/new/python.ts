@@ -37,7 +37,7 @@ export function Python(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
           describe: 'the apps name',
           demandOption: true,
           coerce: (name: string) => {
-            return name
+            return name // normalize: trim, lowercase, replace spaces and invalid chars for package naming
               .trim()
               .toLowerCase()
               .replace(/\s+/g, '-')
@@ -141,15 +141,45 @@ export function Python(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
           .toString()
       );
 
+      const poetryCheck = cp.spawnSync(process.platform === 'win32' ? 'where' : 'which', ['poetry'], {
+        encoding: 'utf-8',
+        shell: true,
+      });
+      if (poetryCheck.status !== 0) {
+        throw new Error(
+          '"poetry" is required but was not found in your PATH. Please install poetry (https://python-poetry.org/docs/#installation) and try again.'
+        );
+      }
+
       if (start) {
-        console.log(`cd ${name} && poetry install && poetry run python src/main.py`);
-        cp.spawnSync(`cd ${name} && poetry install && poetry run python src/main.py`, {
+        console.log(`cd ${name}; poetry install; poetry run python src/main.py`);
+
+        // Run poetry install in the directory `name`
+        const install = cp.spawnSync('poetry', ['install'], {
           stdio: 'inherit',
           shell: true,
+          cwd: name,
         });
+
+        if (install.status !== 0) {
+          console.error('poetry install failed');
+          process.exit(install.status);
+        }
+
+        // Run python script via poetry in the directory `name`
+        const run = cp.spawnSync('poetry', ['run', 'python', 'src/main.py'], {
+          stdio: 'inherit',
+          shell: true,
+          cwd: name,
+        });
+
+        if (run.status !== 0) {
+          console.error('poetry run python src/main.py failed');
+          process.exit(run.status);
+        }
       } else {
         console.log('Next steps to start the app:');
-        console.log(`cd ${name} && poetry install && poetry run python src/main.py`);
+        console.log(`cd ${name}; poetry install; poetry run python src/main.py`);
       }
     },
   };
