@@ -3,7 +3,8 @@
 const fs = require("fs");
 const path = require("path");
 
-const DIST_DIR = path.join(__dirname, "../dist");
+// Get the directory where this script is being run from (should be the package directory)
+const distFolder = process.argv[2] || path.join(process.cwd(), "dist");
 
 function fixEsmImportPaths(filePath: string) {
   let content = fs.readFileSync(filePath, "utf8");
@@ -51,8 +52,12 @@ function walk(dir: string) {
   }
 }
 
-console.log("Updating ESM imports...");
-walk(DIST_DIR);
-console.log(
-  "✅ ESM imports in .mjs files have been fixed to include .mjs extensions.",
-);
+if (!fs.existsSync(distFolder)) {
+  console.error(`❌ Error: Directory ${distFolder} does not exist`);
+} else {
+  console.log("Updating ESM imports...");
+  walk(distFolder);
+  console.log(
+    "✅ ESM imports in .mjs files have been fixed to include .mjs extensions.",
+  );
+}

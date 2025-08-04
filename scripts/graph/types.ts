@@ -6,7 +6,7 @@ import * as prettier from 'prettier';
 import * as ts from 'typescript';
 
 import prettierConfig from './prettier.config';
-import { allowListTiny as allowList } from './allow-list';
+import { allowList } from './allow-list';
 
 type ApiVersion = 'v1.0' | 'beta';
 
