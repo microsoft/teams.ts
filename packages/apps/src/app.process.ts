@@ -124,8 +124,8 @@ export async function $process<TPlugin extends IPlugin>(
   }
 
   const send = context.send.bind(context);
-  context.send = async (activity: ActivityLike) => {
-    const res = await send(activity);
+  context.send = async (activity: ActivityLike, conversationRef?: ConversationReference) => {
+    const res = await send(activity, conversationRef);
 
     this.onActivitySent(sender, {
       ...ref,
