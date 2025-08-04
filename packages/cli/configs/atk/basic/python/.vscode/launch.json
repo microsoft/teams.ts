@@ -49,12 +49,13 @@
         "name": "Start",
         "type": "debugpy",
         "request": "launch",
-        "program": "poetry install; poetry run python src/main.py",
+        "program": "${workspaceFolder}/src/main.py",
         "console": "integratedTerminal",
+        "python": "${workspaceFolder}/.venv/Scripts/python.exe"
     },
     {
       "name": "Start Test Tool",
-      "type": "pwa-node",
+      "type": "node",
       "request": "launch",
       "runtimeExecutable": "${workspaceFolder}/devTools/teamsapptester/node_modules/.bin/teamsapptester",
       "console": "integratedTerminal",

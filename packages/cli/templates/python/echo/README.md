@@ -5,14 +5,13 @@ This is a minimal Microsoft Teams echo bot template using [microsoft-teams](http
 ## Structure
 
 - `src/main.py`: Main application code for the Teams bot.
-- `pyproject.toml`: Project dependencies and metadata (use [Poetry](https://python-poetry.org/) for dependency management).
+- `pyproject.toml`: Project dependencies and metadata (use [uv](https://github.com/astral-sh/uv) for dependency management).
 - `apppackage/`: Teams app manifest and related files.
 
 ## Getting Started
 
-1. Install [Poetry](https://python-poetry.org/docs/#installation).
+1. Install [uv](https://github.com/astral-sh/uv).
 2. Run:
    ```
-   poetry install
-   poetry run python src/main.py
+   uv venv && uv pip install -e . && uv run src/main.py
    ```

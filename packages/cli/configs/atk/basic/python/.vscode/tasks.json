@@ -10,7 +10,8 @@
         "Validate prerequisites",
         "Start local tunnel",
         "Provision",
-        "Deploy"
+        "Deploy",
+        "setup-env"
       ],
       "dependsOrder": "sequence"
     },
@@ -68,10 +69,21 @@
       }
     },
     {
+      "label": "setup-env",
+      "type": "shell",
+      "command": "if (!(Test-Path -Path .venv -PathType Container)) { uv venv }; uv pip install -e .; .venv\\Scripts\\Activate.ps1",
+      "problemMatcher": [],
+      "group": {
+          "kind": "build",
+          "isDefault": true
+      }
+    },
+    {
       "label": "Start Teams App (Test Tool)",
       "dependsOn": [
         "Validate prerequisites (Test Tool)",
-        "Deploy (Test Tool)"
+        "Deploy (Test Tool)",
+        "setup-env"
       ],
       "dependsOrder": "sequence"
     },
