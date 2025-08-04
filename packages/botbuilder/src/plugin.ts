@@ -7,7 +7,7 @@ import {
 
 import express from 'express';
 
-import { $Activity, Activity, IToken, JsonWebToken } from '@microsoft/teams.api';
+import { $Activity, Activity, Credentials, IToken } from '@microsoft/teams.api';
 import {
   Dependency,
   Event,
@@ -19,6 +19,7 @@ import {
   Plugin,
   manifest,
 } from '@microsoft/teams.apps';
+import { JwtValidatedRequest } from '@microsoft/teams.apps/dist/middleware';
 import { ILogger } from '@microsoft/teams.common';
 import * as $http from '@microsoft/teams.common/http';
 
@@ -43,6 +44,12 @@ export class BotBuilderPlugin extends HttpPlugin implements ISender {
   @Dependency()
   declare readonly manifest: Partial<manifest.Manifest>;
 
+  // Even though we don't use this in this plugin, the plugin chain
+  // has it, and the dependency injection system only looks at the surface
+  // level dependencies of the plugin.
+  @Dependency({ optional: true })
+  declare readonly credentials?: Credentials;
+
   @Dependency({ optional: true })
   declare readonly botToken?: () => IToken;
 
@@ -65,6 +72,7 @@ export class BotBuilderPlugin extends HttpPlugin implements ISender {
   }
 
   onInit() {
+    super.onInit();
     if (!this.adapter) {
       const clientId = this.credentials?.clientId;
       const clientSecret =
@@ -89,7 +97,7 @@ export class BotBuilderPlugin extends HttpPlugin implements ISender {
   }
 
   protected async onRequest(
-    req: express.Request,
+    req: JwtValidatedRequest,
     res: express.Response,
     next: express.NextFunction
   ) {
@@ -97,12 +105,19 @@ export class BotBuilderPlugin extends HttpPlugin implements ISender {
       throw new Error('plugin not registered');
     }
 
+    const activity: Activity = req.body;
     try {
-      const authorization = req.headers.authorization?.replace('Bearer ', '');
-
-      if (!authorization) {
-        res.status(401).send('unauthorized');
-        return;
+      let token: IToken | undefined;
+      if (req.validatedToken) {
+        token = req.validatedToken;
+      } else {
+        token = {
+          appId: '',
+          from: 'azure',
+          fromId: '',
+          serviceUrl: activity.serviceUrl || '',
+          isExpired: () => false,
+        };
       }
 
       await this.adapter.process(req, res, async (context) => {
@@ -119,7 +134,7 @@ export class BotBuilderPlugin extends HttpPlugin implements ISender {
         this.pending[context.activity.id] = res;
         this.$onActivity({
           sender: this,
-          token: new JsonWebToken(authorization),
+          token,
           activity: new $Activity(context.activity as any) as Activity,
         });
       });
