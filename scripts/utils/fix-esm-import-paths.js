@@ -6,12 +6,12 @@ const path = require("path");
 // Get the directory where this script is being run from (should be the package directory)
 const distFolder = process.argv[2] || path.join(process.cwd(), "dist");
 
-function fixEsmImportPaths(filePath: string) {
+function fixEsmImportPaths(filePath) {
   let content = fs.readFileSync(filePath, "utf8");
   // Regex to match extensionless relative imports (with minified code support)
   content = content.replace(
     /(import\*?\s*\*?\s*as\s+[\w$]+\s*from\s*['"])(\.\/[\w\-\/]+)(['"])/g,
-    (match: string, p1: string, p2: string, p3: string) => {
+    (match, p1, p2, p3) => {
       if (/\.[mc]?[jt]s$/.test(p2)) return match;
       const absImportPath = path.resolve(path.dirname(filePath), p2);
       if (fs.existsSync(absImportPath + ".mjs")) {
@@ -26,7 +26,7 @@ function fixEsmImportPaths(filePath: string) {
   // Regex to match extensionless dynamic imports (simple ones like import('./foo'))
   content = content.replace(
     /(import\(['"])(\.\/[\w\-\/]+)(['"]\))/g,
-    (match: string, p1: string, p2: string, p3: string) => {
+    (match, p1, p2, p3) => {
       if (/\.[mc]?[jt]s$/.test(p2)) return match;
       const absImportPath = path.resolve(path.dirname(filePath), p2);
       if (fs.existsSync(absImportPath + ".mjs")) {
@@ -41,7 +41,7 @@ function fixEsmImportPaths(filePath: string) {
   fs.writeFileSync(filePath, content, "utf8");
 }
 
-function walk(dir: string) {
+function walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
@@ -52,12 +52,17 @@ function walk(dir: string) {
   }
 }
 
-if (!fs.existsSync(distFolder)) {
-  console.error(`❌ Error: Directory ${distFolder} does not exist`);
-} else {
-  console.log("Updating ESM imports...");
-  walk(distFolder);
-  console.log(
-    "✅ ESM imports in .mjs files have been fixed to include .mjs extensions.",
-  );
+module.exports = { walk };
+
+// Run if called directly
+if (require.main === module) {
+  if (!fs.existsSync(distFolder)) {
+    console.error(`❌ Error: Directory ${distFolder} does not exist`);
+  } else {
+    console.log("Updating ESM imports...");
+    walk(distFolder);
+    console.log(
+      "✅ ESM imports in .mjs files have been fixed to include .mjs extensions.",
+    );
+  }
 }
