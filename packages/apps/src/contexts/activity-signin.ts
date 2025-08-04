@@ -7,7 +7,7 @@ import {
 import { IActivityContext } from './activity';
 
 export interface IActivitySignInContext
-  extends IActivityContext<ISignInTokenExchangeInvokeActivity | ISignInVerifyStateInvokeActivity> {
+  extends IActivityContext<ISignInTokenExchangeInvokeActivity | ISignInVerifyStateInvokeActivity, any> {
   /**
    * the token response of the signin request
    */

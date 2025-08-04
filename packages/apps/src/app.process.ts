@@ -70,6 +70,7 @@ export async function $process<TPlugin extends IPlugin>(
 
   const routes = this.router.select(activity);
 
+  let pluginContexts: {} = {};
   for (let i = this.plugins.length - 1; i > -1; i--) {
     const plugin = this.plugins[i];
 
@@ -84,6 +85,19 @@ export async function $process<TPlugin extends IPlugin>(
 
         return next();
       });
+    }
+
+    if (plugin.buildActivityContext) {
+      const ctx = plugin.buildActivityContext(activity);
+      for (const key in ctx) {
+        if (key in pluginContexts) {
+          this.log.warn(`Plugin context key "${key}" already exists. Overriding.`);
+        }
+      }
+      pluginContexts = {
+        ...pluginContexts,
+        ...ctx,
+      };
     }
   }
 
@@ -116,6 +130,7 @@ export async function $process<TPlugin extends IPlugin>(
     storage: this.storage,
     isSignedIn: !!userToken,
     connectionName: this.oauth.defaultConnectionName,
+    ...pluginContexts
   });
 
   if (routes.length === 0) {
