@@ -1,8 +1,5 @@
 import { ActivityLike, ConversationReference, isInvokeResponse } from '@microsoft/teams.api';
 
-
-
-
 import { ApiClient, GraphClient } from './api';
 import { App } from './app';
 import { ActivityContext, IActivityContext } from './contexts';
