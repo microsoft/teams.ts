@@ -544,10 +544,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         tenantId: tenantId,
       });
 
-      this.log.debug(`refreshing tenant token for ${tenantId || 'common'}, token: ${access_token}`);
+      this.log.debug(`refreshing tenant token for ${tenantId}`);
 
       appToken = access_token;
-      this.tenantTokens.set(tenantId || 'common', access_token);
+      this.tenantTokens.set(tenantId, access_token);
     }
 
     return appToken;
