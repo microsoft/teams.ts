@@ -16,8 +16,8 @@
     "build": "npx tsc",
     "start": "node -r dotenv/config .",
     "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\"",
-    "dev:teamsfx": "NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
-    "dev:teamsfx:testtool": "NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
+    "dev:teamsfx": "npx cross-env NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
+    "dev:teamsfx:testtool": "npx cross-env NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
     "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
   },
   "dependencies": {
