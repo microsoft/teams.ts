@@ -1,5 +1,14 @@
 # @microsoft/teams.mcpclient
 
+## 2.0.0-preview.9
+
+### Patch Changes
+
+- A number of auth related fixes, ATK fixes due to multi-tenant deprecation, and a streaming fix
+- Updated dependencies
+  - @microsoft/teams.ai@2.0.0-preview.9
+  - @microsoft/teams.common@2.0.0-preview.9
+
 ## 2.0.0-preview.8
 
 ### Patch Changes

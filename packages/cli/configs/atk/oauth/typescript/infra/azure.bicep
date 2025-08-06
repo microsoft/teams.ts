@@ -3,13 +3,6 @@
 @description('Used to generate names for all resources in this file')
 param resourceBaseName string
 
-@description('Required when create Azure Bot service')
-param botAadAppClientId string
-
-@secure()
-@description('Required by Bot Framework package in your bot project')
-param botAadAppClientSecret string
-
 param webAppSKU string
 
 @maxLength(42)
@@ -17,8 +10,14 @@ param botDisplayName string
 
 param serverfarmsName string = resourceBaseName
 param webAppName string = resourceBaseName
+param identityName string = resourceBaseName
 param location string = resourceGroup().location
 param oauthConnectionName string
+
+resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  location: location
+  name: identityName
+}
 
 // Compute resources for your Web App
 resource serverfarm 'Microsoft.Web/serverfarms@2021-02-01' = {
@@ -30,7 +29,7 @@ resource serverfarm 'Microsoft.Web/serverfarms@2021-02-01' = {
   }
 }
 
-// Web App that hosts your bot
+// Web App that hosts your agent
 resource webApp 'Microsoft.Web/sites@2021-02-01' = {
   kind: 'app'
   location: location
@@ -47,7 +46,7 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
         }
         {
           name: 'WEBSITE_NODE_DEFAULT_VERSION'
-          value: '~16' // Set NodeJS version to 16.x for your site
+          value: '~20' // Set NodeJS version to 20.x for your site
         }
         {
           name: 'RUNNING_ON_AZURE'
@@ -55,11 +54,15 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
         }
         {
           name: 'BOT_ID'
-          value: botAadAppClientId
+          value: identity.properties.clientId
         }
         {
-          name: 'BOT_PASSWORD'
-          value: botAadAppClientSecret
+          name: 'BOT_TENANT_ID'
+          value: identity.properties.tenantId
+        }
+        { 
+          name: 'BOT_TYPE' 
+          value: 'UserAssignedMsi'
         }
         {
           name: 'OAUTH_CONNECTION_NAME'
@@ -67,6 +70,12 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
         }
       ]
       ftpsState: 'FtpsOnly'
+    }
+  }
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${identity.id}': {}
     }
   }
 }

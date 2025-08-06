@@ -41,7 +41,7 @@ export async function $process<TPlugin extends IPlugin>(
 
   let appToken: string | undefined;
   try {
-    appToken = await this.getOrRefreshTenantToken(token.tenantId || 'common');
+    appToken = await this.getOrRefreshTenantToken(activity.conversation.tenantId ?? 'common');
   } catch (err) {
     // noop
   }
@@ -123,6 +123,7 @@ export async function $process<TPlugin extends IPlugin>(
     appId: this.id || '',
     log: this.log,
     tokens: this.tokens,
+    userToken: userToken,
     ref,
     storage: this.storage,
     isSignedIn: !!userToken,
@@ -135,11 +136,11 @@ export async function $process<TPlugin extends IPlugin>(
   }
 
   const send = context.send.bind(context);
-  context.send = async (activity: ActivityLike) => {
-    const res = await send(activity);
+  context.send = async (activity: ActivityLike, conversationRef?: ConversationReference) => {
+    const res = await send(activity, conversationRef);
 
     this.onActivitySent(sender, {
-      ...ref,
+      ...(conversationRef ?? ref),
       sender,
       activity: res,
     });
