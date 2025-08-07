@@ -231,7 +231,6 @@ export class HttpPlugin implements ISender {
   ) {
     const activity: Activity = req.body;
     let token: IToken | undefined;
-    console.log(`Received message ${JSON.stringify(activity, null, 2)}`);
     if (req.validatedToken) {
       token = req.validatedToken;
     } else {
