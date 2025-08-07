@@ -42,7 +42,7 @@ OPENAI_API_KEY=<sk-your_openai_api_key>
 | Scenario               | Usage                                             | Description                                                 |
 | ---------------------- | ------------------------------------------------- | ----------------------------------------------------------- |
 | Simple LLM check       | `hi`                                              | This is to show basic ChatPrompts working                   |
-| Streaming              | `streaming <your query>`                          | Shows streaming working                                     |
+| Streaming              | `stream <your query>`                             | Shows streaming working                                     |
 | Function calling       | `pokemon <your pokemon query>`                    | Shows function calling working                              |
 | Multi-Function calling | `weather <what is my weather like?>`              | Shows multi-function calling working                        |
 | Feedback               | `feedback <any text>`                             | Shows feedback loop                                         |
