@@ -72,29 +72,28 @@ export async function $process<TPlugin extends IPlugin>(
     const plugin = this.plugins[i];
 
     if (plugin.onActivity) {
-      routes.unshift(({ next }) => {
-        plugin.onActivity!({
+      routes.unshift(async ({ next }) => {
+        const additionalPluginContext = await plugin.onActivity!({
           ...ref,
           sender: sender,
           activity,
           token,
         });
 
+        if (additionalPluginContext) {
+          for (const key in additionalPluginContext) {
+            if (key in pluginContexts) {
+              this.log.warn(`Plugin context key "${key}" already exists. Overriding.`);
+            }
+          }
+          pluginContexts = {
+            ...pluginContexts,
+            ...additionalPluginContext,
+          };
+        }
+
         return next();
       });
-    }
-
-    if (plugin.buildActivityContext) {
-      const ctx = plugin.buildActivityContext(activity);
-      for (const key in ctx) {
-        if (key in pluginContexts) {
-          this.log.warn(`Plugin context key "${key}" already exists. Overriding.`);
-        }
-      }
-      pluginContexts = {
-        ...pluginContexts,
-        ...ctx,
-      };
     }
   }
 

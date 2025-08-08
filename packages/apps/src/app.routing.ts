@@ -4,7 +4,7 @@ import { App } from './app';
 import { IActivityContext } from './contexts';
 import { IRoutes } from './routes';
 import { IPlugin, RouteHandler } from './types';
-import { PluginAdditionalCtx } from './types/app-routing';
+import { PluginAdditionalContext } from './types/app-routing';
 
 /**
  * subscribe to an event
@@ -14,7 +14,7 @@ import { PluginAdditionalCtx } from './types/app-routing';
 export function on<TPlugin extends IPlugin, Name extends keyof IRoutes,>(
   this: App<TPlugin>,
   name: Name,
-  cb: Exclude<IRoutes<PluginAdditionalCtx<TPlugin>>[Name], undefined>
+  cb: Exclude<IRoutes<PluginAdditionalContext<TPlugin>>[Name], undefined>
 ) {
   this.router.on(name, cb);
   return this;
@@ -28,7 +28,7 @@ export function on<TPlugin extends IPlugin, Name extends keyof IRoutes,>(
 export function message<TPlugin extends IPlugin>(
   this: App<TPlugin>,
   pattern: string | RegExp,
-  cb: Exclude<IRoutes<PluginAdditionalCtx<TPlugin>>['message'], undefined>
+  cb: Exclude<IRoutes<PluginAdditionalContext<TPlugin>>['message'], undefined>
 ) {
   this.router.register<'message'>({
     select: (activity) => {
@@ -50,7 +50,7 @@ export function message<TPlugin extends IPlugin>(
  */
 export function use<TPlugin extends IPlugin>(
   this: App<TPlugin>,
-  cb: RouteHandler<IActivityContext<Activity, PluginAdditionalCtx<TPlugin>>, void | InvokeResponse>
+  cb: RouteHandler<IActivityContext<Activity, PluginAdditionalContext<TPlugin>>, void | InvokeResponse>
 ) {
   this.router.use(cb);
   return this;

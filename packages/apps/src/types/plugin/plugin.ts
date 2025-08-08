@@ -1,4 +1,4 @@
-import { Activity, ActivityParams, ConversationReference, SentActivity } from '@microsoft/teams.api';
+import { ActivityParams, ConversationReference, SentActivity } from '@microsoft/teams.api';
 
 import { IActivityEvent, IErrorEvent } from '../../events';
 import { IStreamer } from '../streamer';
@@ -27,7 +27,7 @@ export type OnErrorPluginEvent = (event: IErrorEvent) => void;
  */
 export type OnActivityPluginEvent = (event: IActivityEvent) => void;
 
-export interface IPlugin<TCtxAddons extends {} = {}, TEvents extends {} = {}> {
+export interface IPlugin<TActivityContext extends {} = {}, TEvents extends {} = {}> {
   /**
    * The event types that this plugin can emit. This is just a type, but we need it
    * for the type system to pick it up. You don't actually need to assign this to 
@@ -64,9 +64,7 @@ export interface IPlugin<TCtxAddons extends {} = {}, TEvents extends {} = {}> {
    * called by the `App`
    * when an activity is received
    */
-  onActivity?(event: IPluginActivityEvent): void | Promise<void>;
-
-  buildActivityContext?(activity: Activity): TCtxAddons;
+  onActivity?(event: IPluginActivityEvent): void | TActivityContext | Promise<void | TActivityContext>;
 
   /**
    * called by the `App`

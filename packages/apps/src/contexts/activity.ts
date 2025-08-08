@@ -151,7 +151,8 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   signout: (name?: string) => Promise<void>;
 }
 
-export type IActivityContext<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>> = IBaseActivityContext<T, TExtraCtx> & TExtraCtx;
+export type IActivityContext<T extends Activity = Activity, TExtraContext = unknown> = 
+  IBaseActivityContext<T> & (TExtraContext extends Record<string, any> ? TExtraContext : {});
 
 export const DEFAULT_SIGNIN_OPTIONS: SignInOptions = {
   oauthCardText: 'Please Sign In...',
