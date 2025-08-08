@@ -6,6 +6,10 @@ import { IRoutes } from './routes';
 import { IPlugin, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 
+type AppPlugin<TApp extends App> = TApp extends App<infer TPlugin> ? TPlugin : never;
+
+export type AppRoutingHandler<Name extends keyof IRoutes, TApp extends App<any>> = Exclude<IRoutes<PluginAdditionalContext<AppPlugin<TApp>>>[Name], undefined>;
+
 /**
  * subscribe to an event
  * @param name event to subscribe to
