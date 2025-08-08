@@ -1,6 +1,6 @@
 export * as subjectRightsRequests from './subjectRightsRequests';
 
-import type { EndpointRequest, Operation } from './../common.ts';
+import type { EndpointRequest, Operation } from './../types/common.ts';
 
 export interface IEndpoints {
   'GET /privacy': Operation<'/privacy', 'get'>;

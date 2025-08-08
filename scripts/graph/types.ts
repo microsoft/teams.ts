@@ -513,7 +513,7 @@ export async function generateTypes(
 
   // Use provided paths or fall back to command line args or defaults
   const finalYamlPath = yamlPath || openapiYamlPath;
-  const finalOutputPath = outputPath || outputFolder;
+  const finalOutputPath = path.join(outputPath || outputFolder, 'types');
 
   console.log(`Reading schema from ${finalYamlPath}...`);
   const schema = fs.readFileSync(finalYamlPath, {
@@ -558,6 +558,7 @@ export async function generateTypes(
     ...prettierConfig,
   });
 
+  fs.mkdirSync(finalOutputPath, { recursive: true });
   const outputFilePath = path.join(finalOutputPath, 'types.ts');
   fs.writeFileSync(outputFilePath, code);
 

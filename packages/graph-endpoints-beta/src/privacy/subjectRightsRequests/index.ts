@@ -3,7 +3,7 @@ export * as collaborators from './collaborators';
 export * as notes from './notes';
 export * as team from './team';
 
-import type { EndpointRequest, Operation } from './../../common.ts';
+import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
   'DELETE /privacy/subjectRightsRequests/{subjectRightsRequest-id}': Operation<

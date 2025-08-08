@@ -168,12 +168,7 @@ class Client {
   }
 
   async save(apiVersion: ApiVersion, path = '') {
-    const srcFolder = outputFolder;
-    const srcPath = npath.join(srcFolder, path, this.name);
-
-    if (path === '') {
-      fs.writeFileSync(npath.join(srcFolder, 'common.ts'), commonTemplate({ apiVersion }));
-    }
+    const srcPath = npath.join(outputFolder, path, this.name);
 
     this.clients = sortKeys(this.clients, { deep: true });
     this.endpoints = sortKeys(this.endpoints, { deep: true });
@@ -197,12 +192,12 @@ class Client {
       apiVersion,
       commonPath: npath.relative(
         npath.join('/', path, Object.keys(this.clients).length ? this.name : ''),
-        npath.join('/', 'common.ts')
+        npath.join('/', 'types', 'common.ts')
       ),
     });
 
     fs.writeFileSync(
-      npath.join(srcFolder, path, `${filename}.ts`),
+      npath.join(outputFolder, path, `${filename}.ts`),
       await prettier.format(res, { parser: 'typescript', ...prettierConfig })
     );
   }
@@ -303,6 +298,12 @@ export async function generateEndpoints(
   const schema: OpenAPIV3.Document = yaml.parse(yamlContent);
 
   console.log('Generating endpoints...');
+  // write the common.ts file
+  const typesFolder = npath.join(outputFolder, 'types');
+  fs.mkdirSync(typesFolder, { recursive: true });
+  fs.writeFileSync(npath.join(typesFolder, 'common.ts'), commonTemplate({ apiVersion: version }));
+
+  // then the endpoints
   const filteredPaths = filterPathsByAllowlist(schema.paths, { filterInvalidUrls: true });
   const client = new Client('', schema.info.description, schema.components);
 
