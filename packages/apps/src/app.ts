@@ -535,17 +535,19 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     return res.token;
   }
 
-  protected async getOrRefreshTenantToken(tenantId?: string) {
+  protected async getOrRefreshTenantToken(tenantId: string) {
     let appToken =
-      this.tenantTokens.get(tenantId || 'common') || this._tokens.graph?.toString();
-    if (this.credentials && !appToken) {
+      this.tenantTokens.get(tenantId);
+    if (this.credentials && !this.tenantTokens.get(tenantId)) {
       const { access_token } = await this.api.bots.token.getGraph({
         ...this.credentials,
         tenantId: tenantId,
       });
 
+      this.log.debug(`refreshing tenant token for ${tenantId}`);
+
       appToken = access_token;
-      this.tenantTokens.set(tenantId || 'common', access_token);
+      this.tenantTokens.set(tenantId, access_token);
     }
 
     return appToken;
