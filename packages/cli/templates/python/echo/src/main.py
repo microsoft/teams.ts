@@ -4,7 +4,7 @@ import re
 from microsoft.teams.api import MessageActivity
 from microsoft.teams.app import ActivityContext, App, AppOptions
 
-app = App(options=AppOptions(enable_token_validation=False))
+app = App(options=AppOptions(enable_token_validation=True))
 
 @app.on_message_pattern(re.compile(r"hello|hi|greetings"))
 async def handle_greeting(ctx: ActivityContext[MessageActivity]) -> None:
