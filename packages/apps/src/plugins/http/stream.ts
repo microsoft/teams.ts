@@ -54,7 +54,7 @@ export class HttpStream implements IStreamer {
     }
 
     this.queue.push(activity);
-    this._timeout = setTimeout(this.flush.bind(this), 200);
+    this._timeout = setTimeout(this.flush.bind(this), 500);
   }
 
   update(text: string) {
