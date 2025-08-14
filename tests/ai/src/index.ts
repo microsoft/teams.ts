@@ -35,12 +35,13 @@ const model = new OpenAIChatModel({
 
 // Handle "hi" message
 // :snippet-start: simple-chat
-app.on('message', async ({ send, activity, next }) => {
+app.on('message', async ({ send, activity, next, log }) => {
   // :remove-start:
   if (activity.text.toLowerCase() !== 'hi') {
     await next();
     return;
   }
+  log.info('Received "hi" message, responding with AI-generated response');
   // :remove-end:
   const model = new OpenAIChatModel({
     apiKey: process.env.AZURE_OPENAI_API_KEY || process.env.OPENAI_API_KEY,
@@ -66,6 +67,7 @@ app.on('message', async ({ send, activity, next }) => {
 // Handle "<supported-command> <query>" message
 app.on('message', async ({ send, activity, next, log }) => {
   if (activity.text.toLowerCase().startsWith('docs ')) {
+    log.info('Received "docs" command, handling documentation search');
     await handleDocumentationSearch(
       model,
       {
@@ -95,6 +97,7 @@ app.on('message', async ({ send, activity, next, log }) => {
   if (!handler) {
     log.warn(`Command ${commandName} does not have a supplied handler`);
   } else {
+    log.info(`Received "${commandName}" command, executing handler`);
     await handler(
       model,
       {
@@ -109,19 +112,20 @@ app.on('message', async ({ send, activity, next, log }) => {
 
 // Handle messages that start with stream <query>
 // :snippet-start: streaming-chat
-app.on('message', async ({ stream, send, activity, next }) => {
+app.on('message', async ({ stream, send, activity, next, log }) => {
   // :remove-start:
   const commandAndQuery = streamCommand(activity.text);
   if (!commandAndQuery) {
     await next();
     return;
   }
+  log.info('Received "stream" command, processing query');
   const { query } = commandAndQuery;
   // :remove-end:
   // const query = activity.text;
 
   const prompt = new ChatPrompt({
-    instructions: 'You are a friendly assistant who responds in terse language',
+    instructions: 'You are a friendly assistant who responds in extremely verbose language',
     model,
   });
 

@@ -36,3 +36,18 @@ npx changeset publish
 ```bash
 git push --tags
 ```
+
+## Generate a Release Note
+
+1. Go to https://github.com/microsoft/teams.ts/releases/new
+2. Use the latest tag as the version (the one you just released)
+3. Hit "Generate Release Notes"
+4. Copy the generated release notes in the [.changeset folder](./.changeset), and paste them at the top of the generated release notes in the GitHub release page.
+5. Hit "Publish Release"
+
+## Commit and Push Changes
+
+1. Create a new branch for the changes (`git checkout -b release/preview<version>`)
+1. Commit all changes (`git add . && git commit -m "Release <version>"`)
+1. Push the branch (`git push origin release/preview<version>`)
+1. Create a pull request to the `main` branch
