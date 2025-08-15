@@ -66,7 +66,7 @@ export class HttpStream implements IStreamer {
   }
 
   async close() {
-    if (!this.index && !this.queue.length) {
+    if (!this.index && !this.queue.length && !this._flushing) {
       this._logger.debug('closed with no content');
       return;
     }
