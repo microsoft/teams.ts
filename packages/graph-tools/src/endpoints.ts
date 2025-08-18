@@ -1,39 +1,19 @@
-import camelcase from 'camelcase';
 import fs from 'fs';
+
+import npath from 'path/posix';
+
+import camelcase from 'camelcase';
 import handlebars from 'handlebars';
 import { OpenAPIV3 } from 'openapi-types';
-import npath from 'path/posix';
-import * as prettier from 'prettier';
+
+
+import { format  as prettier } from 'prettier';
 import sortKeys from 'sort-keys';
 import yaml from 'yaml';
 
-import prettierConfig from './prettier.config';
-import { ApiVersion, filterPathsByAllowlist, getExportName } from './utils';
+import prettierConfig from './prettier.config.js';
+import { ApiVersion, filterPathsByAllowlist, getExportName, patterns } from './utils.js';
 
-// Parse command line arguments
-// Usage: tsx endpoints.ts [openapiYamlPath] [outputFolder] [version]
-const [, , openapiYamlPathArg, outputFolderArg, versionArg] = process.argv;
-const version: ApiVersion = versionArg === 'beta' ? 'beta' : 'v1.0';
-
-// Default paths if not provided
-const defaultYamlPath = npath.join(
-  __dirname,
-  '..',
-  version === 'v1.0' ? 'openapi.yaml' : 'openapi-beta.yaml'
-);
-const defaultOutputFolder =
-  version === 'v1.0'
-    ? npath.join(__dirname, '..', '..', 'packages', 'graph-endpoints', 'src')
-    : npath.join(__dirname, '..', '..', 'packages', 'graph-endpoints-beta', 'src');
-
-const openapiYamlPath = openapiYamlPathArg || defaultYamlPath;
-const outputFolder = outputFolderArg || defaultOutputFolder;
-
-const patterns = {
-  specialChars: /[!$#@%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/,
-  invalidUrl: /[!$#@%^&*()+=\[\];':"\\|,.<>?]+/,
-  param: /\{[A-Za-z0-9\-]*\}/,
-};
 
 const methods = {
   get: 'get',
@@ -75,15 +55,7 @@ handlebars.registerHelper('notEmpty', (value: Record<string, any> | Array<any> |
   return Object.keys(value).length > 0;
 });
 
-const commonTemplate = handlebars.compile(
-  fs.readFileSync(npath.join(__dirname, 'common.ts.hbs'), 'utf8')
-);
-
-const clientTemplate = handlebars.compile(
-  fs.readFileSync(npath.join(__dirname, 'client.ts.hbs'), 'utf8')
-);
-
-interface Endpoint {
+interface IEndpoint {
   readonly method: string;
   readonly name: string;
   readonly url: string;
@@ -95,19 +67,20 @@ interface Endpoint {
 class Client {
   readonly name: string;
   readonly exportName: string;
-  private components?: OpenAPIV3.ComponentsObject;
-
   url: string;
   description?: string;
   parameters: Array<string>;
   clients: Record<string, Client>;
-  endpoints: Record<string, Endpoint>;
+  endpoints: Record<string, IEndpoint>;
+  private components?: OpenAPIV3.ComponentsObject;
+  private templatesPath: string;
 
-  constructor(name: string, description?: string, components?: OpenAPIV3.ComponentsObject) {
+  constructor(name: string, templatesPath: string, description?: string, components?: OpenAPIV3.ComponentsObject) {
     this.name = name;
     this.exportName = getExportName(name);
     this.description = description;
     this.components = components;
+    this.templatesPath = templatesPath;
     this.url = '/';
     this.parameters = [];
     this.clients = {};
@@ -139,7 +112,8 @@ class Client {
       return;
     }
 
-    let [child, ...other] = children;
+    const [first, ...other] = children;
+    let child = first;
 
     child = child.replace('()', '');
 
@@ -159,7 +133,7 @@ class Client {
     }
 
     if (!this.clients[name]) {
-      this.clients[name] = new Client(name, undefined, this.components);
+      this.clients[name] = new Client(name, this.templatesPath, undefined, this.components);
       this.clients[name].url = npath.join(this.url, ...params.map((p) => `{${p}}`), child);
       this.clients[name].parameters = params;
     }
@@ -167,7 +141,7 @@ class Client {
     this.clients[name].set(name, other.join('/'), schema);
   }
 
-  async save(apiVersion: ApiVersion, path = '') {
+  async save(apiVersion: ApiVersion, outputFolder: string, path = '') {
     const srcPath = npath.join(outputFolder, path, this.name);
 
     this.clients = sortKeys(this.clients, { deep: true });
@@ -178,7 +152,7 @@ class Client {
     }
 
     for (const [_, child] of Object.entries(this.clients)) {
-      child.save(apiVersion, npath.join(path, this.name));
+      child.save(apiVersion, outputFolder, npath.join(path, this.name));
     }
 
     let filename = this.name;
@@ -187,7 +161,11 @@ class Client {
       filename = npath.join(this.name, 'index');
     }
 
-    let res = clientTemplate({
+    const clientTemplate = handlebars.compile(
+      fs.readFileSync(npath.join(this.templatesPath, 'client.ts.hbs'), 'utf8')
+    );
+
+    const res = clientTemplate({
       ...this,
       apiVersion,
       commonPath: npath.relative(
@@ -198,7 +176,7 @@ class Client {
 
     fs.writeFileSync(
       npath.join(outputFolder, path, `${filename}.ts`),
-      await prettier.format(res, { parser: 'typescript', ...prettierConfig })
+      await prettier(res, { parser: 'typescript', ...prettierConfig })
     );
   }
 
@@ -282,50 +260,42 @@ class Client {
 
 export async function generateEndpoints(
   version: ApiVersion,
-  yamlPath?: string,
-  outputPath?: string
+  yamlPath: string,
+  outputPath: string,
+  templatesPath: string
 ): Promise<void> {
   const startTime = Date.now();
   console.log('=== Starting endpoint generation ===');
 
-  // Use provided paths or fall back to command line args or defaults
-  const finalYamlPath = yamlPath || openapiYamlPath;
-  const finalOutputPath = outputPath || outputFolder;
-
   // Parse OpenAPI YAML
-  console.log(`Parsing OpenAPI YAML from ${finalYamlPath}...`);
-  const yamlContent = fs.readFileSync(finalYamlPath, 'utf8');
+  console.log(`Parsing OpenAPI YAML from ${yamlPath}...`);
+  const yamlContent = fs.readFileSync(yamlPath, 'utf8');
   const schema: OpenAPIV3.Document = yaml.parse(yamlContent);
 
   console.log('Generating endpoints...');
   // write the common.ts file
-  const typesFolder = npath.join(outputFolder, 'types');
+  const commonTemplate = handlebars.compile(
+    fs.readFileSync(npath.join(templatesPath, 'common.ts.hbs'), 'utf8')
+  );
+  const typesFolder = npath.join(outputPath, 'types');
   fs.mkdirSync(typesFolder, { recursive: true });
   fs.writeFileSync(npath.join(typesFolder, 'common.ts'), commonTemplate({ apiVersion: version }));
 
   // then the endpoints
   const filteredPaths = filterPathsByAllowlist(schema.paths, { filterInvalidUrls: true });
-  const client = new Client('', schema.info.description, schema.components);
+  const client = new Client('', templatesPath, schema.info.description, schema.components);
 
   for (const [path, definition] of Object.entries(filteredPaths)) {
     client.set('', path, {
-      ...definition,
+      ...(definition as Record<string, any>),
       url: path,
     });
   }
 
   console.log('🔄 Writing endpoint files...');
-  await client.save(version);
+  await client.save(version, outputPath);
 
   const totalTime = Date.now() - startTime;
   console.log(`🏁 Endpoint generation completed in ${totalTime}ms`);
-  console.log(`📁 Files written to: ${finalOutputPath}`);
-}
-
-// CLI interface - run if called directly
-if (require.main === module) {
-  generateEndpoints(version).catch((error) => {
-    console.error('❌ Endpoint generation failed:', error);
-    process.exit(1);
-  });
+  console.log(`📁 Files written to: ${outputPath}`);
 }

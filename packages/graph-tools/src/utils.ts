@@ -1,12 +1,13 @@
-import { allowList } from './allow-list';
 import camelcase from 'camelcase';
+
+import { allowList } from './allow-list.js';
 
 export type ApiVersion = 'v1.0' | 'beta';
 
-const patterns = {
-  specialChars: /[!$#@%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/,
-  invalidUrl: /[!$#@%^&*()+=\[\];':"\\|,.<>?]+/,
-  param: /\{[A-Za-z0-9\-]*\}/,
+export const patterns = {
+  specialChars: /[!$#@%^&*()_+\-=[\]{};':"\\|,.<>/?]+/,
+  invalidUrl: /[!$#@%^&*()+=[\];':"\\|,.<>?]+/,
+  param: /\{[A-Za-z0-9-]*\}/,
 };
 
 export function isAllowListed(path: string, options = { filterInvalidUrls: false }): boolean {

@@ -2,32 +2,13 @@ import fs from 'fs';
 import path from 'path';
 
 import openapits, { astToString } from 'openapi-typescript';
-import * as prettier from 'prettier';
+import { format  as prettier } from 'prettier';
 import * as ts from 'typescript';
 
-import prettierConfig from './prettier.config';
-import { allowList } from './allow-list';
+import { allowList } from './allow-list.js';
+import prettierConfig from './prettier.config.js';
 
 type ApiVersion = 'v1.0' | 'beta';
-
-// Parse command line arguments
-// Usage: tsx types.ts [openapiYamlPath] [outputFolder] [version]
-const [, , openapiYamlPathArg, outputFolderArg, versionArg] = process.argv;
-const version: ApiVersion = versionArg === 'beta' ? 'beta' : 'v1.0';
-
-// Default paths if not provided
-const defaultYamlPath = path.join(
-  __dirname,
-  '..',
-  version === 'v1.0' ? 'openapi.yaml' : 'openapi-beta.yaml'
-);
-const defaultOutputFolder =
-  version === 'v1.0'
-    ? path.join(__dirname, '..', '..', 'packages', 'graph-endpoints', 'src')
-    : path.join(__dirname, '..', '..', 'packages', 'graph-endpoints-beta', 'src');
-
-const openapiYamlPath = openapiYamlPathArg || defaultYamlPath;
-const outputFolder = outputFolderArg || defaultOutputFolder;
 
 // Helper to get property name from AST node
 function getPropertyName(name: ts.PropertyName | undefined): string | null {
@@ -506,17 +487,13 @@ function extractInterfaces(res: any[]): {
 
 export async function generateTypes(
   version: ApiVersion,
-  yamlPath?: string,
-  outputPath?: string
+  yamlPath: string,
+  outputPath: string
 ): Promise<void> {
   console.log(`=== Starting type generation for ${version} ===`);
 
-  // Use provided paths or fall back to command line args or defaults
-  const finalYamlPath = yamlPath || openapiYamlPath;
-  const finalOutputPath = path.join(outputPath || outputFolder, 'types');
-
-  console.log(`Reading schema from ${finalYamlPath}...`);
-  const schema = fs.readFileSync(finalYamlPath, {
+  console.log(`Reading schema from ${yamlPath}...`);
+  const schema = fs.readFileSync(yamlPath, {
     encoding: 'utf8',
   });
 
@@ -553,22 +530,14 @@ export async function generateTypes(
     },
   });
 
-  const code = await prettier.format(toStringed, {
+  const code = await prettier(toStringed, {
     parser: 'typescript',
     ...prettierConfig,
   });
 
-  fs.mkdirSync(finalOutputPath, { recursive: true });
-  const outputFilePath = path.join(finalOutputPath, 'types.ts');
+  fs.mkdirSync(path.join(outputPath, 'types'), { recursive: true });
+  const outputFilePath = path.join(outputPath, 'types', 'types.ts');
   fs.writeFileSync(outputFilePath, code);
 
   console.log(`Complete! Type definitions saved to ${outputFilePath}`);
-}
-
-// CLI interface - run if called directly
-if (require.main === module) {
-  generateTypes(version).catch((error) => {
-    console.error('❌ Type generation failed:', error);
-    process.exit(1);
-  });
 }

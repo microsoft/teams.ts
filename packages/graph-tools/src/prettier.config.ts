@@ -1,12 +1,13 @@
+import { Config } from 'prettier';
+
 /**
  * @see https://prettier.io/docs/en/configuration.html
- * @type {import("prettier").Config}
  */
-const config = {
+const config: Config = {
   trailingComma: 'es5',
   semi: true,
   singleQuote: true,
   printWidth: 100,
 };
 
-module.exports = config;
+export default config;
