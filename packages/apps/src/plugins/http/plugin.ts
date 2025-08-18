@@ -176,7 +176,7 @@ export class HttpPlugin implements ISender {
     }
 
     if (!res.headersSent) {
-      res.status(response.status || 200).send(JSON.stringify(response.body || null));
+      res.status(response.status || 200).send(JSON.stringify(response.body));
     }
 
     delete this.pending[activity.id];

@@ -37,18 +37,18 @@ export function withJwtValidation(params: JwtValidationParams) {
     res: express.Response,
     next: express.NextFunction
   ) => {
-    const authorization = req.headers.authorization?.replace('Bearer ', '');
-
-    if (!authorization) {
-      res.status(401).send('unauthorized');
-      return;
-    }
-
     if (!serviceTokenValidator) {
       logger.debug('No service token validator configured, skipping validation');
       next();
       return;
     }
+
+    const authorization = req.headers.authorization?.replace('Bearer ', '');
+    if (!authorization) {
+      res.status(401).send('unauthorized');
+      return;
+    }
+
 
     const activity: Activity = req.body;
     // Use cached validator with per-request service URL validation
