@@ -27,7 +27,7 @@ import {
   onActivitySent,
   onError,
 } from './app.events';
-import {
+import { 
   onTokenExchange,
   onVerifyState
 } from './app.oauth';
@@ -120,7 +120,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   readonly client: http.Client;
   readonly storage: IStorage;
   readonly credentials?: Credentials;
-  readonly entraTokenValidator?: middleware.EntraTokenValidator;
+  readonly entraTokenValidator?: middleware.JwtValidator;
 
   /**
    * the apps id
@@ -258,10 +258,11 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     }
 
     if (clientId) {
-      this.entraTokenValidator = new middleware.EntraTokenValidator({
+      this.entraTokenValidator = middleware.createEntraTokenValidator(
+        tenantId || 'common',
         clientId,
-        tenantId: tenantId || 'common',
-      });
+        { logger: this.log, }
+      );
     }
 
     // add/validate plugins
@@ -537,7 +538,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
   protected async getOrRefreshTenantToken(tenantId: string) {
     let appToken =
-      this.tenantTokens.get(tenantId);
+     this.tenantTokens.get(tenantId);
     if (this.credentials && !this.tenantTokens.get(tenantId)) {
       const { access_token } = await this.api.bots.token.getGraph({
         ...this.credentials,
