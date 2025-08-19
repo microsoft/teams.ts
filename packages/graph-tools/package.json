@@ -39,7 +39,6 @@
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "build": "npx tsup",
-    "postbuild": "npm --prefix ../../ rebuild @microsoft/teams.graph-tools",
     "test": "npx jest"
   },
   "dependencies": {
