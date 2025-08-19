@@ -62,3 +62,9 @@ export function fixEsmImports(distFolder?: string) {
   walk(targetFolder);
   console.log('✅ ESM imports in .mjs files have been fixed to include .mjs extensions.');
 }
+
+// CLI entry point - run when this file is executed directly
+if (require.main === module) {
+  const targetFolder = process.argv[2] || path.join(process.cwd(), 'dist');
+  fixEsmImports(targetFolder);
+}

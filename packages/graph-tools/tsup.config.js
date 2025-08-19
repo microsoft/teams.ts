@@ -6,7 +6,7 @@ const base = require('@microsoft/teams.config/tsup.config');
 module.exports = {
   ...base,
   minify: true,
-  bundle: true,
-  entry: ['src/index.ts'],
+  bundle: false,
+  entry: ['src/**/*.ts'],
   publicDir: 'templates',
 };
