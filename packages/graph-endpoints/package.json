@@ -44,15 +44,14 @@
     "build:cjs": "npx cross-env NODE_OPTIONS='--max-old-space-size=16384' npx tsup --format cjs",
     "build:cjs:no-clean": "npx cross-env NODE_OPTIONS='--max-old-space-size=16384' npx tsup --format cjs --no-clean",
     "build:types": "npx tsc --emitDeclarationOnly",
-    "prebuild": "npm ls @microsoft/teams.graph-tools >/dev/null 2>&1 || npm install @microsoft/teams.graph-tools",
     "build": "npm run clean && npm run build:esm:no-clean && npm run build:cjs:no-clean && npm run build:types && npm run fix:esm-imports && npx rimraf ./dist/index.d.mts",
-    "fix:esm-imports": "npx @microsoft/teams.graph-tools fix-esm-imports",
+    "fix:esm-imports": "node ../graph-tools/dist/index.js fix-esm-imports",
     "gen": "npm run gen:types && npm run gen:endpoints",
-    "gen:types": "npx cross-env NODE_OPTIONS='--max-old-space-size=16384' npx @microsoft/teams.graph-tools generate-types ../graph/openapi.yaml ./src v1.0",
-    "gen:endpoints": "npx cross-env NODE_OPTIONS='--max-old-space-size=16384' npx @microsoft/teams.graph-tools generate-endpoints ../graph/openapi.yaml ./src v1.0"
+    "gen:types": "npx cross-env NODE_OPTIONS='--max-old-space-size=16384' node ../graph-tools/dist/index.js generate-types ../graph/openapi.yaml ./src v1.0",
+    "gen:endpoints": "npx cross-env NODE_OPTIONS='--max-old-space-size=16384' node ../graph-tools/dist/index.js generate-endpoints ../graph/openapi.yaml ./src v1.0"
   },
   "devDependencies": {
-    "@microsoft/teams.graph-tools": "^2.0.0-preview.9",
+    "@microsoft/teams.graph-tools": "2.0.0-preview.9",
     "rimraf": "^6.0.1",
     "tsup": "^8.4.0",
     "typescript": "^5.4.5"
