@@ -27,7 +27,7 @@ import {
   onActivitySent,
   onError,
 } from './app.events';
-import { 
+import {
   onTokenExchange,
   onVerifyState
 } from './app.oauth';
@@ -538,7 +538,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
   protected async getOrRefreshTenantToken(tenantId: string) {
     let appToken =
-     this.tenantTokens.get(tenantId);
+      this.tenantTokens.get(tenantId);
     if (this.credentials && !this.tenantTokens.get(tenantId)) {
       const { access_token } = await this.api.bots.token.getGraph({
         ...this.credentials,
