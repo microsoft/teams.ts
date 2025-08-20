@@ -1,0 +1,156 @@
+export * as getPositionOfWebPart from './getPositionOfWebPart';
+
+import type { EndpointRequest, Operation } from './../../../../types/common.ts';
+
+export interface IEndpoints {
+  'DELETE /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}': Operation<
+    '/groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}',
+    'delete'
+  >;
+  'GET /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts': Operation<
+    '/groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts',
+    'get'
+  >;
+  'GET /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}': Operation<
+    '/groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}',
+    'get'
+  >;
+  'PATCH /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}': Operation<
+    '/groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}',
+    'patch'
+  >;
+  'POST /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts': Operation<
+    '/groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts',
+    'post'
+  >;
+}
+
+/**
+ * `DELETE /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}`
+ *
+ */
+export function del(
+  params?: IEndpoints['DELETE /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}']['parameters']
+): EndpointRequest<
+  IEndpoints['DELETE /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}']['response']
+> {
+  return {
+    ver: 'beta',
+    method: 'delete',
+    path: '/groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}',
+    paramDefs: [
+      { name: 'If-Match', in: 'header' },
+      { name: 'group-id', in: 'path' },
+      { name: 'site-id', in: 'path' },
+      { name: 'pageTemplate-id', in: 'path' },
+      { name: 'webPart-id', in: 'path' },
+    ],
+    params,
+  };
+}
+
+/**
+ * `GET /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts`
+ *
+ * The collection of web parts on the SharePoint page.
+ */
+export function list(
+  params?: IEndpoints['GET /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts']['parameters']
+): EndpointRequest<
+  IEndpoints['GET /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts']['response']
+> {
+  return {
+    ver: 'beta',
+    method: 'get',
+    path: '/groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts',
+    paramDefs: [
+      { name: '$top', in: 'query' },
+      { name: '$skip', in: 'query' },
+      { name: '$search', in: 'query' },
+      { name: '$filter', in: 'query' },
+      { name: '$count', in: 'query' },
+      { name: '$orderby', in: 'query' },
+      { name: '$select', in: 'query' },
+      { name: '$expand', in: 'query' },
+      { name: 'group-id', in: 'path' },
+      { name: 'site-id', in: 'path' },
+      { name: 'pageTemplate-id', in: 'path' },
+    ],
+    params,
+  };
+}
+
+/**
+ * `GET /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}`
+ *
+ * The collection of web parts on the SharePoint page.
+ */
+export function get(
+  params?: IEndpoints['GET /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}']['parameters']
+): EndpointRequest<
+  IEndpoints['GET /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}']['response']
+> {
+  return {
+    ver: 'beta',
+    method: 'get',
+    path: '/groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}',
+    paramDefs: [
+      { name: '$select', in: 'query' },
+      { name: '$expand', in: 'query' },
+      { name: 'group-id', in: 'path' },
+      { name: 'site-id', in: 'path' },
+      { name: 'pageTemplate-id', in: 'path' },
+      { name: 'webPart-id', in: 'path' },
+    ],
+    params,
+  };
+}
+
+/**
+ * `PATCH /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}`
+ *
+ */
+export function update(
+  body: IEndpoints['PATCH /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}']['body'],
+  params?: IEndpoints['PATCH /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}']['parameters']
+): EndpointRequest<
+  IEndpoints['PATCH /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}']['response']
+> {
+  return {
+    ver: 'beta',
+    method: 'patch',
+    path: '/groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts/{webPart-id}',
+    paramDefs: [
+      { name: 'group-id', in: 'path' },
+      { name: 'site-id', in: 'path' },
+      { name: 'pageTemplate-id', in: 'path' },
+      { name: 'webPart-id', in: 'path' },
+    ],
+    params,
+    body,
+  };
+}
+
+/**
+ * `POST /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts`
+ *
+ */
+export function create(
+  body: IEndpoints['POST /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts']['body'],
+  params?: IEndpoints['POST /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts']['parameters']
+): EndpointRequest<
+  IEndpoints['POST /groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts']['response']
+> {
+  return {
+    ver: 'beta',
+    method: 'post',
+    path: '/groups/{group-id}/sites/{site-id}/pageTemplates/{pageTemplate-id}/webParts',
+    paramDefs: [
+      { name: 'group-id', in: 'path' },
+      { name: 'site-id', in: 'path' },
+      { name: 'pageTemplate-id', in: 'path' },
+    ],
+    params,
+    body,
+  };
+}

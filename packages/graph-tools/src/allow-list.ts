@@ -1,2 +1,2 @@
-// the smallest API surface of the whole graph
-export const allowList = [/^\/privacy(.*)$/];
+// include anything but the /identityGovernance endpoints, as they pose MAX_PATH challenges
+export const allowList = [/^(?!\/identityGovernance).*$/];
