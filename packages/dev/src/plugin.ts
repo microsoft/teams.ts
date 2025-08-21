@@ -103,11 +103,13 @@ export class DevtoolsPlugin implements ISender {
   }
 
   onStart({ port }: IPluginStartEvent) {
-    port += 1;
+    let numericPort = typeof port === 'string' ? parseInt(port, 10) : port;
+    numericPort += 1;
+    console.log(`Starting devtools on port ${numericPort}`);
 
     this.express.use(
       router({
-        port,
+        port: numericPort,
         log: this.log,
         process: (token, activity) => {
           return new Promise((resolve, reject) => {
@@ -128,8 +130,8 @@ export class DevtoolsPlugin implements ISender {
         return reject(error);
       });
 
-      this.http.listen(port, async () => {
-        this.log.info(`available at http://localhost:${port}/devtools`);
+      this.http.listen(numericPort, async () => {
+        this.log.info(`available at http://localhost:${numericPort}/devtools`);
         resolve();
       });
     });
