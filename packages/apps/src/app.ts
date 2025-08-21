@@ -185,7 +185,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected tenantTokens = new LocalStorage<string>({}, { max: 20000 });
   protected events = new EventEmitter<AppEvents<TPlugin>>();
   protected startedAt?: Date;
-  protected port?: number;
+  protected port?: number | string;
 
   private readonly _userAgent = `teams.ts[apps]/${pkg.version}`;
 
@@ -329,7 +329,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param port port to listen on
    */
   async start(port?: number | string) {
-    this.port = +(port || process.env.PORT || 3978);
+    this.port = port || process.env.PORT || 3978;
 
     try {
       await this.refreshTokens(true);
