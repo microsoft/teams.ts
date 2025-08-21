@@ -5,26 +5,28 @@ import { ILogger } from '@microsoft/teams.common';
 
 import { IClientContext } from '../contexts';
 
-import { EntraTokenValidator } from './entra-token-validator';
+import { JwtValidator } from './auth/jwt-validator';
 
-export type WithClientAuthParams = Partial<Credentials> & {
-  entraTokenValidator?: Pick<
-    EntraTokenValidator,
-    'validateAccessToken' | 'getTokenPayload'
-  >;
+export type WithRemoteFunctionJwtValidationParams = Partial<Credentials> & {
+  entraTokenValidator?: Pick<JwtValidator, 'validateAccessToken'>;
   readonly logger: ILogger;
 };
 
-export type ClientAuthRequest = express.Request & {
+export type JwtRemoteFunctionRequest = express.Request & {
   context?: IClientContext;
 };
 
-export function withClientAuth(params: WithClientAuthParams) {
+/**
+ * JWT validation middleware used to validate the entra token when remote functions are invoked.
+ */
+export function withRemoteFunctionJwtValidation(
+  params: WithRemoteFunctionJwtValidationParams,
+) {
   const entraTokenValidator = params.entraTokenValidator;
   const log = params.logger;
 
   return async (
-    req: ClientAuthRequest,
+    req: JwtRemoteFunctionRequest,
     res: express.Response,
     next: express.NextFunction
   ) => {
@@ -36,16 +38,13 @@ export function withClientAuth(params: WithClientAuthParams) {
         ? authorization[1]
         : '';
 
-    const validatedToken = !entraTokenValidator
+    const tokenPayload = !entraTokenValidator
       ? null
-      : await entraTokenValidator.validateAccessToken(log, authToken);
-    const tokenPayload =
-      validatedToken && entraTokenValidator?.getTokenPayload(validatedToken);
-
+      : await entraTokenValidator.validateAccessToken(authToken);
     if (
       !pageId ||
       !appSessionId ||
-      !validatedToken ||
+      !authToken ||
       !entraTokenValidator ||
       !tokenPayload
     ) {

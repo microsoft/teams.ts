@@ -1,4 +1,4 @@
-import { withClientAuth } from './with-client-auth';
+import { withRemoteFunctionJwtValidation } from './with-remote-function-jwt-validation';
 
 const mockLogger = {
   error: jest.fn(),
@@ -10,7 +10,6 @@ const mockLogger = {
 };
 const tokenValidatorMock = {
   validateAccessToken: jest.fn(),
-  getTokenPayload: jest.fn(),
 };
 const mockRequestHeaders = {
   Authorization: 'Bearer valid-token',
@@ -24,7 +23,7 @@ const mockRequestHeaders = {
   'X-Teams-Team-Id': 'test-team-id',
 } as const;
 
-describe('withClientAuth Middleware', () => {
+describe('withRemoteFunctionJwtValidation Middleware', () => {
   let mockRequest: any;
   let mockResponse: any;
   let mockNext: jest.Mock;
@@ -48,14 +47,13 @@ describe('withClientAuth Middleware', () => {
 
   it('should set context and call next if authentication is successful', async () => {
     // Mock a valid authentication scenario
-    tokenValidatorMock.validateAccessToken.mockResolvedValue({});
-    tokenValidatorMock.getTokenPayload.mockReturnValue({
+    tokenValidatorMock.validateAccessToken.mockResolvedValue({
       appId: 'test-app-id',
       tid: 'test-tenant-id',
       oid: 'test-user-id',
     });
 
-    const handleRequest = withClientAuth({
+    const handleRequest = withRemoteFunctionJwtValidation({
       logger: mockLogger,
       entraTokenValidator: tokenValidatorMock,
     });
@@ -87,7 +85,7 @@ describe('withClientAuth Middleware', () => {
     mockRequest.header = (headerName: keyof typeof mockRequestHeaders) =>
       headerName === missingHeader ? undefined : mockRequestHeaders[headerName];
 
-    const handleRequest = withClientAuth({
+    const handleRequest = withRemoteFunctionJwtValidation({
       logger: mockLogger,
       entraTokenValidator: tokenValidatorMock,
     });
@@ -114,17 +112,17 @@ describe('withClientAuth Middleware', () => {
       mockRequest.header = (headerName: keyof typeof mockRequestHeaders) =>
         headerName === 'Authorization' ? authorizationHeader : mockRequestHeaders[headerName];
 
-      const handleRequest = withClientAuth({
+      const handleRequest = withRemoteFunctionJwtValidation({
         logger: mockLogger,
         entraTokenValidator: tokenValidatorMock,
       });
       await handleRequest(mockRequest, mockResponse, mockNext);
-      expect(tokenValidatorMock.validateAccessToken).toHaveBeenCalledWith(mockLogger, expected);
+      expect(tokenValidatorMock.validateAccessToken).toHaveBeenCalledWith(expected);
     }
   );
 
   it('should return 401 if the token validator is missing', async () => {
-    const handleRequest = withClientAuth({
+    const handleRequest = withRemoteFunctionJwtValidation({
       logger: mockLogger,
       entraTokenValidator: undefined,
     });
@@ -136,7 +134,7 @@ describe('withClientAuth Middleware', () => {
   });
 
   it('should return 401 if token validation fails', async () => {
-    const handleRequest = withClientAuth({
+    const handleRequest = withRemoteFunctionJwtValidation({
       logger: mockLogger,
       entraTokenValidator: tokenValidatorMock,
     });

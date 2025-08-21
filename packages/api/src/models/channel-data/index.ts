@@ -1,7 +1,9 @@
 import { MeetingInfo } from '../meeting';
+import { MembershipSource } from '../membership-source';
 
 import { ChannelInfo } from './channel-info';
 import { NotificationInfo } from './notification-info';
+import { OnBehalfOf } from './on-behalf-of';
 import { ChannelDataSettings } from './settings';
 import { TeamInfo } from './team-info';
 import { TenantInfo } from './tenant-info';
@@ -81,10 +83,31 @@ export type ChannelData = {
    * Starts at 1 for the first message and increments from there.
    */
   streamSequence?: number;
+
+  /**
+   * Information about the users on behalf of whom the action is performed.
+   */
+  onBehalfOf?: OnBehalfOf[];
+
+  /**
+   * List of teams that a channel was shared with.
+   */
+  sharedWithTeams?: TeamInfo[]
+  
+  /**
+   * List of teams that a channel was unshared from.
+   */
+  unsharedFromTeams?: TeamInfo[];
+
+  /**
+   * Information about the source of a member that was added or removed from a shared channel.
+   */
+  membershipSource?: MembershipSource;
 };
 
 export * from './channel-info';
 export * from './notification-info';
+export * from './on-behalf-of';
 export * from './settings';
 export * from './team-info';
 export * from './tenant-info';

@@ -1,0 +1,146 @@
+{
+  "name": "@microsoft/teams.graph-endpoints",
+  "sideEffects": false,
+  "version": "2.0.0-preview.9",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "@microsoft/teams.graph-endpoints": [
+        "./dist/index.d.ts"
+      ],
+      "*": [
+        "./dist/*/index.d.ts"
+      ]
+    }
+  },
+  "homepage": "https://github.com/microsoft/teams.ts",
+  "bugs": "https://github.com/microsoft/teams.ts/issues",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/teams.ts.git",
+    "directory": "packages/graph-endpoints"
+  },
+  "keywords": [
+    "microsoft",
+    "teams",
+    "msteams",
+    "copilot",
+    "graph"
+  ],
+  "scripts": {
+    "clean": "npx rimraf ./dist",
+    "build:esm": "npx cross-env NODE_OPTIONS='--max-old-space-size=16384' npx tsup --format esm",
+    "build:esm:no-clean": "npx cross-env NODE_OPTIONS='--max-old-space-size=16384' npx tsup --format esm --no-clean",
+    "build:cjs": "npx cross-env NODE_OPTIONS='--max-old-space-size=16384' npx tsup --format cjs",
+    "build:cjs:no-clean": "npx cross-env NODE_OPTIONS='--max-old-space-size=16384' npx tsup --format cjs --no-clean",
+    "build:types": "npx tsc --emitDeclarationOnly",
+    "build": "npm run clean && npm run build:esm:no-clean && npm run build:cjs:no-clean && npm run build:types && npm run fix:esm-imports && npx rimraf ./dist/index.d.mts",
+    "fix:esm-imports": "node ../graph-tools/dist/fix-esm-import-paths.js ./dist",
+    "gen": "npm run gen:types && npm run gen:endpoints",
+    "gen:types": "npx cross-env NODE_OPTIONS='--max-old-space-size=16384' npx @microsoft/teams.graph-tools generate-types ../graph/openapi.yaml ./src v1.0",
+    "gen:endpoints": "npx cross-env NODE_OPTIONS='--max-old-space-size=16384' npx @microsoft/teams.graph-tools generate-endpoints ../graph/openapi.yaml ./src v1.0"
+  },
+  "devDependencies": {
+    "@microsoft/teams.graph-tools": "2.0.0-preview.9",
+    "rimraf": "^6.0.1",
+    "tsup": "^8.4.0",
+    "typescript": "^5.4.5"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./*": {
+      "import": [
+        "./dist/*/index.mjs"
+      ],
+      "require": [
+        "./dist/*/index.js"
+      ]
+    },
+    "./*/*": {
+      "import": [
+        "./dist/*/*/index.mjs"
+      ],
+      "require": [
+        "./dist/*/*/index.js"
+      ]
+    },
+    "./*/*/*": {
+      "import": [
+        "./dist/*/*/*/index.mjs"
+      ],
+      "require": [
+        "./dist/*/*/*/index.js"
+      ]
+    },
+    "./*/*/*/*": {
+      "import": [
+        "./dist/*/*/*/*/index.mjs"
+      ],
+      "require": [
+        "./dist/*/*/*/*/index.js"
+      ]
+    },
+    "./*/*/*/*/*": {
+      "import": [
+        "./dist/*/*/*/*/*/index.mjs"
+      ],
+      "require": [
+        "./dist/*/*/*/*/*/index.js"
+      ]
+    },
+    "./*/*/*/*/*/*": {
+      "import": [
+        "./dist/*/*/*/*/*/*/index.mjs"
+      ],
+      "require": [
+        "./dist/*/*/*/*/*/*/index.js"
+      ]
+    },
+    "./*/*/*/*/*/*/*": {
+      "import": [
+        "./dist/*/*/*/*/*/*/*/index.mjs"
+      ],
+      "require": [
+        "./dist/*/*/*/*/*/*/*/index.js"
+      ]
+    },
+    "./*/*/*/*/*/*/*/*": {
+      "import": [
+        "./dist/*/*/*/*/*/*/*/*/index.mjs"
+      ],
+      "require": [
+        "./dist/*/*/*/*/*/*/*/*/index.js"
+      ]
+    },
+    "./*/*/*/*/*/*/*/*/*": {
+      "import": [
+        "./dist/*/*/*/*/*/*/*/*/*/index.mjs"
+      ],
+      "require": [
+        "./dist/*/*/*/*/*/*/*/*/*/index.js"
+      ]
+    },
+    "./*/*/*/*/*/*/*/*/*/*": {
+      "import": [
+        "./dist/*/*/*/*/*/*/*/*/*/*/index.mjs"
+      ],
+      "require": [
+        "./dist/*/*/*/*/*/*/*/*/*/*/index.js"
+      ]
+    }
+  }
+}

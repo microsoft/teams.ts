@@ -1,0 +1,38 @@
+import type { EndpointRequest, Operation } from './../../../types/common.ts';
+
+export interface IEndpoints {
+  'GET /privacy/subjectRightsRequests/{subjectRightsRequest-id}/approvers/{user-id}/serviceProvisioningErrors': Operation<
+    '/privacy/subjectRightsRequests/{subjectRightsRequest-id}/approvers/{user-id}/serviceProvisioningErrors',
+    'get'
+  >;
+}
+
+/**
+ * `GET /privacy/subjectRightsRequests/{subjectRightsRequest-id}/approvers/{user-id}/serviceProvisioningErrors`
+ *
+ * Errors published by a federated service describing a nontransient, service-specific error regarding the properties or link from a user object.  Supports $filter (eq, not, for isResolved and serviceInstance).
+ * @deprecated
+ */
+export function list(
+  params?: IEndpoints['GET /privacy/subjectRightsRequests/{subjectRightsRequest-id}/approvers/{user-id}/serviceProvisioningErrors']['parameters']
+): EndpointRequest<
+  IEndpoints['GET /privacy/subjectRightsRequests/{subjectRightsRequest-id}/approvers/{user-id}/serviceProvisioningErrors']['response']
+> {
+  return {
+    method: 'get',
+    path: '/privacy/subjectRightsRequests/{subjectRightsRequest-id}/approvers/{user-id}/serviceProvisioningErrors',
+    paramDefs: [
+      { name: '$top', in: 'query' },
+      { name: '$skip', in: 'query' },
+      { name: '$search', in: 'query' },
+      { name: '$filter', in: 'query' },
+      { name: '$count', in: 'query' },
+      { name: '$orderby', in: 'query' },
+      { name: '$select', in: 'query' },
+      { name: '$expand', in: 'query' },
+      { name: 'subjectRightsRequest-id', in: 'path' },
+      { name: 'user-id', in: 'path' },
+    ],
+    params,
+  };
+}

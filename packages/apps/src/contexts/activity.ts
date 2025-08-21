@@ -21,7 +21,7 @@ import { IStorage } from '@microsoft/teams.common/storage';
 import { ApiClient, GraphClient } from '../api';
 import { ISender, IStreamer } from '../types';
 
-export interface IActivityContextOptions<T extends Activity = Activity> {
+export interface IBaseActivityContextOptions<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>> {
   /**
    * the app id of the bot
    */
@@ -89,9 +89,11 @@ export interface IActivityContextOptions<T extends Activity = Activity> {
    * call the next event/middleware handler
    */
   next: (
-    context?: IActivityContext
+    context?: IActivityContext & TExtraCtx
   ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 }
+
+export type IActivityContextOptions<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>> = IBaseActivityContextOptions<T, TExtraCtx> & TExtraCtx;
 
 type SignInOptions = {
   /**
@@ -116,8 +118,8 @@ type SignInOptions = {
   ) => ActivityLike;
 };
 
-export interface IActivityContext<T extends Activity = Activity>
-  extends IActivityContextOptions<T> {
+export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>>
+  extends IBaseActivityContextOptions<T, TExtraCtx> {
   /**
    * a stream that can emit activity chunks
    */
@@ -149,13 +151,16 @@ export interface IActivityContext<T extends Activity = Activity>
   signout: (name?: string) => Promise<void>;
 }
 
+export type IActivityContext<T extends Activity = Activity, TExtraContext = unknown> = 
+  IBaseActivityContext<T> & (TExtraContext extends Record<string, any> ? TExtraContext : {});
+
 export const DEFAULT_SIGNIN_OPTIONS: SignInOptions = {
   oauthCardText: 'Please Sign In...',
   signInButtonText: 'Sign In',
 };
 
-export class ActivityContext<T extends Activity = Activity>
-  implements IActivityContext<T> {
+export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {} = {}>
+  implements IBaseActivityContext<T, TExtraCtx> {
   appId!: string;
   activity!: T;
   ref!: ConversationReference;
@@ -177,7 +182,7 @@ export class ActivityContext<T extends Activity = Activity>
     context?: IActivityContext
   ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 
-  constructor(plugin: ISender, value: IActivityContextOptions) {
+  constructor(plugin: ISender, value: IBaseActivityContextOptions) {
     Object.assign(this, value);
     this._plugin = plugin;
     this.stream = plugin.createStream(value.ref);
