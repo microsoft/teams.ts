@@ -6,7 +6,7 @@ import { UnionToIntersection } from './union-to-intersection';
 /**
  * Extracts the events from a plugin if it extends PluginWithEvents
  */
-export type PluginEvents<T> = T extends IPlugin<infer Events>
+export type PluginEvents<T> = T extends IPlugin<any, infer Events>
   ? Events
   : {};
 

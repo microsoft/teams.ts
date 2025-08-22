@@ -8,7 +8,7 @@ import {
   IToken,
   JsonWebToken,
   StripMentionsTextOptions,
-  toActivityParams,
+  toActivityParams
 } from '@microsoft/teams.api';
 import { EventEmitter } from '@microsoft/teams.common/events';
 import * as http from '@microsoft/teams.common/http';
@@ -41,6 +41,7 @@ import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { AppEvents, IPlugin } from './types';
+import { PluginAdditionalContext } from './types/app-routing';
 
 /**
  * App initialization options
@@ -181,7 +182,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
   protected container = new Container();
   protected plugins: Array<TPlugin> = [];
-  protected router = new Router();
+  protected router = new Router<PluginAdditionalContext<TPlugin>>();
   protected tenantTokens = new LocalStorage<string>({}, { max: 20000 });
   protected events = new EventEmitter<AppEvents<TPlugin>>();
   protected startedAt?: Date;
