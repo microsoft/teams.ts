@@ -2,23 +2,19 @@ import { Activity, InvokeResponse } from '@microsoft/teams.api';
 
 import { App } from './app';
 import { IActivityContext } from './contexts';
-import { IRoutes } from './routes';
+import { Routes } from './routes';
 import { IPlugin, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
-
-type AppPlugin<TApp extends App> = TApp extends App<infer TPlugin> ? TPlugin : never;
-
-export type AppRoutingHandler<Name extends keyof IRoutes, TApp extends App<any>> = Exclude<IRoutes<PluginAdditionalContext<AppPlugin<TApp>>>[Name], undefined>;
 
 /**
  * subscribe to an event
  * @param name event to subscribe to
  * @param cb callback to invoke
  */
-export function on<TPlugin extends IPlugin, Name extends keyof IRoutes,>(
+export function on<TPlugin extends IPlugin, Name extends keyof Routes>(
   this: App<TPlugin>,
   name: Name,
-  cb: Exclude<IRoutes<PluginAdditionalContext<TPlugin>>[Name], undefined>
+  cb: Exclude<Routes<PluginAdditionalContext<TPlugin>>[Name], undefined>
 ) {
   this.router.on(name, cb);
   return this;
@@ -32,7 +28,7 @@ export function on<TPlugin extends IPlugin, Name extends keyof IRoutes,>(
 export function message<TPlugin extends IPlugin>(
   this: App<TPlugin>,
   pattern: string | RegExp,
-  cb: Exclude<IRoutes<PluginAdditionalContext<TPlugin>>['message'], undefined>
+  cb: Exclude<Routes<PluginAdditionalContext<TPlugin>>['message'], undefined>
 ) {
   this.router.register<'message'>({
     select: (activity) => {

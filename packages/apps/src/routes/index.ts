@@ -23,6 +23,10 @@ export interface IRoutes<TExtraCtx extends Record<string, any> = Record<string, 
   activity?: RouteHandler<IActivityContext<Activity, TExtraCtx>>;
 }
 
+export type Routes<TExtraCtx extends Record<string, any> = Record<string, any>> = {
+  [K in keyof IRoutes as K | `${'webchat' | 'msteams'}.${K}`]?: IRoutes<TExtraCtx>[K];
+};
+
 export * from './activity';
 export * from './conversation-update';
 export * from './event';
