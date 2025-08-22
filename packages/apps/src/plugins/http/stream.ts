@@ -161,12 +161,12 @@ export class HttpStream implements IStreamer {
       // Send informative updates immediately
       for (const informativeUpdate of informativeUpdates) {
         const activity = new TypingActivity().withText(informativeUpdate.text || '').withChannelData({ streamType: 'informative' });
-        await this.send_activity(activity);
+        await this.pushStreamChunk(activity);
       }
 
       if (this.text) {
         const activity = new TypingActivity().withText(this.text);
-        await this.send_activity(activity);
+        await this.pushStreamChunk(activity);
       }
 
       if (this.queue.length) {
@@ -177,7 +177,7 @@ export class HttpStream implements IStreamer {
     }
   }
 
-  protected async send_activity(activity: TypingActivity) {
+  protected async pushStreamChunk(activity: TypingActivity) {
       if (this.id) {
         activity.id = this.id;
       }
