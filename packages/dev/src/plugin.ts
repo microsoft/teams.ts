@@ -69,7 +69,9 @@ export class DevtoolsPlugin implements ISender {
   protected pending: Record<string, ResolveRejctPromise> = {};
   protected pages: Array<Page> = [];
 
-  constructor() {
+  private readonly customPort?: number;
+
+  constructor(customPort?: number) {
     const dist = path.join(__dirname, 'devtools-web');
     this.express = express();
     this.http = http.createServer(this.express);
@@ -79,6 +81,7 @@ export class DevtoolsPlugin implements ISender {
     this.express.get('/devtools/*', (_, res) => {
       res.sendFile(path.join(dist, 'index.html'));
     });
+    this.customPort = customPort;
   }
 
   /**
@@ -103,8 +106,8 @@ export class DevtoolsPlugin implements ISender {
   }
 
   onStart({ port }: IPluginStartEvent) {
-    let numericPort = typeof port === 'string' ? parseInt(port, 10) : port;
-    numericPort += 1;
+    const numericPort = this.customPort ?? (
+    typeof port === 'string' ? parseInt(port, 10) + 1: port + 1);
     console.log(`Starting devtools on port ${numericPort}`);
 
     this.express.use(
