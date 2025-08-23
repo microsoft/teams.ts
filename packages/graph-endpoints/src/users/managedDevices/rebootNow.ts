@@ -1,0 +1,31 @@
+import type { EndpointRequest, Operation } from './../../types/common.ts';
+
+export interface IEndpoints {
+  'POST /users/{user-id}/managedDevices/{managedDevice-id}/rebootNow': Operation<
+    '/users/{user-id}/managedDevices/{managedDevice-id}/rebootNow',
+    'post'
+  >;
+}
+
+/**
+ * `POST /users/{user-id}/managedDevices/{managedDevice-id}/rebootNow`
+ *
+ * Reboot device
+ */
+export function create(
+  body: IEndpoints['POST /users/{user-id}/managedDevices/{managedDevice-id}/rebootNow']['body'],
+  params?: IEndpoints['POST /users/{user-id}/managedDevices/{managedDevice-id}/rebootNow']['parameters']
+): EndpointRequest<
+  IEndpoints['POST /users/{user-id}/managedDevices/{managedDevice-id}/rebootNow']['response']
+> {
+  return {
+    method: 'post',
+    path: '/users/{user-id}/managedDevices/{managedDevice-id}/rebootNow',
+    paramDefs: [
+      { name: 'user-id', in: 'path' },
+      { name: 'managedDevice-id', in: 'path' },
+    ],
+    params,
+    body,
+  };
+}
