@@ -97,9 +97,6 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
         if (!fn) {
           throw new Error(`function ${call.name} not found`);
         }
-        if (!fn.handler) {
-          throw new Error(`function ${call.name} has no handler`);
-        }
 
         let content = '';
 
