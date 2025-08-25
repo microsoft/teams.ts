@@ -6,7 +6,7 @@ export type Function = {
   readonly name: string;
   readonly description: string;
   readonly parameters: Schema;
-  readonly handler: FunctionHandler;
+  readonly handler?: FunctionHandler;
 };
 
 export type FunctionCall = {

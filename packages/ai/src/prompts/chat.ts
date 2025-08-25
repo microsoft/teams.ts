@@ -142,7 +142,14 @@ export class ChatPrompt<
     if (!fn) {
       throw new Error(`function "${name}" not found`);
     }
-    return this.executeFunction(name, fn, args);
+    if (fn.handler == null) {
+      throw new Error(`function "${name}" has no handler`);
+    }
+    const withHandler = {
+      ...fn,
+      handler: fn.handler?.bind(fn),
+    };
+    return this.executeFunction(name, withHandler, args);
   }
 
   async send(input: string | ContentPart[], options: ChatPromptSendOptions<TOptions> = {}) {
@@ -196,9 +203,10 @@ export class ChatPrompt<
     }
 
     const fnMap = functions.reduce((acc, fn) => {
+      const handler = fn.handler?.bind(fn);
       acc[fn.name] = {
         ...fn,
-        handler: (args: any) => this.executeFunction(fn.name, fn, args),
+        handler: handler ? (args: any) => this.executeFunction(fn.name, { ...fn, handler }, args) : undefined,
       };
       return acc;
     }, {} as Record<string, Function>);
@@ -288,7 +296,7 @@ export class ChatPrompt<
 
   protected async executeFunction<R = any>(
     name: string,
-    fn: Function,
+    fn: WithRequired<Function, 'handler'>,
     args?: Record<string, any>
   ): Promise<R> {
     const processedArgs = args || {};

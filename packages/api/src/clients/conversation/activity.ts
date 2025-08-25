@@ -33,6 +33,7 @@ export class ConversationActivityClient {
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
       params
     );
+    console.log(JSON.stringify({ params, res: res.data }));
     return res.data;
   }
 
