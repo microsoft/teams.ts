@@ -1,0 +1,29 @@
+import type { EndpointRequest, Operation } from './../../../types/common.ts';
+
+export interface IEndpoints {
+  'POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/setReviewStatus': Operation<
+    '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/setReviewStatus',
+    'post'
+  >;
+}
+
+/**
+ * `POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/setReviewStatus`
+ *
+ * Set the review status of a specific Cloud PC device using the Cloud PC ID. Use this API to set the review status of a Cloud PC to in review if you consider a Cloud PC suspicious. After the review is completed, use this API again to set the Cloud PC back to a normal state.
+ */
+export function create(
+  body: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/setReviewStatus']['body'],
+  params?: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/setReviewStatus']['parameters']
+): EndpointRequest<
+  IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/setReviewStatus']['response']
+> {
+  return {
+    ver: 'beta',
+    method: 'post',
+    path: '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/setReviewStatus',
+    paramDefs: [{ name: 'cloudPC-id', in: 'path' }],
+    params,
+    body,
+  };
+}
