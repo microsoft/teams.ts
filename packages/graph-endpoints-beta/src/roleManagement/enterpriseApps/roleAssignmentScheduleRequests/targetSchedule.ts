@@ -1,0 +1,33 @@
+import type { EndpointRequest, Operation } from './../../../types/common.ts';
+
+export interface IEndpoints {
+  'GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleRequests/{unifiedRoleAssignmentScheduleRequest-id}/targetSchedule': Operation<
+    '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleRequests/{unifiedRoleAssignmentScheduleRequest-id}/targetSchedule',
+    'get'
+  >;
+}
+
+/**
+ * `GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleRequests/{unifiedRoleAssignmentScheduleRequest-id}/targetSchedule`
+ *
+ * The schedule for an eligible role assignment that is referenced through the targetScheduleId property. Supports $expand and $select nested in $expand.
+ * @deprecated
+ */
+export function get(
+  params?: IEndpoints['GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleRequests/{unifiedRoleAssignmentScheduleRequest-id}/targetSchedule']['parameters']
+): EndpointRequest<
+  IEndpoints['GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleRequests/{unifiedRoleAssignmentScheduleRequest-id}/targetSchedule']['response']
+> {
+  return {
+    ver: 'beta',
+    method: 'get',
+    path: '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleRequests/{unifiedRoleAssignmentScheduleRequest-id}/targetSchedule',
+    paramDefs: [
+      { name: '$select', in: 'query' },
+      { name: '$expand', in: 'query' },
+      { name: 'rbacApplication-id', in: 'path' },
+      { name: 'unifiedRoleAssignmentScheduleRequest-id', in: 'path' },
+    ],
+    params,
+  };
+}

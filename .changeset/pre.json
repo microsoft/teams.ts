@@ -29,7 +29,10 @@
     "@tests/message-extensions": "0.0.0",
     "@tests/tab": "0.0.0",
     "@microsoft/teams.a2a": "0.1.0",
-    "@tests/a2a": "0.0.0"
+    "@tests/a2a": "0.0.0",
+    "@microsoft/teams.graph-endpoints": "2.0.0-preview.9",
+    "@microsoft/teams.graph-endpoints-beta": "2.0.0-preview.9",
+    "@microsoft/teams.graph-tools": "2.0.0-preview.9"
   },
   "changesets": [
     "chatty-numbers-knock",
@@ -38,6 +41,7 @@
     "giant-swans-build",
     "kind-toys-cheer",
     "new-olives-rest",
+    "polite-houses-doubt",
     "smooth-hoops-float",
     "social-ghosts-move",
     "strong-dolls-pay",

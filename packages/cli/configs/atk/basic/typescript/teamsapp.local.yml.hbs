@@ -19,15 +19,6 @@ provision:
     writeToEnvironmentFile:
         teamsAppId: TEAMS_APP_ID
 
-  # Automates the creation an Azure AD app registration which is required for a bot.
-  # The Bot ID (AAD app client ID) and Bot Password (AAD app client secret) are saved to an environment file.
-  - uses: botAadApp/create
-    with:
-        name: {{ toPascalCase name }}$\{{APP_NAME_SUFFIX}}
-    writeToEnvironmentFile:
-        botId: BOT_ID
-        botPassword: SECRET_BOT_PASSWORD
-
   # Automates the creation and configuration of a Bot Framework registration which is required for a bot.
   # This configures the bot to use the Azure AD app registration created in the previous step.
   # M365 Agents Toolkit automatically creates a local Dev Tunnel URL and updates BOT_ENDPOINT when debugging (F5).
