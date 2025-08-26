@@ -1,0 +1,94 @@
+{{#each clients}}
+export * as {{exportName}} from './{{@key}}';
+{{/each}}
+
+{{#if (notEmpty endpoints)}}
+import type { EndpointRequest, Operation } from './{{commonPath}}';
+
+export interface IEndpoints {
+  {{#each endpoints}}
+  "{{@key}}": Operation<
+    "{{url}}",
+    "{{method}}"
+  >,
+  {{/each}}
+}
+{{/if}}
+
+
+{{#each endpoints}}
+/**
+  * `{{uppercase method}} {{url}}`
+  *
+  {{#if description}}
+  * {{description}}
+  {{/if}}
+  {{#if deprecated}}
+  * @deprecated
+  {{/if}}
+  */
+{{#if (eq method "get")}}
+export function {{name}}(
+  params?: IEndpoints['{{@key}}']['parameters'], 
+  ) : EndpointRequest<IEndpoints['{{@key}}']['response']> {
+  return {
+    {{#if (eq ../apiVersion "beta")}}
+    ver: 'beta',
+    {{/if}}
+    method: 'get',
+    path: '{{url}}',
+    paramDefs: [
+      {{#if (notEmpty parameters)}}
+      {{#each parameters}}
+      { name: '{{name}}', in: '{{in}}' },
+      {{/each}}
+      {{/if}}
+    ],
+    params
+  };
+}
+{{else if (eq method "delete")}}
+export function del(
+  params?: IEndpoints['{{@key}}']['parameters'], 
+) : EndpointRequest<IEndpoints['{{@key}}']['response']> {
+  return {
+    {{#if (eq ../apiVersion "beta")}}
+    ver: 'beta',
+    {{/if}}
+    method: 'delete',
+    path: '{{url}}',
+    paramDefs: [
+      {{#if (notEmpty parameters)}}
+      {{#each parameters}}
+      { name: '{{name}}', in: '{{in}}' },
+      {{/each}}
+      {{/if}}
+    ],
+    params
+  };
+}
+{{else}}
+export function {{name}}(
+  body: IEndpoints['{{@key}}']['body'],
+  params?: IEndpoints['{{@key}}']['parameters'],
+) : EndpointRequest<IEndpoints['{{@key}}']['response']> {
+  return {
+    {{#if (eq ../apiVersion "beta")}}
+    ver: 'beta',
+    {{/if}}
+    method: '{{method}}',
+    path: '{{url}}',
+    paramDefs: [
+      {{#if (notEmpty parameters)}}
+      {{#each parameters}}
+      { name: '{{name}}', in: '{{in}}' },
+      {{/each}}
+      {{/if}}
+    ],
+    params,
+    body,
+  };
+}
+{{/if}}
+
+{{/each}}

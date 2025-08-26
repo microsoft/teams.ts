@@ -1,3 +1,5 @@
+import { Activity } from '@microsoft/teams.api';
+
 import { IActivityContext } from '../contexts';
 import { RouteHandler } from '../types';
 
@@ -9,22 +11,23 @@ import { InvokeActivityRoutes } from './invoke';
 import { MessageDeleteActivityRoutes } from './message-delete';
 import { MessageUpdateActivityRoutes } from './message-update';
 
-export interface IRoutes
-  extends ActivityRoutes,
-    InvokeActivityRoutes,
-    InstallActivityRoutes,
-    ConversationUpdateActivityRoutes,
-    MessageUpdateActivityRoutes,
-    MessageDeleteActivityRoutes,
-    EventActivityRoutes {
-  mention?: RouteHandler<IActivityContext>;
-  activity?: RouteHandler<IActivityContext>;
+export interface IRoutes<TExtraCtx extends Record<string, any> = Record<string, any>>
+  extends ActivityRoutes<TExtraCtx>,
+  InvokeActivityRoutes<TExtraCtx>,
+  InstallActivityRoutes<TExtraCtx>,
+  ConversationUpdateActivityRoutes<TExtraCtx>,
+  MessageUpdateActivityRoutes<TExtraCtx>,
+  MessageDeleteActivityRoutes<TExtraCtx>,
+  EventActivityRoutes<TExtraCtx> {
+  mention?: RouteHandler<IActivityContext<Activity, TExtraCtx>>;
+  activity?: RouteHandler<IActivityContext<Activity, TExtraCtx>>;
 }
 
 export * from './activity';
+export * from './conversation-update';
+export * from './event';
 export * from './install';
 export * from './invoke';
-export * from './conversation-update';
-export * from './message-update';
 export * from './message-delete';
-export * from './event';
+export * from './message-update';
+

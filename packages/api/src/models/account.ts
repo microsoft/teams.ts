@@ -1,3 +1,4 @@
+import { MembershipSource } from './membership-source';
 import { Role } from './role';
 
 export type Account<P = any> = {
@@ -6,6 +7,7 @@ export type Account<P = any> = {
   readonly role: Role;
   readonly name: string;
   readonly properties?: P;
+  readonly membershipSources?: MembershipSource[];
 };
 
 export type ConversationAccount = {

@@ -1,8 +1,5 @@
 import { ActivityLike, ConversationReference, isInvokeResponse } from '@microsoft/teams.api';
 
-
-
-
 import { ApiClient, GraphClient } from './api';
 import { App } from './app';
 import { ActivityContext, IActivityContext } from './contexts';
@@ -70,17 +67,30 @@ export async function $process<TPlugin extends IPlugin>(
 
   const routes = this.router.select(activity);
 
+  let pluginContexts: {} = {};
   for (let i = this.plugins.length - 1; i > -1; i--) {
     const plugin = this.plugins[i];
 
     if (plugin.onActivity) {
-      routes.unshift(({ next }) => {
-        plugin.onActivity!({
+      routes.unshift(async ({ next }) => {
+        const additionalPluginContext = await plugin.onActivity!({
           ...ref,
           sender: sender,
           activity,
           token,
         });
+
+        if (additionalPluginContext) {
+          for (const key in additionalPluginContext) {
+            if (key in pluginContexts) {
+              this.log.warn(`Plugin context key "${key}" already exists. Overriding.`);
+            }
+          }
+          pluginContexts = {
+            ...pluginContexts,
+            ...additionalPluginContext,
+          };
+        }
 
         return next();
       });
@@ -117,6 +127,7 @@ export async function $process<TPlugin extends IPlugin>(
     storage: this.storage,
     isSignedIn: !!userToken,
     connectionName: this.oauth.defaultConnectionName,
+    ...pluginContexts
   });
 
   if (routes.length === 0) {
