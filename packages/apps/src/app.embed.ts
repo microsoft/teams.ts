@@ -5,7 +5,7 @@ import { ActivityLike } from '@microsoft/teams.api';
 import { App } from './app';
 import { IFunctionContext } from './contexts';
 import * as manifest from './manifest';
-import { ClientAuthRequest, withClientAuth } from './middleware';
+import { JwtRemoteFunctionRequest, withRemoteFunctionJwtValidation } from './middleware';
 import { IPlugin } from './types';
 import { functionContext } from './utils';
 
@@ -22,12 +22,12 @@ export function func<TPlugin extends IPlugin, TData>(
   const log = this.log.child('functions').child(name);
   this.http.post(
     `/api/functions/${name}`,
-    withClientAuth({
+    withRemoteFunctionJwtValidation({
       logger: log,
       entraTokenValidator: this.entraTokenValidator,
       ...this.credentials,
     }),
-    async (req: ClientAuthRequest, res) => {
+    async (req: JwtRemoteFunctionRequest, res) => {
       if (!req.context) {
         throw new Error('expected client context');
       }

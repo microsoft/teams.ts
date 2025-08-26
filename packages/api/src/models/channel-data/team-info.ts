@@ -19,4 +19,9 @@ export type TeamInfo = {
    * @member {string} [aadGroupId] The Azure AD Teams group ID.
    */
   aadGroupId?: string;
+
+  /**
+   * @member {string} [type] The tenant ID of the team.
+   */
+  tenantId?: string;
 };

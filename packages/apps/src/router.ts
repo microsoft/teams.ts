@@ -1,17 +1,17 @@
-import { Activity } from '@microsoft/teams.api';
+import { Activity, InvokeResponse } from '@microsoft/teams.api';
 
 import { IActivityContext } from './contexts';
-import { EVENT_ALIASES, IRoutes, INVOKE_ALIASES } from './routes';
+import { EVENT_ALIASES, INVOKE_ALIASES, IRoutes } from './routes';
 import { RouteHandler } from './types';
 
-type Route<Name extends keyof IRoutes = keyof IRoutes> = {
+type Route<Name extends keyof IRoutes = keyof IRoutes, TExtraCtx extends Record<string, any> = Record<string, any>> = {
   readonly name?: Name;
   readonly select: (activity: Activity) => boolean;
-  readonly callback: IRoutes[Name];
+  readonly callback: IRoutes<TExtraCtx>[Name];
 };
 
-export class Router {
-  protected readonly routes: Route[] = [];
+export class Router<TExtraCtx extends Record<string, any> = Record<string, any>> {
+  protected readonly routes: Route<keyof IRoutes, TExtraCtx>[] = [];
 
   /**
    * select routes that match the inbound activity
@@ -27,7 +27,7 @@ export class Router {
    * register a new route
    * @param route the route to register
    */
-  register<Name extends keyof IRoutes>(route: Route<Name>) {
+  register<Name extends keyof IRoutes>(route: Route<Name, TExtraCtx>) {
     this.routes.push(route);
     return this;
   }
@@ -36,7 +36,7 @@ export class Router {
    * register a middleware
    * @param callback the callback to invoke
    */
-  use(callback: RouteHandler<IActivityContext, any>) {
+  use(callback: RouteHandler<IActivityContext<Activity, TExtraCtx>, void | InvokeResponse>) {
     this.register({
       select: () => true,
       callback,
@@ -50,7 +50,7 @@ export class Router {
    * @param event event to subscribe to
    * @param callback the callback to invoke
    */
-  on<Name extends keyof IRoutes>(event: Name, callback: Exclude<IRoutes[Name], undefined>) {
+  on<Name extends keyof IRoutes>(event: Name, callback: Exclude<IRoutes<TExtraCtx>[Name], undefined>) {
     this.register({
       name: event,
       select: (activity) => {

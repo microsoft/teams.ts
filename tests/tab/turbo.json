@@ -12,7 +12,8 @@
         "@microsoft/teams.common#build",
         "@microsoft/teams.client#build",
         "@microsoft/teams.dev#build",
-        "@microsoft/teams.graph#build"
+        "@microsoft/teams.graph#build",
+        "@microsoft/teams.graph-endpoints#build"
       ]
     }
   }

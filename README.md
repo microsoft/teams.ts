@@ -72,6 +72,8 @@ $: npm run test
 - [`@microsoft/teams.dev`](./packages/dev/README.md)
 - [`@microsoft/teams.devtools`](./packages/devtools/README.md)
 - [`@microsoft/teams.graph`](./packages/graph/README.md)
+- [`@microsoft/teams.graph-endpoints`](./packages/graph-endpoints/README.md)
+- [`@microsoft/teams.graph-endpoints-beta`](./packages/graph-endpoints-beta/README.md)
 - [`@microsoft/teams.openai`](./packages/openai/README.md)
 
 ## External Packages
@@ -88,11 +90,12 @@ $: npm run test
 > ⚠️ **WARNING** these apps are changed often and are not intended to be used outside the
 > projects monorepo. To easily setup a new project please use the **templates** available via
 > the `@microsoft/teams.cli` and follow the
-> [Getting Started](https://microsoft.github.io/teams-ai/2.getting-started/1.create-application.html) documentation!
+> [Getting Started](https://microsoft.github.io/teams-ai/typescript/getting-started) documentation!
 
 - [`@tests/echo`](./tests/echo/README.md)
-- [`@tests/botbuilder`](./tests/botbuilder/README.md)
 - [`@tests/auth`](./tests/auth/README.md)
+- [`@tests/botbuilder`](./tests/botbuilder/README.md)
+- [`@tests/graph`](./tests/graph/README.md)
 - [`@tests/lights`](./tests/lights/README.md)
 - [`@tests/tab`](./tests/tab/README.md)
 - [`@tests/mcp`](./tests/mcp/README.md)

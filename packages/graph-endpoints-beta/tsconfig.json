@@ -1,0 +1,13 @@
+{
+  "extends": "@microsoft/teams.config/tsconfig.esm.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "baseUrl": ".",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "isolatedModules": true,
+    "isolatedDeclarations": true,
+  },
+  "include": ["src/**/*.ts"]
+}
