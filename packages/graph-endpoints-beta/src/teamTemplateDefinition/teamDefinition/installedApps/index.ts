@@ -1,0 +1,146 @@
+export * as teamsApp from './teamsApp';
+export * as teamsAppDefinition from './teamsAppDefinition';
+export * as upgrade from './upgrade';
+
+import type { EndpointRequest, Operation } from './../../../types/common.ts';
+
+export interface IEndpoints {
+  'DELETE /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}': Operation<
+    '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}',
+    'delete'
+  >;
+  'GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps': Operation<
+    '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps',
+    'get'
+  >;
+  'GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}': Operation<
+    '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}',
+    'get'
+  >;
+  'PATCH /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}': Operation<
+    '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}',
+    'patch'
+  >;
+  'POST /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps': Operation<
+    '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps',
+    'post'
+  >;
+}
+
+/**
+ * `DELETE /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}`
+ *
+ */
+export function del(
+  params?: IEndpoints['DELETE /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}']['parameters']
+): EndpointRequest<
+  IEndpoints['DELETE /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}']['response']
+> {
+  return {
+    ver: 'beta',
+    method: 'delete',
+    path: '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}',
+    paramDefs: [
+      { name: 'If-Match', in: 'header' },
+      { name: 'teamTemplateDefinition-id', in: 'path' },
+      { name: 'teamsAppInstallation-id', in: 'path' },
+    ],
+    params,
+  };
+}
+
+/**
+ * `GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps`
+ *
+ * The apps installed in this team.
+ */
+export function list(
+  params?: IEndpoints['GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps']['parameters']
+): EndpointRequest<
+  IEndpoints['GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps']['response']
+> {
+  return {
+    ver: 'beta',
+    method: 'get',
+    path: '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps',
+    paramDefs: [
+      { name: '$top', in: 'query' },
+      { name: '$skip', in: 'query' },
+      { name: '$search', in: 'query' },
+      { name: '$filter', in: 'query' },
+      { name: '$count', in: 'query' },
+      { name: '$orderby', in: 'query' },
+      { name: '$select', in: 'query' },
+      { name: '$expand', in: 'query' },
+      { name: 'teamTemplateDefinition-id', in: 'path' },
+    ],
+    params,
+  };
+}
+
+/**
+ * `GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}`
+ *
+ * The apps installed in this team.
+ */
+export function get(
+  params?: IEndpoints['GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}']['parameters']
+): EndpointRequest<
+  IEndpoints['GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}']['response']
+> {
+  return {
+    ver: 'beta',
+    method: 'get',
+    path: '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}',
+    paramDefs: [
+      { name: '$select', in: 'query' },
+      { name: '$expand', in: 'query' },
+      { name: 'teamTemplateDefinition-id', in: 'path' },
+      { name: 'teamsAppInstallation-id', in: 'path' },
+    ],
+    params,
+  };
+}
+
+/**
+ * `PATCH /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}`
+ *
+ */
+export function update(
+  body: IEndpoints['PATCH /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}']['body'],
+  params?: IEndpoints['PATCH /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}']['parameters']
+): EndpointRequest<
+  IEndpoints['PATCH /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}']['response']
+> {
+  return {
+    ver: 'beta',
+    method: 'patch',
+    path: '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps/{teamsAppInstallation-id}',
+    paramDefs: [
+      { name: 'teamTemplateDefinition-id', in: 'path' },
+      { name: 'teamsAppInstallation-id', in: 'path' },
+    ],
+    params,
+    body,
+  };
+}
+
+/**
+ * `POST /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps`
+ *
+ */
+export function create(
+  body: IEndpoints['POST /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps']['body'],
+  params?: IEndpoints['POST /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps']['parameters']
+): EndpointRequest<
+  IEndpoints['POST /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps']['response']
+> {
+  return {
+    ver: 'beta',
+    method: 'post',
+    path: '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/installedApps',
+    paramDefs: [{ name: 'teamTemplateDefinition-id', in: 'path' }],
+    params,
+    body,
+  };
+}
