@@ -36,6 +36,10 @@ type ResolveRejctPromise<T = any> = {
   readonly reject: (err: any) => void;
 };
 
+export type DevtoolsPluginOptions = {
+  readonly customPort?: number;
+};
+
 @Plugin({
   name: 'devtools',
   version: pkg.version,
@@ -69,9 +73,7 @@ export class DevtoolsPlugin implements ISender {
   protected pending: Record<string, ResolveRejctPromise> = {};
   protected pages: Array<Page> = [];
 
-  private readonly customPort?: number;
-
-  constructor(customPort?: number) {
+  constructor(readonly options: DevtoolsPluginOptions = {}) {
     const dist = path.join(__dirname, 'devtools-web');
     this.express = express();
     this.http = http.createServer(this.express);
@@ -81,7 +83,7 @@ export class DevtoolsPlugin implements ISender {
     this.express.get('/devtools/*', (_, res) => {
       res.sendFile(path.join(dist, 'index.html'));
     });
-    this.customPort = customPort;
+    this.options = options;
   }
 
   /**
@@ -106,9 +108,8 @@ export class DevtoolsPlugin implements ISender {
   }
 
   onStart({ port }: IPluginStartEvent) {
-    const numericPort = this.customPort ?? (
+    const numericPort = this.options.customPort ?? (
     typeof port === 'string' ? parseInt(port, 10) + 1: port + 1);
-    console.log(`Starting devtools on port ${numericPort}`);
 
     this.express.use(
       router({
