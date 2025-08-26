@@ -81,7 +81,8 @@ export class HttpStream implements IStreamer {
     }
 
     if (this.text === '' && !this.attachments.length) {
-      this.text = 'Stream completed without content';
+      this._logger.debug('no text or attachments to send');
+      return;
     }
 
     const activity = new MessageActivity(this.text)
