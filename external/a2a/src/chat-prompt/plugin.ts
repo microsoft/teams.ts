@@ -1,4 +1,4 @@
-import camelCase from 'camelcase';
+import camelCase from 'lodash.camelcase';
 
 import {
   Function as ChatFunction,
@@ -17,6 +17,10 @@ import {
   BuildPrompt,
   BuildTaskSendParams,
 } from './types';
+
+const pascalCase = (str: string) => {
+  return camelCase(str).replace(/^(.)/, (match) => match.toUpperCase());
+};
 
 export class A2AClientPlugin
   implements ChatPromptPlugin<'a2a', A2APluginUseParams> {
@@ -142,7 +146,7 @@ export class A2AClientPlugin
     name: string;
     description: string;
   } {
-    const name = `message${camelCase(card.name, { pascalCase: true })}`;
+    const name = `message${pascalCase(card.name)}`;
     const description =
       card.description || `Interact with agent at ${card.url}`;
     return { name, description };
