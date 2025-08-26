@@ -486,11 +486,22 @@ describe('App', () => {
 
   describe('graph', () => {
     it('should invoke the graph client', async () => {
-      const get = jest.fn();
-      buildGraphClientSpy.mockReturnValue({ me: { get } });
+      const call = jest.fn();
+
+      const getPresence = (): {
+        method: 'get';
+        path: '/me/presence';
+        paramDefs: [];
+      } => ({
+        method: 'get',
+        path: '/me/presence',
+        paramDefs: [],
+      });
+
+      buildGraphClientSpy.mockReturnValue({ call });
       const app = new App(mockClientId);
-      await app.graph.me.get();
-      expect(get).toHaveBeenCalledTimes(1);
+      await app.graph.call(getPresence);
+      expect(call).toHaveBeenCalledTimes(1);
     });
 
     it('throws if invoked before the app is started', () => {

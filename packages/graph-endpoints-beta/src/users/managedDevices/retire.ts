@@ -1,0 +1,32 @@
+import type { EndpointRequest, Operation } from './../../types/common.ts';
+
+export interface IEndpoints {
+  'POST /users/{user-id}/managedDevices/{managedDevice-id}/retire': Operation<
+    '/users/{user-id}/managedDevices/{managedDevice-id}/retire',
+    'post'
+  >;
+}
+
+/**
+ * `POST /users/{user-id}/managedDevices/{managedDevice-id}/retire`
+ *
+ * Retire a device
+ */
+export function create(
+  body: IEndpoints['POST /users/{user-id}/managedDevices/{managedDevice-id}/retire']['body'],
+  params?: IEndpoints['POST /users/{user-id}/managedDevices/{managedDevice-id}/retire']['parameters']
+): EndpointRequest<
+  IEndpoints['POST /users/{user-id}/managedDevices/{managedDevice-id}/retire']['response']
+> {
+  return {
+    ver: 'beta',
+    method: 'post',
+    path: '/users/{user-id}/managedDevices/{managedDevice-id}/retire',
+    paramDefs: [
+      { name: 'user-id', in: 'path' },
+      { name: 'managedDevice-id', in: 'path' },
+    ],
+    params,
+    body,
+  };
+}

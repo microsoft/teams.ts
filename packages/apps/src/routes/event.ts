@@ -3,9 +3,9 @@ import { EventActivity } from '@microsoft/teams.api';
 import { IActivityContext } from '../contexts';
 import { RouteHandler } from '../types';
 
-export type EventActivityRoutes = {
-  [K in EventActivity['name'] as EventAliases[K]]?: RouteHandler<
-    IActivityContext<Extract<EventActivity, { name: K }>>,
+export type EventActivityRoutes<TExtraCtx extends Record<string, any> = Record<string, any>> = {
+  [K in EventActivity['name']as EventAliases[K]]?: RouteHandler<
+    IActivityContext<Extract<EventActivity, { name: K }>, TExtraCtx>,
     void
   >;
 };
