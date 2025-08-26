@@ -81,7 +81,7 @@ export class HttpStream implements IStreamer {
     }
 
     if (this.text === '' && !this.attachments.length) {
-      this._logger.debug('no text or attachments to send');
+      this._logger.warn('no text or attachments to send, cannot close stream');
       return;
     }
 
