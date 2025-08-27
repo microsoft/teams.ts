@@ -147,14 +147,14 @@ export function Python(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
       });
       if (uvCheck.status !== 0) {
         throw new Error(
-          '"uv" is required but was not found in your PATH. Please install uv (https://github.com/astral-sh/uv) and run "cd ${name} && uv venv && uv pip install -e . && uv run src/main.py".'
+          '"uv" is required but was not found in your PATH. Please install uv (https://github.com/astral-sh/uv) and run "cd ${name} && uv venv && uv sync && uv run src/main.py".'
         );
       }
 
       if (start) {
-        console.log(`cd ${name} && uv venv && uv pip install -e . && uv run src/main.py`);
+        console.log(`cd ${name} && uv venv && uv sync && uv run src/main.py`);
 
-        cp.spawnSync('uv', ['venv' , '&&', 'uv', 'pip', 'install', '-e', '.', '&&', 'uv', 'run', 'src/main.py'], {
+        cp.spawnSync('uv', ['venv' , '&&', 'uv', 'sync', '&&', 'uv', 'run', 'src/main.py'], {
           stdio: 'inherit',
           shell: true,
           cwd: name,
@@ -162,7 +162,7 @@ export function Python(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
 
       } else {
         console.log('Next steps to start the app:');
-        console.log(`cd ${name} && uv venv && uv pip install -e . && uv run src/main.py`);
+        console.log(`cd ${name} && uv venv && uv sync && uv run src/main.py`);
       }
     },
   };
