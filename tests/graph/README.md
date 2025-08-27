@@ -16,7 +16,7 @@ Use this if you want to enable user authentication in your Teams application.
 
 1. In the `aad.manifest.json` file, update the `requiredResourceAccess` list to add the required scopes.
 
-2. In the `infra/botRegistration/azurebot.bicep` file, under the `botServicesMicrosoftGraphConnection` resource, update the `properties.scopes` string to be a comma-delimeted list of the required scopes.
+2. In the `infra/botRegistration/azurebot.bicep` file, under the `botServicesMicrosoftGraphConnection` resource, update the `properties.scopes` string to be a comma-delimited list of the required scopes.
 
 ### Example
 

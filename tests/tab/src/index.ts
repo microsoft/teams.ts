@@ -10,9 +10,18 @@ const app = new App({
 });
 
 app.tab('test', path.resolve('dist/client'));
-app.function('hello-world', async ({ log, data }) => {
-  log.info(data);
-  return 'Hello, world!';
+
+app.function<{}, { message: string }>('post-to-chat', async ({ data, send, getCurrentConversationId }) => {
+  // post to the current conversation; return the conversation ID to the caller
+  await send(data.message);
+  return {
+    conversationId: await getCurrentConversationId()
+  };
+});
+
+app.on('message', async ({ activity, reply }) => {
+  // simple echo bot
+  reply(`You said: ${activity.text}`);
 });
 
 (async () => {
