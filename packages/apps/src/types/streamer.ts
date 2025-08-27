@@ -30,6 +30,12 @@ export interface IStreamer {
   emit(activity: Partial<IMessageActivity | ITypingActivity> | string): void;
 
   /**
+   * send status updates before emitting (ex. "Thinking...")
+   * @param text the status text to send
+   */
+  update(text: string): void;
+
+  /**
    * close the stream
    */
   close(): SentActivity | undefined | Promise<SentActivity | undefined>;

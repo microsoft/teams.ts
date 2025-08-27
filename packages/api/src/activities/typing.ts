@@ -76,15 +76,22 @@ export class TypingActivity extends Activity<'typing'> implements ITypingActivit
       this.channelData = {};
     }
 
-    this.channelData.streamId = this.id;
-    this.channelData.streamType = 'streaming';
-    this.channelData.streamSequence = sequence;
+    if (!this.channelData.streamId) {
+      this.channelData.streamId = this.id;
+    }
+
+    if (!this.channelData.streamType) {
+      this.channelData.streamType = 'streaming';
+    }
+    if (!this.channelData.streamSequence) {
+      this.channelData.streamSequence = sequence;
+    }
 
     return this.addEntity({
       type: 'streaminfo',
       streamId: this.id,
-      streamType: 'streaming',
-      streamSequence: sequence,
+      streamType: this.channelData.streamType,
+      streamSequence: this.channelData.streamSequence,
     });
   }
 }
