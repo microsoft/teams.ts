@@ -6,8 +6,7 @@ import { z } from 'zod';
 
 import { ProjectLanguage } from './project/project';
 
-const enablePython = process.env.ENABLE_EXPERIMENTAL_PYTHON_OPTIONS === 'true' || process.env.ENABLE_EXPERIMENTAL_PYTHON_OPTIONS === '1';
-const languageEnum = enablePython
+const languageEnum = process.env.ENABLE_EXPERIMENTAL_PYTHON_OPTIONS === 'true' || process.env.ENABLE_EXPERIMENTAL_PYTHON_OPTIONS === '1'
   ? z.enum(['typescript', 'csharp', 'python'])
   : z.enum(['typescript', 'csharp']);
 

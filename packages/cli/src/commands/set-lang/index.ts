@@ -38,11 +38,8 @@ export function SetLang(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchem
         settings.language = 'csharp';
       } else if (pythonEnabled && ['py', 'python'].includes(language)) {
         settings.language = 'python';
-      } else {
-        throw new Error(
-          `Unknown language "${language}". Supported values: ts, typescript, cs, csharp${pythonEnabled ? ', py, python' : ''}.`
-        );
       }
+
       settings.save();
       console.log(`Language set to ${settings.language}`);
     },

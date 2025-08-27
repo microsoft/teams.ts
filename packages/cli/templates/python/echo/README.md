@@ -15,5 +15,3 @@ This is a minimal Microsoft Teams echo bot template using [microsoft-teams](http
    ```
    uv venv && uv pip install -e . && uv run src/main.py
    ```
-
-Note Set `enable_token_validation=False` in `src/main.py` if running in Test Tools.

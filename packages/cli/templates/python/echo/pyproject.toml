@@ -8,8 +8,6 @@ requires-python = ">=3.12"
 
 dependencies = [
   "dotenv>=0.9.9",
-  "microsoft-teams-app @ git+https://github.com/microsoft/teams.py.git@main#subdirectory=packages/app",
-  "microsoft-teams-api @ git+https://github.com/microsoft/teams.py.git@main#subdirectory=packages/api",
-  "microsoft-teams-common @ git+https://github.com/microsoft/teams.py.git@main#subdirectory=packages/common",
-  "microsoft-teams-cards @ git+https://github.com/microsoft/teams.py.git@main#subdirectory=packages/cards"
+  "microsoft-teams-apps",
+  "microsoft-teams-devtools"
 ]

@@ -2,9 +2,11 @@ import asyncio
 import re
 
 from microsoft.teams.api import MessageActivity
+from microsoft.teams.api.activities.typing import TypingActivityInput
 from microsoft.teams.app import ActivityContext, App, AppOptions
+from microsoft.teams.devtools import DevToolsPlugin
 
-app = App(options=AppOptions(enable_token_validation=True))
+app = App(AppOptions(plugins=[DevToolsPlugin()]))
 
 @app.on_message_pattern(re.compile(r"hello|hi|greetings"))
 async def handle_greeting(ctx: ActivityContext[MessageActivity]) -> None:
@@ -13,7 +15,12 @@ async def handle_greeting(ctx: ActivityContext[MessageActivity]) -> None:
 
 @app.on_message
 async def handle_message(ctx: ActivityContext[MessageActivity]):
+  """Handle message activities using the new generated handler system."""
+  await ctx.reply(TypingActivityInput())
 
+  if "reply" in ctx.activity.text.lower():
+    await ctx.reply("Hello! How can I assist you today?")
+  else:
     await ctx.send(f"You said '{ctx.activity.text}'")
 
 if __name__ == "__main__":
