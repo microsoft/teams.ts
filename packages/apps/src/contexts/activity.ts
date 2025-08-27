@@ -101,11 +101,23 @@ type SignInOptions = {
    * @default `Please Sign In...`
    */
   oauthCardText: string;
+
   /**
    * The text to display on the sign in button
    * @default `Sign In`
    */
   signInButtonText: string;
+
+  /**
+   * The sign in link to use in the card
+   */
+  signInLink?: string;
+
+  /**
+   * The connection name to use
+   */
+  connectionName?: string;
+
   /**
    * Construct your own sign in activity
    * By default, we create a simple oauth card with a sign in button.
@@ -151,13 +163,8 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   signout: (name?: string) => Promise<void>;
 }
 
-export type IActivityContext<T extends Activity = Activity, TExtraContext = unknown> = 
+export type IActivityContext<T extends Activity = Activity, TExtraContext = unknown> =
   IBaseActivityContext<T> & (TExtraContext extends Record<string, any> ? TExtraContext : {});
-
-export const DEFAULT_SIGNIN_OPTIONS: SignInOptions = {
-  oauthCardText: 'Please Sign In...',
-  signInButtonText: 'Sign In',
-};
 
 export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {} = {}>
   implements IBaseActivityContext<T, TExtraCtx> {
@@ -212,18 +219,28 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   async reply(activity: ActivityLike) {
     activity = toActivityParams(activity);
     activity.replyToId = this.activity.id;
+
     if (activity.type === 'message' && activity.text) {
       const blockQuote = this.buildBlockQuoteForActivity();
+
       if (blockQuote) {
         activity.text = `${blockQuote}\r\n${activity.text}`;
       }
     }
+
     return this.send(activity);
   }
 
   async signin(options?: Partial<SignInOptions>) {
-    const { oauthCardText, signInButtonText, overrideSignInActivity } = {
-      ...DEFAULT_SIGNIN_OPTIONS,
+    const {
+      oauthCardText,
+      signInButtonText,
+      connectionName,
+      signInLink,
+      overrideSignInActivity
+    }: SignInOptions = {
+      oauthCardText: 'Please Sign In...',
+      signInButtonText: 'Sign In',
       ...options,
     };
 
@@ -233,7 +250,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       const res = await this.api.users.token.get({
         channelId: this.activity.channelId,
         userId: this.activity.from.id,
-        connectionName: this.connectionName,
+        connectionName: connectionName || this.connectionName,
       });
 
       return res.token;
@@ -242,7 +259,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     }
 
     const tokenExchangeState: TokenExchangeState = {
-      connectionName: this.connectionName,
+      connectionName: connectionName || this.connectionName,
       conversation: convo,
       relatesTo: this.activity.relatesTo,
       msAppId: this.appId,
@@ -280,14 +297,14 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
         attachments: [
           cardAttachment('oauth', {
             text: oauthCardText,
-            connectionName: this.connectionName,
+            connectionName: connectionName || this.connectionName,
             tokenExchangeResource: resource.tokenExchangeResource,
             tokenPostResource: resource.tokenPostResource,
             buttons: [
               {
                 type: 'signin',
                 title: signInButtonText,
-                value: resource.signInLink,
+                value: signInLink || resource.signInLink,
               },
             ],
           }),
@@ -296,11 +313,11 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     );
   }
 
-  async signout() {
+  async signout(connectionName?: string) {
     await this.api.users.token.signOut({
       channelId: this.activity.channelId,
       userId: this.activity.from.id,
-      connectionName: this.connectionName,
+      connectionName: connectionName || this.connectionName,
     });
   }
 
