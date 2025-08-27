@@ -27,50 +27,13 @@ export interface IEndpoints {
   * @deprecated
   {{/if}}
   */
-{{#if (eq method "get")}}
 export function {{name}}(
-  params?: IEndpoints['{{@key}}']['parameters'], 
-  ) : EndpointRequest<IEndpoints['{{@key}}']['response']> {
-  return {
-    {{#if (eq ../apiVersion "beta")}}
-    ver: 'beta',
-    {{/if}}
-    method: 'get',
-    path: '{{url}}',
-    paramDefs: [
-      {{#if (notEmpty parameters)}}
-      {{#each parameters}}
-      { name: '{{name}}', in: '{{in}}' },
-      {{/each}}
-      {{/if}}
-    ],
-    params
-  };
-}
-{{else if (eq method "delete")}}
-export function del(
-  params?: IEndpoints['{{@key}}']['parameters'], 
-) : EndpointRequest<IEndpoints['{{@key}}']['response']> {
-  return {
-    {{#if (eq ../apiVersion "beta")}}
-    ver: 'beta',
-    {{/if}}
-    method: 'delete',
-    path: '{{url}}',
-    paramDefs: [
-      {{#if (notEmpty parameters)}}
-      {{#each parameters}}
-      { name: '{{name}}', in: '{{in}}' },
-      {{/each}}
-      {{/if}}
-    ],
-    params
-  };
-}
-{{else}}
-export function {{name}}(
+  {{#if hasRequestBody}}
   body: IEndpoints['{{@key}}']['body'],
+  {{/if}}
+  {{#if (notEmpty parameters)}}
   params?: IEndpoints['{{@key}}']['parameters'],
+  {{/if}}
 ) : EndpointRequest<IEndpoints['{{@key}}']['response']> {
   return {
     {{#if (eq ../apiVersion "beta")}}
@@ -78,17 +41,18 @@ export function {{name}}(
     {{/if}}
     method: '{{method}}',
     path: '{{url}}',
+    {{#if (notEmpty parameters)}}
     paramDefs: [
-      {{#if (notEmpty parameters)}}
       {{#each parameters}}
       { name: '{{name}}', in: '{{in}}' },
       {{/each}}
-      {{/if}}
     ],
     params,
+    {{/if}}
+    {{#if hasRequestBody}}
     body,
+    {{/if}}
   };
 }
-{{/if}}
 
 {{/each}}

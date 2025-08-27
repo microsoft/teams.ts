@@ -62,6 +62,7 @@ interface IEndpoint {
   readonly parameters?: Array<OpenAPIV3.ParameterObject>;
   readonly description?: string;
   readonly deprecated?: boolean;
+  readonly hasRequestBody: boolean;
 }
 
 class Client {
@@ -205,6 +206,11 @@ class Client {
         name = name.slice(0, name.length - 1);
       }
 
+      if (method === 'delete') {
+        // 'delete' is a reserved word and can't be used as function name
+        name = 'del';
+      }
+
       this.endpoints[`${method.toUpperCase()} ${schema.url}`] = {
         method,
         name: this.getUniqueName(name),
@@ -212,6 +218,7 @@ class Client {
         parameters: params,
         description: def.description,
         deprecated: def.deprecated,
+        hasRequestBody: !!def.requestBody,
       };
     }
   }

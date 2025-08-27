@@ -4,7 +4,7 @@ import type { paths } from './types.ts';
 export type EndpointRequest<TResponse> = {
   method: 'get' | 'post' | 'patch' | 'delete' | 'put';
   path: string;
-  paramDefs: Array<{ name: string; in: 'query' | 'header' | 'path' }>;
+  paramDefs?: Array<{ name: string; in: 'query' | 'header' | 'path' }>;
   params?: Record<string, any>;
   body?: any;
   responseType?: TResponse; 

@@ -9,15 +9,11 @@ export interface IEndpoints {
  *
  * Reprocess all group-based license assignments for the user. To learn more about group-based licensing, see What is group-based licensing in Microsoft Entra ID. Also see Identify and resolve license assignment problems for a group in Microsoft Entra ID for more details.
  */
-export function create(
-  body: IEndpoints['POST /me/reprocessLicenseAssignment']['body'],
-  params?: IEndpoints['POST /me/reprocessLicenseAssignment']['parameters']
-): EndpointRequest<IEndpoints['POST /me/reprocessLicenseAssignment']['response']> {
+export function create(): EndpointRequest<
+  IEndpoints['POST /me/reprocessLicenseAssignment']['response']
+> {
   return {
     method: 'post',
     path: '/me/reprocessLicenseAssignment',
-    paramDefs: [],
-    params,
-    body,
   };
 }

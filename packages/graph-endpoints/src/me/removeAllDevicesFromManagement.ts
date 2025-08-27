@@ -12,15 +12,11 @@ export interface IEndpoints {
  *
  * Retire all devices from management for this user
  */
-export function create(
-  body: IEndpoints['POST /me/removeAllDevicesFromManagement']['body'],
-  params?: IEndpoints['POST /me/removeAllDevicesFromManagement']['parameters']
-): EndpointRequest<IEndpoints['POST /me/removeAllDevicesFromManagement']['response']> {
+export function create(): EndpointRequest<
+  IEndpoints['POST /me/removeAllDevicesFromManagement']['response']
+> {
   return {
     method: 'post',
     path: '/me/removeAllDevicesFromManagement',
-    paramDefs: [],
-    params,
-    body,
   };
 }
