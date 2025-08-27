@@ -4,8 +4,12 @@ import { IActivityContext } from './contexts';
 import { EVENT_ALIASES, INVOKE_ALIASES, IRoutes } from './routes';
 import { RouteHandler } from './types';
 
-type Route<Name extends keyof IRoutes = keyof IRoutes, TExtraCtx extends Record<string, any> = Record<string, any>> = {
+type Route<
+  Name extends keyof IRoutes = keyof IRoutes,
+  TExtraCtx extends Record<string, any> = Record<string, any>
+> = {
   readonly name?: Name;
+  readonly default?: boolean;
   readonly select: (activity: Activity) => boolean;
   readonly callback: IRoutes<TExtraCtx>[Name];
 };
@@ -28,6 +32,12 @@ export class Router<TExtraCtx extends Record<string, any> = Record<string, any>>
    * @param route the route to register
    */
   register<Name extends keyof IRoutes>(route: Route<Name, TExtraCtx>) {
+    const i = this.routes.findIndex(r => r.name === route.name && r.default);
+
+    if (i > -1) {
+      this.routes.splice(i, 1);
+    }
+
     this.routes.push(route);
     return this;
   }
