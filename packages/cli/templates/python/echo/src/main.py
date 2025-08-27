@@ -2,7 +2,7 @@ import asyncio
 import re
 
 from microsoft.teams.api import MessageActivity
-from microsoft.teams.api.activities.typing import TypingActivityInput
+from microsoft.teams.api import TypingActivityInput
 from microsoft.teams.app import ActivityContext, App, AppOptions
 from microsoft.teams.devtools import DevToolsPlugin
 

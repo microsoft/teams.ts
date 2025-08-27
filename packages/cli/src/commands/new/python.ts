@@ -147,7 +147,7 @@ export function Python(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
       });
       if (uvCheck.status !== 0) {
         throw new Error(
-          '"uv" is required but was not found in your PATH. Please install uv (https://github.com/astral-sh/uv) and try again.'
+          '"uv" is required but was not found in your PATH. Please install uv (https://github.com/astral-sh/uv) and run "cd ${name} && uv venv && uv pip install -e . && uv run src/main.py".'
         );
       }
 
