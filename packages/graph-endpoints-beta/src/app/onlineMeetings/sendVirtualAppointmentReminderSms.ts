@@ -1,0 +1,29 @@
+import type { EndpointRequest, Operation } from './../../types/common.ts';
+
+export interface IEndpoints {
+  'POST /app/onlineMeetings/{onlineMeeting-id}/sendVirtualAppointmentReminderSms': Operation<
+    '/app/onlineMeetings/{onlineMeeting-id}/sendVirtualAppointmentReminderSms',
+    'post'
+  >;
+}
+
+/**
+ * `POST /app/onlineMeetings/{onlineMeeting-id}/sendVirtualAppointmentReminderSms`
+ *
+ * Send an SMS reminder to external attendees for a Teams Virtual Appointment. This feature requires Teams Premium and attendees must have a valid United States phone number to receive SMS notifications.
+ */
+export function create(
+  body: IEndpoints['POST /app/onlineMeetings/{onlineMeeting-id}/sendVirtualAppointmentReminderSms']['body'],
+  params?: IEndpoints['POST /app/onlineMeetings/{onlineMeeting-id}/sendVirtualAppointmentReminderSms']['parameters']
+): EndpointRequest<
+  IEndpoints['POST /app/onlineMeetings/{onlineMeeting-id}/sendVirtualAppointmentReminderSms']['response']
+> {
+  return {
+    ver: 'beta',
+    method: 'post',
+    path: '/app/onlineMeetings/{onlineMeeting-id}/sendVirtualAppointmentReminderSms',
+    paramDefs: [{ name: 'onlineMeeting-id', in: 'path' }],
+    params,
+    body,
+  };
+}

@@ -6,6 +6,7 @@ import {
   ConversationReference,
   Entity,
   IMessageActivity,
+  ITypingActivity,
   MessageActivity,
   SentActivity,
   TypingActivity,
@@ -26,7 +27,7 @@ export class HttpStream implements IStreamer {
   protected attachments: Attachment[] = [];
   protected channelData: ChannelData = {};
   protected entities: Entity[] = [];
-  protected queue: Array<Partial<IMessageActivity>> = [];
+  protected queue: Array<Partial<IMessageActivity | ITypingActivity>> = [];
 
   private _result?: SentActivity;
   private _timeout?: NodeJS.Timeout;
@@ -39,7 +40,7 @@ export class HttpStream implements IStreamer {
     this._logger = logger?.child('stream') || new ConsoleLogger('@teams/http/stream');
   }
 
-  emit(activity: Partial<IMessageActivity> | string) {
+  emit(activity: Partial<IMessageActivity | ITypingActivity> | string) {
     if (this._timeout) {
       clearTimeout(this._timeout);
       this._timeout = undefined;
@@ -53,11 +54,19 @@ export class HttpStream implements IStreamer {
     }
 
     this.queue.push(activity);
-    this._timeout = setTimeout(this.flush.bind(this), 200);
+    this._timeout = setTimeout(this.flush.bind(this), 500);
+  }
+
+  update(text: string) {
+    this.emit({
+      type: 'typing',
+      text: text,
+      channelData: { streamType: 'informative' }
+    });
   }
 
   async close() {
-    if (!this.index && !this.queue.length) {
+    if (!this.index && !this.queue.length && !this._flushing) {
       this._logger.debug('closed with no content');
       return;
     }
@@ -69,6 +78,11 @@ export class HttpStream implements IStreamer {
 
     while (!this.id || this.queue.length) {
       await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+
+    if (this.text === '' && !this.attachments.length) {
+      this._logger.warn('no text or attachments to send, cannot close stream');
+      return;
     }
 
     const activity = new MessageActivity(this.text)
@@ -108,18 +122,29 @@ export class HttpStream implements IStreamer {
       }
 
       let i = 0;
-      
+      const informativeUpdates: Partial<ITypingActivity>[] = [];
+
       while (this.queue.length && i < 10) {
         const activity = this.queue.shift();
 
         if (!activity) continue;
 
-        if (activity.text) {
-          this.text += activity.text;
+        if (activity.type === 'message') {
+          if (activity.text) {
+            this.text += activity.text;
+          }
+          if (activity.attachments) {
+            this.attachments = [...(this.attachments || []), ...activity.attachments];
+          }
+          if (activity.entities) {
+            this.entities = [...(this.entities || []), ...activity.entities];
+          }
         }
 
-        if (activity.attachments) {
-          this.attachments = [...(this.attachments || []), ...activity.attachments];
+        if (activity.type === 'typing') {
+          if (activity.channelData?.streamType === 'informative' && this.text === '') {
+            informativeUpdates.push(activity);
+          }
         }
 
         if (activity.channelData) {
@@ -129,28 +154,20 @@ export class HttpStream implements IStreamer {
           };
         }
 
-        if (activity.entities) {
-          this.entities = [...(this.entities || []), ...activity.entities];
-        }
-
         i++;
       }
 
       if (i === 0) return;
 
-      const activity = new TypingActivity({ id: this.id })
-        .withText(this.text)
-        .addStreamUpdate(this.index + 1);
+      // Send informative updates immediately
+      for (const informativeUpdate of informativeUpdates) {
+        const activity = new TypingActivity().withText(informativeUpdate.text || '').withChannelData({ streamType: 'informative' });
+        await this.pushStreamChunk(activity);
+      }
 
-      const res = await promises.retry(() => this.send(activity), {
-        logger: this._logger
-      });
-
-      this.events.emit('chunk', res);
-      this.index++;
-
-      if (!this.id) {
-        this.id = res.id;
+      if (this.text) {
+        const activity = new TypingActivity().withText(this.text);
+        await this.pushStreamChunk(activity);
       }
 
       if (this.queue.length) {
@@ -159,6 +176,22 @@ export class HttpStream implements IStreamer {
     } finally {
       this._flushing = false;
     }
+  }
+
+  protected async pushStreamChunk(activity: TypingActivity) {
+      if (this.id) {
+        activity.id = this.id;
+      }
+      activity.addStreamUpdate(this.index + 1);
+
+      const res = await promises.retry(() => this.send(activity as ActivityParams), {
+        logger: this._logger
+      });
+      this.events.emit('chunk', res);
+      this.index++;
+      if (!this.id) {
+        this.id = res.id;
+      }
   }
 
   protected async send(activity: ActivityParams) {
