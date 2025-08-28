@@ -25,13 +25,13 @@ describe('Router', () => {
       expect(router.select(new MessageActivity().withRecipient(bot).addMention(bot))).toHaveLength(1);
   });
 
-  it('should remove default route on register', () => {
+  it('should remove system route on register of user route', () => {
     const router = new Router();
     const handler = jest.fn();
 
     router.register({
       name: 'signin.token-exchange',
-      default: true,
+      type: 'system',
       select: activity => activity.type === 'invoke' && activity.name === 'signin/tokenExchange',
       callback: handler,
     });
