@@ -1,0 +1,13 @@
+[project]
+name = "echo-bot"
+version = "0.1.0"
+description = "A Microsoft Teams echo bot using teams.py"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+readme = "README.md"
+requires-python = ">=3.12"
+
+dependencies = [
+  "dotenv>=0.9.9",
+  "microsoft-teams-apps",
+  "microsoft-teams-devtools"
+]

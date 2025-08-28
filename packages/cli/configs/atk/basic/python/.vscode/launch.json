@@ -1,0 +1,98 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Remote (Edge)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
+      "presentation": {
+        "group": "remote",
+        "order": 1
+      },
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Launch Remote (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
+      "presentation": {
+        "group": "remote",
+        "order": 2
+      },
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Launch App (Edge)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "https://teams.microsoft.com/l/app/${{local:TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
+      "presentation": {
+        "group": "all",
+        "hidden": true
+      },
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Launch App (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "https://teams.microsoft.com/l/app/${{local:TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
+      "presentation": {
+        "group": "all",
+        "hidden": true
+      },
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+        "name": "Start",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder}/src/main.py",
+        "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+        "console": "integratedTerminal"
+    },
+    {
+      "name": "Start Test Tool",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/devTools/teamsapptester/node_modules/.bin/teamsapptester",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug (Edge)",
+      "configurations": ["Launch App (Edge)", "Start"],
+      "preLaunchTask": "Start Teams App Locally",
+      "presentation": {
+        "group": "all",
+        "order": 1
+      },
+      "stopAll": true
+    },
+    {
+      "name": "Debug (Chrome)",
+      "configurations": ["Launch App (Chrome)" , "Start"],
+      "preLaunchTask": "Start Teams App Locally",
+      "presentation": {
+        "group": "all",
+        "order": 2
+      },
+      "stopAll": true
+    },
+    {
+      "name": "Debug in Test Tool",
+      "configurations": ["Start", "Start Test Tool"],
+      "preLaunchTask": "Start Teams App (Test Tool)",
+      "presentation": {
+        "group": "local",
+        "order": 1
+      },
+      "stopAll": true
+    }
+  ]
+}

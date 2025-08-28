@@ -30,7 +30,13 @@ export class ProjectBuilder {
   }
 
   addEnv(key: string, value: string, filename?: string) {
-    filename = filename || (this._language === 'typescript' ? '.env' : 'appsettings.Development.json');
+    if (!filename) {
+      if (this._language === 'typescript' || this._language === 'python') {
+        filename = '.env';
+      } else {
+        filename = 'appsettings.Development.json';
+      }
+    }
     this._attributes.push(new attributes.EnvAttribute(filename, key, value));
     return this;
   }

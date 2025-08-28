@@ -31,4 +31,8 @@ export class EnvAttribute implements IProjectAttribute {
 
     return new Compound(new FileJsonSet(targetDir, this._filename, key, this._value));
   }
+
+  python(targetDir: string) {
+    return new Compound(new FileEnvSet(targetDir, this._filename, this._key, this._value));
+  }
 }

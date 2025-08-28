@@ -8,6 +8,7 @@ export interface IProjectAttribute {
 
   typescript(targetDir: string): IProjectAttributeOperation | Promise<IProjectAttributeOperation>;
   csharp(targetDir: string): IProjectAttributeOperation | Promise<IProjectAttributeOperation>;
+  python(targetDir: string): IProjectAttributeOperation | Promise<IProjectAttributeOperation>;
 }
 
 export interface IProjectAttributeOperation {

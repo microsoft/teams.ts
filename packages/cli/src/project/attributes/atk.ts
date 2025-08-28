@@ -158,4 +158,18 @@ export class AgentsToolkitAttribute implements IProjectAttribute {
       })
     );
   }
+
+  python(targetDir: string) {
+    return new Copy(
+      path.resolve(
+        url.fileURLToPath(import.meta.url),
+        '../..',
+        'configs',
+        'atk',
+        this.name,
+        'python'
+      ),
+      targetDir
+    );
+  }
 }
