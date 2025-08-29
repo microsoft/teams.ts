@@ -9,6 +9,7 @@ import { ApplicationTemplatesClient } from './applicationTemplates';
 import { ApplicationsClient } from './applications';
 import { ChatsClient } from './chats';
 import { CommunicationsClient } from './communications';
+export { CallOptions, EndpointRequest } from './common';
 import { EmployeeExperienceClient } from './employeeExperience';
 import { MeClient } from './me';
 import { SitesClient } from './sites';
@@ -93,7 +94,7 @@ export class Client {
 
     const requestConfig = hasOptions ? (lastArg as CallOptions).requestConfig : undefined;
 
-    const { method, path, paramDefs, params, body } = func(...(funcArgs as any[]));
+    const { method, path, paramDefs = [], params, body } = func(...(funcArgs as any[]));
     const url = getInjectedUrl(path, paramDefs, params || {});
 
     switch (method) {

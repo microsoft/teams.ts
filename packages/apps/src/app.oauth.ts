@@ -16,7 +16,7 @@ export async function onTokenExchange<TPlugin extends IPlugin>(
   this: App<TPlugin>,
   ctx: contexts.IActivityContext<ISignInTokenExchangeInvokeActivity, PluginAdditionalContext<TPlugin>>
 ) {
-  const { api, activity, log } = ctx;
+  const { api, activity, log, next } = ctx;
 
   if (this.oauth.defaultConnectionName !== activity.value.connectionName) {
     log.warn(
@@ -41,6 +41,7 @@ export async function onTokenExchange<TPlugin extends IPlugin>(
     );
 
     this.events.emit('signin', { ...ctx, token, isSignedIn: true });
+    next(ctx);
     return { status: 200 };
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -65,7 +66,7 @@ export async function onVerifyState<TPlugin extends IPlugin>(
   this: App<TPlugin>,
   ctx: contexts.IActivityContext<ISignInVerifyStateInvokeActivity, PluginAdditionalContext<TPlugin>>
 ) {
-  const { log, api, activity } = ctx;
+  const { log, api, activity, next } = ctx;
 
   try {
     if (!activity.value.state) {
@@ -89,6 +90,7 @@ export async function onVerifyState<TPlugin extends IPlugin>(
     );
 
     this.events.emit('signin', { ...ctx, token, isSignedIn: true });
+    next(ctx);
     return { status: 200 };
   } catch (error) {
     if (error instanceof AxiosError) {

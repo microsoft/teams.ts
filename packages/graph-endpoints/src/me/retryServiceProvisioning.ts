@@ -9,15 +9,11 @@ export interface IEndpoints {
  *
  * Retry the provisioning of a user object in Microsoft Entra ID.
  */
-export function create(
-  body: IEndpoints['POST /me/retryServiceProvisioning']['body'],
-  params?: IEndpoints['POST /me/retryServiceProvisioning']['parameters']
-): EndpointRequest<IEndpoints['POST /me/retryServiceProvisioning']['response']> {
+export function create(): EndpointRequest<
+  IEndpoints['POST /me/retryServiceProvisioning']['response']
+> {
   return {
     method: 'post',
     path: '/me/retryServiceProvisioning',
-    paramDefs: [],
-    params,
-    body,
   };
 }

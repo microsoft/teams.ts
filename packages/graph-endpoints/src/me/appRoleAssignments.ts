@@ -104,14 +104,11 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /me/appRoleAssignments']['body'],
-  params?: IEndpoints['POST /me/appRoleAssignments']['parameters']
+  body: IEndpoints['POST /me/appRoleAssignments']['body']
 ): EndpointRequest<IEndpoints['POST /me/appRoleAssignments']['response']> {
   return {
     method: 'post',
     path: '/me/appRoleAssignments',
-    paramDefs: [],
-    params,
     body,
   };
 }

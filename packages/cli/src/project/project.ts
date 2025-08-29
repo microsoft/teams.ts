@@ -4,7 +4,7 @@ import path from 'node:path';
 import { IProjectAttribute } from './project-attribute';
 import { ProjectBuilder } from './project-builder';
 
-export type ProjectLanguage = 'typescript' | 'csharp';
+export type ProjectLanguage = 'typescript' | 'csharp' | 'python';
 
 export interface IProject {
   readonly path: string;
@@ -43,11 +43,20 @@ export class Project implements IProject {
   }
 
   static detectLanguage(): ProjectLanguage | undefined {
-    return fs.existsSync(path.join(process.cwd(), 'package.json'))
-      ? 'typescript'
-        : fs.readdirSync(process.cwd()).some(file => file.endsWith('.sln'))
-      ? 'csharp'
-        : undefined;
+    if (fs.existsSync(path.join(process.cwd(), 'package.json'))) {
+      return 'typescript';
+    }
+    if (fs.readdirSync(process.cwd()).some(file => file.endsWith('.sln'))) {
+      return 'csharp';
+    }
+    if (
+      fs.existsSync(path.join(process.cwd(), 'pyproject.toml')) &&
+      (process.env.ENABLE_EXPERIMENTAL_PYTHON_OPTIONS === 'true' ||
+        process.env.ENABLE_EXPERIMENTAL_PYTHON_OPTIONS === '1')
+    ) {
+      return 'python';
+    }
+    return undefined;
   }
 
   static builder() {
@@ -58,7 +67,7 @@ export class Project implements IProject {
     const language = this.detectLanguage();
 
     if (!language) {
-      throw new Error('Are you in the right folder? Expected a package.json (Typescript) or .sln (C#) file.');
+      throw new Error('Are you in the right folder? Expected a package.json (Typescript), .sln (C#), or pyproject.toml (Python, requires ENABLE_EXPERIMENTAL_PYTHON_OPTIONS=true).');
     }
 
     return new ProjectBuilder()

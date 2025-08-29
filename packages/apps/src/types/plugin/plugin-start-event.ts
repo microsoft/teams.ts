@@ -7,5 +7,5 @@ export interface IPluginStartEvent {
    * the port given to the
    * `app.start()` method
    */
-  readonly port: number;
+  readonly port: number | string;
 }

@@ -1,14 +1,10 @@
 import { Activity, InvokeResponse } from '@microsoft/teams.api';
 
-import { IActivityContext } from './contexts';
-import { EVENT_ALIASES, INVOKE_ALIASES, IRoutes } from './routes';
-import { RouteHandler } from './types';
+import { IActivityContext } from '../contexts';
+import { EVENT_ALIASES, INVOKE_ALIASES, IRoutes } from '../routes';
+import { RouteHandler } from '../types';
 
-type Route<Name extends keyof IRoutes = keyof IRoutes, TExtraCtx extends Record<string, any> = Record<string, any>> = {
-  readonly name?: Name;
-  readonly select: (activity: Activity) => boolean;
-  readonly callback: IRoutes<TExtraCtx>[Name];
-};
+import { Route, RouteType } from './route';
 
 export class Router<TExtraCtx extends Record<string, any> = Record<string, any>> {
   protected readonly routes: Route<keyof IRoutes, TExtraCtx>[] = [];
@@ -28,6 +24,16 @@ export class Router<TExtraCtx extends Record<string, any> = Record<string, any>>
    * @param route the route to register
    */
   register<Name extends keyof IRoutes>(route: Route<Name, TExtraCtx>) {
+    // replace system registered (default) route implementation
+    // if developer registers replacement
+    if (route.type === 'user') {
+      const i = this.routes.findIndex(r => r.name === route.name && r.type === 'system');
+
+      if (i > -1) {
+        this.routes.splice(i, 1);
+      }
+    }
+
     this.routes.push(route);
     return this;
   }
@@ -36,8 +42,9 @@ export class Router<TExtraCtx extends Record<string, any> = Record<string, any>>
    * register a middleware
    * @param callback the callback to invoke
    */
-  use(callback: RouteHandler<IActivityContext<Activity, TExtraCtx>, void | InvokeResponse>) {
+  use(callback: RouteHandler<IActivityContext<Activity, TExtraCtx>, void | InvokeResponse>, type?: RouteType) {
     this.register({
+      type: type || 'user',
       select: () => true,
       callback,
     });
@@ -50,9 +57,10 @@ export class Router<TExtraCtx extends Record<string, any> = Record<string, any>>
    * @param event event to subscribe to
    * @param callback the callback to invoke
    */
-  on<Name extends keyof IRoutes>(event: Name, callback: Exclude<IRoutes<TExtraCtx>[Name], undefined>) {
+  on<Name extends keyof IRoutes>(event: Name, callback: Exclude<IRoutes<TExtraCtx>[Name], undefined>, type?: RouteType) {
     this.register({
       name: event,
+      type: type || 'user',
       select: (activity) => {
         if (event === 'activity') {
           return true;

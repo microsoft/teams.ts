@@ -186,7 +186,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected tenantTokens = new LocalStorage<string>({}, { max: 20000 });
   protected events = new EventEmitter<AppEvents<TPlugin>>();
   protected startedAt?: Date;
-  protected port?: number;
+  protected port?: number | string;
 
   private readonly _userAgent = `teams.ts[apps]/${pkg.version}`;
 
@@ -313,8 +313,20 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     }
 
     // default event handlers
-    this.on('signin.token-exchange', (...args) => this.onTokenExchange(...args));
-    this.on('signin.verify-state', (...args) => this.onVerifyState(...args));
+    this.router.register({
+      name: 'signin.token-exchange',
+      type: 'system',
+      select: activity => activity.type === 'invoke' && activity.name === 'signin/tokenExchange',
+      callback: this.onTokenExchange,
+    });
+
+    this.router.register({
+      name: 'signin.verify-state',
+      type: 'system',
+      select: activity => activity.type === 'invoke' && activity.name === 'signin/verifyState',
+      callback: this.onVerifyState,
+    });
+
     this.event('error', ({ error }) => {
       this.log.error(error.message);
 
@@ -330,7 +342,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param port port to listen on
    */
   async start(port?: number | string) {
-    this.port = +(port || process.env.PORT || 3978);
+    this.port = port || process.env.PORT || 3978;
 
     try {
       await this.refreshTokens(true);

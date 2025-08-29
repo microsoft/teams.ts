@@ -35,6 +35,7 @@ export function message<TPlugin extends IPlugin>(
   cb: Exclude<IRoutes<PluginAdditionalContext<TPlugin>>['message'], undefined>
 ) {
   this.router.register<'message'>({
+    type: 'user',
     select: (activity) => {
       if (activity.type !== 'message') {
         return false;

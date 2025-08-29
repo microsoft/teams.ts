@@ -83,7 +83,7 @@ export class HttpPlugin implements ISender {
   get port() {
     return this._port;
   }
-  protected _port?: number;
+  protected _port?: number | string;
 
   protected express: express.Application;
   protected pending: Record<string, express.Response> = {};
