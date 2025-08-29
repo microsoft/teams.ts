@@ -2,20 +2,15 @@ import * as http from '@microsoft/teams.common/http';
 
 import { Client } from './index';
 
-import type { EndpointRequest } from './common';
+import type { EndpointRequest } from './types';
 
 // Mock the http module
 jest.mock('@microsoft/teams.common/http', () => ({
   Client: jest.fn(),
 }));
 
-// Mock the package.json import
-jest.mock('src/../package.json', () => ({
-  version: '1.0.0',
-}));
-
 // Mock the utils/url module
-jest.mock('@utils/url', () => ({
+jest.mock('./utils/url', () => ({
   getInjectedUrl: jest.fn((path, _paramDefs, params) => {
     // Simple mock implementation that replaces {param} with values
     let url = path;

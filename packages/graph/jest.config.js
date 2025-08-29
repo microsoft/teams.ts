@@ -1,16 +1,9 @@
 const baseConfig = require('@microsoft/teams.config/jest.config');
+const pkg = require('./package.json');
 
 module.exports = {
   ...baseConfig,
-  collectCoverageFrom: [
-    'src/index.ts', // Only collect coverage for this file
-    '!**/*.d.ts',
-    '!**/dist/**',
-    '!**/coverage/**',
-    '!**/node_modules/**',
-  ],
-  moduleNameMapper: {
-    '^@utils/(.*)$': '<rootDir>/src/utils/$1',
-    '^src/../package.json$': '<rootDir>/package.json',
+  globals: {
+    __PACKAGE_VERSION__: pkg.version,
   },
 };
