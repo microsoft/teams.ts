@@ -1,7 +1,8 @@
 import qs from 'qs';
-import { Param } from './interfaces';
 
-export function getInjectedUrl(url: string, params: Array<Param>, data: Record<string, any>) {
+import { IParam } from './interfaces';
+
+export function getInjectedUrl(url: string, params: Array<IParam>, data: Record<string, any>) {
   const query: Record<string, any> = {};
 
   for (const param of params) {
