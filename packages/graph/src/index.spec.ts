@@ -21,14 +21,14 @@ jest.mock('./utils/url', () => ({
   }),
 }));
 
-describe('Client.call', () => {
-  let client: Client;
+describe('Client', () => {
   let mockHttpClient: jest.Mocked<http.Client>;
+  let mockBetaHttpClient: jest.Mocked<http.Client>;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Create mock HTTP client
+    // Create mock HTTP client for v1.0
     mockHttpClient = {
       get: jest.fn(),
       post: jest.fn(),
@@ -38,53 +38,260 @@ describe('Client.call', () => {
       clone: jest.fn(),
     } as any;
 
+    // Create mock HTTP client for beta
+    mockBetaHttpClient = {
+      get: jest.fn(),
+      post: jest.fn(),
+      patch: jest.fn(),
+      put: jest.fn(),
+      delete: jest.fn(),
+      clone: jest.fn(),
+    } as any;
+
+    // Setup clone to return beta client
+    mockHttpClient.clone.mockReturnValue(mockBetaHttpClient);
+
     (http.Client as jest.MockedClass<typeof http.Client>).mockImplementation(
       () => mockHttpClient,
     );
-
-    client = new Client();
   });
 
-  describe('GET requests', () => {
-    it('should make a GET request with correct URL', async () => {
-      const mockResponse = { data: { id: '123', name: 'Test User' } };
-      mockHttpClient.get.mockResolvedValue(mockResponse);
-
-      const mockEndpoint = jest.fn(
-        (): EndpointRequest<any> => ({
-          method: 'get',
-          path: '/users/{id}',
-          paramDefs: [{ name: 'id', in: 'path' }],
-          params: { id: '123' },
-        }),
-      );
-
-      const result = await client.call(mockEndpoint);
-
-      expect(mockHttpClient.get).toHaveBeenCalledWith('/users/123', undefined);
-      expect(result).toEqual({ id: '123', name: 'Test User' });
+  describe('constructor', () => {
+    it('should create client with default base URL', () => {
+      new Client();
+      
+      expect(http.Client).toHaveBeenCalledWith({
+        baseUrl: 'https://graph.microsoft.com/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': expect.stringMatching(/^teams\.ts\[graph\]\/.+/),
+        },
+      });
     });
 
-    it('should make a GET request with request config', async () => {
-      const mockResponse = { data: { id: '123' } };
-      mockHttpClient.get.mockResolvedValue(mockResponse);
+    it('should create client with custom national cloud base URL', () => {
+      new Client({ 
+        baseUrlRoot: 'https://graph.microsoft.us' 
+      });
+      
+      expect(http.Client).toHaveBeenCalledWith({
+        baseUrlRoot: 'https://graph.microsoft.us',
+        baseUrl: 'https://graph.microsoft.us/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': expect.stringMatching(/^teams\.ts\[graph\]\/.+/),
+        },
+      });
+    });
 
-      const mockEndpoint = jest.fn(
-        (): EndpointRequest<any> => ({
-          method: 'get',
-          path: '/users',
-          paramDefs: [],
-        }),
-      );
+    it('should create client with custom options and preserve base URL root', () => {
+      const customHeaders = { 'Authorization': 'Bearer token123' };
+      new Client({ 
+        baseUrlRoot: 'https://graph.microsoft.de',
+        headers: customHeaders,
+        timeout: 10000 
+      });
+      
+      expect(http.Client).toHaveBeenCalledWith({
+        baseUrlRoot: 'https://graph.microsoft.de',
+        timeout: 10000,
+        baseUrl: 'https://graph.microsoft.de/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': expect.stringMatching(/^teams\.ts\[graph\]\/.+/),
+          'Authorization': 'Bearer token123',
+        },
+      });
+    });
 
-      const requestConfig = { timeout: 5000 };
-      await client.call(mockEndpoint, { requestConfig });
-
-      expect(mockHttpClient.get).toHaveBeenCalledWith('/users', requestConfig);
+    it('should clone existing client with custom base URL root', () => {
+      const existingClient = { 
+        ...mockHttpClient, 
+        request: jest.fn(),
+        clone: jest.fn().mockReturnValue(mockHttpClient)
+      };
+      new Client(existingClient as any);
+      
+      expect(existingClient.clone).toHaveBeenCalledWith({
+        baseUrl: 'https://graph.microsoft.com/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': expect.stringMatching(/^teams\.ts\[graph\]\/.+/),
+        },
+      });
     });
   });
 
-  describe('POST requests', () => {
+  describe('call method', () => {
+    let client: Client;
+
+    beforeEach(() => {
+      client = new Client();
+    });
+
+      describe('v1.0 endpoint requests', () => {
+      it('should make a GET request to v1.0 endpoint', async () => {
+        const mockResponse = { data: { id: '123', name: 'Test User' } };
+        mockHttpClient.get.mockResolvedValue(mockResponse);
+
+        const mockEndpoint = jest.fn(
+          (): EndpointRequest<any> => ({
+            ver: 'v1.0',
+            method: 'get',
+            path: '/users/{id}',
+            paramDefs: [{ name: 'id', in: 'path' }],
+            params: { id: '123' },
+          }),
+        );
+
+        const result = await client.call(mockEndpoint);
+
+        expect(mockHttpClient.get).toHaveBeenCalledWith('/users/123', undefined);
+        expect(mockBetaHttpClient.get).not.toHaveBeenCalled();
+        expect(result).toEqual({ id: '123', name: 'Test User' });
+      });
+
+      it('should make a GET request to v1.0 endpoint when no version specified', async () => {
+        const mockResponse = { data: { id: '123', name: 'Test User' } };
+        mockHttpClient.get.mockResolvedValue(mockResponse);
+
+        const mockEndpoint = jest.fn(
+          (): EndpointRequest<any> => ({
+            method: 'get',
+            path: '/users/{id}',
+            paramDefs: [{ name: 'id', in: 'path' }],
+            params: { id: '123' },
+          }),
+        );
+
+        const result = await client.call(mockEndpoint);
+
+        expect(mockHttpClient.get).toHaveBeenCalledWith('/users/123', undefined);
+        expect(mockBetaHttpClient.get).not.toHaveBeenCalled();
+        expect(result).toEqual({ id: '123', name: 'Test User' });
+      });
+    });
+
+    describe('beta endpoint requests', () => {
+      it('should make a GET request to beta endpoint', async () => {
+        const mockResponse = { data: { id: '123', name: 'Test User' } };
+        mockBetaHttpClient.get.mockResolvedValue(mockResponse);
+
+        const mockEndpoint = jest.fn(
+          (): EndpointRequest<any> => ({
+            ver: 'beta',
+            method: 'get',
+            path: '/users/{id}',
+            paramDefs: [{ name: 'id', in: 'path' }],
+            params: { id: '123' },
+          }),
+        );
+
+        const result = await client.call(mockEndpoint);
+
+        expect(mockHttpClient.clone).toHaveBeenCalledWith({
+          baseUrl: 'https://graph.microsoft.com/beta',
+        });
+        expect(mockBetaHttpClient.get).toHaveBeenCalledWith('/users/123', undefined);
+        expect(mockHttpClient.get).not.toHaveBeenCalled();
+        expect(result).toEqual({ id: '123', name: 'Test User' });
+      });
+
+      it('should reuse beta client for subsequent beta requests', async () => {
+        const mockResponse = { data: { id: '123' } };
+        mockBetaHttpClient.get.mockResolvedValue(mockResponse);
+
+        const mockEndpoint = jest.fn(
+          (): EndpointRequest<any> => ({
+            ver: 'beta',
+            method: 'get',
+            path: '/users/{id}',
+            paramDefs: [{ name: 'id', in: 'path' }],
+            params: { id: '123' },
+          }),
+        );
+
+        // Make two beta requests
+        await client.call(mockEndpoint);
+        await client.call(mockEndpoint);
+
+        // Clone should only be called once
+        expect(mockHttpClient.clone).toHaveBeenCalledTimes(1);
+        expect(mockBetaHttpClient.get).toHaveBeenCalledTimes(2);
+      });
+
+      it('should make a POST request to beta endpoint with custom base URL', async () => {
+        const customClient = new Client({ 
+          baseUrlRoot: 'https://graph.microsoft.us' 
+        });
+        const mockResponse = { data: { id: '456', name: 'New User' } };
+        mockBetaHttpClient.post.mockResolvedValue(mockResponse);
+
+        const mockEndpoint = jest.fn(
+          (data: any): EndpointRequest<any> => ({
+            ver: 'beta',
+            method: 'post',
+            path: '/users',
+            paramDefs: [],
+            body: data,
+          }),
+        );
+
+        const userData = { name: 'New User', email: 'test@example.com' };
+        const result = await customClient.call(mockEndpoint, userData);
+
+        expect(mockHttpClient.clone).toHaveBeenCalledWith({
+          baseUrl: 'https://graph.microsoft.us/beta',
+        });
+        expect(mockBetaHttpClient.post).toHaveBeenCalledWith(
+          '/users',
+          userData,
+          undefined,
+        );
+        expect(result).toEqual({ id: '456', name: 'New User' });
+      });
+    });
+
+    describe('GET requests', () => {
+      it('should make a GET request with correct URL', async () => {
+        const mockResponse = { data: { id: '123', name: 'Test User' } };
+        mockHttpClient.get.mockResolvedValue(mockResponse);
+
+        const mockEndpoint = jest.fn(
+          (): EndpointRequest<any> => ({
+            method: 'get',
+            path: '/users/{id}',
+            paramDefs: [{ name: 'id', in: 'path' }],
+            params: { id: '123' },
+          }),
+        );
+
+        const result = await client.call(mockEndpoint);
+
+        expect(mockHttpClient.get).toHaveBeenCalledWith('/users/123', undefined);
+        expect(result).toEqual({ id: '123', name: 'Test User' });
+      });
+
+      it('should make a GET request with request config', async () => {
+        const mockResponse = { data: { id: '123' } };
+        mockHttpClient.get.mockResolvedValue(mockResponse);
+
+        const mockEndpoint = jest.fn(
+          (): EndpointRequest<any> => ({
+            method: 'get',
+            path: '/users',
+            paramDefs: [],
+          }),
+        );
+
+        const requestConfig = { timeout: 5000 };
+        await client.call(mockEndpoint, { requestConfig });
+
+        expect(mockHttpClient.get).toHaveBeenCalledWith('/users', requestConfig);
+      });
+    });
+
+    describe('POST requests', () => {
     it('should make a POST request with body', async () => {
       const mockResponse = { data: { id: '456', name: 'New User' } };
       mockHttpClient.post.mockResolvedValue(mockResponse);
@@ -304,36 +511,37 @@ describe('Client.call', () => {
       expect(mockEndpoint).toHaveBeenCalledWith('123');
       expect(mockHttpClient.get).toHaveBeenCalledWith('/users/123', undefined);
     });
-  });
-
-  describe('Error handling', () => {
-    it('should throw error for unsupported HTTP method', async () => {
-      const mockEndpoint = jest.fn(
-        (): EndpointRequest<any> => ({
-          method: 'trace' as any,
-          path: '/users',
-          paramDefs: [],
-        }),
-      );
-
-      await expect(client.call(mockEndpoint)).rejects.toThrow(
-        'Unsupported HTTP method: trace',
-      );
     });
 
-    it('should propagate HTTP client errors', async () => {
-      const mockError = new Error('Network error');
-      mockHttpClient.get.mockRejectedValue(mockError);
+    describe('Error handling', () => {
+      it('should throw error for unsupported HTTP method', async () => {
+        const mockEndpoint = jest.fn(
+          (): EndpointRequest<any> => ({
+            method: 'trace' as any,
+            path: '/users',
+            paramDefs: [],
+          }),
+        );
 
-      const mockEndpoint = jest.fn(
-        (): EndpointRequest<any> => ({
-          method: 'get',
-          path: '/users',
-          paramDefs: [],
-        }),
-      );
+        await expect(client.call(mockEndpoint)).rejects.toThrow(
+          'Unsupported HTTP method: trace',
+        );
+      });
 
-      await expect(client.call(mockEndpoint)).rejects.toThrow('Network error');
+      it('should propagate HTTP client errors', async () => {
+        const mockError = new Error('Network error');
+        mockHttpClient.get.mockRejectedValue(mockError);
+
+        const mockEndpoint = jest.fn(
+          (): EndpointRequest<any> => ({
+            method: 'get',
+            path: '/users',
+            paramDefs: [],
+          }),
+        );
+
+        await expect(client.call(mockEndpoint)).rejects.toThrow('Network error');
+      });
     });
   });
 });

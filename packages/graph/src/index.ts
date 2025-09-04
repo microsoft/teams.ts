@@ -2,25 +2,36 @@ import * as http from '@microsoft/teams.common/http';
 
 import { getInjectedUrl } from './utils/url';
 
-import type { CallOptions, EndpointRequest } from './types';
+import type { CallOptions, EndpointRequest, SchemaVersion } from './types';
 
 // Build-time constant injected by tsup
 declare const __PACKAGE_VERSION__: string;
 
 export { CallOptions, EndpointRequest } from './types';
 
+const defaultBaseUrlRoot = 'https://graph.microsoft.com';
+
+type Options = (http.Client | http.ClientOptions) & {
+  /** Graph service root. By default, the global commercial URL "https://graph.microsoft.com" is used,
+   * but certain tenants may wish to override this to direct Graph API calls to a different cloud instance.
+   */
+  baseUrlRoot?: string;
+};
+
 /**
  * /
  * Provides an entry point for invoking Microsoft Graph APIs.
  */
 export class Client {
-  protected baseUrl = '/';
+  protected baseUrlRoot;
   protected http: http.Client;
+  protected betaHttp?: http.Client;
 
-  constructor(options?: http.Client | http.ClientOptions) {
+  constructor(options?: Options) {
+    this.baseUrlRoot = options?.baseUrlRoot ?? defaultBaseUrlRoot;
     if (!options) {
       this.http = new http.Client({
-        baseUrl: 'https://graph.microsoft.com/v1.0',
+        baseUrl: `${this.baseUrlRoot}/v1.0`,
         headers: {
           'Content-Type': 'application/json',
           'User-Agent': `teams.ts[graph]/${__PACKAGE_VERSION__}`,
@@ -28,7 +39,7 @@ export class Client {
       });
     } else if ('request' in options) {
       this.http = options.clone({
-        baseUrl: 'https://graph.microsoft.com/v1.0',
+        baseUrl: `${this.baseUrlRoot}/v1.0`,
         headers: {
           'Content-Type': 'application/json',
           'User-Agent': `teams.ts[graph]/${__PACKAGE_VERSION__}`,
@@ -37,7 +48,7 @@ export class Client {
     } else {
       this.http = new http.Client({
         ...options,
-        baseUrl: 'https://graph.microsoft.com/v1.0',
+        baseUrl: `${this.baseUrlRoot}/v1.0`,
         headers: {
           'Content-Type': 'application/json',
           'User-Agent': `teams.ts[graph]/${__PACKAGE_VERSION__}`,
@@ -87,6 +98,7 @@ export class Client {
       : undefined;
 
     const {
+      ver = 'v1.0',
       method,
       path,
       paramDefs = [],
@@ -94,17 +106,32 @@ export class Client {
       body,
     } = func(...(funcArgs as any[]));
     const url = getInjectedUrl(path, paramDefs, params || {});
+    const httpClient = this.getHttpClient(ver);
 
     switch (method) {
       case 'delete':
       case 'get':
-        return (await this.http[method](url, requestConfig)).data as R;
+        return (await httpClient[method](url, requestConfig)).data as R;
       case 'patch':
       case 'post':
       case 'put':
-        return (await this.http[method](url, body, requestConfig)).data as R;
+        return (await httpClient[method](url, body, requestConfig)).data as R;
       default:
         throw new Error(`Unsupported HTTP method: ${method}`);
     }
+  }
+
+  private getHttpClient(schemaVersion: SchemaVersion): http.Client {
+    if (schemaVersion === 'v1.0') {
+      return this.http;
+    }
+
+    this.betaHttp =
+      this.betaHttp ??
+      this.http.clone({
+        baseUrl: `${this.baseUrlRoot}/beta`,
+      });
+
+    return this.betaHttp;
   }
 }

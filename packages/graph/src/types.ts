@@ -1,5 +1,6 @@
 import * as http from '@microsoft/teams.common/http';
 
+export type SchemaVersion = 'beta' | 'v1.0';
 /**
  * Configuration options for the `call` method
  * @see {@link Client.call}
@@ -10,7 +11,7 @@ export type CallOptions  = {
 };
 
 export type EndpointRequest<TResponse> = {
-  ver?: 'beta' | 'v1.0';
+  ver?: SchemaVersion;
   method: 'get' | 'post' | 'patch' | 'delete' | 'put';
   path: string;
   paramDefs?: Array<{ name: string; in: 'query' | 'header' | 'path' }>;
