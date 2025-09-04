@@ -1,0 +1,42 @@
+/**
+  * `{{uppercase method}} {{url}}`
+  *
+  {{#if description}}
+  * {{description}}
+  {{/if}}
+  {{#if deprecated}}
+  * @deprecated
+  {{/if}}
+  */
+  {{#if isStandaloneExport}}
+    export 
+  {{else}}
+    {{name}}: 
+  {{/if}}
+function {{name}}(
+  {{#if hasRequestBody}}
+    body: IEndpoints['{{@key}}']['body'],
+  {{/if}}
+  {{#if (notEmpty parameters)}}
+    params?: IEndpoints['{{@key}}']['parameters'],
+  {{/if}}
+) : EndpointRequest<IEndpoints['{{@key}}']['response']> {
+  return {
+    {{#if (eq apiVersion "beta")}}
+    ver: 'beta',
+    {{/if}}
+    method: '{{method}}',
+    path: '{{url}}',
+    {{#if (notEmpty parameters)}}
+    paramDefs: [
+      {{#each parameters}}
+      { name: '{{name}}', in: '{{in}}' },
+      {{/each}}
+    ],
+    params,
+    {{/if}}
+    {{#if hasRequestBody}}
+    body,
+    {{/if}}
+  };
+}

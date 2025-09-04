@@ -5,7 +5,6 @@ import openapits, { astToString } from 'openapi-typescript';
 import { format  as prettier } from 'prettier';
 import * as ts from 'typescript';
 
-import { allowList } from './allow-list.js';
 import prettierConfig from './prettier.config.js';
 
 type ApiVersion = 'v1.0' | 'beta';
@@ -27,7 +26,7 @@ function applyAllowList(pathsInterface: ts.InterfaceDeclaration, allowlist: RegE
     if (ts.isPropertySignature(member)) {
       const pathKey = getPropertyName(member.name);
       if (pathKey) {
-        const isAllowed = allowlist.some((pattern) => pattern.test(pathKey));
+        const isAllowed = allowlist.length === 0 || allowlist.some((pattern) => pattern.test(pathKey));
         if (isAllowed) {
           membersToKeep.push(member);
         }
@@ -506,7 +505,7 @@ export async function generateTypes(
 
   console.log('Processing paths...');
   // filter paths and remove bloat
-  applyAllowList(paths, allowList);
+  applyAllowList(paths, []);
   removeUnsupportedVerbsFromPaths(paths);
   removeParametersFromPaths(paths);
 

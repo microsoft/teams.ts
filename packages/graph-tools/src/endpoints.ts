@@ -5,15 +5,12 @@ import npath from 'path/posix';
 import camelcase from 'camelcase';
 import handlebars from 'handlebars';
 import { OpenAPIV3 } from 'openapi-types';
-
-
 import { format  as prettier } from 'prettier';
 import sortKeys from 'sort-keys';
 import yaml from 'yaml';
 
 import prettierConfig from './prettier.config.js';
-import { ApiVersion, filterPathsByAllowlist, getExportName, patterns } from './utils.js';
-
+import { ApiVersion, fileSystemNameGenerators, type FileSystemNameGenerator, filterPathsByAllowlist, getExportName, isReservedKeyword, patterns } from './utils.js';
 
 const methods = {
   get: 'get',
@@ -45,6 +42,8 @@ handlebars.registerHelper('eq', (a: any, b: any) => {
   return a === b;
 });
 
+handlebars.registerHelper('isReservedKeyword', (value: string) => isReservedKeyword(value));
+
 handlebars.registerHelper('notEmpty', (value: Record<string, any> | Array<any> | undefined) => {
   if (!value) return false;
 
@@ -67,6 +66,7 @@ interface IEndpoint {
 
 class Client {
   readonly name: string;
+  readonly fileSystemName: string;
   readonly exportName: string;
   url: string;
   description?: string;
@@ -76,8 +76,9 @@ class Client {
   private components?: OpenAPIV3.ComponentsObject;
   private templatesPath: string;
 
-  constructor(name: string, templatesPath: string, description?: string, components?: OpenAPIV3.ComponentsObject) {
+  constructor(name: string, fileSystemName: string, templatesPath: string, description?: string, components?: OpenAPIV3.ComponentsObject) {
     this.name = name;
+    this.fileSystemName = fileSystemName;
     this.exportName = getExportName(name);
     this.description = description;
     this.components = components;
@@ -88,7 +89,7 @@ class Client {
     this.endpoints = {};
   }
 
-  set(_parent: string, path: string, schema: OpenAPIV3.PathItemObject & { url: string }) {
+  set(parent: string, path: string, schema: OpenAPIV3.PathItemObject & { url: string }, fileSystemNameGenerator?: FileSystemNameGenerator ) {
     const children = path.split('/').filter((v) => !!v);
     const params: Array<string> = [];
 
@@ -133,17 +134,19 @@ class Client {
       name = camelcase(`${name}-${name}`);
     }
 
+    const fileSystemName = fileSystemNameGenerator?.(parent, name) ?? name;
+
     if (!this.clients[name]) {
-      this.clients[name] = new Client(name, this.templatesPath, undefined, this.components);
+      this.clients[name] = new Client(name, fileSystemName, this.templatesPath, undefined, this.components);
       this.clients[name].url = npath.join(this.url, ...params.map((p) => `{${p}}`), child);
       this.clients[name].parameters = params;
     }
 
-    this.clients[name].set(name, other.join('/'), schema);
+    this.clients[name].set(name, other.join('/'), schema, fileSystemNameGenerators[name] ?? fileSystemNameGenerator);
   }
 
   async save(apiVersion: ApiVersion, outputFolder: string, path = '') {
-    const srcPath = npath.join(outputFolder, path, this.name);
+    const srcPath = npath.join(outputFolder, path, this.fileSystemName);
 
     this.clients = sortKeys(this.clients, { deep: true });
     this.endpoints = sortKeys(this.endpoints, { deep: true });
@@ -152,14 +155,16 @@ class Client {
       fs.mkdirSync(srcPath, { recursive: true });
     }
 
-    for (const [_, child] of Object.entries(this.clients)) {
-      child.save(apiVersion, outputFolder, npath.join(path, this.name));
+    const { importedChildren, inlineChildren } = this.groupChildClients();
+
+    for (const child of Object.values(importedChildren)) {
+      child.save(apiVersion, outputFolder, npath.join(path, this.fileSystemName));
     }
 
-    let filename = this.name;
+    let filename = this.fileSystemName;
 
     if (Object.keys(this.clients).length) {
-      filename = npath.join(this.name, 'index');
+      filename = npath.join(this.fileSystemName, 'index');
     }
 
     const clientTemplate = handlebars.compile(
@@ -168,6 +173,9 @@ class Client {
 
     const res = clientTemplate({
       ...this,
+      importedChildren,
+      inlineChildren,
+      hasExports: Object.keys(this.endpoints).length > 0 || Object.keys(inlineChildren).length > 0,
       apiVersion,
       commonPath: npath.relative(
         npath.join('/', path, Object.keys(this.clients).length ? this.name : ''),
@@ -221,6 +229,25 @@ class Client {
         hasRequestBody: !!def.requestBody,
       };
     }
+  }
+
+  private groupChildClients() : { importedChildren: Record<string, Client>; inlineChildren: Record<string, Client> } {
+    return Object.keys(this.clients).reduce<{ importedChildren: Record<string, Client>; inlineChildren: Record<string, Client> }>((acc, key) => {
+      const child = this.clients[key];
+
+      // Child nodes with additional children are put into subfolders, and then simply re-exported by this client's index.ts.
+      const isReExport  = Object.keys(child.clients).length > 0;
+      // Child nodes that don't have additional children are exported as objects from this client's index.ts.
+      const isInline = !isReExport && !!Object.keys(child.endpoints).length;
+
+      if (isReExport) {
+        acc.importedChildren[key] = child;
+      } else if (isInline) {
+        acc.inlineChildren[key] = child;
+      }
+
+      return acc;
+    }, { importedChildren: {}, inlineChildren: {} });
   }
 
   private getUniqueName(original: string) {
@@ -289,8 +316,9 @@ export async function generateEndpoints(
   fs.writeFileSync(npath.join(typesFolder, 'common.ts'), commonTemplate({ apiVersion: version }));
 
   // then the endpoints
-  const filteredPaths = filterPathsByAllowlist(schema.paths, { filterInvalidUrls: true });
-  const client = new Client('', templatesPath, schema.info.description, schema.components);
+  handlebars.registerPartial('functionDefinition', fs.readFileSync(npath.join(templatesPath, 'function-definition.ts.hbs'), 'utf8'));
+  const filteredPaths = filterPathsByAllowlist(schema.paths, [], { filterInvalidUrls: true });
+  const client = new Client('',  '', templatesPath, schema.info.description, schema.components);
 
   for (const [path, definition] of Object.entries(filteredPaths)) {
     client.set('', path, {

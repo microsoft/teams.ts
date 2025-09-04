@@ -1,5 +1,3 @@
-export * as team from './team';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /me/teamwork/associatedTeams': Operation<'/me/teamwork/associatedTeams', 'post'>;
+  'GET /me/teamwork/associatedTeams/{associatedTeamInfo-id}/team': Operation<
+    '/me/teamwork/associatedTeams/{associatedTeamInfo-id}/team',
+    'get'
+  >;
 }
 
 /**
@@ -111,14 +113,34 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /me/teamwork/associatedTeams']['body'],
-  params?: IEndpoints['POST /me/teamwork/associatedTeams']['parameters']
+  body: IEndpoints['POST /me/teamwork/associatedTeams']['body']
 ): EndpointRequest<IEndpoints['POST /me/teamwork/associatedTeams']['response']> {
   return {
     method: 'post',
     path: '/me/teamwork/associatedTeams',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const team = {
+  /**
+   * `GET /me/teamwork/associatedTeams/{associatedTeamInfo-id}/team`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/teamwork/associatedTeams/{associatedTeamInfo-id}/team']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/teamwork/associatedTeams/{associatedTeamInfo-id}/team']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/teamwork/associatedTeams/{associatedTeamInfo-id}/team',
+      paramDefs: [
+        { name: '$select', in: 'query' },
+        { name: '$expand', in: 'query' },
+        { name: 'associatedTeamInfo-id', in: 'path' },
+      ],
+      params,
+    };
+  },
+};

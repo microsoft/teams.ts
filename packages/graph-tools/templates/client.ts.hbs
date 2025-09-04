@@ -1,8 +1,8 @@
-{{#each clients}}
-export * as {{exportName}} from './{{@key}}';
+{{#each importedChildren}}
+export * as {{exportName}} from './{{fileSystemName}}';
 {{/each}}
 
-{{#if (notEmpty endpoints)}}
+{{#if hasExports}}
 import type { EndpointRequest, Operation } from './{{commonPath}}';
 
 export interface IEndpoints {
@@ -12,47 +12,61 @@ export interface IEndpoints {
     "{{method}}"
   >,
   {{/each}}
+  {{#each inlineChildren}}
+    {{#each endpoints}}
+      "{{@key}}": Operation<
+        "{{url}}",
+        "{{method}}"
+      >,
+    {{/each}}
+  {{/each}}
 }
 {{/if}}
 
-
+{{!-- 
+  Generate the functions directly supported by this path
+  These are simple 'get', 'list', 'del' etc functions
+--}}
 {{#each endpoints}}
-/**
-  * `{{uppercase method}} {{url}}`
-  *
-  {{#if description}}
-  * {{description}}
-  {{/if}}
-  {{#if deprecated}}
-  * @deprecated
-  {{/if}}
-  */
-export function {{name}}(
-  {{#if hasRequestBody}}
-  body: IEndpoints['{{@key}}']['body'],
-  {{/if}}
-  {{#if (notEmpty parameters)}}
-  params?: IEndpoints['{{@key}}']['parameters'],
-  {{/if}}
-) : EndpointRequest<IEndpoints['{{@key}}']['response']> {
-  return {
-    {{#if (eq ../apiVersion "beta")}}
-    ver: 'beta',
-    {{/if}}
-    method: '{{method}}',
-    path: '{{url}}',
-    {{#if (notEmpty parameters)}}
-    paramDefs: [
-      {{#each parameters}}
-      { name: '{{name}}', in: '{{in}}' },
-      {{/each}}
-    ],
-    params,
-    {{/if}}
-    {{#if hasRequestBody}}
-    body,
-    {{/if}}
+{{> functionDefinition apiVersion=../apiVersion isStandaloneExport=true }}
+
+{{/each}}
+
+{{!--
+  Generate any inline children as exported objects that contain the
+   'get', 'list', 'del' etc functions, e.g.
+
+  export const maybe = {
+    create: // ...implementation...
   };
-}
+
+  Some exports have names that are actually reserved keywords.
+  They get special treatment, e.g.:
+
+  const false_ = {
+    /**
+    * `POST /drives/{drive-id}/items/{driveItem-id}/workbook/functions/false`
+    *
+    */
+    create: // ...implementation...
+  };
+  export { false_ as false };
+  
+  This lets us keep the most natural name, and allows for moving 'false' to a separate
+  file in the future without having to make a breaking rename.
+--}}
+{{#each inlineChildren}}
+  {{#if (isReservedKeyword exportName)}}
+    const {{exportName}}_ = {
+  {{else}}
+    export const {{exportName}} = {
+  {{/if}}
+  {{#each endpoints}}
+    {{> functionDefinition apiVersion=../../apiVersion }},
+  {{/each}}
+};
+  {{#if (isReservedKeyword exportName)}}
+    export { {{exportName}}_ as {{exportName}} }
+  {{/if}}
 
 {{/each}}
