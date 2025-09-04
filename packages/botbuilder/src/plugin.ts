@@ -1,3 +1,5 @@
+import http from 'http';
+
 import {
   ActivityHandler,
   CloudAdapter,
@@ -28,6 +30,8 @@ import pkg from '../package.json';
 export type BotBuilderPluginOptions = {
   readonly adapter?: CloudAdapter;
   readonly handler?: ActivityHandler;
+  readonly server?: http.Server;
+  readonly skipAuth?: boolean;
 };
 
 @Plugin({
@@ -66,7 +70,7 @@ export class BotBuilderPlugin extends HttpPlugin implements ISender {
   protected handler?: ActivityHandler;
 
   constructor(options?: BotBuilderPluginOptions) {
-    super();
+    super(options?.server, { skipAuth: options?.skipAuth });
     this.adapter = options?.adapter;
     this.handler = options?.handler;
   }

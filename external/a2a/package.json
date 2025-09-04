@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.a2a",
-  "version": "2.0.0-preview.10",
+  "version": "2.0.0-preview.11",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -29,12 +29,12 @@
     "lint:fix": "npx eslint --fix"
   },
   "peerDependencies": {
-    "@microsoft/teams.ai": "2.0.0-preview.10",
-    "@microsoft/teams.apps": "2.0.0-preview.10",
-    "@microsoft/teams.common": "2.0.0-preview.10"
+    "@microsoft/teams.ai": "2.0.0-preview.11",
+    "@microsoft/teams.apps": "2.0.0-preview.11",
+    "@microsoft/teams.common": "2.0.0-preview.11"
   },
   "devDependencies": {
-    "@microsoft/teams.config": "2.0.0-preview.10",
+    "@microsoft/teams.config": "2.0.0-preview.11",
     "@types/jest": "^29.5.12",
     "@types/lodash.camelcase": "^4.3.9",
     "@types/node": "^22.0.2",
