@@ -39,7 +39,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
   get cache() {
     return this._cache;
   }
-  protected _cache: Record<string, McpClientPluginCachedValue & { lastAttemptedFetch?: number }>;
+  protected _cache: Record<string, McpClientPluginCachedValue & { lastFetched?: number }>;
 
   get log() {
     return this._log;
@@ -72,7 +72,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
       for (const [url, params] of Object.entries(cache)) {
         this._cache[url] = {
           ...params,
-          lastAttemptedFetch: Date.now(),
+          lastFetched: Date.now(),
         };
       }
     } else {
@@ -91,7 +91,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
         ...this._cache[args.url],
         transport: args.params?.transport,
         // If the tools are being supplied, we assume they are up to date
-        lastAttemptedFetch: Date.now(),
+        lastFetched: Date.now(),
         availableTools: args.params.availableTools,
       };
     }
@@ -157,8 +157,8 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
 
         const maxAge = params?.refetchTimeoutMs ?? this.refetchTimeoutMs;
         if (
-          !cachedParams.lastAttemptedFetch ||
-          Date.now() - cachedParams.lastAttemptedFetch > maxAge
+          !cachedParams.lastFetched ||
+          Date.now() - cachedParams.lastFetched > maxAge
         ) {
           // If we have a cached value and it's still valid, we don't need to fetch
           return { url, ...params };
@@ -174,7 +174,7 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
       for (const [url, tools] of Object.entries(allFetchedTools)) {
         this._cache[url] = {
           ...this._cache[url],
-          lastAttemptedFetch: tools === 'unavailable' ? undefined : Date.now(),
+          lastFetched: tools === 'unavailable' ? undefined : Date.now(),
           availableTools: tools === 'unavailable' ? undefined : tools,
         };
         if (tools === 'unavailable') {
