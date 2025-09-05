@@ -1,6 +1,7 @@
 import * as http from '@microsoft/teams.common/http';
 
 export type SchemaVersion = 'beta' | 'v1.0';
+
 /**
  * Configuration options for the `call` method
  * @see {@link Client.call}

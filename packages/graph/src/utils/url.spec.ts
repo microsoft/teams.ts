@@ -1,5 +1,5 @@
 import { IParam } from './interfaces';
-import { getInjectedUrl } from './url';
+import { getInjectedUrl, getInjectedRequestConfig } from './url';
 
 describe('getInjectedUrl', () => {
   it('should handle URLs with no parameters', () => {
@@ -173,5 +173,186 @@ describe('getInjectedUrl', () => {
     const result = getInjectedUrl(url, params, data);
 
     expect(result).toBe('/users?count=true&consistencyLevel=false');
+  });
+});
+
+describe('getInjectedRequestConfig', () => {
+  it('should return undefined when no header params and no request config', () => {
+    const params: IParam[] = [
+      { in: 'query', name: 'select' },
+      { in: 'path', name: 'id' },
+    ];
+    const data = { id: '123', select: 'displayName' };
+
+    const result = getInjectedRequestConfig(params, data);
+
+    expect(result).toBeUndefined();
+  });
+
+  it('should return original request config when no header params', () => {
+    const params: IParam[] = [{ in: 'query', name: 'select' }];
+    const data = { select: 'displayName' };
+    const requestConfig = { timeout: 5000 };
+
+    const result = getInjectedRequestConfig(params, data, requestConfig);
+
+    expect(result).toBe(requestConfig);
+  });
+
+  it('should inject single header parameter', () => {
+    const params: IParam[] = [{ in: 'header', name: 'Authorization' }];
+    const data = { Authorization: 'Bearer token123' };
+
+    const result = getInjectedRequestConfig(params, data);
+
+    expect(result).toEqual({
+      headers: {
+        Authorization: 'Bearer token123',
+      },
+    });
+  });
+
+  it('should inject multiple header parameters', () => {
+    const params: IParam[] = [
+      { in: 'header', name: 'Authorization' },
+      { in: 'header', name: 'ConsistencyLevel' },
+      { in: 'header', name: 'If-Match' },
+    ];
+    const data = {
+      Authorization: 'Bearer token123',
+      ConsistencyLevel: 'eventual',
+      'If-Match': '"etag-value"',
+    };
+
+    const result = getInjectedRequestConfig(params, data);
+
+    expect(result).toEqual({
+      headers: {
+        Authorization: 'Bearer token123',
+        ConsistencyLevel: 'eventual',
+        'If-Match': '"etag-value"',
+      },
+    });
+  });
+
+  it('should merge header parameters with existing request config', () => {
+    const params: IParam[] = [
+      { in: 'header', name: 'Authorization' },
+      { in: 'header', name: 'ConsistencyLevel' },
+    ];
+    const data = {
+      Authorization: 'Bearer token123',
+      ConsistencyLevel: 'eventual',
+    };
+    const requestConfig = {
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'MyApp/1.0',
+      },
+    };
+
+    const result = getInjectedRequestConfig(params, data, requestConfig);
+
+    expect(result).toEqual({
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'MyApp/1.0',
+        Authorization: 'Bearer token123',
+        ConsistencyLevel: 'eventual',
+      },
+    });
+  });
+
+  it('should override existing headers with parameter headers', () => {
+    const params: IParam[] = [{ in: 'header', name: 'Authorization' }];
+    const data = {
+      Authorization: 'Bearer new-token',
+    };
+    const requestConfig = {
+      headers: {
+        Authorization: 'Bearer old-token',
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const result = getInjectedRequestConfig(params, data, requestConfig);
+
+    expect(result).toEqual({
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer new-token',
+      },
+    });
+  });
+
+  it('should ignore header parameters with falsy values', () => {
+    const params: IParam[] = [
+      { in: 'header', name: 'Authorization' },
+      { in: 'header', name: 'ConsistencyLevel' },
+      { in: 'header', name: 'If-Match' },
+    ];
+    const data = {
+      Authorization: 'Bearer token123',
+      ConsistencyLevel: null,
+      'If-Match': undefined,
+    };
+
+    const result = getInjectedRequestConfig(params, data);
+
+    expect(result).toEqual({
+      headers: {
+        Authorization: 'Bearer token123',
+      },
+    });
+  });
+
+  it('should handle mixed parameter types correctly', () => {
+    const params: IParam[] = [
+      { in: 'path', name: 'userId' },
+      { in: 'query', name: 'select' },
+      { in: 'query', name: 'filter' },
+      { in: 'header', name: 'Authorization' },
+      { in: 'header', name: 'ConsistencyLevel' },
+    ];
+    const data = {
+      userId: 'user-123',
+      select: 'id,displayName',
+      filter: 'startsWith(displayName, "John")',
+      Authorization: 'Bearer token123',
+      ConsistencyLevel: 'eventual',
+    };
+    const requestConfig = { timeout: 5000 };
+
+    const result = getInjectedRequestConfig(params, data, requestConfig);
+
+    expect(result).toEqual({
+      timeout: 5000,
+      headers: {
+        Authorization: 'Bearer token123',
+        ConsistencyLevel: 'eventual',
+      },
+    });
+  });
+
+  it('should handle empty params array', () => {
+    const params: IParam[] = [];
+    const data = { select: 'displayName' };
+    const requestConfig = { timeout: 3000 };
+
+    const result = getInjectedRequestConfig(params, data, requestConfig);
+
+    expect(result).toBe(requestConfig);
+  });
+
+  it('should handle undefined params array', () => {
+    const params = undefined;
+    const data = { Authorization: 'Bearer token' };
+    const requestConfig = { timeout: 3000 };
+
+    const result = getInjectedRequestConfig(params as any, data, requestConfig);
+
+    expect(result).toBe(requestConfig);
   });
 });

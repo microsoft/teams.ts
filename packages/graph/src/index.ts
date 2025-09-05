@@ -1,13 +1,13 @@
 import * as http from '@microsoft/teams.common/http';
 
-import { getInjectedUrl } from './utils/url';
+import { getInjectedUrl, getInjectedRequestConfig } from './utils/url';
 
 import type { CallOptions, EndpointRequest, SchemaVersion } from './types';
 
 // Build-time constant injected by tsup
 declare const __PACKAGE_VERSION__: string;
 
-export { CallOptions, EndpointRequest } from './types';
+export { CallOptions, EndpointRequest, SchemaVersion } from './types';
 
 const defaultBaseUrlRoot = 'https://graph.microsoft.com';
 
@@ -92,20 +92,18 @@ export class Client {
 
     // Extract function arguments
     const funcArgs = hasOptions ? args.slice(0, -1) : args;
-
-    const requestConfig = hasOptions
-      ? (lastArg as CallOptions).requestConfig
-      : undefined;
+    const callOptions = hasOptions ? lastArg as CallOptions : undefined;
 
     const {
       ver = 'v1.0',
       method,
       path,
       paramDefs = [],
-      params,
+      params = {},
       body,
     } = func(...(funcArgs as any[]));
-    const url = getInjectedUrl(path, paramDefs, params || {});
+    const url = getInjectedUrl(path, paramDefs, params);
+    const requestConfig = getInjectedRequestConfig(paramDefs, params, callOptions?.requestConfig);
     const httpClient = this.getHttpClient(ver);
 
     switch (method) {
