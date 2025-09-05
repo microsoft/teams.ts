@@ -522,6 +522,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     }
 
     const botResponse = await this.api.bots.token.get(this.credentials);
+    this.log.debug(`Got bot token ${botResponse.access_token}`)
     this._tokens.bot = new JsonWebToken(botResponse.access_token);
   }
 
