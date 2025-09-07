@@ -1,0 +1,42 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.16",
+  "version": "1.0.0",
+  "id": "{{#if microsoftAppId}}{{ microsoftAppId }}{{else}}00000000-0000-0000-0000-000000000000{{/if}}",
+  "packageName": "com.example.{{ toKebabCase name }}",
+  "developer": {
+    "name": "Your Company",
+    "websiteUrl": "https://example.com",
+    "privacyUrl": "https://example.com/privacy",
+    "termsOfUseUrl": "https://example.com/terms"
+  },
+  "name": {
+    "short": "{{ name }}",
+    "full": "{{ name }} AI Bot"
+  },
+  "description": {
+    "short": "An AI assistant built with teams.py",
+    "full": "An AI assistant Teams app scaffolded by the CLI template '{{ name }}'."
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#FFFFFF",
+  "bots": [
+    {
+      "botId": "{{#if microsoftAppId}}{{ microsoftAppId }}{{else}}00000000-0000-0000-0000-000000000000{{/if}}",
+      "scopes": [
+        "personal",
+        "team"
+      ],
+      "supportsFiles": false,
+      "isNotificationOnly": false
+    }
+  ],
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": []
+}
