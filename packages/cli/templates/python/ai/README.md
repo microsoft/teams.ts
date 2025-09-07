@@ -1,28 +1,17 @@
-# {{ name }} AI Bot
+# Python Teams AI Bot
 
-This template scaffolds a Microsoft Teams AI bot using teams.py and OpenAI.
+This is a minimal Microsoft Teams ai bot template using [microsoft-teams](https://github.com/microsoft/teams.py).
 
-## Setup
+## Structure
 
-1. Create a virtual environment and activate it:
-   python -m venv .venv
-   .venv\Scripts\Activate.ps1  # PowerShell
-   .venv\Scripts\activate.bat # cmd.exe
+- `src/main.py`: Main application code for the Teams bot.
+- `pyproject.toml`: Project dependencies and metadata (use [uv](https://github.com/astral-sh/uv) for dependency management).
+- `apppackage/`: Teams app manifest and related files.
 
-2. Install dependencies:
-   pip install -r requirements.txt
-   or
-   pip install .
+## Getting Started
 
-3. Copy environment example:
-   copy .env.example .env
-   and fill in the required variables.
-
-## Environment variables
-
-See .env.example for required variables.
-
-## Run
-
-From the project root:
-python -m src.main
+1. Install [uv](https://github.com/astral-sh/uv).
+2. Run:
+   ```
+   uv venv && uv sync && uv run src/main.py
+   ```
