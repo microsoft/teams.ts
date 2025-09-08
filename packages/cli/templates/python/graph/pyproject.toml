@@ -1,0 +1,11 @@
+[project]
+name = "graph"
+version = "0.1.0"
+description = "demo app to test Azure Graph integration"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "microsoft-teams-apps",
+    "microsoft-teams-graph",
+    "dotenv"
+]
