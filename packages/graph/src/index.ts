@@ -98,7 +98,7 @@ export class Client {
       ver = 'v1.0',
       method,
       path,
-      paramDefs = [],
+      paramDefs = {},
       params = {},
       body,
     } = func(...(funcArgs as any[]));

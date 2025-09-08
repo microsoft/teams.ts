@@ -58,7 +58,7 @@ interface IEndpoint {
   readonly method: string;
   readonly name: string;
   readonly url: string;
-  readonly parameters?: Array<OpenAPIV3.ParameterObject>;
+  readonly parameters?: Record<string, Array<OpenAPIV3.ParameterObject>>;
   readonly description?: string;
   readonly deprecated?: boolean;
   readonly hasRequestBody: boolean;
@@ -194,9 +194,16 @@ class Client {
       const def = schema[method as keyof typeof methods];
       if (!def) continue;
 
-      const params = [...(def.parameters || []), ...(schema.parameters || [])]
+      const parameters = [...(def.parameters || []), ...(schema.parameters || [])]
         .map((param) => this.resolveParameter(param))
-        .filter((p): p is OpenAPIV3.ParameterObject => 'name' in p);
+        .filter((p): p is OpenAPIV3.ParameterObject => 'name' in p)
+        .reduce<Record<string, OpenAPIV3.ParameterObject[]>>((agg, param) => {
+          if (!agg[param.in]) {
+            agg[param.in] = [];
+          }
+          agg[param.in].push(param);
+          return agg;
+        }, {});
 
       let name = camelcase([methods[method as keyof typeof methods], ...path]);
 
@@ -223,7 +230,7 @@ class Client {
         method,
         name: this.getUniqueName(name),
         url: schema.url,
-        parameters: params,
+        parameters,
         description: def.description,
         deprecated: def.deprecated,
         hasRequestBody: !!def.requestBody,

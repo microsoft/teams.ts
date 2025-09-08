@@ -33,10 +33,10 @@ export function del(
   return {
     method: 'delete',
     path: '/me/teamwork/associatedTeams/{associatedTeamInfo-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'associatedTeamInfo-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['associatedTeamInfo-id'],
+    },
     params,
   };
 }
@@ -53,16 +53,9 @@ export function list(
   return {
     method: 'get',
     path: '/me/teamwork/associatedTeams',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -80,11 +73,10 @@ export function get(
   return {
     method: 'get',
     path: '/me/teamwork/associatedTeams/{associatedTeamInfo-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'associatedTeamInfo-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['associatedTeamInfo-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -102,7 +94,9 @@ export function update(
   return {
     method: 'patch',
     path: '/me/teamwork/associatedTeams/{associatedTeamInfo-id}',
-    paramDefs: [{ name: 'associatedTeamInfo-id', in: 'path' }],
+    paramDefs: {
+      path: ['associatedTeamInfo-id'],
+    },
     params,
     body,
   };
@@ -135,11 +129,10 @@ export const team = {
     return {
       method: 'get',
       path: '/me/teamwork/associatedTeams/{associatedTeamInfo-id}/team',
-      paramDefs: [
-        { name: '$select', in: 'query' },
-        { name: '$expand', in: 'query' },
-        { name: 'associatedTeamInfo-id', in: 'path' },
-      ],
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['associatedTeamInfo-id'],
+      },
       params,
     };
   },
