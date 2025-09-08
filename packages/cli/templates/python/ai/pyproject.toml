@@ -7,7 +7,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 
 dependencies = [
-  "dotenv",
+  "python-dotenv",
   "microsoft-teams-apps",
   "microsoft.teams.ai",
   "microsoft.teams.openai",
