@@ -1,42 +1,54 @@
 {
-  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
-  "manifestVersion": "1.16",
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.20/MicrosoftTeams.schema.json",
   "version": "1.0.0",
-  "id": "{{#if microsoftAppId}}{{ microsoftAppId }}{{else}}00000000-0000-0000-0000-000000000000{{/if}}",
-  "packageName": "com.example.{{ toKebabCase name }}",
-  "developer": {
-    "name": "Your Company",
-    "websiteUrl": "https://example.com",
-    "privacyUrl": "https://example.com/privacy",
-    "termsOfUseUrl": "https://example.com/terms"
-  },
+  "manifestVersion": "1.20",
+  "id": "$\{{TEAMS_APP_ID}}",
   "name": {
-    "short": "{{ name }}",
-    "full": "{{ name }} AI Bot"
+    "short": "{{ toKebabCase name }}-$\{{APP_NAME_SUFFIX}}",
+    "full": "{{ capitalize name }}"
+  },
+  "developer": {
+    "name": "Microsoft",
+    "mpnId": "",
+    "websiteUrl": "https://microsoft.com",
+    "privacyUrl": "https://privacy.microsoft.com/privacystatement",
+    "termsOfUseUrl": "https://www.microsoft.com/legal/terms-of-use"
   },
   "description": {
-    "short": "An AI assistant built with teams.py",
-    "full": "An AI assistant Teams app scaffolded by the CLI template '{{ name }}'."
+    "short": "Sample Python bot that allows a user to interact with an LLM",
+    "full": "Sample Python bot that allows a user to interact with an LLM"
   },
   "icons": {
-    "color": "color.png",
-    "outline": "outline.png"
+    "outline": "outline.png",
+    "color": "color.png"
   },
   "accentColor": "#FFFFFF",
-  "bots": [
+  "staticTabs": [
     {
-      "botId": "{{#if microsoftAppId}}{{ microsoftAppId }}{{else}}00000000-0000-0000-0000-000000000000{{/if}}",
-      "scopes": [
-        "personal",
-        "team"
-      ],
-      "supportsFiles": false,
-      "isNotificationOnly": false
+      "entityId": "conversations",
+      "scopes": ["personal"]
+    },
+    {
+      "entityId": "about",
+      "scopes": ["personal"]
     }
   ],
-  "permissions": [
-    "identity",
-    "messageTeamMembers"
+  "bots": [
+    {
+      "botId": "$\{{BOT_ID}}",
+      "scopes": ["personal", "team", "groupChat"],
+      "isNotificationOnly": false,
+      "supportsCalling": false,
+      "supportsVideo": false,
+      "supportsFiles": false
+    }
   ],
-  "validDomains": []
+  "validDomains": [
+    "$\{{BOT_DOMAIN}}",
+    "*.botframework.com"
+  ],
+  "webApplicationInfo": {
+    "id": "$\{{BOT_ID}}",
+    "resource": "api://botid-$\{{BOT_ID}}"
+  }
 }
