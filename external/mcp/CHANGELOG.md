@@ -1,5 +1,16 @@
 # @microsoft/teams.mcp
 
+## 2.0.0-preview.11
+
+### Patch Changes
+
+- cli template updates; botbuilder plugin custom server options; system route overrides;
+- Updated dependencies
+  - @microsoft/teams.ai@2.0.0-preview.11
+  - @microsoft/teams.apps@2.0.0-preview.11
+  - @microsoft/teams.common@2.0.0-preview.11
+  - @microsoft/teams.dev@2.0.0-preview.11
+
 ## 2.0.0-preview.10
 
 ### Patch Changes

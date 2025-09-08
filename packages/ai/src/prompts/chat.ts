@@ -243,7 +243,7 @@ export class ChatPrompt<
         messages,
         request: options.request,
         functions: fnMap,
-        onChunk: async (chunk) => {
+        onChunk: onChunk ? async (chunk) => {
           if (!chunk || !onChunk) return;
           buffer += chunk;
 
@@ -253,7 +253,7 @@ export class ChatPrompt<
           } catch (err) {
             return;
           }
-        },
+        } : undefined,
         autoFunctionCalling: options.autoFunctionCalling,
       }
     );

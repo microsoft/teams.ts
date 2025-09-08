@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.0-preview.11
+
+### Patch Changes
+
+- cli template updates; botbuilder plugin custom server options; system route overrides;
+
 ## 2.0.0-preview.10
 
 ### Patch Changes
