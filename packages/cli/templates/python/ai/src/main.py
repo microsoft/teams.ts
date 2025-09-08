@@ -1,4 +1,3 @@
-# python
 import os
 import asyncio
 
