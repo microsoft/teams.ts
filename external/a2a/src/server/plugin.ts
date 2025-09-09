@@ -5,7 +5,8 @@ import { A2ARequestHandler, AgentExecutor, DefaultRequestHandler, ExecutionEvent
 import { A2AExpressApp } from '@a2a-js/sdk/server/express';
 import express, { RequestHandler } from 'express';
 
-import { Dependency, EmitPluginEvent, Event, HttpPlugin, IPlugin, Plugin } from '@microsoft/teams.apps';
+import { Dependency, EmitPluginEvent, Event, HttpPlugin, IPlugin, Logger, Plugin } from '@microsoft/teams.apps';
+import { ILogger } from '@microsoft/teams.common';
 
 
 interface IA2APluginOptions {
@@ -48,6 +49,9 @@ export type A2AEvents = {
   version: '0.3.0'
 })
 export class A2APlugin implements IPlugin {
+  @Logger()
+  public readonly log!: ILogger;
+
   @Event('custom')
   protected readonly emit!: EmitPluginEvent<A2AEvents>;
 
@@ -71,12 +75,29 @@ export class A2APlugin implements IPlugin {
   use(middleware: RequestHandler): void {
     this.middlewares.push(middleware);
   }
-
   onInit() {
     const a2aExpressApp = new A2AExpressApp(this._setupRequestHandler());
     const expressApp = express();
-    a2aExpressApp.setupRoutes(expressApp, this.path, this.middlewares);
+
+    // Combine logging middleware with custom middlewares
+    const allMiddlewares = [this._createLoggingMiddleware(), ...this.middlewares];
+
+    a2aExpressApp.setupRoutes(expressApp, this.path, allMiddlewares);
     this._httpPlugin.use(expressApp);
+  }
+
+
+  _createLoggingMiddleware(): RequestHandler {
+    return (req, _res, next) => {
+      let logMessage = `A2A Request: ${req.method} ${req.url}`;
+
+      if (req.method === 'POST' && req.body) {
+        logMessage += ` - Body: ${JSON.stringify(req.body)}`;
+      }
+
+      this.log.debug(logMessage);
+      next();
+    };
   }
 
   _setupExecutor() {
