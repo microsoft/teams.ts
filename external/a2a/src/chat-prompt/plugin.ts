@@ -18,7 +18,6 @@ import {
   BuildPrompt,
 } from './types';
 
-// Internal implementation interfaces
 interface IAgentConfig {
   key: string;
   cardUrl: string;
