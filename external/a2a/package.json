@@ -29,6 +29,7 @@
     "lint:fix": "npx eslint --fix"
   },
   "peerDependencies": {
+    "@a2a-js/sdk": "^0.3.4",
     "@microsoft/teams.ai": "2.0.0-preview.11",
     "@microsoft/teams.apps": "2.0.0-preview.11",
     "@microsoft/teams.common": "2.0.0-preview.11"
