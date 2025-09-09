@@ -291,25 +291,30 @@ export class ChatPrompt<
     fn: Function,
     args?: Record<string, any>
   ): Promise<R> {
-    const processedArgs = args || {};
+    try {
+      const processedArgs = args || {};
 
-    // Execute beforeFunctionCall hooks
-    for (const plugin of this.plugins) {
-      if (plugin.onBeforeFunctionCall) {
-        await plugin.onBeforeFunctionCall(name, processedArgs);
+      // Execute beforeFunctionCall hooks
+      for (const plugin of this.plugins) {
+        if (plugin.onBeforeFunctionCall) {
+          await plugin.onBeforeFunctionCall(name, processedArgs);
+        }
       }
-    }
 
-    // Call the function
-    let result = await fn.handler(processedArgs);
+      // Call the function
+      let result = await fn.handler(processedArgs);
 
-    // Execute afterFunctionCall hooks
-    for (const plugin of this.plugins) {
-      if (plugin.onAfterFunctionCall) {
-        result = await plugin.onAfterFunctionCall(name, processedArgs, result);
+      // Execute afterFunctionCall hooks
+      for (const plugin of this.plugins) {
+        if (plugin.onAfterFunctionCall) {
+          result = await plugin.onAfterFunctionCall(name, processedArgs, result);
+        }
       }
-    }
 
-    return result;
+      return result;
+    } catch (e) {
+      this._log.error(e);
+      throw e;
+    }
   }
 }

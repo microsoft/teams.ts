@@ -55,8 +55,10 @@ const myEventHandler = async (userMessage: string): Promise<Message | string> =>
   const result = await new ChatPrompt({
     instructions: 'You are a weather agent that can tell you the weather for a given location',
     model: new OpenAIChatModel({
-      apiKey: process.env.OPENAI_API_KEY,
-      model: 'gpt-4o-mini',
+      apiKey: process.env.AZURE_OPENAI_API_KEY,
+      model: process.env.AZURE_OPENAI_MODEL!,
+      endpoint: process.env.AZURE_OPENAI_ENDPOINT,
+      apiVersion: process.env.AZURE_OPENAI_API_VERSION
     }),
   }).function('location', 'The location to get the weather for', {
     type: 'object',
