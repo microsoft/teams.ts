@@ -5,5 +5,5 @@ export * from './client/agent-manager';
 export * from './client/agent-task-store';
 export * from './common/schema';
 export * as schema from './common/schema';
-export * from './server2/plugin';
+export * from './server/plugin';
 
