@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { AgentCard, Message, Task } from '@a2a-js/sdk';
 import { A2ARequestHandler, AgentExecutor, DefaultRequestHandler, ExecutionEventBus, InMemoryTaskStore, RequestContext, TaskStore } from '@a2a-js/sdk/server';
 import { A2AExpressApp } from '@a2a-js/sdk/server/express';
-import express from 'express';
+import express, { RequestHandler } from 'express';
 
 import { Dependency, EmitPluginEvent, Event, HttpPlugin, IPlugin, Plugin } from '@microsoft/teams.apps';
 
@@ -55,22 +55,27 @@ export class A2APlugin implements IPlugin {
   protected readonly _httpPlugin!: HttpPlugin;
   __eventType!: A2AEvents;
 
-  protected _card: AgentCard;
-  protected _path: string;
-  protected _taskStore: TaskStore;
-  protected _customExecutor?: AgentExecutor;
+  public readonly card: AgentCard;
+  public readonly path: string;
+  public readonly taskStore: TaskStore;
+  public readonly customExecutor?: AgentExecutor;
+  private readonly middlewares: RequestHandler[] = [];
 
   constructor(options: IA2APluginOptions) {
-    this._card = options.agentCard;
-    this._path = options.path ?? '/a2a';
-    this._taskStore = options.taskStore ?? new InMemoryTaskStore();
-    this._customExecutor = options.agentExecutor;
+    this.card = options.agentCard;
+    this.path = options.path ?? '/a2a';
+    this.taskStore = options.taskStore ?? new InMemoryTaskStore();
+    this.customExecutor = options.agentExecutor;
+  }
+
+  use(middleware: RequestHandler): void {
+    this.middlewares.push(middleware);
   }
 
   onInit() {
     const a2aExpressApp = new A2AExpressApp(this._setupRequestHandler());
     const expressApp = express();
-    a2aExpressApp.setupRoutes(expressApp);
+    a2aExpressApp.setupRoutes(expressApp, this.path, this.middlewares);
     this._httpPlugin.use(expressApp);
   }
 
@@ -106,6 +111,6 @@ export class A2APlugin implements IPlugin {
   }
 
   _setupRequestHandler(): A2ARequestHandler {
-    return new DefaultRequestHandler(this._card, this._taskStore, this._customExecutor ?? this._setupExecutor());
+    return new DefaultRequestHandler(this.card, this.taskStore, this.customExecutor ?? this._setupExecutor());
   }
 }
