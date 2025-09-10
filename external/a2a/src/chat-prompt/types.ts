@@ -1,6 +1,8 @@
 import { AgentCard, Message, Task } from '@a2a-js/sdk';
 import { A2AClient } from '@a2a-js/sdk/client';
 
+import { ILogger } from '@microsoft/teams.common';
+
 /**
  * New types that use SDK's AgentCard and A2AClient instead of internal schema types
  */
@@ -49,6 +51,11 @@ export type A2AClientPluginOptions = {
    * Optional function to customize how agent responses are processed into strings.
    */
   buildMessageFromAgentResponse?: BuildMessageFromAgentResponse;
+
+  /**
+   * Logger
+   */
+  logger?: ILogger
 };
 
 /**

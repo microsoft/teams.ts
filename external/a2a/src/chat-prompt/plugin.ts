@@ -8,6 +8,8 @@ import {
   ChatPromptPlugin,
 } from '@microsoft/teams.ai';
 
+import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
+
 import {
   A2AClientPluginOptions,
   A2APluginUseParams,
@@ -39,8 +41,10 @@ export class A2AClientPlugin
   implements ChatPromptPlugin<'a2a', A2APluginUseParams> {
   readonly name = 'a2a';
 
+  public readonly log: ILogger;
   protected _agentConfigs: Map<string, IAgentConfig> = new Map();
   protected _clients: Map<string, IAgentClientInfo> = new Map();
+
   protected buildFunctionMetadata?: BuildFunctionMetadata;
   protected buildPrompt?: BuildPrompt;
   protected buildMessageForAgent?: BuildMessageForAgent;
@@ -51,6 +55,7 @@ export class A2AClientPlugin
     this.buildPrompt = options.buildPrompt;
     this.buildMessageForAgent = options.buildMessageForAgent;
     this.buildMessageFromAgentResponse = options.buildMessageFromAgentResponse;
+    this.log = options.logger ?? new ConsoleLogger('a2a:client');
   }
 
   onUsePlugin(args: A2APluginUseParams) {
@@ -69,7 +74,6 @@ export class A2AClientPlugin
 
     for (const [key, config] of this._agentConfigs) {
       try {
-        // Get agent card (which internally gets or creates client)
         const agentCard = await this._getAgentCard(key, config);
         if (!agentCard) {
           continue; // Skip if we couldn't get the agent card
@@ -121,7 +125,9 @@ export class A2AClientPlugin
                 throw new Error(`Client not found for agent ${key}`);
               }
 
+              this.log.debug(`Calling agent ${agentCard.name} with ${JSON.stringify(messageOrString)}`);
               const response = await clientInfo.client.sendMessage(sendParams);
+              this.log.debug(`Got response from ${agentCard.name}`);
 
               if ('error' in response) {
                 return response.error.message;
@@ -142,6 +148,7 @@ export class A2AClientPlugin
             }
           }).bind(this),
         });
+        this.log.debug(`Added function in ChatPrompt to call ${agentCard.name}`);
       } catch (error) {
         console.error(`Failed to build function for agent ${key}:`, error);
         // Continue with other agents even if one fails
