@@ -1,7 +1,4 @@
-export * as linkedEligibleRoleAssignment from './linkedEligibleRoleAssignment';
-export * as resource from './resource';
 export * as roleDefinition from './roleDefinition';
-export * as subject from './subject';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -26,6 +23,26 @@ export interface IEndpoints {
     '/governanceResources/{governanceResource-id}/roleAssignments',
     'post'
   >;
+  'GET /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/linkedEligibleRoleAssignment': Operation<
+    '/governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/linkedEligibleRoleAssignment',
+    'get'
+  >;
+  'GET /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/resource': Operation<
+    '/governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/resource',
+    'get'
+  >;
+  'GET /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject': Operation<
+    '/governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject',
+    'get'
+  >;
+  'PATCH /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject': Operation<
+    '/governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject',
+    'patch'
+  >;
+  'DELETE /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject': Operation<
+    '/governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject',
+    'delete'
+  >;
 }
 
 /**
@@ -41,11 +58,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'governanceResource-id', in: 'path' },
-      { name: 'governanceRoleAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['governanceResource-id', 'governanceRoleAssignment-id'],
+    },
     params,
   };
 }
@@ -64,17 +80,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/governanceResources/{governanceResource-id}/roleAssignments',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'governanceResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['governanceResource-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,12 +102,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'governanceResource-id', in: 'path' },
-      { name: 'governanceRoleAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['governanceResource-id', 'governanceRoleAssignment-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,10 +124,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}',
-    paramDefs: [
-      { name: 'governanceResource-id', in: 'path' },
-      { name: 'governanceRoleAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['governanceResource-id', 'governanceRoleAssignment-id'],
+    },
     params,
     body,
   };
@@ -140,8 +146,123 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/governanceResources/{governanceResource-id}/roleAssignments',
-    paramDefs: [{ name: 'governanceResource-id', in: 'path' }],
+    paramDefs: {
+      path: ['governanceResource-id'],
+    },
     params,
     body,
   };
 }
+
+export const linkedEligibleRoleAssignment = {
+  /**
+   * `GET /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/linkedEligibleRoleAssignment`
+   *
+   * Read-only. If this is an active assignment and created due to activation on an eligible assignment, it represents the object of that eligible assignment; Otherwise, the value is null.
+   */
+  get: function get(
+    params?: IEndpoints['GET /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/linkedEligibleRoleAssignment']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/linkedEligibleRoleAssignment']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/linkedEligibleRoleAssignment',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['governanceResource-id', 'governanceRoleAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const resource = {
+  /**
+   * `GET /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/resource`
+   *
+   * Read-only. The resource associated with the role assignment.
+   */
+  get: function get(
+    params?: IEndpoints['GET /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/resource']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/resource']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/resource',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['governanceResource-id', 'governanceRoleAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const subject = {
+  /**
+   * `GET /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject`
+   *
+   * Read-only. The subject associated with the role assignment.
+   */
+  get: function get(
+    params?: IEndpoints['GET /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['governanceResource-id', 'governanceRoleAssignment-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject']['body'],
+    params?: IEndpoints['PATCH /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject',
+      paramDefs: {
+        path: ['governanceResource-id', 'governanceRoleAssignment-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/governanceResources/{governanceResource-id}/roleAssignments/{governanceRoleAssignment-id}/subject',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['governanceResource-id', 'governanceRoleAssignment-id'],
+      },
+      params,
+    };
+  },
+};

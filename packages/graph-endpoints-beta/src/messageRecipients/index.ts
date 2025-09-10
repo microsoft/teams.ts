@@ -1,5 +1,3 @@
-export * as events from './events';
-
 import type { EndpointRequest, Operation } from './../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,26 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /messageRecipients': Operation<'/messageRecipients', 'post'>;
+  'GET /messageRecipients/{messageRecipient-id}/events': Operation<
+    '/messageRecipients/{messageRecipient-id}/events',
+    'get'
+  >;
+  'POST /messageRecipients/{messageRecipient-id}/events': Operation<
+    '/messageRecipients/{messageRecipient-id}/events',
+    'post'
+  >;
+  'GET /messageRecipients/{messageRecipient-id}/events/{messageEvent-id}': Operation<
+    '/messageRecipients/{messageRecipient-id}/events/{messageEvent-id}',
+    'get'
+  >;
+  'PATCH /messageRecipients/{messageRecipient-id}/events/{messageEvent-id}': Operation<
+    '/messageRecipients/{messageRecipient-id}/events/{messageEvent-id}',
+    'patch'
+  >;
+  'DELETE /messageRecipients/{messageRecipient-id}/events/{messageEvent-id}': Operation<
+    '/messageRecipients/{messageRecipient-id}/events/{messageEvent-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -30,10 +48,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/messageRecipients/{messageRecipient-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'messageRecipient-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['messageRecipient-id'],
+    },
     params,
   };
 }
@@ -49,16 +67,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/messageRecipients',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -74,11 +85,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/messageRecipients/{messageRecipient-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'messageRecipient-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['messageRecipient-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -95,7 +105,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/messageRecipients/{messageRecipient-id}',
-    paramDefs: [{ name: 'messageRecipient-id', in: 'path' }],
+    paramDefs: {
+      path: ['messageRecipient-id'],
+    },
     params,
     body,
   };
@@ -106,15 +118,117 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /messageRecipients']['body'],
-  params?: IEndpoints['POST /messageRecipients']['parameters']
+  body: IEndpoints['POST /messageRecipients']['body']
 ): EndpointRequest<IEndpoints['POST /messageRecipients']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/messageRecipients',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const events = {
+  /**
+   * `GET /messageRecipients/{messageRecipient-id}/events`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /messageRecipients/{messageRecipient-id}/events']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /messageRecipients/{messageRecipient-id}/events']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/messageRecipients/{messageRecipient-id}/events',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['messageRecipient-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /messageRecipients/{messageRecipient-id}/events`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /messageRecipients/{messageRecipient-id}/events']['body'],
+    params?: IEndpoints['POST /messageRecipients/{messageRecipient-id}/events']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /messageRecipients/{messageRecipient-id}/events']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/messageRecipients/{messageRecipient-id}/events',
+      paramDefs: {
+        path: ['messageRecipient-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /messageRecipients/{messageRecipient-id}/events/{messageEvent-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /messageRecipients/{messageRecipient-id}/events/{messageEvent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /messageRecipients/{messageRecipient-id}/events/{messageEvent-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/messageRecipients/{messageRecipient-id}/events/{messageEvent-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['messageRecipient-id', 'messageEvent-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /messageRecipients/{messageRecipient-id}/events/{messageEvent-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /messageRecipients/{messageRecipient-id}/events/{messageEvent-id}']['body'],
+    params?: IEndpoints['PATCH /messageRecipients/{messageRecipient-id}/events/{messageEvent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /messageRecipients/{messageRecipient-id}/events/{messageEvent-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/messageRecipients/{messageRecipient-id}/events/{messageEvent-id}',
+      paramDefs: {
+        path: ['messageRecipient-id', 'messageEvent-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /messageRecipients/{messageRecipient-id}/events/{messageEvent-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /messageRecipients/{messageRecipient-id}/events/{messageEvent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /messageRecipients/{messageRecipient-id}/events/{messageEvent-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/messageRecipients/{messageRecipient-id}/events/{messageEvent-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['messageRecipient-id', 'messageEvent-id'],
+      },
+      params,
+    };
+  },
+};

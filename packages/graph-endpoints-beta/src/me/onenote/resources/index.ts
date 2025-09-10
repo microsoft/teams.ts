@@ -1,5 +1,3 @@
-export * as content from './content';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,18 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /me/onenote/resources': Operation<'/me/onenote/resources', 'post'>;
+  'GET /me/onenote/resources/{onenoteResource-id}/content': Operation<
+    '/me/onenote/resources/{onenoteResource-id}/content',
+    'get'
+  >;
+  'PUT /me/onenote/resources/{onenoteResource-id}/content': Operation<
+    '/me/onenote/resources/{onenoteResource-id}/content',
+    'put'
+  >;
+  'DELETE /me/onenote/resources/{onenoteResource-id}/content': Operation<
+    '/me/onenote/resources/{onenoteResource-id}/content',
+    'delete'
+  >;
 }
 
 /**
@@ -30,10 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/onenote/resources/{onenoteResource-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'onenoteResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['onenoteResource-id'],
+    },
     params,
   };
 }
@@ -50,16 +60,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/onenote/resources',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -76,11 +79,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/onenote/resources/{onenoteResource-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'onenoteResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['onenoteResource-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -97,7 +99,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/onenote/resources/{onenoteResource-id}',
-    paramDefs: [{ name: 'onenoteResource-id', in: 'path' }],
+    paramDefs: {
+      path: ['onenoteResource-id'],
+    },
     params,
     body,
   };
@@ -108,15 +112,78 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /me/onenote/resources']['body'],
-  params?: IEndpoints['POST /me/onenote/resources']['parameters']
+  body: IEndpoints['POST /me/onenote/resources']['body']
 ): EndpointRequest<IEndpoints['POST /me/onenote/resources']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/me/onenote/resources',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const content = {
+  /**
+   * `GET /me/onenote/resources/{onenoteResource-id}/content`
+   *
+   * Retrieve the binary data of a file or image resource object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/onenote/resources/{onenoteResource-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/onenote/resources/{onenoteResource-id}/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/onenote/resources/{onenoteResource-id}/content',
+      paramDefs: {
+        path: ['onenoteResource-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /me/onenote/resources/{onenoteResource-id}/content`
+   *
+   * The content of the resource.
+   */
+  set: function set(
+    body: IEndpoints['PUT /me/onenote/resources/{onenoteResource-id}/content']['body'],
+    params?: IEndpoints['PUT /me/onenote/resources/{onenoteResource-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /me/onenote/resources/{onenoteResource-id}/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'put',
+      path: '/me/onenote/resources/{onenoteResource-id}/content',
+      paramDefs: {
+        path: ['onenoteResource-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /me/onenote/resources/{onenoteResource-id}/content`
+   *
+   * The content of the resource.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /me/onenote/resources/{onenoteResource-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /me/onenote/resources/{onenoteResource-id}/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/me/onenote/resources/{onenoteResource-id}/content',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['onenoteResource-id'],
+      },
+      params,
+    };
+  },
+};

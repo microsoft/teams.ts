@@ -29,7 +29,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/policies/crossTenantAccessPolicy/templates',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -46,10 +48,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/policies/crossTenantAccessPolicy/templates',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -59,15 +60,12 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /policies/crossTenantAccessPolicy/templates']['body'],
-  params?: IEndpoints['PATCH /policies/crossTenantAccessPolicy/templates']['parameters']
+  body: IEndpoints['PATCH /policies/crossTenantAccessPolicy/templates']['body']
 ): EndpointRequest<IEndpoints['PATCH /policies/crossTenantAccessPolicy/templates']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/policies/crossTenantAccessPolicy/templates',
-    paramDefs: [],
-    params,
     body,
   };
 }

@@ -1,5 +1,3 @@
-export * as managedDevice from './managedDevice';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceManagement/deviceComplianceScripts/{deviceComplianceScript-id}/deviceRunStates',
     'post'
   >;
+  'GET /deviceManagement/deviceComplianceScripts/{deviceComplianceScript-id}/deviceRunStates/{deviceComplianceScriptDeviceState-id}/managedDevice': Operation<
+    '/deviceManagement/deviceComplianceScripts/{deviceComplianceScript-id}/deviceRunStates/{deviceComplianceScriptDeviceState-id}/managedDevice',
+    'get'
+  >;
 }
 
 /**
@@ -38,11 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/deviceComplianceScripts/{deviceComplianceScript-id}/deviceRunStates/{deviceComplianceScriptDeviceState-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deviceComplianceScript-id', in: 'path' },
-      { name: 'deviceComplianceScriptDeviceState-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['deviceComplianceScript-id', 'deviceComplianceScriptDeviceState-id'],
+    },
     params,
   };
 }
@@ -61,17 +62,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/deviceComplianceScripts/{deviceComplianceScript-id}/deviceRunStates',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceComplianceScript-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceComplianceScript-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +84,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/deviceComplianceScripts/{deviceComplianceScript-id}/deviceRunStates/{deviceComplianceScriptDeviceState-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceComplianceScript-id', in: 'path' },
-      { name: 'deviceComplianceScriptDeviceState-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceComplianceScript-id', 'deviceComplianceScriptDeviceState-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +106,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/deviceComplianceScripts/{deviceComplianceScript-id}/deviceRunStates/{deviceComplianceScriptDeviceState-id}',
-    paramDefs: [
-      { name: 'deviceComplianceScript-id', in: 'path' },
-      { name: 'deviceComplianceScriptDeviceState-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceComplianceScript-id', 'deviceComplianceScriptDeviceState-id'],
+    },
     params,
     body,
   };
@@ -137,8 +128,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/deviceComplianceScripts/{deviceComplianceScript-id}/deviceRunStates',
-    paramDefs: [{ name: 'deviceComplianceScript-id', in: 'path' }],
+    paramDefs: {
+      path: ['deviceComplianceScript-id'],
+    },
     params,
     body,
   };
 }
+
+export const managedDevice = {
+  /**
+   * `GET /deviceManagement/deviceComplianceScripts/{deviceComplianceScript-id}/deviceRunStates/{deviceComplianceScriptDeviceState-id}/managedDevice`
+   *
+   * The managed device on which the device compliance script executed
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/deviceComplianceScripts/{deviceComplianceScript-id}/deviceRunStates/{deviceComplianceScriptDeviceState-id}/managedDevice']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/deviceComplianceScripts/{deviceComplianceScript-id}/deviceRunStates/{deviceComplianceScriptDeviceState-id}/managedDevice']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/deviceComplianceScripts/{deviceComplianceScript-id}/deviceRunStates/{deviceComplianceScriptDeviceState-id}/managedDevice',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['deviceComplianceScript-id', 'deviceComplianceScriptDeviceState-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,5 +1,3 @@
-export * as compute from './compute';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -14,6 +12,10 @@ export interface IEndpoints {
   'PATCH /security/dataSecurityAndGovernance/protectionScopes': Operation<
     '/security/dataSecurityAndGovernance/protectionScopes',
     'patch'
+  >;
+  'POST /security/dataSecurityAndGovernance/protectionScopes/compute': Operation<
+    '/security/dataSecurityAndGovernance/protectionScopes/compute',
+    'post'
   >;
 }
 
@@ -30,7 +32,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/dataSecurityAndGovernance/protectionScopes',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -49,10 +53,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/dataSecurityAndGovernance/protectionScopes',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -62,8 +65,7 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /security/dataSecurityAndGovernance/protectionScopes']['body'],
-  params?: IEndpoints['PATCH /security/dataSecurityAndGovernance/protectionScopes']['parameters']
+  body: IEndpoints['PATCH /security/dataSecurityAndGovernance/protectionScopes']['body']
 ): EndpointRequest<
   IEndpoints['PATCH /security/dataSecurityAndGovernance/protectionScopes']['response']
 > {
@@ -71,8 +73,25 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/dataSecurityAndGovernance/protectionScopes',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const compute = {
+  /**
+   * `POST /security/dataSecurityAndGovernance/protectionScopes/compute`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /security/dataSecurityAndGovernance/protectionScopes/compute']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /security/dataSecurityAndGovernance/protectionScopes/compute']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/security/dataSecurityAndGovernance/protectionScopes/compute',
+      body,
+    };
+  },
+};

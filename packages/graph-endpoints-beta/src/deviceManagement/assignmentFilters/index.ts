@@ -1,6 +1,3 @@
-export * as enable from './enable';
-export * as validateFilter from './validateFilter';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/deviceManagement/assignmentFilters',
     'post'
   >;
+  'POST /deviceManagement/assignmentFilters/enable': Operation<
+    '/deviceManagement/assignmentFilters/enable',
+    'post'
+  >;
+  'POST /deviceManagement/assignmentFilters/validateFilter': Operation<
+    '/deviceManagement/assignmentFilters/validateFilter',
+    'post'
+  >;
 }
 
 /**
@@ -39,10 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/assignmentFilters/{deviceAndAppManagementAssignmentFilter-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deviceAndAppManagementAssignmentFilter-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['deviceAndAppManagementAssignmentFilter-id'],
+    },
     params,
   };
 }
@@ -59,16 +64,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/assignmentFilters',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +85,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/assignmentFilters/{deviceAndAppManagementAssignmentFilter-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceAndAppManagementAssignmentFilter-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceAndAppManagementAssignmentFilter-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +107,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/assignmentFilters/{deviceAndAppManagementAssignmentFilter-id}',
-    paramDefs: [{ name: 'deviceAndAppManagementAssignmentFilter-id', in: 'path' }],
+    paramDefs: {
+      path: ['deviceAndAppManagementAssignmentFilter-id'],
+    },
     params,
     body,
   };
@@ -121,15 +120,48 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/assignmentFilters']['body'],
-  params?: IEndpoints['POST /deviceManagement/assignmentFilters']['parameters']
+  body: IEndpoints['POST /deviceManagement/assignmentFilters']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/assignmentFilters']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/assignmentFilters',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const enable = {
+  /**
+   * `POST /deviceManagement/assignmentFilters/enable`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/assignmentFilters/enable']['body']
+  ): EndpointRequest<IEndpoints['POST /deviceManagement/assignmentFilters/enable']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/assignmentFilters/enable',
+      body,
+    };
+  },
+};
+
+export const validateFilter = {
+  /**
+   * `POST /deviceManagement/assignmentFilters/validateFilter`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/assignmentFilters/validateFilter']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/assignmentFilters/validateFilter']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/assignmentFilters/validateFilter',
+      body,
+    };
+  },
+};

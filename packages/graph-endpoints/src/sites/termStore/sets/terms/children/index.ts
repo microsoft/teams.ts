@@ -1,5 +1,4 @@
 export * as relations from './relations';
-export * as set from './set';
 
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
@@ -24,6 +23,10 @@ export interface IEndpoints {
     '/sites/{site-id}/termStore/sets/{set-id}/terms/{term-id}/children',
     'post'
   >;
+  'GET /sites/{site-id}/termStore/sets/{set-id}/terms/{term-id}/children/{term-id1}/set': Operation<
+    '/sites/{site-id}/termStore/sets/{set-id}/terms/{term-id}/children/{term-id1}/set',
+    'get'
+  >;
 }
 
 /**
@@ -38,13 +41,10 @@ export function del(
   return {
     method: 'delete',
     path: '/sites/{site-id}/termStore/sets/{set-id}/terms/{term-id}/children/{term-id1}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'term-id', in: 'path' },
-      { name: 'term-id1', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id', 'set-id', 'term-id', 'term-id1'],
+    },
     params,
   };
 }
@@ -62,19 +62,10 @@ export function get(
   return {
     method: 'get',
     path: '/sites/{site-id}/termStore/sets/{set-id}/terms/{term-id}/children',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'term-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id', 'term-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,14 +83,10 @@ export function get$1(
   return {
     method: 'get',
     path: '/sites/{site-id}/termStore/sets/{set-id}/terms/{term-id}/children/{term-id1}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'term-id', in: 'path' },
-      { name: 'term-id1', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id', 'term-id', 'term-id1'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,12 +104,9 @@ export function update(
   return {
     method: 'patch',
     path: '/sites/{site-id}/termStore/sets/{set-id}/terms/{term-id}/children/{term-id1}',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'term-id', in: 'path' },
-      { name: 'term-id1', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id', 'term-id', 'term-id1'],
+    },
     params,
     body,
   };
@@ -141,12 +125,33 @@ export function create(
   return {
     method: 'post',
     path: '/sites/{site-id}/termStore/sets/{set-id}/terms/{term-id}/children',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'term-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id', 'term-id'],
+    },
     params,
     body,
   };
 }
+
+export const set = {
+  /**
+   * `GET /sites/{site-id}/termStore/sets/{set-id}/terms/{term-id}/children/{term-id1}/set`
+   *
+   * The [set] in which the term is created.
+   */
+  get: function get(
+    params?: IEndpoints['GET /sites/{site-id}/termStore/sets/{set-id}/terms/{term-id}/children/{term-id1}/set']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /sites/{site-id}/termStore/sets/{set-id}/terms/{term-id}/children/{term-id1}/set']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/sites/{site-id}/termStore/sets/{set-id}/terms/{term-id}/children/{term-id1}/set',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['site-id', 'set-id', 'term-id', 'term-id1'],
+      },
+      params,
+    };
+  },
+};

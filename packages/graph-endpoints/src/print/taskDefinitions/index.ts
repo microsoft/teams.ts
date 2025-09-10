@@ -32,10 +32,10 @@ export function del(
   return {
     method: 'delete',
     path: '/print/taskDefinitions/{printTaskDefinition-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'printTaskDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['printTaskDefinition-id'],
+    },
     params,
   };
 }
@@ -51,16 +51,9 @@ export function list(
   return {
     method: 'get',
     path: '/print/taskDefinitions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -76,11 +69,10 @@ export function get(
   return {
     method: 'get',
     path: '/print/taskDefinitions/{printTaskDefinition-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'printTaskDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printTaskDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -99,7 +91,9 @@ export function update(
   return {
     method: 'patch',
     path: '/print/taskDefinitions/{printTaskDefinition-id}',
-    paramDefs: [{ name: 'printTaskDefinition-id', in: 'path' }],
+    paramDefs: {
+      path: ['printTaskDefinition-id'],
+    },
     params,
     body,
   };
@@ -111,14 +105,11 @@ export function update(
  * Create a new task definition. For details about how to use this API to add pull printing support to Universal Print, see Extending Universal Print to support pull printing.
  */
 export function create(
-  body: IEndpoints['POST /print/taskDefinitions']['body'],
-  params?: IEndpoints['POST /print/taskDefinitions']['parameters']
+  body: IEndpoints['POST /print/taskDefinitions']['body']
 ): EndpointRequest<IEndpoints['POST /print/taskDefinitions']['response']> {
   return {
     method: 'post',
     path: '/print/taskDefinitions',
-    paramDefs: [],
-    params,
     body,
   };
 }

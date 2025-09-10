@@ -1,4 +1,3 @@
-export * as masterCategories from './masterCategories';
 export * as taskFolders from './taskFolders';
 export * as taskGroups from './taskGroups';
 export * as tasks from './tasks';
@@ -7,6 +6,26 @@ import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
   'GET /users/{user-id}/outlook': Operation<'/users/{user-id}/outlook', 'get'>;
+  'GET /users/{user-id}/outlook/masterCategories': Operation<
+    '/users/{user-id}/outlook/masterCategories',
+    'get'
+  >;
+  'POST /users/{user-id}/outlook/masterCategories': Operation<
+    '/users/{user-id}/outlook/masterCategories',
+    'post'
+  >;
+  'GET /users/{user-id}/outlook/masterCategories/{outlookCategory-id}': Operation<
+    '/users/{user-id}/outlook/masterCategories/{outlookCategory-id}',
+    'get'
+  >;
+  'PATCH /users/{user-id}/outlook/masterCategories/{outlookCategory-id}': Operation<
+    '/users/{user-id}/outlook/masterCategories/{outlookCategory-id}',
+    'patch'
+  >;
+  'DELETE /users/{user-id}/outlook/masterCategories/{outlookCategory-id}': Operation<
+    '/users/{user-id}/outlook/masterCategories/{outlookCategory-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -21,11 +40,113 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/outlook',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
+
+export const masterCategories = {
+  /**
+   * `GET /users/{user-id}/outlook/masterCategories`
+   *
+   * A list of categories defined for the user.
+   */
+  list: function list(
+    params?: IEndpoints['GET /users/{user-id}/outlook/masterCategories']['parameters']
+  ): EndpointRequest<IEndpoints['GET /users/{user-id}/outlook/masterCategories']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/outlook/masterCategories',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['user-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /users/{user-id}/outlook/masterCategories`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/outlook/masterCategories']['body'],
+    params?: IEndpoints['POST /users/{user-id}/outlook/masterCategories']['parameters']
+  ): EndpointRequest<IEndpoints['POST /users/{user-id}/outlook/masterCategories']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/users/{user-id}/outlook/masterCategories',
+      paramDefs: {
+        path: ['user-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /users/{user-id}/outlook/masterCategories/{outlookCategory-id}`
+   *
+   * A list of categories defined for the user.
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/outlook/masterCategories/{outlookCategory-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/outlook/masterCategories/{outlookCategory-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/outlook/masterCategories/{outlookCategory-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'outlookCategory-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /users/{user-id}/outlook/masterCategories/{outlookCategory-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /users/{user-id}/outlook/masterCategories/{outlookCategory-id}']['body'],
+    params?: IEndpoints['PATCH /users/{user-id}/outlook/masterCategories/{outlookCategory-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /users/{user-id}/outlook/masterCategories/{outlookCategory-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/users/{user-id}/outlook/masterCategories/{outlookCategory-id}',
+      paramDefs: {
+        path: ['user-id', 'outlookCategory-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /users/{user-id}/outlook/masterCategories/{outlookCategory-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /users/{user-id}/outlook/masterCategories/{outlookCategory-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /users/{user-id}/outlook/masterCategories/{outlookCategory-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/users/{user-id}/outlook/masterCategories/{outlookCategory-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['user-id', 'outlookCategory-id'],
+      },
+      params,
+    };
+  },
+};

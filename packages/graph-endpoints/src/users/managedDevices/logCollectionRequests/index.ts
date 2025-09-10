@@ -1,5 +1,3 @@
-export * as createDownloadUrl from './createDownloadUrl';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/users/{user-id}/managedDevices/{managedDevice-id}/logCollectionRequests',
     'post'
   >;
+  'POST /users/{user-id}/managedDevices/{managedDevice-id}/logCollectionRequests/{deviceLogCollectionResponse-id}/createDownloadUrl': Operation<
+    '/users/{user-id}/managedDevices/{managedDevice-id}/logCollectionRequests/{deviceLogCollectionResponse-id}/createDownloadUrl',
+    'post'
+  >;
 }
 
 /**
@@ -37,12 +39,10 @@ export function del(
   return {
     method: 'delete',
     path: '/users/{user-id}/managedDevices/{managedDevice-id}/logCollectionRequests/{deviceLogCollectionResponse-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'managedDevice-id', in: 'path' },
-      { name: 'deviceLogCollectionResponse-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'managedDevice-id', 'deviceLogCollectionResponse-id'],
+    },
     params,
   };
 }
@@ -60,18 +60,10 @@ export function list(
   return {
     method: 'get',
     path: '/users/{user-id}/managedDevices/{managedDevice-id}/logCollectionRequests',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'managedDevice-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'managedDevice-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,13 +81,10 @@ export function get(
   return {
     method: 'get',
     path: '/users/{user-id}/managedDevices/{managedDevice-id}/logCollectionRequests/{deviceLogCollectionResponse-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'managedDevice-id', in: 'path' },
-      { name: 'deviceLogCollectionResponse-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'managedDevice-id', 'deviceLogCollectionResponse-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,11 +102,9 @@ export function update(
   return {
     method: 'patch',
     path: '/users/{user-id}/managedDevices/{managedDevice-id}/logCollectionRequests/{deviceLogCollectionResponse-id}',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'managedDevice-id', in: 'path' },
-      { name: 'deviceLogCollectionResponse-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'managedDevice-id', 'deviceLogCollectionResponse-id'],
+    },
     params,
     body,
   };
@@ -136,11 +123,31 @@ export function create(
   return {
     method: 'post',
     path: '/users/{user-id}/managedDevices/{managedDevice-id}/logCollectionRequests',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'managedDevice-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'managedDevice-id'],
+    },
     params,
     body,
   };
 }
+
+export const createDownloadUrl = {
+  /**
+   * `POST /users/{user-id}/managedDevices/{managedDevice-id}/logCollectionRequests/{deviceLogCollectionResponse-id}/createDownloadUrl`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /users/{user-id}/managedDevices/{managedDevice-id}/logCollectionRequests/{deviceLogCollectionResponse-id}/createDownloadUrl']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/managedDevices/{managedDevice-id}/logCollectionRequests/{deviceLogCollectionResponse-id}/createDownloadUrl']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/managedDevices/{managedDevice-id}/logCollectionRequests/{deviceLogCollectionResponse-id}/createDownloadUrl',
+      paramDefs: {
+        path: ['user-id', 'managedDevice-id', 'deviceLogCollectionResponse-id'],
+      },
+      params,
+    };
+  },
+};

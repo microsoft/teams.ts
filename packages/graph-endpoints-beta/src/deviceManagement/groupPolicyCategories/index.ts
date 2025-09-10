@@ -1,8 +1,3 @@
-export * as children from './children';
-export * as definitionFile from './definitionFile';
-export * as definitions from './definitions';
-export * as parent from './parent';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -26,6 +21,30 @@ export interface IEndpoints {
     '/deviceManagement/groupPolicyCategories',
     'post'
   >;
+  'GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/children': Operation<
+    '/deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/children',
+    'get'
+  >;
+  'GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/children/{groupPolicyCategory-id1}': Operation<
+    '/deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/children/{groupPolicyCategory-id1}',
+    'get'
+  >;
+  'GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitionFile': Operation<
+    '/deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitionFile',
+    'get'
+  >;
+  'GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitions': Operation<
+    '/deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitions',
+    'get'
+  >;
+  'GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitions/{groupPolicyDefinition-id}': Operation<
+    '/deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitions/{groupPolicyDefinition-id}',
+    'get'
+  >;
+  'GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/parent': Operation<
+    '/deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/parent',
+    'get'
+  >;
 }
 
 /**
@@ -41,10 +60,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'groupPolicyCategory-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['groupPolicyCategory-id'],
+    },
     params,
   };
 }
@@ -61,16 +80,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/groupPolicyCategories',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,11 +101,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'groupPolicyCategory-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['groupPolicyCategory-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,7 +123,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}',
-    paramDefs: [{ name: 'groupPolicyCategory-id', in: 'path' }],
+    paramDefs: {
+      path: ['groupPolicyCategory-id'],
+    },
     params,
     body,
   };
@@ -123,15 +136,150 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/groupPolicyCategories']['body'],
-  params?: IEndpoints['POST /deviceManagement/groupPolicyCategories']['parameters']
+  body: IEndpoints['POST /deviceManagement/groupPolicyCategories']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/groupPolicyCategories']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/groupPolicyCategories',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const children = {
+  /**
+   * `GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/children`
+   *
+   * The children categories
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/children']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/children']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/children',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['groupPolicyCategory-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/children/{groupPolicyCategory-id1}`
+   *
+   * The children categories
+   */
+  get$1: function get$1(
+    params?: IEndpoints['GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/children/{groupPolicyCategory-id1}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/children/{groupPolicyCategory-id1}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/children/{groupPolicyCategory-id1}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['groupPolicyCategory-id', 'groupPolicyCategory-id1'],
+      },
+      params,
+    };
+  },
+};
+
+export const definitionFile = {
+  /**
+   * `GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitionFile`
+   *
+   * The id of the definition file the category came from
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitionFile']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitionFile']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitionFile',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['groupPolicyCategory-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const definitions = {
+  /**
+   * `GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitions`
+   *
+   * The immediate GroupPolicyDefinition children of the category
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitions',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['groupPolicyCategory-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitions/{groupPolicyDefinition-id}`
+   *
+   * The immediate GroupPolicyDefinition children of the category
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitions/{groupPolicyDefinition-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitions/{groupPolicyDefinition-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/definitions/{groupPolicyDefinition-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['groupPolicyCategory-id', 'groupPolicyDefinition-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const parent = {
+  /**
+   * `GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/parent`
+   *
+   * The parent category
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/parent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/parent']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/groupPolicyCategories/{groupPolicyCategory-id}/parent',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['groupPolicyCategory-id'],
+      },
+      params,
+    };
+  },
+};

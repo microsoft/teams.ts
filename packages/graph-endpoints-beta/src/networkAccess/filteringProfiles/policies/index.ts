@@ -1,5 +1,3 @@
-export * as policy from './policy';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/networkAccess/filteringProfiles/{filteringProfile-id}/policies',
     'post'
   >;
+  'GET /networkAccess/filteringProfiles/{filteringProfile-id}/policies/{policyLink-id}/policy': Operation<
+    '/networkAccess/filteringProfiles/{filteringProfile-id}/policies/{policyLink-id}/policy',
+    'get'
+  >;
 }
 
 /**
@@ -39,11 +41,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/networkAccess/filteringProfiles/{filteringProfile-id}/policies/{policyLink-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'filteringProfile-id', in: 'path' },
-      { name: 'policyLink-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['filteringProfile-id', 'policyLink-id'],
+    },
     params,
   };
 }
@@ -62,17 +63,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/filteringProfiles/{filteringProfile-id}/policies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'filteringProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['filteringProfile-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -91,12 +85,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/filteringProfiles/{filteringProfile-id}/policies/{policyLink-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'filteringProfile-id', in: 'path' },
-      { name: 'policyLink-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['filteringProfile-id', 'policyLink-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -116,10 +108,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/networkAccess/filteringProfiles/{filteringProfile-id}/policies/{policyLink-id}',
-    paramDefs: [
-      { name: 'filteringProfile-id', in: 'path' },
-      { name: 'policyLink-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['filteringProfile-id', 'policyLink-id'],
+    },
     params,
     body,
   };
@@ -140,8 +131,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/networkAccess/filteringProfiles/{filteringProfile-id}/policies',
-    paramDefs: [{ name: 'filteringProfile-id', in: 'path' }],
+    paramDefs: {
+      path: ['filteringProfile-id'],
+    },
     params,
     body,
   };
 }
+
+export const policy = {
+  /**
+   * `GET /networkAccess/filteringProfiles/{filteringProfile-id}/policies/{policyLink-id}/policy`
+   *
+   * Get a list of threatIntelligencePolicy objects associated with a threat intelligence policy link.
+   */
+  get: function get(
+    params?: IEndpoints['GET /networkAccess/filteringProfiles/{filteringProfile-id}/policies/{policyLink-id}/policy']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /networkAccess/filteringProfiles/{filteringProfile-id}/policies/{policyLink-id}/policy']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/networkAccess/filteringProfiles/{filteringProfile-id}/policies/{policyLink-id}/policy',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['filteringProfile-id', 'policyLink-id'],
+      },
+      params,
+    };
+  },
+};

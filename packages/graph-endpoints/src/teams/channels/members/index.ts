@@ -1,6 +1,3 @@
-export * as add from './add';
-export * as remove from './remove';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,12 +21,20 @@ export interface IEndpoints {
     '/teams/{team-id}/channels/{channel-id}/members',
     'post'
   >;
+  'POST /teams/{team-id}/channels/{channel-id}/members/add': Operation<
+    '/teams/{team-id}/channels/{channel-id}/members/add',
+    'post'
+  >;
+  'POST /teams/{team-id}/channels/{channel-id}/members/remove': Operation<
+    '/teams/{team-id}/channels/{channel-id}/members/remove',
+    'post'
+  >;
 }
 
 /**
  * `DELETE /teams/{team-id}/channels/{channel-id}/members/{conversationMember-id}`
  *
- * Delete a conversationMember from a channel.
+ * Delete a conversationMember from a channel. This operation is allowed only for channels with a membershipType value of private or shared.
  */
 export function del(
   params?: IEndpoints['DELETE /teams/{team-id}/channels/{channel-id}/members/{conversationMember-id}']['parameters']
@@ -39,12 +44,10 @@ export function del(
   return {
     method: 'delete',
     path: '/teams/{team-id}/channels/{channel-id}/members/{conversationMember-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'team-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['team-id', 'channel-id', 'conversationMember-id'],
+    },
     params,
   };
 }
@@ -60,18 +63,10 @@ export function list(
   return {
     method: 'get',
     path: '/teams/{team-id}/channels/{channel-id}/members',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'team-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id', 'channel-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,13 +84,10 @@ export function get(
   return {
     method: 'get',
     path: '/teams/{team-id}/channels/{channel-id}/members/{conversationMember-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'team-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id', 'channel-id', 'conversationMember-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -103,7 +95,7 @@ export function get(
 /**
  * `PATCH /teams/{team-id}/channels/{channel-id}/members/{conversationMember-id}`
  *
- * Update the role of a conversationMember in a channel. This operation is allowed only for channels with a membershipType value of private or shared.
+ * Update the role of a conversationMember in a team or channel.
  */
 export function update(
   body: IEndpoints['PATCH /teams/{team-id}/channels/{channel-id}/members/{conversationMember-id}']['body'],
@@ -114,11 +106,9 @@ export function update(
   return {
     method: 'patch',
     path: '/teams/{team-id}/channels/{channel-id}/members/{conversationMember-id}',
-    paramDefs: [
-      { name: 'team-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id', 'channel-id', 'conversationMember-id'],
+    },
     params,
     body,
   };
@@ -136,11 +126,58 @@ export function create(
   return {
     method: 'post',
     path: '/teams/{team-id}/channels/{channel-id}/members',
-    paramDefs: [
-      { name: 'team-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id', 'channel-id'],
+    },
     params,
     body,
   };
 }
+
+export const add = {
+  /**
+   * `POST /teams/{team-id}/channels/{channel-id}/members/add`
+   *
+   * Add multiple members in a single request to a team. The response provides details about which memberships could and couldn&#x27;t be created.
+   */
+  create: function create(
+    body: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/members/add']['body'],
+    params?: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/members/add']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teams/{team-id}/channels/{channel-id}/members/add']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/teams/{team-id}/channels/{channel-id}/members/add',
+      paramDefs: {
+        path: ['team-id', 'channel-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const remove = {
+  /**
+   * `POST /teams/{team-id}/channels/{channel-id}/members/remove`
+   *
+   * Remove multiple members from a team in a single request. The response provides details about which memberships could and couldn&#x27;t be removed.
+   */
+  create: function create(
+    body: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/members/remove']['body'],
+    params?: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/members/remove']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teams/{team-id}/channels/{channel-id}/members/remove']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/teams/{team-id}/channels/{channel-id}/members/remove',
+      paramDefs: {
+        path: ['team-id', 'channel-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

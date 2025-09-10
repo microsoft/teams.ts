@@ -1,5 +1,3 @@
-export * as services from './services';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -15,6 +13,26 @@ export interface IEndpoints {
     '/users/{user-id}/settings/storage/quota',
     'patch'
   >;
+  'GET /users/{user-id}/settings/storage/quota/services': Operation<
+    '/users/{user-id}/settings/storage/quota/services',
+    'get'
+  >;
+  'POST /users/{user-id}/settings/storage/quota/services': Operation<
+    '/users/{user-id}/settings/storage/quota/services',
+    'post'
+  >;
+  'GET /users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}': Operation<
+    '/users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}',
+    'get'
+  >;
+  'PATCH /users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}': Operation<
+    '/users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}',
+    'patch'
+  >;
+  'DELETE /users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}': Operation<
+    '/users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -27,10 +45,10 @@ export function del(
   return {
     method: 'delete',
     path: '/users/{user-id}/settings/storage/quota',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id'],
+    },
     params,
   };
 }
@@ -45,11 +63,10 @@ export function get(
   return {
     method: 'get',
     path: '/users/{user-id}/settings/storage/quota',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -65,8 +82,110 @@ export function update(
   return {
     method: 'patch',
     path: '/users/{user-id}/settings/storage/quota',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };
 }
+
+export const services = {
+  /**
+   * `GET /users/{user-id}/settings/storage/quota/services`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /users/{user-id}/settings/storage/quota/services']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/settings/storage/quota/services']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/users/{user-id}/settings/storage/quota/services',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['user-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /users/{user-id}/settings/storage/quota/services`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/settings/storage/quota/services']['body'],
+    params?: IEndpoints['POST /users/{user-id}/settings/storage/quota/services']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/settings/storage/quota/services']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/settings/storage/quota/services',
+      paramDefs: {
+        path: ['user-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'serviceStorageQuotaBreakdown-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}']['body'],
+    params?: IEndpoints['PATCH /users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}',
+      paramDefs: {
+        path: ['user-id', 'serviceStorageQuotaBreakdown-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/users/{user-id}/settings/storage/quota/services/{serviceStorageQuotaBreakdown-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['user-id', 'serviceStorageQuotaBreakdown-id'],
+      },
+      params,
+    };
+  },
+};

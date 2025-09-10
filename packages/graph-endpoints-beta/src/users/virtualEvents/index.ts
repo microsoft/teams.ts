@@ -1,11 +1,17 @@
-export * as webinars from './webinars';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
   'DELETE /users/{user-id}/virtualEvents': Operation<'/users/{user-id}/virtualEvents', 'delete'>;
   'GET /users/{user-id}/virtualEvents': Operation<'/users/{user-id}/virtualEvents', 'get'>;
   'PATCH /users/{user-id}/virtualEvents': Operation<'/users/{user-id}/virtualEvents', 'patch'>;
+  'GET /users/{user-id}/virtualEvents/webinars': Operation<
+    '/users/{user-id}/virtualEvents/webinars',
+    'get'
+  >;
+  'GET /users/{user-id}/virtualEvents/webinars/{virtualEventWebinar-id}': Operation<
+    '/users/{user-id}/virtualEvents/webinars/{virtualEventWebinar-id}',
+    'get'
+  >;
 }
 
 /**
@@ -19,10 +25,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/users/{user-id}/virtualEvents',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id'],
+    },
     params,
   };
 }
@@ -38,11 +44,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/virtualEvents',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -59,8 +64,51 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/users/{user-id}/virtualEvents',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };
 }
+
+export const webinars = {
+  /**
+   * `GET /users/{user-id}/virtualEvents/webinars`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /users/{user-id}/virtualEvents/webinars']['parameters']
+  ): EndpointRequest<IEndpoints['GET /users/{user-id}/virtualEvents/webinars']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/virtualEvents/webinars',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['user-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /users/{user-id}/virtualEvents/webinars/{virtualEventWebinar-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/virtualEvents/webinars/{virtualEventWebinar-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/virtualEvents/webinars/{virtualEventWebinar-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/virtualEvents/webinars/{virtualEventWebinar-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'virtualEventWebinar-id'],
+      },
+      params,
+    };
+  },
+};

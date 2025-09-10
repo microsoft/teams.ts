@@ -1,5 +1,3 @@
-export * as healthIssues from './healthIssues';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,14 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /security/identities/sensors': Operation<'/security/identities/sensors', 'post'>;
+  'GET /security/identities/sensors/{sensor-id}/healthIssues': Operation<
+    '/security/identities/sensors/{sensor-id}/healthIssues',
+    'get'
+  >;
+  'GET /security/identities/sensors/{sensor-id}/healthIssues/{healthIssue-id}': Operation<
+    '/security/identities/sensors/{sensor-id}/healthIssues/{healthIssue-id}',
+    'get'
+  >;
 }
 
 /**
@@ -31,10 +37,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/identities/sensors/{sensor-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'sensor-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['sensor-id'],
+    },
     params,
   };
 }
@@ -51,16 +57,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/identities/sensors',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -77,11 +76,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/identities/sensors/{sensor-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sensor-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sensor-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -99,7 +97,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/identities/sensors/{sensor-id}',
-    paramDefs: [{ name: 'sensor-id', in: 'path' }],
+    paramDefs: {
+      path: ['sensor-id'],
+    },
     params,
     body,
   };
@@ -110,15 +110,57 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /security/identities/sensors']['body'],
-  params?: IEndpoints['POST /security/identities/sensors']['parameters']
+  body: IEndpoints['POST /security/identities/sensors']['body']
 ): EndpointRequest<IEndpoints['POST /security/identities/sensors']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/security/identities/sensors',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const healthIssues = {
+  /**
+   * `GET /security/identities/sensors/{sensor-id}/healthIssues`
+   *
+   * Represents potential issues within a customer&#x27;s Microsoft Defender for Identity configuration that Microsoft Defender for Identity identified related to the sensor.
+   */
+  list: function list(
+    params?: IEndpoints['GET /security/identities/sensors/{sensor-id}/healthIssues']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/identities/sensors/{sensor-id}/healthIssues']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/identities/sensors/{sensor-id}/healthIssues',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['sensor-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /security/identities/sensors/{sensor-id}/healthIssues/{healthIssue-id}`
+   *
+   * Represents potential issues within a customer&#x27;s Microsoft Defender for Identity configuration that Microsoft Defender for Identity identified related to the sensor.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/identities/sensors/{sensor-id}/healthIssues/{healthIssue-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/identities/sensors/{sensor-id}/healthIssues/{healthIssue-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/identities/sensors/{sensor-id}/healthIssues/{healthIssue-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['sensor-id', 'healthIssue-id'],
+      },
+      params,
+    };
+  },
+};

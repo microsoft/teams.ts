@@ -1,5 +1,3 @@
-export * as sourceColumn from './sourceColumn';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/drives/{drive-id}/list/contentTypes/{contentType-id}/columns',
     'post'
   >;
+  'GET /drives/{drive-id}/list/contentTypes/{contentType-id}/columns/{columnDefinition-id}/sourceColumn': Operation<
+    '/drives/{drive-id}/list/contentTypes/{contentType-id}/columns/{columnDefinition-id}/sourceColumn',
+    'get'
+  >;
 }
 
 /**
@@ -37,12 +39,10 @@ export function del(
   return {
     method: 'delete',
     path: '/drives/{drive-id}/list/contentTypes/{contentType-id}/columns/{columnDefinition-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'contentType-id', in: 'path' },
-      { name: 'columnDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['drive-id', 'contentType-id', 'columnDefinition-id'],
+    },
     params,
   };
 }
@@ -60,18 +60,10 @@ export function list(
   return {
     method: 'get',
     path: '/drives/{drive-id}/list/contentTypes/{contentType-id}/columns',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'contentType-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'contentType-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,13 +81,10 @@ export function get(
   return {
     method: 'get',
     path: '/drives/{drive-id}/list/contentTypes/{contentType-id}/columns/{columnDefinition-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'contentType-id', in: 'path' },
-      { name: 'columnDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'contentType-id', 'columnDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,11 +102,9 @@ export function update(
   return {
     method: 'patch',
     path: '/drives/{drive-id}/list/contentTypes/{contentType-id}/columns/{columnDefinition-id}',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'contentType-id', in: 'path' },
-      { name: 'columnDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'contentType-id', 'columnDefinition-id'],
+    },
     params,
     body,
   };
@@ -136,11 +123,33 @@ export function create(
   return {
     method: 'post',
     path: '/drives/{drive-id}/list/contentTypes/{contentType-id}/columns',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'contentType-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'contentType-id'],
+    },
     params,
     body,
   };
 }
+
+export const sourceColumn = {
+  /**
+   * `GET /drives/{drive-id}/list/contentTypes/{contentType-id}/columns/{columnDefinition-id}/sourceColumn`
+   *
+   * The source column for the content type column.
+   */
+  get: function get(
+    params?: IEndpoints['GET /drives/{drive-id}/list/contentTypes/{contentType-id}/columns/{columnDefinition-id}/sourceColumn']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /drives/{drive-id}/list/contentTypes/{contentType-id}/columns/{columnDefinition-id}/sourceColumn']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/drives/{drive-id}/list/contentTypes/{contentType-id}/columns/{columnDefinition-id}/sourceColumn',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['drive-id', 'contentType-id', 'columnDefinition-id'],
+      },
+      params,
+    };
+  },
+};

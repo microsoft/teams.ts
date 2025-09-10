@@ -1,10 +1,8 @@
 export * as columns from './columns';
 export * as contentTypes from './contentTypes';
 export * as createdByUser from './createdByUser';
-export * as drive from './drive';
 export * as items from './items';
 export * as lastModifiedByUser from './lastModifiedByUser';
-export * as operations from './operations';
 export * as subscriptions from './subscriptions';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -30,6 +28,30 @@ export interface IEndpoints {
     '/groups/{group-id}/sites/{site-id}/lists',
     'post'
   >;
+  'GET /groups/{group-id}/sites/{site-id}/lists/{list-id}/drive': Operation<
+    '/groups/{group-id}/sites/{site-id}/lists/{list-id}/drive',
+    'get'
+  >;
+  'GET /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations': Operation<
+    '/groups/{group-id}/sites/{site-id}/lists/{list-id}/operations',
+    'get'
+  >;
+  'POST /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations': Operation<
+    '/groups/{group-id}/sites/{site-id}/lists/{list-id}/operations',
+    'post'
+  >;
+  'GET /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}': Operation<
+    '/groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}',
+    'get'
+  >;
+  'PATCH /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}': Operation<
+    '/groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}',
+    'patch'
+  >;
+  'DELETE /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}': Operation<
+    '/groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -44,12 +66,10 @@ export function del(
   return {
     method: 'delete',
     path: '/groups/{group-id}/sites/{site-id}/lists/{list-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'site-id', 'list-id'],
+    },
     params,
   };
 }
@@ -65,18 +85,10 @@ export function list(
   return {
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/lists',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -94,13 +106,10 @@ export function get(
   return {
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/lists/{list-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'list-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -118,11 +127,9 @@ export function update(
   return {
     method: 'patch',
     path: '/groups/{group-id}/sites/{site-id}/lists/{list-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'list-id'],
+    },
     params,
     body,
   };
@@ -139,11 +146,135 @@ export function create(
   return {
     method: 'post',
     path: '/groups/{group-id}/sites/{site-id}/lists',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+    },
     params,
     body,
   };
 }
+
+export const drive = {
+  /**
+   * `GET /groups/{group-id}/sites/{site-id}/lists/{list-id}/drive`
+   *
+   * Allows access to the list as a drive resource with driveItems. Only present on document libraries.
+   */
+  get: function get(
+    params?: IEndpoints['GET /groups/{group-id}/sites/{site-id}/lists/{list-id}/drive']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/sites/{site-id}/lists/{list-id}/drive']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/groups/{group-id}/sites/{site-id}/lists/{list-id}/drive',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['group-id', 'site-id', 'list-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const operations = {
+  /**
+   * `GET /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations`
+   *
+   * The collection of long-running operations on the list.
+   */
+  list: function list(
+    params?: IEndpoints['GET /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/groups/{group-id}/sites/{site-id}/lists/{list-id}/operations',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['group-id', 'site-id', 'list-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/groups/{group-id}/sites/{site-id}/lists/{list-id}/operations',
+      paramDefs: {
+        path: ['group-id', 'site-id', 'list-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}`
+   *
+   * The collection of long-running operations on the list.
+   */
+  get: function get(
+    params?: IEndpoints['GET /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['group-id', 'site-id', 'list-id', 'richLongRunningOperation-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}']['body'],
+    params?: IEndpoints['PATCH /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}',
+      paramDefs: {
+        path: ['group-id', 'site-id', 'list-id', 'richLongRunningOperation-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/groups/{group-id}/sites/{site-id}/lists/{list-id}/operations/{richLongRunningOperation-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['group-id', 'site-id', 'list-id', 'richLongRunningOperation-id'],
+      },
+      params,
+    };
+  },
+};

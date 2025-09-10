@@ -18,10 +18,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/workplace',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -31,15 +30,12 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /workplace']['body'],
-  params?: IEndpoints['PATCH /workplace']['parameters']
+  body: IEndpoints['PATCH /workplace']['body']
 ): EndpointRequest<IEndpoints['PATCH /workplace']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/workplace',
-    paramDefs: [],
-    params,
     body,
   };
 }

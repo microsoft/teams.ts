@@ -1,7 +1,3 @@
-export * as assign from './assign';
-export * as assignments from './assignments';
-export * as deviceStates from './deviceStates';
-export * as installSummary from './installSummary';
 export * as userStateSummary from './userStateSummary';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
@@ -24,6 +20,62 @@ export interface IEndpoints {
     '/deviceAppManagement/managedEBooks',
     'post'
   >;
+  'POST /deviceAppManagement/managedEBooks/{managedEBook-id}/assign': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/assign',
+    'post'
+  >;
+  'GET /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/assignments',
+    'get'
+  >;
+  'POST /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/assignments',
+    'post'
+  >;
+  'GET /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}',
+    'get'
+  >;
+  'PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}',
+    'patch'
+  >;
+  'DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}',
+    'delete'
+  >;
+  'GET /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates',
+    'get'
+  >;
+  'POST /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates',
+    'post'
+  >;
+  'GET /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}',
+    'get'
+  >;
+  'PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}',
+    'patch'
+  >;
+  'DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}',
+    'delete'
+  >;
+  'GET /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary',
+    'get'
+  >;
+  'PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary',
+    'patch'
+  >;
+  'DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary',
+    'delete'
+  >;
 }
 
 /**
@@ -39,10 +91,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceAppManagement/managedEBooks/{managedEBook-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'managedEBook-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['managedEBook-id'],
+    },
     params,
   };
 }
@@ -50,7 +102,7 @@ export function del(
 /**
  * `GET /deviceAppManagement/managedEBooks`
  *
- * List properties and relationships of the iosVppEBook objects.
+ * List properties and relationships of the managedEBook objects.
  */
 export function list(
   params?: IEndpoints['GET /deviceAppManagement/managedEBooks']['parameters']
@@ -58,16 +110,9 @@ export function list(
   return {
     method: 'get',
     path: '/deviceAppManagement/managedEBooks',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -75,7 +120,7 @@ export function list(
 /**
  * `GET /deviceAppManagement/managedEBooks/{managedEBook-id}`
  *
- * Read properties and relationships of the iosVppEBook object.
+ * Read properties and relationships of the managedEBook object.
  */
 export function get(
   params?: IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}']['parameters']
@@ -85,11 +130,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceAppManagement/managedEBooks/{managedEBook-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'managedEBook-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['managedEBook-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -108,7 +152,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceAppManagement/managedEBooks/{managedEBook-id}',
-    paramDefs: [{ name: 'managedEBook-id', in: 'path' }],
+    paramDefs: {
+      path: ['managedEBook-id'],
+    },
     params,
     body,
   };
@@ -120,14 +166,308 @@ export function update(
  * Create a new iosVppEBook object.
  */
 export function create(
-  body: IEndpoints['POST /deviceAppManagement/managedEBooks']['body'],
-  params?: IEndpoints['POST /deviceAppManagement/managedEBooks']['parameters']
+  body: IEndpoints['POST /deviceAppManagement/managedEBooks']['body']
 ): EndpointRequest<IEndpoints['POST /deviceAppManagement/managedEBooks']['response']> {
   return {
     method: 'post',
     path: '/deviceAppManagement/managedEBooks',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const assign = {
+  /**
+   * `POST /deviceAppManagement/managedEBooks/{managedEBook-id}/assign`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceAppManagement/managedEBooks/{managedEBook-id}/assign']['body'],
+    params?: IEndpoints['POST /deviceAppManagement/managedEBooks/{managedEBook-id}/assign']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceAppManagement/managedEBooks/{managedEBook-id}/assign']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/assign',
+      paramDefs: {
+        path: ['managedEBook-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const assignments = {
+  /**
+   * `GET /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments`
+   *
+   * List properties and relationships of the managedEBookAssignment objects.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/assignments',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['managedEBook-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments`
+   *
+   * Create a new iosVppEBookAssignment object.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments']['body'],
+    params?: IEndpoints['POST /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/assignments',
+      paramDefs: {
+        path: ['managedEBook-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}`
+   *
+   * Read properties and relationships of the managedEBookAssignment object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['managedEBook-id', 'managedEBookAssignment-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}`
+   *
+   * Update the properties of a iosVppEBookAssignment object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}']['body'],
+    params?: IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}',
+      paramDefs: {
+        path: ['managedEBook-id', 'managedEBookAssignment-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}`
+   *
+   * Deletes a managedEBookAssignment.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['managedEBook-id', 'managedEBookAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const deviceStates = {
+  /**
+   * `GET /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates`
+   *
+   * List properties and relationships of the deviceInstallState objects.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['managedEBook-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates`
+   *
+   * Create a new deviceInstallState object.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates']['body'],
+    params?: IEndpoints['POST /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates',
+      paramDefs: {
+        path: ['managedEBook-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}`
+   *
+   * Read properties and relationships of the deviceInstallState object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['managedEBook-id', 'deviceInstallState-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}`
+   *
+   * Update the properties of a deviceInstallState object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}']['body'],
+    params?: IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}',
+      paramDefs: {
+        path: ['managedEBook-id', 'deviceInstallState-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}`
+   *
+   * Deletes a deviceInstallState.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['managedEBook-id', 'deviceInstallState-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const installSummary = {
+  /**
+   * `GET /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary`
+   *
+   * Read properties and relationships of the eBookInstallSummary object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['managedEBook-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary`
+   *
+   * Update the properties of a eBookInstallSummary object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary']['body'],
+    params?: IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary',
+      paramDefs: {
+        path: ['managedEBook-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['managedEBook-id'],
+      },
+      params,
+    };
+  },
+};

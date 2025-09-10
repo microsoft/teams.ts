@@ -1,5 +1,3 @@
-export * as metricDevices from './metricDevices';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics',
     'post'
   >;
+  'GET /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices': Operation<
+    '/deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices',
+    'get'
+  >;
+  'POST /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices': Operation<
+    '/deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices',
+    'post'
+  >;
+  'GET /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}': Operation<
+    '/deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}',
+    'get'
+  >;
+  'PATCH /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}': Operation<
+    '/deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}',
+    'patch'
+  >;
+  'DELETE /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}': Operation<
+    '/deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -37,10 +55,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'userExperienceAnalyticsWorkFromAnywhereMetric-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['userExperienceAnalyticsWorkFromAnywhereMetric-id'],
+    },
     params,
   };
 }
@@ -58,16 +76,9 @@ export function list(
   return {
     method: 'get',
     path: '/deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -85,11 +96,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'userExperienceAnalyticsWorkFromAnywhereMetric-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['userExperienceAnalyticsWorkFromAnywhereMetric-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -107,7 +117,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}',
-    paramDefs: [{ name: 'userExperienceAnalyticsWorkFromAnywhereMetric-id', in: 'path' }],
+    paramDefs: {
+      path: ['userExperienceAnalyticsWorkFromAnywhereMetric-id'],
+    },
     params,
     body,
   };
@@ -118,16 +130,124 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics']['body'],
-  params?: IEndpoints['POST /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics']['parameters']
+  body: IEndpoints['POST /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics']['body']
 ): EndpointRequest<
   IEndpoints['POST /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics']['response']
 > {
   return {
     method: 'post',
     path: '/deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const metricDevices = {
+  /**
+   * `GET /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices`
+   *
+   * The work from anywhere metric devices. Read-only.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['userExperienceAnalyticsWorkFromAnywhereMetric-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices']['body'],
+    params?: IEndpoints['POST /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices',
+      paramDefs: {
+        path: ['userExperienceAnalyticsWorkFromAnywhereMetric-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}`
+   *
+   * The work from anywhere metric devices. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'userExperienceAnalyticsWorkFromAnywhereMetric-id',
+          'userExperienceAnalyticsWorkFromAnywhereDevice-id',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}']['body'],
+    params?: IEndpoints['PATCH /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}',
+      paramDefs: {
+        path: [
+          'userExperienceAnalyticsWorkFromAnywhereMetric-id',
+          'userExperienceAnalyticsWorkFromAnywhereDevice-id',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/deviceManagement/userExperienceAnalyticsWorkFromAnywhereMetrics/{userExperienceAnalyticsWorkFromAnywhereMetric-id}/metricDevices/{userExperienceAnalyticsWorkFromAnywhereDevice-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: [
+          'userExperienceAnalyticsWorkFromAnywhereMetric-id',
+          'userExperienceAnalyticsWorkFromAnywhereDevice-id',
+        ],
+      },
+      params,
+    };
+  },
+};

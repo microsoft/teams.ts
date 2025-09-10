@@ -28,10 +28,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/teams/{team-id}/primaryChannel/planner',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'team-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['team-id'],
+    },
     params,
   };
 }
@@ -48,11 +48,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/teams/{team-id}/primaryChannel/planner',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'team-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -69,7 +68,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/teams/{team-id}/primaryChannel/planner',
-    paramDefs: [{ name: 'team-id', in: 'path' }],
+    paramDefs: {
+      path: ['team-id'],
+    },
     params,
     body,
   };

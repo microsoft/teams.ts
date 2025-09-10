@@ -1,6 +1,3 @@
-export * as host from './host';
-export * as sslCertificate from './sslCertificate';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/security/threatIntelligence/hostSslCertificates',
     'post'
   >;
+  'GET /security/threatIntelligence/hostSslCertificates/{hostSslCertificate-id}/host': Operation<
+    '/security/threatIntelligence/hostSslCertificates/{hostSslCertificate-id}/host',
+    'get'
+  >;
+  'GET /security/threatIntelligence/hostSslCertificates/{hostSslCertificate-id}/sslCertificate': Operation<
+    '/security/threatIntelligence/hostSslCertificates/{hostSslCertificate-id}/sslCertificate',
+    'get'
+  >;
 }
 
 /**
@@ -38,10 +43,10 @@ export function del(
   return {
     method: 'delete',
     path: '/security/threatIntelligence/hostSslCertificates/{hostSslCertificate-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'hostSslCertificate-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['hostSslCertificate-id'],
+    },
     params,
   };
 }
@@ -57,16 +62,9 @@ export function list(
   return {
     method: 'get',
     path: '/security/threatIntelligence/hostSslCertificates',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -84,11 +82,10 @@ export function get(
   return {
     method: 'get',
     path: '/security/threatIntelligence/hostSslCertificates/{hostSslCertificate-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'hostSslCertificate-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['hostSslCertificate-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -106,7 +103,9 @@ export function update(
   return {
     method: 'patch',
     path: '/security/threatIntelligence/hostSslCertificates/{hostSslCertificate-id}',
-    paramDefs: [{ name: 'hostSslCertificate-id', in: 'path' }],
+    paramDefs: {
+      path: ['hostSslCertificate-id'],
+    },
     params,
     body,
   };
@@ -117,16 +116,59 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /security/threatIntelligence/hostSslCertificates']['body'],
-  params?: IEndpoints['POST /security/threatIntelligence/hostSslCertificates']['parameters']
+  body: IEndpoints['POST /security/threatIntelligence/hostSslCertificates']['body']
 ): EndpointRequest<
   IEndpoints['POST /security/threatIntelligence/hostSslCertificates']['response']
 > {
   return {
     method: 'post',
     path: '/security/threatIntelligence/hostSslCertificates',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const host = {
+  /**
+   * `GET /security/threatIntelligence/hostSslCertificates/{hostSslCertificate-id}/host`
+   *
+   * The host for this hostSslCertificate.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/threatIntelligence/hostSslCertificates/{hostSslCertificate-id}/host']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/threatIntelligence/hostSslCertificates/{hostSslCertificate-id}/host']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/threatIntelligence/hostSslCertificates/{hostSslCertificate-id}/host',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['hostSslCertificate-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const sslCertificate = {
+  /**
+   * `GET /security/threatIntelligence/hostSslCertificates/{hostSslCertificate-id}/sslCertificate`
+   *
+   * The sslCertificate for this hostSslCertificate.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/threatIntelligence/hostSslCertificates/{hostSslCertificate-id}/sslCertificate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/threatIntelligence/hostSslCertificates/{hostSslCertificate-id}/sslCertificate']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/threatIntelligence/hostSslCertificates/{hostSslCertificate-id}/sslCertificate',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['hostSslCertificate-id'],
+      },
+      params,
+    };
+  },
+};

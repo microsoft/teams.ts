@@ -1,4 +1,3 @@
-export * as authenticationMethodModes from './authenticationMethodModes';
 export * as policies from './policies';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -16,6 +15,26 @@ export interface IEndpoints {
     '/identity/conditionalAccess/authenticationStrength',
     'patch'
   >;
+  'GET /identity/conditionalAccess/authenticationStrength/authenticationMethodModes': Operation<
+    '/identity/conditionalAccess/authenticationStrength/authenticationMethodModes',
+    'get'
+  >;
+  'POST /identity/conditionalAccess/authenticationStrength/authenticationMethodModes': Operation<
+    '/identity/conditionalAccess/authenticationStrength/authenticationMethodModes',
+    'post'
+  >;
+  'GET /identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}': Operation<
+    '/identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}',
+    'get'
+  >;
+  'PATCH /identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}': Operation<
+    '/identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}',
+    'patch'
+  >;
+  'DELETE /identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}': Operation<
+    '/identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -30,7 +49,9 @@ export function del(
   return {
     method: 'delete',
     path: '/identity/conditionalAccess/authenticationStrength',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -47,10 +68,9 @@ export function get(
   return {
     method: 'get',
     path: '/identity/conditionalAccess/authenticationStrength',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -60,16 +80,109 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /identity/conditionalAccess/authenticationStrength']['body'],
-  params?: IEndpoints['PATCH /identity/conditionalAccess/authenticationStrength']['parameters']
+  body: IEndpoints['PATCH /identity/conditionalAccess/authenticationStrength']['body']
 ): EndpointRequest<
   IEndpoints['PATCH /identity/conditionalAccess/authenticationStrength']['response']
 > {
   return {
     method: 'patch',
     path: '/identity/conditionalAccess/authenticationStrength',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const authenticationMethodModes = {
+  /**
+   * `GET /identity/conditionalAccess/authenticationStrength/authenticationMethodModes`
+   *
+   * Get a list of all supported authentication methods, or all supported authentication method combinations as a list of authenticationMethodModes objects and their properties.
+   */
+  list: function list(
+    params?: IEndpoints['GET /identity/conditionalAccess/authenticationStrength/authenticationMethodModes']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /identity/conditionalAccess/authenticationStrength/authenticationMethodModes']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/identity/conditionalAccess/authenticationStrength/authenticationMethodModes',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /identity/conditionalAccess/authenticationStrength/authenticationMethodModes`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /identity/conditionalAccess/authenticationStrength/authenticationMethodModes']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /identity/conditionalAccess/authenticationStrength/authenticationMethodModes']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/identity/conditionalAccess/authenticationStrength/authenticationMethodModes',
+      body,
+    };
+  },
+  /**
+   * `GET /identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}`
+   *
+   * Names and descriptions of all valid authentication method modes in the system.
+   */
+  get: function get(
+    params?: IEndpoints['GET /identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['authenticationMethodModeDetail-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}']['body'],
+    params?: IEndpoints['PATCH /identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}',
+      paramDefs: {
+        path: ['authenticationMethodModeDetail-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/identity/conditionalAccess/authenticationStrength/authenticationMethodModes/{authenticationMethodModeDetail-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['authenticationMethodModeDetail-id'],
+      },
+      params,
+    };
+  },
+};

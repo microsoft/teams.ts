@@ -1,5 +1,3 @@
-export * as evaluate from './evaluate';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/users/{user-id}/informationProtection/dataLossPreventionPolicies',
     'post'
   >;
+  'POST /users/{user-id}/informationProtection/dataLossPreventionPolicies/evaluate': Operation<
+    '/users/{user-id}/informationProtection/dataLossPreventionPolicies/evaluate',
+    'post'
+  >;
 }
 
 /**
@@ -38,11 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/users/{user-id}/informationProtection/dataLossPreventionPolicies/{dataLossPreventionPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'dataLossPreventionPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'dataLossPreventionPolicy-id'],
+    },
     params,
   };
 }
@@ -60,17 +61,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/informationProtection/dataLossPreventionPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,12 +82,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/informationProtection/dataLossPreventionPolicies/{dataLossPreventionPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'dataLossPreventionPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'dataLossPreventionPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,10 +104,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/users/{user-id}/informationProtection/dataLossPreventionPolicies/{dataLossPreventionPolicy-id}',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'dataLossPreventionPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'dataLossPreventionPolicy-id'],
+    },
     params,
     body,
   };
@@ -135,8 +126,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/users/{user-id}/informationProtection/dataLossPreventionPolicies',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };
 }
+
+export const evaluate = {
+  /**
+   * `POST /users/{user-id}/informationProtection/dataLossPreventionPolicies/evaluate`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/informationProtection/dataLossPreventionPolicies/evaluate']['body'],
+    params?: IEndpoints['POST /users/{user-id}/informationProtection/dataLossPreventionPolicies/evaluate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/informationProtection/dataLossPreventionPolicies/evaluate']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/users/{user-id}/informationProtection/dataLossPreventionPolicies/evaluate',
+      paramDefs: {
+        path: ['user-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

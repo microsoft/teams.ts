@@ -1,5 +1,3 @@
-export * as incident from './incident';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /security/incidentTasks': Operation<'/security/incidentTasks', 'post'>;
+  'GET /security/incidentTasks/{incidentTask-id}/incident': Operation<
+    '/security/incidentTasks/{incidentTask-id}/incident',
+    'get'
+  >;
 }
 
 /**
@@ -30,10 +32,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/incidentTasks/{incidentTask-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'incidentTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['incidentTask-id'],
+    },
     params,
   };
 }
@@ -50,16 +52,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/incidentTasks',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -76,11 +71,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/incidentTasks/{incidentTask-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'incidentTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['incidentTask-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -97,7 +91,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/incidentTasks/{incidentTask-id}',
-    paramDefs: [{ name: 'incidentTask-id', in: 'path' }],
+    paramDefs: {
+      path: ['incidentTask-id'],
+    },
     params,
     body,
   };
@@ -108,15 +104,36 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /security/incidentTasks']['body'],
-  params?: IEndpoints['POST /security/incidentTasks']['parameters']
+  body: IEndpoints['POST /security/incidentTasks']['body']
 ): EndpointRequest<IEndpoints['POST /security/incidentTasks']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/security/incidentTasks',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const incident = {
+  /**
+   * `GET /security/incidentTasks/{incidentTask-id}/incident`
+   *
+   * Required. The incident that contains this task. Must contain a valid incident ID.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/incidentTasks/{incidentTask-id}/incident']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/incidentTasks/{incidentTask-id}/incident']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/incidentTasks/{incidentTask-id}/incident',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['incidentTask-id'],
+      },
+      params,
+    };
+  },
+};

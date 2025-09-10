@@ -1,5 +1,4 @@
 export * as policies from './policies';
-export * as servicePrincipal from './servicePrincipal';
 
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
@@ -24,6 +23,10 @@ export interface IEndpoints {
     '/networkAccess/connectivity/remoteNetworks/{remoteNetwork-id}/forwardingProfiles',
     'post'
   >;
+  'GET /networkAccess/connectivity/remoteNetworks/{remoteNetwork-id}/forwardingProfiles/{forwardingProfile-id}/servicePrincipal': Operation<
+    '/networkAccess/connectivity/remoteNetworks/{remoteNetwork-id}/forwardingProfiles/{forwardingProfile-id}/servicePrincipal',
+    'get'
+  >;
 }
 
 /**
@@ -39,11 +42,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/networkAccess/connectivity/remoteNetworks/{remoteNetwork-id}/forwardingProfiles/{forwardingProfile-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'remoteNetwork-id', in: 'path' },
-      { name: 'forwardingProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['remoteNetwork-id', 'forwardingProfile-id'],
+    },
     params,
   };
 }
@@ -62,17 +64,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/connectivity/remoteNetworks/{remoteNetwork-id}/forwardingProfiles',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'remoteNetwork-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['remoteNetwork-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -91,12 +86,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/connectivity/remoteNetworks/{remoteNetwork-id}/forwardingProfiles/{forwardingProfile-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'remoteNetwork-id', in: 'path' },
-      { name: 'forwardingProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['remoteNetwork-id', 'forwardingProfile-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,10 +108,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/networkAccess/connectivity/remoteNetworks/{remoteNetwork-id}/forwardingProfiles/{forwardingProfile-id}',
-    paramDefs: [
-      { name: 'remoteNetwork-id', in: 'path' },
-      { name: 'forwardingProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['remoteNetwork-id', 'forwardingProfile-id'],
+    },
     params,
     body,
   };
@@ -138,8 +130,33 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/networkAccess/connectivity/remoteNetworks/{remoteNetwork-id}/forwardingProfiles',
-    paramDefs: [{ name: 'remoteNetwork-id', in: 'path' }],
+    paramDefs: {
+      path: ['remoteNetwork-id'],
+    },
     params,
     body,
   };
 }
+
+export const servicePrincipal = {
+  /**
+   * `GET /networkAccess/connectivity/remoteNetworks/{remoteNetwork-id}/forwardingProfiles/{forwardingProfile-id}/servicePrincipal`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /networkAccess/connectivity/remoteNetworks/{remoteNetwork-id}/forwardingProfiles/{forwardingProfile-id}/servicePrincipal']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /networkAccess/connectivity/remoteNetworks/{remoteNetwork-id}/forwardingProfiles/{forwardingProfile-id}/servicePrincipal']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/networkAccess/connectivity/remoteNetworks/{remoteNetwork-id}/forwardingProfiles/{forwardingProfile-id}/servicePrincipal',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['remoteNetwork-id', 'forwardingProfile-id'],
+      },
+      params,
+    };
+  },
+};

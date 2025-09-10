@@ -1,6 +1,3 @@
-export * as protectionUnit from './protectionUnit';
-export * as search from './search';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/solutions/backupRestore/restorePoints',
     'post'
   >;
+  'GET /solutions/backupRestore/restorePoints/{restorePoint-id}/protectionUnit': Operation<
+    '/solutions/backupRestore/restorePoints/{restorePoint-id}/protectionUnit',
+    'get'
+  >;
+  'POST /solutions/backupRestore/restorePoints/search': Operation<
+    '/solutions/backupRestore/restorePoints/search',
+    'post'
+  >;
 }
 
 /**
@@ -38,10 +43,10 @@ export function del(
   return {
     method: 'delete',
     path: '/solutions/backupRestore/restorePoints/{restorePoint-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'restorePoint-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['restorePoint-id'],
+    },
     params,
   };
 }
@@ -57,16 +62,9 @@ export function list(
   return {
     method: 'get',
     path: '/solutions/backupRestore/restorePoints',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -84,11 +82,10 @@ export function get(
   return {
     method: 'get',
     path: '/solutions/backupRestore/restorePoints/{restorePoint-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'restorePoint-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['restorePoint-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -106,7 +103,9 @@ export function update(
   return {
     method: 'patch',
     path: '/solutions/backupRestore/restorePoints/{restorePoint-id}',
-    paramDefs: [{ name: 'restorePoint-id', in: 'path' }],
+    paramDefs: {
+      path: ['restorePoint-id'],
+    },
     params,
     body,
   };
@@ -117,14 +116,51 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /solutions/backupRestore/restorePoints']['body'],
-  params?: IEndpoints['POST /solutions/backupRestore/restorePoints']['parameters']
+  body: IEndpoints['POST /solutions/backupRestore/restorePoints']['body']
 ): EndpointRequest<IEndpoints['POST /solutions/backupRestore/restorePoints']['response']> {
   return {
     method: 'post',
     path: '/solutions/backupRestore/restorePoints',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const protectionUnit = {
+  /**
+   * `GET /solutions/backupRestore/restorePoints/{restorePoint-id}/protectionUnit`
+   *
+   * The site, drive, or mailbox units that are protected under a protection policy.
+   */
+  get: function get(
+    params?: IEndpoints['GET /solutions/backupRestore/restorePoints/{restorePoint-id}/protectionUnit']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/backupRestore/restorePoints/{restorePoint-id}/protectionUnit']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/solutions/backupRestore/restorePoints/{restorePoint-id}/protectionUnit',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['restorePoint-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const search = {
+  /**
+   * `POST /solutions/backupRestore/restorePoints/search`
+   *
+   * Search for the restorePoint objects associated with a protectionUnit.
+   */
+  create: function create(
+    body: IEndpoints['POST /solutions/backupRestore/restorePoints/search']['body']
+  ): EndpointRequest<IEndpoints['POST /solutions/backupRestore/restorePoints/search']['response']> {
+    return {
+      method: 'post',
+      path: '/solutions/backupRestore/restorePoints/search',
+      body,
+    };
+  },
+};

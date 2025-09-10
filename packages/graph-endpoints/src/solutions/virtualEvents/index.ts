@@ -20,7 +20,9 @@ export function del(
   return {
     method: 'delete',
     path: '/solutions/virtualEvents',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -35,10 +37,9 @@ export function list(
   return {
     method: 'get',
     path: '/solutions/virtualEvents',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -48,14 +49,11 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /solutions/virtualEvents']['body'],
-  params?: IEndpoints['PATCH /solutions/virtualEvents']['parameters']
+  body: IEndpoints['PATCH /solutions/virtualEvents']['body']
 ): EndpointRequest<IEndpoints['PATCH /solutions/virtualEvents']['response']> {
   return {
     method: 'patch',
     path: '/solutions/virtualEvents',
-    paramDefs: [],
-    params,
     body,
   };
 }

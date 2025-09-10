@@ -2,11 +2,9 @@ export * as createdByUser from './createdByUser';
 export * as driveItem from './driveItem';
 export * as items from './items';
 export * as lastModifiedByUser from './lastModifiedByUser';
-export * as dolist from './list';
-export * as listItem from './listItem';
+export * as doList from './list';
 export * as permission from './permission';
 export * as root from './root';
-export * as site from './site';
 
 import type { EndpointRequest, Operation } from './../types/common.ts';
 
@@ -16,6 +14,11 @@ export interface IEndpoints {
   'GET /shares/{sharedDriveItem-id}': Operation<'/shares/{sharedDriveItem-id}', 'get'>;
   'PATCH /shares/{sharedDriveItem-id}': Operation<'/shares/{sharedDriveItem-id}', 'patch'>;
   'POST /shares': Operation<'/shares', 'post'>;
+  'GET /shares/{sharedDriveItem-id}/listItem': Operation<
+    '/shares/{sharedDriveItem-id}/listItem',
+    'get'
+  >;
+  'GET /shares/{sharedDriveItem-id}/site': Operation<'/shares/{sharedDriveItem-id}/site', 'get'>;
 }
 
 /**
@@ -29,10 +32,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/shares/{sharedDriveItem-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'sharedDriveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['sharedDriveItem-id'],
+    },
     params,
   };
 }
@@ -49,16 +52,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/shares',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -75,11 +71,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/shares/{sharedDriveItem-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sharedDriveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharedDriveItem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -96,7 +91,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/shares/{sharedDriveItem-id}',
-    paramDefs: [{ name: 'sharedDriveItem-id', in: 'path' }],
+    paramDefs: {
+      path: ['sharedDriveItem-id'],
+    },
     params,
     body,
   };
@@ -107,15 +104,56 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /shares']['body'],
-  params?: IEndpoints['POST /shares']['parameters']
+  body: IEndpoints['POST /shares']['body']
 ): EndpointRequest<IEndpoints['POST /shares']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/shares',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const listItem = {
+  /**
+   * `GET /shares/{sharedDriveItem-id}/listItem`
+   *
+   * Used to access the underlying listItem
+   */
+  get: function get(
+    params?: IEndpoints['GET /shares/{sharedDriveItem-id}/listItem']['parameters']
+  ): EndpointRequest<IEndpoints['GET /shares/{sharedDriveItem-id}/listItem']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/shares/{sharedDriveItem-id}/listItem',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['sharedDriveItem-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const site = {
+  /**
+   * `GET /shares/{sharedDriveItem-id}/site`
+   *
+   * Used to access the underlying site
+   */
+  get: function get(
+    params?: IEndpoints['GET /shares/{sharedDriveItem-id}/site']['parameters']
+  ): EndpointRequest<IEndpoints['GET /shares/{sharedDriveItem-id}/site']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/shares/{sharedDriveItem-id}/site',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['sharedDriveItem-id'],
+      },
+      params,
+    };
+  },
+};

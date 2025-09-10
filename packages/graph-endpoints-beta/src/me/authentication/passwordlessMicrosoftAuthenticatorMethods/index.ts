@@ -1,5 +1,3 @@
-export * as device from './device';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -13,6 +11,10 @@ export interface IEndpoints {
   >;
   'GET /me/authentication/passwordlessMicrosoftAuthenticatorMethods/{passwordlessMicrosoftAuthenticatorAuthenticationMethod-id}': Operation<
     '/me/authentication/passwordlessMicrosoftAuthenticatorMethods/{passwordlessMicrosoftAuthenticatorAuthenticationMethod-id}',
+    'get'
+  >;
+  'GET /me/authentication/passwordlessMicrosoftAuthenticatorMethods/{passwordlessMicrosoftAuthenticatorAuthenticationMethod-id}/device': Operation<
+    '/me/authentication/passwordlessMicrosoftAuthenticatorMethods/{passwordlessMicrosoftAuthenticatorAuthenticationMethod-id}/device',
     'get'
   >;
 }
@@ -30,10 +32,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/authentication/passwordlessMicrosoftAuthenticatorMethods/{passwordlessMicrosoftAuthenticatorAuthenticationMethod-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'passwordlessMicrosoftAuthenticatorAuthenticationMethod-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['passwordlessMicrosoftAuthenticatorAuthenticationMethod-id'],
+    },
     params,
   };
 }
@@ -52,16 +54,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/authentication/passwordlessMicrosoftAuthenticatorMethods',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -80,11 +75,33 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/authentication/passwordlessMicrosoftAuthenticatorMethods/{passwordlessMicrosoftAuthenticatorAuthenticationMethod-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'passwordlessMicrosoftAuthenticatorAuthenticationMethod-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['passwordlessMicrosoftAuthenticatorAuthenticationMethod-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
+
+export const device = {
+  /**
+   * `GET /me/authentication/passwordlessMicrosoftAuthenticatorMethods/{passwordlessMicrosoftAuthenticatorAuthenticationMethod-id}/device`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/authentication/passwordlessMicrosoftAuthenticatorMethods/{passwordlessMicrosoftAuthenticatorAuthenticationMethod-id}/device']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/authentication/passwordlessMicrosoftAuthenticatorMethods/{passwordlessMicrosoftAuthenticatorAuthenticationMethod-id}/device']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/authentication/passwordlessMicrosoftAuthenticatorMethods/{passwordlessMicrosoftAuthenticatorAuthenticationMethod-id}/device',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['passwordlessMicrosoftAuthenticatorAuthenticationMethod-id'],
+      },
+      params,
+    };
+  },
+};

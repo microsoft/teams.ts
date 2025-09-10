@@ -1,11 +1,20 @@
-export * as mailboxSettings from './mailboxSettings';
-export * as serviceProvisioningErrors from './serviceProvisioningErrors';
-
 import type { EndpointRequest, Operation } from './../../../../../../types/common.ts';
 
 export interface IEndpoints {
   'GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser': Operation<
     '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser',
+    'get'
+  >;
+  'GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/mailboxSettings': Operation<
+    '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/mailboxSettings',
+    'get'
+  >;
+  'PATCH /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/mailboxSettings': Operation<
+    '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/mailboxSettings',
+    'patch'
+  >;
+  'GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/serviceProvisioningErrors': Operation<
+    '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/serviceProvisioningErrors',
     'get'
   >;
 }
@@ -23,12 +32,79 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-      { name: 'recycleBinItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainer-id', 'recycleBinItem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
+
+export const mailboxSettings = {
+  /**
+   * `GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/mailboxSettings`
+   *
+   * Settings for the primary mailbox of the signed-in user. You can get or update settings for sending automatic replies to incoming messages, locale, and time zone. For more information, see User preferences for languages and regional formats. Returned only on $select.
+   */
+  list: function list(
+    params?: IEndpoints['GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/mailboxSettings']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/mailboxSettings']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/mailboxSettings',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['fileStorageContainer-id', 'recycleBinItem-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/mailboxSettings`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/mailboxSettings']['body'],
+    params?: IEndpoints['PATCH /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/mailboxSettings']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/mailboxSettings']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/mailboxSettings',
+      paramDefs: {
+        path: ['fileStorageContainer-id', 'recycleBinItem-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const serviceProvisioningErrors = {
+  /**
+   * `GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/serviceProvisioningErrors`
+   *
+   * Errors published by a federated service describing a nontransient, service-specific error regarding the properties or link from a user object.
+   */
+  list: function list(
+    params?: IEndpoints['GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/serviceProvisioningErrors']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/serviceProvisioningErrors']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}/lastModifiedByUser/serviceProvisioningErrors',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['fileStorageContainer-id', 'recycleBinItem-id'],
+      },
+      params,
+    };
+  },
+};

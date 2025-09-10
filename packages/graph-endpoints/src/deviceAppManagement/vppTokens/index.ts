@@ -1,5 +1,3 @@
-export * as syncLicenses from './syncLicenses';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /deviceAppManagement/vppTokens': Operation<'/deviceAppManagement/vppTokens', 'post'>;
+  'POST /deviceAppManagement/vppTokens/{vppToken-id}/syncLicenses': Operation<
+    '/deviceAppManagement/vppTokens/{vppToken-id}/syncLicenses',
+    'post'
+  >;
 }
 
 /**
@@ -30,10 +32,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceAppManagement/vppTokens/{vppToken-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'vppToken-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['vppToken-id'],
+    },
     params,
   };
 }
@@ -49,16 +51,9 @@ export function list(
   return {
     method: 'get',
     path: '/deviceAppManagement/vppTokens',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -74,11 +69,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceAppManagement/vppTokens/{vppToken-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'vppToken-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['vppToken-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -95,7 +89,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceAppManagement/vppTokens/{vppToken-id}',
-    paramDefs: [{ name: 'vppToken-id', in: 'path' }],
+    paramDefs: {
+      path: ['vppToken-id'],
+    },
     params,
     body,
   };
@@ -107,14 +103,33 @@ export function update(
  * Create a new vppToken object.
  */
 export function create(
-  body: IEndpoints['POST /deviceAppManagement/vppTokens']['body'],
-  params?: IEndpoints['POST /deviceAppManagement/vppTokens']['parameters']
+  body: IEndpoints['POST /deviceAppManagement/vppTokens']['body']
 ): EndpointRequest<IEndpoints['POST /deviceAppManagement/vppTokens']['response']> {
   return {
     method: 'post',
     path: '/deviceAppManagement/vppTokens',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const syncLicenses = {
+  /**
+   * `POST /deviceAppManagement/vppTokens/{vppToken-id}/syncLicenses`
+   *
+   * Syncs licenses associated with a specific appleVolumePurchaseProgramToken
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceAppManagement/vppTokens/{vppToken-id}/syncLicenses']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceAppManagement/vppTokens/{vppToken-id}/syncLicenses']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceAppManagement/vppTokens/{vppToken-id}/syncLicenses',
+      paramDefs: {
+        path: ['vppToken-id'],
+      },
+      params,
+    };
+  },
+};

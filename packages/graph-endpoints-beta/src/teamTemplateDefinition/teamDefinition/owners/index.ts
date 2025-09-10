@@ -1,6 +1,3 @@
-export * as mailboxSettings from './mailboxSettings';
-export * as serviceProvisioningErrors from './serviceProvisioningErrors';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -10,6 +7,18 @@ export interface IEndpoints {
   >;
   'GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}': Operation<
     '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}',
+    'get'
+  >;
+  'GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/mailboxSettings': Operation<
+    '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/mailboxSettings',
+    'get'
+  >;
+  'PATCH /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/mailboxSettings': Operation<
+    '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/mailboxSettings',
+    'patch'
+  >;
+  'GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/serviceProvisioningErrors': Operation<
+    '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/serviceProvisioningErrors',
     'get'
   >;
 }
@@ -28,17 +37,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplateDefinition-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -57,12 +59,79 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplateDefinition-id', 'user-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
+
+export const mailboxSettings = {
+  /**
+   * `GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/mailboxSettings`
+   *
+   * Settings for the primary mailbox of the signed-in user. You can get or update settings for sending automatic replies to incoming messages, locale, and time zone. For more information, see User preferences for languages and regional formats. Returned only on $select.
+   */
+  list: function list(
+    params?: IEndpoints['GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/mailboxSettings']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/mailboxSettings']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/mailboxSettings',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['teamTemplateDefinition-id', 'user-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/mailboxSettings`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/mailboxSettings']['body'],
+    params?: IEndpoints['PATCH /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/mailboxSettings']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/mailboxSettings']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/mailboxSettings',
+      paramDefs: {
+        path: ['teamTemplateDefinition-id', 'user-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const serviceProvisioningErrors = {
+  /**
+   * `GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/serviceProvisioningErrors`
+   *
+   * Errors published by a federated service describing a nontransient, service-specific error regarding the properties or link from a user object.
+   */
+  list: function list(
+    params?: IEndpoints['GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/serviceProvisioningErrors']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/serviceProvisioningErrors']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/owners/{user-id}/serviceProvisioningErrors',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['teamTemplateDefinition-id', 'user-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,8 +1,3 @@
-export * as approve from './approve';
-export * as deny from './deny';
-export * as getAllElevationRequests from './getAllElevationRequests';
-export * as revoke from './revoke';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -26,6 +21,22 @@ export interface IEndpoints {
     '/deviceManagement/elevationRequests',
     'post'
   >;
+  'POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/approve': Operation<
+    '/deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/approve',
+    'post'
+  >;
+  'POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/deny': Operation<
+    '/deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/deny',
+    'post'
+  >;
+  'POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/getAllElevationRequests': Operation<
+    '/deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/getAllElevationRequests',
+    'post'
+  >;
+  'POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/revoke': Operation<
+    '/deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/revoke',
+    'post'
+  >;
 }
 
 /**
@@ -41,10 +52,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'privilegeManagementElevationRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['privilegeManagementElevationRequest-id'],
+    },
     params,
   };
 }
@@ -61,16 +72,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/elevationRequests',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,11 +93,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'privilegeManagementElevationRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['privilegeManagementElevationRequest-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,7 +115,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}',
-    paramDefs: [{ name: 'privilegeManagementElevationRequest-id', in: 'path' }],
+    paramDefs: {
+      path: ['privilegeManagementElevationRequest-id'],
+    },
     params,
     body,
   };
@@ -123,15 +128,106 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/elevationRequests']['body'],
-  params?: IEndpoints['POST /deviceManagement/elevationRequests']['parameters']
+  body: IEndpoints['POST /deviceManagement/elevationRequests']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/elevationRequests']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/elevationRequests',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const approve = {
+  /**
+   * `POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/approve`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/approve']['body'],
+    params?: IEndpoints['POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/approve']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/approve']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/approve',
+      paramDefs: {
+        path: ['privilegeManagementElevationRequest-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const deny = {
+  /**
+   * `POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/deny`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/deny']['body'],
+    params?: IEndpoints['POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/deny']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/deny']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/deny',
+      paramDefs: {
+        path: ['privilegeManagementElevationRequest-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const getAllElevationRequests = {
+  /**
+   * `POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/getAllElevationRequests`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/getAllElevationRequests']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/getAllElevationRequests']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/getAllElevationRequests',
+      paramDefs: {
+        path: ['privilegeManagementElevationRequest-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const revoke = {
+  /**
+   * `POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/revoke`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/revoke']['body'],
+    params?: IEndpoints['POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/revoke']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/revoke']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/elevationRequests/{privilegeManagementElevationRequest-id}/revoke',
+      paramDefs: {
+        path: ['privilegeManagementElevationRequest-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

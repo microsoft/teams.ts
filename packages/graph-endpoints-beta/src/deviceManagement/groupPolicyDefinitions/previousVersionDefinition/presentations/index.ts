@@ -1,5 +1,3 @@
-export * as definition from './definition';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/previousVersionDefinition/presentations',
     'post'
   >;
+  'GET /deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/previousVersionDefinition/presentations/{groupPolicyPresentation-id}/definition': Operation<
+    '/deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/previousVersionDefinition/presentations/{groupPolicyPresentation-id}/definition',
+    'get'
+  >;
 }
 
 /**
@@ -38,11 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/previousVersionDefinition/presentations/{groupPolicyPresentation-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'groupPolicyDefinition-id', in: 'path' },
-      { name: 'groupPolicyPresentation-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['groupPolicyDefinition-id', 'groupPolicyPresentation-id'],
+    },
     params,
   };
 }
@@ -61,17 +62,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/previousVersionDefinition/presentations',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'groupPolicyDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['groupPolicyDefinition-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +84,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/previousVersionDefinition/presentations/{groupPolicyPresentation-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'groupPolicyDefinition-id', in: 'path' },
-      { name: 'groupPolicyPresentation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['groupPolicyDefinition-id', 'groupPolicyPresentation-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +106,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/previousVersionDefinition/presentations/{groupPolicyPresentation-id}',
-    paramDefs: [
-      { name: 'groupPolicyDefinition-id', in: 'path' },
-      { name: 'groupPolicyPresentation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['groupPolicyDefinition-id', 'groupPolicyPresentation-id'],
+    },
     params,
     body,
   };
@@ -137,8 +128,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/previousVersionDefinition/presentations',
-    paramDefs: [{ name: 'groupPolicyDefinition-id', in: 'path' }],
+    paramDefs: {
+      path: ['groupPolicyDefinition-id'],
+    },
     params,
     body,
   };
 }
+
+export const definition = {
+  /**
+   * `GET /deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/previousVersionDefinition/presentations/{groupPolicyPresentation-id}/definition`
+   *
+   * The group policy definition associated with the presentation.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/previousVersionDefinition/presentations/{groupPolicyPresentation-id}/definition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/previousVersionDefinition/presentations/{groupPolicyPresentation-id}/definition']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/previousVersionDefinition/presentations/{groupPolicyPresentation-id}/definition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['groupPolicyDefinition-id', 'groupPolicyPresentation-id'],
+      },
+      params,
+    };
+  },
+};

@@ -29,10 +29,10 @@ export function del(
   return {
     method: 'delete',
     path: '/teamwork/deletedTeams/{deletedTeam-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deletedTeam-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['deletedTeam-id'],
+    },
     params,
   };
 }
@@ -48,16 +48,9 @@ export function list(
   return {
     method: 'get',
     path: '/teamwork/deletedTeams',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -73,11 +66,10 @@ export function get(
   return {
     method: 'get',
     path: '/teamwork/deletedTeams/{deletedTeam-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deletedTeam-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deletedTeam-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,7 +85,9 @@ export function update(
   return {
     method: 'patch',
     path: '/teamwork/deletedTeams/{deletedTeam-id}',
-    paramDefs: [{ name: 'deletedTeam-id', in: 'path' }],
+    paramDefs: {
+      path: ['deletedTeam-id'],
+    },
     params,
     body,
   };
@@ -104,14 +98,11 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /teamwork/deletedTeams']['body'],
-  params?: IEndpoints['POST /teamwork/deletedTeams']['parameters']
+  body: IEndpoints['POST /teamwork/deletedTeams']['body']
 ): EndpointRequest<IEndpoints['POST /teamwork/deletedTeams']['response']> {
   return {
     method: 'post',
     path: '/teamwork/deletedTeams',
-    paramDefs: [],
-    params,
     body,
   };
 }

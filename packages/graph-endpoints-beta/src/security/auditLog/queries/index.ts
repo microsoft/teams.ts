@@ -1,5 +1,3 @@
-export * as records from './records';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,26 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /security/auditLog/queries': Operation<'/security/auditLog/queries', 'post'>;
+  'GET /security/auditLog/queries/{auditLogQuery-id}/records': Operation<
+    '/security/auditLog/queries/{auditLogQuery-id}/records',
+    'get'
+  >;
+  'POST /security/auditLog/queries/{auditLogQuery-id}/records': Operation<
+    '/security/auditLog/queries/{auditLogQuery-id}/records',
+    'post'
+  >;
+  'GET /security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}': Operation<
+    '/security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}',
+    'get'
+  >;
+  'PATCH /security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}': Operation<
+    '/security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}',
+    'patch'
+  >;
+  'DELETE /security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}': Operation<
+    '/security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -30,10 +48,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/auditLog/queries/{auditLogQuery-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'auditLogQuery-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['auditLogQuery-id'],
+    },
     params,
   };
 }
@@ -50,16 +68,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/auditLog/queries',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -76,11 +87,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/auditLog/queries/{auditLogQuery-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'auditLogQuery-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['auditLogQuery-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -97,7 +107,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/auditLog/queries/{auditLogQuery-id}',
-    paramDefs: [{ name: 'auditLogQuery-id', in: 'path' }],
+    paramDefs: {
+      path: ['auditLogQuery-id'],
+    },
     params,
     body,
   };
@@ -109,15 +121,119 @@ export function update(
  * Create a new auditLogQuery object.
  */
 export function create(
-  body: IEndpoints['POST /security/auditLog/queries']['body'],
-  params?: IEndpoints['POST /security/auditLog/queries']['parameters']
+  body: IEndpoints['POST /security/auditLog/queries']['body']
 ): EndpointRequest<IEndpoints['POST /security/auditLog/queries']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/security/auditLog/queries',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const records = {
+  /**
+   * `GET /security/auditLog/queries/{auditLogQuery-id}/records`
+   *
+   * Get a list of the auditLogRecord objects and their properties.
+   */
+  list: function list(
+    params?: IEndpoints['GET /security/auditLog/queries/{auditLogQuery-id}/records']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/auditLog/queries/{auditLogQuery-id}/records']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/auditLog/queries/{auditLogQuery-id}/records',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['auditLogQuery-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /security/auditLog/queries/{auditLogQuery-id}/records`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /security/auditLog/queries/{auditLogQuery-id}/records']['body'],
+    params?: IEndpoints['POST /security/auditLog/queries/{auditLogQuery-id}/records']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /security/auditLog/queries/{auditLogQuery-id}/records']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/security/auditLog/queries/{auditLogQuery-id}/records',
+      paramDefs: {
+        path: ['auditLogQuery-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}`
+   *
+   * An individual audit log record.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['auditLogQuery-id', 'auditLogRecord-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}']['body'],
+    params?: IEndpoints['PATCH /security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}',
+      paramDefs: {
+        path: ['auditLogQuery-id', 'auditLogRecord-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/security/auditLog/queries/{auditLogQuery-id}/records/{auditLogRecord-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['auditLogQuery-id', 'auditLogRecord-id'],
+      },
+      params,
+    };
+  },
+};

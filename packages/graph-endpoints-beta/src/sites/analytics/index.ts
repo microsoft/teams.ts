@@ -1,6 +1,4 @@
-export * as allTime from './allTime';
 export * as itemActivityStats from './itemActivityStats';
-export * as lastSevenDays from './lastSevenDays';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -8,6 +6,11 @@ export interface IEndpoints {
   'DELETE /sites/{site-id}/analytics': Operation<'/sites/{site-id}/analytics', 'delete'>;
   'GET /sites/{site-id}/analytics': Operation<'/sites/{site-id}/analytics', 'get'>;
   'PATCH /sites/{site-id}/analytics': Operation<'/sites/{site-id}/analytics', 'patch'>;
+  'GET /sites/{site-id}/analytics/allTime': Operation<'/sites/{site-id}/analytics/allTime', 'get'>;
+  'GET /sites/{site-id}/analytics/lastSevenDays': Operation<
+    '/sites/{site-id}/analytics/lastSevenDays',
+    'get'
+  >;
 }
 
 /**
@@ -21,10 +24,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/sites/{site-id}/analytics',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id'],
+    },
     params,
   };
 }
@@ -41,11 +44,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/sites/{site-id}/analytics',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -62,8 +64,52 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/sites/{site-id}/analytics',
-    paramDefs: [{ name: 'site-id', in: 'path' }],
+    paramDefs: {
+      path: ['site-id'],
+    },
     params,
     body,
   };
 }
+
+export const allTime = {
+  /**
+   * `GET /sites/{site-id}/analytics/allTime`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /sites/{site-id}/analytics/allTime']['parameters']
+  ): EndpointRequest<IEndpoints['GET /sites/{site-id}/analytics/allTime']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/sites/{site-id}/analytics/allTime',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['site-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const lastSevenDays = {
+  /**
+   * `GET /sites/{site-id}/analytics/lastSevenDays`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /sites/{site-id}/analytics/lastSevenDays']['parameters']
+  ): EndpointRequest<IEndpoints['GET /sites/{site-id}/analytics/lastSevenDays']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/sites/{site-id}/analytics/lastSevenDays',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['site-id'],
+      },
+      params,
+    };
+  },
+};

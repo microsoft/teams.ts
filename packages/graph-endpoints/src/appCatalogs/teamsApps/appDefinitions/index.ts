@@ -1,5 +1,3 @@
-export * as bot from './bot';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,18 @@ export interface IEndpoints {
     '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions',
     'post'
   >;
+  'GET /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot': Operation<
+    '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot',
+    'get'
+  >;
+  'PATCH /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot': Operation<
+    '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot',
+    'patch'
+  >;
+  'DELETE /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot': Operation<
+    '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot',
+    'delete'
+  >;
 }
 
 /**
@@ -37,11 +47,10 @@ export function del(
   return {
     method: 'delete',
     path: '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'teamsApp-id', in: 'path' },
-      { name: 'teamsAppDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['teamsApp-id', 'teamsAppDefinition-id'],
+    },
     params,
   };
 }
@@ -59,17 +68,10 @@ export function list(
   return {
     method: 'get',
     path: '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'teamsApp-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamsApp-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,12 +89,10 @@ export function get(
   return {
     method: 'get',
     path: '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'teamsApp-id', in: 'path' },
-      { name: 'teamsAppDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamsApp-id', 'teamsAppDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,10 +113,9 @@ export function update(
   return {
     method: 'patch',
     path: '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}',
-    paramDefs: [
-      { name: 'teamsApp-id', in: 'path' },
-      { name: 'teamsAppDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamsApp-id', 'teamsAppDefinition-id'],
+    },
     params,
     body,
   };
@@ -136,8 +135,72 @@ export function create(
   return {
     method: 'post',
     path: '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions',
-    paramDefs: [{ name: 'teamsApp-id', in: 'path' }],
+    paramDefs: {
+      path: ['teamsApp-id'],
+    },
     params,
     body,
   };
 }
+
+export const bot = {
+  /**
+   * `GET /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot`
+   *
+   * Get the bot associated with a specific definition of the  TeamsApp.
+   */
+  get: function get(
+    params?: IEndpoints['GET /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['teamsApp-id', 'teamsAppDefinition-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot']['body'],
+    params?: IEndpoints['PATCH /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot',
+      paramDefs: {
+        path: ['teamsApp-id', 'teamsAppDefinition-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/bot',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['teamsApp-id', 'teamsAppDefinition-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,5 +1,3 @@
-export * as runs from './runs';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/security/attackSimulation/simulationAutomations',
     'post'
   >;
+  'GET /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs': Operation<
+    '/security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs',
+    'get'
+  >;
+  'POST /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs': Operation<
+    '/security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs',
+    'post'
+  >;
+  'GET /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}': Operation<
+    '/security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}',
+    'get'
+  >;
+  'PATCH /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}': Operation<
+    '/security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}',
+    'patch'
+  >;
+  'DELETE /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}': Operation<
+    '/security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -37,10 +55,10 @@ export function del(
   return {
     method: 'delete',
     path: '/security/attackSimulation/simulationAutomations/{simulationAutomation-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'simulationAutomation-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['simulationAutomation-id'],
+    },
     params,
   };
 }
@@ -56,16 +74,9 @@ export function list(
   return {
     method: 'get',
     path: '/security/attackSimulation/simulationAutomations',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -83,11 +94,10 @@ export function get(
   return {
     method: 'get',
     path: '/security/attackSimulation/simulationAutomations/{simulationAutomation-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'simulationAutomation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['simulationAutomation-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -105,7 +115,9 @@ export function update(
   return {
     method: 'patch',
     path: '/security/attackSimulation/simulationAutomations/{simulationAutomation-id}',
-    paramDefs: [{ name: 'simulationAutomation-id', in: 'path' }],
+    paramDefs: {
+      path: ['simulationAutomation-id'],
+    },
     params,
     body,
   };
@@ -116,16 +128,115 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /security/attackSimulation/simulationAutomations']['body'],
-  params?: IEndpoints['POST /security/attackSimulation/simulationAutomations']['parameters']
+  body: IEndpoints['POST /security/attackSimulation/simulationAutomations']['body']
 ): EndpointRequest<
   IEndpoints['POST /security/attackSimulation/simulationAutomations']['response']
 > {
   return {
     method: 'post',
     path: '/security/attackSimulation/simulationAutomations',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const runs = {
+  /**
+   * `GET /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs`
+   *
+   * Get a list of the attack simulation automation runs for a tenant.
+   */
+  list: function list(
+    params?: IEndpoints['GET /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['simulationAutomation-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs']['body'],
+    params?: IEndpoints['POST /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs',
+      paramDefs: {
+        path: ['simulationAutomation-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}`
+   *
+   * A collection of simulation automation runs.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['simulationAutomation-id', 'simulationAutomationRun-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}']['body'],
+    params?: IEndpoints['PATCH /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}',
+      paramDefs: {
+        path: ['simulationAutomation-id', 'simulationAutomationRun-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/security/attackSimulation/simulationAutomations/{simulationAutomation-id}/runs/{simulationAutomationRun-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['simulationAutomation-id', 'simulationAutomationRun-id'],
+      },
+      params,
+    };
+  },
+};

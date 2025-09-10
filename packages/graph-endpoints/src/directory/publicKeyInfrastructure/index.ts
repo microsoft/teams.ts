@@ -24,7 +24,9 @@ export function del(
   return {
     method: 'delete',
     path: '/directory/publicKeyInfrastructure',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -40,10 +42,9 @@ export function get(
   return {
     method: 'get',
     path: '/directory/publicKeyInfrastructure',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -53,14 +54,11 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /directory/publicKeyInfrastructure']['body'],
-  params?: IEndpoints['PATCH /directory/publicKeyInfrastructure']['parameters']
+  body: IEndpoints['PATCH /directory/publicKeyInfrastructure']['body']
 ): EndpointRequest<IEndpoints['PATCH /directory/publicKeyInfrastructure']['response']> {
   return {
     method: 'patch',
     path: '/directory/publicKeyInfrastructure',
-    paramDefs: [],
-    params,
     body,
   };
 }

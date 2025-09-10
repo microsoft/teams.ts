@@ -1,9 +1,3 @@
-export * as content from './content';
-export * as copyToSection from './copyToSection';
-export * as onenotePatchContent from './onenotePatchContent';
-export * as parentNotebook from './parentNotebook';
-export * as parentSection from './parentSection';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -18,6 +12,34 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /me/onenote/pages': Operation<'/me/onenote/pages', 'post'>;
+  'GET /me/onenote/pages/{onenotePage-id}/content': Operation<
+    '/me/onenote/pages/{onenotePage-id}/content',
+    'get'
+  >;
+  'PUT /me/onenote/pages/{onenotePage-id}/content': Operation<
+    '/me/onenote/pages/{onenotePage-id}/content',
+    'put'
+  >;
+  'DELETE /me/onenote/pages/{onenotePage-id}/content': Operation<
+    '/me/onenote/pages/{onenotePage-id}/content',
+    'delete'
+  >;
+  'POST /me/onenote/pages/{onenotePage-id}/copyToSection': Operation<
+    '/me/onenote/pages/{onenotePage-id}/copyToSection',
+    'post'
+  >;
+  'POST /me/onenote/pages/{onenotePage-id}/onenotePatchContent': Operation<
+    '/me/onenote/pages/{onenotePage-id}/onenotePatchContent',
+    'post'
+  >;
+  'GET /me/onenote/pages/{onenotePage-id}/parentNotebook': Operation<
+    '/me/onenote/pages/{onenotePage-id}/parentNotebook',
+    'get'
+  >;
+  'GET /me/onenote/pages/{onenotePage-id}/parentSection': Operation<
+    '/me/onenote/pages/{onenotePage-id}/parentSection',
+    'get'
+  >;
 }
 
 /**
@@ -31,10 +53,10 @@ export function del(
   return {
     method: 'delete',
     path: '/me/onenote/pages/{onenotePage-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'onenotePage-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['onenotePage-id'],
+    },
     params,
   };
 }
@@ -50,16 +72,9 @@ export function list(
   return {
     method: 'get',
     path: '/me/onenote/pages',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -75,11 +90,10 @@ export function get(
   return {
     method: 'get',
     path: '/me/onenote/pages/{onenotePage-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'onenotePage-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['onenotePage-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -95,7 +109,9 @@ export function update(
   return {
     method: 'patch',
     path: '/me/onenote/pages/{onenotePage-id}',
-    paramDefs: [{ name: 'onenotePage-id', in: 'path' }],
+    paramDefs: {
+      path: ['onenotePage-id'],
+    },
     params,
     body,
   };
@@ -107,14 +123,161 @@ export function update(
  * Create a new OneNote page in the default section of the default notebook. To create a page in a different section in the default notebook, you can use the sectionName query parameter.  Example: ../onenote/pages?sectionName&#x3D;My%20section The POST /onenote/pages operation is used only to create pages in the current user&#x27;s default notebook. If you&#x27;re targeting other notebooks, you can create pages in a specified section.
  */
 export function create(
-  body: IEndpoints['POST /me/onenote/pages']['body'],
-  params?: IEndpoints['POST /me/onenote/pages']['parameters']
+  body: IEndpoints['POST /me/onenote/pages']['body']
 ): EndpointRequest<IEndpoints['POST /me/onenote/pages']['response']> {
   return {
     method: 'post',
     path: '/me/onenote/pages',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const content = {
+  /**
+   * `GET /me/onenote/pages/{onenotePage-id}/content`
+   *
+   * The page&#x27;s HTML content.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/onenote/pages/{onenotePage-id}/content']['parameters']
+  ): EndpointRequest<IEndpoints['GET /me/onenote/pages/{onenotePage-id}/content']['response']> {
+    return {
+      method: 'get',
+      path: '/me/onenote/pages/{onenotePage-id}/content',
+      paramDefs: {
+        path: ['onenotePage-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /me/onenote/pages/{onenotePage-id}/content`
+   *
+   * Update the content of a OneNote page.
+   */
+  set: function set(
+    body: IEndpoints['PUT /me/onenote/pages/{onenotePage-id}/content']['body'],
+    params?: IEndpoints['PUT /me/onenote/pages/{onenotePage-id}/content']['parameters']
+  ): EndpointRequest<IEndpoints['PUT /me/onenote/pages/{onenotePage-id}/content']['response']> {
+    return {
+      method: 'put',
+      path: '/me/onenote/pages/{onenotePage-id}/content',
+      paramDefs: {
+        path: ['onenotePage-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /me/onenote/pages/{onenotePage-id}/content`
+   *
+   * The page&#x27;s HTML content.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /me/onenote/pages/{onenotePage-id}/content']['parameters']
+  ): EndpointRequest<IEndpoints['DELETE /me/onenote/pages/{onenotePage-id}/content']['response']> {
+    return {
+      method: 'delete',
+      path: '/me/onenote/pages/{onenotePage-id}/content',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['onenotePage-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const copyToSection = {
+  /**
+   * `POST /me/onenote/pages/{onenotePage-id}/copyToSection`
+   *
+   * Copy a page to a specific section. For copy operations, you follow an asynchronous calling pattern:  First call the Copy action, and then poll the operation endpoint for the result.
+   */
+  create: function create(
+    body: IEndpoints['POST /me/onenote/pages/{onenotePage-id}/copyToSection']['body'],
+    params?: IEndpoints['POST /me/onenote/pages/{onenotePage-id}/copyToSection']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/onenote/pages/{onenotePage-id}/copyToSection']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/me/onenote/pages/{onenotePage-id}/copyToSection',
+      paramDefs: {
+        path: ['onenotePage-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const onenotePatchContent = {
+  /**
+   * `POST /me/onenote/pages/{onenotePage-id}/onenotePatchContent`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /me/onenote/pages/{onenotePage-id}/onenotePatchContent']['body'],
+    params?: IEndpoints['POST /me/onenote/pages/{onenotePage-id}/onenotePatchContent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/onenote/pages/{onenotePage-id}/onenotePatchContent']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/me/onenote/pages/{onenotePage-id}/onenotePatchContent',
+      paramDefs: {
+        path: ['onenotePage-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const parentNotebook = {
+  /**
+   * `GET /me/onenote/pages/{onenotePage-id}/parentNotebook`
+   *
+   * The notebook that contains the page.  Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/onenote/pages/{onenotePage-id}/parentNotebook']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/onenote/pages/{onenotePage-id}/parentNotebook']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/onenote/pages/{onenotePage-id}/parentNotebook',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['onenotePage-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const parentSection = {
+  /**
+   * `GET /me/onenote/pages/{onenotePage-id}/parentSection`
+   *
+   * The section that contains the page. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/onenote/pages/{onenotePage-id}/parentSection']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/onenote/pages/{onenotePage-id}/parentSection']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/onenote/pages/{onenotePage-id}/parentSection',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['onenotePage-id'],
+      },
+      params,
+    };
+  },
+};

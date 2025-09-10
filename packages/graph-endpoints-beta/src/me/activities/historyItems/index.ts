@@ -1,5 +1,3 @@
-export * as activity from './activity';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/me/activities/{userActivity-id}/historyItems',
     'post'
   >;
+  'GET /me/activities/{userActivity-id}/historyItems/{activityHistoryItem-id}/activity': Operation<
+    '/me/activities/{userActivity-id}/historyItems/{activityHistoryItem-id}/activity',
+    'get'
+  >;
 }
 
 /**
@@ -38,11 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/activities/{userActivity-id}/historyItems/{activityHistoryItem-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'userActivity-id', in: 'path' },
-      { name: 'activityHistoryItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['userActivity-id', 'activityHistoryItem-id'],
+    },
     params,
   };
 }
@@ -59,17 +60,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/activities/{userActivity-id}/historyItems',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'userActivity-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['userActivity-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,12 +82,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/activities/{userActivity-id}/historyItems/{activityHistoryItem-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'userActivity-id', in: 'path' },
-      { name: 'activityHistoryItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['userActivity-id', 'activityHistoryItem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,10 +105,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/activities/{userActivity-id}/historyItems/{activityHistoryItem-id}',
-    paramDefs: [
-      { name: 'userActivity-id', in: 'path' },
-      { name: 'activityHistoryItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['userActivity-id', 'activityHistoryItem-id'],
+    },
     params,
     body,
   };
@@ -134,8 +125,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/me/activities/{userActivity-id}/historyItems',
-    paramDefs: [{ name: 'userActivity-id', in: 'path' }],
+    paramDefs: {
+      path: ['userActivity-id'],
+    },
     params,
     body,
   };
 }
+
+export const activity = {
+  /**
+   * `GET /me/activities/{userActivity-id}/historyItems/{activityHistoryItem-id}/activity`
+   *
+   * Optional. NavigationProperty/Containment; navigation property to the associated activity.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/activities/{userActivity-id}/historyItems/{activityHistoryItem-id}/activity']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/activities/{userActivity-id}/historyItems/{activityHistoryItem-id}/activity']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/activities/{userActivity-id}/historyItems/{activityHistoryItem-id}/activity',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['userActivity-id', 'activityHistoryItem-id'],
+      },
+      params,
+    };
+  },
+};

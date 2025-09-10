@@ -1,5 +1,3 @@
-export * as restorePoint from './restorePoint';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/solutions/backupRestore/sharePointRestoreSessions/{sharePointRestoreSession-id}/siteRestoreArtifacts',
     'post'
   >;
+  'GET /solutions/backupRestore/sharePointRestoreSessions/{sharePointRestoreSession-id}/siteRestoreArtifacts/{siteRestoreArtifact-id}/restorePoint': Operation<
+    '/solutions/backupRestore/sharePointRestoreSessions/{sharePointRestoreSession-id}/siteRestoreArtifacts/{siteRestoreArtifact-id}/restorePoint',
+    'get'
+  >;
 }
 
 /**
@@ -38,11 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/solutions/backupRestore/sharePointRestoreSessions/{sharePointRestoreSession-id}/siteRestoreArtifacts/{siteRestoreArtifact-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'sharePointRestoreSession-id', in: 'path' },
-      { name: 'siteRestoreArtifact-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['sharePointRestoreSession-id', 'siteRestoreArtifact-id'],
+    },
     params,
   };
 }
@@ -61,17 +62,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/solutions/backupRestore/sharePointRestoreSessions/{sharePointRestoreSession-id}/siteRestoreArtifacts',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sharePointRestoreSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharePointRestoreSession-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +84,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/solutions/backupRestore/sharePointRestoreSessions/{sharePointRestoreSession-id}/siteRestoreArtifacts/{siteRestoreArtifact-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sharePointRestoreSession-id', in: 'path' },
-      { name: 'siteRestoreArtifact-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharePointRestoreSession-id', 'siteRestoreArtifact-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +106,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/solutions/backupRestore/sharePointRestoreSessions/{sharePointRestoreSession-id}/siteRestoreArtifacts/{siteRestoreArtifact-id}',
-    paramDefs: [
-      { name: 'sharePointRestoreSession-id', in: 'path' },
-      { name: 'siteRestoreArtifact-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharePointRestoreSession-id', 'siteRestoreArtifact-id'],
+    },
     params,
     body,
   };
@@ -137,8 +128,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/solutions/backupRestore/sharePointRestoreSessions/{sharePointRestoreSession-id}/siteRestoreArtifacts',
-    paramDefs: [{ name: 'sharePointRestoreSession-id', in: 'path' }],
+    paramDefs: {
+      path: ['sharePointRestoreSession-id'],
+    },
     params,
     body,
   };
 }
+
+export const restorePoint = {
+  /**
+   * `GET /solutions/backupRestore/sharePointRestoreSessions/{sharePointRestoreSession-id}/siteRestoreArtifacts/{siteRestoreArtifact-id}/restorePoint`
+   *
+   * Represents the date and time when an artifact is protected by a protectionPolicy and can be restored.
+   */
+  get: function get(
+    params?: IEndpoints['GET /solutions/backupRestore/sharePointRestoreSessions/{sharePointRestoreSession-id}/siteRestoreArtifacts/{siteRestoreArtifact-id}/restorePoint']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/backupRestore/sharePointRestoreSessions/{sharePointRestoreSession-id}/siteRestoreArtifacts/{siteRestoreArtifact-id}/restorePoint']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/solutions/backupRestore/sharePointRestoreSessions/{sharePointRestoreSession-id}/siteRestoreArtifacts/{siteRestoreArtifact-id}/restorePoint',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['sharePointRestoreSession-id', 'siteRestoreArtifact-id'],
+      },
+      params,
+    };
+  },
+};

@@ -39,12 +39,10 @@ export function del(
   return {
     method: 'delete',
     path: '/sites/{site-id}/termStore/sets/{set-id}/parentGroup/sets/{set-id1}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'set-id1', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id', 'set-id', 'set-id1'],
+    },
     params,
   };
 }
@@ -62,18 +60,10 @@ export function list(
   return {
     method: 'get',
     path: '/sites/{site-id}/termStore/sets/{set-id}/parentGroup/sets',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -91,13 +81,10 @@ export function get(
   return {
     method: 'get',
     path: '/sites/{site-id}/termStore/sets/{set-id}/parentGroup/sets/{set-id1}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'set-id1', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id', 'set-id1'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,11 +102,9 @@ export function update(
   return {
     method: 'patch',
     path: '/sites/{site-id}/termStore/sets/{set-id}/parentGroup/sets/{set-id1}',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'set-id1', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id', 'set-id1'],
+    },
     params,
     body,
   };
@@ -138,10 +123,9 @@ export function create(
   return {
     method: 'post',
     path: '/sites/{site-id}/termStore/sets/{set-id}/parentGroup/sets',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id'],
+    },
     params,
     body,
   };

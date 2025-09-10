@@ -1,5 +1,3 @@
-export * as terminate from './terminate';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceManagement/deviceManagementPartners',
     'post'
   >;
+  'POST /deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}/terminate': Operation<
+    '/deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}/terminate',
+    'post'
+  >;
 }
 
 /**
@@ -38,10 +40,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deviceManagementPartner-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['deviceManagementPartner-id'],
+    },
     params,
   };
 }
@@ -57,16 +59,9 @@ export function list(
   return {
     method: 'get',
     path: '/deviceManagement/deviceManagementPartners',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -84,11 +79,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceManagementPartner-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceManagementPartner-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -107,7 +101,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}',
-    paramDefs: [{ name: 'deviceManagementPartner-id', in: 'path' }],
+    paramDefs: {
+      path: ['deviceManagementPartner-id'],
+    },
     params,
     body,
   };
@@ -119,14 +115,33 @@ export function update(
  * Create a new deviceManagementPartner object.
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/deviceManagementPartners']['body'],
-  params?: IEndpoints['POST /deviceManagement/deviceManagementPartners']['parameters']
+  body: IEndpoints['POST /deviceManagement/deviceManagementPartners']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/deviceManagementPartners']['response']> {
   return {
     method: 'post',
     path: '/deviceManagement/deviceManagementPartners',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const terminate = {
+  /**
+   * `POST /deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}/terminate`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}/terminate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}/terminate']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}/terminate',
+      paramDefs: {
+        path: ['deviceManagementPartner-id'],
+      },
+      params,
+    };
+  },
+};

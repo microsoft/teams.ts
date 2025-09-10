@@ -38,11 +38,10 @@ export function del(
   return {
     method: 'delete',
     path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-      { name: 'recycleBinItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['fileStorageContainer-id', 'recycleBinItem-id'],
+    },
     params,
   };
 }
@@ -60,17 +59,10 @@ export function list(
   return {
     method: 'get',
     path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainer-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,12 +80,10 @@ export function get(
   return {
     method: 'get',
     path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-      { name: 'recycleBinItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainer-id', 'recycleBinItem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,10 +101,9 @@ export function update(
   return {
     method: 'patch',
     path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}',
-    paramDefs: [
-      { name: 'fileStorageContainer-id', in: 'path' },
-      { name: 'recycleBinItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainer-id', 'recycleBinItem-id'],
+    },
     params,
     body,
   };
@@ -133,7 +122,9 @@ export function create(
   return {
     method: 'post',
     path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/recycleBin/items',
-    paramDefs: [{ name: 'fileStorageContainer-id', in: 'path' }],
+    paramDefs: {
+      path: ['fileStorageContainer-id'],
+    },
     params,
     body,
   };

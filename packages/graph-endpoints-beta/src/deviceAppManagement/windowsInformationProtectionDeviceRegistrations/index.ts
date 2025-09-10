@@ -1,5 +1,3 @@
-export * as wipe from './wipe';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceAppManagement/windowsInformationProtectionDeviceRegistrations',
     'post'
   >;
+  'POST /deviceAppManagement/windowsInformationProtectionDeviceRegistrations/{windowsInformationProtectionDeviceRegistration-id}/wipe': Operation<
+    '/deviceAppManagement/windowsInformationProtectionDeviceRegistrations/{windowsInformationProtectionDeviceRegistration-id}/wipe',
+    'post'
+  >;
 }
 
 /**
@@ -38,10 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceAppManagement/windowsInformationProtectionDeviceRegistrations/{windowsInformationProtectionDeviceRegistration-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'windowsInformationProtectionDeviceRegistration-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['windowsInformationProtectionDeviceRegistration-id'],
+    },
     params,
   };
 }
@@ -60,16 +62,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceAppManagement/windowsInformationProtectionDeviceRegistrations',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,11 +83,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceAppManagement/windowsInformationProtectionDeviceRegistrations/{windowsInformationProtectionDeviceRegistration-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'windowsInformationProtectionDeviceRegistration-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['windowsInformationProtectionDeviceRegistration-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,7 +105,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceAppManagement/windowsInformationProtectionDeviceRegistrations/{windowsInformationProtectionDeviceRegistration-id}',
-    paramDefs: [{ name: 'windowsInformationProtectionDeviceRegistration-id', in: 'path' }],
+    paramDefs: {
+      path: ['windowsInformationProtectionDeviceRegistration-id'],
+    },
     params,
     body,
   };
@@ -122,8 +118,7 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceAppManagement/windowsInformationProtectionDeviceRegistrations']['body'],
-  params?: IEndpoints['POST /deviceAppManagement/windowsInformationProtectionDeviceRegistrations']['parameters']
+  body: IEndpoints['POST /deviceAppManagement/windowsInformationProtectionDeviceRegistrations']['body']
 ): EndpointRequest<
   IEndpoints['POST /deviceAppManagement/windowsInformationProtectionDeviceRegistrations']['response']
 > {
@@ -131,8 +126,28 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceAppManagement/windowsInformationProtectionDeviceRegistrations',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const wipe = {
+  /**
+   * `POST /deviceAppManagement/windowsInformationProtectionDeviceRegistrations/{windowsInformationProtectionDeviceRegistration-id}/wipe`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceAppManagement/windowsInformationProtectionDeviceRegistrations/{windowsInformationProtectionDeviceRegistration-id}/wipe']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceAppManagement/windowsInformationProtectionDeviceRegistrations/{windowsInformationProtectionDeviceRegistration-id}/wipe']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceAppManagement/windowsInformationProtectionDeviceRegistrations/{windowsInformationProtectionDeviceRegistration-id}/wipe',
+      paramDefs: {
+        path: ['windowsInformationProtectionDeviceRegistration-id'],
+      },
+      params,
+    };
+  },
+};

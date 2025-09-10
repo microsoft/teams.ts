@@ -1,5 +1,3 @@
-export * as grant from './grant';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permissions',
     'post'
   >;
+  'POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permissions/{permission-id}/grant': Operation<
+    '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permissions/{permission-id}/grant',
+    'post'
+  >;
 }
 
 /**
@@ -37,11 +39,10 @@ export function del(
   return {
     method: 'delete',
     path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permissions/{permission-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-      { name: 'permission-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['fileStorageContainer-id', 'permission-id'],
+    },
     params,
   };
 }
@@ -59,17 +60,10 @@ export function list(
   return {
     method: 'get',
     path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permissions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainer-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,12 +81,10 @@ export function get(
   return {
     method: 'get',
     path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permissions/{permission-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-      { name: 'permission-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainer-id', 'permission-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,10 +102,9 @@ export function update(
   return {
     method: 'patch',
     path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permissions/{permission-id}',
-    paramDefs: [
-      { name: 'fileStorageContainer-id', in: 'path' },
-      { name: 'permission-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainer-id', 'permission-id'],
+    },
     params,
     body,
   };
@@ -132,8 +123,34 @@ export function create(
   return {
     method: 'post',
     path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permissions',
-    paramDefs: [{ name: 'fileStorageContainer-id', in: 'path' }],
+    paramDefs: {
+      path: ['fileStorageContainer-id'],
+    },
     params,
     body,
   };
 }
+
+export const grant = {
+  /**
+   * `POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permissions/{permission-id}/grant`
+   *
+   * Grant users access to a link represented by a permission.
+   */
+  create: function create(
+    body: IEndpoints['POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permissions/{permission-id}/grant']['body'],
+    params?: IEndpoints['POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permissions/{permission-id}/grant']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permissions/{permission-id}/grant']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permissions/{permission-id}/grant',
+      paramDefs: {
+        path: ['fileStorageContainer-id', 'permission-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

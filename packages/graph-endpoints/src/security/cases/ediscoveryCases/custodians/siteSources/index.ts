@@ -1,5 +1,3 @@
-export * as site from './site';
-
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/siteSources',
     'post'
   >;
+  'GET /security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/siteSources/{siteSource-id}/site': Operation<
+    '/security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/siteSources/{siteSource-id}/site',
+    'get'
+  >;
 }
 
 /**
@@ -38,12 +40,10 @@ export function del(
   return {
     method: 'delete',
     path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/siteSources/{siteSource-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'ediscoveryCase-id', in: 'path' },
-      { name: 'ediscoveryCustodian-id', in: 'path' },
-      { name: 'siteSource-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['ediscoveryCase-id', 'ediscoveryCustodian-id', 'siteSource-id'],
+    },
     params,
   };
 }
@@ -61,18 +61,10 @@ export function list(
   return {
     method: 'get',
     path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/siteSources',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'ediscoveryCase-id', in: 'path' },
-      { name: 'ediscoveryCustodian-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['ediscoveryCase-id', 'ediscoveryCustodian-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,13 +82,10 @@ export function get(
   return {
     method: 'get',
     path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/siteSources/{siteSource-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'ediscoveryCase-id', in: 'path' },
-      { name: 'ediscoveryCustodian-id', in: 'path' },
-      { name: 'siteSource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['ediscoveryCase-id', 'ediscoveryCustodian-id', 'siteSource-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,11 +103,9 @@ export function update(
   return {
     method: 'patch',
     path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/siteSources/{siteSource-id}',
-    paramDefs: [
-      { name: 'ediscoveryCase-id', in: 'path' },
-      { name: 'ediscoveryCustodian-id', in: 'path' },
-      { name: 'siteSource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['ediscoveryCase-id', 'ediscoveryCustodian-id', 'siteSource-id'],
+    },
     params,
     body,
   };
@@ -138,11 +125,33 @@ export function create(
   return {
     method: 'post',
     path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/siteSources',
-    paramDefs: [
-      { name: 'ediscoveryCase-id', in: 'path' },
-      { name: 'ediscoveryCustodian-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['ediscoveryCase-id', 'ediscoveryCustodian-id'],
+    },
     params,
     body,
   };
 }
+
+export const site = {
+  /**
+   * `GET /security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/siteSources/{siteSource-id}/site`
+   *
+   * The SharePoint site associated with the siteSource.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/siteSources/{siteSource-id}/site']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/siteSources/{siteSource-id}/site']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/siteSources/{siteSource-id}/site',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['ediscoveryCase-id', 'ediscoveryCustodian-id', 'siteSource-id'],
+      },
+      params,
+    };
+  },
+};

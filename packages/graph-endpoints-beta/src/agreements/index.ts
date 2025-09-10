@@ -1,4 +1,3 @@
-export * as acceptances from './acceptances';
 export * as file from './file';
 export * as files from './files';
 
@@ -10,6 +9,26 @@ export interface IEndpoints {
   'GET /agreements/{agreement-id}': Operation<'/agreements/{agreement-id}', 'get'>;
   'PATCH /agreements/{agreement-id}': Operation<'/agreements/{agreement-id}', 'patch'>;
   'POST /agreements': Operation<'/agreements', 'post'>;
+  'GET /agreements/{agreement-id}/acceptances': Operation<
+    '/agreements/{agreement-id}/acceptances',
+    'get'
+  >;
+  'POST /agreements/{agreement-id}/acceptances': Operation<
+    '/agreements/{agreement-id}/acceptances',
+    'post'
+  >;
+  'GET /agreements/{agreement-id}/acceptances/{agreementAcceptance-id}': Operation<
+    '/agreements/{agreement-id}/acceptances/{agreementAcceptance-id}',
+    'get'
+  >;
+  'PATCH /agreements/{agreement-id}/acceptances/{agreementAcceptance-id}': Operation<
+    '/agreements/{agreement-id}/acceptances/{agreementAcceptance-id}',
+    'patch'
+  >;
+  'DELETE /agreements/{agreement-id}/acceptances/{agreementAcceptance-id}': Operation<
+    '/agreements/{agreement-id}/acceptances/{agreementAcceptance-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -23,10 +42,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/agreements/{agreement-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'agreement-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['agreement-id'],
+    },
     params,
   };
 }
@@ -42,16 +61,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/agreements',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -67,10 +79,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/agreements/{agreement-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: 'agreement-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['agreement-id'],
+      query: ['$select'],
+    },
     params,
   };
 }
@@ -87,7 +99,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/agreements/{agreement-id}',
-    paramDefs: [{ name: 'agreement-id', in: 'path' }],
+    paramDefs: {
+      path: ['agreement-id'],
+    },
     params,
     body,
   };
@@ -98,15 +112,115 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /agreements']['body'],
-  params?: IEndpoints['POST /agreements']['parameters']
+  body: IEndpoints['POST /agreements']['body']
 ): EndpointRequest<IEndpoints['POST /agreements']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/agreements',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const acceptances = {
+  /**
+   * `GET /agreements/{agreement-id}/acceptances`
+   *
+   * Read-only. Information about acceptances of this agreement.
+   */
+  list: function list(
+    params?: IEndpoints['GET /agreements/{agreement-id}/acceptances']['parameters']
+  ): EndpointRequest<IEndpoints['GET /agreements/{agreement-id}/acceptances']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/agreements/{agreement-id}/acceptances',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['agreement-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /agreements/{agreement-id}/acceptances`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /agreements/{agreement-id}/acceptances']['body'],
+    params?: IEndpoints['POST /agreements/{agreement-id}/acceptances']['parameters']
+  ): EndpointRequest<IEndpoints['POST /agreements/{agreement-id}/acceptances']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/agreements/{agreement-id}/acceptances',
+      paramDefs: {
+        path: ['agreement-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /agreements/{agreement-id}/acceptances/{agreementAcceptance-id}`
+   *
+   * Read-only. Information about acceptances of this agreement.
+   */
+  get: function get(
+    params?: IEndpoints['GET /agreements/{agreement-id}/acceptances/{agreementAcceptance-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /agreements/{agreement-id}/acceptances/{agreementAcceptance-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/agreements/{agreement-id}/acceptances/{agreementAcceptance-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['agreement-id', 'agreementAcceptance-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /agreements/{agreement-id}/acceptances/{agreementAcceptance-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /agreements/{agreement-id}/acceptances/{agreementAcceptance-id}']['body'],
+    params?: IEndpoints['PATCH /agreements/{agreement-id}/acceptances/{agreementAcceptance-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /agreements/{agreement-id}/acceptances/{agreementAcceptance-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/agreements/{agreement-id}/acceptances/{agreementAcceptance-id}',
+      paramDefs: {
+        path: ['agreement-id', 'agreementAcceptance-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /agreements/{agreement-id}/acceptances/{agreementAcceptance-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /agreements/{agreement-id}/acceptances/{agreementAcceptance-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /agreements/{agreement-id}/acceptances/{agreementAcceptance-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/agreements/{agreement-id}/acceptances/{agreementAcceptance-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['agreement-id', 'agreementAcceptance-id'],
+      },
+      params,
+    };
+  },
+};

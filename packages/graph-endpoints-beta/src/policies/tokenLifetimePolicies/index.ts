@@ -1,5 +1,3 @@
-export * as appliesTo from './appliesTo';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,14 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /policies/tokenLifetimePolicies': Operation<'/policies/tokenLifetimePolicies', 'post'>;
+  'GET /policies/tokenLifetimePolicies/{tokenLifetimePolicy-id}/appliesTo': Operation<
+    '/policies/tokenLifetimePolicies/{tokenLifetimePolicy-id}/appliesTo',
+    'get'
+  >;
+  'GET /policies/tokenLifetimePolicies/{tokenLifetimePolicy-id}/appliesTo/{directoryObject-id}': Operation<
+    '/policies/tokenLifetimePolicies/{tokenLifetimePolicy-id}/appliesTo/{directoryObject-id}',
+    'get'
+  >;
 }
 
 /**
@@ -33,10 +39,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/policies/tokenLifetimePolicies/{tokenLifetimePolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'tokenLifetimePolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['tokenLifetimePolicy-id'],
+    },
     params,
   };
 }
@@ -53,16 +59,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/policies/tokenLifetimePolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,11 +80,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/policies/tokenLifetimePolicies/{tokenLifetimePolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'tokenLifetimePolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['tokenLifetimePolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -105,7 +103,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/policies/tokenLifetimePolicies/{tokenLifetimePolicy-id}',
-    paramDefs: [{ name: 'tokenLifetimePolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['tokenLifetimePolicy-id'],
+    },
     params,
     body,
   };
@@ -117,15 +117,56 @@ export function update(
  * Create a new tokenLifetimePolicy object.
  */
 export function create(
-  body: IEndpoints['POST /policies/tokenLifetimePolicies']['body'],
-  params?: IEndpoints['POST /policies/tokenLifetimePolicies']['parameters']
+  body: IEndpoints['POST /policies/tokenLifetimePolicies']['body']
 ): EndpointRequest<IEndpoints['POST /policies/tokenLifetimePolicies']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/policies/tokenLifetimePolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const appliesTo = {
+  /**
+   * `GET /policies/tokenLifetimePolicies/{tokenLifetimePolicy-id}/appliesTo`
+   *
+   * Get a list of directoryObject objects that a tokenLifetimePolicy object has been applied to. The tokenLifetimePolicy can only be applied to application and servicePrincipal resources.
+   */
+  get: function get(
+    params?: IEndpoints['GET /policies/tokenLifetimePolicies/{tokenLifetimePolicy-id}/appliesTo']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/tokenLifetimePolicies/{tokenLifetimePolicy-id}/appliesTo']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/policies/tokenLifetimePolicies/{tokenLifetimePolicy-id}/appliesTo',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['tokenLifetimePolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /policies/tokenLifetimePolicies/{tokenLifetimePolicy-id}/appliesTo/{directoryObject-id}`
+   *
+   */
+  get$1: function get$1(
+    params?: IEndpoints['GET /policies/tokenLifetimePolicies/{tokenLifetimePolicy-id}/appliesTo/{directoryObject-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/tokenLifetimePolicies/{tokenLifetimePolicy-id}/appliesTo/{directoryObject-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/policies/tokenLifetimePolicies/{tokenLifetimePolicy-id}/appliesTo/{directoryObject-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['tokenLifetimePolicy-id', 'directoryObject-id'],
+      },
+      params,
+    };
+  },
+};

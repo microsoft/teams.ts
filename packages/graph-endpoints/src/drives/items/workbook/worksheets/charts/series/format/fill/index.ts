@@ -1,6 +1,3 @@
-export * as clear from './clear';
-export * as setSolidColor from './setSolidColor';
-
 import type { EndpointRequest, Operation } from './../../../../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -16,6 +13,14 @@ export interface IEndpoints {
     '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill',
     'patch'
   >;
+  'POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill/clear': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill/clear',
+    'post'
+  >;
+  'POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill/setSolidColor': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill/setSolidColor',
+    'post'
+  >;
 }
 
 /**
@@ -30,14 +35,16 @@ export function del(
   return {
     method: 'delete',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookChart-id', in: 'path' },
-      { name: 'workbookChartSeries-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: [
+        'drive-id',
+        'driveItem-id',
+        'workbookWorksheet-id',
+        'workbookChart-id',
+        'workbookChartSeries-id',
+      ],
+    },
     params,
   };
 }
@@ -55,15 +62,16 @@ export function get(
   return {
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookChart-id', in: 'path' },
-      { name: 'workbookChartSeries-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: [
+        'drive-id',
+        'driveItem-id',
+        'workbookWorksheet-id',
+        'workbookChart-id',
+        'workbookChartSeries-id',
+      ],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,14 +89,74 @@ export function update(
   return {
     method: 'patch',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookChart-id', in: 'path' },
-      { name: 'workbookChartSeries-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: [
+        'drive-id',
+        'driveItem-id',
+        'workbookWorksheet-id',
+        'workbookChart-id',
+        'workbookChartSeries-id',
+      ],
+    },
     params,
     body,
   };
 }
+
+export const clear = {
+  /**
+   * `POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill/clear`
+   *
+   * Clear the fill color of a chart element.
+   */
+  create: function create(
+    params?: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill/clear']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill/clear']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill/clear',
+      paramDefs: {
+        path: [
+          'drive-id',
+          'driveItem-id',
+          'workbookWorksheet-id',
+          'workbookChart-id',
+          'workbookChartSeries-id',
+        ],
+      },
+      params,
+    };
+  },
+};
+
+export const setSolidColor = {
+  /**
+   * `POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill/setSolidColor`
+   *
+   * Sets the fill formatting of a chart element to a uniform color.
+   */
+  create: function create(
+    body: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill/setSolidColor']['body'],
+    params?: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill/setSolidColor']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill/setSolidColor']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/fill/setSolidColor',
+      paramDefs: {
+        path: [
+          'drive-id',
+          'driveItem-id',
+          'workbookWorksheet-id',
+          'workbookChart-id',
+          'workbookChartSeries-id',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+};

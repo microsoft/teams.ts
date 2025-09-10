@@ -1,6 +1,3 @@
-export * as setDefaultProfile from './setDefaultProfile';
-export * as updateDeviceProfileAssignment from './updateDeviceProfileAssignment';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles',
     'post'
   >;
+  'POST /deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles/{enrollmentProfile-id}/setDefaultProfile': Operation<
+    '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles/{enrollmentProfile-id}/setDefaultProfile',
+    'post'
+  >;
+  'POST /deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles/{enrollmentProfile-id}/updateDeviceProfileAssignment': Operation<
+    '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles/{enrollmentProfile-id}/updateDeviceProfileAssignment',
+    'post'
+  >;
 }
 
 /**
@@ -39,11 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles/{enrollmentProfile-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'depOnboardingSetting-id', in: 'path' },
-      { name: 'enrollmentProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['depOnboardingSetting-id', 'enrollmentProfile-id'],
+    },
     params,
   };
 }
@@ -62,17 +66,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'depOnboardingSetting-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['depOnboardingSetting-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -91,12 +88,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles/{enrollmentProfile-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'depOnboardingSetting-id', in: 'path' },
-      { name: 'enrollmentProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['depOnboardingSetting-id', 'enrollmentProfile-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,10 +110,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles/{enrollmentProfile-id}',
-    paramDefs: [
-      { name: 'depOnboardingSetting-id', in: 'path' },
-      { name: 'enrollmentProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['depOnboardingSetting-id', 'enrollmentProfile-id'],
+    },
     params,
     body,
   };
@@ -138,8 +132,56 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles',
-    paramDefs: [{ name: 'depOnboardingSetting-id', in: 'path' }],
+    paramDefs: {
+      path: ['depOnboardingSetting-id'],
+    },
     params,
     body,
   };
 }
+
+export const setDefaultProfile = {
+  /**
+   * `POST /deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles/{enrollmentProfile-id}/setDefaultProfile`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles/{enrollmentProfile-id}/setDefaultProfile']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles/{enrollmentProfile-id}/setDefaultProfile']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles/{enrollmentProfile-id}/setDefaultProfile',
+      paramDefs: {
+        path: ['depOnboardingSetting-id', 'enrollmentProfile-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const updateDeviceProfileAssignment = {
+  /**
+   * `POST /deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles/{enrollmentProfile-id}/updateDeviceProfileAssignment`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles/{enrollmentProfile-id}/updateDeviceProfileAssignment']['body'],
+    params?: IEndpoints['POST /deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles/{enrollmentProfile-id}/updateDeviceProfileAssignment']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles/{enrollmentProfile-id}/updateDeviceProfileAssignment']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/enrollmentProfiles/{enrollmentProfile-id}/updateDeviceProfileAssignment',
+      paramDefs: {
+        path: ['depOnboardingSetting-id', 'enrollmentProfile-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

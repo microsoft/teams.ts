@@ -1,5 +1,3 @@
-export * as message from './message';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /chats/{chat-id}/pinnedMessages': Operation<'/chats/{chat-id}/pinnedMessages', 'post'>;
+  'GET /chats/{chat-id}/pinnedMessages/{pinnedChatMessageInfo-id}/message': Operation<
+    '/chats/{chat-id}/pinnedMessages/{pinnedChatMessageInfo-id}/message',
+    'get'
+  >;
 }
 
 /**
@@ -33,11 +35,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/chats/{chat-id}/pinnedMessages/{pinnedChatMessageInfo-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'chat-id', in: 'path' },
-      { name: 'pinnedChatMessageInfo-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['chat-id', 'pinnedChatMessageInfo-id'],
+    },
     params,
   };
 }
@@ -54,17 +55,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/chats/{chat-id}/pinnedMessages',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'chat-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['chat-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -83,12 +77,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/chats/{chat-id}/pinnedMessages/{pinnedChatMessageInfo-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'chat-id', in: 'path' },
-      { name: 'pinnedChatMessageInfo-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['chat-id', 'pinnedChatMessageInfo-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -107,10 +99,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/chats/{chat-id}/pinnedMessages/{pinnedChatMessageInfo-id}',
-    paramDefs: [
-      { name: 'chat-id', in: 'path' },
-      { name: 'pinnedChatMessageInfo-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['chat-id', 'pinnedChatMessageInfo-id'],
+    },
     params,
     body,
   };
@@ -129,8 +120,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/chats/{chat-id}/pinnedMessages',
-    paramDefs: [{ name: 'chat-id', in: 'path' }],
+    paramDefs: {
+      path: ['chat-id'],
+    },
     params,
     body,
   };
 }
+
+export const message = {
+  /**
+   * `GET /chats/{chat-id}/pinnedMessages/{pinnedChatMessageInfo-id}/message`
+   *
+   * Represents details about the chat message that is pinned.
+   */
+  get: function get(
+    params?: IEndpoints['GET /chats/{chat-id}/pinnedMessages/{pinnedChatMessageInfo-id}/message']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /chats/{chat-id}/pinnedMessages/{pinnedChatMessageInfo-id}/message']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/chats/{chat-id}/pinnedMessages/{pinnedChatMessageInfo-id}/message',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['chat-id', 'pinnedChatMessageInfo-id'],
+      },
+      params,
+    };
+  },
+};

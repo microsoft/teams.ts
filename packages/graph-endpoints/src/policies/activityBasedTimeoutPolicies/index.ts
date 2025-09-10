@@ -1,5 +1,3 @@
-export * as appliesTo from './appliesTo';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,14 @@ export interface IEndpoints {
     '/policies/activityBasedTimeoutPolicies',
     'post'
   >;
+  'GET /policies/activityBasedTimeoutPolicies/{activityBasedTimeoutPolicy-id}/appliesTo': Operation<
+    '/policies/activityBasedTimeoutPolicies/{activityBasedTimeoutPolicy-id}/appliesTo',
+    'get'
+  >;
+  'GET /policies/activityBasedTimeoutPolicies/{activityBasedTimeoutPolicy-id}/appliesTo/{directoryObject-id}': Operation<
+    '/policies/activityBasedTimeoutPolicies/{activityBasedTimeoutPolicy-id}/appliesTo/{directoryObject-id}',
+    'get'
+  >;
 }
 
 /**
@@ -38,10 +44,10 @@ export function del(
   return {
     method: 'delete',
     path: '/policies/activityBasedTimeoutPolicies/{activityBasedTimeoutPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'activityBasedTimeoutPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['activityBasedTimeoutPolicy-id'],
+    },
     params,
   };
 }
@@ -57,16 +63,9 @@ export function list(
   return {
     method: 'get',
     path: '/policies/activityBasedTimeoutPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -84,11 +83,10 @@ export function get(
   return {
     method: 'get',
     path: '/policies/activityBasedTimeoutPolicies/{activityBasedTimeoutPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'activityBasedTimeoutPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['activityBasedTimeoutPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -107,7 +105,9 @@ export function update(
   return {
     method: 'patch',
     path: '/policies/activityBasedTimeoutPolicies/{activityBasedTimeoutPolicy-id}',
-    paramDefs: [{ name: 'activityBasedTimeoutPolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['activityBasedTimeoutPolicy-id'],
+    },
     params,
     body,
   };
@@ -119,14 +119,52 @@ export function update(
  * Create a new activityBasedTimeoutPolicy object.
  */
 export function create(
-  body: IEndpoints['POST /policies/activityBasedTimeoutPolicies']['body'],
-  params?: IEndpoints['POST /policies/activityBasedTimeoutPolicies']['parameters']
+  body: IEndpoints['POST /policies/activityBasedTimeoutPolicies']['body']
 ): EndpointRequest<IEndpoints['POST /policies/activityBasedTimeoutPolicies']['response']> {
   return {
     method: 'post',
     path: '/policies/activityBasedTimeoutPolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const appliesTo = {
+  /**
+   * `GET /policies/activityBasedTimeoutPolicies/{activityBasedTimeoutPolicy-id}/appliesTo`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /policies/activityBasedTimeoutPolicies/{activityBasedTimeoutPolicy-id}/appliesTo']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/activityBasedTimeoutPolicies/{activityBasedTimeoutPolicy-id}/appliesTo']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/policies/activityBasedTimeoutPolicies/{activityBasedTimeoutPolicy-id}/appliesTo',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['activityBasedTimeoutPolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /policies/activityBasedTimeoutPolicies/{activityBasedTimeoutPolicy-id}/appliesTo/{directoryObject-id}`
+   *
+   */
+  get$1: function get$1(
+    params?: IEndpoints['GET /policies/activityBasedTimeoutPolicies/{activityBasedTimeoutPolicy-id}/appliesTo/{directoryObject-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/activityBasedTimeoutPolicies/{activityBasedTimeoutPolicy-id}/appliesTo/{directoryObject-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/policies/activityBasedTimeoutPolicies/{activityBasedTimeoutPolicy-id}/appliesTo/{directoryObject-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['activityBasedTimeoutPolicy-id', 'directoryObject-id'],
+      },
+      params,
+    };
+  },
+};

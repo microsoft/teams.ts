@@ -1,5 +1,3 @@
-export * as copyNotebook from './copyNotebook';
-export * as getNotebookFromWebUrl from './getNotebookFromWebUrl';
 export * as sectionGroups from './sectionGroups';
 export * as sections from './sections';
 
@@ -26,6 +24,14 @@ export interface IEndpoints {
     '/groups/{group-id}/onenote/notebooks',
     'post'
   >;
+  'POST /groups/{group-id}/onenote/notebooks/{notebook-id}/copyNotebook': Operation<
+    '/groups/{group-id}/onenote/notebooks/{notebook-id}/copyNotebook',
+    'post'
+  >;
+  'POST /groups/{group-id}/onenote/notebooks/getNotebookFromWebUrl': Operation<
+    '/groups/{group-id}/onenote/notebooks/getNotebookFromWebUrl',
+    'post'
+  >;
 }
 
 /**
@@ -40,11 +46,10 @@ export function del(
   return {
     method: 'delete',
     path: '/groups/{group-id}/onenote/notebooks/{notebook-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'notebook-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'notebook-id'],
+    },
     params,
   };
 }
@@ -60,17 +65,10 @@ export function list(
   return {
     method: 'get',
     path: '/groups/{group-id}/onenote/notebooks',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,12 +86,10 @@ export function get(
   return {
     method: 'get',
     path: '/groups/{group-id}/onenote/notebooks/{notebook-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'notebook-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'notebook-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,10 +107,9 @@ export function update(
   return {
     method: 'patch',
     path: '/groups/{group-id}/onenote/notebooks/{notebook-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'notebook-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'notebook-id'],
+    },
     params,
     body,
   };
@@ -131,8 +126,58 @@ export function create(
   return {
     method: 'post',
     path: '/groups/{group-id}/onenote/notebooks',
-    paramDefs: [{ name: 'group-id', in: 'path' }],
+    paramDefs: {
+      path: ['group-id'],
+    },
     params,
     body,
   };
 }
+
+export const copyNotebook = {
+  /**
+   * `POST /groups/{group-id}/onenote/notebooks/{notebook-id}/copyNotebook`
+   *
+   * For Copy operations, you follow an asynchronous calling pattern:  First call the Copy action, and then poll the operation endpoint for the result.
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/onenote/notebooks/{notebook-id}/copyNotebook']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/onenote/notebooks/{notebook-id}/copyNotebook']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/onenote/notebooks/{notebook-id}/copyNotebook']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/groups/{group-id}/onenote/notebooks/{notebook-id}/copyNotebook',
+      paramDefs: {
+        path: ['group-id', 'notebook-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const getNotebookFromWebUrl = {
+  /**
+   * `POST /groups/{group-id}/onenote/notebooks/getNotebookFromWebUrl`
+   *
+   * Retrieve the properties and relationships of a notebook object by using its URL path. The location can be user notebooks on Microsoft 365, group notebooks, or SharePoint site-hosted team notebooks on Microsoft 365.
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/onenote/notebooks/getNotebookFromWebUrl']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/onenote/notebooks/getNotebookFromWebUrl']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/onenote/notebooks/getNotebookFromWebUrl']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/groups/{group-id}/onenote/notebooks/getNotebookFromWebUrl',
+      paramDefs: {
+        path: ['group-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

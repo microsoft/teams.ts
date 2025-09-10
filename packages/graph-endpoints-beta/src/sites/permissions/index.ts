@@ -1,6 +1,3 @@
-export * as grant from './grant';
-export * as revokeGrants from './revokeGrants';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -18,6 +15,14 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /sites/{site-id}/permissions': Operation<'/sites/{site-id}/permissions', 'post'>;
+  'POST /sites/{site-id}/permissions/{permission-id}/grant': Operation<
+    '/sites/{site-id}/permissions/{permission-id}/grant',
+    'post'
+  >;
+  'POST /sites/{site-id}/permissions/{permission-id}/revokeGrants': Operation<
+    '/sites/{site-id}/permissions/{permission-id}/revokeGrants',
+    'post'
+  >;
 }
 
 /**
@@ -31,11 +36,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/sites/{site-id}/permissions/{permission-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-      { name: 'permission-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id', 'permission-id'],
+    },
     params,
   };
 }
@@ -52,17 +56,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/sites/{site-id}/permissions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -79,12 +76,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/sites/{site-id}/permissions/{permission-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'permission-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'permission-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -102,10 +97,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/sites/{site-id}/permissions/{permission-id}',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'permission-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'permission-id'],
+    },
     params,
     body,
   };
@@ -124,8 +118,60 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/sites/{site-id}/permissions',
-    paramDefs: [{ name: 'site-id', in: 'path' }],
+    paramDefs: {
+      path: ['site-id'],
+    },
     params,
     body,
   };
 }
+
+export const grant = {
+  /**
+   * `POST /sites/{site-id}/permissions/{permission-id}/grant`
+   *
+   * Grant users access to a link represented by a permission.
+   */
+  create: function create(
+    body: IEndpoints['POST /sites/{site-id}/permissions/{permission-id}/grant']['body'],
+    params?: IEndpoints['POST /sites/{site-id}/permissions/{permission-id}/grant']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /sites/{site-id}/permissions/{permission-id}/grant']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/sites/{site-id}/permissions/{permission-id}/grant',
+      paramDefs: {
+        path: ['site-id', 'permission-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const revokeGrants = {
+  /**
+   * `POST /sites/{site-id}/permissions/{permission-id}/revokeGrants`
+   *
+   * Revoke access to a listItem or driveItem granted via a sharing link by removing the specified recipient from the link.
+   */
+  create: function create(
+    body: IEndpoints['POST /sites/{site-id}/permissions/{permission-id}/revokeGrants']['body'],
+    params?: IEndpoints['POST /sites/{site-id}/permissions/{permission-id}/revokeGrants']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /sites/{site-id}/permissions/{permission-id}/revokeGrants']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/sites/{site-id}/permissions/{permission-id}/revokeGrants',
+      paramDefs: {
+        path: ['site-id', 'permission-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

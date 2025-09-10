@@ -1,5 +1,3 @@
-export * as content from './content';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,18 @@ export interface IEndpoints {
     '/users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings',
     'post'
   >;
+  'GET /users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content': Operation<
+    '/users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content',
+    'get'
+  >;
+  'PUT /users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content': Operation<
+    '/users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content',
+    'put'
+  >;
+  'DELETE /users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content': Operation<
+    '/users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content',
+    'delete'
+  >;
 }
 
 /**
@@ -38,12 +48,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'onlineMeeting-id', in: 'path' },
-      { name: 'callRecording-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'onlineMeeting-id', 'callRecording-id'],
+    },
     params,
   };
 }
@@ -62,18 +70,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'onlineMeeting-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'onlineMeeting-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,13 +92,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'onlineMeeting-id', in: 'path' },
-      { name: 'callRecording-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'onlineMeeting-id', 'callRecording-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,11 +114,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'onlineMeeting-id', in: 'path' },
-      { name: 'callRecording-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'onlineMeeting-id', 'callRecording-id'],
+    },
     params,
     body,
   };
@@ -141,11 +136,76 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'onlineMeeting-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'onlineMeeting-id'],
+    },
     params,
     body,
   };
 }
+
+export const content = {
+  /**
+   * `GET /users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content`
+   *
+   * Get a callRecording object associated with a scheduled onlineMeeting. This API supports the retrieval of call recordings from private chat meetings and channel meetings. However, private channel meetings are not supported at this time. For a recording, this API returns the metadata of the single recording associated with the online meeting. For the content of a recording, this API returns the stream of bytes associated with the recording.
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content',
+      paramDefs: {
+        path: ['user-id', 'onlineMeeting-id', 'callRecording-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content`
+   *
+   * The content of the recording. Read-only.
+   */
+  set: function set(
+    body: IEndpoints['PUT /users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content']['body'],
+    params?: IEndpoints['PUT /users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'put',
+      path: '/users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content',
+      paramDefs: {
+        path: ['user-id', 'onlineMeeting-id', 'callRecording-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content`
+   *
+   * The content of the recording. Read-only.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/users/{user-id}/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['user-id', 'onlineMeeting-id', 'callRecording-id'],
+      },
+      params,
+    };
+  },
+};

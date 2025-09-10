@@ -1,5 +1,3 @@
-export * as policyFiles from './policyFiles';
-export * as processContentAsync from './processContentAsync';
 export * as protectionScopes from './protectionScopes';
 export * as sensitivityLabels from './sensitivityLabels';
 
@@ -18,6 +16,30 @@ export interface IEndpoints {
     '/security/dataSecurityAndGovernance',
     'patch'
   >;
+  'GET /security/dataSecurityAndGovernance/policyFiles': Operation<
+    '/security/dataSecurityAndGovernance/policyFiles',
+    'get'
+  >;
+  'POST /security/dataSecurityAndGovernance/policyFiles': Operation<
+    '/security/dataSecurityAndGovernance/policyFiles',
+    'post'
+  >;
+  'GET /security/dataSecurityAndGovernance/policyFiles/{policyFile-id}': Operation<
+    '/security/dataSecurityAndGovernance/policyFiles/{policyFile-id}',
+    'get'
+  >;
+  'PATCH /security/dataSecurityAndGovernance/policyFiles/{policyFile-id}': Operation<
+    '/security/dataSecurityAndGovernance/policyFiles/{policyFile-id}',
+    'patch'
+  >;
+  'DELETE /security/dataSecurityAndGovernance/policyFiles/{policyFile-id}': Operation<
+    '/security/dataSecurityAndGovernance/policyFiles/{policyFile-id}',
+    'delete'
+  >;
+  'POST /security/dataSecurityAndGovernance/processContentAsync': Operation<
+    '/security/dataSecurityAndGovernance/processContentAsync',
+    'post'
+  >;
 }
 
 /**
@@ -31,7 +53,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/dataSecurityAndGovernance',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -47,10 +71,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/dataSecurityAndGovernance',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -60,15 +83,130 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /security/dataSecurityAndGovernance']['body'],
-  params?: IEndpoints['PATCH /security/dataSecurityAndGovernance']['parameters']
+  body: IEndpoints['PATCH /security/dataSecurityAndGovernance']['body']
 ): EndpointRequest<IEndpoints['PATCH /security/dataSecurityAndGovernance']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/security/dataSecurityAndGovernance',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const policyFiles = {
+  /**
+   * `GET /security/dataSecurityAndGovernance/policyFiles`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /security/dataSecurityAndGovernance/policyFiles']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/dataSecurityAndGovernance/policyFiles']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/dataSecurityAndGovernance/policyFiles',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /security/dataSecurityAndGovernance/policyFiles`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /security/dataSecurityAndGovernance/policyFiles']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /security/dataSecurityAndGovernance/policyFiles']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/security/dataSecurityAndGovernance/policyFiles',
+      body,
+    };
+  },
+  /**
+   * `GET /security/dataSecurityAndGovernance/policyFiles/{policyFile-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/dataSecurityAndGovernance/policyFiles/{policyFile-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/dataSecurityAndGovernance/policyFiles/{policyFile-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/dataSecurityAndGovernance/policyFiles/{policyFile-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['policyFile-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /security/dataSecurityAndGovernance/policyFiles/{policyFile-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /security/dataSecurityAndGovernance/policyFiles/{policyFile-id}']['body'],
+    params?: IEndpoints['PATCH /security/dataSecurityAndGovernance/policyFiles/{policyFile-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /security/dataSecurityAndGovernance/policyFiles/{policyFile-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/security/dataSecurityAndGovernance/policyFiles/{policyFile-id}',
+      paramDefs: {
+        path: ['policyFile-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /security/dataSecurityAndGovernance/policyFiles/{policyFile-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /security/dataSecurityAndGovernance/policyFiles/{policyFile-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /security/dataSecurityAndGovernance/policyFiles/{policyFile-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/security/dataSecurityAndGovernance/policyFiles/{policyFile-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['policyFile-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const processContentAsync = {
+  /**
+   * `POST /security/dataSecurityAndGovernance/processContentAsync`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /security/dataSecurityAndGovernance/processContentAsync']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /security/dataSecurityAndGovernance/processContentAsync']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/security/dataSecurityAndGovernance/processContentAsync',
+      body,
+    };
+  },
+};

@@ -1,5 +1,3 @@
-export * as runHealthChecks from './runHealthChecks';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceManagement/virtualEndpoint/onPremisesConnections',
     'post'
   >;
+  'POST /deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/runHealthChecks': Operation<
+    '/deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/runHealthChecks',
+    'post'
+  >;
 }
 
 /**
@@ -38,10 +40,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'cloudPcOnPremisesConnection-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['cloudPcOnPremisesConnection-id'],
+    },
     params,
   };
 }
@@ -59,16 +61,9 @@ export function list(
   return {
     method: 'get',
     path: '/deviceManagement/virtualEndpoint/onPremisesConnections',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +81,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'cloudPcOnPremisesConnection-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['cloudPcOnPremisesConnection-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +103,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}',
-    paramDefs: [{ name: 'cloudPcOnPremisesConnection-id', in: 'path' }],
+    paramDefs: {
+      path: ['cloudPcOnPremisesConnection-id'],
+    },
     params,
     body,
   };
@@ -121,16 +117,35 @@ export function update(
  * Create a new cloudPcOnPremisesConnection object for provisioning Cloud PCs.
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/virtualEndpoint/onPremisesConnections']['body'],
-  params?: IEndpoints['POST /deviceManagement/virtualEndpoint/onPremisesConnections']['parameters']
+  body: IEndpoints['POST /deviceManagement/virtualEndpoint/onPremisesConnections']['body']
 ): EndpointRequest<
   IEndpoints['POST /deviceManagement/virtualEndpoint/onPremisesConnections']['response']
 > {
   return {
     method: 'post',
     path: '/deviceManagement/virtualEndpoint/onPremisesConnections',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const runHealthChecks = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/runHealthChecks`
+   *
+   * Run health checks on the cloudPcOnPremisesConnection object. It triggers a new health check for the cloudPcOnPremisesConnection (../resources/cloudpconpremisesconnection.md) object and changes the healthCheckStatus and [healthCheckStatusDetail properties when check finished.
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/runHealthChecks']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/runHealthChecks']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/runHealthChecks',
+      paramDefs: {
+        path: ['cloudPcOnPremisesConnection-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,5 +1,3 @@
-export * as definition from './definition';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/print/printers/{printer-id}/taskTriggers',
     'post'
   >;
+  'GET /print/printers/{printer-id}/taskTriggers/{printTaskTrigger-id}/definition': Operation<
+    '/print/printers/{printer-id}/taskTriggers/{printTaskTrigger-id}/definition',
+    'get'
+  >;
 }
 
 /**
@@ -39,11 +41,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/print/printers/{printer-id}/taskTriggers/{printTaskTrigger-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'printer-id', in: 'path' },
-      { name: 'printTaskTrigger-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['printer-id', 'printTaskTrigger-id'],
+    },
     params,
   };
 }
@@ -60,17 +61,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/print/printers/{printer-id}/taskTriggers',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'printer-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printer-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,12 +83,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/print/printers/{printer-id}/taskTriggers/{printTaskTrigger-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'printer-id', in: 'path' },
-      { name: 'printTaskTrigger-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printer-id', 'printTaskTrigger-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,10 +105,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/print/printers/{printer-id}/taskTriggers/{printTaskTrigger-id}',
-    paramDefs: [
-      { name: 'printer-id', in: 'path' },
-      { name: 'printTaskTrigger-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printer-id', 'printTaskTrigger-id'],
+    },
     params,
     body,
   };
@@ -135,8 +126,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/print/printers/{printer-id}/taskTriggers',
-    paramDefs: [{ name: 'printer-id', in: 'path' }],
+    paramDefs: {
+      path: ['printer-id'],
+    },
     params,
     body,
   };
 }
+
+export const definition = {
+  /**
+   * `GET /print/printers/{printer-id}/taskTriggers/{printTaskTrigger-id}/definition`
+   *
+   * An abstract definition that is used to create a printTask when triggered by a print event. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /print/printers/{printer-id}/taskTriggers/{printTaskTrigger-id}/definition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /print/printers/{printer-id}/taskTriggers/{printTaskTrigger-id}/definition']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/print/printers/{printer-id}/taskTriggers/{printTaskTrigger-id}/definition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['printer-id', 'printTaskTrigger-id'],
+      },
+      params,
+    };
+  },
+};

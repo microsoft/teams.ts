@@ -1,5 +1,3 @@
-export * as updatePin from './updatePin';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -15,6 +13,10 @@ export interface IEndpoints {
     '/me/authentication/qrCodePinMethod/pin',
     'patch'
   >;
+  'POST /me/authentication/qrCodePinMethod/pin/updatePin': Operation<
+    '/me/authentication/qrCodePinMethod/pin/updatePin',
+    'post'
+  >;
 }
 
 /**
@@ -28,7 +30,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/authentication/qrCodePinMethod/pin',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -45,10 +49,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/authentication/qrCodePinMethod/pin',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -58,15 +61,31 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /me/authentication/qrCodePinMethod/pin']['body'],
-  params?: IEndpoints['PATCH /me/authentication/qrCodePinMethod/pin']['parameters']
+  body: IEndpoints['PATCH /me/authentication/qrCodePinMethod/pin']['body']
 ): EndpointRequest<IEndpoints['PATCH /me/authentication/qrCodePinMethod/pin']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/me/authentication/qrCodePinMethod/pin',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const updatePin = {
+  /**
+   * `POST /me/authentication/qrCodePinMethod/pin/updatePin`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /me/authentication/qrCodePinMethod/pin/updatePin']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /me/authentication/qrCodePinMethod/pin/updatePin']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/authentication/qrCodePinMethod/pin/updatePin',
+      body,
+    };
+  },
+};

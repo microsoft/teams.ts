@@ -1,6 +1,4 @@
-export * as acceptedFor from './acceptedFor';
 export * as deployments from './deployments';
-export * as templateStep from './templateStep';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
@@ -25,6 +23,14 @@ export interface IEndpoints {
     '/tenantRelationships/managedTenants/managementTemplateStepVersions',
     'post'
   >;
+  'GET /tenantRelationships/managedTenants/managementTemplateStepVersions/{managementTemplateStepVersion-id}/acceptedFor': Operation<
+    '/tenantRelationships/managedTenants/managementTemplateStepVersions/{managementTemplateStepVersion-id}/acceptedFor',
+    'get'
+  >;
+  'GET /tenantRelationships/managedTenants/managementTemplateStepVersions/{managementTemplateStepVersion-id}/templateStep': Operation<
+    '/tenantRelationships/managedTenants/managementTemplateStepVersions/{managementTemplateStepVersion-id}/templateStep',
+    'get'
+  >;
 }
 
 /**
@@ -40,10 +46,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/tenantRelationships/managedTenants/managementTemplateStepVersions/{managementTemplateStepVersion-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'managementTemplateStepVersion-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['managementTemplateStepVersion-id'],
+    },
     params,
   };
 }
@@ -61,16 +67,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/tenantRelationships/managedTenants/managementTemplateStepVersions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,11 +87,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/tenantRelationships/managedTenants/managementTemplateStepVersions/{managementTemplateStepVersion-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'managementTemplateStepVersion-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['managementTemplateStepVersion-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,7 +109,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/tenantRelationships/managedTenants/managementTemplateStepVersions/{managementTemplateStepVersion-id}',
-    paramDefs: [{ name: 'managementTemplateStepVersion-id', in: 'path' }],
+    paramDefs: {
+      path: ['managementTemplateStepVersion-id'],
+    },
     params,
     body,
   };
@@ -122,8 +122,7 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /tenantRelationships/managedTenants/managementTemplateStepVersions']['body'],
-  params?: IEndpoints['POST /tenantRelationships/managedTenants/managementTemplateStepVersions']['parameters']
+  body: IEndpoints['POST /tenantRelationships/managedTenants/managementTemplateStepVersions']['body']
 ): EndpointRequest<
   IEndpoints['POST /tenantRelationships/managedTenants/managementTemplateStepVersions']['response']
 > {
@@ -131,8 +130,52 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/tenantRelationships/managedTenants/managementTemplateStepVersions',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const acceptedFor = {
+  /**
+   * `GET /tenantRelationships/managedTenants/managementTemplateStepVersions/{managementTemplateStepVersion-id}/acceptedFor`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /tenantRelationships/managedTenants/managementTemplateStepVersions/{managementTemplateStepVersion-id}/acceptedFor']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /tenantRelationships/managedTenants/managementTemplateStepVersions/{managementTemplateStepVersion-id}/acceptedFor']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/tenantRelationships/managedTenants/managementTemplateStepVersions/{managementTemplateStepVersion-id}/acceptedFor',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['managementTemplateStepVersion-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const templateStep = {
+  /**
+   * `GET /tenantRelationships/managedTenants/managementTemplateStepVersions/{managementTemplateStepVersion-id}/templateStep`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /tenantRelationships/managedTenants/managementTemplateStepVersions/{managementTemplateStepVersion-id}/templateStep']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /tenantRelationships/managedTenants/managementTemplateStepVersions/{managementTemplateStepVersion-id}/templateStep']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/tenantRelationships/managedTenants/managementTemplateStepVersions/{managementTemplateStepVersion-id}/templateStep',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['managementTemplateStepVersion-id'],
+      },
+      params,
+    };
+  },
+};

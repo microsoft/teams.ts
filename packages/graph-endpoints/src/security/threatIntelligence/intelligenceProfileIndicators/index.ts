@@ -1,5 +1,3 @@
-export * as artifact from './artifact';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/security/threatIntelligence/intelligenceProfileIndicators',
     'post'
   >;
+  'GET /security/threatIntelligence/intelligenceProfileIndicators/{intelligenceProfileIndicator-id}/artifact': Operation<
+    '/security/threatIntelligence/intelligenceProfileIndicators/{intelligenceProfileIndicator-id}/artifact',
+    'get'
+  >;
 }
 
 /**
@@ -37,10 +39,10 @@ export function del(
   return {
     method: 'delete',
     path: '/security/threatIntelligence/intelligenceProfileIndicators/{intelligenceProfileIndicator-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'intelligenceProfileIndicator-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['intelligenceProfileIndicator-id'],
+    },
     params,
   };
 }
@@ -58,16 +60,9 @@ export function list(
   return {
     method: 'get',
     path: '/security/threatIntelligence/intelligenceProfileIndicators',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -85,11 +80,10 @@ export function get(
   return {
     method: 'get',
     path: '/security/threatIntelligence/intelligenceProfileIndicators/{intelligenceProfileIndicator-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'intelligenceProfileIndicator-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['intelligenceProfileIndicator-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -107,7 +101,9 @@ export function update(
   return {
     method: 'patch',
     path: '/security/threatIntelligence/intelligenceProfileIndicators/{intelligenceProfileIndicator-id}',
-    paramDefs: [{ name: 'intelligenceProfileIndicator-id', in: 'path' }],
+    paramDefs: {
+      path: ['intelligenceProfileIndicator-id'],
+    },
     params,
     body,
   };
@@ -118,16 +114,36 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /security/threatIntelligence/intelligenceProfileIndicators']['body'],
-  params?: IEndpoints['POST /security/threatIntelligence/intelligenceProfileIndicators']['parameters']
+  body: IEndpoints['POST /security/threatIntelligence/intelligenceProfileIndicators']['body']
 ): EndpointRequest<
   IEndpoints['POST /security/threatIntelligence/intelligenceProfileIndicators']['response']
 > {
   return {
     method: 'post',
     path: '/security/threatIntelligence/intelligenceProfileIndicators',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const artifact = {
+  /**
+   * `GET /security/threatIntelligence/intelligenceProfileIndicators/{intelligenceProfileIndicator-id}/artifact`
+   *
+   * The artifact related to this indicator.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/threatIntelligence/intelligenceProfileIndicators/{intelligenceProfileIndicator-id}/artifact']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/threatIntelligence/intelligenceProfileIndicators/{intelligenceProfileIndicator-id}/artifact']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/threatIntelligence/intelligenceProfileIndicators/{intelligenceProfileIndicator-id}/artifact',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['intelligenceProfileIndicator-id'],
+      },
+      params,
+    };
+  },
+};

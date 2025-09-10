@@ -1,5 +1,4 @@
 export * as driveItem from './driveItem';
-export * as listItem from './listItem';
 
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
@@ -24,6 +23,10 @@ export interface IEndpoints {
     '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/activities',
     'post'
   >;
+  'GET /sites/{site-id}/lists/{list-id}/items/{listItem-id}/activities/{itemActivityOLD-id}/listItem': Operation<
+    '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/activities/{itemActivityOLD-id}/listItem',
+    'get'
+  >;
 }
 
 /**
@@ -39,13 +42,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/activities/{itemActivityOLD-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-      { name: 'itemActivityOLD-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id', 'list-id', 'listItem-id', 'itemActivityOLD-id'],
+    },
     params,
   };
 }
@@ -64,19 +64,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/activities',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'list-id', 'listItem-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -95,14 +86,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/activities/{itemActivityOLD-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-      { name: 'itemActivityOLD-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'list-id', 'listItem-id', 'itemActivityOLD-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -121,12 +108,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/activities/{itemActivityOLD-id}',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-      { name: 'itemActivityOLD-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'list-id', 'listItem-id', 'itemActivityOLD-id'],
+    },
     params,
     body,
   };
@@ -146,12 +130,33 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/activities',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'list-id', 'listItem-id'],
+    },
     params,
     body,
   };
 }
+
+export const listItem = {
+  /**
+   * `GET /sites/{site-id}/lists/{list-id}/items/{listItem-id}/activities/{itemActivityOLD-id}/listItem`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /sites/{site-id}/lists/{list-id}/items/{listItem-id}/activities/{itemActivityOLD-id}/listItem']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /sites/{site-id}/lists/{list-id}/items/{listItem-id}/activities/{itemActivityOLD-id}/listItem']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/activities/{itemActivityOLD-id}/listItem',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['site-id', 'list-id', 'listItem-id', 'itemActivityOLD-id'],
+      },
+      params,
+    };
+  },
+};

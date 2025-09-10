@@ -1,8 +1,4 @@
-export * as complete from './complete';
-export * as dismiss from './dismiss';
 export * as impactedResources from './impactedResources';
-export * as postpone from './postpone';
-export * as reactivate from './reactivate';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -21,6 +17,22 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /directory/recommendations': Operation<'/directory/recommendations', 'post'>;
+  'POST /directory/recommendations/{recommendation-id}/complete': Operation<
+    '/directory/recommendations/{recommendation-id}/complete',
+    'post'
+  >;
+  'POST /directory/recommendations/{recommendation-id}/dismiss': Operation<
+    '/directory/recommendations/{recommendation-id}/dismiss',
+    'post'
+  >;
+  'POST /directory/recommendations/{recommendation-id}/postpone': Operation<
+    '/directory/recommendations/{recommendation-id}/postpone',
+    'post'
+  >;
+  'POST /directory/recommendations/{recommendation-id}/reactivate': Operation<
+    '/directory/recommendations/{recommendation-id}/reactivate',
+    'post'
+  >;
 }
 
 /**
@@ -36,10 +48,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/directory/recommendations/{recommendation-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'recommendation-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['recommendation-id'],
+    },
     params,
   };
 }
@@ -56,16 +68,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/directory/recommendations',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -82,11 +87,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/directory/recommendations/{recommendation-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'recommendation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['recommendation-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -103,7 +107,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/directory/recommendations/{recommendation-id}',
-    paramDefs: [{ name: 'recommendation-id', in: 'path' }],
+    paramDefs: {
+      path: ['recommendation-id'],
+    },
     params,
     body,
   };
@@ -114,15 +120,108 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /directory/recommendations']['body'],
-  params?: IEndpoints['POST /directory/recommendations']['parameters']
+  body: IEndpoints['POST /directory/recommendations']['body']
 ): EndpointRequest<IEndpoints['POST /directory/recommendations']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/directory/recommendations',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const complete = {
+  /**
+   * `POST /directory/recommendations/{recommendation-id}/complete`
+   *
+   * Complete a recommendation object and update its status to completedByUser.
+   */
+  create: function create(
+    params?: IEndpoints['POST /directory/recommendations/{recommendation-id}/complete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /directory/recommendations/{recommendation-id}/complete']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/directory/recommendations/{recommendation-id}/complete',
+      paramDefs: {
+        path: ['recommendation-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const dismiss = {
+  /**
+   * `POST /directory/recommendations/{recommendation-id}/dismiss`
+   *
+   * Dismiss a recommendation object that you consider to be inapplicable to your tenant and update its status to dismissed .
+   */
+  create: function create(
+    body: IEndpoints['POST /directory/recommendations/{recommendation-id}/dismiss']['body'],
+    params?: IEndpoints['POST /directory/recommendations/{recommendation-id}/dismiss']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /directory/recommendations/{recommendation-id}/dismiss']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/directory/recommendations/{recommendation-id}/dismiss',
+      paramDefs: {
+        path: ['recommendation-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const postpone = {
+  /**
+   * `POST /directory/recommendations/{recommendation-id}/postpone`
+   *
+   * Postpone action on a recommendation object to a specified future date and time by marking its status as postponed. On the date and time provided, Microsoft Entra ID will automatically update the status of the recommendation object to active again.
+   */
+  create: function create(
+    body: IEndpoints['POST /directory/recommendations/{recommendation-id}/postpone']['body'],
+    params?: IEndpoints['POST /directory/recommendations/{recommendation-id}/postpone']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /directory/recommendations/{recommendation-id}/postpone']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/directory/recommendations/{recommendation-id}/postpone',
+      paramDefs: {
+        path: ['recommendation-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const reactivate = {
+  /**
+   * `POST /directory/recommendations/{recommendation-id}/reactivate`
+   *
+   * Reactivate a completed, dismissed, or postponed recommendation object. This action updates the status of the recommendation to active. This method only works when the status of the recommendation is completedByUser, dismissed, or postponed.
+   */
+  create: function create(
+    params?: IEndpoints['POST /directory/recommendations/{recommendation-id}/reactivate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /directory/recommendations/{recommendation-id}/reactivate']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/directory/recommendations/{recommendation-id}/reactivate',
+      paramDefs: {
+        path: ['recommendation-id'],
+      },
+      params,
+    };
+  },
+};

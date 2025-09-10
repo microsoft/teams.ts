@@ -27,7 +27,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/policies/crossTenantAccessPolicy',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -44,10 +46,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/policies/crossTenantAccessPolicy',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -58,15 +59,12 @@ export function get(
  * Update the properties of a cross-tenant access policy.
  */
 export function update(
-  body: IEndpoints['PATCH /policies/crossTenantAccessPolicy']['body'],
-  params?: IEndpoints['PATCH /policies/crossTenantAccessPolicy']['parameters']
+  body: IEndpoints['PATCH /policies/crossTenantAccessPolicy']['body']
 ): EndpointRequest<IEndpoints['PATCH /policies/crossTenantAccessPolicy']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/policies/crossTenantAccessPolicy',
-    paramDefs: [],
-    params,
     body,
   };
 }

@@ -1,6 +1,5 @@
 export * as callRecords from './callRecords';
 export * as calls from './calls';
-export * as getPresencesByUserId from './getPresencesByUserId';
 export * as onlineMeetings from './onlineMeetings';
 export * as presences from './presences';
 
@@ -9,6 +8,10 @@ import type { EndpointRequest, Operation } from './../types/common.ts';
 export interface IEndpoints {
   'GET /communications': Operation<'/communications', 'get'>;
   'PATCH /communications': Operation<'/communications', 'patch'>;
+  'POST /communications/getPresencesByUserId': Operation<
+    '/communications/getPresencesByUserId',
+    'post'
+  >;
 }
 
 /**
@@ -21,10 +24,9 @@ export function list(
   return {
     method: 'get',
     path: '/communications',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -34,14 +36,28 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /communications']['body'],
-  params?: IEndpoints['PATCH /communications']['parameters']
+  body: IEndpoints['PATCH /communications']['body']
 ): EndpointRequest<IEndpoints['PATCH /communications']['response']> {
   return {
     method: 'patch',
     path: '/communications',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const getPresencesByUserId = {
+  /**
+   * `POST /communications/getPresencesByUserId`
+   *
+   * Get the presence information for multiple users.
+   */
+  create: function create(
+    body: IEndpoints['POST /communications/getPresencesByUserId']['body']
+  ): EndpointRequest<IEndpoints['POST /communications/getPresencesByUserId']['response']> {
+    return {
+      method: 'post',
+      path: '/communications/getPresencesByUserId',
+      body,
+    };
+  },
+};

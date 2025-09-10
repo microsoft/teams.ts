@@ -1,5 +1,3 @@
-export * as members from './members';
-
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags',
     'post'
   >;
+  'GET /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members': Operation<
+    '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members',
+    'get'
+  >;
+  'POST /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members': Operation<
+    '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members',
+    'post'
+  >;
+  'GET /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}': Operation<
+    '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}',
+    'get'
+  >;
+  'PATCH /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}': Operation<
+    '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}',
+    'patch'
+  >;
+  'DELETE /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}': Operation<
+    '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,12 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-      { name: 'teamworkTag-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'teamworkTag-id'],
+    },
     params,
   };
 }
@@ -62,18 +78,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,13 +100,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-      { name: 'teamworkTag-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'teamworkTag-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,11 +122,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}',
-    paramDefs: [
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-      { name: 'teamworkTag-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'teamworkTag-id'],
+    },
     params,
     body,
   };
@@ -141,11 +144,132 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags',
-    paramDefs: [
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id'],
+    },
     params,
     body,
   };
 }
+
+export const members = {
+  /**
+   * `GET /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members`
+   *
+   * Users assigned to the tag.
+   */
+  list: function list(
+    params?: IEndpoints['GET /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'teamworkTag-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members']['body'],
+    params?: IEndpoints['POST /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members',
+      paramDefs: {
+        path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'teamworkTag-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}`
+   *
+   * Users assigned to the tag.
+   */
+  get: function get(
+    params?: IEndpoints['GET /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'teamTemplate-id',
+          'teamTemplateDefinition-id',
+          'teamworkTag-id',
+          'teamworkTagMember-id',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}']['body'],
+    params?: IEndpoints['PATCH /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}',
+      paramDefs: {
+        path: [
+          'teamTemplate-id',
+          'teamTemplateDefinition-id',
+          'teamworkTag-id',
+          'teamworkTagMember-id',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/tags/{teamworkTag-id}/members/{teamworkTagMember-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: [
+          'teamTemplate-id',
+          'teamTemplateDefinition-id',
+          'teamworkTag-id',
+          'teamworkTagMember-id',
+        ],
+      },
+      params,
+    };
+  },
+};

@@ -38,11 +38,10 @@ export function del(
   return {
     method: 'delete',
     path: '/external/connections/{externalConnection-id}/items/{externalItem-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'externalConnection-id', in: 'path' },
-      { name: 'externalItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['externalConnection-id', 'externalItem-id'],
+    },
     params,
   };
 }
@@ -60,17 +59,10 @@ export function list(
   return {
     method: 'get',
     path: '/external/connections/{externalConnection-id}/items',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'externalConnection-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['externalConnection-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,12 +80,10 @@ export function get(
   return {
     method: 'get',
     path: '/external/connections/{externalConnection-id}/items/{externalItem-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'externalConnection-id', in: 'path' },
-      { name: 'externalItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['externalConnection-id', 'externalItem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,7 +101,9 @@ export function create(
   return {
     method: 'post',
     path: '/external/connections/{externalConnection-id}/items',
-    paramDefs: [{ name: 'externalConnection-id', in: 'path' }],
+    paramDefs: {
+      path: ['externalConnection-id'],
+    },
     params,
     body,
   };
@@ -120,7 +112,7 @@ export function create(
 /**
  * `PUT /external/connections/{externalConnection-id}/items/{externalItem-id}`
  *
- * Update the properties of an externalItem object.
+ * Create a new externalItem object.
  */
 export function set(
   body: IEndpoints['PUT /external/connections/{externalConnection-id}/items/{externalItem-id}']['body'],
@@ -131,10 +123,9 @@ export function set(
   return {
     method: 'put',
     path: '/external/connections/{externalConnection-id}/items/{externalItem-id}',
-    paramDefs: [
-      { name: 'externalConnection-id', in: 'path' },
-      { name: 'externalItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['externalConnection-id', 'externalItem-id'],
+    },
     params,
     body,
   };

@@ -21,7 +21,9 @@ export function del(
   return {
     method: 'delete',
     path: '/admin/edge/internetExplorerMode',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -37,10 +39,9 @@ export function get(
   return {
     method: 'get',
     path: '/admin/edge/internetExplorerMode',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -50,14 +51,11 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /admin/edge/internetExplorerMode']['body'],
-  params?: IEndpoints['PATCH /admin/edge/internetExplorerMode']['parameters']
+  body: IEndpoints['PATCH /admin/edge/internetExplorerMode']['body']
 ): EndpointRequest<IEndpoints['PATCH /admin/edge/internetExplorerMode']['response']> {
   return {
     method: 'patch',
     path: '/admin/edge/internetExplorerMode',
-    paramDefs: [],
-    params,
     body,
   };
 }

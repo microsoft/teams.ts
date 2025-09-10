@@ -1,5 +1,3 @@
-export * as content from './content';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,18 @@ export interface IEndpoints {
     '/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments',
     'post'
   >;
+  'GET /admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content': Operation<
+    '/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content',
+    'get'
+  >;
+  'PUT /admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content': Operation<
+    '/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content',
+    'put'
+  >;
+  'DELETE /admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content': Operation<
+    '/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content',
+    'delete'
+  >;
 }
 
 /**
@@ -37,11 +47,10 @@ export function del(
   return {
     method: 'delete',
     path: '/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'serviceUpdateMessage-id', in: 'path' },
-      { name: 'serviceAnnouncementAttachment-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['serviceUpdateMessage-id', 'serviceAnnouncementAttachment-id'],
+    },
     params,
   };
 }
@@ -59,17 +68,10 @@ export function list(
   return {
     method: 'get',
     path: '/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'serviceUpdateMessage-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['serviceUpdateMessage-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,12 +89,10 @@ export function get(
   return {
     method: 'get',
     path: '/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'serviceUpdateMessage-id', in: 'path' },
-      { name: 'serviceAnnouncementAttachment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['serviceUpdateMessage-id', 'serviceAnnouncementAttachment-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,10 +110,9 @@ export function update(
   return {
     method: 'patch',
     path: '/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}',
-    paramDefs: [
-      { name: 'serviceUpdateMessage-id', in: 'path' },
-      { name: 'serviceAnnouncementAttachment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['serviceUpdateMessage-id', 'serviceAnnouncementAttachment-id'],
+    },
     params,
     body,
   };
@@ -132,8 +131,73 @@ export function create(
   return {
     method: 'post',
     path: '/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments',
-    paramDefs: [{ name: 'serviceUpdateMessage-id', in: 'path' }],
+    paramDefs: {
+      path: ['serviceUpdateMessage-id'],
+    },
     params,
     body,
   };
 }
+
+export const content = {
+  /**
+   * `GET /admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content`
+   *
+   * Read the properties and relationships of a serviceAnnouncementAttachment object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content',
+      paramDefs: {
+        path: ['serviceUpdateMessage-id', 'serviceAnnouncementAttachment-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content`
+   *
+   * The attachment content.
+   */
+  set: function set(
+    body: IEndpoints['PUT /admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content']['body'],
+    params?: IEndpoints['PUT /admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content']['response']
+  > {
+    return {
+      method: 'put',
+      path: '/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content',
+      paramDefs: {
+        path: ['serviceUpdateMessage-id', 'serviceAnnouncementAttachment-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content`
+   *
+   * The attachment content.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['serviceUpdateMessage-id', 'serviceAnnouncementAttachment-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,6 +1,3 @@
-export * as apps from './apps';
-export * as deploymentSummary from './deploymentSummary';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,38 @@ export interface IEndpoints {
     '/deviceAppManagement/defaultManagedAppProtections',
     'post'
   >;
+  'GET /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps': Operation<
+    '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps',
+    'get'
+  >;
+  'POST /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps': Operation<
+    '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps',
+    'post'
+  >;
+  'GET /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}': Operation<
+    '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}',
+    'get'
+  >;
+  'PATCH /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}': Operation<
+    '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}',
+    'patch'
+  >;
+  'DELETE /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}': Operation<
+    '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}',
+    'delete'
+  >;
+  'GET /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary': Operation<
+    '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary',
+    'get'
+  >;
+  'PATCH /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary': Operation<
+    '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary',
+    'patch'
+  >;
+  'DELETE /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary': Operation<
+    '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary',
+    'delete'
+  >;
 }
 
 /**
@@ -39,10 +68,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'defaultManagedAppProtection-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['defaultManagedAppProtection-id'],
+    },
     params,
   };
 }
@@ -60,16 +89,9 @@ export function list(
   return {
     method: 'get',
     path: '/deviceAppManagement/defaultManagedAppProtections',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +109,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'defaultManagedAppProtection-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['defaultManagedAppProtection-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +131,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}',
-    paramDefs: [{ name: 'defaultManagedAppProtection-id', in: 'path' }],
+    paramDefs: {
+      path: ['defaultManagedAppProtection-id'],
+    },
     params,
     body,
   };
@@ -122,16 +145,177 @@ export function update(
  * Create a new defaultManagedAppProtection object.
  */
 export function create(
-  body: IEndpoints['POST /deviceAppManagement/defaultManagedAppProtections']['body'],
-  params?: IEndpoints['POST /deviceAppManagement/defaultManagedAppProtections']['parameters']
+  body: IEndpoints['POST /deviceAppManagement/defaultManagedAppProtections']['body']
 ): EndpointRequest<
   IEndpoints['POST /deviceAppManagement/defaultManagedAppProtections']['response']
 > {
   return {
     method: 'post',
     path: '/deviceAppManagement/defaultManagedAppProtections',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const apps = {
+  /**
+   * `GET /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps`
+   *
+   * List of apps to which the policy is deployed.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['defaultManagedAppProtection-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps']['body'],
+    params?: IEndpoints['POST /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps',
+      paramDefs: {
+        path: ['defaultManagedAppProtection-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}`
+   *
+   * List of apps to which the policy is deployed.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['defaultManagedAppProtection-id', 'managedMobileApp-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}']['body'],
+    params?: IEndpoints['PATCH /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}',
+      paramDefs: {
+        path: ['defaultManagedAppProtection-id', 'managedMobileApp-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/apps/{managedMobileApp-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['defaultManagedAppProtection-id', 'managedMobileApp-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const deploymentSummary = {
+  /**
+   * `GET /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary`
+   *
+   * Navigation property to deployment summary of the configuration.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['defaultManagedAppProtection-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary']['body'],
+    params?: IEndpoints['PATCH /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary',
+      paramDefs: {
+        path: ['defaultManagedAppProtection-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}/deploymentSummary',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['defaultManagedAppProtection-id'],
+      },
+      params,
+    };
+  },
+};

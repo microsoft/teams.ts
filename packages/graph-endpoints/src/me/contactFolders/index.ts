@@ -1,6 +1,5 @@
 export * as childFolders from './childFolders';
 export * as contacts from './contacts';
-export * as permanentDelete from './permanentDelete';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -19,6 +18,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /me/contactFolders': Operation<'/me/contactFolders', 'post'>;
+  'POST /me/contactFolders/{contactFolder-id}/permanentDelete': Operation<
+    '/me/contactFolders/{contactFolder-id}/permanentDelete',
+    'post'
+  >;
 }
 
 /**
@@ -32,10 +35,10 @@ export function del(
   return {
     method: 'delete',
     path: '/me/contactFolders/{contactFolder-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'contactFolder-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['contactFolder-id'],
+    },
     params,
   };
 }
@@ -51,16 +54,9 @@ export function list(
   return {
     method: 'get',
     path: '/me/contactFolders',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -76,11 +72,10 @@ export function get(
   return {
     method: 'get',
     path: '/me/contactFolders/{contactFolder-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'contactFolder-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['contactFolder-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -97,7 +92,9 @@ export function update(
   return {
     method: 'patch',
     path: '/me/contactFolders/{contactFolder-id}',
-    paramDefs: [{ name: 'contactFolder-id', in: 'path' }],
+    paramDefs: {
+      path: ['contactFolder-id'],
+    },
     params,
     body,
   };
@@ -109,14 +106,32 @@ export function update(
  * Create a new contactFolder under the user&#x27;s default contacts folder. You can also create a new contactfolder as a child of any specified contact folder.
  */
 export function create(
-  body: IEndpoints['POST /me/contactFolders']['body'],
-  params?: IEndpoints['POST /me/contactFolders']['parameters']
+  body: IEndpoints['POST /me/contactFolders']['body']
 ): EndpointRequest<IEndpoints['POST /me/contactFolders']['response']> {
   return {
     method: 'post',
     path: '/me/contactFolders',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const permanentDelete = {
+  /**
+   * `POST /me/contactFolders/{contactFolder-id}/permanentDelete`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /me/contactFolders/{contactFolder-id}/permanentDelete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/contactFolders/{contactFolder-id}/permanentDelete']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/me/contactFolders/{contactFolder-id}/permanentDelete',
+      paramDefs: {
+        path: ['contactFolder-id'],
+      },
+      params,
+    };
+  },
+};

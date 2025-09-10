@@ -18,10 +18,10 @@ export function del(
   return {
     method: 'delete',
     path: '/groups/{group-id}/planner',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id'],
+    },
     params,
   };
 }
@@ -37,11 +37,10 @@ export function get(
   return {
     method: 'get',
     path: '/groups/{group-id}/planner',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -57,10 +56,10 @@ export function update(
   return {
     method: 'patch',
     path: '/groups/{group-id}/planner',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id'],
+    },
     params,
     body,
   };

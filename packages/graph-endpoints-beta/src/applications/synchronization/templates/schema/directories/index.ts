@@ -1,5 +1,3 @@
-export * as discover from './discover';
-
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/applications/{application-id}/synchronization/templates/{synchronizationTemplate-id}/schema/directories',
     'post'
   >;
+  'POST /applications/{application-id}/synchronization/templates/{synchronizationTemplate-id}/schema/directories/{directoryDefinition-id}/discover': Operation<
+    '/applications/{application-id}/synchronization/templates/{synchronizationTemplate-id}/schema/directories/{directoryDefinition-id}/discover',
+    'post'
+  >;
 }
 
 /**
@@ -38,12 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/applications/{application-id}/synchronization/templates/{synchronizationTemplate-id}/schema/directories/{directoryDefinition-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'application-id', in: 'path' },
-      { name: 'synchronizationTemplate-id', in: 'path' },
-      { name: 'directoryDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['application-id', 'synchronizationTemplate-id', 'directoryDefinition-id'],
+    },
     params,
   };
 }
@@ -62,18 +62,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/applications/{application-id}/synchronization/templates/{synchronizationTemplate-id}/schema/directories',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'application-id', in: 'path' },
-      { name: 'synchronizationTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['application-id', 'synchronizationTemplate-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,13 +84,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/applications/{application-id}/synchronization/templates/{synchronizationTemplate-id}/schema/directories/{directoryDefinition-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'application-id', in: 'path' },
-      { name: 'synchronizationTemplate-id', in: 'path' },
-      { name: 'directoryDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['application-id', 'synchronizationTemplate-id', 'directoryDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,11 +106,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/applications/{application-id}/synchronization/templates/{synchronizationTemplate-id}/schema/directories/{directoryDefinition-id}',
-    paramDefs: [
-      { name: 'application-id', in: 'path' },
-      { name: 'synchronizationTemplate-id', in: 'path' },
-      { name: 'directoryDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['application-id', 'synchronizationTemplate-id', 'directoryDefinition-id'],
+    },
     params,
     body,
   };
@@ -141,11 +128,33 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/applications/{application-id}/synchronization/templates/{synchronizationTemplate-id}/schema/directories',
-    paramDefs: [
-      { name: 'application-id', in: 'path' },
-      { name: 'synchronizationTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['application-id', 'synchronizationTemplate-id'],
+    },
     params,
     body,
   };
 }
+
+export const discover = {
+  /**
+   * `POST /applications/{application-id}/synchronization/templates/{synchronizationTemplate-id}/schema/directories/{directoryDefinition-id}/discover`
+   *
+   * Discover the latest schema definition for provisioning to an application.
+   */
+  create: function create(
+    params?: IEndpoints['POST /applications/{application-id}/synchronization/templates/{synchronizationTemplate-id}/schema/directories/{directoryDefinition-id}/discover']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /applications/{application-id}/synchronization/templates/{synchronizationTemplate-id}/schema/directories/{directoryDefinition-id}/discover']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/applications/{application-id}/synchronization/templates/{synchronizationTemplate-id}/schema/directories/{directoryDefinition-id}/discover',
+      paramDefs: {
+        path: ['application-id', 'synchronizationTemplate-id', 'directoryDefinition-id'],
+      },
+      params,
+    };
+  },
+};

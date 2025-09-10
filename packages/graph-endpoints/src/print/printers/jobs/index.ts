@@ -1,8 +1,4 @@
-export * as abort from './abort';
-export * as cancel from './cancel';
 export * as documents from './documents';
-export * as redirect from './redirect';
-export * as start from './start';
 export * as tasks from './tasks';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -22,6 +18,22 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /print/printers/{printer-id}/jobs': Operation<'/print/printers/{printer-id}/jobs', 'post'>;
+  'POST /print/printers/{printer-id}/jobs/{printJob-id}/abort': Operation<
+    '/print/printers/{printer-id}/jobs/{printJob-id}/abort',
+    'post'
+  >;
+  'POST /print/printers/{printer-id}/jobs/{printJob-id}/cancel': Operation<
+    '/print/printers/{printer-id}/jobs/{printJob-id}/cancel',
+    'post'
+  >;
+  'POST /print/printers/{printer-id}/jobs/{printJob-id}/redirect': Operation<
+    '/print/printers/{printer-id}/jobs/{printJob-id}/redirect',
+    'post'
+  >;
+  'POST /print/printers/{printer-id}/jobs/{printJob-id}/start': Operation<
+    '/print/printers/{printer-id}/jobs/{printJob-id}/start',
+    'post'
+  >;
 }
 
 /**
@@ -36,11 +48,10 @@ export function del(
   return {
     method: 'delete',
     path: '/print/printers/{printer-id}/jobs/{printJob-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'printer-id', in: 'path' },
-      { name: 'printJob-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['printer-id', 'printJob-id'],
+    },
     params,
   };
 }
@@ -56,17 +67,10 @@ export function list(
   return {
     method: 'get',
     path: '/print/printers/{printer-id}/jobs',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'printer-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printer-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -82,12 +86,10 @@ export function get(
   return {
     method: 'get',
     path: '/print/printers/{printer-id}/jobs/{printJob-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'printer-id', in: 'path' },
-      { name: 'printJob-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printer-id', 'printJob-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -106,10 +108,9 @@ export function update(
   return {
     method: 'patch',
     path: '/print/printers/{printer-id}/jobs/{printJob-id}',
-    paramDefs: [
-      { name: 'printer-id', in: 'path' },
-      { name: 'printJob-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printer-id', 'printJob-id'],
+    },
     params,
     body,
   };
@@ -127,8 +128,102 @@ export function create(
   return {
     method: 'post',
     path: '/print/printers/{printer-id}/jobs',
-    paramDefs: [{ name: 'printer-id', in: 'path' }],
+    paramDefs: {
+      path: ['printer-id'],
+    },
     params,
     body,
   };
 }
+
+export const abort = {
+  /**
+   * `POST /print/printers/{printer-id}/jobs/{printJob-id}/abort`
+   *
+   * Abort a print job. Only applications using application permissions can abort a print job. Aborting a print job will only succeed if there is a printTask in a processing state on the associated print job, started by a trigger that the requesting app created. For details about how to register a task trigger, see Extending Universal Print to support pull printing.
+   */
+  create: function create(
+    body: IEndpoints['POST /print/printers/{printer-id}/jobs/{printJob-id}/abort']['body'],
+    params?: IEndpoints['POST /print/printers/{printer-id}/jobs/{printJob-id}/abort']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /print/printers/{printer-id}/jobs/{printJob-id}/abort']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/print/printers/{printer-id}/jobs/{printJob-id}/abort',
+      paramDefs: {
+        path: ['printer-id', 'printJob-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const cancel = {
+  /**
+   * `POST /print/printers/{printer-id}/jobs/{printJob-id}/cancel`
+   *
+   * Cancel a print job. Print jobs can be canceled only on behalf of a user, using delegated permissions.
+   */
+  create: function create(
+    params?: IEndpoints['POST /print/printers/{printer-id}/jobs/{printJob-id}/cancel']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /print/printers/{printer-id}/jobs/{printJob-id}/cancel']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/print/printers/{printer-id}/jobs/{printJob-id}/cancel',
+      paramDefs: {
+        path: ['printer-id', 'printJob-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const redirect = {
+  /**
+   * `POST /print/printers/{printer-id}/jobs/{printJob-id}/redirect`
+   *
+   * Redirect a print job to a different printer. Redirecting a print job will only succeed if there is a printTask in a processing state on the associated print job, started by a trigger that the requesting app created.  For details about how to use this API to add pull printing support to Universal Print, see Extending Universal Print to support pull printing.
+   */
+  create: function create(
+    body: IEndpoints['POST /print/printers/{printer-id}/jobs/{printJob-id}/redirect']['body'],
+    params?: IEndpoints['POST /print/printers/{printer-id}/jobs/{printJob-id}/redirect']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /print/printers/{printer-id}/jobs/{printJob-id}/redirect']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/print/printers/{printer-id}/jobs/{printJob-id}/redirect',
+      paramDefs: {
+        path: ['printer-id', 'printJob-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const start = {
+  /**
+   * `POST /print/printers/{printer-id}/jobs/{printJob-id}/start`
+   *
+   * Submits the print job to the associated printer or printerShare. It will be printed after any existing pending jobs are completed, aborted, or canceled.
+   */
+  create: function create(
+    params?: IEndpoints['POST /print/printers/{printer-id}/jobs/{printJob-id}/start']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /print/printers/{printer-id}/jobs/{printJob-id}/start']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/print/printers/{printer-id}/jobs/{printJob-id}/start',
+      paramDefs: {
+        path: ['printer-id', 'printJob-id'],
+      },
+      params,
+    };
+  },
+};

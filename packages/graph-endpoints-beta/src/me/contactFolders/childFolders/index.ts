@@ -1,5 +1,4 @@
 export * as contacts from './contacts';
-export * as permanentDelete from './permanentDelete';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
@@ -24,6 +23,10 @@ export interface IEndpoints {
     '/me/contactFolders/{contactFolder-id}/childFolders',
     'post'
   >;
+  'POST /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/permanentDelete': Operation<
+    '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/permanentDelete',
+    'post'
+  >;
 }
 
 /**
@@ -39,11 +42,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'contactFolder-id', in: 'path' },
-      { name: 'contactFolder-id1', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['contactFolder-id', 'contactFolder-id1'],
+    },
     params,
   };
 }
@@ -62,17 +64,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/contactFolders/{contactFolder-id}/childFolders',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'contactFolder-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['contactFolder-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -91,12 +86,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'contactFolder-id', in: 'path' },
-      { name: 'contactFolder-id1', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['contactFolder-id', 'contactFolder-id1'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,10 +108,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}',
-    paramDefs: [
-      { name: 'contactFolder-id', in: 'path' },
-      { name: 'contactFolder-id1', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['contactFolder-id', 'contactFolder-id1'],
+    },
     params,
     body,
   };
@@ -139,8 +131,33 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/me/contactFolders/{contactFolder-id}/childFolders',
-    paramDefs: [{ name: 'contactFolder-id', in: 'path' }],
+    paramDefs: {
+      path: ['contactFolder-id'],
+    },
     params,
     body,
   };
 }
+
+export const permanentDelete = {
+  /**
+   * `POST /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/permanentDelete`
+   *
+   * Permanently delete a contact folder and remove its items from the user&#x27;s mailbox. For more information about item retention, see Configure Deleted Item retention and Recoverable Items quotas.
+   */
+  create: function create(
+    params?: IEndpoints['POST /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/permanentDelete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/permanentDelete']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/permanentDelete',
+      paramDefs: {
+        path: ['contactFolder-id', 'contactFolder-id1'],
+      },
+      params,
+    };
+  },
+};

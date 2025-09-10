@@ -1,5 +1,3 @@
-export * as identitySynchronization from './identitySynchronization';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,18 @@ export interface IEndpoints {
     '/policies/crossTenantAccessPolicy/partners',
     'post'
   >;
+  'GET /policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization': Operation<
+    '/policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization',
+    'get'
+  >;
+  'PUT /policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization': Operation<
+    '/policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization',
+    'put'
+  >;
+  'DELETE /policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization': Operation<
+    '/policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization',
+    'delete'
+  >;
 }
 
 /**
@@ -38,10 +48,10 @@ export function del(
   return {
     method: 'delete',
     path: '/policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'crossTenantAccessPolicyConfigurationPartner-tenantId', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['crossTenantAccessPolicyConfigurationPartner-tenantId'],
+    },
     params,
   };
 }
@@ -57,16 +67,9 @@ export function list(
   return {
     method: 'get',
     path: '/policies/crossTenantAccessPolicy/partners',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -84,11 +87,10 @@ export function get(
   return {
     method: 'get',
     path: '/policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'crossTenantAccessPolicyConfigurationPartner-tenantId', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['crossTenantAccessPolicyConfigurationPartner-tenantId'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -107,7 +109,9 @@ export function update(
   return {
     method: 'patch',
     path: '/policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}',
-    paramDefs: [{ name: 'crossTenantAccessPolicyConfigurationPartner-tenantId', in: 'path' }],
+    paramDefs: {
+      path: ['crossTenantAccessPolicyConfigurationPartner-tenantId'],
+    },
     params,
     body,
   };
@@ -119,14 +123,75 @@ export function update(
  * Create a new partner configuration in a cross-tenant access policy.
  */
 export function create(
-  body: IEndpoints['POST /policies/crossTenantAccessPolicy/partners']['body'],
-  params?: IEndpoints['POST /policies/crossTenantAccessPolicy/partners']['parameters']
+  body: IEndpoints['POST /policies/crossTenantAccessPolicy/partners']['body']
 ): EndpointRequest<IEndpoints['POST /policies/crossTenantAccessPolicy/partners']['response']> {
   return {
     method: 'post',
     path: '/policies/crossTenantAccessPolicy/partners',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const identitySynchronization = {
+  /**
+   * `GET /policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization`
+   *
+   * Get the user synchronization policy of a partner-specific configuration.
+   */
+  get: function get(
+    params?: IEndpoints['GET /policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['crossTenantAccessPolicyConfigurationPartner-tenantId'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization`
+   *
+   * Update the user synchronization policy of a partner-specific configuration.
+   */
+  set: function set(
+    body: IEndpoints['PUT /policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization']['body'],
+    params?: IEndpoints['PUT /policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization']['response']
+  > {
+    return {
+      method: 'put',
+      path: '/policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization',
+      paramDefs: {
+        path: ['crossTenantAccessPolicyConfigurationPartner-tenantId'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization`
+   *
+   * Delete the user synchronization policy for a partner-specific configuration.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['crossTenantAccessPolicyConfigurationPartner-tenantId'],
+      },
+      params,
+    };
+  },
+};

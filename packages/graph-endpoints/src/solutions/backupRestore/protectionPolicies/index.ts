@@ -1,6 +1,3 @@
-export * as activate from './activate';
-export * as deactivate from './deactivate';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/solutions/backupRestore/protectionPolicies',
     'post'
   >;
+  'POST /solutions/backupRestore/protectionPolicies/{protectionPolicyBase-id}/activate': Operation<
+    '/solutions/backupRestore/protectionPolicies/{protectionPolicyBase-id}/activate',
+    'post'
+  >;
+  'POST /solutions/backupRestore/protectionPolicies/{protectionPolicyBase-id}/deactivate': Operation<
+    '/solutions/backupRestore/protectionPolicies/{protectionPolicyBase-id}/deactivate',
+    'post'
+  >;
 }
 
 /**
@@ -39,10 +44,10 @@ export function del(
   return {
     method: 'delete',
     path: '/solutions/backupRestore/protectionPolicies/{protectionPolicyBase-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'protectionPolicyBase-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['protectionPolicyBase-id'],
+    },
     params,
   };
 }
@@ -58,16 +63,9 @@ export function list(
   return {
     method: 'get',
     path: '/solutions/backupRestore/protectionPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -85,11 +83,10 @@ export function get(
   return {
     method: 'get',
     path: '/solutions/backupRestore/protectionPolicies/{protectionPolicyBase-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'protectionPolicyBase-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['protectionPolicyBase-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -107,7 +104,9 @@ export function update(
   return {
     method: 'patch',
     path: '/solutions/backupRestore/protectionPolicies/{protectionPolicyBase-id}',
-    paramDefs: [{ name: 'protectionPolicyBase-id', in: 'path' }],
+    paramDefs: {
+      path: ['protectionPolicyBase-id'],
+    },
     params,
     body,
   };
@@ -118,14 +117,55 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /solutions/backupRestore/protectionPolicies']['body'],
-  params?: IEndpoints['POST /solutions/backupRestore/protectionPolicies']['parameters']
+  body: IEndpoints['POST /solutions/backupRestore/protectionPolicies']['body']
 ): EndpointRequest<IEndpoints['POST /solutions/backupRestore/protectionPolicies']['response']> {
   return {
     method: 'post',
     path: '/solutions/backupRestore/protectionPolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const activate = {
+  /**
+   * `POST /solutions/backupRestore/protectionPolicies/{protectionPolicyBase-id}/activate`
+   *
+   * Activate a protectionPolicyBase. Currently, only one active backup policy per underlying service is supported (that is, one for OneDrive accounts, one for SharePoint sites, and one for Exchange Online users). You can add or remove artifacts (sites or user accounts) to or from each active policy.
+   */
+  create: function create(
+    params?: IEndpoints['POST /solutions/backupRestore/protectionPolicies/{protectionPolicyBase-id}/activate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /solutions/backupRestore/protectionPolicies/{protectionPolicyBase-id}/activate']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/solutions/backupRestore/protectionPolicies/{protectionPolicyBase-id}/activate',
+      paramDefs: {
+        path: ['protectionPolicyBase-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const deactivate = {
+  /**
+   * `POST /solutions/backupRestore/protectionPolicies/{protectionPolicyBase-id}/deactivate`
+   *
+   * Deactivate a protectionPolicyBase.
+   */
+  create: function create(
+    params?: IEndpoints['POST /solutions/backupRestore/protectionPolicies/{protectionPolicyBase-id}/deactivate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /solutions/backupRestore/protectionPolicies/{protectionPolicyBase-id}/deactivate']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/solutions/backupRestore/protectionPolicies/{protectionPolicyBase-id}/deactivate',
+      paramDefs: {
+        path: ['protectionPolicyBase-id'],
+      },
+      params,
+    };
+  },
+};

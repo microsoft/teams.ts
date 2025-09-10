@@ -1,14 +1,5 @@
-export * as acceptRecommendations from './acceptRecommendations';
-export * as applyDecisions from './applyDecisions';
-export * as batchRecordDecisions from './batchRecordDecisions';
-export * as contactedReviewers from './contactedReviewers';
 export * as decisions from './decisions';
-export * as definition from './definition';
-export * as resetDecisions from './resetDecisions';
-export * as sendReminder from './sendReminder';
 export * as stages from './stages';
-export * as stop from './stop';
-export * as stopApplyDecisions from './stopApplyDecisions';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -27,6 +18,58 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /me/pendingAccessReviewInstances': Operation<'/me/pendingAccessReviewInstances', 'post'>;
+  'POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/acceptRecommendations': Operation<
+    '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/acceptRecommendations',
+    'post'
+  >;
+  'POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/applyDecisions': Operation<
+    '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/applyDecisions',
+    'post'
+  >;
+  'POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/batchRecordDecisions': Operation<
+    '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/batchRecordDecisions',
+    'post'
+  >;
+  'GET /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers': Operation<
+    '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers',
+    'get'
+  >;
+  'POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers': Operation<
+    '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers',
+    'post'
+  >;
+  'GET /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}': Operation<
+    '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}',
+    'get'
+  >;
+  'PATCH /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}': Operation<
+    '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}',
+    'patch'
+  >;
+  'DELETE /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}': Operation<
+    '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}',
+    'delete'
+  >;
+  'GET /me/pendingAccessReviewInstances/{accessReviewInstance-id}/definition': Operation<
+    '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/definition',
+    'get'
+  >;
+  'POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/resetDecisions': Operation<
+    '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/resetDecisions',
+    'post'
+  >;
+  'POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/sendReminder': Operation<
+    '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/sendReminder',
+    'post'
+  >;
+  'POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/stop': Operation<
+    '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/stop',
+    'post'
+  >;
+  'POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/stopApplyDecisions': Operation<
+    '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/stopApplyDecisions',
+    'post'
+  >;
 }
 
 /**
@@ -42,10 +85,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/pendingAccessReviewInstances/{accessReviewInstance-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'accessReviewInstance-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['accessReviewInstance-id'],
+    },
     params,
   };
 }
@@ -62,16 +105,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/pendingAccessReviewInstances',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,11 +126,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/pendingAccessReviewInstances/{accessReviewInstance-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'accessReviewInstance-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['accessReviewInstance-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,7 +148,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/pendingAccessReviewInstances/{accessReviewInstance-id}',
-    paramDefs: [{ name: 'accessReviewInstance-id', in: 'path' }],
+    paramDefs: {
+      path: ['accessReviewInstance-id'],
+    },
     params,
     body,
   };
@@ -124,15 +161,305 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /me/pendingAccessReviewInstances']['body'],
-  params?: IEndpoints['POST /me/pendingAccessReviewInstances']['parameters']
+  body: IEndpoints['POST /me/pendingAccessReviewInstances']['body']
 ): EndpointRequest<IEndpoints['POST /me/pendingAccessReviewInstances']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/me/pendingAccessReviewInstances',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const acceptRecommendations = {
+  /**
+   * `POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/acceptRecommendations`
+   *
+   * Allows the acceptance of recommendations on all accessReviewInstanceDecisionItem objects that haven&#x27;t been reviewed for an accessReviewInstance object for which the calling user is a reviewer. Recommendations are generated if recommendationsEnabled is true on the accessReviewScheduleDefinition object. If there isn&#x27;t a recommendation on an accessReviewInstanceDecisionItem object no decision will be recorded.
+   */
+  create: function create(
+    params?: IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/acceptRecommendations']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/acceptRecommendations']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/acceptRecommendations',
+      paramDefs: {
+        path: ['accessReviewInstance-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const applyDecisions = {
+  /**
+   * `POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/applyDecisions`
+   *
+   * Apply review decisions on an accessReviewInstance if the decisions were not applied automatically because the autoApplyDecisionsEnabled property is false in the review&#x27;s accessReviewScheduleSettings. The status of the accessReviewInstance must be Completed to call this method.
+   */
+  create: function create(
+    params?: IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/applyDecisions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/applyDecisions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/applyDecisions',
+      paramDefs: {
+        path: ['accessReviewInstance-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const batchRecordDecisions = {
+  /**
+   * `POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/batchRecordDecisions`
+   *
+   * Enables reviewers to review all accessReviewInstanceDecisionItem objects in batches by using principalId, resourceId, or neither.
+   */
+  create: function create(
+    body: IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/batchRecordDecisions']['body'],
+    params?: IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/batchRecordDecisions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/batchRecordDecisions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/batchRecordDecisions',
+      paramDefs: {
+        path: ['accessReviewInstance-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const contactedReviewers = {
+  /**
+   * `GET /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers`
+   *
+   * Returns the collection of reviewers who were contacted to complete this review. While the reviewers and fallbackReviewers properties of the accessReviewScheduleDefinition might specify group owners or managers as reviewers, contactedReviewers returns their individual identities. Supports $select. Read-only.
+   */
+  list: function list(
+    params?: IEndpoints['GET /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['accessReviewInstance-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers']['body'],
+    params?: IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers',
+      paramDefs: {
+        path: ['accessReviewInstance-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}`
+   *
+   * Returns the collection of reviewers who were contacted to complete this review. While the reviewers and fallbackReviewers properties of the accessReviewScheduleDefinition might specify group owners or managers as reviewers, contactedReviewers returns their individual identities. Supports $select. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['accessReviewInstance-id', 'accessReviewReviewer-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}']['body'],
+    params?: IEndpoints['PATCH /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}',
+      paramDefs: {
+        path: ['accessReviewInstance-id', 'accessReviewReviewer-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/contactedReviewers/{accessReviewReviewer-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['accessReviewInstance-id', 'accessReviewReviewer-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const definition = {
+  /**
+   * `GET /me/pendingAccessReviewInstances/{accessReviewInstance-id}/definition`
+   *
+   * There&#x27;s exactly one accessReviewScheduleDefinition associated with each instance. It&#x27;s the parent schedule for the instance, where instances are created for each recurrence of a review definition and each group selected to review by the definition.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/pendingAccessReviewInstances/{accessReviewInstance-id}/definition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/pendingAccessReviewInstances/{accessReviewInstance-id}/definition']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/definition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['accessReviewInstance-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const resetDecisions = {
+  /**
+   * `POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/resetDecisions`
+   *
+   * Resets decisions of all accessReviewInstanceDecisionItem objects on an accessReviewInstance to notReviewed.
+   */
+  create: function create(
+    params?: IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/resetDecisions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/resetDecisions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/resetDecisions',
+      paramDefs: {
+        path: ['accessReviewInstance-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const sendReminder = {
+  /**
+   * `POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/sendReminder`
+   *
+   * Send a reminder to the reviewers of a currently active accessReviewInstance.
+   */
+  create: function create(
+    params?: IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/sendReminder']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/sendReminder']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/sendReminder',
+      paramDefs: {
+        path: ['accessReviewInstance-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const stop = {
+  /**
+   * `POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/stop`
+   *
+   * Stop a currently active accessReviewInstance. After the access review instance stops, the instance status will be Completed, the reviewers can no longer give input, and the access review decisions can be applied. Stopping an instance will not effect future instances. To prevent a recurring access review from starting future instances, update the schedule definition to change its scheduled end date.
+   */
+  create: function create(
+    params?: IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/stop']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/stop']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/stop',
+      paramDefs: {
+        path: ['accessReviewInstance-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const stopApplyDecisions = {
+  /**
+   * `POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/stopApplyDecisions`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/stopApplyDecisions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/pendingAccessReviewInstances/{accessReviewInstance-id}/stopApplyDecisions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/pendingAccessReviewInstances/{accessReviewInstance-id}/stopApplyDecisions',
+      paramDefs: {
+        path: ['accessReviewInstance-id'],
+      },
+      params,
+    };
+  },
+};

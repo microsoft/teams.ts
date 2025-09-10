@@ -1,6 +1,4 @@
 export * as descriptors from './descriptors';
-export * as dispositionReviewStages from './dispositionReviewStages';
-export * as retentionEventType from './retentionEventType';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
@@ -19,6 +17,30 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /security/labels/retentionLabels': Operation<'/security/labels/retentionLabels', 'post'>;
+  'GET /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages': Operation<
+    '/security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages',
+    'get'
+  >;
+  'POST /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages': Operation<
+    '/security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages',
+    'post'
+  >;
+  'GET /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}': Operation<
+    '/security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}',
+    'get'
+  >;
+  'PATCH /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}': Operation<
+    '/security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}',
+    'patch'
+  >;
+  'DELETE /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}': Operation<
+    '/security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}',
+    'delete'
+  >;
+  'GET /security/labels/retentionLabels/{retentionLabel-id}/retentionEventType': Operation<
+    '/security/labels/retentionLabels/{retentionLabel-id}/retentionEventType',
+    'get'
+  >;
 }
 
 /**
@@ -34,10 +56,10 @@ export function del(
   return {
     method: 'delete',
     path: '/security/labels/retentionLabels/{retentionLabel-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'retentionLabel-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['retentionLabel-id'],
+    },
     params,
   };
 }
@@ -53,16 +75,9 @@ export function list(
   return {
     method: 'get',
     path: '/security/labels/retentionLabels',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -80,11 +95,10 @@ export function get(
   return {
     method: 'get',
     path: '/security/labels/retentionLabels/{retentionLabel-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'retentionLabel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['retentionLabel-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -103,7 +117,9 @@ export function update(
   return {
     method: 'patch',
     path: '/security/labels/retentionLabels/{retentionLabel-id}',
-    paramDefs: [{ name: 'retentionLabel-id', in: 'path' }],
+    paramDefs: {
+      path: ['retentionLabel-id'],
+    },
     params,
     body,
   };
@@ -115,14 +131,136 @@ export function update(
  * Create a new retentionLabel object. To create a disposition review stage, include the actionAfterRetentionPeriod property in the request body with one of the possible values specified.
  */
 export function create(
-  body: IEndpoints['POST /security/labels/retentionLabels']['body'],
-  params?: IEndpoints['POST /security/labels/retentionLabels']['parameters']
+  body: IEndpoints['POST /security/labels/retentionLabels']['body']
 ): EndpointRequest<IEndpoints['POST /security/labels/retentionLabels']['response']> {
   return {
     method: 'post',
     path: '/security/labels/retentionLabels',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const dispositionReviewStages = {
+  /**
+   * `GET /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages`
+   *
+   * When action at the end of retention is chosen as &#x27;dispositionReview&#x27;, dispositionReviewStages specifies a sequential set of stages with at least one reviewer in each stage.
+   */
+  list: function list(
+    params?: IEndpoints['GET /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['retentionLabel-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages']['body'],
+    params?: IEndpoints['POST /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages',
+      paramDefs: {
+        path: ['retentionLabel-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}`
+   *
+   * When action at the end of retention is chosen as &#x27;dispositionReview&#x27;, dispositionReviewStages specifies a sequential set of stages with at least one reviewer in each stage.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['retentionLabel-id', 'dispositionReviewStage-stageNumber'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}']['body'],
+    params?: IEndpoints['PATCH /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}',
+      paramDefs: {
+        path: ['retentionLabel-id', 'dispositionReviewStage-stageNumber'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/security/labels/retentionLabels/{retentionLabel-id}/dispositionReviewStages/{dispositionReviewStage-stageNumber}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['retentionLabel-id', 'dispositionReviewStage-stageNumber'],
+      },
+      params,
+    };
+  },
+};
+
+export const retentionEventType = {
+  /**
+   * `GET /security/labels/retentionLabels/{retentionLabel-id}/retentionEventType`
+   *
+   * Represents the type associated with a retention event.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/labels/retentionLabels/{retentionLabel-id}/retentionEventType']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/labels/retentionLabels/{retentionLabel-id}/retentionEventType']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/labels/retentionLabels/{retentionLabel-id}/retentionEventType',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['retentionLabel-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,6 +1,3 @@
-export * as add from './add';
-export * as remove from './remove';
-
 import type { EndpointRequest, Operation } from './../../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers',
     'post'
   >;
+  'POST /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/add': Operation<
+    '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/add',
+    'post'
+  >;
+  'POST /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/remove': Operation<
+    '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/remove',
+    'post'
+  >;
 }
 
 /**
@@ -39,13 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/{conversationMember-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'channel-id', 'conversationMember-id'],
+    },
     params,
   };
 }
@@ -64,19 +66,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'channel-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -95,14 +88,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/{conversationMember-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'channel-id', 'conversationMember-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -121,12 +110,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/{conversationMember-id}',
-    paramDefs: [
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'channel-id', 'conversationMember-id'],
+    },
     params,
     body,
   };
@@ -146,12 +132,60 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers',
-    paramDefs: [
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'channel-id'],
+    },
     params,
     body,
   };
 }
+
+export const add = {
+  /**
+   * `POST /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/add`
+   *
+   * Add multiple members in a single request to a team. The response provides details about which memberships could and couldn&#x27;t be created.
+   */
+  create: function create(
+    body: IEndpoints['POST /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/add']['body'],
+    params?: IEndpoints['POST /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/add']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/add']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/add',
+      paramDefs: {
+        path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'channel-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const remove = {
+  /**
+   * `POST /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/remove`
+   *
+   * Remove multiple members from a team in a single request. The response provides details about which memberships could and couldn&#x27;t be removed.
+   */
+  create: function create(
+    body: IEndpoints['POST /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/remove']['body'],
+    params?: IEndpoints['POST /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/remove']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/remove']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/allMembers/remove',
+      paramDefs: {
+        path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'channel-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

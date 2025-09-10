@@ -18,10 +18,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/financials',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -31,15 +30,12 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /financials']['body'],
-  params?: IEndpoints['PATCH /financials']['parameters']
+  body: IEndpoints['PATCH /financials']['body']
 ): EndpointRequest<IEndpoints['PATCH /financials']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/financials',
-    paramDefs: [],
-    params,
     body,
   };
 }

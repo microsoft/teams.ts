@@ -1,4 +1,3 @@
-export * as permanentDelete from './permanentDelete';
 export * as tasks from './tasks';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -18,6 +17,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /me/outlook/taskFolders': Operation<'/me/outlook/taskFolders', 'post'>;
+  'POST /me/outlook/taskFolders/{outlookTaskFolder-id}/permanentDelete': Operation<
+    '/me/outlook/taskFolders/{outlookTaskFolder-id}/permanentDelete',
+    'post'
+  >;
 }
 
 /**
@@ -35,10 +38,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/outlook/taskFolders/{outlookTaskFolder-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'outlookTaskFolder-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['outlookTaskFolder-id'],
+    },
     params,
   };
 }
@@ -56,16 +59,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/outlook/taskFolders',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -83,11 +79,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/outlook/taskFolders/{outlookTaskFolder-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'outlookTaskFolder-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['outlookTaskFolder-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -106,7 +101,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/outlook/taskFolders/{outlookTaskFolder-id}',
-    paramDefs: [{ name: 'outlookTaskFolder-id', in: 'path' }],
+    paramDefs: {
+      path: ['outlookTaskFolder-id'],
+    },
     params,
     body,
   };
@@ -119,15 +116,36 @@ export function update(
  * @deprecated
  */
 export function create(
-  body: IEndpoints['POST /me/outlook/taskFolders']['body'],
-  params?: IEndpoints['POST /me/outlook/taskFolders']['parameters']
+  body: IEndpoints['POST /me/outlook/taskFolders']['body']
 ): EndpointRequest<IEndpoints['POST /me/outlook/taskFolders']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/me/outlook/taskFolders',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const permanentDelete = {
+  /**
+   * `POST /me/outlook/taskFolders/{outlookTaskFolder-id}/permanentDelete`
+   *
+   * Permanently delete an outlook task folder and remove its items from the user&#x27;s mailbox. For more information about item retention, see Configure Deleted Item retention and Recoverable Items quotas.
+   * @deprecated
+   */
+  create: function create(
+    params?: IEndpoints['POST /me/outlook/taskFolders/{outlookTaskFolder-id}/permanentDelete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/outlook/taskFolders/{outlookTaskFolder-id}/permanentDelete']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/outlook/taskFolders/{outlookTaskFolder-id}/permanentDelete',
+      paramDefs: {
+        path: ['outlookTaskFolder-id'],
+      },
+      params,
+    };
+  },
+};

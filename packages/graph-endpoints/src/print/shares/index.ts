@@ -1,7 +1,6 @@
 export * as allowedGroups from './allowedGroups';
 export * as allowedUsers from './allowedUsers';
 export * as jobs from './jobs';
-export * as printer from './printer';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -11,6 +10,10 @@ export interface IEndpoints {
   'GET /print/shares/{printerShare-id}': Operation<'/print/shares/{printerShare-id}', 'get'>;
   'PATCH /print/shares/{printerShare-id}': Operation<'/print/shares/{printerShare-id}', 'patch'>;
   'POST /print/shares': Operation<'/print/shares', 'post'>;
+  'GET /print/shares/{printerShare-id}/printer': Operation<
+    '/print/shares/{printerShare-id}/printer',
+    'get'
+  >;
 }
 
 /**
@@ -24,10 +27,10 @@ export function del(
   return {
     method: 'delete',
     path: '/print/shares/{printerShare-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'printerShare-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['printerShare-id'],
+    },
     params,
   };
 }
@@ -43,16 +46,9 @@ export function list(
   return {
     method: 'get',
     path: '/print/shares',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -68,11 +64,10 @@ export function get(
   return {
     method: 'get',
     path: '/print/shares/{printerShare-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'printerShare-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printerShare-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,7 +84,9 @@ export function update(
   return {
     method: 'patch',
     path: '/print/shares/{printerShare-id}',
-    paramDefs: [{ name: 'printerShare-id', in: 'path' }],
+    paramDefs: {
+      path: ['printerShare-id'],
+    },
     params,
     body,
   };
@@ -101,14 +98,32 @@ export function update(
  * Create a new printerShare for the specified printer.
  */
 export function create(
-  body: IEndpoints['POST /print/shares']['body'],
-  params?: IEndpoints['POST /print/shares']['parameters']
+  body: IEndpoints['POST /print/shares']['body']
 ): EndpointRequest<IEndpoints['POST /print/shares']['response']> {
   return {
     method: 'post',
     path: '/print/shares',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const printer = {
+  /**
+   * `GET /print/shares/{printerShare-id}/printer`
+   *
+   * The printer that this printer share is related to.
+   */
+  get: function get(
+    params?: IEndpoints['GET /print/shares/{printerShare-id}/printer']['parameters']
+  ): EndpointRequest<IEndpoints['GET /print/shares/{printerShare-id}/printer']['response']> {
+    return {
+      method: 'get',
+      path: '/print/shares/{printerShare-id}/printer',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['printerShare-id'],
+      },
+      params,
+    };
+  },
+};

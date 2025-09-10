@@ -1,6 +1,3 @@
-export * as computeRightsAndInheritance from './computeRightsAndInheritance';
-export * as evaluate from './evaluate';
-export * as rights from './rights';
 export * as sublabels from './sublabels';
 
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
@@ -26,6 +23,18 @@ export interface IEndpoints {
     '/groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels',
     'post'
   >;
+  'POST /groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/computeRightsAndInheritance': Operation<
+    '/groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/computeRightsAndInheritance',
+    'post'
+  >;
+  'POST /groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/evaluate': Operation<
+    '/groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/evaluate',
+    'post'
+  >;
+  'GET /groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/{sensitivityLabel-id}/rights': Operation<
+    '/groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/{sensitivityLabel-id}/rights',
+    'get'
+  >;
 }
 
 /**
@@ -41,12 +50,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/{sensitivityLabel-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'sensitivityLabel-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'site-id', 'sensitivityLabel-id'],
+    },
     params,
   };
 }
@@ -64,18 +71,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,13 +92,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/{sensitivityLabel-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'sensitivityLabel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'sensitivityLabel-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -118,11 +114,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/{sensitivityLabel-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'sensitivityLabel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'sensitivityLabel-id'],
+    },
     params,
     body,
   };
@@ -142,11 +136,82 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+    },
     params,
     body,
   };
 }
+
+export const computeRightsAndInheritance = {
+  /**
+   * `POST /groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/computeRightsAndInheritance`
+   *
+   * Computes the rights and inheritance for sensitivity labels based on the input content and labels.
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/computeRightsAndInheritance']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/computeRightsAndInheritance']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/computeRightsAndInheritance']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/computeRightsAndInheritance',
+      paramDefs: {
+        path: ['group-id', 'site-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const evaluate = {
+  /**
+   * `POST /groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/evaluate`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/evaluate']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/evaluate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/evaluate']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/evaluate',
+      paramDefs: {
+        path: ['group-id', 'site-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const rights = {
+  /**
+   * `GET /groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/{sensitivityLabel-id}/rights`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/{sensitivityLabel-id}/rights']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/{sensitivityLabel-id}/rights']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/groups/{group-id}/sites/{site-id}/informationProtection/sensitivityLabels/{sensitivityLabel-id}/rights',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['group-id', 'site-id', 'sensitivityLabel-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,5 +1,3 @@
-export * as triggerDeviceScopeAction from './triggerDeviceScopeAction';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -14,6 +12,10 @@ export interface IEndpoints {
   'PATCH /deviceManagement/userExperienceAnalyticsDeviceScope': Operation<
     '/deviceManagement/userExperienceAnalyticsDeviceScope',
     'patch'
+  >;
+  'POST /deviceManagement/userExperienceAnalyticsDeviceScope/triggerDeviceScopeAction': Operation<
+    '/deviceManagement/userExperienceAnalyticsDeviceScope/triggerDeviceScopeAction',
+    'post'
   >;
 }
 
@@ -30,7 +32,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/userExperienceAnalyticsDeviceScope',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -49,10 +53,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/userExperienceAnalyticsDeviceScope',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -62,8 +65,7 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /deviceManagement/userExperienceAnalyticsDeviceScope']['body'],
-  params?: IEndpoints['PATCH /deviceManagement/userExperienceAnalyticsDeviceScope']['parameters']
+  body: IEndpoints['PATCH /deviceManagement/userExperienceAnalyticsDeviceScope']['body']
 ): EndpointRequest<
   IEndpoints['PATCH /deviceManagement/userExperienceAnalyticsDeviceScope']['response']
 > {
@@ -71,8 +73,25 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/userExperienceAnalyticsDeviceScope',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const triggerDeviceScopeAction = {
+  /**
+   * `POST /deviceManagement/userExperienceAnalyticsDeviceScope/triggerDeviceScopeAction`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/userExperienceAnalyticsDeviceScope/triggerDeviceScopeAction']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/userExperienceAnalyticsDeviceScope/triggerDeviceScopeAction']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/userExperienceAnalyticsDeviceScope/triggerDeviceScopeAction',
+      body,
+    };
+  },
+};

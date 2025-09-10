@@ -1,4 +1,3 @@
-export * as resource from './resource';
 export * as roleDefinition from './roleDefinition';
 
 import type { EndpointRequest, Operation } from './../types/common.ts';
@@ -18,6 +17,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /governanceRoleSettings': Operation<'/governanceRoleSettings', 'post'>;
+  'GET /governanceRoleSettings/{governanceRoleSetting-id}/resource': Operation<
+    '/governanceRoleSettings/{governanceRoleSetting-id}/resource',
+    'get'
+  >;
 }
 
 /**
@@ -33,10 +36,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/governanceRoleSettings/{governanceRoleSetting-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'governanceRoleSetting-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['governanceRoleSetting-id'],
+    },
     params,
   };
 }
@@ -52,16 +55,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/governanceRoleSettings',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -79,11 +75,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/governanceRoleSettings/{governanceRoleSetting-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'governanceRoleSetting-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['governanceRoleSetting-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -102,7 +97,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/governanceRoleSettings/{governanceRoleSetting-id}',
-    paramDefs: [{ name: 'governanceRoleSetting-id', in: 'path' }],
+    paramDefs: {
+      path: ['governanceRoleSetting-id'],
+    },
     params,
     body,
   };
@@ -113,15 +110,36 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /governanceRoleSettings']['body'],
-  params?: IEndpoints['POST /governanceRoleSettings']['parameters']
+  body: IEndpoints['POST /governanceRoleSettings']['body']
 ): EndpointRequest<IEndpoints['POST /governanceRoleSettings']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/governanceRoleSettings',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const resource = {
+  /**
+   * `GET /governanceRoleSettings/{governanceRoleSetting-id}/resource`
+   *
+   * Read-only. The associated resource for this role setting.
+   */
+  get: function get(
+    params?: IEndpoints['GET /governanceRoleSettings/{governanceRoleSetting-id}/resource']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /governanceRoleSettings/{governanceRoleSetting-id}/resource']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/governanceRoleSettings/{governanceRoleSetting-id}/resource',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['governanceRoleSetting-id'],
+      },
+      params,
+    };
+  },
+};

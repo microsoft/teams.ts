@@ -1,6 +1,3 @@
-export * as fields from './fields';
-export * as restoreVersion from './restoreVersion';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,22 @@ export interface IEndpoints {
     '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions',
     'post'
   >;
+  'GET /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields': Operation<
+    '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields',
+    'get'
+  >;
+  'PATCH /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields': Operation<
+    '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields',
+    'patch'
+  >;
+  'DELETE /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields': Operation<
+    '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields',
+    'delete'
+  >;
+  'POST /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/restoreVersion': Operation<
+    '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/restoreVersion',
+    'post'
+  >;
 }
 
 /**
@@ -38,13 +51,10 @@ export function del(
   return {
     method: 'delete',
     path: '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-      { name: 'listItemVersion-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id', 'list-id', 'listItem-id', 'listItemVersion-id'],
+    },
     params,
   };
 }
@@ -62,19 +72,10 @@ export function list(
   return {
     method: 'get',
     path: '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'list-id', 'listItem-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,14 +93,10 @@ export function get(
   return {
     method: 'get',
     path: '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-      { name: 'listItemVersion-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'list-id', 'listItem-id', 'listItemVersion-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,12 +114,9 @@ export function update(
   return {
     method: 'patch',
     path: '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-      { name: 'listItemVersion-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'list-id', 'listItem-id', 'listItemVersion-id'],
+    },
     params,
     body,
   };
@@ -141,12 +135,94 @@ export function create(
   return {
     method: 'post',
     path: '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'list-id', 'listItem-id'],
+    },
     params,
     body,
   };
 }
+
+export const fields = {
+  /**
+   * `GET /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields`
+   *
+   * A collection of the fields and values for this version of the list item.
+   */
+  list: function list(
+    params?: IEndpoints['GET /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['site-id', 'list-id', 'listItem-id', 'listItemVersion-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields']['body'],
+    params?: IEndpoints['PATCH /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields',
+      paramDefs: {
+        path: ['site-id', 'list-id', 'listItem-id', 'listItemVersion-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/fields',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['site-id', 'list-id', 'listItem-id', 'listItemVersion-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const restoreVersion = {
+  /**
+   * `POST /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/restoreVersion`
+   *
+   * Restore a previous version of a ListItem to be the current version. This will create a new version with the contents of the previous version, but preserves all existing versions of the item.
+   */
+  create: function create(
+    params?: IEndpoints['POST /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/restoreVersion']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/restoreVersion']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/sites/{site-id}/lists/{list-id}/items/{listItem-id}/versions/{listItemVersion-id}/restoreVersion',
+      paramDefs: {
+        path: ['site-id', 'list-id', 'listItem-id', 'listItemVersion-id'],
+      },
+      params,
+    };
+  },
+};

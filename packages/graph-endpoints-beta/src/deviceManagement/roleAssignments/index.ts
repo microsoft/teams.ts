@@ -1,6 +1,3 @@
-export * as roleDefinition from './roleDefinition';
-export * as roleScopeTags from './roleScopeTags';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -18,6 +15,18 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /deviceManagement/roleAssignments': Operation<'/deviceManagement/roleAssignments', 'post'>;
+  'GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleDefinition': Operation<
+    '/deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleDefinition',
+    'get'
+  >;
+  'GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleScopeTags': Operation<
+    '/deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleScopeTags',
+    'get'
+  >;
+  'GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleScopeTags/{roleScopeTag-id}': Operation<
+    '/deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleScopeTags/{roleScopeTag-id}',
+    'get'
+  >;
 }
 
 /**
@@ -33,10 +42,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deviceAndAppManagementRoleAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['deviceAndAppManagementRoleAssignment-id'],
+    },
     params,
   };
 }
@@ -53,16 +62,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/roleAssignments',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,11 +83,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceAndAppManagementRoleAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceAndAppManagementRoleAssignment-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -104,7 +105,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}',
-    paramDefs: [{ name: 'deviceAndAppManagementRoleAssignment-id', in: 'path' }],
+    paramDefs: {
+      path: ['deviceAndAppManagementRoleAssignment-id'],
+    },
     params,
     body,
   };
@@ -115,15 +118,81 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/roleAssignments']['body'],
-  params?: IEndpoints['POST /deviceManagement/roleAssignments']['parameters']
+  body: IEndpoints['POST /deviceManagement/roleAssignments']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/roleAssignments']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/roleAssignments',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const roleDefinition = {
+  /**
+   * `GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleDefinition`
+   *
+   * Indicates the role definition for this role assignment.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleDefinition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleDefinition']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleDefinition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['deviceAndAppManagementRoleAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const roleScopeTags = {
+  /**
+   * `GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleScopeTags`
+   *
+   * Indicates the set of scope tags for the role assignment. These scope tags will limit the visibility of any Intune resources to those that match any of the scope tags in this collection.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleScopeTags']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleScopeTags']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleScopeTags',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['deviceAndAppManagementRoleAssignment-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleScopeTags/{roleScopeTag-id}`
+   *
+   * Indicates the set of scope tags for the role assignment. These scope tags will limit the visibility of any Intune resources to those that match any of the scope tags in this collection.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleScopeTags/{roleScopeTag-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleScopeTags/{roleScopeTag-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleScopeTags/{roleScopeTag-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['deviceAndAppManagementRoleAssignment-id', 'roleScopeTag-id'],
+      },
+      params,
+    };
+  },
+};

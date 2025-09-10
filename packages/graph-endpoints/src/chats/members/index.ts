@@ -1,6 +1,3 @@
-export * as add from './add';
-export * as remove from './remove';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -18,6 +15,8 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /chats/{chat-id}/members': Operation<'/chats/{chat-id}/members', 'post'>;
+  'POST /chats/{chat-id}/members/add': Operation<'/chats/{chat-id}/members/add', 'post'>;
+  'POST /chats/{chat-id}/members/remove': Operation<'/chats/{chat-id}/members/remove', 'post'>;
 }
 
 /**
@@ -33,11 +32,10 @@ export function del(
   return {
     method: 'delete',
     path: '/chats/{chat-id}/members/{conversationMember-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'chat-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['chat-id', 'conversationMember-id'],
+    },
     params,
   };
 }
@@ -53,17 +51,10 @@ export function list(
   return {
     method: 'get',
     path: '/chats/{chat-id}/members',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'chat-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['chat-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -71,7 +62,7 @@ export function list(
 /**
  * `GET /chats/{chat-id}/members/{conversationMember-id}`
  *
- * Retrieve a conversationMember from a chat.
+ * Retrieve a conversationMember from a chat or channel.
  */
 export function get(
   params?: IEndpoints['GET /chats/{chat-id}/members/{conversationMember-id}']['parameters']
@@ -79,12 +70,10 @@ export function get(
   return {
     method: 'get',
     path: '/chats/{chat-id}/members/{conversationMember-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'chat-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['chat-id', 'conversationMember-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -102,10 +91,9 @@ export function update(
   return {
     method: 'patch',
     path: '/chats/{chat-id}/members/{conversationMember-id}',
-    paramDefs: [
-      { name: 'chat-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['chat-id', 'conversationMember-id'],
+    },
     params,
     body,
   };
@@ -123,8 +111,54 @@ export function create(
   return {
     method: 'post',
     path: '/chats/{chat-id}/members',
-    paramDefs: [{ name: 'chat-id', in: 'path' }],
+    paramDefs: {
+      path: ['chat-id'],
+    },
     params,
     body,
   };
 }
+
+export const add = {
+  /**
+   * `POST /chats/{chat-id}/members/add`
+   *
+   * Add multiple members in a single request to a team. The response provides details about which memberships could and couldn&#x27;t be created.
+   */
+  create: function create(
+    body: IEndpoints['POST /chats/{chat-id}/members/add']['body'],
+    params?: IEndpoints['POST /chats/{chat-id}/members/add']['parameters']
+  ): EndpointRequest<IEndpoints['POST /chats/{chat-id}/members/add']['response']> {
+    return {
+      method: 'post',
+      path: '/chats/{chat-id}/members/add',
+      paramDefs: {
+        path: ['chat-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const remove = {
+  /**
+   * `POST /chats/{chat-id}/members/remove`
+   *
+   * Remove multiple members from a team in a single request. The response provides details about which memberships could and couldn&#x27;t be removed.
+   */
+  create: function create(
+    body: IEndpoints['POST /chats/{chat-id}/members/remove']['body'],
+    params?: IEndpoints['POST /chats/{chat-id}/members/remove']['parameters']
+  ): EndpointRequest<IEndpoints['POST /chats/{chat-id}/members/remove']['response']> {
+    return {
+      method: 'post',
+      path: '/chats/{chat-id}/members/remove',
+      paramDefs: {
+        path: ['chat-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

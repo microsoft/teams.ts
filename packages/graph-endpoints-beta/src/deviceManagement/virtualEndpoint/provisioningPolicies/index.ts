@@ -1,8 +1,4 @@
-export * as apply from './apply';
-export * as applyConfig from './applyConfig';
-export * as assign from './assign';
 export * as assignments from './assignments';
-export * as schedulePolicyApplyTask from './schedulePolicyApplyTask';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
@@ -27,6 +23,22 @@ export interface IEndpoints {
     '/deviceManagement/virtualEndpoint/provisioningPolicies',
     'post'
   >;
+  'POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/apply': Operation<
+    '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/apply',
+    'post'
+  >;
+  'POST /deviceManagement/virtualEndpoint/provisioningPolicies/applyConfig': Operation<
+    '/deviceManagement/virtualEndpoint/provisioningPolicies/applyConfig',
+    'post'
+  >;
+  'POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assign': Operation<
+    '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assign',
+    'post'
+  >;
+  'POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/schedulePolicyApplyTask': Operation<
+    '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/schedulePolicyApplyTask',
+    'post'
+  >;
 }
 
 /**
@@ -43,10 +55,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'cloudPcProvisioningPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['cloudPcProvisioningPolicy-id'],
+    },
     params,
   };
 }
@@ -65,16 +77,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/virtualEndpoint/provisioningPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,11 +98,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'cloudPcProvisioningPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['cloudPcProvisioningPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,7 +121,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}',
-    paramDefs: [{ name: 'cloudPcProvisioningPolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['cloudPcProvisioningPolicy-id'],
+    },
     params,
     body,
   };
@@ -129,8 +135,7 @@ export function update(
  * Create a new cloudPcProvisioningPolicy object.
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies']['body'],
-  params?: IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies']['parameters']
+  body: IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies']['body']
 ): EndpointRequest<
   IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies']['response']
 > {
@@ -138,8 +143,101 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/virtualEndpoint/provisioningPolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const apply = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/apply`
+   *
+   * Apply the current provisioning policy configuration to all Cloud PC devices under a specified policy. Currently, the region is the only policy setting that you can apply.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/apply']['body'],
+    params?: IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/apply']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/apply']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/apply',
+      paramDefs: {
+        path: ['cloudPcProvisioningPolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const applyConfig = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/provisioningPolicies/applyConfig`
+   *
+   * Update the provisioning policy configuration for a set of Cloud PC devices by their IDs. This method supports retry and allows you to apply the configuration to a subset of Cloud PCs initially to test.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies/applyConfig']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies/applyConfig']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/provisioningPolicies/applyConfig',
+      body,
+    };
+  },
+};
+
+export const assign = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assign`
+   *
+   * Assign cloudPcProvisioningPolicy to user groups.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assign']['body'],
+    params?: IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assign']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assign']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assign',
+      paramDefs: {
+        path: ['cloudPcProvisioningPolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const schedulePolicyApplyTask = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/schedulePolicyApplyTask`
+   *
+   * Set a scheduled auto-reprovision task to do automatic regular apply. Frontline shared only. Administrators only.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/schedulePolicyApplyTask']['body'],
+    params?: IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/schedulePolicyApplyTask']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/schedulePolicyApplyTask']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/schedulePolicyApplyTask',
+      paramDefs: {
+        path: ['cloudPcProvisioningPolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

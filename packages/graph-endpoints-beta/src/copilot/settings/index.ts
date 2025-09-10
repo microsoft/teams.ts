@@ -19,7 +19,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/copilot/settings',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -35,10 +37,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/copilot/settings',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -48,15 +49,12 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /copilot/settings']['body'],
-  params?: IEndpoints['PATCH /copilot/settings']['parameters']
+  body: IEndpoints['PATCH /copilot/settings']['body']
 ): EndpointRequest<IEndpoints['PATCH /copilot/settings']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/copilot/settings',
-    paramDefs: [],
-    params,
     body,
   };
 }

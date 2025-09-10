@@ -28,7 +28,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/directory/authenticationMethodDevices',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -45,10 +47,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/directory/authenticationMethodDevices',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -58,15 +59,12 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /directory/authenticationMethodDevices']['body'],
-  params?: IEndpoints['PATCH /directory/authenticationMethodDevices']['parameters']
+  body: IEndpoints['PATCH /directory/authenticationMethodDevices']['body']
 ): EndpointRequest<IEndpoints['PATCH /directory/authenticationMethodDevices']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/directory/authenticationMethodDevices',
-    paramDefs: [],
-    params,
     body,
   };
 }

@@ -1,5 +1,3 @@
-export * as cancelSecurityAction from './cancelSecurityAction';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /security/securityActions': Operation<'/security/securityActions', 'post'>;
+  'POST /security/securityActions/{securityAction-id}/cancelSecurityAction': Operation<
+    '/security/securityActions/{securityAction-id}/cancelSecurityAction',
+    'post'
+  >;
 }
 
 /**
@@ -31,10 +33,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/securityActions/{securityAction-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'securityAction-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['securityAction-id'],
+    },
     params,
   };
 }
@@ -52,16 +54,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/securityActions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -79,11 +74,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/securityActions/{securityAction-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'securityAction-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['securityAction-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -101,7 +95,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/securityActions/{securityAction-id}',
-    paramDefs: [{ name: 'securityAction-id', in: 'path' }],
+    paramDefs: {
+      path: ['securityAction-id'],
+    },
     params,
     body,
   };
@@ -114,15 +110,36 @@ export function update(
  * @deprecated
  */
 export function create(
-  body: IEndpoints['POST /security/securityActions']['body'],
-  params?: IEndpoints['POST /security/securityActions']['parameters']
+  body: IEndpoints['POST /security/securityActions']['body']
 ): EndpointRequest<IEndpoints['POST /security/securityActions']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/security/securityActions',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const cancelSecurityAction = {
+  /**
+   * `POST /security/securityActions/{securityAction-id}/cancelSecurityAction`
+   *
+   * Cancel a security operation.
+   * @deprecated
+   */
+  create: function create(
+    params?: IEndpoints['POST /security/securityActions/{securityAction-id}/cancelSecurityAction']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /security/securityActions/{securityAction-id}/cancelSecurityAction']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/security/securityActions/{securityAction-id}/cancelSecurityAction',
+      paramDefs: {
+        path: ['securityAction-id'],
+      },
+      params,
+    };
+  },
+};

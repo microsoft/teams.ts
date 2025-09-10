@@ -1,5 +1,3 @@
-export * as calculate from './calculate';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -14,6 +12,10 @@ export interface IEndpoints {
   'PATCH /drives/{drive-id}/items/{driveItem-id}/workbook/application': Operation<
     '/drives/{drive-id}/items/{driveItem-id}/workbook/application',
     'patch'
+  >;
+  'POST /drives/{drive-id}/items/{driveItem-id}/workbook/application/calculate': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/application/calculate',
+    'post'
   >;
 }
 
@@ -30,11 +32,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/application',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['drive-id', 'driveItem-id'],
+    },
     params,
   };
 }
@@ -52,12 +53,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/application',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -76,11 +75,35 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/application',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id'],
+    },
     params,
     body,
   };
 }
+
+export const calculate = {
+  /**
+   * `POST /drives/{drive-id}/items/{driveItem-id}/workbook/application/calculate`
+   *
+   * Recalculate all currently opened workbooks in Excel.
+   */
+  create: function create(
+    body: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/application/calculate']['body'],
+    params?: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/application/calculate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/application/calculate']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/application/calculate',
+      paramDefs: {
+        path: ['drive-id', 'driveItem-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

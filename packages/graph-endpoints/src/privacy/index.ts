@@ -17,10 +17,9 @@ export function get(
   return {
     method: 'get',
     path: '/privacy',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -30,14 +29,11 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /privacy']['body'],
-  params?: IEndpoints['PATCH /privacy']['parameters']
+  body: IEndpoints['PATCH /privacy']['body']
 ): EndpointRequest<IEndpoints['PATCH /privacy']['response']> {
   return {
     method: 'patch',
     path: '/privacy',
-    paramDefs: [],
-    params,
     body,
   };
 }

@@ -1,6 +1,4 @@
-export * as currency from './currency';
 export * as customer from './customer';
-export * as paymentTerm from './paymentTerm';
 export * as salesCreditMemoLines from './salesCreditMemoLines';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -18,6 +16,30 @@ export interface IEndpoints {
     '/financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}',
     'patch'
   >;
+  'GET /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency': Operation<
+    '/financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency',
+    'get'
+  >;
+  'PATCH /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency': Operation<
+    '/financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency',
+    'patch'
+  >;
+  'DELETE /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency': Operation<
+    '/financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency',
+    'delete'
+  >;
+  'GET /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm': Operation<
+    '/financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm',
+    'get'
+  >;
+  'PATCH /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm': Operation<
+    '/financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm',
+    'patch'
+  >;
+  'DELETE /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm': Operation<
+    '/financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm',
+    'delete'
+  >;
 }
 
 /**
@@ -33,17 +55,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/salesCreditMemos',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -61,12 +76,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-      { name: 'salesCreditMemo-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'salesCreditMemo-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -85,11 +98,138 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}',
-    paramDefs: [
-      { name: 'company-id', in: 'path' },
-      { name: 'salesCreditMemo-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'salesCreditMemo-id'],
+    },
     params,
     body,
   };
 }
+
+export const currency = {
+  /**
+   * `GET /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['company-id', 'salesCreditMemo-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency']['body'],
+    params?: IEndpoints['PATCH /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency',
+      paramDefs: {
+        path: ['company-id', 'salesCreditMemo-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/currency',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['company-id', 'salesCreditMemo-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const paymentTerm = {
+  /**
+   * `GET /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['company-id', 'salesCreditMemo-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm']['body'],
+    params?: IEndpoints['PATCH /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm',
+      paramDefs: {
+        path: ['company-id', 'salesCreditMemo-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/financials/companies/{company-id}/salesCreditMemos/{salesCreditMemo-id}/paymentTerm',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['company-id', 'salesCreditMemo-id'],
+      },
+      params,
+    };
+  },
+};

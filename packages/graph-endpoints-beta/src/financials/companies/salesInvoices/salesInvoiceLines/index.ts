@@ -1,4 +1,3 @@
-export * as account from './account';
 export * as item from './item';
 
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
@@ -16,6 +15,10 @@ export interface IEndpoints {
     '/financials/companies/{company-id}/salesInvoices/{salesInvoice-id}/salesInvoiceLines/{salesInvoiceLine-id}',
     'patch'
   >;
+  'GET /financials/companies/{company-id}/salesInvoices/{salesInvoice-id}/salesInvoiceLines/{salesInvoiceLine-id}/account': Operation<
+    '/financials/companies/{company-id}/salesInvoices/{salesInvoice-id}/salesInvoiceLines/{salesInvoiceLine-id}/account',
+    'get'
+  >;
 }
 
 /**
@@ -31,18 +34,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/salesInvoices/{salesInvoice-id}/salesInvoiceLines',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-      { name: 'salesInvoice-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'salesInvoice-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -60,13 +55,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/salesInvoices/{salesInvoice-id}/salesInvoiceLines/{salesInvoiceLine-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-      { name: 'salesInvoice-id', in: 'path' },
-      { name: 'salesInvoiceLine-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'salesInvoice-id', 'salesInvoiceLine-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -85,12 +77,33 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/financials/companies/{company-id}/salesInvoices/{salesInvoice-id}/salesInvoiceLines/{salesInvoiceLine-id}',
-    paramDefs: [
-      { name: 'company-id', in: 'path' },
-      { name: 'salesInvoice-id', in: 'path' },
-      { name: 'salesInvoiceLine-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'salesInvoice-id', 'salesInvoiceLine-id'],
+    },
     params,
     body,
   };
 }
+
+export const account = {
+  /**
+   * `GET /financials/companies/{company-id}/salesInvoices/{salesInvoice-id}/salesInvoiceLines/{salesInvoiceLine-id}/account`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /financials/companies/{company-id}/salesInvoices/{salesInvoice-id}/salesInvoiceLines/{salesInvoiceLine-id}/account']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /financials/companies/{company-id}/salesInvoices/{salesInvoice-id}/salesInvoiceLines/{salesInvoiceLine-id}/account']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/financials/companies/{company-id}/salesInvoices/{salesInvoice-id}/salesInvoiceLines/{salesInvoiceLine-id}/account',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['company-id', 'salesInvoice-id', 'salesInvoiceLine-id'],
+      },
+      params,
+    };
+  },
+};

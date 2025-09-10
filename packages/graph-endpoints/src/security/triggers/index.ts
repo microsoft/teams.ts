@@ -18,7 +18,9 @@ export function del(
   return {
     method: 'delete',
     path: '/security/triggers',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -33,10 +35,9 @@ export function list(
   return {
     method: 'get',
     path: '/security/triggers',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -46,14 +47,11 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /security/triggers']['body'],
-  params?: IEndpoints['PATCH /security/triggers']['parameters']
+  body: IEndpoints['PATCH /security/triggers']['body']
 ): EndpointRequest<IEndpoints['PATCH /security/triggers']['response']> {
   return {
     method: 'patch',
     path: '/security/triggers',
-    paramDefs: [],
-    params,
     body,
   };
 }

@@ -1,5 +1,3 @@
-export * as sourceColumn from './sourceColumn';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/sites/{site-id}/lists/{list-id}/columns',
     'post'
   >;
+  'GET /sites/{site-id}/lists/{list-id}/columns/{columnDefinition-id}/sourceColumn': Operation<
+    '/sites/{site-id}/lists/{list-id}/columns/{columnDefinition-id}/sourceColumn',
+    'get'
+  >;
 }
 
 /**
@@ -37,12 +39,10 @@ export function del(
   return {
     method: 'delete',
     path: '/sites/{site-id}/lists/{list-id}/columns/{columnDefinition-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'columnDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id', 'list-id', 'columnDefinition-id'],
+    },
     params,
   };
 }
@@ -58,18 +58,10 @@ export function list(
   return {
     method: 'get',
     path: '/sites/{site-id}/lists/{list-id}/columns',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'list-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,13 +79,10 @@ export function get(
   return {
     method: 'get',
     path: '/sites/{site-id}/lists/{list-id}/columns/{columnDefinition-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'columnDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'list-id', 'columnDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,11 +100,9 @@ export function update(
   return {
     method: 'patch',
     path: '/sites/{site-id}/lists/{list-id}/columns/{columnDefinition-id}',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'columnDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'list-id', 'columnDefinition-id'],
+    },
     params,
     body,
   };
@@ -133,11 +120,33 @@ export function create(
   return {
     method: 'post',
     path: '/sites/{site-id}/lists/{list-id}/columns',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'list-id'],
+    },
     params,
     body,
   };
 }
+
+export const sourceColumn = {
+  /**
+   * `GET /sites/{site-id}/lists/{list-id}/columns/{columnDefinition-id}/sourceColumn`
+   *
+   * The source column for the content type column.
+   */
+  get: function get(
+    params?: IEndpoints['GET /sites/{site-id}/lists/{list-id}/columns/{columnDefinition-id}/sourceColumn']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /sites/{site-id}/lists/{list-id}/columns/{columnDefinition-id}/sourceColumn']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/sites/{site-id}/lists/{list-id}/columns/{columnDefinition-id}/sourceColumn',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['site-id', 'list-id', 'columnDefinition-id'],
+      },
+      params,
+    };
+  },
+};

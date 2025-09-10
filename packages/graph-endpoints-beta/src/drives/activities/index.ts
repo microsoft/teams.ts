@@ -1,5 +1,4 @@
 export * as driveItem from './driveItem';
-export * as listItem from './listItem';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -18,6 +17,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /drives/{drive-id}/activities': Operation<'/drives/{drive-id}/activities', 'post'>;
+  'GET /drives/{drive-id}/activities/{itemActivityOLD-id}/listItem': Operation<
+    '/drives/{drive-id}/activities/{itemActivityOLD-id}/listItem',
+    'get'
+  >;
 }
 
 /**
@@ -33,11 +36,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/drives/{drive-id}/activities/{itemActivityOLD-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'itemActivityOLD-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['drive-id', 'itemActivityOLD-id'],
+    },
     params,
   };
 }
@@ -54,17 +56,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/drives/{drive-id}/activities',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -83,12 +78,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/drives/{drive-id}/activities/{itemActivityOLD-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'itemActivityOLD-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'itemActivityOLD-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -107,10 +100,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/drives/{drive-id}/activities/{itemActivityOLD-id}',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'itemActivityOLD-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'itemActivityOLD-id'],
+    },
     params,
     body,
   };
@@ -128,8 +120,33 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/drives/{drive-id}/activities',
-    paramDefs: [{ name: 'drive-id', in: 'path' }],
+    paramDefs: {
+      path: ['drive-id'],
+    },
     params,
     body,
   };
 }
+
+export const listItem = {
+  /**
+   * `GET /drives/{drive-id}/activities/{itemActivityOLD-id}/listItem`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /drives/{drive-id}/activities/{itemActivityOLD-id}/listItem']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /drives/{drive-id}/activities/{itemActivityOLD-id}/listItem']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/drives/{drive-id}/activities/{itemActivityOLD-id}/listItem',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['drive-id', 'itemActivityOLD-id'],
+      },
+      params,
+    };
+  },
+};

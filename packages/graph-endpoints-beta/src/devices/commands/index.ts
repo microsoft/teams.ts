@@ -1,5 +1,3 @@
-export * as responsepayload from './responsepayload';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /devices/{device-id}/commands': Operation<'/devices/{device-id}/commands', 'post'>;
+  'GET /devices/{device-id}/commands/{command-id}/responsepayload': Operation<
+    '/devices/{device-id}/commands/{command-id}/responsepayload',
+    'get'
+  >;
 }
 
 /**
@@ -30,11 +32,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/devices/{device-id}/commands/{command-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'device-id', in: 'path' },
-      { name: 'command-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['device-id', 'command-id'],
+    },
     params,
   };
 }
@@ -51,17 +52,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/devices/{device-id}/commands',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'device-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['device-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -78,12 +72,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/devices/{device-id}/commands/{command-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'device-id', in: 'path' },
-      { name: 'command-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['device-id', 'command-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -100,10 +92,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/devices/{device-id}/commands/{command-id}',
-    paramDefs: [
-      { name: 'device-id', in: 'path' },
-      { name: 'command-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['device-id', 'command-id'],
+    },
     params,
     body,
   };
@@ -121,8 +112,33 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/devices/{device-id}/commands',
-    paramDefs: [{ name: 'device-id', in: 'path' }],
+    paramDefs: {
+      path: ['device-id'],
+    },
     params,
     body,
   };
 }
+
+export const responsepayload = {
+  /**
+   * `GET /devices/{device-id}/commands/{command-id}/responsepayload`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /devices/{device-id}/commands/{command-id}/responsepayload']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /devices/{device-id}/commands/{command-id}/responsepayload']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/devices/{device-id}/commands/{command-id}/responsepayload',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['device-id', 'command-id'],
+      },
+      params,
+    };
+  },
+};

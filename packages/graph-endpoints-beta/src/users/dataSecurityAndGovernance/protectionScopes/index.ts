@@ -1,5 +1,3 @@
-export * as compute from './compute';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -14,6 +12,10 @@ export interface IEndpoints {
   'PATCH /users/{user-id}/dataSecurityAndGovernance/protectionScopes': Operation<
     '/users/{user-id}/dataSecurityAndGovernance/protectionScopes',
     'patch'
+  >;
+  'POST /users/{user-id}/dataSecurityAndGovernance/protectionScopes/compute': Operation<
+    '/users/{user-id}/dataSecurityAndGovernance/protectionScopes/compute',
+    'post'
   >;
 }
 
@@ -30,10 +32,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/users/{user-id}/dataSecurityAndGovernance/protectionScopes',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id'],
+    },
     params,
   };
 }
@@ -51,11 +53,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/dataSecurityAndGovernance/protectionScopes',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -74,8 +75,34 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/users/{user-id}/dataSecurityAndGovernance/protectionScopes',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };
 }
+
+export const compute = {
+  /**
+   * `POST /users/{user-id}/dataSecurityAndGovernance/protectionScopes/compute`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/dataSecurityAndGovernance/protectionScopes/compute']['body'],
+    params?: IEndpoints['POST /users/{user-id}/dataSecurityAndGovernance/protectionScopes/compute']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/dataSecurityAndGovernance/protectionScopes/compute']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/users/{user-id}/dataSecurityAndGovernance/protectionScopes/compute',
+      paramDefs: {
+        path: ['user-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

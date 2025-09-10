@@ -21,10 +21,9 @@ export function get(
   return {
     method: 'get',
     path: '/education',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -34,14 +33,11 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /education']['body'],
-  params?: IEndpoints['PATCH /education']['parameters']
+  body: IEndpoints['PATCH /education']['body']
 ): EndpointRequest<IEndpoints['PATCH /education']['response']> {
   return {
     method: 'patch',
     path: '/education',
-    paramDefs: [],
-    params,
     body,
   };
 }

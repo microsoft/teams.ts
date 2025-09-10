@@ -1,5 +1,3 @@
-export * as applicationPermissionGrants from './applicationPermissionGrants';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/storage/fileStorage/containerTypeRegistrations',
     'post'
   >;
+  'GET /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants': Operation<
+    '/storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants',
+    'get'
+  >;
+  'POST /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants': Operation<
+    '/storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants',
+    'post'
+  >;
+  'GET /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}': Operation<
+    '/storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}',
+    'get'
+  >;
+  'PATCH /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}': Operation<
+    '/storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}',
+    'patch'
+  >;
+  'DELETE /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}': Operation<
+    '/storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}',
+    'delete'
+  >;
 }
 
 /**
@@ -39,10 +57,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'fileStorageContainerTypeRegistration-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['fileStorageContainerTypeRegistration-id'],
+    },
     params,
   };
 }
@@ -59,16 +77,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/storage/fileStorage/containerTypeRegistrations',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +98,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'fileStorageContainerTypeRegistration-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainerTypeRegistration-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,7 +121,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}',
-    paramDefs: [{ name: 'fileStorageContainerTypeRegistration-id', in: 'path' }],
+    paramDefs: {
+      path: ['fileStorageContainerTypeRegistration-id'],
+    },
     params,
     body,
   };
@@ -122,15 +134,130 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /storage/fileStorage/containerTypeRegistrations']['body'],
-  params?: IEndpoints['POST /storage/fileStorage/containerTypeRegistrations']['parameters']
+  body: IEndpoints['POST /storage/fileStorage/containerTypeRegistrations']['body']
 ): EndpointRequest<IEndpoints['POST /storage/fileStorage/containerTypeRegistrations']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/storage/fileStorage/containerTypeRegistrations',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const applicationPermissionGrants = {
+  /**
+   * `GET /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants`
+   *
+   * List all app permission grants in a fileStorageContainerTypeRegistration.
+   */
+  list: function list(
+    params?: IEndpoints['GET /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['fileStorageContainerTypeRegistration-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants']['body'],
+    params?: IEndpoints['POST /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants',
+      paramDefs: {
+        path: ['fileStorageContainerTypeRegistration-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}`
+   *
+   * Read a specific app permission grant in a fileStorageContainerTypeRegistration.
+   */
+  get: function get(
+    params?: IEndpoints['GET /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'fileStorageContainerTypeRegistration-id',
+          'fileStorageContainerTypeAppPermissionGrant-appId',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}`
+   *
+   * Update the properties of a fileStorageContainerTypeAppPermissionGrant object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}']['body'],
+    params?: IEndpoints['PATCH /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}',
+      paramDefs: {
+        path: [
+          'fileStorageContainerTypeRegistration-id',
+          'fileStorageContainerTypeAppPermissionGrant-appId',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}`
+   *
+   * Delete a fileStorageContainerTypeAppPermissionGrant object in a fileStorageContainerTypeRegistration.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/storage/fileStorage/containerTypeRegistrations/{fileStorageContainerTypeRegistration-id}/applicationPermissionGrants/{fileStorageContainerTypeAppPermissionGrant-appId}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: [
+          'fileStorageContainerTypeRegistration-id',
+          'fileStorageContainerTypeAppPermissionGrant-appId',
+        ],
+      },
+      params,
+    };
+  },
+};

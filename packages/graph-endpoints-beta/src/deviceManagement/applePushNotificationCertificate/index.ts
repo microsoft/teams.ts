@@ -1,5 +1,3 @@
-export * as generateApplePushNotificationCertificateSigningRequest from './generateApplePushNotificationCertificateSigningRequest';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -14,6 +12,10 @@ export interface IEndpoints {
   'PATCH /deviceManagement/applePushNotificationCertificate': Operation<
     '/deviceManagement/applePushNotificationCertificate',
     'patch'
+  >;
+  'POST /deviceManagement/applePushNotificationCertificate/generateApplePushNotificationCertificateSigningRequest': Operation<
+    '/deviceManagement/applePushNotificationCertificate/generateApplePushNotificationCertificateSigningRequest',
+    'post'
   >;
 }
 
@@ -30,7 +32,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/applePushNotificationCertificate',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -49,10 +53,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/applePushNotificationCertificate',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -62,8 +65,7 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /deviceManagement/applePushNotificationCertificate']['body'],
-  params?: IEndpoints['PATCH /deviceManagement/applePushNotificationCertificate']['parameters']
+  body: IEndpoints['PATCH /deviceManagement/applePushNotificationCertificate']['body']
 ): EndpointRequest<
   IEndpoints['PATCH /deviceManagement/applePushNotificationCertificate']['response']
 > {
@@ -71,8 +73,23 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/applePushNotificationCertificate',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const generateApplePushNotificationCertificateSigningRequest = {
+  /**
+   * `POST /deviceManagement/applePushNotificationCertificate/generateApplePushNotificationCertificateSigningRequest`
+   *
+   * Download Apple push notification certificate signing request
+   */
+  create: function create(): EndpointRequest<
+    IEndpoints['POST /deviceManagement/applePushNotificationCertificate/generateApplePushNotificationCertificateSigningRequest']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/applePushNotificationCertificate/generateApplePushNotificationCertificateSigningRequest',
+    };
+  },
+};

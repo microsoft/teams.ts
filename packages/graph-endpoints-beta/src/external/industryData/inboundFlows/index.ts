@@ -1,6 +1,3 @@
-export * as dataConnector from './dataConnector';
-export * as year from './year';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/external/industryData/inboundFlows',
     'post'
   >;
+  'GET /external/industryData/inboundFlows/{inboundFlow-id}/dataConnector': Operation<
+    '/external/industryData/inboundFlows/{inboundFlow-id}/dataConnector',
+    'get'
+  >;
+  'GET /external/industryData/inboundFlows/{inboundFlow-id}/year': Operation<
+    '/external/industryData/inboundFlows/{inboundFlow-id}/year',
+    'get'
+  >;
 }
 
 /**
@@ -40,10 +45,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/external/industryData/inboundFlows/{inboundFlow-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'inboundFlow-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['inboundFlow-id'],
+    },
     params,
   };
 }
@@ -60,16 +65,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/external/industryData/inboundFlows',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,11 +86,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/external/industryData/inboundFlows/{inboundFlow-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'inboundFlow-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['inboundFlow-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -100,7 +97,7 @@ export function get(
 /**
  * `PATCH /external/industryData/inboundFlows/{inboundFlow-id}`
  *
- * Update the properties of an inboundFileFlow object.
+ * Update the properties of an inboundApiFlow object.
  */
 export function update(
   body: IEndpoints['PATCH /external/industryData/inboundFlows/{inboundFlow-id}']['body'],
@@ -112,7 +109,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/external/industryData/inboundFlows/{inboundFlow-id}',
-    paramDefs: [{ name: 'inboundFlow-id', in: 'path' }],
+    paramDefs: {
+      path: ['inboundFlow-id'],
+    },
     params,
     body,
   };
@@ -124,15 +123,60 @@ export function update(
  * Create a new inboundApiFlow object.
  */
 export function create(
-  body: IEndpoints['POST /external/industryData/inboundFlows']['body'],
-  params?: IEndpoints['POST /external/industryData/inboundFlows']['parameters']
+  body: IEndpoints['POST /external/industryData/inboundFlows']['body']
 ): EndpointRequest<IEndpoints['POST /external/industryData/inboundFlows']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/external/industryData/inboundFlows',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const dataConnector = {
+  /**
+   * `GET /external/industryData/inboundFlows/{inboundFlow-id}/dataConnector`
+   *
+   * The data connector to the source system from where this flow gets its data.
+   */
+  get: function get(
+    params?: IEndpoints['GET /external/industryData/inboundFlows/{inboundFlow-id}/dataConnector']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /external/industryData/inboundFlows/{inboundFlow-id}/dataConnector']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/external/industryData/inboundFlows/{inboundFlow-id}/dataConnector',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['inboundFlow-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const year = {
+  /**
+   * `GET /external/industryData/inboundFlows/{inboundFlow-id}/year`
+   *
+   * The year associated to the data that this flow brings in.
+   */
+  get: function get(
+    params?: IEndpoints['GET /external/industryData/inboundFlows/{inboundFlow-id}/year']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /external/industryData/inboundFlows/{inboundFlow-id}/year']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/external/industryData/inboundFlows/{inboundFlow-id}/year',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['inboundFlow-id'],
+      },
+      params,
+    };
+  },
+};

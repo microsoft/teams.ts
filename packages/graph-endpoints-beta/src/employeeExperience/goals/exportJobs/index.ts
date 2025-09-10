@@ -1,5 +1,3 @@
-export * as content from './content';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,18 @@ export interface IEndpoints {
     '/employeeExperience/goals/exportJobs',
     'post'
   >;
+  'GET /employeeExperience/goals/exportJobs/{goalsExportJob-id}/content': Operation<
+    '/employeeExperience/goals/exportJobs/{goalsExportJob-id}/content',
+    'get'
+  >;
+  'PUT /employeeExperience/goals/exportJobs/{goalsExportJob-id}/content': Operation<
+    '/employeeExperience/goals/exportJobs/{goalsExportJob-id}/content',
+    'put'
+  >;
+  'DELETE /employeeExperience/goals/exportJobs/{goalsExportJob-id}/content': Operation<
+    '/employeeExperience/goals/exportJobs/{goalsExportJob-id}/content',
+    'delete'
+  >;
 }
 
 /**
@@ -38,10 +48,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/employeeExperience/goals/exportJobs/{goalsExportJob-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'goalsExportJob-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['goalsExportJob-id'],
+    },
     params,
   };
 }
@@ -58,16 +68,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/employeeExperience/goals/exportJobs',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +89,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/employeeExperience/goals/exportJobs/{goalsExportJob-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'goalsExportJob-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['goalsExportJob-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +111,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/employeeExperience/goals/exportJobs/{goalsExportJob-id}',
-    paramDefs: [{ name: 'goalsExportJob-id', in: 'path' }],
+    paramDefs: {
+      path: ['goalsExportJob-id'],
+    },
     params,
     body,
   };
@@ -121,15 +125,78 @@ export function update(
  * Create a new goalsExportJob object in a Viva Goals organization.
  */
 export function create(
-  body: IEndpoints['POST /employeeExperience/goals/exportJobs']['body'],
-  params?: IEndpoints['POST /employeeExperience/goals/exportJobs']['parameters']
+  body: IEndpoints['POST /employeeExperience/goals/exportJobs']['body']
 ): EndpointRequest<IEndpoints['POST /employeeExperience/goals/exportJobs']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/employeeExperience/goals/exportJobs',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const content = {
+  /**
+   * `GET /employeeExperience/goals/exportJobs/{goalsExportJob-id}/content`
+   *
+   * The content of the goalsExportJob.
+   */
+  get: function get(
+    params?: IEndpoints['GET /employeeExperience/goals/exportJobs/{goalsExportJob-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /employeeExperience/goals/exportJobs/{goalsExportJob-id}/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/employeeExperience/goals/exportJobs/{goalsExportJob-id}/content',
+      paramDefs: {
+        path: ['goalsExportJob-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /employeeExperience/goals/exportJobs/{goalsExportJob-id}/content`
+   *
+   * The content of the goalsExportJob.
+   */
+  set: function set(
+    body: IEndpoints['PUT /employeeExperience/goals/exportJobs/{goalsExportJob-id}/content']['body'],
+    params?: IEndpoints['PUT /employeeExperience/goals/exportJobs/{goalsExportJob-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /employeeExperience/goals/exportJobs/{goalsExportJob-id}/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'put',
+      path: '/employeeExperience/goals/exportJobs/{goalsExportJob-id}/content',
+      paramDefs: {
+        path: ['goalsExportJob-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /employeeExperience/goals/exportJobs/{goalsExportJob-id}/content`
+   *
+   * The content of the goalsExportJob.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /employeeExperience/goals/exportJobs/{goalsExportJob-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /employeeExperience/goals/exportJobs/{goalsExportJob-id}/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/employeeExperience/goals/exportJobs/{goalsExportJob-id}/content',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['goalsExportJob-id'],
+      },
+      params,
+    };
+  },
+};

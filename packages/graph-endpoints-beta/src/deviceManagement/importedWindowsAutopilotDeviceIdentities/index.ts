@@ -1,5 +1,3 @@
-export * as import from './import';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceManagement/importedWindowsAutopilotDeviceIdentities',
     'post'
   >;
+  'POST /deviceManagement/importedWindowsAutopilotDeviceIdentities/import': Operation<
+    '/deviceManagement/importedWindowsAutopilotDeviceIdentities/import',
+    'post'
+  >;
 }
 
 /**
@@ -38,10 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/importedWindowsAutopilotDeviceIdentities/{importedWindowsAutopilotDeviceIdentity-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'importedWindowsAutopilotDeviceIdentity-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['importedWindowsAutopilotDeviceIdentity-id'],
+    },
     params,
   };
 }
@@ -60,16 +62,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/importedWindowsAutopilotDeviceIdentities',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,11 +83,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/importedWindowsAutopilotDeviceIdentities/{importedWindowsAutopilotDeviceIdentity-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'importedWindowsAutopilotDeviceIdentity-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['importedWindowsAutopilotDeviceIdentity-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,7 +105,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/importedWindowsAutopilotDeviceIdentities/{importedWindowsAutopilotDeviceIdentity-id}',
-    paramDefs: [{ name: 'importedWindowsAutopilotDeviceIdentity-id', in: 'path' }],
+    paramDefs: {
+      path: ['importedWindowsAutopilotDeviceIdentity-id'],
+    },
     params,
     body,
   };
@@ -122,8 +118,7 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/importedWindowsAutopilotDeviceIdentities']['body'],
-  params?: IEndpoints['POST /deviceManagement/importedWindowsAutopilotDeviceIdentities']['parameters']
+  body: IEndpoints['POST /deviceManagement/importedWindowsAutopilotDeviceIdentities']['body']
 ): EndpointRequest<
   IEndpoints['POST /deviceManagement/importedWindowsAutopilotDeviceIdentities']['response']
 > {
@@ -131,8 +126,26 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/importedWindowsAutopilotDeviceIdentities',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+const import_ = {
+  /**
+   * `POST /deviceManagement/importedWindowsAutopilotDeviceIdentities/import`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/importedWindowsAutopilotDeviceIdentities/import']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/importedWindowsAutopilotDeviceIdentities/import']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/importedWindowsAutopilotDeviceIdentities/import',
+      body,
+    };
+  },
+};
+export { import_ as import };

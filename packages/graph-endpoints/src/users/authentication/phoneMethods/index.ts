@@ -1,6 +1,3 @@
-export * as disableSmsSignIn from './disableSmsSignIn';
-export * as enableSmsSignIn from './enableSmsSignIn';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/users/{user-id}/authentication/phoneMethods',
     'post'
   >;
+  'POST /users/{user-id}/authentication/phoneMethods/{phoneAuthenticationMethod-id}/disableSmsSignIn': Operation<
+    '/users/{user-id}/authentication/phoneMethods/{phoneAuthenticationMethod-id}/disableSmsSignIn',
+    'post'
+  >;
+  'POST /users/{user-id}/authentication/phoneMethods/{phoneAuthenticationMethod-id}/enableSmsSignIn': Operation<
+    '/users/{user-id}/authentication/phoneMethods/{phoneAuthenticationMethod-id}/enableSmsSignIn',
+    'post'
+  >;
 }
 
 /**
@@ -38,11 +43,10 @@ export function del(
   return {
     method: 'delete',
     path: '/users/{user-id}/authentication/phoneMethods/{phoneAuthenticationMethod-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'phoneAuthenticationMethod-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'phoneAuthenticationMethod-id'],
+    },
     params,
   };
 }
@@ -58,17 +62,10 @@ export function list(
   return {
     method: 'get',
     path: '/users/{user-id}/authentication/phoneMethods',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,12 +83,10 @@ export function get(
   return {
     method: 'get',
     path: '/users/{user-id}/authentication/phoneMethods/{phoneAuthenticationMethod-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'phoneAuthenticationMethod-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'phoneAuthenticationMethod-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,10 +105,9 @@ export function update(
   return {
     method: 'patch',
     path: '/users/{user-id}/authentication/phoneMethods/{phoneAuthenticationMethod-id}',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'phoneAuthenticationMethod-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'phoneAuthenticationMethod-id'],
+    },
     params,
     body,
   };
@@ -131,8 +125,54 @@ export function create(
   return {
     method: 'post',
     path: '/users/{user-id}/authentication/phoneMethods',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };
 }
+
+export const disableSmsSignIn = {
+  /**
+   * `POST /users/{user-id}/authentication/phoneMethods/{phoneAuthenticationMethod-id}/disableSmsSignIn`
+   *
+   * Disable SMS sign-in for an existing mobile phone number registered to a user. The number will no longer be available for SMS sign-in, which can prevent your user from signing in.
+   */
+  create: function create(
+    params?: IEndpoints['POST /users/{user-id}/authentication/phoneMethods/{phoneAuthenticationMethod-id}/disableSmsSignIn']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/authentication/phoneMethods/{phoneAuthenticationMethod-id}/disableSmsSignIn']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/authentication/phoneMethods/{phoneAuthenticationMethod-id}/disableSmsSignIn',
+      paramDefs: {
+        path: ['user-id', 'phoneAuthenticationMethod-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const enableSmsSignIn = {
+  /**
+   * `POST /users/{user-id}/authentication/phoneMethods/{phoneAuthenticationMethod-id}/enableSmsSignIn`
+   *
+   * Enable SMS sign-in for an existing mobile phone number registered to a user. To be successfully enabled:
+   */
+  create: function create(
+    params?: IEndpoints['POST /users/{user-id}/authentication/phoneMethods/{phoneAuthenticationMethod-id}/enableSmsSignIn']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/authentication/phoneMethods/{phoneAuthenticationMethod-id}/enableSmsSignIn']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/authentication/phoneMethods/{phoneAuthenticationMethod-id}/enableSmsSignIn',
+      paramDefs: {
+        path: ['user-id', 'phoneAuthenticationMethod-id'],
+      },
+      params,
+    };
+  },
+};

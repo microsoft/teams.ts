@@ -1,6 +1,3 @@
-export * as completeSetup from './completeSetup';
-export * as signUp from './signUp';
-
 import type { EndpointRequest, Operation } from './../types/common.ts';
 
 export interface IEndpoints {
@@ -18,6 +15,11 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /privilegedSignupStatus': Operation<'/privilegedSignupStatus', 'post'>;
+  'POST /privilegedSignupStatus/completeSetup': Operation<
+    '/privilegedSignupStatus/completeSetup',
+    'post'
+  >;
+  'POST /privilegedSignupStatus/signUp': Operation<'/privilegedSignupStatus/signUp', 'post'>;
 }
 
 /**
@@ -33,10 +35,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/privilegedSignupStatus/{privilegedSignupStatus-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'privilegedSignupStatus-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['privilegedSignupStatus-id'],
+    },
     params,
   };
 }
@@ -52,16 +54,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/privilegedSignupStatus',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -79,11 +74,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/privilegedSignupStatus/{privilegedSignupStatus-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'privilegedSignupStatus-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['privilegedSignupStatus-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -102,7 +96,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/privilegedSignupStatus/{privilegedSignupStatus-id}',
-    paramDefs: [{ name: 'privilegedSignupStatus-id', in: 'path' }],
+    paramDefs: {
+      path: ['privilegedSignupStatus-id'],
+    },
     params,
     body,
   };
@@ -113,15 +109,45 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /privilegedSignupStatus']['body'],
-  params?: IEndpoints['POST /privilegedSignupStatus']['parameters']
+  body: IEndpoints['POST /privilegedSignupStatus']['body']
 ): EndpointRequest<IEndpoints['POST /privilegedSignupStatus']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/privilegedSignupStatus',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const completeSetup = {
+  /**
+   * `POST /privilegedSignupStatus/completeSetup`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /privilegedSignupStatus/completeSetup']['body']
+  ): EndpointRequest<IEndpoints['POST /privilegedSignupStatus/completeSetup']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/privilegedSignupStatus/completeSetup',
+      body,
+    };
+  },
+};
+
+export const signUp = {
+  /**
+   * `POST /privilegedSignupStatus/signUp`
+   *
+   */
+  create: function create(): EndpointRequest<
+    IEndpoints['POST /privilegedSignupStatus/signUp']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/privilegedSignupStatus/signUp',
+    };
+  },
+};

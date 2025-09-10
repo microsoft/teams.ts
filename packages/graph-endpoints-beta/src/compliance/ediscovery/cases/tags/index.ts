@@ -1,6 +1,3 @@
-export * as childTags from './childTags';
-export * as parent from './parent';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,18 @@ export interface IEndpoints {
     '/compliance/ediscovery/cases/{case-id}/tags',
     'post'
   >;
+  'GET /compliance/ediscovery/cases/{case-id}/tags/{tag-id}/childTags': Operation<
+    '/compliance/ediscovery/cases/{case-id}/tags/{tag-id}/childTags',
+    'get'
+  >;
+  'GET /compliance/ediscovery/cases/{case-id}/tags/{tag-id}/childTags/{tag-id1}': Operation<
+    '/compliance/ediscovery/cases/{case-id}/tags/{tag-id}/childTags/{tag-id1}',
+    'get'
+  >;
+  'GET /compliance/ediscovery/cases/{case-id}/tags/{tag-id}/parent': Operation<
+    '/compliance/ediscovery/cases/{case-id}/tags/{tag-id}/parent',
+    'get'
+  >;
 }
 
 /**
@@ -41,11 +50,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/compliance/ediscovery/cases/{case-id}/tags/{tag-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'case-id', in: 'path' },
-      { name: 'tag-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['case-id', 'tag-id'],
+    },
     params,
   };
 }
@@ -63,17 +71,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/compliance/ediscovery/cases/{case-id}/tags',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'case-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['case-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,12 +94,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/compliance/ediscovery/cases/{case-id}/tags/{tag-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'case-id', in: 'path' },
-      { name: 'tag-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['case-id', 'tag-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -119,10 +118,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/compliance/ediscovery/cases/{case-id}/tags/{tag-id}',
-    paramDefs: [
-      { name: 'case-id', in: 'path' },
-      { name: 'tag-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['case-id', 'tag-id'],
+    },
     params,
     body,
   };
@@ -142,8 +140,82 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/compliance/ediscovery/cases/{case-id}/tags',
-    paramDefs: [{ name: 'case-id', in: 'path' }],
+    paramDefs: {
+      path: ['case-id'],
+    },
     params,
     body,
   };
 }
+
+export const childTags = {
+  /**
+   * `GET /compliance/ediscovery/cases/{case-id}/tags/{tag-id}/childTags`
+   *
+   * Get a list of child tag objects associated with a tag.
+   * @deprecated
+   */
+  list: function list(
+    params?: IEndpoints['GET /compliance/ediscovery/cases/{case-id}/tags/{tag-id}/childTags']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /compliance/ediscovery/cases/{case-id}/tags/{tag-id}/childTags']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/compliance/ediscovery/cases/{case-id}/tags/{tag-id}/childTags',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['case-id', 'tag-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /compliance/ediscovery/cases/{case-id}/tags/{tag-id}/childTags/{tag-id1}`
+   *
+   * Returns the tags that are a child of a tag.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /compliance/ediscovery/cases/{case-id}/tags/{tag-id}/childTags/{tag-id1}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /compliance/ediscovery/cases/{case-id}/tags/{tag-id}/childTags/{tag-id1}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/compliance/ediscovery/cases/{case-id}/tags/{tag-id}/childTags/{tag-id1}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['case-id', 'tag-id', 'tag-id1'],
+      },
+      params,
+    };
+  },
+};
+
+export const parent = {
+  /**
+   * `GET /compliance/ediscovery/cases/{case-id}/tags/{tag-id}/parent`
+   *
+   * Returns the parent tag of the specified tag.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /compliance/ediscovery/cases/{case-id}/tags/{tag-id}/parent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /compliance/ediscovery/cases/{case-id}/tags/{tag-id}/parent']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/compliance/ediscovery/cases/{case-id}/tags/{tag-id}/parent',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['case-id', 'tag-id'],
+      },
+      params,
+    };
+  },
+};

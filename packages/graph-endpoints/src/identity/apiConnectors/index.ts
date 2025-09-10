@@ -1,5 +1,3 @@
-export * as uploadClientCertificate from './uploadClientCertificate';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /identity/apiConnectors': Operation<'/identity/apiConnectors', 'post'>;
+  'POST /identity/apiConnectors/{identityApiConnector-id}/uploadClientCertificate': Operation<
+    '/identity/apiConnectors/{identityApiConnector-id}/uploadClientCertificate',
+    'post'
+  >;
 }
 
 /**
@@ -32,10 +34,10 @@ export function del(
   return {
     method: 'delete',
     path: '/identity/apiConnectors/{identityApiConnector-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'identityApiConnector-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['identityApiConnector-id'],
+    },
     params,
   };
 }
@@ -51,16 +53,9 @@ export function list(
   return {
     method: 'get',
     path: '/identity/apiConnectors',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -78,11 +73,10 @@ export function get(
   return {
     method: 'get',
     path: '/identity/apiConnectors/{identityApiConnector-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'identityApiConnector-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['identityApiConnector-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -101,7 +95,9 @@ export function update(
   return {
     method: 'patch',
     path: '/identity/apiConnectors/{identityApiConnector-id}',
-    paramDefs: [{ name: 'identityApiConnector-id', in: 'path' }],
+    paramDefs: {
+      path: ['identityApiConnector-id'],
+    },
     params,
     body,
   };
@@ -113,14 +109,35 @@ export function update(
  * Create a new identityApiConnector object.
  */
 export function create(
-  body: IEndpoints['POST /identity/apiConnectors']['body'],
-  params?: IEndpoints['POST /identity/apiConnectors']['parameters']
+  body: IEndpoints['POST /identity/apiConnectors']['body']
 ): EndpointRequest<IEndpoints['POST /identity/apiConnectors']['response']> {
   return {
     method: 'post',
     path: '/identity/apiConnectors',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const uploadClientCertificate = {
+  /**
+   * `POST /identity/apiConnectors/{identityApiConnector-id}/uploadClientCertificate`
+   *
+   * Upload a PKCS 12 format key (.pfx) to an API connector&#x27;s authentication configuration. The input is a base-64 encoded value of the PKCS 12 certificate contents. This method returns an apiConnector.
+   */
+  create: function create(
+    body: IEndpoints['POST /identity/apiConnectors/{identityApiConnector-id}/uploadClientCertificate']['body'],
+    params?: IEndpoints['POST /identity/apiConnectors/{identityApiConnector-id}/uploadClientCertificate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /identity/apiConnectors/{identityApiConnector-id}/uploadClientCertificate']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/identity/apiConnectors/{identityApiConnector-id}/uploadClientCertificate',
+      paramDefs: {
+        path: ['identityApiConnector-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

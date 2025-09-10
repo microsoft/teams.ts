@@ -1,5 +1,3 @@
-export * as appliesTo from './appliesTo';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,14 @@ export interface IEndpoints {
     '/policies/homeRealmDiscoveryPolicies',
     'post'
   >;
+  'GET /policies/homeRealmDiscoveryPolicies/{homeRealmDiscoveryPolicy-id}/appliesTo': Operation<
+    '/policies/homeRealmDiscoveryPolicies/{homeRealmDiscoveryPolicy-id}/appliesTo',
+    'get'
+  >;
+  'GET /policies/homeRealmDiscoveryPolicies/{homeRealmDiscoveryPolicy-id}/appliesTo/{directoryObject-id}': Operation<
+    '/policies/homeRealmDiscoveryPolicies/{homeRealmDiscoveryPolicy-id}/appliesTo/{directoryObject-id}',
+    'get'
+  >;
 }
 
 /**
@@ -39,10 +45,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/policies/homeRealmDiscoveryPolicies/{homeRealmDiscoveryPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'homeRealmDiscoveryPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['homeRealmDiscoveryPolicy-id'],
+    },
     params,
   };
 }
@@ -59,16 +65,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/policies/homeRealmDiscoveryPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +86,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/policies/homeRealmDiscoveryPolicies/{homeRealmDiscoveryPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'homeRealmDiscoveryPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['homeRealmDiscoveryPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,7 +109,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/policies/homeRealmDiscoveryPolicies/{homeRealmDiscoveryPolicy-id}',
-    paramDefs: [{ name: 'homeRealmDiscoveryPolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['homeRealmDiscoveryPolicy-id'],
+    },
     params,
     body,
   };
@@ -123,15 +123,56 @@ export function update(
  * Create a new homeRealmDiscoveryPolicy object.
  */
 export function create(
-  body: IEndpoints['POST /policies/homeRealmDiscoveryPolicies']['body'],
-  params?: IEndpoints['POST /policies/homeRealmDiscoveryPolicies']['parameters']
+  body: IEndpoints['POST /policies/homeRealmDiscoveryPolicies']['body']
 ): EndpointRequest<IEndpoints['POST /policies/homeRealmDiscoveryPolicies']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/policies/homeRealmDiscoveryPolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const appliesTo = {
+  /**
+   * `GET /policies/homeRealmDiscoveryPolicies/{homeRealmDiscoveryPolicy-id}/appliesTo`
+   *
+   * Get a list of directoryObject objects that a homeRealmDiscoveryPolicy object has been applied to. The homeRealmDiscoveryPolicy can only be applied to servicePrincipal resources.
+   */
+  get: function get(
+    params?: IEndpoints['GET /policies/homeRealmDiscoveryPolicies/{homeRealmDiscoveryPolicy-id}/appliesTo']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/homeRealmDiscoveryPolicies/{homeRealmDiscoveryPolicy-id}/appliesTo']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/policies/homeRealmDiscoveryPolicies/{homeRealmDiscoveryPolicy-id}/appliesTo',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['homeRealmDiscoveryPolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /policies/homeRealmDiscoveryPolicies/{homeRealmDiscoveryPolicy-id}/appliesTo/{directoryObject-id}`
+   *
+   */
+  get$1: function get$1(
+    params?: IEndpoints['GET /policies/homeRealmDiscoveryPolicies/{homeRealmDiscoveryPolicy-id}/appliesTo/{directoryObject-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/homeRealmDiscoveryPolicies/{homeRealmDiscoveryPolicy-id}/appliesTo/{directoryObject-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/policies/homeRealmDiscoveryPolicies/{homeRealmDiscoveryPolicy-id}/appliesTo/{directoryObject-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['homeRealmDiscoveryPolicy-id', 'directoryObject-id'],
+      },
+      params,
+    };
+  },
+};

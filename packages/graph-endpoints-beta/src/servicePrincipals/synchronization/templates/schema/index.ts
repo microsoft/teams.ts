@@ -1,5 +1,4 @@
 export * as directories from './directories';
-export * as parseExpression from './parseExpression';
 
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
@@ -16,6 +15,10 @@ export interface IEndpoints {
     '/servicePrincipals/{servicePrincipal-id}/synchronization/templates/{synchronizationTemplate-id}/schema',
     'patch'
   >;
+  'POST /servicePrincipals/{servicePrincipal-id}/synchronization/templates/{synchronizationTemplate-id}/schema/parseExpression': Operation<
+    '/servicePrincipals/{servicePrincipal-id}/synchronization/templates/{synchronizationTemplate-id}/schema/parseExpression',
+    'post'
+  >;
 }
 
 /**
@@ -31,11 +34,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/servicePrincipals/{servicePrincipal-id}/synchronization/templates/{synchronizationTemplate-id}/schema',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'servicePrincipal-id', in: 'path' },
-      { name: 'synchronizationTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['servicePrincipal-id', 'synchronizationTemplate-id'],
+    },
     params,
   };
 }
@@ -54,12 +56,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/servicePrincipals/{servicePrincipal-id}/synchronization/templates/{synchronizationTemplate-id}/schema',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'servicePrincipal-id', in: 'path' },
-      { name: 'synchronizationTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['servicePrincipal-id', 'synchronizationTemplate-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -78,11 +78,35 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/servicePrincipals/{servicePrincipal-id}/synchronization/templates/{synchronizationTemplate-id}/schema',
-    paramDefs: [
-      { name: 'servicePrincipal-id', in: 'path' },
-      { name: 'synchronizationTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['servicePrincipal-id', 'synchronizationTemplate-id'],
+    },
     params,
     body,
   };
 }
+
+export const parseExpression = {
+  /**
+   * `POST /servicePrincipals/{servicePrincipal-id}/synchronization/templates/{synchronizationTemplate-id}/schema/parseExpression`
+   *
+   * Parse a given string expression into an attributeMappingSource object. For more information about expressions, see Writing Expressions for Attribute Mappings in Microsoft Entra ID.
+   */
+  create: function create(
+    body: IEndpoints['POST /servicePrincipals/{servicePrincipal-id}/synchronization/templates/{synchronizationTemplate-id}/schema/parseExpression']['body'],
+    params?: IEndpoints['POST /servicePrincipals/{servicePrincipal-id}/synchronization/templates/{synchronizationTemplate-id}/schema/parseExpression']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /servicePrincipals/{servicePrincipal-id}/synchronization/templates/{synchronizationTemplate-id}/schema/parseExpression']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/servicePrincipals/{servicePrincipal-id}/synchronization/templates/{synchronizationTemplate-id}/schema/parseExpression',
+      paramDefs: {
+        path: ['servicePrincipal-id', 'synchronizationTemplate-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

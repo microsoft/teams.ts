@@ -1,6 +1,3 @@
-export * as content from './content';
-export * as metadataContent from './metadataContent';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,30 @@ export interface IEndpoints {
     '/me/onlineMeetings/{onlineMeeting-id}/transcripts',
     'post'
   >;
+  'GET /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content': Operation<
+    '/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content',
+    'get'
+  >;
+  'PUT /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content': Operation<
+    '/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content',
+    'put'
+  >;
+  'DELETE /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content': Operation<
+    '/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content',
+    'delete'
+  >;
+  'GET /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent': Operation<
+    '/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent',
+    'get'
+  >;
+  'PUT /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent': Operation<
+    '/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent',
+    'put'
+  >;
+  'DELETE /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent': Operation<
+    '/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent',
+    'delete'
+  >;
 }
 
 /**
@@ -38,11 +59,10 @@ export function del(
   return {
     method: 'delete',
     path: '/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'onlineMeeting-id', in: 'path' },
-      { name: 'callTranscript-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['onlineMeeting-id', 'callTranscript-id'],
+    },
     params,
   };
 }
@@ -60,17 +80,10 @@ export function list(
   return {
     method: 'get',
     path: '/me/onlineMeetings/{onlineMeeting-id}/transcripts',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'onlineMeeting-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['onlineMeeting-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,12 +101,10 @@ export function get(
   return {
     method: 'get',
     path: '/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'onlineMeeting-id', in: 'path' },
-      { name: 'callTranscript-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['onlineMeeting-id', 'callTranscript-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,10 +122,9 @@ export function update(
   return {
     method: 'patch',
     path: '/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}',
-    paramDefs: [
-      { name: 'onlineMeeting-id', in: 'path' },
-      { name: 'callTranscript-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['onlineMeeting-id', 'callTranscript-id'],
+    },
     params,
     body,
   };
@@ -133,8 +143,136 @@ export function create(
   return {
     method: 'post',
     path: '/me/onlineMeetings/{onlineMeeting-id}/transcripts',
-    paramDefs: [{ name: 'onlineMeeting-id', in: 'path' }],
+    paramDefs: {
+      path: ['onlineMeeting-id'],
+    },
     params,
     body,
   };
 }
+
+export const content = {
+  /**
+   * `GET /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content`
+   *
+   * The content of the transcript. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content',
+      paramDefs: {
+        path: ['onlineMeeting-id', 'callTranscript-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content`
+   *
+   * The content of the transcript. Read-only.
+   */
+  set: function set(
+    body: IEndpoints['PUT /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content']['body'],
+    params?: IEndpoints['PUT /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content']['response']
+  > {
+    return {
+      method: 'put',
+      path: '/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content',
+      paramDefs: {
+        path: ['onlineMeeting-id', 'callTranscript-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content`
+   *
+   * The content of the transcript. Read-only.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['onlineMeeting-id', 'callTranscript-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const metadataContent = {
+  /**
+   * `GET /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent`
+   *
+   * The time-aligned metadata of the utterances in the transcript. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent',
+      paramDefs: {
+        path: ['onlineMeeting-id', 'callTranscript-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent`
+   *
+   * The time-aligned metadata of the utterances in the transcript. Read-only.
+   */
+  set: function set(
+    body: IEndpoints['PUT /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent']['body'],
+    params?: IEndpoints['PUT /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent']['response']
+  > {
+    return {
+      method: 'put',
+      path: '/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent',
+      paramDefs: {
+        path: ['onlineMeeting-id', 'callTranscript-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent`
+   *
+   * The time-aligned metadata of the utterances in the transcript. Read-only.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/metadataContent',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['onlineMeeting-id', 'callTranscript-id'],
+      },
+      params,
+    };
+  },
+};

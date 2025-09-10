@@ -1,4 +1,3 @@
-export * as assign from './assign';
 export * as assignments from './assignments';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -24,6 +23,10 @@ export interface IEndpoints {
     '/deviceManagement/virtualEndpoint/provisioningPolicies',
     'post'
   >;
+  'POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assign': Operation<
+    '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assign',
+    'post'
+  >;
 }
 
 /**
@@ -39,10 +42,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'cloudPcProvisioningPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['cloudPcProvisioningPolicy-id'],
+    },
     params,
   };
 }
@@ -60,16 +63,9 @@ export function list(
   return {
     method: 'get',
     path: '/deviceManagement/virtualEndpoint/provisioningPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +83,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'cloudPcProvisioningPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['cloudPcProvisioningPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +105,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}',
-    paramDefs: [{ name: 'cloudPcProvisioningPolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['cloudPcProvisioningPolicy-id'],
+    },
     params,
     body,
   };
@@ -122,16 +119,37 @@ export function update(
  * Create a new cloudPcProvisioningPolicy object.
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies']['body'],
-  params?: IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies']['parameters']
+  body: IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies']['body']
 ): EndpointRequest<
   IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies']['response']
 > {
   return {
     method: 'post',
     path: '/deviceManagement/virtualEndpoint/provisioningPolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const assign = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assign`
+   *
+   * Assign a cloudPcProvisioningPolicy to user groups.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assign']['body'],
+    params?: IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assign']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assign']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assign',
+      paramDefs: {
+        path: ['cloudPcProvisioningPolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

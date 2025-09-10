@@ -1,5 +1,3 @@
-export * as resource from './resource';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -14,6 +12,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /me/insights/used': Operation<'/me/insights/used', 'post'>;
+  'GET /me/insights/used/{usedInsight-id}/resource': Operation<
+    '/me/insights/used/{usedInsight-id}/resource',
+    'get'
+  >;
 }
 
 /**
@@ -27,10 +29,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/insights/used/{usedInsight-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'usedInsight-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['usedInsight-id'],
+    },
     params,
   };
 }
@@ -49,16 +51,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/insights/used',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -75,11 +70,10 @@ export function get$1(
     ver: 'beta',
     method: 'get',
     path: '/me/insights/used/{usedInsight-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'usedInsight-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['usedInsight-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -96,7 +90,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/insights/used/{usedInsight-id}',
-    paramDefs: [{ name: 'usedInsight-id', in: 'path' }],
+    paramDefs: {
+      path: ['usedInsight-id'],
+    },
     params,
     body,
   };
@@ -107,15 +103,34 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /me/insights/used']['body'],
-  params?: IEndpoints['POST /me/insights/used']['parameters']
+  body: IEndpoints['POST /me/insights/used']['body']
 ): EndpointRequest<IEndpoints['POST /me/insights/used']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/me/insights/used',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const resource = {
+  /**
+   * `GET /me/insights/used/{usedInsight-id}/resource`
+   *
+   * Used for navigating to the item that was used. For file attachments, the type is fileAttachment. For linked attachments, the type is driveItem.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/insights/used/{usedInsight-id}/resource']['parameters']
+  ): EndpointRequest<IEndpoints['GET /me/insights/used/{usedInsight-id}/resource']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/insights/used/{usedInsight-id}/resource',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['usedInsight-id'],
+      },
+      params,
+    };
+  },
+};

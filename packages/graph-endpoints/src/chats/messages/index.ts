@@ -1,9 +1,4 @@
-export * as hostedContents from './hostedContents';
 export * as replies from './replies';
-export * as setReaction from './setReaction';
-export * as softDelete from './softDelete';
-export * as undoSoftDelete from './undoSoftDelete';
-export * as unsetReaction from './unsetReaction';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -22,6 +17,42 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /chats/{chat-id}/messages': Operation<'/chats/{chat-id}/messages', 'post'>;
+  'GET /chats/{chat-id}/messages/{chatMessage-id}/hostedContents': Operation<
+    '/chats/{chat-id}/messages/{chatMessage-id}/hostedContents',
+    'get'
+  >;
+  'POST /chats/{chat-id}/messages/{chatMessage-id}/hostedContents': Operation<
+    '/chats/{chat-id}/messages/{chatMessage-id}/hostedContents',
+    'post'
+  >;
+  'GET /chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}': Operation<
+    '/chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}',
+    'get'
+  >;
+  'PATCH /chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}': Operation<
+    '/chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}',
+    'patch'
+  >;
+  'DELETE /chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}': Operation<
+    '/chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}',
+    'delete'
+  >;
+  'POST /chats/{chat-id}/messages/{chatMessage-id}/setReaction': Operation<
+    '/chats/{chat-id}/messages/{chatMessage-id}/setReaction',
+    'post'
+  >;
+  'POST /chats/{chat-id}/messages/{chatMessage-id}/softDelete': Operation<
+    '/chats/{chat-id}/messages/{chatMessage-id}/softDelete',
+    'post'
+  >;
+  'POST /chats/{chat-id}/messages/{chatMessage-id}/undoSoftDelete': Operation<
+    '/chats/{chat-id}/messages/{chatMessage-id}/undoSoftDelete',
+    'post'
+  >;
+  'POST /chats/{chat-id}/messages/{chatMessage-id}/unsetReaction': Operation<
+    '/chats/{chat-id}/messages/{chatMessage-id}/unsetReaction',
+    'post'
+  >;
 }
 
 /**
@@ -34,11 +65,10 @@ export function del(
   return {
     method: 'delete',
     path: '/chats/{chat-id}/messages/{chatMessage-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'chat-id', in: 'path' },
-      { name: 'chatMessage-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['chat-id', 'chatMessage-id'],
+    },
     params,
   };
 }
@@ -54,17 +84,10 @@ export function list(
   return {
     method: 'get',
     path: '/chats/{chat-id}/messages',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'chat-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['chat-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -80,12 +103,10 @@ export function get(
   return {
     method: 'get',
     path: '/chats/{chat-id}/messages/{chatMessage-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'chat-id', in: 'path' },
-      { name: 'chatMessage-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['chat-id', 'chatMessage-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -101,10 +122,9 @@ export function update(
   return {
     method: 'patch',
     path: '/chats/{chat-id}/messages/{chatMessage-id}',
-    paramDefs: [
-      { name: 'chat-id', in: 'path' },
-      { name: 'chatMessage-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['chat-id', 'chatMessage-id'],
+    },
     params,
     body,
   };
@@ -113,7 +133,7 @@ export function update(
 /**
  * `POST /chats/{chat-id}/messages`
  *
- * Send a new chatMessage in the specified channel or a chat.
+ * Send a new chatMessage in the specified chat. This API can&#x27;t create a new chat; you must use the list chats method to retrieve the ID of an existing chat before you can create a chat message.
  */
 export function create(
   body: IEndpoints['POST /chats/{chat-id}/messages']['body'],
@@ -122,8 +142,202 @@ export function create(
   return {
     method: 'post',
     path: '/chats/{chat-id}/messages',
-    paramDefs: [{ name: 'chat-id', in: 'path' }],
+    paramDefs: {
+      path: ['chat-id'],
+    },
     params,
     body,
   };
 }
+
+export const hostedContents = {
+  /**
+   * `GET /chats/{chat-id}/messages/{chatMessage-id}/hostedContents`
+   *
+   * Retrieve the list of chatMessageHostedContent objects from a message. This API only lists the hosted content objects. To get the content bytes, see get chatmessage hosted content.
+   */
+  list: function list(
+    params?: IEndpoints['GET /chats/{chat-id}/messages/{chatMessage-id}/hostedContents']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /chats/{chat-id}/messages/{chatMessage-id}/hostedContents']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/chats/{chat-id}/messages/{chatMessage-id}/hostedContents',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['chat-id', 'chatMessage-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /chats/{chat-id}/messages/{chatMessage-id}/hostedContents`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /chats/{chat-id}/messages/{chatMessage-id}/hostedContents']['body'],
+    params?: IEndpoints['POST /chats/{chat-id}/messages/{chatMessage-id}/hostedContents']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /chats/{chat-id}/messages/{chatMessage-id}/hostedContents']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/chats/{chat-id}/messages/{chatMessage-id}/hostedContents',
+      paramDefs: {
+        path: ['chat-id', 'chatMessage-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}`
+   *
+   * Retrieve the properties and relationships of chatMessageHostedContent object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['chat-id', 'chatMessage-id', 'chatMessageHostedContent-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}']['body'],
+    params?: IEndpoints['PATCH /chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}',
+      paramDefs: {
+        path: ['chat-id', 'chatMessage-id', 'chatMessageHostedContent-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/chats/{chat-id}/messages/{chatMessage-id}/hostedContents/{chatMessageHostedContent-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['chat-id', 'chatMessage-id', 'chatMessageHostedContent-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const setReaction = {
+  /**
+   * `POST /chats/{chat-id}/messages/{chatMessage-id}/setReaction`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /chats/{chat-id}/messages/{chatMessage-id}/setReaction']['body'],
+    params?: IEndpoints['POST /chats/{chat-id}/messages/{chatMessage-id}/setReaction']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /chats/{chat-id}/messages/{chatMessage-id}/setReaction']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/chats/{chat-id}/messages/{chatMessage-id}/setReaction',
+      paramDefs: {
+        path: ['chat-id', 'chatMessage-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const softDelete = {
+  /**
+   * `POST /chats/{chat-id}/messages/{chatMessage-id}/softDelete`
+   *
+   * Delete a single chatMessage or a chat message reply in a channel or a chat.
+   */
+  create: function create(
+    params?: IEndpoints['POST /chats/{chat-id}/messages/{chatMessage-id}/softDelete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /chats/{chat-id}/messages/{chatMessage-id}/softDelete']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/chats/{chat-id}/messages/{chatMessage-id}/softDelete',
+      paramDefs: {
+        path: ['chat-id', 'chatMessage-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const undoSoftDelete = {
+  /**
+   * `POST /chats/{chat-id}/messages/{chatMessage-id}/undoSoftDelete`
+   *
+   * Undo soft deletion of a single chatMessage or a chat message reply in a channel or a chat.
+   */
+  create: function create(
+    params?: IEndpoints['POST /chats/{chat-id}/messages/{chatMessage-id}/undoSoftDelete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /chats/{chat-id}/messages/{chatMessage-id}/undoSoftDelete']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/chats/{chat-id}/messages/{chatMessage-id}/undoSoftDelete',
+      paramDefs: {
+        path: ['chat-id', 'chatMessage-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const unsetReaction = {
+  /**
+   * `POST /chats/{chat-id}/messages/{chatMessage-id}/unsetReaction`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /chats/{chat-id}/messages/{chatMessage-id}/unsetReaction']['body'],
+    params?: IEndpoints['POST /chats/{chat-id}/messages/{chatMessage-id}/unsetReaction']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /chats/{chat-id}/messages/{chatMessage-id}/unsetReaction']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/chats/{chat-id}/messages/{chatMessage-id}/unsetReaction',
+      paramDefs: {
+        path: ['chat-id', 'chatMessage-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

@@ -1,5 +1,3 @@
-export * as roleDefinition from './roleDefinition';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments',
     'post'
   >;
+  'GET /deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}/roleDefinition': Operation<
+    '/deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}/roleDefinition',
+    'get'
+  >;
 }
 
 /**
@@ -38,11 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'roleDefinition-id', in: 'path' },
-      { name: 'roleAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['roleDefinition-id', 'roleAssignment-id'],
+    },
     params,
   };
 }
@@ -61,17 +62,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'roleDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['roleDefinition-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +84,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'roleDefinition-id', in: 'path' },
-      { name: 'roleAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['roleDefinition-id', 'roleAssignment-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +106,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}',
-    paramDefs: [
-      { name: 'roleDefinition-id', in: 'path' },
-      { name: 'roleAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['roleDefinition-id', 'roleAssignment-id'],
+    },
     params,
     body,
   };
@@ -137,8 +128,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments',
-    paramDefs: [{ name: 'roleDefinition-id', in: 'path' }],
+    paramDefs: {
+      path: ['roleDefinition-id'],
+    },
     params,
     body,
   };
 }
+
+export const roleDefinition = {
+  /**
+   * `GET /deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}/roleDefinition`
+   *
+   * Indicates the role definition for this role assignment.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}/roleDefinition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}/roleDefinition']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}/roleDefinition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['roleDefinition-id', 'roleAssignment-id'],
+      },
+      params,
+    };
+  },
+};

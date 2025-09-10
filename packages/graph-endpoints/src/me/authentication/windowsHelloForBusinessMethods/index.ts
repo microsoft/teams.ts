@@ -1,5 +1,3 @@
-export * as device from './device';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -13,6 +11,10 @@ export interface IEndpoints {
   >;
   'GET /me/authentication/windowsHelloForBusinessMethods/{windowsHelloForBusinessAuthenticationMethod-id}': Operation<
     '/me/authentication/windowsHelloForBusinessMethods/{windowsHelloForBusinessAuthenticationMethod-id}',
+    'get'
+  >;
+  'GET /me/authentication/windowsHelloForBusinessMethods/{windowsHelloForBusinessAuthenticationMethod-id}/device': Operation<
+    '/me/authentication/windowsHelloForBusinessMethods/{windowsHelloForBusinessAuthenticationMethod-id}/device',
     'get'
   >;
 }
@@ -29,10 +31,10 @@ export function del(
   return {
     method: 'delete',
     path: '/me/authentication/windowsHelloForBusinessMethods/{windowsHelloForBusinessAuthenticationMethod-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'windowsHelloForBusinessAuthenticationMethod-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['windowsHelloForBusinessAuthenticationMethod-id'],
+    },
     params,
   };
 }
@@ -50,16 +52,9 @@ export function list(
   return {
     method: 'get',
     path: '/me/authentication/windowsHelloForBusinessMethods',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -77,11 +72,33 @@ export function get(
   return {
     method: 'get',
     path: '/me/authentication/windowsHelloForBusinessMethods/{windowsHelloForBusinessAuthenticationMethod-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'windowsHelloForBusinessAuthenticationMethod-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['windowsHelloForBusinessAuthenticationMethod-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
+
+export const device = {
+  /**
+   * `GET /me/authentication/windowsHelloForBusinessMethods/{windowsHelloForBusinessAuthenticationMethod-id}/device`
+   *
+   * The registered device on which this Windows Hello for Business key resides. Supports $expand. When you get a user&#x27;s Windows Hello for Business registration information, this property is returned only on a single GET and when you specify ?$expand. For example, GET /users/admin@contoso.com/authentication/windowsHelloForBusinessMethods/_jpuR-TGZtk6aQCLF3BQjA2?$expand&#x3D;device.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/authentication/windowsHelloForBusinessMethods/{windowsHelloForBusinessAuthenticationMethod-id}/device']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/authentication/windowsHelloForBusinessMethods/{windowsHelloForBusinessAuthenticationMethod-id}/device']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/authentication/windowsHelloForBusinessMethods/{windowsHelloForBusinessAuthenticationMethod-id}/device',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['windowsHelloForBusinessAuthenticationMethod-id'],
+      },
+      params,
+    };
+  },
+};

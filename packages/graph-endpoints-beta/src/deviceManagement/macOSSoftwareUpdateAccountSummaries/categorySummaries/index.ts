@@ -1,5 +1,3 @@
-export * as updateStateSummaries from './updateStateSummaries';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries',
     'post'
   >;
+  'GET /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries': Operation<
+    '/deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries',
+    'get'
+  >;
+  'POST /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries': Operation<
+    '/deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries',
+    'post'
+  >;
+  'GET /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}': Operation<
+    '/deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}',
+    'get'
+  >;
+  'PATCH /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}': Operation<
+    '/deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}',
+    'patch'
+  >;
+  'DELETE /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}': Operation<
+    '/deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,11 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'macOSSoftwareUpdateAccountSummary-id', in: 'path' },
-      { name: 'macOSSoftwareUpdateCategorySummary-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['macOSSoftwareUpdateAccountSummary-id', 'macOSSoftwareUpdateCategorySummary-id'],
+    },
     params,
   };
 }
@@ -61,17 +78,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'macOSSoftwareUpdateAccountSummary-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['macOSSoftwareUpdateAccountSummary-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +100,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'macOSSoftwareUpdateAccountSummary-id', in: 'path' },
-      { name: 'macOSSoftwareUpdateCategorySummary-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['macOSSoftwareUpdateAccountSummary-id', 'macOSSoftwareUpdateCategorySummary-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +122,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}',
-    paramDefs: [
-      { name: 'macOSSoftwareUpdateAccountSummary-id', in: 'path' },
-      { name: 'macOSSoftwareUpdateCategorySummary-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['macOSSoftwareUpdateAccountSummary-id', 'macOSSoftwareUpdateCategorySummary-id'],
+    },
     params,
     body,
   };
@@ -137,8 +144,129 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries',
-    paramDefs: [{ name: 'macOSSoftwareUpdateAccountSummary-id', in: 'path' }],
+    paramDefs: {
+      path: ['macOSSoftwareUpdateAccountSummary-id'],
+    },
     params,
     body,
   };
 }
+
+export const updateStateSummaries = {
+  /**
+   * `GET /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries`
+   *
+   * Summary of the update states.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['macOSSoftwareUpdateAccountSummary-id', 'macOSSoftwareUpdateCategorySummary-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries']['body'],
+    params?: IEndpoints['POST /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries',
+      paramDefs: {
+        path: ['macOSSoftwareUpdateAccountSummary-id', 'macOSSoftwareUpdateCategorySummary-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}`
+   *
+   * Summary of the update states.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'macOSSoftwareUpdateAccountSummary-id',
+          'macOSSoftwareUpdateCategorySummary-id',
+          'macOSSoftwareUpdateStateSummary-id',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}']['body'],
+    params?: IEndpoints['PATCH /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}',
+      paramDefs: {
+        path: [
+          'macOSSoftwareUpdateAccountSummary-id',
+          'macOSSoftwareUpdateCategorySummary-id',
+          'macOSSoftwareUpdateStateSummary-id',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/deviceManagement/macOSSoftwareUpdateAccountSummaries/{macOSSoftwareUpdateAccountSummary-id}/categorySummaries/{macOSSoftwareUpdateCategorySummary-id}/updateStateSummaries/{macOSSoftwareUpdateStateSummary-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: [
+          'macOSSoftwareUpdateAccountSummary-id',
+          'macOSSoftwareUpdateCategorySummary-id',
+          'macOSSoftwareUpdateStateSummary-id',
+        ],
+      },
+      params,
+    };
+  },
+};

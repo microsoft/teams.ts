@@ -19,7 +19,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/cases',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -35,10 +37,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/cases',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -48,15 +49,12 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /security/cases']['body'],
-  params?: IEndpoints['PATCH /security/cases']['parameters']
+  body: IEndpoints['PATCH /security/cases']['body']
 ): EndpointRequest<IEndpoints['PATCH /security/cases']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/security/cases',
-    paramDefs: [],
-    params,
     body,
   };
 }

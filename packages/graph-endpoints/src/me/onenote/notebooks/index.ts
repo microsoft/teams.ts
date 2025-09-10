@@ -1,5 +1,3 @@
-export * as copyNotebook from './copyNotebook';
-export * as getNotebookFromWebUrl from './getNotebookFromWebUrl';
 export * as sectionGroups from './sectionGroups';
 export * as sections from './sections';
 
@@ -20,6 +18,14 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /me/onenote/notebooks': Operation<'/me/onenote/notebooks', 'post'>;
+  'POST /me/onenote/notebooks/{notebook-id}/copyNotebook': Operation<
+    '/me/onenote/notebooks/{notebook-id}/copyNotebook',
+    'post'
+  >;
+  'POST /me/onenote/notebooks/getNotebookFromWebUrl': Operation<
+    '/me/onenote/notebooks/getNotebookFromWebUrl',
+    'post'
+  >;
 }
 
 /**
@@ -32,10 +38,10 @@ export function del(
   return {
     method: 'delete',
     path: '/me/onenote/notebooks/{notebook-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'notebook-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['notebook-id'],
+    },
     params,
   };
 }
@@ -51,16 +57,9 @@ export function list(
   return {
     method: 'get',
     path: '/me/onenote/notebooks',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -76,11 +75,10 @@ export function get(
   return {
     method: 'get',
     path: '/me/onenote/notebooks/{notebook-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'notebook-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['notebook-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -96,7 +94,9 @@ export function update(
   return {
     method: 'patch',
     path: '/me/onenote/notebooks/{notebook-id}',
-    paramDefs: [{ name: 'notebook-id', in: 'path' }],
+    paramDefs: {
+      path: ['notebook-id'],
+    },
     params,
     body,
   };
@@ -108,14 +108,52 @@ export function update(
  * Create a new OneNote notebook.
  */
 export function create(
-  body: IEndpoints['POST /me/onenote/notebooks']['body'],
-  params?: IEndpoints['POST /me/onenote/notebooks']['parameters']
+  body: IEndpoints['POST /me/onenote/notebooks']['body']
 ): EndpointRequest<IEndpoints['POST /me/onenote/notebooks']['response']> {
   return {
     method: 'post',
     path: '/me/onenote/notebooks',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const copyNotebook = {
+  /**
+   * `POST /me/onenote/notebooks/{notebook-id}/copyNotebook`
+   *
+   * For Copy operations, you follow an asynchronous calling pattern:  First call the Copy action, and then poll the operation endpoint for the result.
+   */
+  create: function create(
+    body: IEndpoints['POST /me/onenote/notebooks/{notebook-id}/copyNotebook']['body'],
+    params?: IEndpoints['POST /me/onenote/notebooks/{notebook-id}/copyNotebook']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/onenote/notebooks/{notebook-id}/copyNotebook']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/me/onenote/notebooks/{notebook-id}/copyNotebook',
+      paramDefs: {
+        path: ['notebook-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const getNotebookFromWebUrl = {
+  /**
+   * `POST /me/onenote/notebooks/getNotebookFromWebUrl`
+   *
+   * Retrieve the properties and relationships of a notebook object by using its URL path. The location can be user notebooks on Microsoft 365, group notebooks, or SharePoint site-hosted team notebooks on Microsoft 365.
+   */
+  create: function create(
+    body: IEndpoints['POST /me/onenote/notebooks/getNotebookFromWebUrl']['body']
+  ): EndpointRequest<IEndpoints['POST /me/onenote/notebooks/getNotebookFromWebUrl']['response']> {
+    return {
+      method: 'post',
+      path: '/me/onenote/notebooks/getNotebookFromWebUrl',
+      body,
+    };
+  },
+};

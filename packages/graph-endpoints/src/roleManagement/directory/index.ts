@@ -26,7 +26,9 @@ export function del(
   return {
     method: 'delete',
     path: '/roleManagement/directory',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -41,10 +43,9 @@ export function get(
   return {
     method: 'get',
     path: '/roleManagement/directory',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -54,14 +55,11 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /roleManagement/directory']['body'],
-  params?: IEndpoints['PATCH /roleManagement/directory']['parameters']
+  body: IEndpoints['PATCH /roleManagement/directory']['body']
 ): EndpointRequest<IEndpoints['PATCH /roleManagement/directory']['response']> {
   return {
     method: 'patch',
     path: '/roleManagement/directory',
-    paramDefs: [],
-    params,
     body,
   };
 }

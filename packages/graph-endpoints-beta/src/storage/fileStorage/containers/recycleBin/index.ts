@@ -32,10 +32,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['fileStorageContainer-id'],
+    },
     params,
   };
 }
@@ -54,11 +54,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainer-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -77,7 +76,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin',
-    paramDefs: [{ name: 'fileStorageContainer-id', in: 'path' }],
+    paramDefs: {
+      path: ['fileStorageContainer-id'],
+    },
     params,
     body,
   };

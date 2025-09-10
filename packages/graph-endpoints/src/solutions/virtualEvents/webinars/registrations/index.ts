@@ -1,6 +1,3 @@
-export * as cancel from './cancel';
-export * as sessions from './sessions';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,18 @@ export interface IEndpoints {
     '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations',
     'post'
   >;
+  'POST /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/cancel': Operation<
+    '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/cancel',
+    'post'
+  >;
+  'GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/sessions': Operation<
+    '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/sessions',
+    'get'
+  >;
+  'GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/sessions/{virtualEventSession-id}': Operation<
+    '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/sessions/{virtualEventSession-id}',
+    'get'
+  >;
 }
 
 /**
@@ -38,11 +47,10 @@ export function del(
   return {
     method: 'delete',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'virtualEventWebinar-id', in: 'path' },
-      { name: 'virtualEventRegistration-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['virtualEventWebinar-id', 'virtualEventRegistration-id'],
+    },
     params,
   };
 }
@@ -60,17 +68,10 @@ export function list(
   return {
     method: 'get',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'virtualEventWebinar-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEventWebinar-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,12 +89,10 @@ export function get(
   return {
     method: 'get',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'virtualEventWebinar-id', in: 'path' },
-      { name: 'virtualEventRegistration-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEventWebinar-id', 'virtualEventRegistration-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,10 +110,9 @@ export function update(
   return {
     method: 'patch',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}',
-    paramDefs: [
-      { name: 'virtualEventWebinar-id', in: 'path' },
-      { name: 'virtualEventRegistration-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEventWebinar-id', 'virtualEventRegistration-id'],
+    },
     params,
     body,
   };
@@ -134,8 +132,75 @@ export function create(
   return {
     method: 'post',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations',
-    paramDefs: [{ name: 'virtualEventWebinar-id', in: 'path' }],
+    paramDefs: {
+      path: ['virtualEventWebinar-id'],
+    },
     params,
     body,
   };
 }
+
+export const cancel = {
+  /**
+   * `POST /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/cancel`
+   *
+   * Cancel a registrant&#x27;s registration record for a webinar.
+   */
+  create: function create(
+    params?: IEndpoints['POST /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/cancel']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/cancel']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/cancel',
+      paramDefs: {
+        path: ['virtualEventWebinar-id', 'virtualEventRegistration-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const sessions = {
+  /**
+   * `GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/sessions`
+   *
+   * Get a list of sessions summaries that a registrant registered for in a webinar. A session summary contains only the endDateTime, id, joinWebUrl, startDateTime, and subject of a virtual event session. The rest of session properties will be null. To get all the properties of a virtualEventSession, use the Get virtualEventSession method.
+   */
+  list: function list(
+    params?: IEndpoints['GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/sessions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/sessions']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/sessions',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['virtualEventWebinar-id', 'virtualEventRegistration-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/sessions/{virtualEventSession-id}`
+   *
+   * Sessions for a registration.
+   */
+  get: function get(
+    params?: IEndpoints['GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/sessions/{virtualEventSession-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/sessions/{virtualEventSession-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/registrations/{virtualEventRegistration-id}/sessions/{virtualEventSession-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['virtualEventWebinar-id', 'virtualEventRegistration-id', 'virtualEventSession-id'],
+      },
+      params,
+    };
+  },
+};

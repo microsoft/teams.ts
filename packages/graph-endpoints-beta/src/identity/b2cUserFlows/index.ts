@@ -1,7 +1,5 @@
-export * as identityProviders from './identityProviders';
 export * as languages from './languages';
 export * as userAttributeAssignments from './userAttributeAssignments';
-export * as userFlowIdentityProviders from './userFlowIdentityProviders';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -20,6 +18,18 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /identity/b2cUserFlows': Operation<'/identity/b2cUserFlows', 'post'>;
+  'GET /identity/b2cUserFlows/{b2cIdentityUserFlow-id}/identityProviders': Operation<
+    '/identity/b2cUserFlows/{b2cIdentityUserFlow-id}/identityProviders',
+    'get'
+  >;
+  'GET /identity/b2cUserFlows/{b2cIdentityUserFlow-id}/userFlowIdentityProviders': Operation<
+    '/identity/b2cUserFlows/{b2cIdentityUserFlow-id}/userFlowIdentityProviders',
+    'get'
+  >;
+  'GET /identity/b2cUserFlows/{b2cIdentityUserFlow-id}/userFlowIdentityProviders/{identityProviderBase-id}': Operation<
+    '/identity/b2cUserFlows/{b2cIdentityUserFlow-id}/userFlowIdentityProviders/{identityProviderBase-id}',
+    'get'
+  >;
 }
 
 /**
@@ -36,10 +46,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/identity/b2cUserFlows/{b2cIdentityUserFlow-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'b2cIdentityUserFlow-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['b2cIdentityUserFlow-id'],
+    },
     params,
   };
 }
@@ -56,16 +66,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/identity/b2cUserFlows',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -82,11 +85,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/identity/b2cUserFlows/{b2cIdentityUserFlow-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'b2cIdentityUserFlow-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['b2cIdentityUserFlow-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -106,7 +108,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/identity/b2cUserFlows/{b2cIdentityUserFlow-id}',
-    paramDefs: [{ name: 'b2cIdentityUserFlow-id', in: 'path' }],
+    paramDefs: {
+      path: ['b2cIdentityUserFlow-id'],
+    },
     params,
     body,
   };
@@ -118,15 +122,82 @@ export function update(
  * Create a new b2cIdentityUserFlow object.
  */
 export function create(
-  body: IEndpoints['POST /identity/b2cUserFlows']['body'],
-  params?: IEndpoints['POST /identity/b2cUserFlows']['parameters']
+  body: IEndpoints['POST /identity/b2cUserFlows']['body']
 ): EndpointRequest<IEndpoints['POST /identity/b2cUserFlows']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/identity/b2cUserFlows',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const identityProviders = {
+  /**
+   * `GET /identity/b2cUserFlows/{b2cIdentityUserFlow-id}/identityProviders`
+   *
+   * Get the identity providers in a b2cIdentityUserFlow object.
+   * @deprecated
+   */
+  list: function list(
+    params?: IEndpoints['GET /identity/b2cUserFlows/{b2cIdentityUserFlow-id}/identityProviders']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /identity/b2cUserFlows/{b2cIdentityUserFlow-id}/identityProviders']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/identity/b2cUserFlows/{b2cIdentityUserFlow-id}/identityProviders',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['b2cIdentityUserFlow-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const userFlowIdentityProviders = {
+  /**
+   * `GET /identity/b2cUserFlows/{b2cIdentityUserFlow-id}/userFlowIdentityProviders`
+   *
+   * The identity providers included in the user flow.
+   */
+  list: function list(
+    params?: IEndpoints['GET /identity/b2cUserFlows/{b2cIdentityUserFlow-id}/userFlowIdentityProviders']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /identity/b2cUserFlows/{b2cIdentityUserFlow-id}/userFlowIdentityProviders']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/identity/b2cUserFlows/{b2cIdentityUserFlow-id}/userFlowIdentityProviders',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['b2cIdentityUserFlow-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /identity/b2cUserFlows/{b2cIdentityUserFlow-id}/userFlowIdentityProviders/{identityProviderBase-id}`
+   *
+   * The identity providers included in the user flow.
+   */
+  get: function get(
+    params?: IEndpoints['GET /identity/b2cUserFlows/{b2cIdentityUserFlow-id}/userFlowIdentityProviders/{identityProviderBase-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /identity/b2cUserFlows/{b2cIdentityUserFlow-id}/userFlowIdentityProviders/{identityProviderBase-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/identity/b2cUserFlows/{b2cIdentityUserFlow-id}/userFlowIdentityProviders/{identityProviderBase-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['b2cIdentityUserFlow-id', 'identityProviderBase-id'],
+      },
+      params,
+    };
+  },
+};

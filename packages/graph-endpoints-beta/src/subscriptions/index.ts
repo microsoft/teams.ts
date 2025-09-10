@@ -1,5 +1,3 @@
-export * as reauthorize from './reauthorize';
-
 import type { EndpointRequest, Operation } from './../types/common.ts';
 
 export interface IEndpoints {
@@ -11,6 +9,10 @@ export interface IEndpoints {
   'GET /subscriptions/{subscription-id}': Operation<'/subscriptions/{subscription-id}', 'get'>;
   'PATCH /subscriptions/{subscription-id}': Operation<'/subscriptions/{subscription-id}', 'patch'>;
   'POST /subscriptions': Operation<'/subscriptions', 'post'>;
+  'POST /subscriptions/{subscription-id}/reauthorize': Operation<
+    '/subscriptions/{subscription-id}/reauthorize',
+    'post'
+  >;
 }
 
 /**
@@ -25,10 +27,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/subscriptions/{subscription-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'subscription-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['subscription-id'],
+    },
     params,
   };
 }
@@ -45,16 +47,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/subscriptions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -71,10 +66,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/subscriptions/{subscription-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: 'subscription-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['subscription-id'],
+      query: ['$select'],
+    },
     params,
   };
 }
@@ -92,7 +87,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/subscriptions/{subscription-id}',
-    paramDefs: [{ name: 'subscription-id', in: 'path' }],
+    paramDefs: {
+      path: ['subscription-id'],
+    },
     params,
     body,
   };
@@ -104,15 +101,33 @@ export function update(
  * Subscribes a listener application to receive change notifications when the requested type of changes occur to the specified resource in Microsoft Graph. To identify the resources for which you can create subscriptions and the limitations on subscriptions, see Set up notifications for changes in resource data: Supported resources. Some resources support rich notifications, that is, notifications that include resource data. For more information about these resources, see Set up change notifications that include resource data: Supported resources.
  */
 export function create(
-  body: IEndpoints['POST /subscriptions']['body'],
-  params?: IEndpoints['POST /subscriptions']['parameters']
+  body: IEndpoints['POST /subscriptions']['body']
 ): EndpointRequest<IEndpoints['POST /subscriptions']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/subscriptions',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const reauthorize = {
+  /**
+   * `POST /subscriptions/{subscription-id}/reauthorize`
+   *
+   * Reauthorize a subscription when you receive a reauthorizationRequired challenge.
+   */
+  create: function create(
+    params?: IEndpoints['POST /subscriptions/{subscription-id}/reauthorize']['parameters']
+  ): EndpointRequest<IEndpoints['POST /subscriptions/{subscription-id}/reauthorize']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/subscriptions/{subscription-id}/reauthorize',
+      paramDefs: {
+        path: ['subscription-id'],
+      },
+      params,
+    };
+  },
+};

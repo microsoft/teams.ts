@@ -1,6 +1,3 @@
-export * as setOrder from './setOrder';
-export * as userAttribute from './userAttribute';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments',
     'post'
   >;
+  'POST /identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments/setOrder': Operation<
+    '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments/setOrder',
+    'post'
+  >;
+  'GET /identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments/{identityUserFlowAttributeAssignment-id}/userAttribute': Operation<
+    '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments/{identityUserFlowAttributeAssignment-id}/userAttribute',
+    'get'
+  >;
 }
 
 /**
@@ -39,11 +44,10 @@ export function del(
   return {
     method: 'delete',
     path: '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments/{identityUserFlowAttributeAssignment-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'b2xIdentityUserFlow-id', in: 'path' },
-      { name: 'identityUserFlowAttributeAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['b2xIdentityUserFlow-id', 'identityUserFlowAttributeAssignment-id'],
+    },
     params,
   };
 }
@@ -61,17 +65,10 @@ export function list(
   return {
     method: 'get',
     path: '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'b2xIdentityUserFlow-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['b2xIdentityUserFlow-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,12 +86,10 @@ export function get(
   return {
     method: 'get',
     path: '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments/{identityUserFlowAttributeAssignment-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'b2xIdentityUserFlow-id', in: 'path' },
-      { name: 'identityUserFlowAttributeAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['b2xIdentityUserFlow-id', 'identityUserFlowAttributeAssignment-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,10 +108,9 @@ export function update(
   return {
     method: 'patch',
     path: '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments/{identityUserFlowAttributeAssignment-id}',
-    paramDefs: [
-      { name: 'b2xIdentityUserFlow-id', in: 'path' },
-      { name: 'identityUserFlowAttributeAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['b2xIdentityUserFlow-id', 'identityUserFlowAttributeAssignment-id'],
+    },
     params,
     body,
   };
@@ -136,8 +130,57 @@ export function create(
   return {
     method: 'post',
     path: '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments',
-    paramDefs: [{ name: 'b2xIdentityUserFlow-id', in: 'path' }],
+    paramDefs: {
+      path: ['b2xIdentityUserFlow-id'],
+    },
     params,
     body,
   };
 }
+
+export const setOrder = {
+  /**
+   * `POST /identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments/setOrder`
+   *
+   * Set the order of identityUserFlowAttributeAssignments being collected within a user flow.
+   */
+  create: function create(
+    body: IEndpoints['POST /identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments/setOrder']['body'],
+    params?: IEndpoints['POST /identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments/setOrder']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments/setOrder']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments/setOrder',
+      paramDefs: {
+        path: ['b2xIdentityUserFlow-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const userAttribute = {
+  /**
+   * `GET /identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments/{identityUserFlowAttributeAssignment-id}/userAttribute`
+   *
+   * The user attribute that you want to add to your user flow.
+   */
+  get: function get(
+    params?: IEndpoints['GET /identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments/{identityUserFlowAttributeAssignment-id}/userAttribute']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments/{identityUserFlowAttributeAssignment-id}/userAttribute']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/userAttributeAssignments/{identityUserFlowAttributeAssignment-id}/userAttribute',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['b2xIdentityUserFlow-id', 'identityUserFlowAttributeAssignment-id'],
+      },
+      params,
+    };
+  },
+};

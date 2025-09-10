@@ -1,9 +1,5 @@
 export * as childFolders from './childFolders';
-export * as copy from './copy';
-export * as messageRules from './messageRules';
 export * as messages from './messages';
-export * as move from './move';
-export * as permanentDelete from './permanentDelete';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -13,6 +9,38 @@ export interface IEndpoints {
   'GET /me/mailFolders/{mailFolder-id}': Operation<'/me/mailFolders/{mailFolder-id}', 'get'>;
   'PATCH /me/mailFolders/{mailFolder-id}': Operation<'/me/mailFolders/{mailFolder-id}', 'patch'>;
   'POST /me/mailFolders': Operation<'/me/mailFolders', 'post'>;
+  'POST /me/mailFolders/{mailFolder-id}/copy': Operation<
+    '/me/mailFolders/{mailFolder-id}/copy',
+    'post'
+  >;
+  'GET /me/mailFolders/{mailFolder-id}/messageRules': Operation<
+    '/me/mailFolders/{mailFolder-id}/messageRules',
+    'get'
+  >;
+  'POST /me/mailFolders/{mailFolder-id}/messageRules': Operation<
+    '/me/mailFolders/{mailFolder-id}/messageRules',
+    'post'
+  >;
+  'GET /me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}': Operation<
+    '/me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}',
+    'get'
+  >;
+  'PATCH /me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}': Operation<
+    '/me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}',
+    'patch'
+  >;
+  'DELETE /me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}': Operation<
+    '/me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}',
+    'delete'
+  >;
+  'POST /me/mailFolders/{mailFolder-id}/move': Operation<
+    '/me/mailFolders/{mailFolder-id}/move',
+    'post'
+  >;
+  'POST /me/mailFolders/{mailFolder-id}/permanentDelete': Operation<
+    '/me/mailFolders/{mailFolder-id}/permanentDelete',
+    'post'
+  >;
 }
 
 /**
@@ -26,10 +54,10 @@ export function del(
   return {
     method: 'delete',
     path: '/me/mailFolders/{mailFolder-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'mailFolder-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['mailFolder-id'],
+    },
     params,
   };
 }
@@ -45,17 +73,19 @@ export function list(
   return {
     method: 'get',
     path: '/me/mailFolders',
-    paramDefs: [
-      { name: 'includeHiddenFolders', in: 'query' },
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: [
+        'includeHiddenFolders',
+        '$top',
+        '$skip',
+        '$search',
+        '$filter',
+        '$count',
+        '$orderby',
+        '$select',
+        '$expand',
+      ],
+    },
     params,
   };
 }
@@ -71,11 +101,10 @@ export function get(
   return {
     method: 'get',
     path: '/me/mailFolders/{mailFolder-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'mailFolder-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['mailFolder-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,7 +121,9 @@ export function update(
   return {
     method: 'patch',
     path: '/me/mailFolders/{mailFolder-id}',
-    paramDefs: [{ name: 'mailFolder-id', in: 'path' }],
+    paramDefs: {
+      path: ['mailFolder-id'],
+    },
     params,
     body,
   };
@@ -104,14 +135,177 @@ export function update(
  * Use this API to create a new mail folder in the root folder of the user&#x27;s mailbox. If you intend a new folder to be hidden, you must set the isHidden property to true on creation.
  */
 export function create(
-  body: IEndpoints['POST /me/mailFolders']['body'],
-  params?: IEndpoints['POST /me/mailFolders']['parameters']
+  body: IEndpoints['POST /me/mailFolders']['body']
 ): EndpointRequest<IEndpoints['POST /me/mailFolders']['response']> {
   return {
     method: 'post',
     path: '/me/mailFolders',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const copy = {
+  /**
+   * `POST /me/mailFolders/{mailFolder-id}/copy`
+   *
+   * Copy a mailfolder and its contents to another mailfolder.
+   */
+  create: function create(
+    body: IEndpoints['POST /me/mailFolders/{mailFolder-id}/copy']['body'],
+    params?: IEndpoints['POST /me/mailFolders/{mailFolder-id}/copy']['parameters']
+  ): EndpointRequest<IEndpoints['POST /me/mailFolders/{mailFolder-id}/copy']['response']> {
+    return {
+      method: 'post',
+      path: '/me/mailFolders/{mailFolder-id}/copy',
+      paramDefs: {
+        path: ['mailFolder-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const messageRules = {
+  /**
+   * `GET /me/mailFolders/{mailFolder-id}/messageRules`
+   *
+   * Get all the messageRule objects defined for the user&#x27;s inbox.
+   */
+  list: function list(
+    params?: IEndpoints['GET /me/mailFolders/{mailFolder-id}/messageRules']['parameters']
+  ): EndpointRequest<IEndpoints['GET /me/mailFolders/{mailFolder-id}/messageRules']['response']> {
+    return {
+      method: 'get',
+      path: '/me/mailFolders/{mailFolder-id}/messageRules',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['mailFolder-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /me/mailFolders/{mailFolder-id}/messageRules`
+   *
+   * Create a messageRule object by specifying a set of conditions and actions. Outlook carries out those actions if an incoming message in the user&#x27;s Inbox meets the specified conditions.
+   */
+  create: function create(
+    body: IEndpoints['POST /me/mailFolders/{mailFolder-id}/messageRules']['body'],
+    params?: IEndpoints['POST /me/mailFolders/{mailFolder-id}/messageRules']['parameters']
+  ): EndpointRequest<IEndpoints['POST /me/mailFolders/{mailFolder-id}/messageRules']['response']> {
+    return {
+      method: 'post',
+      path: '/me/mailFolders/{mailFolder-id}/messageRules',
+      paramDefs: {
+        path: ['mailFolder-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}`
+   *
+   * Get the properties and relationships of a messageRule object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['mailFolder-id', 'messageRule-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}`
+   *
+   * Change writable properties on a messageRule object and save the changes.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}']['body'],
+    params?: IEndpoints['PATCH /me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}',
+      paramDefs: {
+        path: ['mailFolder-id', 'messageRule-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}`
+   *
+   * Delete the specified messageRule object.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/me/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['mailFolder-id', 'messageRule-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const move = {
+  /**
+   * `POST /me/mailFolders/{mailFolder-id}/move`
+   *
+   * Move a mailfolder and its contents to another mailfolder.
+   */
+  create: function create(
+    body: IEndpoints['POST /me/mailFolders/{mailFolder-id}/move']['body'],
+    params?: IEndpoints['POST /me/mailFolders/{mailFolder-id}/move']['parameters']
+  ): EndpointRequest<IEndpoints['POST /me/mailFolders/{mailFolder-id}/move']['response']> {
+    return {
+      method: 'post',
+      path: '/me/mailFolders/{mailFolder-id}/move',
+      paramDefs: {
+        path: ['mailFolder-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const permanentDelete = {
+  /**
+   * `POST /me/mailFolders/{mailFolder-id}/permanentDelete`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /me/mailFolders/{mailFolder-id}/permanentDelete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/mailFolders/{mailFolder-id}/permanentDelete']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/me/mailFolders/{mailFolder-id}/permanentDelete',
+      paramDefs: {
+        path: ['mailFolder-id'],
+      },
+      params,
+    };
+  },
+};

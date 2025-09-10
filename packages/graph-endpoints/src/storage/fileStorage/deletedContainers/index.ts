@@ -1,12 +1,6 @@
-export * as activate from './activate';
 export * as columns from './columns';
-export * as drive from './drive';
-export * as lock from './lock';
-export * as permanentDelete from './permanentDelete';
 export * as permissions from './permissions';
 export * as recycleBin from './recycleBin';
-export * as restore from './restore';
-export * as unlock from './unlock';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
@@ -31,6 +25,30 @@ export interface IEndpoints {
     '/storage/fileStorage/deletedContainers',
     'post'
   >;
+  'POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/activate': Operation<
+    '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/activate',
+    'post'
+  >;
+  'GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/drive': Operation<
+    '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/drive',
+    'get'
+  >;
+  'POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/lock': Operation<
+    '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/lock',
+    'post'
+  >;
+  'POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permanentDelete': Operation<
+    '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permanentDelete',
+    'post'
+  >;
+  'POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/restore': Operation<
+    '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/restore',
+    'post'
+  >;
+  'POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/unlock': Operation<
+    '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/unlock',
+    'post'
+  >;
 }
 
 /**
@@ -45,10 +63,10 @@ export function del(
   return {
     method: 'delete',
     path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['fileStorageContainer-id'],
+    },
     params,
   };
 }
@@ -63,16 +81,9 @@ export function list(
   return {
     method: 'get',
     path: '/storage/fileStorage/deletedContainers',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,11 +100,10 @@ export function get(
   return {
     method: 'get',
     path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainer-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,7 +121,9 @@ export function update(
   return {
     method: 'patch',
     path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}',
-    paramDefs: [{ name: 'fileStorageContainer-id', in: 'path' }],
+    paramDefs: {
+      path: ['fileStorageContainer-id'],
+    },
     params,
     body,
   };
@@ -122,14 +134,141 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /storage/fileStorage/deletedContainers']['body'],
-  params?: IEndpoints['POST /storage/fileStorage/deletedContainers']['parameters']
+  body: IEndpoints['POST /storage/fileStorage/deletedContainers']['body']
 ): EndpointRequest<IEndpoints['POST /storage/fileStorage/deletedContainers']['response']> {
   return {
     method: 'post',
     path: '/storage/fileStorage/deletedContainers',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const activate = {
+  /**
+   * `POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/activate`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/activate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/activate']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/activate',
+      paramDefs: {
+        path: ['fileStorageContainer-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const drive = {
+  /**
+   * `GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/drive`
+   *
+   * The drive of the resource fileStorageContainer. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/drive']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/drive']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/drive',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['fileStorageContainer-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const lock = {
+  /**
+   * `POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/lock`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/lock']['body'],
+    params?: IEndpoints['POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/lock']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/lock']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/lock',
+      paramDefs: {
+        path: ['fileStorageContainer-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const permanentDelete = {
+  /**
+   * `POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permanentDelete`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permanentDelete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permanentDelete']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/permanentDelete',
+      paramDefs: {
+        path: ['fileStorageContainer-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const restore = {
+  /**
+   * `POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/restore`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/restore']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/restore']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/restore',
+      paramDefs: {
+        path: ['fileStorageContainer-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const unlock = {
+  /**
+   * `POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/unlock`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/unlock']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/unlock']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/storage/fileStorage/deletedContainers/{fileStorageContainer-id}/unlock',
+      paramDefs: {
+        path: ['fileStorageContainer-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,8 +1,3 @@
-export * as completeSignup from './completeSignup';
-export * as requestSignupUrl from './requestSignupUrl';
-export * as syncApps from './syncApps';
-export * as unbind from './unbind';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -18,6 +13,22 @@ export interface IEndpoints {
     '/deviceManagement/androidForWorkSettings',
     'patch'
   >;
+  'POST /deviceManagement/androidForWorkSettings/completeSignup': Operation<
+    '/deviceManagement/androidForWorkSettings/completeSignup',
+    'post'
+  >;
+  'POST /deviceManagement/androidForWorkSettings/requestSignupUrl': Operation<
+    '/deviceManagement/androidForWorkSettings/requestSignupUrl',
+    'post'
+  >;
+  'POST /deviceManagement/androidForWorkSettings/syncApps': Operation<
+    '/deviceManagement/androidForWorkSettings/syncApps',
+    'post'
+  >;
+  'POST /deviceManagement/androidForWorkSettings/unbind': Operation<
+    '/deviceManagement/androidForWorkSettings/unbind',
+    'post'
+  >;
 }
 
 /**
@@ -31,7 +42,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/androidForWorkSettings',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -48,10 +61,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/androidForWorkSettings',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -61,15 +73,82 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /deviceManagement/androidForWorkSettings']['body'],
-  params?: IEndpoints['PATCH /deviceManagement/androidForWorkSettings']['parameters']
+  body: IEndpoints['PATCH /deviceManagement/androidForWorkSettings']['body']
 ): EndpointRequest<IEndpoints['PATCH /deviceManagement/androidForWorkSettings']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/androidForWorkSettings',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const completeSignup = {
+  /**
+   * `POST /deviceManagement/androidForWorkSettings/completeSignup`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/androidForWorkSettings/completeSignup']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/androidForWorkSettings/completeSignup']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/androidForWorkSettings/completeSignup',
+      body,
+    };
+  },
+};
+
+export const requestSignupUrl = {
+  /**
+   * `POST /deviceManagement/androidForWorkSettings/requestSignupUrl`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/androidForWorkSettings/requestSignupUrl']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/androidForWorkSettings/requestSignupUrl']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/androidForWorkSettings/requestSignupUrl',
+      body,
+    };
+  },
+};
+
+export const syncApps = {
+  /**
+   * `POST /deviceManagement/androidForWorkSettings/syncApps`
+   *
+   */
+  create: function create(): EndpointRequest<
+    IEndpoints['POST /deviceManagement/androidForWorkSettings/syncApps']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/androidForWorkSettings/syncApps',
+    };
+  },
+};
+
+export const unbind = {
+  /**
+   * `POST /deviceManagement/androidForWorkSettings/unbind`
+   *
+   */
+  create: function create(): EndpointRequest<
+    IEndpoints['POST /deviceManagement/androidForWorkSettings/unbind']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/androidForWorkSettings/unbind',
+    };
+  },
+};

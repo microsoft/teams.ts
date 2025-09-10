@@ -1,5 +1,3 @@
-export * as compute from './compute';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -15,6 +13,10 @@ export interface IEndpoints {
     '/me/dataSecurityAndGovernance/protectionScopes',
     'patch'
   >;
+  'POST /me/dataSecurityAndGovernance/protectionScopes/compute': Operation<
+    '/me/dataSecurityAndGovernance/protectionScopes/compute',
+    'post'
+  >;
 }
 
 /**
@@ -29,7 +31,9 @@ export function del(
   return {
     method: 'delete',
     path: '/me/dataSecurityAndGovernance/protectionScopes',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -44,10 +48,9 @@ export function list(
   return {
     method: 'get',
     path: '/me/dataSecurityAndGovernance/protectionScopes',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -57,14 +60,29 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /me/dataSecurityAndGovernance/protectionScopes']['body'],
-  params?: IEndpoints['PATCH /me/dataSecurityAndGovernance/protectionScopes']['parameters']
+  body: IEndpoints['PATCH /me/dataSecurityAndGovernance/protectionScopes']['body']
 ): EndpointRequest<IEndpoints['PATCH /me/dataSecurityAndGovernance/protectionScopes']['response']> {
   return {
     method: 'patch',
     path: '/me/dataSecurityAndGovernance/protectionScopes',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const compute = {
+  /**
+   * `POST /me/dataSecurityAndGovernance/protectionScopes/compute`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /me/dataSecurityAndGovernance/protectionScopes/compute']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /me/dataSecurityAndGovernance/protectionScopes/compute']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/me/dataSecurityAndGovernance/protectionScopes/compute',
+      body,
+    };
+  },
+};

@@ -1,5 +1,3 @@
-export * as parent from './parent';
-export * as register from './register';
 export * as roleAssignmentRequests from './roleAssignmentRequests';
 export * as roleAssignments from './roleAssignments';
 export * as roleDefinitions from './roleDefinitions';
@@ -22,6 +20,11 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /governanceResources': Operation<'/governanceResources', 'post'>;
+  'GET /governanceResources/{governanceResource-id}/parent': Operation<
+    '/governanceResources/{governanceResource-id}/parent',
+    'get'
+  >;
+  'POST /governanceResources/register': Operation<'/governanceResources/register', 'post'>;
 }
 
 /**
@@ -35,10 +38,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/governanceResources/{governanceResource-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'governanceResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['governanceResource-id'],
+    },
     params,
   };
 }
@@ -54,16 +57,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/governanceResources',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -79,11 +75,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/governanceResources/{governanceResource-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'governanceResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['governanceResource-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -100,7 +95,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/governanceResources/{governanceResource-id}',
-    paramDefs: [{ name: 'governanceResource-id', in: 'path' }],
+    paramDefs: {
+      path: ['governanceResource-id'],
+    },
     params,
     body,
   };
@@ -111,15 +108,53 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /governanceResources']['body'],
-  params?: IEndpoints['POST /governanceResources']['parameters']
+  body: IEndpoints['POST /governanceResources']['body']
 ): EndpointRequest<IEndpoints['POST /governanceResources']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/governanceResources',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const parent = {
+  /**
+   * `GET /governanceResources/{governanceResource-id}/parent`
+   *
+   * Read-only. The parent resource. for pimforazurerbac scenario, it can represent the subscription the resource belongs to.
+   */
+  get: function get(
+    params?: IEndpoints['GET /governanceResources/{governanceResource-id}/parent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /governanceResources/{governanceResource-id}/parent']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/governanceResources/{governanceResource-id}/parent',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['governanceResource-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const register = {
+  /**
+   * `POST /governanceResources/register`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /governanceResources/register']['body']
+  ): EndpointRequest<IEndpoints['POST /governanceResources/register']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/governanceResources/register',
+      body,
+    };
+  },
+};

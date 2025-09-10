@@ -19,7 +19,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/dataDiscovery',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -35,10 +37,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/dataDiscovery',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -48,15 +49,12 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /security/dataDiscovery']['body'],
-  params?: IEndpoints['PATCH /security/dataDiscovery']['parameters']
+  body: IEndpoints['PATCH /security/dataDiscovery']['body']
 ): EndpointRequest<IEndpoints['PATCH /security/dataDiscovery']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/security/dataDiscovery',
-    paramDefs: [],
-    params,
     body,
   };
 }

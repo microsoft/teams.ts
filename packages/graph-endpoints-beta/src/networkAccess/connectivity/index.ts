@@ -20,7 +20,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/networkAccess/connectivity',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -37,10 +39,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/connectivity',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -50,15 +51,12 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /networkAccess/connectivity']['body'],
-  params?: IEndpoints['PATCH /networkAccess/connectivity']['parameters']
+  body: IEndpoints['PATCH /networkAccess/connectivity']['body']
 ): EndpointRequest<IEndpoints['PATCH /networkAccess/connectivity']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/networkAccess/connectivity',
-    paramDefs: [],
-    params,
     body,
   };
 }

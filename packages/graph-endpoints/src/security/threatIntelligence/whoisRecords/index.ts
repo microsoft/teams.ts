@@ -1,6 +1,3 @@
-export * as history from './history';
-export * as host from './host';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,18 @@ export interface IEndpoints {
     '/security/threatIntelligence/whoisRecords',
     'post'
   >;
+  'GET /security/threatIntelligence/whoisRecords/{whoisRecord-id}/history': Operation<
+    '/security/threatIntelligence/whoisRecords/{whoisRecord-id}/history',
+    'get'
+  >;
+  'GET /security/threatIntelligence/whoisRecords/{whoisRecord-id}/history/{whoisHistoryRecord-id}': Operation<
+    '/security/threatIntelligence/whoisRecords/{whoisRecord-id}/history/{whoisHistoryRecord-id}',
+    'get'
+  >;
+  'GET /security/threatIntelligence/whoisRecords/{whoisRecord-id}/host': Operation<
+    '/security/threatIntelligence/whoisRecords/{whoisRecord-id}/host',
+    'get'
+  >;
 }
 
 /**
@@ -38,10 +47,10 @@ export function del(
   return {
     method: 'delete',
     path: '/security/threatIntelligence/whoisRecords/{whoisRecord-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'whoisRecord-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['whoisRecord-id'],
+    },
     params,
   };
 }
@@ -57,16 +66,9 @@ export function list(
   return {
     method: 'get',
     path: '/security/threatIntelligence/whoisRecords',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +88,10 @@ export function get(
   return {
     method: 'get',
     path: '/security/threatIntelligence/whoisRecords/{whoisRecord-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'whoisRecord-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['whoisRecord-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -108,7 +109,9 @@ export function update(
   return {
     method: 'patch',
     path: '/security/threatIntelligence/whoisRecords/{whoisRecord-id}',
-    paramDefs: [{ name: 'whoisRecord-id', in: 'path' }],
+    paramDefs: {
+      path: ['whoisRecord-id'],
+    },
     params,
     body,
   };
@@ -119,14 +122,77 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /security/threatIntelligence/whoisRecords']['body'],
-  params?: IEndpoints['POST /security/threatIntelligence/whoisRecords']['parameters']
+  body: IEndpoints['POST /security/threatIntelligence/whoisRecords']['body']
 ): EndpointRequest<IEndpoints['POST /security/threatIntelligence/whoisRecords']['response']> {
   return {
     method: 'post',
     path: '/security/threatIntelligence/whoisRecords',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const history = {
+  /**
+   * `GET /security/threatIntelligence/whoisRecords/{whoisRecord-id}/history`
+   *
+   * The collection of historical records associated to this WHOIS object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/threatIntelligence/whoisRecords/{whoisRecord-id}/history']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/threatIntelligence/whoisRecords/{whoisRecord-id}/history']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/threatIntelligence/whoisRecords/{whoisRecord-id}/history',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['whoisRecord-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /security/threatIntelligence/whoisRecords/{whoisRecord-id}/history/{whoisHistoryRecord-id}`
+   *
+   * The collection of historical records associated to this WHOIS object.
+   */
+  get$1: function get$1(
+    params?: IEndpoints['GET /security/threatIntelligence/whoisRecords/{whoisRecord-id}/history/{whoisHistoryRecord-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/threatIntelligence/whoisRecords/{whoisRecord-id}/history/{whoisHistoryRecord-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/threatIntelligence/whoisRecords/{whoisRecord-id}/history/{whoisHistoryRecord-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['whoisRecord-id', 'whoisHistoryRecord-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const host = {
+  /**
+   * `GET /security/threatIntelligence/whoisRecords/{whoisRecord-id}/host`
+   *
+   * The host associated to this WHOIS object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/threatIntelligence/whoisRecords/{whoisRecord-id}/host']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/threatIntelligence/whoisRecords/{whoisRecord-id}/host']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/threatIntelligence/whoisRecords/{whoisRecord-id}/host',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['whoisRecord-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,7 +1,5 @@
 export * as createdByUser from './createdByUser';
-export * as dodelete from './delete';
 export * as lastModifiedByUser from './lastModifiedByUser';
-export * as restore from './restore';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
@@ -20,6 +18,14 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /sites/{site-id}/recycleBin/items': Operation<'/sites/{site-id}/recycleBin/items', 'post'>;
+  'POST /sites/{site-id}/recycleBin/items/delete': Operation<
+    '/sites/{site-id}/recycleBin/items/delete',
+    'post'
+  >;
+  'POST /sites/{site-id}/recycleBin/items/restore': Operation<
+    '/sites/{site-id}/recycleBin/items/restore',
+    'post'
+  >;
 }
 
 /**
@@ -35,11 +41,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/sites/{site-id}/recycleBin/items/{recycleBinItem-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-      { name: 'recycleBinItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id', 'recycleBinItem-id'],
+    },
     params,
   };
 }
@@ -56,17 +61,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/sites/{site-id}/recycleBin/items',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -85,12 +83,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/sites/{site-id}/recycleBin/items/{recycleBinItem-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'recycleBinItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'recycleBinItem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,10 +105,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/sites/{site-id}/recycleBin/items/{recycleBinItem-id}',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'recycleBinItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'recycleBinItem-id'],
+    },
     params,
     body,
   };
@@ -130,8 +125,54 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/sites/{site-id}/recycleBin/items',
-    paramDefs: [{ name: 'site-id', in: 'path' }],
+    paramDefs: {
+      path: ['site-id'],
+    },
     params,
     body,
   };
 }
+
+export const doDelete = {
+  /**
+   * `POST /sites/{site-id}/recycleBin/items/delete`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /sites/{site-id}/recycleBin/items/delete']['body'],
+    params?: IEndpoints['POST /sites/{site-id}/recycleBin/items/delete']['parameters']
+  ): EndpointRequest<IEndpoints['POST /sites/{site-id}/recycleBin/items/delete']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/sites/{site-id}/recycleBin/items/delete',
+      paramDefs: {
+        path: ['site-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const restore = {
+  /**
+   * `POST /sites/{site-id}/recycleBin/items/restore`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /sites/{site-id}/recycleBin/items/restore']['body'],
+    params?: IEndpoints['POST /sites/{site-id}/recycleBin/items/restore']['parameters']
+  ): EndpointRequest<IEndpoints['POST /sites/{site-id}/recycleBin/items/restore']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/sites/{site-id}/recycleBin/items/restore',
+      paramDefs: {
+        path: ['site-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

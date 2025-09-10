@@ -1,5 +1,3 @@
-export * as content from './content';
-
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -19,6 +17,18 @@ export interface IEndpoints {
     '/me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}',
     'patch'
   >;
+  'GET /me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content': Operation<
+    '/me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content',
+    'get'
+  >;
+  'PUT /me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content': Operation<
+    '/me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content',
+    'put'
+  >;
+  'DELETE /me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content': Operation<
+    '/me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content',
+    'delete'
+  >;
 }
 
 /**
@@ -34,12 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'todoTaskList-id', in: 'path' },
-      { name: 'todoTask-id', in: 'path' },
-      { name: 'attachmentSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['todoTaskList-id', 'todoTask-id', 'attachmentSession-id'],
+    },
     params,
   };
 }
@@ -57,18 +65,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'todoTaskList-id', in: 'path' },
-      { name: 'todoTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['todoTaskList-id', 'todoTask-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,13 +86,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'todoTaskList-id', in: 'path' },
-      { name: 'todoTask-id', in: 'path' },
-      { name: 'attachmentSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['todoTaskList-id', 'todoTask-id', 'attachmentSession-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,12 +108,76 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}',
-    paramDefs: [
-      { name: 'todoTaskList-id', in: 'path' },
-      { name: 'todoTask-id', in: 'path' },
-      { name: 'attachmentSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['todoTaskList-id', 'todoTask-id', 'attachmentSession-id'],
+    },
     params,
     body,
   };
 }
+
+export const content = {
+  /**
+   * `GET /me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content`
+   *
+   * The content streams that are uploaded.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content',
+      paramDefs: {
+        path: ['todoTaskList-id', 'todoTask-id', 'attachmentSession-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content`
+   *
+   * The content streams that are uploaded.
+   */
+  set: function set(
+    body: IEndpoints['PUT /me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content']['body'],
+    params?: IEndpoints['PUT /me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'put',
+      path: '/me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content',
+      paramDefs: {
+        path: ['todoTaskList-id', 'todoTask-id', 'attachmentSession-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content`
+   *
+   * The content streams that are uploaded.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/me/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachmentSessions/{attachmentSession-id}/content',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['todoTaskList-id', 'todoTask-id', 'attachmentSession-id'],
+      },
+      params,
+    };
+  },
+};

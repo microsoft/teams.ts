@@ -1,5 +1,3 @@
-export * as details from './details';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/security/attackSimulation/endUserNotifications',
     'post'
   >;
+  'GET /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details': Operation<
+    '/security/attackSimulation/endUserNotifications/{endUserNotification-id}/details',
+    'get'
+  >;
+  'POST /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details': Operation<
+    '/security/attackSimulation/endUserNotifications/{endUserNotification-id}/details',
+    'post'
+  >;
+  'GET /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}': Operation<
+    '/security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}',
+    'get'
+  >;
+  'PATCH /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}': Operation<
+    '/security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}',
+    'patch'
+  >;
+  'DELETE /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}': Operation<
+    '/security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -37,10 +55,10 @@ export function del(
   return {
     method: 'delete',
     path: '/security/attackSimulation/endUserNotifications/{endUserNotification-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'endUserNotification-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['endUserNotification-id'],
+    },
     params,
   };
 }
@@ -48,7 +66,7 @@ export function del(
 /**
  * `GET /security/attackSimulation/endUserNotifications`
  *
- * Read the properties and relationships of an endUserNotification object.
+ * Get a list of endUserNotification objects and their properties.
  */
 export function list(
   params?: IEndpoints['GET /security/attackSimulation/endUserNotifications']['parameters']
@@ -56,16 +74,9 @@ export function list(
   return {
     method: 'get',
     path: '/security/attackSimulation/endUserNotifications',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -83,11 +94,10 @@ export function get(
   return {
     method: 'get',
     path: '/security/attackSimulation/endUserNotifications/{endUserNotification-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'endUserNotification-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['endUserNotification-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -105,7 +115,9 @@ export function update(
   return {
     method: 'patch',
     path: '/security/attackSimulation/endUserNotifications/{endUserNotification-id}',
-    paramDefs: [{ name: 'endUserNotification-id', in: 'path' }],
+    paramDefs: {
+      path: ['endUserNotification-id'],
+    },
     params,
     body,
   };
@@ -116,14 +128,111 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /security/attackSimulation/endUserNotifications']['body'],
-  params?: IEndpoints['POST /security/attackSimulation/endUserNotifications']['parameters']
+  body: IEndpoints['POST /security/attackSimulation/endUserNotifications']['body']
 ): EndpointRequest<IEndpoints['POST /security/attackSimulation/endUserNotifications']['response']> {
   return {
     method: 'post',
     path: '/security/attackSimulation/endUserNotifications',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const details = {
+  /**
+   * `GET /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/attackSimulation/endUserNotifications/{endUserNotification-id}/details',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['endUserNotification-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details']['body'],
+    params?: IEndpoints['POST /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/security/attackSimulation/endUserNotifications/{endUserNotification-id}/details',
+      paramDefs: {
+        path: ['endUserNotification-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['endUserNotification-id', 'endUserNotificationDetail-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}']['body'],
+    params?: IEndpoints['PATCH /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}',
+      paramDefs: {
+        path: ['endUserNotification-id', 'endUserNotificationDetail-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/security/attackSimulation/endUserNotifications/{endUserNotification-id}/details/{endUserNotificationDetail-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['endUserNotification-id', 'endUserNotificationDetail-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,6 +1,3 @@
-export * as combinationConfigurations from './combinationConfigurations';
-export * as updateAllowedCombinations from './updateAllowedCombinations';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,30 @@ export interface IEndpoints {
     '/policies/authenticationStrengthPolicies',
     'post'
   >;
+  'GET /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations': Operation<
+    '/policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations',
+    'get'
+  >;
+  'POST /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations': Operation<
+    '/policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations',
+    'post'
+  >;
+  'GET /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}': Operation<
+    '/policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}',
+    'get'
+  >;
+  'PATCH /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}': Operation<
+    '/policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}',
+    'patch'
+  >;
+  'DELETE /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}': Operation<
+    '/policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}',
+    'delete'
+  >;
+  'POST /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/updateAllowedCombinations': Operation<
+    '/policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/updateAllowedCombinations',
+    'post'
+  >;
 }
 
 /**
@@ -39,10 +60,10 @@ export function del(
   return {
     method: 'delete',
     path: '/policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'authenticationStrengthPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['authenticationStrengthPolicy-id'],
+    },
     params,
   };
 }
@@ -58,16 +79,9 @@ export function list(
   return {
     method: 'get',
     path: '/policies/authenticationStrengthPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -85,11 +99,10 @@ export function get(
   return {
     method: 'get',
     path: '/policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'authenticationStrengthPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['authenticationStrengthPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -108,7 +121,9 @@ export function update(
   return {
     method: 'patch',
     path: '/policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}',
-    paramDefs: [{ name: 'authenticationStrengthPolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['authenticationStrengthPolicy-id'],
+    },
     params,
     body,
   };
@@ -120,14 +135,137 @@ export function update(
  * Create a new custom authenticationStrengthPolicy object.
  */
 export function create(
-  body: IEndpoints['POST /policies/authenticationStrengthPolicies']['body'],
-  params?: IEndpoints['POST /policies/authenticationStrengthPolicies']['parameters']
+  body: IEndpoints['POST /policies/authenticationStrengthPolicies']['body']
 ): EndpointRequest<IEndpoints['POST /policies/authenticationStrengthPolicies']['response']> {
   return {
     method: 'post',
     path: '/policies/authenticationStrengthPolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const combinationConfigurations = {
+  /**
+   * `GET /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations`
+   *
+   * Settings that may be used to require specific types or instances of an authentication method to be used when authenticating with a specified combination of authentication methods.
+   */
+  list: function list(
+    params?: IEndpoints['GET /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['authenticationStrengthPolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations']['body'],
+    params?: IEndpoints['POST /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations',
+      paramDefs: {
+        path: ['authenticationStrengthPolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}`
+   *
+   * Settings that may be used to require specific types or instances of an authentication method to be used when authenticating with a specified combination of authentication methods.
+   */
+  get: function get(
+    params?: IEndpoints['GET /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['authenticationStrengthPolicy-id', 'authenticationCombinationConfiguration-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}']['body'],
+    params?: IEndpoints['PATCH /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}',
+      paramDefs: {
+        path: ['authenticationStrengthPolicy-id', 'authenticationCombinationConfiguration-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/combinationConfigurations/{authenticationCombinationConfiguration-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['authenticationStrengthPolicy-id', 'authenticationCombinationConfiguration-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const updateAllowedCombinations = {
+  /**
+   * `POST /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/updateAllowedCombinations`
+   *
+   * Update the allowedCombinations property of an authenticationStrengthPolicy object. To update other properties of an authenticationStrengthPolicy object, use the Update authenticationStrengthPolicy method.
+   */
+  create: function create(
+    body: IEndpoints['POST /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/updateAllowedCombinations']['body'],
+    params?: IEndpoints['POST /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/updateAllowedCombinations']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/updateAllowedCombinations']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/policies/authenticationStrengthPolicies/{authenticationStrengthPolicy-id}/updateAllowedCombinations',
+      paramDefs: {
+        path: ['authenticationStrengthPolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

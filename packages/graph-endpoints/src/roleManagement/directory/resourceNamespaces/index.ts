@@ -1,5 +1,3 @@
-export * as resourceActions from './resourceActions';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/roleManagement/directory/resourceNamespaces',
     'post'
   >;
+  'GET /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions': Operation<
+    '/roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions',
+    'get'
+  >;
+  'POST /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions': Operation<
+    '/roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions',
+    'post'
+  >;
+  'GET /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}': Operation<
+    '/roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}',
+    'get'
+  >;
+  'PATCH /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}': Operation<
+    '/roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}',
+    'patch'
+  >;
+  'DELETE /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}': Operation<
+    '/roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -37,10 +55,10 @@ export function del(
   return {
     method: 'delete',
     path: '/roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'unifiedRbacResourceNamespace-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['unifiedRbacResourceNamespace-id'],
+    },
     params,
   };
 }
@@ -55,16 +73,9 @@ export function list(
   return {
     method: 'get',
     path: '/roleManagement/directory/resourceNamespaces',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,11 +92,10 @@ export function get(
   return {
     method: 'get',
     path: '/roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'unifiedRbacResourceNamespace-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['unifiedRbacResourceNamespace-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -103,7 +113,9 @@ export function update(
   return {
     method: 'patch',
     path: '/roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}',
-    paramDefs: [{ name: 'unifiedRbacResourceNamespace-id', in: 'path' }],
+    paramDefs: {
+      path: ['unifiedRbacResourceNamespace-id'],
+    },
     params,
     body,
   };
@@ -114,14 +126,111 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /roleManagement/directory/resourceNamespaces']['body'],
-  params?: IEndpoints['POST /roleManagement/directory/resourceNamespaces']['parameters']
+  body: IEndpoints['POST /roleManagement/directory/resourceNamespaces']['body']
 ): EndpointRequest<IEndpoints['POST /roleManagement/directory/resourceNamespaces']['response']> {
   return {
     method: 'post',
     path: '/roleManagement/directory/resourceNamespaces',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const resourceActions = {
+  /**
+   * `GET /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['unifiedRbacResourceNamespace-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions']['body'],
+    params?: IEndpoints['POST /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions',
+      paramDefs: {
+        path: ['unifiedRbacResourceNamespace-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRbacResourceNamespace-id', 'unifiedRbacResourceAction-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}']['body'],
+    params?: IEndpoints['PATCH /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}',
+      paramDefs: {
+        path: ['unifiedRbacResourceNamespace-id', 'unifiedRbacResourceAction-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/roleManagement/directory/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['unifiedRbacResourceNamespace-id', 'unifiedRbacResourceAction-id'],
+      },
+      params,
+    };
+  },
+};

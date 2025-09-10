@@ -1,7 +1,6 @@
 export * as edge from './edge';
 export * as microsoft365Apps from './microsoft365Apps';
 export * as people from './people';
-export * as reportSettings from './reportSettings';
 export * as serviceAnnouncement from './serviceAnnouncement';
 export * as sharepoint from './sharepoint';
 
@@ -10,6 +9,9 @@ import type { EndpointRequest, Operation } from './../types/common.ts';
 export interface IEndpoints {
   'GET /admin': Operation<'/admin', 'get'>;
   'PATCH /admin': Operation<'/admin', 'patch'>;
+  'GET /admin/reportSettings': Operation<'/admin/reportSettings', 'get'>;
+  'PATCH /admin/reportSettings': Operation<'/admin/reportSettings', 'patch'>;
+  'DELETE /admin/reportSettings': Operation<'/admin/reportSettings', 'delete'>;
 }
 
 /**
@@ -22,10 +24,9 @@ export function get(
   return {
     method: 'get',
     path: '/admin',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -35,14 +36,61 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /admin']['body'],
-  params?: IEndpoints['PATCH /admin']['parameters']
+  body: IEndpoints['PATCH /admin']['body']
 ): EndpointRequest<IEndpoints['PATCH /admin']['response']> {
   return {
     method: 'patch',
     path: '/admin',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const reportSettings = {
+  /**
+   * `GET /admin/reportSettings`
+   *
+   * Get the tenant-level settings for Microsoft 365 reports.
+   */
+  list: function list(
+    params?: IEndpoints['GET /admin/reportSettings']['parameters']
+  ): EndpointRequest<IEndpoints['GET /admin/reportSettings']['response']> {
+    return {
+      method: 'get',
+      path: '/admin/reportSettings',
+      paramDefs: {
+        query: ['$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /admin/reportSettings`
+   *
+   * Update tenant-level settings for Microsoft 365 reports.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /admin/reportSettings']['body']
+  ): EndpointRequest<IEndpoints['PATCH /admin/reportSettings']['response']> {
+    return {
+      method: 'patch',
+      path: '/admin/reportSettings',
+      body,
+    };
+  },
+  /**
+   * `DELETE /admin/reportSettings`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /admin/reportSettings']['parameters']
+  ): EndpointRequest<IEndpoints['DELETE /admin/reportSettings']['response']> {
+    return {
+      method: 'delete',
+      path: '/admin/reportSettings',
+      paramDefs: {
+        header: ['If-Match'],
+      },
+      params,
+    };
+  },
+};

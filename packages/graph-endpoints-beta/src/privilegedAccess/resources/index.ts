@@ -1,5 +1,3 @@
-export * as parent from './parent';
-export * as register from './register';
 export * as roleAssignmentRequests from './roleAssignmentRequests';
 export * as roleAssignments from './roleAssignments';
 export * as roleDefinitions from './roleDefinitions';
@@ -28,6 +26,14 @@ export interface IEndpoints {
     '/privilegedAccess/{privilegedAccess-id}/resources',
     'post'
   >;
+  'GET /privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/parent': Operation<
+    '/privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/parent',
+    'get'
+  >;
+  'POST /privilegedAccess/{privilegedAccess-id}/resources/register': Operation<
+    '/privilegedAccess/{privilegedAccess-id}/resources/register',
+    'post'
+  >;
 }
 
 /**
@@ -43,11 +49,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'privilegedAccess-id', in: 'path' },
-      { name: 'governanceResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['privilegedAccess-id', 'governanceResource-id'],
+    },
     params,
   };
 }
@@ -66,17 +71,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/privilegedAccess/{privilegedAccess-id}/resources',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'privilegedAccess-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['privilegedAccess-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -95,12 +93,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'privilegedAccess-id', in: 'path' },
-      { name: 'governanceResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['privilegedAccess-id', 'governanceResource-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -119,10 +115,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}',
-    paramDefs: [
-      { name: 'privilegedAccess-id', in: 'path' },
-      { name: 'governanceResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['privilegedAccess-id', 'governanceResource-id'],
+    },
     params,
     body,
   };
@@ -142,8 +137,58 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/privilegedAccess/{privilegedAccess-id}/resources',
-    paramDefs: [{ name: 'privilegedAccess-id', in: 'path' }],
+    paramDefs: {
+      path: ['privilegedAccess-id'],
+    },
     params,
     body,
   };
 }
+
+export const parent = {
+  /**
+   * `GET /privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/parent`
+   *
+   * Read-only. The parent resource. for pimforazurerbac scenario, it can represent the subscription the resource belongs to.
+   */
+  get: function get(
+    params?: IEndpoints['GET /privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/parent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/parent']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/parent',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['privilegedAccess-id', 'governanceResource-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const register = {
+  /**
+   * `POST /privilegedAccess/{privilegedAccess-id}/resources/register`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /privilegedAccess/{privilegedAccess-id}/resources/register']['body'],
+    params?: IEndpoints['POST /privilegedAccess/{privilegedAccess-id}/resources/register']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /privilegedAccess/{privilegedAccess-id}/resources/register']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/privilegedAccess/{privilegedAccess-id}/resources/register',
+      paramDefs: {
+        path: ['privilegedAccess-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

@@ -1,5 +1,3 @@
-export * as dependentResources from './dependentResources';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources',
     'post'
   >;
+  'GET /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources': Operation<
+    '/education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources',
+    'get'
+  >;
+  'POST /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources': Operation<
+    '/education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources',
+    'post'
+  >;
+  'GET /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}': Operation<
+    '/education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}',
+    'get'
+  >;
+  'PATCH /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}': Operation<
+    '/education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}',
+    'patch'
+  >;
+  'DELETE /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}': Operation<
+    '/education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,12 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'educationUser-id', in: 'path' },
-      { name: 'educationAssignment-id', in: 'path' },
-      { name: 'educationAssignmentResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['educationUser-id', 'educationAssignment-id', 'educationAssignmentResource-id'],
+    },
     params,
   };
 }
@@ -62,18 +78,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'educationUser-id', in: 'path' },
-      { name: 'educationAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['educationUser-id', 'educationAssignment-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,13 +100,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'educationUser-id', in: 'path' },
-      { name: 'educationAssignment-id', in: 'path' },
-      { name: 'educationAssignmentResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['educationUser-id', 'educationAssignment-id', 'educationAssignmentResource-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,11 +122,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}',
-    paramDefs: [
-      { name: 'educationUser-id', in: 'path' },
-      { name: 'educationAssignment-id', in: 'path' },
-      { name: 'educationAssignmentResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['educationUser-id', 'educationAssignment-id', 'educationAssignmentResource-id'],
+    },
     params,
     body,
   };
@@ -141,11 +144,130 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources',
-    paramDefs: [
-      { name: 'educationUser-id', in: 'path' },
-      { name: 'educationAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['educationUser-id', 'educationAssignment-id'],
+    },
     params,
     body,
   };
 }
+
+export const dependentResources = {
+  /**
+   * `GET /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['educationUser-id', 'educationAssignment-id', 'educationAssignmentResource-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources']['body'],
+    params?: IEndpoints['POST /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources',
+      paramDefs: {
+        path: ['educationUser-id', 'educationAssignment-id', 'educationAssignmentResource-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'educationUser-id',
+          'educationAssignment-id',
+          'educationAssignmentResource-id',
+          'educationAssignmentResource-id1',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}']['body'],
+    params?: IEndpoints['PATCH /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}',
+      paramDefs: {
+        path: [
+          'educationUser-id',
+          'educationAssignment-id',
+          'educationAssignmentResource-id',
+          'educationAssignmentResource-id1',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/education/users/{educationUser-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: [
+          'educationUser-id',
+          'educationAssignment-id',
+          'educationAssignmentResource-id',
+          'educationAssignmentResource-id1',
+        ],
+      },
+      params,
+    };
+  },
+};

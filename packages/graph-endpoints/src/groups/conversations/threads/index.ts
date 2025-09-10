@@ -1,5 +1,4 @@
 export * as posts from './posts';
-export * as reply from './reply';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
@@ -24,6 +23,10 @@ export interface IEndpoints {
     '/groups/{group-id}/conversations/{conversation-id}/threads',
     'post'
   >;
+  'POST /groups/{group-id}/conversations/{conversation-id}/threads/{conversationThread-id}/reply': Operation<
+    '/groups/{group-id}/conversations/{conversation-id}/threads/{conversationThread-id}/reply',
+    'post'
+  >;
 }
 
 /**
@@ -38,12 +41,10 @@ export function del(
   return {
     method: 'delete',
     path: '/groups/{group-id}/conversations/{conversation-id}/threads/{conversationThread-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'conversation-id', in: 'path' },
-      { name: 'conversationThread-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'conversation-id', 'conversationThread-id'],
+    },
     params,
   };
 }
@@ -61,18 +62,10 @@ export function list(
   return {
     method: 'get',
     path: '/groups/{group-id}/conversations/{conversation-id}/threads',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'conversation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'conversation-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,13 +83,10 @@ export function get(
   return {
     method: 'get',
     path: '/groups/{group-id}/conversations/{conversation-id}/threads/{conversationThread-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'conversation-id', in: 'path' },
-      { name: 'conversationThread-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'conversation-id', 'conversationThread-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,11 +104,9 @@ export function update(
   return {
     method: 'patch',
     path: '/groups/{group-id}/conversations/{conversation-id}/threads/{conversationThread-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'conversation-id', in: 'path' },
-      { name: 'conversationThread-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'conversation-id', 'conversationThread-id'],
+    },
     params,
     body,
   };
@@ -139,11 +127,34 @@ export function create(
   return {
     method: 'post',
     path: '/groups/{group-id}/conversations/{conversation-id}/threads',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'conversation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'conversation-id'],
+    },
     params,
     body,
   };
 }
+
+export const reply = {
+  /**
+   * `POST /groups/{group-id}/conversations/{conversation-id}/threads/{conversationThread-id}/reply`
+   *
+   * Reply to a post and add a new post to the specified thread in a group conversation.  You can specify both the parent conversation and thread in the request, or, you can specify just the parent thread without the parent conversation.
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/conversations/{conversation-id}/threads/{conversationThread-id}/reply']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/conversations/{conversation-id}/threads/{conversationThread-id}/reply']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/conversations/{conversation-id}/threads/{conversationThread-id}/reply']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/groups/{group-id}/conversations/{conversation-id}/threads/{conversationThread-id}/reply',
+      paramDefs: {
+        path: ['group-id', 'conversation-id', 'conversationThread-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

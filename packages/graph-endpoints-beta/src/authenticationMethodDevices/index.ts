@@ -32,10 +32,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/authenticationMethodDevices/{authenticationMethodDevice-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'authenticationMethodDevice-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['authenticationMethodDevice-id'],
+    },
     params,
   };
 }
@@ -51,16 +51,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/authenticationMethodDevices',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -78,11 +71,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/authenticationMethodDevices/{authenticationMethodDevice-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'authenticationMethodDevice-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['authenticationMethodDevice-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -101,7 +93,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/authenticationMethodDevices/{authenticationMethodDevice-id}',
-    paramDefs: [{ name: 'authenticationMethodDevice-id', in: 'path' }],
+    paramDefs: {
+      path: ['authenticationMethodDevice-id'],
+    },
     params,
     body,
   };
@@ -112,15 +106,12 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /authenticationMethodDevices']['body'],
-  params?: IEndpoints['POST /authenticationMethodDevices']['parameters']
+  body: IEndpoints['POST /authenticationMethodDevices']['body']
 ): EndpointRequest<IEndpoints['POST /authenticationMethodDevices']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/authenticationMethodDevices',
-    paramDefs: [],
-    params,
     body,
   };
 }

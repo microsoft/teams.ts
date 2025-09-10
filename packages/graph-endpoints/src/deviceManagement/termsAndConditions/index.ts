@@ -1,5 +1,4 @@
 export * as acceptanceStatuses from './acceptanceStatuses';
-export * as assignments from './assignments';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -24,6 +23,26 @@ export interface IEndpoints {
     '/deviceManagement/termsAndConditions',
     'post'
   >;
+  'GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments': Operation<
+    '/deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments',
+    'get'
+  >;
+  'POST /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments': Operation<
+    '/deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments',
+    'post'
+  >;
+  'GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}': Operation<
+    '/deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}',
+    'get'
+  >;
+  'PATCH /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}': Operation<
+    '/deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}',
+    'patch'
+  >;
+  'DELETE /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}': Operation<
+    '/deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -39,10 +58,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceManagement/termsAndConditions/{termsAndConditions-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'termsAndConditions-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['termsAndConditions-id'],
+    },
     params,
   };
 }
@@ -58,16 +77,9 @@ export function list(
   return {
     method: 'get',
     path: '/deviceManagement/termsAndConditions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -85,11 +97,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceManagement/termsAndConditions/{termsAndConditions-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'termsAndConditions-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['termsAndConditions-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -108,7 +119,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceManagement/termsAndConditions/{termsAndConditions-id}',
-    paramDefs: [{ name: 'termsAndConditions-id', in: 'path' }],
+    paramDefs: {
+      path: ['termsAndConditions-id'],
+    },
     params,
     body,
   };
@@ -120,14 +133,116 @@ export function update(
  * Create a new termsAndConditions object.
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/termsAndConditions']['body'],
-  params?: IEndpoints['POST /deviceManagement/termsAndConditions']['parameters']
+  body: IEndpoints['POST /deviceManagement/termsAndConditions']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/termsAndConditions']['response']> {
   return {
     method: 'post',
     path: '/deviceManagement/termsAndConditions',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const assignments = {
+  /**
+   * `GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments`
+   *
+   * List properties and relationships of the termsAndConditionsAssignment objects.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['termsAndConditions-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments`
+   *
+   * Create a new termsAndConditionsAssignment object.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments']['body'],
+    params?: IEndpoints['POST /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments',
+      paramDefs: {
+        path: ['termsAndConditions-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}`
+   *
+   * Read properties and relationships of the termsAndConditionsAssignment object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['termsAndConditions-id', 'termsAndConditionsAssignment-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}`
+   *
+   * Update the properties of a termsAndConditionsAssignment object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}']['body'],
+    params?: IEndpoints['PATCH /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}',
+      paramDefs: {
+        path: ['termsAndConditions-id', 'termsAndConditionsAssignment-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}`
+   *
+   * Deletes a termsAndConditionsAssignment.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['termsAndConditions-id', 'termsAndConditionsAssignment-id'],
+      },
+      params,
+    };
+  },
+};

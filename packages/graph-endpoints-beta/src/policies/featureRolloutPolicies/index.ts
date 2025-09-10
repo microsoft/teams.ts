@@ -1,5 +1,3 @@
-export * as appliesTo from './appliesTo';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,14 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /policies/featureRolloutPolicies': Operation<'/policies/featureRolloutPolicies', 'post'>;
+  'GET /policies/featureRolloutPolicies/{featureRolloutPolicy-id}/appliesTo': Operation<
+    '/policies/featureRolloutPolicies/{featureRolloutPolicy-id}/appliesTo',
+    'get'
+  >;
+  'POST /policies/featureRolloutPolicies/{featureRolloutPolicy-id}/appliesTo': Operation<
+    '/policies/featureRolloutPolicies/{featureRolloutPolicy-id}/appliesTo',
+    'post'
+  >;
 }
 
 /**
@@ -33,10 +39,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/policies/featureRolloutPolicies/{featureRolloutPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'featureRolloutPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['featureRolloutPolicy-id'],
+    },
     params,
   };
 }
@@ -53,16 +59,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/policies/featureRolloutPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,11 +80,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/policies/featureRolloutPolicies/{featureRolloutPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'featureRolloutPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['featureRolloutPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -105,7 +103,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/policies/featureRolloutPolicies/{featureRolloutPolicy-id}',
-    paramDefs: [{ name: 'featureRolloutPolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['featureRolloutPolicy-id'],
+    },
     params,
     body,
   };
@@ -117,15 +117,58 @@ export function update(
  * Create a new featureRolloutPolicy object.
  */
 export function create(
-  body: IEndpoints['POST /policies/featureRolloutPolicies']['body'],
-  params?: IEndpoints['POST /policies/featureRolloutPolicies']['parameters']
+  body: IEndpoints['POST /policies/featureRolloutPolicies']['body']
 ): EndpointRequest<IEndpoints['POST /policies/featureRolloutPolicies']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/policies/featureRolloutPolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const appliesTo = {
+  /**
+   * `GET /policies/featureRolloutPolicies/{featureRolloutPolicy-id}/appliesTo`
+   *
+   * Nullable. Specifies a list of directoryObject resources that feature is enabled for.
+   */
+  get: function get(
+    params?: IEndpoints['GET /policies/featureRolloutPolicies/{featureRolloutPolicy-id}/appliesTo']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/featureRolloutPolicies/{featureRolloutPolicy-id}/appliesTo']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/policies/featureRolloutPolicies/{featureRolloutPolicy-id}/appliesTo',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['featureRolloutPolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /policies/featureRolloutPolicies/{featureRolloutPolicy-id}/appliesTo`
+   *
+   * Add an appliesTo on a featureRolloutPolicy object to specify the directoryObject to which the featureRolloutPolicy should be applied.
+   */
+  create: function create(
+    body: IEndpoints['POST /policies/featureRolloutPolicies/{featureRolloutPolicy-id}/appliesTo']['body'],
+    params?: IEndpoints['POST /policies/featureRolloutPolicies/{featureRolloutPolicy-id}/appliesTo']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /policies/featureRolloutPolicies/{featureRolloutPolicy-id}/appliesTo']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/policies/featureRolloutPolicies/{featureRolloutPolicy-id}/appliesTo',
+      paramDefs: {
+        path: ['featureRolloutPolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

@@ -1,5 +1,3 @@
-export * as createUploadSession from './createUploadSession';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/print/printerShares/{printerShare-id}/jobs/{printJob-id}/documents',
     'post'
   >;
+  'POST /print/printerShares/{printerShare-id}/jobs/{printJob-id}/documents/{printDocument-id}/createUploadSession': Operation<
+    '/print/printerShares/{printerShare-id}/jobs/{printJob-id}/documents/{printDocument-id}/createUploadSession',
+    'post'
+  >;
 }
 
 /**
@@ -39,12 +41,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/print/printerShares/{printerShare-id}/jobs/{printJob-id}/documents/{printDocument-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'printerShare-id', in: 'path' },
-      { name: 'printJob-id', in: 'path' },
-      { name: 'printDocument-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['printerShare-id', 'printJob-id', 'printDocument-id'],
+    },
     params,
   };
 }
@@ -63,18 +63,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/print/printerShares/{printerShare-id}/jobs/{printJob-id}/documents',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'printerShare-id', in: 'path' },
-      { name: 'printJob-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printerShare-id', 'printJob-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,13 +85,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/print/printerShares/{printerShare-id}/jobs/{printJob-id}/documents/{printDocument-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'printerShare-id', in: 'path' },
-      { name: 'printJob-id', in: 'path' },
-      { name: 'printDocument-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printerShare-id', 'printJob-id', 'printDocument-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -119,11 +108,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/print/printerShares/{printerShare-id}/jobs/{printJob-id}/documents/{printDocument-id}',
-    paramDefs: [
-      { name: 'printerShare-id', in: 'path' },
-      { name: 'printJob-id', in: 'path' },
-      { name: 'printDocument-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printerShare-id', 'printJob-id', 'printDocument-id'],
+    },
     params,
     body,
   };
@@ -144,11 +131,36 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/print/printerShares/{printerShare-id}/jobs/{printJob-id}/documents',
-    paramDefs: [
-      { name: 'printerShare-id', in: 'path' },
-      { name: 'printJob-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printerShare-id', 'printJob-id'],
+    },
     params,
     body,
   };
 }
+
+export const createUploadSession = {
+  /**
+   * `POST /print/printerShares/{printerShare-id}/jobs/{printJob-id}/documents/{printDocument-id}/createUploadSession`
+   *
+   * Create an upload session that allows an app to iteratively upload ranges of a binary file linked to the print document. As part of the response, this action returns an upload URL that can be used in subsequent sequential PUT queries. Request headers for each PUT operation can be used to specify the exact range of bytes to be uploaded. This allows transfer to be resumed, in case the network connection is dropped during upload.
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /print/printerShares/{printerShare-id}/jobs/{printJob-id}/documents/{printDocument-id}/createUploadSession']['body'],
+    params?: IEndpoints['POST /print/printerShares/{printerShare-id}/jobs/{printJob-id}/documents/{printDocument-id}/createUploadSession']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /print/printerShares/{printerShare-id}/jobs/{printJob-id}/documents/{printDocument-id}/createUploadSession']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/print/printerShares/{printerShare-id}/jobs/{printJob-id}/documents/{printDocument-id}/createUploadSession',
+      paramDefs: {
+        path: ['printerShare-id', 'printJob-id', 'printDocument-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

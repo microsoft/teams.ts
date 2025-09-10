@@ -38,11 +38,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'appConsentRequest-id', in: 'path' },
-      { name: 'userConsentRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['appConsentRequest-id', 'userConsentRequest-id'],
+    },
     params,
   };
 }
@@ -61,17 +60,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'appConsentRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['appConsentRequest-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +82,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'appConsentRequest-id', in: 'path' },
-      { name: 'userConsentRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['appConsentRequest-id', 'userConsentRequest-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +104,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}',
-    paramDefs: [
-      { name: 'appConsentRequest-id', in: 'path' },
-      { name: 'userConsentRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['appConsentRequest-id', 'userConsentRequest-id'],
+    },
     params,
     body,
   };
@@ -137,7 +126,9 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/me/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests',
-    paramDefs: [{ name: 'appConsentRequest-id', in: 'path' }],
+    paramDefs: {
+      path: ['appConsentRequest-id'],
+    },
     params,
     body,
   };

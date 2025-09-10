@@ -1,5 +1,4 @@
 export * as buckets from './buckets';
-export * as details from './details';
 export * as tasks from './tasks';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
@@ -10,6 +9,18 @@ export interface IEndpoints {
   'GET /planner/plans/{plannerPlan-id}': Operation<'/planner/plans/{plannerPlan-id}', 'get'>;
   'PATCH /planner/plans/{plannerPlan-id}': Operation<'/planner/plans/{plannerPlan-id}', 'patch'>;
   'POST /planner/plans': Operation<'/planner/plans', 'post'>;
+  'GET /planner/plans/{plannerPlan-id}/details': Operation<
+    '/planner/plans/{plannerPlan-id}/details',
+    'get'
+  >;
+  'PATCH /planner/plans/{plannerPlan-id}/details': Operation<
+    '/planner/plans/{plannerPlan-id}/details',
+    'patch'
+  >;
+  'DELETE /planner/plans/{plannerPlan-id}/details': Operation<
+    '/planner/plans/{plannerPlan-id}/details',
+    'delete'
+  >;
 }
 
 /**
@@ -23,10 +34,10 @@ export function del(
   return {
     method: 'delete',
     path: '/planner/plans/{plannerPlan-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'plannerPlan-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['plannerPlan-id'],
+    },
     params,
   };
 }
@@ -42,16 +53,9 @@ export function list(
   return {
     method: 'get',
     path: '/planner/plans',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -67,11 +71,10 @@ export function get(
   return {
     method: 'get',
     path: '/planner/plans/{plannerPlan-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'plannerPlan-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['plannerPlan-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,7 +91,9 @@ export function update(
   return {
     method: 'patch',
     path: '/planner/plans/{plannerPlan-id}',
-    paramDefs: [{ name: 'plannerPlan-id', in: 'path' }],
+    paramDefs: {
+      path: ['plannerPlan-id'],
+    },
     params,
     body,
   };
@@ -100,14 +105,69 @@ export function update(
  * Create a new plannerPlan object.
  */
 export function create(
-  body: IEndpoints['POST /planner/plans']['body'],
-  params?: IEndpoints['POST /planner/plans']['parameters']
+  body: IEndpoints['POST /planner/plans']['body']
 ): EndpointRequest<IEndpoints['POST /planner/plans']['response']> {
   return {
     method: 'post',
     path: '/planner/plans',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const details = {
+  /**
+   * `GET /planner/plans/{plannerPlan-id}/details`
+   *
+   * Retrieve the properties and relationships of a plannerPlanDetails object.
+   */
+  list: function list(
+    params?: IEndpoints['GET /planner/plans/{plannerPlan-id}/details']['parameters']
+  ): EndpointRequest<IEndpoints['GET /planner/plans/{plannerPlan-id}/details']['response']> {
+    return {
+      method: 'get',
+      path: '/planner/plans/{plannerPlan-id}/details',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['plannerPlan-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /planner/plans/{plannerPlan-id}/details`
+   *
+   * Update the properties of plannerplandetails object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /planner/plans/{plannerPlan-id}/details']['body'],
+    params?: IEndpoints['PATCH /planner/plans/{plannerPlan-id}/details']['parameters']
+  ): EndpointRequest<IEndpoints['PATCH /planner/plans/{plannerPlan-id}/details']['response']> {
+    return {
+      method: 'patch',
+      path: '/planner/plans/{plannerPlan-id}/details',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['plannerPlan-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /planner/plans/{plannerPlan-id}/details`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /planner/plans/{plannerPlan-id}/details']['parameters']
+  ): EndpointRequest<IEndpoints['DELETE /planner/plans/{plannerPlan-id}/details']['response']> {
+    return {
+      method: 'delete',
+      path: '/planner/plans/{plannerPlan-id}/details',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['plannerPlan-id'],
+      },
+      params,
+    };
+  },
+};

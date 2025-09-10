@@ -1,5 +1,3 @@
-export * as policyRules from './policyRules';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/networkAccess/tlsInspectionPolicies',
     'post'
   >;
+  'GET /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules': Operation<
+    '/networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules',
+    'get'
+  >;
+  'POST /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules': Operation<
+    '/networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules',
+    'post'
+  >;
+  'GET /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}': Operation<
+    '/networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}',
+    'get'
+  >;
+  'PATCH /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}': Operation<
+    '/networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}',
+    'patch'
+  >;
+  'DELETE /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}': Operation<
+    '/networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -39,10 +57,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'tlsInspectionPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['tlsInspectionPolicy-id'],
+    },
     params,
   };
 }
@@ -59,16 +77,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/tlsInspectionPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +98,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'tlsInspectionPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['tlsInspectionPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,7 +121,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}',
-    paramDefs: [{ name: 'tlsInspectionPolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['tlsInspectionPolicy-id'],
+    },
     params,
     body,
   };
@@ -123,15 +135,122 @@ export function update(
  * Create a new tlsInspectionPolicy object.
  */
 export function create(
-  body: IEndpoints['POST /networkAccess/tlsInspectionPolicies']['body'],
-  params?: IEndpoints['POST /networkAccess/tlsInspectionPolicies']['parameters']
+  body: IEndpoints['POST /networkAccess/tlsInspectionPolicies']['body']
 ): EndpointRequest<IEndpoints['POST /networkAccess/tlsInspectionPolicies']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/networkAccess/tlsInspectionPolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const policyRules = {
+  /**
+   * `GET /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules`
+   *
+   * Get a list of the tlsInspectionRule objects in a tlsInspectionPolicy.
+   */
+  list: function list(
+    params?: IEndpoints['GET /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['tlsInspectionPolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules`
+   *
+   * Create a new tlsInspectionRule object in a tlsInspectionPolicy.
+   */
+  create: function create(
+    body: IEndpoints['POST /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules']['body'],
+    params?: IEndpoints['POST /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules',
+      paramDefs: {
+        path: ['tlsInspectionPolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}`
+   *
+   * Get a tlsInspectionRule object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['tlsInspectionPolicy-id', 'policyRule-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}`
+   *
+   * Update the properties of a tlsInspectionRule object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}']['body'],
+    params?: IEndpoints['PATCH /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}',
+      paramDefs: {
+        path: ['tlsInspectionPolicy-id', 'policyRule-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}`
+   *
+   * Delete a tlsInspectionRule object.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/networkAccess/tlsInspectionPolicies/{tlsInspectionPolicy-id}/policyRules/{policyRule-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['tlsInspectionPolicy-id', 'policyRule-id'],
+      },
+      params,
+    };
+  },
+};

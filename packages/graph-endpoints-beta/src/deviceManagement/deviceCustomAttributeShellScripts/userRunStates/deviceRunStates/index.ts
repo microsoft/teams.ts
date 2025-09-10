@@ -1,5 +1,3 @@
-export * as managedDevice from './managedDevice';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceManagement/deviceCustomAttributeShellScripts/{deviceCustomAttributeShellScript-id}/userRunStates/{deviceManagementScriptUserState-id}/deviceRunStates',
     'post'
   >;
+  'GET /deviceManagement/deviceCustomAttributeShellScripts/{deviceCustomAttributeShellScript-id}/userRunStates/{deviceManagementScriptUserState-id}/deviceRunStates/{deviceManagementScriptDeviceState-id}/managedDevice': Operation<
+    '/deviceManagement/deviceCustomAttributeShellScripts/{deviceCustomAttributeShellScript-id}/userRunStates/{deviceManagementScriptUserState-id}/deviceRunStates/{deviceManagementScriptDeviceState-id}/managedDevice',
+    'get'
+  >;
 }
 
 /**
@@ -38,12 +40,14 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/deviceCustomAttributeShellScripts/{deviceCustomAttributeShellScript-id}/userRunStates/{deviceManagementScriptUserState-id}/deviceRunStates/{deviceManagementScriptDeviceState-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deviceCustomAttributeShellScript-id', in: 'path' },
-      { name: 'deviceManagementScriptUserState-id', in: 'path' },
-      { name: 'deviceManagementScriptDeviceState-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: [
+        'deviceCustomAttributeShellScript-id',
+        'deviceManagementScriptUserState-id',
+        'deviceManagementScriptDeviceState-id',
+      ],
+    },
     params,
   };
 }
@@ -62,18 +66,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/deviceCustomAttributeShellScripts/{deviceCustomAttributeShellScript-id}/userRunStates/{deviceManagementScriptUserState-id}/deviceRunStates',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceCustomAttributeShellScript-id', in: 'path' },
-      { name: 'deviceManagementScriptUserState-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceCustomAttributeShellScript-id', 'deviceManagementScriptUserState-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,13 +88,14 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/deviceCustomAttributeShellScripts/{deviceCustomAttributeShellScript-id}/userRunStates/{deviceManagementScriptUserState-id}/deviceRunStates/{deviceManagementScriptDeviceState-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceCustomAttributeShellScript-id', in: 'path' },
-      { name: 'deviceManagementScriptUserState-id', in: 'path' },
-      { name: 'deviceManagementScriptDeviceState-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: [
+        'deviceCustomAttributeShellScript-id',
+        'deviceManagementScriptUserState-id',
+        'deviceManagementScriptDeviceState-id',
+      ],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,11 +114,13 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/deviceCustomAttributeShellScripts/{deviceCustomAttributeShellScript-id}/userRunStates/{deviceManagementScriptUserState-id}/deviceRunStates/{deviceManagementScriptDeviceState-id}',
-    paramDefs: [
-      { name: 'deviceCustomAttributeShellScript-id', in: 'path' },
-      { name: 'deviceManagementScriptUserState-id', in: 'path' },
-      { name: 'deviceManagementScriptDeviceState-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: [
+        'deviceCustomAttributeShellScript-id',
+        'deviceManagementScriptUserState-id',
+        'deviceManagementScriptDeviceState-id',
+      ],
+    },
     params,
     body,
   };
@@ -141,11 +140,38 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/deviceCustomAttributeShellScripts/{deviceCustomAttributeShellScript-id}/userRunStates/{deviceManagementScriptUserState-id}/deviceRunStates',
-    paramDefs: [
-      { name: 'deviceCustomAttributeShellScript-id', in: 'path' },
-      { name: 'deviceManagementScriptUserState-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceCustomAttributeShellScript-id', 'deviceManagementScriptUserState-id'],
+    },
     params,
     body,
   };
 }
+
+export const managedDevice = {
+  /**
+   * `GET /deviceManagement/deviceCustomAttributeShellScripts/{deviceCustomAttributeShellScript-id}/userRunStates/{deviceManagementScriptUserState-id}/deviceRunStates/{deviceManagementScriptDeviceState-id}/managedDevice`
+   *
+   * The managed devices that executes the device management script.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/deviceCustomAttributeShellScripts/{deviceCustomAttributeShellScript-id}/userRunStates/{deviceManagementScriptUserState-id}/deviceRunStates/{deviceManagementScriptDeviceState-id}/managedDevice']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/deviceCustomAttributeShellScripts/{deviceCustomAttributeShellScript-id}/userRunStates/{deviceManagementScriptUserState-id}/deviceRunStates/{deviceManagementScriptDeviceState-id}/managedDevice']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/deviceCustomAttributeShellScripts/{deviceCustomAttributeShellScript-id}/userRunStates/{deviceManagementScriptUserState-id}/deviceRunStates/{deviceManagementScriptDeviceState-id}/managedDevice',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'deviceCustomAttributeShellScript-id',
+          'deviceManagementScriptUserState-id',
+          'deviceManagementScriptDeviceState-id',
+        ],
+      },
+      params,
+    };
+  },
+};

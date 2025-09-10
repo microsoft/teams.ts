@@ -1,5 +1,3 @@
-export * as dataCollectionInfo from './dataCollectionInfo';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,18 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /external/authorizationSystems': Operation<'/external/authorizationSystems', 'post'>;
+  'GET /external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo': Operation<
+    '/external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo',
+    'get'
+  >;
+  'PATCH /external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo': Operation<
+    '/external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo',
+    'patch'
+  >;
+  'DELETE /external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo': Operation<
+    '/external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo',
+    'delete'
+  >;
 }
 
 /**
@@ -32,10 +42,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/external/authorizationSystems/{authorizationSystem-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'authorizationSystem-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['authorizationSystem-id'],
+    },
     params,
   };
 }
@@ -52,16 +62,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/external/authorizationSystems',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -80,11 +83,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/external/authorizationSystems/{authorizationSystem-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'authorizationSystem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['authorizationSystem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -103,7 +105,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/external/authorizationSystems/{authorizationSystem-id}',
-    paramDefs: [{ name: 'authorizationSystem-id', in: 'path' }],
+    paramDefs: {
+      path: ['authorizationSystem-id'],
+    },
     params,
     body,
   };
@@ -114,15 +118,77 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /external/authorizationSystems']['body'],
-  params?: IEndpoints['POST /external/authorizationSystems']['parameters']
+  body: IEndpoints['POST /external/authorizationSystems']['body']
 ): EndpointRequest<IEndpoints['POST /external/authorizationSystems']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/external/authorizationSystems',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const dataCollectionInfo = {
+  /**
+   * `GET /external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo`
+   *
+   * Defines how and whether Permissions Management collects data from the onboarded authorization system. Supports $filter (eq) as follows:  $filter&#x3D;dataCollectionInfo/entitlements/permissionsModificationCapability and $filter&#x3D;dataCollectionInfo/entitlements/status.
+   */
+  get: function get(
+    params?: IEndpoints['GET /external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['authorizationSystem-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo']['body'],
+    params?: IEndpoints['PATCH /external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo',
+      paramDefs: {
+        path: ['authorizationSystem-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/external/authorizationSystems/{authorizationSystem-id}/dataCollectionInfo',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['authorizationSystem-id'],
+      },
+      params,
+    };
+  },
+};

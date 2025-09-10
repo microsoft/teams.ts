@@ -1,4 +1,3 @@
-export * as clone from './clone';
 export * as referencingConfigurationPolicies from './referencingConfigurationPolicies';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
@@ -24,6 +23,10 @@ export interface IEndpoints {
     '/deviceManagement/reusablePolicySettings',
     'post'
   >;
+  'POST /deviceManagement/reusablePolicySettings/{deviceManagementReusablePolicySetting-id}/clone': Operation<
+    '/deviceManagement/reusablePolicySettings/{deviceManagementReusablePolicySetting-id}/clone',
+    'post'
+  >;
 }
 
 /**
@@ -39,10 +42,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/reusablePolicySettings/{deviceManagementReusablePolicySetting-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deviceManagementReusablePolicySetting-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['deviceManagementReusablePolicySetting-id'],
+    },
     params,
   };
 }
@@ -59,16 +62,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/reusablePolicySettings',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +83,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/reusablePolicySettings/{deviceManagementReusablePolicySetting-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceManagementReusablePolicySetting-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceManagementReusablePolicySetting-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +105,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/reusablePolicySettings/{deviceManagementReusablePolicySetting-id}',
-    paramDefs: [{ name: 'deviceManagementReusablePolicySetting-id', in: 'path' }],
+    paramDefs: {
+      path: ['deviceManagementReusablePolicySetting-id'],
+    },
     params,
     body,
   };
@@ -121,15 +118,34 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/reusablePolicySettings']['body'],
-  params?: IEndpoints['POST /deviceManagement/reusablePolicySettings']['parameters']
+  body: IEndpoints['POST /deviceManagement/reusablePolicySettings']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/reusablePolicySettings']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/reusablePolicySettings',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const clone = {
+  /**
+   * `POST /deviceManagement/reusablePolicySettings/{deviceManagementReusablePolicySetting-id}/clone`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/reusablePolicySettings/{deviceManagementReusablePolicySetting-id}/clone']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reusablePolicySettings/{deviceManagementReusablePolicySetting-id}/clone']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/reusablePolicySettings/{deviceManagementReusablePolicySetting-id}/clone',
+      paramDefs: {
+        path: ['deviceManagementReusablePolicySetting-id'],
+      },
+      params,
+    };
+  },
+};

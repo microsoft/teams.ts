@@ -1,5 +1,3 @@
-export * as device from './device';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -13,6 +11,10 @@ export interface IEndpoints {
   >;
   'GET /users/{user-id}/authentication/platformCredentialMethods/{platformCredentialAuthenticationMethod-id}': Operation<
     '/users/{user-id}/authentication/platformCredentialMethods/{platformCredentialAuthenticationMethod-id}',
+    'get'
+  >;
+  'GET /users/{user-id}/authentication/platformCredentialMethods/{platformCredentialAuthenticationMethod-id}/device': Operation<
+    '/users/{user-id}/authentication/platformCredentialMethods/{platformCredentialAuthenticationMethod-id}/device',
     'get'
   >;
 }
@@ -31,11 +33,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/users/{user-id}/authentication/platformCredentialMethods/{platformCredentialAuthenticationMethod-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'platformCredentialAuthenticationMethod-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'platformCredentialAuthenticationMethod-id'],
+    },
     params,
   };
 }
@@ -54,17 +55,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/authentication/platformCredentialMethods',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -83,12 +77,34 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/authentication/platformCredentialMethods/{platformCredentialAuthenticationMethod-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'platformCredentialAuthenticationMethod-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'platformCredentialAuthenticationMethod-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
+
+export const device = {
+  /**
+   * `GET /users/{user-id}/authentication/platformCredentialMethods/{platformCredentialAuthenticationMethod-id}/device`
+   *
+   * The registered device on which this Platform Credential resides. Supports $expand. When you get a user&#x27;s Platform Credential registration information, this property is returned only on a single GET and when you specify ?$expand. For example, GET /users/admin@contoso.com/authentication/platformCredentialAuthenticationMethod/_jpuR-TGZtk6aQCLF3BQjA2?$expand&#x3D;device.
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/authentication/platformCredentialMethods/{platformCredentialAuthenticationMethod-id}/device']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/authentication/platformCredentialMethods/{platformCredentialAuthenticationMethod-id}/device']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/authentication/platformCredentialMethods/{platformCredentialAuthenticationMethod-id}/device',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'platformCredentialAuthenticationMethod-id'],
+      },
+      params,
+    };
+  },
+};

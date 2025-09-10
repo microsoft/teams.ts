@@ -31,10 +31,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/calendarGroups/{calendarGroup-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'calendarGroup-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['calendarGroup-id'],
+    },
     params,
   };
 }
@@ -51,16 +51,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/calendarGroups',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -77,11 +70,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/calendarGroups/{calendarGroup-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'calendarGroup-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['calendarGroup-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -99,7 +91,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/calendarGroups/{calendarGroup-id}',
-    paramDefs: [{ name: 'calendarGroup-id', in: 'path' }],
+    paramDefs: {
+      path: ['calendarGroup-id'],
+    },
     params,
     body,
   };
@@ -111,15 +105,12 @@ export function update(
  * Use this API to create a new CalendarGroup.
  */
 export function create(
-  body: IEndpoints['POST /me/calendarGroups']['body'],
-  params?: IEndpoints['POST /me/calendarGroups']['parameters']
+  body: IEndpoints['POST /me/calendarGroups']['body']
 ): EndpointRequest<IEndpoints['POST /me/calendarGroups']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/me/calendarGroups',
-    paramDefs: [],
-    params,
     body,
   };
 }

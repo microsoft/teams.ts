@@ -1,7 +1,5 @@
 export * as createdByUser from './createdByUser';
-export * as dodelete from './delete';
 export * as lastModifiedByUser from './lastModifiedByUser';
-export * as restore from './restore';
 
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
@@ -26,6 +24,14 @@ export interface IEndpoints {
     '/storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items',
     'post'
   >;
+  'POST /storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/delete': Operation<
+    '/storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/delete',
+    'post'
+  >;
+  'POST /storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/restore': Operation<
+    '/storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/restore',
+    'post'
+  >;
 }
 
 /**
@@ -41,11 +47,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-      { name: 'recycleBinItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['fileStorageContainer-id', 'recycleBinItem-id'],
+    },
     params,
   };
 }
@@ -64,17 +69,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainer-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,12 +91,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-      { name: 'recycleBinItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainer-id', 'recycleBinItem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,10 +113,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/{recycleBinItem-id}',
-    paramDefs: [
-      { name: 'fileStorageContainer-id', in: 'path' },
-      { name: 'recycleBinItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainer-id', 'recycleBinItem-id'],
+    },
     params,
     body,
   };
@@ -140,8 +135,58 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items',
-    paramDefs: [{ name: 'fileStorageContainer-id', in: 'path' }],
+    paramDefs: {
+      path: ['fileStorageContainer-id'],
+    },
     params,
     body,
   };
 }
+
+export const doDelete = {
+  /**
+   * `POST /storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/delete`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/delete']['body'],
+    params?: IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/delete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/delete']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/delete',
+      paramDefs: {
+        path: ['fileStorageContainer-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const restore = {
+  /**
+   * `POST /storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/restore`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/restore']['body'],
+    params?: IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/restore']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/restore']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/storage/fileStorage/containers/{fileStorageContainer-id}/recycleBin/items/restore',
+      paramDefs: {
+        path: ['fileStorageContainer-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

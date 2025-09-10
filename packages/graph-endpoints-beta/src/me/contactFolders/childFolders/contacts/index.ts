@@ -1,7 +1,3 @@
-export * as extensions from './extensions';
-export * as permanentDelete from './permanentDelete';
-export * as photo from './photo';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -25,6 +21,38 @@ export interface IEndpoints {
     '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts',
     'post'
   >;
+  'GET /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions': Operation<
+    '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions',
+    'get'
+  >;
+  'POST /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions': Operation<
+    '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions',
+    'post'
+  >;
+  'GET /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}': Operation<
+    '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}',
+    'get'
+  >;
+  'PATCH /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}': Operation<
+    '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}',
+    'patch'
+  >;
+  'DELETE /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}': Operation<
+    '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}',
+    'delete'
+  >;
+  'POST /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/permanentDelete': Operation<
+    '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/permanentDelete',
+    'post'
+  >;
+  'GET /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/photo': Operation<
+    '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/photo',
+    'get'
+  >;
+  'PATCH /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/photo': Operation<
+    '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/photo',
+    'patch'
+  >;
 }
 
 /**
@@ -40,12 +68,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'contactFolder-id', in: 'path' },
-      { name: 'contactFolder-id1', in: 'path' },
-      { name: 'contact-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['contactFolder-id', 'contactFolder-id1', 'contact-id'],
+    },
     params,
   };
 }
@@ -64,18 +90,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'contactFolder-id', in: 'path' },
-      { name: 'contactFolder-id1', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['contactFolder-id', 'contactFolder-id1'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -94,13 +112,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'contactFolder-id', in: 'path' },
-      { name: 'contactFolder-id1', in: 'path' },
-      { name: 'contact-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['contactFolder-id', 'contactFolder-id1', 'contact-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -119,11 +134,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}',
-    paramDefs: [
-      { name: 'contactFolder-id', in: 'path' },
-      { name: 'contactFolder-id1', in: 'path' },
-      { name: 'contact-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['contactFolder-id', 'contactFolder-id1', 'contact-id'],
+    },
     params,
     body,
   };
@@ -143,11 +156,185 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts',
-    paramDefs: [
-      { name: 'contactFolder-id', in: 'path' },
-      { name: 'contactFolder-id1', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['contactFolder-id', 'contactFolder-id1'],
+    },
     params,
     body,
   };
 }
+
+export const extensions = {
+  /**
+   * `GET /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions`
+   *
+   * The collection of open extensions defined for the contact. Nullable.
+   */
+  list: function list(
+    params?: IEndpoints['GET /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['contactFolder-id', 'contactFolder-id1', 'contact-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions']['body'],
+    params?: IEndpoints['POST /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions',
+      paramDefs: {
+        path: ['contactFolder-id', 'contactFolder-id1', 'contact-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}`
+   *
+   * The collection of open extensions defined for the contact. Nullable.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['contactFolder-id', 'contactFolder-id1', 'contact-id', 'extension-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}']['body'],
+    params?: IEndpoints['PATCH /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}',
+      paramDefs: {
+        path: ['contactFolder-id', 'contactFolder-id1', 'contact-id', 'extension-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/extensions/{extension-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['contactFolder-id', 'contactFolder-id1', 'contact-id', 'extension-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const permanentDelete = {
+  /**
+   * `POST /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/permanentDelete`
+   *
+   * Permanently delete a contact and place it in the Purges folder in the dumpster in the user&#x27;s mailbox. Email clients such as Outlook or Outlook on the web can&#x27;t access permanently deleted items. Unless there&#x27;s a hold set on the mailbox, the items are permanently deleted after a set period of time. For more information about item retention, see Configure Deleted Item retention and Recoverable Items quotas.
+   */
+  create: function create(
+    params?: IEndpoints['POST /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/permanentDelete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/permanentDelete']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/permanentDelete',
+      paramDefs: {
+        path: ['contactFolder-id', 'contactFolder-id1', 'contact-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const photo = {
+  /**
+   * `GET /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/photo`
+   *
+   * Optional contact picture. You can get or set a photo for a contact.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/photo']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/photo']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/photo',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['contactFolder-id', 'contactFolder-id1', 'contact-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/photo`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/photo']['body'],
+    params?: IEndpoints['PATCH /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/photo']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/photo']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/me/contactFolders/{contactFolder-id}/childFolders/{contactFolder-id1}/contacts/{contact-id}/photo',
+      paramDefs: {
+        path: ['contactFolder-id', 'contactFolder-id1', 'contact-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

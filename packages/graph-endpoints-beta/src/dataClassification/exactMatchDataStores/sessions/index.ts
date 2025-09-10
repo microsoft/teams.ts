@@ -1,8 +1,3 @@
-export * as cancel from './cancel';
-export * as commit from './commit';
-export * as renew from './renew';
-export * as uploadAgent from './uploadAgent';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -26,6 +21,30 @@ export interface IEndpoints {
     '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions',
     'post'
   >;
+  'POST /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/cancel': Operation<
+    '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/cancel',
+    'post'
+  >;
+  'POST /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/commit': Operation<
+    '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/commit',
+    'post'
+  >;
+  'POST /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/renew': Operation<
+    '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/renew',
+    'post'
+  >;
+  'GET /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent': Operation<
+    '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent',
+    'get'
+  >;
+  'PATCH /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent': Operation<
+    '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent',
+    'patch'
+  >;
+  'DELETE /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent': Operation<
+    '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent',
+    'delete'
+  >;
 }
 
 /**
@@ -41,11 +60,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'exactMatchDataStore-id', in: 'path' },
-      { name: 'exactMatchSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['exactMatchDataStore-id', 'exactMatchSession-id'],
+    },
     params,
   };
 }
@@ -63,17 +81,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'exactMatchDataStore-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['exactMatchDataStore-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -91,12 +102,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'exactMatchDataStore-id', in: 'path' },
-      { name: 'exactMatchSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['exactMatchDataStore-id', 'exactMatchSession-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,10 +124,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}',
-    paramDefs: [
-      { name: 'exactMatchDataStore-id', in: 'path' },
-      { name: 'exactMatchSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['exactMatchDataStore-id', 'exactMatchSession-id'],
+    },
     params,
     body,
   };
@@ -138,8 +146,140 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions',
-    paramDefs: [{ name: 'exactMatchDataStore-id', in: 'path' }],
+    paramDefs: {
+      path: ['exactMatchDataStore-id'],
+    },
     params,
     body,
   };
 }
+
+export const cancel = {
+  /**
+   * `POST /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/cancel`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/cancel']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/cancel']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/cancel',
+      paramDefs: {
+        path: ['exactMatchDataStore-id', 'exactMatchSession-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const commit = {
+  /**
+   * `POST /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/commit`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/commit']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/commit']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/commit',
+      paramDefs: {
+        path: ['exactMatchDataStore-id', 'exactMatchSession-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const renew = {
+  /**
+   * `POST /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/renew`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/renew']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/renew']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/renew',
+      paramDefs: {
+        path: ['exactMatchDataStore-id', 'exactMatchSession-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const uploadAgent = {
+  /**
+   * `GET /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['exactMatchDataStore-id', 'exactMatchSession-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent']['body'],
+    params?: IEndpoints['PATCH /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent',
+      paramDefs: {
+        path: ['exactMatchDataStore-id', 'exactMatchSession-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/dataClassification/exactMatchDataStores/{exactMatchDataStore-id}/sessions/{exactMatchSession-id}/uploadAgent',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['exactMatchDataStore-id', 'exactMatchSession-id'],
+      },
+      params,
+    };
+  },
+};

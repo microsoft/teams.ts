@@ -1,5 +1,3 @@
-export * as sourceSystem from './sourceSystem';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/external/industryData/dataConnectors',
     'post'
   >;
+  'GET /external/industryData/dataConnectors/{industryDataConnector-id}/sourceSystem': Operation<
+    '/external/industryData/dataConnectors/{industryDataConnector-id}/sourceSystem',
+    'get'
+  >;
 }
 
 /**
@@ -39,10 +41,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/external/industryData/dataConnectors/{industryDataConnector-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'industryDataConnector-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['industryDataConnector-id'],
+    },
     params,
   };
 }
@@ -59,16 +61,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/external/industryData/dataConnectors',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +82,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/external/industryData/dataConnectors/{industryDataConnector-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'industryDataConnector-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['industryDataConnector-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -99,7 +93,7 @@ export function get(
 /**
  * `PATCH /external/industryData/dataConnectors/{industryDataConnector-id}`
  *
- * Update the properties of a oneRosterApiDataConnector object.
+ * Update the properties of an azureDataLakeConnector object.
  */
 export function update(
   body: IEndpoints['PATCH /external/industryData/dataConnectors/{industryDataConnector-id}']['body'],
@@ -111,7 +105,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/external/industryData/dataConnectors/{industryDataConnector-id}',
-    paramDefs: [{ name: 'industryDataConnector-id', in: 'path' }],
+    paramDefs: {
+      path: ['industryDataConnector-id'],
+    },
     params,
     body,
   };
@@ -120,18 +116,39 @@ export function update(
 /**
  * `POST /external/industryData/dataConnectors`
  *
- * Create a new oneRosterApiDataConnector object.
+ * Create a new azureDataLakeConnector object.
  */
 export function create(
-  body: IEndpoints['POST /external/industryData/dataConnectors']['body'],
-  params?: IEndpoints['POST /external/industryData/dataConnectors']['parameters']
+  body: IEndpoints['POST /external/industryData/dataConnectors']['body']
 ): EndpointRequest<IEndpoints['POST /external/industryData/dataConnectors']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/external/industryData/dataConnectors',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const sourceSystem = {
+  /**
+   * `GET /external/industryData/dataConnectors/{industryDataConnector-id}/sourceSystem`
+   *
+   * The sourceSystemDefinition this connector is connected to.
+   */
+  get: function get(
+    params?: IEndpoints['GET /external/industryData/dataConnectors/{industryDataConnector-id}/sourceSystem']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /external/industryData/dataConnectors/{industryDataConnector-id}/sourceSystem']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/external/industryData/dataConnectors/{industryDataConnector-id}/sourceSystem',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['industryDataConnector-id'],
+      },
+      params,
+    };
+  },
+};

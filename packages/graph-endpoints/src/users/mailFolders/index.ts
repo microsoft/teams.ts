@@ -1,9 +1,5 @@
 export * as childFolders from './childFolders';
-export * as copy from './copy';
-export * as messageRules from './messageRules';
 export * as messages from './messages';
-export * as move from './move';
-export * as permanentDelete from './permanentDelete';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -22,6 +18,38 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /users/{user-id}/mailFolders': Operation<'/users/{user-id}/mailFolders', 'post'>;
+  'POST /users/{user-id}/mailFolders/{mailFolder-id}/copy': Operation<
+    '/users/{user-id}/mailFolders/{mailFolder-id}/copy',
+    'post'
+  >;
+  'GET /users/{user-id}/mailFolders/{mailFolder-id}/messageRules': Operation<
+    '/users/{user-id}/mailFolders/{mailFolder-id}/messageRules',
+    'get'
+  >;
+  'POST /users/{user-id}/mailFolders/{mailFolder-id}/messageRules': Operation<
+    '/users/{user-id}/mailFolders/{mailFolder-id}/messageRules',
+    'post'
+  >;
+  'GET /users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}': Operation<
+    '/users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}',
+    'get'
+  >;
+  'PATCH /users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}': Operation<
+    '/users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}',
+    'patch'
+  >;
+  'DELETE /users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}': Operation<
+    '/users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}',
+    'delete'
+  >;
+  'POST /users/{user-id}/mailFolders/{mailFolder-id}/move': Operation<
+    '/users/{user-id}/mailFolders/{mailFolder-id}/move',
+    'post'
+  >;
+  'POST /users/{user-id}/mailFolders/{mailFolder-id}/permanentDelete': Operation<
+    '/users/{user-id}/mailFolders/{mailFolder-id}/permanentDelete',
+    'post'
+  >;
 }
 
 /**
@@ -34,11 +62,10 @@ export function del(
   return {
     method: 'delete',
     path: '/users/{user-id}/mailFolders/{mailFolder-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'mailFolder-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'mailFolder-id'],
+    },
     params,
   };
 }
@@ -54,18 +81,20 @@ export function list(
   return {
     method: 'get',
     path: '/users/{user-id}/mailFolders',
-    paramDefs: [
-      { name: 'includeHiddenFolders', in: 'query' },
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: [
+        'includeHiddenFolders',
+        '$top',
+        '$skip',
+        '$search',
+        '$filter',
+        '$count',
+        '$orderby',
+        '$select',
+        '$expand',
+      ],
+    },
     params,
   };
 }
@@ -81,13 +110,10 @@ export function get(
   return {
     method: 'get',
     path: '/users/{user-id}/mailFolders/{mailFolder-id}',
-    paramDefs: [
-      { name: 'includeHiddenFolders', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'mailFolder-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'mailFolder-id'],
+      query: ['includeHiddenFolders', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -103,10 +129,9 @@ export function update(
   return {
     method: 'patch',
     path: '/users/{user-id}/mailFolders/{mailFolder-id}',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'mailFolder-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'mailFolder-id'],
+    },
     params,
     body,
   };
@@ -123,8 +148,181 @@ export function create(
   return {
     method: 'post',
     path: '/users/{user-id}/mailFolders',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };
 }
+
+export const copy = {
+  /**
+   * `POST /users/{user-id}/mailFolders/{mailFolder-id}/copy`
+   *
+   * Copy a mailfolder and its contents to another mailfolder.
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/mailFolders/{mailFolder-id}/copy']['body'],
+    params?: IEndpoints['POST /users/{user-id}/mailFolders/{mailFolder-id}/copy']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/mailFolders/{mailFolder-id}/copy']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/mailFolders/{mailFolder-id}/copy',
+      paramDefs: {
+        path: ['user-id', 'mailFolder-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const messageRules = {
+  /**
+   * `GET /users/{user-id}/mailFolders/{mailFolder-id}/messageRules`
+   *
+   * The collection of rules that apply to the user&#x27;s Inbox folder.
+   */
+  list: function list(
+    params?: IEndpoints['GET /users/{user-id}/mailFolders/{mailFolder-id}/messageRules']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/mailFolders/{mailFolder-id}/messageRules']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/users/{user-id}/mailFolders/{mailFolder-id}/messageRules',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['user-id', 'mailFolder-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /users/{user-id}/mailFolders/{mailFolder-id}/messageRules`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/mailFolders/{mailFolder-id}/messageRules']['body'],
+    params?: IEndpoints['POST /users/{user-id}/mailFolders/{mailFolder-id}/messageRules']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/mailFolders/{mailFolder-id}/messageRules']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/mailFolders/{mailFolder-id}/messageRules',
+      paramDefs: {
+        path: ['user-id', 'mailFolder-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}`
+   *
+   * The collection of rules that apply to the user&#x27;s Inbox folder.
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'mailFolder-id', 'messageRule-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}']['body'],
+    params?: IEndpoints['PATCH /users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}',
+      paramDefs: {
+        path: ['user-id', 'mailFolder-id', 'messageRule-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/users/{user-id}/mailFolders/{mailFolder-id}/messageRules/{messageRule-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['user-id', 'mailFolder-id', 'messageRule-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const move = {
+  /**
+   * `POST /users/{user-id}/mailFolders/{mailFolder-id}/move`
+   *
+   * Move a mailfolder and its contents to another mailfolder.
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/mailFolders/{mailFolder-id}/move']['body'],
+    params?: IEndpoints['POST /users/{user-id}/mailFolders/{mailFolder-id}/move']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/mailFolders/{mailFolder-id}/move']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/mailFolders/{mailFolder-id}/move',
+      paramDefs: {
+        path: ['user-id', 'mailFolder-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const permanentDelete = {
+  /**
+   * `POST /users/{user-id}/mailFolders/{mailFolder-id}/permanentDelete`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /users/{user-id}/mailFolders/{mailFolder-id}/permanentDelete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/mailFolders/{mailFolder-id}/permanentDelete']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/mailFolders/{mailFolder-id}/permanentDelete',
+      paramDefs: {
+        path: ['user-id', 'mailFolder-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,14 +1,3 @@
-export * as domainNameReferences from './domainNameReferences';
-export * as federationConfiguration from './federationConfiguration';
-export * as forceDelete from './forceDelete';
-export * as promote from './promote';
-export * as promoteToInitial from './promoteToInitial';
-export * as rootDomain from './rootDomain';
-export * as serviceConfigurationRecords from './serviceConfigurationRecords';
-export * as sharedEmailDomainInvitations from './sharedEmailDomainInvitations';
-export * as verificationDnsRecords from './verificationDnsRecords';
-export * as verify from './verify';
-
 import type { EndpointRequest, Operation } from './../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +6,102 @@ export interface IEndpoints {
   'GET /domains/{domain-id}': Operation<'/domains/{domain-id}', 'get'>;
   'PATCH /domains/{domain-id}': Operation<'/domains/{domain-id}', 'patch'>;
   'POST /domains': Operation<'/domains', 'post'>;
+  'GET /domains/{domain-id}/domainNameReferences': Operation<
+    '/domains/{domain-id}/domainNameReferences',
+    'get'
+  >;
+  'GET /domains/{domain-id}/domainNameReferences/{directoryObject-id}': Operation<
+    '/domains/{domain-id}/domainNameReferences/{directoryObject-id}',
+    'get'
+  >;
+  'GET /domains/{domain-id}/federationConfiguration': Operation<
+    '/domains/{domain-id}/federationConfiguration',
+    'get'
+  >;
+  'POST /domains/{domain-id}/federationConfiguration': Operation<
+    '/domains/{domain-id}/federationConfiguration',
+    'post'
+  >;
+  'GET /domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}': Operation<
+    '/domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}',
+    'get'
+  >;
+  'PATCH /domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}': Operation<
+    '/domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}',
+    'patch'
+  >;
+  'DELETE /domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}': Operation<
+    '/domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}',
+    'delete'
+  >;
+  'POST /domains/{domain-id}/forceDelete': Operation<'/domains/{domain-id}/forceDelete', 'post'>;
+  'POST /domains/{domain-id}/promote': Operation<'/domains/{domain-id}/promote', 'post'>;
+  'POST /domains/{domain-id}/promoteToInitial': Operation<
+    '/domains/{domain-id}/promoteToInitial',
+    'post'
+  >;
+  'GET /domains/{domain-id}/rootDomain': Operation<'/domains/{domain-id}/rootDomain', 'get'>;
+  'GET /domains/{domain-id}/serviceConfigurationRecords': Operation<
+    '/domains/{domain-id}/serviceConfigurationRecords',
+    'get'
+  >;
+  'POST /domains/{domain-id}/serviceConfigurationRecords': Operation<
+    '/domains/{domain-id}/serviceConfigurationRecords',
+    'post'
+  >;
+  'GET /domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}': Operation<
+    '/domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}',
+    'get'
+  >;
+  'PATCH /domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}': Operation<
+    '/domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}',
+    'patch'
+  >;
+  'DELETE /domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}': Operation<
+    '/domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}',
+    'delete'
+  >;
+  'GET /domains/{domain-id}/sharedEmailDomainInvitations': Operation<
+    '/domains/{domain-id}/sharedEmailDomainInvitations',
+    'get'
+  >;
+  'POST /domains/{domain-id}/sharedEmailDomainInvitations': Operation<
+    '/domains/{domain-id}/sharedEmailDomainInvitations',
+    'post'
+  >;
+  'GET /domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}': Operation<
+    '/domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}',
+    'get'
+  >;
+  'PATCH /domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}': Operation<
+    '/domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}',
+    'patch'
+  >;
+  'DELETE /domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}': Operation<
+    '/domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}',
+    'delete'
+  >;
+  'GET /domains/{domain-id}/verificationDnsRecords': Operation<
+    '/domains/{domain-id}/verificationDnsRecords',
+    'get'
+  >;
+  'POST /domains/{domain-id}/verificationDnsRecords': Operation<
+    '/domains/{domain-id}/verificationDnsRecords',
+    'post'
+  >;
+  'GET /domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}': Operation<
+    '/domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}',
+    'get'
+  >;
+  'PATCH /domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}': Operation<
+    '/domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}',
+    'patch'
+  >;
+  'DELETE /domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}': Operation<
+    '/domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}',
+    'delete'
+  >;
+  'POST /domains/{domain-id}/verify': Operation<'/domains/{domain-id}/verify', 'post'>;
 }
 
 /**
@@ -31,10 +116,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/domains/{domain-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'domain-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['domain-id'],
+    },
     params,
   };
 }
@@ -51,16 +136,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/domains',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -77,11 +155,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/domains/{domain-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'domain-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['domain-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -99,7 +176,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/domains/{domain-id}',
-    paramDefs: [{ name: 'domain-id', in: 'path' }],
+    paramDefs: {
+      path: ['domain-id'],
+    },
     params,
     body,
   };
@@ -111,15 +190,584 @@ export function update(
  * Adds a domain to the tenant. Important: You cannot use an associated domain with your Microsoft Entra tenant until ownership is verified. See List verificationDnsRecords for details. Root domains require verification. For example, contoso.com requires verification. If a root domain is verified, subdomains of the root domain are automatically verified. For example, subdomain.contoso.com is automatically be verified if contoso.com has been verified.
  */
 export function create(
-  body: IEndpoints['POST /domains']['body'],
-  params?: IEndpoints['POST /domains']['parameters']
+  body: IEndpoints['POST /domains']['body']
 ): EndpointRequest<IEndpoints['POST /domains']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/domains',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const domainNameReferences = {
+  /**
+   * `GET /domains/{domain-id}/domainNameReferences`
+   *
+   * Retrieve a list of directoryObject with a reference to the domain. The returned list will contain all directory objects that have a dependency on the domain.
+   */
+  list: function list(
+    params?: IEndpoints['GET /domains/{domain-id}/domainNameReferences']['parameters']
+  ): EndpointRequest<IEndpoints['GET /domains/{domain-id}/domainNameReferences']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/domains/{domain-id}/domainNameReferences',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['domain-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /domains/{domain-id}/domainNameReferences/{directoryObject-id}`
+   *
+   * The objects such as users and groups that reference the domain ID. Read-only, Nullable. Does not support $expand. Supports $filter by the OData type of objects returned. For example, /domains/{domainId}/domainNameReferences/microsoft.graph.user and /domains/{domainId}/domainNameReferences/microsoft.graph.group.
+   */
+  get: function get(
+    params?: IEndpoints['GET /domains/{domain-id}/domainNameReferences/{directoryObject-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /domains/{domain-id}/domainNameReferences/{directoryObject-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/domains/{domain-id}/domainNameReferences/{directoryObject-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['domain-id', 'directoryObject-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const federationConfiguration = {
+  /**
+   * `GET /domains/{domain-id}/federationConfiguration`
+   *
+   * Read the properties of the internalDomainFederation objects for the domain. This API returns only one object in the collection.
+   */
+  get: function get(
+    params?: IEndpoints['GET /domains/{domain-id}/federationConfiguration']['parameters']
+  ): EndpointRequest<IEndpoints['GET /domains/{domain-id}/federationConfiguration']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/domains/{domain-id}/federationConfiguration',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['domain-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /domains/{domain-id}/federationConfiguration`
+   *
+   * Create a new internalDomainFederation object.
+   */
+  create: function create(
+    body: IEndpoints['POST /domains/{domain-id}/federationConfiguration']['body'],
+    params?: IEndpoints['POST /domains/{domain-id}/federationConfiguration']['parameters']
+  ): EndpointRequest<IEndpoints['POST /domains/{domain-id}/federationConfiguration']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/domains/{domain-id}/federationConfiguration',
+      paramDefs: {
+        path: ['domain-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}`
+   *
+   * Read the properties and relationships of an internalDomainFederation object.
+   */
+  get$1: function get$1(
+    params?: IEndpoints['GET /domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['domain-id', 'internalDomainFederation-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}`
+   *
+   * Update the properties of an internalDomainFederation object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}']['body'],
+    params?: IEndpoints['PATCH /domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}',
+      paramDefs: {
+        path: ['domain-id', 'internalDomainFederation-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}`
+   *
+   * Deletes an internalDomainFederation object.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/domains/{domain-id}/federationConfiguration/{internalDomainFederation-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['domain-id', 'internalDomainFederation-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const forceDelete = {
+  /**
+   * `POST /domains/{domain-id}/forceDelete`
+   *
+   * Delete a domain using an asynchronous operation. Before performing this operation, you must update or remove any references to Exchange as the provisioning service. The following actions are performed as part of this operation: After the domain deletion completes, API operations for the deleted domain return a 404 HTTP response code. To verify deletion of a domain, you can perform a get domain. If the domain was successfully deleted, a 404 HTTP response code is returned in the response.
+   */
+  create: function create(
+    body: IEndpoints['POST /domains/{domain-id}/forceDelete']['body'],
+    params?: IEndpoints['POST /domains/{domain-id}/forceDelete']['parameters']
+  ): EndpointRequest<IEndpoints['POST /domains/{domain-id}/forceDelete']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/domains/{domain-id}/forceDelete',
+      paramDefs: {
+        path: ['domain-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const promote = {
+  /**
+   * `POST /domains/{domain-id}/promote`
+   *
+   * Promote a verified subdomain to the root domain. A verified domain has its isVerified property set to true.
+   */
+  create: function create(
+    params?: IEndpoints['POST /domains/{domain-id}/promote']['parameters']
+  ): EndpointRequest<IEndpoints['POST /domains/{domain-id}/promote']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/domains/{domain-id}/promote',
+      paramDefs: {
+        path: ['domain-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const promoteToInitial = {
+  /**
+   * `POST /domains/{domain-id}/promoteToInitial`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /domains/{domain-id}/promoteToInitial']['parameters']
+  ): EndpointRequest<IEndpoints['POST /domains/{domain-id}/promoteToInitial']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/domains/{domain-id}/promoteToInitial',
+      paramDefs: {
+        path: ['domain-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const rootDomain = {
+  /**
+  * `GET /domains/{domain-id}/rootDomain`
+  *
+  * Get the root domain of a subdomain.
+The API returns a single object which is the root domain of the specified subdomain.
+  */
+  get: function get(
+    params?: IEndpoints['GET /domains/{domain-id}/rootDomain']['parameters']
+  ): EndpointRequest<IEndpoints['GET /domains/{domain-id}/rootDomain']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/domains/{domain-id}/rootDomain',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['domain-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const serviceConfigurationRecords = {
+  /**
+   * `GET /domains/{domain-id}/serviceConfigurationRecords`
+   *
+   * Retrieves a list of domainDnsRecord objects needed to enable services for the domain. Use the returned list to add records to the zone file of the domain. This can be done through the domain registrar or DNS server configuration.
+   */
+  list: function list(
+    params?: IEndpoints['GET /domains/{domain-id}/serviceConfigurationRecords']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /domains/{domain-id}/serviceConfigurationRecords']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/domains/{domain-id}/serviceConfigurationRecords',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['domain-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /domains/{domain-id}/serviceConfigurationRecords`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /domains/{domain-id}/serviceConfigurationRecords']['body'],
+    params?: IEndpoints['POST /domains/{domain-id}/serviceConfigurationRecords']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /domains/{domain-id}/serviceConfigurationRecords']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/domains/{domain-id}/serviceConfigurationRecords',
+      paramDefs: {
+        path: ['domain-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}`
+   *
+   * DNS records the customer adds to the DNS zone file of the domain before the domain can be used by Microsoft Online services. Read-only, Nullable. Does not support $expand.
+   */
+  get: function get(
+    params?: IEndpoints['GET /domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['domain-id', 'domainDnsRecord-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}']['body'],
+    params?: IEndpoints['PATCH /domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}',
+      paramDefs: {
+        path: ['domain-id', 'domainDnsRecord-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/domains/{domain-id}/serviceConfigurationRecords/{domainDnsRecord-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['domain-id', 'domainDnsRecord-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const sharedEmailDomainInvitations = {
+  /**
+   * `GET /domains/{domain-id}/sharedEmailDomainInvitations`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /domains/{domain-id}/sharedEmailDomainInvitations']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /domains/{domain-id}/sharedEmailDomainInvitations']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/domains/{domain-id}/sharedEmailDomainInvitations',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['domain-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /domains/{domain-id}/sharedEmailDomainInvitations`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /domains/{domain-id}/sharedEmailDomainInvitations']['body'],
+    params?: IEndpoints['POST /domains/{domain-id}/sharedEmailDomainInvitations']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /domains/{domain-id}/sharedEmailDomainInvitations']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/domains/{domain-id}/sharedEmailDomainInvitations',
+      paramDefs: {
+        path: ['domain-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['domain-id', 'sharedEmailDomainInvitation-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}']['body'],
+    params?: IEndpoints['PATCH /domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}',
+      paramDefs: {
+        path: ['domain-id', 'sharedEmailDomainInvitation-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/domains/{domain-id}/sharedEmailDomainInvitations/{sharedEmailDomainInvitation-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['domain-id', 'sharedEmailDomainInvitation-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const verificationDnsRecords = {
+  /**
+   * `GET /domains/{domain-id}/verificationDnsRecords`
+   *
+   * Retrieve a list of domainDnsRecord objects. You cannot use an associated domain with your Microsoft Entra tenant until ownership is verified. To verify the ownership of the domain, retrieve the domain verification records and add the details to the zone file of the domain. This can be done through the domain registrar or DNS server configuration. Root domains require verification. For example, contoso.com requires verification. If a root domain is verified, subdomains of the root domain are automatically verified. For example, subdomain.contoso.com is automatically be verified if contoso.com has been verified.
+   */
+  list: function list(
+    params?: IEndpoints['GET /domains/{domain-id}/verificationDnsRecords']['parameters']
+  ): EndpointRequest<IEndpoints['GET /domains/{domain-id}/verificationDnsRecords']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/domains/{domain-id}/verificationDnsRecords',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['domain-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /domains/{domain-id}/verificationDnsRecords`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /domains/{domain-id}/verificationDnsRecords']['body'],
+    params?: IEndpoints['POST /domains/{domain-id}/verificationDnsRecords']['parameters']
+  ): EndpointRequest<IEndpoints['POST /domains/{domain-id}/verificationDnsRecords']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/domains/{domain-id}/verificationDnsRecords',
+      paramDefs: {
+        path: ['domain-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}`
+   *
+   * DNS records that the customer adds to the DNS zone file of the domain before the customer can complete domain ownership verification with Microsoft Entra ID. Read-only, Nullable. Does not support $expand.
+   */
+  get: function get(
+    params?: IEndpoints['GET /domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['domain-id', 'domainDnsRecord-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}']['body'],
+    params?: IEndpoints['PATCH /domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}',
+      paramDefs: {
+        path: ['domain-id', 'domainDnsRecord-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/domains/{domain-id}/verificationDnsRecords/{domainDnsRecord-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['domain-id', 'domainDnsRecord-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const verify = {
+  /**
+   * `POST /domains/{domain-id}/verify`
+   *
+   * Validate the ownership of a domain. This operation only applies to an unverified domain. For an unverified domain, the isVerified property is false.
+   */
+  create: function create(
+    params?: IEndpoints['POST /domains/{domain-id}/verify']['parameters']
+  ): EndpointRequest<IEndpoints['POST /domains/{domain-id}/verify']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/domains/{domain-id}/verify',
+      paramDefs: {
+        path: ['domain-id'],
+      },
+      params,
+    };
+  },
+};

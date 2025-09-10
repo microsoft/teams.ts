@@ -1,7 +1,3 @@
-export * as mailboxInclusionRules from './mailboxInclusionRules';
-export * as mailboxProtectionUnits from './mailboxProtectionUnits';
-export * as mailboxProtectionUnitsBulkAdditionJobs from './mailboxProtectionUnitsBulkAdditionJobs';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -25,6 +21,30 @@ export interface IEndpoints {
     '/solutions/backupRestore/exchangeProtectionPolicies',
     'post'
   >;
+  'GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxInclusionRules': Operation<
+    '/solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxInclusionRules',
+    'get'
+  >;
+  'GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxInclusionRules/{mailboxProtectionRule-id}': Operation<
+    '/solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxInclusionRules/{mailboxProtectionRule-id}',
+    'get'
+  >;
+  'GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnits': Operation<
+    '/solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnits',
+    'get'
+  >;
+  'GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnits/{mailboxProtectionUnit-id}': Operation<
+    '/solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnits/{mailboxProtectionUnit-id}',
+    'get'
+  >;
+  'GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnitsBulkAdditionJobs': Operation<
+    '/solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnitsBulkAdditionJobs',
+    'get'
+  >;
+  'GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnitsBulkAdditionJobs/{mailboxProtectionUnitsBulkAdditionJob-id}': Operation<
+    '/solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnitsBulkAdditionJobs/{mailboxProtectionUnitsBulkAdditionJob-id}',
+    'get'
+  >;
 }
 
 /**
@@ -39,10 +59,10 @@ export function del(
   return {
     method: 'delete',
     path: '/solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'exchangeProtectionPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['exchangeProtectionPolicy-id'],
+    },
     params,
   };
 }
@@ -60,16 +80,9 @@ export function list(
   return {
     method: 'get',
     path: '/solutions/backupRestore/exchangeProtectionPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +100,10 @@ export function get(
   return {
     method: 'get',
     path: '/solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'exchangeProtectionPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['exchangeProtectionPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +122,9 @@ export function update(
   return {
     method: 'patch',
     path: '/solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}',
-    paramDefs: [{ name: 'exchangeProtectionPolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['exchangeProtectionPolicy-id'],
+    },
     params,
     body,
   };
@@ -122,16 +136,142 @@ export function update(
  * Create a protection policy for the Exchange service in a Microsoft 365 tenant. The policy is set to inactive when it is created. Users can also provide a list of protection units under the policy.
  */
 export function create(
-  body: IEndpoints['POST /solutions/backupRestore/exchangeProtectionPolicies']['body'],
-  params?: IEndpoints['POST /solutions/backupRestore/exchangeProtectionPolicies']['parameters']
+  body: IEndpoints['POST /solutions/backupRestore/exchangeProtectionPolicies']['body']
 ): EndpointRequest<
   IEndpoints['POST /solutions/backupRestore/exchangeProtectionPolicies']['response']
 > {
   return {
     method: 'post',
     path: '/solutions/backupRestore/exchangeProtectionPolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const mailboxInclusionRules = {
+  /**
+   * `GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxInclusionRules`
+   *
+   * Get a list of mailboxProtectionRule objects associated with an exchangeProtectionPolicy. An inclusion rule indicates that a protection policy should contain protection units that match the specified rule criteria. The initial status of a protection rule upon creation is active. After the rule is applied, the state is either completed or completedWithErrors.
+   */
+  list: function list(
+    params?: IEndpoints['GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxInclusionRules']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxInclusionRules']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxInclusionRules',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['exchangeProtectionPolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxInclusionRules/{mailboxProtectionRule-id}`
+   *
+   * Get a protection rule that&#x27;s associated with a protection policy. You can use this operation to get mailbox, drive, and site protection rules. An inclusion rule indicates that a protection policy should contain protection units that match the specified rule criteria. The initial status of a protection rule upon creation is active. After the rule is applied, the state is either completed or completedWithErrors.
+   */
+  get: function get(
+    params?: IEndpoints['GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxInclusionRules/{mailboxProtectionRule-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxInclusionRules/{mailboxProtectionRule-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxInclusionRules/{mailboxProtectionRule-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['exchangeProtectionPolicy-id', 'mailboxProtectionRule-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const mailboxProtectionUnits = {
+  /**
+   * `GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnits`
+   *
+   * The protection units (mailboxes) that are  protected under the Exchange protection policy.
+   */
+  list: function list(
+    params?: IEndpoints['GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnits']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnits']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnits',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['exchangeProtectionPolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnits/{mailboxProtectionUnit-id}`
+   *
+   * The protection units (mailboxes) that are  protected under the Exchange protection policy.
+   */
+  get: function get(
+    params?: IEndpoints['GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnits/{mailboxProtectionUnit-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnits/{mailboxProtectionUnit-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnits/{mailboxProtectionUnit-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['exchangeProtectionPolicy-id', 'mailboxProtectionUnit-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const mailboxProtectionUnitsBulkAdditionJobs = {
+  /**
+   * `GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnitsBulkAdditionJobs`
+   *
+   * Get a list of mailboxProtectionUnitsBulkAdditionJobs objects associated with an exchangeProtectionPolicy.
+   */
+  list: function list(
+    params?: IEndpoints['GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnitsBulkAdditionJobs']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnitsBulkAdditionJobs']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnitsBulkAdditionJobs',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['exchangeProtectionPolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnitsBulkAdditionJobs/{mailboxProtectionUnitsBulkAdditionJob-id}`
+   *
+   * Get a mailboxProtectionUnitsBulkAdditionJob object by the ID associated with an exchangeProtectionPolicy.
+   */
+  get: function get(
+    params?: IEndpoints['GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnitsBulkAdditionJobs/{mailboxProtectionUnitsBulkAdditionJob-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnitsBulkAdditionJobs/{mailboxProtectionUnitsBulkAdditionJob-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/solutions/backupRestore/exchangeProtectionPolicies/{exchangeProtectionPolicy-id}/mailboxProtectionUnitsBulkAdditionJobs/{mailboxProtectionUnitsBulkAdditionJob-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['exchangeProtectionPolicy-id', 'mailboxProtectionUnitsBulkAdditionJob-id'],
+      },
+      params,
+    };
+  },
+};

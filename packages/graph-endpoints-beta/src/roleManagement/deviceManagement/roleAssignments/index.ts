@@ -1,8 +1,3 @@
-export * as appScopes from './appScopes';
-export * as directoryScopes from './directoryScopes';
-export * as principals from './principals';
-export * as roleDefinition from './roleDefinition';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -26,6 +21,46 @@ export interface IEndpoints {
     '/roleManagement/deviceManagement/roleAssignments',
     'post'
   >;
+  'GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes': Operation<
+    '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes',
+    'get'
+  >;
+  'POST /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes': Operation<
+    '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes',
+    'post'
+  >;
+  'GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}': Operation<
+    '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}',
+    'get'
+  >;
+  'PATCH /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}': Operation<
+    '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}',
+    'patch'
+  >;
+  'DELETE /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}': Operation<
+    '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}',
+    'delete'
+  >;
+  'GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/directoryScopes': Operation<
+    '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/directoryScopes',
+    'get'
+  >;
+  'GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/directoryScopes/{directoryObject-id}': Operation<
+    '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/directoryScopes/{directoryObject-id}',
+    'get'
+  >;
+  'GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/principals': Operation<
+    '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/principals',
+    'get'
+  >;
+  'GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/principals/{directoryObject-id}': Operation<
+    '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/principals/{directoryObject-id}',
+    'get'
+  >;
+  'GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/roleDefinition': Operation<
+    '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/roleDefinition',
+    'get'
+  >;
 }
 
 /**
@@ -46,10 +81,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'unifiedRoleAssignmentMultiple-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['unifiedRoleAssignmentMultiple-id'],
+    },
     params,
   };
 }
@@ -70,16 +105,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/deviceManagement/roleAssignments',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -102,11 +130,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'unifiedRoleAssignmentMultiple-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['unifiedRoleAssignmentMultiple-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -129,7 +156,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}',
-    paramDefs: [{ name: 'unifiedRoleAssignmentMultiple-id', in: 'path' }],
+    paramDefs: {
+      path: ['unifiedRoleAssignmentMultiple-id'],
+    },
     params,
     body,
   };
@@ -145,8 +174,7 @@ export function update(
   * @deprecated
   */
 export function create(
-  body: IEndpoints['POST /roleManagement/deviceManagement/roleAssignments']['body'],
-  params?: IEndpoints['POST /roleManagement/deviceManagement/roleAssignments']['parameters']
+  body: IEndpoints['POST /roleManagement/deviceManagement/roleAssignments']['body']
 ): EndpointRequest<
   IEndpoints['POST /roleManagement/deviceManagement/roleAssignments']['response']
 > {
@@ -154,8 +182,237 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/roleManagement/deviceManagement/roleAssignments',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const appScopes = {
+  /**
+   * `GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes`
+   *
+   * Read-only collection with details of the app specific scopes when the assignment scopes are app specific. Containment entity. Read-only.
+   * @deprecated
+   */
+  list: function list(
+    params?: IEndpoints['GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['unifiedRoleAssignmentMultiple-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes`
+   *
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes']['body'],
+    params?: IEndpoints['POST /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes',
+      paramDefs: {
+        path: ['unifiedRoleAssignmentMultiple-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}`
+   *
+   * Read-only collection with details of the app specific scopes when the assignment scopes are app specific. Containment entity. Read-only.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleAssignmentMultiple-id', 'appScope-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}`
+   *
+   * @deprecated
+   */
+  update: function update(
+    body: IEndpoints['PATCH /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}']['body'],
+    params?: IEndpoints['PATCH /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}',
+      paramDefs: {
+        path: ['unifiedRoleAssignmentMultiple-id', 'appScope-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}`
+   *
+   * @deprecated
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/appScopes/{appScope-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['unifiedRoleAssignmentMultiple-id', 'appScope-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const directoryScopes = {
+  /**
+   * `GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/directoryScopes`
+   *
+   * Read-only collection that references the directory objects that are scope of the assignment. Provided so that callers can get the directory objects using $expand at the same time as getting the role assignment. Read-only. Supports $expand.
+   * @deprecated
+   */
+  list: function list(
+    params?: IEndpoints['GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/directoryScopes']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/directoryScopes']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/directoryScopes',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['unifiedRoleAssignmentMultiple-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/directoryScopes/{directoryObject-id}`
+   *
+   * Read-only collection that references the directory objects that are scope of the assignment. Provided so that callers can get the directory objects using $expand at the same time as getting the role assignment. Read-only. Supports $expand.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/directoryScopes/{directoryObject-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/directoryScopes/{directoryObject-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/directoryScopes/{directoryObject-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleAssignmentMultiple-id', 'directoryObject-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const principals = {
+  /**
+   * `GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/principals`
+   *
+   * Read-only collection that references the assigned principals. Provided so that callers can get the principals using $expand at the same time as getting the role assignment. Read-only. Supports $expand.
+   * @deprecated
+   */
+  list: function list(
+    params?: IEndpoints['GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/principals']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/principals']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/principals',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['unifiedRoleAssignmentMultiple-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/principals/{directoryObject-id}`
+   *
+   * Read-only collection that references the assigned principals. Provided so that callers can get the principals using $expand at the same time as getting the role assignment. Read-only. Supports $expand.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/principals/{directoryObject-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/principals/{directoryObject-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/principals/{directoryObject-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleAssignmentMultiple-id', 'directoryObject-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const roleDefinition = {
+  /**
+   * `GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/roleDefinition`
+   *
+   * Specifies the roleDefinition that the assignment is for. Provided so that callers can get the role definition using $expand at the same time as getting the role assignment. Supports $filter (eq operator on id, isBuiltIn, and displayName, and startsWith operator on displayName)  and $expand.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/roleDefinition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/roleDefinition']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/deviceManagement/roleAssignments/{unifiedRoleAssignmentMultiple-id}/roleDefinition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleAssignmentMultiple-id'],
+      },
+      params,
+    };
+  },
+};

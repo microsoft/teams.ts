@@ -1,5 +1,3 @@
-export * as reupload from './reupload';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceManagement/virtualEndpoint/deviceImages',
     'post'
   >;
+  'POST /deviceManagement/virtualEndpoint/deviceImages/{cloudPcDeviceImage-id}/reupload': Operation<
+    '/deviceManagement/virtualEndpoint/deviceImages/{cloudPcDeviceImage-id}/reupload',
+    'post'
+  >;
 }
 
 /**
@@ -39,10 +41,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/virtualEndpoint/deviceImages/{cloudPcDeviceImage-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'cloudPcDeviceImage-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['cloudPcDeviceImage-id'],
+    },
     params,
   };
 }
@@ -59,16 +61,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/virtualEndpoint/deviceImages',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +82,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/virtualEndpoint/deviceImages/{cloudPcDeviceImage-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'cloudPcDeviceImage-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['cloudPcDeviceImage-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +104,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/virtualEndpoint/deviceImages/{cloudPcDeviceImage-id}',
-    paramDefs: [{ name: 'cloudPcDeviceImage-id', in: 'path' }],
+    paramDefs: {
+      path: ['cloudPcDeviceImage-id'],
+    },
     params,
     body,
   };
@@ -122,15 +118,35 @@ export function update(
  * Create a new cloudPcDeviceImage object. Upload a custom OS image that you can later provision on Cloud PCs.
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/virtualEndpoint/deviceImages']['body'],
-  params?: IEndpoints['POST /deviceManagement/virtualEndpoint/deviceImages']['parameters']
+  body: IEndpoints['POST /deviceManagement/virtualEndpoint/deviceImages']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/virtualEndpoint/deviceImages']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/virtualEndpoint/deviceImages',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const reupload = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/deviceImages/{cloudPcDeviceImage-id}/reupload`
+   *
+   * Reupload a cloudPcDeviceImage object that failed to upload.
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/virtualEndpoint/deviceImages/{cloudPcDeviceImage-id}/reupload']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/deviceImages/{cloudPcDeviceImage-id}/reupload']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/deviceImages/{cloudPcDeviceImage-id}/reupload',
+      paramDefs: {
+        path: ['cloudPcDeviceImage-id'],
+      },
+      params,
+    };
+  },
+};

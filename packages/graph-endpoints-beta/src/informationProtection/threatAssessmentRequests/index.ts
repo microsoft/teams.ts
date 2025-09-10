@@ -1,5 +1,3 @@
-export * as results from './results';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/informationProtection/threatAssessmentRequests',
     'post'
   >;
+  'GET /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results': Operation<
+    '/informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results',
+    'get'
+  >;
+  'POST /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results': Operation<
+    '/informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results',
+    'post'
+  >;
+  'GET /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}': Operation<
+    '/informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}',
+    'get'
+  >;
+  'PATCH /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}': Operation<
+    '/informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}',
+    'patch'
+  >;
+  'DELETE /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}': Operation<
+    '/informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,10 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'threatAssessmentRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['threatAssessmentRequest-id'],
+    },
     params,
   };
 }
@@ -58,16 +76,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/informationProtection/threatAssessmentRequests',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +97,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'threatAssessmentRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['threatAssessmentRequest-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +119,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}',
-    paramDefs: [{ name: 'threatAssessmentRequest-id', in: 'path' }],
+    paramDefs: {
+      path: ['threatAssessmentRequest-id'],
+    },
     params,
     body,
   };
@@ -121,15 +133,119 @@ export function update(
  * Create a new threat assessment request. A threat assessment request can be one of the following types:
  */
 export function create(
-  body: IEndpoints['POST /informationProtection/threatAssessmentRequests']['body'],
-  params?: IEndpoints['POST /informationProtection/threatAssessmentRequests']['parameters']
+  body: IEndpoints['POST /informationProtection/threatAssessmentRequests']['body']
 ): EndpointRequest<IEndpoints['POST /informationProtection/threatAssessmentRequests']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/informationProtection/threatAssessmentRequests',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const results = {
+  /**
+   * `GET /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results`
+   *
+   * A collection of threat assessment results. Read-only. By default, a GET /threatAssessmentRequests/{id} does not return this property unless you apply $expand on it.
+   */
+  list: function list(
+    params?: IEndpoints['GET /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['threatAssessmentRequest-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results']['body'],
+    params?: IEndpoints['POST /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results',
+      paramDefs: {
+        path: ['threatAssessmentRequest-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}`
+   *
+   * A collection of threat assessment results. Read-only. By default, a GET /threatAssessmentRequests/{id} does not return this property unless you apply $expand on it.
+   */
+  get: function get(
+    params?: IEndpoints['GET /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['threatAssessmentRequest-id', 'threatAssessmentResult-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}']['body'],
+    params?: IEndpoints['PATCH /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}',
+      paramDefs: {
+        path: ['threatAssessmentRequest-id', 'threatAssessmentResult-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/informationProtection/threatAssessmentRequests/{threatAssessmentRequest-id}/results/{threatAssessmentResult-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['threatAssessmentRequest-id', 'threatAssessmentResult-id'],
+      },
+      params,
+    };
+  },
+};

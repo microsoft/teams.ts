@@ -1,5 +1,3 @@
-export * as metricValues from './metricValues';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/deviceManagement/userExperienceAnalyticsCategories',
     'post'
   >;
+  'GET /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues': Operation<
+    '/deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues',
+    'get'
+  >;
+  'POST /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues': Operation<
+    '/deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues',
+    'post'
+  >;
+  'GET /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}': Operation<
+    '/deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}',
+    'get'
+  >;
+  'PATCH /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}': Operation<
+    '/deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}',
+    'patch'
+  >;
+  'DELETE /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}': Operation<
+    '/deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,10 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'userExperienceAnalyticsCategory-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['userExperienceAnalyticsCategory-id'],
+    },
     params,
   };
 }
@@ -60,16 +78,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/userExperienceAnalyticsCategories',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,11 +99,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'userExperienceAnalyticsCategory-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['userExperienceAnalyticsCategory-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,7 +121,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}',
-    paramDefs: [{ name: 'userExperienceAnalyticsCategory-id', in: 'path' }],
+    paramDefs: {
+      path: ['userExperienceAnalyticsCategory-id'],
+    },
     params,
     body,
   };
@@ -122,8 +134,7 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/userExperienceAnalyticsCategories']['body'],
-  params?: IEndpoints['POST /deviceManagement/userExperienceAnalyticsCategories']['parameters']
+  body: IEndpoints['POST /deviceManagement/userExperienceAnalyticsCategories']['body']
 ): EndpointRequest<
   IEndpoints['POST /deviceManagement/userExperienceAnalyticsCategories']['response']
 > {
@@ -131,8 +142,113 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/userExperienceAnalyticsCategories',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const metricValues = {
+  /**
+   * `GET /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues`
+   *
+   * The metric values for the user experience analytics category. Read-only.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['userExperienceAnalyticsCategory-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues']['body'],
+    params?: IEndpoints['POST /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues',
+      paramDefs: {
+        path: ['userExperienceAnalyticsCategory-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}`
+   *
+   * The metric values for the user experience analytics category. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['userExperienceAnalyticsCategory-id', 'userExperienceAnalyticsMetric-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}']['body'],
+    params?: IEndpoints['PATCH /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}',
+      paramDefs: {
+        path: ['userExperienceAnalyticsCategory-id', 'userExperienceAnalyticsMetric-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/deviceManagement/userExperienceAnalyticsCategories/{userExperienceAnalyticsCategory-id}/metricValues/{userExperienceAnalyticsMetric-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['userExperienceAnalyticsCategory-id', 'userExperienceAnalyticsMetric-id'],
+      },
+      params,
+    };
+  },
+};

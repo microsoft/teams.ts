@@ -34,10 +34,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/privilegedAccess/{privilegedAccess-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'privilegedAccess-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['privilegedAccess-id'],
+    },
     params,
   };
 }
@@ -53,16 +53,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/privilegedAccess',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -78,11 +71,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/privilegedAccess/{privilegedAccess-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'privilegedAccess-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['privilegedAccess-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -99,7 +91,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/privilegedAccess/{privilegedAccess-id}',
-    paramDefs: [{ name: 'privilegedAccess-id', in: 'path' }],
+    paramDefs: {
+      path: ['privilegedAccess-id'],
+    },
     params,
     body,
   };
@@ -110,15 +104,12 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /privilegedAccess']['body'],
-  params?: IEndpoints['POST /privilegedAccess']['parameters']
+  body: IEndpoints['POST /privilegedAccess']['body']
 ): EndpointRequest<IEndpoints['POST /privilegedAccess']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/privilegedAccess',
-    paramDefs: [],
-    params,
     body,
   };
 }

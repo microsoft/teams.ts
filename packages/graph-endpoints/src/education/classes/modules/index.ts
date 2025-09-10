@@ -1,9 +1,3 @@
-export * as pin from './pin';
-export * as publish from './publish';
-export * as resources from './resources';
-export * as setUpResourcesFolder from './setUpResourcesFolder';
-export * as unpin from './unpin';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -27,6 +21,42 @@ export interface IEndpoints {
     '/education/classes/{educationClass-id}/modules',
     'post'
   >;
+  'POST /education/classes/{educationClass-id}/modules/{educationModule-id}/pin': Operation<
+    '/education/classes/{educationClass-id}/modules/{educationModule-id}/pin',
+    'post'
+  >;
+  'POST /education/classes/{educationClass-id}/modules/{educationModule-id}/publish': Operation<
+    '/education/classes/{educationClass-id}/modules/{educationModule-id}/publish',
+    'post'
+  >;
+  'GET /education/classes/{educationClass-id}/modules/{educationModule-id}/resources': Operation<
+    '/education/classes/{educationClass-id}/modules/{educationModule-id}/resources',
+    'get'
+  >;
+  'POST /education/classes/{educationClass-id}/modules/{educationModule-id}/resources': Operation<
+    '/education/classes/{educationClass-id}/modules/{educationModule-id}/resources',
+    'post'
+  >;
+  'GET /education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}': Operation<
+    '/education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}',
+    'get'
+  >;
+  'PATCH /education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}': Operation<
+    '/education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}',
+    'patch'
+  >;
+  'DELETE /education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}': Operation<
+    '/education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}',
+    'delete'
+  >;
+  'POST /education/classes/{educationClass-id}/modules/{educationModule-id}/setUpResourcesFolder': Operation<
+    '/education/classes/{educationClass-id}/modules/{educationModule-id}/setUpResourcesFolder',
+    'post'
+  >;
+  'POST /education/classes/{educationClass-id}/modules/{educationModule-id}/unpin': Operation<
+    '/education/classes/{educationClass-id}/modules/{educationModule-id}/unpin',
+    'post'
+  >;
 }
 
 /**
@@ -42,11 +72,10 @@ export function del(
   return {
     method: 'delete',
     path: '/education/classes/{educationClass-id}/modules/{educationModule-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'educationClass-id', in: 'path' },
-      { name: 'educationModule-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['educationClass-id', 'educationModule-id'],
+    },
     params,
   };
 }
@@ -62,17 +91,10 @@ export function list(
   return {
     method: 'get',
     path: '/education/classes/{educationClass-id}/modules',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'educationClass-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['educationClass-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +112,10 @@ export function get(
   return {
     method: 'get',
     path: '/education/classes/{educationClass-id}/modules/{educationModule-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'educationClass-id', in: 'path' },
-      { name: 'educationModule-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['educationClass-id', 'educationModule-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +134,9 @@ export function update(
   return {
     method: 'patch',
     path: '/education/classes/{educationClass-id}/modules/{educationModule-id}',
-    paramDefs: [
-      { name: 'educationClass-id', in: 'path' },
-      { name: 'educationModule-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['educationClass-id', 'educationModule-id'],
+    },
     params,
     body,
   };
@@ -135,8 +154,203 @@ export function create(
   return {
     method: 'post',
     path: '/education/classes/{educationClass-id}/modules',
-    paramDefs: [{ name: 'educationClass-id', in: 'path' }],
+    paramDefs: {
+      path: ['educationClass-id'],
+    },
     params,
     body,
   };
 }
+
+export const pin = {
+  /**
+   * `POST /education/classes/{educationClass-id}/modules/{educationModule-id}/pin`
+   *
+   * Pin an educationModule in the class work list. This action sets the isPinned property to true for an educationModule. Only teachers can perform this action and only one module at a time can be pinned in the class work list.
+   */
+  create: function create(
+    params?: IEndpoints['POST /education/classes/{educationClass-id}/modules/{educationModule-id}/pin']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/classes/{educationClass-id}/modules/{educationModule-id}/pin']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/education/classes/{educationClass-id}/modules/{educationModule-id}/pin',
+      paramDefs: {
+        path: ['educationClass-id', 'educationModule-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const publish = {
+  /**
+   * `POST /education/classes/{educationClass-id}/modules/{educationModule-id}/publish`
+   *
+   * Change the state of an educationModule from its original draft status to the published status. Only teachers in the class can perform this operation. When a module is in draft status, students can&#x27;t see the module. When you call this API, the module appears in the student&#x27;s class work list.
+   */
+  create: function create(
+    params?: IEndpoints['POST /education/classes/{educationClass-id}/modules/{educationModule-id}/publish']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/classes/{educationClass-id}/modules/{educationModule-id}/publish']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/education/classes/{educationClass-id}/modules/{educationModule-id}/publish',
+      paramDefs: {
+        path: ['educationClass-id', 'educationModule-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const resources = {
+  /**
+   * `GET /education/classes/{educationClass-id}/modules/{educationModule-id}/resources`
+   *
+   * Get all the educationModuleResource objects associated with a module. Only teachers, students, and applications with application permissions can perform this operation.
+   */
+  list: function list(
+    params?: IEndpoints['GET /education/classes/{educationClass-id}/modules/{educationModule-id}/resources']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /education/classes/{educationClass-id}/modules/{educationModule-id}/resources']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/education/classes/{educationClass-id}/modules/{educationModule-id}/resources',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['educationClass-id', 'educationModule-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /education/classes/{educationClass-id}/modules/{educationModule-id}/resources`
+   *
+   * Create a resource in a module. Only teachers can perform this operation. You can create the following types of module resources: Every resource has an @odata.type property to indicate which type of resource is being created.
+   */
+  create: function create(
+    body: IEndpoints['POST /education/classes/{educationClass-id}/modules/{educationModule-id}/resources']['body'],
+    params?: IEndpoints['POST /education/classes/{educationClass-id}/modules/{educationModule-id}/resources']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/classes/{educationClass-id}/modules/{educationModule-id}/resources']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/education/classes/{educationClass-id}/modules/{educationModule-id}/resources',
+      paramDefs: {
+        path: ['educationClass-id', 'educationModule-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}`
+   *
+   * Get the properties of a resource associated with a module. Only teachers, students, and applications with application permissions can perform this operation.
+   */
+  get: function get(
+    params?: IEndpoints['GET /education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['educationClass-id', 'educationModule-id', 'educationModuleResource-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}`
+   *
+   * Update a resource in a module. Only teachers can perform this operation. The only one property that can be updated is displayName, for all resource types.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}']['body'],
+    params?: IEndpoints['PATCH /education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}',
+      paramDefs: {
+        path: ['educationClass-id', 'educationModule-id', 'educationModuleResource-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}`
+   *
+   * Delete a specific educationModuleResource attached to a module. Only teachers in the class can remove a resource.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/education/classes/{educationClass-id}/modules/{educationModule-id}/resources/{educationModuleResource-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['educationClass-id', 'educationModule-id', 'educationModuleResource-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const setUpResourcesFolder = {
+  /**
+   * `POST /education/classes/{educationClass-id}/modules/{educationModule-id}/setUpResourcesFolder`
+   *
+   * Create a SharePoint folder to upload files for a given educationModule. Only teachers can perform this operation. The teacher determines what resources to upload to the SharePoint folder for the module.
+   */
+  create: function create(
+    params?: IEndpoints['POST /education/classes/{educationClass-id}/modules/{educationModule-id}/setUpResourcesFolder']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/classes/{educationClass-id}/modules/{educationModule-id}/setUpResourcesFolder']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/education/classes/{educationClass-id}/modules/{educationModule-id}/setUpResourcesFolder',
+      paramDefs: {
+        path: ['educationClass-id', 'educationModule-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const unpin = {
+  /**
+   * `POST /education/classes/{educationClass-id}/modules/{educationModule-id}/unpin`
+   *
+   * Unpin an educationModule in the classwork list. This action sets the isPinned property to false for an educationModule. Only teachers in the class can perform this operation.
+   */
+  create: function create(
+    params?: IEndpoints['POST /education/classes/{educationClass-id}/modules/{educationModule-id}/unpin']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/classes/{educationClass-id}/modules/{educationModule-id}/unpin']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/education/classes/{educationClass-id}/modules/{educationModule-id}/unpin',
+      paramDefs: {
+        path: ['educationClass-id', 'educationModule-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,5 +1,3 @@
-export * as host from './host';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/security/threatIntelligence/hostComponents',
     'post'
   >;
+  'GET /security/threatIntelligence/hostComponents/{hostComponent-id}/host': Operation<
+    '/security/threatIntelligence/hostComponents/{hostComponent-id}/host',
+    'get'
+  >;
 }
 
 /**
@@ -38,10 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/threatIntelligence/hostComponents/{hostComponent-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'hostComponent-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['hostComponent-id'],
+    },
     params,
   };
 }
@@ -58,16 +60,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/threatIntelligence/hostComponents',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +81,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/threatIntelligence/hostComponents/{hostComponent-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'hostComponent-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['hostComponent-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +103,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/threatIntelligence/hostComponents/{hostComponent-id}',
-    paramDefs: [{ name: 'hostComponent-id', in: 'path' }],
+    paramDefs: {
+      path: ['hostComponent-id'],
+    },
     params,
     body,
   };
@@ -120,15 +116,36 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /security/threatIntelligence/hostComponents']['body'],
-  params?: IEndpoints['POST /security/threatIntelligence/hostComponents']['parameters']
+  body: IEndpoints['POST /security/threatIntelligence/hostComponents']['body']
 ): EndpointRequest<IEndpoints['POST /security/threatIntelligence/hostComponents']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/security/threatIntelligence/hostComponents',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const host = {
+  /**
+   * `GET /security/threatIntelligence/hostComponents/{hostComponent-id}/host`
+   *
+   * The host related to this component. This is a reverse navigation property. When you navigate to components from a host, this should be assumed to be a return reference.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/threatIntelligence/hostComponents/{hostComponent-id}/host']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/threatIntelligence/hostComponents/{hostComponent-id}/host']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/threatIntelligence/hostComponents/{hostComponent-id}/host',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['hostComponent-id'],
+      },
+      params,
+    };
+  },
+};

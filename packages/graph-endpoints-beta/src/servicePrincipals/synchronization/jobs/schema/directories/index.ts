@@ -1,5 +1,3 @@
-export * as discover from './discover';
-
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/servicePrincipals/{servicePrincipal-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories',
     'post'
   >;
+  'POST /servicePrincipals/{servicePrincipal-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}/discover': Operation<
+    '/servicePrincipals/{servicePrincipal-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}/discover',
+    'post'
+  >;
 }
 
 /**
@@ -38,12 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/servicePrincipals/{servicePrincipal-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'servicePrincipal-id', in: 'path' },
-      { name: 'synchronizationJob-id', in: 'path' },
-      { name: 'directoryDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['servicePrincipal-id', 'synchronizationJob-id', 'directoryDefinition-id'],
+    },
     params,
   };
 }
@@ -62,18 +62,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/servicePrincipals/{servicePrincipal-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'servicePrincipal-id', in: 'path' },
-      { name: 'synchronizationJob-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['servicePrincipal-id', 'synchronizationJob-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,13 +84,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/servicePrincipals/{servicePrincipal-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'servicePrincipal-id', in: 'path' },
-      { name: 'synchronizationJob-id', in: 'path' },
-      { name: 'directoryDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['servicePrincipal-id', 'synchronizationJob-id', 'directoryDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,11 +106,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/servicePrincipals/{servicePrincipal-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}',
-    paramDefs: [
-      { name: 'servicePrincipal-id', in: 'path' },
-      { name: 'synchronizationJob-id', in: 'path' },
-      { name: 'directoryDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['servicePrincipal-id', 'synchronizationJob-id', 'directoryDefinition-id'],
+    },
     params,
     body,
   };
@@ -141,11 +128,33 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/servicePrincipals/{servicePrincipal-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories',
-    paramDefs: [
-      { name: 'servicePrincipal-id', in: 'path' },
-      { name: 'synchronizationJob-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['servicePrincipal-id', 'synchronizationJob-id'],
+    },
     params,
     body,
   };
 }
+
+export const discover = {
+  /**
+   * `POST /servicePrincipals/{servicePrincipal-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}/discover`
+   *
+   * Discover the latest schema definition for provisioning to an application.
+   */
+  create: function create(
+    params?: IEndpoints['POST /servicePrincipals/{servicePrincipal-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}/discover']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /servicePrincipals/{servicePrincipal-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}/discover']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/servicePrincipals/{servicePrincipal-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}/discover',
+      paramDefs: {
+        path: ['servicePrincipal-id', 'synchronizationJob-id', 'directoryDefinition-id'],
+      },
+      params,
+    };
+  },
+};

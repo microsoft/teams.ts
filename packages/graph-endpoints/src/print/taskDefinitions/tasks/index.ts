@@ -1,6 +1,3 @@
-export * as definition from './definition';
-export * as trigger from './trigger';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/print/taskDefinitions/{printTaskDefinition-id}/tasks',
     'post'
   >;
+  'GET /print/taskDefinitions/{printTaskDefinition-id}/tasks/{printTask-id}/definition': Operation<
+    '/print/taskDefinitions/{printTaskDefinition-id}/tasks/{printTask-id}/definition',
+    'get'
+  >;
+  'GET /print/taskDefinitions/{printTaskDefinition-id}/tasks/{printTask-id}/trigger': Operation<
+    '/print/taskDefinitions/{printTaskDefinition-id}/tasks/{printTask-id}/trigger',
+    'get'
+  >;
 }
 
 /**
@@ -38,11 +43,10 @@ export function del(
   return {
     method: 'delete',
     path: '/print/taskDefinitions/{printTaskDefinition-id}/tasks/{printTask-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'printTaskDefinition-id', in: 'path' },
-      { name: 'printTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['printTaskDefinition-id', 'printTask-id'],
+    },
     params,
   };
 }
@@ -60,17 +64,10 @@ export function list(
   return {
     method: 'get',
     path: '/print/taskDefinitions/{printTaskDefinition-id}/tasks',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'printTaskDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printTaskDefinition-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,12 +85,10 @@ export function get(
   return {
     method: 'get',
     path: '/print/taskDefinitions/{printTaskDefinition-id}/tasks/{printTask-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'printTaskDefinition-id', in: 'path' },
-      { name: 'printTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printTaskDefinition-id', 'printTask-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,10 +107,9 @@ export function update(
   return {
     method: 'patch',
     path: '/print/taskDefinitions/{printTaskDefinition-id}/tasks/{printTask-id}',
-    paramDefs: [
-      { name: 'printTaskDefinition-id', in: 'path' },
-      { name: 'printTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printTaskDefinition-id', 'printTask-id'],
+    },
     params,
     body,
   };
@@ -134,8 +128,56 @@ export function create(
   return {
     method: 'post',
     path: '/print/taskDefinitions/{printTaskDefinition-id}/tasks',
-    paramDefs: [{ name: 'printTaskDefinition-id', in: 'path' }],
+    paramDefs: {
+      path: ['printTaskDefinition-id'],
+    },
     params,
     body,
   };
 }
+
+export const definition = {
+  /**
+   * `GET /print/taskDefinitions/{printTaskDefinition-id}/tasks/{printTask-id}/definition`
+   *
+   * The printTaskDefinition that was used to create this task. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /print/taskDefinitions/{printTaskDefinition-id}/tasks/{printTask-id}/definition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /print/taskDefinitions/{printTaskDefinition-id}/tasks/{printTask-id}/definition']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/print/taskDefinitions/{printTaskDefinition-id}/tasks/{printTask-id}/definition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['printTaskDefinition-id', 'printTask-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const trigger = {
+  /**
+   * `GET /print/taskDefinitions/{printTaskDefinition-id}/tasks/{printTask-id}/trigger`
+   *
+   * The printTaskTrigger that triggered this task&#x27;s execution. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /print/taskDefinitions/{printTaskDefinition-id}/tasks/{printTask-id}/trigger']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /print/taskDefinitions/{printTaskDefinition-id}/tasks/{printTask-id}/trigger']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/print/taskDefinitions/{printTaskDefinition-id}/tasks/{printTask-id}/trigger',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['printTaskDefinition-id', 'printTask-id'],
+      },
+      params,
+    };
+  },
+};

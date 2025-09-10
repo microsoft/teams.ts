@@ -1,5 +1,3 @@
-export * as consentToDataSharing from './consentToDataSharing';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceManagement/dataSharingConsents',
     'post'
   >;
+  'POST /deviceManagement/dataSharingConsents/{dataSharingConsent-id}/consentToDataSharing': Operation<
+    '/deviceManagement/dataSharingConsents/{dataSharingConsent-id}/consentToDataSharing',
+    'post'
+  >;
 }
 
 /**
@@ -38,10 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/dataSharingConsents/{dataSharingConsent-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'dataSharingConsent-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['dataSharingConsent-id'],
+    },
     params,
   };
 }
@@ -58,16 +60,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/dataSharingConsents',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +81,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/dataSharingConsents/{dataSharingConsent-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'dataSharingConsent-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['dataSharingConsent-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +103,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/dataSharingConsents/{dataSharingConsent-id}',
-    paramDefs: [{ name: 'dataSharingConsent-id', in: 'path' }],
+    paramDefs: {
+      path: ['dataSharingConsent-id'],
+    },
     params,
     body,
   };
@@ -120,15 +116,34 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/dataSharingConsents']['body'],
-  params?: IEndpoints['POST /deviceManagement/dataSharingConsents']['parameters']
+  body: IEndpoints['POST /deviceManagement/dataSharingConsents']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/dataSharingConsents']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/dataSharingConsents',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const consentToDataSharing = {
+  /**
+   * `POST /deviceManagement/dataSharingConsents/{dataSharingConsent-id}/consentToDataSharing`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/dataSharingConsents/{dataSharingConsent-id}/consentToDataSharing']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/dataSharingConsents/{dataSharingConsent-id}/consentToDataSharing']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/dataSharingConsents/{dataSharingConsent-id}/consentToDataSharing',
+      paramDefs: {
+        path: ['dataSharingConsent-id'],
+      },
+      params,
+    };
+  },
+};

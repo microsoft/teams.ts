@@ -1,5 +1,3 @@
-export * as appliesTo from './appliesTo';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,14 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /policies/tokenIssuancePolicies': Operation<'/policies/tokenIssuancePolicies', 'post'>;
+  'GET /policies/tokenIssuancePolicies/{tokenIssuancePolicy-id}/appliesTo': Operation<
+    '/policies/tokenIssuancePolicies/{tokenIssuancePolicy-id}/appliesTo',
+    'get'
+  >;
+  'GET /policies/tokenIssuancePolicies/{tokenIssuancePolicy-id}/appliesTo/{directoryObject-id}': Operation<
+    '/policies/tokenIssuancePolicies/{tokenIssuancePolicy-id}/appliesTo/{directoryObject-id}',
+    'get'
+  >;
 }
 
 /**
@@ -33,10 +39,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/policies/tokenIssuancePolicies/{tokenIssuancePolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'tokenIssuancePolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['tokenIssuancePolicy-id'],
+    },
     params,
   };
 }
@@ -53,16 +59,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/policies/tokenIssuancePolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,11 +80,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/policies/tokenIssuancePolicies/{tokenIssuancePolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'tokenIssuancePolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['tokenIssuancePolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -105,7 +103,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/policies/tokenIssuancePolicies/{tokenIssuancePolicy-id}',
-    paramDefs: [{ name: 'tokenIssuancePolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['tokenIssuancePolicy-id'],
+    },
     params,
     body,
   };
@@ -117,15 +117,56 @@ export function update(
  * Create a new tokenIssuancePolicy object.
  */
 export function create(
-  body: IEndpoints['POST /policies/tokenIssuancePolicies']['body'],
-  params?: IEndpoints['POST /policies/tokenIssuancePolicies']['parameters']
+  body: IEndpoints['POST /policies/tokenIssuancePolicies']['body']
 ): EndpointRequest<IEndpoints['POST /policies/tokenIssuancePolicies']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/policies/tokenIssuancePolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const appliesTo = {
+  /**
+   * `GET /policies/tokenIssuancePolicies/{tokenIssuancePolicy-id}/appliesTo`
+   *
+   * Get a list of directoryObject objects that a tokenIssuancePolicy object has been applied to. The tokenIssuancePolicy can only be applied to application and servicePrincipal resources.
+   */
+  get: function get(
+    params?: IEndpoints['GET /policies/tokenIssuancePolicies/{tokenIssuancePolicy-id}/appliesTo']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/tokenIssuancePolicies/{tokenIssuancePolicy-id}/appliesTo']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/policies/tokenIssuancePolicies/{tokenIssuancePolicy-id}/appliesTo',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['tokenIssuancePolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /policies/tokenIssuancePolicies/{tokenIssuancePolicy-id}/appliesTo/{directoryObject-id}`
+   *
+   */
+  get$1: function get$1(
+    params?: IEndpoints['GET /policies/tokenIssuancePolicies/{tokenIssuancePolicy-id}/appliesTo/{directoryObject-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/tokenIssuancePolicies/{tokenIssuancePolicy-id}/appliesTo/{directoryObject-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/policies/tokenIssuancePolicies/{tokenIssuancePolicy-id}/appliesTo/{directoryObject-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['tokenIssuancePolicy-id', 'directoryObject-id'],
+      },
+      params,
+    };
+  },
+};

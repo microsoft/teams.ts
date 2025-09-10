@@ -1,4 +1,3 @@
-export * as presenters from './presenters';
 export * as registrationConfiguration from './registrationConfiguration';
 export * as registrations from './registrations';
 export * as sessions from './sessions';
@@ -20,6 +19,26 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /solutions/virtualEvents/webinars': Operation<'/solutions/virtualEvents/webinars', 'post'>;
+  'GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters': Operation<
+    '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters',
+    'get'
+  >;
+  'POST /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters': Operation<
+    '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters',
+    'post'
+  >;
+  'GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}': Operation<
+    '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}',
+    'get'
+  >;
+  'PATCH /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}': Operation<
+    '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}',
+    'patch'
+  >;
+  'DELETE /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}': Operation<
+    '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -34,10 +53,10 @@ export function del(
   return {
     method: 'delete',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'virtualEventWebinar-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['virtualEventWebinar-id'],
+    },
     params,
   };
 }
@@ -53,16 +72,9 @@ export function list(
   return {
     method: 'get',
     path: '/solutions/virtualEvents/webinars',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -80,11 +92,10 @@ export function get(
   return {
     method: 'get',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'virtualEventWebinar-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEventWebinar-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -103,7 +114,9 @@ export function update(
   return {
     method: 'patch',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}',
-    paramDefs: [{ name: 'virtualEventWebinar-id', in: 'path' }],
+    paramDefs: {
+      path: ['virtualEventWebinar-id'],
+    },
     params,
     body,
   };
@@ -115,14 +128,118 @@ export function update(
  * Create a new virtualEventWebinar object in draft mode.
  */
 export function create(
-  body: IEndpoints['POST /solutions/virtualEvents/webinars']['body'],
-  params?: IEndpoints['POST /solutions/virtualEvents/webinars']['parameters']
+  body: IEndpoints['POST /solutions/virtualEvents/webinars']['body']
 ): EndpointRequest<IEndpoints['POST /solutions/virtualEvents/webinars']['response']> {
   return {
     method: 'post',
     path: '/solutions/virtualEvents/webinars',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const presenters = {
+  /**
+   * `GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters`
+   *
+   * The virtual event presenters.
+   */
+  list: function list(
+    params?: IEndpoints['GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['virtualEventWebinar-id'],
+      },
+      params,
+    };
+  },
+  /**
+  * `POST /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters`
+  *
+  * Create a new virtualEventPresenter object on a virtual event. Currently, the following types of virtual events are supported: 
+- virtualEventTownhall
+- virtualEventWebinar
+  */
+  create: function create(
+    body: IEndpoints['POST /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters']['body'],
+    params?: IEndpoints['POST /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters',
+      paramDefs: {
+        path: ['virtualEventWebinar-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}`
+   *
+   * The virtual event presenters.
+   */
+  get: function get(
+    params?: IEndpoints['GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['virtualEventWebinar-id', 'virtualEventPresenter-id'],
+      },
+      params,
+    };
+  },
+  /**
+  * `PATCH /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}`
+  *
+  * Update the properties of a virtualEventPresenter object. Currently the supported virtual event types are:
+- virtualEventWebinar.
+  */
+  update: function update(
+    body: IEndpoints['PATCH /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}']['body'],
+    params?: IEndpoints['PATCH /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}',
+      paramDefs: {
+        path: ['virtualEventWebinar-id', 'virtualEventPresenter-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['virtualEventWebinar-id', 'virtualEventPresenter-id'],
+      },
+      params,
+    };
+  },
+};

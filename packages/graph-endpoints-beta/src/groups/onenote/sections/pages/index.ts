@@ -1,9 +1,3 @@
-export * as content from './content';
-export * as copyToSection from './copyToSection';
-export * as onenotePatchContent from './onenotePatchContent';
-export * as parentNotebook from './parentNotebook';
-export * as parentSection from './parentSection';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -27,6 +21,34 @@ export interface IEndpoints {
     '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages',
     'post'
   >;
+  'GET /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content': Operation<
+    '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content',
+    'get'
+  >;
+  'PUT /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content': Operation<
+    '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content',
+    'put'
+  >;
+  'DELETE /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content': Operation<
+    '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content',
+    'delete'
+  >;
+  'POST /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/copyToSection': Operation<
+    '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/copyToSection',
+    'post'
+  >;
+  'POST /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/onenotePatchContent': Operation<
+    '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/onenotePatchContent',
+    'post'
+  >;
+  'GET /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/parentNotebook': Operation<
+    '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/parentNotebook',
+    'get'
+  >;
+  'GET /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/parentSection': Operation<
+    '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/parentSection',
+    'get'
+  >;
 }
 
 /**
@@ -42,12 +64,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'onenoteSection-id', in: 'path' },
-      { name: 'onenotePage-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'onenoteSection-id', 'onenotePage-id'],
+    },
     params,
   };
 }
@@ -66,18 +86,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'onenoteSection-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'onenoteSection-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -96,13 +108,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'onenoteSection-id', in: 'path' },
-      { name: 'onenotePage-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'onenoteSection-id', 'onenotePage-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -121,11 +130,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'onenoteSection-id', in: 'path' },
-      { name: 'onenotePage-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'onenoteSection-id', 'onenotePage-id'],
+    },
     params,
     body,
   };
@@ -145,11 +152,173 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'onenoteSection-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'onenoteSection-id'],
+    },
     params,
     body,
   };
 }
+
+export const content = {
+  /**
+   * `GET /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content`
+   *
+   * The page&#x27;s HTML content.
+   */
+  get: function get(
+    params?: IEndpoints['GET /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content',
+      paramDefs: {
+        path: ['group-id', 'onenoteSection-id', 'onenotePage-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content`
+   *
+   * The page&#x27;s HTML content.
+   */
+  set: function set(
+    body: IEndpoints['PUT /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content']['body'],
+    params?: IEndpoints['PUT /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'put',
+      path: '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content',
+      paramDefs: {
+        path: ['group-id', 'onenoteSection-id', 'onenotePage-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content`
+   *
+   * The page&#x27;s HTML content.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/content',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['group-id', 'onenoteSection-id', 'onenotePage-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const copyToSection = {
+  /**
+   * `POST /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/copyToSection`
+   *
+   * Copy a page to a specific section. For copy operations, you follow an asynchronous calling pattern:  First call the Copy action, and then poll the operation endpoint for the result.
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/copyToSection']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/copyToSection']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/copyToSection']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/copyToSection',
+      paramDefs: {
+        path: ['group-id', 'onenoteSection-id', 'onenotePage-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const onenotePatchContent = {
+  /**
+   * `POST /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/onenotePatchContent`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/onenotePatchContent']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/onenotePatchContent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/onenotePatchContent']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/onenotePatchContent',
+      paramDefs: {
+        path: ['group-id', 'onenoteSection-id', 'onenotePage-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const parentNotebook = {
+  /**
+   * `GET /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/parentNotebook`
+   *
+   * The notebook that contains the page.  Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/parentNotebook']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/parentNotebook']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/parentNotebook',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['group-id', 'onenoteSection-id', 'onenotePage-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const parentSection = {
+  /**
+   * `GET /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/parentSection`
+   *
+   * The section that contains the page. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/parentSection']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/parentSection']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/groups/{group-id}/onenote/sections/{onenoteSection-id}/pages/{onenotePage-id}/parentSection',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['group-id', 'onenoteSection-id', 'onenotePage-id'],
+      },
+      params,
+    };
+  },
+};

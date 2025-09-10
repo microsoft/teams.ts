@@ -1,5 +1,3 @@
-export * as comments from './comments';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -10,6 +8,10 @@ export interface IEndpoints {
   'GET /security/incidents/{incident-id}/alerts/{alert-id}': Operation<
     '/security/incidents/{incident-id}/alerts/{alert-id}',
     'get'
+  >;
+  'POST /security/incidents/{incident-id}/alerts/{alert-id}/comments': Operation<
+    '/security/incidents/{incident-id}/alerts/{alert-id}/comments',
+    'post'
   >;
 }
 
@@ -25,17 +27,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/incidents/{incident-id}/alerts',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'incident-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['incident-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -54,12 +49,35 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/incidents/{incident-id}/alerts/{alert-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'incident-id', in: 'path' },
-      { name: 'alert-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['incident-id', 'alert-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
+
+export const comments = {
+  /**
+   * `POST /security/incidents/{incident-id}/alerts/{alert-id}/comments`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /security/incidents/{incident-id}/alerts/{alert-id}/comments']['body'],
+    params?: IEndpoints['POST /security/incidents/{incident-id}/alerts/{alert-id}/comments']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /security/incidents/{incident-id}/alerts/{alert-id}/comments']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/security/incidents/{incident-id}/alerts/{alert-id}/comments',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['incident-id', 'alert-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

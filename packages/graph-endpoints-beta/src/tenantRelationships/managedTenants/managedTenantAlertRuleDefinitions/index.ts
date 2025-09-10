@@ -1,5 +1,3 @@
-export * as alertRules from './alertRules';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,14 @@ export interface IEndpoints {
     '/tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions',
     'post'
   >;
+  'GET /tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions/{managedTenantAlertRuleDefinition-id}/alertRules': Operation<
+    '/tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions/{managedTenantAlertRuleDefinition-id}/alertRules',
+    'get'
+  >;
+  'GET /tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions/{managedTenantAlertRuleDefinition-id}/alertRules/{managedTenantAlertRule-id}': Operation<
+    '/tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions/{managedTenantAlertRuleDefinition-id}/alertRules/{managedTenantAlertRule-id}',
+    'get'
+  >;
 }
 
 /**
@@ -38,10 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions/{managedTenantAlertRuleDefinition-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'managedTenantAlertRuleDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['managedTenantAlertRuleDefinition-id'],
+    },
     params,
   };
 }
@@ -59,16 +65,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +85,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions/{managedTenantAlertRuleDefinition-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'managedTenantAlertRuleDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['managedTenantAlertRuleDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +107,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions/{managedTenantAlertRuleDefinition-id}',
-    paramDefs: [{ name: 'managedTenantAlertRuleDefinition-id', in: 'path' }],
+    paramDefs: {
+      path: ['managedTenantAlertRuleDefinition-id'],
+    },
     params,
     body,
   };
@@ -120,8 +120,7 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions']['body'],
-  params?: IEndpoints['POST /tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions']['parameters']
+  body: IEndpoints['POST /tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions']['body']
 ): EndpointRequest<
   IEndpoints['POST /tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions']['response']
 > {
@@ -129,8 +128,49 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const alertRules = {
+  /**
+   * `GET /tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions/{managedTenantAlertRuleDefinition-id}/alertRules`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions/{managedTenantAlertRuleDefinition-id}/alertRules']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions/{managedTenantAlertRuleDefinition-id}/alertRules']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions/{managedTenantAlertRuleDefinition-id}/alertRules',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['managedTenantAlertRuleDefinition-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions/{managedTenantAlertRuleDefinition-id}/alertRules/{managedTenantAlertRule-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions/{managedTenantAlertRuleDefinition-id}/alertRules/{managedTenantAlertRule-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions/{managedTenantAlertRuleDefinition-id}/alertRules/{managedTenantAlertRule-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/tenantRelationships/managedTenants/managedTenantAlertRuleDefinitions/{managedTenantAlertRuleDefinition-id}/alertRules/{managedTenantAlertRule-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['managedTenantAlertRuleDefinition-id', 'managedTenantAlertRule-id'],
+      },
+      params,
+    };
+  },
+};

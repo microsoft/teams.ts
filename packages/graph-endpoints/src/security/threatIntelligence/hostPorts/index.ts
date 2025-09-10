@@ -1,6 +1,3 @@
-export * as host from './host';
-export * as mostRecentSslCertificate from './mostRecentSslCertificate';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/security/threatIntelligence/hostPorts',
     'post'
   >;
+  'GET /security/threatIntelligence/hostPorts/{hostPort-id}/host': Operation<
+    '/security/threatIntelligence/hostPorts/{hostPort-id}/host',
+    'get'
+  >;
+  'GET /security/threatIntelligence/hostPorts/{hostPort-id}/mostRecentSslCertificate': Operation<
+    '/security/threatIntelligence/hostPorts/{hostPort-id}/mostRecentSslCertificate',
+    'get'
+  >;
 }
 
 /**
@@ -38,10 +43,10 @@ export function del(
   return {
     method: 'delete',
     path: '/security/threatIntelligence/hostPorts/{hostPort-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'hostPort-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['hostPort-id'],
+    },
     params,
   };
 }
@@ -57,16 +62,9 @@ export function list(
   return {
     method: 'get',
     path: '/security/threatIntelligence/hostPorts',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -84,11 +82,10 @@ export function get(
   return {
     method: 'get',
     path: '/security/threatIntelligence/hostPorts/{hostPort-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'hostPort-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['hostPort-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -106,7 +103,9 @@ export function update(
   return {
     method: 'patch',
     path: '/security/threatIntelligence/hostPorts/{hostPort-id}',
-    paramDefs: [{ name: 'hostPort-id', in: 'path' }],
+    paramDefs: {
+      path: ['hostPort-id'],
+    },
     params,
     body,
   };
@@ -117,14 +116,57 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /security/threatIntelligence/hostPorts']['body'],
-  params?: IEndpoints['POST /security/threatIntelligence/hostPorts']['parameters']
+  body: IEndpoints['POST /security/threatIntelligence/hostPorts']['body']
 ): EndpointRequest<IEndpoints['POST /security/threatIntelligence/hostPorts']['response']> {
   return {
     method: 'post',
     path: '/security/threatIntelligence/hostPorts',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const host = {
+  /**
+   * `GET /security/threatIntelligence/hostPorts/{hostPort-id}/host`
+   *
+   * The host related to this hostPort. This is a reverse navigation property. When you navigate to hostPorts from a host, assume that this is a return reference.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/threatIntelligence/hostPorts/{hostPort-id}/host']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/threatIntelligence/hostPorts/{hostPort-id}/host']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/threatIntelligence/hostPorts/{hostPort-id}/host',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['hostPort-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const mostRecentSslCertificate = {
+  /**
+   * `GET /security/threatIntelligence/hostPorts/{hostPort-id}/mostRecentSslCertificate`
+   *
+   * The most recent sslCertificate used to communicate on the port.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/threatIntelligence/hostPorts/{hostPort-id}/mostRecentSslCertificate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/threatIntelligence/hostPorts/{hostPort-id}/mostRecentSslCertificate']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/threatIntelligence/hostPorts/{hostPort-id}/mostRecentSslCertificate',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['hostPort-id'],
+      },
+      params,
+    };
+  },
+};

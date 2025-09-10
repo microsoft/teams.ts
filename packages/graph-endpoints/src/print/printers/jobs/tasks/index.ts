@@ -1,6 +1,3 @@
-export * as definition from './definition';
-export * as trigger from './trigger';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/print/printers/{printer-id}/jobs/{printJob-id}/tasks',
     'post'
   >;
+  'GET /print/printers/{printer-id}/jobs/{printJob-id}/tasks/{printTask-id}/definition': Operation<
+    '/print/printers/{printer-id}/jobs/{printJob-id}/tasks/{printTask-id}/definition',
+    'get'
+  >;
+  'GET /print/printers/{printer-id}/jobs/{printJob-id}/tasks/{printTask-id}/trigger': Operation<
+    '/print/printers/{printer-id}/jobs/{printJob-id}/tasks/{printTask-id}/trigger',
+    'get'
+  >;
 }
 
 /**
@@ -38,12 +43,10 @@ export function del(
   return {
     method: 'delete',
     path: '/print/printers/{printer-id}/jobs/{printJob-id}/tasks/{printTask-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'printer-id', in: 'path' },
-      { name: 'printJob-id', in: 'path' },
-      { name: 'printTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['printer-id', 'printJob-id', 'printTask-id'],
+    },
     params,
   };
 }
@@ -61,18 +64,10 @@ export function list(
   return {
     method: 'get',
     path: '/print/printers/{printer-id}/jobs/{printJob-id}/tasks',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'printer-id', in: 'path' },
-      { name: 'printJob-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printer-id', 'printJob-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,13 +85,10 @@ export function get(
   return {
     method: 'get',
     path: '/print/printers/{printer-id}/jobs/{printJob-id}/tasks/{printTask-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'printer-id', in: 'path' },
-      { name: 'printJob-id', in: 'path' },
-      { name: 'printTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printer-id', 'printJob-id', 'printTask-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,11 +106,9 @@ export function update(
   return {
     method: 'patch',
     path: '/print/printers/{printer-id}/jobs/{printJob-id}/tasks/{printTask-id}',
-    paramDefs: [
-      { name: 'printer-id', in: 'path' },
-      { name: 'printJob-id', in: 'path' },
-      { name: 'printTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printer-id', 'printJob-id', 'printTask-id'],
+    },
     params,
     body,
   };
@@ -137,11 +127,56 @@ export function create(
   return {
     method: 'post',
     path: '/print/printers/{printer-id}/jobs/{printJob-id}/tasks',
-    paramDefs: [
-      { name: 'printer-id', in: 'path' },
-      { name: 'printJob-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['printer-id', 'printJob-id'],
+    },
     params,
     body,
   };
 }
+
+export const definition = {
+  /**
+   * `GET /print/printers/{printer-id}/jobs/{printJob-id}/tasks/{printTask-id}/definition`
+   *
+   * The printTaskDefinition that was used to create this task. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /print/printers/{printer-id}/jobs/{printJob-id}/tasks/{printTask-id}/definition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /print/printers/{printer-id}/jobs/{printJob-id}/tasks/{printTask-id}/definition']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/print/printers/{printer-id}/jobs/{printJob-id}/tasks/{printTask-id}/definition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['printer-id', 'printJob-id', 'printTask-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const trigger = {
+  /**
+   * `GET /print/printers/{printer-id}/jobs/{printJob-id}/tasks/{printTask-id}/trigger`
+   *
+   * The printTaskTrigger that triggered this task&#x27;s execution. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /print/printers/{printer-id}/jobs/{printJob-id}/tasks/{printTask-id}/trigger']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /print/printers/{printer-id}/jobs/{printJob-id}/tasks/{printTask-id}/trigger']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/print/printers/{printer-id}/jobs/{printJob-id}/tasks/{printTask-id}/trigger',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['printer-id', 'printJob-id', 'printTask-id'],
+      },
+      params,
+    };
+  },
+};

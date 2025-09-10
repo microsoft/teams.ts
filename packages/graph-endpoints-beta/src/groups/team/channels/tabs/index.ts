@@ -1,5 +1,3 @@
-export * as teamsApp from './teamsApp';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/groups/{group-id}/team/channels/{channel-id}/tabs',
     'post'
   >;
+  'GET /groups/{group-id}/team/channels/{channel-id}/tabs/{teamsTab-id}/teamsApp': Operation<
+    '/groups/{group-id}/team/channels/{channel-id}/tabs/{teamsTab-id}/teamsApp',
+    'get'
+  >;
 }
 
 /**
@@ -38,12 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/groups/{group-id}/team/channels/{channel-id}/tabs/{teamsTab-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'teamsTab-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'channel-id', 'teamsTab-id'],
+    },
     params,
   };
 }
@@ -62,18 +62,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/team/channels/{channel-id}/tabs',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'channel-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,13 +84,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/team/channels/{channel-id}/tabs/{teamsTab-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'teamsTab-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'channel-id', 'teamsTab-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,11 +106,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/groups/{group-id}/team/channels/{channel-id}/tabs/{teamsTab-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'teamsTab-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'channel-id', 'teamsTab-id'],
+    },
     params,
     body,
   };
@@ -141,11 +128,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/groups/{group-id}/team/channels/{channel-id}/tabs',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'channel-id'],
+    },
     params,
     body,
   };
 }
+
+export const teamsApp = {
+  /**
+   * `GET /groups/{group-id}/team/channels/{channel-id}/tabs/{teamsTab-id}/teamsApp`
+   *
+   * The application that is linked to the tab.
+   */
+  get: function get(
+    params?: IEndpoints['GET /groups/{group-id}/team/channels/{channel-id}/tabs/{teamsTab-id}/teamsApp']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/team/channels/{channel-id}/tabs/{teamsTab-id}/teamsApp']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/groups/{group-id}/team/channels/{channel-id}/tabs/{teamsTab-id}/teamsApp',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['group-id', 'channel-id', 'teamsTab-id'],
+      },
+      params,
+    };
+  },
+};

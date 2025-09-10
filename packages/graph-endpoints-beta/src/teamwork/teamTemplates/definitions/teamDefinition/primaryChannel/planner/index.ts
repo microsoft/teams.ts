@@ -30,11 +30,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/planner',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id'],
+    },
     params,
   };
 }
@@ -53,12 +52,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/planner',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -77,10 +74,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/planner',
-    paramDefs: [
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id'],
+    },
     params,
     body,
   };

@@ -19,7 +19,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/admin/windows',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -36,10 +38,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/admin/windows',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -49,15 +50,12 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /admin/windows']['body'],
-  params?: IEndpoints['PATCH /admin/windows']['parameters']
+  body: IEndpoints['PATCH /admin/windows']['body']
 ): EndpointRequest<IEndpoints['PATCH /admin/windows']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/admin/windows',
-    paramDefs: [],
-    params,
     body,
   };
 }

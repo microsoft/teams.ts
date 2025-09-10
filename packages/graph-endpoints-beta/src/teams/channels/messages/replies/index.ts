@@ -1,11 +1,3 @@
-export * as forwardToChat from './forwardToChat';
-export * as hostedContents from './hostedContents';
-export * as replyWithQuote from './replyWithQuote';
-export * as setReaction from './setReaction';
-export * as softDelete from './softDelete';
-export * as undoSoftDelete from './undoSoftDelete';
-export * as unsetReaction from './unsetReaction';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -29,6 +21,50 @@ export interface IEndpoints {
     '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies',
     'post'
   >;
+  'POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/forwardToChat': Operation<
+    '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/forwardToChat',
+    'post'
+  >;
+  'GET /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents': Operation<
+    '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents',
+    'get'
+  >;
+  'POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents': Operation<
+    '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents',
+    'post'
+  >;
+  'GET /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}': Operation<
+    '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}',
+    'get'
+  >;
+  'PATCH /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}': Operation<
+    '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}',
+    'patch'
+  >;
+  'DELETE /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}': Operation<
+    '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}',
+    'delete'
+  >;
+  'POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/replyWithQuote': Operation<
+    '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/replyWithQuote',
+    'post'
+  >;
+  'POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/setReaction': Operation<
+    '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/setReaction',
+    'post'
+  >;
+  'POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/softDelete': Operation<
+    '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/softDelete',
+    'post'
+  >;
+  'POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/undoSoftDelete': Operation<
+    '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/undoSoftDelete',
+    'post'
+  >;
+  'POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/unsetReaction': Operation<
+    '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/unsetReaction',
+    'post'
+  >;
 }
 
 /**
@@ -44,13 +80,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'team-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'chatMessage-id', in: 'path' },
-      { name: 'chatMessage-id1', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['team-id', 'channel-id', 'chatMessage-id', 'chatMessage-id1'],
+    },
     params,
   };
 }
@@ -69,19 +102,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'team-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'chatMessage-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id', 'channel-id', 'chatMessage-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -100,14 +124,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'team-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'chatMessage-id', in: 'path' },
-      { name: 'chatMessage-id1', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id', 'channel-id', 'chatMessage-id', 'chatMessage-id1'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -126,12 +146,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}',
-    paramDefs: [
-      { name: 'team-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'chatMessage-id', in: 'path' },
-      { name: 'chatMessage-id1', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id', 'channel-id', 'chatMessage-id', 'chatMessage-id1'],
+    },
     params,
     body,
   };
@@ -152,12 +169,279 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies',
-    paramDefs: [
-      { name: 'team-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'chatMessage-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id', 'channel-id', 'chatMessage-id'],
+    },
     params,
     body,
   };
 }
+
+export const forwardToChat = {
+  /**
+   * `POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/forwardToChat`
+   *
+   * Forward a chat message, a channel message, or a channel message reply to a chat.
+   */
+  create: function create(
+    body: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/forwardToChat']['body'],
+    params?: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/forwardToChat']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/forwardToChat']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/forwardToChat',
+      paramDefs: {
+        path: ['team-id', 'channel-id', 'chatMessage-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const hostedContents = {
+  /**
+   * `GET /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents`
+   *
+   * Retrieve the list of chatMessageHostedContent objects from a message. This API only lists the hosted content objects. To get the content bytes, see get chatmessage hosted content.s
+   */
+  list: function list(
+    params?: IEndpoints['GET /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['team-id', 'channel-id', 'chatMessage-id', 'chatMessage-id1'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents']['body'],
+    params?: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents',
+      paramDefs: {
+        path: ['team-id', 'channel-id', 'chatMessage-id', 'chatMessage-id1'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}`
+   *
+   * Content in a message hosted by Microsoft Teams - for example, images or code snippets.
+   */
+  get: function get(
+    params?: IEndpoints['GET /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'team-id',
+          'channel-id',
+          'chatMessage-id',
+          'chatMessage-id1',
+          'chatMessageHostedContent-id',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}']['body'],
+    params?: IEndpoints['PATCH /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}',
+      paramDefs: {
+        path: [
+          'team-id',
+          'channel-id',
+          'chatMessage-id',
+          'chatMessage-id1',
+          'chatMessageHostedContent-id',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/hostedContents/{chatMessageHostedContent-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: [
+          'team-id',
+          'channel-id',
+          'chatMessage-id',
+          'chatMessage-id1',
+          'chatMessageHostedContent-id',
+        ],
+      },
+      params,
+    };
+  },
+};
+
+export const replyWithQuote = {
+  /**
+   * `POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/replyWithQuote`
+   *
+   * Reply with quote to a single chat message or multiple chat messages in a chat.
+   */
+  create: function create(
+    body: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/replyWithQuote']['body'],
+    params?: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/replyWithQuote']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/replyWithQuote']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/replyWithQuote',
+      paramDefs: {
+        path: ['team-id', 'channel-id', 'chatMessage-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const setReaction = {
+  /**
+   * `POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/setReaction`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/setReaction']['body'],
+    params?: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/setReaction']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/setReaction']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/setReaction',
+      paramDefs: {
+        path: ['team-id', 'channel-id', 'chatMessage-id', 'chatMessage-id1'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const softDelete = {
+  /**
+   * `POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/softDelete`
+   *
+   * Delete a single chatMessage or a chat message reply in a channel or a chat.
+   */
+  create: function create(
+    params?: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/softDelete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/softDelete']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/softDelete',
+      paramDefs: {
+        path: ['team-id', 'channel-id', 'chatMessage-id', 'chatMessage-id1'],
+      },
+      params,
+    };
+  },
+};
+
+export const undoSoftDelete = {
+  /**
+   * `POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/undoSoftDelete`
+   *
+   * Undo soft deletion of a single chatMessage or a chat message reply in a channel or a chat.
+   */
+  create: function create(
+    params?: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/undoSoftDelete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/undoSoftDelete']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/undoSoftDelete',
+      paramDefs: {
+        path: ['team-id', 'channel-id', 'chatMessage-id', 'chatMessage-id1'],
+      },
+      params,
+    };
+  },
+};
+
+export const unsetReaction = {
+  /**
+   * `POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/unsetReaction`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/unsetReaction']['body'],
+    params?: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/unsetReaction']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/unsetReaction']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies/{chatMessage-id1}/unsetReaction',
+      paramDefs: {
+        path: ['team-id', 'channel-id', 'chatMessage-id', 'chatMessage-id1'],
+      },
+      params,
+      body,
+    };
+  },
+};

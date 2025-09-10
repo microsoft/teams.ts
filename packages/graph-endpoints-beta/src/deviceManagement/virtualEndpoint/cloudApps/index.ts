@@ -1,7 +1,3 @@
-export * as publish from './publish';
-export * as reset from './reset';
-export * as unpublish from './unpublish';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -25,6 +21,18 @@ export interface IEndpoints {
     '/deviceManagement/virtualEndpoint/cloudApps',
     'post'
   >;
+  'POST /deviceManagement/virtualEndpoint/cloudApps/publish': Operation<
+    '/deviceManagement/virtualEndpoint/cloudApps/publish',
+    'post'
+  >;
+  'POST /deviceManagement/virtualEndpoint/cloudApps/reset': Operation<
+    '/deviceManagement/virtualEndpoint/cloudApps/reset',
+    'post'
+  >;
+  'POST /deviceManagement/virtualEndpoint/cloudApps/unpublish': Operation<
+    '/deviceManagement/virtualEndpoint/cloudApps/unpublish',
+    'post'
+  >;
 }
 
 /**
@@ -40,10 +48,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/virtualEndpoint/cloudApps/{cloudPcCloudApp-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'cloudPcCloudApp-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['cloudPcCloudApp-id'],
+    },
     params,
   };
 }
@@ -60,16 +68,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/virtualEndpoint/cloudApps',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,11 +89,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/virtualEndpoint/cloudApps/{cloudPcCloudApp-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'cloudPcCloudApp-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['cloudPcCloudApp-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,7 +112,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/virtualEndpoint/cloudApps/{cloudPcCloudApp-id}',
-    paramDefs: [{ name: 'cloudPcCloudApp-id', in: 'path' }],
+    paramDefs: {
+      path: ['cloudPcCloudApp-id'],
+    },
     params,
     body,
   };
@@ -123,15 +125,72 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudApps']['body'],
-  params?: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudApps']['parameters']
+  body: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudApps']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/virtualEndpoint/cloudApps']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/virtualEndpoint/cloudApps',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const publish = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/cloudApps/publish`
+   *
+   * Publish a cloudPcCloudApp object to make it available to end users through their portal, such as the Windows App.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudApps/publish']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/cloudApps/publish']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/cloudApps/publish',
+      body,
+    };
+  },
+};
+
+export const reset = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/cloudApps/reset`
+   *
+   * Reset the app details of the cloudPcCloudApp object to the app details of the initially discovered app that this cloud app is mapped to. This action requires the Microsoft.CloudPC/CloudApps/Update permission.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudApps/reset']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/cloudApps/reset']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/cloudApps/reset',
+      body,
+    };
+  },
+};
+
+export const unpublish = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/cloudApps/unpublish`
+   *
+   * Unpublish a cloudPcCloudApp to remove it from the end-user portal, for example, the Windows App. When a cloud app is unpublished, any changes made to its app details are reverted and reset to the values of the discovered app it&#x27;s linked to.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudApps/unpublish']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/cloudApps/unpublish']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/cloudApps/unpublish',
+      body,
+    };
+  },
+};

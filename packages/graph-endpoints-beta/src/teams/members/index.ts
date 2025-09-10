@@ -1,6 +1,3 @@
-export * as add from './add';
-export * as remove from './remove';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -18,6 +15,8 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /teams/{team-id}/members': Operation<'/teams/{team-id}/members', 'post'>;
+  'POST /teams/{team-id}/members/add': Operation<'/teams/{team-id}/members/add', 'post'>;
+  'POST /teams/{team-id}/members/remove': Operation<'/teams/{team-id}/members/remove', 'post'>;
 }
 
 /**
@@ -34,11 +33,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/teams/{team-id}/members/{conversationMember-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'team-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['team-id', 'conversationMember-id'],
+    },
     params,
   };
 }
@@ -55,17 +53,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/teams/{team-id}/members',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'team-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -82,12 +73,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/teams/{team-id}/members/{conversationMember-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'team-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id', 'conversationMember-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -107,10 +96,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/teams/{team-id}/members/{conversationMember-id}',
-    paramDefs: [
-      { name: 'team-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id', 'conversationMember-id'],
+    },
     params,
     body,
   };
@@ -129,8 +117,56 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/teams/{team-id}/members',
-    paramDefs: [{ name: 'team-id', in: 'path' }],
+    paramDefs: {
+      path: ['team-id'],
+    },
     params,
     body,
   };
 }
+
+export const add = {
+  /**
+   * `POST /teams/{team-id}/members/add`
+   *
+   * Add multiple members in a single request to a team. The response provides details about which memberships could and couldn&#x27;t be created.
+   */
+  create: function create(
+    body: IEndpoints['POST /teams/{team-id}/members/add']['body'],
+    params?: IEndpoints['POST /teams/{team-id}/members/add']['parameters']
+  ): EndpointRequest<IEndpoints['POST /teams/{team-id}/members/add']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teams/{team-id}/members/add',
+      paramDefs: {
+        path: ['team-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const remove = {
+  /**
+   * `POST /teams/{team-id}/members/remove`
+   *
+   * Remove multiple members from a team in a single request. The response provides details about which memberships could and couldn&#x27;t be removed.
+   */
+  create: function create(
+    body: IEndpoints['POST /teams/{team-id}/members/remove']['body'],
+    params?: IEndpoints['POST /teams/{team-id}/members/remove']['parameters']
+  ): EndpointRequest<IEndpoints['POST /teams/{team-id}/members/remove']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teams/{team-id}/members/remove',
+      paramDefs: {
+        path: ['team-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

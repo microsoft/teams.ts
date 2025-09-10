@@ -1,7 +1,3 @@
-export * as activate from './activate';
-export * as assignAndActivate from './assignAndActivate';
-export * as assignAndActivateBySerialNumber from './assignAndActivateBySerialNumber';
-export * as deactivate from './deactivate';
 export * as device from './device';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -23,6 +19,22 @@ export interface IEndpoints {
     '/me/authentication/hardwareOathMethods',
     'post'
   >;
+  'POST /me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}/activate': Operation<
+    '/me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}/activate',
+    'post'
+  >;
+  'POST /me/authentication/hardwareOathMethods/assignAndActivate': Operation<
+    '/me/authentication/hardwareOathMethods/assignAndActivate',
+    'post'
+  >;
+  'POST /me/authentication/hardwareOathMethods/assignAndActivateBySerialNumber': Operation<
+    '/me/authentication/hardwareOathMethods/assignAndActivateBySerialNumber',
+    'post'
+  >;
+  'POST /me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}/deactivate': Operation<
+    '/me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}/deactivate',
+    'post'
+  >;
 }
 
 /**
@@ -39,10 +51,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'hardwareOathAuthenticationMethod-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['hardwareOathAuthenticationMethod-id'],
+    },
     params,
   };
 }
@@ -59,16 +71,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/authentication/hardwareOathMethods',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +92,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'hardwareOathAuthenticationMethod-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['hardwareOathAuthenticationMethod-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -102,15 +106,100 @@ export function get(
  * Assign a hardware token to a user without activation. To activate, use the activation API operation.
  */
 export function create(
-  body: IEndpoints['POST /me/authentication/hardwareOathMethods']['body'],
-  params?: IEndpoints['POST /me/authentication/hardwareOathMethods']['parameters']
+  body: IEndpoints['POST /me/authentication/hardwareOathMethods']['body']
 ): EndpointRequest<IEndpoints['POST /me/authentication/hardwareOathMethods']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/me/authentication/hardwareOathMethods',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const activate = {
+  /**
+   * `POST /me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}/activate`
+   *
+   * Activate a hardware OATH token that is already assigned to a user. A user can self-activate their token or an admin can activate for a user.
+   */
+  create: function create(
+    body: IEndpoints['POST /me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}/activate']['body'],
+    params?: IEndpoints['POST /me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}/activate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}/activate']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}/activate',
+      paramDefs: {
+        path: ['hardwareOathAuthenticationMethod-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const assignAndActivate = {
+  /**
+   * `POST /me/authentication/hardwareOathMethods/assignAndActivate`
+   *
+   * Assign and activate a hardware token at the same time. This operation requires the device ID to activate it.
+   */
+  create: function create(
+    body: IEndpoints['POST /me/authentication/hardwareOathMethods/assignAndActivate']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /me/authentication/hardwareOathMethods/assignAndActivate']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/authentication/hardwareOathMethods/assignAndActivate',
+      body,
+    };
+  },
+};
+
+export const assignAndActivateBySerialNumber = {
+  /**
+   * `POST /me/authentication/hardwareOathMethods/assignAndActivateBySerialNumber`
+   *
+   * Assign and activate a hardware token at the same time by hardware token serial number.
+   */
+  create: function create(
+    body: IEndpoints['POST /me/authentication/hardwareOathMethods/assignAndActivateBySerialNumber']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /me/authentication/hardwareOathMethods/assignAndActivateBySerialNumber']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/authentication/hardwareOathMethods/assignAndActivateBySerialNumber',
+      body,
+    };
+  },
+};
+
+export const deactivate = {
+  /**
+   * `POST /me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}/deactivate`
+   *
+   * Deactive a hardware OATH token. It remains assigned to a user.
+   */
+  create: function create(
+    params?: IEndpoints['POST /me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}/deactivate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}/deactivate']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}/deactivate',
+      paramDefs: {
+        path: ['hardwareOathAuthenticationMethod-id'],
+      },
+      params,
+    };
+  },
+};

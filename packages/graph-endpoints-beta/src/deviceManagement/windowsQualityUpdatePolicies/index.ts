@@ -1,7 +1,3 @@
-export * as assign from './assign';
-export * as assignments from './assignments';
-export * as bulkAction from './bulkAction';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -25,6 +21,34 @@ export interface IEndpoints {
     '/deviceManagement/windowsQualityUpdatePolicies',
     'post'
   >;
+  'POST /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assign': Operation<
+    '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assign',
+    'post'
+  >;
+  'GET /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments': Operation<
+    '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments',
+    'get'
+  >;
+  'POST /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments': Operation<
+    '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments',
+    'post'
+  >;
+  'GET /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}': Operation<
+    '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}',
+    'get'
+  >;
+  'PATCH /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}': Operation<
+    '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}',
+    'patch'
+  >;
+  'DELETE /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}': Operation<
+    '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}',
+    'delete'
+  >;
+  'POST /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/bulkAction': Operation<
+    '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/bulkAction',
+    'post'
+  >;
 }
 
 /**
@@ -40,10 +64,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'windowsQualityUpdatePolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['windowsQualityUpdatePolicy-id'],
+    },
     params,
   };
 }
@@ -60,16 +84,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/windowsQualityUpdatePolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,11 +105,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'windowsQualityUpdatePolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['windowsQualityUpdatePolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,7 +127,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}',
-    paramDefs: [{ name: 'windowsQualityUpdatePolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['windowsQualityUpdatePolicy-id'],
+    },
     params,
     body,
   };
@@ -122,15 +140,167 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/windowsQualityUpdatePolicies']['body'],
-  params?: IEndpoints['POST /deviceManagement/windowsQualityUpdatePolicies']['parameters']
+  body: IEndpoints['POST /deviceManagement/windowsQualityUpdatePolicies']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/windowsQualityUpdatePolicies']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/windowsQualityUpdatePolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const assign = {
+  /**
+   * `POST /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assign`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assign']['body'],
+    params?: IEndpoints['POST /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assign']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assign']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assign',
+      paramDefs: {
+        path: ['windowsQualityUpdatePolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const assignments = {
+  /**
+   * `GET /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments`
+   *
+   * List of the groups this profile is assgined to.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['windowsQualityUpdatePolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments']['body'],
+    params?: IEndpoints['POST /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments',
+      paramDefs: {
+        path: ['windowsQualityUpdatePolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}`
+   *
+   * List of the groups this profile is assgined to.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['windowsQualityUpdatePolicy-id', 'windowsQualityUpdatePolicyAssignment-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}']['body'],
+    params?: IEndpoints['PATCH /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}',
+      paramDefs: {
+        path: ['windowsQualityUpdatePolicy-id', 'windowsQualityUpdatePolicyAssignment-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/assignments/{windowsQualityUpdatePolicyAssignment-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['windowsQualityUpdatePolicy-id', 'windowsQualityUpdatePolicyAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const bulkAction = {
+  /**
+   * `POST /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/bulkAction`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/bulkAction']['body'],
+    params?: IEndpoints['POST /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/bulkAction']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/bulkAction']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/windowsQualityUpdatePolicies/{windowsQualityUpdatePolicy-id}/bulkAction',
+      paramDefs: {
+        path: ['windowsQualityUpdatePolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

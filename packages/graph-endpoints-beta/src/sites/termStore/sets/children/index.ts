@@ -1,6 +1,5 @@
 export * as childrenChildren from './childrenChildren';
 export * as relations from './relations';
-export * as set from './set';
 
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
@@ -25,6 +24,10 @@ export interface IEndpoints {
     '/sites/{site-id}/termStore/sets/{set-id}/children',
     'post'
   >;
+  'GET /sites/{site-id}/termStore/sets/{set-id}/children/{term-id}/set': Operation<
+    '/sites/{site-id}/termStore/sets/{set-id}/children/{term-id}/set',
+    'get'
+  >;
 }
 
 /**
@@ -40,12 +43,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/sites/{site-id}/termStore/sets/{set-id}/children/{term-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'term-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id', 'set-id', 'term-id'],
+    },
     params,
   };
 }
@@ -64,18 +65,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/sites/{site-id}/termStore/sets/{set-id}/children',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -94,13 +87,10 @@ export function get$1(
     ver: 'beta',
     method: 'get',
     path: '/sites/{site-id}/termStore/sets/{set-id}/children/{term-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'term-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id', 'term-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -119,11 +109,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/sites/{site-id}/termStore/sets/{set-id}/children/{term-id}',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'term-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id', 'term-id'],
+    },
     params,
     body,
   };
@@ -143,11 +131,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/sites/{site-id}/termStore/sets/{set-id}/children',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id'],
+    },
     params,
     body,
   };
 }
+
+export const set = {
+  /**
+   * `GET /sites/{site-id}/termStore/sets/{set-id}/children/{term-id}/set`
+   *
+   * The [set] in which the term is created.
+   */
+  get: function get(
+    params?: IEndpoints['GET /sites/{site-id}/termStore/sets/{set-id}/children/{term-id}/set']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /sites/{site-id}/termStore/sets/{set-id}/children/{term-id}/set']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/sites/{site-id}/termStore/sets/{set-id}/children/{term-id}/set',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['site-id', 'set-id', 'term-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,5 +1,3 @@
-export * as sync from './sync';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceManagement/exchangeConnectors',
     'post'
   >;
+  'POST /deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}/sync': Operation<
+    '/deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}/sync',
+    'post'
+  >;
 }
 
 /**
@@ -38,10 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deviceManagementExchangeConnector-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['deviceManagementExchangeConnector-id'],
+    },
     params,
   };
 }
@@ -58,16 +60,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/exchangeConnectors',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +81,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceManagementExchangeConnector-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceManagementExchangeConnector-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +103,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}',
-    paramDefs: [{ name: 'deviceManagementExchangeConnector-id', in: 'path' }],
+    paramDefs: {
+      path: ['deviceManagementExchangeConnector-id'],
+    },
     params,
     body,
   };
@@ -120,15 +116,36 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/exchangeConnectors']['body'],
-  params?: IEndpoints['POST /deviceManagement/exchangeConnectors']['parameters']
+  body: IEndpoints['POST /deviceManagement/exchangeConnectors']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/exchangeConnectors']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/exchangeConnectors',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const sync = {
+  /**
+   * `POST /deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}/sync`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}/sync']['body'],
+    params?: IEndpoints['POST /deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}/sync']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}/sync']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}/sync',
+      paramDefs: {
+        path: ['deviceManagementExchangeConnector-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

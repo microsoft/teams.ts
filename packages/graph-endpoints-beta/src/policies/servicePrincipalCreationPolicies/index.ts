@@ -1,6 +1,3 @@
-export * as excludes from './excludes';
-export * as includes from './includes';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,46 @@ export interface IEndpoints {
     '/policies/servicePrincipalCreationPolicies',
     'post'
   >;
+  'GET /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes': Operation<
+    '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes',
+    'get'
+  >;
+  'POST /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes': Operation<
+    '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes',
+    'post'
+  >;
+  'GET /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}': Operation<
+    '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}',
+    'get'
+  >;
+  'PATCH /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}': Operation<
+    '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}',
+    'patch'
+  >;
+  'DELETE /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}': Operation<
+    '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}',
+    'delete'
+  >;
+  'GET /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes': Operation<
+    '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes',
+    'get'
+  >;
+  'POST /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes': Operation<
+    '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes',
+    'post'
+  >;
+  'GET /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}': Operation<
+    '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}',
+    'get'
+  >;
+  'PATCH /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}': Operation<
+    '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}',
+    'patch'
+  >;
+  'DELETE /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}': Operation<
+    '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -39,10 +76,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'servicePrincipalCreationPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['servicePrincipalCreationPolicy-id'],
+    },
     params,
   };
 }
@@ -58,16 +95,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/policies/servicePrincipalCreationPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -85,11 +115,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'servicePrincipalCreationPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['servicePrincipalCreationPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -108,7 +137,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}',
-    paramDefs: [{ name: 'servicePrincipalCreationPolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['servicePrincipalCreationPolicy-id'],
+    },
     params,
     body,
   };
@@ -119,15 +150,222 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /policies/servicePrincipalCreationPolicies']['body'],
-  params?: IEndpoints['POST /policies/servicePrincipalCreationPolicies']['parameters']
+  body: IEndpoints['POST /policies/servicePrincipalCreationPolicies']['body']
 ): EndpointRequest<IEndpoints['POST /policies/servicePrincipalCreationPolicies']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/policies/servicePrincipalCreationPolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const excludes = {
+  /**
+   * `GET /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['servicePrincipalCreationPolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes']['body'],
+    params?: IEndpoints['POST /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes',
+      paramDefs: {
+        path: ['servicePrincipalCreationPolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['servicePrincipalCreationPolicy-id', 'servicePrincipalCreationConditionSet-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}']['body'],
+    params?: IEndpoints['PATCH /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}',
+      paramDefs: {
+        path: ['servicePrincipalCreationPolicy-id', 'servicePrincipalCreationConditionSet-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/excludes/{servicePrincipalCreationConditionSet-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['servicePrincipalCreationPolicy-id', 'servicePrincipalCreationConditionSet-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const includes = {
+  /**
+   * `GET /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['servicePrincipalCreationPolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes']['body'],
+    params?: IEndpoints['POST /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes',
+      paramDefs: {
+        path: ['servicePrincipalCreationPolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['servicePrincipalCreationPolicy-id', 'servicePrincipalCreationConditionSet-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}']['body'],
+    params?: IEndpoints['PATCH /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}',
+      paramDefs: {
+        path: ['servicePrincipalCreationPolicy-id', 'servicePrincipalCreationConditionSet-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/policies/servicePrincipalCreationPolicies/{servicePrincipalCreationPolicy-id}/includes/{servicePrincipalCreationConditionSet-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['servicePrincipalCreationPolicy-id', 'servicePrincipalCreationConditionSet-id'],
+      },
+      params,
+    };
+  },
+};

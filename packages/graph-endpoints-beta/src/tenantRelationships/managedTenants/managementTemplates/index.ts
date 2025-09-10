@@ -1,6 +1,3 @@
-export * as managementTemplateCollections from './managementTemplateCollections';
-export * as managementTemplateSteps from './managementTemplateSteps';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,22 @@ export interface IEndpoints {
     '/tenantRelationships/managedTenants/managementTemplates',
     'post'
   >;
+  'GET /tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateCollections': Operation<
+    '/tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateCollections',
+    'get'
+  >;
+  'GET /tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateCollections/{managementTemplateCollection-id}': Operation<
+    '/tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateCollections/{managementTemplateCollection-id}',
+    'get'
+  >;
+  'GET /tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateSteps': Operation<
+    '/tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateSteps',
+    'get'
+  >;
+  'GET /tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateSteps/{managementTemplateStep-id}': Operation<
+    '/tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateSteps/{managementTemplateStep-id}',
+    'get'
+  >;
 }
 
 /**
@@ -39,10 +52,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'managementTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['managementTemplate-id'],
+    },
     params,
   };
 }
@@ -61,16 +74,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/tenantRelationships/managedTenants/managementTemplates',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,11 +95,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'managementTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['managementTemplate-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,7 +117,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}',
-    paramDefs: [{ name: 'managementTemplate-id', in: 'path' }],
+    paramDefs: {
+      path: ['managementTemplate-id'],
+    },
     params,
     body,
   };
@@ -123,8 +130,7 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /tenantRelationships/managedTenants/managementTemplates']['body'],
-  params?: IEndpoints['POST /tenantRelationships/managedTenants/managementTemplates']['parameters']
+  body: IEndpoints['POST /tenantRelationships/managedTenants/managementTemplates']['body']
 ): EndpointRequest<
   IEndpoints['POST /tenantRelationships/managedTenants/managementTemplates']['response']
 > {
@@ -132,8 +138,92 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/tenantRelationships/managedTenants/managementTemplates',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const managementTemplateCollections = {
+  /**
+   * `GET /tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateCollections`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateCollections']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateCollections']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateCollections',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['managementTemplate-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateCollections/{managementTemplateCollection-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateCollections/{managementTemplateCollection-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateCollections/{managementTemplateCollection-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateCollections/{managementTemplateCollection-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['managementTemplate-id', 'managementTemplateCollection-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const managementTemplateSteps = {
+  /**
+   * `GET /tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateSteps`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateSteps']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateSteps']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateSteps',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['managementTemplate-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateSteps/{managementTemplateStep-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateSteps/{managementTemplateStep-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateSteps/{managementTemplateStep-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/tenantRelationships/managedTenants/managementTemplates/{managementTemplate-id}/managementTemplateSteps/{managementTemplateStep-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['managementTemplate-id', 'managementTemplateStep-id'],
+      },
+      params,
+    };
+  },
+};

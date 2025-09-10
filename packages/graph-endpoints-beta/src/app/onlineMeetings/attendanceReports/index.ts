@@ -1,5 +1,3 @@
-export * as attendanceRecords from './attendanceRecords';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/app/onlineMeetings/{onlineMeeting-id}/attendanceReports',
     'post'
   >;
+  'GET /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords': Operation<
+    '/app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords',
+    'get'
+  >;
+  'POST /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords': Operation<
+    '/app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords',
+    'post'
+  >;
+  'GET /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}': Operation<
+    '/app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}',
+    'get'
+  >;
+  'PATCH /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}': Operation<
+    '/app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}',
+    'patch'
+  >;
+  'DELETE /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}': Operation<
+    '/app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,11 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'onlineMeeting-id', in: 'path' },
-      { name: 'meetingAttendanceReport-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['onlineMeeting-id', 'meetingAttendanceReport-id'],
+    },
     params,
   };
 }
@@ -61,17 +78,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/app/onlineMeetings/{onlineMeeting-id}/attendanceReports',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'onlineMeeting-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['onlineMeeting-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +100,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'onlineMeeting-id', in: 'path' },
-      { name: 'meetingAttendanceReport-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['onlineMeeting-id', 'meetingAttendanceReport-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +122,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}',
-    paramDefs: [
-      { name: 'onlineMeeting-id', in: 'path' },
-      { name: 'meetingAttendanceReport-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['onlineMeeting-id', 'meetingAttendanceReport-id'],
+    },
     params,
     body,
   };
@@ -137,8 +144,117 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/app/onlineMeetings/{onlineMeeting-id}/attendanceReports',
-    paramDefs: [{ name: 'onlineMeeting-id', in: 'path' }],
+    paramDefs: {
+      path: ['onlineMeeting-id'],
+    },
     params,
     body,
   };
 }
+
+export const attendanceRecords = {
+  /**
+   * `GET /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords`
+   *
+   * List of attendance records of an attendance report. Read-only.
+   */
+  list: function list(
+    params?: IEndpoints['GET /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['onlineMeeting-id', 'meetingAttendanceReport-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords']['body'],
+    params?: IEndpoints['POST /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords',
+      paramDefs: {
+        path: ['onlineMeeting-id', 'meetingAttendanceReport-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}`
+   *
+   * List of attendance records of an attendance report. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['onlineMeeting-id', 'meetingAttendanceReport-id', 'attendanceRecord-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}']['body'],
+    params?: IEndpoints['PATCH /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}',
+      paramDefs: {
+        path: ['onlineMeeting-id', 'meetingAttendanceReport-id', 'attendanceRecord-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/app/onlineMeetings/{onlineMeeting-id}/attendanceReports/{meetingAttendanceReport-id}/attendanceRecords/{attendanceRecord-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['onlineMeeting-id', 'meetingAttendanceReport-id', 'attendanceRecord-id'],
+      },
+      params,
+    };
+  },
+};

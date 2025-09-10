@@ -20,10 +20,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/termStore',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -34,15 +33,12 @@ export function get(
  * Update the properties of a store object.
  */
 export function update(
-  body: IEndpoints['PATCH /termStore']['body'],
-  params?: IEndpoints['PATCH /termStore']['parameters']
+  body: IEndpoints['PATCH /termStore']['body']
 ): EndpointRequest<IEndpoints['PATCH /termStore']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/termStore',
-    paramDefs: [],
-    params,
     body,
   };
 }

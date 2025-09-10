@@ -1,6 +1,3 @@
-export * as resource from './resource';
-export * as roleSetting from './roleSetting';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions',
     'post'
   >;
+  'GET /privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions/{governanceRoleDefinition-id}/resource': Operation<
+    '/privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions/{governanceRoleDefinition-id}/resource',
+    'get'
+  >;
+  'GET /privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions/{governanceRoleDefinition-id}/roleSetting': Operation<
+    '/privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions/{governanceRoleDefinition-id}/roleSetting',
+    'get'
+  >;
 }
 
 /**
@@ -39,12 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions/{governanceRoleDefinition-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'privilegedAccess-id', in: 'path' },
-      { name: 'governanceResource-id', in: 'path' },
-      { name: 'governanceRoleDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['privilegedAccess-id', 'governanceResource-id', 'governanceRoleDefinition-id'],
+    },
     params,
   };
 }
@@ -63,18 +66,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'privilegedAccess-id', in: 'path' },
-      { name: 'governanceResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['privilegedAccess-id', 'governanceResource-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,13 +88,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions/{governanceRoleDefinition-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'privilegedAccess-id', in: 'path' },
-      { name: 'governanceResource-id', in: 'path' },
-      { name: 'governanceRoleDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['privilegedAccess-id', 'governanceResource-id', 'governanceRoleDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -118,11 +110,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions/{governanceRoleDefinition-id}',
-    paramDefs: [
-      { name: 'privilegedAccess-id', in: 'path' },
-      { name: 'governanceResource-id', in: 'path' },
-      { name: 'governanceRoleDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['privilegedAccess-id', 'governanceResource-id', 'governanceRoleDefinition-id'],
+    },
     params,
     body,
   };
@@ -142,11 +132,58 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions',
-    paramDefs: [
-      { name: 'privilegedAccess-id', in: 'path' },
-      { name: 'governanceResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['privilegedAccess-id', 'governanceResource-id'],
+    },
     params,
     body,
   };
 }
+
+export const resource = {
+  /**
+   * `GET /privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions/{governanceRoleDefinition-id}/resource`
+   *
+   * Read-only. The associated resource for the role definition.
+   */
+  get: function get(
+    params?: IEndpoints['GET /privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions/{governanceRoleDefinition-id}/resource']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions/{governanceRoleDefinition-id}/resource']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions/{governanceRoleDefinition-id}/resource',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['privilegedAccess-id', 'governanceResource-id', 'governanceRoleDefinition-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const roleSetting = {
+  /**
+   * `GET /privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions/{governanceRoleDefinition-id}/roleSetting`
+   *
+   * The associated role setting for the role definition.
+   */
+  get: function get(
+    params?: IEndpoints['GET /privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions/{governanceRoleDefinition-id}/roleSetting']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions/{governanceRoleDefinition-id}/roleSetting']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/privilegedAccess/{privilegedAccess-id}/resources/{governanceResource-id}/roleDefinitions/{governanceRoleDefinition-id}/roleSetting',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['privilegedAccess-id', 'governanceResource-id', 'governanceRoleDefinition-id'],
+      },
+      params,
+    };
+  },
+};

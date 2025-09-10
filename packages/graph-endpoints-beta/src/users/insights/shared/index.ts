@@ -1,6 +1,3 @@
-export * as lastSharedMethod from './lastSharedMethod';
-export * as resource from './resource';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -18,6 +15,14 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /users/{user-id}/insights/shared': Operation<'/users/{user-id}/insights/shared', 'post'>;
+  'GET /users/{user-id}/insights/shared/{sharedInsight-id}/lastSharedMethod': Operation<
+    '/users/{user-id}/insights/shared/{sharedInsight-id}/lastSharedMethod',
+    'get'
+  >;
+  'GET /users/{user-id}/insights/shared/{sharedInsight-id}/resource': Operation<
+    '/users/{user-id}/insights/shared/{sharedInsight-id}/resource',
+    'get'
+  >;
 }
 
 /**
@@ -33,11 +38,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/users/{user-id}/insights/shared/{sharedInsight-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'sharedInsight-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'sharedInsight-id'],
+    },
     params,
   };
 }
@@ -54,17 +58,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/insights/shared',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -83,12 +80,10 @@ export function get$1(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/insights/shared/{sharedInsight-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'sharedInsight-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'sharedInsight-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -107,10 +102,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/users/{user-id}/insights/shared/{sharedInsight-id}',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'sharedInsight-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'sharedInsight-id'],
+    },
     params,
     body,
   };
@@ -128,8 +122,57 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/users/{user-id}/insights/shared',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };
 }
+
+export const lastSharedMethod = {
+  /**
+   * `GET /users/{user-id}/insights/shared/{sharedInsight-id}/lastSharedMethod`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/insights/shared/{sharedInsight-id}/lastSharedMethod']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/insights/shared/{sharedInsight-id}/lastSharedMethod']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/insights/shared/{sharedInsight-id}/lastSharedMethod',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'sharedInsight-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const resource = {
+  /**
+   * `GET /users/{user-id}/insights/shared/{sharedInsight-id}/resource`
+   *
+   * Used for navigating to the item that was shared. For file attachments, the type is fileAttachment. For linked attachments, the type is driveItem.
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/insights/shared/{sharedInsight-id}/resource']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/insights/shared/{sharedInsight-id}/resource']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/insights/shared/{sharedInsight-id}/resource',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'sharedInsight-id'],
+      },
+      params,
+    };
+  },
+};

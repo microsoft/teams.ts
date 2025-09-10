@@ -1,5 +1,4 @@
 export * as children from './children';
-export * as parentGroup from './parentGroup';
 export * as relations from './relations';
 export * as terms from './terms';
 
@@ -20,6 +19,18 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /termStore/groups/{group-id}/sets': Operation<'/termStore/groups/{group-id}/sets', 'post'>;
+  'GET /termStore/groups/{group-id}/sets/{set-id}/parentGroup': Operation<
+    '/termStore/groups/{group-id}/sets/{set-id}/parentGroup',
+    'get'
+  >;
+  'PATCH /termStore/groups/{group-id}/sets/{set-id}/parentGroup': Operation<
+    '/termStore/groups/{group-id}/sets/{set-id}/parentGroup',
+    'patch'
+  >;
+  'DELETE /termStore/groups/{group-id}/sets/{set-id}/parentGroup': Operation<
+    '/termStore/groups/{group-id}/sets/{set-id}/parentGroup',
+    'delete'
+  >;
 }
 
 /**
@@ -33,11 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/termStore/groups/{group-id}/sets/{set-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'set-id'],
+    },
     params,
   };
 }
@@ -54,17 +64,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/termStore/groups/{group-id}/sets',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,12 +84,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/termStore/groups/{group-id}/sets/{set-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'set-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -103,10 +104,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/termStore/groups/{group-id}/sets/{set-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'set-id'],
+    },
     params,
     body,
   };
@@ -124,8 +124,75 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/termStore/groups/{group-id}/sets',
-    paramDefs: [{ name: 'group-id', in: 'path' }],
+    paramDefs: {
+      path: ['group-id'],
+    },
     params,
     body,
   };
 }
+
+export const parentGroup = {
+  /**
+   * `GET /termStore/groups/{group-id}/sets/{set-id}/parentGroup`
+   *
+   * The parent [group] that contains the set.
+   */
+  get: function get(
+    params?: IEndpoints['GET /termStore/groups/{group-id}/sets/{set-id}/parentGroup']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /termStore/groups/{group-id}/sets/{set-id}/parentGroup']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/termStore/groups/{group-id}/sets/{set-id}/parentGroup',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['group-id', 'set-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /termStore/groups/{group-id}/sets/{set-id}/parentGroup`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /termStore/groups/{group-id}/sets/{set-id}/parentGroup']['body'],
+    params?: IEndpoints['PATCH /termStore/groups/{group-id}/sets/{set-id}/parentGroup']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /termStore/groups/{group-id}/sets/{set-id}/parentGroup']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/termStore/groups/{group-id}/sets/{set-id}/parentGroup',
+      paramDefs: {
+        path: ['group-id', 'set-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /termStore/groups/{group-id}/sets/{set-id}/parentGroup`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /termStore/groups/{group-id}/sets/{set-id}/parentGroup']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /termStore/groups/{group-id}/sets/{set-id}/parentGroup']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/termStore/groups/{group-id}/sets/{set-id}/parentGroup',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['group-id', 'set-id'],
+      },
+      params,
+    };
+  },
+};

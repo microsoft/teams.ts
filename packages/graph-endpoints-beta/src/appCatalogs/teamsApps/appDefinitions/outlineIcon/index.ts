@@ -1,5 +1,3 @@
-export * as hostedContent from './hostedContent';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -14,6 +12,18 @@ export interface IEndpoints {
   'PATCH /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon': Operation<
     '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon',
     'patch'
+  >;
+  'GET /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent': Operation<
+    '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent',
+    'get'
+  >;
+  'PATCH /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent': Operation<
+    '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent',
+    'patch'
+  >;
+  'DELETE /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent': Operation<
+    '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent',
+    'delete'
   >;
 }
 
@@ -30,11 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'teamsApp-id', in: 'path' },
-      { name: 'teamsAppDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['teamsApp-id', 'teamsAppDefinition-id'],
+    },
     params,
   };
 }
@@ -53,12 +62,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'teamsApp-id', in: 'path' },
-      { name: 'teamsAppDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamsApp-id', 'teamsAppDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -77,11 +84,75 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon',
-    paramDefs: [
-      { name: 'teamsApp-id', in: 'path' },
-      { name: 'teamsAppDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamsApp-id', 'teamsAppDefinition-id'],
+    },
     params,
     body,
   };
 }
+
+export const hostedContent = {
+  /**
+   * `GET /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent`
+   *
+   * Retrieve the hosted content in an app&#x27;s icon.
+   */
+  get: function get(
+    params?: IEndpoints['GET /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['teamsApp-id', 'teamsAppDefinition-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent']['body'],
+    params?: IEndpoints['PATCH /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent',
+      paramDefs: {
+        path: ['teamsApp-id', 'teamsAppDefinition-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/appCatalogs/teamsApps/{teamsApp-id}/appDefinitions/{teamsAppDefinition-id}/outlineIcon/hostedContent',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['teamsApp-id', 'teamsAppDefinition-id'],
+      },
+      params,
+    };
+  },
+};
