@@ -71,7 +71,7 @@
     {
       "label": "setup-env",
       "type": "shell",
-      "command": "if (!(Test-Path -Path .venv -PathType Container)) { uv venv }; uv sync",
+      "command": "uv sync",
       "problemMatcher": [],
       "group": {
           "kind": "build",
