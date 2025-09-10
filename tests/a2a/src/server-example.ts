@@ -18,8 +18,7 @@ const PORT = +(process.env.PORT || 4000);
 const agentCard: AgentCard = {
   name: 'Weather Agent',
   description: 'An agent that can tell you the weather',
-  // use localhost only if the BASE_SERVER_URL is not set
-  url: `http://${process.env.BASE_SERVER_URL || 'localhost'}:${PORT}/a2a`,
+  url: `http://localhost:${PORT}/a2a`,
   version: '0.0.1',
   protocolVersion: '0.3.0',
   capabilities: {},
