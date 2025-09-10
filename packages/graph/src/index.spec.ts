@@ -228,7 +228,6 @@ describe('Client', () => {
             ver: 'beta',
             method: 'post',
             path: '/users',
-            paramDefs: {},
             body: data,
           }),
         );
@@ -279,7 +278,6 @@ describe('Client', () => {
           (): EndpointRequest<any> => ({
             method: 'get',
             path: '/users',
-            paramDefs: {},
           }),
         );
 
@@ -410,7 +408,6 @@ describe('Client', () => {
               ver: 'beta',
               method: 'post',
               path: '/users',
-              paramDefs: {},
               body: data,
             }),
           );
@@ -461,7 +458,6 @@ describe('Client', () => {
             (): EndpointRequest<any> => ({
               method: 'get',
               path: '/users',
-              paramDefs: {},
             }),
           );
 
@@ -484,7 +480,6 @@ describe('Client', () => {
             (data: any): EndpointRequest<any> => ({
               method: 'post',
               path: '/users',
-              paramDefs: {},
               body: data,
             }),
           );
@@ -508,7 +503,6 @@ describe('Client', () => {
             (data: any): EndpointRequest<any> => ({
               method: 'post',
               path: '/users',
-              paramDefs: {},
               body: data,
             }),
           );
@@ -938,7 +932,6 @@ describe('Client', () => {
             (): EndpointRequest<any> => ({
               method: 'trace' as any,
               path: '/users',
-              paramDefs: {},
             }),
           );
 
@@ -955,7 +948,6 @@ describe('Client', () => {
             (): EndpointRequest<any> => ({
               method: 'get',
               path: '/users',
-              paramDefs: {},
             }),
           );
 
