@@ -38,3 +38,5 @@ If you want to add the `People.Read.All` and `User.ReadBasic.All` scopes.
 ```
 
 2. Update the `properties.scopes` to be `People.Read.All,User.ReadBasic.All`.
+
+Refer [here](https://learn.microsoft.com/en-us/graph/permissions-reference) for in-depth Microsoft Graph permissions reference.

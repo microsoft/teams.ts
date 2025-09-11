@@ -52,7 +52,7 @@ resource botServicesMicrosoftGraphConnection 'Microsoft.BotService/botServices/c
     serviceProviderId: '30dd229c-58e3-4a48-bdfd-91ec48eb906c'
     clientId: botAadAppClientId
     clientSecret: botAddAppClientSecret
-    scopes: 'User.Read,Mail.Read'
+    scopes: 'User.Read'
     parameters: [
       {
         key: 'tenantID'
