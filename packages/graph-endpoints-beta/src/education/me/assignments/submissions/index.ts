@@ -1,12 +1,5 @@
-export * as excuse from './excuse';
-export * as outcomes from './outcomes';
-export * as reassign from './reassign';
 export * as resources from './resources';
-export * as return from './return';
-export * as setUpResourcesFolder from './setUpResourcesFolder';
-export * as submit from './submit';
 export * as submittedResources from './submittedResources';
-export * as unsubmit from './unsubmit';
 
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
@@ -31,6 +24,50 @@ export interface IEndpoints {
     '/education/me/assignments/{educationAssignment-id}/submissions',
     'post'
   >;
+  'POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/excuse': Operation<
+    '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/excuse',
+    'post'
+  >;
+  'GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes': Operation<
+    '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes',
+    'get'
+  >;
+  'POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes': Operation<
+    '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes',
+    'post'
+  >;
+  'GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}': Operation<
+    '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}',
+    'get'
+  >;
+  'PATCH /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}': Operation<
+    '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}',
+    'patch'
+  >;
+  'DELETE /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}': Operation<
+    '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}',
+    'delete'
+  >;
+  'POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/reassign': Operation<
+    '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/reassign',
+    'post'
+  >;
+  'POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/return': Operation<
+    '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/return',
+    'post'
+  >;
+  'POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/setUpResourcesFolder': Operation<
+    '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/setUpResourcesFolder',
+    'post'
+  >;
+  'POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submit': Operation<
+    '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submit',
+    'post'
+  >;
+  'POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/unsubmit': Operation<
+    '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/unsubmit',
+    'post'
+  >;
 }
 
 /**
@@ -46,11 +83,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'educationAssignment-id', in: 'path' },
-      { name: 'educationSubmission-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['educationAssignment-id', 'educationSubmission-id'],
+    },
     params,
   };
 }
@@ -69,17 +105,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/education/me/assignments/{educationAssignment-id}/submissions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'educationAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['educationAssignment-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -98,12 +127,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'educationAssignment-id', in: 'path' },
-      { name: 'educationSubmission-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['educationAssignment-id', 'educationSubmission-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -122,10 +149,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}',
-    paramDefs: [
-      { name: 'educationAssignment-id', in: 'path' },
-      { name: 'educationSubmission-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['educationAssignment-id', 'educationSubmission-id'],
+    },
     params,
     body,
   };
@@ -145,8 +171,254 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/education/me/assignments/{educationAssignment-id}/submissions',
-    paramDefs: [{ name: 'educationAssignment-id', in: 'path' }],
+    paramDefs: {
+      path: ['educationAssignment-id'],
+    },
     params,
     body,
   };
 }
+
+export const excuse = {
+  /**
+   * `POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/excuse`
+   *
+   * Excuse a submission. Excused submissions aren&#x27;t included in average grade calculations. Grading rubrics and feedback are deleted. Only teachers can perform this action.  If the Prefer: include-unknown-enum-members request header is provided, the excused submission retains the excused status. Otherwise, the submission status changes to returned. For more information about how to use this header, see the Examples section.
+   */
+  create: function create(
+    params?: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/excuse']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/excuse']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/excuse',
+      paramDefs: {
+        path: ['educationAssignment-id', 'educationSubmission-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const outcomes = {
+  /**
+   * `GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['educationAssignment-id', 'educationSubmission-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes']['body'],
+    params?: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes',
+      paramDefs: {
+        path: ['educationAssignment-id', 'educationSubmission-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['educationAssignment-id', 'educationSubmission-id', 'educationOutcome-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}']['body'],
+    params?: IEndpoints['PATCH /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}',
+      paramDefs: {
+        path: ['educationAssignment-id', 'educationSubmission-id', 'educationOutcome-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/outcomes/{educationOutcome-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['educationAssignment-id', 'educationSubmission-id', 'educationOutcome-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const reassign = {
+  /**
+   * `POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/reassign`
+   *
+   * Reassign the submission to the student with feedback for review. Only teachers can perform this action.  Include the Prefer: include-unknown-enum-members header when you call this method; otherwise, a reassigned submission will be treated as a returned submission. This means that the reassigned status will be mapped to the returned status, and reassignedDateTime and reassignedBy properties will be mapped to returnedDateTime and returnedBy respectively. If the header Prefer: include-unknown-enum-members is provided, a reassigned submission retains the reassigned status. For details, see the examples section.
+   */
+  create: function create(
+    params?: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/reassign']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/reassign']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/reassign',
+      paramDefs: {
+        path: ['educationAssignment-id', 'educationSubmission-id'],
+      },
+      params,
+    };
+  },
+};
+
+const return_ = {
+  /**
+   * `POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/return`
+   *
+   * Make the grade and feedback associated with this submission available to the student. This will change the status of the submission from &#x27;submitted&#x27; to &#x27;returned&#x27; and indicates that feedback is provided or grading is done. This action can only be done by the teacher.
+   */
+  create: function create(
+    params?: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/return']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/return']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/return',
+      paramDefs: {
+        path: ['educationAssignment-id', 'educationSubmission-id'],
+      },
+      params,
+    };
+  },
+};
+export { return_ as return };
+
+export const setUpResourcesFolder = {
+  /**
+   * `POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/setUpResourcesFolder`
+   *
+   * Trigger the creation of the SharePoint resource folder where all file-based resources (Word, Excel, and so on) should be uploaded for a given submission. Only teachers and students can perform this operation. Note that files must be located in this folder in order to be added as resources. Only a student in the class can determine what files to upload in a given submission-level resource folder.
+   */
+  create: function create(
+    params?: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/setUpResourcesFolder']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/setUpResourcesFolder']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/setUpResourcesFolder',
+      paramDefs: {
+        path: ['educationAssignment-id', 'educationSubmission-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const submit = {
+  /**
+   * `POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submit`
+   *
+   * Indicate that a student is done with the work and is ready to hand in the assignment. Only teachers, students, and applications with application permissions can perform this operation. This method changes the status of the submission from working to submitted. During the submit process, all the resources are copied to the submittedResources bucket. The teacher will be looking at the submitted resources list for grading. A teacher can also submit a student&#x27;s assignment on their behalf.
+   */
+  create: function create(
+    params?: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submit']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submit']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submit',
+      paramDefs: {
+        path: ['educationAssignment-id', 'educationSubmission-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const unsubmit = {
+  /**
+   * `POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/unsubmit`
+   *
+   * Indicate that a student wants to work on the submitted assignment after it was turned in. Only teachers, students, and applications with application permissions can perform this operation. This method changes the status of the submission from submitted to working. During the submit process, all the resources are copied from submittedResources to  workingResources. The teacher will be looking at the working resources list for grading. A teacher can also unsubmit a student&#x27;s assignment on their behalf.
+   */
+  create: function create(
+    params?: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/unsubmit']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/unsubmit']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/unsubmit',
+      paramDefs: {
+        path: ['educationAssignment-id', 'educationSubmission-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,5 +1,3 @@
-export * as scheduledActionConfigurations from './scheduledActionConfigurations';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule',
     'post'
   >;
+  'GET /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations': Operation<
+    '/deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations',
+    'get'
+  >;
+  'POST /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations': Operation<
+    '/deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations',
+    'post'
+  >;
+  'GET /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}': Operation<
+    '/deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}',
+    'get'
+  >;
+  'PATCH /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}': Operation<
+    '/deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}',
+    'patch'
+  >;
+  'DELETE /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}': Operation<
+    '/deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,11 +56,13 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deviceManagementCompliancePolicy-id', in: 'path' },
-      { name: 'deviceManagementComplianceScheduledActionForRule-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: [
+        'deviceManagementCompliancePolicy-id',
+        'deviceManagementComplianceScheduledActionForRule-id',
+      ],
+    },
     params,
   };
 }
@@ -61,17 +81,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceManagementCompliancePolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceManagementCompliancePolicy-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +103,13 @@ export function get$1(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceManagementCompliancePolicy-id', in: 'path' },
-      { name: 'deviceManagementComplianceScheduledActionForRule-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: [
+        'deviceManagementCompliancePolicy-id',
+        'deviceManagementComplianceScheduledActionForRule-id',
+      ],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +128,12 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}',
-    paramDefs: [
-      { name: 'deviceManagementCompliancePolicy-id', in: 'path' },
-      { name: 'deviceManagementComplianceScheduledActionForRule-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: [
+        'deviceManagementCompliancePolicy-id',
+        'deviceManagementComplianceScheduledActionForRule-id',
+      ],
+    },
     params,
     body,
   };
@@ -137,8 +153,135 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule',
-    paramDefs: [{ name: 'deviceManagementCompliancePolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['deviceManagementCompliancePolicy-id'],
+    },
     params,
     body,
   };
 }
+
+export const scheduledActionConfigurations = {
+  /**
+   * `GET /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations`
+   *
+   * The list of scheduled action configurations for this compliance policy. This collection can contain a maximum of 100 elements.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: [
+          'deviceManagementCompliancePolicy-id',
+          'deviceManagementComplianceScheduledActionForRule-id',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations']['body'],
+    params?: IEndpoints['POST /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations',
+      paramDefs: {
+        path: [
+          'deviceManagementCompliancePolicy-id',
+          'deviceManagementComplianceScheduledActionForRule-id',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}`
+   *
+   * The list of scheduled action configurations for this compliance policy. This collection can contain a maximum of 100 elements.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'deviceManagementCompliancePolicy-id',
+          'deviceManagementComplianceScheduledActionForRule-id',
+          'deviceManagementComplianceActionItem-id',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}']['body'],
+    params?: IEndpoints['PATCH /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}',
+      paramDefs: {
+        path: [
+          'deviceManagementCompliancePolicy-id',
+          'deviceManagementComplianceScheduledActionForRule-id',
+          'deviceManagementComplianceActionItem-id',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/deviceManagement/compliancePolicies/{deviceManagementCompliancePolicy-id}/scheduledActionsForRule/{deviceManagementComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceManagementComplianceActionItem-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: [
+          'deviceManagementCompliancePolicy-id',
+          'deviceManagementComplianceScheduledActionForRule-id',
+          'deviceManagementComplianceActionItem-id',
+        ],
+      },
+      params,
+    };
+  },
+};

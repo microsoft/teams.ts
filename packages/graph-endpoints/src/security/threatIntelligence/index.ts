@@ -34,7 +34,9 @@ export function del(
   return {
     method: 'delete',
     path: '/security/threatIntelligence',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -49,10 +51,9 @@ export function get(
   return {
     method: 'get',
     path: '/security/threatIntelligence',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -62,14 +63,11 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /security/threatIntelligence']['body'],
-  params?: IEndpoints['PATCH /security/threatIntelligence']['parameters']
+  body: IEndpoints['PATCH /security/threatIntelligence']['body']
 ): EndpointRequest<IEndpoints['PATCH /security/threatIntelligence']['response']> {
   return {
     method: 'patch',
     path: '/security/threatIntelligence',
-    paramDefs: [],
-    params,
     body,
   };
 }

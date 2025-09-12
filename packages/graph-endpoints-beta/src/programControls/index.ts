@@ -31,10 +31,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/programControls/{programControl-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'programControl-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['programControl-id'],
+    },
     params,
   };
 }
@@ -51,16 +51,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/programControls',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -76,11 +69,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/programControls/{programControl-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'programControl-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['programControl-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -97,7 +89,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/programControls/{programControl-id}',
-    paramDefs: [{ name: 'programControl-id', in: 'path' }],
+    paramDefs: {
+      path: ['programControl-id'],
+    },
     params,
     body,
   };
@@ -109,15 +103,12 @@ export function update(
  * In the Microsoft Entra access reviews feature, create a new programControl object.  This links an access review to a program. Prior to making this request, the caller must have previously
  */
 export function create(
-  body: IEndpoints['POST /programControls']['body'],
-  params?: IEndpoints['POST /programControls']['parameters']
+  body: IEndpoints['POST /programControls']['body']
 ): EndpointRequest<IEndpoints['POST /programControls']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/programControls',
-    paramDefs: [],
-    params,
     body,
   };
 }

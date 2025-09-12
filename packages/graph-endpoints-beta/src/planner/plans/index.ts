@@ -1,9 +1,5 @@
-export * as archive from './archive';
 export * as buckets from './buckets';
-export * as details from './details';
-export * as moveToContainer from './moveToContainer';
 export * as tasks from './tasks';
-export * as unarchive from './unarchive';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -13,6 +9,30 @@ export interface IEndpoints {
   'GET /planner/plans/{plannerPlan-id}': Operation<'/planner/plans/{plannerPlan-id}', 'get'>;
   'PATCH /planner/plans/{plannerPlan-id}': Operation<'/planner/plans/{plannerPlan-id}', 'patch'>;
   'POST /planner/plans': Operation<'/planner/plans', 'post'>;
+  'POST /planner/plans/{plannerPlan-id}/archive': Operation<
+    '/planner/plans/{plannerPlan-id}/archive',
+    'post'
+  >;
+  'GET /planner/plans/{plannerPlan-id}/details': Operation<
+    '/planner/plans/{plannerPlan-id}/details',
+    'get'
+  >;
+  'PATCH /planner/plans/{plannerPlan-id}/details': Operation<
+    '/planner/plans/{plannerPlan-id}/details',
+    'patch'
+  >;
+  'DELETE /planner/plans/{plannerPlan-id}/details': Operation<
+    '/planner/plans/{plannerPlan-id}/details',
+    'delete'
+  >;
+  'POST /planner/plans/{plannerPlan-id}/moveToContainer': Operation<
+    '/planner/plans/{plannerPlan-id}/moveToContainer',
+    'post'
+  >;
+  'POST /planner/plans/{plannerPlan-id}/unarchive': Operation<
+    '/planner/plans/{plannerPlan-id}/unarchive',
+    'post'
+  >;
 }
 
 /**
@@ -27,10 +47,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/planner/plans/{plannerPlan-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'plannerPlan-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['plannerPlan-id'],
+    },
     params,
   };
 }
@@ -47,16 +67,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/planner/plans',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -73,11 +86,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/planner/plans/{plannerPlan-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'plannerPlan-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['plannerPlan-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -95,7 +107,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/planner/plans/{plannerPlan-id}',
-    paramDefs: [{ name: 'plannerPlan-id', in: 'path' }],
+    paramDefs: {
+      path: ['plannerPlan-id'],
+    },
     params,
     body,
   };
@@ -107,15 +121,144 @@ export function update(
  * Create a new plannerPlan object.
  */
 export function create(
-  body: IEndpoints['POST /planner/plans']['body'],
-  params?: IEndpoints['POST /planner/plans']['parameters']
+  body: IEndpoints['POST /planner/plans']['body']
 ): EndpointRequest<IEndpoints['POST /planner/plans']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/planner/plans',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const archive = {
+  /**
+   * `POST /planner/plans/{plannerPlan-id}/archive`
+   *
+   * Archive a plannerPlan object. Archiving a plan, also archives the plannerTasks and plannerBuckets in the plan.  An archived entity is read-only. Archived entities cannot be updated. An archived plan can be unarchived.  All archived entities can be deleted. Archived tasks are not included in the response for list of tasks assigned to a user.
+   */
+  create: function create(
+    body: IEndpoints['POST /planner/plans/{plannerPlan-id}/archive']['body'],
+    params?: IEndpoints['POST /planner/plans/{plannerPlan-id}/archive']['parameters']
+  ): EndpointRequest<IEndpoints['POST /planner/plans/{plannerPlan-id}/archive']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/planner/plans/{plannerPlan-id}/archive',
+      paramDefs: {
+        path: ['plannerPlan-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const details = {
+  /**
+   * `GET /planner/plans/{plannerPlan-id}/details`
+   *
+   * Retrieve the properties and relationships of a plannerPlanDetails object.
+   */
+  list: function list(
+    params?: IEndpoints['GET /planner/plans/{plannerPlan-id}/details']['parameters']
+  ): EndpointRequest<IEndpoints['GET /planner/plans/{plannerPlan-id}/details']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/planner/plans/{plannerPlan-id}/details',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['plannerPlan-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /planner/plans/{plannerPlan-id}/details`
+   *
+   * Update the properties of plannerplandetails object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /planner/plans/{plannerPlan-id}/details']['body'],
+    params?: IEndpoints['PATCH /planner/plans/{plannerPlan-id}/details']['parameters']
+  ): EndpointRequest<IEndpoints['PATCH /planner/plans/{plannerPlan-id}/details']['response']> {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/planner/plans/{plannerPlan-id}/details',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['plannerPlan-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /planner/plans/{plannerPlan-id}/details`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /planner/plans/{plannerPlan-id}/details']['parameters']
+  ): EndpointRequest<IEndpoints['DELETE /planner/plans/{plannerPlan-id}/details']['response']> {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/planner/plans/{plannerPlan-id}/details',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['plannerPlan-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const moveToContainer = {
+  /**
+   * `POST /planner/plans/{plannerPlan-id}/moveToContainer`
+   *
+   * Move a planner plan object from one planner plan container to another. Planner plans can only be moved from a user container to a group container.
+   */
+  create: function create(
+    body: IEndpoints['POST /planner/plans/{plannerPlan-id}/moveToContainer']['body'],
+    params?: IEndpoints['POST /planner/plans/{plannerPlan-id}/moveToContainer']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /planner/plans/{plannerPlan-id}/moveToContainer']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/planner/plans/{plannerPlan-id}/moveToContainer',
+      paramDefs: {
+        path: ['plannerPlan-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const unarchive = {
+  /**
+   * `POST /planner/plans/{plannerPlan-id}/unarchive`
+   *
+   * Unarchive a plannerPlan object. Unarchiving a plan, also unarchives the plannerTasks and plannerBuckets in the plan.  Only a plan that is archived can be unarchived.
+   */
+  create: function create(
+    body: IEndpoints['POST /planner/plans/{plannerPlan-id}/unarchive']['body'],
+    params?: IEndpoints['POST /planner/plans/{plannerPlan-id}/unarchive']['parameters']
+  ): EndpointRequest<IEndpoints['POST /planner/plans/{plannerPlan-id}/unarchive']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/planner/plans/{plannerPlan-id}/unarchive',
+      paramDefs: {
+        path: ['plannerPlan-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

@@ -1,6 +1,4 @@
 export * as attendanceReports from './attendanceReports';
-export * as presenters from './presenters';
-export * as registrations from './registrations';
 
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
@@ -25,6 +23,22 @@ export interface IEndpoints {
     '/solutions/virtualEvents/events/{virtualEvent-id}/sessions',
     'post'
   >;
+  'GET /solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/presenters': Operation<
+    '/solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/presenters',
+    'get'
+  >;
+  'GET /solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/presenters/{virtualEventPresenter-id}': Operation<
+    '/solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/presenters/{virtualEventPresenter-id}',
+    'get'
+  >;
+  'GET /solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/registrations': Operation<
+    '/solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/registrations',
+    'get'
+  >;
+  'GET /solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/registrations/{virtualEventRegistration-id}': Operation<
+    '/solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/registrations/{virtualEventRegistration-id}',
+    'get'
+  >;
 }
 
 /**
@@ -40,11 +54,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'virtualEvent-id', in: 'path' },
-      { name: 'virtualEventSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['virtualEvent-id', 'virtualEventSession-id'],
+    },
     params,
   };
 }
@@ -63,17 +76,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/solutions/virtualEvents/events/{virtualEvent-id}/sessions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'virtualEvent-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEvent-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,12 +98,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'virtualEvent-id', in: 'path' },
-      { name: 'virtualEventSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEvent-id', 'virtualEventSession-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -116,10 +120,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}',
-    paramDefs: [
-      { name: 'virtualEvent-id', in: 'path' },
-      { name: 'virtualEventSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEvent-id', 'virtualEventSession-id'],
+    },
     params,
     body,
   };
@@ -139,8 +142,96 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/solutions/virtualEvents/events/{virtualEvent-id}/sessions',
-    paramDefs: [{ name: 'virtualEvent-id', in: 'path' }],
+    paramDefs: {
+      path: ['virtualEvent-id'],
+    },
     params,
     body,
   };
 }
+
+export const presenters = {
+  /**
+   * `GET /solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/presenters`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/presenters']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/presenters']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/presenters',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['virtualEvent-id', 'virtualEventSession-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/presenters/{virtualEventPresenter-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/presenters/{virtualEventPresenter-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/presenters/{virtualEventPresenter-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/presenters/{virtualEventPresenter-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['virtualEvent-id', 'virtualEventSession-id', 'virtualEventPresenter-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const registrations = {
+  /**
+   * `GET /solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/registrations`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/registrations']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/registrations']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/registrations',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['virtualEvent-id', 'virtualEventSession-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/registrations/{virtualEventRegistration-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/registrations/{virtualEventRegistration-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/registrations/{virtualEventRegistration-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}/registrations/{virtualEventRegistration-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['virtualEvent-id', 'virtualEventSession-id', 'virtualEventRegistration-id'],
+      },
+      params,
+    };
+  },
+};

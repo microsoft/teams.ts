@@ -1,8 +1,4 @@
-export * as calendarPermissions from './calendarPermissions';
-export * as calendarView from './calendarView';
 export * as events from './events';
-export * as getSchedule from './getSchedule';
-export * as permanentDelete from './permanentDelete';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -12,6 +8,38 @@ export interface IEndpoints {
   'GET /me/calendars/{calendar-id}': Operation<'/me/calendars/{calendar-id}', 'get'>;
   'PATCH /me/calendars/{calendar-id}': Operation<'/me/calendars/{calendar-id}', 'patch'>;
   'POST /me/calendars': Operation<'/me/calendars', 'post'>;
+  'GET /me/calendars/{calendar-id}/calendarPermissions': Operation<
+    '/me/calendars/{calendar-id}/calendarPermissions',
+    'get'
+  >;
+  'POST /me/calendars/{calendar-id}/calendarPermissions': Operation<
+    '/me/calendars/{calendar-id}/calendarPermissions',
+    'post'
+  >;
+  'GET /me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}': Operation<
+    '/me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}',
+    'get'
+  >;
+  'PATCH /me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}': Operation<
+    '/me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}',
+    'patch'
+  >;
+  'DELETE /me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}': Operation<
+    '/me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}',
+    'delete'
+  >;
+  'GET /me/calendars/{calendar-id}/calendarView': Operation<
+    '/me/calendars/{calendar-id}/calendarView',
+    'get'
+  >;
+  'POST /me/calendars/{calendar-id}/getSchedule': Operation<
+    '/me/calendars/{calendar-id}/getSchedule',
+    'post'
+  >;
+  'POST /me/calendars/{calendar-id}/permanentDelete': Operation<
+    '/me/calendars/{calendar-id}/permanentDelete',
+    'post'
+  >;
 }
 
 /**
@@ -25,10 +53,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/calendars/{calendar-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'calendar-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['calendar-id'],
+    },
     params,
   };
 }
@@ -45,16 +73,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/calendars',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -71,11 +92,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/calendars/{calendar-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'calendar-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['calendar-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,7 +112,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/calendars/{calendar-id}',
-    paramDefs: [{ name: 'calendar-id', in: 'path' }],
+    paramDefs: {
+      path: ['calendar-id'],
+    },
     params,
     body,
   };
@@ -104,15 +126,196 @@ export function update(
  * Create a new calendar for a user.
  */
 export function create(
-  body: IEndpoints['POST /me/calendars']['body'],
-  params?: IEndpoints['POST /me/calendars']['parameters']
+  body: IEndpoints['POST /me/calendars']['body']
 ): EndpointRequest<IEndpoints['POST /me/calendars']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/me/calendars',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const calendarPermissions = {
+  /**
+   * `GET /me/calendars/{calendar-id}/calendarPermissions`
+   *
+   * The permissions of the users with whom the calendar is shared.
+   */
+  list: function list(
+    params?: IEndpoints['GET /me/calendars/{calendar-id}/calendarPermissions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/calendars/{calendar-id}/calendarPermissions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/calendars/{calendar-id}/calendarPermissions',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['calendar-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /me/calendars/{calendar-id}/calendarPermissions`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /me/calendars/{calendar-id}/calendarPermissions']['body'],
+    params?: IEndpoints['POST /me/calendars/{calendar-id}/calendarPermissions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/calendars/{calendar-id}/calendarPermissions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/calendars/{calendar-id}/calendarPermissions',
+      paramDefs: {
+        path: ['calendar-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}`
+   *
+   * The permissions of the users with whom the calendar is shared.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['calendar-id', 'calendarPermission-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}']['body'],
+    params?: IEndpoints['PATCH /me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}',
+      paramDefs: {
+        path: ['calendar-id', 'calendarPermission-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/me/calendars/{calendar-id}/calendarPermissions/{calendarPermission-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['calendar-id', 'calendarPermission-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const calendarView = {
+  /**
+   * `GET /me/calendars/{calendar-id}/calendarView`
+   *
+   * The calendar view for the calendar. Navigation property. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/calendars/{calendar-id}/calendarView']['parameters']
+  ): EndpointRequest<IEndpoints['GET /me/calendars/{calendar-id}/calendarView']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/calendars/{calendar-id}/calendarView',
+      paramDefs: {
+        query: [
+          'startDateTime',
+          'endDateTime',
+          '$top',
+          '$skip',
+          '$search',
+          '$filter',
+          '$count',
+          '$orderby',
+          '$select',
+          '$expand',
+        ],
+        path: ['calendar-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const getSchedule = {
+  /**
+   * `POST /me/calendars/{calendar-id}/getSchedule`
+   *
+   * Get the free/busy availability information for a collection of users, distributions lists, or resources (rooms or equipment) for a specified time period.
+   */
+  create: function create(
+    body: IEndpoints['POST /me/calendars/{calendar-id}/getSchedule']['body'],
+    params?: IEndpoints['POST /me/calendars/{calendar-id}/getSchedule']['parameters']
+  ): EndpointRequest<IEndpoints['POST /me/calendars/{calendar-id}/getSchedule']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/calendars/{calendar-id}/getSchedule',
+      paramDefs: {
+        path: ['calendar-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const permanentDelete = {
+  /**
+   * `POST /me/calendars/{calendar-id}/permanentDelete`
+   *
+   * Permanently delete a calendar folder and the events that it contains and remove them from the mailbox. For more information about item retention, see Configure Deleted Item retention and Recoverable Items quotas.
+   */
+  create: function create(
+    params?: IEndpoints['POST /me/calendars/{calendar-id}/permanentDelete']['parameters']
+  ): EndpointRequest<IEndpoints['POST /me/calendars/{calendar-id}/permanentDelete']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/calendars/{calendar-id}/permanentDelete',
+      paramDefs: {
+        path: ['calendar-id'],
+      },
+      params,
+    };
+  },
+};

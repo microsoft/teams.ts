@@ -1,5 +1,3 @@
-export * as appliesTo from './appliesTo';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,14 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /policies/claimsMappingPolicies': Operation<'/policies/claimsMappingPolicies', 'post'>;
+  'GET /policies/claimsMappingPolicies/{claimsMappingPolicy-id}/appliesTo': Operation<
+    '/policies/claimsMappingPolicies/{claimsMappingPolicy-id}/appliesTo',
+    'get'
+  >;
+  'GET /policies/claimsMappingPolicies/{claimsMappingPolicy-id}/appliesTo/{directoryObject-id}': Operation<
+    '/policies/claimsMappingPolicies/{claimsMappingPolicy-id}/appliesTo/{directoryObject-id}',
+    'get'
+  >;
 }
 
 /**
@@ -32,10 +38,10 @@ export function del(
   return {
     method: 'delete',
     path: '/policies/claimsMappingPolicies/{claimsMappingPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'claimsMappingPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['claimsMappingPolicy-id'],
+    },
     params,
   };
 }
@@ -51,16 +57,9 @@ export function list(
   return {
     method: 'get',
     path: '/policies/claimsMappingPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -78,11 +77,10 @@ export function get(
   return {
     method: 'get',
     path: '/policies/claimsMappingPolicies/{claimsMappingPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'claimsMappingPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['claimsMappingPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -101,7 +99,9 @@ export function update(
   return {
     method: 'patch',
     path: '/policies/claimsMappingPolicies/{claimsMappingPolicy-id}',
-    paramDefs: [{ name: 'claimsMappingPolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['claimsMappingPolicy-id'],
+    },
     params,
     body,
   };
@@ -113,14 +113,53 @@ export function update(
  * Create a new claimsMappingPolicy object.
  */
 export function create(
-  body: IEndpoints['POST /policies/claimsMappingPolicies']['body'],
-  params?: IEndpoints['POST /policies/claimsMappingPolicies']['parameters']
+  body: IEndpoints['POST /policies/claimsMappingPolicies']['body']
 ): EndpointRequest<IEndpoints['POST /policies/claimsMappingPolicies']['response']> {
   return {
     method: 'post',
     path: '/policies/claimsMappingPolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const appliesTo = {
+  /**
+   * `GET /policies/claimsMappingPolicies/{claimsMappingPolicy-id}/appliesTo`
+   *
+   * Get a list of directoryObject objects that a claimsMappingPolicy object has been applied to. The claimsMappingPolicy can only be applied to application and servicePrincipal resources.
+   */
+  get: function get(
+    params?: IEndpoints['GET /policies/claimsMappingPolicies/{claimsMappingPolicy-id}/appliesTo']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/claimsMappingPolicies/{claimsMappingPolicy-id}/appliesTo']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/policies/claimsMappingPolicies/{claimsMappingPolicy-id}/appliesTo',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['claimsMappingPolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /policies/claimsMappingPolicies/{claimsMappingPolicy-id}/appliesTo/{directoryObject-id}`
+   *
+   */
+  get$1: function get$1(
+    params?: IEndpoints['GET /policies/claimsMappingPolicies/{claimsMappingPolicy-id}/appliesTo/{directoryObject-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/claimsMappingPolicies/{claimsMappingPolicy-id}/appliesTo/{directoryObject-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/policies/claimsMappingPolicies/{claimsMappingPolicy-id}/appliesTo/{directoryObject-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['claimsMappingPolicy-id', 'directoryObject-id'],
+      },
+      params,
+    };
+  },
+};

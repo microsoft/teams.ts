@@ -25,10 +25,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -39,15 +38,12 @@ export function get(
  * @deprecated
  */
 export function update(
-  body: IEndpoints['PATCH /roleManagement']['body'],
-  params?: IEndpoints['PATCH /roleManagement']['parameters']
+  body: IEndpoints['PATCH /roleManagement']['body']
 ): EndpointRequest<IEndpoints['PATCH /roleManagement']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/roleManagement',
-    paramDefs: [],
-    params,
     body,
   };
 }

@@ -1,6 +1,5 @@
 export * as associatedTeams from './associatedTeams';
 export * as installedApps from './installedApps';
-export * as sendActivityNotification from './sendActivityNotification';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -8,6 +7,10 @@ export interface IEndpoints {
   'DELETE /users/{user-id}/teamwork': Operation<'/users/{user-id}/teamwork', 'delete'>;
   'GET /users/{user-id}/teamwork': Operation<'/users/{user-id}/teamwork', 'get'>;
   'PATCH /users/{user-id}/teamwork': Operation<'/users/{user-id}/teamwork', 'patch'>;
+  'POST /users/{user-id}/teamwork/sendActivityNotification': Operation<
+    '/users/{user-id}/teamwork/sendActivityNotification',
+    'post'
+  >;
 }
 
 /**
@@ -21,10 +24,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/users/{user-id}/teamwork',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id'],
+    },
     params,
   };
 }
@@ -41,11 +44,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/teamwork',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -62,8 +64,35 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/users/{user-id}/teamwork',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };
 }
+
+export const sendActivityNotification = {
+  /**
+   * `POST /users/{user-id}/teamwork/sendActivityNotification`
+   *
+   * Send an activity feed notification to a user. For more information, see sending Teams activity notifications.
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/teamwork/sendActivityNotification']['body'],
+    params?: IEndpoints['POST /users/{user-id}/teamwork/sendActivityNotification']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/teamwork/sendActivityNotification']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/users/{user-id}/teamwork/sendActivityNotification',
+      paramDefs: {
+        path: ['user-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

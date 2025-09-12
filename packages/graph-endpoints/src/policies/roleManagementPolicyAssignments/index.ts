@@ -1,5 +1,3 @@
-export * as policy from './policy';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/policies/roleManagementPolicyAssignments',
     'post'
   >;
+  'GET /policies/roleManagementPolicyAssignments/{unifiedRoleManagementPolicyAssignment-id}/policy': Operation<
+    '/policies/roleManagementPolicyAssignments/{unifiedRoleManagementPolicyAssignment-id}/policy',
+    'get'
+  >;
 }
 
 /**
@@ -37,10 +39,10 @@ export function del(
   return {
     method: 'delete',
     path: '/policies/roleManagementPolicyAssignments/{unifiedRoleManagementPolicyAssignment-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'unifiedRoleManagementPolicyAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['unifiedRoleManagementPolicyAssignment-id'],
+    },
     params,
   };
 }
@@ -56,16 +58,9 @@ export function list(
   return {
     method: 'get',
     path: '/policies/roleManagementPolicyAssignments',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -83,11 +78,10 @@ export function get(
   return {
     method: 'get',
     path: '/policies/roleManagementPolicyAssignments/{unifiedRoleManagementPolicyAssignment-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'unifiedRoleManagementPolicyAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['unifiedRoleManagementPolicyAssignment-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -105,7 +99,9 @@ export function update(
   return {
     method: 'patch',
     path: '/policies/roleManagementPolicyAssignments/{unifiedRoleManagementPolicyAssignment-id}',
-    paramDefs: [{ name: 'unifiedRoleManagementPolicyAssignment-id', in: 'path' }],
+    paramDefs: {
+      path: ['unifiedRoleManagementPolicyAssignment-id'],
+    },
     params,
     body,
   };
@@ -116,14 +112,34 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /policies/roleManagementPolicyAssignments']['body'],
-  params?: IEndpoints['POST /policies/roleManagementPolicyAssignments']['parameters']
+  body: IEndpoints['POST /policies/roleManagementPolicyAssignments']['body']
 ): EndpointRequest<IEndpoints['POST /policies/roleManagementPolicyAssignments']['response']> {
   return {
     method: 'post',
     path: '/policies/roleManagementPolicyAssignments',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const policy = {
+  /**
+   * `GET /policies/roleManagementPolicyAssignments/{unifiedRoleManagementPolicyAssignment-id}/policy`
+   *
+   * The policy that&#x27;s associated with a policy assignment. Supports $expand and a nested $expand of the rules and effectiveRules relationships for the policy.
+   */
+  get: function get(
+    params?: IEndpoints['GET /policies/roleManagementPolicyAssignments/{unifiedRoleManagementPolicyAssignment-id}/policy']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/roleManagementPolicyAssignments/{unifiedRoleManagementPolicyAssignment-id}/policy']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/policies/roleManagementPolicyAssignments/{unifiedRoleManagementPolicyAssignment-id}/policy',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleManagementPolicyAssignment-id'],
+      },
+      params,
+    };
+  },
+};

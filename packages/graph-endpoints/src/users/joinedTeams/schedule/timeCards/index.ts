@@ -1,9 +1,3 @@
-export * as clockIn from './clockIn';
-export * as clockOut from './clockOut';
-export * as confirm from './confirm';
-export * as endBreak from './endBreak';
-export * as startBreak from './startBreak';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -27,6 +21,26 @@ export interface IEndpoints {
     '/users/{user-id}/joinedTeams/{team-id}/schedule/timeCards',
     'post'
   >;
+  'POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/clockIn': Operation<
+    '/users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/clockIn',
+    'post'
+  >;
+  'POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/clockOut': Operation<
+    '/users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/clockOut',
+    'post'
+  >;
+  'POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/confirm': Operation<
+    '/users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/confirm',
+    'post'
+  >;
+  'POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/endBreak': Operation<
+    '/users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/endBreak',
+    'post'
+  >;
+  'POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/startBreak': Operation<
+    '/users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/startBreak',
+    'post'
+  >;
 }
 
 /**
@@ -41,12 +55,10 @@ export function del(
   return {
     method: 'delete',
     path: '/users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'team-id', in: 'path' },
-      { name: 'timeCard-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'team-id', 'timeCard-id'],
+    },
     params,
   };
 }
@@ -64,18 +76,10 @@ export function list(
   return {
     method: 'get',
     path: '/users/{user-id}/joinedTeams/{team-id}/schedule/timeCards',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'team-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'team-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,13 +97,10 @@ export function get(
   return {
     method: 'get',
     path: '/users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'team-id', in: 'path' },
-      { name: 'timeCard-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'team-id', 'timeCard-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,11 +118,9 @@ export function update(
   return {
     method: 'patch',
     path: '/users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'team-id', in: 'path' },
-      { name: 'timeCard-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'team-id', 'timeCard-id'],
+    },
     params,
     body,
   };
@@ -140,11 +139,125 @@ export function create(
   return {
     method: 'post',
     path: '/users/{user-id}/joinedTeams/{team-id}/schedule/timeCards',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'team-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'team-id'],
+    },
     params,
     body,
   };
 }
+
+export const clockIn = {
+  /**
+   * `POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/clockIn`
+   *
+   * Clock in to start a timeCard.
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/clockIn']['body'],
+    params?: IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/clockIn']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/clockIn']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/clockIn',
+      paramDefs: {
+        path: ['user-id', 'team-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const clockOut = {
+  /**
+   * `POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/clockOut`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/clockOut']['body'],
+    params?: IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/clockOut']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/clockOut']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/clockOut',
+      paramDefs: {
+        path: ['user-id', 'team-id', 'timeCard-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const confirm = {
+  /**
+   * `POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/confirm`
+   *
+   * Confirm a timeCard.
+   */
+  create: function create(
+    params?: IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/confirm']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/confirm']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/confirm',
+      paramDefs: {
+        path: ['user-id', 'team-id', 'timeCard-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const endBreak = {
+  /**
+   * `POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/endBreak`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/endBreak']['body'],
+    params?: IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/endBreak']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/endBreak']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/endBreak',
+      paramDefs: {
+        path: ['user-id', 'team-id', 'timeCard-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const startBreak = {
+  /**
+   * `POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/startBreak`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/startBreak']['body'],
+    params?: IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/startBreak']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/startBreak']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/joinedTeams/{team-id}/schedule/timeCards/{timeCard-id}/startBreak',
+      paramDefs: {
+        path: ['user-id', 'team-id', 'timeCard-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

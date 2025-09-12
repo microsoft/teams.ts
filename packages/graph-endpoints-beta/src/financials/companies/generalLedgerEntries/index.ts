@@ -1,5 +1,3 @@
-export * as account from './account';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -9,6 +7,10 @@ export interface IEndpoints {
   >;
   'GET /financials/companies/{company-id}/generalLedgerEntries/{generalLedgerEntry-id}': Operation<
     '/financials/companies/{company-id}/generalLedgerEntries/{generalLedgerEntry-id}',
+    'get'
+  >;
+  'GET /financials/companies/{company-id}/generalLedgerEntries/{generalLedgerEntry-id}/account': Operation<
+    '/financials/companies/{company-id}/generalLedgerEntries/{generalLedgerEntry-id}/account',
     'get'
   >;
 }
@@ -26,17 +28,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/generalLedgerEntries',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -54,12 +49,33 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/generalLedgerEntries/{generalLedgerEntry-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-      { name: 'generalLedgerEntry-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'generalLedgerEntry-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
+
+export const account = {
+  /**
+   * `GET /financials/companies/{company-id}/generalLedgerEntries/{generalLedgerEntry-id}/account`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /financials/companies/{company-id}/generalLedgerEntries/{generalLedgerEntry-id}/account']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /financials/companies/{company-id}/generalLedgerEntries/{generalLedgerEntry-id}/account']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/financials/companies/{company-id}/generalLedgerEntries/{generalLedgerEntry-id}/account',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['company-id', 'generalLedgerEntry-id'],
+      },
+      params,
+    };
+  },
+};

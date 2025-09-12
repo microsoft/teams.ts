@@ -1,5 +1,3 @@
-export * as progressEvents from './progressEvents';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs',
     'post'
   >;
+  'GET /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents': Operation<
+    '/storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents',
+    'get'
+  >;
+  'POST /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents': Operation<
+    '/storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents',
+    'post'
+  >;
+  'GET /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}': Operation<
+    '/storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}',
+    'get'
+  >;
+  'PATCH /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}': Operation<
+    '/storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}',
+    'patch'
+  >;
+  'DELETE /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}': Operation<
+    '/storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,11 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-      { name: 'sharePointMigrationJob-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['fileStorageContainer-id', 'sharePointMigrationJob-id'],
+    },
     params,
   };
 }
@@ -60,17 +77,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainer-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,12 +98,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-      { name: 'sharePointMigrationJob-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainer-id', 'sharePointMigrationJob-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,10 +120,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}',
-    paramDefs: [
-      { name: 'fileStorageContainer-id', in: 'path' },
-      { name: 'sharePointMigrationJob-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainer-id', 'sharePointMigrationJob-id'],
+    },
     params,
     body,
   };
@@ -135,8 +142,127 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs',
-    paramDefs: [{ name: 'fileStorageContainer-id', in: 'path' }],
+    paramDefs: {
+      path: ['fileStorageContainer-id'],
+    },
     params,
     body,
   };
 }
+
+export const progressEvents = {
+  /**
+   * `GET /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['fileStorageContainer-id', 'sharePointMigrationJob-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents']['body'],
+    params?: IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents',
+      paramDefs: {
+        path: ['fileStorageContainer-id', 'sharePointMigrationJob-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'fileStorageContainer-id',
+          'sharePointMigrationJob-id',
+          'sharePointMigrationEvent-id',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}']['body'],
+    params?: IEndpoints['PATCH /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}',
+      paramDefs: {
+        path: [
+          'fileStorageContainer-id',
+          'sharePointMigrationJob-id',
+          'sharePointMigrationEvent-id',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/storage/fileStorage/containers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: [
+          'fileStorageContainer-id',
+          'sharePointMigrationJob-id',
+          'sharePointMigrationEvent-id',
+        ],
+      },
+      params,
+    };
+  },
+};

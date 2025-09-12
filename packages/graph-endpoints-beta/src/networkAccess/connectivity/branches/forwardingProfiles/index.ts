@@ -1,5 +1,4 @@
 export * as policies from './policies';
-export * as servicePrincipal from './servicePrincipal';
 
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
@@ -24,6 +23,10 @@ export interface IEndpoints {
     '/networkAccess/connectivity/branches/{branchSite-id}/forwardingProfiles',
     'post'
   >;
+  'GET /networkAccess/connectivity/branches/{branchSite-id}/forwardingProfiles/{forwardingProfile-id}/servicePrincipal': Operation<
+    '/networkAccess/connectivity/branches/{branchSite-id}/forwardingProfiles/{forwardingProfile-id}/servicePrincipal',
+    'get'
+  >;
 }
 
 /**
@@ -40,11 +43,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/networkAccess/connectivity/branches/{branchSite-id}/forwardingProfiles/{forwardingProfile-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'branchSite-id', in: 'path' },
-      { name: 'forwardingProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['branchSite-id', 'forwardingProfile-id'],
+    },
     params,
   };
 }
@@ -64,17 +66,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/connectivity/branches/{branchSite-id}/forwardingProfiles',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'branchSite-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['branchSite-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -94,12 +89,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/connectivity/branches/{branchSite-id}/forwardingProfiles/{forwardingProfile-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'branchSite-id', in: 'path' },
-      { name: 'forwardingProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['branchSite-id', 'forwardingProfile-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -119,10 +112,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/networkAccess/connectivity/branches/{branchSite-id}/forwardingProfiles/{forwardingProfile-id}',
-    paramDefs: [
-      { name: 'branchSite-id', in: 'path' },
-      { name: 'forwardingProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['branchSite-id', 'forwardingProfile-id'],
+    },
     params,
     body,
   };
@@ -143,8 +135,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/networkAccess/connectivity/branches/{branchSite-id}/forwardingProfiles',
-    paramDefs: [{ name: 'branchSite-id', in: 'path' }],
+    paramDefs: {
+      path: ['branchSite-id'],
+    },
     params,
     body,
   };
 }
+
+export const servicePrincipal = {
+  /**
+   * `GET /networkAccess/connectivity/branches/{branchSite-id}/forwardingProfiles/{forwardingProfile-id}/servicePrincipal`
+   *
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /networkAccess/connectivity/branches/{branchSite-id}/forwardingProfiles/{forwardingProfile-id}/servicePrincipal']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /networkAccess/connectivity/branches/{branchSite-id}/forwardingProfiles/{forwardingProfile-id}/servicePrincipal']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/networkAccess/connectivity/branches/{branchSite-id}/forwardingProfiles/{forwardingProfile-id}/servicePrincipal',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['branchSite-id', 'forwardingProfile-id'],
+      },
+      params,
+    };
+  },
+};

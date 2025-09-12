@@ -1,5 +1,3 @@
-export * as sourceColumn from './sourceColumn';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/shares/{sharedDriveItem-id}/list/columns',
     'post'
   >;
+  'GET /shares/{sharedDriveItem-id}/list/columns/{columnDefinition-id}/sourceColumn': Operation<
+    '/shares/{sharedDriveItem-id}/list/columns/{columnDefinition-id}/sourceColumn',
+    'get'
+  >;
 }
 
 /**
@@ -38,11 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/shares/{sharedDriveItem-id}/list/columns/{columnDefinition-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'sharedDriveItem-id', in: 'path' },
-      { name: 'columnDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['sharedDriveItem-id', 'columnDefinition-id'],
+    },
     params,
   };
 }
@@ -59,17 +60,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/shares/{sharedDriveItem-id}/list/columns',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sharedDriveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharedDriveItem-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,12 +82,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/shares/{sharedDriveItem-id}/list/columns/{columnDefinition-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sharedDriveItem-id', in: 'path' },
-      { name: 'columnDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharedDriveItem-id', 'columnDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,10 +104,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/shares/{sharedDriveItem-id}/list/columns/{columnDefinition-id}',
-    paramDefs: [
-      { name: 'sharedDriveItem-id', in: 'path' },
-      { name: 'columnDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharedDriveItem-id', 'columnDefinition-id'],
+    },
     params,
     body,
   };
@@ -133,8 +124,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/shares/{sharedDriveItem-id}/list/columns',
-    paramDefs: [{ name: 'sharedDriveItem-id', in: 'path' }],
+    paramDefs: {
+      path: ['sharedDriveItem-id'],
+    },
     params,
     body,
   };
 }
+
+export const sourceColumn = {
+  /**
+   * `GET /shares/{sharedDriveItem-id}/list/columns/{columnDefinition-id}/sourceColumn`
+   *
+   * The source column for content type column.
+   */
+  get: function get(
+    params?: IEndpoints['GET /shares/{sharedDriveItem-id}/list/columns/{columnDefinition-id}/sourceColumn']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /shares/{sharedDriveItem-id}/list/columns/{columnDefinition-id}/sourceColumn']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/shares/{sharedDriveItem-id}/list/columns/{columnDefinition-id}/sourceColumn',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['sharedDriveItem-id', 'columnDefinition-id'],
+      },
+      params,
+    };
+  },
+};

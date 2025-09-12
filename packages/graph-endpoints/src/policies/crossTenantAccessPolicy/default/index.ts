@@ -1,5 +1,3 @@
-export * as resetToSystemDefault from './resetToSystemDefault';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -15,6 +13,10 @@ export interface IEndpoints {
     '/policies/crossTenantAccessPolicy/default',
     'patch'
   >;
+  'POST /policies/crossTenantAccessPolicy/default/resetToSystemDefault': Operation<
+    '/policies/crossTenantAccessPolicy/default/resetToSystemDefault',
+    'post'
+  >;
 }
 
 /**
@@ -27,7 +29,9 @@ export function del(
   return {
     method: 'delete',
     path: '/policies/crossTenantAccessPolicy/default',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -43,10 +47,9 @@ export function get(
   return {
     method: 'get',
     path: '/policies/crossTenantAccessPolicy/default',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -57,14 +60,27 @@ export function get(
  * Update the default configuration of a cross-tenant access policy.
  */
 export function update(
-  body: IEndpoints['PATCH /policies/crossTenantAccessPolicy/default']['body'],
-  params?: IEndpoints['PATCH /policies/crossTenantAccessPolicy/default']['parameters']
+  body: IEndpoints['PATCH /policies/crossTenantAccessPolicy/default']['body']
 ): EndpointRequest<IEndpoints['PATCH /policies/crossTenantAccessPolicy/default']['response']> {
   return {
     method: 'patch',
     path: '/policies/crossTenantAccessPolicy/default',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const resetToSystemDefault = {
+  /**
+   * `POST /policies/crossTenantAccessPolicy/default/resetToSystemDefault`
+   *
+   * Reset any changes made to the default configuration in a cross-tenant access policy back to the system default.
+   */
+  create: function create(): EndpointRequest<
+    IEndpoints['POST /policies/crossTenantAccessPolicy/default/resetToSystemDefault']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/policies/crossTenantAccessPolicy/default/resetToSystemDefault',
+    };
+  },
+};

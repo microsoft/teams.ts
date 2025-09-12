@@ -1,5 +1,3 @@
-export * as settingStates from './settingStates';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates',
     'post'
   >;
+  'GET /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates': Operation<
+    '/users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates',
+    'get'
+  >;
+  'POST /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates': Operation<
+    '/users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates',
+    'post'
+  >;
+  'GET /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}': Operation<
+    '/users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}',
+    'get'
+  >;
+  'PATCH /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}': Operation<
+    '/users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}',
+    'patch'
+  >;
+  'DELETE /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}': Operation<
+    '/users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,12 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'managedDevice-id', in: 'path' },
-      { name: 'securityBaselineState-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'managedDevice-id', 'securityBaselineState-id'],
+    },
     params,
   };
 }
@@ -62,18 +78,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'managedDevice-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'managedDevice-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,13 +100,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'managedDevice-id', in: 'path' },
-      { name: 'securityBaselineState-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'managedDevice-id', 'securityBaselineState-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,11 +122,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'managedDevice-id', in: 'path' },
-      { name: 'securityBaselineState-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'managedDevice-id', 'securityBaselineState-id'],
+    },
     params,
     body,
   };
@@ -141,11 +144,132 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'managedDevice-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'managedDevice-id'],
+    },
     params,
     body,
   };
 }
+
+export const settingStates = {
+  /**
+   * `GET /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates`
+   *
+   * The security baseline state for different settings for a device
+   */
+  list: function list(
+    params?: IEndpoints['GET /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['user-id', 'managedDevice-id', 'securityBaselineState-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates']['body'],
+    params?: IEndpoints['POST /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates',
+      paramDefs: {
+        path: ['user-id', 'managedDevice-id', 'securityBaselineState-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}`
+   *
+   * The security baseline state for different settings for a device
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'user-id',
+          'managedDevice-id',
+          'securityBaselineState-id',
+          'securityBaselineSettingState-id',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}']['body'],
+    params?: IEndpoints['PATCH /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}',
+      paramDefs: {
+        path: [
+          'user-id',
+          'managedDevice-id',
+          'securityBaselineState-id',
+          'securityBaselineSettingState-id',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/users/{user-id}/managedDevices/{managedDevice-id}/securityBaselineStates/{securityBaselineState-id}/settingStates/{securityBaselineSettingState-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: [
+          'user-id',
+          'managedDevice-id',
+          'securityBaselineState-id',
+          'securityBaselineSettingState-id',
+        ],
+      },
+      params,
+    };
+  },
+};

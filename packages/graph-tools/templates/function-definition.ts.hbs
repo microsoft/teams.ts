@@ -28,11 +28,15 @@ function {{name}}(
     method: '{{method}}',
     path: '{{url}}',
     {{#if (notEmpty parameters)}}
-    paramDefs: [
+    paramDefs: {
       {{#each parameters}}
-      { name: '{{name}}', in: '{{in}}' },
+      {{@key}}: [
+        {{#each this}}
+        '{{name}}', 
+        {{/each}}
+      ],
       {{/each}}
-    ],
+    },
     params,
     {{/if}}
     {{#if hasRequestBody}}

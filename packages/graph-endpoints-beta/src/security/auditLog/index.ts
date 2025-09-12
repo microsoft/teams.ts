@@ -19,7 +19,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/auditLog',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -35,10 +37,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/auditLog',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -48,15 +49,12 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /security/auditLog']['body'],
-  params?: IEndpoints['PATCH /security/auditLog']['parameters']
+  body: IEndpoints['PATCH /security/auditLog']['body']
 ): EndpointRequest<IEndpoints['PATCH /security/auditLog']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/security/auditLog',
-    paramDefs: [],
-    params,
     body,
   };
 }

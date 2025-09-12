@@ -1,7 +1,3 @@
-export * as chat from './chat';
-export * as teamsApp from './teamsApp';
-export * as teamsAppDefinition from './teamsAppDefinition';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -25,6 +21,18 @@ export interface IEndpoints {
     '/users/{user-id}/teamwork/installedApps',
     'post'
   >;
+  'GET /users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/chat': Operation<
+    '/users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/chat',
+    'get'
+  >;
+  'GET /users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/teamsApp': Operation<
+    '/users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/teamsApp',
+    'get'
+  >;
+  'GET /users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/teamsAppDefinition': Operation<
+    '/users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/teamsAppDefinition',
+    'get'
+  >;
 }
 
 /**
@@ -41,11 +49,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'userScopeTeamsAppInstallation-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'userScopeTeamsAppInstallation-id'],
+    },
     params,
   };
 }
@@ -62,17 +69,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/teamwork/installedApps',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -91,12 +91,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'userScopeTeamsAppInstallation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'userScopeTeamsAppInstallation-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,10 +113,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'userScopeTeamsAppInstallation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'userScopeTeamsAppInstallation-id'],
+    },
     params,
     body,
   };
@@ -137,8 +134,82 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/users/{user-id}/teamwork/installedApps',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };
 }
+
+export const chat = {
+  /**
+   * `GET /users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/chat`
+   *
+   * Retrieve the chat of the specified user and Teams app.
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/chat']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/chat']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/chat',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'userScopeTeamsAppInstallation-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const teamsApp = {
+  /**
+   * `GET /users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/teamsApp`
+   *
+   * The app that is installed.
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/teamsApp']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/teamsApp']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/teamsApp',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'userScopeTeamsAppInstallation-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const teamsAppDefinition = {
+  /**
+   * `GET /users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/teamsAppDefinition`
+   *
+   * The details of this version of the app.
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/teamsAppDefinition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/teamsAppDefinition']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/teamsAppDefinition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'userScopeTeamsAppInstallation-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,11 +1,14 @@
-export * as webinars from './webinars';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
   'DELETE /me/virtualEvents': Operation<'/me/virtualEvents', 'delete'>;
   'GET /me/virtualEvents': Operation<'/me/virtualEvents', 'get'>;
   'PATCH /me/virtualEvents': Operation<'/me/virtualEvents', 'patch'>;
+  'GET /me/virtualEvents/webinars': Operation<'/me/virtualEvents/webinars', 'get'>;
+  'GET /me/virtualEvents/webinars/{virtualEventWebinar-id}': Operation<
+    '/me/virtualEvents/webinars/{virtualEventWebinar-id}',
+    'get'
+  >;
 }
 
 /**
@@ -19,7 +22,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/virtualEvents',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -35,10 +40,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/virtualEvents',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -48,15 +52,52 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /me/virtualEvents']['body'],
-  params?: IEndpoints['PATCH /me/virtualEvents']['parameters']
+  body: IEndpoints['PATCH /me/virtualEvents']['body']
 ): EndpointRequest<IEndpoints['PATCH /me/virtualEvents']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/me/virtualEvents',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const webinars = {
+  /**
+   * `GET /me/virtualEvents/webinars`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /me/virtualEvents/webinars']['parameters']
+  ): EndpointRequest<IEndpoints['GET /me/virtualEvents/webinars']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/virtualEvents/webinars',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /me/virtualEvents/webinars/{virtualEventWebinar-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/virtualEvents/webinars/{virtualEventWebinar-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/virtualEvents/webinars/{virtualEventWebinar-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/virtualEvents/webinars/{virtualEventWebinar-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['virtualEventWebinar-id'],
+      },
+      params,
+    };
+  },
+};

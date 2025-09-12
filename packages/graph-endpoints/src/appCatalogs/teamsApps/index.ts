@@ -30,10 +30,10 @@ export function del(
   return {
     method: 'delete',
     path: '/appCatalogs/teamsApps/{teamsApp-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'teamsApp-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['teamsApp-id'],
+    },
     params,
   };
 }
@@ -49,16 +49,9 @@ export function list(
   return {
     method: 'get',
     path: '/appCatalogs/teamsApps',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -73,11 +66,10 @@ export function get(
   return {
     method: 'get',
     path: '/appCatalogs/teamsApps/{teamsApp-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'teamsApp-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamsApp-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,7 +85,9 @@ export function update(
   return {
     method: 'patch',
     path: '/appCatalogs/teamsApps/{teamsApp-id}',
-    paramDefs: [{ name: 'teamsApp-id', in: 'path' }],
+    paramDefs: {
+      path: ['teamsApp-id'],
+    },
     params,
     body,
   };
@@ -107,14 +101,11 @@ Specifically, this API publishes the app to your organization&#x27;s catalog (th
 the created resource has a distributionMethod property value of organization. The requiresReview property allows any user to submit an app for review by an administrator. Admins can approve or reject these apps via this API or the Microsoft Teams admin center.
   */
 export function create(
-  body: IEndpoints['POST /appCatalogs/teamsApps']['body'],
-  params?: IEndpoints['POST /appCatalogs/teamsApps']['parameters']
+  body: IEndpoints['POST /appCatalogs/teamsApps']['body']
 ): EndpointRequest<IEndpoints['POST /appCatalogs/teamsApps']['response']> {
   return {
     method: 'post',
     path: '/appCatalogs/teamsApps',
-    paramDefs: [],
-    params,
     body,
   };
 }

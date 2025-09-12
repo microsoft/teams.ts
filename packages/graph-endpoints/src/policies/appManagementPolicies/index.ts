@@ -1,5 +1,3 @@
-export * as appliesTo from './appliesTo';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,14 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /policies/appManagementPolicies': Operation<'/policies/appManagementPolicies', 'post'>;
+  'GET /policies/appManagementPolicies/{appManagementPolicy-id}/appliesTo': Operation<
+    '/policies/appManagementPolicies/{appManagementPolicy-id}/appliesTo',
+    'get'
+  >;
+  'GET /policies/appManagementPolicies/{appManagementPolicy-id}/appliesTo/{directoryObject-id}': Operation<
+    '/policies/appManagementPolicies/{appManagementPolicy-id}/appliesTo/{directoryObject-id}',
+    'get'
+  >;
 }
 
 /**
@@ -32,10 +38,10 @@ export function del(
   return {
     method: 'delete',
     path: '/policies/appManagementPolicies/{appManagementPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'appManagementPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['appManagementPolicy-id'],
+    },
     params,
   };
 }
@@ -51,16 +57,9 @@ export function list(
   return {
     method: 'get',
     path: '/policies/appManagementPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -78,11 +77,10 @@ export function get(
   return {
     method: 'get',
     path: '/policies/appManagementPolicies/{appManagementPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'appManagementPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['appManagementPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -101,7 +99,9 @@ export function update(
   return {
     method: 'patch',
     path: '/policies/appManagementPolicies/{appManagementPolicy-id}',
-    paramDefs: [{ name: 'appManagementPolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['appManagementPolicy-id'],
+    },
     params,
     body,
   };
@@ -113,14 +113,54 @@ export function update(
  * Create an appManagementPolicy object.
  */
 export function create(
-  body: IEndpoints['POST /policies/appManagementPolicies']['body'],
-  params?: IEndpoints['POST /policies/appManagementPolicies']['parameters']
+  body: IEndpoints['POST /policies/appManagementPolicies']['body']
 ): EndpointRequest<IEndpoints['POST /policies/appManagementPolicies']['response']> {
   return {
     method: 'post',
     path: '/policies/appManagementPolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const appliesTo = {
+  /**
+   * `GET /policies/appManagementPolicies/{appManagementPolicy-id}/appliesTo`
+   *
+   * List application and service principal objects that are assigned an appManagementPolicy policy object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /policies/appManagementPolicies/{appManagementPolicy-id}/appliesTo']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/appManagementPolicies/{appManagementPolicy-id}/appliesTo']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/policies/appManagementPolicies/{appManagementPolicy-id}/appliesTo',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['appManagementPolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /policies/appManagementPolicies/{appManagementPolicy-id}/appliesTo/{directoryObject-id}`
+   *
+   * Collection of applications and service principals to which the policy is applied.
+   */
+  get$1: function get$1(
+    params?: IEndpoints['GET /policies/appManagementPolicies/{appManagementPolicy-id}/appliesTo/{directoryObject-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /policies/appManagementPolicies/{appManagementPolicy-id}/appliesTo/{directoryObject-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/policies/appManagementPolicies/{appManagementPolicy-id}/appliesTo/{directoryObject-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['appManagementPolicy-id', 'directoryObject-id'],
+      },
+      params,
+    };
+  },
+};

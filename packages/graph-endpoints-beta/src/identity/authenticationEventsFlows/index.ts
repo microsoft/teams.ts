@@ -39,10 +39,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/identity/authenticationEventsFlows/{authenticationEventsFlow-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'authenticationEventsFlow-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['authenticationEventsFlow-id'],
+    },
     params,
   };
 }
@@ -59,16 +59,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/identity/authenticationEventsFlows',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +80,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/identity/authenticationEventsFlows/{authenticationEventsFlow-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'authenticationEventsFlow-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['authenticationEventsFlow-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,7 +104,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/identity/authenticationEventsFlows/{authenticationEventsFlow-id}',
-    paramDefs: [{ name: 'authenticationEventsFlow-id', in: 'path' }],
+    paramDefs: {
+      path: ['authenticationEventsFlow-id'],
+    },
     params,
     body,
   };
@@ -124,15 +118,12 @@ export function update(
  * Create a new authenticationEventsFlow object that is of the type specified in the request body. You can create only an externalUsersSelfServiceSignupEventsFlow object type.
  */
 export function create(
-  body: IEndpoints['POST /identity/authenticationEventsFlows']['body'],
-  params?: IEndpoints['POST /identity/authenticationEventsFlows']['parameters']
+  body: IEndpoints['POST /identity/authenticationEventsFlows']['body']
 ): EndpointRequest<IEndpoints['POST /identity/authenticationEventsFlows']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/identity/authenticationEventsFlows',
-    paramDefs: [],
-    params,
     body,
   };
 }

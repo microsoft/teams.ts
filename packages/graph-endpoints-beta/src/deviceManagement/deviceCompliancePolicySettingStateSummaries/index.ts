@@ -1,5 +1,3 @@
-export * as deviceComplianceSettingStates from './deviceComplianceSettingStates';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/deviceManagement/deviceCompliancePolicySettingStateSummaries',
     'post'
   >;
+  'GET /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates': Operation<
+    '/deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates',
+    'get'
+  >;
+  'POST /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates': Operation<
+    '/deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates',
+    'post'
+  >;
+  'GET /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}': Operation<
+    '/deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}',
+    'get'
+  >;
+  'PATCH /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}': Operation<
+    '/deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}',
+    'patch'
+  >;
+  'DELETE /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}': Operation<
+    '/deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,10 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deviceCompliancePolicySettingStateSummary-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['deviceCompliancePolicySettingStateSummary-id'],
+    },
     params,
   };
 }
@@ -60,16 +78,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/deviceCompliancePolicySettingStateSummaries',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,11 +99,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceCompliancePolicySettingStateSummary-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceCompliancePolicySettingStateSummary-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,7 +121,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}',
-    paramDefs: [{ name: 'deviceCompliancePolicySettingStateSummary-id', in: 'path' }],
+    paramDefs: {
+      path: ['deviceCompliancePolicySettingStateSummary-id'],
+    },
     params,
     body,
   };
@@ -122,8 +134,7 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/deviceCompliancePolicySettingStateSummaries']['body'],
-  params?: IEndpoints['POST /deviceManagement/deviceCompliancePolicySettingStateSummaries']['parameters']
+  body: IEndpoints['POST /deviceManagement/deviceCompliancePolicySettingStateSummaries']['body']
 ): EndpointRequest<
   IEndpoints['POST /deviceManagement/deviceCompliancePolicySettingStateSummaries']['response']
 > {
@@ -131,8 +142,111 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/deviceCompliancePolicySettingStateSummaries',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const deviceComplianceSettingStates = {
+  /**
+   * `GET /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['deviceCompliancePolicySettingStateSummary-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates']['body'],
+    params?: IEndpoints['POST /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates',
+      paramDefs: {
+        path: ['deviceCompliancePolicySettingStateSummary-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['deviceCompliancePolicySettingStateSummary-id', 'deviceComplianceSettingState-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}']['body'],
+    params?: IEndpoints['PATCH /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}',
+      paramDefs: {
+        path: ['deviceCompliancePolicySettingStateSummary-id', 'deviceComplianceSettingState-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['deviceCompliancePolicySettingStateSummary-id', 'deviceComplianceSettingState-id'],
+      },
+      params,
+    };
+  },
+};

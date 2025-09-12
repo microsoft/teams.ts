@@ -1,6 +1,3 @@
-export * as connect from './connect';
-export * as disconnect from './disconnect';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/deviceManagement/chromeOSOnboardingSettings',
     'post'
   >;
+  'POST /deviceManagement/chromeOSOnboardingSettings/connect': Operation<
+    '/deviceManagement/chromeOSOnboardingSettings/connect',
+    'post'
+  >;
+  'POST /deviceManagement/chromeOSOnboardingSettings/disconnect': Operation<
+    '/deviceManagement/chromeOSOnboardingSettings/disconnect',
+    'post'
+  >;
 }
 
 /**
@@ -39,10 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/chromeOSOnboardingSettings/{chromeOSOnboardingSettings-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'chromeOSOnboardingSettings-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['chromeOSOnboardingSettings-id'],
+    },
     params,
   };
 }
@@ -59,16 +64,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/chromeOSOnboardingSettings',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +85,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/chromeOSOnboardingSettings/{chromeOSOnboardingSettings-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'chromeOSOnboardingSettings-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['chromeOSOnboardingSettings-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +107,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/chromeOSOnboardingSettings/{chromeOSOnboardingSettings-id}',
-    paramDefs: [{ name: 'chromeOSOnboardingSettings-id', in: 'path' }],
+    paramDefs: {
+      path: ['chromeOSOnboardingSettings-id'],
+    },
     params,
     body,
   };
@@ -121,15 +120,47 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/chromeOSOnboardingSettings']['body'],
-  params?: IEndpoints['POST /deviceManagement/chromeOSOnboardingSettings']['parameters']
+  body: IEndpoints['POST /deviceManagement/chromeOSOnboardingSettings']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/chromeOSOnboardingSettings']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/chromeOSOnboardingSettings',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const connect = {
+  /**
+   * `POST /deviceManagement/chromeOSOnboardingSettings/connect`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/chromeOSOnboardingSettings/connect']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/chromeOSOnboardingSettings/connect']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/chromeOSOnboardingSettings/connect',
+      body,
+    };
+  },
+};
+
+export const disconnect = {
+  /**
+   * `POST /deviceManagement/chromeOSOnboardingSettings/disconnect`
+   *
+   */
+  create: function create(): EndpointRequest<
+    IEndpoints['POST /deviceManagement/chromeOSOnboardingSettings/disconnect']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/chromeOSOnboardingSettings/disconnect',
+    };
+  },
+};

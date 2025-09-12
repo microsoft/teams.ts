@@ -38,11 +38,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/authenticationMethodDevices/{authenticationMethodDevice-id}/hardwareOathDevices/{hardwareOathTokenAuthenticationMethodDevice-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'authenticationMethodDevice-id', in: 'path' },
-      { name: 'hardwareOathTokenAuthenticationMethodDevice-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['authenticationMethodDevice-id', 'hardwareOathTokenAuthenticationMethodDevice-id'],
+    },
     params,
   };
 }
@@ -61,17 +60,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/authenticationMethodDevices/{authenticationMethodDevice-id}/hardwareOathDevices',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'authenticationMethodDevice-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['authenticationMethodDevice-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +82,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/authenticationMethodDevices/{authenticationMethodDevice-id}/hardwareOathDevices/{hardwareOathTokenAuthenticationMethodDevice-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'authenticationMethodDevice-id', in: 'path' },
-      { name: 'hardwareOathTokenAuthenticationMethodDevice-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['authenticationMethodDevice-id', 'hardwareOathTokenAuthenticationMethodDevice-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +104,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/authenticationMethodDevices/{authenticationMethodDevice-id}/hardwareOathDevices/{hardwareOathTokenAuthenticationMethodDevice-id}',
-    paramDefs: [
-      { name: 'authenticationMethodDevice-id', in: 'path' },
-      { name: 'hardwareOathTokenAuthenticationMethodDevice-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['authenticationMethodDevice-id', 'hardwareOathTokenAuthenticationMethodDevice-id'],
+    },
     params,
     body,
   };
@@ -137,7 +126,9 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/authenticationMethodDevices/{authenticationMethodDevice-id}/hardwareOathDevices',
-    paramDefs: [{ name: 'authenticationMethodDevice-id', in: 'path' }],
+    paramDefs: {
+      path: ['authenticationMethodDevice-id'],
+    },
     params,
     body,
   };

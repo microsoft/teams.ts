@@ -1,5 +1,3 @@
-export * as grant from './grant';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -15,6 +13,10 @@ export interface IEndpoints {
     '/shares/{sharedDriveItem-id}/permission',
     'patch'
   >;
+  'POST /shares/{sharedDriveItem-id}/permission/grant': Operation<
+    '/shares/{sharedDriveItem-id}/permission/grant',
+    'post'
+  >;
 }
 
 /**
@@ -27,10 +29,10 @@ export function del(
   return {
     method: 'delete',
     path: '/shares/{sharedDriveItem-id}/permission',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'sharedDriveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['sharedDriveItem-id'],
+    },
     params,
   };
 }
@@ -46,11 +48,10 @@ export function get(
   return {
     method: 'get',
     path: '/shares/{sharedDriveItem-id}/permission',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sharedDriveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharedDriveItem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -66,8 +67,32 @@ export function update(
   return {
     method: 'patch',
     path: '/shares/{sharedDriveItem-id}/permission',
-    paramDefs: [{ name: 'sharedDriveItem-id', in: 'path' }],
+    paramDefs: {
+      path: ['sharedDriveItem-id'],
+    },
     params,
     body,
   };
 }
+
+export const grant = {
+  /**
+   * `POST /shares/{sharedDriveItem-id}/permission/grant`
+   *
+   * Grant users access to a link represented by a permission.
+   */
+  create: function create(
+    body: IEndpoints['POST /shares/{sharedDriveItem-id}/permission/grant']['body'],
+    params?: IEndpoints['POST /shares/{sharedDriveItem-id}/permission/grant']['parameters']
+  ): EndpointRequest<IEndpoints['POST /shares/{sharedDriveItem-id}/permission/grant']['response']> {
+    return {
+      method: 'post',
+      path: '/shares/{sharedDriveItem-id}/permission/grant',
+      paramDefs: {
+        path: ['sharedDriveItem-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

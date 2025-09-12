@@ -19,7 +19,9 @@ export function del(
   return {
     method: 'delete',
     path: '/storage/fileStorage',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -34,10 +36,9 @@ export function get(
   return {
     method: 'get',
     path: '/storage/fileStorage',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -47,14 +48,11 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /storage/fileStorage']['body'],
-  params?: IEndpoints['PATCH /storage/fileStorage']['parameters']
+  body: IEndpoints['PATCH /storage/fileStorage']['body']
 ): EndpointRequest<IEndpoints['PATCH /storage/fileStorage']['response']> {
   return {
     method: 'patch',
     path: '/storage/fileStorage',
-    paramDefs: [],
-    params,
     body,
   };
 }

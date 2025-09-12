@@ -1,5 +1,3 @@
-export * as inheritsPermissionsFrom from './inheritsPermissionsFrom';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/roleManagement/entitlementManagement/roleDefinitions',
     'post'
   >;
+  'GET /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom': Operation<
+    '/roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom',
+    'get'
+  >;
+  'POST /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom': Operation<
+    '/roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom',
+    'post'
+  >;
+  'GET /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}': Operation<
+    '/roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}',
+    'get'
+  >;
+  'PATCH /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}': Operation<
+    '/roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}',
+    'patch'
+  >;
+  'DELETE /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}': Operation<
+    '/roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}',
+    'delete'
+  >;
 }
 
 /**
@@ -39,10 +57,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'unifiedRoleDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['unifiedRoleDefinition-id'],
+    },
     params,
   };
 }
@@ -68,16 +86,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/entitlementManagement/roleDefinitions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -103,11 +114,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'unifiedRoleDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['unifiedRoleDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -127,7 +137,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}',
-    paramDefs: [{ name: 'unifiedRoleDefinition-id', in: 'path' }],
+    paramDefs: {
+      path: ['unifiedRoleDefinition-id'],
+    },
     params,
     body,
   };
@@ -139,8 +151,7 @@ export function update(
  * @deprecated
  */
 export function create(
-  body: IEndpoints['POST /roleManagement/entitlementManagement/roleDefinitions']['body'],
-  params?: IEndpoints['POST /roleManagement/entitlementManagement/roleDefinitions']['parameters']
+  body: IEndpoints['POST /roleManagement/entitlementManagement/roleDefinitions']['body']
 ): EndpointRequest<
   IEndpoints['POST /roleManagement/entitlementManagement/roleDefinitions']['response']
 > {
@@ -148,8 +159,118 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/roleManagement/entitlementManagement/roleDefinitions',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const inheritsPermissionsFrom = {
+  /**
+   * `GET /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom`
+   *
+   * Read-only collection of role definitions that the given role definition inherits from. Only Microsoft Entra built-in roles support this attribute.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['unifiedRoleDefinition-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom`
+   *
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom']['body'],
+    params?: IEndpoints['POST /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom',
+      paramDefs: {
+        path: ['unifiedRoleDefinition-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}`
+   *
+   * Read-only collection of role definitions that the given role definition inherits from. Only Microsoft Entra built-in roles support this attribute.
+   * @deprecated
+   */
+  get$1: function get$1(
+    params?: IEndpoints['GET /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleDefinition-id', 'unifiedRoleDefinition-id1'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}`
+   *
+   * @deprecated
+   */
+  update: function update(
+    body: IEndpoints['PATCH /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}']['body'],
+    params?: IEndpoints['PATCH /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}',
+      paramDefs: {
+        path: ['unifiedRoleDefinition-id', 'unifiedRoleDefinition-id1'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}`
+   *
+   * @deprecated
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/roleManagement/entitlementManagement/roleDefinitions/{unifiedRoleDefinition-id}/inheritsPermissionsFrom/{unifiedRoleDefinition-id1}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['unifiedRoleDefinition-id', 'unifiedRoleDefinition-id1'],
+      },
+      params,
+    };
+  },
+};

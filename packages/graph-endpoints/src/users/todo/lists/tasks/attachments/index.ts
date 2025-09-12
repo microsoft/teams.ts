@@ -1,5 +1,3 @@
-export * as createUploadSession from './createUploadSession';
-
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -19,6 +17,10 @@ export interface IEndpoints {
     '/users/{user-id}/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachments',
     'post'
   >;
+  'POST /users/{user-id}/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachments/createUploadSession': Operation<
+    '/users/{user-id}/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachments/createUploadSession',
+    'post'
+  >;
 }
 
 /**
@@ -33,13 +35,10 @@ export function del(
   return {
     method: 'delete',
     path: '/users/{user-id}/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachments/{attachmentBase-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'todoTaskList-id', in: 'path' },
-      { name: 'todoTask-id', in: 'path' },
-      { name: 'attachmentBase-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'todoTaskList-id', 'todoTask-id', 'attachmentBase-id'],
+    },
     params,
   };
 }
@@ -57,19 +56,10 @@ export function list(
   return {
     method: 'get',
     path: '/users/{user-id}/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachments',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'todoTaskList-id', in: 'path' },
-      { name: 'todoTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'todoTaskList-id', 'todoTask-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,14 +77,10 @@ export function get(
   return {
     method: 'get',
     path: '/users/{user-id}/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachments/{attachmentBase-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'todoTaskList-id', in: 'path' },
-      { name: 'todoTask-id', in: 'path' },
-      { name: 'attachmentBase-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'todoTaskList-id', 'todoTask-id', 'attachmentBase-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,12 +98,34 @@ export function create(
   return {
     method: 'post',
     path: '/users/{user-id}/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachments',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'todoTaskList-id', in: 'path' },
-      { name: 'todoTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'todoTaskList-id', 'todoTask-id'],
+    },
     params,
     body,
   };
 }
+
+export const createUploadSession = {
+  /**
+   * `POST /users/{user-id}/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachments/createUploadSession`
+   *
+   * Create an upload session to iteratively upload ranges of a file as an attachment to a todoTask. As part of the response, this action returns an upload URL that you can use in subsequent sequential PUT queries. The request headers for each PUT operation let you specify the exact range of bytes to be uploaded. This allows the transfer to be resumed, in case the network connection is dropped during the upload. The following are the steps to attach a file to a Microsoft To Do task using an upload session: For an example that describes the end-to-end attachment process, see attach files to a To Do task.
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachments/createUploadSession']['body'],
+    params?: IEndpoints['POST /users/{user-id}/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachments/createUploadSession']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachments/createUploadSession']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/todo/lists/{todoTaskList-id}/tasks/{todoTask-id}/attachments/createUploadSession',
+      paramDefs: {
+        path: ['user-id', 'todoTaskList-id', 'todoTask-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

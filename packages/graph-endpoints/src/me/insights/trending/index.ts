@@ -1,5 +1,3 @@
-export * as resource from './resource';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /me/insights/trending': Operation<'/me/insights/trending', 'post'>;
+  'GET /me/insights/trending/{trending-id}/resource': Operation<
+    '/me/insights/trending/{trending-id}/resource',
+    'get'
+  >;
 }
 
 /**
@@ -29,10 +31,10 @@ export function del(
   return {
     method: 'delete',
     path: '/me/insights/trending/{trending-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'trending-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['trending-id'],
+    },
     params,
   };
 }
@@ -48,16 +50,9 @@ export function get(
   return {
     method: 'get',
     path: '/me/insights/trending',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -73,11 +68,10 @@ export function get$1(
   return {
     method: 'get',
     path: '/me/insights/trending/{trending-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'trending-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['trending-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,7 +87,9 @@ export function update(
   return {
     method: 'patch',
     path: '/me/insights/trending/{trending-id}',
-    paramDefs: [{ name: 'trending-id', in: 'path' }],
+    paramDefs: {
+      path: ['trending-id'],
+    },
     params,
     body,
   };
@@ -104,14 +100,32 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /me/insights/trending']['body'],
-  params?: IEndpoints['POST /me/insights/trending']['parameters']
+  body: IEndpoints['POST /me/insights/trending']['body']
 ): EndpointRequest<IEndpoints['POST /me/insights/trending']['response']> {
   return {
     method: 'post',
     path: '/me/insights/trending',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const resource = {
+  /**
+   * `GET /me/insights/trending/{trending-id}/resource`
+   *
+   * Used for navigating to the trending document.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/insights/trending/{trending-id}/resource']['parameters']
+  ): EndpointRequest<IEndpoints['GET /me/insights/trending/{trending-id}/resource']['response']> {
+    return {
+      method: 'get',
+      path: '/me/insights/trending/{trending-id}/resource',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['trending-id'],
+      },
+      params,
+    };
+  },
+};

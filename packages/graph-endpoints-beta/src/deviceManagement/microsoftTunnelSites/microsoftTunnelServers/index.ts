@@ -1,8 +1,3 @@
-export * as createServerLogCollectionRequest from './createServerLogCollectionRequest';
-export * as generateServerLogCollectionRequest from './generateServerLogCollectionRequest';
-export * as getHealthMetricTimeSeries from './getHealthMetricTimeSeries';
-export * as getHealthMetrics from './getHealthMetrics';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -26,6 +21,22 @@ export interface IEndpoints {
     '/deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers',
     'post'
   >;
+  'POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/createServerLogCollectionRequest': Operation<
+    '/deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/createServerLogCollectionRequest',
+    'post'
+  >;
+  'POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/generateServerLogCollectionRequest': Operation<
+    '/deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/generateServerLogCollectionRequest',
+    'post'
+  >;
+  'POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/getHealthMetricTimeSeries': Operation<
+    '/deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/getHealthMetricTimeSeries',
+    'post'
+  >;
+  'POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/getHealthMetrics': Operation<
+    '/deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/getHealthMetrics',
+    'post'
+  >;
 }
 
 /**
@@ -41,11 +52,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'microsoftTunnelSite-id', in: 'path' },
-      { name: 'microsoftTunnelServer-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['microsoftTunnelSite-id', 'microsoftTunnelServer-id'],
+    },
     params,
   };
 }
@@ -64,17 +74,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'microsoftTunnelSite-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['microsoftTunnelSite-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,12 +96,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'microsoftTunnelSite-id', in: 'path' },
-      { name: 'microsoftTunnelServer-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['microsoftTunnelSite-id', 'microsoftTunnelServer-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,10 +118,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}',
-    paramDefs: [
-      { name: 'microsoftTunnelSite-id', in: 'path' },
-      { name: 'microsoftTunnelServer-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['microsoftTunnelSite-id', 'microsoftTunnelServer-id'],
+    },
     params,
     body,
   };
@@ -140,8 +140,106 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers',
-    paramDefs: [{ name: 'microsoftTunnelSite-id', in: 'path' }],
+    paramDefs: {
+      path: ['microsoftTunnelSite-id'],
+    },
     params,
     body,
   };
 }
+
+export const createServerLogCollectionRequest = {
+  /**
+   * `POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/createServerLogCollectionRequest`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/createServerLogCollectionRequest']['body'],
+    params?: IEndpoints['POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/createServerLogCollectionRequest']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/createServerLogCollectionRequest']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/createServerLogCollectionRequest',
+      paramDefs: {
+        path: ['microsoftTunnelSite-id', 'microsoftTunnelServer-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const generateServerLogCollectionRequest = {
+  /**
+   * `POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/generateServerLogCollectionRequest`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/generateServerLogCollectionRequest']['body'],
+    params?: IEndpoints['POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/generateServerLogCollectionRequest']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/generateServerLogCollectionRequest']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/generateServerLogCollectionRequest',
+      paramDefs: {
+        path: ['microsoftTunnelSite-id', 'microsoftTunnelServer-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const getHealthMetricTimeSeries = {
+  /**
+   * `POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/getHealthMetricTimeSeries`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/getHealthMetricTimeSeries']['body'],
+    params?: IEndpoints['POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/getHealthMetricTimeSeries']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/getHealthMetricTimeSeries']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/getHealthMetricTimeSeries',
+      paramDefs: {
+        path: ['microsoftTunnelSite-id', 'microsoftTunnelServer-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const getHealthMetrics = {
+  /**
+   * `POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/getHealthMetrics`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/getHealthMetrics']['body'],
+    params?: IEndpoints['POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/getHealthMetrics']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/getHealthMetrics']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/microsoftTunnelSites/{microsoftTunnelSite-id}/microsoftTunnelServers/{microsoftTunnelServer-id}/getHealthMetrics',
+      paramDefs: {
+        path: ['microsoftTunnelSite-id', 'microsoftTunnelServer-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

@@ -1,5 +1,4 @@
 export * as assignedRoles from './assignedRoles';
-export * as learningCourseActivities from './learningCourseActivities';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -7,6 +6,14 @@ export interface IEndpoints {
   'DELETE /me/employeeExperience': Operation<'/me/employeeExperience', 'delete'>;
   'GET /me/employeeExperience': Operation<'/me/employeeExperience', 'get'>;
   'PATCH /me/employeeExperience': Operation<'/me/employeeExperience', 'patch'>;
+  'GET /me/employeeExperience/learningCourseActivities': Operation<
+    '/me/employeeExperience/learningCourseActivities',
+    'get'
+  >;
+  'GET /me/employeeExperience/learningCourseActivities/{learningCourseActivity-id}': Operation<
+    '/me/employeeExperience/learningCourseActivities/{learningCourseActivity-id}',
+    'get'
+  >;
 }
 
 /**
@@ -20,7 +27,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/employeeExperience',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -36,10 +45,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/employeeExperience',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -49,15 +57,54 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /me/employeeExperience']['body'],
-  params?: IEndpoints['PATCH /me/employeeExperience']['parameters']
+  body: IEndpoints['PATCH /me/employeeExperience']['body']
 ): EndpointRequest<IEndpoints['PATCH /me/employeeExperience']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/me/employeeExperience',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const learningCourseActivities = {
+  /**
+   * `GET /me/employeeExperience/learningCourseActivities`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /me/employeeExperience/learningCourseActivities']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/employeeExperience/learningCourseActivities']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/employeeExperience/learningCourseActivities',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /me/employeeExperience/learningCourseActivities/{learningCourseActivity-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/employeeExperience/learningCourseActivities/{learningCourseActivity-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/employeeExperience/learningCourseActivities/{learningCourseActivity-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/employeeExperience/learningCourseActivities/{learningCourseActivity-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['learningCourseActivity-id'],
+      },
+      params,
+    };
+  },
+};

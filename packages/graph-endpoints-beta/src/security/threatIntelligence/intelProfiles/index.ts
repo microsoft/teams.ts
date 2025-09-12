@@ -1,5 +1,3 @@
-export * as indicators from './indicators';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,14 @@ export interface IEndpoints {
     '/security/threatIntelligence/intelProfiles',
     'post'
   >;
+  'GET /security/threatIntelligence/intelProfiles/{intelligenceProfile-id}/indicators': Operation<
+    '/security/threatIntelligence/intelProfiles/{intelligenceProfile-id}/indicators',
+    'get'
+  >;
+  'GET /security/threatIntelligence/intelProfiles/{intelligenceProfile-id}/indicators/{intelligenceProfileIndicator-id}': Operation<
+    '/security/threatIntelligence/intelProfiles/{intelligenceProfile-id}/indicators/{intelligenceProfileIndicator-id}',
+    'get'
+  >;
 }
 
 /**
@@ -38,10 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/threatIntelligence/intelProfiles/{intelligenceProfile-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'intelligenceProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['intelligenceProfile-id'],
+    },
     params,
   };
 }
@@ -58,16 +64,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/threatIntelligence/intelProfiles',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +85,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/threatIntelligence/intelProfiles/{intelligenceProfile-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'intelligenceProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['intelligenceProfile-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +107,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/threatIntelligence/intelProfiles/{intelligenceProfile-id}',
-    paramDefs: [{ name: 'intelligenceProfile-id', in: 'path' }],
+    paramDefs: {
+      path: ['intelligenceProfile-id'],
+    },
     params,
     body,
   };
@@ -120,15 +120,57 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /security/threatIntelligence/intelProfiles']['body'],
-  params?: IEndpoints['POST /security/threatIntelligence/intelProfiles']['parameters']
+  body: IEndpoints['POST /security/threatIntelligence/intelProfiles']['body']
 ): EndpointRequest<IEndpoints['POST /security/threatIntelligence/intelProfiles']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/security/threatIntelligence/intelProfiles',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const indicators = {
+  /**
+   * `GET /security/threatIntelligence/intelProfiles/{intelligenceProfile-id}/indicators`
+   *
+   * Get the intelligenceProfileIndicator resources from the indicators navigation property of an intelligenceProfile.
+   */
+  list: function list(
+    params?: IEndpoints['GET /security/threatIntelligence/intelProfiles/{intelligenceProfile-id}/indicators']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/threatIntelligence/intelProfiles/{intelligenceProfile-id}/indicators']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/threatIntelligence/intelProfiles/{intelligenceProfile-id}/indicators',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['intelligenceProfile-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /security/threatIntelligence/intelProfiles/{intelligenceProfile-id}/indicators/{intelligenceProfileIndicator-id}`
+   *
+   * Includes an assemblage of high-fidelity network indicators of compromise.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/threatIntelligence/intelProfiles/{intelligenceProfile-id}/indicators/{intelligenceProfileIndicator-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/threatIntelligence/intelProfiles/{intelligenceProfile-id}/indicators/{intelligenceProfileIndicator-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/threatIntelligence/intelProfiles/{intelligenceProfile-id}/indicators/{intelligenceProfileIndicator-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['intelligenceProfile-id', 'intelligenceProfileIndicator-id'],
+      },
+      params,
+    };
+  },
+};

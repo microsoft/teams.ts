@@ -1,5 +1,3 @@
-export * as responsepayload from './responsepayload';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/users/{user-id}/devices/{device-id}/commands',
     'post'
   >;
+  'GET /users/{user-id}/devices/{device-id}/commands/{command-id}/responsepayload': Operation<
+    '/users/{user-id}/devices/{device-id}/commands/{command-id}/responsepayload',
+    'get'
+  >;
 }
 
 /**
@@ -38,12 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/users/{user-id}/devices/{device-id}/commands/{command-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'device-id', in: 'path' },
-      { name: 'command-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'device-id', 'command-id'],
+    },
     params,
   };
 }
@@ -60,18 +60,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/devices/{device-id}/commands',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'device-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'device-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,13 +82,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/devices/{device-id}/commands/{command-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'device-id', in: 'path' },
-      { name: 'command-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'device-id', 'command-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,11 +104,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/users/{user-id}/devices/{device-id}/commands/{command-id}',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'device-id', in: 'path' },
-      { name: 'command-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'device-id', 'command-id'],
+    },
     params,
     body,
   };
@@ -137,11 +124,33 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/users/{user-id}/devices/{device-id}/commands',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'device-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'device-id'],
+    },
     params,
     body,
   };
 }
+
+export const responsepayload = {
+  /**
+   * `GET /users/{user-id}/devices/{device-id}/commands/{command-id}/responsepayload`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/devices/{device-id}/commands/{command-id}/responsepayload']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/devices/{device-id}/commands/{command-id}/responsepayload']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/devices/{device-id}/commands/{command-id}/responsepayload',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'device-id', 'command-id'],
+      },
+      params,
+    };
+  },
+};

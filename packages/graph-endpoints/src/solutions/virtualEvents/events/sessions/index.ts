@@ -37,11 +37,10 @@ export function del(
   return {
     method: 'delete',
     path: '/solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'virtualEvent-id', in: 'path' },
-      { name: 'virtualEventSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['virtualEvent-id', 'virtualEventSession-id'],
+    },
     params,
   };
 }
@@ -59,17 +58,10 @@ export function list(
   return {
     method: 'get',
     path: '/solutions/virtualEvents/events/{virtualEvent-id}/sessions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'virtualEvent-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEvent-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,12 +79,10 @@ export function get(
   return {
     method: 'get',
     path: '/solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'virtualEvent-id', in: 'path' },
-      { name: 'virtualEventSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEvent-id', 'virtualEventSession-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,10 +100,9 @@ export function update(
   return {
     method: 'patch',
     path: '/solutions/virtualEvents/events/{virtualEvent-id}/sessions/{virtualEventSession-id}',
-    paramDefs: [
-      { name: 'virtualEvent-id', in: 'path' },
-      { name: 'virtualEventSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEvent-id', 'virtualEventSession-id'],
+    },
     params,
     body,
   };
@@ -132,7 +121,9 @@ export function create(
   return {
     method: 'post',
     path: '/solutions/virtualEvents/events/{virtualEvent-id}/sessions',
-    paramDefs: [{ name: 'virtualEvent-id', in: 'path' }],
+    paramDefs: {
+      path: ['virtualEvent-id'],
+    },
     params,
     body,
   };

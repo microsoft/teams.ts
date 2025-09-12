@@ -29,12 +29,10 @@ export function del(
   return {
     method: 'delete',
     path: '/groups/{group-id}/sites/{site-id}/termStore/sets/{set-id}/parentGroup',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'site-id', 'set-id'],
+    },
     params,
   };
 }
@@ -52,13 +50,10 @@ export function get(
   return {
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/termStore/sets/{set-id}/parentGroup',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'set-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -76,11 +71,9 @@ export function update(
   return {
     method: 'patch',
     path: '/groups/{group-id}/sites/{site-id}/termStore/sets/{set-id}/parentGroup',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'set-id'],
+    },
     params,
     body,
   };

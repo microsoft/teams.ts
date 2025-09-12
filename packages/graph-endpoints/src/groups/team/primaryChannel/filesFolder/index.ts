@@ -1,11 +1,21 @@
-export * as content from './content';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
   'GET /groups/{group-id}/team/primaryChannel/filesFolder': Operation<
     '/groups/{group-id}/team/primaryChannel/filesFolder',
     'get'
+  >;
+  'GET /groups/{group-id}/team/primaryChannel/filesFolder/content': Operation<
+    '/groups/{group-id}/team/primaryChannel/filesFolder/content',
+    'get'
+  >;
+  'PUT /groups/{group-id}/team/primaryChannel/filesFolder/content': Operation<
+    '/groups/{group-id}/team/primaryChannel/filesFolder/content',
+    'put'
+  >;
+  'DELETE /groups/{group-id}/team/primaryChannel/filesFolder/content': Operation<
+    '/groups/{group-id}/team/primaryChannel/filesFolder/content',
+    'delete'
   >;
 }
 
@@ -22,11 +32,74 @@ export function get(
   return {
     method: 'get',
     path: '/groups/{group-id}/team/primaryChannel/filesFolder',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
+
+export const content = {
+  /**
+   * `GET /groups/{group-id}/team/primaryChannel/filesFolder/content`
+   *
+   * The content stream, if the item represents a file.
+   */
+  get: function get(
+    params?: IEndpoints['GET /groups/{group-id}/team/primaryChannel/filesFolder/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/team/primaryChannel/filesFolder/content']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/groups/{group-id}/team/primaryChannel/filesFolder/content',
+      paramDefs: {
+        query: ['$format'],
+        path: ['group-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /groups/{group-id}/team/primaryChannel/filesFolder/content`
+   *
+   * The content stream, if the item represents a file.
+   */
+  set: function set(
+    body: IEndpoints['PUT /groups/{group-id}/team/primaryChannel/filesFolder/content']['body'],
+    params?: IEndpoints['PUT /groups/{group-id}/team/primaryChannel/filesFolder/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /groups/{group-id}/team/primaryChannel/filesFolder/content']['response']
+  > {
+    return {
+      method: 'put',
+      path: '/groups/{group-id}/team/primaryChannel/filesFolder/content',
+      paramDefs: {
+        path: ['group-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /groups/{group-id}/team/primaryChannel/filesFolder/content`
+   *
+   * The content stream, if the item represents a file.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /groups/{group-id}/team/primaryChannel/filesFolder/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /groups/{group-id}/team/primaryChannel/filesFolder/content']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/groups/{group-id}/team/primaryChannel/filesFolder/content',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['group-id'],
+      },
+      params,
+    };
+  },
+};

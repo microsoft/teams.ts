@@ -29,10 +29,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/users/{user-id}/informationProtection/policy',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id'],
+    },
     params,
   };
 }
@@ -49,11 +49,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/informationProtection/policy',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -71,7 +70,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/users/{user-id}/informationProtection/policy',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };

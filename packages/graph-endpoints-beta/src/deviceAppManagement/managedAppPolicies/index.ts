@@ -1,5 +1,3 @@
-export * as targetApps from './targetApps';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceAppManagement/managedAppPolicies',
     'post'
   >;
+  'POST /deviceAppManagement/managedAppPolicies/{managedAppPolicy-id}/targetApps': Operation<
+    '/deviceAppManagement/managedAppPolicies/{managedAppPolicy-id}/targetApps',
+    'post'
+  >;
 }
 
 /**
@@ -38,10 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceAppManagement/managedAppPolicies/{managedAppPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'managedAppPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['managedAppPolicy-id'],
+    },
     params,
   };
 }
@@ -58,16 +60,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceAppManagement/managedAppPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +81,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceAppManagement/managedAppPolicies/{managedAppPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'managedAppPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['managedAppPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +103,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceAppManagement/managedAppPolicies/{managedAppPolicy-id}',
-    paramDefs: [{ name: 'managedAppPolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['managedAppPolicy-id'],
+    },
     params,
     body,
   };
@@ -120,15 +116,36 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceAppManagement/managedAppPolicies']['body'],
-  params?: IEndpoints['POST /deviceAppManagement/managedAppPolicies']['parameters']
+  body: IEndpoints['POST /deviceAppManagement/managedAppPolicies']['body']
 ): EndpointRequest<IEndpoints['POST /deviceAppManagement/managedAppPolicies']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceAppManagement/managedAppPolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const targetApps = {
+  /**
+   * `POST /deviceAppManagement/managedAppPolicies/{managedAppPolicy-id}/targetApps`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceAppManagement/managedAppPolicies/{managedAppPolicy-id}/targetApps']['body'],
+    params?: IEndpoints['POST /deviceAppManagement/managedAppPolicies/{managedAppPolicy-id}/targetApps']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceAppManagement/managedAppPolicies/{managedAppPolicy-id}/targetApps']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceAppManagement/managedAppPolicies/{managedAppPolicy-id}/targetApps',
+      paramDefs: {
+        path: ['managedAppPolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

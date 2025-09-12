@@ -1,5 +1,4 @@
 export * as relations from './relations';
-export * as set from './set';
 
 import type { EndpointRequest, Operation } from './../../../../../../types/common.ts';
 
@@ -24,6 +23,10 @@ export interface IEndpoints {
     '/termStore/sets/{set-id}/parentGroup/sets/{set-id1}/terms/{term-id}/children',
     'post'
   >;
+  'GET /termStore/sets/{set-id}/parentGroup/sets/{set-id1}/terms/{term-id}/children/{term-id1}/set': Operation<
+    '/termStore/sets/{set-id}/parentGroup/sets/{set-id1}/terms/{term-id}/children/{term-id1}/set',
+    'get'
+  >;
 }
 
 /**
@@ -39,13 +42,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/termStore/sets/{set-id}/parentGroup/sets/{set-id1}/terms/{term-id}/children/{term-id1}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'set-id', in: 'path' },
-      { name: 'set-id1', in: 'path' },
-      { name: 'term-id', in: 'path' },
-      { name: 'term-id1', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['set-id', 'set-id1', 'term-id', 'term-id1'],
+    },
     params,
   };
 }
@@ -64,19 +64,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/termStore/sets/{set-id}/parentGroup/sets/{set-id1}/terms/{term-id}/children',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'set-id', in: 'path' },
-      { name: 'set-id1', in: 'path' },
-      { name: 'term-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['set-id', 'set-id1', 'term-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -95,14 +86,10 @@ export function get$1(
     ver: 'beta',
     method: 'get',
     path: '/termStore/sets/{set-id}/parentGroup/sets/{set-id1}/terms/{term-id}/children/{term-id1}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'set-id', in: 'path' },
-      { name: 'set-id1', in: 'path' },
-      { name: 'term-id', in: 'path' },
-      { name: 'term-id1', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['set-id', 'set-id1', 'term-id', 'term-id1'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -121,12 +108,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/termStore/sets/{set-id}/parentGroup/sets/{set-id1}/terms/{term-id}/children/{term-id1}',
-    paramDefs: [
-      { name: 'set-id', in: 'path' },
-      { name: 'set-id1', in: 'path' },
-      { name: 'term-id', in: 'path' },
-      { name: 'term-id1', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['set-id', 'set-id1', 'term-id', 'term-id1'],
+    },
     params,
     body,
   };
@@ -146,12 +130,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/termStore/sets/{set-id}/parentGroup/sets/{set-id1}/terms/{term-id}/children',
-    paramDefs: [
-      { name: 'set-id', in: 'path' },
-      { name: 'set-id1', in: 'path' },
-      { name: 'term-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['set-id', 'set-id1', 'term-id'],
+    },
     params,
     body,
   };
 }
+
+export const set = {
+  /**
+   * `GET /termStore/sets/{set-id}/parentGroup/sets/{set-id1}/terms/{term-id}/children/{term-id1}/set`
+   *
+   * The [set] in which the term is created.
+   */
+  get: function get(
+    params?: IEndpoints['GET /termStore/sets/{set-id}/parentGroup/sets/{set-id1}/terms/{term-id}/children/{term-id1}/set']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /termStore/sets/{set-id}/parentGroup/sets/{set-id1}/terms/{term-id}/children/{term-id1}/set']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/termStore/sets/{set-id}/parentGroup/sets/{set-id1}/terms/{term-id}/children/{term-id1}/set',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['set-id', 'set-id1', 'term-id', 'term-id1'],
+      },
+      params,
+    };
+  },
+};

@@ -1,5 +1,3 @@
-export * as makeEligible from './makeEligible';
-export * as makePermanent from './makePermanent';
 export * as roleInfo from './roleInfo';
 
 import type { EndpointRequest, Operation } from './../types/common.ts';
@@ -19,6 +17,14 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /privilegedRoleAssignments': Operation<'/privilegedRoleAssignments', 'post'>;
+  'POST /privilegedRoleAssignments/{privilegedRoleAssignment-id}/makeEligible': Operation<
+    '/privilegedRoleAssignments/{privilegedRoleAssignment-id}/makeEligible',
+    'post'
+  >;
+  'POST /privilegedRoleAssignments/{privilegedRoleAssignment-id}/makePermanent': Operation<
+    '/privilegedRoleAssignments/{privilegedRoleAssignment-id}/makePermanent',
+    'post'
+  >;
 }
 
 /**
@@ -34,10 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/privilegedRoleAssignments/{privilegedRoleAssignment-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'privilegedRoleAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['privilegedRoleAssignment-id'],
+    },
     params,
   };
 }
@@ -53,16 +59,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/privilegedRoleAssignments',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -80,11 +79,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/privilegedRoleAssignments/{privilegedRoleAssignment-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'privilegedRoleAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['privilegedRoleAssignment-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -103,7 +101,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/privilegedRoleAssignments/{privilegedRoleAssignment-id}',
-    paramDefs: [{ name: 'privilegedRoleAssignment-id', in: 'path' }],
+    paramDefs: {
+      path: ['privilegedRoleAssignment-id'],
+    },
     params,
     body,
   };
@@ -114,15 +114,58 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /privilegedRoleAssignments']['body'],
-  params?: IEndpoints['POST /privilegedRoleAssignments']['parameters']
+  body: IEndpoints['POST /privilegedRoleAssignments']['body']
 ): EndpointRequest<IEndpoints['POST /privilegedRoleAssignments']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/privilegedRoleAssignments',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const makeEligible = {
+  /**
+   * `POST /privilegedRoleAssignments/{privilegedRoleAssignment-id}/makeEligible`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /privilegedRoleAssignments/{privilegedRoleAssignment-id}/makeEligible']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /privilegedRoleAssignments/{privilegedRoleAssignment-id}/makeEligible']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/privilegedRoleAssignments/{privilegedRoleAssignment-id}/makeEligible',
+      paramDefs: {
+        path: ['privilegedRoleAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const makePermanent = {
+  /**
+   * `POST /privilegedRoleAssignments/{privilegedRoleAssignment-id}/makePermanent`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /privilegedRoleAssignments/{privilegedRoleAssignment-id}/makePermanent']['body'],
+    params?: IEndpoints['POST /privilegedRoleAssignments/{privilegedRoleAssignment-id}/makePermanent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /privilegedRoleAssignments/{privilegedRoleAssignment-id}/makePermanent']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/privilegedRoleAssignments/{privilegedRoleAssignment-id}/makePermanent',
+      paramDefs: {
+        path: ['privilegedRoleAssignment-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

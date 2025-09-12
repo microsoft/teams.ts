@@ -1,22 +1,37 @@
+import { AgentCard, Message, MessageSendParams, Task, TextPart } from '@a2a-js/sdk';
+import { A2AClient } from '@a2a-js/sdk/client';
 import camelCase from 'lodash.camelcase';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   Function as ChatFunction,
   ChatPromptPlugin,
 } from '@microsoft/teams.ai';
 
-import { AgentCardWithDetails, AgentManager } from '../client/agent-manager';
-import * as schema from '../common/schema';
-import { generateRequestId } from '../common/uuid';
+import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
 import {
-  A2APluginOptions,
+  A2AClientPluginOptions,
   A2APluginUseParams,
   AgentPromptParams,
   BuildFunctionMetadata,
+  BuildMessageForAgent,
+  BuildMessageFromAgentResponse,
   BuildPrompt,
-  BuildTaskSendParams,
 } from './types';
+
+interface IAgentConfig {
+  key: string;
+  cardUrl: string;
+  buildFunctionMetadata?: BuildFunctionMetadata;
+  buildMessageForAgent?: BuildMessageForAgent;
+  buildMessageFromAgentResponse?: BuildMessageFromAgentResponse;
+}
+
+interface IAgentClientInfo extends IAgentConfig {
+  client: A2AClient;
+  agentCard: AgentCard;
+}
 
 const pascalCase = (str: string) => {
   return camelCase(str).replace(/^(.)/, (match) => match.toUpperCase());
@@ -25,186 +40,256 @@ const pascalCase = (str: string) => {
 export class A2AClientPlugin
   implements ChatPromptPlugin<'a2a', A2APluginUseParams> {
   readonly name = 'a2a';
-  protected _manager: AgentManager;
+
+  public readonly log: ILogger;
+  protected _agentConfigs: Map<string, IAgentConfig> = new Map();
+  protected _clients: Map<string, IAgentClientInfo> = new Map();
+
   protected buildFunctionMetadata?: BuildFunctionMetadata;
   protected buildPrompt?: BuildPrompt;
-  protected buildTaskSendParams?: BuildTaskSendParams;
-  protected _agentConfig: Map<string, Partial<A2APluginUseParams>> = new Map();
+  protected buildMessageForAgent?: BuildMessageForAgent;
+  protected buildMessageFromAgentResponse?: BuildMessageFromAgentResponse;
 
-  constructor(options: A2APluginOptions = {}) {
-    this._manager = options.manager instanceof AgentManager ? options.manager : new AgentManager(options.manager);
+  constructor(options: A2AClientPluginOptions = {}) {
     this.buildFunctionMetadata = options.buildFunctionMetadata;
     this.buildPrompt = options.buildPrompt;
-    this.buildTaskSendParams = options.buildTaskSendParams;
+    this.buildMessageForAgent = options.buildMessageForAgent;
+    this.buildMessageFromAgentResponse = options.buildMessageFromAgentResponse;
+    this.log = options.logger ?? new ConsoleLogger('a2a:client');
   }
 
   onUsePlugin(args: A2APluginUseParams) {
-    this._manager.use(args.key, args.url, args.agentCard);
-    // Store per-agent config (excluding agentCard and url)
-    const { key, url, agentCard, ...rest } = args;
-    this._agentConfig.set(key, rest);
+    // Just store the config, defer client creation to onBuildFunctions
+    this._agentConfigs.set(args.key, {
+      key: args.key,
+      cardUrl: args.cardUrl,
+      buildFunctionMetadata: args.buildFunctionMetadata,
+      buildMessageForAgent: args.buildMessageForAgent,
+      buildMessageFromAgentResponse: args.buildMessageFromAgentResponse,
+    });
   }
 
   async onBuildFunctions(functions: ChatFunction[]): Promise<ChatFunction[]> {
-    const cards: (AgentCardWithDetails | null)[] = await this._manager.getAgentCards();
     const allFunctions: ChatFunction[] = [];
-    for (const cardWithMeta of cards) {
-      if (!cardWithMeta) {
-        continue;
-      }
-      const { key, card } = cardWithMeta;
-      const agentConfig = this._agentConfig.get(key) || {};
-      const buildFunctionMetadata =
-        agentConfig.buildFunctionMetadata ||
-        this.buildFunctionMetadata ||
-        this._defaultFunctionMetadata;
-      const buildTaskSendParams =
-        agentConfig.buildTaskSendParams ||
-        this.buildTaskSendParams ||
-        this._defaultBuildTaskSendParams;
-      const { name, description } = buildFunctionMetadata(card);
-      allFunctions.push({
-        name,
-        description,
-        parameters: {
-          type: 'object',
-          properties: {
-            message: {
-              type: 'string',
-              description: 'Message to send to the agent',
+
+    for (const [key, config] of this._agentConfigs) {
+      try {
+        const agentCard = await this._getAgentCard(key, config);
+        if (!agentCard) {
+          continue; // Skip if we couldn't get the agent card
+        }
+
+        // Use custom function metadata builder or default
+        const buildMetadata =
+          config.buildFunctionMetadata ||
+          this.buildFunctionMetadata ||
+          this._defaultFunctionMetadata;
+
+        const { name, description } = buildMetadata(agentCard);
+
+        allFunctions.push({
+          name,
+          description,
+          parameters: {
+            type: 'object',
+            properties: {
+              message: {
+                type: 'string',
+                description: 'Message to send to the agent',
+              },
             },
-            continueTaskId: {
-              type: 'string',
-              description:
-                'If provided, continue an existing task with this ID (string). Otherwise send null or NONE to indicate a new task.',
-            },
+            required: ['message'],
           },
-          required: ['message'],
-        },
-        handler: async (args: {
-          message: string;
-          continueTaskId?: string | null;
-        }) => {
-          const agentMessage = args.message;
-          if (!agentMessage) {
-            throw new Error(
-              `An input message is required to call Agent ${name}!`
-            );
-          }
-          const continueTaskId =
-            args.continueTaskId != null
-              ? args.continueTaskId.toLowerCase() === 'none'
-                ? null
-                : args.continueTaskId || null
-              : null;
-          const sendParams = buildTaskSendParams(
-            card,
-            agentMessage,
-            continueTaskId
-          );
-          const result = await this._manager.sendTask(key, sendParams);
-          return result;
-        },
-      });
+          handler: (async (args: { message: string }) => {
+            try {
+              const agentMessage = args.message;
+
+              // Use custom message builder if provided, otherwise use default
+              const buildMessage =
+                config.buildMessageForAgent ||
+                this.buildMessageForAgent ||
+                this._defaultBuildMessage.bind(this);
+
+              const messageOrString = buildMessage(agentCard, agentMessage);
+
+              // Handle both Message and string returns
+              const message: Message = typeof messageOrString === 'string'
+                ? this._createMessage(messageOrString, agentCard)
+                : messageOrString;
+
+              const sendParams: MessageSendParams = { message };
+
+              // Get the client info to send the message
+              const clientInfo = this._clients.get(key);
+              if (!clientInfo) {
+                throw new Error(`Client not found for agent ${key}`);
+              }
+
+              this.log.debug(`Calling agent ${agentCard.name} with ${JSON.stringify(messageOrString)}`);
+              const response = await clientInfo.client.sendMessage(sendParams);
+              this.log.debug(`Got response from ${agentCard.name}`);
+
+              if ('error' in response) {
+                return response.error.message;
+              }
+
+              const result = response.result;
+
+              // Use custom response builder if provided, otherwise use default
+              const buildResponse =
+                config.buildMessageFromAgentResponse ||
+                this.buildMessageFromAgentResponse ||
+                this._defaultBuildMessageFromAgentResponse.bind(this);
+
+              return buildResponse(agentCard, result, agentMessage);
+            } catch (e) {
+              console.error(e);
+              throw e;
+            }
+          }).bind(this),
+        });
+        this.log.debug(`Added function in ChatPrompt to call ${agentCard.name}`);
+      } catch (error) {
+        console.error(`Failed to build function for agent ${key}:`, error);
+        // Continue with other agents even if one fails
+      }
     }
+
     return functions.concat(allFunctions);
   }
 
-  /**
-   * Modify the system prompt before it is sent to the model.
-   * If the user supplies a buildPrompt function, it is used. Otherwise, a default is built.
-   */
   async onBuildPrompt(
     systemPrompt: string | undefined
   ): Promise<string | undefined> {
-    const cardsWithMeta: (AgentCardWithDetails | null)[] =
-      await this._manager.getAgentCards();
+    // Collect agent details for prompt building
+    const agentPromptParams: AgentPromptParams[] = [];
 
-    // Lookup latest tasks for all agents first
-    const agentsWithLatestTask: AgentPromptParams[] = [];
-    for (const cardWithMeta of cardsWithMeta) {
-      if (!cardWithMeta) {
-        continue;
+    for (const [key, config] of this._agentConfigs) {
+      try {
+        const agentCard = await this._getAgentCard(key, config);
+        if (agentCard) {
+          const clientInfo = this._clients.get(key);
+          if (clientInfo) {
+            agentPromptParams.push({
+              card: agentCard,
+              client: clientInfo.client,
+            });
+          }
+        }
+      } catch (error) {
+        console.error(`Failed to get agent card for ${key}:`, error);
       }
-      const { key, card } = cardWithMeta;
-      const latestTask = await this._manager.getLatestTask(key);
-      agentsWithLatestTask.push({ card, latestTask });
     }
 
-    // If the user supplied a buildPrompt, use it
+    // Use custom buildPrompt if provided, otherwise use default
     if (this.buildPrompt) {
-      return this.buildPrompt(systemPrompt, agentsWithLatestTask);
+      return this.buildPrompt(systemPrompt, agentPromptParams);
     }
-    const prompt =
-      (systemPrompt || '') +
-      '\n' +
-      this._defaultBuildPrompt(agentsWithLatestTask);
+
+    // Default prompt building
+    if (agentPromptParams.length === 0) {
+      return systemPrompt;
+    }
+
+    const agentDetails = agentPromptParams
+      .map(({ card }) => {
+        let details = `<Agent Details>\n<Name>\n${card.name}\n</Name>\n`;
+        if (card.description) {
+          details += `<Description>\n${card.description}\n</Description>\n`;
+        }
+        if (card.skills?.length) {
+          for (const skill of card.skills) {
+            details += `<SKILL name="${skill.name}" description="${skill.description}" />\n`;
+            if (skill.examples?.length) {
+              details += `<EXAMPLES>\n${skill.examples.join('\n')}\n</EXAMPLES>\n`;
+            }
+          }
+        }
+        // Could add client-specific info here if needed
+        details += '</Agent Details>\n';
+        return details;
+      })
+      .join('');
+
+    const prompt = (systemPrompt || '') +
+      '\n\nHere are details about available agents that you can message:\n' +
+      agentDetails;
+
     return prompt;
   }
 
-  private _defaultFunctionMetadata(card: schema.AgentCard): {
-    name: string;
-    description: string;
-  } {
+  private _defaultFunctionMetadata(
+    card: AgentCard
+  ): { name: string; description: string } {
     const name = `message${pascalCase(card.name)}`;
-    const description =
-      card.description || `Interact with agent at ${card.url}`;
+    const description = card.description || `Interact with ${card.name} agent`;
     return { name, description };
   }
 
-  private _defaultBuildPrompt(agentDetails: AgentPromptParams[]): string {
-    let details =
-      'Here are details about available agents that you can message. Determine the best phrasing to use when you are attempting to message them.';
-    for (const { card, latestTask } of agentDetails) {
-      details += '<Agent Details>\n';
-      details += `<Name>\n${card.name || card.url}\n</Name>\n`;
-      if (card.description) {
-        details += `<Description>\n${card.description}\n</Description>\n`;
-      }
-      for (const skill of card.skills || []) {
-        details += `<SKILL name=${skill.name} description=${skill.description} />\n`;
-        if (skill.examples) {
-          details += `<EXAMPLES>\n${skill.examples.join('\n')}\n</EXAMPLES>\n`;
-        }
-        details += '</SKILL>\n';
-      }
-      if (latestTask) {
-        const lastMessage =
-          latestTask.history && latestTask.history.length > 0
-            ? latestTask.history[latestTask.history.length - 1].parts
-              .map((p: schema.Part) =>
-                p.type === 'text' ? p.text : '[non-text]'
-              )
-              .join(' ')
-            : '';
-        details += `<PREVIOUS_TASK_DETAILS taskId=${latestTask.task.id} state=${latestTask.task.status.state} lastMessage=${lastMessage}\n</PREVIOUS_TASK_DETAILS>`;
-      }
-      details += '</Agent Details>\n';
-    }
-    return details;
+  private _defaultBuildMessage(
+    card: AgentCard,
+    input: string,
+    metadata?: Record<string, any>
+  ): Message {
+    return this._createMessage(input, card, metadata);
   }
 
-  private _defaultBuildTaskSendParams(
-    _card: schema.AgentCard,
-    message: string,
-    continueTaskId?: string | null,
+  private _createMessage(
+    text: string,
+    _card?: AgentCard,
     metadata?: Record<string, any>
-  ): schema.TaskSendParams {
-    return buildTaskSendParams(message, metadata, continueTaskId);
+  ): Message {
+    return {
+      messageId: uuidv4(),
+      role: 'user', // Messages TO agents are from user perspective
+      parts: [{ kind: 'text', text }],
+      kind: 'message',
+      // Include metadata if provided
+      ...(metadata && { metadata }),
+    };
+  }
+
+  private _defaultBuildMessageFromAgentResponse(
+    _card: AgentCard,
+    response: Message | Task,
+    _originalInput: string
+  ): string {
+    // Extract text from response parts
+    if (response.kind === 'message') {
+      const textParts = response.parts
+        .filter((part): part is TextPart => part.kind === 'text')
+        .map(part => part.text);
+      return textParts.join(' ') || 'Agent responded with no text content.';
+    } else {
+      return 'Agent responded with non-message content.';
+    }
+  }
+
+  private async _getAgentCard(key: string, config: IAgentConfig): Promise<AgentCard | null> {
+    // Return cached client info if it exists
+    let clientInfo = this._clients.get(key);
+    if (clientInfo) {
+      return clientInfo.agentCard;
+    }
+
+    // Create new client and get agent card
+    try {
+      const client = await A2AClient.fromCardUrl(config.cardUrl);
+
+      // Get the agent card from the client
+      const agentCard = await client.getAgentCard();
+
+      clientInfo = {
+        ...config,
+        client,
+        agentCard,
+      };
+
+      this._clients.set(key, clientInfo);
+      return agentCard;
+    } catch (error) {
+      console.error(`Error creating client or fetching agent card for ${key}:`, error);
+      return null;
+    }
   }
 }
-
-export const buildTaskSendParams = (
-  message: string,
-  metadata?: Record<string, any>,
-  continueTaskId?: string | null
-): schema.TaskSendParams => {
-  return {
-    id: continueTaskId || generateRequestId().toString(),
-    message: {
-      role: 'user',
-      parts: [{ type: 'text' as const, text: message }],
-    },
-    metadata,
-  };
-};

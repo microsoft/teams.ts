@@ -41,10 +41,10 @@ export function del(
   return {
     method: 'delete',
     path: '/me/teamwork/installedApps/{userScopeTeamsAppInstallation-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'userScopeTeamsAppInstallation-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['userScopeTeamsAppInstallation-id'],
+    },
     params,
   };
 }
@@ -60,16 +60,9 @@ export function list(
   return {
     method: 'get',
     path: '/me/teamwork/installedApps',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +80,10 @@ export function get(
   return {
     method: 'get',
     path: '/me/teamwork/installedApps/{userScopeTeamsAppInstallation-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'userScopeTeamsAppInstallation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['userScopeTeamsAppInstallation-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +101,9 @@ export function update(
   return {
     method: 'patch',
     path: '/me/teamwork/installedApps/{userScopeTeamsAppInstallation-id}',
-    paramDefs: [{ name: 'userScopeTeamsAppInstallation-id', in: 'path' }],
+    paramDefs: {
+      path: ['userScopeTeamsAppInstallation-id'],
+    },
     params,
     body,
   };
@@ -143,11 +137,10 @@ export const chat = {
     return {
       method: 'get',
       path: '/me/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/chat',
-      paramDefs: [
-        { name: '$select', in: 'query' },
-        { name: '$expand', in: 'query' },
-        { name: 'userScopeTeamsAppInstallation-id', in: 'path' },
-      ],
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['userScopeTeamsAppInstallation-id'],
+      },
       params,
     };
   },
@@ -167,11 +160,10 @@ export const teamsApp = {
     return {
       method: 'get',
       path: '/me/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/teamsApp',
-      paramDefs: [
-        { name: '$select', in: 'query' },
-        { name: '$expand', in: 'query' },
-        { name: 'userScopeTeamsAppInstallation-id', in: 'path' },
-      ],
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['userScopeTeamsAppInstallation-id'],
+      },
       params,
     };
   },
@@ -191,11 +183,10 @@ export const teamsAppDefinition = {
     return {
       method: 'get',
       path: '/me/teamwork/installedApps/{userScopeTeamsAppInstallation-id}/teamsAppDefinition',
-      paramDefs: [
-        { name: '$select', in: 'query' },
-        { name: '$expand', in: 'query' },
-        { name: 'userScopeTeamsAppInstallation-id', in: 'path' },
-      ],
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['userScopeTeamsAppInstallation-id'],
+      },
       params,
     };
   },

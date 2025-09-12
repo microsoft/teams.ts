@@ -1,6 +1,3 @@
-export * as allowedMembers from './allowedMembers';
-export * as team from './team';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,18 @@ export interface IEndpoints {
     '/users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams',
     'post'
   >;
+  'GET /users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/allowedMembers': Operation<
+    '/users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/allowedMembers',
+    'get'
+  >;
+  'GET /users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/allowedMembers/{conversationMember-id}': Operation<
+    '/users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/allowedMembers/{conversationMember-id}',
+    'get'
+  >;
+  'GET /users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/team': Operation<
+    '/users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/team',
+    'get'
+  >;
 }
 
 /**
@@ -38,13 +47,10 @@ export function del(
   return {
     method: 'delete',
     path: '/users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'team-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'sharedWithChannelTeamInfo-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'team-id', 'channel-id', 'sharedWithChannelTeamInfo-id'],
+    },
     params,
   };
 }
@@ -62,19 +68,10 @@ export function list(
   return {
     method: 'get',
     path: '/users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'team-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'team-id', 'channel-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,14 +89,10 @@ export function get(
   return {
     method: 'get',
     path: '/users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'team-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'sharedWithChannelTeamInfo-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'team-id', 'channel-id', 'sharedWithChannelTeamInfo-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,12 +110,9 @@ export function update(
   return {
     method: 'patch',
     path: '/users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'team-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'sharedWithChannelTeamInfo-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'team-id', 'channel-id', 'sharedWithChannelTeamInfo-id'],
+    },
     params,
     body,
   };
@@ -141,12 +131,81 @@ export function create(
   return {
     method: 'post',
     path: '/users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'team-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'team-id', 'channel-id'],
+    },
     params,
     body,
   };
 }
+
+export const allowedMembers = {
+  /**
+   * `GET /users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/allowedMembers`
+   *
+   * A collection of team members who have access to the shared channel.
+   */
+  list: function list(
+    params?: IEndpoints['GET /users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/allowedMembers']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/allowedMembers']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/allowedMembers',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['user-id', 'team-id', 'channel-id', 'sharedWithChannelTeamInfo-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/allowedMembers/{conversationMember-id}`
+   *
+   * A collection of team members who have access to the shared channel.
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/allowedMembers/{conversationMember-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/allowedMembers/{conversationMember-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/allowedMembers/{conversationMember-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'user-id',
+          'team-id',
+          'channel-id',
+          'sharedWithChannelTeamInfo-id',
+          'conversationMember-id',
+        ],
+      },
+      params,
+    };
+  },
+};
+
+export const team = {
+  /**
+   * `GET /users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/team`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/team']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/team']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/users/{user-id}/joinedTeams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/team',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'team-id', 'channel-id', 'sharedWithChannelTeamInfo-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,6 +1,3 @@
-export * as parentNotebook from './parentNotebook';
-export * as parentSectionGroup from './parentSectionGroup';
-export * as sectionGroupsSectionGroups from './sectionGroupsSectionGroups';
 export * as sections from './sections';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -20,6 +17,22 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /me/onenote/sectionGroups': Operation<'/me/onenote/sectionGroups', 'post'>;
+  'GET /me/onenote/sectionGroups/{sectionGroup-id}/parentNotebook': Operation<
+    '/me/onenote/sectionGroups/{sectionGroup-id}/parentNotebook',
+    'get'
+  >;
+  'GET /me/onenote/sectionGroups/{sectionGroup-id}/parentSectionGroup': Operation<
+    '/me/onenote/sectionGroups/{sectionGroup-id}/parentSectionGroup',
+    'get'
+  >;
+  'GET /me/onenote/sectionGroups/{sectionGroup-id}/sectionGroups': Operation<
+    '/me/onenote/sectionGroups/{sectionGroup-id}/sectionGroups',
+    'get'
+  >;
+  'GET /me/onenote/sectionGroups/{sectionGroup-id}/sectionGroups/{sectionGroup-id1}': Operation<
+    '/me/onenote/sectionGroups/{sectionGroup-id}/sectionGroups/{sectionGroup-id1}',
+    'get'
+  >;
 }
 
 /**
@@ -32,10 +45,10 @@ export function del(
   return {
     method: 'delete',
     path: '/me/onenote/sectionGroups/{sectionGroup-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'sectionGroup-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['sectionGroup-id'],
+    },
     params,
   };
 }
@@ -51,16 +64,9 @@ export function list(
   return {
     method: 'get',
     path: '/me/onenote/sectionGroups',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -76,11 +82,10 @@ export function get(
   return {
     method: 'get',
     path: '/me/onenote/sectionGroups/{sectionGroup-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sectionGroup-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sectionGroup-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -96,7 +101,9 @@ export function update(
   return {
     method: 'patch',
     path: '/me/onenote/sectionGroups/{sectionGroup-id}',
-    paramDefs: [{ name: 'sectionGroup-id', in: 'path' }],
+    paramDefs: {
+      path: ['sectionGroup-id'],
+    },
     params,
     body,
   };
@@ -107,14 +114,100 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /me/onenote/sectionGroups']['body'],
-  params?: IEndpoints['POST /me/onenote/sectionGroups']['parameters']
+  body: IEndpoints['POST /me/onenote/sectionGroups']['body']
 ): EndpointRequest<IEndpoints['POST /me/onenote/sectionGroups']['response']> {
   return {
     method: 'post',
     path: '/me/onenote/sectionGroups',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const parentNotebook = {
+  /**
+   * `GET /me/onenote/sectionGroups/{sectionGroup-id}/parentNotebook`
+   *
+   * The notebook that contains the section group. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/onenote/sectionGroups/{sectionGroup-id}/parentNotebook']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/onenote/sectionGroups/{sectionGroup-id}/parentNotebook']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/onenote/sectionGroups/{sectionGroup-id}/parentNotebook',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['sectionGroup-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const parentSectionGroup = {
+  /**
+   * `GET /me/onenote/sectionGroups/{sectionGroup-id}/parentSectionGroup`
+   *
+   * The section group that contains the section group. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/onenote/sectionGroups/{sectionGroup-id}/parentSectionGroup']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/onenote/sectionGroups/{sectionGroup-id}/parentSectionGroup']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/onenote/sectionGroups/{sectionGroup-id}/parentSectionGroup',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['sectionGroup-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const sectionGroupsSectionGroups = {
+  /**
+   * `GET /me/onenote/sectionGroups/{sectionGroup-id}/sectionGroups`
+   *
+   * Retrieve a list of section groups from the specified section group.
+   */
+  list: function list(
+    params?: IEndpoints['GET /me/onenote/sectionGroups/{sectionGroup-id}/sectionGroups']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/onenote/sectionGroups/{sectionGroup-id}/sectionGroups']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/onenote/sectionGroups/{sectionGroup-id}/sectionGroups',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['sectionGroup-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /me/onenote/sectionGroups/{sectionGroup-id}/sectionGroups/{sectionGroup-id1}`
+   *
+   * The section groups in the section. Read-only. Nullable.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/onenote/sectionGroups/{sectionGroup-id}/sectionGroups/{sectionGroup-id1}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/onenote/sectionGroups/{sectionGroup-id}/sectionGroups/{sectionGroup-id1}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/onenote/sectionGroups/{sectionGroup-id}/sectionGroups/{sectionGroup-id1}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['sectionGroup-id', 'sectionGroup-id1'],
+      },
+      params,
+    };
+  },
+};

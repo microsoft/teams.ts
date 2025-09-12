@@ -1,5 +1,3 @@
-export * as allowedValues from './allowedValues';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/directory/customSecurityAttributeDefinitions',
     'post'
   >;
+  'GET /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues': Operation<
+    '/directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues',
+    'get'
+  >;
+  'POST /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues': Operation<
+    '/directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues',
+    'post'
+  >;
+  'GET /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}': Operation<
+    '/directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}',
+    'get'
+  >;
+  'PATCH /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}': Operation<
+    '/directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}',
+    'patch'
+  >;
+  'DELETE /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}': Operation<
+    '/directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,10 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'customSecurityAttributeDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['customSecurityAttributeDefinition-id'],
+    },
     params,
   };
 }
@@ -58,16 +76,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/directory/customSecurityAttributeDefinitions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +97,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'customSecurityAttributeDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['customSecurityAttributeDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +120,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}',
-    paramDefs: [{ name: 'customSecurityAttributeDefinition-id', in: 'path' }],
+    paramDefs: {
+      path: ['customSecurityAttributeDefinition-id'],
+    },
     params,
     body,
   };
@@ -122,15 +134,121 @@ export function update(
  * Create a new customSecurityAttributeDefinition object.
  */
 export function create(
-  body: IEndpoints['POST /directory/customSecurityAttributeDefinitions']['body'],
-  params?: IEndpoints['POST /directory/customSecurityAttributeDefinitions']['parameters']
+  body: IEndpoints['POST /directory/customSecurityAttributeDefinitions']['body']
 ): EndpointRequest<IEndpoints['POST /directory/customSecurityAttributeDefinitions']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/directory/customSecurityAttributeDefinitions',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const allowedValues = {
+  /**
+   * `GET /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues`
+   *
+   * Get a list of the allowedValue objects and their properties.
+   */
+  list: function list(
+    params?: IEndpoints['GET /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['customSecurityAttributeDefinition-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues`
+   *
+   * Create a new allowedValue object.
+   */
+  create: function create(
+    body: IEndpoints['POST /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues']['body'],
+    params?: IEndpoints['POST /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues',
+      paramDefs: {
+        path: ['customSecurityAttributeDefinition-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}`
+   *
+   * Read the properties and relationships of an allowedValue object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['customSecurityAttributeDefinition-id', 'allowedValue-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}`
+   *
+   * Update the properties of an allowedValue object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}']['body'],
+    params?: IEndpoints['PATCH /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}',
+      paramDefs: {
+        path: ['customSecurityAttributeDefinition-id', 'allowedValue-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/directory/customSecurityAttributeDefinitions/{customSecurityAttributeDefinition-id}/allowedValues/{allowedValue-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['customSecurityAttributeDefinition-id', 'allowedValue-id'],
+      },
+      params,
+    };
+  },
+};

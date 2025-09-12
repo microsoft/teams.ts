@@ -18,10 +18,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/templates',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -31,15 +30,12 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /templates']['body'],
-  params?: IEndpoints['PATCH /templates']['parameters']
+  body: IEndpoints['PATCH /templates']['body']
 ): EndpointRequest<IEndpoints['PATCH /templates']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/templates',
-    paramDefs: [],
-    params,
     body,
   };
 }

@@ -1,5 +1,3 @@
-export * as restorePoint from './restorePoint';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/solutions/backupRestore/oneDriveForBusinessRestoreSessions/{oneDriveForBusinessRestoreSession-id}/driveRestoreArtifacts',
     'post'
   >;
+  'GET /solutions/backupRestore/oneDriveForBusinessRestoreSessions/{oneDriveForBusinessRestoreSession-id}/driveRestoreArtifacts/{driveRestoreArtifact-id}/restorePoint': Operation<
+    '/solutions/backupRestore/oneDriveForBusinessRestoreSessions/{oneDriveForBusinessRestoreSession-id}/driveRestoreArtifacts/{driveRestoreArtifact-id}/restorePoint',
+    'get'
+  >;
 }
 
 /**
@@ -37,11 +39,10 @@ export function del(
   return {
     method: 'delete',
     path: '/solutions/backupRestore/oneDriveForBusinessRestoreSessions/{oneDriveForBusinessRestoreSession-id}/driveRestoreArtifacts/{driveRestoreArtifact-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'oneDriveForBusinessRestoreSession-id', in: 'path' },
-      { name: 'driveRestoreArtifact-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['oneDriveForBusinessRestoreSession-id', 'driveRestoreArtifact-id'],
+    },
     params,
   };
 }
@@ -59,17 +60,10 @@ export function list(
   return {
     method: 'get',
     path: '/solutions/backupRestore/oneDriveForBusinessRestoreSessions/{oneDriveForBusinessRestoreSession-id}/driveRestoreArtifacts',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'oneDriveForBusinessRestoreSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['oneDriveForBusinessRestoreSession-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,12 +81,10 @@ export function get(
   return {
     method: 'get',
     path: '/solutions/backupRestore/oneDriveForBusinessRestoreSessions/{oneDriveForBusinessRestoreSession-id}/driveRestoreArtifacts/{driveRestoreArtifact-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'oneDriveForBusinessRestoreSession-id', in: 'path' },
-      { name: 'driveRestoreArtifact-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['oneDriveForBusinessRestoreSession-id', 'driveRestoreArtifact-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,10 +102,9 @@ export function update(
   return {
     method: 'patch',
     path: '/solutions/backupRestore/oneDriveForBusinessRestoreSessions/{oneDriveForBusinessRestoreSession-id}/driveRestoreArtifacts/{driveRestoreArtifact-id}',
-    paramDefs: [
-      { name: 'oneDriveForBusinessRestoreSession-id', in: 'path' },
-      { name: 'driveRestoreArtifact-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['oneDriveForBusinessRestoreSession-id', 'driveRestoreArtifact-id'],
+    },
     params,
     body,
   };
@@ -132,8 +123,33 @@ export function create(
   return {
     method: 'post',
     path: '/solutions/backupRestore/oneDriveForBusinessRestoreSessions/{oneDriveForBusinessRestoreSession-id}/driveRestoreArtifacts',
-    paramDefs: [{ name: 'oneDriveForBusinessRestoreSession-id', in: 'path' }],
+    paramDefs: {
+      path: ['oneDriveForBusinessRestoreSession-id'],
+    },
     params,
     body,
   };
 }
+
+export const restorePoint = {
+  /**
+   * `GET /solutions/backupRestore/oneDriveForBusinessRestoreSessions/{oneDriveForBusinessRestoreSession-id}/driveRestoreArtifacts/{driveRestoreArtifact-id}/restorePoint`
+   *
+   * Represents the date and time when an artifact is protected by a protectionPolicy and can be restored.
+   */
+  get: function get(
+    params?: IEndpoints['GET /solutions/backupRestore/oneDriveForBusinessRestoreSessions/{oneDriveForBusinessRestoreSession-id}/driveRestoreArtifacts/{driveRestoreArtifact-id}/restorePoint']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/backupRestore/oneDriveForBusinessRestoreSessions/{oneDriveForBusinessRestoreSession-id}/driveRestoreArtifacts/{driveRestoreArtifact-id}/restorePoint']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/solutions/backupRestore/oneDriveForBusinessRestoreSessions/{oneDriveForBusinessRestoreSession-id}/driveRestoreArtifacts/{driveRestoreArtifact-id}/restorePoint',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['oneDriveForBusinessRestoreSession-id', 'driveRestoreArtifact-id'],
+      },
+      params,
+    };
+  },
+};

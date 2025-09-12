@@ -1,7 +1,3 @@
-export * as administrativeUnit from './administrativeUnit';
-export * as classes from './classes';
-export * as users from './users';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -19,6 +15,22 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /education/schools': Operation<'/education/schools', 'post'>;
+  'GET /education/schools/{educationSchool-id}/administrativeUnit': Operation<
+    '/education/schools/{educationSchool-id}/administrativeUnit',
+    'get'
+  >;
+  'PATCH /education/schools/{educationSchool-id}/administrativeUnit': Operation<
+    '/education/schools/{educationSchool-id}/administrativeUnit',
+    'patch'
+  >;
+  'GET /education/schools/{educationSchool-id}/classes': Operation<
+    '/education/schools/{educationSchool-id}/classes',
+    'get'
+  >;
+  'GET /education/schools/{educationSchool-id}/users': Operation<
+    '/education/schools/{educationSchool-id}/users',
+    'get'
+  >;
 }
 
 /**
@@ -32,10 +44,10 @@ export function del(
   return {
     method: 'delete',
     path: '/education/schools/{educationSchool-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'educationSchool-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['educationSchool-id'],
+    },
     params,
   };
 }
@@ -51,16 +63,9 @@ export function list(
   return {
     method: 'get',
     path: '/education/schools',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -76,11 +81,10 @@ export function get(
   return {
     method: 'get',
     path: '/education/schools/{educationSchool-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'educationSchool-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['educationSchool-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -97,7 +101,9 @@ export function update(
   return {
     method: 'patch',
     path: '/education/schools/{educationSchool-id}',
-    paramDefs: [{ name: 'educationSchool-id', in: 'path' }],
+    paramDefs: {
+      path: ['educationSchool-id'],
+    },
     params,
     body,
   };
@@ -109,14 +115,98 @@ export function update(
  * Create a new educationSchool object.
  */
 export function create(
-  body: IEndpoints['POST /education/schools']['body'],
-  params?: IEndpoints['POST /education/schools']['parameters']
+  body: IEndpoints['POST /education/schools']['body']
 ): EndpointRequest<IEndpoints['POST /education/schools']['response']> {
   return {
     method: 'post',
     path: '/education/schools',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const administrativeUnit = {
+  /**
+   * `GET /education/schools/{educationSchool-id}/administrativeUnit`
+   *
+   * The underlying administrativeUnit for this school.
+   */
+  get: function get(
+    params?: IEndpoints['GET /education/schools/{educationSchool-id}/administrativeUnit']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /education/schools/{educationSchool-id}/administrativeUnit']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/education/schools/{educationSchool-id}/administrativeUnit',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['educationSchool-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /education/schools/{educationSchool-id}/administrativeUnit`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /education/schools/{educationSchool-id}/administrativeUnit']['body'],
+    params?: IEndpoints['PATCH /education/schools/{educationSchool-id}/administrativeUnit']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /education/schools/{educationSchool-id}/administrativeUnit']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/education/schools/{educationSchool-id}/administrativeUnit',
+      paramDefs: {
+        path: ['educationSchool-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const classes = {
+  /**
+   * `GET /education/schools/{educationSchool-id}/classes`
+   *
+   * Get the educationClass resources owned by an educationSchool.
+   */
+  list: function list(
+    params?: IEndpoints['GET /education/schools/{educationSchool-id}/classes']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /education/schools/{educationSchool-id}/classes']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/education/schools/{educationSchool-id}/classes',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['educationSchool-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const users = {
+  /**
+   * `GET /education/schools/{educationSchool-id}/users`
+   *
+   * Get the educationUser resources associated with an educationSchool.
+   */
+  list: function list(
+    params?: IEndpoints['GET /education/schools/{educationSchool-id}/users']['parameters']
+  ): EndpointRequest<IEndpoints['GET /education/schools/{educationSchool-id}/users']['response']> {
+    return {
+      method: 'get',
+      path: '/education/schools/{educationSchool-id}/users',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['educationSchool-id'],
+      },
+      params,
+    };
+  },
+};

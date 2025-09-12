@@ -37,13 +37,10 @@ export function del(
   return {
     method: 'delete',
     path: '/drives/{drive-id}/items/{driveItem-id}/analytics/itemActivityStats/{itemActivityStat-id}/activities/{itemActivity-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'itemActivityStat-id', in: 'path' },
-      { name: 'itemActivity-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['drive-id', 'driveItem-id', 'itemActivityStat-id', 'itemActivity-id'],
+    },
     params,
   };
 }
@@ -61,19 +58,10 @@ export function list(
   return {
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/analytics/itemActivityStats/{itemActivityStat-id}/activities',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'itemActivityStat-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'itemActivityStat-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -91,14 +79,10 @@ export function get(
   return {
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/analytics/itemActivityStats/{itemActivityStat-id}/activities/{itemActivity-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'itemActivityStat-id', in: 'path' },
-      { name: 'itemActivity-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'itemActivityStat-id', 'itemActivity-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -116,12 +100,9 @@ export function update(
   return {
     method: 'patch',
     path: '/drives/{drive-id}/items/{driveItem-id}/analytics/itemActivityStats/{itemActivityStat-id}/activities/{itemActivity-id}',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'itemActivityStat-id', in: 'path' },
-      { name: 'itemActivity-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'itemActivityStat-id', 'itemActivity-id'],
+    },
     params,
     body,
   };
@@ -140,11 +121,9 @@ export function create(
   return {
     method: 'post',
     path: '/drives/{drive-id}/items/{driveItem-id}/analytics/itemActivityStats/{itemActivityStat-id}/activities',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'itemActivityStat-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'itemActivityStat-id'],
+    },
     params,
     body,
   };

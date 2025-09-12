@@ -1,6 +1,3 @@
-export * as importDeviceIdentityList from './importDeviceIdentityList';
-export * as searchExistingIdentities from './searchExistingIdentities';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/deviceManagement/importedDeviceIdentities',
     'post'
   >;
+  'POST /deviceManagement/importedDeviceIdentities/importDeviceIdentityList': Operation<
+    '/deviceManagement/importedDeviceIdentities/importDeviceIdentityList',
+    'post'
+  >;
+  'POST /deviceManagement/importedDeviceIdentities/searchExistingIdentities': Operation<
+    '/deviceManagement/importedDeviceIdentities/searchExistingIdentities',
+    'post'
+  >;
 }
 
 /**
@@ -39,10 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/importedDeviceIdentities/{importedDeviceIdentity-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'importedDeviceIdentity-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['importedDeviceIdentity-id'],
+    },
     params,
   };
 }
@@ -59,16 +64,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/importedDeviceIdentities',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +85,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/importedDeviceIdentities/{importedDeviceIdentity-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'importedDeviceIdentity-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['importedDeviceIdentity-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +107,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/importedDeviceIdentities/{importedDeviceIdentity-id}',
-    paramDefs: [{ name: 'importedDeviceIdentity-id', in: 'path' }],
+    paramDefs: {
+      path: ['importedDeviceIdentity-id'],
+    },
     params,
     body,
   };
@@ -121,15 +120,50 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/importedDeviceIdentities']['body'],
-  params?: IEndpoints['POST /deviceManagement/importedDeviceIdentities']['parameters']
+  body: IEndpoints['POST /deviceManagement/importedDeviceIdentities']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/importedDeviceIdentities']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/importedDeviceIdentities',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const importDeviceIdentityList = {
+  /**
+   * `POST /deviceManagement/importedDeviceIdentities/importDeviceIdentityList`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/importedDeviceIdentities/importDeviceIdentityList']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/importedDeviceIdentities/importDeviceIdentityList']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/importedDeviceIdentities/importDeviceIdentityList',
+      body,
+    };
+  },
+};
+
+export const searchExistingIdentities = {
+  /**
+   * `POST /deviceManagement/importedDeviceIdentities/searchExistingIdentities`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/importedDeviceIdentities/searchExistingIdentities']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/importedDeviceIdentities/searchExistingIdentities']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/importedDeviceIdentities/searchExistingIdentities',
+      body,
+    };
+  },
+};

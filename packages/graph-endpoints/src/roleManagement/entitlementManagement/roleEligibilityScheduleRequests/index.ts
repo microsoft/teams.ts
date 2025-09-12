@@ -1,10 +1,3 @@
-export * as appScope from './appScope';
-export * as cancel from './cancel';
-export * as directoryScope from './directoryScope';
-export * as principal from './principal';
-export * as roleDefinition from './roleDefinition';
-export * as targetSchedule from './targetSchedule';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -28,6 +21,30 @@ export interface IEndpoints {
     '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests',
     'post'
   >;
+  'GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/appScope': Operation<
+    '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/appScope',
+    'get'
+  >;
+  'POST /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/cancel': Operation<
+    '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/cancel',
+    'post'
+  >;
+  'GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/directoryScope': Operation<
+    '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/directoryScope',
+    'get'
+  >;
+  'GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/principal': Operation<
+    '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/principal',
+    'get'
+  >;
+  'GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/roleDefinition': Operation<
+    '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/roleDefinition',
+    'get'
+  >;
+  'GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/targetSchedule': Operation<
+    '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/targetSchedule',
+    'get'
+  >;
 }
 
 /**
@@ -42,10 +59,10 @@ export function del(
   return {
     method: 'delete',
     path: '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'unifiedRoleEligibilityScheduleRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['unifiedRoleEligibilityScheduleRequest-id'],
+    },
     params,
   };
 }
@@ -63,16 +80,9 @@ export function list(
   return {
     method: 'get',
     path: '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,11 +100,10 @@ export function get(
   return {
     method: 'get',
     path: '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'unifiedRoleEligibilityScheduleRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['unifiedRoleEligibilityScheduleRequest-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,7 +121,9 @@ export function update(
   return {
     method: 'patch',
     path: '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}',
-    paramDefs: [{ name: 'unifiedRoleEligibilityScheduleRequest-id', in: 'path' }],
+    paramDefs: {
+      path: ['unifiedRoleEligibilityScheduleRequest-id'],
+    },
     params,
     body,
   };
@@ -123,16 +134,150 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /roleManagement/entitlementManagement/roleEligibilityScheduleRequests']['body'],
-  params?: IEndpoints['POST /roleManagement/entitlementManagement/roleEligibilityScheduleRequests']['parameters']
+  body: IEndpoints['POST /roleManagement/entitlementManagement/roleEligibilityScheduleRequests']['body']
 ): EndpointRequest<
   IEndpoints['POST /roleManagement/entitlementManagement/roleEligibilityScheduleRequests']['response']
 > {
   return {
     method: 'post',
     path: '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const appScope = {
+  /**
+   * `GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/appScope`
+   *
+   * Read-only property with details of the app-specific scope when the role eligibility is scoped to an app. Nullable. Supports $expand.
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/appScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/appScope']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/appScope',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleEligibilityScheduleRequest-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const cancel = {
+  /**
+   * `POST /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/cancel`
+   *
+   * Immediately cancel a unifiedRoleEligibilityScheduleRequest object whose status is Granted and have the system automatically delete the cancelled request after 30 days. After calling this action, the status of the cancelled unifiedRoleEligibilityScheduleRequest changes to Revoked.
+   */
+  create: function create(
+    params?: IEndpoints['POST /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/cancel']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/cancel']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/cancel',
+      paramDefs: {
+        path: ['unifiedRoleEligibilityScheduleRequest-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const directoryScope = {
+  /**
+   * `GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/directoryScope`
+   *
+   * The directory object that is the scope of the role eligibility. Read-only. Supports $expand.
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/directoryScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/directoryScope']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/directoryScope',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleEligibilityScheduleRequest-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const principal = {
+  /**
+   * `GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/principal`
+   *
+   * The principal that&#x27;s getting a role eligibility through the request. Supports $expand.
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/principal']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/principal']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/principal',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleEligibilityScheduleRequest-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const roleDefinition = {
+  /**
+   * `GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/roleDefinition`
+   *
+   * Detailed information for the unifiedRoleDefinition object that is referenced through the roleDefinitionId property. Supports $expand.
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/roleDefinition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/roleDefinition']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/roleDefinition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleEligibilityScheduleRequest-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const targetSchedule = {
+  /**
+   * `GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/targetSchedule`
+   *
+   * The schedule for a role eligibility that is referenced through the targetScheduleId property. Supports $expand.
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/targetSchedule']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/targetSchedule']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/roleManagement/entitlementManagement/roleEligibilityScheduleRequests/{unifiedRoleEligibilityScheduleRequest-id}/targetSchedule',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleEligibilityScheduleRequest-id'],
+      },
+      params,
+    };
+  },
+};

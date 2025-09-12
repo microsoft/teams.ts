@@ -39,12 +39,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/unifiedGroupSources/{unifiedGroupSource-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'ediscoveryCase-id', in: 'path' },
-      { name: 'ediscoveryCustodian-id', in: 'path' },
-      { name: 'unifiedGroupSource-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['ediscoveryCase-id', 'ediscoveryCustodian-id', 'unifiedGroupSource-id'],
+    },
     params,
   };
 }
@@ -63,18 +61,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/unifiedGroupSources',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'ediscoveryCase-id', in: 'path' },
-      { name: 'ediscoveryCustodian-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['ediscoveryCase-id', 'ediscoveryCustodian-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,13 +83,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/unifiedGroupSources/{unifiedGroupSource-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'ediscoveryCase-id', in: 'path' },
-      { name: 'ediscoveryCustodian-id', in: 'path' },
-      { name: 'unifiedGroupSource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['ediscoveryCase-id', 'ediscoveryCustodian-id', 'unifiedGroupSource-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -118,11 +105,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/unifiedGroupSources/{unifiedGroupSource-id}',
-    paramDefs: [
-      { name: 'ediscoveryCase-id', in: 'path' },
-      { name: 'ediscoveryCustodian-id', in: 'path' },
-      { name: 'unifiedGroupSource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['ediscoveryCase-id', 'ediscoveryCustodian-id', 'unifiedGroupSource-id'],
+    },
     params,
     body,
   };
@@ -143,10 +128,9 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/custodians/{ediscoveryCustodian-id}/unifiedGroupSources',
-    paramDefs: [
-      { name: 'ediscoveryCase-id', in: 'path' },
-      { name: 'ediscoveryCustodian-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['ediscoveryCase-id', 'ediscoveryCustodian-id'],
+    },
     params,
     body,
   };

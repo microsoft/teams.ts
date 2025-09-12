@@ -1,61 +1,87 @@
-import { AgentManager, AgentManagerOptions } from '../client/agent-manager';
-import * as schema from '../common/schema';
-import { TaskAndHistory } from '../server/types/a2a-types';
+import { AgentCard, Message, Task } from '@a2a-js/sdk';
+import { A2AClient } from '@a2a-js/sdk/client';
+
+import { ILogger } from '@microsoft/teams.common';
 
 /**
- * Parameters for registering an agent with the A2A plugin.
- * usage: new ChatPrompt(..., [new A2APlugin(...)]).use(A2APluginParams)
+ * New types that use SDK's AgentCard and A2AClient instead of internal schema types
  */
-export type A2APluginUseParams = {
-    /**
-     * Unique key for this agent (used for config and lookup)
-     */
-    key: string;
-    /**
-     * The agent's base URL
-     */
-    url: string;
-    /**
-     * Optional agent card for the agent
-     */
-    agentCard?: schema.AgentCard;
-    /**
-     * Optional function to customize function metadata for this agent
-     */
-    buildFunctionMetadata?: BuildFunctionMetadata;
-    /**
-     * Optional function to customize TaskSendParams for this agent
-     */
-    buildTaskSendParams?: BuildTaskSendParams;
-};
+
+export type BuildFunctionMetadata = (card: AgentCard) => { name: string; description: string };
 
 export type AgentPromptParams = {
-    card: schema.AgentCard;
-    latestTask?: TaskAndHistory | null;
+  card: AgentCard;
+  client: A2AClient;
 };
 
-export type BuildFunctionMetadata = (card: schema.AgentCard) => { name: string; description: string };
-export type BuildTaskSendParams = (card: schema.AgentCard, input: string, continueTaskId?: string | null, metadata?: Record<string, any>) => schema.TaskSendParams;
-export type BuildPrompt = (incomingSystemPrompt: string | undefined, agentDetails: AgentPromptParams[]) => string | undefined;
+export type BuildPrompt = (
+  systemPrompt: string | undefined,
+  agentDetails: AgentPromptParams[]
+) => string | undefined;
+
+export type BuildMessageForAgent = (
+  card: AgentCard,
+  input: string,
+  metadata?: Record<string, any>
+) => Message | string;
+
+export type BuildMessageFromAgentResponse = (
+  card: AgentCard,
+  response: Task | Message,
+  originalInput: string
+) => string;
 
 /**
- * Options for constructing an A2APlugin.
+ * Options for constructing an A2AClientPlugin using the official SDK.
  */
-export type A2APluginOptions = {
-    /**
-     * Optional A2AAgentManager instance to use for agent management.
-     */
-    manager?: AgentManager | AgentManagerOptions;
-    /**
-     * Optional function to customize the function name and description for each agent card.
-     */
-    buildFunctionMetadata?: BuildFunctionMetadata;
-    /**
-     * Optional function to customize the prompt given all agent cards.
-     */
-    buildPrompt?: BuildPrompt;
-    /**
-     * Optional function to customize TaskSendParams given the input and context.
-     */
-    buildTaskSendParams?: BuildTaskSendParams;
+export type A2AClientPluginOptions = {
+  /**
+   * Optional function to customize the function name and description for each agent card.
+   */
+  buildFunctionMetadata?: BuildFunctionMetadata;
+  /**
+   * Optional function to customize the prompt given all agent cards.
+   */
+  buildPrompt?: BuildPrompt;
+  /**
+   * Optional function to customize the message format sent to each agent.
+   */
+  buildMessageForAgent?: BuildMessageForAgent;
+  /**
+   * Optional function to customize how agent responses are processed into strings.
+   */
+  buildMessageFromAgentResponse?: BuildMessageFromAgentResponse;
+
+  /**
+   * Logger
+   */
+  logger?: ILogger
 };
+
+/**
+ * Parameters for registering an agent with the A2AClientPlugin.
+ * Usage: new ChatPrompt(..., [new A2AClientPlugin(...)]).usePlugin('a2a', A2APluginUseParams)
+ */
+export type A2APluginUseParams = {
+  /**
+   * Unique key to identify this agent
+   */
+  key: string;
+  /**
+   * URL to the agent's card endpoint
+   */
+  cardUrl: string;
+  /**
+   * Custom function metadata builder for this specific agent
+   */
+  buildFunctionMetadata?: BuildFunctionMetadata;
+  /**
+   * Custom message builder for this specific agent
+   */
+  buildMessageForAgent?: BuildMessageForAgent;
+  /**
+   * Custom response processor for this specific agent
+   */
+  buildMessageFromAgentResponse?: BuildMessageFromAgentResponse;
+};
+

@@ -1,6 +1,3 @@
-export * as recommendedSettings from './recommendedSettings';
-export * as settingDefinitions from './settingDefinitions';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,46 @@ export interface IEndpoints {
     '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories',
     'post'
   >;
+  'GET /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings': Operation<
+    '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings',
+    'get'
+  >;
+  'POST /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings': Operation<
+    '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings',
+    'post'
+  >;
+  'GET /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}': Operation<
+    '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}',
+    'get'
+  >;
+  'PATCH /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}': Operation<
+    '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}',
+    'patch'
+  >;
+  'DELETE /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}': Operation<
+    '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}',
+    'delete'
+  >;
+  'GET /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions': Operation<
+    '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions',
+    'get'
+  >;
+  'POST /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions': Operation<
+    '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions',
+    'post'
+  >;
+  'GET /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}': Operation<
+    '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}',
+    'get'
+  >;
+  'PATCH /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}': Operation<
+    '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}',
+    'patch'
+  >;
+  'DELETE /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}': Operation<
+    '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -39,12 +76,14 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deviceManagementTemplate-id', in: 'path' },
-      { name: 'deviceManagementTemplate-id1', in: 'path' },
-      { name: 'deviceManagementTemplateSettingCategory-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: [
+        'deviceManagementTemplate-id',
+        'deviceManagementTemplate-id1',
+        'deviceManagementTemplateSettingCategory-id',
+      ],
+    },
     params,
   };
 }
@@ -63,18 +102,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceManagementTemplate-id', in: 'path' },
-      { name: 'deviceManagementTemplate-id1', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceManagementTemplate-id', 'deviceManagementTemplate-id1'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,13 +124,14 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceManagementTemplate-id', in: 'path' },
-      { name: 'deviceManagementTemplate-id1', in: 'path' },
-      { name: 'deviceManagementTemplateSettingCategory-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: [
+        'deviceManagementTemplate-id',
+        'deviceManagementTemplate-id1',
+        'deviceManagementTemplateSettingCategory-id',
+      ],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -118,11 +150,13 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}',
-    paramDefs: [
-      { name: 'deviceManagementTemplate-id', in: 'path' },
-      { name: 'deviceManagementTemplate-id1', in: 'path' },
-      { name: 'deviceManagementTemplateSettingCategory-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: [
+        'deviceManagementTemplate-id',
+        'deviceManagementTemplate-id1',
+        'deviceManagementTemplateSettingCategory-id',
+      ],
+    },
     params,
     body,
   };
@@ -142,11 +176,270 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories',
-    paramDefs: [
-      { name: 'deviceManagementTemplate-id', in: 'path' },
-      { name: 'deviceManagementTemplate-id1', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceManagementTemplate-id', 'deviceManagementTemplate-id1'],
+    },
     params,
     body,
   };
 }
+
+export const recommendedSettings = {
+  /**
+   * `GET /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings`
+   *
+   * The settings this category contains
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: [
+          'deviceManagementTemplate-id',
+          'deviceManagementTemplate-id1',
+          'deviceManagementTemplateSettingCategory-id',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings']['body'],
+    params?: IEndpoints['POST /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings',
+      paramDefs: {
+        path: [
+          'deviceManagementTemplate-id',
+          'deviceManagementTemplate-id1',
+          'deviceManagementTemplateSettingCategory-id',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}`
+   *
+   * The settings this category contains
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'deviceManagementTemplate-id',
+          'deviceManagementTemplate-id1',
+          'deviceManagementTemplateSettingCategory-id',
+          'deviceManagementSettingInstance-id',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}']['body'],
+    params?: IEndpoints['PATCH /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}',
+      paramDefs: {
+        path: [
+          'deviceManagementTemplate-id',
+          'deviceManagementTemplate-id1',
+          'deviceManagementTemplateSettingCategory-id',
+          'deviceManagementSettingInstance-id',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/recommendedSettings/{deviceManagementSettingInstance-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: [
+          'deviceManagementTemplate-id',
+          'deviceManagementTemplate-id1',
+          'deviceManagementTemplateSettingCategory-id',
+          'deviceManagementSettingInstance-id',
+        ],
+      },
+      params,
+    };
+  },
+};
+
+export const settingDefinitions = {
+  /**
+   * `GET /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions`
+   *
+   * The setting definitions this category contains
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: [
+          'deviceManagementTemplate-id',
+          'deviceManagementTemplate-id1',
+          'deviceManagementTemplateSettingCategory-id',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions']['body'],
+    params?: IEndpoints['POST /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions',
+      paramDefs: {
+        path: [
+          'deviceManagementTemplate-id',
+          'deviceManagementTemplate-id1',
+          'deviceManagementTemplateSettingCategory-id',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}`
+   *
+   * The setting definitions this category contains
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'deviceManagementTemplate-id',
+          'deviceManagementTemplate-id1',
+          'deviceManagementTemplateSettingCategory-id',
+          'deviceManagementSettingDefinition-id',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}']['body'],
+    params?: IEndpoints['PATCH /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}',
+      paramDefs: {
+        path: [
+          'deviceManagementTemplate-id',
+          'deviceManagementTemplate-id1',
+          'deviceManagementTemplateSettingCategory-id',
+          'deviceManagementSettingDefinition-id',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/deviceManagement/templates/{deviceManagementTemplate-id}/migratableTo/{deviceManagementTemplate-id1}/categories/{deviceManagementTemplateSettingCategory-id}/settingDefinitions/{deviceManagementSettingDefinition-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: [
+          'deviceManagementTemplate-id',
+          'deviceManagementTemplate-id1',
+          'deviceManagementTemplateSettingCategory-id',
+          'deviceManagementSettingDefinition-id',
+        ],
+      },
+      params,
+    };
+  },
+};

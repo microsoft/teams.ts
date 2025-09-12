@@ -1,6 +1,3 @@
-export * as catalogEntry from './catalogEntry';
-export * as knowledgeBaseArticle from './knowledgeBaseArticle';
-
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,30 @@ export interface IEndpoints {
     '/admin/windows/updates/products/{product-id}/revisions',
     'post'
   >;
+  'GET /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry': Operation<
+    '/admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry',
+    'get'
+  >;
+  'PATCH /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry': Operation<
+    '/admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry',
+    'patch'
+  >;
+  'DELETE /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry': Operation<
+    '/admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry',
+    'delete'
+  >;
+  'GET /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle': Operation<
+    '/admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle',
+    'get'
+  >;
+  'PATCH /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle': Operation<
+    '/admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle',
+    'patch'
+  >;
+  'DELETE /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle': Operation<
+    '/admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle',
+    'delete'
+  >;
 }
 
 /**
@@ -39,11 +60,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/admin/windows/updates/products/{product-id}/revisions/{productRevision-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'product-id', in: 'path' },
-      { name: 'productRevision-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['product-id', 'productRevision-id'],
+    },
     params,
   };
 }
@@ -62,17 +82,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/admin/windows/updates/products/{product-id}/revisions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'product-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['product-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -91,12 +104,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/admin/windows/updates/products/{product-id}/revisions/{productRevision-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'product-id', in: 'path' },
-      { name: 'productRevision-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['product-id', 'productRevision-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,10 +126,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/admin/windows/updates/products/{product-id}/revisions/{productRevision-id}',
-    paramDefs: [
-      { name: 'product-id', in: 'path' },
-      { name: 'productRevision-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['product-id', 'productRevision-id'],
+    },
     params,
     body,
   };
@@ -138,8 +148,139 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/admin/windows/updates/products/{product-id}/revisions',
-    paramDefs: [{ name: 'product-id', in: 'path' }],
+    paramDefs: {
+      path: ['product-id'],
+    },
     params,
     body,
   };
 }
+
+export const catalogEntry = {
+  /**
+   * `GET /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['product-id', 'productRevision-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry']['body'],
+    params?: IEndpoints['PATCH /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry',
+      paramDefs: {
+        path: ['product-id', 'productRevision-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/catalogEntry',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['product-id', 'productRevision-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const knowledgeBaseArticle = {
+  /**
+   * `GET /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle`
+   *
+   * The knowledge base article associated with the product revision.
+   */
+  get: function get(
+    params?: IEndpoints['GET /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['product-id', 'productRevision-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle']['body'],
+    params?: IEndpoints['PATCH /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle',
+      paramDefs: {
+        path: ['product-id', 'productRevision-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/admin/windows/updates/products/{product-id}/revisions/{productRevision-id}/knowledgeBaseArticle',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['product-id', 'productRevision-id'],
+      },
+      params,
+    };
+  },
+};

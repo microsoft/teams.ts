@@ -1,5 +1,3 @@
-export * as validateAuthenticationConfiguration from './validateAuthenticationConfiguration';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,14 @@ export interface IEndpoints {
     '/identity/customAuthenticationExtensions',
     'post'
   >;
+  'POST /identity/customAuthenticationExtensions/{customAuthenticationExtension-id}/validateAuthenticationConfiguration': Operation<
+    '/identity/customAuthenticationExtensions/{customAuthenticationExtension-id}/validateAuthenticationConfiguration',
+    'post'
+  >;
+  'POST /identity/customAuthenticationExtensions/validateAuthenticationConfiguration': Operation<
+    '/identity/customAuthenticationExtensions/validateAuthenticationConfiguration',
+    'post'
+  >;
 }
 
 /**
@@ -38,10 +44,10 @@ export function del(
   return {
     method: 'delete',
     path: '/identity/customAuthenticationExtensions/{customAuthenticationExtension-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'customAuthenticationExtension-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['customAuthenticationExtension-id'],
+    },
     params,
   };
 }
@@ -57,16 +63,9 @@ export function list(
   return {
     method: 'get',
     path: '/identity/customAuthenticationExtensions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -84,11 +83,10 @@ export function get(
   return {
     method: 'get',
     path: '/identity/customAuthenticationExtensions/{customAuthenticationExtension-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'customAuthenticationExtension-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['customAuthenticationExtension-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -107,7 +105,9 @@ export function update(
   return {
     method: 'patch',
     path: '/identity/customAuthenticationExtensions/{customAuthenticationExtension-id}',
-    paramDefs: [{ name: 'customAuthenticationExtension-id', in: 'path' }],
+    paramDefs: {
+      path: ['customAuthenticationExtension-id'],
+    },
     params,
     body,
   };
@@ -119,14 +119,48 @@ export function update(
  * Create a new customAuthenticationExtension object. The following derived types are currently supported.
  */
 export function create(
-  body: IEndpoints['POST /identity/customAuthenticationExtensions']['body'],
-  params?: IEndpoints['POST /identity/customAuthenticationExtensions']['parameters']
+  body: IEndpoints['POST /identity/customAuthenticationExtensions']['body']
 ): EndpointRequest<IEndpoints['POST /identity/customAuthenticationExtensions']['response']> {
   return {
     method: 'post',
     path: '/identity/customAuthenticationExtensions',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const validateAuthenticationConfiguration = {
+  /**
+   * `POST /identity/customAuthenticationExtensions/{customAuthenticationExtension-id}/validateAuthenticationConfiguration`
+   *
+   * An API to check validity of the endpoint and and authentication configuration for a customAuthenticationExtension object, which can represent one of the following derived types:
+   */
+  create: function create(
+    params?: IEndpoints['POST /identity/customAuthenticationExtensions/{customAuthenticationExtension-id}/validateAuthenticationConfiguration']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /identity/customAuthenticationExtensions/{customAuthenticationExtension-id}/validateAuthenticationConfiguration']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/identity/customAuthenticationExtensions/{customAuthenticationExtension-id}/validateAuthenticationConfiguration',
+      paramDefs: {
+        path: ['customAuthenticationExtension-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /identity/customAuthenticationExtensions/validateAuthenticationConfiguration`
+   *
+   */
+  create$1: function create$1(
+    body: IEndpoints['POST /identity/customAuthenticationExtensions/validateAuthenticationConfiguration']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /identity/customAuthenticationExtensions/validateAuthenticationConfiguration']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/identity/customAuthenticationExtensions/validateAuthenticationConfiguration',
+      body,
+    };
+  },
+};

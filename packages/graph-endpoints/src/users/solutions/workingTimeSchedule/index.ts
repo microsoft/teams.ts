@@ -1,6 +1,3 @@
-export * as endWorkingTime from './endWorkingTime';
-export * as startWorkingTime from './startWorkingTime';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -16,6 +13,14 @@ export interface IEndpoints {
     '/users/{user-id}/solutions/workingTimeSchedule',
     'patch'
   >;
+  'POST /users/{user-id}/solutions/workingTimeSchedule/endWorkingTime': Operation<
+    '/users/{user-id}/solutions/workingTimeSchedule/endWorkingTime',
+    'post'
+  >;
+  'POST /users/{user-id}/solutions/workingTimeSchedule/startWorkingTime': Operation<
+    '/users/{user-id}/solutions/workingTimeSchedule/startWorkingTime',
+    'post'
+  >;
 }
 
 /**
@@ -30,10 +35,10 @@ export function del(
   return {
     method: 'delete',
     path: '/users/{user-id}/solutions/workingTimeSchedule',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id'],
+    },
     params,
   };
 }
@@ -49,11 +54,10 @@ export function get(
   return {
     method: 'get',
     path: '/users/{user-id}/solutions/workingTimeSchedule',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -69,8 +73,54 @@ export function update(
   return {
     method: 'patch',
     path: '/users/{user-id}/solutions/workingTimeSchedule',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };
 }
+
+export const endWorkingTime = {
+  /**
+   * `POST /users/{user-id}/solutions/workingTimeSchedule/endWorkingTime`
+   *
+   * Trigger the policies associated with the end of working hours for a specific user.
+   */
+  create: function create(
+    params?: IEndpoints['POST /users/{user-id}/solutions/workingTimeSchedule/endWorkingTime']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/solutions/workingTimeSchedule/endWorkingTime']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/solutions/workingTimeSchedule/endWorkingTime',
+      paramDefs: {
+        path: ['user-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const startWorkingTime = {
+  /**
+   * `POST /users/{user-id}/solutions/workingTimeSchedule/startWorkingTime`
+   *
+   * Trigger the policies associated with the start of working hours for a specific user.
+   */
+  create: function create(
+    params?: IEndpoints['POST /users/{user-id}/solutions/workingTimeSchedule/startWorkingTime']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/solutions/workingTimeSchedule/startWorkingTime']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/solutions/workingTimeSchedule/startWorkingTime',
+      paramDefs: {
+        path: ['user-id'],
+      },
+      params,
+    };
+  },
+};

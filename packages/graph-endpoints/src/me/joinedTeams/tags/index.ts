@@ -1,5 +1,3 @@
-export * as members from './members';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,26 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /me/joinedTeams/{team-id}/tags': Operation<'/me/joinedTeams/{team-id}/tags', 'post'>;
+  'GET /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members': Operation<
+    '/me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members',
+    'get'
+  >;
+  'POST /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members': Operation<
+    '/me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members',
+    'post'
+  >;
+  'GET /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}': Operation<
+    '/me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}',
+    'get'
+  >;
+  'PATCH /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}': Operation<
+    '/me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}',
+    'patch'
+  >;
+  'DELETE /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}': Operation<
+    '/me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -31,11 +49,10 @@ export function del(
   return {
     method: 'delete',
     path: '/me/joinedTeams/{team-id}/tags/{teamworkTag-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'team-id', in: 'path' },
-      { name: 'teamworkTag-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['team-id', 'teamworkTag-id'],
+    },
     params,
   };
 }
@@ -51,17 +68,10 @@ export function list(
   return {
     method: 'get',
     path: '/me/joinedTeams/{team-id}/tags',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'team-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -77,12 +87,10 @@ export function get(
   return {
     method: 'get',
     path: '/me/joinedTeams/{team-id}/tags/{teamworkTag-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'team-id', in: 'path' },
-      { name: 'teamworkTag-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id', 'teamworkTag-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -100,10 +108,9 @@ export function update(
   return {
     method: 'patch',
     path: '/me/joinedTeams/{team-id}/tags/{teamworkTag-id}',
-    paramDefs: [
-      { name: 'team-id', in: 'path' },
-      { name: 'teamworkTag-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id', 'teamworkTag-id'],
+    },
     params,
     body,
   };
@@ -120,8 +127,112 @@ export function create(
   return {
     method: 'post',
     path: '/me/joinedTeams/{team-id}/tags',
-    paramDefs: [{ name: 'team-id', in: 'path' }],
+    paramDefs: {
+      path: ['team-id'],
+    },
     params,
     body,
   };
 }
+
+export const members = {
+  /**
+   * `GET /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members`
+   *
+   * Users assigned to the tag.
+   */
+  list: function list(
+    params?: IEndpoints['GET /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['team-id', 'teamworkTag-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members']['body'],
+    params?: IEndpoints['POST /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members',
+      paramDefs: {
+        path: ['team-id', 'teamworkTag-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}`
+   *
+   * Users assigned to the tag.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['team-id', 'teamworkTag-id', 'teamworkTagMember-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}']['body'],
+    params?: IEndpoints['PATCH /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}',
+      paramDefs: {
+        path: ['team-id', 'teamworkTag-id', 'teamworkTagMember-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/me/joinedTeams/{team-id}/tags/{teamworkTag-id}/members/{teamworkTagMember-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['team-id', 'teamworkTag-id', 'teamworkTagMember-id'],
+      },
+      params,
+    };
+  },
+};

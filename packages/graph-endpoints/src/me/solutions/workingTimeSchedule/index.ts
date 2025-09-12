@@ -1,6 +1,3 @@
-export * as endWorkingTime from './endWorkingTime';
-export * as startWorkingTime from './startWorkingTime';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -12,6 +9,14 @@ export interface IEndpoints {
   'PATCH /me/solutions/workingTimeSchedule': Operation<
     '/me/solutions/workingTimeSchedule',
     'patch'
+  >;
+  'POST /me/solutions/workingTimeSchedule/endWorkingTime': Operation<
+    '/me/solutions/workingTimeSchedule/endWorkingTime',
+    'post'
+  >;
+  'POST /me/solutions/workingTimeSchedule/startWorkingTime': Operation<
+    '/me/solutions/workingTimeSchedule/startWorkingTime',
+    'post'
   >;
 }
 
@@ -25,7 +30,9 @@ export function del(
   return {
     method: 'delete',
     path: '/me/solutions/workingTimeSchedule',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -41,10 +48,9 @@ export function get(
   return {
     method: 'get',
     path: '/me/solutions/workingTimeSchedule',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -54,14 +60,43 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /me/solutions/workingTimeSchedule']['body'],
-  params?: IEndpoints['PATCH /me/solutions/workingTimeSchedule']['parameters']
+  body: IEndpoints['PATCH /me/solutions/workingTimeSchedule']['body']
 ): EndpointRequest<IEndpoints['PATCH /me/solutions/workingTimeSchedule']['response']> {
   return {
     method: 'patch',
     path: '/me/solutions/workingTimeSchedule',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const endWorkingTime = {
+  /**
+   * `POST /me/solutions/workingTimeSchedule/endWorkingTime`
+   *
+   * Trigger the policies associated with the end of working hours for a specific user.
+   */
+  create: function create(): EndpointRequest<
+    IEndpoints['POST /me/solutions/workingTimeSchedule/endWorkingTime']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/me/solutions/workingTimeSchedule/endWorkingTime',
+    };
+  },
+};
+
+export const startWorkingTime = {
+  /**
+   * `POST /me/solutions/workingTimeSchedule/startWorkingTime`
+   *
+   * Trigger the policies associated with the start of working hours for a specific user.
+   */
+  create: function create(): EndpointRequest<
+    IEndpoints['POST /me/solutions/workingTimeSchedule/startWorkingTime']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/me/solutions/workingTimeSchedule/startWorkingTime',
+    };
+  },
+};

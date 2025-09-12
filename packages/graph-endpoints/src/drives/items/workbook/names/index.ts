@@ -1,7 +1,3 @@
-export * as add from './add';
-export * as addFormulaLocal from './addFormulaLocal';
-export * as worksheet from './worksheet';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -25,6 +21,18 @@ export interface IEndpoints {
     '/drives/{drive-id}/items/{driveItem-id}/workbook/names',
     'post'
   >;
+  'POST /drives/{drive-id}/items/{driveItem-id}/workbook/names/add': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/names/add',
+    'post'
+  >;
+  'POST /drives/{drive-id}/items/{driveItem-id}/workbook/names/addFormulaLocal': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/names/addFormulaLocal',
+    'post'
+  >;
+  'GET /drives/{drive-id}/items/{driveItem-id}/workbook/names/{workbookNamedItem-id}/worksheet': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/names/{workbookNamedItem-id}/worksheet',
+    'get'
+  >;
 }
 
 /**
@@ -39,12 +47,10 @@ export function del(
   return {
     method: 'delete',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/names/{workbookNamedItem-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookNamedItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['drive-id', 'driveItem-id', 'workbookNamedItem-id'],
+    },
     params,
   };
 }
@@ -62,18 +68,10 @@ export function list(
   return {
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/names',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -91,13 +89,10 @@ export function get(
   return {
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/names/{workbookNamedItem-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookNamedItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'workbookNamedItem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,11 +110,9 @@ export function update(
   return {
     method: 'patch',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/names/{workbookNamedItem-id}',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookNamedItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'workbookNamedItem-id'],
+    },
     params,
     body,
   };
@@ -138,11 +131,81 @@ export function create(
   return {
     method: 'post',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/names',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id'],
+    },
     params,
     body,
   };
 }
+
+export const add = {
+  /**
+   * `POST /drives/{drive-id}/items/{driveItem-id}/workbook/names/add`
+   *
+   * Adds a new name to the collection of the given scope using the user&#x27;s locale for the formula.
+   */
+  create: function create(
+    body: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/names/add']['body'],
+    params?: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/names/add']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/names/add']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/names/add',
+      paramDefs: {
+        path: ['drive-id', 'driveItem-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const addFormulaLocal = {
+  /**
+   * `POST /drives/{drive-id}/items/{driveItem-id}/workbook/names/addFormulaLocal`
+   *
+   * Adds a new name to the collection of the given scope using the user&#x27;s locale for the formula.
+   */
+  create: function create(
+    body: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/names/addFormulaLocal']['body'],
+    params?: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/names/addFormulaLocal']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/names/addFormulaLocal']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/names/addFormulaLocal',
+      paramDefs: {
+        path: ['drive-id', 'driveItem-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const worksheet = {
+  /**
+   * `GET /drives/{drive-id}/items/{driveItem-id}/workbook/names/{workbookNamedItem-id}/worksheet`
+   *
+   * Returns the worksheet to which the named item is scoped. Available only if the item is scoped to the worksheet. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/workbook/names/{workbookNamedItem-id}/worksheet']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/workbook/names/{workbookNamedItem-id}/worksheet']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/names/{workbookNamedItem-id}/worksheet',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['drive-id', 'driveItem-id', 'workbookNamedItem-id'],
+      },
+      params,
+    };
+  },
+};

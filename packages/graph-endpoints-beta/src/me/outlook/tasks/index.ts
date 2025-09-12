@@ -1,6 +1,4 @@
 export * as attachments from './attachments';
-export * as complete from './complete';
-export * as permanentDelete from './permanentDelete';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
@@ -16,6 +14,14 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /me/outlook/tasks': Operation<'/me/outlook/tasks', 'post'>;
+  'POST /me/outlook/tasks/{outlookTask-id}/complete': Operation<
+    '/me/outlook/tasks/{outlookTask-id}/complete',
+    'post'
+  >;
+  'POST /me/outlook/tasks/{outlookTask-id}/permanentDelete': Operation<
+    '/me/outlook/tasks/{outlookTask-id}/permanentDelete',
+    'post'
+  >;
 }
 
 /**
@@ -31,10 +37,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/outlook/tasks/{outlookTask-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'outlookTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['outlookTask-id'],
+    },
     params,
   };
 }
@@ -54,16 +60,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/outlook/tasks',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,11 +80,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/outlook/tasks/{outlookTask-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'outlookTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['outlookTask-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -104,7 +102,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/outlook/tasks/{outlookTask-id}',
-    paramDefs: [{ name: 'outlookTask-id', in: 'path' }],
+    paramDefs: {
+      path: ['outlookTask-id'],
+    },
     params,
     body,
   };
@@ -120,15 +120,58 @@ different than UTC.
   * @deprecated
   */
 export function create(
-  body: IEndpoints['POST /me/outlook/tasks']['body'],
-  params?: IEndpoints['POST /me/outlook/tasks']['parameters']
+  body: IEndpoints['POST /me/outlook/tasks']['body']
 ): EndpointRequest<IEndpoints['POST /me/outlook/tasks']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/me/outlook/tasks',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const complete = {
+  /**
+   * `POST /me/outlook/tasks/{outlookTask-id}/complete`
+   *
+   * Complete an Outlook task which sets the completedDateTime property to the current date, and the status property to completed. If you are completing a task in a recurring series, in the response, the task collection will contain the completed task in the series, and the next task in the series. The completedDateTime property represents the date when the task is finished. The time portion of completedDateTime is set to midnight UTC by default. By default, this operation (and the POST, GET, and PATCH task operations) returns date-related properties in UTC. You can use the Prefer: outlook.timezone header to have all the date-related properties in the response represented in a time zone different than UTC.
+   * @deprecated
+   */
+  create: function create(
+    params?: IEndpoints['POST /me/outlook/tasks/{outlookTask-id}/complete']['parameters']
+  ): EndpointRequest<IEndpoints['POST /me/outlook/tasks/{outlookTask-id}/complete']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/outlook/tasks/{outlookTask-id}/complete',
+      paramDefs: {
+        path: ['outlookTask-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const permanentDelete = {
+  /**
+   * `POST /me/outlook/tasks/{outlookTask-id}/permanentDelete`
+   *
+   * Permanently delete an Outlook task and place it in the Purges folder in the user&#x27;s mailbox. Email clients such as Outlook or the Outlook on the web can&#x27;t access permanently deleted items. Unless there&#x27;s a hold set on the mailbox, the items are permanently deleted after a set period of time. For more information about item retention, see Configure Deleted Item retention and Recoverable Items quotas.
+   * @deprecated
+   */
+  create: function create(
+    params?: IEndpoints['POST /me/outlook/tasks/{outlookTask-id}/permanentDelete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/outlook/tasks/{outlookTask-id}/permanentDelete']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/outlook/tasks/{outlookTask-id}/permanentDelete',
+      paramDefs: {
+        path: ['outlookTask-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,5 +1,3 @@
-export * as contentActivities from './contentActivities';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -15,6 +13,26 @@ export interface IEndpoints {
     '/users/{user-id}/dataSecurityAndGovernance/activities',
     'patch'
   >;
+  'GET /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities': Operation<
+    '/users/{user-id}/dataSecurityAndGovernance/activities/contentActivities',
+    'get'
+  >;
+  'POST /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities': Operation<
+    '/users/{user-id}/dataSecurityAndGovernance/activities/contentActivities',
+    'post'
+  >;
+  'GET /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}': Operation<
+    '/users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}',
+    'get'
+  >;
+  'PATCH /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}': Operation<
+    '/users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}',
+    'patch'
+  >;
+  'DELETE /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}': Operation<
+    '/users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -29,10 +47,10 @@ export function del(
   return {
     method: 'delete',
     path: '/users/{user-id}/dataSecurityAndGovernance/activities',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id'],
+    },
     params,
   };
 }
@@ -50,11 +68,10 @@ export function list(
   return {
     method: 'get',
     path: '/users/{user-id}/dataSecurityAndGovernance/activities',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -72,8 +89,112 @@ export function update(
   return {
     method: 'patch',
     path: '/users/{user-id}/dataSecurityAndGovernance/activities',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };
 }
+
+export const contentActivities = {
+  /**
+   * `GET /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities`
+   *
+   * Collection of activity logs related to content processing.
+   */
+  list: function list(
+    params?: IEndpoints['GET /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/users/{user-id}/dataSecurityAndGovernance/activities/contentActivities',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['user-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities']['body'],
+    params?: IEndpoints['POST /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/dataSecurityAndGovernance/activities/contentActivities',
+      paramDefs: {
+        path: ['user-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}`
+   *
+   * Collection of activity logs related to content processing.
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'contentActivity-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}']['body'],
+    params?: IEndpoints['PATCH /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}',
+      paramDefs: {
+        path: ['user-id', 'contentActivity-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/users/{user-id}/dataSecurityAndGovernance/activities/contentActivities/{contentActivity-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['user-id', 'contentActivity-id'],
+      },
+      params,
+    };
+  },
+};

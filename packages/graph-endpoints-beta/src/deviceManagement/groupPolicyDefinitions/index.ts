@@ -1,5 +1,3 @@
-export * as category from './category';
-export * as definitionFile from './definitionFile';
 export * as nextVersionDefinition from './nextVersionDefinition';
 export * as presentations from './presentations';
 export * as previousVersionDefinition from './previousVersionDefinition';
@@ -27,6 +25,14 @@ export interface IEndpoints {
     '/deviceManagement/groupPolicyDefinitions',
     'post'
   >;
+  'GET /deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/category': Operation<
+    '/deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/category',
+    'get'
+  >;
+  'GET /deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/definitionFile': Operation<
+    '/deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/definitionFile',
+    'get'
+  >;
 }
 
 /**
@@ -42,10 +48,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'groupPolicyDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['groupPolicyDefinition-id'],
+    },
     params,
   };
 }
@@ -62,16 +68,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/groupPolicyDefinitions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,11 +89,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'groupPolicyDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['groupPolicyDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,7 +111,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}',
-    paramDefs: [{ name: 'groupPolicyDefinition-id', in: 'path' }],
+    paramDefs: {
+      path: ['groupPolicyDefinition-id'],
+    },
     params,
     body,
   };
@@ -124,15 +124,60 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/groupPolicyDefinitions']['body'],
-  params?: IEndpoints['POST /deviceManagement/groupPolicyDefinitions']['parameters']
+  body: IEndpoints['POST /deviceManagement/groupPolicyDefinitions']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/groupPolicyDefinitions']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/groupPolicyDefinitions',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const category = {
+  /**
+   * `GET /deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/category`
+   *
+   * The group policy category associated with the definition.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/category']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/category']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/category',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['groupPolicyDefinition-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const definitionFile = {
+  /**
+   * `GET /deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/definitionFile`
+   *
+   * The group policy file associated with the definition.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/definitionFile']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/definitionFile']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/groupPolicyDefinitions/{groupPolicyDefinition-id}/definitionFile',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['groupPolicyDefinition-id'],
+      },
+      params,
+    };
+  },
+};

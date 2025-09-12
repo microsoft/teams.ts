@@ -1,4 +1,3 @@
-export * as importResourceActions from './importResourceActions';
 export * as resourceActions from './resourceActions';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -24,6 +23,10 @@ export interface IEndpoints {
     '/roleManagement/entitlementManagement/resourceNamespaces',
     'post'
   >;
+  'POST /roleManagement/entitlementManagement/resourceNamespaces/{unifiedRbacResourceNamespace-id}/importResourceActions': Operation<
+    '/roleManagement/entitlementManagement/resourceNamespaces/{unifiedRbacResourceNamespace-id}/importResourceActions',
+    'post'
+  >;
 }
 
 /**
@@ -40,10 +43,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/roleManagement/entitlementManagement/resourceNamespaces/{unifiedRbacResourceNamespace-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'unifiedRbacResourceNamespace-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['unifiedRbacResourceNamespace-id'],
+    },
     params,
   };
 }
@@ -62,16 +65,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/entitlementManagement/resourceNamespaces',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,11 +86,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/entitlementManagement/resourceNamespaces/{unifiedRbacResourceNamespace-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'unifiedRbacResourceNamespace-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['unifiedRbacResourceNamespace-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,7 +109,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/roleManagement/entitlementManagement/resourceNamespaces/{unifiedRbacResourceNamespace-id}',
-    paramDefs: [{ name: 'unifiedRbacResourceNamespace-id', in: 'path' }],
+    paramDefs: {
+      path: ['unifiedRbacResourceNamespace-id'],
+    },
     params,
     body,
   };
@@ -126,8 +123,7 @@ export function update(
  * @deprecated
  */
 export function create(
-  body: IEndpoints['POST /roleManagement/entitlementManagement/resourceNamespaces']['body'],
-  params?: IEndpoints['POST /roleManagement/entitlementManagement/resourceNamespaces']['parameters']
+  body: IEndpoints['POST /roleManagement/entitlementManagement/resourceNamespaces']['body']
 ): EndpointRequest<
   IEndpoints['POST /roleManagement/entitlementManagement/resourceNamespaces']['response']
 > {
@@ -135,8 +131,31 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/roleManagement/entitlementManagement/resourceNamespaces',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const importResourceActions = {
+  /**
+   * `POST /roleManagement/entitlementManagement/resourceNamespaces/{unifiedRbacResourceNamespace-id}/importResourceActions`
+   *
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /roleManagement/entitlementManagement/resourceNamespaces/{unifiedRbacResourceNamespace-id}/importResourceActions']['body'],
+    params?: IEndpoints['POST /roleManagement/entitlementManagement/resourceNamespaces/{unifiedRbacResourceNamespace-id}/importResourceActions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /roleManagement/entitlementManagement/resourceNamespaces/{unifiedRbacResourceNamespace-id}/importResourceActions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/roleManagement/entitlementManagement/resourceNamespaces/{unifiedRbacResourceNamespace-id}/importResourceActions',
+      paramDefs: {
+        path: ['unifiedRbacResourceNamespace-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

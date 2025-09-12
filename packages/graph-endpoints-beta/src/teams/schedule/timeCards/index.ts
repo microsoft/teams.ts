@@ -1,10 +1,3 @@
-export * as clockIn from './clockIn';
-export * as clockOut from './clockOut';
-export * as confirm from './confirm';
-export * as confirmForUser from './confirmForUser';
-export * as endBreak from './endBreak';
-export * as startBreak from './startBreak';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -28,6 +21,30 @@ export interface IEndpoints {
     '/teams/{team-id}/schedule/timeCards',
     'post'
   >;
+  'POST /teams/{team-id}/schedule/timeCards/clockIn': Operation<
+    '/teams/{team-id}/schedule/timeCards/clockIn',
+    'post'
+  >;
+  'POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/clockOut': Operation<
+    '/teams/{team-id}/schedule/timeCards/{timeCard-id}/clockOut',
+    'post'
+  >;
+  'POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/confirm': Operation<
+    '/teams/{team-id}/schedule/timeCards/{timeCard-id}/confirm',
+    'post'
+  >;
+  'POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/confirmForUser': Operation<
+    '/teams/{team-id}/schedule/timeCards/{timeCard-id}/confirmForUser',
+    'post'
+  >;
+  'POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/endBreak': Operation<
+    '/teams/{team-id}/schedule/timeCards/{timeCard-id}/endBreak',
+    'post'
+  >;
+  'POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/startBreak': Operation<
+    '/teams/{team-id}/schedule/timeCards/{timeCard-id}/startBreak',
+    'post'
+  >;
 }
 
 /**
@@ -44,11 +61,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/teams/{team-id}/schedule/timeCards/{timeCard-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'team-id', in: 'path' },
-      { name: 'timeCard-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['team-id', 'timeCard-id'],
+    },
     params,
   };
 }
@@ -65,17 +81,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/teams/{team-id}/schedule/timeCards',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'team-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -94,12 +103,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/teams/{team-id}/schedule/timeCards/{timeCard-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'team-id', in: 'path' },
-      { name: 'timeCard-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id', 'timeCard-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -119,10 +126,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/teams/{team-id}/schedule/timeCards/{timeCard-id}',
-    paramDefs: [
-      { name: 'team-id', in: 'path' },
-      { name: 'timeCard-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id', 'timeCard-id'],
+    },
     params,
     body,
   };
@@ -141,8 +147,155 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/teams/{team-id}/schedule/timeCards',
-    paramDefs: [{ name: 'team-id', in: 'path' }],
+    paramDefs: {
+      path: ['team-id'],
+    },
     params,
     body,
   };
 }
+
+export const clockIn = {
+  /**
+   * `POST /teams/{team-id}/schedule/timeCards/clockIn`
+   *
+   * Clock in to start a timeCard.
+   */
+  create: function create(
+    body: IEndpoints['POST /teams/{team-id}/schedule/timeCards/clockIn']['body'],
+    params?: IEndpoints['POST /teams/{team-id}/schedule/timeCards/clockIn']['parameters']
+  ): EndpointRequest<IEndpoints['POST /teams/{team-id}/schedule/timeCards/clockIn']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teams/{team-id}/schedule/timeCards/clockIn',
+      paramDefs: {
+        path: ['team-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const clockOut = {
+  /**
+   * `POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/clockOut`
+   *
+   * Clock out to end an open timeCard.
+   */
+  create: function create(
+    body: IEndpoints['POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/clockOut']['body'],
+    params?: IEndpoints['POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/clockOut']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/clockOut']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teams/{team-id}/schedule/timeCards/{timeCard-id}/clockOut',
+      paramDefs: {
+        path: ['team-id', 'timeCard-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const confirm = {
+  /**
+   * `POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/confirm`
+   *
+   * Confirm a specific timeCard.
+   */
+  create: function create(
+    params?: IEndpoints['POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/confirm']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/confirm']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teams/{team-id}/schedule/timeCards/{timeCard-id}/confirm',
+      paramDefs: {
+        path: ['team-id', 'timeCard-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const confirmForUser = {
+  /**
+   * `POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/confirmForUser`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/confirmForUser']['body'],
+    params?: IEndpoints['POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/confirmForUser']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/confirmForUser']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teams/{team-id}/schedule/timeCards/{timeCard-id}/confirmForUser',
+      paramDefs: {
+        path: ['team-id', 'timeCard-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const endBreak = {
+  /**
+   * `POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/endBreak`
+   *
+   * End the open break in a specific timeCard.
+   */
+  create: function create(
+    body: IEndpoints['POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/endBreak']['body'],
+    params?: IEndpoints['POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/endBreak']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/endBreak']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teams/{team-id}/schedule/timeCards/{timeCard-id}/endBreak',
+      paramDefs: {
+        path: ['team-id', 'timeCard-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const startBreak = {
+  /**
+   * `POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/startBreak`
+   *
+   * Start a break in a specific timeCard.
+   */
+  create: function create(
+    body: IEndpoints['POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/startBreak']['body'],
+    params?: IEndpoints['POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/startBreak']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teams/{team-id}/schedule/timeCards/{timeCard-id}/startBreak']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/teams/{team-id}/schedule/timeCards/{timeCard-id}/startBreak',
+      paramDefs: {
+        path: ['team-id', 'timeCard-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

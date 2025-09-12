@@ -1,9 +1,3 @@
-export * as activatedUsing from './activatedUsing';
-export * as appScope from './appScope';
-export * as directoryScope from './directoryScope';
-export * as principal from './principal';
-export * as roleDefinition from './roleDefinition';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -27,6 +21,26 @@ export interface IEndpoints {
     '/roleManagement/entitlementManagement/roleAssignmentSchedules',
     'post'
   >;
+  'GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/activatedUsing': Operation<
+    '/roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/activatedUsing',
+    'get'
+  >;
+  'GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/appScope': Operation<
+    '/roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/appScope',
+    'get'
+  >;
+  'GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/directoryScope': Operation<
+    '/roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/directoryScope',
+    'get'
+  >;
+  'GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/principal': Operation<
+    '/roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/principal',
+    'get'
+  >;
+  'GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/roleDefinition': Operation<
+    '/roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/roleDefinition',
+    'get'
+  >;
 }
 
 /**
@@ -43,10 +57,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'unifiedRoleAssignmentSchedule-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['unifiedRoleAssignmentSchedule-id'],
+    },
     params,
   };
 }
@@ -65,16 +79,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/entitlementManagement/roleAssignmentSchedules',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,11 +100,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'unifiedRoleAssignmentSchedule-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['unifiedRoleAssignmentSchedule-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,7 +123,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}',
-    paramDefs: [{ name: 'unifiedRoleAssignmentSchedule-id', in: 'path' }],
+    paramDefs: {
+      path: ['unifiedRoleAssignmentSchedule-id'],
+    },
     params,
     body,
   };
@@ -129,8 +137,7 @@ export function update(
  * @deprecated
  */
 export function create(
-  body: IEndpoints['POST /roleManagement/entitlementManagement/roleAssignmentSchedules']['body'],
-  params?: IEndpoints['POST /roleManagement/entitlementManagement/roleAssignmentSchedules']['parameters']
+  body: IEndpoints['POST /roleManagement/entitlementManagement/roleAssignmentSchedules']['body']
 ): EndpointRequest<
   IEndpoints['POST /roleManagement/entitlementManagement/roleAssignmentSchedules']['response']
 > {
@@ -138,8 +145,131 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/roleManagement/entitlementManagement/roleAssignmentSchedules',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const activatedUsing = {
+  /**
+   * `GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/activatedUsing`
+   *
+   * If the request is from an eligible administrator to activate a role, this parameter shows the related eligible assignment for that activation. Otherwise, it&#x27;s null. Supports $expand.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/activatedUsing']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/activatedUsing']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/activatedUsing',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleAssignmentSchedule-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const appScope = {
+  /**
+   * `GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/appScope`
+   *
+   * Read-only property with details of the app-specific scope when the role eligibility or assignment is scoped to an app. Nullable.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/appScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/appScope']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/appScope',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleAssignmentSchedule-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const directoryScope = {
+  /**
+   * `GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/directoryScope`
+   *
+   * The directory object that is the scope of the role eligibility or assignment. Read-only.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/directoryScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/directoryScope']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/directoryScope',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleAssignmentSchedule-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const principal = {
+  /**
+   * `GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/principal`
+   *
+   * The principal that&#x27;s getting a role assignment or that&#x27;s eligible for a role through the request.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/principal']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/principal']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/principal',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleAssignmentSchedule-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const roleDefinition = {
+  /**
+   * `GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/roleDefinition`
+   *
+   * Detailed information for the roleDefinition object that is referenced through the roleDefinitionId property.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/roleDefinition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/roleDefinition']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/entitlementManagement/roleAssignmentSchedules/{unifiedRoleAssignmentSchedule-id}/roleDefinition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleAssignmentSchedule-id'],
+      },
+      params,
+    };
+  },
+};

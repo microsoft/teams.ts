@@ -1,5 +1,3 @@
-export * as content from './content';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -9,6 +7,18 @@ export interface IEndpoints {
     'get'
   >;
   'POST /drives/{drive-id}/bundles': Operation<'/drives/{drive-id}/bundles', 'post'>;
+  'GET /drives/{drive-id}/bundles/{driveItem-id}/content': Operation<
+    '/drives/{drive-id}/bundles/{driveItem-id}/content',
+    'get'
+  >;
+  'PUT /drives/{drive-id}/bundles/{driveItem-id}/content': Operation<
+    '/drives/{drive-id}/bundles/{driveItem-id}/content',
+    'put'
+  >;
+  'DELETE /drives/{drive-id}/bundles/{driveItem-id}/content': Operation<
+    '/drives/{drive-id}/bundles/{driveItem-id}/content',
+    'delete'
+  >;
 }
 
 /**
@@ -22,17 +32,10 @@ export function list(
   return {
     method: 'get',
     path: '/drives/{drive-id}/bundles',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -48,12 +51,10 @@ export function get(
   return {
     method: 'get',
     path: '/drives/{drive-id}/bundles/{driveItem-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -69,8 +70,74 @@ export function create(
   return {
     method: 'post',
     path: '/drives/{drive-id}/bundles',
-    paramDefs: [{ name: 'drive-id', in: 'path' }],
+    paramDefs: {
+      path: ['drive-id'],
+    },
     params,
     body,
   };
 }
+
+export const content = {
+  /**
+   * `GET /drives/{drive-id}/bundles/{driveItem-id}/content`
+   *
+   * The content stream, if the item represents a file.
+   */
+  get: function get(
+    params?: IEndpoints['GET /drives/{drive-id}/bundles/{driveItem-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /drives/{drive-id}/bundles/{driveItem-id}/content']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/drives/{drive-id}/bundles/{driveItem-id}/content',
+      paramDefs: {
+        query: ['$format'],
+        path: ['drive-id', 'driveItem-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /drives/{drive-id}/bundles/{driveItem-id}/content`
+   *
+   * The content stream, if the item represents a file.
+   */
+  set: function set(
+    body: IEndpoints['PUT /drives/{drive-id}/bundles/{driveItem-id}/content']['body'],
+    params?: IEndpoints['PUT /drives/{drive-id}/bundles/{driveItem-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /drives/{drive-id}/bundles/{driveItem-id}/content']['response']
+  > {
+    return {
+      method: 'put',
+      path: '/drives/{drive-id}/bundles/{driveItem-id}/content',
+      paramDefs: {
+        path: ['drive-id', 'driveItem-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /drives/{drive-id}/bundles/{driveItem-id}/content`
+   *
+   * The content stream, if the item represents a file.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /drives/{drive-id}/bundles/{driveItem-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /drives/{drive-id}/bundles/{driveItem-id}/content']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/drives/{drive-id}/bundles/{driveItem-id}/content',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['drive-id', 'driveItem-id'],
+      },
+      params,
+    };
+  },
+};

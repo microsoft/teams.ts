@@ -1,5 +1,3 @@
-export * as clear from './clear';
-
 import type { EndpointRequest, Operation } from './../../../../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -15,6 +13,10 @@ export interface IEndpoints {
     '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/line',
     'patch'
   >;
+  'POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/line/clear': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/line/clear',
+    'post'
+  >;
 }
 
 /**
@@ -29,14 +31,16 @@ export function del(
   return {
     method: 'delete',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/line',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookChart-id', in: 'path' },
-      { name: 'workbookChartSeries-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: [
+        'drive-id',
+        'driveItem-id',
+        'workbookWorksheet-id',
+        'workbookChart-id',
+        'workbookChartSeries-id',
+      ],
+    },
     params,
   };
 }
@@ -54,15 +58,16 @@ export function get(
   return {
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/line',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookChart-id', in: 'path' },
-      { name: 'workbookChartSeries-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: [
+        'drive-id',
+        'driveItem-id',
+        'workbookWorksheet-id',
+        'workbookChart-id',
+        'workbookChartSeries-id',
+      ],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -80,14 +85,44 @@ export function update(
   return {
     method: 'patch',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/line',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookChart-id', in: 'path' },
-      { name: 'workbookChartSeries-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: [
+        'drive-id',
+        'driveItem-id',
+        'workbookWorksheet-id',
+        'workbookChart-id',
+        'workbookChartSeries-id',
+      ],
+    },
     params,
     body,
   };
 }
+
+export const clear = {
+  /**
+   * `POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/line/clear`
+   *
+   * Clear the line format of a chart element.
+   */
+  create: function create(
+    params?: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/line/clear']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/line/clear']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format/line/clear',
+      paramDefs: {
+        path: [
+          'drive-id',
+          'driveItem-id',
+          'workbookWorksheet-id',
+          'workbookChart-id',
+          'workbookChartSeries-id',
+        ],
+      },
+      params,
+    };
+  },
+};

@@ -1,6 +1,5 @@
 export * as appliedPolicies from './appliedPolicies';
 export * as intendedPolicies from './intendedPolicies';
-export * as operations from './operations';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -25,6 +24,26 @@ export interface IEndpoints {
     '/deviceAppManagement/managedAppRegistrations',
     'post'
   >;
+  'GET /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations': Operation<
+    '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations',
+    'get'
+  >;
+  'POST /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations': Operation<
+    '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations',
+    'post'
+  >;
+  'GET /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}': Operation<
+    '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}',
+    'get'
+  >;
+  'PATCH /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}': Operation<
+    '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}',
+    'patch'
+  >;
+  'DELETE /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}': Operation<
+    '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -39,10 +58,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'managedAppRegistration-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['managedAppRegistration-id'],
+    },
     params,
   };
 }
@@ -50,7 +69,7 @@ export function del(
 /**
  * `GET /deviceAppManagement/managedAppRegistrations`
  *
- * List properties and relationships of the iosManagedAppRegistration objects.
+ * List properties and relationships of the managedAppRegistration objects.
  */
 export function list(
   params?: IEndpoints['GET /deviceAppManagement/managedAppRegistrations']['parameters']
@@ -58,16 +77,9 @@ export function list(
   return {
     method: 'get',
     path: '/deviceAppManagement/managedAppRegistrations',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -85,11 +97,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'managedAppRegistration-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['managedAppRegistration-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -107,7 +118,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}',
-    paramDefs: [{ name: 'managedAppRegistration-id', in: 'path' }],
+    paramDefs: {
+      path: ['managedAppRegistration-id'],
+    },
     params,
     body,
   };
@@ -119,14 +132,116 @@ export function update(
  * Create a new androidManagedAppRegistration object.
  */
 export function create(
-  body: IEndpoints['POST /deviceAppManagement/managedAppRegistrations']['body'],
-  params?: IEndpoints['POST /deviceAppManagement/managedAppRegistrations']['parameters']
+  body: IEndpoints['POST /deviceAppManagement/managedAppRegistrations']['body']
 ): EndpointRequest<IEndpoints['POST /deviceAppManagement/managedAppRegistrations']['response']> {
   return {
     method: 'post',
     path: '/deviceAppManagement/managedAppRegistrations',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const operations = {
+  /**
+   * `GET /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations`
+   *
+   * List properties and relationships of the managedAppOperation objects.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['managedAppRegistration-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations`
+   *
+   * Create a new managedAppOperation object.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations']['body'],
+    params?: IEndpoints['POST /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations',
+      paramDefs: {
+        path: ['managedAppRegistration-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}`
+   *
+   * Read properties and relationships of the managedAppOperation object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['managedAppRegistration-id', 'managedAppOperation-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}`
+   *
+   * Update the properties of a managedAppOperation object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}']['body'],
+    params?: IEndpoints['PATCH /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}',
+      paramDefs: {
+        path: ['managedAppRegistration-id', 'managedAppOperation-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}`
+   *
+   * Deletes a managedAppOperation.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['managedAppRegistration-id', 'managedAppOperation-id'],
+      },
+      params,
+    };
+  },
+};

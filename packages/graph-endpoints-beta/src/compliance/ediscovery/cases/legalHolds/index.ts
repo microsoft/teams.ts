@@ -1,6 +1,5 @@
 export * as siteSources from './siteSources';
 export * as unifiedGroupSources from './unifiedGroupSources';
-export * as userSources from './userSources';
 
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
@@ -25,6 +24,26 @@ export interface IEndpoints {
     '/compliance/ediscovery/cases/{case-id}/legalHolds',
     'post'
   >;
+  'GET /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources': Operation<
+    '/compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources',
+    'get'
+  >;
+  'POST /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources': Operation<
+    '/compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources',
+    'post'
+  >;
+  'GET /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}': Operation<
+    '/compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}',
+    'get'
+  >;
+  'PATCH /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}': Operation<
+    '/compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}',
+    'patch'
+  >;
+  'DELETE /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}': Operation<
+    '/compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -42,11 +61,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'case-id', in: 'path' },
-      { name: 'legalHold-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['case-id', 'legalHold-id'],
+    },
     params,
   };
 }
@@ -66,17 +84,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/compliance/ediscovery/cases/{case-id}/legalHolds',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'case-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['case-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -96,12 +107,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'case-id', in: 'path' },
-      { name: 'legalHold-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['case-id', 'legalHold-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -122,10 +131,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}',
-    paramDefs: [
-      { name: 'case-id', in: 'path' },
-      { name: 'legalHold-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['case-id', 'legalHold-id'],
+    },
     params,
     body,
   };
@@ -146,8 +154,123 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/compliance/ediscovery/cases/{case-id}/legalHolds',
-    paramDefs: [{ name: 'case-id', in: 'path' }],
+    paramDefs: {
+      path: ['case-id'],
+    },
     params,
     body,
   };
 }
+
+export const userSources = {
+  /**
+   * `GET /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources`
+   *
+   * Get the list of userSource objects associated with a legal hold.
+   * @deprecated
+   */
+  list: function list(
+    params?: IEndpoints['GET /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['case-id', 'legalHold-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources`
+   *
+   * Adds a userSource to a legalHold object.
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources']['body'],
+    params?: IEndpoints['POST /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources',
+      paramDefs: {
+        path: ['case-id', 'legalHold-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}`
+   *
+   * Data source entity for a the legal hold. This is the container for a mailbox and OneDrive for Business site.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['case-id', 'legalHold-id', 'userSource-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}`
+   *
+   * @deprecated
+   */
+  update: function update(
+    body: IEndpoints['PATCH /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}']['body'],
+    params?: IEndpoints['PATCH /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}',
+      paramDefs: {
+        path: ['case-id', 'legalHold-id', 'userSource-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}`
+   *
+   * @deprecated
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/compliance/ediscovery/cases/{case-id}/legalHolds/{legalHold-id}/userSources/{userSource-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['case-id', 'legalHold-id', 'userSource-id'],
+      },
+      params,
+    };
+  },
+};

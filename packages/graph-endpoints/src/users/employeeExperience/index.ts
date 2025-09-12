@@ -1,5 +1,3 @@
-export * as learningCourseActivities from './learningCourseActivities';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -15,6 +13,14 @@ export interface IEndpoints {
     '/users/{user-id}/employeeExperience',
     'patch'
   >;
+  'GET /users/{user-id}/employeeExperience/learningCourseActivities': Operation<
+    '/users/{user-id}/employeeExperience/learningCourseActivities',
+    'get'
+  >;
+  'GET /users/{user-id}/employeeExperience/learningCourseActivities/{learningCourseActivity-id}': Operation<
+    '/users/{user-id}/employeeExperience/learningCourseActivities/{learningCourseActivity-id}',
+    'get'
+  >;
 }
 
 /**
@@ -27,10 +33,10 @@ export function del(
   return {
     method: 'delete',
     path: '/users/{user-id}/employeeExperience',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id'],
+    },
     params,
   };
 }
@@ -45,11 +51,10 @@ export function get(
   return {
     method: 'get',
     path: '/users/{user-id}/employeeExperience',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -65,8 +70,53 @@ export function update(
   return {
     method: 'patch',
     path: '/users/{user-id}/employeeExperience',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };
 }
+
+export const learningCourseActivities = {
+  /**
+   * `GET /users/{user-id}/employeeExperience/learningCourseActivities`
+   *
+   * Get a list of the learningCourseActivity objects (assigned or self-initiated) for a user.
+   */
+  list: function list(
+    params?: IEndpoints['GET /users/{user-id}/employeeExperience/learningCourseActivities']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/employeeExperience/learningCourseActivities']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/users/{user-id}/employeeExperience/learningCourseActivities',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['user-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /users/{user-id}/employeeExperience/learningCourseActivities/{learningCourseActivity-id}`
+   *
+   * Get the specified learningCourseActivity object using either an ID or an externalCourseActivityId of the learning provider, or a courseActivityId of a user.
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/employeeExperience/learningCourseActivities/{learningCourseActivity-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/employeeExperience/learningCourseActivities/{learningCourseActivity-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/users/{user-id}/employeeExperience/learningCourseActivities/{learningCourseActivity-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'learningCourseActivity-id'],
+      },
+      params,
+    };
+  },
+};

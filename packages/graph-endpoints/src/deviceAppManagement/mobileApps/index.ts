@@ -1,7 +1,3 @@
-export * as assign from './assign';
-export * as assignments from './assignments';
-export * as categories from './categories';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -19,12 +15,44 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /deviceAppManagement/mobileApps': Operation<'/deviceAppManagement/mobileApps', 'post'>;
+  'POST /deviceAppManagement/mobileApps/{mobileApp-id}/assign': Operation<
+    '/deviceAppManagement/mobileApps/{mobileApp-id}/assign',
+    'post'
+  >;
+  'GET /deviceAppManagement/mobileApps/{mobileApp-id}/assignments': Operation<
+    '/deviceAppManagement/mobileApps/{mobileApp-id}/assignments',
+    'get'
+  >;
+  'POST /deviceAppManagement/mobileApps/{mobileApp-id}/assignments': Operation<
+    '/deviceAppManagement/mobileApps/{mobileApp-id}/assignments',
+    'post'
+  >;
+  'GET /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}': Operation<
+    '/deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}',
+    'get'
+  >;
+  'PATCH /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}': Operation<
+    '/deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}',
+    'patch'
+  >;
+  'DELETE /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}': Operation<
+    '/deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}',
+    'delete'
+  >;
+  'GET /deviceAppManagement/mobileApps/{mobileApp-id}/categories': Operation<
+    '/deviceAppManagement/mobileApps/{mobileApp-id}/categories',
+    'get'
+  >;
+  'GET /deviceAppManagement/mobileApps/{mobileApp-id}/categories/{mobileAppCategory-id}': Operation<
+    '/deviceAppManagement/mobileApps/{mobileApp-id}/categories/{mobileAppCategory-id}',
+    'get'
+  >;
 }
 
 /**
  * `DELETE /deviceAppManagement/mobileApps/{mobileApp-id}`
  *
- * Deletes a windowsAppX.
+ * Deletes a iosStoreApp.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceAppManagement/mobileApps/{mobileApp-id}']['parameters']
@@ -34,10 +62,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceAppManagement/mobileApps/{mobileApp-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'mobileApp-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['mobileApp-id'],
+    },
     params,
   };
 }
@@ -45,7 +73,7 @@ export function del(
 /**
  * `GET /deviceAppManagement/mobileApps`
  *
- * List properties and relationships of the windowsWebApp objects.
+ * List properties and relationships of the managedAndroidStoreApp objects.
  */
 export function list(
   params?: IEndpoints['GET /deviceAppManagement/mobileApps']['parameters']
@@ -53,16 +81,9 @@ export function list(
   return {
     method: 'get',
     path: '/deviceAppManagement/mobileApps',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -70,7 +91,7 @@ export function list(
 /**
  * `GET /deviceAppManagement/mobileApps/{mobileApp-id}`
  *
- * Read properties and relationships of the managedAndroidStoreApp object.
+ * Read properties and relationships of the managedIOSLobApp object.
  */
 export function get(
   params?: IEndpoints['GET /deviceAppManagement/mobileApps/{mobileApp-id}']['parameters']
@@ -78,11 +99,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceAppManagement/mobileApps/{mobileApp-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'mobileApp-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['mobileApp-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,7 +110,7 @@ export function get(
 /**
  * `PATCH /deviceAppManagement/mobileApps/{mobileApp-id}`
  *
- * Update the properties of a androidLobApp object.
+ * Update the properties of a macOSMicrosoftEdgeApp object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceAppManagement/mobileApps/{mobileApp-id}']['body'],
@@ -99,7 +119,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceAppManagement/mobileApps/{mobileApp-id}',
-    paramDefs: [{ name: 'mobileApp-id', in: 'path' }],
+    paramDefs: {
+      path: ['mobileApp-id'],
+    },
     params,
     body,
   };
@@ -108,17 +130,185 @@ export function update(
 /**
  * `POST /deviceAppManagement/mobileApps`
  *
- * Create a new windowsMicrosoftEdgeApp object.
+ * Create a new iosVppApp object.
  */
 export function create(
-  body: IEndpoints['POST /deviceAppManagement/mobileApps']['body'],
-  params?: IEndpoints['POST /deviceAppManagement/mobileApps']['parameters']
+  body: IEndpoints['POST /deviceAppManagement/mobileApps']['body']
 ): EndpointRequest<IEndpoints['POST /deviceAppManagement/mobileApps']['response']> {
   return {
     method: 'post',
     path: '/deviceAppManagement/mobileApps',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const assign = {
+  /**
+   * `POST /deviceAppManagement/mobileApps/{mobileApp-id}/assign`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceAppManagement/mobileApps/{mobileApp-id}/assign']['body'],
+    params?: IEndpoints['POST /deviceAppManagement/mobileApps/{mobileApp-id}/assign']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceAppManagement/mobileApps/{mobileApp-id}/assign']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceAppManagement/mobileApps/{mobileApp-id}/assign',
+      paramDefs: {
+        path: ['mobileApp-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const assignments = {
+  /**
+   * `GET /deviceAppManagement/mobileApps/{mobileApp-id}/assignments`
+   *
+   * List properties and relationships of the mobileAppAssignment objects.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceAppManagement/mobileApps/{mobileApp-id}/assignments']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/mobileApps/{mobileApp-id}/assignments']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceAppManagement/mobileApps/{mobileApp-id}/assignments',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['mobileApp-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceAppManagement/mobileApps/{mobileApp-id}/assignments`
+   *
+   * Create a new mobileAppAssignment object.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceAppManagement/mobileApps/{mobileApp-id}/assignments']['body'],
+    params?: IEndpoints['POST /deviceAppManagement/mobileApps/{mobileApp-id}/assignments']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceAppManagement/mobileApps/{mobileApp-id}/assignments']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceAppManagement/mobileApps/{mobileApp-id}/assignments',
+      paramDefs: {
+        path: ['mobileApp-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}`
+   *
+   * Read properties and relationships of the mobileAppAssignment object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['mobileApp-id', 'mobileAppAssignment-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}`
+   *
+   * Update the properties of a mobileAppAssignment object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}']['body'],
+    params?: IEndpoints['PATCH /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}',
+      paramDefs: {
+        path: ['mobileApp-id', 'mobileAppAssignment-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}`
+   *
+   * Deletes a mobileAppAssignment.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['mobileApp-id', 'mobileAppAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const categories = {
+  /**
+   * `GET /deviceAppManagement/mobileApps/{mobileApp-id}/categories`
+   *
+   * The list of categories for this app.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceAppManagement/mobileApps/{mobileApp-id}/categories']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/mobileApps/{mobileApp-id}/categories']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceAppManagement/mobileApps/{mobileApp-id}/categories',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['mobileApp-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /deviceAppManagement/mobileApps/{mobileApp-id}/categories/{mobileAppCategory-id}`
+   *
+   * The list of categories for this app.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceAppManagement/mobileApps/{mobileApp-id}/categories/{mobileAppCategory-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/mobileApps/{mobileApp-id}/categories/{mobileAppCategory-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceAppManagement/mobileApps/{mobileApp-id}/categories/{mobileAppCategory-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['mobileApp-id', 'mobileAppCategory-id'],
+      },
+      params,
+    };
+  },
+};

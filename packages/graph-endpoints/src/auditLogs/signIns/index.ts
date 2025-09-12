@@ -1,7 +1,3 @@
-export * as confirmCompromised from './confirmCompromised';
-export * as confirmSafe from './confirmSafe';
-export * as dismiss from './dismiss';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -10,6 +6,12 @@ export interface IEndpoints {
   'GET /auditLogs/signIns/{signIn-id}': Operation<'/auditLogs/signIns/{signIn-id}', 'get'>;
   'PATCH /auditLogs/signIns/{signIn-id}': Operation<'/auditLogs/signIns/{signIn-id}', 'patch'>;
   'POST /auditLogs/signIns': Operation<'/auditLogs/signIns', 'post'>;
+  'POST /auditLogs/signIns/confirmCompromised': Operation<
+    '/auditLogs/signIns/confirmCompromised',
+    'post'
+  >;
+  'POST /auditLogs/signIns/confirmSafe': Operation<'/auditLogs/signIns/confirmSafe', 'post'>;
+  'POST /auditLogs/signIns/dismiss': Operation<'/auditLogs/signIns/dismiss', 'post'>;
 }
 
 /**
@@ -22,10 +24,10 @@ export function del(
   return {
     method: 'delete',
     path: '/auditLogs/signIns/{signIn-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'signIn-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['signIn-id'],
+    },
     params,
   };
 }
@@ -41,16 +43,9 @@ export function list(
   return {
     method: 'get',
     path: '/auditLogs/signIns',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -66,11 +61,10 @@ export function get(
   return {
     method: 'get',
     path: '/auditLogs/signIns/{signIn-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'signIn-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['signIn-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,7 +80,9 @@ export function update(
   return {
     method: 'patch',
     path: '/auditLogs/signIns/{signIn-id}',
-    paramDefs: [{ name: 'signIn-id', in: 'path' }],
+    paramDefs: {
+      path: ['signIn-id'],
+    },
     params,
     body,
   };
@@ -97,14 +93,62 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /auditLogs/signIns']['body'],
-  params?: IEndpoints['POST /auditLogs/signIns']['parameters']
+  body: IEndpoints['POST /auditLogs/signIns']['body']
 ): EndpointRequest<IEndpoints['POST /auditLogs/signIns']['response']> {
   return {
     method: 'post',
     path: '/auditLogs/signIns',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const confirmCompromised = {
+  /**
+   * `POST /auditLogs/signIns/confirmCompromised`
+   *
+   * Mark an event in the Microsoft Entra sign-in logs as risky. Events marked as risky by an admin are immediately flagged as high risk in Microsoft Entra ID Protection, overriding previous risk states. Admins can confirm that events flagged as risky by Microsoft Entra ID Protection are in fact risky. For details about investigating Identity Protection risks, see How to investigate risk.
+   */
+  create: function create(
+    body: IEndpoints['POST /auditLogs/signIns/confirmCompromised']['body']
+  ): EndpointRequest<IEndpoints['POST /auditLogs/signIns/confirmCompromised']['response']> {
+    return {
+      method: 'post',
+      path: '/auditLogs/signIns/confirmCompromised',
+      body,
+    };
+  },
+};
+
+export const confirmSafe = {
+  /**
+   * `POST /auditLogs/signIns/confirmSafe`
+   *
+   * Mark an event in Microsoft Entra sign-in logs as safe. Admins can either mark the events flagged as risky by Microsoft Entra ID Protection as safe, or they can mark unflagged events as safe. For details about investigating Identity Protection risks, see How to investigate risk.
+   */
+  create: function create(
+    body: IEndpoints['POST /auditLogs/signIns/confirmSafe']['body']
+  ): EndpointRequest<IEndpoints['POST /auditLogs/signIns/confirmSafe']['response']> {
+    return {
+      method: 'post',
+      path: '/auditLogs/signIns/confirmSafe',
+      body,
+    };
+  },
+};
+
+export const dismiss = {
+  /**
+   * `POST /auditLogs/signIns/dismiss`
+   *
+   * Mark an event in Microsoft Entra sign-in logs as dismissed. For details about investigating Identity Protection risks, see How to investigate risk.
+   */
+  create: function create(
+    body: IEndpoints['POST /auditLogs/signIns/dismiss']['body']
+  ): EndpointRequest<IEndpoints['POST /auditLogs/signIns/dismiss']['response']> {
+    return {
+      method: 'post',
+      path: '/auditLogs/signIns/dismiss',
+      body,
+    };
+  },
+};

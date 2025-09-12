@@ -1,5 +1,3 @@
-export * as undoDelete from './undoDelete';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /teamwork/deletedChats': Operation<'/teamwork/deletedChats', 'post'>;
+  'POST /teamwork/deletedChats/{deletedChat-id}/undoDelete': Operation<
+    '/teamwork/deletedChats/{deletedChat-id}/undoDelete',
+    'post'
+  >;
 }
 
 /**
@@ -29,10 +31,10 @@ export function del(
   return {
     method: 'delete',
     path: '/teamwork/deletedChats/{deletedChat-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deletedChat-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['deletedChat-id'],
+    },
     params,
   };
 }
@@ -48,16 +50,9 @@ export function list(
   return {
     method: 'get',
     path: '/teamwork/deletedChats',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -73,11 +68,10 @@ export function get(
   return {
     method: 'get',
     path: '/teamwork/deletedChats/{deletedChat-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deletedChat-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deletedChat-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,7 +87,9 @@ export function update(
   return {
     method: 'patch',
     path: '/teamwork/deletedChats/{deletedChat-id}',
-    paramDefs: [{ name: 'deletedChat-id', in: 'path' }],
+    paramDefs: {
+      path: ['deletedChat-id'],
+    },
     params,
     body,
   };
@@ -104,14 +100,33 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /teamwork/deletedChats']['body'],
-  params?: IEndpoints['POST /teamwork/deletedChats']['parameters']
+  body: IEndpoints['POST /teamwork/deletedChats']['body']
 ): EndpointRequest<IEndpoints['POST /teamwork/deletedChats']['response']> {
   return {
     method: 'post',
     path: '/teamwork/deletedChats',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const undoDelete = {
+  /**
+   * `POST /teamwork/deletedChats/{deletedChat-id}/undoDelete`
+   *
+   * Restore a  deletedChat to an active chat.
+   */
+  create: function create(
+    params?: IEndpoints['POST /teamwork/deletedChats/{deletedChat-id}/undoDelete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teamwork/deletedChats/{deletedChat-id}/undoDelete']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/teamwork/deletedChats/{deletedChat-id}/undoDelete',
+      paramDefs: {
+        path: ['deletedChat-id'],
+      },
+      params,
+    };
+  },
+};

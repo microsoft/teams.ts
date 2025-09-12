@@ -1,5 +1,4 @@
 export * as posts from './posts';
-export * as reply from './reply';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -18,12 +17,16 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /groups/{group-id}/threads': Operation<'/groups/{group-id}/threads', 'post'>;
+  'POST /groups/{group-id}/threads/{conversationThread-id}/reply': Operation<
+    '/groups/{group-id}/threads/{conversationThread-id}/reply',
+    'post'
+  >;
 }
 
 /**
  * `DELETE /groups/{group-id}/threads/{conversationThread-id}`
  *
- * Delete conversationThread.
+ * Delete a thread object.
  */
 export function del(
   params?: IEndpoints['DELETE /groups/{group-id}/threads/{conversationThread-id}']['parameters']
@@ -34,11 +37,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/groups/{group-id}/threads/{conversationThread-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'conversationThread-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'conversationThread-id'],
+    },
     params,
   };
 }
@@ -55,26 +57,20 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/threads',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
 
 /**
- * `GET /groups/{group-id}/threads/{conversationThread-id}`
- *
- * Get a thread object.
- */
+  * `GET /groups/{group-id}/threads/{conversationThread-id}`
+  *
+  * Get a specific thread that belongs to a group. You can specify both the parent conversation and the thread, or, 
+you can specify the thread without referencing the parent conversation. 
+  */
 export function get(
   params?: IEndpoints['GET /groups/{group-id}/threads/{conversationThread-id}']['parameters']
 ): EndpointRequest<
@@ -84,12 +80,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/threads/{conversationThread-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'conversationThread-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'conversationThread-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,10 +103,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/groups/{group-id}/threads/{conversationThread-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'conversationThread-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'conversationThread-id'],
+    },
     params,
     body,
   };
@@ -131,8 +124,35 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/groups/{group-id}/threads',
-    paramDefs: [{ name: 'group-id', in: 'path' }],
+    paramDefs: {
+      path: ['group-id'],
+    },
     params,
     body,
   };
 }
+
+export const reply = {
+  /**
+   * `POST /groups/{group-id}/threads/{conversationThread-id}/reply`
+   *
+   * Create an open extension (openTypeExtension object) and add custom properties in a new or existing instance of a resource. You can create an open extension in a resource instance and store custom data to it all in the same operation, except for specific resources. The table in the Permissions section lists the resources that support open extensions.
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/threads/{conversationThread-id}/reply']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/threads/{conversationThread-id}/reply']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/threads/{conversationThread-id}/reply']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/threads/{conversationThread-id}/reply',
+      paramDefs: {
+        path: ['group-id', 'conversationThread-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

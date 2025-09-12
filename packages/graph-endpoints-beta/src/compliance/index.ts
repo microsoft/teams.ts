@@ -18,10 +18,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/compliance',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -31,15 +30,12 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /compliance']['body'],
-  params?: IEndpoints['PATCH /compliance']['parameters']
+  body: IEndpoints['PATCH /compliance']['body']
 ): EndpointRequest<IEndpoints['PATCH /compliance']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/compliance',
-    paramDefs: [],
-    params,
     body,
   };
 }

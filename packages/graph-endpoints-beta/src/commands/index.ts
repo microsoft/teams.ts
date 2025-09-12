@@ -1,5 +1,3 @@
-export * as responsepayload from './responsepayload';
-
 import type { EndpointRequest, Operation } from './../types/common.ts';
 
 export interface IEndpoints {
@@ -8,6 +6,10 @@ export interface IEndpoints {
   'GET /commands/{command-id}': Operation<'/commands/{command-id}', 'get'>;
   'PATCH /commands/{command-id}': Operation<'/commands/{command-id}', 'patch'>;
   'POST /commands': Operation<'/commands', 'post'>;
+  'GET /commands/{command-id}/responsepayload': Operation<
+    '/commands/{command-id}/responsepayload',
+    'get'
+  >;
 }
 
 /**
@@ -21,10 +23,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/commands/{command-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'command-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['command-id'],
+    },
     params,
   };
 }
@@ -40,16 +42,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/commands',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -65,11 +60,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/commands/{command-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'command-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['command-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,7 +80,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/commands/{command-id}',
-    paramDefs: [{ name: 'command-id', in: 'path' }],
+    paramDefs: {
+      path: ['command-id'],
+    },
     params,
     body,
   };
@@ -97,15 +93,33 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /commands']['body'],
-  params?: IEndpoints['POST /commands']['parameters']
+  body: IEndpoints['POST /commands']['body']
 ): EndpointRequest<IEndpoints['POST /commands']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/commands',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const responsepayload = {
+  /**
+   * `GET /commands/{command-id}/responsepayload`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /commands/{command-id}/responsepayload']['parameters']
+  ): EndpointRequest<IEndpoints['GET /commands/{command-id}/responsepayload']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/commands/{command-id}/responsepayload',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['command-id'],
+      },
+      params,
+    };
+  },
+};

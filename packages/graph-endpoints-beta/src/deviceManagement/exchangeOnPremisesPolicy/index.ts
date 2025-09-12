@@ -1,5 +1,3 @@
-export * as conditionalAccessSettings from './conditionalAccessSettings';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -15,6 +13,18 @@ export interface IEndpoints {
     '/deviceManagement/exchangeOnPremisesPolicy',
     'patch'
   >;
+  'GET /deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings': Operation<
+    '/deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings',
+    'get'
+  >;
+  'PATCH /deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings': Operation<
+    '/deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings',
+    'patch'
+  >;
+  'DELETE /deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings': Operation<
+    '/deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings',
+    'delete'
+  >;
 }
 
 /**
@@ -28,7 +38,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/exchangeOnPremisesPolicy',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -45,10 +57,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/exchangeOnPremisesPolicy',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -58,15 +69,70 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /deviceManagement/exchangeOnPremisesPolicy']['body'],
-  params?: IEndpoints['PATCH /deviceManagement/exchangeOnPremisesPolicy']['parameters']
+  body: IEndpoints['PATCH /deviceManagement/exchangeOnPremisesPolicy']['body']
 ): EndpointRequest<IEndpoints['PATCH /deviceManagement/exchangeOnPremisesPolicy']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/exchangeOnPremisesPolicy',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const conditionalAccessSettings = {
+  /**
+   * `GET /deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings`
+   *
+   * The Exchange on premises conditional access settings. On premises conditional access will require devices to be both enrolled and compliant for mail access
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings',
+      paramDefs: {
+        query: ['$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings']['body']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings',
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/deviceManagement/exchangeOnPremisesPolicy/conditionalAccessSettings',
+      paramDefs: {
+        header: ['If-Match'],
+      },
+      params,
+    };
+  },
+};

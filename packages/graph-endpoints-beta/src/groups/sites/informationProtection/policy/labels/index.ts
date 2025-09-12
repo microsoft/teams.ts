@@ -1,8 +1,3 @@
-export * as evaluateApplication from './evaluateApplication';
-export * as evaluateClassificationResults from './evaluateClassificationResults';
-export * as evaluateRemoval from './evaluateRemoval';
-export * as extractLabel from './extractLabel';
-
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -26,6 +21,22 @@ export interface IEndpoints {
     '/groups/{group-id}/sites/{site-id}/informationProtection/policy/labels',
     'post'
   >;
+  'POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateApplication': Operation<
+    '/groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateApplication',
+    'post'
+  >;
+  'POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateClassificationResults': Operation<
+    '/groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateClassificationResults',
+    'post'
+  >;
+  'POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateRemoval': Operation<
+    '/groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateRemoval',
+    'post'
+  >;
+  'POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/extractLabel': Operation<
+    '/groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/extractLabel',
+    'post'
+  >;
 }
 
 /**
@@ -42,12 +53,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/{informationProtectionLabel-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'informationProtectionLabel-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'site-id', 'informationProtectionLabel-id'],
+    },
     params,
   };
 }
@@ -66,18 +75,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/informationProtection/policy/labels',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -96,13 +97,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/{informationProtectionLabel-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'informationProtectionLabel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'informationProtectionLabel-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -122,11 +120,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/{informationProtectionLabel-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'informationProtectionLabel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'informationProtectionLabel-id'],
+    },
     params,
     body,
   };
@@ -147,11 +143,114 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/groups/{group-id}/sites/{site-id}/informationProtection/policy/labels',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+    },
     params,
     body,
   };
 }
+
+export const evaluateApplication = {
+  /**
+   * `POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateApplication`
+   *
+   * Compute the information protection label that should be applied and return the set of actions that must be taken to correctly label the information. This API is useful when a label should be set manually or explicitly by a user or service, rather than automatically based on file contents.  Given contentInfo, which includes existing content metadata key/value pairs, and labelingOptions as an input, the API returns an informationProtectionAction object that contains one of more of the following:
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateApplication']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateApplication']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateApplication']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateApplication',
+      paramDefs: {
+        path: ['group-id', 'site-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const evaluateClassificationResults = {
+  /**
+   * `POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateClassificationResults`
+   *
+   * Using classification results, compute the information protection label that should be applied and return the set of actions that must be taken to correctly label the information. This API is useful when a label should be set automatically based on classification of the file contents, rather than labeled directly by a user or service. To evaluate based on classification results, provide contentInfo, which includes existing content metadata key/value pairs, and classification results. The API returns an informationProtectionAction that contains one of more of the following:
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateClassificationResults']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateClassificationResults']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateClassificationResults']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateClassificationResults',
+      paramDefs: {
+        path: ['group-id', 'site-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const evaluateRemoval = {
+  /**
+   * `POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateRemoval`
+   *
+   * Indicate to the consuming application what actions it should take to remove the label information. Given contentInfo as an input, which includes existing content metadata key/value pairs, the API returns an informationProtectionAction that contains some combination of one of more of the following:
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateRemoval']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateRemoval']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateRemoval']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/evaluateRemoval',
+      paramDefs: {
+        path: ['group-id', 'site-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const extractLabel = {
+  /**
+   * `POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/extractLabel`
+   *
+   * Using the metadata that exists on an already-labeled piece of information, resolve the metadata to a specific sensitivity label. The contentInfo input is resolved to informationProtectionContentLabel.
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/extractLabel']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/extractLabel']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/extractLabel']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/sites/{site-id}/informationProtection/policy/labels/extractLabel',
+      paramDefs: {
+        path: ['group-id', 'site-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

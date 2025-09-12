@@ -1,5 +1,3 @@
-export * as artifact from './artifact';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/security/threatIntelligence/articleIndicators',
     'post'
   >;
+  'GET /security/threatIntelligence/articleIndicators/{articleIndicator-id}/artifact': Operation<
+    '/security/threatIntelligence/articleIndicators/{articleIndicator-id}/artifact',
+    'get'
+  >;
 }
 
 /**
@@ -38,10 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/threatIntelligence/articleIndicators/{articleIndicator-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'articleIndicator-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['articleIndicator-id'],
+    },
     params,
   };
 }
@@ -58,16 +60,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/threatIntelligence/articleIndicators',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +81,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/threatIntelligence/articleIndicators/{articleIndicator-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'articleIndicator-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['articleIndicator-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +103,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/threatIntelligence/articleIndicators/{articleIndicator-id}',
-    paramDefs: [{ name: 'articleIndicator-id', in: 'path' }],
+    paramDefs: {
+      path: ['articleIndicator-id'],
+    },
     params,
     body,
   };
@@ -120,15 +116,36 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /security/threatIntelligence/articleIndicators']['body'],
-  params?: IEndpoints['POST /security/threatIntelligence/articleIndicators']['parameters']
+  body: IEndpoints['POST /security/threatIntelligence/articleIndicators']['body']
 ): EndpointRequest<IEndpoints['POST /security/threatIntelligence/articleIndicators']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/security/threatIntelligence/articleIndicators',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const artifact = {
+  /**
+   * `GET /security/threatIntelligence/articleIndicators/{articleIndicator-id}/artifact`
+   *
+   * The artifact related to this indicator.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/threatIntelligence/articleIndicators/{articleIndicator-id}/artifact']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/threatIntelligence/articleIndicators/{articleIndicator-id}/artifact']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/threatIntelligence/articleIndicators/{articleIndicator-id}/artifact',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['articleIndicator-id'],
+      },
+      params,
+    };
+  },
+};

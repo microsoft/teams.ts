@@ -28,10 +28,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/termStore/sets/{set-id}/parentGroup',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['set-id'],
+    },
     params,
   };
 }
@@ -48,11 +48,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/termStore/sets/{set-id}/parentGroup',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['set-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -69,7 +68,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/termStore/sets/{set-id}/parentGroup',
-    paramDefs: [{ name: 'set-id', in: 'path' }],
+    paramDefs: {
+      path: ['set-id'],
+    },
     params,
     body,
   };

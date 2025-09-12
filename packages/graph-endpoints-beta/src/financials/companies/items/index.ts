@@ -1,4 +1,3 @@
-export * as itemCategory from './itemCategory';
 export * as picture from './picture';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -24,6 +23,18 @@ export interface IEndpoints {
     '/financials/companies/{company-id}/items',
     'post'
   >;
+  'GET /financials/companies/{company-id}/items/{item-id}/itemCategory': Operation<
+    '/financials/companies/{company-id}/items/{item-id}/itemCategory',
+    'get'
+  >;
+  'PATCH /financials/companies/{company-id}/items/{item-id}/itemCategory': Operation<
+    '/financials/companies/{company-id}/items/{item-id}/itemCategory',
+    'patch'
+  >;
+  'DELETE /financials/companies/{company-id}/items/{item-id}/itemCategory': Operation<
+    '/financials/companies/{company-id}/items/{item-id}/itemCategory',
+    'delete'
+  >;
 }
 
 /**
@@ -39,11 +50,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/financials/companies/{company-id}/items/{item-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'company-id', in: 'path' },
-      { name: 'item-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['company-id', 'item-id'],
+    },
     params,
   };
 }
@@ -59,17 +69,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/items',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,12 +90,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/items/{item-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-      { name: 'item-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'item-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,10 +112,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/financials/companies/{company-id}/items/{item-id}',
-    paramDefs: [
-      { name: 'company-id', in: 'path' },
-      { name: 'item-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'item-id'],
+    },
     params,
     body,
   };
@@ -132,8 +132,74 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/financials/companies/{company-id}/items',
-    paramDefs: [{ name: 'company-id', in: 'path' }],
+    paramDefs: {
+      path: ['company-id'],
+    },
     params,
     body,
   };
 }
+
+export const itemCategory = {
+  /**
+   * `GET /financials/companies/{company-id}/items/{item-id}/itemCategory`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /financials/companies/{company-id}/items/{item-id}/itemCategory']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /financials/companies/{company-id}/items/{item-id}/itemCategory']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/financials/companies/{company-id}/items/{item-id}/itemCategory',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['company-id', 'item-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /financials/companies/{company-id}/items/{item-id}/itemCategory`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /financials/companies/{company-id}/items/{item-id}/itemCategory']['body'],
+    params?: IEndpoints['PATCH /financials/companies/{company-id}/items/{item-id}/itemCategory']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /financials/companies/{company-id}/items/{item-id}/itemCategory']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/financials/companies/{company-id}/items/{item-id}/itemCategory',
+      paramDefs: {
+        path: ['company-id', 'item-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /financials/companies/{company-id}/items/{item-id}/itemCategory`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /financials/companies/{company-id}/items/{item-id}/itemCategory']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /financials/companies/{company-id}/items/{item-id}/itemCategory']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/financials/companies/{company-id}/items/{item-id}/itemCategory',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['company-id', 'item-id'],
+      },
+      params,
+    };
+  },
+};

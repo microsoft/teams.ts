@@ -1,5 +1,3 @@
-export * as steps from './steps';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -14,6 +12,26 @@ export interface IEndpoints {
   'PATCH /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval': Operation<
     '/users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval',
     'patch'
+  >;
+  'GET /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps': Operation<
+    '/users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps',
+    'get'
+  >;
+  'POST /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps': Operation<
+    '/users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps',
+    'post'
+  >;
+  'GET /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}': Operation<
+    '/users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}',
+    'get'
+  >;
+  'PATCH /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}': Operation<
+    '/users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}',
+    'patch'
+  >;
+  'DELETE /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}': Operation<
+    '/users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}',
+    'delete'
   >;
 }
 
@@ -30,12 +48,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'appConsentRequest-id', in: 'path' },
-      { name: 'userConsentRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'appConsentRequest-id', 'userConsentRequest-id'],
+    },
     params,
   };
 }
@@ -54,13 +70,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'appConsentRequest-id', in: 'path' },
-      { name: 'userConsentRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'appConsentRequest-id', 'userConsentRequest-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -79,12 +92,117 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'appConsentRequest-id', in: 'path' },
-      { name: 'userConsentRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'appConsentRequest-id', 'userConsentRequest-id'],
+    },
     params,
     body,
   };
 }
+
+export const steps = {
+  /**
+   * `GET /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps`
+   *
+   * Used to represent the decision associated with a single step in the approval process configured in approvalStage.
+   */
+  list: function list(
+    params?: IEndpoints['GET /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['user-id', 'appConsentRequest-id', 'userConsentRequest-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps']['body'],
+    params?: IEndpoints['POST /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps',
+      paramDefs: {
+        path: ['user-id', 'appConsentRequest-id', 'userConsentRequest-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}`
+   *
+   * Used to represent the decision associated with a single step in the approval process configured in approvalStage.
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'appConsentRequest-id', 'userConsentRequest-id', 'approvalStep-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}']['body'],
+    params?: IEndpoints['PATCH /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}',
+      paramDefs: {
+        path: ['user-id', 'appConsentRequest-id', 'userConsentRequest-id', 'approvalStep-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/users/{user-id}/appConsentRequestsForApproval/{appConsentRequest-id}/userConsentRequests/{userConsentRequest-id}/approval/steps/{approvalStep-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['user-id', 'appConsentRequest-id', 'userConsentRequest-id', 'approvalStep-id'],
+      },
+      params,
+    };
+  },
+};

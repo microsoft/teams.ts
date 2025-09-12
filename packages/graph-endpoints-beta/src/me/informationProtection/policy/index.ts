@@ -23,7 +23,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/informationProtection/policy',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -40,10 +42,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/informationProtection/policy',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -54,15 +55,12 @@ export function get(
  * @deprecated
  */
 export function update(
-  body: IEndpoints['PATCH /me/informationProtection/policy']['body'],
-  params?: IEndpoints['PATCH /me/informationProtection/policy']['parameters']
+  body: IEndpoints['PATCH /me/informationProtection/policy']['body']
 ): EndpointRequest<IEndpoints['PATCH /me/informationProtection/policy']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/me/informationProtection/policy',
-    paramDefs: [],
-    params,
     body,
   };
 }

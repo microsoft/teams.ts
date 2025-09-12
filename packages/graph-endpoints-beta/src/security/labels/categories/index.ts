@@ -1,5 +1,3 @@
-export * as subcategories from './subcategories';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,26 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /security/labels/categories': Operation<'/security/labels/categories', 'post'>;
+  'GET /security/labels/categories/{categoryTemplate-id}/subcategories': Operation<
+    '/security/labels/categories/{categoryTemplate-id}/subcategories',
+    'get'
+  >;
+  'POST /security/labels/categories/{categoryTemplate-id}/subcategories': Operation<
+    '/security/labels/categories/{categoryTemplate-id}/subcategories',
+    'post'
+  >;
+  'GET /security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}': Operation<
+    '/security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}',
+    'get'
+  >;
+  'PATCH /security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}': Operation<
+    '/security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}',
+    'patch'
+  >;
+  'DELETE /security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}': Operation<
+    '/security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -32,10 +50,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/labels/categories/{categoryTemplate-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'categoryTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['categoryTemplate-id'],
+    },
     params,
   };
 }
@@ -52,16 +70,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/labels/categories',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -80,11 +91,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/labels/categories/{categoryTemplate-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'categoryTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['categoryTemplate-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -103,7 +113,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/labels/categories/{categoryTemplate-id}',
-    paramDefs: [{ name: 'categoryTemplate-id', in: 'path' }],
+    paramDefs: {
+      path: ['categoryTemplate-id'],
+    },
     params,
     body,
   };
@@ -115,15 +127,120 @@ export function update(
  * Create a new categoryTemplate object.
  */
 export function create(
-  body: IEndpoints['POST /security/labels/categories']['body'],
-  params?: IEndpoints['POST /security/labels/categories']['parameters']
+  body: IEndpoints['POST /security/labels/categories']['body']
 ): EndpointRequest<IEndpoints['POST /security/labels/categories']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/security/labels/categories',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const subcategories = {
+  /**
+   * `GET /security/labels/categories/{categoryTemplate-id}/subcategories`
+   *
+   * Get a list of subcategoryTemplate objects associated with a category template.
+   */
+  list: function list(
+    params?: IEndpoints['GET /security/labels/categories/{categoryTemplate-id}/subcategories']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/labels/categories/{categoryTemplate-id}/subcategories']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/labels/categories/{categoryTemplate-id}/subcategories',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['categoryTemplate-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /security/labels/categories/{categoryTemplate-id}/subcategories`
+   *
+   * Create a new subcategoryTemplate object.
+   */
+  create: function create(
+    body: IEndpoints['POST /security/labels/categories/{categoryTemplate-id}/subcategories']['body'],
+    params?: IEndpoints['POST /security/labels/categories/{categoryTemplate-id}/subcategories']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /security/labels/categories/{categoryTemplate-id}/subcategories']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/security/labels/categories/{categoryTemplate-id}/subcategories',
+      paramDefs: {
+        path: ['categoryTemplate-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}`
+   *
+   * Read the properties and relationships of a subcategoryTemplate object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['categoryTemplate-id', 'subcategoryTemplate-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}']['body'],
+    params?: IEndpoints['PATCH /security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}',
+      paramDefs: {
+        path: ['categoryTemplate-id', 'subcategoryTemplate-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/security/labels/categories/{categoryTemplate-id}/subcategories/{subcategoryTemplate-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['categoryTemplate-id', 'subcategoryTemplate-id'],
+      },
+      params,
+    };
+  },
+};

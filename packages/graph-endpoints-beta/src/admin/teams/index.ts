@@ -1,4 +1,3 @@
-export * as policy from './policy';
 export * as userConfigurations from './userConfigurations';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
@@ -7,6 +6,9 @@ export interface IEndpoints {
   'DELETE /admin/teams': Operation<'/admin/teams', 'delete'>;
   'GET /admin/teams': Operation<'/admin/teams', 'get'>;
   'PATCH /admin/teams': Operation<'/admin/teams', 'patch'>;
+  'GET /admin/teams/policy': Operation<'/admin/teams/policy', 'get'>;
+  'PATCH /admin/teams/policy': Operation<'/admin/teams/policy', 'patch'>;
+  'DELETE /admin/teams/policy': Operation<'/admin/teams/policy', 'delete'>;
 }
 
 /**
@@ -20,7 +22,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/admin/teams',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -28,7 +32,7 @@ export function del(
 /**
  * `GET /admin/teams`
  *
- * Represents a collection of user configurations.
+ * A container for all Teams telephone number management functionalities and user configurations.
  */
 export function list(
   params?: IEndpoints['GET /admin/teams']['parameters']
@@ -37,10 +41,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/admin/teams',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -50,15 +53,63 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /admin/teams']['body'],
-  params?: IEndpoints['PATCH /admin/teams']['parameters']
+  body: IEndpoints['PATCH /admin/teams']['body']
 ): EndpointRequest<IEndpoints['PATCH /admin/teams']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/admin/teams',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const policy = {
+  /**
+   * `GET /admin/teams/policy`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /admin/teams/policy']['parameters']
+  ): EndpointRequest<IEndpoints['GET /admin/teams/policy']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/admin/teams/policy',
+      paramDefs: {
+        query: ['$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /admin/teams/policy`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /admin/teams/policy']['body']
+  ): EndpointRequest<IEndpoints['PATCH /admin/teams/policy']['response']> {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/admin/teams/policy',
+      body,
+    };
+  },
+  /**
+   * `DELETE /admin/teams/policy`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /admin/teams/policy']['parameters']
+  ): EndpointRequest<IEndpoints['DELETE /admin/teams/policy']['response']> {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/admin/teams/policy',
+      paramDefs: {
+        header: ['If-Match'],
+      },
+      params,
+    };
+  },
+};

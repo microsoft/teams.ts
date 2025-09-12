@@ -1,7 +1,5 @@
-export * as lastIndexOperation from './lastIndexOperation';
 export * as siteSources from './siteSources';
 export * as unifiedGroupSources from './unifiedGroupSources';
-export * as userSources from './userSources';
 
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
@@ -26,6 +24,30 @@ export interface IEndpoints {
     '/compliance/ediscovery/cases/{case-id}/custodians',
     'post'
   >;
+  'GET /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/lastIndexOperation': Operation<
+    '/compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/lastIndexOperation',
+    'get'
+  >;
+  'GET /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources': Operation<
+    '/compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources',
+    'get'
+  >;
+  'POST /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources': Operation<
+    '/compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources',
+    'post'
+  >;
+  'GET /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}': Operation<
+    '/compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}',
+    'get'
+  >;
+  'PATCH /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}': Operation<
+    '/compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}',
+    'patch'
+  >;
+  'DELETE /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}': Operation<
+    '/compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -42,11 +64,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'case-id', in: 'path' },
-      { name: 'custodian-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['case-id', 'custodian-id'],
+    },
     params,
   };
 }
@@ -66,17 +87,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/compliance/ediscovery/cases/{case-id}/custodians',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'case-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['case-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -96,12 +110,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'case-id', in: 'path' },
-      { name: 'custodian-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['case-id', 'custodian-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -122,10 +134,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}',
-    paramDefs: [
-      { name: 'case-id', in: 'path' },
-      { name: 'custodian-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['case-id', 'custodian-id'],
+    },
     params,
     body,
   };
@@ -147,8 +158,148 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/compliance/ediscovery/cases/{case-id}/custodians',
-    paramDefs: [{ name: 'case-id', in: 'path' }],
+    paramDefs: {
+      path: ['case-id'],
+    },
     params,
     body,
   };
 }
+
+export const lastIndexOperation = {
+  /**
+   * `GET /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/lastIndexOperation`
+   *
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/lastIndexOperation']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/lastIndexOperation']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/lastIndexOperation',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['case-id', 'custodian-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const userSources = {
+  /**
+   * `GET /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources`
+   *
+   * Get a list of the userSource objects and their properties.
+   * @deprecated
+   */
+  list: function list(
+    params?: IEndpoints['GET /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['case-id', 'custodian-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources`
+   *
+   * Create a new custodian userSource object.
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources']['body'],
+    params?: IEndpoints['POST /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources',
+      paramDefs: {
+        path: ['case-id', 'custodian-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}`
+   *
+   * Read the properties and relationships of a userSource object.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['case-id', 'custodian-id', 'userSource-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}`
+   *
+   * @deprecated
+   */
+  update: function update(
+    body: IEndpoints['PATCH /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}']['body'],
+    params?: IEndpoints['PATCH /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}',
+      paramDefs: {
+        path: ['case-id', 'custodian-id', 'userSource-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}`
+   *
+   * Delete a userSource object.
+   * @deprecated
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/compliance/ediscovery/cases/{case-id}/custodians/{custodian-id}/userSources/{userSource-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['case-id', 'custodian-id', 'userSource-id'],
+      },
+      params,
+    };
+  },
+};

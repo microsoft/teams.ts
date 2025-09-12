@@ -19,10 +19,10 @@ export function del(
   return {
     method: 'delete',
     path: '/sites/{site-id}/termStore',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id'],
+    },
     params,
   };
 }
@@ -38,11 +38,10 @@ export function get(
   return {
     method: 'get',
     path: '/sites/{site-id}/termStore',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -59,7 +58,9 @@ export function update(
   return {
     method: 'patch',
     path: '/sites/{site-id}/termStore',
-    paramDefs: [{ name: 'site-id', in: 'path' }],
+    paramDefs: {
+      path: ['site-id'],
+    },
     params,
     body,
   };

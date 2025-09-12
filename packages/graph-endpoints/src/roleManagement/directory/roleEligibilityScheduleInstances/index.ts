@@ -1,8 +1,3 @@
-export * as appScope from './appScope';
-export * as directoryScope from './directoryScope';
-export * as principal from './principal';
-export * as roleDefinition from './roleDefinition';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -26,6 +21,22 @@ export interface IEndpoints {
     '/roleManagement/directory/roleEligibilityScheduleInstances',
     'post'
   >;
+  'GET /roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/appScope': Operation<
+    '/roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/appScope',
+    'get'
+  >;
+  'GET /roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/directoryScope': Operation<
+    '/roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/directoryScope',
+    'get'
+  >;
+  'GET /roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/principal': Operation<
+    '/roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/principal',
+    'get'
+  >;
+  'GET /roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/roleDefinition': Operation<
+    '/roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/roleDefinition',
+    'get'
+  >;
 }
 
 /**
@@ -40,10 +51,10 @@ export function del(
   return {
     method: 'delete',
     path: '/roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'unifiedRoleEligibilityScheduleInstance-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['unifiedRoleEligibilityScheduleInstance-id'],
+    },
     params,
   };
 }
@@ -61,16 +72,9 @@ export function list(
   return {
     method: 'get',
     path: '/roleManagement/directory/roleEligibilityScheduleInstances',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,11 +92,10 @@ export function get(
   return {
     method: 'get',
     path: '/roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'unifiedRoleEligibilityScheduleInstance-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['unifiedRoleEligibilityScheduleInstance-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +113,9 @@ export function update(
   return {
     method: 'patch',
     path: '/roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}',
-    paramDefs: [{ name: 'unifiedRoleEligibilityScheduleInstance-id', in: 'path' }],
+    paramDefs: {
+      path: ['unifiedRoleEligibilityScheduleInstance-id'],
+    },
     params,
     body,
   };
@@ -121,16 +126,105 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /roleManagement/directory/roleEligibilityScheduleInstances']['body'],
-  params?: IEndpoints['POST /roleManagement/directory/roleEligibilityScheduleInstances']['parameters']
+  body: IEndpoints['POST /roleManagement/directory/roleEligibilityScheduleInstances']['body']
 ): EndpointRequest<
   IEndpoints['POST /roleManagement/directory/roleEligibilityScheduleInstances']['response']
 > {
   return {
     method: 'post',
     path: '/roleManagement/directory/roleEligibilityScheduleInstances',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const appScope = {
+  /**
+   * `GET /roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/appScope`
+   *
+   * Read-only property with details of the app-specific scope when the assignment or role eligibility is scoped to an app. Nullable.
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/appScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/appScope']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/appScope',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleEligibilityScheduleInstance-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const directoryScope = {
+  /**
+   * `GET /roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/directoryScope`
+   *
+   * The directory object that is the scope of the assignment or role eligibility. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/directoryScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/directoryScope']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/directoryScope',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleEligibilityScheduleInstance-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const principal = {
+  /**
+   * `GET /roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/principal`
+   *
+   * The principal that&#x27;s getting a role assignment or role eligibility through the request.
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/principal']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/principal']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/principal',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleEligibilityScheduleInstance-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const roleDefinition = {
+  /**
+   * `GET /roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/roleDefinition`
+   *
+   * Detailed information for the roleDefinition object that is referenced through the roleDefinitionId property.
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/roleDefinition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/roleDefinition']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/roleManagement/directory/roleEligibilityScheduleInstances/{unifiedRoleEligibilityScheduleInstance-id}/roleDefinition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleEligibilityScheduleInstance-id'],
+      },
+      params,
+    };
+  },
+};

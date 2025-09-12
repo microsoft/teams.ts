@@ -4,7 +4,7 @@ export * as createdByUser from './createdByUser';
 export * as following from './following';
 export * as items from './items';
 export * as lastModifiedByUser from './lastModifiedByUser';
-export * as dolist from './list';
+export * as doList from './list';
 export * as root from './root';
 export * as special from './special';
 
@@ -29,10 +29,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/drives/{drive-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['drive-id'],
+    },
     params,
   };
 }
@@ -48,15 +48,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/drives',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -72,11 +66,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/drives/{drive-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,7 +86,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/drives/{drive-id}',
-    paramDefs: [{ name: 'drive-id', in: 'path' }],
+    paramDefs: {
+      path: ['drive-id'],
+    },
     params,
     body,
   };
@@ -104,15 +99,12 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /drives']['body'],
-  params?: IEndpoints['POST /drives']['parameters']
+  body: IEndpoints['POST /drives']['body']
 ): EndpointRequest<IEndpoints['POST /drives']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/drives',
-    paramDefs: [],
-    params,
     body,
   };
 }

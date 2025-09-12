@@ -1,7 +1,3 @@
-export * as teamsApp from './teamsApp';
-export * as teamsAppDefinition from './teamsAppDefinition';
-export * as upgrade from './upgrade';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -19,6 +15,18 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /chats/{chat-id}/installedApps': Operation<'/chats/{chat-id}/installedApps', 'post'>;
+  'GET /chats/{chat-id}/installedApps/{teamsAppInstallation-id}/teamsApp': Operation<
+    '/chats/{chat-id}/installedApps/{teamsAppInstallation-id}/teamsApp',
+    'get'
+  >;
+  'GET /chats/{chat-id}/installedApps/{teamsAppInstallation-id}/teamsAppDefinition': Operation<
+    '/chats/{chat-id}/installedApps/{teamsAppInstallation-id}/teamsAppDefinition',
+    'get'
+  >;
+  'POST /chats/{chat-id}/installedApps/{teamsAppInstallation-id}/upgrade': Operation<
+    '/chats/{chat-id}/installedApps/{teamsAppInstallation-id}/upgrade',
+    'post'
+  >;
 }
 
 /**
@@ -34,11 +42,10 @@ export function del(
   return {
     method: 'delete',
     path: '/chats/{chat-id}/installedApps/{teamsAppInstallation-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'chat-id', in: 'path' },
-      { name: 'teamsAppInstallation-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['chat-id', 'teamsAppInstallation-id'],
+    },
     params,
   };
 }
@@ -54,17 +61,10 @@ export function list(
   return {
     method: 'get',
     path: '/chats/{chat-id}/installedApps',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'chat-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['chat-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -82,12 +82,10 @@ export function get(
   return {
     method: 'get',
     path: '/chats/{chat-id}/installedApps/{teamsAppInstallation-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'chat-id', in: 'path' },
-      { name: 'teamsAppInstallation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['chat-id', 'teamsAppInstallation-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -105,10 +103,9 @@ export function update(
   return {
     method: 'patch',
     path: '/chats/{chat-id}/installedApps/{teamsAppInstallation-id}',
-    paramDefs: [
-      { name: 'chat-id', in: 'path' },
-      { name: 'teamsAppInstallation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['chat-id', 'teamsAppInstallation-id'],
+    },
     params,
     body,
   };
@@ -126,8 +123,80 @@ export function create(
   return {
     method: 'post',
     path: '/chats/{chat-id}/installedApps',
-    paramDefs: [{ name: 'chat-id', in: 'path' }],
+    paramDefs: {
+      path: ['chat-id'],
+    },
     params,
     body,
   };
 }
+
+export const teamsApp = {
+  /**
+   * `GET /chats/{chat-id}/installedApps/{teamsAppInstallation-id}/teamsApp`
+   *
+   * The app that is installed.
+   */
+  get: function get(
+    params?: IEndpoints['GET /chats/{chat-id}/installedApps/{teamsAppInstallation-id}/teamsApp']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /chats/{chat-id}/installedApps/{teamsAppInstallation-id}/teamsApp']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/chats/{chat-id}/installedApps/{teamsAppInstallation-id}/teamsApp',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['chat-id', 'teamsAppInstallation-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const teamsAppDefinition = {
+  /**
+   * `GET /chats/{chat-id}/installedApps/{teamsAppInstallation-id}/teamsAppDefinition`
+   *
+   * The details of this version of the app.
+   */
+  get: function get(
+    params?: IEndpoints['GET /chats/{chat-id}/installedApps/{teamsAppInstallation-id}/teamsAppDefinition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /chats/{chat-id}/installedApps/{teamsAppInstallation-id}/teamsAppDefinition']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/chats/{chat-id}/installedApps/{teamsAppInstallation-id}/teamsAppDefinition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['chat-id', 'teamsAppInstallation-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const upgrade = {
+  /**
+   * `POST /chats/{chat-id}/installedApps/{teamsAppInstallation-id}/upgrade`
+   *
+   * Upgrade an app installation within a chat.
+   */
+  create: function create(
+    body: IEndpoints['POST /chats/{chat-id}/installedApps/{teamsAppInstallation-id}/upgrade']['body'],
+    params?: IEndpoints['POST /chats/{chat-id}/installedApps/{teamsAppInstallation-id}/upgrade']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /chats/{chat-id}/installedApps/{teamsAppInstallation-id}/upgrade']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/chats/{chat-id}/installedApps/{teamsAppInstallation-id}/upgrade',
+      paramDefs: {
+        path: ['chat-id', 'teamsAppInstallation-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

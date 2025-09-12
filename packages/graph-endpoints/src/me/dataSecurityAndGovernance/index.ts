@@ -1,5 +1,4 @@
 export * as activities from './activities';
-export * as processContent from './processContent';
 export * as protectionScopes from './protectionScopes';
 export * as sensitivityLabels from './sensitivityLabels';
 
@@ -9,6 +8,10 @@ export interface IEndpoints {
   'DELETE /me/dataSecurityAndGovernance': Operation<'/me/dataSecurityAndGovernance', 'delete'>;
   'GET /me/dataSecurityAndGovernance': Operation<'/me/dataSecurityAndGovernance', 'get'>;
   'PATCH /me/dataSecurityAndGovernance': Operation<'/me/dataSecurityAndGovernance', 'patch'>;
+  'POST /me/dataSecurityAndGovernance/processContent': Operation<
+    '/me/dataSecurityAndGovernance/processContent',
+    'post'
+  >;
 }
 
 /**
@@ -21,7 +24,9 @@ export function del(
   return {
     method: 'delete',
     path: '/me/dataSecurityAndGovernance',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -37,10 +42,9 @@ export function get(
   return {
     method: 'get',
     path: '/me/dataSecurityAndGovernance',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -50,14 +54,28 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /me/dataSecurityAndGovernance']['body'],
-  params?: IEndpoints['PATCH /me/dataSecurityAndGovernance']['parameters']
+  body: IEndpoints['PATCH /me/dataSecurityAndGovernance']['body']
 ): EndpointRequest<IEndpoints['PATCH /me/dataSecurityAndGovernance']['response']> {
   return {
     method: 'patch',
     path: '/me/dataSecurityAndGovernance',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const processContent = {
+  /**
+   * `POST /me/dataSecurityAndGovernance/processContent`
+   *
+   * Process content against data protection policies in the context of the current, or specified, user.
+   */
+  create: function create(
+    body: IEndpoints['POST /me/dataSecurityAndGovernance/processContent']['body']
+  ): EndpointRequest<IEndpoints['POST /me/dataSecurityAndGovernance/processContent']['response']> {
+    return {
+      method: 'post',
+      path: '/me/dataSecurityAndGovernance/processContent',
+      body,
+    };
+  },
+};

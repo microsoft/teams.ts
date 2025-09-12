@@ -1,5 +1,3 @@
-export * as events from './events';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/messageTraces/{messageTrace-id}/recipients',
     'post'
   >;
+  'GET /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events': Operation<
+    '/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events',
+    'get'
+  >;
+  'POST /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events': Operation<
+    '/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events',
+    'post'
+  >;
+  'GET /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}': Operation<
+    '/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}',
+    'get'
+  >;
+  'PATCH /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}': Operation<
+    '/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}',
+    'patch'
+  >;
+  'DELETE /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}': Operation<
+    '/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,11 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'messageTrace-id', in: 'path' },
-      { name: 'messageRecipient-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['messageTrace-id', 'messageRecipient-id'],
+    },
     params,
   };
 }
@@ -58,17 +75,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/messageTraces/{messageTrace-id}/recipients',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'messageTrace-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['messageTrace-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,12 +96,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'messageTrace-id', in: 'path' },
-      { name: 'messageRecipient-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['messageTrace-id', 'messageRecipient-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,10 +118,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}',
-    paramDefs: [
-      { name: 'messageTrace-id', in: 'path' },
-      { name: 'messageRecipient-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['messageTrace-id', 'messageRecipient-id'],
+    },
     params,
     body,
   };
@@ -131,8 +138,115 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/messageTraces/{messageTrace-id}/recipients',
-    paramDefs: [{ name: 'messageTrace-id', in: 'path' }],
+    paramDefs: {
+      path: ['messageTrace-id'],
+    },
     params,
     body,
   };
 }
+
+export const events = {
+  /**
+   * `GET /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['messageTrace-id', 'messageRecipient-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events']['body'],
+    params?: IEndpoints['POST /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events',
+      paramDefs: {
+        path: ['messageTrace-id', 'messageRecipient-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['messageTrace-id', 'messageRecipient-id', 'messageEvent-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}']['body'],
+    params?: IEndpoints['PATCH /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}',
+      paramDefs: {
+        path: ['messageTrace-id', 'messageRecipient-id', 'messageEvent-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['messageTrace-id', 'messageRecipient-id', 'messageEvent-id'],
+      },
+      params,
+    };
+  },
+};

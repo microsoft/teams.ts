@@ -1,9 +1,3 @@
-export * as activatedUsing from './activatedUsing';
-export * as appScope from './appScope';
-export * as directoryScope from './directoryScope';
-export * as principal from './principal';
-export * as roleDefinition from './roleDefinition';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -27,6 +21,26 @@ export interface IEndpoints {
     '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances',
     'post'
   >;
+  'GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/activatedUsing': Operation<
+    '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/activatedUsing',
+    'get'
+  >;
+  'GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/appScope': Operation<
+    '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/appScope',
+    'get'
+  >;
+  'GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/directoryScope': Operation<
+    '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/directoryScope',
+    'get'
+  >;
+  'GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/principal': Operation<
+    '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/principal',
+    'get'
+  >;
+  'GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/roleDefinition': Operation<
+    '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/roleDefinition',
+    'get'
+  >;
 }
 
 /**
@@ -43,11 +57,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'rbacApplication-id', in: 'path' },
-      { name: 'unifiedRoleAssignmentScheduleInstance-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['rbacApplication-id', 'unifiedRoleAssignmentScheduleInstance-id'],
+    },
     params,
   };
 }
@@ -66,17 +79,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'rbacApplication-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['rbacApplication-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -95,12 +101,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'rbacApplication-id', in: 'path' },
-      { name: 'unifiedRoleAssignmentScheduleInstance-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['rbacApplication-id', 'unifiedRoleAssignmentScheduleInstance-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -120,10 +124,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}',
-    paramDefs: [
-      { name: 'rbacApplication-id', in: 'path' },
-      { name: 'unifiedRoleAssignmentScheduleInstance-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['rbacApplication-id', 'unifiedRoleAssignmentScheduleInstance-id'],
+    },
     params,
     body,
   };
@@ -144,8 +147,135 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances',
-    paramDefs: [{ name: 'rbacApplication-id', in: 'path' }],
+    paramDefs: {
+      path: ['rbacApplication-id'],
+    },
     params,
     body,
   };
 }
+
+export const activatedUsing = {
+  /**
+   * `GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/activatedUsing`
+   *
+   * If the request is from an eligible administrator to activate a role, this parameter shows the related eligible assignment for that activation. Otherwise, it&#x27;s null. Supports $expand and $select nested in $expand.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/activatedUsing']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/activatedUsing']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/activatedUsing',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['rbacApplication-id', 'unifiedRoleAssignmentScheduleInstance-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const appScope = {
+  /**
+   * `GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/appScope`
+   *
+   * Read-only property with details of the app-specific scope when the assignment or role eligibility is scoped to an app. Nullable.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/appScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/appScope']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/appScope',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['rbacApplication-id', 'unifiedRoleAssignmentScheduleInstance-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const directoryScope = {
+  /**
+   * `GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/directoryScope`
+   *
+   * The directory object that is the scope of the assignment or role eligibility. Read-only.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/directoryScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/directoryScope']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/directoryScope',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['rbacApplication-id', 'unifiedRoleAssignmentScheduleInstance-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const principal = {
+  /**
+   * `GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/principal`
+   *
+   * The principal that&#x27;s getting a role assignment or role eligibility through the request.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/principal']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/principal']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/principal',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['rbacApplication-id', 'unifiedRoleAssignmentScheduleInstance-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const roleDefinition = {
+  /**
+   * `GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/roleDefinition`
+   *
+   * Detailed information for the roleDefinition object that is referenced through the roleDefinitionId property.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/roleDefinition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/roleDefinition']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/enterpriseApps/{rbacApplication-id}/roleAssignmentScheduleInstances/{unifiedRoleAssignmentScheduleInstance-id}/roleDefinition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['rbacApplication-id', 'unifiedRoleAssignmentScheduleInstance-id'],
+      },
+      params,
+    };
+  },
+};

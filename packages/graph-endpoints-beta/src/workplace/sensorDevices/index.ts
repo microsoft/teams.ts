@@ -1,5 +1,3 @@
-export * as ingestTelemetry from './ingestTelemetry';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /workplace/sensorDevices': Operation<'/workplace/sensorDevices', 'post'>;
+  'POST /workplace/sensorDevices/ingestTelemetry': Operation<
+    '/workplace/sensorDevices/ingestTelemetry',
+    'post'
+  >;
 }
 
 /**
@@ -33,10 +35,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/workplace/sensorDevices/{workplaceSensorDevice-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'workplaceSensorDevice-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['workplaceSensorDevice-id'],
+    },
     params,
   };
 }
@@ -53,16 +55,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/workplace/sensorDevices',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,11 +76,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/workplace/sensorDevices/{workplaceSensorDevice-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'workplaceSensorDevice-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['workplaceSensorDevice-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -105,7 +99,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/workplace/sensorDevices/{workplaceSensorDevice-id}',
-    paramDefs: [{ name: 'workplaceSensorDevice-id', in: 'path' }],
+    paramDefs: {
+      path: ['workplaceSensorDevice-id'],
+    },
     params,
     body,
   };
@@ -117,15 +113,30 @@ export function update(
  * Create a new workplace sensor device.
  */
 export function create(
-  body: IEndpoints['POST /workplace/sensorDevices']['body'],
-  params?: IEndpoints['POST /workplace/sensorDevices']['parameters']
+  body: IEndpoints['POST /workplace/sensorDevices']['body']
 ): EndpointRequest<IEndpoints['POST /workplace/sensorDevices']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/workplace/sensorDevices',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const ingestTelemetry = {
+  /**
+   * `POST /workplace/sensorDevices/ingestTelemetry`
+   *
+   * Ingest sensor telemetry for a workplace sensor device.
+   */
+  create: function create(
+    body: IEndpoints['POST /workplace/sensorDevices/ingestTelemetry']['body']
+  ): EndpointRequest<IEndpoints['POST /workplace/sensorDevices/ingestTelemetry']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/workplace/sensorDevices/ingestTelemetry',
+      body,
+    };
+  },
+};

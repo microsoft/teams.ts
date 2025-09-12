@@ -1,6 +1,3 @@
-export * as mailboxSettings from './mailboxSettings';
-export * as serviceProvisioningErrors from './serviceProvisioningErrors';
-
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -10,6 +7,18 @@ export interface IEndpoints {
   >;
   'GET /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}': Operation<
     '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}',
+    'get'
+  >;
+  'GET /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/mailboxSettings': Operation<
+    '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/mailboxSettings',
+    'get'
+  >;
+  'PATCH /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/mailboxSettings': Operation<
+    '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/mailboxSettings',
+    'patch'
+  >;
+  'GET /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/serviceProvisioningErrors': Operation<
+    '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/serviceProvisioningErrors',
     'get'
   >;
 }
@@ -27,18 +36,10 @@ export function list(
   return {
     method: 'get',
     path: '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'cloudPcProvisioningPolicy-id', in: 'path' },
-      { name: 'cloudPcProvisioningPolicyAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['cloudPcProvisioningPolicy-id', 'cloudPcProvisioningPolicyAssignment-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -56,13 +57,76 @@ export function get(
   return {
     method: 'get',
     path: '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'cloudPcProvisioningPolicy-id', in: 'path' },
-      { name: 'cloudPcProvisioningPolicyAssignment-id', in: 'path' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['cloudPcProvisioningPolicy-id', 'cloudPcProvisioningPolicyAssignment-id', 'user-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
+
+export const mailboxSettings = {
+  /**
+   * `GET /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/mailboxSettings`
+   *
+   * Settings for the primary mailbox of the signed-in user. You can get or update settings for sending automatic replies to incoming messages, locale, and time zone. Returned only on $select.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/mailboxSettings']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/mailboxSettings']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/mailboxSettings',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['cloudPcProvisioningPolicy-id', 'cloudPcProvisioningPolicyAssignment-id', 'user-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/mailboxSettings`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/mailboxSettings']['body'],
+    params?: IEndpoints['PATCH /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/mailboxSettings']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/mailboxSettings']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/mailboxSettings',
+      paramDefs: {
+        path: ['cloudPcProvisioningPolicy-id', 'cloudPcProvisioningPolicyAssignment-id', 'user-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const serviceProvisioningErrors = {
+  /**
+   * `GET /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/serviceProvisioningErrors`
+   *
+   * Errors published by a federated service describing a nontransient, service-specific error regarding the properties or link from a user object.  Supports $filter (eq, not, for isResolved and serviceInstance).
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/serviceProvisioningErrors']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/serviceProvisioningErrors']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assignments/{cloudPcProvisioningPolicyAssignment-id}/assignedUsers/{user-id}/serviceProvisioningErrors',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['cloudPcProvisioningPolicy-id', 'cloudPcProvisioningPolicyAssignment-id', 'user-id'],
+      },
+      params,
+    };
+  },
+};

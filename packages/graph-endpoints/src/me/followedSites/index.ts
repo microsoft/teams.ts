@@ -1,11 +1,10 @@
-export * as add from './add';
-export * as remove from './remove';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
   'GET /me/followedSites': Operation<'/me/followedSites', 'get'>;
   'GET /me/followedSites/{site-id}': Operation<'/me/followedSites/{site-id}', 'get'>;
+  'POST /me/followedSites/add': Operation<'/me/followedSites/add', 'post'>;
+  'POST /me/followedSites/remove': Operation<'/me/followedSites/remove', 'post'>;
 }
 
 /**
@@ -19,16 +18,9 @@ export function list(
   return {
     method: 'get',
     path: '/me/followedSites',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -43,11 +35,44 @@ export function get(
   return {
     method: 'get',
     path: '/me/followedSites/{site-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
+
+export const add = {
+  /**
+   * `POST /me/followedSites/add`
+   *
+   * Follow a user&#x27;s site or multiple sites.
+   */
+  create: function create(
+    body: IEndpoints['POST /me/followedSites/add']['body']
+  ): EndpointRequest<IEndpoints['POST /me/followedSites/add']['response']> {
+    return {
+      method: 'post',
+      path: '/me/followedSites/add',
+      body,
+    };
+  },
+};
+
+export const remove = {
+  /**
+   * `POST /me/followedSites/remove`
+   *
+   * Unfollow a user&#x27;s site or multiple sites.
+   */
+  create: function create(
+    body: IEndpoints['POST /me/followedSites/remove']['body']
+  ): EndpointRequest<IEndpoints['POST /me/followedSites/remove']['response']> {
+    return {
+      method: 'post',
+      path: '/me/followedSites/remove',
+      body,
+    };
+  },
+};

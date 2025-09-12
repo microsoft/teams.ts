@@ -19,7 +19,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/employeeExperience/goals',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -36,10 +38,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/employeeExperience/goals',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -49,15 +50,12 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /employeeExperience/goals']['body'],
-  params?: IEndpoints['PATCH /employeeExperience/goals']['parameters']
+  body: IEndpoints['PATCH /employeeExperience/goals']['body']
 ): EndpointRequest<IEndpoints['PATCH /employeeExperience/goals']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/employeeExperience/goals',
-    paramDefs: [],
-    params,
     body,
   };
 }

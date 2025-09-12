@@ -126,7 +126,7 @@ describe('Client', () => {
             ver: 'v1.0',
             method: 'get',
             path: '/users/{id}',
-            paramDefs: [{ name: 'id', in: 'path' }],
+            paramDefs: { path: ['id'] },
             params: { id: '123' },
           }),
         );
@@ -149,7 +149,7 @@ describe('Client', () => {
           (): EndpointRequest<any> => ({
             method: 'get',
             path: '/users/{id}',
-            paramDefs: [{ name: 'id', in: 'path' }],
+            paramDefs: { path: ['id'] },
             params: { id: '123' },
           }),
         );
@@ -175,7 +175,7 @@ describe('Client', () => {
             ver: 'beta',
             method: 'get',
             path: '/users/{id}',
-            paramDefs: [{ name: 'id', in: 'path' }],
+            paramDefs: { path: ['id'] },
             params: { id: '123' },
           }),
         );
@@ -202,7 +202,7 @@ describe('Client', () => {
             ver: 'beta',
             method: 'get',
             path: '/users/{id}',
-            paramDefs: [{ name: 'id', in: 'path' }],
+            paramDefs: { path: ['id'] },
             params: { id: '123' },
           }),
         );
@@ -228,7 +228,6 @@ describe('Client', () => {
             ver: 'beta',
             method: 'post',
             path: '/users',
-            paramDefs: [],
             body: data,
           }),
         );
@@ -257,7 +256,7 @@ describe('Client', () => {
           (): EndpointRequest<any> => ({
             method: 'get',
             path: '/users/{id}',
-            paramDefs: [{ name: 'id', in: 'path' }],
+            paramDefs: { path: ['id'] },
             params: { id: '123' },
           }),
         );
@@ -279,7 +278,6 @@ describe('Client', () => {
           (): EndpointRequest<any> => ({
             method: 'get',
             path: '/users',
-            paramDefs: [],
           }),
         );
 
@@ -308,7 +306,7 @@ describe('Client', () => {
               ver: 'v1.0',
               method: 'get',
               path: '/users/{id}',
-              paramDefs: [{ name: 'id', in: 'path' }],
+              paramDefs: { path: ['id'] },
               params: { id: '123' },
             }),
           );
@@ -331,7 +329,7 @@ describe('Client', () => {
             (): EndpointRequest<any> => ({
               method: 'get',
               path: '/users/{id}',
-              paramDefs: [{ name: 'id', in: 'path' }],
+              paramDefs: { path: ['id'] },
               params: { id: '123' },
             }),
           );
@@ -357,7 +355,7 @@ describe('Client', () => {
               ver: 'beta',
               method: 'get',
               path: '/users/{id}',
-              paramDefs: [{ name: 'id', in: 'path' }],
+              paramDefs: { path: ['id'] },
               params: { id: '123' },
             }),
           );
@@ -384,7 +382,7 @@ describe('Client', () => {
               ver: 'beta',
               method: 'get',
               path: '/users/{id}',
-              paramDefs: [{ name: 'id', in: 'path' }],
+              paramDefs: { path: ['id'] },
               params: { id: '123' },
             }),
           );
@@ -410,7 +408,6 @@ describe('Client', () => {
               ver: 'beta',
               method: 'post',
               path: '/users',
-              paramDefs: [],
               body: data,
             }),
           );
@@ -439,7 +436,7 @@ describe('Client', () => {
             (): EndpointRequest<any> => ({
               method: 'get',
               path: '/users/{id}',
-              paramDefs: [{ name: 'id', in: 'path' }],
+              paramDefs: { path: ['id'] },
               params: { id: '123' },
             }),
           );
@@ -461,7 +458,6 @@ describe('Client', () => {
             (): EndpointRequest<any> => ({
               method: 'get',
               path: '/users',
-              paramDefs: [],
             }),
           );
 
@@ -484,7 +480,6 @@ describe('Client', () => {
             (data: any): EndpointRequest<any> => ({
               method: 'post',
               path: '/users',
-              paramDefs: [],
               body: data,
             }),
           );
@@ -508,7 +503,6 @@ describe('Client', () => {
             (data: any): EndpointRequest<any> => ({
               method: 'post',
               path: '/users',
-              paramDefs: [],
               body: data,
             }),
           );
@@ -535,7 +529,7 @@ describe('Client', () => {
             (id: string, data: any): EndpointRequest<any> => ({
               method: 'patch',
               path: '/users/{id}',
-              paramDefs: [{ name: 'id', in: 'path' }],
+              paramDefs: { path: ['id'] },
               params: { id },
               body: data,
             }),
@@ -562,7 +556,7 @@ describe('Client', () => {
             (id: string, data: any): EndpointRequest<any> => ({
               method: 'put',
               path: '/users/{id}',
-              paramDefs: [{ name: 'id', in: 'path' }],
+              paramDefs: { path: ['id'] },
               params: { id },
               body: data,
             }),
@@ -592,7 +586,7 @@ describe('Client', () => {
             (id: string): EndpointRequest<any> => ({
               method: 'delete',
               path: '/users/{id}',
-              paramDefs: [{ name: 'id', in: 'path' }],
+              paramDefs: { path: ['id'] },
               params: { id },
             }),
           );
@@ -614,7 +608,7 @@ describe('Client', () => {
             (id: string): EndpointRequest<any> => ({
               method: 'delete',
               path: '/users/{id}',
-              paramDefs: [{ name: 'id', in: 'path' }],
+              paramDefs: { path: ['id'] },
               params: { id },
             }),
           );
@@ -638,7 +632,7 @@ describe('Client', () => {
             (id: string): EndpointRequest<any> => ({
               method: 'get',
               path: '/users/{id}',
-              paramDefs: [{ name: 'id', in: 'path' }],
+              paramDefs: { path: ['id'] },
               params: { id },
             }),
           );
@@ -661,7 +655,7 @@ describe('Client', () => {
             (id: string, data: any): EndpointRequest<any> => ({
               method: 'post',
               path: '/users/{id}/messages',
-              paramDefs: [{ name: 'id', in: 'path' }],
+              paramDefs: { path: ['id'] },
               params: { id },
               body: data,
             }),
@@ -690,7 +684,7 @@ describe('Client', () => {
             (id: string): EndpointRequest<any> => ({
               method: 'get',
               path: '/users/{id}',
-              paramDefs: [{ name: 'id', in: 'path' }],
+              paramDefs: { path: ['id'] },
               params: { id },
             }),
           );
@@ -712,10 +706,9 @@ describe('Client', () => {
             (): EndpointRequest<any> => ({
               method: 'get',
               path: '/users',
-              paramDefs: [
-                { name: 'Authorization', in: 'header' },
-                { name: 'ConsistencyLevel', in: 'header' },
-              ],
+              paramDefs: {
+                header: ['Authorization', 'ConsistencyLevel'],
+              },
               params: {
                 Authorization: 'Bearer token123',
                 ConsistencyLevel: 'eventual',
@@ -742,10 +735,10 @@ describe('Client', () => {
               ver: 'beta',
               method: 'get',
               path: '/users',
-              paramDefs: [
-                { name: 'ConsistencyLevel', in: 'header' },
-                { name: 'count', in: 'query' },
-              ],
+              paramDefs: {
+                header: ['ConsistencyLevel'],
+                query: ['count'],
+              },
               params: {
                 ConsistencyLevel: 'eventual',
                 count: true,
@@ -773,13 +766,11 @@ describe('Client', () => {
             (): EndpointRequest<any> => ({
               method: 'get',
               path: '/users/{userId}/messages',
-              paramDefs: [
-                { name: 'userId', in: 'path' },
-                { name: 'filter', in: 'query' },
-                { name: 'select', in: 'query' },
-                { name: 'Authorization', in: 'header' },
-                { name: 'If-Match', in: 'header' },
-              ],
+              paramDefs: {
+                path: ['userId'],
+                query: ['filter', 'select'],
+                header: ['Authorization', 'If-Match'],
+              },
               params: {
                 userId: 'user-123',
                 filter: 'isRead eq false',
@@ -811,10 +802,9 @@ describe('Client', () => {
             (): EndpointRequest<any> => ({
               method: 'get',
               path: '/users',
-              paramDefs: [
-                { name: 'Authorization', in: 'header' },
-                { name: 'ConsistencyLevel', in: 'header' },
-              ],
+              paramDefs: {
+                header: ['Authorization', 'ConsistencyLevel'],
+              },
               params: {
                 Authorization: 'Bearer token123',
                 ConsistencyLevel: 'eventual',
@@ -851,10 +841,9 @@ describe('Client', () => {
             (data: any): EndpointRequest<any> => ({
               method: 'post',
               path: '/users',
-              paramDefs: [
-                { name: 'Authorization', in: 'header' },
-                { name: 'ConsistencyLevel', in: 'header' },
-              ],
+              paramDefs: {
+                header: ['Authorization', 'ConsistencyLevel'],
+              },
               params: {
                 Authorization: 'Bearer token123',
                 ConsistencyLevel: 'eventual',
@@ -888,10 +877,10 @@ describe('Client', () => {
             (): EndpointRequest<any> => ({
               method: 'get',
               path: '/users/{id}',
-              paramDefs: [
-                { name: 'id', in: 'path' },
-                { name: 'Authorization', in: 'header' },
-              ],
+              paramDefs: {
+                path: ['id'],
+                header: ['Authorization'],
+              },
               params: {
                 id: 'user-123',
                 Authorization: 'Bearer token123',
@@ -916,11 +905,9 @@ describe('Client', () => {
             (): EndpointRequest<any> => ({
               method: 'get',
               path: '/users',
-              paramDefs: [
-                { name: 'Authorization', in: 'header' },
-                { name: 'ConsistencyLevel', in: 'header' },
-                { name: 'If-Match', in: 'header' },
-              ],
+              paramDefs: {
+                header: ['Authorization', 'ConsistencyLevel', 'If-Match'],
+              },
               params: {
                 Authorization: 'Bearer token123',
                 ConsistencyLevel: null,
@@ -945,7 +932,6 @@ describe('Client', () => {
             (): EndpointRequest<any> => ({
               method: 'trace' as any,
               path: '/users',
-              paramDefs: [],
             }),
           );
 
@@ -962,7 +948,6 @@ describe('Client', () => {
             (): EndpointRequest<any> => ({
               method: 'get',
               path: '/users',
-              paramDefs: [],
             }),
           );
 

@@ -1,7 +1,3 @@
-export * as assignUserToDevice from './assignUserToDevice';
-export * as unassignUserFromDevice from './unassignUserFromDevice';
-export * as updateDeviceProperties from './updateDeviceProperties';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -25,6 +21,18 @@ export interface IEndpoints {
     '/deviceManagement/windowsAutopilotDeviceIdentities',
     'post'
   >;
+  'POST /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/assignUserToDevice': Operation<
+    '/deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/assignUserToDevice',
+    'post'
+  >;
+  'POST /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/unassignUserFromDevice': Operation<
+    '/deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/unassignUserFromDevice',
+    'post'
+  >;
+  'POST /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/updateDeviceProperties': Operation<
+    '/deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/updateDeviceProperties',
+    'post'
+  >;
 }
 
 /**
@@ -40,10 +48,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'windowsAutopilotDeviceIdentity-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['windowsAutopilotDeviceIdentity-id'],
+    },
     params,
   };
 }
@@ -61,16 +69,9 @@ export function list(
   return {
     method: 'get',
     path: '/deviceManagement/windowsAutopilotDeviceIdentities',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,11 +89,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'windowsAutopilotDeviceIdentity-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['windowsAutopilotDeviceIdentity-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +110,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}',
-    paramDefs: [{ name: 'windowsAutopilotDeviceIdentity-id', in: 'path' }],
+    paramDefs: {
+      path: ['windowsAutopilotDeviceIdentity-id'],
+    },
     params,
     body,
   };
@@ -122,16 +124,83 @@ export function update(
  * Create a new windowsAutopilotDeviceIdentity object.
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/windowsAutopilotDeviceIdentities']['body'],
-  params?: IEndpoints['POST /deviceManagement/windowsAutopilotDeviceIdentities']['parameters']
+  body: IEndpoints['POST /deviceManagement/windowsAutopilotDeviceIdentities']['body']
 ): EndpointRequest<
   IEndpoints['POST /deviceManagement/windowsAutopilotDeviceIdentities']['response']
 > {
   return {
     method: 'post',
     path: '/deviceManagement/windowsAutopilotDeviceIdentities',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const assignUserToDevice = {
+  /**
+   * `POST /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/assignUserToDevice`
+   *
+   * Assigns user to Autopilot devices.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/assignUserToDevice']['body'],
+    params?: IEndpoints['POST /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/assignUserToDevice']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/assignUserToDevice']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/assignUserToDevice',
+      paramDefs: {
+        path: ['windowsAutopilotDeviceIdentity-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const unassignUserFromDevice = {
+  /**
+   * `POST /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/unassignUserFromDevice`
+   *
+   * Unassigns the user from an Autopilot device.
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/unassignUserFromDevice']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/unassignUserFromDevice']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/unassignUserFromDevice',
+      paramDefs: {
+        path: ['windowsAutopilotDeviceIdentity-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const updateDeviceProperties = {
+  /**
+   * `POST /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/updateDeviceProperties`
+   *
+   * Updates properties on Autopilot devices.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/updateDeviceProperties']['body'],
+    params?: IEndpoints['POST /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/updateDeviceProperties']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/updateDeviceProperties']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}/updateDeviceProperties',
+      paramDefs: {
+        path: ['windowsAutopilotDeviceIdentity-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

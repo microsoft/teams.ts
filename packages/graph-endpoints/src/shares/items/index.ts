@@ -1,5 +1,3 @@
-export * as content from './content';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -7,6 +5,18 @@ export interface IEndpoints {
   'GET /shares/{sharedDriveItem-id}/items/{driveItem-id}': Operation<
     '/shares/{sharedDriveItem-id}/items/{driveItem-id}',
     'get'
+  >;
+  'GET /shares/{sharedDriveItem-id}/items/{driveItem-id}/content': Operation<
+    '/shares/{sharedDriveItem-id}/items/{driveItem-id}/content',
+    'get'
+  >;
+  'PUT /shares/{sharedDriveItem-id}/items/{driveItem-id}/content': Operation<
+    '/shares/{sharedDriveItem-id}/items/{driveItem-id}/content',
+    'put'
+  >;
+  'DELETE /shares/{sharedDriveItem-id}/items/{driveItem-id}/content': Operation<
+    '/shares/{sharedDriveItem-id}/items/{driveItem-id}/content',
+    'delete'
   >;
 }
 
@@ -21,17 +31,10 @@ export function list(
   return {
     method: 'get',
     path: '/shares/{sharedDriveItem-id}/items',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sharedDriveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharedDriveItem-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -49,12 +52,74 @@ export function get(
   return {
     method: 'get',
     path: '/shares/{sharedDriveItem-id}/items/{driveItem-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sharedDriveItem-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharedDriveItem-id', 'driveItem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
+
+export const content = {
+  /**
+   * `GET /shares/{sharedDriveItem-id}/items/{driveItem-id}/content`
+   *
+   * The content stream, if the item represents a file.
+   */
+  get: function get(
+    params?: IEndpoints['GET /shares/{sharedDriveItem-id}/items/{driveItem-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /shares/{sharedDriveItem-id}/items/{driveItem-id}/content']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/shares/{sharedDriveItem-id}/items/{driveItem-id}/content',
+      paramDefs: {
+        query: ['$format'],
+        path: ['sharedDriveItem-id', 'driveItem-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /shares/{sharedDriveItem-id}/items/{driveItem-id}/content`
+   *
+   * The content stream, if the item represents a file.
+   */
+  set: function set(
+    body: IEndpoints['PUT /shares/{sharedDriveItem-id}/items/{driveItem-id}/content']['body'],
+    params?: IEndpoints['PUT /shares/{sharedDriveItem-id}/items/{driveItem-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /shares/{sharedDriveItem-id}/items/{driveItem-id}/content']['response']
+  > {
+    return {
+      method: 'put',
+      path: '/shares/{sharedDriveItem-id}/items/{driveItem-id}/content',
+      paramDefs: {
+        path: ['sharedDriveItem-id', 'driveItem-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /shares/{sharedDriveItem-id}/items/{driveItem-id}/content`
+   *
+   * The content stream, if the item represents a file.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /shares/{sharedDriveItem-id}/items/{driveItem-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /shares/{sharedDriveItem-id}/items/{driveItem-id}/content']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/shares/{sharedDriveItem-id}/items/{driveItem-id}/content',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['sharedDriveItem-id', 'driveItem-id'],
+      },
+      params,
+    };
+  },
+};

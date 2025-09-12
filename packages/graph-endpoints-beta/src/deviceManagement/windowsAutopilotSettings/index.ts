@@ -1,5 +1,3 @@
-export * as sync from './sync';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -15,6 +13,10 @@ export interface IEndpoints {
     '/deviceManagement/windowsAutopilotSettings',
     'patch'
   >;
+  'POST /deviceManagement/windowsAutopilotSettings/sync': Operation<
+    '/deviceManagement/windowsAutopilotSettings/sync',
+    'post'
+  >;
 }
 
 /**
@@ -28,7 +30,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/windowsAutopilotSettings',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -45,10 +49,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/windowsAutopilotSettings',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -58,15 +61,29 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /deviceManagement/windowsAutopilotSettings']['body'],
-  params?: IEndpoints['PATCH /deviceManagement/windowsAutopilotSettings']['parameters']
+  body: IEndpoints['PATCH /deviceManagement/windowsAutopilotSettings']['body']
 ): EndpointRequest<IEndpoints['PATCH /deviceManagement/windowsAutopilotSettings']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/windowsAutopilotSettings',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const sync = {
+  /**
+   * `POST /deviceManagement/windowsAutopilotSettings/sync`
+   *
+   * Initiates a sync of all AutoPilot registered devices from Store for Business and other portals. If the sync successful, this action returns a 204 No Content response code. If a sync is already in progress, the action returns a 409 Conflict response code.  If this sync action is called within 10 minutes of the previous sync, the action returns a 429 Too Many Requests response code.
+   */
+  create: function create(): EndpointRequest<
+    IEndpoints['POST /deviceManagement/windowsAutopilotSettings/sync']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/windowsAutopilotSettings/sync',
+    };
+  },
+};

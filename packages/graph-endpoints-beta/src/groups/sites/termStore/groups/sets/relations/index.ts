@@ -1,7 +1,3 @@
-export * as fromTerm from './fromTerm';
-export * as set from './set';
-export * as toTerm from './toTerm';
-
 import type { EndpointRequest, Operation } from './../../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -25,6 +21,18 @@ export interface IEndpoints {
     '/groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations',
     'post'
   >;
+  'GET /groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/fromTerm': Operation<
+    '/groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/fromTerm',
+    'get'
+  >;
+  'GET /groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/set': Operation<
+    '/groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/set',
+    'get'
+  >;
+  'GET /groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/toTerm': Operation<
+    '/groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/toTerm',
+    'get'
+  >;
 }
 
 /**
@@ -40,14 +48,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'group-id1', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'relation-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'site-id', 'group-id1', 'set-id', 'relation-id'],
+    },
     params,
   };
 }
@@ -66,20 +70,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'group-id1', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'group-id1', 'set-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -98,15 +92,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'group-id1', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'relation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'group-id1', 'set-id', 'relation-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -125,13 +114,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'group-id1', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'relation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'group-id1', 'set-id', 'relation-id'],
+    },
     params,
     body,
   };
@@ -151,13 +136,82 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'group-id1', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'group-id1', 'set-id'],
+    },
     params,
     body,
   };
 }
+
+export const fromTerm = {
+  /**
+   * `GET /groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/fromTerm`
+   *
+   * The from [term] of the relation. The term from which the relationship is defined. A null value would indicate the relation is directly with the [set].
+   */
+  get: function get(
+    params?: IEndpoints['GET /groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/fromTerm']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/fromTerm']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/fromTerm',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['group-id', 'site-id', 'group-id1', 'set-id', 'relation-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const set = {
+  /**
+   * `GET /groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/set`
+   *
+   * The [set] in which the relation is relevant.
+   */
+  get: function get(
+    params?: IEndpoints['GET /groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/set']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/set']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/set',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['group-id', 'site-id', 'group-id1', 'set-id', 'relation-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const toTerm = {
+  /**
+   * `GET /groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/toTerm`
+   *
+   * The to [term] of the relation. The term to which the relationship is defined.
+   */
+  get: function get(
+    params?: IEndpoints['GET /groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/toTerm']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/toTerm']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/groups/{group-id}/sites/{site-id}/termStore/groups/{group-id1}/sets/{set-id}/relations/{relation-id}/toTerm',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['group-id', 'site-id', 'group-id1', 'set-id', 'relation-id'],
+      },
+      params,
+    };
+  },
+};

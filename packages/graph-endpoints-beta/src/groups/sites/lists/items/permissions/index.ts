@@ -1,6 +1,3 @@
-export * as grant from './grant';
-export * as revokeGrants from './revokeGrants';
-
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions',
     'post'
   >;
+  'POST /groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}/grant': Operation<
+    '/groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}/grant',
+    'post'
+  >;
+  'POST /groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}/revokeGrants': Operation<
+    '/groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}/revokeGrants',
+    'post'
+  >;
 }
 
 /**
@@ -39,14 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-      { name: 'permission-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'site-id', 'list-id', 'listItem-id', 'permission-id'],
+    },
     params,
   };
 }
@@ -65,20 +66,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'list-id', 'listItem-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -97,15 +88,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-      { name: 'permission-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'list-id', 'listItem-id', 'permission-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -124,13 +110,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-      { name: 'permission-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'list-id', 'listItem-id', 'permission-id'],
+    },
     params,
     body,
   };
@@ -150,13 +132,60 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'list-id', 'listItem-id'],
+    },
     params,
     body,
   };
 }
+
+export const grant = {
+  /**
+   * `POST /groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}/grant`
+   *
+   * Grant users access to a link represented by a permission.
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}/grant']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}/grant']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}/grant']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}/grant',
+      paramDefs: {
+        path: ['group-id', 'site-id', 'list-id', 'listItem-id', 'permission-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const revokeGrants = {
+  /**
+   * `POST /groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}/revokeGrants`
+   *
+   * Revoke access to a listItem or driveItem granted via a sharing link by removing the specified recipient from the link.
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}/revokeGrants']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}/revokeGrants']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}/revokeGrants']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/sites/{site-id}/lists/{list-id}/items/{listItem-id}/permissions/{permission-id}/revokeGrants',
+      paramDefs: {
+        path: ['group-id', 'site-id', 'list-id', 'listItem-id', 'permission-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

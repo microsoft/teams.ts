@@ -1,6 +1,4 @@
-export * as acquireAccessToken from './acquireAccessToken';
 export * as jobs from './jobs';
-export * as secrets from './secrets';
 export * as templates from './templates';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
@@ -18,6 +16,14 @@ export interface IEndpoints {
     '/servicePrincipals/{servicePrincipal-id}/synchronization',
     'put'
   >;
+  'POST /servicePrincipals/{servicePrincipal-id}/synchronization/acquireAccessToken': Operation<
+    '/servicePrincipals/{servicePrincipal-id}/synchronization/acquireAccessToken',
+    'post'
+  >;
+  'PUT /servicePrincipals/{servicePrincipal-id}/synchronization/secrets': Operation<
+    '/servicePrincipals/{servicePrincipal-id}/synchronization/secrets',
+    'put'
+  >;
 }
 
 /**
@@ -33,10 +39,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/servicePrincipals/{servicePrincipal-id}/synchronization',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'servicePrincipal-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['servicePrincipal-id'],
+    },
     params,
   };
 }
@@ -55,11 +61,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/servicePrincipals/{servicePrincipal-id}/synchronization',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'servicePrincipal-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['servicePrincipal-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -78,8 +83,60 @@ export function set(
     ver: 'beta',
     method: 'put',
     path: '/servicePrincipals/{servicePrincipal-id}/synchronization',
-    paramDefs: [{ name: 'servicePrincipal-id', in: 'path' }],
+    paramDefs: {
+      path: ['servicePrincipal-id'],
+    },
     params,
     body,
   };
 }
+
+export const acquireAccessToken = {
+  /**
+   * `POST /servicePrincipals/{servicePrincipal-id}/synchronization/acquireAccessToken`
+   *
+   * Acquire an OAuth Access token to authorize the Microsoft Entra provisioning service to provision users into an application.
+   */
+  create: function create(
+    body: IEndpoints['POST /servicePrincipals/{servicePrincipal-id}/synchronization/acquireAccessToken']['body'],
+    params?: IEndpoints['POST /servicePrincipals/{servicePrincipal-id}/synchronization/acquireAccessToken']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /servicePrincipals/{servicePrincipal-id}/synchronization/acquireAccessToken']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/servicePrincipals/{servicePrincipal-id}/synchronization/acquireAccessToken',
+      paramDefs: {
+        path: ['servicePrincipal-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const secrets = {
+  /**
+   * `PUT /servicePrincipals/{servicePrincipal-id}/synchronization/secrets`
+   *
+   * Provide credentials for establishing connectivity with the target system.
+   */
+  set: function set(
+    body: IEndpoints['PUT /servicePrincipals/{servicePrincipal-id}/synchronization/secrets']['body'],
+    params?: IEndpoints['PUT /servicePrincipals/{servicePrincipal-id}/synchronization/secrets']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /servicePrincipals/{servicePrincipal-id}/synchronization/secrets']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'put',
+      path: '/servicePrincipals/{servicePrincipal-id}/synchronization/secrets',
+      paramDefs: {
+        path: ['servicePrincipal-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

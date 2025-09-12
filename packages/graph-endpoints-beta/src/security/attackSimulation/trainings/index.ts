@@ -1,5 +1,3 @@
-export * as languageDetails from './languageDetails';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/security/attackSimulation/trainings',
     'post'
   >;
+  'GET /security/attackSimulation/trainings/{training-id}/languageDetails': Operation<
+    '/security/attackSimulation/trainings/{training-id}/languageDetails',
+    'get'
+  >;
+  'POST /security/attackSimulation/trainings/{training-id}/languageDetails': Operation<
+    '/security/attackSimulation/trainings/{training-id}/languageDetails',
+    'post'
+  >;
+  'GET /security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}': Operation<
+    '/security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}',
+    'get'
+  >;
+  'PATCH /security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}': Operation<
+    '/security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}',
+    'patch'
+  >;
+  'DELETE /security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}': Operation<
+    '/security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,10 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/attackSimulation/trainings/{training-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'training-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['training-id'],
+    },
     params,
   };
 }
@@ -58,16 +76,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/attackSimulation/trainings',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +97,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/attackSimulation/trainings/{training-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'training-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['training-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +119,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/attackSimulation/trainings/{training-id}',
-    paramDefs: [{ name: 'training-id', in: 'path' }],
+    paramDefs: {
+      path: ['training-id'],
+    },
     params,
     body,
   };
@@ -120,15 +132,119 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /security/attackSimulation/trainings']['body'],
-  params?: IEndpoints['POST /security/attackSimulation/trainings']['parameters']
+  body: IEndpoints['POST /security/attackSimulation/trainings']['body']
 ): EndpointRequest<IEndpoints['POST /security/attackSimulation/trainings']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/security/attackSimulation/trainings',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const languageDetails = {
+  /**
+   * `GET /security/attackSimulation/trainings/{training-id}/languageDetails`
+   *
+   * Details about the language used in the training.
+   */
+  list: function list(
+    params?: IEndpoints['GET /security/attackSimulation/trainings/{training-id}/languageDetails']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/attackSimulation/trainings/{training-id}/languageDetails']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/attackSimulation/trainings/{training-id}/languageDetails',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['training-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /security/attackSimulation/trainings/{training-id}/languageDetails`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /security/attackSimulation/trainings/{training-id}/languageDetails']['body'],
+    params?: IEndpoints['POST /security/attackSimulation/trainings/{training-id}/languageDetails']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /security/attackSimulation/trainings/{training-id}/languageDetails']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/security/attackSimulation/trainings/{training-id}/languageDetails',
+      paramDefs: {
+        path: ['training-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}`
+   *
+   * Details about the language used in the training.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['training-id', 'trainingLanguageDetail-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}']['body'],
+    params?: IEndpoints['PATCH /security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}',
+      paramDefs: {
+        path: ['training-id', 'trainingLanguageDetail-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/security/attackSimulation/trainings/{training-id}/languageDetails/{trainingLanguageDetail-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['training-id', 'trainingLanguageDetail-id'],
+      },
+      params,
+    };
+  },
+};

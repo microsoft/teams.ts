@@ -19,7 +19,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/admin/edge',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -36,10 +38,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/admin/edge',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -49,15 +50,12 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /admin/edge']['body'],
-  params?: IEndpoints['PATCH /admin/edge']['parameters']
+  body: IEndpoints['PATCH /admin/edge']['body']
 ): EndpointRequest<IEndpoints['PATCH /admin/edge']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/admin/edge',
-    paramDefs: [],
-    params,
     body,
   };
 }

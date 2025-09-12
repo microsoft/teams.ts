@@ -1,5 +1,3 @@
-export * as sourceColumn from './sourceColumn';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /drives/{drive-id}/list/columns': Operation<'/drives/{drive-id}/list/columns', 'post'>;
+  'GET /drives/{drive-id}/list/columns/{columnDefinition-id}/sourceColumn': Operation<
+    '/drives/{drive-id}/list/columns/{columnDefinition-id}/sourceColumn',
+    'get'
+  >;
 }
 
 /**
@@ -32,11 +34,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/drives/{drive-id}/list/columns/{columnDefinition-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'columnDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['drive-id', 'columnDefinition-id'],
+    },
     params,
   };
 }
@@ -53,17 +54,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/drives/{drive-id}/list/columns',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -82,12 +76,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/drives/{drive-id}/list/columns/{columnDefinition-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'columnDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'columnDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -106,10 +98,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/drives/{drive-id}/list/columns/{columnDefinition-id}',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'columnDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'columnDefinition-id'],
+    },
     params,
     body,
   };
@@ -127,8 +118,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/drives/{drive-id}/list/columns',
-    paramDefs: [{ name: 'drive-id', in: 'path' }],
+    paramDefs: {
+      path: ['drive-id'],
+    },
     params,
     body,
   };
 }
+
+export const sourceColumn = {
+  /**
+   * `GET /drives/{drive-id}/list/columns/{columnDefinition-id}/sourceColumn`
+   *
+   * The source column for content type column.
+   */
+  get: function get(
+    params?: IEndpoints['GET /drives/{drive-id}/list/columns/{columnDefinition-id}/sourceColumn']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /drives/{drive-id}/list/columns/{columnDefinition-id}/sourceColumn']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/drives/{drive-id}/list/columns/{columnDefinition-id}/sourceColumn',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['drive-id', 'columnDefinition-id'],
+      },
+      params,
+    };
+  },
+};

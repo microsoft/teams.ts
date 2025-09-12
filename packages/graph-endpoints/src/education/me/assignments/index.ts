@@ -1,12 +1,3 @@
-export * as activate from './activate';
-export * as categories from './categories';
-export * as deactivate from './deactivate';
-export * as gradingCategory from './gradingCategory';
-export * as publish from './publish';
-export * as resources from './resources';
-export * as rubric from './rubric';
-export * as setUpFeedbackResourcesFolder from './setUpFeedbackResourcesFolder';
-export * as setUpResourcesFolder from './setUpResourcesFolder';
 export * as submissions from './submissions';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -26,6 +17,70 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /education/me/assignments': Operation<'/education/me/assignments', 'post'>;
+  'POST /education/me/assignments/{educationAssignment-id}/activate': Operation<
+    '/education/me/assignments/{educationAssignment-id}/activate',
+    'post'
+  >;
+  'GET /education/me/assignments/{educationAssignment-id}/categories': Operation<
+    '/education/me/assignments/{educationAssignment-id}/categories',
+    'get'
+  >;
+  'POST /education/me/assignments/{educationAssignment-id}/categories': Operation<
+    '/education/me/assignments/{educationAssignment-id}/categories',
+    'post'
+  >;
+  'POST /education/me/assignments/{educationAssignment-id}/deactivate': Operation<
+    '/education/me/assignments/{educationAssignment-id}/deactivate',
+    'post'
+  >;
+  'GET /education/me/assignments/{educationAssignment-id}/gradingCategory': Operation<
+    '/education/me/assignments/{educationAssignment-id}/gradingCategory',
+    'get'
+  >;
+  'POST /education/me/assignments/{educationAssignment-id}/publish': Operation<
+    '/education/me/assignments/{educationAssignment-id}/publish',
+    'post'
+  >;
+  'GET /education/me/assignments/{educationAssignment-id}/resources': Operation<
+    '/education/me/assignments/{educationAssignment-id}/resources',
+    'get'
+  >;
+  'POST /education/me/assignments/{educationAssignment-id}/resources': Operation<
+    '/education/me/assignments/{educationAssignment-id}/resources',
+    'post'
+  >;
+  'GET /education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}': Operation<
+    '/education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}',
+    'get'
+  >;
+  'PATCH /education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}': Operation<
+    '/education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}',
+    'patch'
+  >;
+  'DELETE /education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}': Operation<
+    '/education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}',
+    'delete'
+  >;
+  'GET /education/me/assignments/{educationAssignment-id}/rubric': Operation<
+    '/education/me/assignments/{educationAssignment-id}/rubric',
+    'get'
+  >;
+  'PATCH /education/me/assignments/{educationAssignment-id}/rubric': Operation<
+    '/education/me/assignments/{educationAssignment-id}/rubric',
+    'patch'
+  >;
+  'DELETE /education/me/assignments/{educationAssignment-id}/rubric': Operation<
+    '/education/me/assignments/{educationAssignment-id}/rubric',
+    'delete'
+  >;
+  'POST /education/me/assignments/{educationAssignment-id}/setUpFeedbackResourcesFolder': Operation<
+    '/education/me/assignments/{educationAssignment-id}/setUpFeedbackResourcesFolder',
+    'post'
+  >;
+  'POST /education/me/assignments/{educationAssignment-id}/setUpResourcesFolder': Operation<
+    '/education/me/assignments/{educationAssignment-id}/setUpResourcesFolder',
+    'post'
+  >;
 }
 
 /**
@@ -40,10 +95,10 @@ export function del(
   return {
     method: 'delete',
     path: '/education/me/assignments/{educationAssignment-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'educationAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['educationAssignment-id'],
+    },
     params,
   };
 }
@@ -59,16 +114,9 @@ export function list(
   return {
     method: 'get',
     path: '/education/me/assignments',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +134,10 @@ export function get(
   return {
     method: 'get',
     path: '/education/me/assignments/{educationAssignment-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'educationAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['educationAssignment-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -108,7 +155,9 @@ export function update(
   return {
     method: 'patch',
     path: '/education/me/assignments/{educationAssignment-id}',
-    paramDefs: [{ name: 'educationAssignment-id', in: 'path' }],
+    paramDefs: {
+      path: ['educationAssignment-id'],
+    },
     params,
     body,
   };
@@ -119,14 +168,351 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /education/me/assignments']['body'],
-  params?: IEndpoints['POST /education/me/assignments']['parameters']
+  body: IEndpoints['POST /education/me/assignments']['body']
 ): EndpointRequest<IEndpoints['POST /education/me/assignments']['response']> {
   return {
     method: 'post',
     path: '/education/me/assignments',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const activate = {
+  /**
+   * `POST /education/me/assignments/{educationAssignment-id}/activate`
+   *
+   * Activate an inactive educationAssignment to signal that the assignment has further action items for teachers or students. This action can only be performed by a teacher on currently inactive assignments.
+   */
+  create: function create(
+    params?: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/activate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/me/assignments/{educationAssignment-id}/activate']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/education/me/assignments/{educationAssignment-id}/activate',
+      paramDefs: {
+        path: ['educationAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const categories = {
+  /**
+   * `GET /education/me/assignments/{educationAssignment-id}/categories`
+   *
+   * When set, enables users to easily find assignments of a given type. Read-only. Nullable.
+   */
+  list: function list(
+    params?: IEndpoints['GET /education/me/assignments/{educationAssignment-id}/categories']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /education/me/assignments/{educationAssignment-id}/categories']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/education/me/assignments/{educationAssignment-id}/categories',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['educationAssignment-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /education/me/assignments/{educationAssignment-id}/categories`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/categories']['body'],
+    params?: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/categories']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/me/assignments/{educationAssignment-id}/categories']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/education/me/assignments/{educationAssignment-id}/categories',
+      paramDefs: {
+        path: ['educationAssignment-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const deactivate = {
+  /**
+   * `POST /education/me/assignments/{educationAssignment-id}/deactivate`
+   *
+   * Mark an assigned educationAssignment as inactive to signal that the assignment has no further action items for teachers and students. This action can only be performed by a teacher on assigned assignments.
+   */
+  create: function create(
+    params?: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/deactivate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/me/assignments/{educationAssignment-id}/deactivate']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/education/me/assignments/{educationAssignment-id}/deactivate',
+      paramDefs: {
+        path: ['educationAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const gradingCategory = {
+  /**
+   * `GET /education/me/assignments/{educationAssignment-id}/gradingCategory`
+   *
+   * When set, enables users to weight assignments differently when computing a class average grade.
+   */
+  get: function get(
+    params?: IEndpoints['GET /education/me/assignments/{educationAssignment-id}/gradingCategory']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /education/me/assignments/{educationAssignment-id}/gradingCategory']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/education/me/assignments/{educationAssignment-id}/gradingCategory',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['educationAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const publish = {
+  /**
+   * `POST /education/me/assignments/{educationAssignment-id}/publish`
+   *
+   * Publish an education assignment. Change the status of an educationAssignment from its original draft status to the published status.  You can change the status from draft to scheduled if the assignment is scheduled for a future date.  Only a teacher in the class can make this call. When an assignment is in draft status, students will not see the assignment, nor will there be any submission objects. Calling this API creates educationSubmission objects and displays the assignment in each student&#x27;s list. The status of the assignment goes back to draft if there is any backend failure during publish process. To update the properties of a published assignment, see update an assignment.
+   */
+  create: function create(
+    params?: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/publish']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/me/assignments/{educationAssignment-id}/publish']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/education/me/assignments/{educationAssignment-id}/publish',
+      paramDefs: {
+        path: ['educationAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const resources = {
+  /**
+   * `GET /education/me/assignments/{educationAssignment-id}/resources`
+   *
+   * Learning objects that are associated with this assignment. Only teachers can modify this list. Nullable.
+   */
+  list: function list(
+    params?: IEndpoints['GET /education/me/assignments/{educationAssignment-id}/resources']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /education/me/assignments/{educationAssignment-id}/resources']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/education/me/assignments/{educationAssignment-id}/resources',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['educationAssignment-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /education/me/assignments/{educationAssignment-id}/resources`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/resources']['body'],
+    params?: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/resources']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/me/assignments/{educationAssignment-id}/resources']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/education/me/assignments/{educationAssignment-id}/resources',
+      paramDefs: {
+        path: ['educationAssignment-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}`
+   *
+   * Learning objects that are associated with this assignment. Only teachers can modify this list. Nullable.
+   */
+  get: function get(
+    params?: IEndpoints['GET /education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['educationAssignment-id', 'educationAssignmentResource-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}']['body'],
+    params?: IEndpoints['PATCH /education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}',
+      paramDefs: {
+        path: ['educationAssignment-id', 'educationAssignmentResource-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/education/me/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['educationAssignment-id', 'educationAssignmentResource-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const rubric = {
+  /**
+   * `GET /education/me/assignments/{educationAssignment-id}/rubric`
+   *
+   * When set, the grading rubric attached to this assignment.
+   */
+  get: function get(
+    params?: IEndpoints['GET /education/me/assignments/{educationAssignment-id}/rubric']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /education/me/assignments/{educationAssignment-id}/rubric']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/education/me/assignments/{educationAssignment-id}/rubric',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['educationAssignment-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /education/me/assignments/{educationAssignment-id}/rubric`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /education/me/assignments/{educationAssignment-id}/rubric']['body'],
+    params?: IEndpoints['PATCH /education/me/assignments/{educationAssignment-id}/rubric']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /education/me/assignments/{educationAssignment-id}/rubric']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/education/me/assignments/{educationAssignment-id}/rubric',
+      paramDefs: {
+        path: ['educationAssignment-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /education/me/assignments/{educationAssignment-id}/rubric`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /education/me/assignments/{educationAssignment-id}/rubric']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /education/me/assignments/{educationAssignment-id}/rubric']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/education/me/assignments/{educationAssignment-id}/rubric',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['educationAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const setUpFeedbackResourcesFolder = {
+  /**
+   * `POST /education/me/assignments/{educationAssignment-id}/setUpFeedbackResourcesFolder`
+   *
+   * Create a SharePoint folder to upload feedback files for a given educationSubmission. Only teachers can perform this operation. The teacher determines the resources to upload in the feedback resources folder of a submission.
+   */
+  create: function create(
+    params?: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/setUpFeedbackResourcesFolder']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/me/assignments/{educationAssignment-id}/setUpFeedbackResourcesFolder']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/education/me/assignments/{educationAssignment-id}/setUpFeedbackResourcesFolder',
+      paramDefs: {
+        path: ['educationAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const setUpResourcesFolder = {
+  /**
+   * `POST /education/me/assignments/{educationAssignment-id}/setUpResourcesFolder`
+   *
+   * Create a SharePoint folder to upload files for a given educationAssignment. Only teachers can perform this operation. The teacher determines the resources to upload in the assignment&#x27;s folder.
+   */
+  create: function create(
+    params?: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/setUpResourcesFolder']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/me/assignments/{educationAssignment-id}/setUpResourcesFolder']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/education/me/assignments/{educationAssignment-id}/setUpResourcesFolder',
+      paramDefs: {
+        path: ['educationAssignment-id'],
+      },
+      params,
+    };
+  },
+};

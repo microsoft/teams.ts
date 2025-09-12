@@ -1,5 +1,3 @@
-export * as serviceManagementDetails from './serviceManagementDetails';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/tenantRelationships/delegatedAdminCustomers',
     'post'
   >;
+  'GET /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails': Operation<
+    '/tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails',
+    'get'
+  >;
+  'POST /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails': Operation<
+    '/tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails',
+    'post'
+  >;
+  'GET /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}': Operation<
+    '/tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}',
+    'get'
+  >;
+  'PATCH /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}': Operation<
+    '/tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}',
+    'patch'
+  >;
+  'DELETE /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}': Operation<
+    '/tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,10 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'delegatedAdminCustomer-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['delegatedAdminCustomer-id'],
+    },
     params,
   };
 }
@@ -58,16 +76,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/tenantRelationships/delegatedAdminCustomers',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +97,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'delegatedAdminCustomer-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['delegatedAdminCustomer-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +119,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}',
-    paramDefs: [{ name: 'delegatedAdminCustomer-id', in: 'path' }],
+    paramDefs: {
+      path: ['delegatedAdminCustomer-id'],
+    },
     params,
     body,
   };
@@ -120,15 +132,119 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /tenantRelationships/delegatedAdminCustomers']['body'],
-  params?: IEndpoints['POST /tenantRelationships/delegatedAdminCustomers']['parameters']
+  body: IEndpoints['POST /tenantRelationships/delegatedAdminCustomers']['body']
 ): EndpointRequest<IEndpoints['POST /tenantRelationships/delegatedAdminCustomers']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/tenantRelationships/delegatedAdminCustomers',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const serviceManagementDetails = {
+  /**
+   * `GET /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails`
+   *
+   * Get a list of the delegatedAdminServiceManagementDetail objects and their properties.
+   */
+  list: function list(
+    params?: IEndpoints['GET /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['delegatedAdminCustomer-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails']['body'],
+    params?: IEndpoints['POST /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails',
+      paramDefs: {
+        path: ['delegatedAdminCustomer-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}`
+   *
+   * Contains the management details of a service in the customer tenant that&#x27;s managed by delegated administration.
+   */
+  get: function get(
+    params?: IEndpoints['GET /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['delegatedAdminCustomer-id', 'delegatedAdminServiceManagementDetail-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}']['body'],
+    params?: IEndpoints['PATCH /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}',
+      paramDefs: {
+        path: ['delegatedAdminCustomer-id', 'delegatedAdminServiceManagementDetail-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/tenantRelationships/delegatedAdminCustomers/{delegatedAdminCustomer-id}/serviceManagementDetails/{delegatedAdminServiceManagementDetail-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['delegatedAdminCustomer-id', 'delegatedAdminServiceManagementDetail-id'],
+      },
+      params,
+    };
+  },
+};

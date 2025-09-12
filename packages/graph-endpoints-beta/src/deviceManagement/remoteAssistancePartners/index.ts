@@ -1,6 +1,3 @@
-export * as beginOnboarding from './beginOnboarding';
-export * as disconnect from './disconnect';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/deviceManagement/remoteAssistancePartners',
     'post'
   >;
+  'POST /deviceManagement/remoteAssistancePartners/{remoteAssistancePartner-id}/beginOnboarding': Operation<
+    '/deviceManagement/remoteAssistancePartners/{remoteAssistancePartner-id}/beginOnboarding',
+    'post'
+  >;
+  'POST /deviceManagement/remoteAssistancePartners/{remoteAssistancePartner-id}/disconnect': Operation<
+    '/deviceManagement/remoteAssistancePartners/{remoteAssistancePartner-id}/disconnect',
+    'post'
+  >;
 }
 
 /**
@@ -39,10 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/remoteAssistancePartners/{remoteAssistancePartner-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'remoteAssistancePartner-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['remoteAssistancePartner-id'],
+    },
     params,
   };
 }
@@ -59,16 +64,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/remoteAssistancePartners',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +85,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/remoteAssistancePartners/{remoteAssistancePartner-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'remoteAssistancePartner-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['remoteAssistancePartner-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +107,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/remoteAssistancePartners/{remoteAssistancePartner-id}',
-    paramDefs: [{ name: 'remoteAssistancePartner-id', in: 'path' }],
+    paramDefs: {
+      path: ['remoteAssistancePartner-id'],
+    },
     params,
     body,
   };
@@ -121,15 +120,58 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/remoteAssistancePartners']['body'],
-  params?: IEndpoints['POST /deviceManagement/remoteAssistancePartners']['parameters']
+  body: IEndpoints['POST /deviceManagement/remoteAssistancePartners']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/remoteAssistancePartners']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/remoteAssistancePartners',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const beginOnboarding = {
+  /**
+   * `POST /deviceManagement/remoteAssistancePartners/{remoteAssistancePartner-id}/beginOnboarding`
+   *
+   * A request to start onboarding.  Must be coupled with the appropriate TeamViewer account information
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/remoteAssistancePartners/{remoteAssistancePartner-id}/beginOnboarding']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/remoteAssistancePartners/{remoteAssistancePartner-id}/beginOnboarding']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/remoteAssistancePartners/{remoteAssistancePartner-id}/beginOnboarding',
+      paramDefs: {
+        path: ['remoteAssistancePartner-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const disconnect = {
+  /**
+   * `POST /deviceManagement/remoteAssistancePartners/{remoteAssistancePartner-id}/disconnect`
+   *
+   * A request to remove the active TeamViewer connector
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/remoteAssistancePartners/{remoteAssistancePartner-id}/disconnect']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/remoteAssistancePartners/{remoteAssistancePartner-id}/disconnect']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/remoteAssistancePartners/{remoteAssistancePartner-id}/disconnect',
+      paramDefs: {
+        path: ['remoteAssistancePartner-id'],
+      },
+      params,
+    };
+  },
+};

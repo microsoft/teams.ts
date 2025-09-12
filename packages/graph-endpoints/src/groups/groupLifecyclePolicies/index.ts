@@ -1,6 +1,3 @@
-export * as addGroup from './addGroup';
-export * as removeGroup from './removeGroup';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/groups/{group-id}/groupLifecyclePolicies',
     'post'
   >;
+  'POST /groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}/addGroup': Operation<
+    '/groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}/addGroup',
+    'post'
+  >;
+  'POST /groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}/removeGroup': Operation<
+    '/groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}/removeGroup',
+    'post'
+  >;
 }
 
 /**
@@ -38,11 +43,10 @@ export function del(
   return {
     method: 'delete',
     path: '/groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'groupLifecyclePolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'groupLifecyclePolicy-id'],
+    },
     params,
   };
 }
@@ -58,17 +62,10 @@ export function list(
   return {
     method: 'get',
     path: '/groups/{group-id}/groupLifecyclePolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,12 +83,10 @@ export function get(
   return {
     method: 'get',
     path: '/groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'groupLifecyclePolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'groupLifecyclePolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,10 +104,9 @@ export function update(
   return {
     method: 'patch',
     path: '/groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'groupLifecyclePolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'groupLifecyclePolicy-id'],
+    },
     params,
     body,
   };
@@ -129,8 +123,58 @@ export function create(
   return {
     method: 'post',
     path: '/groups/{group-id}/groupLifecyclePolicies',
-    paramDefs: [{ name: 'group-id', in: 'path' }],
+    paramDefs: {
+      path: ['group-id'],
+    },
     params,
     body,
   };
 }
+
+export const addGroup = {
+  /**
+   * `POST /groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}/addGroup`
+   *
+   * Add a group to a groupLifecyclePolicy. This action is supported only if the managedGroupTypes property of the policy is set to Selected.
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}/addGroup']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}/addGroup']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}/addGroup']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}/addGroup',
+      paramDefs: {
+        path: ['group-id', 'groupLifecyclePolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const removeGroup = {
+  /**
+   * `POST /groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}/removeGroup`
+   *
+   * Removes a group from a lifecycle policy.
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}/removeGroup']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}/removeGroup']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}/removeGroup']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/groups/{group-id}/groupLifecyclePolicies/{groupLifecyclePolicy-id}/removeGroup',
+      paramDefs: {
+        path: ['group-id', 'groupLifecyclePolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

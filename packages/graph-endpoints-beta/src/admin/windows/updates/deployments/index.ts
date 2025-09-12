@@ -36,10 +36,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/admin/windows/updates/deployments/{deployment-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deployment-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['deployment-id'],
+    },
     params,
   };
 }
@@ -56,16 +56,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/admin/windows/updates/deployments',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -84,11 +77,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/admin/windows/updates/deployments/{deployment-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deployment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deployment-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -108,7 +100,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/admin/windows/updates/deployments/{deployment-id}',
-    paramDefs: [{ name: 'deployment-id', in: 'path' }],
+    paramDefs: {
+      path: ['deployment-id'],
+    },
     params,
     body,
   };
@@ -120,15 +114,12 @@ export function update(
  * Create a new deployment object.
  */
 export function create(
-  body: IEndpoints['POST /admin/windows/updates/deployments']['body'],
-  params?: IEndpoints['POST /admin/windows/updates/deployments']['parameters']
+  body: IEndpoints['POST /admin/windows/updates/deployments']['body']
 ): EndpointRequest<IEndpoints['POST /admin/windows/updates/deployments']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/admin/windows/updates/deployments',
-    paramDefs: [],
-    params,
     body,
   };
 }

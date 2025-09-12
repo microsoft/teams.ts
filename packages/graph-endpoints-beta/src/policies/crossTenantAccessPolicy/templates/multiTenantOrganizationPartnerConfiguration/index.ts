@@ -1,5 +1,3 @@
-export * as resetToDefaultSettings from './resetToDefaultSettings';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -14,6 +12,10 @@ export interface IEndpoints {
   'PATCH /policies/crossTenantAccessPolicy/templates/multiTenantOrganizationPartnerConfiguration': Operation<
     '/policies/crossTenantAccessPolicy/templates/multiTenantOrganizationPartnerConfiguration',
     'patch'
+  >;
+  'POST /policies/crossTenantAccessPolicy/templates/multiTenantOrganizationPartnerConfiguration/resetToDefaultSettings': Operation<
+    '/policies/crossTenantAccessPolicy/templates/multiTenantOrganizationPartnerConfiguration/resetToDefaultSettings',
+    'post'
   >;
 }
 
@@ -30,7 +32,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/policies/crossTenantAccessPolicy/templates/multiTenantOrganizationPartnerConfiguration',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -49,10 +53,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/policies/crossTenantAccessPolicy/templates/multiTenantOrganizationPartnerConfiguration',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -63,8 +66,7 @@ export function get(
  * Update the cross-tenant access policy template with inbound and outbound partner configuration settings for a multitenant organization.
  */
 export function update(
-  body: IEndpoints['PATCH /policies/crossTenantAccessPolicy/templates/multiTenantOrganizationPartnerConfiguration']['body'],
-  params?: IEndpoints['PATCH /policies/crossTenantAccessPolicy/templates/multiTenantOrganizationPartnerConfiguration']['parameters']
+  body: IEndpoints['PATCH /policies/crossTenantAccessPolicy/templates/multiTenantOrganizationPartnerConfiguration']['body']
 ): EndpointRequest<
   IEndpoints['PATCH /policies/crossTenantAccessPolicy/templates/multiTenantOrganizationPartnerConfiguration']['response']
 > {
@@ -72,8 +74,23 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/policies/crossTenantAccessPolicy/templates/multiTenantOrganizationPartnerConfiguration',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const resetToDefaultSettings = {
+  /**
+   * `POST /policies/crossTenantAccessPolicy/templates/multiTenantOrganizationPartnerConfiguration/resetToDefaultSettings`
+   *
+   * Reset the cross-tenant access policy template with inbound and outbound partner configuration settings for a multitenant organization to the default values. In its reset state, the template has no impact on partner configuration settings, other than that an unconfigured partner configuration is created if needed, for every multitenant organization tenant.
+   */
+  create: function create(): EndpointRequest<
+    IEndpoints['POST /policies/crossTenantAccessPolicy/templates/multiTenantOrganizationPartnerConfiguration/resetToDefaultSettings']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/policies/crossTenantAccessPolicy/templates/multiTenantOrganizationPartnerConfiguration/resetToDefaultSettings',
+    };
+  },
+};

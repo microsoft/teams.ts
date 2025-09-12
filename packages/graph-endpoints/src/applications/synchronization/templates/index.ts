@@ -37,11 +37,10 @@ export function del(
   return {
     method: 'delete',
     path: '/applications/{application-id}/synchronization/templates/{synchronizationTemplate-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'application-id', in: 'path' },
-      { name: 'synchronizationTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['application-id', 'synchronizationTemplate-id'],
+    },
     params,
   };
 }
@@ -59,17 +58,10 @@ export function list(
   return {
     method: 'get',
     path: '/applications/{application-id}/synchronization/templates',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'application-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['application-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,12 +79,10 @@ export function get(
   return {
     method: 'get',
     path: '/applications/{application-id}/synchronization/templates/{synchronizationTemplate-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'application-id', in: 'path' },
-      { name: 'synchronizationTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['application-id', 'synchronizationTemplate-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,10 +101,9 @@ export function update(
   return {
     method: 'patch',
     path: '/applications/{application-id}/synchronization/templates/{synchronizationTemplate-id}',
-    paramDefs: [
-      { name: 'application-id', in: 'path' },
-      { name: 'synchronizationTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['application-id', 'synchronizationTemplate-id'],
+    },
     params,
     body,
   };
@@ -133,7 +122,9 @@ export function create(
   return {
     method: 'post',
     path: '/applications/{application-id}/synchronization/templates',
-    paramDefs: [{ name: 'application-id', in: 'path' }],
+    paramDefs: {
+      path: ['application-id'],
+    },
     params,
     body,
   };

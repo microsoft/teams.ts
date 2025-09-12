@@ -1,5 +1,3 @@
-export * as replies from './replies';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/drives/{drive-id}/items/{driveItem-id}/workbook/comments',
     'post'
   >;
+  'GET /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies',
+    'get'
+  >;
+  'POST /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies',
+    'post'
+  >;
+  'GET /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}',
+    'get'
+  >;
+  'PATCH /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}',
+    'patch'
+  >;
+  'DELETE /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -37,12 +55,10 @@ export function del(
   return {
     method: 'delete',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookComment-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['drive-id', 'driveItem-id', 'workbookComment-id'],
+    },
     params,
   };
 }
@@ -60,18 +76,10 @@ export function list(
   return {
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/comments',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,13 +97,10 @@ export function get(
   return {
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookComment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'workbookComment-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,11 +118,9 @@ export function update(
   return {
     method: 'patch',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookComment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'workbookComment-id'],
+    },
     params,
     body,
   };
@@ -136,11 +139,112 @@ export function create(
   return {
     method: 'post',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/comments',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id'],
+    },
     params,
     body,
   };
 }
+
+export const replies = {
+  /**
+   * `GET /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies`
+   *
+   * The list of replies to the comment. Read-only. Nullable.
+   */
+  list: function list(
+    params?: IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['drive-id', 'driveItem-id', 'workbookComment-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies']['body'],
+    params?: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies',
+      paramDefs: {
+        path: ['drive-id', 'driveItem-id', 'workbookComment-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}`
+   *
+   * The list of replies to the comment. Read-only. Nullable.
+   */
+  get: function get(
+    params?: IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['drive-id', 'driveItem-id', 'workbookComment-id', 'workbookCommentReply-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}']['body'],
+    params?: IEndpoints['PATCH /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}',
+      paramDefs: {
+        path: ['drive-id', 'driveItem-id', 'workbookComment-id', 'workbookCommentReply-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/replies/{workbookCommentReply-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['drive-id', 'driveItem-id', 'workbookComment-id', 'workbookCommentReply-id'],
+      },
+      params,
+    };
+  },
+};

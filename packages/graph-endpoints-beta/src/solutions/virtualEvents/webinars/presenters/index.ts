@@ -1,5 +1,3 @@
-export * as sessions from './sessions';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,14 @@ export interface IEndpoints {
     '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters',
     'post'
   >;
+  'GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}/sessions': Operation<
+    '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}/sessions',
+    'get'
+  >;
+  'GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}/sessions/{virtualEventSession-id}': Operation<
+    '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}/sessions/{virtualEventSession-id}',
+    'get'
+  >;
 }
 
 /**
@@ -38,11 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'virtualEventWebinar-id', in: 'path' },
-      { name: 'virtualEventPresenter-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['virtualEventWebinar-id', 'virtualEventPresenter-id'],
+    },
     params,
   };
 }
@@ -61,17 +66,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'virtualEventWebinar-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEventWebinar-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +88,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'virtualEventWebinar-id', in: 'path' },
-      { name: 'virtualEventPresenter-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEventWebinar-id', 'virtualEventPresenter-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,10 +111,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}',
-    paramDefs: [
-      { name: 'virtualEventWebinar-id', in: 'path' },
-      { name: 'virtualEventPresenter-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEventWebinar-id', 'virtualEventPresenter-id'],
+    },
     params,
     body,
   };
@@ -138,8 +133,53 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters',
-    paramDefs: [{ name: 'virtualEventWebinar-id', in: 'path' }],
+    paramDefs: {
+      path: ['virtualEventWebinar-id'],
+    },
     params,
     body,
   };
 }
+
+export const sessions = {
+  /**
+   * `GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}/sessions`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}/sessions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}/sessions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}/sessions',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['virtualEventWebinar-id', 'virtualEventPresenter-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}/sessions/{virtualEventSession-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}/sessions/{virtualEventSession-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}/sessions/{virtualEventSession-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/presenters/{virtualEventPresenter-id}/sessions/{virtualEventSession-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['virtualEventWebinar-id', 'virtualEventPresenter-id', 'virtualEventSession-id'],
+      },
+      params,
+    };
+  },
+};

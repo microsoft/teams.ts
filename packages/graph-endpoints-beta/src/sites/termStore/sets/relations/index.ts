@@ -1,7 +1,3 @@
-export * as fromTerm from './fromTerm';
-export * as set from './set';
-export * as toTerm from './toTerm';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -25,6 +21,18 @@ export interface IEndpoints {
     '/sites/{site-id}/termStore/sets/{set-id}/relations',
     'post'
   >;
+  'GET /sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/fromTerm': Operation<
+    '/sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/fromTerm',
+    'get'
+  >;
+  'GET /sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/set': Operation<
+    '/sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/set',
+    'get'
+  >;
+  'GET /sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/toTerm': Operation<
+    '/sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/toTerm',
+    'get'
+  >;
 }
 
 /**
@@ -40,12 +48,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'relation-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id', 'set-id', 'relation-id'],
+    },
     params,
   };
 }
@@ -64,18 +70,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/sites/{site-id}/termStore/sets/{set-id}/relations',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -94,13 +92,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'relation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id', 'relation-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -119,11 +114,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-      { name: 'relation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id', 'relation-id'],
+    },
     params,
     body,
   };
@@ -143,11 +136,82 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/sites/{site-id}/termStore/sets/{set-id}/relations',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id'],
+    },
     params,
     body,
   };
 }
+
+export const fromTerm = {
+  /**
+   * `GET /sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/fromTerm`
+   *
+   * The from [term] of the relation. The term from which the relationship is defined. A null value would indicate the relation is directly with the [set].
+   */
+  get: function get(
+    params?: IEndpoints['GET /sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/fromTerm']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/fromTerm']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/fromTerm',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['site-id', 'set-id', 'relation-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const set = {
+  /**
+   * `GET /sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/set`
+   *
+   * The [set] in which the relation is relevant.
+   */
+  get: function get(
+    params?: IEndpoints['GET /sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/set']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/set']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/set',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['site-id', 'set-id', 'relation-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const toTerm = {
+  /**
+   * `GET /sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/toTerm`
+   *
+   * The to [term] of the relation. The term to which the relationship is defined.
+   */
+  get: function get(
+    params?: IEndpoints['GET /sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/toTerm']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/toTerm']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/sites/{site-id}/termStore/sets/{set-id}/relations/{relation-id}/toTerm',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['site-id', 'set-id', 'relation-id'],
+      },
+      params,
+    };
+  },
+};

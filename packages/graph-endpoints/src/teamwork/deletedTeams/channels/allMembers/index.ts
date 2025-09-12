@@ -1,6 +1,3 @@
-export * as add from './add';
-export * as remove from './remove';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers',
     'post'
   >;
+  'POST /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/add': Operation<
+    '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/add',
+    'post'
+  >;
+  'POST /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/remove': Operation<
+    '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/remove',
+    'post'
+  >;
 }
 
 /**
@@ -38,12 +43,10 @@ export function del(
   return {
     method: 'delete',
     path: '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/{conversationMember-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deletedTeam-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['deletedTeam-id', 'channel-id', 'conversationMember-id'],
+    },
     params,
   };
 }
@@ -61,18 +64,10 @@ export function list(
   return {
     method: 'get',
     path: '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deletedTeam-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deletedTeam-id', 'channel-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,13 +85,10 @@ export function get(
   return {
     method: 'get',
     path: '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/{conversationMember-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deletedTeam-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deletedTeam-id', 'channel-id', 'conversationMember-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,11 +106,9 @@ export function update(
   return {
     method: 'patch',
     path: '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/{conversationMember-id}',
-    paramDefs: [
-      { name: 'deletedTeam-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deletedTeam-id', 'channel-id', 'conversationMember-id'],
+    },
     params,
     body,
   };
@@ -137,11 +127,58 @@ export function create(
   return {
     method: 'post',
     path: '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers',
-    paramDefs: [
-      { name: 'deletedTeam-id', in: 'path' },
-      { name: 'channel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deletedTeam-id', 'channel-id'],
+    },
     params,
     body,
   };
 }
+
+export const add = {
+  /**
+   * `POST /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/add`
+   *
+   * Add multiple members in a single request to a team. The response provides details about which memberships could and couldn&#x27;t be created.
+   */
+  create: function create(
+    body: IEndpoints['POST /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/add']['body'],
+    params?: IEndpoints['POST /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/add']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/add']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/add',
+      paramDefs: {
+        path: ['deletedTeam-id', 'channel-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const remove = {
+  /**
+   * `POST /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/remove`
+   *
+   * Remove multiple members from a team in a single request. The response provides details about which memberships could and couldn&#x27;t be removed.
+   */
+  create: function create(
+    body: IEndpoints['POST /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/remove']['body'],
+    params?: IEndpoints['POST /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/remove']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/remove']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/allMembers/remove',
+      paramDefs: {
+        path: ['deletedTeam-id', 'channel-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

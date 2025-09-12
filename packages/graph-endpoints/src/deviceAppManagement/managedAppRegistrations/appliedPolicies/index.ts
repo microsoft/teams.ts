@@ -1,5 +1,3 @@
-export * as targetApps from './targetApps';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/appliedPolicies',
     'post'
   >;
+  'POST /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/appliedPolicies/{managedAppPolicy-id}/targetApps': Operation<
+    '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/appliedPolicies/{managedAppPolicy-id}/targetApps',
+    'post'
+  >;
 }
 
 /**
@@ -37,11 +39,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/appliedPolicies/{managedAppPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'managedAppRegistration-id', in: 'path' },
-      { name: 'managedAppPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['managedAppRegistration-id', 'managedAppPolicy-id'],
+    },
     params,
   };
 }
@@ -59,17 +60,10 @@ export function list(
   return {
     method: 'get',
     path: '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/appliedPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'managedAppRegistration-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['managedAppRegistration-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,12 +81,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/appliedPolicies/{managedAppPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'managedAppRegistration-id', in: 'path' },
-      { name: 'managedAppPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['managedAppRegistration-id', 'managedAppPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,10 +102,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/appliedPolicies/{managedAppPolicy-id}',
-    paramDefs: [
-      { name: 'managedAppRegistration-id', in: 'path' },
-      { name: 'managedAppPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['managedAppRegistration-id', 'managedAppPolicy-id'],
+    },
     params,
     body,
   };
@@ -132,8 +123,34 @@ export function create(
   return {
     method: 'post',
     path: '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/appliedPolicies',
-    paramDefs: [{ name: 'managedAppRegistration-id', in: 'path' }],
+    paramDefs: {
+      path: ['managedAppRegistration-id'],
+    },
     params,
     body,
   };
 }
+
+export const targetApps = {
+  /**
+   * `POST /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/appliedPolicies/{managedAppPolicy-id}/targetApps`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/appliedPolicies/{managedAppPolicy-id}/targetApps']['body'],
+    params?: IEndpoints['POST /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/appliedPolicies/{managedAppPolicy-id}/targetApps']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/appliedPolicies/{managedAppPolicy-id}/targetApps']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/appliedPolicies/{managedAppPolicy-id}/targetApps',
+      paramDefs: {
+        path: ['managedAppRegistration-id', 'managedAppPolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

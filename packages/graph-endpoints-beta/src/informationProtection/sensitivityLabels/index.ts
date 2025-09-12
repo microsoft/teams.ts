@@ -1,6 +1,3 @@
-export * as computeRightsAndInheritance from './computeRightsAndInheritance';
-export * as evaluate from './evaluate';
-export * as rights from './rights';
 export * as sublabels from './sublabels';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
@@ -26,6 +23,18 @@ export interface IEndpoints {
     '/informationProtection/sensitivityLabels',
     'post'
   >;
+  'POST /informationProtection/sensitivityLabels/computeRightsAndInheritance': Operation<
+    '/informationProtection/sensitivityLabels/computeRightsAndInheritance',
+    'post'
+  >;
+  'POST /informationProtection/sensitivityLabels/evaluate': Operation<
+    '/informationProtection/sensitivityLabels/evaluate',
+    'post'
+  >;
+  'GET /informationProtection/sensitivityLabels/{sensitivityLabel-id}/rights': Operation<
+    '/informationProtection/sensitivityLabels/{sensitivityLabel-id}/rights',
+    'get'
+  >;
 }
 
 /**
@@ -41,10 +50,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/informationProtection/sensitivityLabels/{sensitivityLabel-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'sensitivityLabel-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['sensitivityLabel-id'],
+    },
     params,
   };
 }
@@ -60,16 +69,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/informationProtection/sensitivityLabels',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +89,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/informationProtection/sensitivityLabels/{sensitivityLabel-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sensitivityLabel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sensitivityLabel-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +111,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/informationProtection/sensitivityLabels/{sensitivityLabel-id}',
-    paramDefs: [{ name: 'sensitivityLabel-id', in: 'path' }],
+    paramDefs: {
+      path: ['sensitivityLabel-id'],
+    },
     params,
     body,
   };
@@ -121,15 +124,74 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /informationProtection/sensitivityLabels']['body'],
-  params?: IEndpoints['POST /informationProtection/sensitivityLabels']['parameters']
+  body: IEndpoints['POST /informationProtection/sensitivityLabels']['body']
 ): EndpointRequest<IEndpoints['POST /informationProtection/sensitivityLabels']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/informationProtection/sensitivityLabels',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const computeRightsAndInheritance = {
+  /**
+   * `POST /informationProtection/sensitivityLabels/computeRightsAndInheritance`
+   *
+   * Computes the rights and inheritance for sensitivity labels based on the input content and labels.
+   */
+  create: function create(
+    body: IEndpoints['POST /informationProtection/sensitivityLabels/computeRightsAndInheritance']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /informationProtection/sensitivityLabels/computeRightsAndInheritance']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/informationProtection/sensitivityLabels/computeRightsAndInheritance',
+      body,
+    };
+  },
+};
+
+export const evaluate = {
+  /**
+   * `POST /informationProtection/sensitivityLabels/evaluate`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /informationProtection/sensitivityLabels/evaluate']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /informationProtection/sensitivityLabels/evaluate']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/informationProtection/sensitivityLabels/evaluate',
+      body,
+    };
+  },
+};
+
+export const rights = {
+  /**
+   * `GET /informationProtection/sensitivityLabels/{sensitivityLabel-id}/rights`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /informationProtection/sensitivityLabels/{sensitivityLabel-id}/rights']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /informationProtection/sensitivityLabels/{sensitivityLabel-id}/rights']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/informationProtection/sensitivityLabels/{sensitivityLabel-id}/rights',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['sensitivityLabel-id'],
+      },
+      params,
+    };
+  },
+};

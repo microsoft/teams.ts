@@ -30,11 +30,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/sites/{site-id}/pageTemplates/{pageTemplate-id}/canvasLayout/verticalSection',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-      { name: 'pageTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id', 'pageTemplate-id'],
+    },
     params,
   };
 }
@@ -53,12 +52,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/sites/{site-id}/pageTemplates/{pageTemplate-id}/canvasLayout/verticalSection',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'pageTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'pageTemplate-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -77,10 +74,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/sites/{site-id}/pageTemplates/{pageTemplate-id}/canvasLayout/verticalSection',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'pageTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'pageTemplate-id'],
+    },
     params,
     body,
   };

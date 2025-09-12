@@ -38,12 +38,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/groups/{group-id}/sites/{site-id}/analytics/itemActivityStats/{itemActivityStat-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'itemActivityStat-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'site-id', 'itemActivityStat-id'],
+    },
     params,
   };
 }
@@ -61,18 +59,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/analytics/itemActivityStats',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,13 +80,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/analytics/itemActivityStats/{itemActivityStat-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'itemActivityStat-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'itemActivityStat-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,11 +102,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/groups/{group-id}/sites/{site-id}/analytics/itemActivityStats/{itemActivityStat-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'itemActivityStat-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'itemActivityStat-id'],
+    },
     params,
     body,
   };
@@ -139,10 +124,9 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/groups/{group-id}/sites/{site-id}/analytics/itemActivityStats',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+    },
     params,
     body,
   };

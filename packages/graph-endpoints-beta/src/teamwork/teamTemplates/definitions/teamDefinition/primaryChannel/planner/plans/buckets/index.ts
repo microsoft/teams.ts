@@ -38,13 +38,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/planner/plans/{plannerPlan-id}/buckets/{plannerBucket-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-      { name: 'plannerPlan-id', in: 'path' },
-      { name: 'plannerBucket-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'plannerPlan-id', 'plannerBucket-id'],
+    },
     params,
   };
 }
@@ -63,19 +60,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/planner/plans/{plannerPlan-id}/buckets',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-      { name: 'plannerPlan-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'plannerPlan-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -94,14 +82,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/planner/plans/{plannerPlan-id}/buckets/{plannerBucket-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-      { name: 'plannerPlan-id', in: 'path' },
-      { name: 'plannerBucket-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'plannerPlan-id', 'plannerBucket-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -120,12 +104,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/planner/plans/{plannerPlan-id}/buckets/{plannerBucket-id}',
-    paramDefs: [
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-      { name: 'plannerPlan-id', in: 'path' },
-      { name: 'plannerBucket-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'plannerPlan-id', 'plannerBucket-id'],
+    },
     params,
     body,
   };
@@ -145,11 +126,9 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/planner/plans/{plannerPlan-id}/buckets',
-    paramDefs: [
-      { name: 'teamTemplate-id', in: 'path' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-      { name: 'plannerPlan-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'plannerPlan-id'],
+    },
     params,
     body,
   };

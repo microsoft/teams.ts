@@ -1,5 +1,3 @@
-export * as team from './team';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /me/teamwork/associatedTeams': Operation<'/me/teamwork/associatedTeams', 'post'>;
+  'GET /me/teamwork/associatedTeams/{associatedTeamInfo-id}/team': Operation<
+    '/me/teamwork/associatedTeams/{associatedTeamInfo-id}/team',
+    'get'
+  >;
 }
 
 /**
@@ -32,10 +34,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/teamwork/associatedTeams/{associatedTeamInfo-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'associatedTeamInfo-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['associatedTeamInfo-id'],
+    },
     params,
   };
 }
@@ -55,16 +57,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/teamwork/associatedTeams',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -83,11 +78,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/teamwork/associatedTeams/{associatedTeamInfo-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'associatedTeamInfo-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['associatedTeamInfo-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -106,7 +100,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/teamwork/associatedTeams/{associatedTeamInfo-id}',
-    paramDefs: [{ name: 'associatedTeamInfo-id', in: 'path' }],
+    paramDefs: {
+      path: ['associatedTeamInfo-id'],
+    },
     params,
     body,
   };
@@ -117,15 +113,35 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /me/teamwork/associatedTeams']['body'],
-  params?: IEndpoints['POST /me/teamwork/associatedTeams']['parameters']
+  body: IEndpoints['POST /me/teamwork/associatedTeams']['body']
 ): EndpointRequest<IEndpoints['POST /me/teamwork/associatedTeams']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/me/teamwork/associatedTeams',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const team = {
+  /**
+   * `GET /me/teamwork/associatedTeams/{associatedTeamInfo-id}/team`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/teamwork/associatedTeams/{associatedTeamInfo-id}/team']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/teamwork/associatedTeams/{associatedTeamInfo-id}/team']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/teamwork/associatedTeams/{associatedTeamInfo-id}/team',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['associatedTeamInfo-id'],
+      },
+      params,
+    };
+  },
+};

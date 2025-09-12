@@ -1,5 +1,3 @@
-export * as content from './content';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -20,6 +18,14 @@ export interface IEndpoints {
     '/sites/{site-id}/onenote/resources',
     'post'
   >;
+  'GET /sites/{site-id}/onenote/resources/{onenoteResource-id}/content': Operation<
+    '/sites/{site-id}/onenote/resources/{onenoteResource-id}/content',
+    'get'
+  >;
+  'PUT /sites/{site-id}/onenote/resources/{onenoteResource-id}/content': Operation<
+    '/sites/{site-id}/onenote/resources/{onenoteResource-id}/content',
+    'put'
+  >;
 }
 
 /**
@@ -34,11 +40,10 @@ export function del(
   return {
     method: 'delete',
     path: '/sites/{site-id}/onenote/resources/{onenoteResource-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-      { name: 'onenoteResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id', 'onenoteResource-id'],
+    },
     params,
   };
 }
@@ -54,17 +59,10 @@ export function list(
   return {
     method: 'get',
     path: '/sites/{site-id}/onenote/resources',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -82,12 +80,10 @@ export function get(
   return {
     method: 'get',
     path: '/sites/{site-id}/onenote/resources/{onenoteResource-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'onenoteResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'onenoteResource-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -105,10 +101,9 @@ export function update(
   return {
     method: 'patch',
     path: '/sites/{site-id}/onenote/resources/{onenoteResource-id}',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'onenoteResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'onenoteResource-id'],
+    },
     params,
     body,
   };
@@ -125,8 +120,53 @@ export function create(
   return {
     method: 'post',
     path: '/sites/{site-id}/onenote/resources',
-    paramDefs: [{ name: 'site-id', in: 'path' }],
+    paramDefs: {
+      path: ['site-id'],
+    },
     params,
     body,
   };
 }
+
+export const content = {
+  /**
+   * `GET /sites/{site-id}/onenote/resources/{onenoteResource-id}/content`
+   *
+   * The content stream
+   */
+  get: function get(
+    params?: IEndpoints['GET /sites/{site-id}/onenote/resources/{onenoteResource-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /sites/{site-id}/onenote/resources/{onenoteResource-id}/content']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/sites/{site-id}/onenote/resources/{onenoteResource-id}/content',
+      paramDefs: {
+        path: ['site-id', 'onenoteResource-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /sites/{site-id}/onenote/resources/{onenoteResource-id}/content`
+   *
+   * The content stream
+   */
+  set: function set(
+    body: IEndpoints['PUT /sites/{site-id}/onenote/resources/{onenoteResource-id}/content']['body'],
+    params?: IEndpoints['PUT /sites/{site-id}/onenote/resources/{onenoteResource-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /sites/{site-id}/onenote/resources/{onenoteResource-id}/content']['response']
+  > {
+    return {
+      method: 'put',
+      path: '/sites/{site-id}/onenote/resources/{onenoteResource-id}/content',
+      paramDefs: {
+        path: ['site-id', 'onenoteResource-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

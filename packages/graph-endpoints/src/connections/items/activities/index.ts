@@ -1,5 +1,3 @@
-export * as performedBy from './performedBy';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/connections/{externalConnection-id}/items/{externalItem-id}/activities',
     'post'
   >;
+  'GET /connections/{externalConnection-id}/items/{externalItem-id}/activities/{externalActivity-id}/performedBy': Operation<
+    '/connections/{externalConnection-id}/items/{externalItem-id}/activities/{externalActivity-id}/performedBy',
+    'get'
+  >;
 }
 
 /**
@@ -37,12 +39,10 @@ export function del(
   return {
     method: 'delete',
     path: '/connections/{externalConnection-id}/items/{externalItem-id}/activities/{externalActivity-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'externalConnection-id', in: 'path' },
-      { name: 'externalItem-id', in: 'path' },
-      { name: 'externalActivity-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['externalConnection-id', 'externalItem-id', 'externalActivity-id'],
+    },
     params,
   };
 }
@@ -60,18 +60,10 @@ export function list(
   return {
     method: 'get',
     path: '/connections/{externalConnection-id}/items/{externalItem-id}/activities',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'externalConnection-id', in: 'path' },
-      { name: 'externalItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['externalConnection-id', 'externalItem-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,13 +81,10 @@ export function get(
   return {
     method: 'get',
     path: '/connections/{externalConnection-id}/items/{externalItem-id}/activities/{externalActivity-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'externalConnection-id', in: 'path' },
-      { name: 'externalItem-id', in: 'path' },
-      { name: 'externalActivity-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['externalConnection-id', 'externalItem-id', 'externalActivity-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,11 +102,9 @@ export function update(
   return {
     method: 'patch',
     path: '/connections/{externalConnection-id}/items/{externalItem-id}/activities/{externalActivity-id}',
-    paramDefs: [
-      { name: 'externalConnection-id', in: 'path' },
-      { name: 'externalItem-id', in: 'path' },
-      { name: 'externalActivity-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['externalConnection-id', 'externalItem-id', 'externalActivity-id'],
+    },
     params,
     body,
   };
@@ -136,11 +123,33 @@ export function create(
   return {
     method: 'post',
     path: '/connections/{externalConnection-id}/items/{externalItem-id}/activities',
-    paramDefs: [
-      { name: 'externalConnection-id', in: 'path' },
-      { name: 'externalItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['externalConnection-id', 'externalItem-id'],
+    },
     params,
     body,
   };
 }
+
+export const performedBy = {
+  /**
+   * `GET /connections/{externalConnection-id}/items/{externalItem-id}/activities/{externalActivity-id}/performedBy`
+   *
+   * Represents an identity used to identify who is responsible for the activity.
+   */
+  get: function get(
+    params?: IEndpoints['GET /connections/{externalConnection-id}/items/{externalItem-id}/activities/{externalActivity-id}/performedBy']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /connections/{externalConnection-id}/items/{externalItem-id}/activities/{externalActivity-id}/performedBy']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/connections/{externalConnection-id}/items/{externalItem-id}/activities/{externalActivity-id}/performedBy',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['externalConnection-id', 'externalItem-id', 'externalActivity-id'],
+      },
+      params,
+    };
+  },
+};

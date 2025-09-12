@@ -1,5 +1,3 @@
-export * as compute from './compute';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -15,6 +13,10 @@ export interface IEndpoints {
     '/security/dataSecurityAndGovernance/protectionScopes',
     'patch'
   >;
+  'POST /security/dataSecurityAndGovernance/protectionScopes/compute': Operation<
+    '/security/dataSecurityAndGovernance/protectionScopes/compute',
+    'post'
+  >;
 }
 
 /**
@@ -29,7 +31,9 @@ export function del(
   return {
     method: 'delete',
     path: '/security/dataSecurityAndGovernance/protectionScopes',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -47,10 +51,9 @@ export function list(
   return {
     method: 'get',
     path: '/security/dataSecurityAndGovernance/protectionScopes',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -60,16 +63,31 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /security/dataSecurityAndGovernance/protectionScopes']['body'],
-  params?: IEndpoints['PATCH /security/dataSecurityAndGovernance/protectionScopes']['parameters']
+  body: IEndpoints['PATCH /security/dataSecurityAndGovernance/protectionScopes']['body']
 ): EndpointRequest<
   IEndpoints['PATCH /security/dataSecurityAndGovernance/protectionScopes']['response']
 > {
   return {
     method: 'patch',
     path: '/security/dataSecurityAndGovernance/protectionScopes',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const compute = {
+  /**
+   * `POST /security/dataSecurityAndGovernance/protectionScopes/compute`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /security/dataSecurityAndGovernance/protectionScopes/compute']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /security/dataSecurityAndGovernance/protectionScopes/compute']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/security/dataSecurityAndGovernance/protectionScopes/compute',
+      body,
+    };
+  },
+};

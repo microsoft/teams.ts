@@ -1,9 +1,3 @@
-export * as approve from './approve';
-export * as cancelApproval from './cancelApproval';
-export * as cancelMyRequest from './cancelMyRequest';
-export * as reject from './reject';
-export * as retrieveRequestStatus from './retrieveRequestStatus';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -27,6 +21,26 @@ export interface IEndpoints {
     '/deviceManagement/operationApprovalRequests',
     'post'
   >;
+  'POST /deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/approve': Operation<
+    '/deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/approve',
+    'post'
+  >;
+  'POST /deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/cancelApproval': Operation<
+    '/deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/cancelApproval',
+    'post'
+  >;
+  'POST /deviceManagement/operationApprovalRequests/cancelMyRequest': Operation<
+    '/deviceManagement/operationApprovalRequests/cancelMyRequest',
+    'post'
+  >;
+  'POST /deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/reject': Operation<
+    '/deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/reject',
+    'post'
+  >;
+  'POST /deviceManagement/operationApprovalRequests/retrieveRequestStatus': Operation<
+    '/deviceManagement/operationApprovalRequests/retrieveRequestStatus',
+    'post'
+  >;
 }
 
 /**
@@ -42,10 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'operationApprovalRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['operationApprovalRequest-id'],
+    },
     params,
   };
 }
@@ -62,16 +76,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/operationApprovalRequests',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,11 +97,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'operationApprovalRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['operationApprovalRequest-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,7 +119,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}',
-    paramDefs: [{ name: 'operationApprovalRequest-id', in: 'path' }],
+    paramDefs: {
+      path: ['operationApprovalRequest-id'],
+    },
     params,
     body,
   };
@@ -124,15 +132,125 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/operationApprovalRequests']['body'],
-  params?: IEndpoints['POST /deviceManagement/operationApprovalRequests']['parameters']
+  body: IEndpoints['POST /deviceManagement/operationApprovalRequests']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/operationApprovalRequests']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/operationApprovalRequests',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const approve = {
+  /**
+   * `POST /deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/approve`
+   *
+   * Approves the requested instance of an operationApprovalRequest.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/approve']['body'],
+    params?: IEndpoints['POST /deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/approve']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/approve']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/approve',
+      paramDefs: {
+        path: ['operationApprovalRequest-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const cancelApproval = {
+  /**
+   * `POST /deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/cancelApproval`
+   *
+   * Cancels an already approved instance of an operationApprovalRequest.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/cancelApproval']['body'],
+    params?: IEndpoints['POST /deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/cancelApproval']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/cancelApproval']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/cancelApproval',
+      paramDefs: {
+        path: ['operationApprovalRequest-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const cancelMyRequest = {
+  /**
+   * `POST /deviceManagement/operationApprovalRequests/cancelMyRequest`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/operationApprovalRequests/cancelMyRequest']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/operationApprovalRequests/cancelMyRequest']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/operationApprovalRequests/cancelMyRequest',
+      body,
+    };
+  },
+};
+
+export const reject = {
+  /**
+   * `POST /deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/reject`
+   *
+   * Rejects the requested instance of an operationApprovalRequest.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/reject']['body'],
+    params?: IEndpoints['POST /deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/reject']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/reject']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/operationApprovalRequests/{operationApprovalRequest-id}/reject',
+      paramDefs: {
+        path: ['operationApprovalRequest-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const retrieveRequestStatus = {
+  /**
+   * `POST /deviceManagement/operationApprovalRequests/retrieveRequestStatus`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/operationApprovalRequests/retrieveRequestStatus']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/operationApprovalRequests/retrieveRequestStatus']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/operationApprovalRequests/retrieveRequestStatus',
+      body,
+    };
+  },
+};

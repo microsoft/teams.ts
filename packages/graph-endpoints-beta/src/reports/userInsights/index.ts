@@ -20,7 +20,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/reports/userInsights',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -37,10 +39,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/reports/userInsights',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -50,15 +51,12 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /reports/userInsights']['body'],
-  params?: IEndpoints['PATCH /reports/userInsights']['parameters']
+  body: IEndpoints['PATCH /reports/userInsights']['body']
 ): EndpointRequest<IEndpoints['PATCH /reports/userInsights']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/reports/userInsights',
-    paramDefs: [],
-    params,
     body,
   };
 }

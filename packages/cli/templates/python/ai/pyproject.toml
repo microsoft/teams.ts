@@ -1,0 +1,15 @@
+[project]
+name = "ai-bot"
+version = "0.1.0"
+description = "A Microsoft Teams AI bot using teams.py and OpenAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+readme = "README.md"
+requires-python = ">=3.12"
+
+dependencies = [
+  "python-dotenv",
+  "microsoft-teams-apps",
+  "microsoft.teams.ai",
+  "microsoft.teams.openai",
+  "microsoft-teams-devtools"
+]

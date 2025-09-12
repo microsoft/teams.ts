@@ -1,5 +1,3 @@
-export * as uploadClientCertificate from './uploadClientCertificate';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -15,6 +13,10 @@ export interface IEndpoints {
     '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/apiConnectorConfiguration/postAttributeCollection',
     'patch'
   >;
+  'POST /identity/b2xUserFlows/{b2xIdentityUserFlow-id}/apiConnectorConfiguration/postAttributeCollection/uploadClientCertificate': Operation<
+    '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/apiConnectorConfiguration/postAttributeCollection/uploadClientCertificate',
+    'post'
+  >;
 }
 
 /**
@@ -29,10 +31,10 @@ export function del(
   return {
     method: 'delete',
     path: '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/apiConnectorConfiguration/postAttributeCollection',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'b2xIdentityUserFlow-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['b2xIdentityUserFlow-id'],
+    },
     params,
   };
 }
@@ -49,11 +51,10 @@ export function get(
   return {
     method: 'get',
     path: '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/apiConnectorConfiguration/postAttributeCollection',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'b2xIdentityUserFlow-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['b2xIdentityUserFlow-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -71,8 +72,34 @@ export function update(
   return {
     method: 'patch',
     path: '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/apiConnectorConfiguration/postAttributeCollection',
-    paramDefs: [{ name: 'b2xIdentityUserFlow-id', in: 'path' }],
+    paramDefs: {
+      path: ['b2xIdentityUserFlow-id'],
+    },
     params,
     body,
   };
 }
+
+export const uploadClientCertificate = {
+  /**
+   * `POST /identity/b2xUserFlows/{b2xIdentityUserFlow-id}/apiConnectorConfiguration/postAttributeCollection/uploadClientCertificate`
+   *
+   * Upload a PKCS 12 format key (.pfx) to an API connector&#x27;s authentication configuration. The input is a base-64 encoded value of the PKCS 12 certificate contents. This method returns an apiConnector.
+   */
+  create: function create(
+    body: IEndpoints['POST /identity/b2xUserFlows/{b2xIdentityUserFlow-id}/apiConnectorConfiguration/postAttributeCollection/uploadClientCertificate']['body'],
+    params?: IEndpoints['POST /identity/b2xUserFlows/{b2xIdentityUserFlow-id}/apiConnectorConfiguration/postAttributeCollection/uploadClientCertificate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /identity/b2xUserFlows/{b2xIdentityUserFlow-id}/apiConnectorConfiguration/postAttributeCollection/uploadClientCertificate']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/apiConnectorConfiguration/postAttributeCollection/uploadClientCertificate',
+      paramDefs: {
+        path: ['b2xIdentityUserFlow-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

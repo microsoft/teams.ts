@@ -32,10 +32,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/appConsentRequestsForApproval/{appConsentRequest-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'appConsentRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['appConsentRequest-id'],
+    },
     params,
   };
 }
@@ -51,16 +51,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/appConsentRequestsForApproval',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -78,11 +71,10 @@ export function get$1(
     ver: 'beta',
     method: 'get',
     path: '/me/appConsentRequestsForApproval/{appConsentRequest-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'appConsentRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['appConsentRequest-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -101,7 +93,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/appConsentRequestsForApproval/{appConsentRequest-id}',
-    paramDefs: [{ name: 'appConsentRequest-id', in: 'path' }],
+    paramDefs: {
+      path: ['appConsentRequest-id'],
+    },
     params,
     body,
   };
@@ -112,15 +106,12 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /me/appConsentRequestsForApproval']['body'],
-  params?: IEndpoints['POST /me/appConsentRequestsForApproval']['parameters']
+  body: IEndpoints['POST /me/appConsentRequestsForApproval']['body']
 ): EndpointRequest<IEndpoints['POST /me/appConsentRequestsForApproval']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/me/appConsentRequestsForApproval',
-    paramDefs: [],
-    params,
     body,
   };
 }

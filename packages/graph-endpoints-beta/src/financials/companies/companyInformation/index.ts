@@ -1,5 +1,3 @@
-export * as picture from './picture';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -14,6 +12,18 @@ export interface IEndpoints {
   'PATCH /financials/companies/{company-id}/companyInformation/{companyInformation-id}': Operation<
     '/financials/companies/{company-id}/companyInformation/{companyInformation-id}',
     'patch'
+  >;
+  'GET /financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture': Operation<
+    '/financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture',
+    'get'
+  >;
+  'PUT /financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture': Operation<
+    '/financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture',
+    'put'
+  >;
+  'DELETE /financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture': Operation<
+    '/financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture',
+    'delete'
   >;
 }
 
@@ -30,17 +40,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/companyInformation',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -58,12 +61,10 @@ export function get$1(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/companyInformation/{companyInformation-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-      { name: 'companyInformation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'companyInformation-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -82,11 +83,73 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/financials/companies/{company-id}/companyInformation/{companyInformation-id}',
-    paramDefs: [
-      { name: 'company-id', in: 'path' },
-      { name: 'companyInformation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'companyInformation-id'],
+    },
     params,
     body,
   };
 }
+
+export const picture = {
+  /**
+   * `GET /financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture',
+      paramDefs: {
+        path: ['company-id', 'companyInformation-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture`
+   *
+   */
+  set: function set(
+    body: IEndpoints['PUT /financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture']['body'],
+    params?: IEndpoints['PUT /financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'put',
+      path: '/financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture',
+      paramDefs: {
+        path: ['company-id', 'companyInformation-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/financials/companies/{company-id}/companyInformation/{companyInformation-id}/picture',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['company-id', 'companyInformation-id'],
+      },
+      params,
+    };
+  },
+};

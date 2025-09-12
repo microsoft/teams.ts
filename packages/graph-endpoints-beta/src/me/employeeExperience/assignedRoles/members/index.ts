@@ -38,11 +38,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/employeeExperience/assignedRoles/{engagementRole-id}/members/{engagementRoleMember-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'engagementRole-id', in: 'path' },
-      { name: 'engagementRoleMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['engagementRole-id', 'engagementRoleMember-id'],
+    },
     params,
   };
 }
@@ -61,17 +60,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/employeeExperience/assignedRoles/{engagementRole-id}/members',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'engagementRole-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['engagementRole-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +82,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/employeeExperience/assignedRoles/{engagementRole-id}/members/{engagementRoleMember-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'engagementRole-id', in: 'path' },
-      { name: 'engagementRoleMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['engagementRole-id', 'engagementRoleMember-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +104,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/employeeExperience/assignedRoles/{engagementRole-id}/members/{engagementRoleMember-id}',
-    paramDefs: [
-      { name: 'engagementRole-id', in: 'path' },
-      { name: 'engagementRoleMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['engagementRole-id', 'engagementRoleMember-id'],
+    },
     params,
     body,
   };
@@ -137,7 +126,9 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/me/employeeExperience/assignedRoles/{engagementRole-id}/members',
-    paramDefs: [{ name: 'engagementRole-id', in: 'path' }],
+    paramDefs: {
+      path: ['engagementRole-id'],
+    },
     params,
     body,
   };

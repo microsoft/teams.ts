@@ -1,8 +1,3 @@
-export * as generateKey from './generateKey';
-export * as uploadCertificate from './uploadCertificate';
-export * as uploadPkcs12 from './uploadPkcs12';
-export * as uploadSecret from './uploadSecret';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -20,6 +15,22 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /trustFramework/keySets': Operation<'/trustFramework/keySets', 'post'>;
+  'POST /trustFramework/keySets/{trustFrameworkKeySet-id}/generateKey': Operation<
+    '/trustFramework/keySets/{trustFrameworkKeySet-id}/generateKey',
+    'post'
+  >;
+  'POST /trustFramework/keySets/{trustFrameworkKeySet-id}/uploadCertificate': Operation<
+    '/trustFramework/keySets/{trustFrameworkKeySet-id}/uploadCertificate',
+    'post'
+  >;
+  'POST /trustFramework/keySets/{trustFrameworkKeySet-id}/uploadPkcs12': Operation<
+    '/trustFramework/keySets/{trustFrameworkKeySet-id}/uploadPkcs12',
+    'post'
+  >;
+  'POST /trustFramework/keySets/{trustFrameworkKeySet-id}/uploadSecret': Operation<
+    '/trustFramework/keySets/{trustFrameworkKeySet-id}/uploadSecret',
+    'post'
+  >;
 }
 
 /**
@@ -36,10 +47,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/trustFramework/keySets/{trustFrameworkKeySet-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'trustFrameworkKeySet-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['trustFrameworkKeySet-id'],
+    },
     params,
   };
 }
@@ -56,16 +67,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/trustFramework/keySets',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -84,11 +88,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/trustFramework/keySets/{trustFrameworkKeySet-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'trustFrameworkKeySet-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['trustFrameworkKeySet-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -108,7 +111,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/trustFramework/keySets/{trustFrameworkKeySet-id}',
-    paramDefs: [{ name: 'trustFrameworkKeySet-id', in: 'path' }],
+    paramDefs: {
+      path: ['trustFrameworkKeySet-id'],
+    },
     params,
     body,
   };
@@ -120,15 +125,112 @@ export function update(
  * Create a new trustFrameworkKeySet. The ID of the trustFrameworkKeySet is expected in the create request; however, it can be modified by the service. The modified ID will be available in the response and in the location header.
  */
 export function create(
-  body: IEndpoints['POST /trustFramework/keySets']['body'],
-  params?: IEndpoints['POST /trustFramework/keySets']['parameters']
+  body: IEndpoints['POST /trustFramework/keySets']['body']
 ): EndpointRequest<IEndpoints['POST /trustFramework/keySets']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/trustFramework/keySets',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const generateKey = {
+  /**
+   * `POST /trustFramework/keySets/{trustFrameworkKeySet-id}/generateKey`
+   *
+   * Generate a trustFrameworkKey and a secret automatically in the trustFrameworkKeyset. The caller doesn&#x27;t have to provide a secret.
+   */
+  create: function create(
+    body: IEndpoints['POST /trustFramework/keySets/{trustFrameworkKeySet-id}/generateKey']['body'],
+    params?: IEndpoints['POST /trustFramework/keySets/{trustFrameworkKeySet-id}/generateKey']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /trustFramework/keySets/{trustFrameworkKeySet-id}/generateKey']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/trustFramework/keySets/{trustFrameworkKeySet-id}/generateKey',
+      paramDefs: {
+        path: ['trustFrameworkKeySet-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const uploadCertificate = {
+  /**
+   * `POST /trustFramework/keySets/{trustFrameworkKeySet-id}/uploadCertificate`
+   *
+   * Upload a certificate to a trustFrameworkKeyset. The input is a base-64 encoded value of the certificate contents. This method returns trustFrameworkKey.
+   */
+  create: function create(
+    body: IEndpoints['POST /trustFramework/keySets/{trustFrameworkKeySet-id}/uploadCertificate']['body'],
+    params?: IEndpoints['POST /trustFramework/keySets/{trustFrameworkKeySet-id}/uploadCertificate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /trustFramework/keySets/{trustFrameworkKeySet-id}/uploadCertificate']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/trustFramework/keySets/{trustFrameworkKeySet-id}/uploadCertificate',
+      paramDefs: {
+        path: ['trustFrameworkKeySet-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const uploadPkcs12 = {
+  /**
+   * `POST /trustFramework/keySets/{trustFrameworkKeySet-id}/uploadPkcs12`
+   *
+   * Upload a PKCS12 format key (PFX) to a trustFrameworkKeyset. The input is a base-64 encoded value of the Pfx certificate contents. This method returns trustFrameworkKey.
+   */
+  create: function create(
+    body: IEndpoints['POST /trustFramework/keySets/{trustFrameworkKeySet-id}/uploadPkcs12']['body'],
+    params?: IEndpoints['POST /trustFramework/keySets/{trustFrameworkKeySet-id}/uploadPkcs12']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /trustFramework/keySets/{trustFrameworkKeySet-id}/uploadPkcs12']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/trustFramework/keySets/{trustFrameworkKeySet-id}/uploadPkcs12',
+      paramDefs: {
+        path: ['trustFrameworkKeySet-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const uploadSecret = {
+  /**
+   * `POST /trustFramework/keySets/{trustFrameworkKeySet-id}/uploadSecret`
+   *
+   * Upload a plain text secret to a trustFrameworkKeyset. Examples of secrets are application secrets in Microsoft Entra ID, Google, Facebook, or any other identity provider. his method returns trustFrameworkKey.
+   */
+  create: function create(
+    body: IEndpoints['POST /trustFramework/keySets/{trustFrameworkKeySet-id}/uploadSecret']['body'],
+    params?: IEndpoints['POST /trustFramework/keySets/{trustFrameworkKeySet-id}/uploadSecret']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /trustFramework/keySets/{trustFrameworkKeySet-id}/uploadSecret']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/trustFramework/keySets/{trustFrameworkKeySet-id}/uploadSecret',
+      paramDefs: {
+        path: ['trustFrameworkKeySet-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

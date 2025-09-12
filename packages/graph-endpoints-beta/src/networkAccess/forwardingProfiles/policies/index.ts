@@ -1,5 +1,3 @@
-export * as policy from './policy';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/networkAccess/forwardingProfiles/{forwardingProfile-id}/policies',
     'post'
   >;
+  'GET /networkAccess/forwardingProfiles/{forwardingProfile-id}/policies/{policyLink-id}/policy': Operation<
+    '/networkAccess/forwardingProfiles/{forwardingProfile-id}/policies/{policyLink-id}/policy',
+    'get'
+  >;
 }
 
 /**
@@ -38,11 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/networkAccess/forwardingProfiles/{forwardingProfile-id}/policies/{policyLink-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'forwardingProfile-id', in: 'path' },
-      { name: 'policyLink-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['forwardingProfile-id', 'policyLink-id'],
+    },
     params,
   };
 }
@@ -61,17 +62,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/forwardingProfiles/{forwardingProfile-id}/policies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'forwardingProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['forwardingProfile-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +84,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/forwardingProfiles/{forwardingProfile-id}/policies/{policyLink-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'forwardingProfile-id', in: 'path' },
-      { name: 'policyLink-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['forwardingProfile-id', 'policyLink-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,10 +107,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/networkAccess/forwardingProfiles/{forwardingProfile-id}/policies/{policyLink-id}',
-    paramDefs: [
-      { name: 'forwardingProfile-id', in: 'path' },
-      { name: 'policyLink-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['forwardingProfile-id', 'policyLink-id'],
+    },
     params,
     body,
   };
@@ -138,8 +129,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/networkAccess/forwardingProfiles/{forwardingProfile-id}/policies',
-    paramDefs: [{ name: 'forwardingProfile-id', in: 'path' }],
+    paramDefs: {
+      path: ['forwardingProfile-id'],
+    },
     params,
     body,
   };
 }
+
+export const policy = {
+  /**
+   * `GET /networkAccess/forwardingProfiles/{forwardingProfile-id}/policies/{policyLink-id}/policy`
+   *
+   * Policy.
+   */
+  get: function get(
+    params?: IEndpoints['GET /networkAccess/forwardingProfiles/{forwardingProfile-id}/policies/{policyLink-id}/policy']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /networkAccess/forwardingProfiles/{forwardingProfile-id}/policies/{policyLink-id}/policy']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/networkAccess/forwardingProfiles/{forwardingProfile-id}/policies/{policyLink-id}/policy',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['forwardingProfile-id', 'policyLink-id'],
+      },
+      params,
+    };
+  },
+};

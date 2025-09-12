@@ -1,5 +1,13 @@
 # @microsoft/teams.cli
 
+## 2.0.0-preview.12
+
+### Patch Changes
+
+- Python additions to CLI, A2A package bump to 0.3.0
+- Updated dependencies
+  - @microsoft/teams.common@2.0.0-preview.12
+
 ## 2.0.0-preview.11
 
 ### Patch Changes

@@ -1,5 +1,3 @@
-export * as clear from './clear';
-
 import type { EndpointRequest, Operation } from './../../../../../../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -14,6 +12,10 @@ export interface IEndpoints {
   'PATCH /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/axes/seriesAxis/minorGridlines/format/line': Operation<
     '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/axes/seriesAxis/minorGridlines/format/line',
     'patch'
+  >;
+  'POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/axes/seriesAxis/minorGridlines/format/line/clear': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/axes/seriesAxis/minorGridlines/format/line/clear',
+    'post'
   >;
 }
 
@@ -30,13 +32,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/axes/seriesAxis/minorGridlines/format/line',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookChart-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['drive-id', 'driveItem-id', 'workbookWorksheet-id', 'workbookChart-id'],
+    },
     params,
   };
 }
@@ -55,14 +54,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/axes/seriesAxis/minorGridlines/format/line',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookChart-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'workbookWorksheet-id', 'workbookChart-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,13 +76,33 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/axes/seriesAxis/minorGridlines/format/line',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookChart-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'workbookWorksheet-id', 'workbookChart-id'],
+    },
     params,
     body,
   };
 }
+
+export const clear = {
+  /**
+   * `POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/axes/seriesAxis/minorGridlines/format/line/clear`
+   *
+   * Clear the line format of a chart element.
+   */
+  create: function create(
+    params?: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/axes/seriesAxis/minorGridlines/format/line/clear']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/axes/seriesAxis/minorGridlines/format/line/clear']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/axes/seriesAxis/minorGridlines/format/line/clear',
+      paramDefs: {
+        path: ['drive-id', 'driveItem-id', 'workbookWorksheet-id', 'workbookChart-id'],
+      },
+      params,
+    };
+  },
+};

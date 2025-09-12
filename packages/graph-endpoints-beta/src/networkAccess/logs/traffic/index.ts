@@ -1,4 +1,3 @@
-export * as device from './device';
 export * as user from './user';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -18,6 +17,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /networkAccess/logs/traffic': Operation<'/networkAccess/logs/traffic', 'post'>;
+  'GET /networkAccess/logs/traffic/{networkAccessTraffic-transactionId}/device': Operation<
+    '/networkAccess/logs/traffic/{networkAccessTraffic-transactionId}/device',
+    'get'
+  >;
 }
 
 /**
@@ -33,10 +36,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/networkAccess/logs/traffic/{networkAccessTraffic-transactionId}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'networkAccessTraffic-transactionId', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['networkAccessTraffic-transactionId'],
+    },
     params,
   };
 }
@@ -53,16 +56,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/logs/traffic',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,11 +77,10 @@ export function get$1(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/logs/traffic/{networkAccessTraffic-transactionId}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'networkAccessTraffic-transactionId', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['networkAccessTraffic-transactionId'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -104,7 +99,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/networkAccess/logs/traffic/{networkAccessTraffic-transactionId}',
-    paramDefs: [{ name: 'networkAccessTraffic-transactionId', in: 'path' }],
+    paramDefs: {
+      path: ['networkAccessTraffic-transactionId'],
+    },
     params,
     body,
   };
@@ -115,15 +112,36 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /networkAccess/logs/traffic']['body'],
-  params?: IEndpoints['POST /networkAccess/logs/traffic']['parameters']
+  body: IEndpoints['POST /networkAccess/logs/traffic']['body']
 ): EndpointRequest<IEndpoints['POST /networkAccess/logs/traffic']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/networkAccess/logs/traffic',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const device = {
+  /**
+   * `GET /networkAccess/logs/traffic/{networkAccessTraffic-transactionId}/device`
+   *
+   * Represents the device associated with the network traffic, providing details about the hardware or virtual machine involved in the transaction.
+   */
+  get: function get(
+    params?: IEndpoints['GET /networkAccess/logs/traffic/{networkAccessTraffic-transactionId}/device']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /networkAccess/logs/traffic/{networkAccessTraffic-transactionId}/device']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/networkAccess/logs/traffic/{networkAccessTraffic-transactionId}/device',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['networkAccessTraffic-transactionId'],
+      },
+      params,
+    };
+  },
+};

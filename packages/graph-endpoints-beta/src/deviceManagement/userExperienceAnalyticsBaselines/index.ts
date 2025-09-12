@@ -1,11 +1,3 @@
-export * as appHealthMetrics from './appHealthMetrics';
-export * as batteryHealthMetrics from './batteryHealthMetrics';
-export * as bestPracticesMetrics from './bestPracticesMetrics';
-export * as deviceBootPerformanceMetrics from './deviceBootPerformanceMetrics';
-export * as rebootAnalyticsMetrics from './rebootAnalyticsMetrics';
-export * as resourcePerformanceMetrics from './resourcePerformanceMetrics';
-export * as workFromAnywhereMetrics from './workFromAnywhereMetrics';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -29,6 +21,34 @@ export interface IEndpoints {
     '/deviceManagement/userExperienceAnalyticsBaselines',
     'post'
   >;
+  'GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/appHealthMetrics': Operation<
+    '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/appHealthMetrics',
+    'get'
+  >;
+  'GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/batteryHealthMetrics': Operation<
+    '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/batteryHealthMetrics',
+    'get'
+  >;
+  'GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/bestPracticesMetrics': Operation<
+    '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/bestPracticesMetrics',
+    'get'
+  >;
+  'GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/deviceBootPerformanceMetrics': Operation<
+    '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/deviceBootPerformanceMetrics',
+    'get'
+  >;
+  'GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/rebootAnalyticsMetrics': Operation<
+    '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/rebootAnalyticsMetrics',
+    'get'
+  >;
+  'GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/resourcePerformanceMetrics': Operation<
+    '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/resourcePerformanceMetrics',
+    'get'
+  >;
+  'GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/workFromAnywhereMetrics': Operation<
+    '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/workFromAnywhereMetrics',
+    'get'
+  >;
 }
 
 /**
@@ -44,10 +64,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'userExperienceAnalyticsBaseline-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['userExperienceAnalyticsBaseline-id'],
+    },
     params,
   };
 }
@@ -66,16 +86,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/userExperienceAnalyticsBaselines',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -94,11 +107,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'userExperienceAnalyticsBaseline-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['userExperienceAnalyticsBaseline-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,7 +129,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}',
-    paramDefs: [{ name: 'userExperienceAnalyticsBaseline-id', in: 'path' }],
+    paramDefs: {
+      path: ['userExperienceAnalyticsBaseline-id'],
+    },
     params,
     body,
   };
@@ -128,8 +142,7 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/userExperienceAnalyticsBaselines']['body'],
-  params?: IEndpoints['POST /deviceManagement/userExperienceAnalyticsBaselines']['parameters']
+  body: IEndpoints['POST /deviceManagement/userExperienceAnalyticsBaselines']['body']
 ): EndpointRequest<
   IEndpoints['POST /deviceManagement/userExperienceAnalyticsBaselines']['response']
 > {
@@ -137,8 +150,174 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/userExperienceAnalyticsBaselines',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const appHealthMetrics = {
+  /**
+   * `GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/appHealthMetrics`
+   *
+   * The scores and insights for the application health metrics.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/appHealthMetrics']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/appHealthMetrics']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/appHealthMetrics',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['userExperienceAnalyticsBaseline-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const batteryHealthMetrics = {
+  /**
+   * `GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/batteryHealthMetrics`
+   *
+   * The scores and insights for the battery health metrics.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/batteryHealthMetrics']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/batteryHealthMetrics']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/batteryHealthMetrics',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['userExperienceAnalyticsBaseline-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const bestPracticesMetrics = {
+  /**
+   * `GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/bestPracticesMetrics`
+   *
+   * The scores and insights for the best practices metrics.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/bestPracticesMetrics']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/bestPracticesMetrics']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/bestPracticesMetrics',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['userExperienceAnalyticsBaseline-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const deviceBootPerformanceMetrics = {
+  /**
+   * `GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/deviceBootPerformanceMetrics`
+   *
+   * The scores and insights for the device boot performance metrics.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/deviceBootPerformanceMetrics']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/deviceBootPerformanceMetrics']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/deviceBootPerformanceMetrics',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['userExperienceAnalyticsBaseline-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const rebootAnalyticsMetrics = {
+  /**
+   * `GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/rebootAnalyticsMetrics`
+   *
+   * The scores and insights for the reboot analytics metrics.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/rebootAnalyticsMetrics']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/rebootAnalyticsMetrics']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/rebootAnalyticsMetrics',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['userExperienceAnalyticsBaseline-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const resourcePerformanceMetrics = {
+  /**
+   * `GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/resourcePerformanceMetrics`
+   *
+   * The scores and insights for the resource performance metrics.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/resourcePerformanceMetrics']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/resourcePerformanceMetrics']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/resourcePerformanceMetrics',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['userExperienceAnalyticsBaseline-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const workFromAnywhereMetrics = {
+  /**
+   * `GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/workFromAnywhereMetrics`
+   *
+   * The scores and insights for the work from anywhere metrics.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/workFromAnywhereMetrics']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/workFromAnywhereMetrics']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/userExperienceAnalyticsBaselines/{userExperienceAnalyticsBaseline-id}/workFromAnywhereMetrics',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['userExperienceAnalyticsBaseline-id'],
+      },
+      params,
+    };
+  },
+};

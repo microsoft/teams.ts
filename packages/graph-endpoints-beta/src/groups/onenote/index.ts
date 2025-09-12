@@ -1,5 +1,4 @@
 export * as notebooks from './notebooks';
-export * as operations from './operations';
 export * as pages from './pages';
 export * as resources from './resources';
 export * as sectionGroups from './sectionGroups';
@@ -11,6 +10,26 @@ export interface IEndpoints {
   'DELETE /groups/{group-id}/onenote': Operation<'/groups/{group-id}/onenote', 'delete'>;
   'GET /groups/{group-id}/onenote': Operation<'/groups/{group-id}/onenote', 'get'>;
   'PATCH /groups/{group-id}/onenote': Operation<'/groups/{group-id}/onenote', 'patch'>;
+  'GET /groups/{group-id}/onenote/operations': Operation<
+    '/groups/{group-id}/onenote/operations',
+    'get'
+  >;
+  'POST /groups/{group-id}/onenote/operations': Operation<
+    '/groups/{group-id}/onenote/operations',
+    'post'
+  >;
+  'GET /groups/{group-id}/onenote/operations/{onenoteOperation-id}': Operation<
+    '/groups/{group-id}/onenote/operations/{onenoteOperation-id}',
+    'get'
+  >;
+  'PATCH /groups/{group-id}/onenote/operations/{onenoteOperation-id}': Operation<
+    '/groups/{group-id}/onenote/operations/{onenoteOperation-id}',
+    'patch'
+  >;
+  'DELETE /groups/{group-id}/onenote/operations/{onenoteOperation-id}': Operation<
+    '/groups/{group-id}/onenote/operations/{onenoteOperation-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -24,10 +43,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/groups/{group-id}/onenote',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id'],
+    },
     params,
   };
 }
@@ -43,11 +62,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/onenote',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -64,8 +82,113 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/groups/{group-id}/onenote',
-    paramDefs: [{ name: 'group-id', in: 'path' }],
+    paramDefs: {
+      path: ['group-id'],
+    },
     params,
     body,
   };
 }
+
+export const operations = {
+  /**
+   * `GET /groups/{group-id}/onenote/operations`
+   *
+   * The status of OneNote operations. Getting an operations collection isn&#x27;t supported, but you can get the status of long-running operations if the Operation-Location header is returned in the response. Read-only. Nullable.
+   */
+  list: function list(
+    params?: IEndpoints['GET /groups/{group-id}/onenote/operations']['parameters']
+  ): EndpointRequest<IEndpoints['GET /groups/{group-id}/onenote/operations']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/groups/{group-id}/onenote/operations',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['group-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /groups/{group-id}/onenote/operations`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/onenote/operations']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/onenote/operations']['parameters']
+  ): EndpointRequest<IEndpoints['POST /groups/{group-id}/onenote/operations']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/onenote/operations',
+      paramDefs: {
+        path: ['group-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /groups/{group-id}/onenote/operations/{onenoteOperation-id}`
+   *
+   * The status of OneNote operations. Getting an operations collection isn&#x27;t supported, but you can get the status of long-running operations if the Operation-Location header is returned in the response. Read-only. Nullable.
+   */
+  get: function get(
+    params?: IEndpoints['GET /groups/{group-id}/onenote/operations/{onenoteOperation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/onenote/operations/{onenoteOperation-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/groups/{group-id}/onenote/operations/{onenoteOperation-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['group-id', 'onenoteOperation-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /groups/{group-id}/onenote/operations/{onenoteOperation-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /groups/{group-id}/onenote/operations/{onenoteOperation-id}']['body'],
+    params?: IEndpoints['PATCH /groups/{group-id}/onenote/operations/{onenoteOperation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /groups/{group-id}/onenote/operations/{onenoteOperation-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/groups/{group-id}/onenote/operations/{onenoteOperation-id}',
+      paramDefs: {
+        path: ['group-id', 'onenoteOperation-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /groups/{group-id}/onenote/operations/{onenoteOperation-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /groups/{group-id}/onenote/operations/{onenoteOperation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /groups/{group-id}/onenote/operations/{onenoteOperation-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/groups/{group-id}/onenote/operations/{onenoteOperation-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['group-id', 'onenoteOperation-id'],
+      },
+      params,
+    };
+  },
+};

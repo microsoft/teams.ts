@@ -38,10 +38,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/employeeExperience/assignedRoles/{engagementRole-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'engagementRole-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['engagementRole-id'],
+    },
     params,
   };
 }
@@ -58,16 +58,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/employeeExperience/assignedRoles',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +79,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/employeeExperience/assignedRoles/{engagementRole-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'engagementRole-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['engagementRole-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +101,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/employeeExperience/assignedRoles/{engagementRole-id}',
-    paramDefs: [{ name: 'engagementRole-id', in: 'path' }],
+    paramDefs: {
+      path: ['engagementRole-id'],
+    },
     params,
     body,
   };
@@ -120,15 +114,12 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /me/employeeExperience/assignedRoles']['body'],
-  params?: IEndpoints['POST /me/employeeExperience/assignedRoles']['parameters']
+  body: IEndpoints['POST /me/employeeExperience/assignedRoles']['body']
 ): EndpointRequest<IEndpoints['POST /me/employeeExperience/assignedRoles']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/me/employeeExperience/assignedRoles',
-    paramDefs: [],
-    params,
     body,
   };
 }

@@ -20,10 +20,10 @@ export function del(
   return {
     method: 'delete',
     path: '/users/{user-id}/insights',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id'],
+    },
     params,
   };
 }
@@ -39,11 +39,10 @@ export function list(
   return {
     method: 'get',
     path: '/users/{user-id}/insights',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -59,7 +58,9 @@ export function update(
   return {
     method: 'patch',
     path: '/users/{user-id}/insights',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };

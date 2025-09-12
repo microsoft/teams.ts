@@ -1,5 +1,3 @@
-export * as pngOfCurrentSlide from './pngOfCurrentSlide';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,18 @@ export interface IEndpoints {
     '/communications/calls/{call-id}/contentSharingSessions',
     'post'
   >;
+  'GET /communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide': Operation<
+    '/communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide',
+    'get'
+  >;
+  'PUT /communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide': Operation<
+    '/communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide',
+    'put'
+  >;
+  'DELETE /communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide': Operation<
+    '/communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide',
+    'delete'
+  >;
 }
 
 /**
@@ -38,11 +48,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'call-id', in: 'path' },
-      { name: 'contentSharingSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['call-id', 'contentSharingSession-id'],
+    },
     params,
   };
 }
@@ -61,17 +70,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/communications/calls/{call-id}/contentSharingSessions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'call-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['call-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +92,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'call-id', in: 'path' },
-      { name: 'contentSharingSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['call-id', 'contentSharingSession-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +114,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}',
-    paramDefs: [
-      { name: 'call-id', in: 'path' },
-      { name: 'contentSharingSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['call-id', 'contentSharingSession-id'],
+    },
     params,
     body,
   };
@@ -137,8 +136,73 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/communications/calls/{call-id}/contentSharingSessions',
-    paramDefs: [{ name: 'call-id', in: 'path' }],
+    paramDefs: {
+      path: ['call-id'],
+    },
     params,
     body,
   };
 }
+
+export const pngOfCurrentSlide = {
+  /**
+   * `GET /communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide',
+      paramDefs: {
+        path: ['call-id', 'contentSharingSession-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide`
+   *
+   */
+  set: function set(
+    body: IEndpoints['PUT /communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide']['body'],
+    params?: IEndpoints['PUT /communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'put',
+      path: '/communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide',
+      paramDefs: {
+        path: ['call-id', 'contentSharingSession-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/communications/calls/{call-id}/contentSharingSessions/{contentSharingSession-id}/pngOfCurrentSlide',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['call-id', 'contentSharingSession-id'],
+      },
+      params,
+    };
+  },
+};

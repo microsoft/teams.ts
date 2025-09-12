@@ -25,7 +25,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/roleManagement/deviceManagement',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -43,10 +45,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/deviceManagement',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -57,15 +58,12 @@ export function get(
  * @deprecated
  */
 export function update(
-  body: IEndpoints['PATCH /roleManagement/deviceManagement']['body'],
-  params?: IEndpoints['PATCH /roleManagement/deviceManagement']['parameters']
+  body: IEndpoints['PATCH /roleManagement/deviceManagement']['body']
 ): EndpointRequest<IEndpoints['PATCH /roleManagement/deviceManagement']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/roleManagement/deviceManagement',
-    paramDefs: [],
-    params,
     body,
   };
 }

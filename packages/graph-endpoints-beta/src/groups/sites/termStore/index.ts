@@ -29,11 +29,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/groups/{group-id}/sites/{site-id}/termStore',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'site-id'],
+    },
     params,
   };
 }
@@ -50,12 +49,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/termStore',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -72,10 +69,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/groups/{group-id}/sites/{site-id}/termStore',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+    },
     params,
     body,
   };

@@ -1,5 +1,3 @@
-export * as managedDevices from './managedDevices';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,14 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /deviceManagement/detectedApps': Operation<'/deviceManagement/detectedApps', 'post'>;
+  'GET /deviceManagement/detectedApps/{detectedApp-id}/managedDevices': Operation<
+    '/deviceManagement/detectedApps/{detectedApp-id}/managedDevices',
+    'get'
+  >;
+  'GET /deviceManagement/detectedApps/{detectedApp-id}/managedDevices/{managedDevice-id}': Operation<
+    '/deviceManagement/detectedApps/{detectedApp-id}/managedDevices/{managedDevice-id}',
+    'get'
+  >;
 }
 
 /**
@@ -32,10 +38,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceManagement/detectedApps/{detectedApp-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'detectedApp-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['detectedApp-id'],
+    },
     params,
   };
 }
@@ -51,16 +57,9 @@ export function list(
   return {
     method: 'get',
     path: '/deviceManagement/detectedApps',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -76,11 +75,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceManagement/detectedApps/{detectedApp-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'detectedApp-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['detectedApp-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -99,7 +97,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceManagement/detectedApps/{detectedApp-id}',
-    paramDefs: [{ name: 'detectedApp-id', in: 'path' }],
+    paramDefs: {
+      path: ['detectedApp-id'],
+    },
     params,
     body,
   };
@@ -111,14 +111,54 @@ export function update(
  * Create a new detectedApp object.
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/detectedApps']['body'],
-  params?: IEndpoints['POST /deviceManagement/detectedApps']['parameters']
+  body: IEndpoints['POST /deviceManagement/detectedApps']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/detectedApps']['response']> {
   return {
     method: 'post',
     path: '/deviceManagement/detectedApps',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const managedDevices = {
+  /**
+   * `GET /deviceManagement/detectedApps/{detectedApp-id}/managedDevices`
+   *
+   * The devices that have the discovered application installed
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/detectedApps/{detectedApp-id}/managedDevices']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/detectedApps/{detectedApp-id}/managedDevices']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceManagement/detectedApps/{detectedApp-id}/managedDevices',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['detectedApp-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /deviceManagement/detectedApps/{detectedApp-id}/managedDevices/{managedDevice-id}`
+   *
+   * The devices that have the discovered application installed
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/detectedApps/{detectedApp-id}/managedDevices/{managedDevice-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/detectedApps/{detectedApp-id}/managedDevices/{managedDevice-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceManagement/detectedApps/{detectedApp-id}/managedDevices/{managedDevice-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['detectedApp-id', 'managedDevice-id'],
+      },
+      params,
+    };
+  },
+};

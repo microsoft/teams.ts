@@ -38,10 +38,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'mobileAppTroubleshootingEvent-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['mobileAppTroubleshootingEvent-id'],
+    },
     params,
   };
 }
@@ -58,16 +58,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/mobileAppTroubleshootingEvents',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +79,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'mobileAppTroubleshootingEvent-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['mobileAppTroubleshootingEvent-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +101,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}',
-    paramDefs: [{ name: 'mobileAppTroubleshootingEvent-id', in: 'path' }],
+    paramDefs: {
+      path: ['mobileAppTroubleshootingEvent-id'],
+    },
     params,
     body,
   };
@@ -120,8 +114,7 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/mobileAppTroubleshootingEvents']['body'],
-  params?: IEndpoints['POST /deviceManagement/mobileAppTroubleshootingEvents']['parameters']
+  body: IEndpoints['POST /deviceManagement/mobileAppTroubleshootingEvents']['body']
 ): EndpointRequest<
   IEndpoints['POST /deviceManagement/mobileAppTroubleshootingEvents']['response']
 > {
@@ -129,8 +122,6 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/mobileAppTroubleshootingEvents',
-    paramDefs: [],
-    params,
     body,
   };
 }

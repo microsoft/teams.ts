@@ -32,10 +32,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/outlook/taskGroups/{outlookTaskGroup-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'outlookTaskGroup-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['outlookTaskGroup-id'],
+    },
     params,
   };
 }
@@ -53,16 +53,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/outlook/taskGroups',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -80,11 +73,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/outlook/taskGroups/{outlookTaskGroup-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'outlookTaskGroup-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['outlookTaskGroup-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -103,7 +95,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/outlook/taskGroups/{outlookTaskGroup-id}',
-    paramDefs: [{ name: 'outlookTaskGroup-id', in: 'path' }],
+    paramDefs: {
+      path: ['outlookTaskGroup-id'],
+    },
     params,
     body,
   };
@@ -116,15 +110,12 @@ export function update(
  * @deprecated
  */
 export function create(
-  body: IEndpoints['POST /me/outlook/taskGroups']['body'],
-  params?: IEndpoints['POST /me/outlook/taskGroups']['parameters']
+  body: IEndpoints['POST /me/outlook/taskGroups']['body']
 ): EndpointRequest<IEndpoints['POST /me/outlook/taskGroups']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/me/outlook/taskGroups',
-    paramDefs: [],
-    params,
     body,
   };
 }

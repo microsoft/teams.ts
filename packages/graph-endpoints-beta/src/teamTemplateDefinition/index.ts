@@ -32,10 +32,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/teamTemplateDefinition/{teamTemplateDefinition-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['teamTemplateDefinition-id'],
+    },
     params,
   };
 }
@@ -51,16 +51,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/teamTemplateDefinition',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -78,11 +71,10 @@ export function get$1(
     ver: 'beta',
     method: 'get',
     path: '/teamTemplateDefinition/{teamTemplateDefinition-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'teamTemplateDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamTemplateDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -101,7 +93,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/teamTemplateDefinition/{teamTemplateDefinition-id}',
-    paramDefs: [{ name: 'teamTemplateDefinition-id', in: 'path' }],
+    paramDefs: {
+      path: ['teamTemplateDefinition-id'],
+    },
     params,
     body,
   };
@@ -112,15 +106,12 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /teamTemplateDefinition']['body'],
-  params?: IEndpoints['POST /teamTemplateDefinition']['parameters']
+  body: IEndpoints['POST /teamTemplateDefinition']['body']
 ): EndpointRequest<IEndpoints['POST /teamTemplateDefinition']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/teamTemplateDefinition',
-    paramDefs: [],
-    params,
     body,
   };
 }

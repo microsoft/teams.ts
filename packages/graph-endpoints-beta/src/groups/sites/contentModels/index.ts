@@ -1,6 +1,3 @@
-export * as addToDrive from './addToDrive';
-export * as removeFromDrive from './removeFromDrive';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/groups/{group-id}/sites/{site-id}/contentModels',
     'post'
   >;
+  'POST /groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}/addToDrive': Operation<
+    '/groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}/addToDrive',
+    'post'
+  >;
+  'POST /groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}/removeFromDrive': Operation<
+    '/groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}/removeFromDrive',
+    'post'
+  >;
 }
 
 /**
@@ -39,12 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'contentModel-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'site-id', 'contentModel-id'],
+    },
     params,
   };
 }
@@ -61,18 +64,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/contentModels',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -91,13 +86,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'contentModel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'contentModel-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -116,11 +108,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'contentModel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'contentModel-id'],
+    },
     params,
     body,
   };
@@ -140,11 +130,60 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/groups/{group-id}/sites/{site-id}/contentModels',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+    },
     params,
     body,
   };
 }
+
+export const addToDrive = {
+  /**
+   * `POST /groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}/addToDrive`
+   *
+   * Apply a contentModel to SharePoint document libraries. For an existing model that&#x27;s already trained, this action automatically processes new documents that are added to the SharePoint libraries.
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}/addToDrive']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}/addToDrive']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}/addToDrive']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}/addToDrive',
+      paramDefs: {
+        path: ['group-id', 'site-id', 'contentModel-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const removeFromDrive = {
+  /**
+   * `POST /groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}/removeFromDrive`
+   *
+   * Remove a contentModel from a SharePoint document library.
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}/removeFromDrive']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}/removeFromDrive']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}/removeFromDrive']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/sites/{site-id}/contentModels/{contentModel-id}/removeFromDrive',
+      paramDefs: {
+        path: ['group-id', 'site-id', 'contentModel-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

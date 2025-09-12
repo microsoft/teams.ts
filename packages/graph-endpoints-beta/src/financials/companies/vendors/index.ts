@@ -1,6 +1,3 @@
-export * as currency from './currency';
-export * as paymentMethod from './paymentMethod';
-export * as paymentTerm from './paymentTerm';
 export * as picture from './picture';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -26,6 +23,42 @@ export interface IEndpoints {
     '/financials/companies/{company-id}/vendors',
     'post'
   >;
+  'GET /financials/companies/{company-id}/vendors/{vendor-id}/currency': Operation<
+    '/financials/companies/{company-id}/vendors/{vendor-id}/currency',
+    'get'
+  >;
+  'PATCH /financials/companies/{company-id}/vendors/{vendor-id}/currency': Operation<
+    '/financials/companies/{company-id}/vendors/{vendor-id}/currency',
+    'patch'
+  >;
+  'DELETE /financials/companies/{company-id}/vendors/{vendor-id}/currency': Operation<
+    '/financials/companies/{company-id}/vendors/{vendor-id}/currency',
+    'delete'
+  >;
+  'GET /financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod': Operation<
+    '/financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod',
+    'get'
+  >;
+  'PATCH /financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod': Operation<
+    '/financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod',
+    'patch'
+  >;
+  'DELETE /financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod': Operation<
+    '/financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod',
+    'delete'
+  >;
+  'GET /financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm': Operation<
+    '/financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm',
+    'get'
+  >;
+  'PATCH /financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm': Operation<
+    '/financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm',
+    'patch'
+  >;
+  'DELETE /financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm': Operation<
+    '/financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm',
+    'delete'
+  >;
 }
 
 /**
@@ -41,11 +74,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/financials/companies/{company-id}/vendors/{vendor-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'company-id', in: 'path' },
-      { name: 'vendor-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['company-id', 'vendor-id'],
+    },
     params,
   };
 }
@@ -61,17 +93,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/vendors',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,12 +114,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/vendors/{vendor-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-      { name: 'vendor-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'vendor-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,10 +136,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/financials/companies/{company-id}/vendors/{vendor-id}',
-    paramDefs: [
-      { name: 'company-id', in: 'path' },
-      { name: 'vendor-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'vendor-id'],
+    },
     params,
     body,
   };
@@ -134,8 +156,202 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/financials/companies/{company-id}/vendors',
-    paramDefs: [{ name: 'company-id', in: 'path' }],
+    paramDefs: {
+      path: ['company-id'],
+    },
     params,
     body,
   };
 }
+
+export const currency = {
+  /**
+   * `GET /financials/companies/{company-id}/vendors/{vendor-id}/currency`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /financials/companies/{company-id}/vendors/{vendor-id}/currency']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /financials/companies/{company-id}/vendors/{vendor-id}/currency']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/financials/companies/{company-id}/vendors/{vendor-id}/currency',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['company-id', 'vendor-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /financials/companies/{company-id}/vendors/{vendor-id}/currency`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /financials/companies/{company-id}/vendors/{vendor-id}/currency']['body'],
+    params?: IEndpoints['PATCH /financials/companies/{company-id}/vendors/{vendor-id}/currency']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /financials/companies/{company-id}/vendors/{vendor-id}/currency']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/financials/companies/{company-id}/vendors/{vendor-id}/currency',
+      paramDefs: {
+        path: ['company-id', 'vendor-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /financials/companies/{company-id}/vendors/{vendor-id}/currency`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /financials/companies/{company-id}/vendors/{vendor-id}/currency']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /financials/companies/{company-id}/vendors/{vendor-id}/currency']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/financials/companies/{company-id}/vendors/{vendor-id}/currency',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['company-id', 'vendor-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const paymentMethod = {
+  /**
+   * `GET /financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['company-id', 'vendor-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod']['body'],
+    params?: IEndpoints['PATCH /financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod',
+      paramDefs: {
+        path: ['company-id', 'vendor-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/financials/companies/{company-id}/vendors/{vendor-id}/paymentMethod',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['company-id', 'vendor-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const paymentTerm = {
+  /**
+   * `GET /financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['company-id', 'vendor-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm']['body'],
+    params?: IEndpoints['PATCH /financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm',
+      paramDefs: {
+        path: ['company-id', 'vendor-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/financials/companies/{company-id}/vendors/{vendor-id}/paymentTerm',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['company-id', 'vendor-id'],
+      },
+      params,
+    };
+  },
+};

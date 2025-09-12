@@ -1,6 +1,4 @@
-export * as account from './account';
 export * as journalLines from './journalLines';
-export * as post from './post';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
@@ -25,6 +23,14 @@ export interface IEndpoints {
     '/financials/companies/{company-id}/journals',
     'post'
   >;
+  'GET /financials/companies/{company-id}/journals/{journal-id}/account': Operation<
+    '/financials/companies/{company-id}/journals/{journal-id}/account',
+    'get'
+  >;
+  'POST /financials/companies/{company-id}/journals/{journal-id}/post': Operation<
+    '/financials/companies/{company-id}/journals/{journal-id}/post',
+    'post'
+  >;
 }
 
 /**
@@ -40,11 +46,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/financials/companies/{company-id}/journals/{journal-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'company-id', in: 'path' },
-      { name: 'journal-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['company-id', 'journal-id'],
+    },
     params,
   };
 }
@@ -60,17 +65,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/journals',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,12 +86,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/journals/{journal-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-      { name: 'journal-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'journal-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,10 +108,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/financials/companies/{company-id}/journals/{journal-id}',
-    paramDefs: [
-      { name: 'company-id', in: 'path' },
-      { name: 'journal-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'journal-id'],
+    },
     params,
     body,
   };
@@ -133,8 +128,55 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/financials/companies/{company-id}/journals',
-    paramDefs: [{ name: 'company-id', in: 'path' }],
+    paramDefs: {
+      path: ['company-id'],
+    },
     params,
     body,
   };
 }
+
+export const account = {
+  /**
+   * `GET /financials/companies/{company-id}/journals/{journal-id}/account`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /financials/companies/{company-id}/journals/{journal-id}/account']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /financials/companies/{company-id}/journals/{journal-id}/account']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/financials/companies/{company-id}/journals/{journal-id}/account',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['company-id', 'journal-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const post = {
+  /**
+   * `POST /financials/companies/{company-id}/journals/{journal-id}/post`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /financials/companies/{company-id}/journals/{journal-id}/post']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /financials/companies/{company-id}/journals/{journal-id}/post']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/financials/companies/{company-id}/journals/{journal-id}/post',
+      paramDefs: {
+        path: ['company-id', 'journal-id'],
+      },
+      params,
+    };
+  },
+};

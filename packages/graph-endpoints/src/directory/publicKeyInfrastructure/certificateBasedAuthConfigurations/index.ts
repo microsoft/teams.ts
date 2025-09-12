@@ -1,6 +1,3 @@
-export * as certificateAuthorities from './certificateAuthorities';
-export * as upload from './upload';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,30 @@ export interface IEndpoints {
     '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations',
     'post'
   >;
+  'GET /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities': Operation<
+    '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities',
+    'get'
+  >;
+  'POST /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities': Operation<
+    '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities',
+    'post'
+  >;
+  'GET /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}': Operation<
+    '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}',
+    'get'
+  >;
+  'PATCH /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}': Operation<
+    '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}',
+    'patch'
+  >;
+  'DELETE /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}': Operation<
+    '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}',
+    'delete'
+  >;
+  'POST /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/upload': Operation<
+    '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/upload',
+    'post'
+  >;
 }
 
 /**
@@ -39,10 +60,10 @@ export function del(
   return {
     method: 'delete',
     path: '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'certificateBasedAuthPki-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['certificateBasedAuthPki-id'],
+    },
     params,
   };
 }
@@ -60,16 +81,9 @@ export function list(
   return {
     method: 'get',
     path: '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +101,10 @@ export function get(
   return {
     method: 'get',
     path: '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'certificateBasedAuthPki-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['certificateBasedAuthPki-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +123,9 @@ export function update(
   return {
     method: 'patch',
     path: '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}',
-    paramDefs: [{ name: 'certificateBasedAuthPki-id', in: 'path' }],
+    paramDefs: {
+      path: ['certificateBasedAuthPki-id'],
+    },
     params,
     body,
   };
@@ -122,16 +137,141 @@ export function update(
  * Create a new certificateBasedAuthPki object.
  */
 export function create(
-  body: IEndpoints['POST /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations']['body'],
-  params?: IEndpoints['POST /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations']['parameters']
+  body: IEndpoints['POST /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations']['body']
 ): EndpointRequest<
   IEndpoints['POST /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations']['response']
 > {
   return {
     method: 'post',
     path: '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const certificateAuthorities = {
+  /**
+   * `GET /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities`
+   *
+   * Get a list of the certificateAuthorityDetail objects and their properties.
+   */
+  list: function list(
+    params?: IEndpoints['GET /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['certificateBasedAuthPki-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities`
+   *
+   * Create a new certificateAuthorityDetail object.
+   */
+  create: function create(
+    body: IEndpoints['POST /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities']['body'],
+    params?: IEndpoints['POST /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities',
+      paramDefs: {
+        path: ['certificateBasedAuthPki-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}`
+   *
+   * The collection of certificate authorities contained in this public key infrastructure resource.
+   */
+  get: function get(
+    params?: IEndpoints['GET /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['certificateBasedAuthPki-id', 'certificateAuthorityDetail-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}']['body'],
+    params?: IEndpoints['PATCH /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}',
+      paramDefs: {
+        path: ['certificateBasedAuthPki-id', 'certificateAuthorityDetail-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}`
+   *
+   * Delete a certificateAuthorityDetail object.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/certificateAuthorities/{certificateAuthorityDetail-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['certificateBasedAuthPki-id', 'certificateAuthorityDetail-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const upload = {
+  /**
+   * `POST /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/upload`
+   *
+   * Append additional certificate authority details to a certificateBasedAuthPki resource. Only one operation can run at a time and this operation can take up to 30 minutes to complete. To know whether another upload is in progress, call the Get certificateBasedAuthPki. The status property will have the value running.
+   */
+  create: function create(
+    body: IEndpoints['POST /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/upload']['body'],
+    params?: IEndpoints['POST /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/upload']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/upload']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/{certificateBasedAuthPki-id}/upload',
+      paramDefs: {
+        path: ['certificateBasedAuthPki-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

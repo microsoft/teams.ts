@@ -19,10 +19,9 @@ export function get(
   return {
     method: 'get',
     path: '/planner',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -32,14 +31,11 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /planner']['body'],
-  params?: IEndpoints['PATCH /planner']['parameters']
+  body: IEndpoints['PATCH /planner']['body']
 ): EndpointRequest<IEndpoints['PATCH /planner']['response']> {
   return {
     method: 'patch',
     path: '/planner',
-    paramDefs: [],
-    params,
     body,
   };
 }

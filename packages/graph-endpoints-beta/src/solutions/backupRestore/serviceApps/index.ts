@@ -1,6 +1,3 @@
-export * as activate from './activate';
-export * as deactivate from './deactivate';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/solutions/backupRestore/serviceApps',
     'post'
   >;
+  'POST /solutions/backupRestore/serviceApps/{serviceApp-id}/activate': Operation<
+    '/solutions/backupRestore/serviceApps/{serviceApp-id}/activate',
+    'post'
+  >;
+  'POST /solutions/backupRestore/serviceApps/{serviceApp-id}/deactivate': Operation<
+    '/solutions/backupRestore/serviceApps/{serviceApp-id}/deactivate',
+    'post'
+  >;
 }
 
 /**
@@ -40,10 +45,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/solutions/backupRestore/serviceApps/{serviceApp-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'serviceApp-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['serviceApp-id'],
+    },
     params,
   };
 }
@@ -60,16 +65,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/solutions/backupRestore/serviceApps',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,11 +86,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/solutions/backupRestore/serviceApps/{serviceApp-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'serviceApp-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['serviceApp-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,7 +108,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/solutions/backupRestore/serviceApps/{serviceApp-id}',
-    paramDefs: [{ name: 'serviceApp-id', in: 'path' }],
+    paramDefs: {
+      path: ['serviceApp-id'],
+    },
     params,
     body,
   };
@@ -123,15 +122,60 @@ export function update(
  * Create a new serviceApp.
  */
 export function create(
-  body: IEndpoints['POST /solutions/backupRestore/serviceApps']['body'],
-  params?: IEndpoints['POST /solutions/backupRestore/serviceApps']['parameters']
+  body: IEndpoints['POST /solutions/backupRestore/serviceApps']['body']
 ): EndpointRequest<IEndpoints['POST /solutions/backupRestore/serviceApps']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/solutions/backupRestore/serviceApps',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const activate = {
+  /**
+   * `POST /solutions/backupRestore/serviceApps/{serviceApp-id}/activate`
+   *
+   * Activate a serviceApp.
+   */
+  create: function create(
+    body: IEndpoints['POST /solutions/backupRestore/serviceApps/{serviceApp-id}/activate']['body'],
+    params?: IEndpoints['POST /solutions/backupRestore/serviceApps/{serviceApp-id}/activate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /solutions/backupRestore/serviceApps/{serviceApp-id}/activate']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/solutions/backupRestore/serviceApps/{serviceApp-id}/activate',
+      paramDefs: {
+        path: ['serviceApp-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const deactivate = {
+  /**
+   * `POST /solutions/backupRestore/serviceApps/{serviceApp-id}/deactivate`
+   *
+   * Deactivate a serviceApp.
+   */
+  create: function create(
+    params?: IEndpoints['POST /solutions/backupRestore/serviceApps/{serviceApp-id}/deactivate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /solutions/backupRestore/serviceApps/{serviceApp-id}/deactivate']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/solutions/backupRestore/serviceApps/{serviceApp-id}/deactivate',
+      paramDefs: {
+        path: ['serviceApp-id'],
+      },
+      params,
+    };
+  },
+};

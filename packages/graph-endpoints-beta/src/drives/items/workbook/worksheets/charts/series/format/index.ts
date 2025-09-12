@@ -31,14 +31,16 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookChart-id', in: 'path' },
-      { name: 'workbookChartSeries-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: [
+        'drive-id',
+        'driveItem-id',
+        'workbookWorksheet-id',
+        'workbookChart-id',
+        'workbookChartSeries-id',
+      ],
+    },
     params,
   };
 }
@@ -57,15 +59,16 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookChart-id', in: 'path' },
-      { name: 'workbookChartSeries-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: [
+        'drive-id',
+        'driveItem-id',
+        'workbookWorksheet-id',
+        'workbookChart-id',
+        'workbookChartSeries-id',
+      ],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -84,13 +87,15 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/series/{workbookChartSeries-id}/format',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookChart-id', in: 'path' },
-      { name: 'workbookChartSeries-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: [
+        'drive-id',
+        'driveItem-id',
+        'workbookWorksheet-id',
+        'workbookChart-id',
+        'workbookChartSeries-id',
+      ],
+    },
     params,
     body,
   };

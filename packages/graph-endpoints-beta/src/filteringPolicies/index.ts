@@ -1,5 +1,3 @@
-export * as policyRules from './policyRules';
-
 import type { EndpointRequest, Operation } from './../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,26 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /filteringPolicies': Operation<'/filteringPolicies', 'post'>;
+  'GET /filteringPolicies/{filteringPolicy-id}/policyRules': Operation<
+    '/filteringPolicies/{filteringPolicy-id}/policyRules',
+    'get'
+  >;
+  'POST /filteringPolicies/{filteringPolicy-id}/policyRules': Operation<
+    '/filteringPolicies/{filteringPolicy-id}/policyRules',
+    'post'
+  >;
+  'GET /filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}': Operation<
+    '/filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}',
+    'get'
+  >;
+  'PATCH /filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}': Operation<
+    '/filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}',
+    'patch'
+  >;
+  'DELETE /filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}': Operation<
+    '/filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -30,10 +48,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/filteringPolicies/{filteringPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'filteringPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['filteringPolicy-id'],
+    },
     params,
   };
 }
@@ -49,16 +67,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/filteringPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -74,11 +85,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/filteringPolicies/{filteringPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'filteringPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['filteringPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -95,7 +105,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/filteringPolicies/{filteringPolicy-id}',
-    paramDefs: [{ name: 'filteringPolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['filteringPolicy-id'],
+    },
     params,
     body,
   };
@@ -106,15 +118,119 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /filteringPolicies']['body'],
-  params?: IEndpoints['POST /filteringPolicies']['parameters']
+  body: IEndpoints['POST /filteringPolicies']['body']
 ): EndpointRequest<IEndpoints['POST /filteringPolicies']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/filteringPolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const policyRules = {
+  /**
+   * `GET /filteringPolicies/{filteringPolicy-id}/policyRules`
+   *
+   * Represents the definition of the policy ruleset that makes up the core definition of a policy.
+   */
+  list: function list(
+    params?: IEndpoints['GET /filteringPolicies/{filteringPolicy-id}/policyRules']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /filteringPolicies/{filteringPolicy-id}/policyRules']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/filteringPolicies/{filteringPolicy-id}/policyRules',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['filteringPolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /filteringPolicies/{filteringPolicy-id}/policyRules`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /filteringPolicies/{filteringPolicy-id}/policyRules']['body'],
+    params?: IEndpoints['POST /filteringPolicies/{filteringPolicy-id}/policyRules']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /filteringPolicies/{filteringPolicy-id}/policyRules']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/filteringPolicies/{filteringPolicy-id}/policyRules',
+      paramDefs: {
+        path: ['filteringPolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}`
+   *
+   * Represents the definition of the policy ruleset that makes up the core definition of a policy.
+   */
+  get: function get(
+    params?: IEndpoints['GET /filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['filteringPolicy-id', 'policyRule-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}']['body'],
+    params?: IEndpoints['PATCH /filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}',
+      paramDefs: {
+        path: ['filteringPolicy-id', 'policyRule-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/filteringPolicies/{filteringPolicy-id}/policyRules/{policyRule-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['filteringPolicy-id', 'policyRule-id'],
+      },
+      params,
+    };
+  },
+};

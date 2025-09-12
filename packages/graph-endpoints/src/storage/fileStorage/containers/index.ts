@@ -1,12 +1,6 @@
-export * as activate from './activate';
 export * as columns from './columns';
-export * as drive from './drive';
-export * as lock from './lock';
-export * as permanentDelete from './permanentDelete';
 export * as permissions from './permissions';
 export * as recycleBin from './recycleBin';
-export * as restore from './restore';
-export * as unlock from './unlock';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
@@ -25,6 +19,30 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /storage/fileStorage/containers': Operation<'/storage/fileStorage/containers', 'post'>;
+  'POST /storage/fileStorage/containers/{fileStorageContainer-id}/activate': Operation<
+    '/storage/fileStorage/containers/{fileStorageContainer-id}/activate',
+    'post'
+  >;
+  'GET /storage/fileStorage/containers/{fileStorageContainer-id}/drive': Operation<
+    '/storage/fileStorage/containers/{fileStorageContainer-id}/drive',
+    'get'
+  >;
+  'POST /storage/fileStorage/containers/{fileStorageContainer-id}/lock': Operation<
+    '/storage/fileStorage/containers/{fileStorageContainer-id}/lock',
+    'post'
+  >;
+  'POST /storage/fileStorage/containers/{fileStorageContainer-id}/permanentDelete': Operation<
+    '/storage/fileStorage/containers/{fileStorageContainer-id}/permanentDelete',
+    'post'
+  >;
+  'POST /storage/fileStorage/containers/{fileStorageContainer-id}/restore': Operation<
+    '/storage/fileStorage/containers/{fileStorageContainer-id}/restore',
+    'post'
+  >;
+  'POST /storage/fileStorage/containers/{fileStorageContainer-id}/unlock': Operation<
+    '/storage/fileStorage/containers/{fileStorageContainer-id}/unlock',
+    'post'
+  >;
 }
 
 /**
@@ -39,10 +57,10 @@ export function del(
   return {
     method: 'delete',
     path: '/storage/fileStorage/containers/{fileStorageContainer-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['fileStorageContainer-id'],
+    },
     params,
   };
 }
@@ -58,16 +76,9 @@ export function list(
   return {
     method: 'get',
     path: '/storage/fileStorage/containers',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -84,11 +95,10 @@ export function get(
   return {
     method: 'get',
     path: '/storage/fileStorage/containers/{fileStorageContainer-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'fileStorageContainer-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['fileStorageContainer-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -106,7 +116,9 @@ export function update(
   return {
     method: 'patch',
     path: '/storage/fileStorage/containers/{fileStorageContainer-id}',
-    paramDefs: [{ name: 'fileStorageContainer-id', in: 'path' }],
+    paramDefs: {
+      path: ['fileStorageContainer-id'],
+    },
     params,
     body,
   };
@@ -118,14 +130,141 @@ export function update(
  * Create a new fileStorageContainer object.  The container type identified by containerTypeId must be registered in the tenant.  For delegated calls, the calling user is set as the owner of the fileStorageContainer.
  */
 export function create(
-  body: IEndpoints['POST /storage/fileStorage/containers']['body'],
-  params?: IEndpoints['POST /storage/fileStorage/containers']['parameters']
+  body: IEndpoints['POST /storage/fileStorage/containers']['body']
 ): EndpointRequest<IEndpoints['POST /storage/fileStorage/containers']['response']> {
   return {
     method: 'post',
     path: '/storage/fileStorage/containers',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const activate = {
+  /**
+   * `POST /storage/fileStorage/containers/{fileStorageContainer-id}/activate`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/activate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/activate']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/storage/fileStorage/containers/{fileStorageContainer-id}/activate',
+      paramDefs: {
+        path: ['fileStorageContainer-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const drive = {
+  /**
+   * `GET /storage/fileStorage/containers/{fileStorageContainer-id}/drive`
+   *
+   * The drive of the resource fileStorageContainer. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /storage/fileStorage/containers/{fileStorageContainer-id}/drive']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /storage/fileStorage/containers/{fileStorageContainer-id}/drive']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/storage/fileStorage/containers/{fileStorageContainer-id}/drive',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['fileStorageContainer-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const lock = {
+  /**
+   * `POST /storage/fileStorage/containers/{fileStorageContainer-id}/lock`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/lock']['body'],
+    params?: IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/lock']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/lock']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/storage/fileStorage/containers/{fileStorageContainer-id}/lock',
+      paramDefs: {
+        path: ['fileStorageContainer-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const permanentDelete = {
+  /**
+   * `POST /storage/fileStorage/containers/{fileStorageContainer-id}/permanentDelete`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/permanentDelete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/permanentDelete']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/storage/fileStorage/containers/{fileStorageContainer-id}/permanentDelete',
+      paramDefs: {
+        path: ['fileStorageContainer-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const restore = {
+  /**
+   * `POST /storage/fileStorage/containers/{fileStorageContainer-id}/restore`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/restore']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/restore']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/storage/fileStorage/containers/{fileStorageContainer-id}/restore',
+      paramDefs: {
+        path: ['fileStorageContainer-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const unlock = {
+  /**
+   * `POST /storage/fileStorage/containers/{fileStorageContainer-id}/unlock`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/unlock']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /storage/fileStorage/containers/{fileStorageContainer-id}/unlock']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/storage/fileStorage/containers/{fileStorageContainer-id}/unlock',
+      paramDefs: {
+        path: ['fileStorageContainer-id'],
+      },
+      params,
+    };
+  },
+};

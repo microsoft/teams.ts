@@ -1,6 +1,3 @@
-export * as cancelOffboard from './cancelOffboard';
-export * as offboard from './offboard';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -11,6 +8,14 @@ export interface IEndpoints {
   'GET /solutions/backupRestore/protectionUnits/{protectionUnitBase-id}': Operation<
     '/solutions/backupRestore/protectionUnits/{protectionUnitBase-id}',
     'get'
+  >;
+  'POST /solutions/backupRestore/protectionUnits/{protectionUnitBase-id}/cancelOffboard': Operation<
+    '/solutions/backupRestore/protectionUnits/{protectionUnitBase-id}/cancelOffboard',
+    'post'
+  >;
+  'POST /solutions/backupRestore/protectionUnits/{protectionUnitBase-id}/offboard': Operation<
+    '/solutions/backupRestore/protectionUnits/{protectionUnitBase-id}/offboard',
+    'post'
   >;
 }
 
@@ -26,16 +31,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/solutions/backupRestore/protectionUnits',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -54,11 +52,56 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/solutions/backupRestore/protectionUnits/{protectionUnitBase-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'protectionUnitBase-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['protectionUnitBase-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
+
+export const cancelOffboard = {
+  /**
+   * `POST /solutions/backupRestore/protectionUnits/{protectionUnitBase-id}/cancelOffboard`
+   *
+   * Cancel offboard for a protectionUnitBase.
+   */
+  create: function create(
+    params?: IEndpoints['POST /solutions/backupRestore/protectionUnits/{protectionUnitBase-id}/cancelOffboard']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /solutions/backupRestore/protectionUnits/{protectionUnitBase-id}/cancelOffboard']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/solutions/backupRestore/protectionUnits/{protectionUnitBase-id}/cancelOffboard',
+      paramDefs: {
+        path: ['protectionUnitBase-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const offboard = {
+  /**
+   * `POST /solutions/backupRestore/protectionUnits/{protectionUnitBase-id}/offboard`
+   *
+   * Offboard a protectionUnitBase.
+   */
+  create: function create(
+    params?: IEndpoints['POST /solutions/backupRestore/protectionUnits/{protectionUnitBase-id}/offboard']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /solutions/backupRestore/protectionUnits/{protectionUnitBase-id}/offboard']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/solutions/backupRestore/protectionUnits/{protectionUnitBase-id}/offboard',
+      paramDefs: {
+        path: ['protectionUnitBase-id'],
+      },
+      params,
+    };
+  },
+};

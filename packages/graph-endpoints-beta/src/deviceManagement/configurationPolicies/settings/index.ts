@@ -1,5 +1,3 @@
-export * as settingDefinitions from './settingDefinitions';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,14 @@ export interface IEndpoints {
     '/deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings',
     'post'
   >;
+  'GET /deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings/{deviceManagementConfigurationSetting-id}/settingDefinitions': Operation<
+    '/deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings/{deviceManagementConfigurationSetting-id}/settingDefinitions',
+    'get'
+  >;
+  'GET /deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings/{deviceManagementConfigurationSetting-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}': Operation<
+    '/deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings/{deviceManagementConfigurationSetting-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}',
+    'get'
+  >;
 }
 
 /**
@@ -38,11 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings/{deviceManagementConfigurationSetting-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deviceManagementConfigurationPolicy-id', in: 'path' },
-      { name: 'deviceManagementConfigurationSetting-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['deviceManagementConfigurationPolicy-id', 'deviceManagementConfigurationSetting-id'],
+    },
     params,
   };
 }
@@ -61,17 +66,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceManagementConfigurationPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceManagementConfigurationPolicy-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +88,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings/{deviceManagementConfigurationSetting-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceManagementConfigurationPolicy-id', in: 'path' },
-      { name: 'deviceManagementConfigurationSetting-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceManagementConfigurationPolicy-id', 'deviceManagementConfigurationSetting-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +110,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings/{deviceManagementConfigurationSetting-id}',
-    paramDefs: [
-      { name: 'deviceManagementConfigurationPolicy-id', in: 'path' },
-      { name: 'deviceManagementConfigurationSetting-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceManagementConfigurationPolicy-id', 'deviceManagementConfigurationSetting-id'],
+    },
     params,
     body,
   };
@@ -137,8 +132,59 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings',
-    paramDefs: [{ name: 'deviceManagementConfigurationPolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['deviceManagementConfigurationPolicy-id'],
+    },
     params,
     body,
   };
 }
+
+export const settingDefinitions = {
+  /**
+   * `GET /deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings/{deviceManagementConfigurationSetting-id}/settingDefinitions`
+   *
+   * List of related Setting Definitions. This property is read-only.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings/{deviceManagementConfigurationSetting-id}/settingDefinitions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings/{deviceManagementConfigurationSetting-id}/settingDefinitions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings/{deviceManagementConfigurationSetting-id}/settingDefinitions',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['deviceManagementConfigurationPolicy-id', 'deviceManagementConfigurationSetting-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings/{deviceManagementConfigurationSetting-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}`
+   *
+   * List of related Setting Definitions. This property is read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings/{deviceManagementConfigurationSetting-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings/{deviceManagementConfigurationSetting-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/configurationPolicies/{deviceManagementConfigurationPolicy-id}/settings/{deviceManagementConfigurationSetting-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'deviceManagementConfigurationPolicy-id',
+          'deviceManagementConfigurationSetting-id',
+          'deviceManagementConfigurationSettingDefinition-id',
+        ],
+      },
+      params,
+    };
+  },
+};

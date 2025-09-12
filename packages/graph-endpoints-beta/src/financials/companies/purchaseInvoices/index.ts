@@ -1,5 +1,3 @@
-export * as currency from './currency';
-export * as post from './post';
 export * as purchaseInvoiceLines from './purchaseInvoiceLines';
 export * as vendor from './vendor';
 
@@ -18,6 +16,22 @@ export interface IEndpoints {
     '/financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}',
     'patch'
   >;
+  'GET /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency': Operation<
+    '/financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency',
+    'get'
+  >;
+  'PATCH /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency': Operation<
+    '/financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency',
+    'patch'
+  >;
+  'DELETE /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency': Operation<
+    '/financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency',
+    'delete'
+  >;
+  'POST /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/post': Operation<
+    '/financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/post',
+    'post'
+  >;
 }
 
 /**
@@ -33,17 +47,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/purchaseInvoices',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -61,12 +68,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-      { name: 'purchaseInvoice-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'purchaseInvoice-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -85,11 +90,96 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}',
-    paramDefs: [
-      { name: 'company-id', in: 'path' },
-      { name: 'purchaseInvoice-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'purchaseInvoice-id'],
+    },
     params,
     body,
   };
 }
+
+export const currency = {
+  /**
+   * `GET /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['company-id', 'purchaseInvoice-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency']['body'],
+    params?: IEndpoints['PATCH /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency',
+      paramDefs: {
+        path: ['company-id', 'purchaseInvoice-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/currency',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['company-id', 'purchaseInvoice-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const post = {
+  /**
+   * `POST /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/post`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/post']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/post']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/financials/companies/{company-id}/purchaseInvoices/{purchaseInvoice-id}/post',
+      paramDefs: {
+        path: ['company-id', 'purchaseInvoice-id'],
+      },
+      params,
+    };
+  },
+};

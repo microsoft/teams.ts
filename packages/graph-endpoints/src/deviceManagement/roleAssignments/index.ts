@@ -1,5 +1,3 @@
-export * as roleDefinition from './roleDefinition';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /deviceManagement/roleAssignments': Operation<'/deviceManagement/roleAssignments', 'post'>;
+  'GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleDefinition': Operation<
+    '/deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleDefinition',
+    'get'
+  >;
 }
 
 /**
@@ -32,10 +34,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deviceAndAppManagementRoleAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['deviceAndAppManagementRoleAssignment-id'],
+    },
     params,
   };
 }
@@ -51,16 +53,9 @@ export function list(
   return {
     method: 'get',
     path: '/deviceManagement/roleAssignments',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -78,11 +73,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceAndAppManagementRoleAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceAndAppManagementRoleAssignment-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -101,7 +95,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}',
-    paramDefs: [{ name: 'deviceAndAppManagementRoleAssignment-id', in: 'path' }],
+    paramDefs: {
+      path: ['deviceAndAppManagementRoleAssignment-id'],
+    },
     params,
     body,
   };
@@ -113,14 +109,34 @@ export function update(
  * Create a new deviceAndAppManagementRoleAssignment object.
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/roleAssignments']['body'],
-  params?: IEndpoints['POST /deviceManagement/roleAssignments']['parameters']
+  body: IEndpoints['POST /deviceManagement/roleAssignments']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/roleAssignments']['response']> {
   return {
     method: 'post',
     path: '/deviceManagement/roleAssignments',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const roleDefinition = {
+  /**
+   * `GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleDefinition`
+   *
+   * Role definition this assignment is part of.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleDefinition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleDefinition']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleDefinition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['deviceAndAppManagementRoleAssignment-id'],
+      },
+      params,
+    };
+  },
+};

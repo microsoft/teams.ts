@@ -1,5 +1,4 @@
 export * as activities from './activities';
-export * as processContent from './processContent';
 export * as protectionScopes from './protectionScopes';
 export * as sensitivityLabels from './sensitivityLabels';
 
@@ -18,6 +17,10 @@ export interface IEndpoints {
     '/users/{user-id}/dataSecurityAndGovernance',
     'patch'
   >;
+  'POST /users/{user-id}/dataSecurityAndGovernance/processContent': Operation<
+    '/users/{user-id}/dataSecurityAndGovernance/processContent',
+    'post'
+  >;
 }
 
 /**
@@ -30,10 +33,10 @@ export function del(
   return {
     method: 'delete',
     path: '/users/{user-id}/dataSecurityAndGovernance',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id'],
+    },
     params,
   };
 }
@@ -49,11 +52,10 @@ export function get(
   return {
     method: 'get',
     path: '/users/{user-id}/dataSecurityAndGovernance',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -69,8 +71,34 @@ export function update(
   return {
     method: 'patch',
     path: '/users/{user-id}/dataSecurityAndGovernance',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };
 }
+
+export const processContent = {
+  /**
+   * `POST /users/{user-id}/dataSecurityAndGovernance/processContent`
+   *
+   * Process content against data protection policies in the context of the current, or specified, user.
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/dataSecurityAndGovernance/processContent']['body'],
+    params?: IEndpoints['POST /users/{user-id}/dataSecurityAndGovernance/processContent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/dataSecurityAndGovernance/processContent']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/dataSecurityAndGovernance/processContent',
+      paramDefs: {
+        path: ['user-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

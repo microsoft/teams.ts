@@ -37,11 +37,10 @@ export function del(
   return {
     method: 'delete',
     path: '/servicePrincipals/{servicePrincipal-id}/synchronization/templates/{synchronizationTemplate-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'servicePrincipal-id', in: 'path' },
-      { name: 'synchronizationTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['servicePrincipal-id', 'synchronizationTemplate-id'],
+    },
     params,
   };
 }
@@ -59,17 +58,10 @@ export function list(
   return {
     method: 'get',
     path: '/servicePrincipals/{servicePrincipal-id}/synchronization/templates',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'servicePrincipal-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['servicePrincipal-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,12 +79,10 @@ export function get(
   return {
     method: 'get',
     path: '/servicePrincipals/{servicePrincipal-id}/synchronization/templates/{synchronizationTemplate-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'servicePrincipal-id', in: 'path' },
-      { name: 'synchronizationTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['servicePrincipal-id', 'synchronizationTemplate-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,10 +100,9 @@ export function update(
   return {
     method: 'patch',
     path: '/servicePrincipals/{servicePrincipal-id}/synchronization/templates/{synchronizationTemplate-id}',
-    paramDefs: [
-      { name: 'servicePrincipal-id', in: 'path' },
-      { name: 'synchronizationTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['servicePrincipal-id', 'synchronizationTemplate-id'],
+    },
     params,
     body,
   };
@@ -132,7 +121,9 @@ export function create(
   return {
     method: 'post',
     path: '/servicePrincipals/{servicePrincipal-id}/synchronization/templates',
-    paramDefs: [{ name: 'servicePrincipal-id', in: 'path' }],
+    paramDefs: {
+      path: ['servicePrincipal-id'],
+    },
     params,
     body,
   };

@@ -1,4 +1,3 @@
-export * as labelPolicySettings from './labelPolicySettings';
 export * as sensitivityLabels from './sensitivityLabels';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -13,6 +12,18 @@ export interface IEndpoints {
     '/me/security/informationProtection',
     'patch'
   >;
+  'GET /me/security/informationProtection/labelPolicySettings': Operation<
+    '/me/security/informationProtection/labelPolicySettings',
+    'get'
+  >;
+  'PATCH /me/security/informationProtection/labelPolicySettings': Operation<
+    '/me/security/informationProtection/labelPolicySettings',
+    'patch'
+  >;
+  'DELETE /me/security/informationProtection/labelPolicySettings': Operation<
+    '/me/security/informationProtection/labelPolicySettings',
+    'delete'
+  >;
 }
 
 /**
@@ -26,7 +37,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/security/informationProtection',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -42,10 +55,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/security/informationProtection',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -55,15 +67,70 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /me/security/informationProtection']['body'],
-  params?: IEndpoints['PATCH /me/security/informationProtection']['parameters']
+  body: IEndpoints['PATCH /me/security/informationProtection']['body']
 ): EndpointRequest<IEndpoints['PATCH /me/security/informationProtection']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/me/security/informationProtection',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const labelPolicySettings = {
+  /**
+   * `GET /me/security/informationProtection/labelPolicySettings`
+   *
+   * Read the Microsoft Purview Information Protection policy settings for the user or organization.
+   */
+  list: function list(
+    params?: IEndpoints['GET /me/security/informationProtection/labelPolicySettings']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/security/informationProtection/labelPolicySettings']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/security/informationProtection/labelPolicySettings',
+      paramDefs: {
+        query: ['$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /me/security/informationProtection/labelPolicySettings`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /me/security/informationProtection/labelPolicySettings']['body']
+  ): EndpointRequest<
+    IEndpoints['PATCH /me/security/informationProtection/labelPolicySettings']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/me/security/informationProtection/labelPolicySettings',
+      body,
+    };
+  },
+  /**
+   * `DELETE /me/security/informationProtection/labelPolicySettings`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /me/security/informationProtection/labelPolicySettings']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /me/security/informationProtection/labelPolicySettings']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/me/security/informationProtection/labelPolicySettings',
+      paramDefs: {
+        header: ['If-Match'],
+      },
+      params,
+    };
+  },
+};

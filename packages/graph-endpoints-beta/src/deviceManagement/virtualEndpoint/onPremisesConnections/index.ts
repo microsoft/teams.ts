@@ -1,6 +1,3 @@
-export * as runHealthChecks from './runHealthChecks';
-export * as updateAdDomainPassword from './updateAdDomainPassword';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/deviceManagement/virtualEndpoint/onPremisesConnections',
     'post'
   >;
+  'POST /deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/runHealthChecks': Operation<
+    '/deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/runHealthChecks',
+    'post'
+  >;
+  'POST /deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/updateAdDomainPassword': Operation<
+    '/deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/updateAdDomainPassword',
+    'post'
+  >;
 }
 
 /**
@@ -40,10 +45,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'cloudPcOnPremisesConnection-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['cloudPcOnPremisesConnection-id'],
+    },
     params,
   };
 }
@@ -62,16 +67,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/virtualEndpoint/onPremisesConnections',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,11 +88,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'cloudPcOnPremisesConnection-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['cloudPcOnPremisesConnection-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,7 +111,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}',
-    paramDefs: [{ name: 'cloudPcOnPremisesConnection-id', in: 'path' }],
+    paramDefs: {
+      path: ['cloudPcOnPremisesConnection-id'],
+    },
     params,
     body,
   };
@@ -126,8 +125,7 @@ export function update(
  * Create a new cloudPcOnPremisesConnection object for provisioning Cloud PCs.
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/virtualEndpoint/onPremisesConnections']['body'],
-  params?: IEndpoints['POST /deviceManagement/virtualEndpoint/onPremisesConnections']['parameters']
+  body: IEndpoints['POST /deviceManagement/virtualEndpoint/onPremisesConnections']['body']
 ): EndpointRequest<
   IEndpoints['POST /deviceManagement/virtualEndpoint/onPremisesConnections']['response']
 > {
@@ -135,8 +133,54 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/virtualEndpoint/onPremisesConnections',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const runHealthChecks = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/runHealthChecks`
+   *
+   * Run health checks on the cloudPcOnPremisesConnection object. It triggers a new health check for this cloudPcOnPremisesConnection object and change the healthCheckStatus and healthCheckStatusDetails properties when check finished.
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/runHealthChecks']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/runHealthChecks']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/runHealthChecks',
+      paramDefs: {
+        path: ['cloudPcOnPremisesConnection-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const updateAdDomainPassword = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/updateAdDomainPassword`
+   *
+   * Update the Active Directory domain password for a cloudPcOnPremisesConnection object. This API is supported when the type of the cloudPcOnPremisesConnection object is hybridAzureADJoin.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/updateAdDomainPassword']['body'],
+    params?: IEndpoints['POST /deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/updateAdDomainPassword']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/updateAdDomainPassword']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/onPremisesConnections/{cloudPcOnPremisesConnection-id}/updateAdDomainPassword',
+      paramDefs: {
+        path: ['cloudPcOnPremisesConnection-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

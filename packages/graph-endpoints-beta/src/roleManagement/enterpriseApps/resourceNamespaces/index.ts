@@ -1,4 +1,3 @@
-export * as importResourceActions from './importResourceActions';
 export * as resourceActions from './resourceActions';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -24,6 +23,10 @@ export interface IEndpoints {
     '/roleManagement/enterpriseApps/{rbacApplication-id}/resourceNamespaces',
     'post'
   >;
+  'POST /roleManagement/enterpriseApps/{rbacApplication-id}/resourceNamespaces/{unifiedRbacResourceNamespace-id}/importResourceActions': Operation<
+    '/roleManagement/enterpriseApps/{rbacApplication-id}/resourceNamespaces/{unifiedRbacResourceNamespace-id}/importResourceActions',
+    'post'
+  >;
 }
 
 /**
@@ -40,11 +43,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/roleManagement/enterpriseApps/{rbacApplication-id}/resourceNamespaces/{unifiedRbacResourceNamespace-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'rbacApplication-id', in: 'path' },
-      { name: 'unifiedRbacResourceNamespace-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['rbacApplication-id', 'unifiedRbacResourceNamespace-id'],
+    },
     params,
   };
 }
@@ -63,17 +65,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/enterpriseApps/{rbacApplication-id}/resourceNamespaces',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'rbacApplication-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['rbacApplication-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,12 +87,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/enterpriseApps/{rbacApplication-id}/resourceNamespaces/{unifiedRbacResourceNamespace-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'rbacApplication-id', in: 'path' },
-      { name: 'unifiedRbacResourceNamespace-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['rbacApplication-id', 'unifiedRbacResourceNamespace-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,10 +110,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/roleManagement/enterpriseApps/{rbacApplication-id}/resourceNamespaces/{unifiedRbacResourceNamespace-id}',
-    paramDefs: [
-      { name: 'rbacApplication-id', in: 'path' },
-      { name: 'unifiedRbacResourceNamespace-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['rbacApplication-id', 'unifiedRbacResourceNamespace-id'],
+    },
     params,
     body,
   };
@@ -141,8 +133,35 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/roleManagement/enterpriseApps/{rbacApplication-id}/resourceNamespaces',
-    paramDefs: [{ name: 'rbacApplication-id', in: 'path' }],
+    paramDefs: {
+      path: ['rbacApplication-id'],
+    },
     params,
     body,
   };
 }
+
+export const importResourceActions = {
+  /**
+   * `POST /roleManagement/enterpriseApps/{rbacApplication-id}/resourceNamespaces/{unifiedRbacResourceNamespace-id}/importResourceActions`
+   *
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /roleManagement/enterpriseApps/{rbacApplication-id}/resourceNamespaces/{unifiedRbacResourceNamespace-id}/importResourceActions']['body'],
+    params?: IEndpoints['POST /roleManagement/enterpriseApps/{rbacApplication-id}/resourceNamespaces/{unifiedRbacResourceNamespace-id}/importResourceActions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /roleManagement/enterpriseApps/{rbacApplication-id}/resourceNamespaces/{unifiedRbacResourceNamespace-id}/importResourceActions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/roleManagement/enterpriseApps/{rbacApplication-id}/resourceNamespaces/{unifiedRbacResourceNamespace-id}/importResourceActions',
+      paramDefs: {
+        path: ['rbacApplication-id', 'unifiedRbacResourceNamespace-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

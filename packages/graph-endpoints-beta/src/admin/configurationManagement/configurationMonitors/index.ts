@@ -1,5 +1,3 @@
-export * as baseline from './baseline';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,18 @@ export interface IEndpoints {
     '/admin/configurationManagement/configurationMonitors',
     'post'
   >;
+  'GET /admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline': Operation<
+    '/admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline',
+    'get'
+  >;
+  'PATCH /admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline': Operation<
+    '/admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline',
+    'patch'
+  >;
+  'DELETE /admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline': Operation<
+    '/admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline',
+    'delete'
+  >;
 }
 
 /**
@@ -38,10 +48,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/admin/configurationManagement/configurationMonitors/{configurationMonitor-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'configurationMonitor-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['configurationMonitor-id'],
+    },
     params,
   };
 }
@@ -59,16 +69,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/admin/configurationManagement/configurationMonitors',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +89,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/admin/configurationManagement/configurationMonitors/{configurationMonitor-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'configurationMonitor-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['configurationMonitor-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +111,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/admin/configurationManagement/configurationMonitors/{configurationMonitor-id}',
-    paramDefs: [{ name: 'configurationMonitor-id', in: 'path' }],
+    paramDefs: {
+      path: ['configurationMonitor-id'],
+    },
     params,
     body,
   };
@@ -120,8 +124,7 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /admin/configurationManagement/configurationMonitors']['body'],
-  params?: IEndpoints['POST /admin/configurationManagement/configurationMonitors']['parameters']
+  body: IEndpoints['POST /admin/configurationManagement/configurationMonitors']['body']
 ): EndpointRequest<
   IEndpoints['POST /admin/configurationManagement/configurationMonitors']['response']
 > {
@@ -129,8 +132,70 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/admin/configurationManagement/configurationMonitors',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const baseline = {
+  /**
+   * `GET /admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['configurationMonitor-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline']['body'],
+    params?: IEndpoints['PATCH /admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline',
+      paramDefs: {
+        path: ['configurationMonitor-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/admin/configurationManagement/configurationMonitors/{configurationMonitor-id}/baseline',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['configurationMonitor-id'],
+      },
+      params,
+    };
+  },
+};

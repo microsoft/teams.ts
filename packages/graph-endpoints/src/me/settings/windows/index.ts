@@ -1,5 +1,3 @@
-export * as instances from './instances';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -17,6 +15,26 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /me/settings/windows': Operation<'/me/settings/windows', 'post'>;
+  'GET /me/settings/windows/{windowsSetting-id}/instances': Operation<
+    '/me/settings/windows/{windowsSetting-id}/instances',
+    'get'
+  >;
+  'POST /me/settings/windows/{windowsSetting-id}/instances': Operation<
+    '/me/settings/windows/{windowsSetting-id}/instances',
+    'post'
+  >;
+  'GET /me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}': Operation<
+    '/me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}',
+    'get'
+  >;
+  'PATCH /me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}': Operation<
+    '/me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}',
+    'patch'
+  >;
+  'DELETE /me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}': Operation<
+    '/me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -29,10 +47,10 @@ export function del(
   return {
     method: 'delete',
     path: '/me/settings/windows/{windowsSetting-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'windowsSetting-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['windowsSetting-id'],
+    },
     params,
   };
 }
@@ -48,16 +66,9 @@ export function list(
   return {
     method: 'get',
     path: '/me/settings/windows',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -73,11 +84,10 @@ export function get(
   return {
     method: 'get',
     path: '/me/settings/windows/{windowsSetting-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'windowsSetting-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['windowsSetting-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,7 +103,9 @@ export function update(
   return {
     method: 'patch',
     path: '/me/settings/windows/{windowsSetting-id}',
-    paramDefs: [{ name: 'windowsSetting-id', in: 'path' }],
+    paramDefs: {
+      path: ['windowsSetting-id'],
+    },
     params,
     body,
   };
@@ -104,14 +116,113 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /me/settings/windows']['body'],
-  params?: IEndpoints['POST /me/settings/windows']['parameters']
+  body: IEndpoints['POST /me/settings/windows']['body']
 ): EndpointRequest<IEndpoints['POST /me/settings/windows']['response']> {
   return {
     method: 'post',
     path: '/me/settings/windows',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const instances = {
+  /**
+   * `GET /me/settings/windows/{windowsSetting-id}/instances`
+   *
+   * Get a list of windowsSettingInstance objects and their properties for the signed-in user.
+   */
+  list: function list(
+    params?: IEndpoints['GET /me/settings/windows/{windowsSetting-id}/instances']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/settings/windows/{windowsSetting-id}/instances']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/settings/windows/{windowsSetting-id}/instances',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['windowsSetting-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /me/settings/windows/{windowsSetting-id}/instances`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /me/settings/windows/{windowsSetting-id}/instances']['body'],
+    params?: IEndpoints['POST /me/settings/windows/{windowsSetting-id}/instances']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /me/settings/windows/{windowsSetting-id}/instances']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/me/settings/windows/{windowsSetting-id}/instances',
+      paramDefs: {
+        path: ['windowsSetting-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}`
+   *
+   * Read the properties and relationships of a windowsSettingInstance object by passing the Windows setting ID and Windows setting instance ID in the URL. This method gets a windowsSettingInstance for the signed-in user.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['windowsSetting-id', 'windowsSettingInstance-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}']['body'],
+    params?: IEndpoints['PATCH /me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}',
+      paramDefs: {
+        path: ['windowsSetting-id', 'windowsSettingInstance-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/me/settings/windows/{windowsSetting-id}/instances/{windowsSettingInstance-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['windowsSetting-id', 'windowsSettingInstance-id'],
+      },
+      params,
+    };
+  },
+};

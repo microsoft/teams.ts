@@ -1,5 +1,3 @@
-export * as deviceStates from './deviceStates';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary',
     'post'
   >;
+  'GET /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates',
+    'get'
+  >;
+  'POST /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates',
+    'post'
+  >;
+  'GET /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}',
+    'get'
+  >;
+  'PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}',
+    'patch'
+  >;
+  'DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}': Operation<
+    '/deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,11 +56,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'managedEBook-id', in: 'path' },
-      { name: 'userInstallStateSummary-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['managedEBook-id', 'userInstallStateSummary-id'],
+    },
     params,
   };
 }
@@ -60,17 +77,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'managedEBook-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['managedEBook-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,12 +98,10 @@ export function get$1(
   return {
     method: 'get',
     path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'managedEBook-id', in: 'path' },
-      { name: 'userInstallStateSummary-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['managedEBook-id', 'userInstallStateSummary-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,10 +120,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}',
-    paramDefs: [
-      { name: 'managedEBook-id', in: 'path' },
-      { name: 'userInstallStateSummary-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['managedEBook-id', 'userInstallStateSummary-id'],
+    },
     params,
     body,
   };
@@ -135,8 +142,112 @@ export function create(
   return {
     method: 'post',
     path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary',
-    paramDefs: [{ name: 'managedEBook-id', in: 'path' }],
+    paramDefs: {
+      path: ['managedEBook-id'],
+    },
     params,
     body,
   };
 }
+
+export const deviceStates = {
+  /**
+   * `GET /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates`
+   *
+   * The install state of the eBook.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['managedEBook-id', 'userInstallStateSummary-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates']['body'],
+    params?: IEndpoints['POST /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates',
+      paramDefs: {
+        path: ['managedEBook-id', 'userInstallStateSummary-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}`
+   *
+   * The install state of the eBook.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['managedEBook-id', 'userInstallStateSummary-id', 'deviceInstallState-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}']['body'],
+    params?: IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}',
+      paramDefs: {
+        path: ['managedEBook-id', 'userInstallStateSummary-id', 'deviceInstallState-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}/deviceStates/{deviceInstallState-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['managedEBook-id', 'userInstallStateSummary-id', 'deviceInstallState-id'],
+      },
+      params,
+    };
+  },
+};

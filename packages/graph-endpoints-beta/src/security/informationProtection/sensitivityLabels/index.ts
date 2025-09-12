@@ -1,5 +1,3 @@
-export * as parent from './parent';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,18 @@ export interface IEndpoints {
     '/security/informationProtection/sensitivityLabels',
     'post'
   >;
+  'GET /security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent': Operation<
+    '/security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent',
+    'get'
+  >;
+  'PATCH /security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent': Operation<
+    '/security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent',
+    'patch'
+  >;
+  'DELETE /security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent': Operation<
+    '/security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent',
+    'delete'
+  >;
 }
 
 /**
@@ -38,10 +48,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/informationProtection/sensitivityLabels/{sensitivityLabel-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'sensitivityLabel-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['sensitivityLabel-id'],
+    },
     params,
   };
 }
@@ -60,16 +70,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/informationProtection/sensitivityLabels',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,11 +91,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/informationProtection/sensitivityLabels/{sensitivityLabel-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sensitivityLabel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sensitivityLabel-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,7 +113,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/informationProtection/sensitivityLabels/{sensitivityLabel-id}',
-    paramDefs: [{ name: 'sensitivityLabel-id', in: 'path' }],
+    paramDefs: {
+      path: ['sensitivityLabel-id'],
+    },
     params,
     body,
   };
@@ -122,8 +126,7 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /security/informationProtection/sensitivityLabels']['body'],
-  params?: IEndpoints['POST /security/informationProtection/sensitivityLabels']['parameters']
+  body: IEndpoints['POST /security/informationProtection/sensitivityLabels']['body']
 ): EndpointRequest<
   IEndpoints['POST /security/informationProtection/sensitivityLabels']['response']
 > {
@@ -131,8 +134,70 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/security/informationProtection/sensitivityLabels',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const parent = {
+  /**
+   * `GET /security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['sensitivityLabel-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent']['body'],
+    params?: IEndpoints['PATCH /security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent',
+      paramDefs: {
+        path: ['sensitivityLabel-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/security/informationProtection/sensitivityLabels/{sensitivityLabel-id}/parent',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['sensitivityLabel-id'],
+      },
+      params,
+    };
+  },
+};

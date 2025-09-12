@@ -1,9 +1,5 @@
-export * as archive from './archive';
 export * as buckets from './buckets';
-export * as details from './details';
-export * as moveToContainer from './moveToContainer';
 export * as tasks from './tasks';
-export * as unarchive from './unarchive';
 
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
@@ -28,6 +24,30 @@ export interface IEndpoints {
     '/groups/{group-id}/team/primaryChannel/planner/plans',
     'post'
   >;
+  'POST /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/archive': Operation<
+    '/groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/archive',
+    'post'
+  >;
+  'GET /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details': Operation<
+    '/groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details',
+    'get'
+  >;
+  'PATCH /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details': Operation<
+    '/groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details',
+    'patch'
+  >;
+  'DELETE /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details': Operation<
+    '/groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details',
+    'delete'
+  >;
+  'POST /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/moveToContainer': Operation<
+    '/groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/moveToContainer',
+    'post'
+  >;
+  'POST /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/unarchive': Operation<
+    '/groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/unarchive',
+    'post'
+  >;
 }
 
 /**
@@ -43,11 +63,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'plannerPlan-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'plannerPlan-id'],
+    },
     params,
   };
 }
@@ -66,17 +85,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/team/primaryChannel/planner/plans',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -95,12 +107,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'plannerPlan-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'plannerPlan-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -119,10 +129,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'plannerPlan-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'plannerPlan-id'],
+    },
     params,
     body,
   };
@@ -142,8 +151,151 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/groups/{group-id}/team/primaryChannel/planner/plans',
-    paramDefs: [{ name: 'group-id', in: 'path' }],
+    paramDefs: {
+      path: ['group-id'],
+    },
     params,
     body,
   };
 }
+
+export const archive = {
+  /**
+   * `POST /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/archive`
+   *
+   * Archive a plannerPlan object. Archiving a plan, also archives the plannerTasks and plannerBuckets in the plan.  An archived entity is read-only. Archived entities cannot be updated. An archived plan can be unarchived.  All archived entities can be deleted. Archived tasks are not included in the response for list of tasks assigned to a user.
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/archive']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/archive']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/archive']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/archive',
+      paramDefs: {
+        path: ['group-id', 'plannerPlan-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const details = {
+  /**
+   * `GET /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details`
+   *
+   * Extra details about the plan. Read-only. Nullable.
+   */
+  list: function list(
+    params?: IEndpoints['GET /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['group-id', 'plannerPlan-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details']['body'],
+    params?: IEndpoints['PATCH /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['group-id', 'plannerPlan-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/details',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['group-id', 'plannerPlan-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const moveToContainer = {
+  /**
+   * `POST /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/moveToContainer`
+   *
+   * Move a planner plan object from one planner plan container to another. Planner plans can only be moved from a user container to a group container.
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/moveToContainer']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/moveToContainer']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/moveToContainer']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/moveToContainer',
+      paramDefs: {
+        path: ['group-id', 'plannerPlan-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const unarchive = {
+  /**
+   * `POST /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/unarchive`
+   *
+   * Unarchive a plannerPlan object. Unarchiving a plan, also unarchives the plannerTasks and plannerBuckets in the plan.  Only a plan that is archived can be unarchived.
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/unarchive']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/unarchive']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/unarchive']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/team/primaryChannel/planner/plans/{plannerPlan-id}/unarchive',
+      paramDefs: {
+        path: ['group-id', 'plannerPlan-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

@@ -1,11 +1,12 @@
-export * as uxSetting from './uxSetting';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
   'DELETE /admin/entra': Operation<'/admin/entra', 'delete'>;
   'GET /admin/entra': Operation<'/admin/entra', 'get'>;
   'PATCH /admin/entra': Operation<'/admin/entra', 'patch'>;
+  'GET /admin/entra/uxSetting': Operation<'/admin/entra/uxSetting', 'get'>;
+  'PATCH /admin/entra/uxSetting': Operation<'/admin/entra/uxSetting', 'patch'>;
+  'DELETE /admin/entra/uxSetting': Operation<'/admin/entra/uxSetting', 'delete'>;
 }
 
 /**
@@ -19,7 +20,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/admin/entra',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -36,10 +39,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/admin/entra',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -49,15 +51,65 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /admin/entra']['body'],
-  params?: IEndpoints['PATCH /admin/entra']['parameters']
+  body: IEndpoints['PATCH /admin/entra']['body']
 ): EndpointRequest<IEndpoints['PATCH /admin/entra']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/admin/entra',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const uxSetting = {
+  /**
+   * `GET /admin/entra/uxSetting`
+   *
+   * Get the properties and relationships of a uxSetting object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /admin/entra/uxSetting']['parameters']
+  ): EndpointRequest<IEndpoints['GET /admin/entra/uxSetting']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/admin/entra/uxSetting',
+      paramDefs: {
+        query: ['$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /admin/entra/uxSetting`
+   *
+   * Update the properties of a uxSetting object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /admin/entra/uxSetting']['body']
+  ): EndpointRequest<IEndpoints['PATCH /admin/entra/uxSetting']['response']> {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/admin/entra/uxSetting',
+      body,
+    };
+  },
+  /**
+   * `DELETE /admin/entra/uxSetting`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /admin/entra/uxSetting']['parameters']
+  ): EndpointRequest<IEndpoints['DELETE /admin/entra/uxSetting']['response']> {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/admin/entra/uxSetting',
+      paramDefs: {
+        header: ['If-Match'],
+      },
+      params,
+    };
+  },
+};

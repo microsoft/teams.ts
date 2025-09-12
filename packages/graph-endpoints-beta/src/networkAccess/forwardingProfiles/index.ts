@@ -1,5 +1,4 @@
 export * as policies from './policies';
-export * as servicePrincipal from './servicePrincipal';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -18,6 +17,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /networkAccess/forwardingProfiles': Operation<'/networkAccess/forwardingProfiles', 'post'>;
+  'GET /networkAccess/forwardingProfiles/{forwardingProfile-id}/servicePrincipal': Operation<
+    '/networkAccess/forwardingProfiles/{forwardingProfile-id}/servicePrincipal',
+    'get'
+  >;
 }
 
 /**
@@ -33,10 +36,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/networkAccess/forwardingProfiles/{forwardingProfile-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'forwardingProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['forwardingProfile-id'],
+    },
     params,
   };
 }
@@ -53,16 +56,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/forwardingProfiles',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,11 +77,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/forwardingProfiles/{forwardingProfile-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'forwardingProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['forwardingProfile-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -105,7 +100,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/networkAccess/forwardingProfiles/{forwardingProfile-id}',
-    paramDefs: [{ name: 'forwardingProfile-id', in: 'path' }],
+    paramDefs: {
+      path: ['forwardingProfile-id'],
+    },
     params,
     body,
   };
@@ -116,15 +113,35 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /networkAccess/forwardingProfiles']['body'],
-  params?: IEndpoints['POST /networkAccess/forwardingProfiles']['parameters']
+  body: IEndpoints['POST /networkAccess/forwardingProfiles']['body']
 ): EndpointRequest<IEndpoints['POST /networkAccess/forwardingProfiles']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/networkAccess/forwardingProfiles',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const servicePrincipal = {
+  /**
+   * `GET /networkAccess/forwardingProfiles/{forwardingProfile-id}/servicePrincipal`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /networkAccess/forwardingProfiles/{forwardingProfile-id}/servicePrincipal']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /networkAccess/forwardingProfiles/{forwardingProfile-id}/servicePrincipal']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/networkAccess/forwardingProfiles/{forwardingProfile-id}/servicePrincipal',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['forwardingProfile-id'],
+      },
+      params,
+    };
+  },
+};

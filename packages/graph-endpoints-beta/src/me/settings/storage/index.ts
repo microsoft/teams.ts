@@ -19,7 +19,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/settings/storage',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -35,10 +37,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/settings/storage',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -48,15 +49,12 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /me/settings/storage']['body'],
-  params?: IEndpoints['PATCH /me/settings/storage']['parameters']
+  body: IEndpoints['PATCH /me/settings/storage']['body']
 ): EndpointRequest<IEndpoints['PATCH /me/settings/storage']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/me/settings/storage',
-    paramDefs: [],
-    params,
     body,
   };
 }

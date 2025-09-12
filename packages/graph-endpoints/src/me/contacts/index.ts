@@ -1,7 +1,3 @@
-export * as extensions from './extensions';
-export * as permanentDelete from './permanentDelete';
-export * as photo from './photo';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -10,6 +6,32 @@ export interface IEndpoints {
   'GET /me/contacts/{contact-id}': Operation<'/me/contacts/{contact-id}', 'get'>;
   'PATCH /me/contacts/{contact-id}': Operation<'/me/contacts/{contact-id}', 'patch'>;
   'POST /me/contacts': Operation<'/me/contacts', 'post'>;
+  'GET /me/contacts/{contact-id}/extensions': Operation<
+    '/me/contacts/{contact-id}/extensions',
+    'get'
+  >;
+  'POST /me/contacts/{contact-id}/extensions': Operation<
+    '/me/contacts/{contact-id}/extensions',
+    'post'
+  >;
+  'GET /me/contacts/{contact-id}/extensions/{extension-id}': Operation<
+    '/me/contacts/{contact-id}/extensions/{extension-id}',
+    'get'
+  >;
+  'PATCH /me/contacts/{contact-id}/extensions/{extension-id}': Operation<
+    '/me/contacts/{contact-id}/extensions/{extension-id}',
+    'patch'
+  >;
+  'DELETE /me/contacts/{contact-id}/extensions/{extension-id}': Operation<
+    '/me/contacts/{contact-id}/extensions/{extension-id}',
+    'delete'
+  >;
+  'POST /me/contacts/{contact-id}/permanentDelete': Operation<
+    '/me/contacts/{contact-id}/permanentDelete',
+    'post'
+  >;
+  'GET /me/contacts/{contact-id}/photo': Operation<'/me/contacts/{contact-id}/photo', 'get'>;
+  'PATCH /me/contacts/{contact-id}/photo': Operation<'/me/contacts/{contact-id}/photo', 'patch'>;
 }
 
 /**
@@ -23,10 +45,10 @@ export function del(
   return {
     method: 'delete',
     path: '/me/contacts/{contact-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'contact-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['contact-id'],
+    },
     params,
   };
 }
@@ -42,16 +64,9 @@ export function list(
   return {
     method: 'get',
     path: '/me/contacts',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -67,11 +82,10 @@ export function get(
   return {
     method: 'get',
     path: '/me/contacts/{contact-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'contact-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['contact-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,7 +102,9 @@ export function update(
   return {
     method: 'patch',
     path: '/me/contacts/{contact-id}',
-    paramDefs: [{ name: 'contact-id', in: 'path' }],
+    paramDefs: {
+      path: ['contact-id'],
+    },
     params,
     body,
   };
@@ -100,14 +116,167 @@ export function update(
  * Add a contact to the root Contacts folder or to the contacts endpoint of another contact folder.
  */
 export function create(
-  body: IEndpoints['POST /me/contacts']['body'],
-  params?: IEndpoints['POST /me/contacts']['parameters']
+  body: IEndpoints['POST /me/contacts']['body']
 ): EndpointRequest<IEndpoints['POST /me/contacts']['response']> {
   return {
     method: 'post',
     path: '/me/contacts',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const extensions = {
+  /**
+   * `GET /me/contacts/{contact-id}/extensions`
+   *
+   * The collection of open extensions defined for the contact. Read-only. Nullable.
+   */
+  list: function list(
+    params?: IEndpoints['GET /me/contacts/{contact-id}/extensions']['parameters']
+  ): EndpointRequest<IEndpoints['GET /me/contacts/{contact-id}/extensions']['response']> {
+    return {
+      method: 'get',
+      path: '/me/contacts/{contact-id}/extensions',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['contact-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /me/contacts/{contact-id}/extensions`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /me/contacts/{contact-id}/extensions']['body'],
+    params?: IEndpoints['POST /me/contacts/{contact-id}/extensions']['parameters']
+  ): EndpointRequest<IEndpoints['POST /me/contacts/{contact-id}/extensions']['response']> {
+    return {
+      method: 'post',
+      path: '/me/contacts/{contact-id}/extensions',
+      paramDefs: {
+        path: ['contact-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /me/contacts/{contact-id}/extensions/{extension-id}`
+   *
+   * The collection of open extensions defined for the contact. Read-only. Nullable.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/contacts/{contact-id}/extensions/{extension-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/contacts/{contact-id}/extensions/{extension-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/contacts/{contact-id}/extensions/{extension-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['contact-id', 'extension-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /me/contacts/{contact-id}/extensions/{extension-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /me/contacts/{contact-id}/extensions/{extension-id}']['body'],
+    params?: IEndpoints['PATCH /me/contacts/{contact-id}/extensions/{extension-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /me/contacts/{contact-id}/extensions/{extension-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/me/contacts/{contact-id}/extensions/{extension-id}',
+      paramDefs: {
+        path: ['contact-id', 'extension-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /me/contacts/{contact-id}/extensions/{extension-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /me/contacts/{contact-id}/extensions/{extension-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /me/contacts/{contact-id}/extensions/{extension-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/me/contacts/{contact-id}/extensions/{extension-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['contact-id', 'extension-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const permanentDelete = {
+  /**
+   * `POST /me/contacts/{contact-id}/permanentDelete`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /me/contacts/{contact-id}/permanentDelete']['parameters']
+  ): EndpointRequest<IEndpoints['POST /me/contacts/{contact-id}/permanentDelete']['response']> {
+    return {
+      method: 'post',
+      path: '/me/contacts/{contact-id}/permanentDelete',
+      paramDefs: {
+        path: ['contact-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const photo = {
+  /**
+   * `GET /me/contacts/{contact-id}/photo`
+   *
+   * Optional contact picture. You can get or set a photo for a contact.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/contacts/{contact-id}/photo']['parameters']
+  ): EndpointRequest<IEndpoints['GET /me/contacts/{contact-id}/photo']['response']> {
+    return {
+      method: 'get',
+      path: '/me/contacts/{contact-id}/photo',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['contact-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /me/contacts/{contact-id}/photo`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /me/contacts/{contact-id}/photo']['body'],
+    params?: IEndpoints['PATCH /me/contacts/{contact-id}/photo']['parameters']
+  ): EndpointRequest<IEndpoints['PATCH /me/contacts/{contact-id}/photo']['response']> {
+    return {
+      method: 'patch',
+      path: '/me/contacts/{contact-id}/photo',
+      paramDefs: {
+        path: ['contact-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

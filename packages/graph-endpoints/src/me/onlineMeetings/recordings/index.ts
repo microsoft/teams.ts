@@ -1,5 +1,3 @@
-export * as content from './content';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,18 @@ export interface IEndpoints {
     '/me/onlineMeetings/{onlineMeeting-id}/recordings',
     'post'
   >;
+  'GET /me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content': Operation<
+    '/me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content',
+    'get'
+  >;
+  'PUT /me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content': Operation<
+    '/me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content',
+    'put'
+  >;
+  'DELETE /me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content': Operation<
+    '/me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content',
+    'delete'
+  >;
 }
 
 /**
@@ -37,11 +47,10 @@ export function del(
   return {
     method: 'delete',
     path: '/me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'onlineMeeting-id', in: 'path' },
-      { name: 'callRecording-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['onlineMeeting-id', 'callRecording-id'],
+    },
     params,
   };
 }
@@ -57,17 +66,10 @@ export function list(
   return {
     method: 'get',
     path: '/me/onlineMeetings/{onlineMeeting-id}/recordings',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'onlineMeeting-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['onlineMeeting-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -85,12 +87,10 @@ export function get(
   return {
     method: 'get',
     path: '/me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'onlineMeeting-id', in: 'path' },
-      { name: 'callRecording-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['onlineMeeting-id', 'callRecording-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -108,10 +108,9 @@ export function update(
   return {
     method: 'patch',
     path: '/me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}',
-    paramDefs: [
-      { name: 'onlineMeeting-id', in: 'path' },
-      { name: 'callRecording-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['onlineMeeting-id', 'callRecording-id'],
+    },
     params,
     body,
   };
@@ -130,8 +129,73 @@ export function create(
   return {
     method: 'post',
     path: '/me/onlineMeetings/{onlineMeeting-id}/recordings',
-    paramDefs: [{ name: 'onlineMeeting-id', in: 'path' }],
+    paramDefs: {
+      path: ['onlineMeeting-id'],
+    },
     params,
     body,
   };
 }
+
+export const content = {
+  /**
+   * `GET /me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content`
+   *
+   * The content of the recording. Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content',
+      paramDefs: {
+        path: ['onlineMeeting-id', 'callRecording-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content`
+   *
+   * The content of the recording. Read-only.
+   */
+  set: function set(
+    body: IEndpoints['PUT /me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content']['body'],
+    params?: IEndpoints['PUT /me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content']['response']
+  > {
+    return {
+      method: 'put',
+      path: '/me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content',
+      paramDefs: {
+        path: ['onlineMeeting-id', 'callRecording-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content`
+   *
+   * The content of the recording. Read-only.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/me/onlineMeetings/{onlineMeeting-id}/recordings/{callRecording-id}/content',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['onlineMeeting-id', 'callRecording-id'],
+      },
+      params,
+    };
+  },
+};

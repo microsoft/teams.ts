@@ -1,5 +1,3 @@
-export * as events from './events';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/admin/exchange/messageTraces/{messageTrace-id}/recipients',
     'post'
   >;
+  'GET /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events': Operation<
+    '/admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events',
+    'get'
+  >;
+  'POST /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events': Operation<
+    '/admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events',
+    'post'
+  >;
+  'GET /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}': Operation<
+    '/admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}',
+    'get'
+  >;
+  'PATCH /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}': Operation<
+    '/admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}',
+    'patch'
+  >;
+  'DELETE /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}': Operation<
+    '/admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -39,11 +57,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'messageTrace-id', in: 'path' },
-      { name: 'messageRecipient-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['messageTrace-id', 'messageRecipient-id'],
+    },
     params,
   };
 }
@@ -62,17 +79,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/admin/exchange/messageTraces/{messageTrace-id}/recipients',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'messageTrace-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['messageTrace-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -91,12 +101,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'messageTrace-id', in: 'path' },
-      { name: 'messageRecipient-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['messageTrace-id', 'messageRecipient-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -116,10 +124,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}',
-    paramDefs: [
-      { name: 'messageTrace-id', in: 'path' },
-      { name: 'messageRecipient-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['messageTrace-id', 'messageRecipient-id'],
+    },
     params,
     body,
   };
@@ -140,8 +147,120 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/admin/exchange/messageTraces/{messageTrace-id}/recipients',
-    paramDefs: [{ name: 'messageTrace-id', in: 'path' }],
+    paramDefs: {
+      path: ['messageTrace-id'],
+    },
     params,
     body,
   };
 }
+
+export const events = {
+  /**
+   * `GET /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events`
+   *
+   * @deprecated
+   */
+  list: function list(
+    params?: IEndpoints['GET /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['messageTrace-id', 'messageRecipient-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events`
+   *
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events']['body'],
+    params?: IEndpoints['POST /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events',
+      paramDefs: {
+        path: ['messageTrace-id', 'messageRecipient-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}`
+   *
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['messageTrace-id', 'messageRecipient-id', 'messageEvent-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}`
+   *
+   * @deprecated
+   */
+  update: function update(
+    body: IEndpoints['PATCH /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}']['body'],
+    params?: IEndpoints['PATCH /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}',
+      paramDefs: {
+        path: ['messageTrace-id', 'messageRecipient-id', 'messageEvent-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}`
+   *
+   * @deprecated
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/admin/exchange/messageTraces/{messageTrace-id}/recipients/{messageRecipient-id}/events/{messageEvent-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['messageTrace-id', 'messageRecipient-id', 'messageEvent-id'],
+      },
+      params,
+    };
+  },
+};

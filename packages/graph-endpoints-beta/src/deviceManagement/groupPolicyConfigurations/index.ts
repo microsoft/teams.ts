@@ -1,7 +1,4 @@
-export * as assign from './assign';
-export * as assignments from './assignments';
 export * as definitionValues from './definitionValues';
-export * as updateDefinitionValues from './updateDefinitionValues';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
@@ -26,6 +23,34 @@ export interface IEndpoints {
     '/deviceManagement/groupPolicyConfigurations',
     'post'
   >;
+  'POST /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assign': Operation<
+    '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assign',
+    'post'
+  >;
+  'GET /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments': Operation<
+    '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments',
+    'get'
+  >;
+  'POST /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments': Operation<
+    '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments',
+    'post'
+  >;
+  'GET /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}': Operation<
+    '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}',
+    'get'
+  >;
+  'PATCH /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}': Operation<
+    '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}',
+    'patch'
+  >;
+  'DELETE /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}': Operation<
+    '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}',
+    'delete'
+  >;
+  'POST /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/updateDefinitionValues': Operation<
+    '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/updateDefinitionValues',
+    'post'
+  >;
 }
 
 /**
@@ -41,10 +66,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'groupPolicyConfiguration-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['groupPolicyConfiguration-id'],
+    },
     params,
   };
 }
@@ -61,16 +86,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/groupPolicyConfigurations',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,11 +107,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'groupPolicyConfiguration-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['groupPolicyConfiguration-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,7 +129,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}',
-    paramDefs: [{ name: 'groupPolicyConfiguration-id', in: 'path' }],
+    paramDefs: {
+      path: ['groupPolicyConfiguration-id'],
+    },
     params,
     body,
   };
@@ -123,15 +142,167 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/groupPolicyConfigurations']['body'],
-  params?: IEndpoints['POST /deviceManagement/groupPolicyConfigurations']['parameters']
+  body: IEndpoints['POST /deviceManagement/groupPolicyConfigurations']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/groupPolicyConfigurations']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/groupPolicyConfigurations',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const assign = {
+  /**
+   * `POST /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assign`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assign']['body'],
+    params?: IEndpoints['POST /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assign']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assign']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assign',
+      paramDefs: {
+        path: ['groupPolicyConfiguration-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const assignments = {
+  /**
+   * `GET /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments`
+   *
+   * The list of group assignments for the configuration.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['groupPolicyConfiguration-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments']['body'],
+    params?: IEndpoints['POST /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments',
+      paramDefs: {
+        path: ['groupPolicyConfiguration-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}`
+   *
+   * The list of group assignments for the configuration.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['groupPolicyConfiguration-id', 'groupPolicyConfigurationAssignment-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}']['body'],
+    params?: IEndpoints['PATCH /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}',
+      paramDefs: {
+        path: ['groupPolicyConfiguration-id', 'groupPolicyConfigurationAssignment-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/assignments/{groupPolicyConfigurationAssignment-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['groupPolicyConfiguration-id', 'groupPolicyConfigurationAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const updateDefinitionValues = {
+  /**
+   * `POST /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/updateDefinitionValues`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/updateDefinitionValues']['body'],
+    params?: IEndpoints['POST /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/updateDefinitionValues']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/updateDefinitionValues']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/groupPolicyConfigurations/{groupPolicyConfiguration-id}/updateDefinitionValues',
+      paramDefs: {
+        path: ['groupPolicyConfiguration-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

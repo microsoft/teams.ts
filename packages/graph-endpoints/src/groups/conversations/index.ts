@@ -28,11 +28,10 @@ export function del(
   return {
     method: 'delete',
     path: '/groups/{group-id}/conversations/{conversation-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'conversation-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'conversation-id'],
+    },
     params,
   };
 }
@@ -48,17 +47,10 @@ export function list(
   return {
     method: 'get',
     path: '/groups/{group-id}/conversations',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -76,12 +68,10 @@ export function get(
   return {
     method: 'get',
     path: '/groups/{group-id}/conversations/{conversation-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'conversation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'conversation-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,7 +79,7 @@ export function get(
 /**
  * `POST /groups/{group-id}/conversations`
  *
- * Use reply thread or reply post to further post to that conversation.
+ * Create an open extension (openTypeExtension object) and add custom properties in a new or existing instance of a resource. You can create an open extension in a resource instance and store custom data to it all in the same operation, except for specific resources. The table in the Permissions section lists the resources that support open extensions.
  */
 export function create(
   body: IEndpoints['POST /groups/{group-id}/conversations']['body'],
@@ -98,7 +88,9 @@ export function create(
   return {
     method: 'post',
     path: '/groups/{group-id}/conversations',
-    paramDefs: [{ name: 'group-id', in: 'path' }],
+    paramDefs: {
+      path: ['group-id'],
+    },
     params,
     body,
   };

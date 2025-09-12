@@ -1,6 +1,3 @@
-export * as add from './add';
-export * as remove from './remove';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers',
     'post'
   >;
+  'POST /users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/add': Operation<
+    '/users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/add',
+    'post'
+  >;
+  'POST /users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/remove': Operation<
+    '/users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/remove',
+    'post'
+  >;
 }
 
 /**
@@ -38,12 +43,10 @@ export function del(
   return {
     method: 'delete',
     path: '/users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/{conversationMember-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'team-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'team-id', 'conversationMember-id'],
+    },
     params,
   };
 }
@@ -61,18 +64,10 @@ export function list(
   return {
     method: 'get',
     path: '/users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'team-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'team-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,13 +85,10 @@ export function get(
   return {
     method: 'get',
     path: '/users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/{conversationMember-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'team-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'team-id', 'conversationMember-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,11 +106,9 @@ export function update(
   return {
     method: 'patch',
     path: '/users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/{conversationMember-id}',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'team-id', in: 'path' },
-      { name: 'conversationMember-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'team-id', 'conversationMember-id'],
+    },
     params,
     body,
   };
@@ -137,11 +127,58 @@ export function create(
   return {
     method: 'post',
     path: '/users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'team-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'team-id'],
+    },
     params,
     body,
   };
 }
+
+export const add = {
+  /**
+   * `POST /users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/add`
+   *
+   * Add multiple members in a single request to a team. The response provides details about which memberships could and couldn&#x27;t be created.
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/add']['body'],
+    params?: IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/add']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/add']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/add',
+      paramDefs: {
+        path: ['user-id', 'team-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const remove = {
+  /**
+   * `POST /users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/remove`
+   *
+   * Remove multiple members from a team in a single request. The response provides details about which memberships could and couldn&#x27;t be removed.
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/remove']['body'],
+    params?: IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/remove']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/remove']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/users/{user-id}/joinedTeams/{team-id}/primaryChannel/allMembers/remove',
+      paramDefs: {
+        path: ['user-id', 'team-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

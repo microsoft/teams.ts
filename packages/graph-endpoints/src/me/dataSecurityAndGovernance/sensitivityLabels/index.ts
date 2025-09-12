@@ -1,5 +1,3 @@
-export * as computeRightsAndInheritance from './computeRightsAndInheritance';
-export * as rights from './rights';
 export * as sublabels from './sublabels';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -25,6 +23,14 @@ export interface IEndpoints {
     '/me/dataSecurityAndGovernance/sensitivityLabels',
     'post'
   >;
+  'POST /me/dataSecurityAndGovernance/sensitivityLabels/computeRightsAndInheritance': Operation<
+    '/me/dataSecurityAndGovernance/sensitivityLabels/computeRightsAndInheritance',
+    'post'
+  >;
+  'GET /me/dataSecurityAndGovernance/sensitivityLabels/{sensitivityLabel-id}/rights': Operation<
+    '/me/dataSecurityAndGovernance/sensitivityLabels/{sensitivityLabel-id}/rights',
+    'get'
+  >;
 }
 
 /**
@@ -39,10 +45,10 @@ export function del(
   return {
     method: 'delete',
     path: '/me/dataSecurityAndGovernance/sensitivityLabels/{sensitivityLabel-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'sensitivityLabel-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['sensitivityLabel-id'],
+    },
     params,
   };
 }
@@ -57,16 +63,9 @@ export function list(
   return {
     method: 'get',
     path: '/me/dataSecurityAndGovernance/sensitivityLabels',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -83,11 +82,10 @@ export function get(
   return {
     method: 'get',
     path: '/me/dataSecurityAndGovernance/sensitivityLabels/{sensitivityLabel-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sensitivityLabel-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sensitivityLabel-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -105,7 +103,9 @@ export function update(
   return {
     method: 'patch',
     path: '/me/dataSecurityAndGovernance/sensitivityLabels/{sensitivityLabel-id}',
-    paramDefs: [{ name: 'sensitivityLabel-id', in: 'path' }],
+    paramDefs: {
+      path: ['sensitivityLabel-id'],
+    },
     params,
     body,
   };
@@ -116,14 +116,52 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /me/dataSecurityAndGovernance/sensitivityLabels']['body'],
-  params?: IEndpoints['POST /me/dataSecurityAndGovernance/sensitivityLabels']['parameters']
+  body: IEndpoints['POST /me/dataSecurityAndGovernance/sensitivityLabels']['body']
 ): EndpointRequest<IEndpoints['POST /me/dataSecurityAndGovernance/sensitivityLabels']['response']> {
   return {
     method: 'post',
     path: '/me/dataSecurityAndGovernance/sensitivityLabels',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const computeRightsAndInheritance = {
+  /**
+   * `POST /me/dataSecurityAndGovernance/sensitivityLabels/computeRightsAndInheritance`
+   *
+   * Computes the rights and inheritance for sensitivity labels based on the input content and labels.
+   */
+  create: function create(
+    body: IEndpoints['POST /me/dataSecurityAndGovernance/sensitivityLabels/computeRightsAndInheritance']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /me/dataSecurityAndGovernance/sensitivityLabels/computeRightsAndInheritance']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/me/dataSecurityAndGovernance/sensitivityLabels/computeRightsAndInheritance',
+      body,
+    };
+  },
+};
+
+export const rights = {
+  /**
+   * `GET /me/dataSecurityAndGovernance/sensitivityLabels/{sensitivityLabel-id}/rights`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /me/dataSecurityAndGovernance/sensitivityLabels/{sensitivityLabel-id}/rights']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/dataSecurityAndGovernance/sensitivityLabels/{sensitivityLabel-id}/rights']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/dataSecurityAndGovernance/sensitivityLabels/{sensitivityLabel-id}/rights',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['sensitivityLabel-id'],
+      },
+      params,
+    };
+  },
+};

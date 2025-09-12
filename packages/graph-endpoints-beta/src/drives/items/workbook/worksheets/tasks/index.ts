@@ -1,4 +1,3 @@
-export * as changes from './changes';
 export * as comment from './comment';
 
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
@@ -24,6 +23,26 @@ export interface IEndpoints {
     '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks',
     'post'
   >;
+  'GET /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes',
+    'get'
+  >;
+  'POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes',
+    'post'
+  >;
+  'GET /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}',
+    'get'
+  >;
+  'PATCH /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}',
+    'patch'
+  >;
+  'DELETE /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -39,13 +58,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookDocumentTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['drive-id', 'driveItem-id', 'workbookWorksheet-id', 'workbookDocumentTask-id'],
+    },
     params,
   };
 }
@@ -64,19 +80,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'workbookWorksheet-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -95,14 +102,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookDocumentTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'workbookWorksheet-id', 'workbookDocumentTask-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -121,12 +124,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookDocumentTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'workbookWorksheet-id', 'workbookDocumentTask-id'],
+    },
     params,
     body,
   };
@@ -146,12 +146,135 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'workbookWorksheet-id'],
+    },
     params,
     body,
   };
 }
+
+export const changes = {
+  /**
+   * `GET /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes`
+   *
+   * A collection of task change histories.
+   */
+  list: function list(
+    params?: IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['drive-id', 'driveItem-id', 'workbookWorksheet-id', 'workbookDocumentTask-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes']['body'],
+    params?: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes',
+      paramDefs: {
+        path: ['drive-id', 'driveItem-id', 'workbookWorksheet-id', 'workbookDocumentTask-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}`
+   *
+   * A collection of task change histories.
+   */
+  get: function get(
+    params?: IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'drive-id',
+          'driveItem-id',
+          'workbookWorksheet-id',
+          'workbookDocumentTask-id',
+          'workbookDocumentTaskChange-id',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}']['body'],
+    params?: IEndpoints['PATCH /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}',
+      paramDefs: {
+        path: [
+          'drive-id',
+          'driveItem-id',
+          'workbookWorksheet-id',
+          'workbookDocumentTask-id',
+          'workbookDocumentTaskChange-id',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tasks/{workbookDocumentTask-id}/changes/{workbookDocumentTaskChange-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: [
+          'drive-id',
+          'driveItem-id',
+          'workbookWorksheet-id',
+          'workbookDocumentTask-id',
+          'workbookDocumentTaskChange-id',
+        ],
+      },
+      params,
+    };
+  },
+};

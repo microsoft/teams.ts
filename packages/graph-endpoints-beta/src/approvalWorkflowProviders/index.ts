@@ -1,6 +1,5 @@
 export * as businessFlows from './businessFlows';
 export * as businessFlowsWithRequestsAwaitingMyDecision from './businessFlowsWithRequestsAwaitingMyDecision';
-export * as policyTemplates from './policyTemplates';
 
 import type { EndpointRequest, Operation } from './../types/common.ts';
 
@@ -19,6 +18,26 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /approvalWorkflowProviders': Operation<'/approvalWorkflowProviders', 'post'>;
+  'GET /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates': Operation<
+    '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates',
+    'get'
+  >;
+  'POST /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates': Operation<
+    '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates',
+    'post'
+  >;
+  'GET /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}': Operation<
+    '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}',
+    'get'
+  >;
+  'PATCH /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}': Operation<
+    '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}',
+    'patch'
+  >;
+  'DELETE /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}': Operation<
+    '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -34,10 +53,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/approvalWorkflowProviders/{approvalWorkflowProvider-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'approvalWorkflowProvider-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['approvalWorkflowProvider-id'],
+    },
     params,
   };
 }
@@ -53,16 +72,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/approvalWorkflowProviders',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -80,11 +92,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/approvalWorkflowProviders/{approvalWorkflowProvider-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'approvalWorkflowProvider-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['approvalWorkflowProvider-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -103,7 +114,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/approvalWorkflowProviders/{approvalWorkflowProvider-id}',
-    paramDefs: [{ name: 'approvalWorkflowProvider-id', in: 'path' }],
+    paramDefs: {
+      path: ['approvalWorkflowProvider-id'],
+    },
     params,
     body,
   };
@@ -114,15 +127,117 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /approvalWorkflowProviders']['body'],
-  params?: IEndpoints['POST /approvalWorkflowProviders']['parameters']
+  body: IEndpoints['POST /approvalWorkflowProviders']['body']
 ): EndpointRequest<IEndpoints['POST /approvalWorkflowProviders']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/approvalWorkflowProviders',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const policyTemplates = {
+  /**
+   * `GET /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['approvalWorkflowProvider-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates']['body'],
+    params?: IEndpoints['POST /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates',
+      paramDefs: {
+        path: ['approvalWorkflowProvider-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['approvalWorkflowProvider-id', 'governancePolicyTemplate-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}']['body'],
+    params?: IEndpoints['PATCH /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}',
+      paramDefs: {
+        path: ['approvalWorkflowProvider-id', 'governancePolicyTemplate-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/policyTemplates/{governancePolicyTemplate-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['approvalWorkflowProvider-id', 'governancePolicyTemplate-id'],
+      },
+      params,
+    };
+  },
+};

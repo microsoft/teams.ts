@@ -1,8 +1,4 @@
-export * as cancel from './cancel';
-export * as presenters from './presenters';
-export * as publish from './publish';
 export * as sessions from './sessions';
-export * as setExternalEventInformation from './setExternalEventInformation';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
@@ -21,6 +17,38 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /solutions/virtualEvents/events': Operation<'/solutions/virtualEvents/events', 'post'>;
+  'POST /solutions/virtualEvents/events/{virtualEvent-id}/cancel': Operation<
+    '/solutions/virtualEvents/events/{virtualEvent-id}/cancel',
+    'post'
+  >;
+  'GET /solutions/virtualEvents/events/{virtualEvent-id}/presenters': Operation<
+    '/solutions/virtualEvents/events/{virtualEvent-id}/presenters',
+    'get'
+  >;
+  'POST /solutions/virtualEvents/events/{virtualEvent-id}/presenters': Operation<
+    '/solutions/virtualEvents/events/{virtualEvent-id}/presenters',
+    'post'
+  >;
+  'GET /solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}': Operation<
+    '/solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}',
+    'get'
+  >;
+  'PATCH /solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}': Operation<
+    '/solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}',
+    'patch'
+  >;
+  'DELETE /solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}': Operation<
+    '/solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}',
+    'delete'
+  >;
+  'POST /solutions/virtualEvents/events/{virtualEvent-id}/publish': Operation<
+    '/solutions/virtualEvents/events/{virtualEvent-id}/publish',
+    'post'
+  >;
+  'POST /solutions/virtualEvents/events/{virtualEvent-id}/setExternalEventInformation': Operation<
+    '/solutions/virtualEvents/events/{virtualEvent-id}/setExternalEventInformation',
+    'post'
+  >;
 }
 
 /**
@@ -35,10 +63,10 @@ export function del(
   return {
     method: 'delete',
     path: '/solutions/virtualEvents/events/{virtualEvent-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'virtualEvent-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['virtualEvent-id'],
+    },
     params,
   };
 }
@@ -53,16 +81,9 @@ export function list(
   return {
     method: 'get',
     path: '/solutions/virtualEvents/events',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -79,11 +100,10 @@ export function get(
   return {
     method: 'get',
     path: '/solutions/virtualEvents/events/{virtualEvent-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'virtualEvent-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEvent-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -101,7 +121,9 @@ export function update(
   return {
     method: 'patch',
     path: '/solutions/virtualEvents/events/{virtualEvent-id}',
-    paramDefs: [{ name: 'virtualEvent-id', in: 'path' }],
+    paramDefs: {
+      path: ['virtualEvent-id'],
+    },
     params,
     body,
   };
@@ -112,14 +134,178 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /solutions/virtualEvents/events']['body'],
-  params?: IEndpoints['POST /solutions/virtualEvents/events']['parameters']
+  body: IEndpoints['POST /solutions/virtualEvents/events']['body']
 ): EndpointRequest<IEndpoints['POST /solutions/virtualEvents/events']['response']> {
   return {
     method: 'post',
     path: '/solutions/virtualEvents/events',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const cancel = {
+  /**
+   * `POST /solutions/virtualEvents/events/{virtualEvent-id}/cancel`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /solutions/virtualEvents/events/{virtualEvent-id}/cancel']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /solutions/virtualEvents/events/{virtualEvent-id}/cancel']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/solutions/virtualEvents/events/{virtualEvent-id}/cancel',
+      paramDefs: {
+        path: ['virtualEvent-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const presenters = {
+  /**
+   * `GET /solutions/virtualEvents/events/{virtualEvent-id}/presenters`
+   *
+   * The virtual event presenters.
+   */
+  list: function list(
+    params?: IEndpoints['GET /solutions/virtualEvents/events/{virtualEvent-id}/presenters']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/virtualEvents/events/{virtualEvent-id}/presenters']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/solutions/virtualEvents/events/{virtualEvent-id}/presenters',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['virtualEvent-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /solutions/virtualEvents/events/{virtualEvent-id}/presenters`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /solutions/virtualEvents/events/{virtualEvent-id}/presenters']['body'],
+    params?: IEndpoints['POST /solutions/virtualEvents/events/{virtualEvent-id}/presenters']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /solutions/virtualEvents/events/{virtualEvent-id}/presenters']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/solutions/virtualEvents/events/{virtualEvent-id}/presenters',
+      paramDefs: {
+        path: ['virtualEvent-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}`
+   *
+   * The virtual event presenters.
+   */
+  get: function get(
+    params?: IEndpoints['GET /solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['virtualEvent-id', 'virtualEventPresenter-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}']['body'],
+    params?: IEndpoints['PATCH /solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}',
+      paramDefs: {
+        path: ['virtualEvent-id', 'virtualEventPresenter-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/solutions/virtualEvents/events/{virtualEvent-id}/presenters/{virtualEventPresenter-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['virtualEvent-id', 'virtualEventPresenter-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const publish = {
+  /**
+   * `POST /solutions/virtualEvents/events/{virtualEvent-id}/publish`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /solutions/virtualEvents/events/{virtualEvent-id}/publish']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /solutions/virtualEvents/events/{virtualEvent-id}/publish']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/solutions/virtualEvents/events/{virtualEvent-id}/publish',
+      paramDefs: {
+        path: ['virtualEvent-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const setExternalEventInformation = {
+  /**
+   * `POST /solutions/virtualEvents/events/{virtualEvent-id}/setExternalEventInformation`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /solutions/virtualEvents/events/{virtualEvent-id}/setExternalEventInformation']['body'],
+    params?: IEndpoints['POST /solutions/virtualEvents/events/{virtualEvent-id}/setExternalEventInformation']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /solutions/virtualEvents/events/{virtualEvent-id}/setExternalEventInformation']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/solutions/virtualEvents/events/{virtualEvent-id}/setExternalEventInformation',
+      paramDefs: {
+        path: ['virtualEvent-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

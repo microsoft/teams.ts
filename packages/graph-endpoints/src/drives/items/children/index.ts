@@ -1,5 +1,3 @@
-export * as content from './content';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -15,6 +13,18 @@ export interface IEndpoints {
     '/drives/{drive-id}/items/{driveItem-id}/children',
     'post'
   >;
+  'GET /drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content',
+    'get'
+  >;
+  'PUT /drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content',
+    'put'
+  >;
+  'DELETE /drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content',
+    'delete'
+  >;
 }
 
 /**
@@ -28,18 +38,10 @@ export function get(
   return {
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/children',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -57,13 +59,10 @@ export function get$1(
   return {
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'driveItem-id1', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'driveItem-id1'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,11 +80,74 @@ export function create(
   return {
     method: 'post',
     path: '/drives/{drive-id}/items/{driveItem-id}/children',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id'],
+    },
     params,
     body,
   };
 }
+
+export const content = {
+  /**
+   * `GET /drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content`
+   *
+   * The content stream, if the item represents a file.
+   */
+  get: function get(
+    params?: IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content',
+      paramDefs: {
+        query: ['$format'],
+        path: ['drive-id', 'driveItem-id', 'driveItem-id1'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content`
+   *
+   * The content stream, if the item represents a file.
+   */
+  set: function set(
+    body: IEndpoints['PUT /drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content']['body'],
+    params?: IEndpoints['PUT /drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content']['response']
+  > {
+    return {
+      method: 'put',
+      path: '/drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content',
+      paramDefs: {
+        path: ['drive-id', 'driveItem-id', 'driveItem-id1'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content`
+   *
+   * The content stream, if the item represents a file.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/drives/{drive-id}/items/{driveItem-id}/children/{driveItem-id1}/content',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['drive-id', 'driveItem-id', 'driveItem-id1'],
+      },
+      params,
+    };
+  },
+};

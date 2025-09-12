@@ -1,5 +1,3 @@
-export * as content from './content';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,18 @@ export interface IEndpoints {
     '/groups/{group-id}/sites/{site-id}/onenote/resources',
     'post'
   >;
+  'GET /groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content': Operation<
+    '/groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content',
+    'get'
+  >;
+  'PUT /groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content': Operation<
+    '/groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content',
+    'put'
+  >;
+  'DELETE /groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content': Operation<
+    '/groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content',
+    'delete'
+  >;
 }
 
 /**
@@ -37,12 +47,10 @@ export function del(
   return {
     method: 'delete',
     path: '/groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'onenoteResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'site-id', 'onenoteResource-id'],
+    },
     params,
   };
 }
@@ -60,18 +68,10 @@ export function list(
   return {
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/onenote/resources',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,13 +89,10 @@ export function get(
   return {
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'onenoteResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'onenoteResource-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,11 +110,9 @@ export function update(
   return {
     method: 'patch',
     path: '/groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'onenoteResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'onenoteResource-id'],
+    },
     params,
     body,
   };
@@ -136,11 +131,73 @@ export function create(
   return {
     method: 'post',
     path: '/groups/{group-id}/sites/{site-id}/onenote/resources',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+    },
     params,
     body,
   };
 }
+
+export const content = {
+  /**
+   * `GET /groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content`
+   *
+   * The content stream
+   */
+  get: function get(
+    params?: IEndpoints['GET /groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content',
+      paramDefs: {
+        path: ['group-id', 'site-id', 'onenoteResource-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content`
+   *
+   * The content stream
+   */
+  set: function set(
+    body: IEndpoints['PUT /groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content']['body'],
+    params?: IEndpoints['PUT /groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content']['response']
+  > {
+    return {
+      method: 'put',
+      path: '/groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content',
+      paramDefs: {
+        path: ['group-id', 'site-id', 'onenoteResource-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content`
+   *
+   * The content stream
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/groups/{group-id}/sites/{site-id}/onenote/resources/{onenoteResource-id}/content',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['group-id', 'site-id', 'onenoteResource-id'],
+      },
+      params,
+    };
+  },
+};

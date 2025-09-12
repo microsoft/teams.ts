@@ -1,5 +1,4 @@
 export * as decisions from './decisions';
-export * as stop from './stop';
 
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
@@ -24,6 +23,10 @@ export interface IEndpoints {
     '/users/{user-id}/pendingAccessReviewInstances/{accessReviewInstance-id}/decisions/{accessReviewInstanceDecisionItem-id}/instance/stages',
     'post'
   >;
+  'POST /users/{user-id}/pendingAccessReviewInstances/{accessReviewInstance-id}/decisions/{accessReviewInstanceDecisionItem-id}/instance/stages/{accessReviewStage-id}/stop': Operation<
+    '/users/{user-id}/pendingAccessReviewInstances/{accessReviewInstance-id}/decisions/{accessReviewInstanceDecisionItem-id}/instance/stages/{accessReviewStage-id}/stop',
+    'post'
+  >;
 }
 
 /**
@@ -39,13 +42,15 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/users/{user-id}/pendingAccessReviewInstances/{accessReviewInstance-id}/decisions/{accessReviewInstanceDecisionItem-id}/instance/stages/{accessReviewStage-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'accessReviewInstance-id', in: 'path' },
-      { name: 'accessReviewInstanceDecisionItem-id', in: 'path' },
-      { name: 'accessReviewStage-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: [
+        'user-id',
+        'accessReviewInstance-id',
+        'accessReviewInstanceDecisionItem-id',
+        'accessReviewStage-id',
+      ],
+    },
     params,
   };
 }
@@ -64,19 +69,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/pendingAccessReviewInstances/{accessReviewInstance-id}/decisions/{accessReviewInstanceDecisionItem-id}/instance/stages',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'accessReviewInstance-id', in: 'path' },
-      { name: 'accessReviewInstanceDecisionItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'accessReviewInstance-id', 'accessReviewInstanceDecisionItem-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -95,14 +91,15 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/pendingAccessReviewInstances/{accessReviewInstance-id}/decisions/{accessReviewInstanceDecisionItem-id}/instance/stages/{accessReviewStage-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'accessReviewInstance-id', in: 'path' },
-      { name: 'accessReviewInstanceDecisionItem-id', in: 'path' },
-      { name: 'accessReviewStage-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: [
+        'user-id',
+        'accessReviewInstance-id',
+        'accessReviewInstanceDecisionItem-id',
+        'accessReviewStage-id',
+      ],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -121,12 +118,14 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/users/{user-id}/pendingAccessReviewInstances/{accessReviewInstance-id}/decisions/{accessReviewInstanceDecisionItem-id}/instance/stages/{accessReviewStage-id}',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'accessReviewInstance-id', in: 'path' },
-      { name: 'accessReviewInstanceDecisionItem-id', in: 'path' },
-      { name: 'accessReviewStage-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: [
+        'user-id',
+        'accessReviewInstance-id',
+        'accessReviewInstanceDecisionItem-id',
+        'accessReviewStage-id',
+      ],
+    },
     params,
     body,
   };
@@ -146,12 +145,38 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/users/{user-id}/pendingAccessReviewInstances/{accessReviewInstance-id}/decisions/{accessReviewInstanceDecisionItem-id}/instance/stages',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'accessReviewInstance-id', in: 'path' },
-      { name: 'accessReviewInstanceDecisionItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'accessReviewInstance-id', 'accessReviewInstanceDecisionItem-id'],
+    },
     params,
     body,
   };
 }
+
+export const stop = {
+  /**
+   * `POST /users/{user-id}/pendingAccessReviewInstances/{accessReviewInstance-id}/decisions/{accessReviewInstanceDecisionItem-id}/instance/stages/{accessReviewStage-id}/stop`
+   *
+   * Stop an access review stage that is inProgress. After the access review stage stops, the stage status will be Completed and the reviewers can no longer give input. If there are subsequent stages that depend on the completed stage, the next stage will be created.  The accessReviewInstanceDecisionItem objects will always reflect the last decisions recorded across all stages at that given time, regardless of the status of the stages.
+   */
+  create: function create(
+    params?: IEndpoints['POST /users/{user-id}/pendingAccessReviewInstances/{accessReviewInstance-id}/decisions/{accessReviewInstanceDecisionItem-id}/instance/stages/{accessReviewStage-id}/stop']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/pendingAccessReviewInstances/{accessReviewInstance-id}/decisions/{accessReviewInstanceDecisionItem-id}/instance/stages/{accessReviewStage-id}/stop']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/users/{user-id}/pendingAccessReviewInstances/{accessReviewInstance-id}/decisions/{accessReviewInstanceDecisionItem-id}/instance/stages/{accessReviewStage-id}/stop',
+      paramDefs: {
+        path: [
+          'user-id',
+          'accessReviewInstance-id',
+          'accessReviewInstanceDecisionItem-id',
+          'accessReviewStage-id',
+        ],
+      },
+      params,
+    };
+  },
+};

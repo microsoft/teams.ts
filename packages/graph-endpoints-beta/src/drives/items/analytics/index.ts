@@ -1,6 +1,4 @@
-export * as allTime from './allTime';
 export * as itemActivityStats from './itemActivityStats';
-export * as lastSevenDays from './lastSevenDays';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
@@ -17,6 +15,14 @@ export interface IEndpoints {
     '/drives/{drive-id}/items/{driveItem-id}/analytics',
     'patch'
   >;
+  'GET /drives/{drive-id}/items/{driveItem-id}/analytics/allTime': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/analytics/allTime',
+    'get'
+  >;
+  'GET /drives/{drive-id}/items/{driveItem-id}/analytics/lastSevenDays': Operation<
+    '/drives/{drive-id}/items/{driveItem-id}/analytics/lastSevenDays',
+    'get'
+  >;
 }
 
 /**
@@ -32,11 +38,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/drives/{drive-id}/items/{driveItem-id}/analytics',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['drive-id', 'driveItem-id'],
+    },
     params,
   };
 }
@@ -57,12 +62,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/analytics',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,11 +84,56 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/drives/{drive-id}/items/{driveItem-id}/analytics',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id'],
+    },
     params,
     body,
   };
 }
+
+export const allTime = {
+  /**
+   * `GET /drives/{drive-id}/items/{driveItem-id}/analytics/allTime`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/analytics/allTime']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/analytics/allTime']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/drives/{drive-id}/items/{driveItem-id}/analytics/allTime',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['drive-id', 'driveItem-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const lastSevenDays = {
+  /**
+   * `GET /drives/{drive-id}/items/{driveItem-id}/analytics/lastSevenDays`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/analytics/lastSevenDays']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/analytics/lastSevenDays']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/drives/{drive-id}/items/{driveItem-id}/analytics/lastSevenDays',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['drive-id', 'driveItem-id'],
+      },
+      params,
+    };
+  },
+};

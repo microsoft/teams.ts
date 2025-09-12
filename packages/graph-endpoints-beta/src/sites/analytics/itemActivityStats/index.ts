@@ -38,11 +38,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/sites/{site-id}/analytics/itemActivityStats/{itemActivityStat-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-      { name: 'itemActivityStat-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id', 'itemActivityStat-id'],
+    },
     params,
   };
 }
@@ -58,17 +57,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/sites/{site-id}/analytics/itemActivityStats',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,12 +78,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/sites/{site-id}/analytics/itemActivityStats/{itemActivityStat-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'itemActivityStat-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'itemActivityStat-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,10 +100,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/sites/{site-id}/analytics/itemActivityStats/{itemActivityStat-id}',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'itemActivityStat-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'itemActivityStat-id'],
+    },
     params,
     body,
   };
@@ -131,7 +120,9 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/sites/{site-id}/analytics/itemActivityStats',
-    paramDefs: [{ name: 'site-id', in: 'path' }],
+    paramDefs: {
+      path: ['site-id'],
+    },
     params,
     body,
   };

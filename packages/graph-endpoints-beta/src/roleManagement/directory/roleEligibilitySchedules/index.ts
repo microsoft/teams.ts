@@ -1,8 +1,3 @@
-export * as appScope from './appScope';
-export * as directoryScope from './directoryScope';
-export * as principal from './principal';
-export * as roleDefinition from './roleDefinition';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -26,6 +21,22 @@ export interface IEndpoints {
     '/roleManagement/directory/roleEligibilitySchedules',
     'post'
   >;
+  'GET /roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/appScope': Operation<
+    '/roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/appScope',
+    'get'
+  >;
+  'GET /roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/directoryScope': Operation<
+    '/roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/directoryScope',
+    'get'
+  >;
+  'GET /roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/principal': Operation<
+    '/roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/principal',
+    'get'
+  >;
+  'GET /roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/roleDefinition': Operation<
+    '/roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/roleDefinition',
+    'get'
+  >;
 }
 
 /**
@@ -42,10 +53,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'unifiedRoleEligibilitySchedule-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['unifiedRoleEligibilitySchedule-id'],
+    },
     params,
   };
 }
@@ -65,16 +76,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/directory/roleEligibilitySchedules',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -94,11 +98,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'unifiedRoleEligibilitySchedule-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['unifiedRoleEligibilitySchedule-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -118,7 +121,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}',
-    paramDefs: [{ name: 'unifiedRoleEligibilitySchedule-id', in: 'path' }],
+    paramDefs: {
+      path: ['unifiedRoleEligibilitySchedule-id'],
+    },
     params,
     body,
   };
@@ -130,8 +135,7 @@ export function update(
  * @deprecated
  */
 export function create(
-  body: IEndpoints['POST /roleManagement/directory/roleEligibilitySchedules']['body'],
-  params?: IEndpoints['POST /roleManagement/directory/roleEligibilitySchedules']['parameters']
+  body: IEndpoints['POST /roleManagement/directory/roleEligibilitySchedules']['body']
 ): EndpointRequest<
   IEndpoints['POST /roleManagement/directory/roleEligibilitySchedules']['response']
 > {
@@ -139,8 +143,106 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/roleManagement/directory/roleEligibilitySchedules',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const appScope = {
+  /**
+   * `GET /roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/appScope`
+   *
+   * Read-only property with details of the app-specific scope when the role eligibility or assignment is scoped to an app. Nullable.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/appScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/appScope']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/appScope',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleEligibilitySchedule-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const directoryScope = {
+  /**
+   * `GET /roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/directoryScope`
+   *
+   * The directory object that is the scope of the role eligibility or assignment. Read-only.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/directoryScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/directoryScope']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/directoryScope',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleEligibilitySchedule-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const principal = {
+  /**
+   * `GET /roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/principal`
+   *
+   * The principal that&#x27;s getting a role assignment or that&#x27;s eligible for a role through the request.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/principal']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/principal']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/principal',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleEligibilitySchedule-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const roleDefinition = {
+  /**
+   * `GET /roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/roleDefinition`
+   *
+   * Detailed information for the roleDefinition object that is referenced through the roleDefinitionId property.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/roleDefinition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/roleDefinition']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/directory/roleEligibilitySchedules/{unifiedRoleEligibilitySchedule-id}/roleDefinition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleEligibilitySchedule-id'],
+      },
+      params,
+    };
+  },
+};

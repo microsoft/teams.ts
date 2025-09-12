@@ -1,5 +1,3 @@
-export * as termsAndConditions from './termsAndConditions';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses',
     'post'
   >;
+  'GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses/{termsAndConditionsAcceptanceStatus-id}/termsAndConditions': Operation<
+    '/deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses/{termsAndConditionsAcceptanceStatus-id}/termsAndConditions',
+    'get'
+  >;
 }
 
 /**
@@ -38,11 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses/{termsAndConditionsAcceptanceStatus-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'termsAndConditions-id', in: 'path' },
-      { name: 'termsAndConditionsAcceptanceStatus-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['termsAndConditions-id', 'termsAndConditionsAcceptanceStatus-id'],
+    },
     params,
   };
 }
@@ -61,17 +62,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'termsAndConditions-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['termsAndConditions-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +84,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses/{termsAndConditionsAcceptanceStatus-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'termsAndConditions-id', in: 'path' },
-      { name: 'termsAndConditionsAcceptanceStatus-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['termsAndConditions-id', 'termsAndConditionsAcceptanceStatus-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +106,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses/{termsAndConditionsAcceptanceStatus-id}',
-    paramDefs: [
-      { name: 'termsAndConditions-id', in: 'path' },
-      { name: 'termsAndConditionsAcceptanceStatus-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['termsAndConditions-id', 'termsAndConditionsAcceptanceStatus-id'],
+    },
     params,
     body,
   };
@@ -137,8 +128,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses',
-    paramDefs: [{ name: 'termsAndConditions-id', in: 'path' }],
+    paramDefs: {
+      path: ['termsAndConditions-id'],
+    },
     params,
     body,
   };
 }
+
+export const termsAndConditions = {
+  /**
+   * `GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses/{termsAndConditionsAcceptanceStatus-id}/termsAndConditions`
+   *
+   * Navigation link to the terms and conditions that are assigned.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses/{termsAndConditionsAcceptanceStatus-id}/termsAndConditions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses/{termsAndConditionsAcceptanceStatus-id}/termsAndConditions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses/{termsAndConditionsAcceptanceStatus-id}/termsAndConditions',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['termsAndConditions-id', 'termsAndConditionsAcceptanceStatus-id'],
+      },
+      params,
+    };
+  },
+};

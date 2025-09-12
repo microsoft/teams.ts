@@ -38,11 +38,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/connections/{externalConnection-id}/items/{externalItem-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'externalConnection-id', in: 'path' },
-      { name: 'externalItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['externalConnection-id', 'externalItem-id'],
+    },
     params,
   };
 }
@@ -58,17 +57,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/connections/{externalConnection-id}/items',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'externalConnection-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['externalConnection-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,12 +78,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/connections/{externalConnection-id}/items/{externalItem-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'externalConnection-id', in: 'path' },
-      { name: 'externalItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['externalConnection-id', 'externalItem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -108,7 +98,9 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/connections/{externalConnection-id}/items',
-    paramDefs: [{ name: 'externalConnection-id', in: 'path' }],
+    paramDefs: {
+      path: ['externalConnection-id'],
+    },
     params,
     body,
   };
@@ -128,10 +120,9 @@ export function set(
     ver: 'beta',
     method: 'put',
     path: '/connections/{externalConnection-id}/items/{externalItem-id}',
-    paramDefs: [
-      { name: 'externalConnection-id', in: 'path' },
-      { name: 'externalItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['externalConnection-id', 'externalItem-id'],
+    },
     params,
     body,
   };

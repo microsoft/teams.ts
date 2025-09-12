@@ -38,12 +38,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/financials/companies/{company-id}/customerPaymentJournals/{customerPaymentJournal-id}/customerPayments/{customerPayment-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'company-id', in: 'path' },
-      { name: 'customerPaymentJournal-id', in: 'path' },
-      { name: 'customerPayment-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['company-id', 'customerPaymentJournal-id', 'customerPayment-id'],
+    },
     params,
   };
 }
@@ -61,18 +59,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/customerPaymentJournals/{customerPaymentJournal-id}/customerPayments',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-      { name: 'customerPaymentJournal-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'customerPaymentJournal-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,13 +80,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/customerPaymentJournals/{customerPaymentJournal-id}/customerPayments/{customerPayment-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-      { name: 'customerPaymentJournal-id', in: 'path' },
-      { name: 'customerPayment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'customerPaymentJournal-id', 'customerPayment-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,11 +102,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/financials/companies/{company-id}/customerPaymentJournals/{customerPaymentJournal-id}/customerPayments/{customerPayment-id}',
-    paramDefs: [
-      { name: 'company-id', in: 'path' },
-      { name: 'customerPaymentJournal-id', in: 'path' },
-      { name: 'customerPayment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'customerPaymentJournal-id', 'customerPayment-id'],
+    },
     params,
     body,
   };
@@ -139,10 +124,9 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/financials/companies/{company-id}/customerPaymentJournals/{customerPaymentJournal-id}/customerPayments',
-    paramDefs: [
-      { name: 'company-id', in: 'path' },
-      { name: 'customerPaymentJournal-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'customerPaymentJournal-id'],
+    },
     params,
     body,
   };

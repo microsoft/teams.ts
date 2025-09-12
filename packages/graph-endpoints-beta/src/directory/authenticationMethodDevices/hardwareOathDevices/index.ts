@@ -39,10 +39,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/directory/authenticationMethodDevices/hardwareOathDevices/{hardwareOathTokenAuthenticationMethodDevice-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'hardwareOathTokenAuthenticationMethodDevice-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['hardwareOathTokenAuthenticationMethodDevice-id'],
+    },
     params,
   };
 }
@@ -61,16 +61,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/directory/authenticationMethodDevices/hardwareOathDevices',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,11 +82,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/directory/authenticationMethodDevices/hardwareOathDevices/{hardwareOathTokenAuthenticationMethodDevice-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'hardwareOathTokenAuthenticationMethodDevice-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['hardwareOathTokenAuthenticationMethodDevice-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,7 +105,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/directory/authenticationMethodDevices/hardwareOathDevices/{hardwareOathTokenAuthenticationMethodDevice-id}',
-    paramDefs: [{ name: 'hardwareOathTokenAuthenticationMethodDevice-id', in: 'path' }],
+    paramDefs: {
+      path: ['hardwareOathTokenAuthenticationMethodDevice-id'],
+    },
     params,
     body,
   };
@@ -122,13 +116,12 @@ export function update(
 /**
   * `POST /directory/authenticationMethodDevices/hardwareOathDevices`
   *
-  * Create a new hardwareOathTokenAuthenticationMethodDevice object. This API supports two scenarios:
-- Create the new hardware token without assigning to a user. You can then assign to a user.
-- Create and assign a hardware token to a user in the same request. 
+  * Create one or more hardwareOathTokenAuthenticationMethodDevice objects. This API supports two scenarios:
+- Create the new hardware tokens without assigning to users. You can then assign to a user.
+- Create and assign any individual hardware tokens to users in the same request.
   */
 export function create(
-  body: IEndpoints['POST /directory/authenticationMethodDevices/hardwareOathDevices']['body'],
-  params?: IEndpoints['POST /directory/authenticationMethodDevices/hardwareOathDevices']['parameters']
+  body: IEndpoints['POST /directory/authenticationMethodDevices/hardwareOathDevices']['body']
 ): EndpointRequest<
   IEndpoints['POST /directory/authenticationMethodDevices/hardwareOathDevices']['response']
 > {
@@ -136,8 +129,6 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/directory/authenticationMethodDevices/hardwareOathDevices',
-    paramDefs: [],
-    params,
     body,
   };
 }

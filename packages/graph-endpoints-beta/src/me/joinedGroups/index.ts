@@ -1,9 +1,11 @@
-export * as evaluateDynamicMembership from './evaluateDynamicMembership';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
   'GET /me/joinedGroups': Operation<'/me/joinedGroups', 'get'>;
+  'POST /me/joinedGroups/evaluateDynamicMembership': Operation<
+    '/me/joinedGroups/evaluateDynamicMembership',
+    'post'
+  >;
 }
 
 /**
@@ -17,16 +19,26 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/me/joinedGroups',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
+
+export const evaluateDynamicMembership = {
+  /**
+   * `POST /me/joinedGroups/evaluateDynamicMembership`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /me/joinedGroups/evaluateDynamicMembership']['body']
+  ): EndpointRequest<IEndpoints['POST /me/joinedGroups/evaluateDynamicMembership']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/me/joinedGroups/evaluateDynamicMembership',
+      body,
+    };
+  },
+};

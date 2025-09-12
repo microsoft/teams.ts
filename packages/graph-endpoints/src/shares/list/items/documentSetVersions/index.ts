@@ -1,6 +1,3 @@
-export * as fields from './fields';
-export * as restore from './restore';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,22 @@ export interface IEndpoints {
     '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions',
     'post'
   >;
+  'GET /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields': Operation<
+    '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields',
+    'get'
+  >;
+  'PATCH /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields': Operation<
+    '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields',
+    'patch'
+  >;
+  'DELETE /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields': Operation<
+    '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields',
+    'delete'
+  >;
+  'POST /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/restore': Operation<
+    '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/restore',
+    'post'
+  >;
 }
 
 /**
@@ -38,12 +51,10 @@ export function del(
   return {
     method: 'delete',
     path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'sharedDriveItem-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-      { name: 'documentSetVersion-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['sharedDriveItem-id', 'listItem-id', 'documentSetVersion-id'],
+    },
     params,
   };
 }
@@ -61,18 +72,10 @@ export function list(
   return {
     method: 'get',
     path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sharedDriveItem-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharedDriveItem-id', 'listItem-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,13 +93,10 @@ export function get(
   return {
     method: 'get',
     path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sharedDriveItem-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-      { name: 'documentSetVersion-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharedDriveItem-id', 'listItem-id', 'documentSetVersion-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,11 +114,9 @@ export function update(
   return {
     method: 'patch',
     path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}',
-    paramDefs: [
-      { name: 'sharedDriveItem-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-      { name: 'documentSetVersion-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharedDriveItem-id', 'listItem-id', 'documentSetVersion-id'],
+    },
     params,
     body,
   };
@@ -137,11 +135,94 @@ export function create(
   return {
     method: 'post',
     path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions',
-    paramDefs: [
-      { name: 'sharedDriveItem-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharedDriveItem-id', 'listItem-id'],
+    },
     params,
     body,
   };
 }
+
+export const fields = {
+  /**
+   * `GET /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields`
+   *
+   * A collection of the fields and values for this version of the list item.
+   */
+  list: function list(
+    params?: IEndpoints['GET /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['sharedDriveItem-id', 'listItem-id', 'documentSetVersion-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields']['body'],
+    params?: IEndpoints['PATCH /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields',
+      paramDefs: {
+        path: ['sharedDriveItem-id', 'listItem-id', 'documentSetVersion-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['sharedDriveItem-id', 'listItem-id', 'documentSetVersion-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const restore = {
+  /**
+   * `POST /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/restore`
+   *
+   * Restore a document set version.
+   */
+  create: function create(
+    params?: IEndpoints['POST /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/restore']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/restore']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/restore',
+      paramDefs: {
+        path: ['sharedDriveItem-id', 'listItem-id', 'documentSetVersion-id'],
+      },
+      params,
+    };
+  },
+};

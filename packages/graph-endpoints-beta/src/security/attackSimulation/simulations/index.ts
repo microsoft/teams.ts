@@ -1,7 +1,3 @@
-export * as landingPage from './landingPage';
-export * as loginPage from './loginPage';
-export * as payload from './payload';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -25,6 +21,18 @@ export interface IEndpoints {
     '/security/attackSimulation/simulations',
     'post'
   >;
+  'GET /security/attackSimulation/simulations/{simulation-id}/landingPage': Operation<
+    '/security/attackSimulation/simulations/{simulation-id}/landingPage',
+    'get'
+  >;
+  'GET /security/attackSimulation/simulations/{simulation-id}/loginPage': Operation<
+    '/security/attackSimulation/simulations/{simulation-id}/loginPage',
+    'get'
+  >;
+  'GET /security/attackSimulation/simulations/{simulation-id}/payload': Operation<
+    '/security/attackSimulation/simulations/{simulation-id}/payload',
+    'get'
+  >;
 }
 
 /**
@@ -41,10 +49,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/attackSimulation/simulations/{simulation-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'simulation-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['simulation-id'],
+    },
     params,
   };
 }
@@ -61,16 +69,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/attackSimulation/simulations',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,11 +90,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/attackSimulation/simulations/{simulation-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'simulation-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['simulation-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,7 +113,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/attackSimulation/simulations/{simulation-id}',
-    paramDefs: [{ name: 'simulation-id', in: 'path' }],
+    paramDefs: {
+      path: ['simulation-id'],
+    },
     params,
     body,
   };
@@ -125,15 +127,84 @@ export function update(
  * Create an attack simulation campaign for a tenant.
  */
 export function create(
-  body: IEndpoints['POST /security/attackSimulation/simulations']['body'],
-  params?: IEndpoints['POST /security/attackSimulation/simulations']['parameters']
+  body: IEndpoints['POST /security/attackSimulation/simulations']['body']
 ): EndpointRequest<IEndpoints['POST /security/attackSimulation/simulations']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/security/attackSimulation/simulations',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const landingPage = {
+  /**
+   * `GET /security/attackSimulation/simulations/{simulation-id}/landingPage`
+   *
+   * The landing page associated with a simulation during its creation.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/attackSimulation/simulations/{simulation-id}/landingPage']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/attackSimulation/simulations/{simulation-id}/landingPage']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/attackSimulation/simulations/{simulation-id}/landingPage',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['simulation-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const loginPage = {
+  /**
+   * `GET /security/attackSimulation/simulations/{simulation-id}/loginPage`
+   *
+   * The login page associated with a simulation during its creation.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/attackSimulation/simulations/{simulation-id}/loginPage']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/attackSimulation/simulations/{simulation-id}/loginPage']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/attackSimulation/simulations/{simulation-id}/loginPage',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['simulation-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const payload = {
+  /**
+   * `GET /security/attackSimulation/simulations/{simulation-id}/payload`
+   *
+   * The payload associated with a simulation during its creation.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/attackSimulation/simulations/{simulation-id}/payload']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/attackSimulation/simulations/{simulation-id}/payload']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/attackSimulation/simulations/{simulation-id}/payload',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['simulation-id'],
+      },
+      params,
+    };
+  },
+};

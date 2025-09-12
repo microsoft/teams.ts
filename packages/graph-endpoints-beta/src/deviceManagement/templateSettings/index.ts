@@ -1,5 +1,3 @@
-export * as settingDefinitions from './settingDefinitions';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -20,6 +18,26 @@ export interface IEndpoints {
     '/deviceManagement/templateSettings',
     'post'
   >;
+  'GET /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions': Operation<
+    '/deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions',
+    'get'
+  >;
+  'POST /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions': Operation<
+    '/deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions',
+    'post'
+  >;
+  'GET /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}': Operation<
+    '/deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}',
+    'get'
+  >;
+  'PATCH /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}': Operation<
+    '/deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}',
+    'patch'
+  >;
+  'DELETE /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}': Operation<
+    '/deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -35,10 +53,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deviceManagementConfigurationSettingTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['deviceManagementConfigurationSettingTemplate-id'],
+    },
     params,
   };
 }
@@ -55,16 +73,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/templateSettings',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -83,11 +94,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceManagementConfigurationSettingTemplate-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceManagementConfigurationSettingTemplate-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -106,7 +116,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}',
-    paramDefs: [{ name: 'deviceManagementConfigurationSettingTemplate-id', in: 'path' }],
+    paramDefs: {
+      path: ['deviceManagementConfigurationSettingTemplate-id'],
+    },
     params,
     body,
   };
@@ -117,15 +129,128 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/templateSettings']['body'],
-  params?: IEndpoints['POST /deviceManagement/templateSettings']['parameters']
+  body: IEndpoints['POST /deviceManagement/templateSettings']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/templateSettings']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/templateSettings',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const settingDefinitions = {
+  /**
+   * `GET /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions`
+   *
+   * List of related Setting Definitions
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['deviceManagementConfigurationSettingTemplate-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions']['body'],
+    params?: IEndpoints['POST /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions',
+      paramDefs: {
+        path: ['deviceManagementConfigurationSettingTemplate-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}`
+   *
+   * List of related Setting Definitions
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'deviceManagementConfigurationSettingTemplate-id',
+          'deviceManagementConfigurationSettingDefinition-id',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}']['body'],
+    params?: IEndpoints['PATCH /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}',
+      paramDefs: {
+        path: [
+          'deviceManagementConfigurationSettingTemplate-id',
+          'deviceManagementConfigurationSettingDefinition-id',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/deviceManagement/templateSettings/{deviceManagementConfigurationSettingTemplate-id}/settingDefinitions/{deviceManagementConfigurationSettingDefinition-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: [
+          'deviceManagementConfigurationSettingTemplate-id',
+          'deviceManagementConfigurationSettingDefinition-id',
+        ],
+      },
+      params,
+    };
+  },
+};

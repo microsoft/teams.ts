@@ -1,5 +1,3 @@
-export * as updateStatus from './updateStatus';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceAppManagement/deviceAppManagementTasks',
     'post'
   >;
+  'POST /deviceAppManagement/deviceAppManagementTasks/{deviceAppManagementTask-id}/updateStatus': Operation<
+    '/deviceAppManagement/deviceAppManagementTasks/{deviceAppManagementTask-id}/updateStatus',
+    'post'
+  >;
 }
 
 /**
@@ -38,10 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceAppManagement/deviceAppManagementTasks/{deviceAppManagementTask-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deviceAppManagementTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['deviceAppManagementTask-id'],
+    },
     params,
   };
 }
@@ -58,16 +60,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceAppManagement/deviceAppManagementTasks',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +81,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceAppManagement/deviceAppManagementTasks/{deviceAppManagementTask-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deviceAppManagementTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deviceAppManagementTask-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +103,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceAppManagement/deviceAppManagementTasks/{deviceAppManagementTask-id}',
-    paramDefs: [{ name: 'deviceAppManagementTask-id', in: 'path' }],
+    paramDefs: {
+      path: ['deviceAppManagementTask-id'],
+    },
     params,
     body,
   };
@@ -120,15 +116,37 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceAppManagement/deviceAppManagementTasks']['body'],
-  params?: IEndpoints['POST /deviceAppManagement/deviceAppManagementTasks']['parameters']
+  body: IEndpoints['POST /deviceAppManagement/deviceAppManagementTasks']['body']
 ): EndpointRequest<IEndpoints['POST /deviceAppManagement/deviceAppManagementTasks']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceAppManagement/deviceAppManagementTasks',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const updateStatus = {
+  /**
+   * `POST /deviceAppManagement/deviceAppManagementTasks/{deviceAppManagementTask-id}/updateStatus`
+   *
+   * Set the task&#x27;s status and attach a note.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceAppManagement/deviceAppManagementTasks/{deviceAppManagementTask-id}/updateStatus']['body'],
+    params?: IEndpoints['POST /deviceAppManagement/deviceAppManagementTasks/{deviceAppManagementTask-id}/updateStatus']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceAppManagement/deviceAppManagementTasks/{deviceAppManagementTask-id}/updateStatus']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceAppManagement/deviceAppManagementTasks/{deviceAppManagementTask-id}/updateStatus',
+      paramDefs: {
+        path: ['deviceAppManagementTask-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

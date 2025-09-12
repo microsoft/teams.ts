@@ -1,6 +1,3 @@
-export * as originatingKnowledgeBaseArticle from './originatingKnowledgeBaseArticle';
-export * as resolvingKnowledgeBaseArticle from './resolvingKnowledgeBaseArticle';
-
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,30 @@ export interface IEndpoints {
     '/admin/windows/updates/products/{product-id}/knownIssues',
     'post'
   >;
+  'GET /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle': Operation<
+    '/admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle',
+    'get'
+  >;
+  'PATCH /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle': Operation<
+    '/admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle',
+    'patch'
+  >;
+  'DELETE /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle': Operation<
+    '/admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle',
+    'delete'
+  >;
+  'GET /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle': Operation<
+    '/admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle',
+    'get'
+  >;
+  'PATCH /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle': Operation<
+    '/admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle',
+    'patch'
+  >;
+  'DELETE /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle': Operation<
+    '/admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle',
+    'delete'
+  >;
 }
 
 /**
@@ -39,11 +60,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'product-id', in: 'path' },
-      { name: 'knownIssue-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['product-id', 'knownIssue-id'],
+    },
     params,
   };
 }
@@ -62,17 +82,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/admin/windows/updates/products/{product-id}/knownIssues',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'product-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['product-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -91,12 +104,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'product-id', in: 'path' },
-      { name: 'knownIssue-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['product-id', 'knownIssue-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,10 +126,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}',
-    paramDefs: [
-      { name: 'product-id', in: 'path' },
-      { name: 'knownIssue-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['product-id', 'knownIssue-id'],
+    },
     params,
     body,
   };
@@ -138,8 +148,140 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/admin/windows/updates/products/{product-id}/knownIssues',
-    paramDefs: [{ name: 'product-id', in: 'path' }],
+    paramDefs: {
+      path: ['product-id'],
+    },
     params,
     body,
   };
 }
+
+export const originatingKnowledgeBaseArticle = {
+  /**
+   * `GET /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle`
+   *
+   * Knowledge base article associated with the release when the known issue was first reported.
+   */
+  get: function get(
+    params?: IEndpoints['GET /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['product-id', 'knownIssue-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle']['body'],
+    params?: IEndpoints['PATCH /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle',
+      paramDefs: {
+        path: ['product-id', 'knownIssue-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/originatingKnowledgeBaseArticle',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['product-id', 'knownIssue-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const resolvingKnowledgeBaseArticle = {
+  /**
+   * `GET /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle`
+   *
+   * Knowledge base article associated with the release when the known issue was resolved or mitigated.
+   */
+  get: function get(
+    params?: IEndpoints['GET /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['product-id', 'knownIssue-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle']['body'],
+    params?: IEndpoints['PATCH /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle',
+      paramDefs: {
+        path: ['product-id', 'knownIssue-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/admin/windows/updates/products/{product-id}/knownIssues/{knownIssue-id}/resolvingKnowledgeBaseArticle',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['product-id', 'knownIssue-id'],
+      },
+      params,
+    };
+  },
+};

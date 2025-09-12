@@ -22,7 +22,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/roleManagement/cloudPC',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -39,10 +41,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/cloudPC',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -53,15 +54,12 @@ export function get(
  * @deprecated
  */
 export function update(
-  body: IEndpoints['PATCH /roleManagement/cloudPC']['body'],
-  params?: IEndpoints['PATCH /roleManagement/cloudPC']['parameters']
+  body: IEndpoints['PATCH /roleManagement/cloudPC']['body']
 ): EndpointRequest<IEndpoints['PATCH /roleManagement/cloudPC']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/roleManagement/cloudPC',
-    paramDefs: [],
-    params,
     body,
   };
 }

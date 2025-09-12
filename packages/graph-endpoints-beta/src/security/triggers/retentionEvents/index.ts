@@ -1,5 +1,3 @@
-export * as retentionEventType from './retentionEventType';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -20,6 +18,10 @@ export interface IEndpoints {
     '/security/triggers/retentionEvents',
     'post'
   >;
+  'GET /security/triggers/retentionEvents/{retentionEvent-id}/retentionEventType': Operation<
+    '/security/triggers/retentionEvents/{retentionEvent-id}/retentionEventType',
+    'get'
+  >;
 }
 
 /**
@@ -36,10 +38,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/triggers/retentionEvents/{retentionEvent-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'retentionEvent-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['retentionEvent-id'],
+    },
     params,
   };
 }
@@ -56,16 +58,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/triggers/retentionEvents',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -84,11 +79,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/triggers/retentionEvents/{retentionEvent-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'retentionEvent-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['retentionEvent-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -107,7 +101,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/triggers/retentionEvents/{retentionEvent-id}',
-    paramDefs: [{ name: 'retentionEvent-id', in: 'path' }],
+    paramDefs: {
+      path: ['retentionEvent-id'],
+    },
     params,
     body,
   };
@@ -119,15 +115,36 @@ export function update(
  * Create a new retentionEvent object.
  */
 export function create(
-  body: IEndpoints['POST /security/triggers/retentionEvents']['body'],
-  params?: IEndpoints['POST /security/triggers/retentionEvents']['parameters']
+  body: IEndpoints['POST /security/triggers/retentionEvents']['body']
 ): EndpointRequest<IEndpoints['POST /security/triggers/retentionEvents']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/security/triggers/retentionEvents',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const retentionEventType = {
+  /**
+   * `GET /security/triggers/retentionEvents/{retentionEvent-id}/retentionEventType`
+   *
+   * Specifies the event that will start the retention period for labels that use this event type when an event is created.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/triggers/retentionEvents/{retentionEvent-id}/retentionEventType']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/triggers/retentionEvents/{retentionEvent-id}/retentionEventType']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/triggers/retentionEvents/{retentionEvent-id}/retentionEventType',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['retentionEvent-id'],
+      },
+      params,
+    };
+  },
+};

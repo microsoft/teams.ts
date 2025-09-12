@@ -32,13 +32,10 @@ export function del(
   return {
     method: 'delete',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/axes/seriesAxis',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookChart-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['drive-id', 'driveItem-id', 'workbookWorksheet-id', 'workbookChart-id'],
+    },
     params,
   };
 }
@@ -56,14 +53,10 @@ export function list(
   return {
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/axes/seriesAxis',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookChart-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'workbookWorksheet-id', 'workbookChart-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,12 +74,9 @@ export function update(
   return {
     method: 'patch',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/axes/seriesAxis',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookWorksheet-id', in: 'path' },
-      { name: 'workbookChart-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'workbookWorksheet-id', 'workbookChart-id'],
+    },
     params,
     body,
   };

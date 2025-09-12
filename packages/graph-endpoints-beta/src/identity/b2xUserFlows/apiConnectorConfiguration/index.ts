@@ -25,11 +25,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/identity/b2xUserFlows/{b2xIdentityUserFlow-id}/apiConnectorConfiguration',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'b2xIdentityUserFlow-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['b2xIdentityUserFlow-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }

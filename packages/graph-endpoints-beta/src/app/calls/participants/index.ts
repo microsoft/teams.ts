@@ -1,9 +1,3 @@
-export * as invite from './invite';
-export * as mute from './mute';
-export * as muteAll from './muteAll';
-export * as startHoldMusic from './startHoldMusic';
-export * as stopHoldMusic from './stopHoldMusic';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -21,6 +15,26 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /app/calls/{call-id}/participants': Operation<'/app/calls/{call-id}/participants', 'post'>;
+  'POST /app/calls/{call-id}/participants/invite': Operation<
+    '/app/calls/{call-id}/participants/invite',
+    'post'
+  >;
+  'POST /app/calls/{call-id}/participants/{participant-id}/mute': Operation<
+    '/app/calls/{call-id}/participants/{participant-id}/mute',
+    'post'
+  >;
+  'POST /app/calls/{call-id}/participants/muteAll': Operation<
+    '/app/calls/{call-id}/participants/muteAll',
+    'post'
+  >;
+  'POST /app/calls/{call-id}/participants/{participant-id}/startHoldMusic': Operation<
+    '/app/calls/{call-id}/participants/{participant-id}/startHoldMusic',
+    'post'
+  >;
+  'POST /app/calls/{call-id}/participants/{participant-id}/stopHoldMusic': Operation<
+    '/app/calls/{call-id}/participants/{participant-id}/stopHoldMusic',
+    'post'
+  >;
 }
 
 /**
@@ -36,11 +50,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/app/calls/{call-id}/participants/{participant-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'call-id', in: 'path' },
-      { name: 'participant-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['call-id', 'participant-id'],
+    },
     params,
   };
 }
@@ -56,17 +69,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/app/calls/{call-id}/participants',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'call-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['call-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -84,12 +90,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/app/calls/{call-id}/participants/{participant-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'call-id', in: 'path' },
-      { name: 'participant-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['call-id', 'participant-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -108,10 +112,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/app/calls/{call-id}/participants/{participant-id}',
-    paramDefs: [
-      { name: 'call-id', in: 'path' },
-      { name: 'participant-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['call-id', 'participant-id'],
+    },
     params,
     body,
   };
@@ -129,8 +132,131 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/app/calls/{call-id}/participants',
-    paramDefs: [{ name: 'call-id', in: 'path' }],
+    paramDefs: {
+      path: ['call-id'],
+    },
     params,
     body,
   };
 }
+
+export const invite = {
+  /**
+   * `POST /app/calls/{call-id}/participants/invite`
+   *
+   * Delete a specific participant in a call. In some situations, it is appropriate for an application to remove a participant from an active call. This action can be done before or after the participant answers the call. When an active caller is removed, they are immediately dropped from the call with no pre- or post-removal notification. When an invited participant is removed, any outstanding add participant request is canceled.
+   */
+  create: function create(
+    body: IEndpoints['POST /app/calls/{call-id}/participants/invite']['body'],
+    params?: IEndpoints['POST /app/calls/{call-id}/participants/invite']['parameters']
+  ): EndpointRequest<IEndpoints['POST /app/calls/{call-id}/participants/invite']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/app/calls/{call-id}/participants/invite',
+      paramDefs: {
+        path: ['call-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const mute = {
+  /**
+   * `POST /app/calls/{call-id}/participants/{participant-id}/mute`
+   *
+   * Mute a specific participant in the call. This is a server mute, meaning that the server will drop all audio packets for this participant, even if the participant continues to stream audio. For more information about how to handle mute operations, see muteParticipantOperation.
+   */
+  create: function create(
+    body: IEndpoints['POST /app/calls/{call-id}/participants/{participant-id}/mute']['body'],
+    params?: IEndpoints['POST /app/calls/{call-id}/participants/{participant-id}/mute']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /app/calls/{call-id}/participants/{participant-id}/mute']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/app/calls/{call-id}/participants/{participant-id}/mute',
+      paramDefs: {
+        path: ['call-id', 'participant-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const muteAll = {
+  /**
+   * `POST /app/calls/{call-id}/participants/muteAll`
+   *
+   * Mute all participants in the call.
+   */
+  create: function create(
+    body: IEndpoints['POST /app/calls/{call-id}/participants/muteAll']['body'],
+    params?: IEndpoints['POST /app/calls/{call-id}/participants/muteAll']['parameters']
+  ): EndpointRequest<IEndpoints['POST /app/calls/{call-id}/participants/muteAll']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/app/calls/{call-id}/participants/muteAll',
+      paramDefs: {
+        path: ['call-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const startHoldMusic = {
+  /**
+   * `POST /app/calls/{call-id}/participants/{participant-id}/startHoldMusic`
+   *
+   * Put a participant on hold and play music in the background.
+   */
+  create: function create(
+    body: IEndpoints['POST /app/calls/{call-id}/participants/{participant-id}/startHoldMusic']['body'],
+    params?: IEndpoints['POST /app/calls/{call-id}/participants/{participant-id}/startHoldMusic']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /app/calls/{call-id}/participants/{participant-id}/startHoldMusic']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/app/calls/{call-id}/participants/{participant-id}/startHoldMusic',
+      paramDefs: {
+        path: ['call-id', 'participant-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const stopHoldMusic = {
+  /**
+   * `POST /app/calls/{call-id}/participants/{participant-id}/stopHoldMusic`
+   *
+   * Reincorporate a participant previously put on hold to the call.
+   */
+  create: function create(
+    body: IEndpoints['POST /app/calls/{call-id}/participants/{participant-id}/stopHoldMusic']['body'],
+    params?: IEndpoints['POST /app/calls/{call-id}/participants/{participant-id}/stopHoldMusic']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /app/calls/{call-id}/participants/{participant-id}/stopHoldMusic']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/app/calls/{call-id}/participants/{participant-id}/stopHoldMusic',
+      paramDefs: {
+        path: ['call-id', 'participant-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

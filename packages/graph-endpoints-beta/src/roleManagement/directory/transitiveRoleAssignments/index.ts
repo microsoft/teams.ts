@@ -1,8 +1,3 @@
-export * as appScope from './appScope';
-export * as directoryScope from './directoryScope';
-export * as principal from './principal';
-export * as roleDefinition from './roleDefinition';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -26,6 +21,30 @@ export interface IEndpoints {
     '/roleManagement/directory/transitiveRoleAssignments',
     'post'
   >;
+  'GET /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope': Operation<
+    '/roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope',
+    'get'
+  >;
+  'PATCH /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope': Operation<
+    '/roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope',
+    'patch'
+  >;
+  'DELETE /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope': Operation<
+    '/roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope',
+    'delete'
+  >;
+  'GET /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/directoryScope': Operation<
+    '/roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/directoryScope',
+    'get'
+  >;
+  'GET /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/principal': Operation<
+    '/roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/principal',
+    'get'
+  >;
+  'GET /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/roleDefinition': Operation<
+    '/roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/roleDefinition',
+    'get'
+  >;
 }
 
 /**
@@ -42,10 +61,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'unifiedRoleAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['unifiedRoleAssignment-id'],
+    },
     params,
   };
 }
@@ -65,17 +84,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/directory/transitiveRoleAssignments',
-    paramDefs: [
-      { name: 'ConsistencyLevel', in: 'header' },
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      header: ['ConsistencyLevel'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -94,12 +106,11 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}',
-    paramDefs: [
-      { name: 'ConsistencyLevel', in: 'header' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'unifiedRoleAssignment-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['ConsistencyLevel'],
+      path: ['unifiedRoleAssignment-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -119,7 +130,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}',
-    paramDefs: [{ name: 'unifiedRoleAssignment-id', in: 'path' }],
+    paramDefs: {
+      path: ['unifiedRoleAssignment-id'],
+    },
     params,
     body,
   };
@@ -131,8 +144,7 @@ export function update(
  * @deprecated
  */
 export function create(
-  body: IEndpoints['POST /roleManagement/directory/transitiveRoleAssignments']['body'],
-  params?: IEndpoints['POST /roleManagement/directory/transitiveRoleAssignments']['parameters']
+  body: IEndpoints['POST /roleManagement/directory/transitiveRoleAssignments']['body']
 ): EndpointRequest<
   IEndpoints['POST /roleManagement/directory/transitiveRoleAssignments']['response']
 > {
@@ -140,8 +152,149 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/roleManagement/directory/transitiveRoleAssignments',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const appScope = {
+  /**
+   * `GET /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope`
+   *
+   * Read-only property with details of the app specific scope when the assignment scope is app specific. Containment entity. Supports $expand for the entitlement provider only.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleAssignment-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope`
+   *
+   * @deprecated
+   */
+  update: function update(
+    body: IEndpoints['PATCH /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope']['body'],
+    params?: IEndpoints['PATCH /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope',
+      paramDefs: {
+        path: ['unifiedRoleAssignment-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope`
+   *
+   * @deprecated
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/appScope',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['unifiedRoleAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const directoryScope = {
+  /**
+   * `GET /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/directoryScope`
+   *
+   * The directory object that is the scope of the assignment. Read-only. Supports $expand for the directory provider.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/directoryScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/directoryScope']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/directoryScope',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const principal = {
+  /**
+   * `GET /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/principal`
+   *
+   * Referencing the assigned principal. Read-only. Supports $expand except for the Exchange provider.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/principal']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/principal']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/principal',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const roleDefinition = {
+  /**
+   * `GET /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/roleDefinition`
+   *
+   * The roleDefinition the assignment is for. Supports $expand.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/roleDefinition']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/roleDefinition']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/directory/transitiveRoleAssignments/{unifiedRoleAssignment-id}/roleDefinition',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRoleAssignment-id'],
+      },
+      params,
+    };
+  },
+};

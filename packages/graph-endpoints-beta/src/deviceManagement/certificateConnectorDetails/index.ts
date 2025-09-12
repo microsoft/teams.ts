@@ -1,6 +1,3 @@
-export * as getHealthMetricTimeSeries from './getHealthMetricTimeSeries';
-export * as getHealthMetrics from './getHealthMetrics';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/deviceManagement/certificateConnectorDetails',
     'post'
   >;
+  'POST /deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}/getHealthMetricTimeSeries': Operation<
+    '/deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}/getHealthMetricTimeSeries',
+    'post'
+  >;
+  'POST /deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}/getHealthMetrics': Operation<
+    '/deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}/getHealthMetrics',
+    'post'
+  >;
 }
 
 /**
@@ -39,10 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'certificateConnectorDetails-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['certificateConnectorDetails-id'],
+    },
     params,
   };
 }
@@ -59,16 +64,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/certificateConnectorDetails',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +85,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'certificateConnectorDetails-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['certificateConnectorDetails-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +107,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}',
-    paramDefs: [{ name: 'certificateConnectorDetails-id', in: 'path' }],
+    paramDefs: {
+      path: ['certificateConnectorDetails-id'],
+    },
     params,
     body,
   };
@@ -121,15 +120,60 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/certificateConnectorDetails']['body'],
-  params?: IEndpoints['POST /deviceManagement/certificateConnectorDetails']['parameters']
+  body: IEndpoints['POST /deviceManagement/certificateConnectorDetails']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/certificateConnectorDetails']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/certificateConnectorDetails',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const getHealthMetricTimeSeries = {
+  /**
+   * `POST /deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}/getHealthMetricTimeSeries`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}/getHealthMetricTimeSeries']['body'],
+    params?: IEndpoints['POST /deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}/getHealthMetricTimeSeries']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}/getHealthMetricTimeSeries']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}/getHealthMetricTimeSeries',
+      paramDefs: {
+        path: ['certificateConnectorDetails-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const getHealthMetrics = {
+  /**
+   * `POST /deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}/getHealthMetrics`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}/getHealthMetrics']['body'],
+    params?: IEndpoints['POST /deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}/getHealthMetrics']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}/getHealthMetrics']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/certificateConnectorDetails/{certificateConnectorDetails-id}/getHealthMetrics',
+      paramDefs: {
+        path: ['certificateConnectorDetails-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

@@ -1,12 +1,33 @@
-export * as content from './content';
-export * as contentStream from './contentStream';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
   'GET /teams/{team-id}/primaryChannel/filesFolder': Operation<
     '/teams/{team-id}/primaryChannel/filesFolder',
     'get'
+  >;
+  'GET /teams/{team-id}/primaryChannel/filesFolder/content': Operation<
+    '/teams/{team-id}/primaryChannel/filesFolder/content',
+    'get'
+  >;
+  'PUT /teams/{team-id}/primaryChannel/filesFolder/content': Operation<
+    '/teams/{team-id}/primaryChannel/filesFolder/content',
+    'put'
+  >;
+  'DELETE /teams/{team-id}/primaryChannel/filesFolder/content': Operation<
+    '/teams/{team-id}/primaryChannel/filesFolder/content',
+    'delete'
+  >;
+  'GET /teams/{team-id}/primaryChannel/filesFolder/contentStream': Operation<
+    '/teams/{team-id}/primaryChannel/filesFolder/contentStream',
+    'get'
+  >;
+  'PUT /teams/{team-id}/primaryChannel/filesFolder/contentStream': Operation<
+    '/teams/{team-id}/primaryChannel/filesFolder/contentStream',
+    'put'
+  >;
+  'DELETE /teams/{team-id}/primaryChannel/filesFolder/contentStream': Operation<
+    '/teams/{team-id}/primaryChannel/filesFolder/contentStream',
+    'delete'
   >;
 }
 
@@ -22,11 +43,143 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/teams/{team-id}/primaryChannel/filesFolder',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'team-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['team-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
+
+export const content = {
+  /**
+   * `GET /teams/{team-id}/primaryChannel/filesFolder/content`
+   *
+   * The content stream, if the item represents a file. The content property will have a potentially breaking change in behavior in the future. It will stream content directly instead of redirecting. To proactively opt in to the new behavior ahead of time, use the contentStream property instead.
+   */
+  get: function get(
+    params?: IEndpoints['GET /teams/{team-id}/primaryChannel/filesFolder/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teams/{team-id}/primaryChannel/filesFolder/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teams/{team-id}/primaryChannel/filesFolder/content',
+      paramDefs: {
+        query: ['$format'],
+        path: ['team-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /teams/{team-id}/primaryChannel/filesFolder/content`
+   *
+   * The content stream, if the item represents a file. The content property will have a potentially breaking change in behavior in the future. It will stream content directly instead of redirecting. To proactively opt in to the new behavior ahead of time, use the contentStream property instead.
+   */
+  set: function set(
+    body: IEndpoints['PUT /teams/{team-id}/primaryChannel/filesFolder/content']['body'],
+    params?: IEndpoints['PUT /teams/{team-id}/primaryChannel/filesFolder/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /teams/{team-id}/primaryChannel/filesFolder/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'put',
+      path: '/teams/{team-id}/primaryChannel/filesFolder/content',
+      paramDefs: {
+        path: ['team-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /teams/{team-id}/primaryChannel/filesFolder/content`
+   *
+   * The content stream, if the item represents a file. The content property will have a potentially breaking change in behavior in the future. It will stream content directly instead of redirecting. To proactively opt in to the new behavior ahead of time, use the contentStream property instead.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /teams/{team-id}/primaryChannel/filesFolder/content']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /teams/{team-id}/primaryChannel/filesFolder/content']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/teams/{team-id}/primaryChannel/filesFolder/content',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['team-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const contentStream = {
+  /**
+   * `GET /teams/{team-id}/primaryChannel/filesFolder/contentStream`
+   *
+   * The content stream, if the item represents a file.
+   */
+  get: function get(
+    params?: IEndpoints['GET /teams/{team-id}/primaryChannel/filesFolder/contentStream']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teams/{team-id}/primaryChannel/filesFolder/contentStream']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teams/{team-id}/primaryChannel/filesFolder/contentStream',
+      paramDefs: {
+        path: ['team-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PUT /teams/{team-id}/primaryChannel/filesFolder/contentStream`
+   *
+   * The content stream, if the item represents a file.
+   */
+  set: function set(
+    body: IEndpoints['PUT /teams/{team-id}/primaryChannel/filesFolder/contentStream']['body'],
+    params?: IEndpoints['PUT /teams/{team-id}/primaryChannel/filesFolder/contentStream']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PUT /teams/{team-id}/primaryChannel/filesFolder/contentStream']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'put',
+      path: '/teams/{team-id}/primaryChannel/filesFolder/contentStream',
+      paramDefs: {
+        path: ['team-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /teams/{team-id}/primaryChannel/filesFolder/contentStream`
+   *
+   * The content stream, if the item represents a file.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /teams/{team-id}/primaryChannel/filesFolder/contentStream']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /teams/{team-id}/primaryChannel/filesFolder/contentStream']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/teams/{team-id}/primaryChannel/filesFolder/contentStream',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['team-id'],
+      },
+      params,
+    };
+  },
+};

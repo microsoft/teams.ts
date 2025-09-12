@@ -1,4 +1,3 @@
-export * as conditionalAccessPolicies from './conditionalAccessPolicies';
 export * as policies from './policies';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
@@ -18,6 +17,14 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /networkAccess/filteringProfiles': Operation<'/networkAccess/filteringProfiles', 'post'>;
+  'GET /networkAccess/filteringProfiles/{filteringProfile-id}/conditionalAccessPolicies': Operation<
+    '/networkAccess/filteringProfiles/{filteringProfile-id}/conditionalAccessPolicies',
+    'get'
+  >;
+  'GET /networkAccess/filteringProfiles/{filteringProfile-id}/conditionalAccessPolicies/{conditionalAccessPolicy-id}': Operation<
+    '/networkAccess/filteringProfiles/{filteringProfile-id}/conditionalAccessPolicies/{conditionalAccessPolicy-id}',
+    'get'
+  >;
 }
 
 /**
@@ -33,10 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/networkAccess/filteringProfiles/{filteringProfile-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'filteringProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['filteringProfile-id'],
+    },
     params,
   };
 }
@@ -53,16 +60,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/filteringProfiles',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,11 +81,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/filteringProfiles/{filteringProfile-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'filteringProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['filteringProfile-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -105,7 +104,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/networkAccess/filteringProfiles/{filteringProfile-id}',
-    paramDefs: [{ name: 'filteringProfile-id', in: 'path' }],
+    paramDefs: {
+      path: ['filteringProfile-id'],
+    },
     params,
     body,
   };
@@ -116,15 +117,57 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /networkAccess/filteringProfiles']['body'],
-  params?: IEndpoints['POST /networkAccess/filteringProfiles']['parameters']
+  body: IEndpoints['POST /networkAccess/filteringProfiles']['body']
 ): EndpointRequest<IEndpoints['POST /networkAccess/filteringProfiles']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/networkAccess/filteringProfiles',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const conditionalAccessPolicies = {
+  /**
+   * `GET /networkAccess/filteringProfiles/{filteringProfile-id}/conditionalAccessPolicies`
+   *
+   * A set of associated policies defined to regulate access to resources or systems based on specific conditions. Automatically expanded.
+   */
+  list: function list(
+    params?: IEndpoints['GET /networkAccess/filteringProfiles/{filteringProfile-id}/conditionalAccessPolicies']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /networkAccess/filteringProfiles/{filteringProfile-id}/conditionalAccessPolicies']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/networkAccess/filteringProfiles/{filteringProfile-id}/conditionalAccessPolicies',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['filteringProfile-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /networkAccess/filteringProfiles/{filteringProfile-id}/conditionalAccessPolicies/{conditionalAccessPolicy-id}`
+   *
+   * A set of associated policies defined to regulate access to resources or systems based on specific conditions. Automatically expanded.
+   */
+  get: function get(
+    params?: IEndpoints['GET /networkAccess/filteringProfiles/{filteringProfile-id}/conditionalAccessPolicies/{conditionalAccessPolicy-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /networkAccess/filteringProfiles/{filteringProfile-id}/conditionalAccessPolicies/{conditionalAccessPolicy-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/networkAccess/filteringProfiles/{filteringProfile-id}/conditionalAccessPolicies/{conditionalAccessPolicy-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['filteringProfile-id', 'conditionalAccessPolicy-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,10 +1,3 @@
-export * as endGracePeriod from './endGracePeriod';
-export * as reboot from './reboot';
-export * as rename from './rename';
-export * as resize from './resize';
-export * as restore from './restore';
-export * as troubleshoot from './troubleshoot';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -28,6 +21,30 @@ export interface IEndpoints {
     '/deviceManagement/virtualEndpoint/cloudPCs',
     'post'
   >;
+  'POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/endGracePeriod': Operation<
+    '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/endGracePeriod',
+    'post'
+  >;
+  'POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/reboot': Operation<
+    '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/reboot',
+    'post'
+  >;
+  'POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/rename': Operation<
+    '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/rename',
+    'post'
+  >;
+  'POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/resize': Operation<
+    '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/resize',
+    'post'
+  >;
+  'POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/restore': Operation<
+    '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/restore',
+    'post'
+  >;
+  'POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/troubleshoot': Operation<
+    '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/troubleshoot',
+    'post'
+  >;
 }
 
 /**
@@ -42,10 +59,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'cloudPC-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['cloudPC-id'],
+    },
     params,
   };
 }
@@ -61,16 +78,9 @@ export function list(
   return {
     method: 'get',
     path: '/deviceManagement/virtualEndpoint/cloudPCs',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,11 +98,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'cloudPC-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['cloudPC-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +119,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}',
-    paramDefs: [{ name: 'cloudPC-id', in: 'path' }],
+    paramDefs: {
+      path: ['cloudPC-id'],
+    },
     params,
     body,
   };
@@ -121,14 +132,149 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs']['body'],
-  params?: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs']['parameters']
+  body: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs']['response']> {
   return {
     method: 'post',
     path: '/deviceManagement/virtualEndpoint/cloudPCs',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const endGracePeriod = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/endGracePeriod`
+   *
+   * End the grace period for a specific cloudPC object. The grace period is triggered when the Cloud PC license is removed or the provisioning policy is unassigned. It allows users to access Cloud PCs for up to seven days before deprovisioning occurs. Ending the grace period immediately deprovisions the Cloud PC without waiting the seven days.
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/endGracePeriod']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/endGracePeriod']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/endGracePeriod',
+      paramDefs: {
+        path: ['cloudPC-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const reboot = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/reboot`
+   *
+   * Reboot a specific cloudPC object.
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/reboot']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/reboot']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/reboot',
+      paramDefs: {
+        path: ['cloudPC-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const rename = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/rename`
+   *
+   * Rename a specific cloudPC object. Use this API to update the displayName of a Cloud PC entity.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/rename']['body'],
+    params?: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/rename']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/rename']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/rename',
+      paramDefs: {
+        path: ['cloudPC-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const resize = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/resize`
+   *
+   * Upgrade or downgrade an existing Cloud PC to a configuration with a new virtual CPU (vCPU) and storage size.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/resize']['body'],
+    params?: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/resize']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/resize']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/resize',
+      paramDefs: {
+        path: ['cloudPC-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const restore = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/restore`
+   *
+   * Restore a specific cloudPC object to a previous state from a snapshot. Use this API to trigger a remote action that restores a Cloud PC device to a previous state.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/restore']['body'],
+    params?: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/restore']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/restore']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/restore',
+      paramDefs: {
+        path: ['cloudPC-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const troubleshoot = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/troubleshoot`
+   *
+   * Troubleshoot a specific cloudPC object. Use this API to check the health status of the Cloud PC and the session host.
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/troubleshoot']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/troubleshoot']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/cloudPCs/{cloudPC-id}/troubleshoot',
+      paramDefs: {
+        path: ['cloudPC-id'],
+      },
+      params,
+    };
+  },
+};

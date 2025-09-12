@@ -1,5 +1,3 @@
-export * as activate from './activate';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/solutions/backupRestore/restoreSessions',
     'post'
   >;
+  'POST /solutions/backupRestore/restoreSessions/{restoreSessionBase-id}/activate': Operation<
+    '/solutions/backupRestore/restoreSessions/{restoreSessionBase-id}/activate',
+    'post'
+  >;
 }
 
 /**
@@ -39,10 +41,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/solutions/backupRestore/restoreSessions/{restoreSessionBase-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'restoreSessionBase-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['restoreSessionBase-id'],
+    },
     params,
   };
 }
@@ -59,16 +61,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/solutions/backupRestore/restoreSessions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +82,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/solutions/backupRestore/restoreSessions/{restoreSessionBase-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'restoreSessionBase-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['restoreSessionBase-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +104,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/solutions/backupRestore/restoreSessions/{restoreSessionBase-id}',
-    paramDefs: [{ name: 'restoreSessionBase-id', in: 'path' }],
+    paramDefs: {
+      path: ['restoreSessionBase-id'],
+    },
     params,
     body,
   };
@@ -121,15 +117,35 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /solutions/backupRestore/restoreSessions']['body'],
-  params?: IEndpoints['POST /solutions/backupRestore/restoreSessions']['parameters']
+  body: IEndpoints['POST /solutions/backupRestore/restoreSessions']['body']
 ): EndpointRequest<IEndpoints['POST /solutions/backupRestore/restoreSessions']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/solutions/backupRestore/restoreSessions',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const activate = {
+  /**
+   * `POST /solutions/backupRestore/restoreSessions/{restoreSessionBase-id}/activate`
+   *
+   * Activate a draft restoreSessionBase object to restore a protection unit. The following points apply to restoring a protection unit:
+   */
+  create: function create(
+    params?: IEndpoints['POST /solutions/backupRestore/restoreSessions/{restoreSessionBase-id}/activate']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /solutions/backupRestore/restoreSessions/{restoreSessionBase-id}/activate']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/solutions/backupRestore/restoreSessions/{restoreSessionBase-id}/activate',
+      paramDefs: {
+        path: ['restoreSessionBase-id'],
+      },
+      params,
+    };
+  },
+};

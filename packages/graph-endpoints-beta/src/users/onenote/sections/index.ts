@@ -1,8 +1,4 @@
-export * as copyToNotebook from './copyToNotebook';
-export * as copyToSectionGroup from './copyToSectionGroup';
 export * as pages from './pages';
-export * as parentNotebook from './parentNotebook';
-export * as parentSectionGroup from './parentSectionGroup';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
@@ -21,6 +17,22 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /users/{user-id}/onenote/sections': Operation<'/users/{user-id}/onenote/sections', 'post'>;
+  'POST /users/{user-id}/onenote/sections/{onenoteSection-id}/copyToNotebook': Operation<
+    '/users/{user-id}/onenote/sections/{onenoteSection-id}/copyToNotebook',
+    'post'
+  >;
+  'POST /users/{user-id}/onenote/sections/{onenoteSection-id}/copyToSectionGroup': Operation<
+    '/users/{user-id}/onenote/sections/{onenoteSection-id}/copyToSectionGroup',
+    'post'
+  >;
+  'GET /users/{user-id}/onenote/sections/{onenoteSection-id}/parentNotebook': Operation<
+    '/users/{user-id}/onenote/sections/{onenoteSection-id}/parentNotebook',
+    'get'
+  >;
+  'GET /users/{user-id}/onenote/sections/{onenoteSection-id}/parentSectionGroup': Operation<
+    '/users/{user-id}/onenote/sections/{onenoteSection-id}/parentSectionGroup',
+    'get'
+  >;
 }
 
 /**
@@ -36,11 +48,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/users/{user-id}/onenote/sections/{onenoteSection-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'onenoteSection-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'onenoteSection-id'],
+    },
     params,
   };
 }
@@ -57,17 +68,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/onenote/sections',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,12 +90,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/users/{user-id}/onenote/sections/{onenoteSection-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'onenoteSection-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'onenoteSection-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,10 +112,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/users/{user-id}/onenote/sections/{onenoteSection-id}',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'onenoteSection-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'onenoteSection-id'],
+    },
     params,
     body,
   };
@@ -131,8 +132,108 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/users/{user-id}/onenote/sections',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };
 }
+
+export const copyToNotebook = {
+  /**
+   * `POST /users/{user-id}/onenote/sections/{onenoteSection-id}/copyToNotebook`
+   *
+   * Copies a section to a specific notebook. For Copy operations, you follow an asynchronous calling pattern:  First call the Copy action, and then poll the operation endpoint for the result.
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/onenote/sections/{onenoteSection-id}/copyToNotebook']['body'],
+    params?: IEndpoints['POST /users/{user-id}/onenote/sections/{onenoteSection-id}/copyToNotebook']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/onenote/sections/{onenoteSection-id}/copyToNotebook']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/users/{user-id}/onenote/sections/{onenoteSection-id}/copyToNotebook',
+      paramDefs: {
+        path: ['user-id', 'onenoteSection-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const copyToSectionGroup = {
+  /**
+   * `POST /users/{user-id}/onenote/sections/{onenoteSection-id}/copyToSectionGroup`
+   *
+   * Copies a section to a specific section group. For Copy operations, you follow an asynchronous calling pattern:  First call the Copy action, and then poll the operation endpoint for the result.
+   */
+  create: function create(
+    body: IEndpoints['POST /users/{user-id}/onenote/sections/{onenoteSection-id}/copyToSectionGroup']['body'],
+    params?: IEndpoints['POST /users/{user-id}/onenote/sections/{onenoteSection-id}/copyToSectionGroup']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /users/{user-id}/onenote/sections/{onenoteSection-id}/copyToSectionGroup']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/users/{user-id}/onenote/sections/{onenoteSection-id}/copyToSectionGroup',
+      paramDefs: {
+        path: ['user-id', 'onenoteSection-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const parentNotebook = {
+  /**
+   * `GET /users/{user-id}/onenote/sections/{onenoteSection-id}/parentNotebook`
+   *
+   * The notebook that contains the section.  Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/onenote/sections/{onenoteSection-id}/parentNotebook']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/onenote/sections/{onenoteSection-id}/parentNotebook']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/onenote/sections/{onenoteSection-id}/parentNotebook',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'onenoteSection-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const parentSectionGroup = {
+  /**
+   * `GET /users/{user-id}/onenote/sections/{onenoteSection-id}/parentSectionGroup`
+   *
+   * The section group that contains the section.  Read-only.
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/onenote/sections/{onenoteSection-id}/parentSectionGroup']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /users/{user-id}/onenote/sections/{onenoteSection-id}/parentSectionGroup']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/onenote/sections/{onenoteSection-id}/parentSectionGroup',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id', 'onenoteSection-id'],
+      },
+      params,
+    };
+  },
+};

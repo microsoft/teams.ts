@@ -33,11 +33,10 @@ export function del(
   return {
     method: 'delete',
     path: '/sites/{site-id}/termStore/sets/{set-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id', 'set-id'],
+    },
     params,
   };
 }
@@ -53,17 +52,10 @@ export function list(
   return {
     method: 'get',
     path: '/sites/{site-id}/termStore/sets',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -79,12 +71,10 @@ export function get(
   return {
     method: 'get',
     path: '/sites/{site-id}/termStore/sets/{set-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -101,10 +91,9 @@ export function update(
   return {
     method: 'patch',
     path: '/sites/{site-id}/termStore/sets/{set-id}',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'set-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'set-id'],
+    },
     params,
     body,
   };
@@ -122,7 +111,9 @@ export function create(
   return {
     method: 'post',
     path: '/sites/{site-id}/termStore/sets',
-    paramDefs: [{ name: 'site-id', in: 'path' }],
+    paramDefs: {
+      path: ['site-id'],
+    },
     params,
     body,
   };

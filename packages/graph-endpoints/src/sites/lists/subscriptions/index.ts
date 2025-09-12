@@ -1,5 +1,3 @@
-export * as reauthorize from './reauthorize';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/sites/{site-id}/lists/{list-id}/subscriptions',
     'post'
   >;
+  'POST /sites/{site-id}/lists/{list-id}/subscriptions/{subscription-id}/reauthorize': Operation<
+    '/sites/{site-id}/lists/{list-id}/subscriptions/{subscription-id}/reauthorize',
+    'post'
+  >;
 }
 
 /**
@@ -37,12 +39,10 @@ export function del(
   return {
     method: 'delete',
     path: '/sites/{site-id}/lists/{list-id}/subscriptions/{subscription-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'subscription-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id', 'list-id', 'subscription-id'],
+    },
     params,
   };
 }
@@ -58,18 +58,10 @@ export function list(
   return {
     method: 'get',
     path: '/sites/{site-id}/lists/{list-id}/subscriptions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'list-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,13 +79,10 @@ export function get(
   return {
     method: 'get',
     path: '/sites/{site-id}/lists/{list-id}/subscriptions/{subscription-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'subscription-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'list-id', 'subscription-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -111,11 +100,9 @@ export function update(
   return {
     method: 'patch',
     path: '/sites/{site-id}/lists/{list-id}/subscriptions/{subscription-id}',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-      { name: 'subscription-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'list-id', 'subscription-id'],
+    },
     params,
     body,
   };
@@ -132,11 +119,32 @@ export function create(
   return {
     method: 'post',
     path: '/sites/{site-id}/lists/{list-id}/subscriptions',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'list-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'list-id'],
+    },
     params,
     body,
   };
 }
+
+export const reauthorize = {
+  /**
+   * `POST /sites/{site-id}/lists/{list-id}/subscriptions/{subscription-id}/reauthorize`
+   *
+   * Reauthorize a subscription when you receive a reauthorizationRequired challenge.
+   */
+  create: function create(
+    params?: IEndpoints['POST /sites/{site-id}/lists/{list-id}/subscriptions/{subscription-id}/reauthorize']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /sites/{site-id}/lists/{list-id}/subscriptions/{subscription-id}/reauthorize']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/sites/{site-id}/lists/{list-id}/subscriptions/{subscription-id}/reauthorize',
+      paramDefs: {
+        path: ['site-id', 'list-id', 'subscription-id'],
+      },
+      params,
+    };
+  },
+};

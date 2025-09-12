@@ -1,9 +1,6 @@
-export * as analytics from './analytics';
-export * as createLink from './createLink';
 export * as createdByUser from './createdByUser';
 export * as documentSetVersions from './documentSetVersions';
 export * as driveItem from './driveItem';
-export * as fields from './fields';
 export * as lastModifiedByUser from './lastModifiedByUser';
 export * as versions from './versions';
 
@@ -30,6 +27,26 @@ export interface IEndpoints {
     '/shares/{sharedDriveItem-id}/list/items',
     'post'
   >;
+  'GET /shares/{sharedDriveItem-id}/list/items/{listItem-id}/analytics': Operation<
+    '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/analytics',
+    'get'
+  >;
+  'POST /shares/{sharedDriveItem-id}/list/items/{listItem-id}/createLink': Operation<
+    '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/createLink',
+    'post'
+  >;
+  'GET /shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields': Operation<
+    '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields',
+    'get'
+  >;
+  'PATCH /shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields': Operation<
+    '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields',
+    'patch'
+  >;
+  'DELETE /shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields': Operation<
+    '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields',
+    'delete'
+  >;
 }
 
 /**
@@ -44,11 +61,10 @@ export function del(
   return {
     method: 'delete',
     path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'sharedDriveItem-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['sharedDriveItem-id', 'listItem-id'],
+    },
     params,
   };
 }
@@ -64,17 +80,10 @@ export function list(
   return {
     method: 'get',
     path: '/shares/{sharedDriveItem-id}/list/items',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sharedDriveItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharedDriveItem-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,12 +101,10 @@ export function get(
   return {
     method: 'get',
     path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'sharedDriveItem-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharedDriveItem-id', 'listItem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,10 +122,9 @@ export function update(
   return {
     method: 'patch',
     path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}',
-    paramDefs: [
-      { name: 'sharedDriveItem-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['sharedDriveItem-id', 'listItem-id'],
+    },
     params,
     body,
   };
@@ -135,8 +141,118 @@ export function create(
   return {
     method: 'post',
     path: '/shares/{sharedDriveItem-id}/list/items',
-    paramDefs: [{ name: 'sharedDriveItem-id', in: 'path' }],
+    paramDefs: {
+      path: ['sharedDriveItem-id'],
+    },
     params,
     body,
   };
 }
+
+export const analytics = {
+  /**
+   * `GET /shares/{sharedDriveItem-id}/list/items/{listItem-id}/analytics`
+   *
+   * Analytics about the view activities that took place on this item.
+   */
+  list: function list(
+    params?: IEndpoints['GET /shares/{sharedDriveItem-id}/list/items/{listItem-id}/analytics']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /shares/{sharedDriveItem-id}/list/items/{listItem-id}/analytics']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/analytics',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['sharedDriveItem-id', 'listItem-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const createLink = {
+  /**
+   * `POST /shares/{sharedDriveItem-id}/list/items/{listItem-id}/createLink`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /shares/{sharedDriveItem-id}/list/items/{listItem-id}/createLink']['body'],
+    params?: IEndpoints['POST /shares/{sharedDriveItem-id}/list/items/{listItem-id}/createLink']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /shares/{sharedDriveItem-id}/list/items/{listItem-id}/createLink']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/createLink',
+      paramDefs: {
+        path: ['sharedDriveItem-id', 'listItem-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const fields = {
+  /**
+   * `GET /shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields`
+   *
+   * The values of the columns set on this list item.
+   */
+  list: function list(
+    params?: IEndpoints['GET /shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['sharedDriveItem-id', 'listItem-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields']['body'],
+    params?: IEndpoints['PATCH /shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields',
+      paramDefs: {
+        path: ['sharedDriveItem-id', 'listItem-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/shares/{sharedDriveItem-id}/list/items/{listItem-id}/fields',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['sharedDriveItem-id', 'listItem-id'],
+      },
+      params,
+    };
+  },
+};

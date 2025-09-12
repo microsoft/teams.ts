@@ -18,7 +18,9 @@ export function del(
   return {
     method: 'delete',
     path: '/copilot/admin',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -33,10 +35,9 @@ export function get(
   return {
     method: 'get',
     path: '/copilot/admin',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -46,14 +47,11 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /copilot/admin']['body'],
-  params?: IEndpoints['PATCH /copilot/admin']['parameters']
+  body: IEndpoints['PATCH /copilot/admin']['body']
 ): EndpointRequest<IEndpoints['PATCH /copilot/admin']['response']> {
   return {
     method: 'patch',
     path: '/copilot/admin',
-    paramDefs: [],
-    params,
     body,
   };
 }

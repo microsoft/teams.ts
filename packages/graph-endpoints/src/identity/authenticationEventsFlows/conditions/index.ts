@@ -22,11 +22,10 @@ export function list(
   return {
     method: 'get',
     path: '/identity/authenticationEventsFlows/{authenticationEventsFlow-id}/conditions',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'authenticationEventsFlow-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['authenticationEventsFlow-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }

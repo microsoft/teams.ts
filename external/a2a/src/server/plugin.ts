@@ -1,158 +1,137 @@
-import express from 'express';
+import { randomUUID } from 'node:crypto';
 
-import { Dependency, EmitPluginEvent, Event, HttpPlugin, IPlugin, Logger, Plugin, Storage } from '@microsoft/teams.apps';
-import { ILogger, IStorage } from '@microsoft/teams.common';
+import { AgentCard, Message, Task } from '@a2a-js/sdk';
+import { A2ARequestHandler, AgentExecutor, DefaultRequestHandler, ExecutionEventBus, InMemoryTaskStore, RequestContext, TaskStore } from '@a2a-js/sdk/server';
+import { A2AExpressApp } from '@a2a-js/sdk/server/express';
+import express, { RequestHandler } from 'express';
 
-import { AgentManager, AgentManagerOptions } from '../client/agent-manager';
-import * as schema from '../common/schema';
+import { Dependency, EmitPluginEvent, Event, HttpPlugin, IPlugin, Logger, Plugin } from '@microsoft/teams.apps';
+import { ILogger } from '@microsoft/teams.common';
 
-import { isTaskRequest } from './middleware/isTaskRequest';
-import { onGetTaskRequest } from './plugin.on-get-request';
-import { onSendRequest } from './plugin.on-send-request';
-import { TaskManager } from './tasks/task-manager';
-import { TaskStore } from './tasks/task-store';
-import { A2AError } from './types/a2a-error';
-import { A2AEvents } from './types/event-types';
 
 interface IA2APluginOptions {
-    /**
-     * The agent card to be used for the A2A plugin.
-     */
-    agentCard: schema.AgentCard;
+  /**
+   * The agent card to be used for the A2A plugin.
+   */
+  agentCard: AgentCard;
 
-    /**
-     * Path to the A2A server
-     * @default '/a2a'
-     */
-    path?: `/${string}`;
+  /**
+   * Path to the A2A server
+   * @default '/a2a'
+   */
+  path?: `/${string}`;
 
-    /**
-     * taskStore which stores the tasks that are sent to the agent
-     * or that the agent sends. If not provided, the App's storage will be used.
-     */
-    taskStore?: TaskStore;
+  /**
+   * taskStore which stores the tasks that are sent to the agent
+   * or that the agent sends. If not provided, the App's storage will be used.
+   */
+  taskStore?: TaskStore;
 
-    /**
-     * The agent manager options that can be used to configure the agent manager.
-     * @default {}
-     */
-    managerOptions?: AgentManagerOptions;
+  /**
+  * For a completely custom executor, you may provide your own executor that will
+  * get executed whenever the a2a agent is InMemoryTaskStore
+  */
+  agentExecutor?: AgentExecutor;
 }
 
+export type Respond = (message: string | Message | Task) => Promise<void>;
+export type A2AEvents = {
+  'a2a:message': {
+    requestContext: RequestContext;
+    respond: Respond;
+    publishUpdate: ExecutionEventBus['publish']
+  }
+};
+
 @Plugin({
-    name: 'a2a',
-    description: 'A2A Plugin',
-    version: '1.0.0',
+  name: 'a2a',
+  description: 'A2A Server Plugin',
+  version: '0.3.0'
 })
 export class A2APlugin implements IPlugin {
-    @Event('custom')
-    protected readonly emit!: EmitPluginEvent<A2AEvents>;
+  @Logger()
+  public readonly log!: ILogger;
 
-    @Dependency()
-    protected readonly _httpPlugin!: HttpPlugin;
+  @Event('custom')
+  protected readonly emit!: EmitPluginEvent<A2AEvents>;
 
-    @Storage()
-    protected readonly _storage!: IStorage;
+  @Dependency()
+  protected readonly _httpPlugin!: HttpPlugin;
+  __eventType!: A2AEvents;
 
-    @Logger()
-    protected readonly _logger!: ILogger;
+  public readonly card: AgentCard;
+  public readonly path: string;
+  public readonly taskStore: TaskStore;
+  public readonly customExecutor?: AgentExecutor;
+  private readonly middlewares: RequestHandler[] = [];
 
-    __eventType!: A2AEvents;
-    protected _card: schema.AgentCard;
-    protected _path: string;
-    protected _taskManager!: TaskManager;
-    protected _taskStore!: TaskStore;
-    protected _clientManager!: AgentManager;
-    public get clientManager(): AgentManager {
-        return this._clientManager;
-    }
+  constructor(options: IA2APluginOptions) {
+    this.card = options.agentCard;
+    this.path = options.path ?? '/a2a';
+    this.taskStore = options.taskStore ?? new InMemoryTaskStore();
+    this.customExecutor = options.agentExecutor;
+  }
 
-    constructor(options: IA2APluginOptions) {
-        this._card = options.agentCard;
-        if (this._card.capabilities.streaming) {
-            this._logger.warn('A2APlugin does not support streaming yet, but the agent card indicates it does');
-        }
-        this._path = options.path || '/a2a';
-        this._clientManager = new AgentManager(options.managerOptions);
-        if (options.taskStore) {
-            this._taskStore = options.taskStore;
-        }
-    }
+  use(middleware: RequestHandler): void {
+    this.middlewares.push(middleware);
+  }
+  onInit() {
+    const a2aExpressApp = new A2AExpressApp(this._setupRequestHandler());
+    const expressApp = express();
 
-    onInit() {
-        this._taskStore = this._taskStore ?? new TaskStore(this._storage);
-        this._taskManager = new TaskManager(this._taskStore, this._logger);
-        this._logger.info('A2APlugin agent card available at /.well-known/agent.json');
-        this._httpPlugin.get('/.well-known/agent.json', (_req, res) => {
-            res.json(this._card);
-        });
+    // Combine logging middleware with custom middlewares
+    const allMiddlewares = [this._createLoggingMiddleware(), ...this.middlewares];
 
-        this._logger.info(`A2APlugin listening on ${this._path}`);
-        this._httpPlugin.post(
-            this._path,
-            express.json(),
-            isTaskRequest(),
-            this.onTaskRequest.bind(this)
-        );
-    }
+    a2aExpressApp.setupRoutes(expressApp, this.path, allMiddlewares);
+    this._httpPlugin.use(expressApp);
+  }
 
-    private async onTaskRequest(
-        req: express.Request,
-        res: express.Response,
-        next: express.NextFunction
-    ) {
-        const request: schema.A2ARequest = req.body;
 
-        try {
-            switch (request.method) {
-                case 'tasks/send':
-                    return this.onTaskSendRequest(request, res, next);
-                case 'tasks/sendSubscribe':
-                    throw new Error('sendSubscribe not implemented yet');
-                case 'tasks/get':
-                    return this.onTaskGetRequest(request, res, next);
-                case 'tasks/cancel':
-                    throw new Error('cancel not implemented yet');
-                default:
-                    throw A2AError.methodNotFound(request.method);
-            }
-        } catch (err) {
-            if (err instanceof A2AError) {
-                err.taskId = request.id || undefined;
+  _createLoggingMiddleware(): RequestHandler {
+    return (req, _res, next) => {
+      let logMessage = `A2A Request: ${req.method} ${req.url}`;
+
+      if (req.method === 'POST' && req.body) {
+        logMessage += ` - Body: ${JSON.stringify(req.body)}`;
+      }
+
+      this.log.debug(logMessage);
+      next();
+    };
+  }
+
+  _setupExecutor() {
+    const executor: AgentExecutor = {
+      execute: async (requestContext, eventBus) => {
+        const ctx: A2AEvents['a2a:message'] = {
+          requestContext,
+          respond: async (message) => {
+            let responseMessage: Message | Task;
+            if (typeof message === 'string') {
+              responseMessage = {
+                kind: 'message',
+                messageId: randomUUID(),
+                role: 'agent',
+                parts: [{ kind: 'text', text: message }],
+                // Associate the response with the incoming request's context.
+                contextId: requestContext.contextId,
+              };
             } else {
-                throw A2AError.internalError('internal error', err);
+              responseMessage = message;
             }
+            eventBus.publish(responseMessage);
+            eventBus.finished();
+          },
+          publishUpdate: eventBus.publish.bind(eventBus)
+        };
+        this.emit('a2a:message', ctx);
+      },
+      cancelTask: async () => { }
+    };
+    return executor;
+  }
 
-            next(err);
-        }
-    }
-
-    private onSendRequest = onSendRequest; // eslint-disable-line @typescript-eslint/member-ordering
-    private onGetTaskRequest = onGetTaskRequest; // eslint-disable-line @typescript-eslint/member-ordering
-
-    private async onTaskGetRequest(
-        req: schema.GetTaskRequest,
-        res: express.Response,
-        next: express.NextFunction
-    ) {
-        await this.onGetTaskRequest(req, (result) => {
-            res.json(result);
-            if (result?.error) {
-                next(result.error);
-            }
-        });
-    }
-
-    private async onTaskSendRequest(
-        req: schema.SendTaskRequest,
-        res: express.Response,
-        next: express.NextFunction
-    ) {
-        await this.onSendRequest(req, (result) => {
-            res.json(result);
-            if (result?.error) {
-                next(result.error);
-            }
-        });
-    }
+  _setupRequestHandler(): A2ARequestHandler {
+    return new DefaultRequestHandler(this.card, this.taskStore, this.customExecutor ?? this._setupExecutor());
+  }
 }

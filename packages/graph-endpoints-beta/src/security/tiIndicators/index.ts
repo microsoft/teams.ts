@@ -1,8 +1,3 @@
-export * as deleteTiIndicators from './deleteTiIndicators';
-export * as deleteTiIndicatorsByExternalId from './deleteTiIndicatorsByExternalId';
-export * as submitTiIndicators from './submitTiIndicators';
-export * as updateTiIndicators from './updateTiIndicators';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -20,6 +15,22 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /security/tiIndicators': Operation<'/security/tiIndicators', 'post'>;
+  'POST /security/tiIndicators/deleteTiIndicators': Operation<
+    '/security/tiIndicators/deleteTiIndicators',
+    'post'
+  >;
+  'POST /security/tiIndicators/deleteTiIndicatorsByExternalId': Operation<
+    '/security/tiIndicators/deleteTiIndicatorsByExternalId',
+    'post'
+  >;
+  'POST /security/tiIndicators/submitTiIndicators': Operation<
+    '/security/tiIndicators/submitTiIndicators',
+    'post'
+  >;
+  'POST /security/tiIndicators/updateTiIndicators': Operation<
+    '/security/tiIndicators/updateTiIndicators',
+    'post'
+  >;
 }
 
 /**
@@ -35,10 +46,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/tiIndicators/{tiIndicator-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'tiIndicator-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['tiIndicator-id'],
+    },
     params,
   };
 }
@@ -56,16 +67,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/tiIndicators',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -83,11 +87,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/tiIndicators/{tiIndicator-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'tiIndicator-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['tiIndicator-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -106,7 +109,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/tiIndicators/{tiIndicator-id}',
-    paramDefs: [{ name: 'tiIndicator-id', in: 'path' }],
+    paramDefs: {
+      path: ['tiIndicator-id'],
+    },
     params,
     body,
   };
@@ -119,15 +124,90 @@ export function update(
  * @deprecated
  */
 export function create(
-  body: IEndpoints['POST /security/tiIndicators']['body'],
-  params?: IEndpoints['POST /security/tiIndicators']['parameters']
+  body: IEndpoints['POST /security/tiIndicators']['body']
 ): EndpointRequest<IEndpoints['POST /security/tiIndicators']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/security/tiIndicators',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const deleteTiIndicators = {
+  /**
+   * `POST /security/tiIndicators/deleteTiIndicators`
+   *
+   * Delete multiple threat intelligence (TI) indicators in one request instead of multiple requests.
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /security/tiIndicators/deleteTiIndicators']['body']
+  ): EndpointRequest<IEndpoints['POST /security/tiIndicators/deleteTiIndicators']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/security/tiIndicators/deleteTiIndicators',
+      body,
+    };
+  },
+};
+
+export const deleteTiIndicatorsByExternalId = {
+  /**
+   * `POST /security/tiIndicators/deleteTiIndicatorsByExternalId`
+   *
+   * Delete multiple threat intelligence (TI) indicators in one request instead of multiple requests, when the request contains external IDs instead of IDs.
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /security/tiIndicators/deleteTiIndicatorsByExternalId']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /security/tiIndicators/deleteTiIndicatorsByExternalId']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/security/tiIndicators/deleteTiIndicatorsByExternalId',
+      body,
+    };
+  },
+};
+
+export const submitTiIndicators = {
+  /**
+   * `POST /security/tiIndicators/submitTiIndicators`
+   *
+   * Upload multiple threat intelligence (TI) indicators in one request instead of multiple requests.
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /security/tiIndicators/submitTiIndicators']['body']
+  ): EndpointRequest<IEndpoints['POST /security/tiIndicators/submitTiIndicators']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/security/tiIndicators/submitTiIndicators',
+      body,
+    };
+  },
+};
+
+export const updateTiIndicators = {
+  /**
+   * `POST /security/tiIndicators/updateTiIndicators`
+   *
+   * Update multiple threat intelligence (TI) indicators in one request instead of multiple requests.
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /security/tiIndicators/updateTiIndicators']['body']
+  ): EndpointRequest<IEndpoints['POST /security/tiIndicators/updateTiIndicators']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/security/tiIndicators/updateTiIndicators',
+      body,
+    };
+  },
+};

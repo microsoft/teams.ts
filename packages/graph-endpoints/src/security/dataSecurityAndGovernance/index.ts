@@ -1,4 +1,3 @@
-export * as processContentAsync from './processContentAsync';
 export * as protectionScopes from './protectionScopes';
 export * as sensitivityLabels from './sensitivityLabels';
 
@@ -17,6 +16,10 @@ export interface IEndpoints {
     '/security/dataSecurityAndGovernance',
     'patch'
   >;
+  'POST /security/dataSecurityAndGovernance/processContentAsync': Operation<
+    '/security/dataSecurityAndGovernance/processContentAsync',
+    'post'
+  >;
 }
 
 /**
@@ -29,7 +32,9 @@ export function del(
   return {
     method: 'delete',
     path: '/security/dataSecurityAndGovernance',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -44,10 +49,9 @@ export function get(
   return {
     method: 'get',
     path: '/security/dataSecurityAndGovernance',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -57,14 +61,29 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /security/dataSecurityAndGovernance']['body'],
-  params?: IEndpoints['PATCH /security/dataSecurityAndGovernance']['parameters']
+  body: IEndpoints['PATCH /security/dataSecurityAndGovernance']['body']
 ): EndpointRequest<IEndpoints['PATCH /security/dataSecurityAndGovernance']['response']> {
   return {
     method: 'patch',
     path: '/security/dataSecurityAndGovernance',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const processContentAsync = {
+  /**
+   * `POST /security/dataSecurityAndGovernance/processContentAsync`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /security/dataSecurityAndGovernance/processContentAsync']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /security/dataSecurityAndGovernance/processContentAsync']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/security/dataSecurityAndGovernance/processContentAsync',
+      body,
+    };
+  },
+};

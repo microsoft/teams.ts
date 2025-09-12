@@ -40,10 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/admin/windows/updates/updatePolicies/{updatePolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'updatePolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['updatePolicy-id'],
+    },
     params,
   };
 }
@@ -60,16 +60,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/admin/windows/updates/updatePolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,11 +81,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/admin/windows/updates/updatePolicies/{updatePolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'updatePolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['updatePolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,7 +104,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/admin/windows/updates/updatePolicies/{updatePolicy-id}',
-    paramDefs: [{ name: 'updatePolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['updatePolicy-id'],
+    },
     params,
     body,
   };
@@ -124,15 +118,12 @@ export function update(
  * Create a new updatePolicy object.
  */
 export function create(
-  body: IEndpoints['POST /admin/windows/updates/updatePolicies']['body'],
-  params?: IEndpoints['POST /admin/windows/updates/updatePolicies']['parameters']
+  body: IEndpoints['POST /admin/windows/updates/updatePolicies']['body']
 ): EndpointRequest<IEndpoints['POST /admin/windows/updates/updatePolicies']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/admin/windows/updates/updatePolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }

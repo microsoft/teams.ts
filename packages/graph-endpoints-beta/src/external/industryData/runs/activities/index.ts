@@ -1,5 +1,3 @@
-export * as activity from './activity';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -9,6 +7,10 @@ export interface IEndpoints {
   >;
   'GET /external/industryData/runs/{industryDataRun-id}/activities/{industryDataRunActivity-id}': Operation<
     '/external/industryData/runs/{industryDataRun-id}/activities/{industryDataRunActivity-id}',
+    'get'
+  >;
+  'GET /external/industryData/runs/{industryDataRun-id}/activities/{industryDataRunActivity-id}/activity': Operation<
+    '/external/industryData/runs/{industryDataRun-id}/activities/{industryDataRunActivity-id}/activity',
     'get'
   >;
 }
@@ -27,17 +29,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/external/industryData/runs/{industryDataRun-id}/activities',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'industryDataRun-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['industryDataRun-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -56,12 +51,34 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/external/industryData/runs/{industryDataRun-id}/activities/{industryDataRunActivity-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'industryDataRun-id', in: 'path' },
-      { name: 'industryDataRunActivity-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['industryDataRun-id', 'industryDataRunActivity-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
+
+export const activity = {
+  /**
+   * `GET /external/industryData/runs/{industryDataRun-id}/activities/{industryDataRunActivity-id}/activity`
+   *
+   * The flow that was run by this activity.
+   */
+  get: function get(
+    params?: IEndpoints['GET /external/industryData/runs/{industryDataRun-id}/activities/{industryDataRunActivity-id}/activity']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /external/industryData/runs/{industryDataRun-id}/activities/{industryDataRunActivity-id}/activity']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/external/industryData/runs/{industryDataRun-id}/activities/{industryDataRunActivity-id}/activity',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['industryDataRun-id', 'industryDataRunActivity-id'],
+      },
+      params,
+    };
+  },
+};

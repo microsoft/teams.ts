@@ -1,5 +1,3 @@
-export * as aiInsights from './aiInsights';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/copilot/users/{aiUser-id}/onlineMeetings',
     'post'
   >;
+  'GET /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights': Operation<
+    '/copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights',
+    'get'
+  >;
+  'POST /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights': Operation<
+    '/copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights',
+    'post'
+  >;
+  'GET /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}': Operation<
+    '/copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}',
+    'get'
+  >;
+  'PATCH /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}': Operation<
+    '/copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}',
+    'patch'
+  >;
+  'DELETE /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}': Operation<
+    '/copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,11 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'aiUser-id', in: 'path' },
-      { name: 'aiOnlineMeeting-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['aiUser-id', 'aiOnlineMeeting-id'],
+    },
     params,
   };
 }
@@ -58,17 +75,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/copilot/users/{aiUser-id}/onlineMeetings',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'aiUser-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['aiUser-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,12 +96,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'aiUser-id', in: 'path' },
-      { name: 'aiOnlineMeeting-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['aiUser-id', 'aiOnlineMeeting-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,10 +118,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}',
-    paramDefs: [
-      { name: 'aiUser-id', in: 'path' },
-      { name: 'aiOnlineMeeting-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['aiUser-id', 'aiOnlineMeeting-id'],
+    },
     params,
     body,
   };
@@ -131,8 +138,115 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/copilot/users/{aiUser-id}/onlineMeetings',
-    paramDefs: [{ name: 'aiUser-id', in: 'path' }],
+    paramDefs: {
+      path: ['aiUser-id'],
+    },
     params,
     body,
   };
 }
+
+export const aiInsights = {
+  /**
+   * `GET /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['aiUser-id', 'aiOnlineMeeting-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights']['body'],
+    params?: IEndpoints['POST /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights',
+      paramDefs: {
+        path: ['aiUser-id', 'aiOnlineMeeting-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['aiUser-id', 'aiOnlineMeeting-id', 'callAiInsight-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}']['body'],
+    params?: IEndpoints['PATCH /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}',
+      paramDefs: {
+        path: ['aiUser-id', 'aiOnlineMeeting-id', 'callAiInsight-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/copilot/users/{aiUser-id}/onlineMeetings/{aiOnlineMeeting-id}/aiInsights/{callAiInsight-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['aiUser-id', 'aiOnlineMeeting-id', 'callAiInsight-id'],
+      },
+      params,
+    };
+  },
+};

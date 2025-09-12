@@ -1,4 +1,3 @@
-export * as request from './request';
 export * as roleInfo from './roleInfo';
 
 import type { EndpointRequest, Operation } from './../types/common.ts';
@@ -18,6 +17,10 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /privilegedApproval': Operation<'/privilegedApproval', 'post'>;
+  'GET /privilegedApproval/{privilegedApproval-id}/request': Operation<
+    '/privilegedApproval/{privilegedApproval-id}/request',
+    'get'
+  >;
 }
 
 /**
@@ -31,10 +34,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/privilegedApproval/{privilegedApproval-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'privilegedApproval-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['privilegedApproval-id'],
+    },
     params,
   };
 }
@@ -50,16 +53,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/privilegedApproval',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -75,11 +71,10 @@ export function get$1(
     ver: 'beta',
     method: 'get',
     path: '/privilegedApproval/{privilegedApproval-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'privilegedApproval-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['privilegedApproval-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -96,7 +91,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/privilegedApproval/{privilegedApproval-id}',
-    paramDefs: [{ name: 'privilegedApproval-id', in: 'path' }],
+    paramDefs: {
+      path: ['privilegedApproval-id'],
+    },
     params,
     body,
   };
@@ -107,15 +104,35 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /privilegedApproval']['body'],
-  params?: IEndpoints['POST /privilegedApproval']['parameters']
+  body: IEndpoints['POST /privilegedApproval']['body']
 ): EndpointRequest<IEndpoints['POST /privilegedApproval']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/privilegedApproval',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const request = {
+  /**
+   * `GET /privilegedApproval/{privilegedApproval-id}/request`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /privilegedApproval/{privilegedApproval-id}/request']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /privilegedApproval/{privilegedApproval-id}/request']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/privilegedApproval/{privilegedApproval-id}/request',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['privilegedApproval-id'],
+      },
+      params,
+    };
+  },
+};

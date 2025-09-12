@@ -1,5 +1,3 @@
-export * as discover from './discover';
-
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/applications/{application-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories',
     'post'
   >;
+  'POST /applications/{application-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}/discover': Operation<
+    '/applications/{application-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}/discover',
+    'post'
+  >;
 }
 
 /**
@@ -37,12 +39,10 @@ export function del(
   return {
     method: 'delete',
     path: '/applications/{application-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'application-id', in: 'path' },
-      { name: 'synchronizationJob-id', in: 'path' },
-      { name: 'directoryDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['application-id', 'synchronizationJob-id', 'directoryDefinition-id'],
+    },
     params,
   };
 }
@@ -60,18 +60,10 @@ export function list(
   return {
     method: 'get',
     path: '/applications/{application-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'application-id', in: 'path' },
-      { name: 'synchronizationJob-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['application-id', 'synchronizationJob-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,13 +81,10 @@ export function get(
   return {
     method: 'get',
     path: '/applications/{application-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'application-id', in: 'path' },
-      { name: 'synchronizationJob-id', in: 'path' },
-      { name: 'directoryDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['application-id', 'synchronizationJob-id', 'directoryDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,11 +102,9 @@ export function update(
   return {
     method: 'patch',
     path: '/applications/{application-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}',
-    paramDefs: [
-      { name: 'application-id', in: 'path' },
-      { name: 'synchronizationJob-id', in: 'path' },
-      { name: 'directoryDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['application-id', 'synchronizationJob-id', 'directoryDefinition-id'],
+    },
     params,
     body,
   };
@@ -136,11 +123,32 @@ export function create(
   return {
     method: 'post',
     path: '/applications/{application-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories',
-    paramDefs: [
-      { name: 'application-id', in: 'path' },
-      { name: 'synchronizationJob-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['application-id', 'synchronizationJob-id'],
+    },
     params,
     body,
   };
 }
+
+export const discover = {
+  /**
+   * `POST /applications/{application-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}/discover`
+   *
+   * Discover the latest schema definition for provisioning to an application.
+   */
+  create: function create(
+    params?: IEndpoints['POST /applications/{application-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}/discover']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /applications/{application-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}/discover']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/applications/{application-id}/synchronization/jobs/{synchronizationJob-id}/schema/directories/{directoryDefinition-id}/discover',
+      paramDefs: {
+        path: ['application-id', 'synchronizationJob-id', 'directoryDefinition-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,6 +1,3 @@
-export * as fields from './fields';
-export * as restore from './restore';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,22 @@ export interface IEndpoints {
     '/drives/{drive-id}/list/items/{listItem-id}/documentSetVersions',
     'post'
   >;
+  'GET /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields': Operation<
+    '/drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields',
+    'get'
+  >;
+  'PATCH /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields': Operation<
+    '/drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields',
+    'patch'
+  >;
+  'DELETE /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields': Operation<
+    '/drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields',
+    'delete'
+  >;
+  'POST /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/restore': Operation<
+    '/drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/restore',
+    'post'
+  >;
 }
 
 /**
@@ -39,12 +52,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-      { name: 'documentSetVersion-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['drive-id', 'listItem-id', 'documentSetVersion-id'],
+    },
     params,
   };
 }
@@ -63,18 +74,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/drives/{drive-id}/list/items/{listItem-id}/documentSetVersions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'listItem-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,13 +96,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-      { name: 'documentSetVersion-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'listItem-id', 'documentSetVersion-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -118,11 +118,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-      { name: 'documentSetVersion-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'listItem-id', 'documentSetVersion-id'],
+    },
     params,
     body,
   };
@@ -142,11 +140,98 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/drives/{drive-id}/list/items/{listItem-id}/documentSetVersions',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'listItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'listItem-id'],
+    },
     params,
     body,
   };
 }
+
+export const fields = {
+  /**
+   * `GET /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields`
+   *
+   * A collection of the fields and values for this version of the list item.
+   */
+  list: function list(
+    params?: IEndpoints['GET /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['drive-id', 'listItem-id', 'documentSetVersion-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields']['body'],
+    params?: IEndpoints['PATCH /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields',
+      paramDefs: {
+        path: ['drive-id', 'listItem-id', 'documentSetVersion-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/fields',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['drive-id', 'listItem-id', 'documentSetVersion-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const restore = {
+  /**
+   * `POST /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/restore`
+   *
+   * Restore a document set version.
+   */
+  create: function create(
+    params?: IEndpoints['POST /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/restore']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/restore']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/drives/{drive-id}/list/items/{listItem-id}/documentSetVersions/{documentSetVersion-id}/restore',
+      paramDefs: {
+        path: ['drive-id', 'listItem-id', 'documentSetVersion-id'],
+      },
+      params,
+    };
+  },
+};

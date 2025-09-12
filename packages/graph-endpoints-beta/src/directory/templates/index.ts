@@ -19,7 +19,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/directory/templates',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -36,10 +38,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/directory/templates',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -49,15 +50,12 @@ export function list(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /directory/templates']['body'],
-  params?: IEndpoints['PATCH /directory/templates']['parameters']
+  body: IEndpoints['PATCH /directory/templates']['body']
 ): EndpointRequest<IEndpoints['PATCH /directory/templates']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/directory/templates',
-    paramDefs: [],
-    params,
     body,
   };
 }

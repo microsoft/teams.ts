@@ -1,5 +1,3 @@
-export * as host from './host';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/security/threatIntelligence/subdomains',
     'post'
   >;
+  'GET /security/threatIntelligence/subdomains/{subdomain-id}/host': Operation<
+    '/security/threatIntelligence/subdomains/{subdomain-id}/host',
+    'get'
+  >;
 }
 
 /**
@@ -37,10 +39,10 @@ export function del(
   return {
     method: 'delete',
     path: '/security/threatIntelligence/subdomains/{subdomain-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'subdomain-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['subdomain-id'],
+    },
     params,
   };
 }
@@ -56,16 +58,9 @@ export function list(
   return {
     method: 'get',
     path: '/security/threatIntelligence/subdomains',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -83,11 +78,10 @@ export function get(
   return {
     method: 'get',
     path: '/security/threatIntelligence/subdomains/{subdomain-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'subdomain-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['subdomain-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -105,7 +99,9 @@ export function update(
   return {
     method: 'patch',
     path: '/security/threatIntelligence/subdomains/{subdomain-id}',
-    paramDefs: [{ name: 'subdomain-id', in: 'path' }],
+    paramDefs: {
+      path: ['subdomain-id'],
+    },
     params,
     body,
   };
@@ -116,14 +112,34 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /security/threatIntelligence/subdomains']['body'],
-  params?: IEndpoints['POST /security/threatIntelligence/subdomains']['parameters']
+  body: IEndpoints['POST /security/threatIntelligence/subdomains']['body']
 ): EndpointRequest<IEndpoints['POST /security/threatIntelligence/subdomains']['response']> {
   return {
     method: 'post',
     path: '/security/threatIntelligence/subdomains',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const host = {
+  /**
+   * `GET /security/threatIntelligence/subdomains/{subdomain-id}/host`
+   *
+   * The host of the subdomain.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/threatIntelligence/subdomains/{subdomain-id}/host']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/threatIntelligence/subdomains/{subdomain-id}/host']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/security/threatIntelligence/subdomains/{subdomain-id}/host',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['subdomain-id'],
+      },
+      params,
+    };
+  },
+};

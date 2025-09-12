@@ -30,12 +30,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/task/comment',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookComment-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['drive-id', 'driveItem-id', 'workbookComment-id'],
+    },
     params,
   };
 }
@@ -54,13 +52,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/task/comment',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookComment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'workbookComment-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -79,11 +74,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}/task/comment',
-    paramDefs: [
-      { name: 'drive-id', in: 'path' },
-      { name: 'driveItem-id', in: 'path' },
-      { name: 'workbookComment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['drive-id', 'driveItem-id', 'workbookComment-id'],
+    },
     params,
     body,
   };

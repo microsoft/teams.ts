@@ -1,9 +1,3 @@
-export * as clearEnrollmentTimeDeviceMembershipTarget from './clearEnrollmentTimeDeviceMembershipTarget';
-export * as createToken from './createToken';
-export * as retrieveEnrollmentTimeDeviceMembershipTarget from './retrieveEnrollmentTimeDeviceMembershipTarget';
-export * as revokeToken from './revokeToken';
-export * as setEnrollmentTimeDeviceMembershipTarget from './setEnrollmentTimeDeviceMembershipTarget';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -27,6 +21,26 @@ export interface IEndpoints {
     '/deviceManagement/androidDeviceOwnerEnrollmentProfiles',
     'post'
   >;
+  'POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/clearEnrollmentTimeDeviceMembershipTarget': Operation<
+    '/deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/clearEnrollmentTimeDeviceMembershipTarget',
+    'post'
+  >;
+  'POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/createToken': Operation<
+    '/deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/createToken',
+    'post'
+  >;
+  'POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/retrieveEnrollmentTimeDeviceMembershipTarget': Operation<
+    '/deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/retrieveEnrollmentTimeDeviceMembershipTarget',
+    'post'
+  >;
+  'POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/revokeToken': Operation<
+    '/deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/revokeToken',
+    'post'
+  >;
+  'POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/setEnrollmentTimeDeviceMembershipTarget': Operation<
+    '/deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/setEnrollmentTimeDeviceMembershipTarget',
+    'post'
+  >;
 }
 
 /**
@@ -42,10 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'androidDeviceOwnerEnrollmentProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['androidDeviceOwnerEnrollmentProfile-id'],
+    },
     params,
   };
 }
@@ -64,16 +78,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/androidDeviceOwnerEnrollmentProfiles',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,11 +99,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'androidDeviceOwnerEnrollmentProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['androidDeviceOwnerEnrollmentProfile-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,7 +121,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}',
-    paramDefs: [{ name: 'androidDeviceOwnerEnrollmentProfile-id', in: 'path' }],
+    paramDefs: {
+      path: ['androidDeviceOwnerEnrollmentProfile-id'],
+    },
     params,
     body,
   };
@@ -126,8 +134,7 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles']['body'],
-  params?: IEndpoints['POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles']['parameters']
+  body: IEndpoints['POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles']['body']
 ): EndpointRequest<
   IEndpoints['POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles']['response']
 > {
@@ -135,8 +142,120 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/androidDeviceOwnerEnrollmentProfiles',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const clearEnrollmentTimeDeviceMembershipTarget = {
+  /**
+   * `POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/clearEnrollmentTimeDeviceMembershipTarget`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/clearEnrollmentTimeDeviceMembershipTarget']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/clearEnrollmentTimeDeviceMembershipTarget']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/clearEnrollmentTimeDeviceMembershipTarget',
+      paramDefs: {
+        path: ['androidDeviceOwnerEnrollmentProfile-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const createToken = {
+  /**
+   * `POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/createToken`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/createToken']['body'],
+    params?: IEndpoints['POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/createToken']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/createToken']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/createToken',
+      paramDefs: {
+        path: ['androidDeviceOwnerEnrollmentProfile-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const retrieveEnrollmentTimeDeviceMembershipTarget = {
+  /**
+   * `POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/retrieveEnrollmentTimeDeviceMembershipTarget`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/retrieveEnrollmentTimeDeviceMembershipTarget']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/retrieveEnrollmentTimeDeviceMembershipTarget']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/retrieveEnrollmentTimeDeviceMembershipTarget',
+      paramDefs: {
+        path: ['androidDeviceOwnerEnrollmentProfile-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const revokeToken = {
+  /**
+   * `POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/revokeToken`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/revokeToken']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/revokeToken']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/revokeToken',
+      paramDefs: {
+        path: ['androidDeviceOwnerEnrollmentProfile-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const setEnrollmentTimeDeviceMembershipTarget = {
+  /**
+   * `POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/setEnrollmentTimeDeviceMembershipTarget`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/setEnrollmentTimeDeviceMembershipTarget']['body'],
+    params?: IEndpoints['POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/setEnrollmentTimeDeviceMembershipTarget']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/setEnrollmentTimeDeviceMembershipTarget']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/androidDeviceOwnerEnrollmentProfiles/{androidDeviceOwnerEnrollmentProfile-id}/setEnrollmentTimeDeviceMembershipTarget',
+      paramDefs: {
+        path: ['androidDeviceOwnerEnrollmentProfile-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

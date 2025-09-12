@@ -1,5 +1,3 @@
-export * as host from './host';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/security/threatIntelligence/hostCookies',
     'post'
   >;
+  'GET /security/threatIntelligence/hostCookies/{hostCookie-id}/host': Operation<
+    '/security/threatIntelligence/hostCookies/{hostCookie-id}/host',
+    'get'
+  >;
 }
 
 /**
@@ -38,10 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/threatIntelligence/hostCookies/{hostCookie-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'hostCookie-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['hostCookie-id'],
+    },
     params,
   };
 }
@@ -58,16 +60,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/threatIntelligence/hostCookies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +81,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/threatIntelligence/hostCookies/{hostCookie-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'hostCookie-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['hostCookie-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +103,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/threatIntelligence/hostCookies/{hostCookie-id}',
-    paramDefs: [{ name: 'hostCookie-id', in: 'path' }],
+    paramDefs: {
+      path: ['hostCookie-id'],
+    },
     params,
     body,
   };
@@ -120,15 +116,36 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /security/threatIntelligence/hostCookies']['body'],
-  params?: IEndpoints['POST /security/threatIntelligence/hostCookies']['parameters']
+  body: IEndpoints['POST /security/threatIntelligence/hostCookies']['body']
 ): EndpointRequest<IEndpoints['POST /security/threatIntelligence/hostCookies']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/security/threatIntelligence/hostCookies',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const host = {
+  /**
+   * `GET /security/threatIntelligence/hostCookies/{hostCookie-id}/host`
+   *
+   * Indicates that a cookie of this name and domain was found related to this host.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/threatIntelligence/hostCookies/{hostCookie-id}/host']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/threatIntelligence/hostCookies/{hostCookie-id}/host']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/threatIntelligence/hostCookies/{hostCookie-id}/host',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['hostCookie-id'],
+      },
+      params,
+    };
+  },
+};

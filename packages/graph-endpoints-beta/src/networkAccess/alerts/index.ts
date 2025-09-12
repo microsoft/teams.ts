@@ -1,5 +1,3 @@
-export * as policy from './policy';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -11,6 +9,10 @@ export interface IEndpoints {
   'GET /networkAccess/alerts/{alert-id}': Operation<'/networkAccess/alerts/{alert-id}', 'get'>;
   'PATCH /networkAccess/alerts/{alert-id}': Operation<'/networkAccess/alerts/{alert-id}', 'patch'>;
   'POST /networkAccess/alerts': Operation<'/networkAccess/alerts', 'post'>;
+  'GET /networkAccess/alerts/{alert-id}/policy': Operation<
+    '/networkAccess/alerts/{alert-id}/policy',
+    'get'
+  >;
 }
 
 /**
@@ -24,10 +26,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/networkAccess/alerts/{alert-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'alert-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['alert-id'],
+    },
     params,
   };
 }
@@ -44,16 +46,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/alerts',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -69,11 +64,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/networkAccess/alerts/{alert-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'alert-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['alert-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,7 +84,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/networkAccess/alerts/{alert-id}',
-    paramDefs: [{ name: 'alert-id', in: 'path' }],
+    paramDefs: {
+      path: ['alert-id'],
+    },
     params,
     body,
   };
@@ -101,15 +97,34 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /networkAccess/alerts']['body'],
-  params?: IEndpoints['POST /networkAccess/alerts']['parameters']
+  body: IEndpoints['POST /networkAccess/alerts']['body']
 ): EndpointRequest<IEndpoints['POST /networkAccess/alerts']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/networkAccess/alerts',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const policy = {
+  /**
+   * `GET /networkAccess/alerts/{alert-id}/policy`
+   *
+   * The filtering policy associated with the alert. This relationship allows you to retrieve or manage the filtering policy that triggered or is related to the alert instance.
+   */
+  get: function get(
+    params?: IEndpoints['GET /networkAccess/alerts/{alert-id}/policy']['parameters']
+  ): EndpointRequest<IEndpoints['GET /networkAccess/alerts/{alert-id}/policy']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/networkAccess/alerts/{alert-id}/policy',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['alert-id'],
+      },
+      params,
+    };
+  },
+};

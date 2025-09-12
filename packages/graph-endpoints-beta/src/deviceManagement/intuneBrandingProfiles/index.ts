@@ -1,6 +1,3 @@
-export * as assign from './assign';
-export * as assignments from './assignments';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,30 @@ export interface IEndpoints {
     '/deviceManagement/intuneBrandingProfiles',
     'post'
   >;
+  'POST /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assign': Operation<
+    '/deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assign',
+    'post'
+  >;
+  'GET /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments': Operation<
+    '/deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments',
+    'get'
+  >;
+  'POST /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments': Operation<
+    '/deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments',
+    'post'
+  >;
+  'GET /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}': Operation<
+    '/deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}',
+    'get'
+  >;
+  'PATCH /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}': Operation<
+    '/deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}',
+    'patch'
+  >;
+  'DELETE /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}': Operation<
+    '/deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -39,10 +60,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'intuneBrandingProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['intuneBrandingProfile-id'],
+    },
     params,
   };
 }
@@ -59,16 +80,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/intuneBrandingProfiles',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +101,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'intuneBrandingProfile-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['intuneBrandingProfile-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +123,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}',
-    paramDefs: [{ name: 'intuneBrandingProfile-id', in: 'path' }],
+    paramDefs: {
+      path: ['intuneBrandingProfile-id'],
+    },
     params,
     body,
   };
@@ -121,15 +136,143 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/intuneBrandingProfiles']['body'],
-  params?: IEndpoints['POST /deviceManagement/intuneBrandingProfiles']['parameters']
+  body: IEndpoints['POST /deviceManagement/intuneBrandingProfiles']['body']
 ): EndpointRequest<IEndpoints['POST /deviceManagement/intuneBrandingProfiles']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/intuneBrandingProfiles',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const assign = {
+  /**
+   * `POST /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assign`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assign']['body'],
+    params?: IEndpoints['POST /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assign']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assign']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assign',
+      paramDefs: {
+        path: ['intuneBrandingProfile-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const assignments = {
+  /**
+   * `GET /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments`
+   *
+   * The list of group assignments for the branding profile
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['intuneBrandingProfile-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments']['body'],
+    params?: IEndpoints['POST /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments',
+      paramDefs: {
+        path: ['intuneBrandingProfile-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}`
+   *
+   * The list of group assignments for the branding profile
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['intuneBrandingProfile-id', 'intuneBrandingProfileAssignment-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}']['body'],
+    params?: IEndpoints['PATCH /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}',
+      paramDefs: {
+        path: ['intuneBrandingProfile-id', 'intuneBrandingProfileAssignment-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/deviceManagement/intuneBrandingProfiles/{intuneBrandingProfile-id}/assignments/{intuneBrandingProfileAssignment-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['intuneBrandingProfile-id', 'intuneBrandingProfileAssignment-id'],
+      },
+      params,
+    };
+  },
+};

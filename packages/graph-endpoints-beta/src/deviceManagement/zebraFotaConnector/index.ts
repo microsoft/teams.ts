@@ -1,8 +1,3 @@
-export * as approveFotaApps from './approveFotaApps';
-export * as connect from './connect';
-export * as disconnect from './disconnect';
-export * as hasActiveDeployments from './hasActiveDeployments';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -18,6 +13,22 @@ export interface IEndpoints {
     '/deviceManagement/zebraFotaConnector',
     'patch'
   >;
+  'POST /deviceManagement/zebraFotaConnector/approveFotaApps': Operation<
+    '/deviceManagement/zebraFotaConnector/approveFotaApps',
+    'post'
+  >;
+  'POST /deviceManagement/zebraFotaConnector/connect': Operation<
+    '/deviceManagement/zebraFotaConnector/connect',
+    'post'
+  >;
+  'POST /deviceManagement/zebraFotaConnector/disconnect': Operation<
+    '/deviceManagement/zebraFotaConnector/disconnect',
+    'post'
+  >;
+  'POST /deviceManagement/zebraFotaConnector/hasActiveDeployments': Operation<
+    '/deviceManagement/zebraFotaConnector/hasActiveDeployments',
+    'post'
+  >;
 }
 
 /**
@@ -31,7 +42,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/zebraFotaConnector',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -48,10 +61,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/zebraFotaConnector',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -61,15 +73,76 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /deviceManagement/zebraFotaConnector']['body'],
-  params?: IEndpoints['PATCH /deviceManagement/zebraFotaConnector']['parameters']
+  body: IEndpoints['PATCH /deviceManagement/zebraFotaConnector']['body']
 ): EndpointRequest<IEndpoints['PATCH /deviceManagement/zebraFotaConnector']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/zebraFotaConnector',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const approveFotaApps = {
+  /**
+   * `POST /deviceManagement/zebraFotaConnector/approveFotaApps`
+   *
+   */
+  create: function create(): EndpointRequest<
+    IEndpoints['POST /deviceManagement/zebraFotaConnector/approveFotaApps']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/zebraFotaConnector/approveFotaApps',
+    };
+  },
+};
+
+export const connect = {
+  /**
+   * `POST /deviceManagement/zebraFotaConnector/connect`
+   *
+   */
+  create: function create(): EndpointRequest<
+    IEndpoints['POST /deviceManagement/zebraFotaConnector/connect']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/zebraFotaConnector/connect',
+    };
+  },
+};
+
+export const disconnect = {
+  /**
+   * `POST /deviceManagement/zebraFotaConnector/disconnect`
+   *
+   */
+  create: function create(): EndpointRequest<
+    IEndpoints['POST /deviceManagement/zebraFotaConnector/disconnect']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/zebraFotaConnector/disconnect',
+    };
+  },
+};
+
+export const hasActiveDeployments = {
+  /**
+   * `POST /deviceManagement/zebraFotaConnector/hasActiveDeployments`
+   *
+   */
+  create: function create(): EndpointRequest<
+    IEndpoints['POST /deviceManagement/zebraFotaConnector/hasActiveDeployments']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/zebraFotaConnector/hasActiveDeployments',
+    };
+  },
+};

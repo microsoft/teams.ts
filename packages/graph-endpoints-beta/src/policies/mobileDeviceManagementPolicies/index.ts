@@ -3,20 +3,20 @@ export * as includedGroups from './includedGroups';
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
-  'DELETE /policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}': Operation<
-    '/policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}',
+  'DELETE /policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}': Operation<
+    '/policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}',
     'delete'
   >;
   'GET /policies/mobileDeviceManagementPolicies': Operation<
     '/policies/mobileDeviceManagementPolicies',
     'get'
   >;
-  'GET /policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}': Operation<
-    '/policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}',
+  'GET /policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}': Operation<
+    '/policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}',
     'get'
   >;
-  'PATCH /policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}': Operation<
-    '/policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}',
+  'PATCH /policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}': Operation<
+    '/policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}',
     'patch'
   >;
   'POST /policies/mobileDeviceManagementPolicies': Operation<
@@ -26,23 +26,23 @@ export interface IEndpoints {
 }
 
 /**
- * `DELETE /policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}`
+ * `DELETE /policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}`
  *
  * Delete a mobilityManagementPolicy object.
  */
 export function del(
-  params?: IEndpoints['DELETE /policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}']['parameters']
+  params?: IEndpoints['DELETE /policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}']['parameters']
 ): EndpointRequest<
-  IEndpoints['DELETE /policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}']['response']
+  IEndpoints['DELETE /policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}']['response']
 > {
   return {
     ver: 'beta',
     method: 'delete',
-    path: '/policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'mobilityManagementPolicy-id', in: 'path' },
-    ],
+    path: '/policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}',
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['mobileDeviceManagementPolicy-id'],
+    },
     params,
   };
 }
@@ -59,59 +59,53 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/policies/mobileDeviceManagementPolicies',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
 
 /**
- * `GET /policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}`
+ * `GET /policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}`
  *
  * Read the properties and relationships of a mobilityManagementPolicy object.
  */
 export function get(
-  params?: IEndpoints['GET /policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}']['parameters']
+  params?: IEndpoints['GET /policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}']['parameters']
 ): EndpointRequest<
-  IEndpoints['GET /policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}']['response']
+  IEndpoints['GET /policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}']['response']
 > {
   return {
     ver: 'beta',
     method: 'get',
-    path: '/policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'mobilityManagementPolicy-id', in: 'path' },
-    ],
+    path: '/policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}',
+    paramDefs: {
+      path: ['mobileDeviceManagementPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
 
 /**
- * `PATCH /policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}`
+ * `PATCH /policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}`
  *
  * Update the properties of a mobilityManagementPolicy object.
  */
 export function update(
-  body: IEndpoints['PATCH /policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}']['body'],
-  params?: IEndpoints['PATCH /policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}']['parameters']
+  body: IEndpoints['PATCH /policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}']['body'],
+  params?: IEndpoints['PATCH /policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}']['parameters']
 ): EndpointRequest<
-  IEndpoints['PATCH /policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}']['response']
+  IEndpoints['PATCH /policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}']['response']
 > {
   return {
     ver: 'beta',
     method: 'patch',
-    path: '/policies/mobileDeviceManagementPolicies/{mobilityManagementPolicy-id}',
-    paramDefs: [{ name: 'mobilityManagementPolicy-id', in: 'path' }],
+    path: '/policies/mobileDeviceManagementPolicies/{mobileDeviceManagementPolicy-id}',
+    paramDefs: {
+      path: ['mobileDeviceManagementPolicy-id'],
+    },
     params,
     body,
   };
@@ -122,15 +116,12 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /policies/mobileDeviceManagementPolicies']['body'],
-  params?: IEndpoints['POST /policies/mobileDeviceManagementPolicies']['parameters']
+  body: IEndpoints['POST /policies/mobileDeviceManagementPolicies']['body']
 ): EndpointRequest<IEndpoints['POST /policies/mobileDeviceManagementPolicies']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/policies/mobileDeviceManagementPolicies',
-    paramDefs: [],
-    params,
     body,
   };
 }

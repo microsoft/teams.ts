@@ -1,6 +1,3 @@
-export * as catalogEntry from './catalogEntry';
-export * as matchedDevices from './matchedDevices';
-
 import type { EndpointRequest, Operation } from './../../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,30 @@ export interface IEndpoints {
     '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent',
     'post'
   >;
+  'GET /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/catalogEntry': Operation<
+    '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/catalogEntry',
+    'get'
+  >;
+  'GET /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices': Operation<
+    '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices',
+    'get'
+  >;
+  'POST /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices': Operation<
+    '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices',
+    'post'
+  >;
+  'GET /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}': Operation<
+    '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}',
+    'get'
+  >;
+  'PATCH /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}': Operation<
+    '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}',
+    'patch'
+  >;
+  'DELETE /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}': Operation<
+    '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}',
+    'delete'
+  >;
 }
 
 /**
@@ -39,11 +60,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'deployment-id', in: 'path' },
-      { name: 'applicableContent-catalogEntryId', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['deployment-id', 'applicableContent-catalogEntryId'],
+    },
     params,
   };
 }
@@ -62,17 +82,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deployment-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deployment-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -91,12 +104,10 @@ export function get$1(
     ver: 'beta',
     method: 'get',
     path: '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'deployment-id', in: 'path' },
-      { name: 'applicableContent-catalogEntryId', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deployment-id', 'applicableContent-catalogEntryId'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,10 +126,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}',
-    paramDefs: [
-      { name: 'deployment-id', in: 'path' },
-      { name: 'applicableContent-catalogEntryId', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['deployment-id', 'applicableContent-catalogEntryId'],
+    },
     params,
     body,
   };
@@ -138,8 +148,153 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent',
-    paramDefs: [{ name: 'deployment-id', in: 'path' }],
+    paramDefs: {
+      path: ['deployment-id'],
+    },
     params,
     body,
   };
 }
+
+export const catalogEntry = {
+  /**
+   * `GET /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/catalogEntry`
+   *
+   * Catalog entry for the update or content.
+   */
+  get: function get(
+    params?: IEndpoints['GET /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/catalogEntry']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/catalogEntry']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/catalogEntry',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['deployment-id', 'applicableContent-catalogEntryId'],
+      },
+      params,
+    };
+  },
+};
+
+export const matchedDevices = {
+  /**
+   * `GET /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices`
+   *
+   * Collection of devices and recommendations for applicable catalog content.
+   */
+  list: function list(
+    params?: IEndpoints['GET /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['deployment-id', 'applicableContent-catalogEntryId'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices']['body'],
+    params?: IEndpoints['POST /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices',
+      paramDefs: {
+        path: ['deployment-id', 'applicableContent-catalogEntryId'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}`
+   *
+   * Collection of devices and recommendations for applicable catalog content.
+   */
+  get: function get(
+    params?: IEndpoints['GET /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'deployment-id',
+          'applicableContent-catalogEntryId',
+          'applicableContentDeviceMatch-deviceId',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}']['body'],
+    params?: IEndpoints['PATCH /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}',
+      paramDefs: {
+        path: [
+          'deployment-id',
+          'applicableContent-catalogEntryId',
+          'applicableContentDeviceMatch-deviceId',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/admin/windows/updates/deployments/{deployment-id}/audience/applicableContent/{applicableContent-catalogEntryId}/matchedDevices/{applicableContentDeviceMatch-deviceId}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: [
+          'deployment-id',
+          'applicableContent-catalogEntryId',
+          'applicableContentDeviceMatch-deviceId',
+        ],
+      },
+      params,
+    };
+  },
+};

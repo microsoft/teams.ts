@@ -1,5 +1,3 @@
-export * as enable from './enable';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -11,6 +9,10 @@ export interface IEndpoints {
   'PATCH /deviceManagement/tenantAttachRBAC': Operation<
     '/deviceManagement/tenantAttachRBAC',
     'patch'
+  >;
+  'POST /deviceManagement/tenantAttachRBAC/enable': Operation<
+    '/deviceManagement/tenantAttachRBAC/enable',
+    'post'
   >;
 }
 
@@ -25,7 +27,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/tenantAttachRBAC',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -42,10 +46,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/tenantAttachRBAC',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -55,15 +58,29 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /deviceManagement/tenantAttachRBAC']['body'],
-  params?: IEndpoints['PATCH /deviceManagement/tenantAttachRBAC']['parameters']
+  body: IEndpoints['PATCH /deviceManagement/tenantAttachRBAC']['body']
 ): EndpointRequest<IEndpoints['PATCH /deviceManagement/tenantAttachRBAC']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/tenantAttachRBAC',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const enable = {
+  /**
+   * `POST /deviceManagement/tenantAttachRBAC/enable`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/tenantAttachRBAC/enable']['body']
+  ): EndpointRequest<IEndpoints['POST /deviceManagement/tenantAttachRBAC/enable']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/tenantAttachRBAC/enable',
+      body,
+    };
+  },
+};

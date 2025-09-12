@@ -1,5 +1,3 @@
-export * as interactionHistory from './interactionHistory';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -8,6 +6,18 @@ export interface IEndpoints {
   'GET /copilot/users/{aiUser-id}': Operation<'/copilot/users/{aiUser-id}', 'get'>;
   'PATCH /copilot/users/{aiUser-id}': Operation<'/copilot/users/{aiUser-id}', 'patch'>;
   'POST /copilot/users': Operation<'/copilot/users', 'post'>;
+  'GET /copilot/users/{aiUser-id}/interactionHistory': Operation<
+    '/copilot/users/{aiUser-id}/interactionHistory',
+    'get'
+  >;
+  'PATCH /copilot/users/{aiUser-id}/interactionHistory': Operation<
+    '/copilot/users/{aiUser-id}/interactionHistory',
+    'patch'
+  >;
+  'DELETE /copilot/users/{aiUser-id}/interactionHistory': Operation<
+    '/copilot/users/{aiUser-id}/interactionHistory',
+    'delete'
+  >;
 }
 
 /**
@@ -20,10 +30,10 @@ export function del(
   return {
     method: 'delete',
     path: '/copilot/users/{aiUser-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'aiUser-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['aiUser-id'],
+    },
     params,
   };
 }
@@ -38,16 +48,9 @@ export function list(
   return {
     method: 'get',
     path: '/copilot/users',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -62,11 +65,10 @@ export function get(
   return {
     method: 'get',
     path: '/copilot/users/{aiUser-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'aiUser-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['aiUser-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -82,7 +84,9 @@ export function update(
   return {
     method: 'patch',
     path: '/copilot/users/{aiUser-id}',
-    paramDefs: [{ name: 'aiUser-id', in: 'path' }],
+    paramDefs: {
+      path: ['aiUser-id'],
+    },
     params,
     body,
   };
@@ -93,14 +97,70 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /copilot/users']['body'],
-  params?: IEndpoints['POST /copilot/users']['parameters']
+  body: IEndpoints['POST /copilot/users']['body']
 ): EndpointRequest<IEndpoints['POST /copilot/users']['response']> {
   return {
     method: 'post',
     path: '/copilot/users',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const interactionHistory = {
+  /**
+   * `GET /copilot/users/{aiUser-id}/interactionHistory`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /copilot/users/{aiUser-id}/interactionHistory']['parameters']
+  ): EndpointRequest<IEndpoints['GET /copilot/users/{aiUser-id}/interactionHistory']['response']> {
+    return {
+      method: 'get',
+      path: '/copilot/users/{aiUser-id}/interactionHistory',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['aiUser-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /copilot/users/{aiUser-id}/interactionHistory`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /copilot/users/{aiUser-id}/interactionHistory']['body'],
+    params?: IEndpoints['PATCH /copilot/users/{aiUser-id}/interactionHistory']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /copilot/users/{aiUser-id}/interactionHistory']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/copilot/users/{aiUser-id}/interactionHistory',
+      paramDefs: {
+        path: ['aiUser-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /copilot/users/{aiUser-id}/interactionHistory`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /copilot/users/{aiUser-id}/interactionHistory']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /copilot/users/{aiUser-id}/interactionHistory']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/copilot/users/{aiUser-id}/interactionHistory',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['aiUser-id'],
+      },
+      params,
+    };
+  },
+};

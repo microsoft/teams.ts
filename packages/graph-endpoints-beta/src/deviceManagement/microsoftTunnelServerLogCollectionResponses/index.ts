@@ -1,6 +1,3 @@
-export * as createDownloadUrl from './createDownloadUrl';
-export * as generateDownloadUrl from './generateDownloadUrl';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/deviceManagement/microsoftTunnelServerLogCollectionResponses',
     'post'
   >;
+  'POST /deviceManagement/microsoftTunnelServerLogCollectionResponses/{microsoftTunnelServerLogCollectionResponse-id}/createDownloadUrl': Operation<
+    '/deviceManagement/microsoftTunnelServerLogCollectionResponses/{microsoftTunnelServerLogCollectionResponse-id}/createDownloadUrl',
+    'post'
+  >;
+  'POST /deviceManagement/microsoftTunnelServerLogCollectionResponses/{microsoftTunnelServerLogCollectionResponse-id}/generateDownloadUrl': Operation<
+    '/deviceManagement/microsoftTunnelServerLogCollectionResponses/{microsoftTunnelServerLogCollectionResponse-id}/generateDownloadUrl',
+    'post'
+  >;
 }
 
 /**
@@ -39,10 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/microsoftTunnelServerLogCollectionResponses/{microsoftTunnelServerLogCollectionResponse-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'microsoftTunnelServerLogCollectionResponse-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['microsoftTunnelServerLogCollectionResponse-id'],
+    },
     params,
   };
 }
@@ -61,16 +66,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/microsoftTunnelServerLogCollectionResponses',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,11 +87,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/microsoftTunnelServerLogCollectionResponses/{microsoftTunnelServerLogCollectionResponse-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'microsoftTunnelServerLogCollectionResponse-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['microsoftTunnelServerLogCollectionResponse-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,7 +109,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/microsoftTunnelServerLogCollectionResponses/{microsoftTunnelServerLogCollectionResponse-id}',
-    paramDefs: [{ name: 'microsoftTunnelServerLogCollectionResponse-id', in: 'path' }],
+    paramDefs: {
+      path: ['microsoftTunnelServerLogCollectionResponse-id'],
+    },
     params,
     body,
   };
@@ -123,8 +122,7 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /deviceManagement/microsoftTunnelServerLogCollectionResponses']['body'],
-  params?: IEndpoints['POST /deviceManagement/microsoftTunnelServerLogCollectionResponses']['parameters']
+  body: IEndpoints['POST /deviceManagement/microsoftTunnelServerLogCollectionResponses']['body']
 ): EndpointRequest<
   IEndpoints['POST /deviceManagement/microsoftTunnelServerLogCollectionResponses']['response']
 > {
@@ -132,8 +130,50 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/microsoftTunnelServerLogCollectionResponses',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const createDownloadUrl = {
+  /**
+   * `POST /deviceManagement/microsoftTunnelServerLogCollectionResponses/{microsoftTunnelServerLogCollectionResponse-id}/createDownloadUrl`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/microsoftTunnelServerLogCollectionResponses/{microsoftTunnelServerLogCollectionResponse-id}/createDownloadUrl']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/microsoftTunnelServerLogCollectionResponses/{microsoftTunnelServerLogCollectionResponse-id}/createDownloadUrl']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/microsoftTunnelServerLogCollectionResponses/{microsoftTunnelServerLogCollectionResponse-id}/createDownloadUrl',
+      paramDefs: {
+        path: ['microsoftTunnelServerLogCollectionResponse-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const generateDownloadUrl = {
+  /**
+   * `POST /deviceManagement/microsoftTunnelServerLogCollectionResponses/{microsoftTunnelServerLogCollectionResponse-id}/generateDownloadUrl`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/microsoftTunnelServerLogCollectionResponses/{microsoftTunnelServerLogCollectionResponse-id}/generateDownloadUrl']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/microsoftTunnelServerLogCollectionResponses/{microsoftTunnelServerLogCollectionResponse-id}/generateDownloadUrl']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/microsoftTunnelServerLogCollectionResponses/{microsoftTunnelServerLogCollectionResponse-id}/generateDownloadUrl',
+      paramDefs: {
+        path: ['microsoftTunnelServerLogCollectionResponse-id'],
+      },
+      params,
+    };
+  },
+};

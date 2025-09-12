@@ -1,4 +1,4 @@
-# Teams: Graph
+# Teams: Graph Endpoints, V1.0 Schema
 
 <p>
     <a href="https://www.npmjs.com/package/@microsoft/teams.graph-endpoints" target="_blank">

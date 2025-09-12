@@ -35,7 +35,9 @@ export function del(
   return {
     method: 'delete',
     path: '/roleManagement/entitlementManagement',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -51,10 +53,9 @@ export function get(
   return {
     method: 'get',
     path: '/roleManagement/entitlementManagement',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -64,14 +65,11 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /roleManagement/entitlementManagement']['body'],
-  params?: IEndpoints['PATCH /roleManagement/entitlementManagement']['parameters']
+  body: IEndpoints['PATCH /roleManagement/entitlementManagement']['body']
 ): EndpointRequest<IEndpoints['PATCH /roleManagement/entitlementManagement']['response']> {
   return {
     method: 'patch',
     path: '/roleManagement/entitlementManagement',
-    paramDefs: [],
-    params,
     body,
   };
 }

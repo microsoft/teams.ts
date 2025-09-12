@@ -38,12 +38,10 @@ export function del(
   return {
     method: 'delete',
     path: '/groups/{group-id}/sites/{site-id}/termStores/{store-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'store-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'site-id', 'store-id'],
+    },
     params,
   };
 }
@@ -59,18 +57,10 @@ export function list(
   return {
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/termStores',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,13 +78,10 @@ export function get(
   return {
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/termStores/{store-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'store-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'store-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,11 +99,9 @@ export function update(
   return {
     method: 'patch',
     path: '/groups/{group-id}/sites/{site-id}/termStores/{store-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'store-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'store-id'],
+    },
     params,
     body,
   };
@@ -133,10 +118,9 @@ export function create(
   return {
     method: 'post',
     path: '/groups/{group-id}/sites/{site-id}/termStores',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+    },
     params,
     body,
   };

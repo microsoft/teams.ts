@@ -1,4 +1,3 @@
-export * as extensions from './extensions';
 export * as tasks from './tasks';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -12,6 +11,26 @@ export interface IEndpoints {
   'GET /me/todo/lists/{todoTaskList-id}': Operation<'/me/todo/lists/{todoTaskList-id}', 'get'>;
   'PATCH /me/todo/lists/{todoTaskList-id}': Operation<'/me/todo/lists/{todoTaskList-id}', 'patch'>;
   'POST /me/todo/lists': Operation<'/me/todo/lists', 'post'>;
+  'GET /me/todo/lists/{todoTaskList-id}/extensions': Operation<
+    '/me/todo/lists/{todoTaskList-id}/extensions',
+    'get'
+  >;
+  'POST /me/todo/lists/{todoTaskList-id}/extensions': Operation<
+    '/me/todo/lists/{todoTaskList-id}/extensions',
+    'post'
+  >;
+  'GET /me/todo/lists/{todoTaskList-id}/extensions/{extension-id}': Operation<
+    '/me/todo/lists/{todoTaskList-id}/extensions/{extension-id}',
+    'get'
+  >;
+  'PATCH /me/todo/lists/{todoTaskList-id}/extensions/{extension-id}': Operation<
+    '/me/todo/lists/{todoTaskList-id}/extensions/{extension-id}',
+    'patch'
+  >;
+  'DELETE /me/todo/lists/{todoTaskList-id}/extensions/{extension-id}': Operation<
+    '/me/todo/lists/{todoTaskList-id}/extensions/{extension-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -25,10 +44,10 @@ export function del(
   return {
     method: 'delete',
     path: '/me/todo/lists/{todoTaskList-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'todoTaskList-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['todoTaskList-id'],
+    },
     params,
   };
 }
@@ -44,16 +63,9 @@ export function list(
   return {
     method: 'get',
     path: '/me/todo/lists',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -69,11 +81,10 @@ export function get(
   return {
     method: 'get',
     path: '/me/todo/lists/{todoTaskList-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'todoTaskList-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['todoTaskList-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,7 +101,9 @@ export function update(
   return {
     method: 'patch',
     path: '/me/todo/lists/{todoTaskList-id}',
-    paramDefs: [{ name: 'todoTaskList-id', in: 'path' }],
+    paramDefs: {
+      path: ['todoTaskList-id'],
+    },
     params,
     body,
   };
@@ -102,14 +115,109 @@ export function update(
  * Create a new lists object.
  */
 export function create(
-  body: IEndpoints['POST /me/todo/lists']['body'],
-  params?: IEndpoints['POST /me/todo/lists']['parameters']
+  body: IEndpoints['POST /me/todo/lists']['body']
 ): EndpointRequest<IEndpoints['POST /me/todo/lists']['response']> {
   return {
     method: 'post',
     path: '/me/todo/lists',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const extensions = {
+  /**
+   * `GET /me/todo/lists/{todoTaskList-id}/extensions`
+   *
+   * The collection of open extensions defined for the task list. Nullable.
+   */
+  list: function list(
+    params?: IEndpoints['GET /me/todo/lists/{todoTaskList-id}/extensions']['parameters']
+  ): EndpointRequest<IEndpoints['GET /me/todo/lists/{todoTaskList-id}/extensions']['response']> {
+    return {
+      method: 'get',
+      path: '/me/todo/lists/{todoTaskList-id}/extensions',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['todoTaskList-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /me/todo/lists/{todoTaskList-id}/extensions`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /me/todo/lists/{todoTaskList-id}/extensions']['body'],
+    params?: IEndpoints['POST /me/todo/lists/{todoTaskList-id}/extensions']['parameters']
+  ): EndpointRequest<IEndpoints['POST /me/todo/lists/{todoTaskList-id}/extensions']['response']> {
+    return {
+      method: 'post',
+      path: '/me/todo/lists/{todoTaskList-id}/extensions',
+      paramDefs: {
+        path: ['todoTaskList-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /me/todo/lists/{todoTaskList-id}/extensions/{extension-id}`
+   *
+   * The collection of open extensions defined for the task list. Nullable.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/todo/lists/{todoTaskList-id}/extensions/{extension-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /me/todo/lists/{todoTaskList-id}/extensions/{extension-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/me/todo/lists/{todoTaskList-id}/extensions/{extension-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['todoTaskList-id', 'extension-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /me/todo/lists/{todoTaskList-id}/extensions/{extension-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /me/todo/lists/{todoTaskList-id}/extensions/{extension-id}']['body'],
+    params?: IEndpoints['PATCH /me/todo/lists/{todoTaskList-id}/extensions/{extension-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /me/todo/lists/{todoTaskList-id}/extensions/{extension-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/me/todo/lists/{todoTaskList-id}/extensions/{extension-id}',
+      paramDefs: {
+        path: ['todoTaskList-id', 'extension-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /me/todo/lists/{todoTaskList-id}/extensions/{extension-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /me/todo/lists/{todoTaskList-id}/extensions/{extension-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /me/todo/lists/{todoTaskList-id}/extensions/{extension-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/me/todo/lists/{todoTaskList-id}/extensions/{extension-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['todoTaskList-id', 'extension-id'],
+      },
+      params,
+    };
+  },
+};

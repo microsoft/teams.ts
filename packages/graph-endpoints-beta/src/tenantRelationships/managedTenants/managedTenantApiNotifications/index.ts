@@ -1,5 +1,3 @@
-export * as alert from './alert';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/tenantRelationships/managedTenants/managedTenantApiNotifications',
     'post'
   >;
+  'GET /tenantRelationships/managedTenants/managedTenantApiNotifications/{managedTenantApiNotification-id}/alert': Operation<
+    '/tenantRelationships/managedTenants/managedTenantApiNotifications/{managedTenantApiNotification-id}/alert',
+    'get'
+  >;
 }
 
 /**
@@ -38,10 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/tenantRelationships/managedTenants/managedTenantApiNotifications/{managedTenantApiNotification-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'managedTenantApiNotification-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['managedTenantApiNotification-id'],
+    },
     params,
   };
 }
@@ -59,16 +61,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/tenantRelationships/managedTenants/managedTenantApiNotifications',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,11 +81,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/tenantRelationships/managedTenants/managedTenantApiNotifications/{managedTenantApiNotification-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'managedTenantApiNotification-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['managedTenantApiNotification-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -109,7 +103,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/tenantRelationships/managedTenants/managedTenantApiNotifications/{managedTenantApiNotification-id}',
-    paramDefs: [{ name: 'managedTenantApiNotification-id', in: 'path' }],
+    paramDefs: {
+      path: ['managedTenantApiNotification-id'],
+    },
     params,
     body,
   };
@@ -120,8 +116,7 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /tenantRelationships/managedTenants/managedTenantApiNotifications']['body'],
-  params?: IEndpoints['POST /tenantRelationships/managedTenants/managedTenantApiNotifications']['parameters']
+  body: IEndpoints['POST /tenantRelationships/managedTenants/managedTenantApiNotifications']['body']
 ): EndpointRequest<
   IEndpoints['POST /tenantRelationships/managedTenants/managedTenantApiNotifications']['response']
 > {
@@ -129,8 +124,29 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/tenantRelationships/managedTenants/managedTenantApiNotifications',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const alert = {
+  /**
+   * `GET /tenantRelationships/managedTenants/managedTenantApiNotifications/{managedTenantApiNotification-id}/alert`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /tenantRelationships/managedTenants/managedTenantApiNotifications/{managedTenantApiNotification-id}/alert']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /tenantRelationships/managedTenants/managedTenantApiNotifications/{managedTenantApiNotification-id}/alert']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/tenantRelationships/managedTenants/managedTenantApiNotifications/{managedTenantApiNotification-id}/alert',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['managedTenantApiNotification-id'],
+      },
+      params,
+    };
+  },
+};

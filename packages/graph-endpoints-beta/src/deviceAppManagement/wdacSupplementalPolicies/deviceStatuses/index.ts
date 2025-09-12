@@ -1,5 +1,3 @@
-export * as policy from './policy';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceAppManagement/wdacSupplementalPolicies/{windowsDefenderApplicationControlSupplementalPolicy-id}/deviceStatuses',
     'post'
   >;
+  'GET /deviceAppManagement/wdacSupplementalPolicies/{windowsDefenderApplicationControlSupplementalPolicy-id}/deviceStatuses/{windowsDefenderApplicationControlSupplementalPolicyDeploymentStatus-id}/policy': Operation<
+    '/deviceAppManagement/wdacSupplementalPolicies/{windowsDefenderApplicationControlSupplementalPolicy-id}/deviceStatuses/{windowsDefenderApplicationControlSupplementalPolicyDeploymentStatus-id}/policy',
+    'get'
+  >;
 }
 
 /**
@@ -38,14 +40,13 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceAppManagement/wdacSupplementalPolicies/{windowsDefenderApplicationControlSupplementalPolicy-id}/deviceStatuses/{windowsDefenderApplicationControlSupplementalPolicyDeploymentStatus-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'windowsDefenderApplicationControlSupplementalPolicy-id', in: 'path' },
-      {
-        name: 'windowsDefenderApplicationControlSupplementalPolicyDeploymentStatus-id',
-        in: 'path',
-      },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: [
+        'windowsDefenderApplicationControlSupplementalPolicy-id',
+        'windowsDefenderApplicationControlSupplementalPolicyDeploymentStatus-id',
+      ],
+    },
     params,
   };
 }
@@ -64,17 +65,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceAppManagement/wdacSupplementalPolicies/{windowsDefenderApplicationControlSupplementalPolicy-id}/deviceStatuses',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'windowsDefenderApplicationControlSupplementalPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['windowsDefenderApplicationControlSupplementalPolicy-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -93,15 +87,13 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceAppManagement/wdacSupplementalPolicies/{windowsDefenderApplicationControlSupplementalPolicy-id}/deviceStatuses/{windowsDefenderApplicationControlSupplementalPolicyDeploymentStatus-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'windowsDefenderApplicationControlSupplementalPolicy-id', in: 'path' },
-      {
-        name: 'windowsDefenderApplicationControlSupplementalPolicyDeploymentStatus-id',
-        in: 'path',
-      },
-    ],
+    paramDefs: {
+      path: [
+        'windowsDefenderApplicationControlSupplementalPolicy-id',
+        'windowsDefenderApplicationControlSupplementalPolicyDeploymentStatus-id',
+      ],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -120,13 +112,12 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceAppManagement/wdacSupplementalPolicies/{windowsDefenderApplicationControlSupplementalPolicy-id}/deviceStatuses/{windowsDefenderApplicationControlSupplementalPolicyDeploymentStatus-id}',
-    paramDefs: [
-      { name: 'windowsDefenderApplicationControlSupplementalPolicy-id', in: 'path' },
-      {
-        name: 'windowsDefenderApplicationControlSupplementalPolicyDeploymentStatus-id',
-        in: 'path',
-      },
-    ],
+    paramDefs: {
+      path: [
+        'windowsDefenderApplicationControlSupplementalPolicy-id',
+        'windowsDefenderApplicationControlSupplementalPolicyDeploymentStatus-id',
+      ],
+    },
     params,
     body,
   };
@@ -146,8 +137,37 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceAppManagement/wdacSupplementalPolicies/{windowsDefenderApplicationControlSupplementalPolicy-id}/deviceStatuses',
-    paramDefs: [{ name: 'windowsDefenderApplicationControlSupplementalPolicy-id', in: 'path' }],
+    paramDefs: {
+      path: ['windowsDefenderApplicationControlSupplementalPolicy-id'],
+    },
     params,
     body,
   };
 }
+
+export const policy = {
+  /**
+   * `GET /deviceAppManagement/wdacSupplementalPolicies/{windowsDefenderApplicationControlSupplementalPolicy-id}/deviceStatuses/{windowsDefenderApplicationControlSupplementalPolicyDeploymentStatus-id}/policy`
+   *
+   * The navigation link to the WindowsDefenderApplicationControl supplemental policy.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceAppManagement/wdacSupplementalPolicies/{windowsDefenderApplicationControlSupplementalPolicy-id}/deviceStatuses/{windowsDefenderApplicationControlSupplementalPolicyDeploymentStatus-id}/policy']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceAppManagement/wdacSupplementalPolicies/{windowsDefenderApplicationControlSupplementalPolicy-id}/deviceStatuses/{windowsDefenderApplicationControlSupplementalPolicyDeploymentStatus-id}/policy']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceAppManagement/wdacSupplementalPolicies/{windowsDefenderApplicationControlSupplementalPolicy-id}/deviceStatuses/{windowsDefenderApplicationControlSupplementalPolicyDeploymentStatus-id}/policy',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'windowsDefenderApplicationControlSupplementalPolicy-id',
+          'windowsDefenderApplicationControlSupplementalPolicyDeploymentStatus-id',
+        ],
+      },
+      params,
+    };
+  },
+};

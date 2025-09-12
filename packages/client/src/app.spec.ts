@@ -491,11 +491,9 @@ describe('App', () => {
       const getPresence = (): {
         method: 'get';
         path: '/me/presence';
-        paramDefs: [];
       } => ({
         method: 'get',
         path: '/me/presence',
-        paramDefs: [],
       });
 
       buildGraphClientSpy.mockReturnValue({ call });

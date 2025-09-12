@@ -1,5 +1,4 @@
 export * as admin from './admin';
-export * as interactionHistory from './interactionHistory';
 export * as users from './users';
 
 import type { EndpointRequest, Operation } from './../types/common.ts';
@@ -7,6 +6,9 @@ import type { EndpointRequest, Operation } from './../types/common.ts';
 export interface IEndpoints {
   'GET /copilot': Operation<'/copilot', 'get'>;
   'PATCH /copilot': Operation<'/copilot', 'patch'>;
+  'GET /copilot/interactionHistory': Operation<'/copilot/interactionHistory', 'get'>;
+  'PATCH /copilot/interactionHistory': Operation<'/copilot/interactionHistory', 'patch'>;
+  'DELETE /copilot/interactionHistory': Operation<'/copilot/interactionHistory', 'delete'>;
 }
 
 /**
@@ -19,10 +21,9 @@ export function get(
   return {
     method: 'get',
     path: '/copilot',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -32,14 +33,59 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /copilot']['body'],
-  params?: IEndpoints['PATCH /copilot']['parameters']
+  body: IEndpoints['PATCH /copilot']['body']
 ): EndpointRequest<IEndpoints['PATCH /copilot']['response']> {
   return {
     method: 'patch',
     path: '/copilot',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const interactionHistory = {
+  /**
+   * `GET /copilot/interactionHistory`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /copilot/interactionHistory']['parameters']
+  ): EndpointRequest<IEndpoints['GET /copilot/interactionHistory']['response']> {
+    return {
+      method: 'get',
+      path: '/copilot/interactionHistory',
+      paramDefs: {
+        query: ['$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /copilot/interactionHistory`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /copilot/interactionHistory']['body']
+  ): EndpointRequest<IEndpoints['PATCH /copilot/interactionHistory']['response']> {
+    return {
+      method: 'patch',
+      path: '/copilot/interactionHistory',
+      body,
+    };
+  },
+  /**
+   * `DELETE /copilot/interactionHistory`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /copilot/interactionHistory']['parameters']
+  ): EndpointRequest<IEndpoints['DELETE /copilot/interactionHistory']['response']> {
+    return {
+      method: 'delete',
+      path: '/copilot/interactionHistory',
+      paramDefs: {
+        header: ['If-Match'],
+      },
+      params,
+    };
+  },
+};

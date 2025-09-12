@@ -1,9 +1,7 @@
 export * as custodians from './custodians';
 export * as legalHolds from './legalHolds';
 export * as noncustodialDataSources from './noncustodialDataSources';
-export * as operations from './operations';
 export * as reviewSets from './reviewSets';
-export * as settings from './settings';
 export * as sourceCollections from './sourceCollections';
 export * as tags from './tags';
 
@@ -24,6 +22,38 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /compliance/ediscovery/cases': Operation<'/compliance/ediscovery/cases', 'post'>;
+  'GET /compliance/ediscovery/cases/{case-id}/operations': Operation<
+    '/compliance/ediscovery/cases/{case-id}/operations',
+    'get'
+  >;
+  'POST /compliance/ediscovery/cases/{case-id}/operations': Operation<
+    '/compliance/ediscovery/cases/{case-id}/operations',
+    'post'
+  >;
+  'GET /compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}': Operation<
+    '/compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}',
+    'get'
+  >;
+  'PATCH /compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}': Operation<
+    '/compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}',
+    'patch'
+  >;
+  'DELETE /compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}': Operation<
+    '/compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}',
+    'delete'
+  >;
+  'GET /compliance/ediscovery/cases/{case-id}/settings': Operation<
+    '/compliance/ediscovery/cases/{case-id}/settings',
+    'get'
+  >;
+  'PATCH /compliance/ediscovery/cases/{case-id}/settings': Operation<
+    '/compliance/ediscovery/cases/{case-id}/settings',
+    'patch'
+  >;
+  'DELETE /compliance/ediscovery/cases/{case-id}/settings': Operation<
+    '/compliance/ediscovery/cases/{case-id}/settings',
+    'delete'
+  >;
 }
 
 /**
@@ -39,10 +69,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/compliance/ediscovery/cases/{case-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'case-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['case-id'],
+    },
     params,
   };
 }
@@ -60,16 +90,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/compliance/ediscovery/cases',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +110,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/compliance/ediscovery/cases/{case-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'case-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['case-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +132,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/compliance/ediscovery/cases/{case-id}',
-    paramDefs: [{ name: 'case-id', in: 'path' }],
+    paramDefs: {
+      path: ['case-id'],
+    },
     params,
     body,
   };
@@ -123,15 +147,193 @@ export function update(
  * @deprecated
  */
 export function create(
-  body: IEndpoints['POST /compliance/ediscovery/cases']['body'],
-  params?: IEndpoints['POST /compliance/ediscovery/cases']['parameters']
+  body: IEndpoints['POST /compliance/ediscovery/cases']['body']
 ): EndpointRequest<IEndpoints['POST /compliance/ediscovery/cases']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/compliance/ediscovery/cases',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const operations = {
+  /**
+   * `GET /compliance/ediscovery/cases/{case-id}/operations`
+   *
+   * Returns a list of case operation objects for this case. Nullable.
+   * @deprecated
+   */
+  list: function list(
+    params?: IEndpoints['GET /compliance/ediscovery/cases/{case-id}/operations']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /compliance/ediscovery/cases/{case-id}/operations']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/compliance/ediscovery/cases/{case-id}/operations',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['case-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /compliance/ediscovery/cases/{case-id}/operations`
+   *
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /compliance/ediscovery/cases/{case-id}/operations']['body'],
+    params?: IEndpoints['POST /compliance/ediscovery/cases/{case-id}/operations']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /compliance/ediscovery/cases/{case-id}/operations']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/compliance/ediscovery/cases/{case-id}/operations',
+      paramDefs: {
+        path: ['case-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}`
+   *
+   * Returns a list of case operation objects for this case. Nullable.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['case-id', 'caseOperation-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}`
+   *
+   * @deprecated
+   */
+  update: function update(
+    body: IEndpoints['PATCH /compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}']['body'],
+    params?: IEndpoints['PATCH /compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}',
+      paramDefs: {
+        path: ['case-id', 'caseOperation-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}`
+   *
+   * @deprecated
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/compliance/ediscovery/cases/{case-id}/operations/{caseOperation-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['case-id', 'caseOperation-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const settings = {
+  /**
+   * `GET /compliance/ediscovery/cases/{case-id}/settings`
+   *
+   * Read the properties and relationships of an eDiscovery caseSettings object.
+   * @deprecated
+   */
+  list: function list(
+    params?: IEndpoints['GET /compliance/ediscovery/cases/{case-id}/settings']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /compliance/ediscovery/cases/{case-id}/settings']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/compliance/ediscovery/cases/{case-id}/settings',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['case-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /compliance/ediscovery/cases/{case-id}/settings`
+   *
+   * Update the properties of a an eDiscovery caseSettings object.
+   * @deprecated
+   */
+  update: function update(
+    body: IEndpoints['PATCH /compliance/ediscovery/cases/{case-id}/settings']['body'],
+    params?: IEndpoints['PATCH /compliance/ediscovery/cases/{case-id}/settings']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /compliance/ediscovery/cases/{case-id}/settings']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/compliance/ediscovery/cases/{case-id}/settings',
+      paramDefs: {
+        path: ['case-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /compliance/ediscovery/cases/{case-id}/settings`
+   *
+   * @deprecated
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /compliance/ediscovery/cases/{case-id}/settings']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /compliance/ediscovery/cases/{case-id}/settings']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/compliance/ediscovery/cases/{case-id}/settings',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['case-id'],
+      },
+      params,
+    };
+  },
+};

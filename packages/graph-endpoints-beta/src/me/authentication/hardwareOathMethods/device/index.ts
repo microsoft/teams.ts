@@ -31,10 +31,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}/device',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'hardwareOathAuthenticationMethod-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['hardwareOathAuthenticationMethod-id'],
+    },
     params,
   };
 }
@@ -53,11 +53,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}/device',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'hardwareOathAuthenticationMethod-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['hardwareOathAuthenticationMethod-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -76,7 +75,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/me/authentication/hardwareOathMethods/{hardwareOathAuthenticationMethod-id}/device',
-    paramDefs: [{ name: 'hardwareOathAuthenticationMethod-id', in: 'path' }],
+    paramDefs: {
+      path: ['hardwareOathAuthenticationMethod-id'],
+    },
     params,
     body,
   };

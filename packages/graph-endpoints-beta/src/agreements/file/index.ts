@@ -19,10 +19,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/agreements/{agreement-id}/file',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'agreement-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['agreement-id'],
+    },
     params,
   };
 }
@@ -39,11 +39,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/agreements/{agreement-id}/file',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'agreement-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['agreement-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -60,7 +59,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/agreements/{agreement-id}/file',
-    paramDefs: [{ name: 'agreement-id', in: 'path' }],
+    paramDefs: {
+      path: ['agreement-id'],
+    },
     params,
     body,
   };

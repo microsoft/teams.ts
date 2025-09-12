@@ -1,5 +1,3 @@
-export * as importAppleDeviceIdentityList from './importAppleDeviceIdentityList';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/importedAppleDeviceIdentities',
     'post'
   >;
+  'POST /deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/importedAppleDeviceIdentities/importAppleDeviceIdentityList': Operation<
+    '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/importedAppleDeviceIdentities/importAppleDeviceIdentityList',
+    'post'
+  >;
 }
 
 /**
@@ -38,11 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/importedAppleDeviceIdentities/{importedAppleDeviceIdentity-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'depOnboardingSetting-id', in: 'path' },
-      { name: 'importedAppleDeviceIdentity-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['depOnboardingSetting-id', 'importedAppleDeviceIdentity-id'],
+    },
     params,
   };
 }
@@ -61,17 +62,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/importedAppleDeviceIdentities',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'depOnboardingSetting-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['depOnboardingSetting-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +84,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/importedAppleDeviceIdentities/{importedAppleDeviceIdentity-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'depOnboardingSetting-id', in: 'path' },
-      { name: 'importedAppleDeviceIdentity-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['depOnboardingSetting-id', 'importedAppleDeviceIdentity-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +106,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/importedAppleDeviceIdentities/{importedAppleDeviceIdentity-id}',
-    paramDefs: [
-      { name: 'depOnboardingSetting-id', in: 'path' },
-      { name: 'importedAppleDeviceIdentity-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['depOnboardingSetting-id', 'importedAppleDeviceIdentity-id'],
+    },
     params,
     body,
   };
@@ -137,8 +128,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/importedAppleDeviceIdentities',
-    paramDefs: [{ name: 'depOnboardingSetting-id', in: 'path' }],
+    paramDefs: {
+      path: ['depOnboardingSetting-id'],
+    },
     params,
     body,
   };
 }
+
+export const importAppleDeviceIdentityList = {
+  /**
+   * `POST /deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/importedAppleDeviceIdentities/importAppleDeviceIdentityList`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/importedAppleDeviceIdentities/importAppleDeviceIdentityList']['body'],
+    params?: IEndpoints['POST /deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/importedAppleDeviceIdentities/importAppleDeviceIdentityList']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/importedAppleDeviceIdentities/importAppleDeviceIdentityList']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/depOnboardingSettings/{depOnboardingSetting-id}/importedAppleDeviceIdentities/importAppleDeviceIdentityList',
+      paramDefs: {
+        path: ['depOnboardingSetting-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

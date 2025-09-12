@@ -32,10 +32,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/admin/teams/userConfigurations/{teamsUserConfiguration-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'teamsUserConfiguration-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['teamsUserConfiguration-id'],
+    },
     params,
   };
 }
@@ -52,16 +52,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/admin/teams/userConfigurations',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -80,11 +73,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/admin/teams/userConfigurations/{teamsUserConfiguration-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'teamsUserConfiguration-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['teamsUserConfiguration-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -103,7 +95,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/admin/teams/userConfigurations/{teamsUserConfiguration-id}',
-    paramDefs: [{ name: 'teamsUserConfiguration-id', in: 'path' }],
+    paramDefs: {
+      path: ['teamsUserConfiguration-id'],
+    },
     params,
     body,
   };
@@ -114,15 +108,12 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /admin/teams/userConfigurations']['body'],
-  params?: IEndpoints['POST /admin/teams/userConfigurations']['parameters']
+  body: IEndpoints['POST /admin/teams/userConfigurations']['body']
 ): EndpointRequest<IEndpoints['POST /admin/teams/userConfigurations']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/admin/teams/userConfigurations',
-    paramDefs: [],
-    params,
     body,
   };
 }

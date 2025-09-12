@@ -50,7 +50,6 @@
         "type": "debugpy",
         "request": "launch",
         "program": "${workspaceFolder}/src/main.py",
-        "python": "${workspaceFolder}/.venv/Scripts/python.exe",
         "console": "integratedTerminal"
     },
     {

@@ -1,30 +1,105 @@
-export * as exportJobs from './exportJobs';
-export * as getCachedReport from './getCachedReport';
-export * as getCompliancePolicyNonComplianceReport from './getCompliancePolicyNonComplianceReport';
-export * as getCompliancePolicyNonComplianceSummaryReport from './getCompliancePolicyNonComplianceSummaryReport';
-export * as getComplianceSettingNonComplianceReport from './getComplianceSettingNonComplianceReport';
-export * as getConfigurationPolicyNonComplianceReport from './getConfigurationPolicyNonComplianceReport';
-export * as getConfigurationPolicyNonComplianceSummaryReport from './getConfigurationPolicyNonComplianceSummaryReport';
-export * as getConfigurationSettingNonComplianceReport from './getConfigurationSettingNonComplianceReport';
-export * as getDeviceManagementIntentPerSettingContributingProfiles from './getDeviceManagementIntentPerSettingContributingProfiles';
-export * as getDeviceManagementIntentSettingsReport from './getDeviceManagementIntentSettingsReport';
-export * as getDeviceNonComplianceReport from './getDeviceNonComplianceReport';
-export * as getDevicesWithoutCompliancePolicyReport from './getDevicesWithoutCompliancePolicyReport';
-export * as getHistoricalReport from './getHistoricalReport';
-export * as getNoncompliantDevicesAndSettingsReport from './getNoncompliantDevicesAndSettingsReport';
-export * as getPolicyNonComplianceMetadata from './getPolicyNonComplianceMetadata';
-export * as getPolicyNonComplianceReport from './getPolicyNonComplianceReport';
-export * as getPolicyNonComplianceSummaryReport from './getPolicyNonComplianceSummaryReport';
-export * as getReportFilters from './getReportFilters';
-export * as getSettingNonComplianceReport from './getSettingNonComplianceReport';
-export * as retrieveDeviceAppInstallationStatusReport from './retrieveDeviceAppInstallationStatusReport';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
   'DELETE /deviceManagement/reports': Operation<'/deviceManagement/reports', 'delete'>;
   'GET /deviceManagement/reports': Operation<'/deviceManagement/reports', 'get'>;
   'PATCH /deviceManagement/reports': Operation<'/deviceManagement/reports', 'patch'>;
+  'GET /deviceManagement/reports/exportJobs': Operation<
+    '/deviceManagement/reports/exportJobs',
+    'get'
+  >;
+  'POST /deviceManagement/reports/exportJobs': Operation<
+    '/deviceManagement/reports/exportJobs',
+    'post'
+  >;
+  'GET /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}': Operation<
+    '/deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}',
+    'get'
+  >;
+  'PATCH /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}': Operation<
+    '/deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}',
+    'patch'
+  >;
+  'DELETE /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}': Operation<
+    '/deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}',
+    'delete'
+  >;
+  'POST /deviceManagement/reports/getCachedReport': Operation<
+    '/deviceManagement/reports/getCachedReport',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getCompliancePolicyNonComplianceReport': Operation<
+    '/deviceManagement/reports/getCompliancePolicyNonComplianceReport',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getCompliancePolicyNonComplianceSummaryReport': Operation<
+    '/deviceManagement/reports/getCompliancePolicyNonComplianceSummaryReport',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getComplianceSettingNonComplianceReport': Operation<
+    '/deviceManagement/reports/getComplianceSettingNonComplianceReport',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getConfigurationPolicyNonComplianceReport': Operation<
+    '/deviceManagement/reports/getConfigurationPolicyNonComplianceReport',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getConfigurationPolicyNonComplianceSummaryReport': Operation<
+    '/deviceManagement/reports/getConfigurationPolicyNonComplianceSummaryReport',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getConfigurationSettingNonComplianceReport': Operation<
+    '/deviceManagement/reports/getConfigurationSettingNonComplianceReport',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getDeviceManagementIntentPerSettingContributingProfiles': Operation<
+    '/deviceManagement/reports/getDeviceManagementIntentPerSettingContributingProfiles',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getDeviceManagementIntentSettingsReport': Operation<
+    '/deviceManagement/reports/getDeviceManagementIntentSettingsReport',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getDeviceNonComplianceReport': Operation<
+    '/deviceManagement/reports/getDeviceNonComplianceReport',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getDevicesWithoutCompliancePolicyReport': Operation<
+    '/deviceManagement/reports/getDevicesWithoutCompliancePolicyReport',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getHistoricalReport': Operation<
+    '/deviceManagement/reports/getHistoricalReport',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getNoncompliantDevicesAndSettingsReport': Operation<
+    '/deviceManagement/reports/getNoncompliantDevicesAndSettingsReport',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getPolicyNonComplianceMetadata': Operation<
+    '/deviceManagement/reports/getPolicyNonComplianceMetadata',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getPolicyNonComplianceReport': Operation<
+    '/deviceManagement/reports/getPolicyNonComplianceReport',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getPolicyNonComplianceSummaryReport': Operation<
+    '/deviceManagement/reports/getPolicyNonComplianceSummaryReport',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getReportFilters': Operation<
+    '/deviceManagement/reports/getReportFilters',
+    'post'
+  >;
+  'POST /deviceManagement/reports/getSettingNonComplianceReport': Operation<
+    '/deviceManagement/reports/getSettingNonComplianceReport',
+    'post'
+  >;
+  'POST /deviceManagement/reports/retrieveDeviceAppInstallationStatusReport': Operation<
+    '/deviceManagement/reports/retrieveDeviceAppInstallationStatusReport',
+    'post'
+  >;
 }
 
 /**
@@ -37,7 +112,9 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceManagement/reports',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -53,10 +130,9 @@ export function list(
   return {
     method: 'get',
     path: '/deviceManagement/reports',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -67,14 +143,460 @@ export function list(
  * Update the properties of a deviceManagementReports object.
  */
 export function update(
-  body: IEndpoints['PATCH /deviceManagement/reports']['body'],
-  params?: IEndpoints['PATCH /deviceManagement/reports']['parameters']
+  body: IEndpoints['PATCH /deviceManagement/reports']['body']
 ): EndpointRequest<IEndpoints['PATCH /deviceManagement/reports']['response']> {
   return {
     method: 'patch',
     path: '/deviceManagement/reports',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const exportJobs = {
+  /**
+   * `GET /deviceManagement/reports/exportJobs`
+   *
+   * List properties and relationships of the deviceManagementExportJob objects.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/reports/exportJobs']['parameters']
+  ): EndpointRequest<IEndpoints['GET /deviceManagement/reports/exportJobs']['response']> {
+    return {
+      method: 'get',
+      path: '/deviceManagement/reports/exportJobs',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceManagement/reports/exportJobs`
+   *
+   * Create a new deviceManagementExportJob object.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/exportJobs']['body']
+  ): EndpointRequest<IEndpoints['POST /deviceManagement/reports/exportJobs']['response']> {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/exportJobs',
+      body,
+    };
+  },
+  /**
+   * `GET /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}`
+   *
+   * Read properties and relationships of the deviceManagementExportJob object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['deviceManagementExportJob-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}`
+   *
+   * Update the properties of a deviceManagementExportJob object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}']['body'],
+    params?: IEndpoints['PATCH /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}',
+      paramDefs: {
+        path: ['deviceManagementExportJob-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}`
+   *
+   * Deletes a deviceManagementExportJob.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['deviceManagementExportJob-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const getCachedReport = {
+  /**
+   * `POST /deviceManagement/reports/getCachedReport`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getCachedReport']['body']
+  ): EndpointRequest<IEndpoints['POST /deviceManagement/reports/getCachedReport']['response']> {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getCachedReport',
+      body,
+    };
+  },
+};
+
+export const getCompliancePolicyNonComplianceReport = {
+  /**
+   * `POST /deviceManagement/reports/getCompliancePolicyNonComplianceReport`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getCompliancePolicyNonComplianceReport']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reports/getCompliancePolicyNonComplianceReport']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getCompliancePolicyNonComplianceReport',
+      body,
+    };
+  },
+};
+
+export const getCompliancePolicyNonComplianceSummaryReport = {
+  /**
+   * `POST /deviceManagement/reports/getCompliancePolicyNonComplianceSummaryReport`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getCompliancePolicyNonComplianceSummaryReport']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reports/getCompliancePolicyNonComplianceSummaryReport']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getCompliancePolicyNonComplianceSummaryReport',
+      body,
+    };
+  },
+};
+
+export const getComplianceSettingNonComplianceReport = {
+  /**
+   * `POST /deviceManagement/reports/getComplianceSettingNonComplianceReport`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getComplianceSettingNonComplianceReport']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reports/getComplianceSettingNonComplianceReport']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getComplianceSettingNonComplianceReport',
+      body,
+    };
+  },
+};
+
+export const getConfigurationPolicyNonComplianceReport = {
+  /**
+   * `POST /deviceManagement/reports/getConfigurationPolicyNonComplianceReport`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getConfigurationPolicyNonComplianceReport']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reports/getConfigurationPolicyNonComplianceReport']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getConfigurationPolicyNonComplianceReport',
+      body,
+    };
+  },
+};
+
+export const getConfigurationPolicyNonComplianceSummaryReport = {
+  /**
+   * `POST /deviceManagement/reports/getConfigurationPolicyNonComplianceSummaryReport`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getConfigurationPolicyNonComplianceSummaryReport']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reports/getConfigurationPolicyNonComplianceSummaryReport']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getConfigurationPolicyNonComplianceSummaryReport',
+      body,
+    };
+  },
+};
+
+export const getConfigurationSettingNonComplianceReport = {
+  /**
+   * `POST /deviceManagement/reports/getConfigurationSettingNonComplianceReport`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getConfigurationSettingNonComplianceReport']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reports/getConfigurationSettingNonComplianceReport']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getConfigurationSettingNonComplianceReport',
+      body,
+    };
+  },
+};
+
+export const getDeviceManagementIntentPerSettingContributingProfiles = {
+  /**
+   * `POST /deviceManagement/reports/getDeviceManagementIntentPerSettingContributingProfiles`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getDeviceManagementIntentPerSettingContributingProfiles']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reports/getDeviceManagementIntentPerSettingContributingProfiles']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getDeviceManagementIntentPerSettingContributingProfiles',
+      body,
+    };
+  },
+};
+
+export const getDeviceManagementIntentSettingsReport = {
+  /**
+   * `POST /deviceManagement/reports/getDeviceManagementIntentSettingsReport`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getDeviceManagementIntentSettingsReport']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reports/getDeviceManagementIntentSettingsReport']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getDeviceManagementIntentSettingsReport',
+      body,
+    };
+  },
+};
+
+export const getDeviceNonComplianceReport = {
+  /**
+   * `POST /deviceManagement/reports/getDeviceNonComplianceReport`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getDeviceNonComplianceReport']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reports/getDeviceNonComplianceReport']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getDeviceNonComplianceReport',
+      body,
+    };
+  },
+};
+
+export const getDevicesWithoutCompliancePolicyReport = {
+  /**
+   * `POST /deviceManagement/reports/getDevicesWithoutCompliancePolicyReport`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getDevicesWithoutCompliancePolicyReport']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reports/getDevicesWithoutCompliancePolicyReport']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getDevicesWithoutCompliancePolicyReport',
+      body,
+    };
+  },
+};
+
+export const getHistoricalReport = {
+  /**
+   * `POST /deviceManagement/reports/getHistoricalReport`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getHistoricalReport']['body']
+  ): EndpointRequest<IEndpoints['POST /deviceManagement/reports/getHistoricalReport']['response']> {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getHistoricalReport',
+      body,
+    };
+  },
+};
+
+export const getNoncompliantDevicesAndSettingsReport = {
+  /**
+   * `POST /deviceManagement/reports/getNoncompliantDevicesAndSettingsReport`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getNoncompliantDevicesAndSettingsReport']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reports/getNoncompliantDevicesAndSettingsReport']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getNoncompliantDevicesAndSettingsReport',
+      body,
+    };
+  },
+};
+
+export const getPolicyNonComplianceMetadata = {
+  /**
+   * `POST /deviceManagement/reports/getPolicyNonComplianceMetadata`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getPolicyNonComplianceMetadata']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reports/getPolicyNonComplianceMetadata']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getPolicyNonComplianceMetadata',
+      body,
+    };
+  },
+};
+
+export const getPolicyNonComplianceReport = {
+  /**
+   * `POST /deviceManagement/reports/getPolicyNonComplianceReport`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getPolicyNonComplianceReport']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reports/getPolicyNonComplianceReport']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getPolicyNonComplianceReport',
+      body,
+    };
+  },
+};
+
+export const getPolicyNonComplianceSummaryReport = {
+  /**
+   * `POST /deviceManagement/reports/getPolicyNonComplianceSummaryReport`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getPolicyNonComplianceSummaryReport']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reports/getPolicyNonComplianceSummaryReport']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getPolicyNonComplianceSummaryReport',
+      body,
+    };
+  },
+};
+
+export const getReportFilters = {
+  /**
+   * `POST /deviceManagement/reports/getReportFilters`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getReportFilters']['body']
+  ): EndpointRequest<IEndpoints['POST /deviceManagement/reports/getReportFilters']['response']> {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getReportFilters',
+      body,
+    };
+  },
+};
+
+export const getSettingNonComplianceReport = {
+  /**
+   * `POST /deviceManagement/reports/getSettingNonComplianceReport`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/getSettingNonComplianceReport']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reports/getSettingNonComplianceReport']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/getSettingNonComplianceReport',
+      body,
+    };
+  },
+};
+
+export const retrieveDeviceAppInstallationStatusReport = {
+  /**
+   * `POST /deviceManagement/reports/retrieveDeviceAppInstallationStatusReport`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/reports/retrieveDeviceAppInstallationStatusReport']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/reports/retrieveDeviceAppInstallationStatusReport']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/reports/retrieveDeviceAppInstallationStatusReport',
+      body,
+    };
+  },
+};

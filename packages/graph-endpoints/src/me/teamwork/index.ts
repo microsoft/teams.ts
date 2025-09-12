@@ -23,7 +23,9 @@ export function del(
   return {
     method: 'delete',
     path: '/me/teamwork',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -39,10 +41,9 @@ export function get(
   return {
     method: 'get',
     path: '/me/teamwork',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }

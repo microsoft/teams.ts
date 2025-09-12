@@ -1,5 +1,3 @@
-export * as dependentResources from './dependentResources';
-
 import type { EndpointRequest, Operation } from './../../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,26 @@ export interface IEndpoints {
     '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources',
     'post'
   >;
+  'GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources': Operation<
+    '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources',
+    'get'
+  >;
+  'POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources': Operation<
+    '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources',
+    'post'
+  >;
+  'GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}': Operation<
+    '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}',
+    'get'
+  >;
+  'PATCH /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}': Operation<
+    '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}',
+    'patch'
+  >;
+  'DELETE /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}': Operation<
+    '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}',
+    'delete'
+  >;
 }
 
 /**
@@ -38,12 +56,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'educationAssignment-id', in: 'path' },
-      { name: 'educationSubmission-id', in: 'path' },
-      { name: 'educationSubmissionResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['educationAssignment-id', 'educationSubmission-id', 'educationSubmissionResource-id'],
+    },
     params,
   };
 }
@@ -61,18 +77,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'educationAssignment-id', in: 'path' },
-      { name: 'educationSubmission-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['educationAssignment-id', 'educationSubmission-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,13 +98,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'educationAssignment-id', in: 'path' },
-      { name: 'educationSubmission-id', in: 'path' },
-      { name: 'educationSubmissionResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['educationAssignment-id', 'educationSubmission-id', 'educationSubmissionResource-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,11 +120,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}',
-    paramDefs: [
-      { name: 'educationAssignment-id', in: 'path' },
-      { name: 'educationSubmission-id', in: 'path' },
-      { name: 'educationSubmissionResource-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['educationAssignment-id', 'educationSubmission-id', 'educationSubmissionResource-id'],
+    },
     params,
     body,
   };
@@ -139,11 +142,138 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources',
-    paramDefs: [
-      { name: 'educationAssignment-id', in: 'path' },
-      { name: 'educationSubmission-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['educationAssignment-id', 'educationSubmission-id'],
+    },
     params,
     body,
   };
 }
+
+export const dependentResources = {
+  /**
+   * `GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: [
+          'educationAssignment-id',
+          'educationSubmission-id',
+          'educationSubmissionResource-id',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources']['body'],
+    params?: IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources',
+      paramDefs: {
+        path: [
+          'educationAssignment-id',
+          'educationSubmission-id',
+          'educationSubmissionResource-id',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: [
+          'educationAssignment-id',
+          'educationSubmission-id',
+          'educationSubmissionResource-id',
+          'educationSubmissionResource-id1',
+        ],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}']['body'],
+    params?: IEndpoints['PATCH /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}',
+      paramDefs: {
+        path: [
+          'educationAssignment-id',
+          'educationSubmission-id',
+          'educationSubmissionResource-id',
+          'educationSubmissionResource-id1',
+        ],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/submittedResources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: [
+          'educationAssignment-id',
+          'educationSubmission-id',
+          'educationSubmissionResource-id',
+          'educationSubmissionResource-id1',
+        ],
+      },
+      params,
+    };
+  },
+};

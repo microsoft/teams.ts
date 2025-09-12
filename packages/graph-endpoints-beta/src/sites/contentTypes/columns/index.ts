@@ -1,5 +1,3 @@
-export * as sourceColumn from './sourceColumn';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/sites/{site-id}/contentTypes/{contentType-id}/columns',
     'post'
   >;
+  'GET /sites/{site-id}/contentTypes/{contentType-id}/columns/{columnDefinition-id}/sourceColumn': Operation<
+    '/sites/{site-id}/contentTypes/{contentType-id}/columns/{columnDefinition-id}/sourceColumn',
+    'get'
+  >;
 }
 
 /**
@@ -38,12 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/sites/{site-id}/contentTypes/{contentType-id}/columns/{columnDefinition-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'site-id', in: 'path' },
-      { name: 'contentType-id', in: 'path' },
-      { name: 'columnDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['site-id', 'contentType-id', 'columnDefinition-id'],
+    },
     params,
   };
 }
@@ -62,18 +62,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/sites/{site-id}/contentTypes/{contentType-id}/columns',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'contentType-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'contentType-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -92,13 +84,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/sites/{site-id}/contentTypes/{contentType-id}/columns/{columnDefinition-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'site-id', in: 'path' },
-      { name: 'contentType-id', in: 'path' },
-      { name: 'columnDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'contentType-id', 'columnDefinition-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -117,11 +106,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/sites/{site-id}/contentTypes/{contentType-id}/columns/{columnDefinition-id}',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'contentType-id', in: 'path' },
-      { name: 'columnDefinition-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'contentType-id', 'columnDefinition-id'],
+    },
     params,
     body,
   };
@@ -141,11 +128,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/sites/{site-id}/contentTypes/{contentType-id}/columns',
-    paramDefs: [
-      { name: 'site-id', in: 'path' },
-      { name: 'contentType-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['site-id', 'contentType-id'],
+    },
     params,
     body,
   };
 }
+
+export const sourceColumn = {
+  /**
+   * `GET /sites/{site-id}/contentTypes/{contentType-id}/columns/{columnDefinition-id}/sourceColumn`
+   *
+   * The source column for content type column.
+   */
+  get: function get(
+    params?: IEndpoints['GET /sites/{site-id}/contentTypes/{contentType-id}/columns/{columnDefinition-id}/sourceColumn']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /sites/{site-id}/contentTypes/{contentType-id}/columns/{columnDefinition-id}/sourceColumn']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/sites/{site-id}/contentTypes/{contentType-id}/columns/{columnDefinition-id}/sourceColumn',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['site-id', 'contentType-id', 'columnDefinition-id'],
+      },
+      params,
+    };
+  },
+};

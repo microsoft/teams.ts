@@ -1,5 +1,3 @@
-export * as removePersonalData from './removePersonalData';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/directory/outboundSharedUserProfiles/{outboundSharedUserProfile-userId}/tenants',
     'post'
   >;
+  'POST /directory/outboundSharedUserProfiles/{outboundSharedUserProfile-userId}/tenants/{tenantReference-tenantId}/removePersonalData': Operation<
+    '/directory/outboundSharedUserProfiles/{outboundSharedUserProfile-userId}/tenants/{tenantReference-tenantId}/removePersonalData',
+    'post'
+  >;
 }
 
 /**
@@ -38,11 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/directory/outboundSharedUserProfiles/{outboundSharedUserProfile-userId}/tenants/{tenantReference-tenantId}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'outboundSharedUserProfile-userId', in: 'path' },
-      { name: 'tenantReference-tenantId', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['outboundSharedUserProfile-userId', 'tenantReference-tenantId'],
+    },
     params,
   };
 }
@@ -61,17 +62,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/directory/outboundSharedUserProfiles/{outboundSharedUserProfile-userId}/tenants',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'outboundSharedUserProfile-userId', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['outboundSharedUserProfile-userId'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -90,12 +84,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/directory/outboundSharedUserProfiles/{outboundSharedUserProfile-userId}/tenants/{tenantReference-tenantId}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'outboundSharedUserProfile-userId', in: 'path' },
-      { name: 'tenantReference-tenantId', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['outboundSharedUserProfile-userId', 'tenantReference-tenantId'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +106,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/directory/outboundSharedUserProfiles/{outboundSharedUserProfile-userId}/tenants/{tenantReference-tenantId}',
-    paramDefs: [
-      { name: 'outboundSharedUserProfile-userId', in: 'path' },
-      { name: 'tenantReference-tenantId', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['outboundSharedUserProfile-userId', 'tenantReference-tenantId'],
+    },
     params,
     body,
   };
@@ -137,8 +128,33 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/directory/outboundSharedUserProfiles/{outboundSharedUserProfile-userId}/tenants',
-    paramDefs: [{ name: 'outboundSharedUserProfile-userId', in: 'path' }],
+    paramDefs: {
+      path: ['outboundSharedUserProfile-userId'],
+    },
     params,
     body,
   };
 }
+
+export const removePersonalData = {
+  /**
+   * `POST /directory/outboundSharedUserProfiles/{outboundSharedUserProfile-userId}/tenants/{tenantReference-tenantId}/removePersonalData`
+   *
+   * Create a request to remove the personal data for an outboundSharedUserProfile.
+   */
+  create: function create(
+    params?: IEndpoints['POST /directory/outboundSharedUserProfiles/{outboundSharedUserProfile-userId}/tenants/{tenantReference-tenantId}/removePersonalData']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /directory/outboundSharedUserProfiles/{outboundSharedUserProfile-userId}/tenants/{tenantReference-tenantId}/removePersonalData']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/directory/outboundSharedUserProfiles/{outboundSharedUserProfile-userId}/tenants/{tenantReference-tenantId}/removePersonalData',
+      paramDefs: {
+        path: ['outboundSharedUserProfile-userId', 'tenantReference-tenantId'],
+      },
+      params,
+    };
+  },
+};

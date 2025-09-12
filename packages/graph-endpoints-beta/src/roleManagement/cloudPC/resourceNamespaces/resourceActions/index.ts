@@ -1,6 +1,3 @@
-export * as authenticationContext from './authenticationContext';
-export * as resourceScope from './resourceScope';
-
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,22 @@ export interface IEndpoints {
     '/roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions',
     'post'
   >;
+  'GET /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/authenticationContext': Operation<
+    '/roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/authenticationContext',
+    'get'
+  >;
+  'GET /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope': Operation<
+    '/roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope',
+    'get'
+  >;
+  'PATCH /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope': Operation<
+    '/roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope',
+    'patch'
+  >;
+  'DELETE /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope': Operation<
+    '/roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope',
+    'delete'
+  >;
 }
 
 /**
@@ -40,11 +53,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'unifiedRbacResourceNamespace-id', in: 'path' },
-      { name: 'unifiedRbacResourceAction-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['unifiedRbacResourceNamespace-id', 'unifiedRbacResourceAction-id'],
+    },
     params,
   };
 }
@@ -64,17 +76,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'unifiedRbacResourceNamespace-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['unifiedRbacResourceNamespace-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -94,12 +99,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'unifiedRbacResourceNamespace-id', in: 'path' },
-      { name: 'unifiedRbacResourceAction-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['unifiedRbacResourceNamespace-id', 'unifiedRbacResourceAction-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -119,10 +122,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}',
-    paramDefs: [
-      { name: 'unifiedRbacResourceNamespace-id', in: 'path' },
-      { name: 'unifiedRbacResourceAction-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['unifiedRbacResourceNamespace-id', 'unifiedRbacResourceAction-id'],
+    },
     params,
     body,
   };
@@ -143,8 +145,101 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions',
-    paramDefs: [{ name: 'unifiedRbacResourceNamespace-id', in: 'path' }],
+    paramDefs: {
+      path: ['unifiedRbacResourceNamespace-id'],
+    },
     params,
     body,
   };
 }
+
+export const authenticationContext = {
+  /**
+   * `GET /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/authenticationContext`
+   *
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/authenticationContext']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/authenticationContext']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/authenticationContext',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRbacResourceNamespace-id', 'unifiedRbacResourceAction-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const resourceScope = {
+  /**
+   * `GET /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope`
+   *
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['unifiedRbacResourceNamespace-id', 'unifiedRbacResourceAction-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope`
+   *
+   * @deprecated
+   */
+  update: function update(
+    body: IEndpoints['PATCH /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope']['body'],
+    params?: IEndpoints['PATCH /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope',
+      paramDefs: {
+        path: ['unifiedRbacResourceNamespace-id', 'unifiedRbacResourceAction-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope`
+   *
+   * @deprecated
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/roleManagement/cloudPC/resourceNamespaces/{unifiedRbacResourceNamespace-id}/resourceActions/{unifiedRbacResourceAction-id}/resourceScope',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['unifiedRbacResourceNamespace-id', 'unifiedRbacResourceAction-id'],
+      },
+      params,
+    };
+  },
+};

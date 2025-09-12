@@ -1,6 +1,5 @@
 export * as granularMailboxRestoreArtifacts from './granularMailboxRestoreArtifacts';
 export * as mailboxRestoreArtifacts from './mailboxRestoreArtifacts';
-export * as mailboxRestoreArtifactsBulkAdditionRequests from './mailboxRestoreArtifactsBulkAdditionRequests';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
@@ -25,6 +24,26 @@ export interface IEndpoints {
     '/solutions/backupRestore/exchangeRestoreSessions',
     'post'
   >;
+  'GET /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests': Operation<
+    '/solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests',
+    'get'
+  >;
+  'POST /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests': Operation<
+    '/solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests',
+    'post'
+  >;
+  'GET /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}': Operation<
+    '/solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}',
+    'get'
+  >;
+  'PATCH /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}': Operation<
+    '/solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}',
+    'patch'
+  >;
+  'DELETE /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}': Operation<
+    '/solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -40,10 +59,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'exchangeRestoreSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['exchangeRestoreSession-id'],
+    },
     params,
   };
 }
@@ -60,16 +79,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/solutions/backupRestore/exchangeRestoreSessions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,11 +100,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'exchangeRestoreSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['exchangeRestoreSession-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,7 +123,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}',
-    paramDefs: [{ name: 'exchangeRestoreSession-id', in: 'path' }],
+    paramDefs: {
+      path: ['exchangeRestoreSession-id'],
+    },
     params,
     body,
   };
@@ -123,8 +136,7 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /solutions/backupRestore/exchangeRestoreSessions']['body'],
-  params?: IEndpoints['POST /solutions/backupRestore/exchangeRestoreSessions']['parameters']
+  body: IEndpoints['POST /solutions/backupRestore/exchangeRestoreSessions']['body']
 ): EndpointRequest<
   IEndpoints['POST /solutions/backupRestore/exchangeRestoreSessions']['response']
 > {
@@ -132,8 +144,115 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/solutions/backupRestore/exchangeRestoreSessions',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const mailboxRestoreArtifactsBulkAdditionRequests = {
+  /**
+   * `GET /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests`
+   *
+   * Get a list of the maiboxRestoreArtifactsBulkAdditionRequest objects associated with an exchangeRestoreSession. The mailboxes property is deliberately omitted from the response body in order to limit the response size.
+   */
+  list: function list(
+    params?: IEndpoints['GET /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['exchangeRestoreSession-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests`
+   *
+   * Create a new mailboxRestoreArtifactsBulkAdditionRequest object associated with an exchangeRestoreSession. The following steps describe how to create and manage an exchangeRestoreSession with bulk artifact additions:
+   */
+  create: function create(
+    body: IEndpoints['POST /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests']['body'],
+    params?: IEndpoints['POST /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests',
+      paramDefs: {
+        path: ['exchangeRestoreSession-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}`
+   *
+   * Get a mailboxRestoreArtifactsBulkAdditionRequest object by its id, associated with an exchangeRestoreSession.
+   */
+  get: function get(
+    params?: IEndpoints['GET /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['exchangeRestoreSession-id', 'mailboxRestoreArtifactsBulkAdditionRequest-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}']['body'],
+    params?: IEndpoints['PATCH /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}',
+      paramDefs: {
+        path: ['exchangeRestoreSession-id', 'mailboxRestoreArtifactsBulkAdditionRequest-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}`
+   *
+   * Delete a mailboxRestoreArtifactsBulkAdditionRequest object associated with an exchangeRestoreSession.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/solutions/backupRestore/exchangeRestoreSessions/{exchangeRestoreSession-id}/mailboxRestoreArtifactsBulkAdditionRequests/{mailboxRestoreArtifactsBulkAdditionRequest-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['exchangeRestoreSession-id', 'mailboxRestoreArtifactsBulkAdditionRequest-id'],
+      },
+      params,
+    };
+  },
+};

@@ -1,5 +1,3 @@
-export * as createDownloadUrl from './createDownloadUrl';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}/appLogCollectionRequests',
     'post'
   >;
+  'POST /deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}/appLogCollectionRequests/{appLogCollectionRequest-id}/createDownloadUrl': Operation<
+    '/deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}/appLogCollectionRequests/{appLogCollectionRequest-id}/createDownloadUrl',
+    'post'
+  >;
 }
 
 /**
@@ -38,11 +40,10 @@ export function del(
   return {
     method: 'delete',
     path: '/deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}/appLogCollectionRequests/{appLogCollectionRequest-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'mobileAppTroubleshootingEvent-id', in: 'path' },
-      { name: 'appLogCollectionRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['mobileAppTroubleshootingEvent-id', 'appLogCollectionRequest-id'],
+    },
     params,
   };
 }
@@ -60,17 +61,10 @@ export function list(
   return {
     method: 'get',
     path: '/deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}/appLogCollectionRequests',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'mobileAppTroubleshootingEvent-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['mobileAppTroubleshootingEvent-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,12 +82,10 @@ export function get(
   return {
     method: 'get',
     path: '/deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}/appLogCollectionRequests/{appLogCollectionRequest-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'mobileAppTroubleshootingEvent-id', in: 'path' },
-      { name: 'appLogCollectionRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['mobileAppTroubleshootingEvent-id', 'appLogCollectionRequest-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,10 +104,9 @@ export function update(
   return {
     method: 'patch',
     path: '/deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}/appLogCollectionRequests/{appLogCollectionRequest-id}',
-    paramDefs: [
-      { name: 'mobileAppTroubleshootingEvent-id', in: 'path' },
-      { name: 'appLogCollectionRequest-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['mobileAppTroubleshootingEvent-id', 'appLogCollectionRequest-id'],
+    },
     params,
     body,
   };
@@ -135,8 +126,32 @@ export function create(
   return {
     method: 'post',
     path: '/deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}/appLogCollectionRequests',
-    paramDefs: [{ name: 'mobileAppTroubleshootingEvent-id', in: 'path' }],
+    paramDefs: {
+      path: ['mobileAppTroubleshootingEvent-id'],
+    },
     params,
     body,
   };
 }
+
+export const createDownloadUrl = {
+  /**
+   * `POST /deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}/appLogCollectionRequests/{appLogCollectionRequest-id}/createDownloadUrl`
+   *
+   * Not yet documented
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}/appLogCollectionRequests/{appLogCollectionRequest-id}/createDownloadUrl']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}/appLogCollectionRequests/{appLogCollectionRequest-id}/createDownloadUrl']['response']
+  > {
+    return {
+      method: 'post',
+      path: '/deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}/appLogCollectionRequests/{appLogCollectionRequest-id}/createDownloadUrl',
+      paramDefs: {
+        path: ['mobileAppTroubleshootingEvent-id', 'appLogCollectionRequest-id'],
+      },
+      params,
+    };
+  },
+};

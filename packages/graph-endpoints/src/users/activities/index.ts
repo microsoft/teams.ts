@@ -29,11 +29,10 @@ export function del(
   return {
     method: 'delete',
     path: '/users/{user-id}/activities/{userActivity-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'userActivity-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'userActivity-id'],
+    },
     params,
   };
 }
@@ -49,17 +48,10 @@ export function list(
   return {
     method: 'get',
     path: '/users/{user-id}/activities',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -75,12 +67,10 @@ export function get(
   return {
     method: 'get',
     path: '/users/{user-id}/activities/{userActivity-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'userActivity-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'userActivity-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -96,10 +86,9 @@ export function update(
   return {
     method: 'patch',
     path: '/users/{user-id}/activities/{userActivity-id}',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'userActivity-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'userActivity-id'],
+    },
     params,
     body,
   };
@@ -116,7 +105,9 @@ export function create(
   return {
     method: 'post',
     path: '/users/{user-id}/activities',
-    paramDefs: [{ name: 'user-id', in: 'path' }],
+    paramDefs: {
+      path: ['user-id'],
+    },
     params,
     body,
   };

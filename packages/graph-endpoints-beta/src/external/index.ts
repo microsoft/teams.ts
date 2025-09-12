@@ -20,10 +20,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/external',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -33,15 +32,12 @@ export function get(
  *
  */
 export function update(
-  body: IEndpoints['PATCH /external']['body'],
-  params?: IEndpoints['PATCH /external']['parameters']
+  body: IEndpoints['PATCH /external']['body']
 ): EndpointRequest<IEndpoints['PATCH /external']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/external',
-    paramDefs: [],
-    params,
     body,
   };
 }

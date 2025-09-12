@@ -1,5 +1,4 @@
 export * as siteSources from './siteSources';
-export * as userSources from './userSources';
 
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
@@ -24,6 +23,26 @@ export interface IEndpoints {
     '/security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds',
     'post'
   >;
+  'GET /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources': Operation<
+    '/security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources',
+    'get'
+  >;
+  'POST /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources': Operation<
+    '/security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources',
+    'post'
+  >;
+  'GET /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}': Operation<
+    '/security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}',
+    'get'
+  >;
+  'PATCH /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}': Operation<
+    '/security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}',
+    'patch'
+  >;
+  'DELETE /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}': Operation<
+    '/security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -39,11 +58,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'ediscoveryCase-id', in: 'path' },
-      { name: 'ediscoveryHoldPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['ediscoveryCase-id', 'ediscoveryHoldPolicy-id'],
+    },
     params,
   };
 }
@@ -62,17 +80,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'ediscoveryCase-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['ediscoveryCase-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -91,12 +102,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'ediscoveryCase-id', in: 'path' },
-      { name: 'ediscoveryHoldPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['ediscoveryCase-id', 'ediscoveryHoldPolicy-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -115,10 +124,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}',
-    paramDefs: [
-      { name: 'ediscoveryCase-id', in: 'path' },
-      { name: 'ediscoveryHoldPolicy-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['ediscoveryCase-id', 'ediscoveryHoldPolicy-id'],
+    },
     params,
     body,
   };
@@ -139,8 +147,119 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds',
-    paramDefs: [{ name: 'ediscoveryCase-id', in: 'path' }],
+    paramDefs: {
+      path: ['ediscoveryCase-id'],
+    },
     params,
     body,
   };
 }
+
+export const userSources = {
+  /**
+   * `GET /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources`
+   *
+   * Data sources that represent Exchange mailboxes.
+   */
+  list: function list(
+    params?: IEndpoints['GET /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['ediscoveryCase-id', 'ediscoveryHoldPolicy-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources`
+   *
+   * Create a new userSource object.
+   */
+  create: function create(
+    body: IEndpoints['POST /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources']['body'],
+    params?: IEndpoints['POST /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources',
+      paramDefs: {
+        path: ['ediscoveryCase-id', 'ediscoveryHoldPolicy-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}`
+   *
+   * Data sources that represent Exchange mailboxes.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['ediscoveryCase-id', 'ediscoveryHoldPolicy-id', 'userSource-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}']['body'],
+    params?: IEndpoints['PATCH /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}',
+      paramDefs: {
+        path: ['ediscoveryCase-id', 'ediscoveryHoldPolicy-id', 'userSource-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}`
+   *
+   * Delete a userSource object associated with an ediscoveryHoldPolicy.
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/security/cases/ediscoveryCases/{ediscoveryCase-id}/legalHolds/{ediscoveryHoldPolicy-id}/userSources/{userSource-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['ediscoveryCase-id', 'ediscoveryHoldPolicy-id', 'userSource-id'],
+      },
+      params,
+    };
+  },
+};

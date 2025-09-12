@@ -19,7 +19,9 @@ export function del(
   return {
     method: 'delete',
     path: '/me/planner',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -35,10 +37,9 @@ export function get(
   return {
     method: 'get',
     path: '/me/planner',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -54,7 +55,9 @@ export function update(
   return {
     method: 'patch',
     path: '/me/planner',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
     body,
   };

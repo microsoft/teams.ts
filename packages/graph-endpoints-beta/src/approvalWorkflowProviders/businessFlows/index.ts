@@ -1,5 +1,3 @@
-export * as recordDecisions from './recordDecisions';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/businessFlows',
     'post'
   >;
+  'POST /approvalWorkflowProviders/{approvalWorkflowProvider-id}/businessFlows/{businessFlow-id}/recordDecisions': Operation<
+    '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/businessFlows/{businessFlow-id}/recordDecisions',
+    'post'
+  >;
 }
 
 /**
@@ -38,11 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/businessFlows/{businessFlow-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'approvalWorkflowProvider-id', in: 'path' },
-      { name: 'businessFlow-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['approvalWorkflowProvider-id', 'businessFlow-id'],
+    },
     params,
   };
 }
@@ -60,17 +61,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/businessFlows',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'approvalWorkflowProvider-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['approvalWorkflowProvider-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -88,12 +82,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/businessFlows/{businessFlow-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'approvalWorkflowProvider-id', in: 'path' },
-      { name: 'businessFlow-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['approvalWorkflowProvider-id', 'businessFlow-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -112,10 +104,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/businessFlows/{businessFlow-id}',
-    paramDefs: [
-      { name: 'approvalWorkflowProvider-id', in: 'path' },
-      { name: 'businessFlow-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['approvalWorkflowProvider-id', 'businessFlow-id'],
+    },
     params,
     body,
   };
@@ -135,8 +126,34 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/businessFlows',
-    paramDefs: [{ name: 'approvalWorkflowProvider-id', in: 'path' }],
+    paramDefs: {
+      path: ['approvalWorkflowProvider-id'],
+    },
     params,
     body,
   };
 }
+
+export const recordDecisions = {
+  /**
+   * `POST /approvalWorkflowProviders/{approvalWorkflowProvider-id}/businessFlows/{businessFlow-id}/recordDecisions`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /approvalWorkflowProviders/{approvalWorkflowProvider-id}/businessFlows/{businessFlow-id}/recordDecisions']['body'],
+    params?: IEndpoints['POST /approvalWorkflowProviders/{approvalWorkflowProvider-id}/businessFlows/{businessFlow-id}/recordDecisions']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /approvalWorkflowProviders/{approvalWorkflowProvider-id}/businessFlows/{businessFlow-id}/recordDecisions']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/approvalWorkflowProviders/{approvalWorkflowProvider-id}/businessFlows/{businessFlow-id}/recordDecisions',
+      paramDefs: {
+        path: ['approvalWorkflowProvider-id', 'businessFlow-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

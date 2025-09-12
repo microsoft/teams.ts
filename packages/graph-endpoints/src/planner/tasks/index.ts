@@ -1,8 +1,3 @@
-export * as assignedToTaskBoardFormat from './assignedToTaskBoardFormat';
-export * as bucketTaskBoardFormat from './bucketTaskBoardFormat';
-export * as details from './details';
-export * as progressTaskBoardFormat from './progressTaskBoardFormat';
-
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 
 export interface IEndpoints {
@@ -11,6 +6,54 @@ export interface IEndpoints {
   'GET /planner/tasks/{plannerTask-id}': Operation<'/planner/tasks/{plannerTask-id}', 'get'>;
   'PATCH /planner/tasks/{plannerTask-id}': Operation<'/planner/tasks/{plannerTask-id}', 'patch'>;
   'POST /planner/tasks': Operation<'/planner/tasks', 'post'>;
+  'GET /planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat': Operation<
+    '/planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat',
+    'get'
+  >;
+  'PATCH /planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat': Operation<
+    '/planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat',
+    'patch'
+  >;
+  'DELETE /planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat': Operation<
+    '/planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat',
+    'delete'
+  >;
+  'GET /planner/tasks/{plannerTask-id}/bucketTaskBoardFormat': Operation<
+    '/planner/tasks/{plannerTask-id}/bucketTaskBoardFormat',
+    'get'
+  >;
+  'PATCH /planner/tasks/{plannerTask-id}/bucketTaskBoardFormat': Operation<
+    '/planner/tasks/{plannerTask-id}/bucketTaskBoardFormat',
+    'patch'
+  >;
+  'DELETE /planner/tasks/{plannerTask-id}/bucketTaskBoardFormat': Operation<
+    '/planner/tasks/{plannerTask-id}/bucketTaskBoardFormat',
+    'delete'
+  >;
+  'GET /planner/tasks/{plannerTask-id}/details': Operation<
+    '/planner/tasks/{plannerTask-id}/details',
+    'get'
+  >;
+  'PATCH /planner/tasks/{plannerTask-id}/details': Operation<
+    '/planner/tasks/{plannerTask-id}/details',
+    'patch'
+  >;
+  'DELETE /planner/tasks/{plannerTask-id}/details': Operation<
+    '/planner/tasks/{plannerTask-id}/details',
+    'delete'
+  >;
+  'GET /planner/tasks/{plannerTask-id}/progressTaskBoardFormat': Operation<
+    '/planner/tasks/{plannerTask-id}/progressTaskBoardFormat',
+    'get'
+  >;
+  'PATCH /planner/tasks/{plannerTask-id}/progressTaskBoardFormat': Operation<
+    '/planner/tasks/{plannerTask-id}/progressTaskBoardFormat',
+    'patch'
+  >;
+  'DELETE /planner/tasks/{plannerTask-id}/progressTaskBoardFormat': Operation<
+    '/planner/tasks/{plannerTask-id}/progressTaskBoardFormat',
+    'delete'
+  >;
 }
 
 /**
@@ -24,10 +67,10 @@ export function del(
   return {
     method: 'delete',
     path: '/planner/tasks/{plannerTask-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'plannerTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['plannerTask-id'],
+    },
     params,
   };
 }
@@ -43,16 +86,9 @@ export function list(
   return {
     method: 'get',
     path: '/planner/tasks',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -68,11 +104,10 @@ export function get(
   return {
     method: 'get',
     path: '/planner/tasks/{plannerTask-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'plannerTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['plannerTask-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,10 +124,10 @@ export function update(
   return {
     method: 'patch',
     path: '/planner/tasks/{plannerTask-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'plannerTask-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['plannerTask-id'],
+    },
     params,
     body,
   };
@@ -104,14 +139,261 @@ export function update(
  * Create a new plannerTask.
  */
 export function create(
-  body: IEndpoints['POST /planner/tasks']['body'],
-  params?: IEndpoints['POST /planner/tasks']['parameters']
+  body: IEndpoints['POST /planner/tasks']['body']
 ): EndpointRequest<IEndpoints['POST /planner/tasks']['response']> {
   return {
     method: 'post',
     path: '/planner/tasks',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const assignedToTaskBoardFormat = {
+  /**
+   * `GET /planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat`
+   *
+   * Retrieve the properties and relationships of a plannerAssignedToTaskBoardTaskFormat object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['plannerTask-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat`
+   *
+   * Update the properties of plannerAssignedToTaskBoardTaskFormat object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat']['body'],
+    params?: IEndpoints['PATCH /planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['plannerTask-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/planner/tasks/{plannerTask-id}/assignedToTaskBoardFormat',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['plannerTask-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const bucketTaskBoardFormat = {
+  /**
+   * `GET /planner/tasks/{plannerTask-id}/bucketTaskBoardFormat`
+   *
+   * Retrieve the properties and relationships of plannerBucketTaskBoardTaskFormat object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /planner/tasks/{plannerTask-id}/bucketTaskBoardFormat']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /planner/tasks/{plannerTask-id}/bucketTaskBoardFormat']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/planner/tasks/{plannerTask-id}/bucketTaskBoardFormat',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['plannerTask-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /planner/tasks/{plannerTask-id}/bucketTaskBoardFormat`
+   *
+   * Update the properties of a plannerBucketTaskBoardTaskFormat object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /planner/tasks/{plannerTask-id}/bucketTaskBoardFormat']['body'],
+    params?: IEndpoints['PATCH /planner/tasks/{plannerTask-id}/bucketTaskBoardFormat']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /planner/tasks/{plannerTask-id}/bucketTaskBoardFormat']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/planner/tasks/{plannerTask-id}/bucketTaskBoardFormat',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['plannerTask-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /planner/tasks/{plannerTask-id}/bucketTaskBoardFormat`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /planner/tasks/{plannerTask-id}/bucketTaskBoardFormat']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /planner/tasks/{plannerTask-id}/bucketTaskBoardFormat']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/planner/tasks/{plannerTask-id}/bucketTaskBoardFormat',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['plannerTask-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const details = {
+  /**
+   * `GET /planner/tasks/{plannerTask-id}/details`
+   *
+   * Retrieve the properties and relationships of a plannerTaskDetails object.
+   */
+  list: function list(
+    params?: IEndpoints['GET /planner/tasks/{plannerTask-id}/details']['parameters']
+  ): EndpointRequest<IEndpoints['GET /planner/tasks/{plannerTask-id}/details']['response']> {
+    return {
+      method: 'get',
+      path: '/planner/tasks/{plannerTask-id}/details',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['plannerTask-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /planner/tasks/{plannerTask-id}/details`
+   *
+   * Update the properties of plannerTaskDetails object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /planner/tasks/{plannerTask-id}/details']['body'],
+    params?: IEndpoints['PATCH /planner/tasks/{plannerTask-id}/details']['parameters']
+  ): EndpointRequest<IEndpoints['PATCH /planner/tasks/{plannerTask-id}/details']['response']> {
+    return {
+      method: 'patch',
+      path: '/planner/tasks/{plannerTask-id}/details',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['plannerTask-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /planner/tasks/{plannerTask-id}/details`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /planner/tasks/{plannerTask-id}/details']['parameters']
+  ): EndpointRequest<IEndpoints['DELETE /planner/tasks/{plannerTask-id}/details']['response']> {
+    return {
+      method: 'delete',
+      path: '/planner/tasks/{plannerTask-id}/details',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['plannerTask-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const progressTaskBoardFormat = {
+  /**
+   * `GET /planner/tasks/{plannerTask-id}/progressTaskBoardFormat`
+   *
+   * Retrieve the properties and relationships of plannerProgressTaskBoardTaskFormat object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /planner/tasks/{plannerTask-id}/progressTaskBoardFormat']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /planner/tasks/{plannerTask-id}/progressTaskBoardFormat']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/planner/tasks/{plannerTask-id}/progressTaskBoardFormat',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['plannerTask-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /planner/tasks/{plannerTask-id}/progressTaskBoardFormat`
+   *
+   * Update the properties of plannerProgressTaskBoardTaskFormat object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /planner/tasks/{plannerTask-id}/progressTaskBoardFormat']['body'],
+    params?: IEndpoints['PATCH /planner/tasks/{plannerTask-id}/progressTaskBoardFormat']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /planner/tasks/{plannerTask-id}/progressTaskBoardFormat']['response']
+  > {
+    return {
+      method: 'patch',
+      path: '/planner/tasks/{plannerTask-id}/progressTaskBoardFormat',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['plannerTask-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /planner/tasks/{plannerTask-id}/progressTaskBoardFormat`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /planner/tasks/{plannerTask-id}/progressTaskBoardFormat']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /planner/tasks/{plannerTask-id}/progressTaskBoardFormat']['response']
+  > {
+    return {
+      method: 'delete',
+      path: '/planner/tasks/{plannerTask-id}/progressTaskBoardFormat',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['plannerTask-id'],
+      },
+      params,
+    };
+  },
+};

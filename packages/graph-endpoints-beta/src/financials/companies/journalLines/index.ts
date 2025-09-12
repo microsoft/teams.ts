@@ -1,5 +1,3 @@
-export * as account from './account';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -23,6 +21,10 @@ export interface IEndpoints {
     '/financials/companies/{company-id}/journalLines',
     'post'
   >;
+  'GET /financials/companies/{company-id}/journalLines/{journalLine-id}/account': Operation<
+    '/financials/companies/{company-id}/journalLines/{journalLine-id}/account',
+    'get'
+  >;
 }
 
 /**
@@ -38,11 +40,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/financials/companies/{company-id}/journalLines/{journalLine-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'company-id', in: 'path' },
-      { name: 'journalLine-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['company-id', 'journalLine-id'],
+    },
     params,
   };
 }
@@ -58,17 +59,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/journalLines',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -86,12 +80,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/financials/companies/{company-id}/journalLines/{journalLine-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'company-id', in: 'path' },
-      { name: 'journalLine-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'journalLine-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,10 +102,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/financials/companies/{company-id}/journalLines/{journalLine-id}',
-    paramDefs: [
-      { name: 'company-id', in: 'path' },
-      { name: 'journalLine-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['company-id', 'journalLine-id'],
+    },
     params,
     body,
   };
@@ -131,8 +122,33 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/financials/companies/{company-id}/journalLines',
-    paramDefs: [{ name: 'company-id', in: 'path' }],
+    paramDefs: {
+      path: ['company-id'],
+    },
     params,
     body,
   };
 }
+
+export const account = {
+  /**
+   * `GET /financials/companies/{company-id}/journalLines/{journalLine-id}/account`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /financials/companies/{company-id}/journalLines/{journalLine-id}/account']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /financials/companies/{company-id}/journalLines/{journalLine-id}/account']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/financials/companies/{company-id}/journalLines/{journalLine-id}/account',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['company-id', 'journalLine-id'],
+      },
+      params,
+    };
+  },
+};

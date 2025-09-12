@@ -1,5 +1,3 @@
-export * as createImportSession from './createImportSession';
-export * as exportItems from './exportItems';
 export * as folders from './folders';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -19,6 +17,14 @@ export interface IEndpoints {
     'patch'
   >;
   'POST /admin/exchange/mailboxes': Operation<'/admin/exchange/mailboxes', 'post'>;
+  'POST /admin/exchange/mailboxes/{mailbox-id}/createImportSession': Operation<
+    '/admin/exchange/mailboxes/{mailbox-id}/createImportSession',
+    'post'
+  >;
+  'POST /admin/exchange/mailboxes/{mailbox-id}/exportItems': Operation<
+    '/admin/exchange/mailboxes/{mailbox-id}/exportItems',
+    'post'
+  >;
 }
 
 /**
@@ -33,10 +39,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/admin/exchange/mailboxes/{mailbox-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'mailbox-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['mailbox-id'],
+    },
     params,
   };
 }
@@ -54,16 +60,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/admin/exchange/mailboxes',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -81,11 +80,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/admin/exchange/mailboxes/{mailbox-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'mailbox-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['mailbox-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -103,7 +101,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/admin/exchange/mailboxes/{mailbox-id}',
-    paramDefs: [{ name: 'mailbox-id', in: 'path' }],
+    paramDefs: {
+      path: ['mailbox-id'],
+    },
     params,
     body,
   };
@@ -115,15 +115,62 @@ export function update(
  * @deprecated
  */
 export function create(
-  body: IEndpoints['POST /admin/exchange/mailboxes']['body'],
-  params?: IEndpoints['POST /admin/exchange/mailboxes']['parameters']
+  body: IEndpoints['POST /admin/exchange/mailboxes']['body']
 ): EndpointRequest<IEndpoints['POST /admin/exchange/mailboxes']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/admin/exchange/mailboxes',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const createImportSession = {
+  /**
+   * `POST /admin/exchange/mailboxes/{mailbox-id}/createImportSession`
+   *
+   * Create a session to import an Exchange mailbox item that was exported using the exportItems API.
+   * @deprecated
+   */
+  create: function create(
+    params?: IEndpoints['POST /admin/exchange/mailboxes/{mailbox-id}/createImportSession']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /admin/exchange/mailboxes/{mailbox-id}/createImportSession']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/admin/exchange/mailboxes/{mailbox-id}/createImportSession',
+      paramDefs: {
+        path: ['mailbox-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const exportItems = {
+  /**
+   * `POST /admin/exchange/mailboxes/{mailbox-id}/exportItems`
+   *
+   * Export Exchange mailboxItem objects in full fidelity. This API exports each item as an opaque stream. The data stream isn&#x27;t intended for parsing, but can be used to import an item back into an Exchange mailbox. For more information, see: Overview of the mailbox import and export APIs in Microsoft Graph (preview) You can export up to 20 items in a single export request.
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /admin/exchange/mailboxes/{mailbox-id}/exportItems']['body'],
+    params?: IEndpoints['POST /admin/exchange/mailboxes/{mailbox-id}/exportItems']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /admin/exchange/mailboxes/{mailbox-id}/exportItems']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/admin/exchange/mailboxes/{mailbox-id}/exportItems',
+      paramDefs: {
+        path: ['mailbox-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

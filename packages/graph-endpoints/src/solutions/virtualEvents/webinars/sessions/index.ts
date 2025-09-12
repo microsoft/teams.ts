@@ -37,11 +37,10 @@ export function del(
   return {
     method: 'delete',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/sessions/{virtualEventSession-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'virtualEventWebinar-id', in: 'path' },
-      { name: 'virtualEventSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['virtualEventWebinar-id', 'virtualEventSession-id'],
+    },
     params,
   };
 }
@@ -61,17 +60,10 @@ export function list(
   return {
     method: 'get',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/sessions',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'virtualEventWebinar-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEventWebinar-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -91,12 +83,10 @@ export function get(
   return {
     method: 'get',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/sessions/{virtualEventSession-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'virtualEventWebinar-id', in: 'path' },
-      { name: 'virtualEventSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEventWebinar-id', 'virtualEventSession-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -114,10 +104,9 @@ export function update(
   return {
     method: 'patch',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/sessions/{virtualEventSession-id}',
-    paramDefs: [
-      { name: 'virtualEventWebinar-id', in: 'path' },
-      { name: 'virtualEventSession-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['virtualEventWebinar-id', 'virtualEventSession-id'],
+    },
     params,
     body,
   };
@@ -136,7 +125,9 @@ export function create(
   return {
     method: 'post',
     path: '/solutions/virtualEvents/webinars/{virtualEventWebinar-id}/sessions',
-    paramDefs: [{ name: 'virtualEventWebinar-id', in: 'path' }],
+    paramDefs: {
+      path: ['virtualEventWebinar-id'],
+    },
     params,
     body,
   };

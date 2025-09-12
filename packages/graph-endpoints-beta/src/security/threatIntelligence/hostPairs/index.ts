@@ -1,6 +1,3 @@
-export * as childHost from './childHost';
-export * as parentHost from './parentHost';
-
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 
 export interface IEndpoints {
@@ -24,6 +21,14 @@ export interface IEndpoints {
     '/security/threatIntelligence/hostPairs',
     'post'
   >;
+  'GET /security/threatIntelligence/hostPairs/{hostPair-id}/childHost': Operation<
+    '/security/threatIntelligence/hostPairs/{hostPair-id}/childHost',
+    'get'
+  >;
+  'GET /security/threatIntelligence/hostPairs/{hostPair-id}/parentHost': Operation<
+    '/security/threatIntelligence/hostPairs/{hostPair-id}/parentHost',
+    'get'
+  >;
 }
 
 /**
@@ -39,10 +44,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/security/threatIntelligence/hostPairs/{hostPair-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'hostPair-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['hostPair-id'],
+    },
     params,
   };
 }
@@ -59,16 +64,9 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/security/threatIntelligence/hostPairs',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -87,11 +85,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/security/threatIntelligence/hostPairs/{hostPair-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'hostPair-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['hostPair-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -110,7 +107,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/security/threatIntelligence/hostPairs/{hostPair-id}',
-    paramDefs: [{ name: 'hostPair-id', in: 'path' }],
+    paramDefs: {
+      path: ['hostPair-id'],
+    },
     params,
     body,
   };
@@ -121,15 +120,60 @@ export function update(
  *
  */
 export function create(
-  body: IEndpoints['POST /security/threatIntelligence/hostPairs']['body'],
-  params?: IEndpoints['POST /security/threatIntelligence/hostPairs']['parameters']
+  body: IEndpoints['POST /security/threatIntelligence/hostPairs']['body']
 ): EndpointRequest<IEndpoints['POST /security/threatIntelligence/hostPairs']['response']> {
   return {
     ver: 'beta',
     method: 'post',
     path: '/security/threatIntelligence/hostPairs',
-    paramDefs: [],
-    params,
     body,
   };
 }
+
+export const childHost = {
+  /**
+   * `GET /security/threatIntelligence/hostPairs/{hostPair-id}/childHost`
+   *
+   * Host reached via the parentHost.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/threatIntelligence/hostPairs/{hostPair-id}/childHost']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/threatIntelligence/hostPairs/{hostPair-id}/childHost']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/threatIntelligence/hostPairs/{hostPair-id}/childHost',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['hostPair-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const parentHost = {
+  /**
+   * `GET /security/threatIntelligence/hostPairs/{hostPair-id}/parentHost`
+   *
+   * Host used to reach the childHost.
+   */
+  get: function get(
+    params?: IEndpoints['GET /security/threatIntelligence/hostPairs/{hostPair-id}/parentHost']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /security/threatIntelligence/hostPairs/{hostPair-id}/parentHost']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/security/threatIntelligence/hostPairs/{hostPair-id}/parentHost',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['hostPair-id'],
+      },
+      params,
+    };
+  },
+};

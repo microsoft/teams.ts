@@ -37,12 +37,10 @@ export function del(
   return {
     method: 'delete',
     path: '/users/{user-id}/planner/plans/{plannerPlan-id}/buckets/{plannerBucket-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'user-id', in: 'path' },
-      { name: 'plannerPlan-id', in: 'path' },
-      { name: 'plannerBucket-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['user-id', 'plannerPlan-id', 'plannerBucket-id'],
+    },
     params,
   };
 }
@@ -60,18 +58,10 @@ export function list(
   return {
     method: 'get',
     path: '/users/{user-id}/planner/plans/{plannerPlan-id}/buckets',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'plannerPlan-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'plannerPlan-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -89,13 +79,10 @@ export function get(
   return {
     method: 'get',
     path: '/users/{user-id}/planner/plans/{plannerPlan-id}/buckets/{plannerBucket-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'user-id', in: 'path' },
-      { name: 'plannerPlan-id', in: 'path' },
-      { name: 'plannerBucket-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'plannerPlan-id', 'plannerBucket-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -113,11 +100,9 @@ export function update(
   return {
     method: 'patch',
     path: '/users/{user-id}/planner/plans/{plannerPlan-id}/buckets/{plannerBucket-id}',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'plannerPlan-id', in: 'path' },
-      { name: 'plannerBucket-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'plannerPlan-id', 'plannerBucket-id'],
+    },
     params,
     body,
   };
@@ -136,10 +121,9 @@ export function create(
   return {
     method: 'post',
     path: '/users/{user-id}/planner/plans/{plannerPlan-id}/buckets',
-    paramDefs: [
-      { name: 'user-id', in: 'path' },
-      { name: 'plannerPlan-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['user-id', 'plannerPlan-id'],
+    },
     params,
     body,
   };

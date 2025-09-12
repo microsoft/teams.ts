@@ -1,7 +1,5 @@
 export * as createdByUser from './createdByUser';
-export * as dodelete from './delete';
 export * as lastModifiedByUser from './lastModifiedByUser';
-export * as restore from './restore';
 
 import type { EndpointRequest, Operation } from './../../../../types/common.ts';
 
@@ -26,6 +24,14 @@ export interface IEndpoints {
     '/groups/{group-id}/sites/{site-id}/recycleBin/items',
     'post'
   >;
+  'POST /groups/{group-id}/sites/{site-id}/recycleBin/items/delete': Operation<
+    '/groups/{group-id}/sites/{site-id}/recycleBin/items/delete',
+    'post'
+  >;
+  'POST /groups/{group-id}/sites/{site-id}/recycleBin/items/restore': Operation<
+    '/groups/{group-id}/sites/{site-id}/recycleBin/items/restore',
+    'post'
+  >;
 }
 
 /**
@@ -41,12 +47,10 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/groups/{group-id}/sites/{site-id}/recycleBin/items/{recycleBinItem-id}',
-    paramDefs: [
-      { name: 'If-Match', in: 'header' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'recycleBinItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['group-id', 'site-id', 'recycleBinItem-id'],
+    },
     params,
   };
 }
@@ -65,18 +69,10 @@ export function list(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/recycleBin/items',
-    paramDefs: [
-      { name: '$top', in: 'query' },
-      { name: '$skip', in: 'query' },
-      { name: '$search', in: 'query' },
-      { name: '$filter', in: 'query' },
-      { name: '$count', in: 'query' },
-      { name: '$orderby', in: 'query' },
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+    },
     params,
   };
 }
@@ -95,13 +91,10 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/groups/{group-id}/sites/{site-id}/recycleBin/items/{recycleBinItem-id}',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'recycleBinItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'recycleBinItem-id'],
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -120,11 +113,9 @@ export function update(
     ver: 'beta',
     method: 'patch',
     path: '/groups/{group-id}/sites/{site-id}/recycleBin/items/{recycleBinItem-id}',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-      { name: 'recycleBinItem-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id', 'recycleBinItem-id'],
+    },
     params,
     body,
   };
@@ -144,11 +135,58 @@ export function create(
     ver: 'beta',
     method: 'post',
     path: '/groups/{group-id}/sites/{site-id}/recycleBin/items',
-    paramDefs: [
-      { name: 'group-id', in: 'path' },
-      { name: 'site-id', in: 'path' },
-    ],
+    paramDefs: {
+      path: ['group-id', 'site-id'],
+    },
     params,
     body,
   };
 }
+
+export const doDelete = {
+  /**
+   * `POST /groups/{group-id}/sites/{site-id}/recycleBin/items/delete`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/sites/{site-id}/recycleBin/items/delete']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/sites/{site-id}/recycleBin/items/delete']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/sites/{site-id}/recycleBin/items/delete']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/sites/{site-id}/recycleBin/items/delete',
+      paramDefs: {
+        path: ['group-id', 'site-id'],
+      },
+      params,
+      body,
+    };
+  },
+};
+
+export const restore = {
+  /**
+   * `POST /groups/{group-id}/sites/{site-id}/recycleBin/items/restore`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /groups/{group-id}/sites/{site-id}/recycleBin/items/restore']['body'],
+    params?: IEndpoints['POST /groups/{group-id}/sites/{site-id}/recycleBin/items/restore']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /groups/{group-id}/sites/{site-id}/recycleBin/items/restore']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/groups/{group-id}/sites/{site-id}/recycleBin/items/restore',
+      paramDefs: {
+        path: ['group-id', 'site-id'],
+      },
+      params,
+      body,
+    };
+  },
+};

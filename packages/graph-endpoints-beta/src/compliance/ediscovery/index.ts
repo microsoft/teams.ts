@@ -20,7 +20,9 @@ export function del(
     ver: 'beta',
     method: 'delete',
     path: '/compliance/ediscovery',
-    paramDefs: [{ name: 'If-Match', in: 'header' }],
+    paramDefs: {
+      header: ['If-Match'],
+    },
     params,
   };
 }
@@ -37,10 +39,9 @@ export function get(
     ver: 'beta',
     method: 'get',
     path: '/compliance/ediscovery',
-    paramDefs: [
-      { name: '$select', in: 'query' },
-      { name: '$expand', in: 'query' },
-    ],
+    paramDefs: {
+      query: ['$select', '$expand'],
+    },
     params,
   };
 }
@@ -51,15 +52,12 @@ export function get(
  * @deprecated
  */
 export function update(
-  body: IEndpoints['PATCH /compliance/ediscovery']['body'],
-  params?: IEndpoints['PATCH /compliance/ediscovery']['parameters']
+  body: IEndpoints['PATCH /compliance/ediscovery']['body']
 ): EndpointRequest<IEndpoints['PATCH /compliance/ediscovery']['response']> {
   return {
     ver: 'beta',
     method: 'patch',
     path: '/compliance/ediscovery',
-    paramDefs: [],
-    params,
     body,
   };
 }
