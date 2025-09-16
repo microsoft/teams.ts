@@ -16,11 +16,11 @@ export async function onTokenExchange<TPlugin extends IPlugin>(
   this: App<TPlugin>,
   ctx: contexts.IActivityContext<ISignInTokenExchangeInvokeActivity, PluginAdditionalContext<TPlugin>>
 ) {
-  const { api, activity, log, connectionName, next } = ctx;
+  const { api, activity, log, next } = ctx;
 
-  if (connectionName !== activity.value.connectionName) {
+  if (this.oauth.defaultConnectionName !== activity.value.connectionName) {
     log.warn(
-      `default connection name "${connectionName}" does not match activity connection name "${activity.value.connectionName}"`
+      `default connection name "${this.oauth.defaultConnectionName}" does not match activity connection name "${activity.value.connectionName}"`
     );
   }
 
@@ -66,7 +66,7 @@ export async function onVerifyState<TPlugin extends IPlugin>(
   this: App<TPlugin>,
   ctx: contexts.IActivityContext<ISignInVerifyStateInvokeActivity, PluginAdditionalContext<TPlugin>>
 ) {
-  const { log, api, activity, connectionName, next } = ctx;
+  const { log, api, activity, next } = ctx;
 
   try {
     if (!activity.value.state) {
@@ -79,7 +79,7 @@ export async function onVerifyState<TPlugin extends IPlugin>(
     const token = await api.users.token.get({
       channelId: activity.channelId,
       userId: activity.from.id,
-      connectionName,
+      connectionName: this.oauth.defaultConnectionName,
       code: activity.value.state,
     });
 
