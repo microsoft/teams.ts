@@ -50,9 +50,7 @@ export class Project implements IProject {
       return 'csharp';
     }
     if (
-      fs.existsSync(path.join(process.cwd(), 'pyproject.toml')) &&
-      (process.env.ENABLE_EXPERIMENTAL_PYTHON_OPTIONS === 'true' ||
-        process.env.ENABLE_EXPERIMENTAL_PYTHON_OPTIONS === '1')
+      fs.existsSync(path.join(process.cwd(), 'pyproject.toml'))
     ) {
       return 'python';
     }
@@ -67,7 +65,7 @@ export class Project implements IProject {
     const language = this.detectLanguage();
 
     if (!language) {
-      throw new Error('Are you in the right folder? Expected a package.json (Typescript), .sln (C#), or pyproject.toml (Python, requires ENABLE_EXPERIMENTAL_PYTHON_OPTIONS=true).');
+      throw new Error('Are you in the right folder? Expected a package.json (Typescript), .sln (C#), or pyproject.toml (Python).');
     }
 
     return new ProjectBuilder()
