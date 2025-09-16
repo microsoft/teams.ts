@@ -317,14 +317,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       name: 'signin.token-exchange',
       type: 'system',
       select: activity => activity.type === 'invoke' && activity.name === 'signin/tokenExchange',
-      callback: this.onTokenExchange,
+      callback: ctx => this.onTokenExchange(ctx),
     });
 
     this.router.register({
       name: 'signin.verify-state',
       type: 'system',
       select: activity => activity.type === 'invoke' && activity.name === 'signin/verifyState',
-      callback: this.onVerifyState,
+      callback: ctx => this.onVerifyState(ctx),
     });
 
     this.event('error', ({ error }) => {
