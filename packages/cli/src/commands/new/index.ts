@@ -18,7 +18,8 @@ export function New(context: IContext): CommandModule<{}, {}> {
     builder: (b) => {
       const builder = b
         .command(Typescript(context))
-        .command(CSharp(context)).command(Python(context));
+        .command(CSharp(context))
+        .command(Python(context));
       return builder
         .strict()
         .demandCommand(1, 'You must specify a project type');
