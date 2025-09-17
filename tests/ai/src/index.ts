@@ -180,5 +180,5 @@ app.on('message.submit.feedback', async ({ activity, log }) => {
 // :snippet-end:
 
 (async () => {
-  await app.start(+(process.env.PORT || 3978));
+  await app.start(process.env.PORT || 3978);
 })();

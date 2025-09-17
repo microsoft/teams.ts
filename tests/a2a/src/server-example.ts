@@ -10,7 +10,7 @@ import { OpenAIChatModel } from '@microsoft/teams.openai';
 
 const logger = new ConsoleLogger('a2a-server', { level: 'debug' });
 
-const PORT = +(process.env.PORT || 4000);
+const PORT = process.env.PORT || 4000;
 
 // :snippet-start: a2a-server-app-initialization-example
 // import { A2APlugin, schema } from "@microsoft/teams.a2a";

@@ -64,5 +64,5 @@ app.on('message', async ({ send, activity }) => {
 // :snippet-end:
 
 (async () => {
-  await app.start(+(process.env.PORT || 3002));
+  await app.start(process.env.PORT || 3002);
 })();
