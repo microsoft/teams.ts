@@ -37,7 +37,7 @@ export function Add(_: IContext): CommandModule<{}, Args> {
           .flat(),
       }).check(() => {
         if (!Project.detectLanguage()) {
-          throw new Error('Are you in the right folder? Expected a package.json (Typescript) or .sln (C#) file or pyproject.toml (Python, requires ENABLE_EXPERIMENTAL_PYTHON_OPTIONS=true).');
+          throw new Error('Are you in the right folder? Expected a package.json (Typescript) or .sln (C#) file or pyproject.toml (Python).');
         }
 
         return true;
