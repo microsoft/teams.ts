@@ -49,6 +49,7 @@
         "name": "Start",
         "type": "debugpy",
         "request": "launch",
+        "python": "${workspaceFolder}/.venv/bin/python",
         "program": "${workspaceFolder}/src/main.py",
         "console": "integratedTerminal"
     }
