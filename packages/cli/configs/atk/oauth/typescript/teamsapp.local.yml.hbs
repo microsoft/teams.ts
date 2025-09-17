@@ -41,8 +41,6 @@ provision:
           clientSecret: SECRET_BOT_PASSWORD
           objectId: AAD_APP_OBJECT_ID
           tenantId: AAD_APP_TENANT_ID
-          authority: AAD_APP_OAUTH_AUTHORITY
-          authorityHost: AAD_APP_OAUTH_AUTHORITY_HOST
 
     # Apply the Microsoft Entra manifest to an existing Microsoft Entra app. Will use the object id in
     # manifest file to determine which Microsoft Entra app to update.
@@ -114,5 +112,6 @@ deploy:
               PORT: 3978
               CLIENT_ID: $\{{BOT_ID}}
               CLIENT_SECRET: $\{{SECRET_BOT_PASSWORD}}
+              TENANT_ID: $\{{AAD_APP_TENANT_ID}}
               # an arbitrary name for the connection
               OAUTH_CONNECTION_NAME: graph
