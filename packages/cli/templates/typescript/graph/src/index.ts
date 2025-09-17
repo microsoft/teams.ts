@@ -6,7 +6,15 @@ import * as endpoints from '@microsoft/teams.graph-endpoints';
 
 const app = new App({
   plugins: [new DevtoolsPlugin()],
+  oauth: { defaultConnectionName: 'graph' },
 });
+
+app.message('/signout', async ({ send, signout, isSignedIn }) => {
+  if (!isSignedIn) return;
+  await signout(); // call signout for your auth connection...
+  await send('you have been signed out!');
+});
+
 
 app.on('message', async ({ log, signin, isSignedIn }) => {
   if (!isSignedIn) {
@@ -33,5 +41,5 @@ app.event('signin', async ({ send, userGraph }) => {
 });
 
 (async () => {
-  await app.start(+(process.env.PORT || 3978));
+  await app.start(process.env.PORT || 3978);
 })();

@@ -25,5 +25,5 @@ app.on('message', async ({ stream, activity }) => {
 });
 
 (async () => {
-  await app.start(+(process.env.PORT || 3978));
+  await app.start(process.env.PORT || 3978);
 })();

@@ -15,6 +15,7 @@ param botDisplayName string
 
 param botAppDomain string
 param oauthConnectionName string
+param tenantId string
 
 module azureBotRegistration './botRegistration/azurebot.bicep' = {
   name: 'Azure-Bot-registration'
@@ -25,5 +26,6 @@ module azureBotRegistration './botRegistration/azurebot.bicep' = {
     botDisplayName: botDisplayName
     botAddAppClientSecret: botAadAppClientSecret
     oauthConnectionName: oauthConnectionName
+    tenantId: tenantId
   }
 }

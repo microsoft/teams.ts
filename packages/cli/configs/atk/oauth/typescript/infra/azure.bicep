@@ -3,6 +3,13 @@
 @description('Used to generate names for all resources in this file')
 param resourceBaseName string
 
+@description('Required when create Azure Bot service')
+param botAadAppClientId string
+
+@secure()
+@description('Required by Bot Framework package in your bot project')
+param botAadAppClientSecret string
+
 param webAppSKU string
 
 @maxLength(42)
@@ -10,14 +17,9 @@ param botDisplayName string
 
 param serverfarmsName string = resourceBaseName
 param webAppName string = resourceBaseName
-param identityName string = resourceBaseName
 param location string = resourceGroup().location
 param oauthConnectionName string
-
-resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  location: location
-  name: identityName
-}
+param tenantId string
 
 // Compute resources for your Web App
 resource serverfarm 'Microsoft.Web/serverfarms@2021-02-01' = {
@@ -53,29 +55,19 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           value: '1'
         }
         {
-          name: 'BOT_ID'
-          value: identity.properties.clientId
+          name: 'CLIENT_ID'
+          value: botAadAppClientId
         }
         {
-          name: 'BOT_TENANT_ID'
-          value: identity.properties.tenantId
-        }
-        { 
-          name: 'BOT_TYPE' 
-          value: 'UserAssignedMsi'
+          name: 'CLIENT_SECRET'
+          value: botAadAppClientSecret
         }
         {
-          name: 'OAUTH_CONNECTION_NAME'
-          value: oauthConnectionName
+          name: 'TENANT_ID'
+          value: tenantId
         }
       ]
       ftpsState: 'FtpsOnly'
-    }
-  }
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${identity.id}': {}
     }
   }
 }
@@ -86,9 +78,11 @@ module azureBotRegistration './botRegistration/azurebot.bicep' = {
   params: {
     resourceBaseName: resourceBaseName
     botAadAppClientId: botAadAppClientId
+    botAddAppClientSecret: botAadAppClientSecret
     botAppDomain: webApp.properties.defaultHostName
     botDisplayName: botDisplayName
     oauthConnectionName: oauthConnectionName
+    tenantId: tenantId
   }
 }
 

@@ -11,6 +11,7 @@ param botServiceSku string = 'F0'
 param botAadAppClientId string
 param botAppDomain string
 param oauthConnectionName string
+param tenantId string
 
 @secure()
 param botAddAppClientSecret string
@@ -24,6 +25,8 @@ resource botService 'Microsoft.BotService/botServices@2021-03-01' = {
     displayName: botDisplayName
     endpoint: 'https://${botAppDomain}/api/messages'
     msaAppId: botAadAppClientId
+    msaAppType: 'SingleTenant'
+    msaAppTenantId: tenantId
   }
   sku: {
     name: botServiceSku
