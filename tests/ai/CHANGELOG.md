@@ -1,5 +1,16 @@
 # @tests/ai
 
+## 0.0.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @microsoft/teams.ai@2.0.1
+  - @microsoft/teams.apps@2.0.1
+  - @microsoft/teams.cards@2.0.1
+  - @microsoft/teams.dev@2.0.1
+  - @microsoft/teams.openai@2.0.1
+
 ## 0.0.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @microsoft/teams.graph-endpoints-beta
 
+## 2.0.1
+
+### Patch Changes
+
+- Update templates to use latest instad of preview
+
 ## 2.0.0
 
 - First Stable V2 Release

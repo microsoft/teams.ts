@@ -21,8 +21,8 @@ npx changeset add
 npx changeset version
 ```
 
-1. Run `npm i` again - `package-lock.json` updates
 1. Update root `package.json` manually
+1. Run `npm i` again - `package-lock.json` updates
 1. Run `npm run build` to ensure everything is built correctly
 
 ## Publish Changeset

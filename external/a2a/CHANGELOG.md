@@ -1,5 +1,15 @@
 # @microsoft/teams.a2a
 
+## 2.0.1
+
+### Patch Changes
+
+- Update templates to use latest instad of preview
+- Updated dependencies
+  - @microsoft/teams.ai@2.0.1
+  - @microsoft/teams.apps@2.0.1
+  - @microsoft/teams.common@2.0.1
+
 ## 2.0.0
 
 - First Stable V2 Release
