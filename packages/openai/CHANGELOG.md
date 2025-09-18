@@ -2,6 +2,8 @@
 
 ## 2.0.0
 
+- First Stable V2 Release
+
 ### Major Changes
 
 - 1d5f350: v2 preview release

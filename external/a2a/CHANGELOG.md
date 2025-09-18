@@ -2,6 +2,8 @@
 
 ## 2.0.0
 
+- First Stable V2 Release
+
 ### Patch Changes
 
 - a231813: Variety of security fixes.

@@ -2,6 +2,8 @@
 
 ## 2.0.0
 
+- First Stable V2 Release
+
 ### Patch Changes
 
 - 00d3edb: Python additions to CLI, A2A package bump to 0.3.0
