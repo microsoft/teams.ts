@@ -1,5 +1,29 @@
 # @tests/a2a
 
+## 0.0.1
+
+### Patch Changes
+
+- Updated dependencies [a231813]
+- Updated dependencies [05085e8]
+- Updated dependencies [7a0e5f6]
+- Updated dependencies [1d5f350]
+- Updated dependencies [9bc2cee]
+- Updated dependencies [9b08518]
+- Updated dependencies [00d3edb]
+- Updated dependencies [ee61ca0]
+- Updated dependencies [70cb729]
+- Updated dependencies [2337a4f]
+- Updated dependencies [e6f9b56]
+- Updated dependencies [9e2414b]
+- Updated dependencies [753af04]
+  - @microsoft/teams.a2a@2.0.0
+  - @microsoft/teams.ai@2.0.0
+  - @microsoft/teams.apps@2.0.0
+  - @microsoft/teams.cards@2.0.0
+  - @microsoft/teams.dev@2.0.0
+  - @microsoft/teams.openai@2.0.0
+
 ## 0.0.1-preview.9
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @microsoft/teams.graph-endpoints-beta
 
+## 2.0.0
+
+- First Stable V2 Release
+
+### Patch Changes
+
+- 00d3edb: Python additions to CLI, A2A package bump to 0.3.0
+- ee61ca0: - Update graph packages to be tree-shakeable and use different calling strategy
+  - Minor bug fixes
+- 9e2414b: cli template updates; botbuilder plugin custom server options; system route overrides;
+
 ## 2.0.0-preview.12
 
 ### Patch Changes

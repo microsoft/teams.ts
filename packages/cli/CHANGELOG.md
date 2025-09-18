@@ -1,5 +1,49 @@
 # @microsoft/teams.cli
 
+## 2.0.0
+
+- First Stable V2 Release
+
+### Major Changes
+
+- 1d5f350: v2 preview release
+
+### Patch Changes
+
+- a231813: Variety of security fixes.
+  Now every incoming request to the server is validated to ensure that it is coming from a trusted source.
+  Other minor fixes and improvements.
+- 05085e8: streaming bug fix
+- 7a0e5f6: fix cli template versions
+- 9bc2cee: - Add streamable http support to MCPClient
+  - Adds a way to "send" messages from a tab-app to the associated conversation
+- 9b08518: add csharp support to CLI officially, add a2a support via new package, devtools updates
+- 00d3edb: Python additions to CLI, A2A package bump to 0.3.0
+- ee61ca0: - Update graph packages to be tree-shakeable and use different calling strategy
+  - Minor bug fixes
+- 70cb729: Disable automatic function calling, and show structured output
+- 2337a4f: Add MCP client template
+- e6f9b56: - Added user-token in activity context
+  - For app-graph, use tenant-specific tokens to make graph calls
+  - Fixed ATK issues related to multi-tenant deprecation
+  - Fixed bot-builder adapter which broke in the last release
+- 9e2414b: cli template updates; botbuilder plugin custom server options; system route overrides;
+- 753af04: Integrate Adaptive Cards designer with DevTools, some bug fixes, naming updates
+- Updated dependencies [a231813]
+- Updated dependencies [05085e8]
+- Updated dependencies [7a0e5f6]
+- Updated dependencies [1d5f350]
+- Updated dependencies [9bc2cee]
+- Updated dependencies [9b08518]
+- Updated dependencies [00d3edb]
+- Updated dependencies [ee61ca0]
+- Updated dependencies [70cb729]
+- Updated dependencies [2337a4f]
+- Updated dependencies [e6f9b56]
+- Updated dependencies [9e2414b]
+- Updated dependencies [753af04]
+  - @microsoft/teams.common@2.0.0
+
 ## 2.0.0-preview.12
 
 ### Patch Changes
