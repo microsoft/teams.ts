@@ -47,7 +47,7 @@ git push --tags
 
 ## Commit and Push Changes
 
-1. Create a new branch for the changes (`git checkout -b release/preview<version>`)
+1. Create a new branch for the changes (`git checkout -b release/<version>`)
 1. Commit all changes (`git add . && git commit -m "Release <version>"`)
-1. Push the branch (`git push origin release/preview<version>`)
+1. Push the branch (`git push origin release/<version>`)
 1. Create a pull request to the `main` branch
