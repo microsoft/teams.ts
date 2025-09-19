@@ -1,6 +1,6 @@
-import { randomUUID } from "node:crypto";
+import { randomUUID } from 'node:crypto';
 
-import { AgentCard, Message, Task, AGENT_CARD_PATH } from "@a2a-js/sdk";
+import { AgentCard, Message, Task, AGENT_CARD_PATH } from '@a2a-js/sdk';
 import {
   A2ARequestHandler,
   AgentExecutor,
@@ -9,9 +9,9 @@ import {
   InMemoryTaskStore,
   RequestContext,
   TaskStore,
-} from "@a2a-js/sdk/server";
-import { A2AExpressApp } from "@a2a-js/sdk/server/express";
-import express, { RequestHandler } from "express";
+} from '@a2a-js/sdk/server';
+import { A2AExpressApp } from '@a2a-js/sdk/server/express';
+import express, { RequestHandler } from 'express';
 
 import {
   Dependency,
@@ -21,8 +21,8 @@ import {
   IPlugin,
   Logger,
   Plugin,
-} from "@microsoft/teams.apps";
-import { ILogger } from "@microsoft/teams.common";
+} from '@microsoft/teams.apps';
+import { ILogger } from '@microsoft/teams.common';
 
 interface IA2APluginOptions {
   /**
@@ -57,23 +57,23 @@ interface IA2APluginOptions {
 
 export type Respond = (message: string | Message | Task) => Promise<void>;
 export type A2AEvents = {
-  "a2a:message": {
+  'a2a:message': {
     requestContext: RequestContext;
     respond: Respond;
-    publishUpdate: ExecutionEventBus["publish"];
+    publishUpdate: ExecutionEventBus['publish'];
   };
 };
 
 @Plugin({
-  name: "a2a",
-  description: "A2A Server Plugin",
-  version: "0.3.0",
+  name: 'a2a',
+  description: 'A2A Server Plugin',
+  version: '0.3.0',
 })
 export class A2APlugin implements IPlugin {
   @Logger()
   public readonly log!: ILogger;
 
-  @Event("custom")
+  @Event('custom')
   protected readonly emit!: EmitPluginEvent<A2AEvents>;
 
   @Dependency()
@@ -90,11 +90,11 @@ export class A2APlugin implements IPlugin {
   constructor(options: IA2APluginOptions) {
     this.card = options.agentCard;
     if (options.path) {
-      this.path = options.path.startsWith("/")
+      this.path = options.path.startsWith('/')
         ? options.path
         : `/${options.path}`;
     } else {
-      this.path = "/a2a";
+      this.path = '/a2a';
     }
     this.agentCardPath = options.agentCardPath ?? AGENT_CARD_PATH;
     this.taskStore = options.taskStore ?? new InMemoryTaskStore();
@@ -129,7 +129,7 @@ export class A2APlugin implements IPlugin {
     return (req, _res, next) => {
       let logMessage = `A2A Request: ${req.method} ${req.url}`;
 
-      if (req.method === "POST" && req.body) {
+      if (req.method === 'POST' && req.body) {
         logMessage += ` - Body: ${JSON.stringify(req.body)}`;
       }
 
@@ -141,16 +141,16 @@ export class A2APlugin implements IPlugin {
   _setupExecutor() {
     const executor: AgentExecutor = {
       execute: async (requestContext, eventBus) => {
-        const ctx: A2AEvents["a2a:message"] = {
+        const ctx: A2AEvents['a2a:message'] = {
           requestContext,
           respond: async (message) => {
             let responseMessage: Message | Task;
-            if (typeof message === "string") {
+            if (typeof message === 'string') {
               responseMessage = {
-                kind: "message",
+                kind: 'message',
                 messageId: randomUUID(),
-                role: "agent",
-                parts: [{ kind: "text", text: message }],
+                role: 'agent',
+                parts: [{ kind: 'text', text: message }],
                 // Associate the response with the incoming request's context.
                 contextId: requestContext.contextId,
               };
@@ -162,7 +162,7 @@ export class A2APlugin implements IPlugin {
           },
           publishUpdate: eventBus.publish.bind(eventBus),
         };
-        this.emit("a2a:message", ctx);
+        this.emit('a2a:message', ctx);
       },
       cancelTask: async () => {},
     };
