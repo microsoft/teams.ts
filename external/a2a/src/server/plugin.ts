@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
-import { AgentCard, Message, Task } from '@a2a-js/sdk';
+import { AgentCard, Message, Task, AGENT_CARD_PATH } from '@a2a-js/sdk';
 import { A2ARequestHandler, AgentExecutor, DefaultRequestHandler, ExecutionEventBus, InMemoryTaskStore, RequestContext, TaskStore } from '@a2a-js/sdk/server';
 import { A2AExpressApp } from '@a2a-js/sdk/server/express';
 import express, { RequestHandler } from 'express';
@@ -20,6 +20,12 @@ interface IA2APluginOptions {
    * @default '/a2a'
    */
   path?: `/${string}`;
+
+  /**
+   * Path to the agent card
+   * @default '/a2a/.well-known/agent-card.json'
+   */
+  agentCardPath?: string;
 
   /**
    * taskStore which stores the tasks that are sent to the agent
@@ -61,13 +67,19 @@ export class A2APlugin implements IPlugin {
 
   public readonly card: AgentCard;
   public readonly path: string;
+  public readonly agentCardPath: string;
   public readonly taskStore: TaskStore;
   public readonly customExecutor?: AgentExecutor;
   private readonly middlewares: RequestHandler[] = [];
 
   constructor(options: IA2APluginOptions) {
     this.card = options.agentCard;
-    this.path = options.path ?? '/a2a';
+    if (options.path) {
+      this.path = options.path.startsWith('/') ? options.path : `/${options.path}`;
+    } else {
+      this.path = '/a2a'
+    }
+    this.agentCardPath = options.agentCardPath ?? AGENT_CARD_PATH;
     this.taskStore = options.taskStore ?? new InMemoryTaskStore();
     this.customExecutor = options.agentExecutor;
   }
@@ -82,7 +94,9 @@ export class A2APlugin implements IPlugin {
     // Combine logging middleware with custom middlewares
     const allMiddlewares = [this._createLoggingMiddleware(), ...this.middlewares];
 
-    a2aExpressApp.setupRoutes(expressApp, this.path, allMiddlewares);
+    a2aExpressApp.setupRoutes(expressApp, this.path, allMiddlewares, this.agentCardPath);
+    this.log.info(`A2A agent set up at ${this.path}/${this.agentCardPath}`);
+    this.log.info(`A2A agent listening at ${this.path}`);
     this._httpPlugin.use(expressApp);
   }
 
