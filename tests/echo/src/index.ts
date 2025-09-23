@@ -45,6 +45,4 @@ const sendProactiveNotification = async (userId: string) => {
 };
 // :snippet-end:
 
-(async () => {
-  await app.start();
-})();
+app.start().catch(e => console.error(e));

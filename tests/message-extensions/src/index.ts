@@ -194,6 +194,4 @@ app.on('message.ext.setting', async ({ activity, send }) => {
 app.tab('settings', path.resolve(__dirname));
 // :snippet-end: message-ext-serve-html
 
-(async () => {
-  await app.start();
-})();
+app.start().catch(e => console.error(e));

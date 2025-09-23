@@ -13,20 +13,18 @@ export default function App() {
   const [app, setApp] = React.useState<client.App | null>(null);
 
   React.useEffect(() => {
-    (async () => {
+    // initialize the app and prompt for Graph scope consent, if not already granted
+    const app = new client.App(clientId, {
+      logger: new ConsoleLogger('@tests/tab', { level: 'debug' }),
+      msalOptions: {
+        prewarmScopes: ['User.Read', 'Presence.ReadWrite', 'Team.ReadBasic.All']
+      }
+    });
 
-      // initialize the app and prompt for Graph scope consent, if not already granted
-      const app = new client.App(clientId, {
-        logger: new ConsoleLogger('@tests/tab', { level: 'debug' }),
-        msalOptions: {
-          prewarmScopes: ['User.Read', 'Presence.ReadWrite', 'Team.ReadBasic.All']
-        }
-      });
-
-      await app.start();
+    app.start().then(() => {
       app.log.info('app started');
       setApp(app);
-    })();
+    }).catch(e => console.error(e));
   }, []);
 
   const showTeamsJsContext = React.useCallback(async () => {

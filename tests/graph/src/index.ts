@@ -44,6 +44,4 @@ app.event('signin', async ({ send, userGraph, token }) => {
 });
 // :snippet-end:
 
-(async () => {
-  await app.start();
-})();
+app.start().catch(e => console.error(e));

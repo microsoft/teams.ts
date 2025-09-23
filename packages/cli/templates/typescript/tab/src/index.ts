@@ -27,6 +27,4 @@ app.on('message', async ({ activity, reply }) => {
   reply(`You said: ${activity.text}`);
 });
 
-(async () => {
-  await app.start(process.env.PORT || 3978);
-})();
+app.start(process.env.PORT || 3978).catch(e => console.error(e));

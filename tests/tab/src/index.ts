@@ -24,6 +24,4 @@ app.on('message', async ({ activity, reply }) => {
   reply(`You said: ${activity.text}`);
 });
 
-(async () => {
-  await app.start();
-})();
+app.start().catch(e => console.error(e));

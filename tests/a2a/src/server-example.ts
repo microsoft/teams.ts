@@ -103,6 +103,4 @@ app.event('a2a:message', async ({ respond, requestContext }) => {
 });
 // :snippet-end:
 
-(async () => {
-  await app.start(PORT);
-})();
+app.start(PORT).catch(e => console.error(e));

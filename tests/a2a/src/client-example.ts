@@ -104,6 +104,4 @@ app.on('message', async ({ send, activity }) => {
   }
 });
 
-(async () => {
-  await app.start(process.env.PORT || 3978);
-})();
+app.start(process.env.PORT || 3978).catch(e => console.error(e));
