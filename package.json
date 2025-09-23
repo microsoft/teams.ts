@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "latest",
-    "@turbo/gen": "^2.4.4",
+    "@turbo/gen": "^2.5.7",
     "bluehawk": "^1.6.0",
     "turbo": "^2.4.0",
     "typescript": "^5.4.5"
