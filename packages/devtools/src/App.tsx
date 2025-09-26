@@ -1,7 +1,6 @@
 import {
   useEffect,
   useMemo,
-  useCallback,
   useRef,
   useDebugValue,
   useState,
@@ -57,61 +56,55 @@ export default function App() {
   const onActivity = useChatStore(selectOnActivity);
   const setMetadata = useMetadataStore(selectSetMetadata);
 
-  const handleConnect = useCallback(() => {
-    Logger.info("Connected to server...");
-    setConnected(true);
-  }, []);
+  useEffect(() => {
+    const socket = socketRef.current;
 
-  const handleDisconnect = useCallback(() => {
-    Logger.info("Disconnected from server...");
-    setConnected(false);
-  }, []);
+    const handleConnect = () => {
+      Logger.info('Connected to server...');
+      setConnected(true);
+    };
 
-  const handleActivity = useCallback(
-    (event: ActivityEvent) => {
+    const handleDisconnect = () => {
+      Logger.info('Disconnected from server...');
+      setConnected(false);
+    };
+
+    const handleActivity = (event: ActivityEvent) => {
       // Batch store updates to prevent multiple re-renders
       Promise.resolve().then(() => {
         putActivity(event);
         onActivity(event);
       });
-    },
-    [putActivity, onActivity],
-  );
+    };
 
-  const handleMetadata = useCallback(
-    (event: { body: any }) => {
+    const handleMetadata = (event: { body: any }) => {
       setMetadata(event.body);
-    },
-    [setMetadata],
-  );
+    };
 
-  useEffect(() => {
-    const socket = socketRef.current;
-
-    socket.on("connect", handleConnect);
-    socket.on("disconnect", handleDisconnect);
-    socket.on("activity", handleActivity);
-    socket.on("metadata", handleMetadata);
+    socket.on('connect', handleConnect);
+    socket.on('disconnect', handleDisconnect);
+    socket.on('activity', handleActivity);
+    socket.on('metadata', handleMetadata);
 
     socket.connect();
 
     return () => {
-      socket.off("connect");
-      socket.off("disconnect");
-      socket.off("activity");
-      socket.off("metadata");
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.off('activity');
+      socket.off('metadata');
       socket.disconnect();
     };
-  }, [handleConnect, handleDisconnect, handleActivity, handleMetadata]);
+  }, [putActivity, onActivity, setMetadata]);
 
   const fluentTheme = useMemo(() => {
-    return theme === "dark" ? teamsDarkTheme : teamsLightTheme;
+    return theme === 'dark' ? teamsDarkTheme : teamsLightTheme;
   }, [theme]);
 
   return (
     <FluentProvider theme={fluentTheme}>
       <MetadataContext.Provider value={useMetadataStore()}>
-        <BrowserRouter basename="/devtools" data-tid="browser-router">
+        <BrowserRouter basename='/devtools' data-tid='browser-router'>
           {/*
                 Note: The accessibility warning about focusable aria-hidden elements is a known false positive
                 for tabster dummy elements. These elements are intentionally designed to redirect focus while
@@ -119,19 +112,19 @@ export default function App() {
                 https://github.com/microsoft/fluentui/issues/25133#issuecomment-1279371471
               */}
           <Body1
-            id="app-root"
+            id='app-root'
             data-tabster='{"root":{"deloser":true}}'
             className={mergeClasses(classes.default, classes.appContainer)}
           >
             <PageNav connected={connected} />
-            <main id="page-content" className={classes.mainContent}>
+            <main id='page-content' className={classes.mainContent}>
               <Routes>
                 <Route
-                  path=""
+                  path=''
                   element={<ChatScreen isConnected={connected} />}
                 />
-                <Route path="cards" element={<CardsScreen />} />
-                <Route path="activities" element={<ActivitiesScreen />} />
+                <Route path='cards' element={<CardsScreen />} />
+                <Route path='activities' element={<ActivitiesScreen />} />
                 {metadataPages?.map((page: Page) => (
                   <Route
                     key={page.name}
@@ -139,15 +132,15 @@ export default function App() {
                     element={<CustomScreen {...page} />}
                   />
                 ))}
-                <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path='*' element={<Navigate to='/' replace />} />
               </Routes>
             </main>
           </Body1>
         </BrowserRouter>
-        <Toaster position="top" />
+        <Toaster position='top' />
       </MetadataContext.Provider>
     </FluentProvider>
   );
 }
 
-App.displayName = "App";
+App.displayName = 'App';
