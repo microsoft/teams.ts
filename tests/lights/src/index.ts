@@ -94,7 +94,7 @@ app.on('message', async ({ send, stream, activity }) => {
     });
 
   await prompt.send(activity.text, {
-    onChunk: (chunk) => {
+    onChunk: (chunk: string) => {
       stream.emit(new MessageActivity(chunk).addFeedback());
     },
   });
