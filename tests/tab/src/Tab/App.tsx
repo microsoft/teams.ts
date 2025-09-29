@@ -24,7 +24,7 @@ export default function App() {
     app.start().then(() => {
       app.log.info('app started');
       setApp(app);
-    }).catch(e => console.error(e));
+    }).catch(console.error);
   }, []);
 
   const showTeamsJsContext = React.useCallback(async () => {

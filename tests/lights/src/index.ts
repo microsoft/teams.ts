@@ -118,4 +118,4 @@ app.on('message.submit.feedback', async ({ log, activity }) => {
   return { status: 200 };
 });
 
-app.start().catch(e => console.error(e));
+app.start().catch(console.error);

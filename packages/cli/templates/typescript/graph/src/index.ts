@@ -40,4 +40,4 @@ app.event('signin', async ({ send, userGraph }) => {
   );
 });
 
-app.start(process.env.PORT || 3978).catch(e => console.error(e));
+app.start(process.env.PORT || 3978).catch(console.error);

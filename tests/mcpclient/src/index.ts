@@ -63,4 +63,4 @@ app.on('message', async ({ send, activity }) => {
 });
 // :snippet-end:
 
-app.start(process.env.PORT || 3002).catch(e => console.error(e));
+app.start(process.env.PORT || 3002).catch(console.error);

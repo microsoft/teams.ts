@@ -426,4 +426,4 @@ app.on('card.action', async ({ activity, send }) => {
 });
 // :snippet-end:
 
-app.start(process.env.PORT || 3978).catch(e => console.error(e));
+app.start(process.env.PORT || 3978).catch(console.error);
