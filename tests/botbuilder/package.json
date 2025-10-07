@@ -15,7 +15,7 @@
     "lint:fix": "npx eslint --fix",
     "build": "npx tsup",
     "start": "node .",
-    "dev": "npx tsx watch -r dotenv/config src/index.ts"
+    "dev": "tsx watch -r dotenv/config src/index.ts"
   },
   "dependencies": {
     "@microsoft/teams.api": "2.0.1",

@@ -15,7 +15,7 @@
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
     "start": "node -r dotenv/config .",
-    "dev": "npx tsx watch -r dotenv/config src/index.ts",
+    "dev": "tsx watch -r dotenv/config src/index.ts",
     "inspect": "npx cross-env SERVER_PORT=9000 npx @modelcontextprotocol/inspector -e NODE_NO_WARNINGS=1 -e PORT=3978 node -r dotenv/config .",
     "dev:teamsfx": "NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
     "dev:teamsfx:testtool": "NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",

@@ -15,8 +15,8 @@
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
     "start": "node -r dotenv/config .",
-    "server": "npx tsx watch -r dotenv/config src/server-example.ts",
-    "client": "npx tsx watch -r dotenv/config src/client-example.ts"
+    "server": "tsx watch -r dotenv/config src/server-example.ts",
+    "client": "tsx watch -r dotenv/config src/client-example.ts"
   },
   "dependencies": {
     "@a2a-js/sdk": "^0.3.4",

@@ -15,7 +15,7 @@
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
     "start": "node -r dotenv/config .",
-    "dev": "npx tsx watch -r dotenv/config src/index.ts",
+    "dev": "tsx watch -r dotenv/config src/index.ts",
     "dev:teamsfx": "npx cross-env NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
     "dev:teamsfx:testtool": "npx cross-env NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
     "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
