@@ -15,8 +15,8 @@
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
     "start": "node -r dotenv/config .",
-    "server": "npx nodemon -w \"./src/server-example.ts\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/server-example.ts\"",
-    "client": "npx nodemon -w \"./src/client-example.ts\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/client-example.ts\""
+    "server": "npx tsx watch -r dotenv/config src/server-example.ts",
+    "client": "npx tsx watch -r dotenv/config src/client-example.ts"
   },
   "dependencies": {
     "@a2a-js/sdk": "^0.3.4",
@@ -30,8 +30,7 @@
   "devDependencies": {
     "@types/node": "^22.5.4",
     "dotenv": "^16.4.5",
-    "nodemon": "^3.1.4",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.20.6",
     "typescript": "^5.4.5"
   }
 }
