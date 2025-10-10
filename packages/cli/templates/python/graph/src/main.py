@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 # Create app with OAuth connection
 app = App(default_connection_name=os.getenv("CONNECTION_NAME", "graph"))
 
+
 @app.on_message_pattern("signout")
 async def handle_signout_command(ctx: ActivityContext[MessageActivity]):
     """Handle sign-out command."""
@@ -37,7 +38,7 @@ async def handle_profile_command(ctx: ActivityContext[MessageActivity]):
     graph = ctx.user_graph
     # Fetch user profile
     if graph:
-      me = await graph.me.get()
+        me = await graph.me.get()
 
     if me:
         profile_info = (
@@ -52,28 +53,36 @@ async def handle_profile_command(ctx: ActivityContext[MessageActivity]):
     else:
         await ctx.send("❌ Could not retrieve your profile information.")
 
+
 @app.on_message
 async def handle_default_message(ctx: ActivityContext[MessageActivity]):
     """Handle default message - trigger signin."""
     if ctx.is_signed_in:
-        await ctx.send("✅ You are already signed in!\n\n"
-                      "You can now use these commands:\n\n"
-                      "• **profile** - View your profile\n\n"
-                      "• **signout** - Sign out when done"
+        await ctx.send(
+            "✅ You are already signed in!\n\n"
+            "You can now use these commands:\n\n"
+            "• **profile** - View your profile\n\n"
+            "• **signout** - Sign out when done"
         )
     else:
         await ctx.send("🔐 Please sign in to access Microsoft Graph...")
         await ctx.sign_in()
 
+
 @app.event("sign_in")
 async def handle_sign_in_event(event: SignInEvent):
-  """Handle successful sign-in events."""
-  await event.activity_ctx.send(
-      "✅ **Successfully signed in!**\n\n"
-      "You can now use these commands:\n\n"
-      "• **profile** - View your profile\n\n"
-      "• **signout** - Sign out when done"
-  )
+    """Handle successful sign-in events."""
+    await event.activity_ctx.send(
+        "✅ **Successfully signed in!**\n\n"
+        "You can now use these commands:\n\n"
+        "• **profile** - View your profile\n\n"
+        "• **signout** - Sign out when done"
+    )
+
+
+def main():
+    asyncio.run(app.start())
+
 
 if __name__ == "__main__":
-  asyncio.run(app.start())
+    main()

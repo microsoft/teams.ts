@@ -8,7 +8,6 @@ from microsoft.teams.devtools import DevToolsPlugin
 app = App(plugins=[DevToolsPlugin()])
 
 
-
 @app.on_message_pattern(re.compile(r"hello|hi|greetings"))
 async def handle_greeting(ctx: ActivityContext[MessageActivity]) -> None:
     """Handle greeting messages."""
@@ -26,5 +25,9 @@ async def handle_message(ctx: ActivityContext[MessageActivity]):
         await ctx.send(f"You said '{ctx.activity.text}'")
 
 
-if __name__ == "__main__":
+def main():
     asyncio.run(app.start())
+
+
+if __name__ == "__main__":
+    main()

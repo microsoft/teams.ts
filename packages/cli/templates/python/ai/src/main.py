@@ -30,5 +30,9 @@ async def handle_message(ctx):
         await ctx.send(result.response.content)
 
 
-if __name__ == "__main__":
+def main():
     asyncio.run(app.start())
+
+
+if __name__ == "__main__":
+    main()
