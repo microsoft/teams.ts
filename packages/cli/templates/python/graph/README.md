@@ -1,6 +1,6 @@
 # Python Teams AI Bot
 
-This is a minimal Microsoft Teams ai agent template using [microsoft-teams](https://github.com/microsoft/teams.py).
+This is a minimal Microsoft Teams graph bot template using [microsoft-teams](https://github.com/microsoft/teams.py).
 
 ## Structure
 
