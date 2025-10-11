@@ -2655,7 +2655,15 @@ export type Spacing =
   | 'Medium'
   | 'Large'
   | 'ExtraLarge'
-  | 'Padding';
+  | 'Padding'
+  | 'none'
+  | 'extraSmall'
+  | 'small'
+  | 'default'
+  | 'medium'
+  | 'large'
+  | 'extraLarge'
+  | 'padding';
 
 export type FillMode = 'Cover' | 'RepeatHorizontally' | 'RepeatVertically' | 'Repeat';
 
