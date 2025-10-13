@@ -1,5 +1,11 @@
 # @microsoft/teams.config
 
+## 2.0.2
+
+### Patch Changes
+
+- Number of bug fixes and CLI improvements
+
 ## 2.0.1
 
 ### Patch Changes

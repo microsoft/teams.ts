@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.apps",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -46,12 +46,12 @@
     "reflect-metadata": "^0.2.2"
   },
   "peerDependencies": {
-    "@microsoft/teams.api": "2.0.1",
-    "@microsoft/teams.common": "2.0.1",
-    "@microsoft/teams.graph": "2.0.1"
+    "@microsoft/teams.api": "2.0.2",
+    "@microsoft/teams.common": "2.0.2",
+    "@microsoft/teams.graph": "2.0.2"
   },
   "devDependencies": {
-    "@microsoft/teams.config": "2.0.1",
+    "@microsoft/teams.config": "2.0.2",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.12",

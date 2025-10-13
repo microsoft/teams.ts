@@ -1,8 +1,8 @@
 {
   "name": "@tests/lights",
-  "version": "0.0.2",
-  "license": "MIT",
+  "version": "0.0.3",
   "private": true,
+  "license": "MIT",
   "main": "dist/index",
   "types": "dist/index",
   "files": [
@@ -18,17 +18,17 @@
     "dev": "tsx watch -r dotenv/config src/index.ts"
   },
   "dependencies": {
-    "@microsoft/teams.ai": "2.0.1",
-    "@microsoft/teams.api": "2.0.1",
-    "@microsoft/teams.apps": "2.0.1",
-    "@microsoft/teams.cards": "2.0.1",
-    "@microsoft/teams.common": "2.0.1",
-    "@microsoft/teams.dev": "2.0.1",
-    "@microsoft/teams.graph": "2.0.1",
-    "@microsoft/teams.openai": "2.0.1"
+    "@microsoft/teams.ai": "2.0.2",
+    "@microsoft/teams.api": "2.0.2",
+    "@microsoft/teams.apps": "2.0.2",
+    "@microsoft/teams.cards": "2.0.2",
+    "@microsoft/teams.common": "2.0.2",
+    "@microsoft/teams.dev": "2.0.2",
+    "@microsoft/teams.graph": "2.0.2",
+    "@microsoft/teams.openai": "2.0.2"
   },
   "devDependencies": {
-    "@microsoft/teams.config": "2.0.1",
+    "@microsoft/teams.config": "2.0.2",
     "@types/node": "^22.5.4",
     "dotenv": "^16.4.5",
     "rimraf": "^6.0.1",

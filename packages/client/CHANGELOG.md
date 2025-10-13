@@ -1,5 +1,15 @@
 # @microsoft/teams.client
 
+## 2.0.2
+
+### Patch Changes
+
+- Number of bug fixes and CLI improvements
+- Updated dependencies
+  - @microsoft/teams.api@2.0.2
+  - @microsoft/teams.common@2.0.2
+  - @microsoft/teams.graph@2.0.2
+
 ## 2.0.1
 
 ### Patch Changes

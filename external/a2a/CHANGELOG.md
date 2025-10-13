@@ -1,5 +1,15 @@
 # @microsoft/teams.a2a
 
+## 2.0.2
+
+### Patch Changes
+
+- Number of bug fixes and CLI improvements
+- Updated dependencies
+  - @microsoft/teams.ai@2.0.2
+  - @microsoft/teams.apps@2.0.2
+  - @microsoft/teams.common@2.0.2
+
 ## 2.0.1
 
 ### Patch Changes

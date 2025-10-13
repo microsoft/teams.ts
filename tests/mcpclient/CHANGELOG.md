@@ -1,5 +1,16 @@
 # @tests/mcpclient
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies
+  - @microsoft/teams.mcpclient@2.0.2
+  - @microsoft/teams.ai@2.0.2
+  - @microsoft/teams.apps@2.0.2
+  - @microsoft/teams.dev@2.0.2
+  - @microsoft/teams.openai@2.0.2
+
 ## 0.0.2
 
 ### Patch Changes

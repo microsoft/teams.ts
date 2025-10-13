@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.graph-tools",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": true,
   "license": "MIT",
   "description": "Tools for generating TypeScript Graph API endpoints from OpenAPI specifications",
@@ -52,7 +52,7 @@
     "yaml": "^2.6.1"
   },
   "devDependencies": {
-    "@microsoft/teams.config": "2.0.1",
+    "@microsoft/teams.config": "2.0.2",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.10.2",
     "jest": "^29.7.0",

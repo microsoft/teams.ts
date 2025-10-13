@@ -1,7 +1,7 @@
 {
   "name": "@microsoft/teams.graph-endpoints",
   "sideEffects": false,
-  "version": "2.0.1",
+  "version": "2.0.2",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -51,7 +51,7 @@
     "gen:endpoints": "npx cross-env NODE_OPTIONS='--max-old-space-size=16384' npx @microsoft/teams.graph-tools generate-endpoints ../graph/openapi.yaml ./src v1.0"
   },
   "devDependencies": {
-    "@microsoft/teams.graph-tools": "2.0.1",
+    "@microsoft/teams.graph-tools": "2.0.2",
     "rimraf": "^6.0.1",
     "tsup": "^8.4.0",
     "typescript": "^5.4.5"

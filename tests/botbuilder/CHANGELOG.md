@@ -1,5 +1,18 @@
 # @tests/botbuilder
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies
+  - @microsoft/teams.api@2.0.2
+  - @microsoft/teams.apps@2.0.2
+  - @microsoft/teams.botbuilder@2.0.2
+  - @microsoft/teams.cards@2.0.2
+  - @microsoft/teams.common@2.0.2
+  - @microsoft/teams.dev@2.0.2
+  - @microsoft/teams.graph@2.0.2
+
 ## 0.0.2
 
 ### Patch Changes
