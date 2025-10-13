@@ -102,9 +102,7 @@ const HtmlMessageContent = React.memo(function HtmlMessageContent ({ content }: 
   const classes = useClasses();
 
   // Respect \r\n and \n as line breaks
-  const processedContent = content
-    .replace(/\r\n/g, '<br />')
-    .replace(/\n/g, '<br />');
+  const processedContent = content.replace(/\r?\n/g, '<br />');
 
   const dom = parseDocument(processedContent, { });
   const body = dom.children || [];
