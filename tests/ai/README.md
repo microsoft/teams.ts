@@ -29,8 +29,8 @@ Then run the sample via ttk.
 
 ```bash
 AZURE_OPENAI_API_KEY=<your_azure_openai_api_key>
-AZURE_OPENAI_API_ENDPOINT=<your_azure_openai_api_endpoint>
-AZURE_OPENAI_MODEL_NAME=<your_azure_openai_model_deployment_name>
+AZURE_OPENAI_ENDPOINT=<your_azure_openai_api_endpoint>
+AZURE_OPENAI_MODEL_DEPLOYMENT_NAME=<your_azure_openai_model_deployment_name>
 AZURE_OPENAI_API_VERSION=<your_azure_openai_api_version>
 
 # Alternatively, set the OpenAI API key:
