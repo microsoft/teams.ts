@@ -100,7 +100,13 @@ const renderNode = (node: any, key: number = 0): React.ReactNode => {
 
 const HtmlMessageContent = React.memo(function HtmlMessageContent ({ content }: Props)  {
   const classes = useClasses();
-  const dom = parseDocument(content, { });
+
+  // Respect \r\n and \n as line breaks
+  const processedContent = content
+    .replace(/\r\n/g, '<br />')
+    .replace(/\n/g, '<br />');
+
+  const dom = parseDocument(processedContent, { });
   const body = dom.children || [];
   return <div className={classes.contentContainer} >{body.map((node, i) => renderNode(node, i))}</div>;
 });
