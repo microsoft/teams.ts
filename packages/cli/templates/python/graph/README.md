@@ -1,4 +1,4 @@
-# Python Teams AI Bot
+# Python Teams Graph Bot
 
 This is a minimal Microsoft Teams graph bot template using [microsoft-teams](https://github.com/microsoft/teams.py).
 
