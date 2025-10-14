@@ -3,10 +3,10 @@
 Run this first to get all the config files:
 
 ```
-teams config add ttk.oauth
+teams config add atk.oauth
 ```
 
-Then run via TTK.
+Then run via ATK.
 
 ## Teams Toolkit Configuration: Oauth
 
