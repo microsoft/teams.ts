@@ -1,1 +1,1 @@
-export type AttachmentLayout = 'list' | 'carousel';
+export type AttachmentLayout = 'list' | 'grid';
