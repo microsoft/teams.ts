@@ -6,4 +6,4 @@ export * from './messaging-extension-parameter';
 export * from './messaging-extension-query';
 export * from './messaging-extension-action';
 export * from './messaging-extension-action-response';
-export * from './message-extension-attachment-layout';
+export * from './messaging-extension-attachment-layout';
