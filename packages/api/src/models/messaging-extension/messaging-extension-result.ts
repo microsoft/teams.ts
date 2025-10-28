@@ -1,7 +1,7 @@
 import { Activity } from '../../activities';
 
-import { MessageExtensionAttachmentLayout } from './message-extension-attachment-layout';
 import { MessagingExtensionAttachment } from './messaging-extension-attachment';
+import { MessagingExtensionAttachmentLayout } from './messaging-extension-attachment-layout';
 import { MessagingExtensionSuggestedAction } from './messaging-extension-suggested-action';
 
 /**
@@ -27,10 +27,10 @@ export type MessagingExtensionResultType =
  */
 export type MessagingExtensionResult = {
   /**
-   * @member {MessageExtensionAttachmentLayout} [attachmentLayout] Hint for how to deal with
+   * @member {MessagingExtensionAttachmentLayout} [attachmentLayout] Hint for how to deal with
    * multiple attachments. Possible values include: 'list', 'grid'
    */
-  attachmentLayout?: MessageExtensionAttachmentLayout;
+  attachmentLayout?: MessagingExtensionAttachmentLayout;
 
   /**
    * @member {MessagingExtensionResultType} [type] The type of the result. Possible values include:
