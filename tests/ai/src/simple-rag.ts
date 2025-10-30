@@ -15,9 +15,9 @@ interface IDocumentationItem {
 const documentationCorpus = [
   {
     id: 'teams-ai-overview',
-    title: 'Teams AI Overview',
+    title: 'Teams SDK Overview',
     content:
-      'Teams AI is a framework for building AI-powered applications for Microsoft Teams. It provides tools for creating chatbots, message extensions, and other conversational experiences.',
+      'Teams SDK is a framework for building AI-powered applications for Microsoft Teams. It provides tools for creating chatbots, message extensions, and other conversational experiences.',
   },
   {
     id: 'chat-prompt',
