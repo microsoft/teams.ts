@@ -13,7 +13,7 @@
     <a href="https://www.npmjs.com/package/@microsoft/teams.graph-endpoints" target="_blank">
         <img src="https://img.shields.io/npm/dw/@microsoft/teams.graph-endpoints" />
     </a>
-    <a href="https://microsoft.github.io/teams-ai" target="_blank">
+    <a href="https://microsoft.github.io/teams-sdk" target="_blank">
         <img src="https://img.shields.io/badge/📖 docs-open-blue" />
     </a>
 </p>
@@ -23,7 +23,7 @@ together with <a href="https://www.npmjs.com/package/@microsoft/teams.graph" tar
 
 Use this package to call Microsoft Graph APIs that have reached general availability (GA), and have gone through a rigorous review-and-feedback process with customers to meet practical, production needs.
 
-<a href="https://microsoft.github.io/teams-ai" target="_blank">
+<a href="https://microsoft.github.io/teams-sdk" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 

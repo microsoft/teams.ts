@@ -99,7 +99,7 @@ export default function App() {
         </div>
       )}
 
-      <p>For more information, please refer to the <a href='https://microsoft.github.io/teams-ai' rel='noopener noreferrer' target='_blank'>Teams SDK documentation</a>.</p>
+      <p>For more information, please refer to the <a href='https://microsoft.github.io/teams-sdk' rel='noopener noreferrer' target='_blank'>Teams SDK documentation</a>.</p>
     </div>
   );
 }

@@ -13,14 +13,14 @@
     <a href="https://www.npmjs.com/package/@microsoft/teams.mcpclient" target="_blank">
         <img src="https://img.shields.io/npm/dw/@microsoft/teams.mcpclient" />
     </a>
-    <a href="https://microsoft.github.io/teams-ai" target="_blank">
+    <a href="https://microsoft.github.io/teams-sdk" target="_blank">
         <img src="https://img.shields.io/badge/📖 docs-open-blue" />
     </a>
 </p>
 
 High level MCP Client Plugin which allows connecting to various sse servers and consume exposed tools.
 
-<a href="https://microsoft.github.io/teams-ai" target="_blank">
+<a href="https://microsoft.github.io/teams-sdk" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 
@@ -45,11 +45,11 @@ const prompt = new ChatPrompt(
         instructions: "You are a helpful assistant.",
         model: yourModel,
     },
-    [new McpClientPlugin()]
+    [new McpClientPlugin()],
 ).usePlugin("mcpClient", { url: "http://your-mcp-server/mcp" });
 ```
 
 ## Features
 
--   🔌 Automatic tool discovery from MCP servers
--   💾 Optional caching of tool parameters (if you'd like to avoid the discovery call or only pass in a subset of tools)
+- 🔌 Automatic tool discovery from MCP servers
+- 💾 Optional caching of tool parameters (if you'd like to avoid the discovery call or only pass in a subset of tools)
