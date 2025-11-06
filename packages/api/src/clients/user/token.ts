@@ -3,6 +3,7 @@ import qs from 'qs';
 import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
 import { ChannelID, TokenExchangeRequest, TokenResponse, TokenStatus } from '../../models';
+import { ClientSettings, DEFAULT_CLIENT_SETTINGS } from '../client-settings';
 
 export type GetUserTokenParams = {
   userId: string;
@@ -45,8 +46,9 @@ export class UserTokenClient {
     this._http = v;
   }
   protected _http: Client;
+  protected _clientSettings: ClientSettings;
 
-  constructor(options?: Client | ClientOptions) {
+  constructor(options?: Client | ClientOptions, clientSettings?: ClientSettings) {
     if (!options) {
       this._http = new Client();
     } else if ('request' in options) {
@@ -54,12 +56,14 @@ export class UserTokenClient {
     } else {
       this._http = new Client(options);
     }
+
+    this._clientSettings = clientSettings ?? DEFAULT_CLIENT_SETTINGS;
   }
 
   async get(params: GetUserTokenParams) {
     const q = qs.stringify(params);
     const res = await this.http.get<TokenResponse>(
-      `https://token.botframework.com/api/usertoken/GetToken?${q}`
+      `${this._clientSettings.tokenUrl}/api/usertoken/GetToken?${q}`
     );
 
     return res.data;
@@ -68,7 +72,7 @@ export class UserTokenClient {
   async getAad(params: GetUserAADTokenParams) {
     const q = qs.stringify(params);
     const res = await this.http.post<Record<string, TokenResponse>>(
-      `https://token.botframework.com/api/usertoken/GetAadTokens?${q}`,
+      `${this._clientSettings.tokenUrl}/api/usertoken/GetAadTokens?${q}`,
       params
     );
 
@@ -78,7 +82,7 @@ export class UserTokenClient {
   async getStatus(params: GetUserTokenStatusParams) {
     const q = qs.stringify(params);
     const res = await this.http.get<TokenStatus[]>(
-      `https://token.botframework.com/api/usertoken/GetTokenStatus?${q}`
+      `${this._clientSettings.tokenUrl}/api/usertoken/GetTokenStatus?${q}`
     );
 
     return res.data;
@@ -87,7 +91,7 @@ export class UserTokenClient {
   async signOut(params: SignOutUserParams) {
     const q = qs.stringify(params);
     const res = await this.http.delete<void>(
-      `https://token.botframework.com/api/usertoken/SignOut?${q}`,
+      `${this._clientSettings.tokenUrl}/api/usertoken/SignOut?${q}`,
       { data: params }
     );
 
@@ -102,7 +106,7 @@ export class UserTokenClient {
     });
 
     const res = await this.http.post<TokenResponse>(
-      `https://token.botframework.com/api/usertoken/exchange?${q}`,
+      `${this._clientSettings.tokenUrl}/api/usertoken/exchange?${q}`,
       params.exchangeRequest
     );
 

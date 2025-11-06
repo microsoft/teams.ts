@@ -8,7 +8,8 @@ import {
   IToken,
   JsonWebToken,
   StripMentionsTextOptions,
-  toActivityParams
+  toActivityParams,
+  DEFAULT_CLIENT_SETTINGS
 } from '@microsoft/teams.api';
 import { EventEmitter } from '@microsoft/teams.common/events';
 import * as http from '@microsoft/teams.common/http';
@@ -224,7 +225,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     this.api = new ApiClient(
       'https://smba.trafficmanager.net/teams',
-      this.client.clone({ token: () => this._tokens.bot })
+      this.client.clone({ token: () => this._tokens.bot }),
+      this.options.oauth?.clientSettings ?? DEFAULT_CLIENT_SETTINGS
     );
 
     this.graph = new GraphClient(

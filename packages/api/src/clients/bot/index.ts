@@ -2,6 +2,7 @@ import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
 import { BotSignInClient } from './sign-in';
 import { BotTokenClient } from './token';
+import { ClientSettings, DEFAULT_CLIENT_SETTINGS } from '../client-settings';
 
 export class BotClient {
   readonly token: BotTokenClient;
@@ -16,8 +17,9 @@ export class BotClient {
     this._http = v;
   }
   protected _http: Client;
+  protected _clientSettings: ClientSettings;
 
-  constructor(options?: Client | ClientOptions) {
+  constructor(options?: Client | ClientOptions, clientSettings?: ClientSettings) {
     if (!options) {
       this._http = new Client();
     } else if ('request' in options) {
@@ -26,8 +28,9 @@ export class BotClient {
       this._http = new Client(options);
     }
 
+    this._clientSettings = clientSettings ?? DEFAULT_CLIENT_SETTINGS;
     this.token = new BotTokenClient(this.http);
-    this.signIn = new BotSignInClient(this.http);
+    this.signIn = new BotSignInClient(this.http, this._clientSettings);
   }
 }
 

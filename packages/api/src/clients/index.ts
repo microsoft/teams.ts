@@ -5,6 +5,7 @@ import { ConversationClient } from './conversation';
 import { MeetingClient } from './meeting';
 import { TeamClient } from './team';
 import { UserClient } from './user';
+import { ClientSettings, DEFAULT_CLIENT_SETTINGS } from './client-settings';
 
 export class Client {
   readonly serviceUrl: string;
@@ -26,8 +27,9 @@ export class Client {
     this._http = v;
   }
   protected _http: http.Client;
+  protected _clientSettings: ClientSettings;
 
-  constructor(serviceUrl: string, options?: http.Client | http.ClientOptions) {
+  constructor(serviceUrl: string, options?: http.Client | http.ClientOptions, clientSettings?: ClientSettings) {
     this.serviceUrl = serviceUrl;
 
     if (!options) {
@@ -44,8 +46,11 @@ export class Client {
       });
     }
 
-    this.bots = new BotClient(this.http);
-    this.users = new UserClient(this.http);
+    this._clientSettings = clientSettings ?? DEFAULT_CLIENT_SETTINGS;
+    console.log("These are my client settings", this._clientSettings);
+
+    this.bots = new BotClient(this.http, this._clientSettings);
+    this.users = new UserClient(this.http, this._clientSettings);
     this.conversations = new ConversationClient(serviceUrl, this.http);
     this.teams = new TeamClient(serviceUrl, this.http);
     this.meetings = new MeetingClient(serviceUrl, this.http);
@@ -57,3 +62,4 @@ export * from './bot';
 export * from './conversation';
 export * from './meeting';
 export * from './team';
+export * from './client-settings';
