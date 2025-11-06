@@ -1,8 +1,9 @@
 import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
+import { ClientSettings, DEFAULT_CLIENT_SETTINGS } from '../client-settings';
+
 import { BotSignInClient } from './sign-in';
 import { BotTokenClient } from './token';
-import { ClientSettings, DEFAULT_CLIENT_SETTINGS } from '../client-settings';
 
 export class BotClient {
   readonly token: BotTokenClient;

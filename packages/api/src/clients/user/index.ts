@@ -1,7 +1,8 @@
 import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
-import { UserTokenClient } from './token';
 import { ClientSettings, DEFAULT_CLIENT_SETTINGS } from '../client-settings';
+
+import { UserTokenClient } from './token';
 
 export class UserClient {
   readonly token: UserTokenClient;
