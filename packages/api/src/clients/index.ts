@@ -47,7 +47,6 @@ export class Client {
     }
 
     this._clientSettings = clientSettings ?? DEFAULT_CLIENT_SETTINGS;
-    console.log("These are my client settings", this._clientSettings);
 
     this.bots = new BotClient(this.http, this._clientSettings);
     this.users = new UserClient(this.http, this._clientSettings);

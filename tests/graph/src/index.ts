@@ -9,7 +9,12 @@ const app = new App({
      * The name of the auth connection to use.
      * It should be the same as the OAuth connection name defined in the Azure Bot configuration.
      */
-    defaultConnectionName: 'graph'
+    defaultConnectionName: 'graph',
+    // This is an example of overriding the token URL for a specific region (e.g., Europe).
+    // Uncomment this block if needed.
+    // clientSettings: {
+    //   tokenUrl: "https://europe.token.botframework.com",
+    // }
   },
   logger: new ConsoleLogger('@tests/auth', { level: 'debug' })
 });
