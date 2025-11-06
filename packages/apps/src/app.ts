@@ -121,7 +121,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * the apps id
    */
   get id() {
-    return this.manifest.id;
+    return this.credentials?.clientId;
   }
 
   /**
@@ -130,7 +130,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    */
   get name() {
     this.log.warn('app.name will be removed in the future');
-    return this.manifest.name?.full;
+    return this._manifest.name?.full;
   }
 
   get oauth() {
@@ -147,9 +147,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     return {
       id: this.id,
       name: {
-        short: this.name || '??',
-        full: this.name || '??',
-        ...this._manifest.name,
+        short: this._manifest.name?.short || '??',
+        full: this._manifest.name?.full || '??',
       },
       bots: [
         {
