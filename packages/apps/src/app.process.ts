@@ -28,8 +28,6 @@ export async function $process<TPlugin extends IPlugin>(
     serviceUrl = serviceUrl.slice(0, serviceUrl.length - 1);
   }
 
-  await this.refreshTokens();
-
   let userToken: string | undefined;
 
   try {
@@ -38,21 +36,13 @@ export async function $process<TPlugin extends IPlugin>(
     // noop
   }
 
-
-  let appToken: string | undefined;
-  try {
-    appToken = await this.getOrRefreshTenantToken(activity.conversation.tenantId ?? 'common');
-  } catch (err) {
-    // noop
-  }
-
   const client = this.client.clone();
-  const apiClient = new ApiClient(serviceUrl, this.client.clone({ token: () => this.tokens.bot }), this.options.apiClientSettings);
+  const apiClient = new ApiClient(serviceUrl, this.client.clone({ token: () => this.getBotToken() }), this.options.apiClientSettings);
   const userGraph = new GraphClient(
     client.clone({ token: () => userToken })
   );
   const appGraph = new GraphClient(
-    client.clone({ token: () => appToken })
+    client.clone({ token: () => this.getAppGraphToken(activity.conversation.tenantId ?? 'common') })
   );
 
   const ref: ConversationReference = {
@@ -121,7 +111,6 @@ export async function $process<TPlugin extends IPlugin>(
     appGraph,
     appId: this.id || '',
     log: this.log,
-    tokens: this.tokens,
     userToken: userToken,
     ref,
     storage: this.storage,

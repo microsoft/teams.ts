@@ -57,9 +57,6 @@ export class BotBuilderPlugin extends HttpPlugin implements ISender {
   @Dependency({ optional: true })
   declare readonly botToken?: () => IToken;
 
-  @Dependency({ optional: true })
-  declare readonly graphToken?: () => IToken;
-
   @Event('error')
   declare readonly $onError: (event: IErrorEvent) => void;
 
