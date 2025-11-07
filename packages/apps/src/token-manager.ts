@@ -1,7 +1,6 @@
 import { AuthenticationResult, ConfidentialClientApplication, ManagedIdentityApplication } from '@azure/msal-node';
 
-import { ClientCredentials, Credentials, IToken, JsonWebToken, TokenCredentials } from '@microsoft/teams.api';
-import { FederatedIdentityCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api/dist/auth/credentials';
+import { ClientCredentials, Credentials, IToken, JsonWebToken, TokenCredentials , FederatedIdentityCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api';
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
 const DEFAULT_BOT_TOKEN_SCOPE = 'https://api.botframework.com/.default';
@@ -70,8 +69,7 @@ export class TokenManager {
 
   private async getTokenWithFederatedCredentials(credentials: FederatedIdentityCredentials, scope: string, tenantId: string) {
     const managedIdentityClient = this.getManagedIdentityClient(credentials);
-    const resource = scope.replace('/.default', '');
-    const managedIdentityTokeRes = await managedIdentityClient.acquireToken({ resource });
+    const managedIdentityTokeRes = await managedIdentityClient.acquireToken({ resource: 'api://AzureADTokenExchange' });
     const confidentialClient = new ConfidentialClientApplication({
       auth: {
         clientId: credentials.clientId,
@@ -110,9 +108,15 @@ export class TokenManager {
     }
 
     if (credentials.type === 'userManagedIdentity' || credentials.managedIdentityType === 'user') {
+      let clientId: string;
+      if (credentials.type === 'userManagedIdentity') {
+        clientId = credentials.clientId;
+      } else {
+        clientId = credentials.managedIdentityClientId;
+      }
       this.managedIdentityClient = new ManagedIdentityApplication({
         managedIdentityIdParams: {
-          userAssignedClientId: credentials.clientId
+          userAssignedClientId: clientId
         }
       });
     } else {

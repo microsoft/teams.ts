@@ -1,5 +1,3 @@
-
-
 import { AxiosError } from 'axios';
 
 import {
@@ -11,7 +9,6 @@ import {
   StripMentionsTextOptions,
   toActivityParams
   TokenCredentials,
-  FederatedIdentityCredentials,
 } from '@microsoft/teams.api';
 import { EventEmitter } from '@microsoft/teams.common/events';
 import * as http from '@microsoft/teams.common/http';
@@ -90,7 +87,7 @@ export type AppOptions<TPlugin extends IPlugin> = {
    *   - "system", uses System Managed Identity in a Federated Identity Credentials
    *   - Different from client id or system, uses UMI in a Federated Identity Credentials
    */
-  managedIdentityClientId?: FederatedIdentityCredentials['managedIdentityClientId'];
+  managedIdentityClientId?: 'system' | (string & {});
 
   /**
    * http client or client options used to make api requests
@@ -268,7 +265,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     const tenantId = this.options.tenantId ?? process.env.TENANT_ID;
     const clientSecret = this.options.clientSecret ?? process.env.CLIENT_SECRET;
     const token = this.options.token;
-    const managedIdentityClientId = this.options.managedIdentityClientId ?? (process.env.MANAGED_IDENTITY_CLIENT_ID as FederatedIdentityCredentials['managedIdentityClientId'] | undefined);
+    const managedIdentityClientId = this.options.managedIdentityClientId ?? (process.env.MANAGED_IDENTITY_CLIENT_ID as 'system' | (string & {}) | undefined);
 
     if (clientId && clientSecret) {
       this.log.debug('Using Client Credentials auth');
@@ -295,14 +292,15 @@ export class App<TPlugin extends IPlugin = IPlugin> {
           tenantId
         };
       } else {
-        this.log.debug('Using Federated Identity Credentials auth');
+        const identityType = managedIdentityClientId === 'system' ? 'system' : 'user' as const
         this.credentials = {
           type: 'federatedIdentityCredentials',
           clientId,
           tenantId,
           managedIdentityClientId,
-          managedIdentityType: managedIdentityClientId === 'system' ? 'system' : 'user',
+          managedIdentityType: identityType,
         };
+        this.log.debug(`Using Federated Identity Credentials auth (${identityType})`);
       }
     }
 

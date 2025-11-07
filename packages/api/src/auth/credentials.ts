@@ -36,11 +36,17 @@ export type UserManagedIdentityCredentials = {
 /**
  * credentials for fedrated identity credentials
 */
-export type FederatedIdentityCredentials = {
+type SystemFederatedIdentityCredentials = {
   type: 'federatedIdentityCredentials';
   readonly clientId: string;
-  readonly managedIdentityClientId?: 'system' | (string & {});
-  readonly managedIdentityType: 'system' | 'user'
+  readonly managedIdentityType: 'system';
   readonly tenantId?: string;
 };
-
+type UserFederatedIdentityCredentials = {
+  type: 'federatedIdentityCredentials';
+  readonly clientId: string;
+  readonly managedIdentityClientId: string;
+  readonly managedIdentityType: 'user';
+  readonly tenantId?: string;
+};
+export type FederatedIdentityCredentials = SystemFederatedIdentityCredentials | UserFederatedIdentityCredentials;
