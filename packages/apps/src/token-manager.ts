@@ -6,7 +6,8 @@ import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 export class TokenManager {
   private logger: ILogger;
   private confidentialClientsByTenantId: Record<string, ConfidentialClientApplication> = {};
-  constructor(private credentials: Credentials, logger: ILogger) {
+
+  constructor(private credentials: Credentials | undefined, logger: ILogger) {
     this.logger = logger.child('TokenManager') ?? new ConsoleLogger('TokenManager');
   }
 
@@ -19,6 +20,10 @@ export class TokenManager {
   }
 
   private async getToken(scope: string, tenantId?: string): Promise<IToken | null> {
+    if (!this.credentials) {
+      return null;
+    }
+
     if ('clientSecret' in this.credentials) {
       return this.getTokenWithClientCredentials(this.credentials, scope, tenantId);
     } else if ('token' in this.credentials) {
@@ -44,7 +49,7 @@ export class TokenManager {
   }
 
   private resolveTenantId(tenantId?: string) {
-    return tenantId || this.credentials.tenantId || 'botframework.com';
+    return tenantId || this.credentials?.tenantId || 'botframework.com';
   }
 
   private getConfidentialClient(credentials: ClientCredentials, tenantId: string) {

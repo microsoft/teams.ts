@@ -6,8 +6,6 @@ import { App } from './app';
 import { HttpPlugin } from './plugins';
 import { IPluginStartEvent } from './types';
 
-const REFRESH_TOKEN_BUFFER_MS = 1000 * 60 * 5;
-
 class TestHttpPlugin extends HttpPlugin {
   async onStart(_event: IPluginStartEvent) {
     // No-op for tests
@@ -20,137 +18,166 @@ class TestHttpPlugin extends HttpPlugin {
 
 class TestApp extends App {
   // Expose protected members for testing
-  public get testTokens() {
-    return this._tokens;
+  public async testGetBotToken() {
+    return this.getBotToken();
   }
 
-  public async testRefreshTokens() {
-    return this.refreshTokens();
+  public async testGetAppGraphToken(tenantId?: string) {
+    return this.getAppGraphToken(tenantId);
   }
 }
 
 describe('App', () => {
-  describe('token refresh', () => {
+  describe('token acquisition with MSAL', () => {
     let app: TestApp;
-    const mockGraphToken = jwt.sign({ access_token: 'mock-graph-token' }, 'test-secret');
-    const mockBotToken = jwt.sign({ access_token: 'mock-bot-token' }, 'test-secret');
+    const mockBotToken = jwt.sign(
+      {
+        exp: Math.floor((Date.now() + 3600000) / 1000),
+        aud: 'https://api.botframework.com',
+        iss: 'https://login.microsoftonline.com/test-tenant/v2.0',
+      },
+      'test-secret'
+    );
+    const mockGraphToken = jwt.sign(
+      {
+        exp: Math.floor((Date.now() + 3600000) / 1000),
+        aud: 'https://graph.microsoft.com',
+        iss: 'https://login.microsoftonline.com/test-tenant/v2.0',
+      },
+      'test-secret'
+    );
 
     beforeEach(() => {
       app = new TestApp({
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
+        tenantId: 'test-tenant-id',
+        plugins: [new TestHttpPlugin()],
+      });
+    });
+
+    it('should acquire bot token via TokenManager', async () => {
+      // Mock the MSAL acquireTokenByClientCredential method
+      const mockAcquireToken = jest.fn().mockResolvedValue({
+        accessToken: mockBotToken,
+      });
+
+      if (app.tokenManager) {
+        // @ts-expect-error - accessing private method for testing
+        jest.spyOn(app.tokenManager, 'getConfidentialClient').mockReturnValue({
+          acquireTokenByClientCredential: mockAcquireToken,
+        } as any);
+      }
+
+      const token = await app.testGetBotToken();
+
+      expect(token).toBeInstanceOf(JsonWebToken);
+      expect(token?.toString()).toBe(mockBotToken);
+      expect(mockAcquireToken).toHaveBeenCalledWith({
+        scopes: ['https://api.botframework.com/.default'],
+      });
+    });
+
+    it('should acquire graph token via TokenManager', async () => {
+      // Mock the MSAL acquireTokenByClientCredential method
+      const mockAcquireToken = jest.fn().mockResolvedValue({
+        accessToken: mockGraphToken,
+      });
+
+      if (app.tokenManager) {
+        // @ts-expect-error - accessing private method for testing
+        jest.spyOn(app.tokenManager, 'getConfidentialClient').mockReturnValue({
+          acquireTokenByClientCredential: mockAcquireToken,
+        } as any);
+      }
+
+      const token = await app.testGetAppGraphToken();
+
+      expect(token).toBeInstanceOf(JsonWebToken);
+      expect(token?.toString()).toBe(mockGraphToken);
+      expect(mockAcquireToken).toHaveBeenCalledWith({
+        scopes: ['https://graph.microsoft.com/.default'],
+      });
+    });
+
+    it('should acquire graph token for specific tenant', async () => {
+      const tenantId = 'specific-tenant-id';
+      const mockAcquireToken = jest.fn().mockResolvedValue({
+        accessToken: mockGraphToken,
+      });
+
+      if (app.tokenManager) {
+        // @ts-expect-error - accessing private method for testing
+        jest.spyOn(app.tokenManager, 'getConfidentialClient').mockReturnValue({
+          acquireTokenByClientCredential: mockAcquireToken,
+        } as any);
+      }
+
+      const token = await app.testGetAppGraphToken(tenantId);
+
+      expect(token).toBeInstanceOf(JsonWebToken);
+      expect(token?.toString()).toBe(mockGraphToken);
+    });
+
+    it('should return null when tokenManager is not initialized', async () => {
+      const appWithoutCreds = new TestApp({
         plugins: [new TestHttpPlugin()],
       });
 
-      app.api.bots.token.getGraph = jest.fn().mockResolvedValue({ access_token: mockGraphToken });
-      app.api.bots.token.get = jest.fn().mockResolvedValue({ access_token: mockBotToken });
+      const botToken = await appWithoutCreds.testGetBotToken();
+      const graphToken = await appWithoutCreds.testGetAppGraphToken();
+
+      expect(botToken).toBeNull();
+      expect(graphToken).toBeNull();
     });
 
-    it('should refresh bot token when expired', async () => {
-      // Set expired token with expiration in payload
-      const expiredToken = jwt.sign(
+    it('should initialize tokenManager when credentials are provided', () => {
+      expect(app.tokenManager).not.toBeNull();
+      expect(app.tokenManager).toBeDefined();
+    });
+
+    it('should support TokenCredentials with token provider', async () => {
+      const mockToken = jwt.sign(
         {
-          exp: Math.floor((Date.now() - 1000) / 1000),
-          aud: 'test-audience',
-          iss: 'test-issuer',
+          exp: Math.floor((Date.now() + 3600000) / 1000),
+          aud: 'https://api.botframework.com',
         },
-        'test-secret',
-        { algorithm: 'HS256' }
+        'test-secret'
       );
-      app.testTokens.bot = new JsonWebToken(expiredToken);
 
-      await app.testRefreshTokens();
+      const tokenProvider = jest.fn().mockResolvedValue(mockToken);
 
-      expect(app.api.bots.token.get).toHaveBeenCalledWith(app.credentials);
-      expect(app.testTokens.bot?.toString()).toBe(mockBotToken);
+      const appWithTokenProvider = new TestApp({
+        clientId: 'test-client-id',
+        token: tokenProvider,
+        plugins: [new TestHttpPlugin()],
+      });
+
+      expect(appWithTokenProvider.tokenManager).not.toBeNull();
+
+      const token = await appWithTokenProvider.testGetBotToken();
+
+      expect(token).toBeInstanceOf(JsonWebToken);
+      expect(tokenProvider).toHaveBeenCalledWith(
+        'https://api.botframework.com/.default',
+        'botframework.com'
+      );
     });
 
-    it('should refresh bot token when not expired but within buffer', async () => {
-      // Set expired token with expiration in payload
-      const expiredToken = jwt.sign(
-        {
-          exp: Math.floor((Date.now() + REFRESH_TOKEN_BUFFER_MS - 1) / 1000),
-          aud: 'test-audience',
-          iss: 'test-issuer',
-        },
-        'test-secret',
-        { algorithm: 'HS256' }
-      );
-      app.testTokens.bot = new JsonWebToken(expiredToken);
+    it('should start app without prefetching tokens', async () => {
+      const mockAcquireToken = jest.fn();
 
-      await app.testRefreshTokens();
-
-      expect(app.api.bots.token.get).toHaveBeenCalledWith(app.credentials);
-      expect(app.testTokens.bot?.toString()).toBe(mockBotToken);
-    });
-
-    it('should refresh graph token when expired', async () => {
-      // Set expired token with expiration in payload
-      const expiredToken = jwt.sign(
-        {
-          exp: Math.floor((Date.now() - 1000) / 1000),
-          aud: 'test-audience',
-          iss: 'test-issuer',
-        },
-        'test-secret',
-        { algorithm: 'HS256' }
-      );
-      app.testTokens.graph = new JsonWebToken(expiredToken);
-
-      await app.testRefreshTokens();
-
-      expect(app.api.bots.token.getGraph).toHaveBeenCalledWith(app.credentials);
-      expect(app.testTokens.graph?.toString()).toBe(mockGraphToken);
-    });
-
-    it('should refresh graph token when not expired but within buffer', async () => {
-      // Set expired token with expiration in payload
-      const expiredToken = jwt.sign(
-        {
-          exp: Math.floor((Date.now() + REFRESH_TOKEN_BUFFER_MS - 1) / 1000),
-          aud: 'test-audience',
-          iss: 'test-issuer',
-        },
-        'test-secret',
-        { algorithm: 'HS256' }
-      );
-      app.testTokens.graph = new JsonWebToken(expiredToken);
-
-      await app.testRefreshTokens();
-
-      expect(app.api.bots.token.getGraph).toHaveBeenCalledWith(app.credentials);
-      expect(app.testTokens.graph?.toString()).toBe(mockGraphToken);
-    });
-
-    it('should not refresh bot token if not expired', async () => {
-      const existingToken = jwt.sign(
-        {
-          exp: Math.floor((Date.now() + 1000000) / 1000),
-          aud: 'test-audience',
-          iss: 'test-issuer',
-        },
-        'test-secret',
-        { algorithm: 'HS256' }
-      );
-      app.testTokens.bot = new JsonWebToken(existingToken);
-
-      // the function should never be called
-      app.api.bots.token.get = jest.fn();
-
-      await app.testRefreshTokens();
-
-      expect(app.api.bots.token.get).not.toHaveBeenCalled();
-      expect(app.testTokens.bot?.toString()).toBe(existingToken);
-    });
-
-    it('should refresh both tokens on app start', async () => {
-      app.api.bots.token.get = jest.fn().mockResolvedValue({ access_token: mockBotToken });
-      app.api.bots.token.getGraph = jest.fn().mockResolvedValue({ access_token: mockGraphToken });
+      if (app.tokenManager) {
+        // @ts-expect-error - accessing private method for testing
+        jest.spyOn(app.tokenManager, 'getConfidentialClient').mockReturnValue({
+          acquireTokenByClientCredential: mockAcquireToken,
+        } as any);
+      }
 
       await app.start();
 
-      expect(app.api.bots.token.get).toHaveBeenCalled();
-      expect(app.api.bots.token.getGraph).toHaveBeenCalled();
+      // Tokens should not be acquired during start
+      expect(mockAcquireToken).not.toHaveBeenCalled();
     });
   });
 });

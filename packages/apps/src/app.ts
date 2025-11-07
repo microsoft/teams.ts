@@ -246,11 +246,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       };
     }
 
-    if (this.credentials) {
-      this.tokenManager = new TokenManager(this.credentials, this.log);
-    } else {
-      this.tokenManager = null;
-    }
+    this.tokenManager = new TokenManager(this.credentials, this.log);
 
     if (clientId) {
       this.entraTokenValidator = middleware.createEntraTokenValidator(
