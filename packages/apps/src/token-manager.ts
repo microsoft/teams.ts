@@ -1,6 +1,7 @@
-import { AuthenticationResult, ConfidentialClientApplication } from '@azure/msal-node';
+import { AuthenticationResult, ConfidentialClientApplication, ManagedIdentityApplication } from '@azure/msal-node';
 
 import { ClientCredentials, Credentials, IToken, JsonWebToken, TokenCredentials } from '@microsoft/teams.api';
+import { UserManagedIdentityCredentials } from '@microsoft/teams.api/dist/auth/credentials';
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
 const DEFAULT_BOT_TOKEN_SCOPE = 'https://api.botframework.com/.default';
@@ -12,6 +13,7 @@ const GET_DEFAULT_TOKEN_AUTHORITY = (tenantId: string) => `https://login.microso
 export class TokenManager {
   private logger: ILogger;
   private confidentialClientsByTenantId: Record<string, ConfidentialClientApplication> = {};
+  private managedIdentityClient: ManagedIdentityApplication | null = null;
 
   constructor(private credentials: Credentials | undefined, logger: ILogger) {
     this.logger = logger.child('TokenManager') ?? new ConsoleLogger('TokenManager');
@@ -30,14 +32,17 @@ export class TokenManager {
       return null;
     }
 
-    if ('clientSecret' in this.credentials) {
-      return this.getTokenWithClientCredentials(this.credentials, scope, tenantId);
-    } else if ('token' in this.credentials) {
-      return this.getTokenWithTokenProvider(this.credentials, scope, tenantId);
+    switch (this.credentials.type) {
+      case 'clientSecret':
+        return this.getTokenWithClientCredentials(this.credentials, scope, tenantId);
+      case 'token':
+        return this.getTokenWithTokenProvider(this.credentials, scope, tenantId);
+      case 'userManagedIdentity':
+        return this.getTokenWithManagedIdentity(this.credentials, scope);
+      default:
+        this.logger.warn('getToken was called, but credentials did not match any of the available credential types');
+        return null;
     }
-
-    this.logger.warn('getToken was called, but credentials did not match any of the available credential types');
-    return null;
   }
 
   private async getTokenWithClientCredentials(credentials: ClientCredentials, scope: string, tenantId: string): Promise<IToken | null> {
@@ -50,6 +55,15 @@ export class TokenManager {
     const token = await credentials.token(scope, tenantId);
 
     return new JsonWebToken(token);
+  }
+  private async getTokenWithManagedIdentity(credentials: UserManagedIdentityCredentials, scope: string) {
+    const managedIdentityClient = this.getManagedIdentityClient(credentials);
+    // Resource doesn't need the ./default suffix
+    const resource = scope.replace('/.default', '');
+    const result = await managedIdentityClient.acquireToken({
+      resource
+    });
+    return this.handleTokenResponse(result);
   }
 
   private resolveTenantId(tenantId: string | undefined, defaultTenantId: string) {
@@ -71,6 +85,20 @@ export class TokenManager {
     });
     this.confidentialClientsByTenantId[tenantId] = client;
     return client;
+  }
+
+  private getManagedIdentityClient(credentials: UserManagedIdentityCredentials): ManagedIdentityApplication {
+    if (this.managedIdentityClient) {
+      return this.managedIdentityClient;
+    }
+
+    this.managedIdentityClient = new ManagedIdentityApplication({
+      managedIdentityIdParams: {
+        userAssignedClientId: credentials.clientId
+      }
+    });
+
+    return this.managedIdentityClient;
   }
 
   private handleTokenResponse(result: AuthenticationResult | null) {

@@ -230,18 +230,27 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     const token = 'token' in this.options ? this.options.token : undefined;
 
     if (clientId && clientSecret) {
+      this.log.debug('Using Client Credentials auth');
       this.credentials = {
+        type: 'clientSecret',
         clientId,
         clientSecret,
         tenantId,
       };
-    }
-
-    if (clientId && token) {
+    } else if (clientId && token) {
+      this.log.debug(('Using custom token factory auth'));
       this.credentials = {
+        type: 'token',
         clientId,
         tenantId,
         token,
+      };
+    } else if (clientId && !clientSecret) {
+      this.log.debug('Using user managed identity auth');
+      this.credentials = {
+        type: 'userManagedIdentity',
+        clientId,
+        tenantId
       };
     }
 
