@@ -1,7 +1,7 @@
 import { AuthenticationResult, ConfidentialClientApplication, ManagedIdentityApplication } from '@azure/msal-node';
 
 import { ClientCredentials, Credentials, IToken, JsonWebToken, TokenCredentials } from '@microsoft/teams.api';
-import { UserManagedIdentityCredentials } from '@microsoft/teams.api/dist/auth/credentials';
+import { FederatedIdentityCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api/dist/auth/credentials';
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
 const DEFAULT_BOT_TOKEN_SCOPE = 'https://api.botframework.com/.default';
@@ -39,6 +39,8 @@ export class TokenManager {
         return this.getTokenWithTokenProvider(this.credentials, scope, tenantId);
       case 'userManagedIdentity':
         return this.getTokenWithManagedIdentity(this.credentials, scope);
+      case 'federatedIdentityCredentials':
+        return this.getTokenWithFederatedCredentials(this.credentials, scope, tenantId);
       default:
         this.logger.warn('getToken was called, but credentials did not match any of the available credential types');
         return null;
@@ -66,6 +68,21 @@ export class TokenManager {
     return this.handleTokenResponse(result);
   }
 
+  private async getTokenWithFederatedCredentials(credentials: FederatedIdentityCredentials, scope: string, tenantId: string) {
+    const managedIdentityClient = this.getManagedIdentityClient(credentials);
+    const resource = scope.replace('/.default', '');
+    const managedIdentityTokeRes = await managedIdentityClient.acquireToken({ resource });
+    const confidentialClient = new ConfidentialClientApplication({
+      auth: {
+        clientId: credentials.clientId,
+        clientAssertion: managedIdentityTokeRes.accessToken,
+        authority: GET_DEFAULT_TOKEN_AUTHORITY(tenantId)
+      }
+    });
+    const result = await confidentialClient.acquireTokenByClientCredential({ scopes: [scope] });
+    return this.handleTokenResponse(result);
+  }
+
   private resolveTenantId(tenantId: string | undefined, defaultTenantId: string) {
     return tenantId || this.credentials?.tenantId || defaultTenantId;
   }
@@ -87,16 +104,22 @@ export class TokenManager {
     return client;
   }
 
-  private getManagedIdentityClient(credentials: UserManagedIdentityCredentials): ManagedIdentityApplication {
+  private getManagedIdentityClient(credentials: UserManagedIdentityCredentials | FederatedIdentityCredentials): ManagedIdentityApplication {
     if (this.managedIdentityClient) {
       return this.managedIdentityClient;
     }
 
-    this.managedIdentityClient = new ManagedIdentityApplication({
-      managedIdentityIdParams: {
-        userAssignedClientId: credentials.clientId
-      }
-    });
+    if (credentials.type === 'userManagedIdentity' || credentials.managedIdentityType === 'user') {
+      this.managedIdentityClient = new ManagedIdentityApplication({
+        managedIdentityIdParams: {
+          userAssignedClientId: credentials.clientId
+        }
+      });
+    } else {
+      this.managedIdentityClient = new ManagedIdentityApplication(
+        /* no options automatically indicates system assigned managed identity */
+      );
+    }
 
     return this.managedIdentityClient;
   }

@@ -1,7 +1,7 @@
 /**
  * credentials for app authentication
  */
-export type Credentials = ClientCredentials | TokenCredentials | UserManagedIdentityCredentials;
+export type Credentials = ClientCredentials | TokenCredentials | UserManagedIdentityCredentials | FederatedIdentityCredentials;
 
 /**
  * credentials for authentication
@@ -33,3 +33,14 @@ export type UserManagedIdentityCredentials = {
   readonly clientId: string;
   readonly tenantId?: string;
 };
+/**
+ * credentials for fedrated identity credentials
+*/
+export type FederatedIdentityCredentials = {
+  type: 'federatedIdentityCredentials';
+  readonly clientId: string;
+  readonly managedIdentityClientId?: 'system' | (string & {});
+  readonly managedIdentityType: 'system' | 'user'
+  readonly tenantId?: string;
+};
+

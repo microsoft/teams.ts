@@ -1,3 +1,5 @@
+
+
 import { AxiosError } from 'axios';
 
 import {
@@ -8,6 +10,8 @@ import {
   Credentials,
   StripMentionsTextOptions,
   toActivityParams
+  TokenCredentials,
+  FederatedIdentityCredentials,
 } from '@microsoft/teams.api';
 import { EventEmitter } from '@microsoft/teams.common/events';
 import * as http from '@microsoft/teams.common/http';
@@ -40,13 +44,54 @@ import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { TokenManager } from './token-manager';
-import { AppEvents, IPlugin } from './types';
+import { IPlugin, AppEvents } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 
 /**
+import { send } from 'process';
+import { start } from 'repl';
  * App initialization options
  */
-export type AppOptions<TPlugin extends IPlugin> = Partial<Credentials> & {
+export type AppOptions<TPlugin extends IPlugin> = {
+  /**
+   * client id - Your application's client identifier
+   * Uses environment variable CLIENT_ID if not explicitly provided
+   * If not available, uses
+   */
+  readonly clientId?: string;
+
+  /**
+   * client secret - Your application's secret to be able to send messages
+   * as your bot.
+   * Uses environment variable CLIENT_SECRET if not explicitly provided
+   * If not available, uses ManagedIdentity to authenticate
+   */
+  readonly clientSecret?: string;
+
+  /**
+   * tenantId - The tenantId where your app is registered
+   * Uses environment variable TENANT_ID if not explicitly provided
+   * If your app has MultiTenant auth enabled (this value should not be provided).
+   * (Note: That MultiTenant auth has been deprecated, so only legacy apps will have this
+   * value enabled)
+   */
+  tenantId?: string;
+
+  /**
+   * token - An override to perform token fetching.
+   */
+  readonly token?: TokenCredentials['token'];
+
+  /**
+   * managed identity client id - A managed identity client id.
+   * Uses environment variable MANAGED_IDENTITY_CLIENT_ID if not explicitly provided
+   * If:
+   *   - Same as client id, uses User Managed Identity for auth
+   *   - "system", uses System Managed Identity in a Federated Identity Credentials
+   *   - Different from client id or system, uses UMI in a Federated Identity Credentials
+   */
+  managedIdentityClientId?: FederatedIdentityCredentials['managedIdentityClientId'];
+
   /**
    * http client or client options used to make api requests
    */
@@ -220,14 +265,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     // initialize credentials
     const clientId = this.options.clientId || process.env.CLIENT_ID;
-    const clientSecret =
-      ('clientSecret' in this.options
-        ? this.options.clientSecret
-        : undefined) || process.env.CLIENT_SECRET;
-    const tenantId =
-      ('tenantId' in this.options ? this.options.tenantId : undefined) ||
-      process.env.TENANT_ID;
-    const token = 'token' in this.options ? this.options.token : undefined;
+    const tenantId = this.options.tenantId ?? process.env.TENANT_ID;
+    const clientSecret = this.options.clientSecret ?? process.env.CLIENT_SECRET;
+    const token = this.options.token;
+    const managedIdentityClientId = this.options.managedIdentityClientId ?? (process.env.MANAGED_IDENTITY_CLIENT_ID as FederatedIdentityCredentials['managedIdentityClientId'] | undefined);
 
     if (clientId && clientSecret) {
       this.log.debug('Using Client Credentials auth');
@@ -246,12 +287,23 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         token,
       };
     } else if (clientId && !clientSecret) {
-      this.log.debug('Using user managed identity auth');
-      this.credentials = {
-        type: 'userManagedIdentity',
-        clientId,
-        tenantId
-      };
+      if (managedIdentityClientId == null || managedIdentityClientId.toLowerCase() === clientId.toLowerCase()) {
+        this.log.debug('Using user managed identity auth');
+        this.credentials = {
+          type: 'userManagedIdentity',
+          clientId,
+          tenantId
+        };
+      } else {
+        this.log.debug('Using Federated Identity Credentials auth');
+        this.credentials = {
+          type: 'federatedIdentityCredentials',
+          clientId,
+          tenantId,
+          managedIdentityClientId,
+          managedIdentityType: managedIdentityClientId === 'system' ? 'system' : 'user',
+        };
+      }
     }
 
     this.tokenManager = new TokenManager(this.credentials, this.log);
