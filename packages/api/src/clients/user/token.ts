@@ -38,6 +38,14 @@ export type ExchangeUserTokenParams = {
   exchangeRequest: TokenExchangeRequest;
 };
 
+export const USER_TOKEN_ENDPOINTS = {
+  GET_TOKEN: 'api/usertoken/GetToken',
+  GET_AAD_TOKENS: 'api/usertoken/GetAadTokens',
+  GET_STATUS: 'api/usertoken/GetTokenStatus',
+  SIGN_OUT: 'api/usertoken/SignOut',
+  EXCHANGE: 'api/usertoken/exchange',
+};
+
 export class UserTokenClient {
   get http() {
     return this._http;
@@ -57,13 +65,13 @@ export class UserTokenClient {
       this._http = new Client(options);
     }
 
-    this._clientSettings = clientSettings ?? DEFAULT_CLIENT_SETTINGS;
+    this._clientSettings = {...DEFAULT_CLIENT_SETTINGS, ...(clientSettings ?? {})};
   }
 
   async get(params: GetUserTokenParams) {
     const q = qs.stringify(params);
     const res = await this.http.get<TokenResponse>(
-      `${this._clientSettings.tokenUrl}/api/usertoken/GetToken?${q}`
+      `${this._clientSettings.OAuthUrl}/${USER_TOKEN_ENDPOINTS.GET_TOKEN}?${q}`
     );
 
     return res.data;
@@ -72,7 +80,7 @@ export class UserTokenClient {
   async getAad(params: GetUserAADTokenParams) {
     const q = qs.stringify(params);
     const res = await this.http.post<Record<string, TokenResponse>>(
-      `${this._clientSettings.tokenUrl}/api/usertoken/GetAadTokens?${q}`,
+      `${this._clientSettings.OAuthUrl}/${USER_TOKEN_ENDPOINTS.GET_AAD_TOKENS}?${q}`,
       params
     );
 
@@ -82,7 +90,7 @@ export class UserTokenClient {
   async getStatus(params: GetUserTokenStatusParams) {
     const q = qs.stringify(params);
     const res = await this.http.get<TokenStatus[]>(
-      `${this._clientSettings.tokenUrl}/api/usertoken/GetTokenStatus?${q}`
+      `${this._clientSettings.OAuthUrl}/${USER_TOKEN_ENDPOINTS.GET_STATUS}?${q}`
     );
 
     return res.data;
@@ -91,7 +99,7 @@ export class UserTokenClient {
   async signOut(params: SignOutUserParams) {
     const q = qs.stringify(params);
     const res = await this.http.delete<void>(
-      `${this._clientSettings.tokenUrl}/api/usertoken/SignOut?${q}`,
+      `${this._clientSettings.OAuthUrl}/${USER_TOKEN_ENDPOINTS.SIGN_OUT}?${q}`,
       { data: params }
     );
 
@@ -106,7 +114,7 @@ export class UserTokenClient {
     });
 
     const res = await this.http.post<TokenResponse>(
-      `${this._clientSettings.tokenUrl}/api/usertoken/exchange?${q}`,
+      `${this._clientSettings.OAuthUrl}/${USER_TOKEN_ENDPOINTS.EXCHANGE}?${q}`,
       params.exchangeRequest
     );
 

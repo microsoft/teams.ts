@@ -29,7 +29,7 @@ export class BotClient {
       this._http = new Client(options);
     }
 
-    this._clientSettings = clientSettings ?? DEFAULT_CLIENT_SETTINGS;
+    this._clientSettings = {...DEFAULT_CLIENT_SETTINGS, ...(clientSettings ?? {})};
     this.token = new BotTokenClient(this.http);
     this.signIn = new BotSignInClient(this.http, this._clientSettings);
   }

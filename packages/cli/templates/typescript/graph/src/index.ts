@@ -7,12 +7,7 @@ import * as endpoints from '@microsoft/teams.graph-endpoints';
 const app = new App({
   plugins: [new DevtoolsPlugin()],
   oauth: {
-    defaultConnectionName: 'graph',
-    // This is an example of overriding the token URL for a specific region (e.g., Europe).
-    // Uncomment this block if needed.
-    // clientSettings: {
-    //   tokenUrl: "https://europe.token.botframework.com",
-    // }
+    defaultConnectionName: 'graph'
   },
 });
 

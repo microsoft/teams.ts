@@ -5,6 +5,11 @@ import { Client, ClientOptions } from '@microsoft/teams.common/http';
 import { SignInUrlResponse } from '../../models';
 import { ClientSettings, DEFAULT_CLIENT_SETTINGS } from '../client-settings';
 
+export const BOT_SIGNIN_ENDPOINTS = {
+  URL: 'api/botsignin/GetSignInUrl',
+  RESOURCE: 'api/botsignin/GetSignInResource',
+};
+
 export type GetBotSignInUrlParams = {
   state: string;
   codeChallenge?: string;
@@ -37,13 +42,13 @@ export class BotSignInClient {
     } else {
       this._http = new Client(options);
     }
-    this._clientSettings = clientSettings ?? DEFAULT_CLIENT_SETTINGS;
+    this._clientSettings = {...DEFAULT_CLIENT_SETTINGS, ...(clientSettings ?? {})};
   }
 
   async getUrl(params: GetBotSignInUrlParams) {
     const q = qs.stringify(params);
     const res = await this.http.get<string>(
-      `${this._clientSettings.tokenUrl}/api/botsignin/GetSignInUrl?${q}`
+      `${this._clientSettings.OAuthUrl}/${BOT_SIGNIN_ENDPOINTS.URL}?${q}`
     );
 
     return res.data;
@@ -52,7 +57,7 @@ export class BotSignInClient {
   async getResource(params: GetBotSignInResourceParams) {
     const q = qs.stringify(params);
     const res = await this.http.get<SignInUrlResponse>(
-      `${this._clientSettings.tokenUrl}/api/botsignin/GetSignInResource?${q}`
+      `${this._clientSettings.OAuthUrl}/${BOT_SIGNIN_ENDPOINTS.RESOURCE}?${q}`
     );
 
     return res.data;
