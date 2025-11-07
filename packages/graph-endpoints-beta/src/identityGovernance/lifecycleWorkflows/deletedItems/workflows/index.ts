@@ -100,7 +100,7 @@ export const executionScope = {
   /**
    * `GET /identityGovernance/lifecycleWorkflows/deletedItems/workflows/{workflow-id}/executionScope`
    *
-   * The unique identifier of the Microsoft Entra identity that last modified the workflow object.
+   * The list of users that meet the workflowExecutionConditions of a workflow.
    */
   get: function get(
     params?: IEndpoints['GET /identityGovernance/lifecycleWorkflows/deletedItems/workflows/{workflow-id}/executionScope']['parameters']
@@ -121,7 +121,7 @@ export const executionScope = {
   /**
    * `GET /identityGovernance/lifecycleWorkflows/deletedItems/workflows/{workflow-id}/executionScope/{userProcessingResult-id}`
    *
-   * The unique identifier of the Microsoft Entra identity that last modified the workflow object.
+   * The list of users that meet the workflowExecutionConditions of a workflow.
    */
   get$1: function get$1(
     params?: IEndpoints['GET /identityGovernance/lifecycleWorkflows/deletedItems/workflows/{workflow-id}/executionScope/{userProcessingResult-id}']['parameters']

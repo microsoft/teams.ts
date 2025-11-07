@@ -21,6 +21,8 @@
 A collection of strongly typed request configuration builders for Microsoft Graph preview endpoints, designed to be used
 together with <a href="https://www.npmjs.com/package/@microsoft/teams.graph" target="_blank">@microsoft/teams.graph</a>.
 
+The code in this package is based on the Graph schema published in commit <a href="https://github.com/microsoftgraph/msgraph-metadata/blob/08ecd2f8597b074d8e65927900fc8a63ca39c8a7/openapi/beta/openapi.yaml">08ecd2f</a>.
+
 Use this package if you need to call Microsoft Graph APIs that are still in preview. Note that these APIs are subject to
 change. We don't recommend that you use them in your production apps.
 

@@ -26,7 +26,7 @@ export interface IEndpoints {
 /**
  * `DELETE /groups/{group-id}/threads/{conversationThread-id}`
  *
- * Delete a thread object.
+ * Delete conversationThread.
  */
 export function del(
   params?: IEndpoints['DELETE /groups/{group-id}/threads/{conversationThread-id}']['parameters']

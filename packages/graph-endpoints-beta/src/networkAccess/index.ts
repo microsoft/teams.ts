@@ -1,9 +1,7 @@
 export * as alerts from './alerts';
 export * as connectivity from './connectivity';
 export * as filteringPolicies from './filteringPolicies';
-export * as filteringProfiles from './filteringProfiles';
 export * as forwardingPolicies from './forwardingPolicies';
-export * as forwardingProfiles from './forwardingProfiles';
 export * as logs from './logs';
 export * as settings from './settings';
 export * as threatIntelligencePolicies from './threatIntelligencePolicies';

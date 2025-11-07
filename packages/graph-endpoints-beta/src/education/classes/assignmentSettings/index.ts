@@ -129,6 +129,7 @@ export const defaultGradingScheme = {
   /**
    * `GET /education/classes/{educationClass-id}/assignmentSettings/defaultGradingScheme`
    *
+   * The default grading scheme for assignments created in this class.
    */
   get: function get(
     params?: IEndpoints['GET /education/classes/{educationClass-id}/assignmentSettings/defaultGradingScheme']['parameters']
@@ -281,7 +282,7 @@ export const gradingSchemes = {
   /**
    * `POST /education/classes/{educationClass-id}/assignmentSettings/gradingSchemes`
    *
-   * Create a new educationGradingScheme object.
+   * Create a new educationGradingScheme on an educationClass. Only teachers can perform this operation.
    */
   create: function create(
     body: IEndpoints['POST /education/classes/{educationClass-id}/assignmentSettings/gradingSchemes']['body'],

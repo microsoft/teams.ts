@@ -1,4 +1,5 @@
 export * as accessPackageResourceScopes from './scopes';
+export * as uploadSessions from './uploadSessions';
 
 import type { EndpointRequest, Operation } from './../../../../../../types/common.ts';
 

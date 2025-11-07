@@ -243,7 +243,7 @@ export const registrants = {
   /**
    * `GET /me/onlineMeetings/{onlineMeeting-id}/registration/registrants`
    *
-   * Get a list of the meetingRegistrants of an onlineMeeting on behalf of the organizer. You can use this method to get the registration report for a Microsoft Teams webinar.
+   * Get a list of the externalMeetingRegistrants of an onlineMeeting.
    * @deprecated
    */
   list: function list(

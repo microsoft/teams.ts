@@ -116,9 +116,9 @@ export function update(
 /**
   * `POST /directory/authenticationMethodDevices/hardwareOathDevices`
   *
-  * Create one or more hardwareOathTokenAuthenticationMethodDevice objects. This API supports two scenarios:
-- Create the new hardware tokens without assigning to users. You can then assign to a user.
-- Create and assign any individual hardware tokens to users in the same request.
+  * Create a new hardwareOathTokenAuthenticationMethodDevice object. This API supports two scenarios:
+- Create the new hardware token without assigning to a user. You can then assign to a user.
+- Create and assign a hardware token to a user in the same request. 
   */
 export function create(
   body: IEndpoints['POST /directory/authenticationMethodDevices/hardwareOathDevices']['body']

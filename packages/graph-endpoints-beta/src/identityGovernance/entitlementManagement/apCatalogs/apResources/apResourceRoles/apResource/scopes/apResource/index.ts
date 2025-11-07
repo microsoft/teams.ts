@@ -1,3 +1,5 @@
+export * as uploadSessions from './uploadSessions';
+
 import type { EndpointRequest, Operation } from './../../../../../../../../types/common.ts';
 
 export interface IEndpoints {

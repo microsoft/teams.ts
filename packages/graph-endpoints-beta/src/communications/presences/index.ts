@@ -182,7 +182,7 @@ export const setPresence = {
   /**
    * `POST /communications/presences/{presence-id}/setPresence`
    *
-   * Set the availability and activity status in a presence session of an application for a user.
+   * Set the availability and activity status in a presence session of an application for a user.  For more information about presence sessions, states permutations, and timeouts, see Manage presence state using the Microsoft Graph API.
    */
   create: function create(
     body: IEndpoints['POST /communications/presences/{presence-id}/setPresence']['body'],

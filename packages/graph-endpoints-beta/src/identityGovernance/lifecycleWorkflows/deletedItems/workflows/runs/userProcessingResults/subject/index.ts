@@ -22,7 +22,7 @@ export interface IEndpoints {
 /**
  * `GET /identityGovernance/lifecycleWorkflows/deletedItems/workflows/{workflow-id}/runs/{run-id}/userProcessingResults/{userProcessingResult-id}/subject`
  *
- * The unique identifier of the AAD user targeted for the taskProcessingResult.Supports $filter(eq, ne) and $expand.
+ * The unique identifier of the user targeted for the taskProcessingResult.Supports $filter(eq, ne) and $expand.
  */
 export function get(
   params?: IEndpoints['GET /identityGovernance/lifecycleWorkflows/deletedItems/workflows/{workflow-id}/runs/{run-id}/userProcessingResults/{userProcessingResult-id}/subject']['parameters']

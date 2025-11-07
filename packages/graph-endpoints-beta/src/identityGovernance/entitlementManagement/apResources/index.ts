@@ -1,5 +1,6 @@
 export * as accessPackageResourceRoles from './apResourceRoles';
 export * as accessPackageResourceScopes from './apResourceScopes';
+export * as uploadSessions from './uploadSessions';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 

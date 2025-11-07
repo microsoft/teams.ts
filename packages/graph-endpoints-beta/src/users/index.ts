@@ -267,6 +267,18 @@ export interface IEndpoints {
     '/users/{user-id}/oauth2PermissionGrants/{oAuth2PermissionGrant-id}',
     'get'
   >;
+  'GET /users/{user-id}/onPremisesSyncBehavior': Operation<
+    '/users/{user-id}/onPremisesSyncBehavior',
+    'get'
+  >;
+  'PATCH /users/{user-id}/onPremisesSyncBehavior': Operation<
+    '/users/{user-id}/onPremisesSyncBehavior',
+    'patch'
+  >;
+  'DELETE /users/{user-id}/onPremisesSyncBehavior': Operation<
+    '/users/{user-id}/onPremisesSyncBehavior',
+    'delete'
+  >;
   'GET /users/{user-id}/ownedDevices': Operation<'/users/{user-id}/ownedDevices', 'get'>;
   'GET /users/{user-id}/ownedDevices/{directoryObject-id}': Operation<
     '/users/{user-id}/ownedDevices/{directoryObject-id}',
@@ -2106,6 +2118,65 @@ export const oauth2PermissionGrants = {
       paramDefs: {
         query: ['$select', '$expand'],
         path: ['user-id', 'oAuth2PermissionGrant-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const onPremisesSyncBehavior = {
+  /**
+   * `GET /users/{user-id}/onPremisesSyncBehavior`
+   *
+   * Indicates the state of synchronization for a user between the cloud and on-premises Active Directory. Supports $filter only with advanced query capabilities, for example, $filter&#x3D;onPremisesSyncBehavior/isCloudManaged eq true&amp;$count&#x3D;true.
+   */
+  get: function get(
+    params?: IEndpoints['GET /users/{user-id}/onPremisesSyncBehavior']['parameters']
+  ): EndpointRequest<IEndpoints['GET /users/{user-id}/onPremisesSyncBehavior']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/users/{user-id}/onPremisesSyncBehavior',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['user-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /users/{user-id}/onPremisesSyncBehavior`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /users/{user-id}/onPremisesSyncBehavior']['body'],
+    params?: IEndpoints['PATCH /users/{user-id}/onPremisesSyncBehavior']['parameters']
+  ): EndpointRequest<IEndpoints['PATCH /users/{user-id}/onPremisesSyncBehavior']['response']> {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/users/{user-id}/onPremisesSyncBehavior',
+      paramDefs: {
+        path: ['user-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /users/{user-id}/onPremisesSyncBehavior`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /users/{user-id}/onPremisesSyncBehavior']['parameters']
+  ): EndpointRequest<IEndpoints['DELETE /users/{user-id}/onPremisesSyncBehavior']['response']> {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/users/{user-id}/onPremisesSyncBehavior',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['user-id'],
       },
       params,
     };

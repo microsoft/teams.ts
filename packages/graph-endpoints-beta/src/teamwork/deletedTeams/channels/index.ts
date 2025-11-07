@@ -37,6 +37,14 @@ export interface IEndpoints {
     '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/completeMigration',
     'post'
   >;
+  'GET /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/enabledApps': Operation<
+    '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/enabledApps',
+    'get'
+  >;
+  'GET /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/enabledApps/{teamsApp-id}': Operation<
+    '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/enabledApps/{teamsApp-id}',
+    'get'
+  >;
   'POST /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/provisionEmail': Operation<
     '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/provisionEmail',
     'post'
@@ -200,6 +208,49 @@ export const completeMigration = {
       path: '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/completeMigration',
       paramDefs: {
         path: ['deletedTeam-id', 'channel-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const enabledApps = {
+  /**
+   * `GET /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/enabledApps`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/enabledApps']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/enabledApps']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/enabledApps',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['deletedTeam-id', 'channel-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/enabledApps/{teamsApp-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/enabledApps/{teamsApp-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/enabledApps/{teamsApp-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teamwork/deletedTeams/{deletedTeam-id}/channels/{channel-id}/enabledApps/{teamsApp-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['deletedTeam-id', 'channel-id', 'teamsApp-id'],
       },
       params,
     };

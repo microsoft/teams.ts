@@ -569,7 +569,7 @@ export const federatedTokenValidationPolicy = {
   /**
    * `GET /policies/federatedTokenValidationPolicy`
    *
-   * Get a list of the federatedTokenValidationPolicy objects and their properties.
+   * Read the properties and relationships of a federatedTokenValidationPolicy object.
    */
   get: function get(
     params?: IEndpoints['GET /policies/federatedTokenValidationPolicy']['parameters']

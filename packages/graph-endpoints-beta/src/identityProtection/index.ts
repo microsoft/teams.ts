@@ -114,7 +114,7 @@ export const riskDetections = {
   /**
    * `GET /identityProtection/riskDetections/{riskDetection-id}`
    *
-   * Retrieve the properties of a collection of riskDetection objects.
+   * Retrieve the properties of a riskDetection object.
    */
   get: function get(
     params?: IEndpoints['GET /identityProtection/riskDetections/{riskDetection-id}']['parameters']

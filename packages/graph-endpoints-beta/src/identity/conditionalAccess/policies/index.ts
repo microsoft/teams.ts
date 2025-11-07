@@ -133,6 +133,7 @@ export const restore = {
   /**
    * `POST /identity/conditionalAccess/policies/{conditionalAccessPolicy-id}/restore`
    *
+   * Restore a deleted conditionalAccessPolicy object.
    */
   create: function create(
     params?: IEndpoints['POST /identity/conditionalAccess/policies/{conditionalAccessPolicy-id}/restore']['parameters']

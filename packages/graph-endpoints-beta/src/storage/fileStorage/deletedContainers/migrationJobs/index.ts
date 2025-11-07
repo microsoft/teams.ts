@@ -67,6 +67,7 @@ export function del(
 /**
  * `GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/migrationJobs`
  *
+ * The collection of sharePointMigrationJob objects local to the container. Read-write.
  */
 export function list(
   params?: IEndpoints['GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/migrationJobs']['parameters']
@@ -88,6 +89,7 @@ export function list(
 /**
  * `GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}`
  *
+ * The collection of sharePointMigrationJob objects local to the container. Read-write.
  */
 export function get(
   params?: IEndpoints['GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}']['parameters']
@@ -154,6 +156,7 @@ export const progressEvents = {
   /**
    * `GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents`
    *
+   * A collection of migration events that reflects the job status changes.
    */
   list: function list(
     params?: IEndpoints['GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents']['parameters']
@@ -195,6 +198,7 @@ export const progressEvents = {
   /**
    * `GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}`
    *
+   * A collection of migration events that reflects the job status changes.
    */
   get: function get(
     params?: IEndpoints['GET /storage/fileStorage/deletedContainers/{fileStorageContainer-id}/migrationJobs/{sharePointMigrationJob-id}/progressEvents/{sharePointMigrationEvent-id}']['parameters']

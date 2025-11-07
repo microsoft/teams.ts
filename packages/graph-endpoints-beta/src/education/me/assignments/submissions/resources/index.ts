@@ -154,6 +154,7 @@ export const dependentResources = {
   /**
    * `GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/resources/{educationSubmissionResource-id}/dependentResources`
    *
+   * A collection of submission resources that depend on the parent educationSubmissionResource.
    */
   list: function list(
     params?: IEndpoints['GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/resources/{educationSubmissionResource-id}/dependentResources']['parameters']
@@ -203,6 +204,7 @@ export const dependentResources = {
   /**
    * `GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/resources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}`
    *
+   * A collection of submission resources that depend on the parent educationSubmissionResource.
    */
   get: function get(
     params?: IEndpoints['GET /education/me/assignments/{educationAssignment-id}/submissions/{educationSubmission-id}/resources/{educationSubmissionResource-id}/dependentResources/{educationSubmissionResource-id1}']['parameters']

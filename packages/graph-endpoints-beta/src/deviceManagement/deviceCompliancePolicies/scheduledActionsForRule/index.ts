@@ -67,7 +67,7 @@ export function del(
 /**
  * `GET /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule`
  *
- * The list of scheduled action for this rule
+ * The list of scheduled action per rule for this compliance policy. This is a required property when creating any individual per-platform compliance policies.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule']['parameters']
@@ -89,7 +89,7 @@ export function get(
 /**
  * `GET /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}`
  *
- * The list of scheduled action for this rule
+ * The list of scheduled action per rule for this compliance policy. This is a required property when creating any individual per-platform compliance policies.
  */
 export function get$1(
   params?: IEndpoints['GET /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}']['parameters']

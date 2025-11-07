@@ -103,6 +103,7 @@ export function del(
 /**
  * `GET /users/{user-id}/cloudPCs`
  *
+ * The user&#x27;s Cloud PCs. Read-only. Nullable.
  */
 export function list(
   params?: IEndpoints['GET /users/{user-id}/cloudPCs']['parameters']
@@ -122,6 +123,7 @@ export function list(
 /**
  * `GET /users/{user-id}/cloudPCs/{cloudPC-id}`
  *
+ * The user&#x27;s Cloud PCs. Read-only. Nullable.
  */
 export function get(
   params?: IEndpoints['GET /users/{user-id}/cloudPCs/{cloudPC-id}']['parameters']

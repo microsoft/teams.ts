@@ -1,5 +1,4 @@
 export * as branches from './branches';
-export * as remoteNetworks from './remoteNetworks';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 

@@ -211,6 +211,9 @@ export interface IEndpoints {
     '/me/oauth2PermissionGrants/{oAuth2PermissionGrant-id}',
     'get'
   >;
+  'GET /me/onPremisesSyncBehavior': Operation<'/me/onPremisesSyncBehavior', 'get'>;
+  'PATCH /me/onPremisesSyncBehavior': Operation<'/me/onPremisesSyncBehavior', 'patch'>;
+  'DELETE /me/onPremisesSyncBehavior': Operation<'/me/onPremisesSyncBehavior', 'delete'>;
   'GET /me/ownedDevices': Operation<'/me/ownedDevices', 'get'>;
   'GET /me/ownedDevices/{directoryObject-id}': Operation<
     '/me/ownedDevices/{directoryObject-id}',
@@ -316,7 +319,7 @@ export interface IEndpoints {
 /**
  * `GET /me`
  *
- * Returns the user or organizational contact assigned as the user&#x27;s manager. Optionally, you can expand the manager&#x27;s chain up to the root node.
+ * Retrieve the properties and relationships of user object. This operation returns by default only a subset of the more commonly used properties for each user. These default properties are noted in the Properties section. To get properties that are not returned by default, do a GET operation for the user and specify the properties in a $select OData query option. Because the user resource supports extensions, you can also use the GET operation to get custom properties and extension data in a user instance. Customers through Microsoft Entra ID for customers can also use this API operation to retrieve their details.
  */
 export function get(
   params?: IEndpoints['GET /me']['parameters']
@@ -1761,6 +1764,58 @@ export const oauth2PermissionGrants = {
       paramDefs: {
         query: ['$select', '$expand'],
         path: ['oAuth2PermissionGrant-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const onPremisesSyncBehavior = {
+  /**
+   * `GET /me/onPremisesSyncBehavior`
+   *
+   * Indicates the state of synchronization for a user between the cloud and on-premises Active Directory. Supports $filter only with advanced query capabilities, for example, $filter&#x3D;onPremisesSyncBehavior/isCloudManaged eq true&amp;$count&#x3D;true.
+   */
+  get: function get(
+    params?: IEndpoints['GET /me/onPremisesSyncBehavior']['parameters']
+  ): EndpointRequest<IEndpoints['GET /me/onPremisesSyncBehavior']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/me/onPremisesSyncBehavior',
+      paramDefs: {
+        query: ['$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /me/onPremisesSyncBehavior`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /me/onPremisesSyncBehavior']['body']
+  ): EndpointRequest<IEndpoints['PATCH /me/onPremisesSyncBehavior']['response']> {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/me/onPremisesSyncBehavior',
+      body,
+    };
+  },
+  /**
+   * `DELETE /me/onPremisesSyncBehavior`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /me/onPremisesSyncBehavior']['parameters']
+  ): EndpointRequest<IEndpoints['DELETE /me/onPremisesSyncBehavior']['response']> {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/me/onPremisesSyncBehavior',
+      paramDefs: {
+        header: ['If-Match'],
       },
       params,
     };

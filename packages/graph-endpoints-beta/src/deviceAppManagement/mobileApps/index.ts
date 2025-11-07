@@ -375,7 +375,7 @@ export const relationships = {
   /**
    * `GET /deviceAppManagement/mobileApps/{mobileApp-id}/relationships`
    *
-   * List of relationships for this mobile app.
+   * The set of direct relationships for this app.
    */
   list: function list(
     params?: IEndpoints['GET /deviceAppManagement/mobileApps/{mobileApp-id}/relationships']['parameters']
@@ -417,7 +417,7 @@ export const relationships = {
   /**
    * `GET /deviceAppManagement/mobileApps/{mobileApp-id}/relationships/{mobileAppRelationship-id}`
    *
-   * List of relationships for this mobile app.
+   * The set of direct relationships for this app.
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/mobileApps/{mobileApp-id}/relationships/{mobileAppRelationship-id}']['parameters']

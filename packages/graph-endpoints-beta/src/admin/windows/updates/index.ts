@@ -141,7 +141,7 @@ export const resourceConnections = {
   /**
    * `GET /admin/windows/updates/resourceConnections/{resourceConnection-id}`
    *
-   * Read the properties and relationships of a resourceConnection object.
+   * Read the properties and relationships of an operationalInsightsConnection object.
    */
   get: function get(
     params?: IEndpoints['GET /admin/windows/updates/resourceConnections/{resourceConnection-id}']['parameters']
@@ -183,7 +183,7 @@ export const resourceConnections = {
   /**
    * `DELETE /admin/windows/updates/resourceConnections/{resourceConnection-id}`
    *
-   * Delete a resourceConnection object.
+   * Delete an operationalInsightsConnection object.
    */
   del: function del(
     params?: IEndpoints['DELETE /admin/windows/updates/resourceConnections/{resourceConnection-id}']['parameters']

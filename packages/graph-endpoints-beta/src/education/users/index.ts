@@ -126,7 +126,7 @@ export function get(
 /**
  * `PATCH /education/users/{educationUser-id}`
  *
- * Update the relatedContact collection of an educationUser object.
+ * Update the properties of an educationuser object.
  */
 export function update(
   body: IEndpoints['PATCH /education/users/{educationUser-id}']['body'],

@@ -31,6 +31,14 @@ export interface IEndpoints {
     '/groups/{group-id}/team/channels/{channel-id}/completeMigration',
     'post'
   >;
+  'GET /groups/{group-id}/team/channels/{channel-id}/enabledApps': Operation<
+    '/groups/{group-id}/team/channels/{channel-id}/enabledApps',
+    'get'
+  >;
+  'GET /groups/{group-id}/team/channels/{channel-id}/enabledApps/{teamsApp-id}': Operation<
+    '/groups/{group-id}/team/channels/{channel-id}/enabledApps/{teamsApp-id}',
+    'get'
+  >;
   'POST /groups/{group-id}/team/channels/{channel-id}/provisionEmail': Operation<
     '/groups/{group-id}/team/channels/{channel-id}/provisionEmail',
     'post'
@@ -186,6 +194,49 @@ export const completeMigration = {
       path: '/groups/{group-id}/team/channels/{channel-id}/completeMigration',
       paramDefs: {
         path: ['group-id', 'channel-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const enabledApps = {
+  /**
+   * `GET /groups/{group-id}/team/channels/{channel-id}/enabledApps`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /groups/{group-id}/team/channels/{channel-id}/enabledApps']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/team/channels/{channel-id}/enabledApps']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/groups/{group-id}/team/channels/{channel-id}/enabledApps',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['group-id', 'channel-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /groups/{group-id}/team/channels/{channel-id}/enabledApps/{teamsApp-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /groups/{group-id}/team/channels/{channel-id}/enabledApps/{teamsApp-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/team/channels/{channel-id}/enabledApps/{teamsApp-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/groups/{group-id}/team/channels/{channel-id}/enabledApps/{teamsApp-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['group-id', 'channel-id', 'teamsApp-id'],
       },
       params,
     };

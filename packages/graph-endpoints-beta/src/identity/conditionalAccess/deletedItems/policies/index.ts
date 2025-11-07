@@ -28,9 +28,14 @@ export interface IEndpoints {
 }
 
 /**
- * `DELETE /identity/conditionalAccess/deletedItems/policies/{conditionalAccessPolicy-id}`
- *
- */
+  * `DELETE /identity/conditionalAccess/deletedItems/policies/{conditionalAccessPolicy-id}`
+  *
+  * Permanently delete a policyDeletableItem object, which might be one of the following deleted policy types:
+- crossTenantAccessPolicyConfigurationPartner
+- crossTenantIdentitySyncPolicyPartner
+- conditionalAccessPolicy
+- namedLocation
+  */
 export function del(
   params?: IEndpoints['DELETE /identity/conditionalAccess/deletedItems/policies/{conditionalAccessPolicy-id}']['parameters']
 ): EndpointRequest<
@@ -49,9 +54,14 @@ export function del(
 }
 
 /**
- * `GET /identity/conditionalAccess/deletedItems/policies`
- *
- */
+  * `GET /identity/conditionalAccess/deletedItems/policies`
+  *
+  * Get a list of the policyDeletableItem objects and their properties, which might be one of the following deleted policy types:
+- crossTenantAccessPolicyConfigurationPartner
+- crossTenantIdentitySyncPolicyPartner
+- conditionalAccessPolicy
+- namedLocation
+  */
 export function list(
   params?: IEndpoints['GET /identity/conditionalAccess/deletedItems/policies']['parameters']
 ): EndpointRequest<
@@ -69,9 +79,14 @@ export function list(
 }
 
 /**
- * `GET /identity/conditionalAccess/deletedItems/policies/{conditionalAccessPolicy-id}`
- *
- */
+  * `GET /identity/conditionalAccess/deletedItems/policies/{conditionalAccessPolicy-id}`
+  *
+  * Read the properties and relationships of a policyDeletableItem object, which might be one of the following deleted policy types:
+- crossTenantAccessPolicyConfigurationPartner
+- crossTenantIdentitySyncPolicyPartner
+- conditionalAccessPolicy
+- namedLocation
+  */
 export function get(
   params?: IEndpoints['GET /identity/conditionalAccess/deletedItems/policies/{conditionalAccessPolicy-id}']['parameters']
 ): EndpointRequest<
@@ -132,6 +147,7 @@ export const restore = {
   /**
    * `POST /identity/conditionalAccess/deletedItems/policies/{conditionalAccessPolicy-id}/restore`
    *
+   * Restore a deleted conditionalAccessPolicy object.
    */
   create: function create(
     params?: IEndpoints['POST /identity/conditionalAccess/deletedItems/policies/{conditionalAccessPolicy-id}/restore']['parameters']

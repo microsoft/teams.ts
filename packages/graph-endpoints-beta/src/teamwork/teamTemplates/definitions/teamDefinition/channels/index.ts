@@ -37,6 +37,14 @@ export interface IEndpoints {
     '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/completeMigration',
     'post'
   >;
+  'GET /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/enabledApps': Operation<
+    '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/enabledApps',
+    'get'
+  >;
+  'GET /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/enabledApps/{teamsApp-id}': Operation<
+    '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/enabledApps/{teamsApp-id}',
+    'get'
+  >;
   'POST /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/provisionEmail': Operation<
     '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/provisionEmail',
     'post'
@@ -202,6 +210,49 @@ export const completeMigration = {
       path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/completeMigration',
       paramDefs: {
         path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'channel-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const enabledApps = {
+  /**
+   * `GET /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/enabledApps`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/enabledApps']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/enabledApps']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/enabledApps',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'channel-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/enabledApps/{teamsApp-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/enabledApps/{teamsApp-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/enabledApps/{teamsApp-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teamwork/teamTemplates/{teamTemplate-id}/definitions/{teamTemplateDefinition-id}/teamDefinition/channels/{channel-id}/enabledApps/{teamsApp-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['teamTemplate-id', 'teamTemplateDefinition-id', 'channel-id', 'teamsApp-id'],
       },
       params,
     };

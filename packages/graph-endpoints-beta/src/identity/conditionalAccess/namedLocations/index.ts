@@ -30,7 +30,7 @@ export interface IEndpoints {
 /**
  * `DELETE /identity/conditionalAccess/namedLocations/{namedLocation-id}`
  *
- * Delete a namedLocation object.
+ * Delete a countryNamedLocation object.
  */
 export function del(
   params?: IEndpoints['DELETE /identity/conditionalAccess/namedLocations/{namedLocation-id}']['parameters']
@@ -71,7 +71,7 @@ export function list(
 /**
  * `GET /identity/conditionalAccess/namedLocations/{namedLocation-id}`
  *
- * Retrieve the properties and relationships of an ipNamedLocation object.
+ * Read the properties and relationships of a compliantNetworkNamedLocation object.
  */
 export function get(
   params?: IEndpoints['GET /identity/conditionalAccess/namedLocations/{namedLocation-id}']['parameters']
@@ -133,6 +133,7 @@ export const restore = {
   /**
    * `POST /identity/conditionalAccess/namedLocations/{namedLocation-id}/restore`
    *
+   * Restore a deleted countryNamedLocation object.
    */
   create: function create(
     params?: IEndpoints['POST /identity/conditionalAccess/namedLocations/{namedLocation-id}/restore']['parameters']

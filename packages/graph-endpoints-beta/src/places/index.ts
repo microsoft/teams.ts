@@ -3,6 +3,7 @@ import type { EndpointRequest, Operation } from './../types/common.ts';
 export interface IEndpoints {
   'DELETE /places/{place-id}': Operation<'/places/{place-id}', 'delete'>;
   'PATCH /places/{place-id}': Operation<'/places/{place-id}', 'patch'>;
+  'POST /places': Operation<'/places', 'post'>;
   'GET /places/{place-id}/checkIns': Operation<'/places/{place-id}/checkIns', 'get'>;
   'POST /places/{place-id}/checkIns': Operation<'/places/{place-id}/checkIns', 'post'>;
   'GET /places/{place-id}/checkIns/{checkInClaim-calendarEventId}': Operation<
@@ -60,10 +61,27 @@ export function update(
   };
 }
 
+/**
+ * `POST /places`
+ *
+ * Create a new place object. You can also use this method to create the following child object types: building, floor, section, room, workspace, or desk.
+ */
+export function create(
+  body: IEndpoints['POST /places']['body']
+): EndpointRequest<IEndpoints['POST /places']['response']> {
+  return {
+    ver: 'beta',
+    method: 'post',
+    path: '/places',
+    body,
+  };
+}
+
 export const checkIns = {
   /**
    * `GET /places/{place-id}/checkIns`
    *
+   * Read the properties and relationships of a checkInClaim object. This API provides the check-in status for a specific place, such as a desk, room, or workspace, associated with a particular reservation.
    */
   list: function list(
     params?: IEndpoints['GET /places/{place-id}/checkIns']['parameters']
@@ -82,6 +100,7 @@ export const checkIns = {
   /**
    * `POST /places/{place-id}/checkIns`
    *
+   * Create a new checkInClaim object to record the check-in status for a specific place, such as a desk, room, or workspace, associated with a specific calendar reservation. This check-in confirms that the reserved space is in use and prevents automatic release if auto-release policies are configured for that place.
    */
   create: function create(
     body: IEndpoints['POST /places/{place-id}/checkIns']['body'],
@@ -101,6 +120,7 @@ export const checkIns = {
   /**
    * `GET /places/{place-id}/checkIns/{checkInClaim-calendarEventId}`
    *
+   * Read the properties and relationships of a checkInClaim object. This API provides the check-in status for a specific place, such as a desk, room, or workspace, associated with a particular reservation.
    */
   get: function get(
     params?: IEndpoints['GET /places/{place-id}/checkIns/{checkInClaim-calendarEventId}']['parameters']

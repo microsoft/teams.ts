@@ -31,6 +31,14 @@ export interface IEndpoints {
     '/teams/{team-id}/channels/{channel-id}/completeMigration',
     'post'
   >;
+  'GET /teams/{team-id}/channels/{channel-id}/enabledApps': Operation<
+    '/teams/{team-id}/channels/{channel-id}/enabledApps',
+    'get'
+  >;
+  'GET /teams/{team-id}/channels/{channel-id}/enabledApps/{teamsApp-id}': Operation<
+    '/teams/{team-id}/channels/{channel-id}/enabledApps/{teamsApp-id}',
+    'get'
+  >;
   'POST /teams/{team-id}/channels/{channel-id}/provisionEmail': Operation<
     '/teams/{team-id}/channels/{channel-id}/provisionEmail',
     'post'
@@ -189,6 +197,49 @@ export const completeMigration = {
       path: '/teams/{team-id}/channels/{channel-id}/completeMigration',
       paramDefs: {
         path: ['team-id', 'channel-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const enabledApps = {
+  /**
+   * `GET /teams/{team-id}/channels/{channel-id}/enabledApps`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /teams/{team-id}/channels/{channel-id}/enabledApps']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teams/{team-id}/channels/{channel-id}/enabledApps']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teams/{team-id}/channels/{channel-id}/enabledApps',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['team-id', 'channel-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /teams/{team-id}/channels/{channel-id}/enabledApps/{teamsApp-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /teams/{team-id}/channels/{channel-id}/enabledApps/{teamsApp-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teams/{team-id}/channels/{channel-id}/enabledApps/{teamsApp-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teams/{team-id}/channels/{channel-id}/enabledApps/{teamsApp-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['team-id', 'channel-id', 'teamsApp-id'],
       },
       params,
     };

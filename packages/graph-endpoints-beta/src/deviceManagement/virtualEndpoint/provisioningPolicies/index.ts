@@ -35,6 +35,10 @@ export interface IEndpoints {
     '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/assign',
     'post'
   >;
+  'POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/retry': Operation<
+    '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/retry',
+    'post'
+  >;
   'POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/schedulePolicyApplyTask': Operation<
     '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/schedulePolicyApplyTask',
     'post'
@@ -213,6 +217,28 @@ export const assign = {
       },
       params,
       body,
+    };
+  },
+};
+
+export const retry = {
+  /**
+   * `POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/retry`
+   *
+   */
+  create: function create(
+    params?: IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/retry']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/retry']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/provisioningPolicies/{cloudPcProvisioningPolicy-id}/retry',
+      paramDefs: {
+        path: ['cloudPcProvisioningPolicy-id'],
+      },
+      params,
     };
   },
 };
