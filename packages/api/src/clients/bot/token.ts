@@ -46,6 +46,10 @@ export class BotTokenClient {
       };
     }
 
+    if (!('clientSecret' in credentials)) {
+      throw new Error('Bot Token Client only supports auth via secrets');
+    }
+
     const tenantId = credentials.tenantId || 'botframework.com';
     const res = await this.http.post<GetBotTokenResponse>(
       `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,
@@ -73,6 +77,10 @@ export class BotTokenClient {
           credentials.tenantId
         ),
       };
+    }
+
+    if (!('clientSecret' in credentials)) {
+      throw new Error('Bot Token Client only supports auth via secrets');
     }
 
     const tenantId = credentials.tenantId || 'botframework.com';
