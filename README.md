@@ -6,7 +6,7 @@
 
 a suite of packages used to build on the Teams Platform.
 
-<a href="https://microsoft.github.io/teams-ai" target="_blank">
+<a href="https://microsoft.github.io/teams-sdk" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 
@@ -90,7 +90,7 @@ $: npm run test
 > ⚠️ **WARNING** these apps are changed often and are not intended to be used outside the
 > projects monorepo. To easily setup a new project please use the **templates** available via
 > the `@microsoft/teams.cli` and follow the
-> [Getting Started](https://microsoft.github.io/teams-ai/typescript/getting-started) documentation!
+> [Getting Started](https://microsoft.github.io/teams-sdk/typescript/getting-started) documentation!
 
 - [`@tests/echo`](./tests/echo/README.md)
 - [`@tests/auth`](./tests/auth/README.md)

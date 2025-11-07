@@ -82,7 +82,7 @@ export default function App() {
   return (
     <div className="App">
       <h1>👋 Welcome</h1>
-      <p>This test app lets you try out some of the features offered by Teams AI Library v2 for Teams Tab app developers.</p>
+      <p>This test app lets you try out some of the features offered by Teams SDK for Teams Tab app developers.</p>
 
       <div className="actions">
         <button disabled={!app} onClick={showTeamsJsContext}>Show TeamsJs context</button>
@@ -99,7 +99,7 @@ export default function App() {
         </div>
       )}
 
-      <p>For more information, please refer to the <a href='https://microsoft.github.io/teams-ai' rel='noopener noreferrer' target='_blank'>Teams AI documentation</a>.</p>
+      <p>For more information, please refer to the <a href='https://microsoft.github.io/teams-sdk' rel='noopener noreferrer' target='_blank'>Teams SDK documentation</a>.</p>
     </div>
   );
 }

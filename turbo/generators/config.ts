@@ -103,7 +103,7 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
 
   // Generator for creating new applications in tests
   plop.setGenerator("Test Application", {
-    description: "Create a new Teams AI v2 test application",
+    description: "Create a new Teams SDK test application",
     prompts: [
       {
         type: "input",

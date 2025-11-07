@@ -13,7 +13,7 @@
     <a href="https://www.npmjs.com/package/@microsoft/teams.graph-endpoints-beta" target="_blank">
         <img src="https://img.shields.io/npm/dw/@microsoft/teams.graph-endpoints-beta" />
     </a>
-    <a href="https://microsoft.github.io/teams-ai" target="_blank">
+    <a href="https://microsoft.github.io/teams-sdk" target="_blank">
         <img src="https://img.shields.io/badge/📖 docs-open-blue" />
     </a>
 </p>
@@ -26,7 +26,7 @@ change. We don't recommend that you use them in your production apps.
 
 To use APIs that are generally available, please refer to <a href="https://www.npmjs.com/package/@microsoft/teams.graph-endpoints" target="_blank">@microsoft/teams.graph-endpoints</a>.
 
-<a href="https://microsoft.github.io/teams-ai" target="_blank">
+<a href="https://microsoft.github.io/teams-sdk" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 

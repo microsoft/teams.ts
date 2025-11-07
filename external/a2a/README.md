@@ -23,11 +23,11 @@ This is a plugin that enables your Teams agent to be used as an A2A agent.
 > [!NOTE]
 > The A2A protocol is still early in development and hence this package is fairly experimental.
 
--   [What is A2A?](https://google.github.io/A2A)
+- [What is A2A?](https://google.github.io/A2A)
 
 ## Server
 
-Teams AI Library allows your applications to easily be accessible via Teams. However, using this plugin, you can also enable your agent to be used as an A2A agent so that it can be used by other A2A clients.
+Teams SDK allows your applications to easily be accessible via Teams. However, using this plugin, you can also enable your agent to be used as an A2A agent so that it can be used by other A2A clients.
 
 ### Configuration
 
@@ -91,7 +91,7 @@ app.event(
         // The taskContext contains details about the task request
         const result = await myEventHandler(taskContext, accumulateArtifacts);
         await respond(result);
-    }
+    },
 );
 ```
 
