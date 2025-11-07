@@ -3,6 +3,12 @@ import { AuthenticationResult, ConfidentialClientApplication } from '@azure/msal
 import { ClientCredentials, Credentials, IToken, JsonWebToken, TokenCredentials } from '@microsoft/teams.api';
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
+const DEFAULT_BOT_TOKEN_SCOPE = 'https://api.botframework.com/.default';
+const DEFAULT_GRAPH_TOKEN_SCOPE = 'https://graph.microsoft.com/.default';
+const DEFAULT_TENANT_FOR_BOT_TOKEN = 'botframework.com';
+const DEFAULT_TENANT_FOR_GRAPH_TOKEN = 'common';
+const GET_DEFAULT_TOKEN_AUTHORITY = (tenantId: string) => `https://login.microsoftonline.com/${tenantId}`;
+
 export class TokenManager {
   private logger: ILogger;
   private confidentialClientsByTenantId: Record<string, ConfidentialClientApplication> = {};
@@ -12,14 +18,14 @@ export class TokenManager {
   }
 
   async getBotToken(): Promise<IToken | null> {
-    return await this.getToken('https://api.botframework.com/.default');
+    return await this.getToken(DEFAULT_BOT_TOKEN_SCOPE, this.resolveTenantId(undefined, DEFAULT_TENANT_FOR_BOT_TOKEN));
   }
 
   async getGraphToken(tenantId?: string): Promise<IToken | null> {
-    return await this.getToken('https://graph.microsoft.com/.default', tenantId);
+    return await this.getToken(DEFAULT_GRAPH_TOKEN_SCOPE, this.resolveTenantId(tenantId, DEFAULT_TENANT_FOR_GRAPH_TOKEN));
   }
 
-  private async getToken(scope: string, tenantId?: string): Promise<IToken | null> {
+  private async getToken(scope: string, tenantId: string): Promise<IToken | null> {
     if (!this.credentials) {
       return null;
     }
@@ -34,22 +40,20 @@ export class TokenManager {
     return null;
   }
 
-  private async getTokenWithClientCredentials(credentials: ClientCredentials, scope: string, tenantId?: string): Promise<IToken | null> {
-    const tenantIdParam = this.resolveTenantId(tenantId);
-    const confidentialClient = this.getConfidentialClient(credentials, tenantIdParam);
+  private async getTokenWithClientCredentials(credentials: ClientCredentials, scope: string, tenantId: string): Promise<IToken | null> {
+    const confidentialClient = this.getConfidentialClient(credentials, tenantId);
     const result = await confidentialClient.acquireTokenByClientCredential({ scopes: [scope] });
     return this.handleTokenResponse(result);
   }
 
-  private async getTokenWithTokenProvider(credentials: TokenCredentials, scope: string, tenantId?: string): Promise<IToken | null> {
-    const tenantIdParam = this.resolveTenantId(tenantId);
-    const token = await credentials.token(scope, tenantIdParam);
+  private async getTokenWithTokenProvider(credentials: TokenCredentials, scope: string, tenantId: string): Promise<IToken | null> {
+    const token = await credentials.token(scope, tenantId);
 
     return new JsonWebToken(token);
   }
 
-  private resolveTenantId(tenantId?: string) {
-    return tenantId || this.credentials?.tenantId || 'botframework.com';
+  private resolveTenantId(tenantId: string | undefined, defaultTenantId: string) {
+    return tenantId || this.credentials?.tenantId || defaultTenantId;
   }
 
   private getConfidentialClient(credentials: ClientCredentials, tenantId: string) {
@@ -62,7 +66,7 @@ export class TokenManager {
       auth: {
         clientId: credentials.clientId,
         clientSecret: credentials.clientSecret,
-        authority: `https://login.microsoftonline.com/${tenantId}`
+        authority: GET_DEFAULT_TOKEN_AUTHORITY(tenantId)
       }
     });
     this.confidentialClientsByTenantId[tenantId] = client;
