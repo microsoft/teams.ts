@@ -5,6 +5,7 @@ export * as calendarGroups from './calendarGroups';
 export * as calendars from './calendars';
 export * as chats from './chats';
 export * as cloudClipboard from './cloudClipboard';
+export * as cloudPCs from './cloudPCs';
 export * as contactFolders from './contactFolders';
 export * as contacts from './contacts';
 export * as dataSecurityAndGovernance from './dataSecurityAndGovernance';
@@ -283,7 +284,7 @@ export interface IEndpoints {
 /**
  * `DELETE /users/{user-id}`
  *
- * Deletes a user.
+ * Delete a user object.   When deleted, user resources, including their mailbox and license assignments, are moved to a temporary container and if the user is restored within 30 days, these objects are restored to them. The user is also restored to any groups they were a member of. After 30 days and if not restored, the user object is permanently deleted and their assigned resources freed. To manage the deleted user object, see deletedItems.
  */
 export function del(
   params?: IEndpoints['DELETE /users/{user-id}']['parameters']
@@ -302,7 +303,7 @@ export function del(
 /**
  * `GET /users`
  *
- * List properties and relationships of the user objects.
+ * Retrieve a list of user objects.
  */
 export function list(
   params?: IEndpoints['GET /users']['parameters']
@@ -321,7 +322,7 @@ export function list(
 /**
  * `GET /users/{user-id}`
  *
- * Read properties and relationships of the user object.
+ * Retrieve the properties and relationships of user object. This operation returns by default only a subset of the more commonly used properties for each user. These default properties are noted in the Properties section. To get properties that are not returned by default, do a GET operation for the user and specify the properties in a $select OData query option. Because the user resource supports extensions, you can also use the GET operation to get custom properties and extension data in a user instance. Customers through Microsoft Entra ID for customers can also use this API operation to retrieve their details.
  */
 export function get(
   params?: IEndpoints['GET /users/{user-id}']['parameters']

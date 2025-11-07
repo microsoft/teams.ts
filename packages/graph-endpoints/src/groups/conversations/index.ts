@@ -58,7 +58,7 @@ export function list(
 /**
  * `GET /groups/{group-id}/conversations/{conversation-id}`
  *
- * The group&#x27;s conversations.
+ * Retrieve the properties and relationships of conversation object.
  */
 export function get(
   params?: IEndpoints['GET /groups/{group-id}/conversations/{conversation-id}']['parameters']
@@ -79,7 +79,7 @@ export function get(
 /**
  * `POST /groups/{group-id}/conversations`
  *
- * Create an open extension (openTypeExtension object) and add custom properties in a new or existing instance of a resource. You can create an open extension in a resource instance and store custom data to it all in the same operation, except for specific resources. The table in the Permissions section lists the resources that support open extensions.
+ * Use reply thread or reply post to further post to that conversation.
  */
 export function create(
   body: IEndpoints['POST /groups/{group-id}/conversations']['body'],

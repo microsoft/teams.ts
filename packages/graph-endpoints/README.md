@@ -21,6 +21,8 @@
 A collection of strongly typed request configuration builders for Microsoft Graph endpoints, designed to be used
 together with <a href="https://www.npmjs.com/package/@microsoft/teams.graph" target="_blank">@microsoft/teams.graph</a>.
 
+The code in this package is based on the Graph schema published in commit <a href="https://github.com/microsoftgraph/msgraph-metadata/blob/04e061aae911c49242ecba96a5368bf35763b321/openapi/v1.0/openapi.yaml">04e061a</a>.
+
 Use this package to call Microsoft Graph APIs that have reached general availability (GA), and have gone through a rigorous review-and-feedback process with customers to meet practical, production needs.
 
 <a href="https://microsoft.github.io/teams-sdk" target="_blank">

@@ -119,7 +119,7 @@ export const managedAppStatuses = {
   /**
    * `GET /deviceAppManagement/managedAppStatuses`
    *
-   * List properties and relationships of the managedAppStatusRaw objects.
+   * The managed app statuses.
    */
   list: function list(
     params?: IEndpoints['GET /deviceAppManagement/managedAppStatuses']['parameters']
@@ -149,7 +149,7 @@ export const managedAppStatuses = {
   /**
    * `GET /deviceAppManagement/managedAppStatuses/{managedAppStatus-id}`
    *
-   * Read properties and relationships of the managedAppStatusRaw object.
+   * The managed app statuses.
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/managedAppStatuses/{managedAppStatus-id}']['parameters']
@@ -211,7 +211,7 @@ export const mobileAppCategories = {
   /**
    * `GET /deviceAppManagement/mobileAppCategories`
    *
-   * List properties and relationships of the mobileAppCategory objects.
+   * The mobile app categories.
    */
   list: function list(
     params?: IEndpoints['GET /deviceAppManagement/mobileAppCategories']['parameters']
@@ -228,7 +228,6 @@ export const mobileAppCategories = {
   /**
    * `POST /deviceAppManagement/mobileAppCategories`
    *
-   * Create a new mobileAppCategory object.
    */
   create: function create(
     body: IEndpoints['POST /deviceAppManagement/mobileAppCategories']['body']
@@ -242,7 +241,7 @@ export const mobileAppCategories = {
   /**
    * `GET /deviceAppManagement/mobileAppCategories/{mobileAppCategory-id}`
    *
-   * Read properties and relationships of the mobileAppCategory object.
+   * The mobile app categories.
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/mobileAppCategories/{mobileAppCategory-id}']['parameters']
@@ -262,7 +261,6 @@ export const mobileAppCategories = {
   /**
    * `PATCH /deviceAppManagement/mobileAppCategories/{mobileAppCategory-id}`
    *
-   * Update the properties of a mobileAppCategory object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceAppManagement/mobileAppCategories/{mobileAppCategory-id}']['body'],
@@ -283,7 +281,6 @@ export const mobileAppCategories = {
   /**
    * `DELETE /deviceAppManagement/mobileAppCategories/{mobileAppCategory-id}`
    *
-   * Deletes a mobileAppCategory.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceAppManagement/mobileAppCategories/{mobileAppCategory-id}']['parameters']

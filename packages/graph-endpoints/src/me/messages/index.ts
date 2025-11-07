@@ -105,7 +105,7 @@ export function list(
 /**
  * `GET /me/messages/{message-id}`
  *
- * Get an open extension (openTypeExtension object) identified by name or fully qualified name. The table in the Permissions section lists the resources that support open extensions. The following table lists the three scenarios where you can get an open extension from a supported resource instance.
+ * Get the properties and relationships of the eventMessage object. Apply the $expand parameter on the event navigation property to get the associated event in an attendee&#x27;s calendar. Currently, this operation returns event message bodies in only HTML format.
  */
 export function get(
   params?: IEndpoints['GET /me/messages/{message-id}']['parameters']
@@ -124,7 +124,7 @@ export function get(
 /**
  * `PATCH /me/messages/{message-id}`
  *
- * Update the properties of a message object.
+ * Update the properties of an eventMessage object.
  */
 export function update(
   body: IEndpoints['PATCH /me/messages/{message-id}']['body'],
@@ -142,14 +142,10 @@ export function update(
 }
 
 /**
-  * `POST /me/messages`
-  *
-  * Create a draft of a new message in either JSON or MIME format. When using JSON format, you can:
-- Include an attachment to the message.
-- Update the draft later to add content to the body or change other message properties. When using MIME format:
-- Provide the applicable Internet message headers and the MIME content, all encoded in base64 format in the request body.
-- /* Add any attachments and S/MIME properties to the MIME content. By default, this operation saves the draft in the Drafts folder. Send the draft message in a subsequent operation. Alternatively, send a new message in a single operation, or create a draft to forward, reply and reply-all to an existing message.
-  */
+ * `POST /me/messages`
+ *
+ * Create an open extension (openTypeExtension object) and add custom properties in a new or existing instance of a resource. You can create an open extension in a resource instance and store custom data to it all in the same operation, except for specific resources. The table in the Permissions section lists the resources that support open extensions.
+ */
 export function create(
   body: IEndpoints['POST /me/messages']['body']
 ): EndpointRequest<IEndpoints['POST /me/messages']['response']> {

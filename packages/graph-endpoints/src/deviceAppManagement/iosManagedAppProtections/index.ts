@@ -78,7 +78,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}`
  *
- * Deletes a iosManagedAppProtection.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}']['parameters']
@@ -99,7 +98,7 @@ export function del(
 /**
  * `GET /deviceAppManagement/iosManagedAppProtections`
  *
- * List properties and relationships of the iosManagedAppProtection objects.
+ * iOS managed app policies.
  */
 export function list(
   params?: IEndpoints['GET /deviceAppManagement/iosManagedAppProtections']['parameters']
@@ -117,7 +116,7 @@ export function list(
 /**
  * `GET /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}`
  *
- * Read properties and relationships of the iosManagedAppProtection object.
+ * iOS managed app policies.
  */
 export function get(
   params?: IEndpoints['GET /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}']['parameters']
@@ -138,7 +137,6 @@ export function get(
 /**
  * `PATCH /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}`
  *
- * Update the properties of a iosManagedAppProtection object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}']['body'],
@@ -160,7 +158,6 @@ export function update(
 /**
  * `POST /deviceAppManagement/iosManagedAppProtections`
  *
- * Create a new iosManagedAppProtection object.
  */
 export function create(
   body: IEndpoints['POST /deviceAppManagement/iosManagedAppProtections']['body']
@@ -176,7 +173,7 @@ export const apps = {
   /**
    * `GET /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/apps`
    *
-   * List properties and relationships of the managedMobileApp objects.
+   * List of apps to which the policy is deployed.
    */
   list: function list(
     params?: IEndpoints['GET /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/apps']['parameters']
@@ -196,7 +193,6 @@ export const apps = {
   /**
    * `POST /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/apps`
    *
-   * Create a new managedMobileApp object.
    */
   create: function create(
     body: IEndpoints['POST /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/apps']['body'],
@@ -217,7 +213,7 @@ export const apps = {
   /**
    * `GET /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/apps/{managedMobileApp-id}`
    *
-   * Read properties and relationships of the managedMobileApp object.
+   * List of apps to which the policy is deployed.
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/apps/{managedMobileApp-id}']['parameters']
@@ -237,7 +233,6 @@ export const apps = {
   /**
    * `PATCH /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/apps/{managedMobileApp-id}`
    *
-   * Update the properties of a managedMobileApp object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/apps/{managedMobileApp-id}']['body'],
@@ -258,7 +253,6 @@ export const apps = {
   /**
    * `DELETE /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/apps/{managedMobileApp-id}`
    *
-   * Deletes a managedMobileApp.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/apps/{managedMobileApp-id}']['parameters']
@@ -281,7 +275,7 @@ export const assignments = {
   /**
    * `GET /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/assignments`
    *
-   * List properties and relationships of the targetedManagedAppPolicyAssignment objects.
+   * Navigation property to list of inclusion and exclusion groups to which the policy is deployed.
    */
   list: function list(
     params?: IEndpoints['GET /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/assignments']['parameters']
@@ -321,7 +315,7 @@ export const assignments = {
   /**
    * `GET /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/assignments/{targetedManagedAppPolicyAssignment-id}`
    *
-   * Read properties and relationships of the targetedManagedAppPolicyAssignment object.
+   * Navigation property to list of inclusion and exclusion groups to which the policy is deployed.
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/assignments/{targetedManagedAppPolicyAssignment-id}']['parameters']
@@ -341,7 +335,6 @@ export const assignments = {
   /**
    * `PATCH /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/assignments/{targetedManagedAppPolicyAssignment-id}`
    *
-   * Update the properties of a targetedManagedAppPolicyAssignment object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/assignments/{targetedManagedAppPolicyAssignment-id}']['body'],
@@ -362,7 +355,6 @@ export const assignments = {
   /**
    * `DELETE /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/assignments/{targetedManagedAppPolicyAssignment-id}`
    *
-   * Deletes a targetedManagedAppPolicyAssignment.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/assignments/{targetedManagedAppPolicyAssignment-id}']['parameters']
@@ -385,7 +377,7 @@ export const deploymentSummary = {
   /**
    * `GET /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/deploymentSummary`
    *
-   * Read properties and relationships of the managedAppPolicyDeploymentSummary object.
+   * Navigation property to deployment summary of the configuration.
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/deploymentSummary']['parameters']
@@ -405,7 +397,6 @@ export const deploymentSummary = {
   /**
    * `PATCH /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/deploymentSummary`
    *
-   * Update the properties of a managedAppPolicyDeploymentSummary object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceAppManagement/iosManagedAppProtections/{iosManagedAppProtection-id}/deploymentSummary']['body'],

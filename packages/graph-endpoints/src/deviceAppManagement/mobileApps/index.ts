@@ -52,7 +52,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceAppManagement/mobileApps/{mobileApp-id}`
  *
- * Deletes a iosStoreApp.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceAppManagement/mobileApps/{mobileApp-id}']['parameters']
@@ -73,7 +72,7 @@ export function del(
 /**
  * `GET /deviceAppManagement/mobileApps`
  *
- * List properties and relationships of the managedAndroidStoreApp objects.
+ * The mobile apps.
  */
 export function list(
   params?: IEndpoints['GET /deviceAppManagement/mobileApps']['parameters']
@@ -91,7 +90,7 @@ export function list(
 /**
  * `GET /deviceAppManagement/mobileApps/{mobileApp-id}`
  *
- * Read properties and relationships of the managedIOSLobApp object.
+ * The mobile apps.
  */
 export function get(
   params?: IEndpoints['GET /deviceAppManagement/mobileApps/{mobileApp-id}']['parameters']
@@ -110,7 +109,6 @@ export function get(
 /**
  * `PATCH /deviceAppManagement/mobileApps/{mobileApp-id}`
  *
- * Update the properties of a macOSMicrosoftEdgeApp object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceAppManagement/mobileApps/{mobileApp-id}']['body'],
@@ -130,7 +128,6 @@ export function update(
 /**
  * `POST /deviceAppManagement/mobileApps`
  *
- * Create a new iosVppApp object.
  */
 export function create(
   body: IEndpoints['POST /deviceAppManagement/mobileApps']['body']
@@ -169,7 +166,7 @@ export const assignments = {
   /**
    * `GET /deviceAppManagement/mobileApps/{mobileApp-id}/assignments`
    *
-   * List properties and relationships of the mobileAppAssignment objects.
+   * The list of group assignments for this mobile app.
    */
   list: function list(
     params?: IEndpoints['GET /deviceAppManagement/mobileApps/{mobileApp-id}/assignments']['parameters']
@@ -189,7 +186,6 @@ export const assignments = {
   /**
    * `POST /deviceAppManagement/mobileApps/{mobileApp-id}/assignments`
    *
-   * Create a new mobileAppAssignment object.
    */
   create: function create(
     body: IEndpoints['POST /deviceAppManagement/mobileApps/{mobileApp-id}/assignments']['body'],
@@ -210,7 +206,7 @@ export const assignments = {
   /**
    * `GET /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}`
    *
-   * Read properties and relationships of the mobileAppAssignment object.
+   * The list of group assignments for this mobile app.
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}']['parameters']
@@ -230,7 +226,6 @@ export const assignments = {
   /**
    * `PATCH /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}`
    *
-   * Update the properties of a mobileAppAssignment object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}']['body'],
@@ -251,7 +246,6 @@ export const assignments = {
   /**
    * `DELETE /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}`
    *
-   * Deletes a mobileAppAssignment.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceAppManagement/mobileApps/{mobileApp-id}/assignments/{mobileAppAssignment-id}']['parameters']

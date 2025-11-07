@@ -78,7 +78,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceAppManagement/androidManagedAppProtections/{androidManagedAppProtection-id}`
  *
- * Deletes a androidManagedAppProtection.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceAppManagement/androidManagedAppProtections/{androidManagedAppProtection-id}']['parameters']
@@ -99,7 +98,7 @@ export function del(
 /**
  * `GET /deviceAppManagement/androidManagedAppProtections`
  *
- * List properties and relationships of the androidManagedAppProtection objects.
+ * Android managed app policies.
  */
 export function list(
   params?: IEndpoints['GET /deviceAppManagement/androidManagedAppProtections']['parameters']
@@ -119,7 +118,7 @@ export function list(
 /**
  * `GET /deviceAppManagement/androidManagedAppProtections/{androidManagedAppProtection-id}`
  *
- * Read properties and relationships of the androidManagedAppProtection object.
+ * Android managed app policies.
  */
 export function get(
   params?: IEndpoints['GET /deviceAppManagement/androidManagedAppProtections/{androidManagedAppProtection-id}']['parameters']
@@ -140,7 +139,6 @@ export function get(
 /**
  * `PATCH /deviceAppManagement/androidManagedAppProtections/{androidManagedAppProtection-id}`
  *
- * Update the properties of a androidManagedAppProtection object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceAppManagement/androidManagedAppProtections/{androidManagedAppProtection-id}']['body'],
@@ -162,7 +160,6 @@ export function update(
 /**
  * `POST /deviceAppManagement/androidManagedAppProtections`
  *
- * Create a new androidManagedAppProtection object.
  */
 export function create(
   body: IEndpoints['POST /deviceAppManagement/androidManagedAppProtections']['body']

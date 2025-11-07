@@ -3,6 +3,7 @@ export * as exchangeRestoreSessions from './exchangeRestoreSessions';
 export * as oneDriveForBusinessProtectionPolicies from './oneDriveForBusinessProtectionPolicies';
 export * as oneDriveForBusinessRestoreSessions from './oneDriveForBusinessRestoreSessions';
 export * as protectionPolicies from './protectionPolicies';
+export * as protectionUnits from './protectionUnits';
 export * as restorePoints from './restorePoints';
 export * as restoreSessions from './restoreSessions';
 export * as serviceApps from './serviceApps';
@@ -135,14 +136,6 @@ export interface IEndpoints {
   'DELETE /solutions/backupRestore/mailboxProtectionUnitsBulkAdditionJobs/{mailboxProtectionUnitsBulkAdditionJob-id}': Operation<
     '/solutions/backupRestore/mailboxProtectionUnitsBulkAdditionJobs/{mailboxProtectionUnitsBulkAdditionJob-id}',
     'delete'
-  >;
-  'GET /solutions/backupRestore/protectionUnits': Operation<
-    '/solutions/backupRestore/protectionUnits',
-    'get'
-  >;
-  'GET /solutions/backupRestore/protectionUnits/{protectionUnitBase-id}': Operation<
-    '/solutions/backupRestore/protectionUnits/{protectionUnitBase-id}',
-    'get'
   >;
   'GET /solutions/backupRestore/siteInclusionRules': Operation<
     '/solutions/backupRestore/siteInclusionRules',
@@ -828,46 +821,6 @@ export const mailboxProtectionUnitsBulkAdditionJobs = {
       paramDefs: {
         header: ['If-Match'],
         path: ['mailboxProtectionUnitsBulkAdditionJob-id'],
-      },
-      params,
-    };
-  },
-};
-
-export const protectionUnits = {
-  /**
-   * `GET /solutions/backupRestore/protectionUnits`
-   *
-   * Read the properties and relationships of a protectionUnitBase object.
-   */
-  list: function list(
-    params?: IEndpoints['GET /solutions/backupRestore/protectionUnits']['parameters']
-  ): EndpointRequest<IEndpoints['GET /solutions/backupRestore/protectionUnits']['response']> {
-    return {
-      method: 'get',
-      path: '/solutions/backupRestore/protectionUnits',
-      paramDefs: {
-        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
-      },
-      params,
-    };
-  },
-  /**
-   * `GET /solutions/backupRestore/protectionUnits/{protectionUnitBase-id}`
-   *
-   * Read the properties and relationships of a protectionUnitBase object.
-   */
-  get: function get(
-    params?: IEndpoints['GET /solutions/backupRestore/protectionUnits/{protectionUnitBase-id}']['parameters']
-  ): EndpointRequest<
-    IEndpoints['GET /solutions/backupRestore/protectionUnits/{protectionUnitBase-id}']['response']
-  > {
-    return {
-      method: 'get',
-      path: '/solutions/backupRestore/protectionUnits/{protectionUnitBase-id}',
-      paramDefs: {
-        query: ['$select', '$expand'],
-        path: ['protectionUnitBase-id'],
       },
       params,
     };

@@ -30,7 +30,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/importedWindowsAutopilotDeviceIdentities/{importedWindowsAutopilotDeviceIdentity-id}`
  *
- * Deletes a importedWindowsAutopilotDeviceIdentity.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/importedWindowsAutopilotDeviceIdentities/{importedWindowsAutopilotDeviceIdentity-id}']['parameters']
@@ -51,7 +50,7 @@ export function del(
 /**
  * `GET /deviceManagement/importedWindowsAutopilotDeviceIdentities`
  *
- * List properties and relationships of the importedWindowsAutopilotDeviceIdentity objects.
+ * Collection of imported Windows autopilot devices.
  */
 export function list(
   params?: IEndpoints['GET /deviceManagement/importedWindowsAutopilotDeviceIdentities']['parameters']
@@ -71,7 +70,7 @@ export function list(
 /**
  * `GET /deviceManagement/importedWindowsAutopilotDeviceIdentities/{importedWindowsAutopilotDeviceIdentity-id}`
  *
- * Read properties and relationships of the importedWindowsAutopilotDeviceIdentity object.
+ * Collection of imported Windows autopilot devices.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/importedWindowsAutopilotDeviceIdentities/{importedWindowsAutopilotDeviceIdentity-id}']['parameters']
@@ -113,7 +112,6 @@ export function update(
 /**
  * `POST /deviceManagement/importedWindowsAutopilotDeviceIdentities`
  *
- * Create a new importedWindowsAutopilotDeviceIdentity object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/importedWindowsAutopilotDeviceIdentities']['body']
@@ -131,7 +129,6 @@ const import_ = {
   /**
    * `POST /deviceManagement/importedWindowsAutopilotDeviceIdentities/import`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/importedWindowsAutopilotDeviceIdentities/import']['body']

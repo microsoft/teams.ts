@@ -30,7 +30,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}`
  *
- * Deletes a roleAssignment.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}']['parameters']
@@ -51,7 +50,7 @@ export function del(
 /**
  * `GET /deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments`
  *
- * List properties and relationships of the roleAssignment objects.
+ * List of Role assignments for this role definition.
  */
 export function list(
   params?: IEndpoints['GET /deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments']['parameters']
@@ -72,7 +71,7 @@ export function list(
 /**
  * `GET /deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}`
  *
- * Read properties and relationships of the roleAssignment object.
+ * List of Role assignments for this role definition.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}']['parameters']
@@ -93,7 +92,6 @@ export function get(
 /**
  * `PATCH /deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}`
  *
- * Update the properties of a roleAssignment object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}']['body'],
@@ -115,7 +113,6 @@ export function update(
 /**
  * `POST /deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments`
  *
- * Create a new roleAssignment object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments']['body'],
@@ -138,7 +135,7 @@ export const roleDefinition = {
   /**
    * `GET /deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}/roleDefinition`
    *
-   * Role definition this assignment is part of.
+   * Indicates the role definition for this role assignment.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/roleDefinitions/{roleDefinition-id}/roleAssignments/{roleAssignment-id}/roleDefinition']['parameters']

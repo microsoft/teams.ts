@@ -97,7 +97,7 @@ export function del(
 /**
  * `GET /organization`
  *
- * List properties and relationships of the organization objects.
+ * Retrieve a list of organization objects. There&#x27;s only one organization object in the collection.
  */
 export function get(
   params?: IEndpoints['GET /organization']['parameters']
@@ -134,7 +134,7 @@ export function get$1(
 /**
  * `PATCH /organization/{organization-id}`
  *
- * Update the properties of a organization object.
+ * Update the properties of the currently authenticated organization. In this case, organization is defined as a collection of exactly one record, and so its ID must be specified in the request.  The ID is also known as the tenantId of the organization.
  */
 export function update(
   body: IEndpoints['PATCH /organization/{organization-id}']['body'],

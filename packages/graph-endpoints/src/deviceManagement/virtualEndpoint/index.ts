@@ -97,7 +97,6 @@ export function del(
 /**
  * `GET /deviceManagement/virtualEndpoint`
  *
- * Virtual endpoint
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/virtualEndpoint']['parameters']

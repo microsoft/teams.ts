@@ -22,7 +22,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/roleDefinitions/{roleDefinition-id}`
  *
- * Deletes a deviceAndAppManagementRoleDefinition.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/roleDefinitions/{roleDefinition-id}']['parameters']
@@ -43,7 +42,7 @@ export function del(
 /**
  * `GET /deviceManagement/roleDefinitions`
  *
- * List properties and relationships of the deviceAndAppManagementRoleDefinition objects.
+ * The Role Definitions.
  */
 export function list(
   params?: IEndpoints['GET /deviceManagement/roleDefinitions']['parameters']
@@ -61,7 +60,7 @@ export function list(
 /**
  * `GET /deviceManagement/roleDefinitions/{roleDefinition-id}`
  *
- * Read properties and relationships of the roleDefinition object.
+ * The Role Definitions.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/roleDefinitions/{roleDefinition-id}']['parameters']
@@ -82,7 +81,6 @@ export function get(
 /**
  * `PATCH /deviceManagement/roleDefinitions/{roleDefinition-id}`
  *
- * Update the properties of a deviceAndAppManagementRoleDefinition object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceManagement/roleDefinitions/{roleDefinition-id}']['body'],
@@ -104,7 +102,6 @@ export function update(
 /**
  * `POST /deviceManagement/roleDefinitions`
  *
- * Create a new deviceAndAppManagementRoleDefinition object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/roleDefinitions']['body']

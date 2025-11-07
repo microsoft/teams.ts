@@ -114,7 +114,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}`
  *
- * Deletes a iosMobileAppConfiguration.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}']['parameters']
@@ -135,7 +134,7 @@ export function del(
 /**
  * `GET /deviceAppManagement/mobileAppConfigurations`
  *
- * List properties and relationships of the managedDeviceMobileAppConfiguration objects.
+ * The Managed Device Mobile Application Configurations.
  */
 export function list(
   params?: IEndpoints['GET /deviceAppManagement/mobileAppConfigurations']['parameters']
@@ -153,7 +152,7 @@ export function list(
 /**
  * `GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}`
  *
- * Read properties and relationships of the managedDeviceMobileAppConfiguration object.
+ * The Managed Device Mobile Application Configurations.
  */
 export function get(
   params?: IEndpoints['GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}']['parameters']
@@ -174,7 +173,6 @@ export function get(
 /**
  * `PATCH /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}`
  *
- * Update the properties of a iosMobileAppConfiguration object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}']['body'],
@@ -196,7 +194,6 @@ export function update(
 /**
  * `POST /deviceAppManagement/mobileAppConfigurations`
  *
- * Create a new iosMobileAppConfiguration object.
  */
 export function create(
   body: IEndpoints['POST /deviceAppManagement/mobileAppConfigurations']['body']
@@ -212,7 +209,6 @@ export const assign = {
   /**
    * `POST /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/assign`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/assign']['body'],
@@ -236,7 +232,7 @@ export const assignments = {
   /**
    * `GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/assignments`
    *
-   * List properties and relationships of the managedDeviceMobileAppConfigurationAssignment objects.
+   * The list of group assignemenets for app configration.
    */
   list: function list(
     params?: IEndpoints['GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/assignments']['parameters']
@@ -256,7 +252,6 @@ export const assignments = {
   /**
    * `POST /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/assignments`
    *
-   * Create a new managedDeviceMobileAppConfigurationAssignment object.
    */
   create: function create(
     body: IEndpoints['POST /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/assignments']['body'],
@@ -277,7 +272,7 @@ export const assignments = {
   /**
    * `GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/assignments/{managedDeviceMobileAppConfigurationAssignment-id}`
    *
-   * Read properties and relationships of the managedDeviceMobileAppConfigurationAssignment object.
+   * The list of group assignemenets for app configration.
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/assignments/{managedDeviceMobileAppConfigurationAssignment-id}']['parameters']
@@ -300,7 +295,6 @@ export const assignments = {
   /**
    * `PATCH /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/assignments/{managedDeviceMobileAppConfigurationAssignment-id}`
    *
-   * Update the properties of a managedDeviceMobileAppConfigurationAssignment object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/assignments/{managedDeviceMobileAppConfigurationAssignment-id}']['body'],
@@ -324,7 +318,6 @@ export const assignments = {
   /**
    * `DELETE /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/assignments/{managedDeviceMobileAppConfigurationAssignment-id}`
    *
-   * Deletes a managedDeviceMobileAppConfigurationAssignment.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/assignments/{managedDeviceMobileAppConfigurationAssignment-id}']['parameters']
@@ -350,7 +343,7 @@ export const deviceStatusSummary = {
   /**
    * `GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/deviceStatusSummary`
    *
-   * Read properties and relationships of the managedDeviceMobileAppConfigurationDeviceSummary object.
+   * App configuration device status summary.
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/deviceStatusSummary']['parameters']
@@ -370,7 +363,6 @@ export const deviceStatusSummary = {
   /**
    * `PATCH /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/deviceStatusSummary`
    *
-   * Update the properties of a managedDeviceMobileAppConfigurationDeviceSummary object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/deviceStatusSummary']['body'],
@@ -413,7 +405,7 @@ export const deviceStatuses = {
   /**
    * `GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/deviceStatuses`
    *
-   * List properties and relationships of the managedDeviceMobileAppConfigurationDeviceStatus objects.
+   * List of ManagedDeviceMobileAppConfigurationDeviceStatus.
    */
   list: function list(
     params?: IEndpoints['GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/deviceStatuses']['parameters']
@@ -433,7 +425,6 @@ export const deviceStatuses = {
   /**
    * `POST /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/deviceStatuses`
    *
-   * Create a new managedDeviceMobileAppConfigurationDeviceStatus object.
    */
   create: function create(
     body: IEndpoints['POST /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/deviceStatuses']['body'],
@@ -454,7 +445,7 @@ export const deviceStatuses = {
   /**
    * `GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/deviceStatuses/{managedDeviceMobileAppConfigurationDeviceStatus-id}`
    *
-   * Read properties and relationships of the managedDeviceMobileAppConfigurationDeviceStatus object.
+   * List of ManagedDeviceMobileAppConfigurationDeviceStatus.
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/deviceStatuses/{managedDeviceMobileAppConfigurationDeviceStatus-id}']['parameters']
@@ -477,7 +468,6 @@ export const deviceStatuses = {
   /**
    * `PATCH /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/deviceStatuses/{managedDeviceMobileAppConfigurationDeviceStatus-id}`
    *
-   * Update the properties of a managedDeviceMobileAppConfigurationDeviceStatus object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/deviceStatuses/{managedDeviceMobileAppConfigurationDeviceStatus-id}']['body'],
@@ -501,7 +491,6 @@ export const deviceStatuses = {
   /**
    * `DELETE /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/deviceStatuses/{managedDeviceMobileAppConfigurationDeviceStatus-id}`
    *
-   * Deletes a managedDeviceMobileAppConfigurationDeviceStatus.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/deviceStatuses/{managedDeviceMobileAppConfigurationDeviceStatus-id}']['parameters']
@@ -527,7 +516,7 @@ export const userStatusSummary = {
   /**
    * `GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/userStatusSummary`
    *
-   * Read properties and relationships of the managedDeviceMobileAppConfigurationUserSummary object.
+   * App configuration user status summary.
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/userStatusSummary']['parameters']
@@ -547,7 +536,6 @@ export const userStatusSummary = {
   /**
    * `PATCH /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/userStatusSummary`
    *
-   * Update the properties of a managedDeviceMobileAppConfigurationUserSummary object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/userStatusSummary']['body'],
@@ -590,7 +578,7 @@ export const userStatuses = {
   /**
    * `GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/userStatuses`
    *
-   * List properties and relationships of the managedDeviceMobileAppConfigurationUserStatus objects.
+   * List of ManagedDeviceMobileAppConfigurationUserStatus.
    */
   list: function list(
     params?: IEndpoints['GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/userStatuses']['parameters']
@@ -610,7 +598,6 @@ export const userStatuses = {
   /**
    * `POST /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/userStatuses`
    *
-   * Create a new managedDeviceMobileAppConfigurationUserStatus object.
    */
   create: function create(
     body: IEndpoints['POST /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/userStatuses']['body'],
@@ -631,7 +618,7 @@ export const userStatuses = {
   /**
    * `GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/userStatuses/{managedDeviceMobileAppConfigurationUserStatus-id}`
    *
-   * Read properties and relationships of the managedDeviceMobileAppConfigurationUserStatus object.
+   * List of ManagedDeviceMobileAppConfigurationUserStatus.
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/userStatuses/{managedDeviceMobileAppConfigurationUserStatus-id}']['parameters']
@@ -654,7 +641,6 @@ export const userStatuses = {
   /**
    * `PATCH /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/userStatuses/{managedDeviceMobileAppConfigurationUserStatus-id}`
    *
-   * Update the properties of a managedDeviceMobileAppConfigurationUserStatus object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/userStatuses/{managedDeviceMobileAppConfigurationUserStatus-id}']['body'],
@@ -678,7 +664,6 @@ export const userStatuses = {
   /**
    * `DELETE /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/userStatuses/{managedDeviceMobileAppConfigurationUserStatus-id}`
    *
-   * Deletes a managedDeviceMobileAppConfigurationUserStatus.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceAppManagement/mobileAppConfigurations/{managedDeviceMobileAppConfiguration-id}/userStatuses/{managedDeviceMobileAppConfigurationUserStatus-id}']['parameters']

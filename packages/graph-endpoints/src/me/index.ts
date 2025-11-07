@@ -5,6 +5,7 @@ export * as calendarGroups from './calendarGroups';
 export * as calendars from './calendars';
 export * as chats from './chats';
 export * as cloudClipboard from './cloudClipboard';
+export * as cloudPCs from './cloudPCs';
 export * as contactFolders from './contactFolders';
 export * as contacts from './contacts';
 export * as dataSecurityAndGovernance from './dataSecurityAndGovernance';

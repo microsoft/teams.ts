@@ -58,7 +58,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}`
  *
- * Deletes a defaultManagedAppProtection.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}']['parameters']
@@ -79,7 +78,7 @@ export function del(
 /**
  * `GET /deviceAppManagement/defaultManagedAppProtections`
  *
- * List properties and relationships of the defaultManagedAppProtection objects.
+ * Default managed app policies.
  */
 export function list(
   params?: IEndpoints['GET /deviceAppManagement/defaultManagedAppProtections']['parameters']
@@ -99,7 +98,7 @@ export function list(
 /**
  * `GET /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}`
  *
- * Read properties and relationships of the defaultManagedAppProtection object.
+ * Default managed app policies.
  */
 export function get(
   params?: IEndpoints['GET /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}']['parameters']
@@ -120,7 +119,6 @@ export function get(
 /**
  * `PATCH /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}`
  *
- * Update the properties of a defaultManagedAppProtection object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceAppManagement/defaultManagedAppProtections/{defaultManagedAppProtection-id}']['body'],
@@ -142,7 +140,6 @@ export function update(
 /**
  * `POST /deviceAppManagement/defaultManagedAppProtections`
  *
- * Create a new defaultManagedAppProtection object.
  */
 export function create(
   body: IEndpoints['POST /deviceAppManagement/defaultManagedAppProtections']['body']

@@ -38,7 +38,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}`
  *
- * Deletes a windowsAutopilotDeviceIdentity.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}']['parameters']
@@ -59,7 +58,7 @@ export function del(
 /**
  * `GET /deviceManagement/windowsAutopilotDeviceIdentities`
  *
- * List properties and relationships of the windowsAutopilotDeviceIdentity objects.
+ * The Windows autopilot device identities contained collection.
  */
 export function list(
   params?: IEndpoints['GET /deviceManagement/windowsAutopilotDeviceIdentities']['parameters']
@@ -79,7 +78,7 @@ export function list(
 /**
  * `GET /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}`
  *
- * Read properties and relationships of the windowsAutopilotDeviceIdentity object.
+ * The Windows autopilot device identities contained collection.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/windowsAutopilotDeviceIdentities/{windowsAutopilotDeviceIdentity-id}']['parameters']
@@ -121,7 +120,6 @@ export function update(
 /**
  * `POST /deviceManagement/windowsAutopilotDeviceIdentities`
  *
- * Create a new windowsAutopilotDeviceIdentity object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/windowsAutopilotDeviceIdentities']['body']

@@ -30,7 +30,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}`
  *
- * Deletes a deviceManagementPartner.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}']['parameters']
@@ -51,7 +50,7 @@ export function del(
 /**
  * `GET /deviceManagement/deviceManagementPartners`
  *
- * List properties and relationships of the deviceManagementPartner objects.
+ * The list of Device Management Partners configured by the tenant.
  */
 export function list(
   params?: IEndpoints['GET /deviceManagement/deviceManagementPartners']['parameters']
@@ -69,7 +68,7 @@ export function list(
 /**
  * `GET /deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}`
  *
- * Read properties and relationships of the deviceManagementPartner object.
+ * The list of Device Management Partners configured by the tenant.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}']['parameters']
@@ -90,7 +89,6 @@ export function get(
 /**
  * `PATCH /deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}`
  *
- * Update the properties of a deviceManagementPartner object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}']['body'],
@@ -112,7 +110,6 @@ export function update(
 /**
  * `POST /deviceManagement/deviceManagementPartners`
  *
- * Create a new deviceManagementPartner object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/deviceManagementPartners']['body']
@@ -128,7 +125,6 @@ export const terminate = {
   /**
    * `POST /deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}/terminate`
    *
-   * Not yet documented
    */
   create: function create(
     params?: IEndpoints['POST /deviceManagement/deviceManagementPartners/{deviceManagementPartner-id}/terminate']['parameters']

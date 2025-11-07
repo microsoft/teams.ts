@@ -135,7 +135,6 @@ export const targetApps = {
   /**
    * `POST /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/intendedPolicies/{managedAppPolicy-id}/targetApps`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/intendedPolicies/{managedAppPolicy-id}/targetApps']['body'],

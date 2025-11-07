@@ -201,6 +201,7 @@ export interface IEndpoints {
     '/oauth2PermissionGrants/{oAuth2PermissionGrant-id}',
     'delete'
   >;
+  'POST /places': Operation<'/places', 'post'>;
   'PATCH /places/{place-id}': Operation<'/places/{place-id}', 'patch'>;
   'DELETE /places/{place-id}': Operation<'/places/{place-id}', 'delete'>;
   'GET /schemaExtensions': Operation<'/schemaExtensions', 'get'>;
@@ -1180,6 +1181,19 @@ export const oauth2PermissionGrants = {
 };
 
 export const places = {
+  /**
+   * `POST /places`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /places']['body']
+  ): EndpointRequest<IEndpoints['POST /places']['response']> {
+    return {
+      method: 'post',
+      path: '/places',
+      body,
+    };
+  },
   /**
    * `PATCH /places/{place-id}`
    *

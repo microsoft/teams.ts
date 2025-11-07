@@ -70,7 +70,7 @@ export function del(
 /**
  * `GET /users/{user-id}/onlineMeetings/{onlineMeeting-id}/transcripts`
  *
- * Retrieve the list of callTranscript objects associated with a scheduled onlineMeeting. This API supports the retrieval of call recordings from private chat meetings and channel meetings. However, private channel meetings are not supported at this time.
+ * Retrieve the list of callTranscript objects associated with a scheduled onlineMeeting. This API supports the retrieval of call transcripts from private chat meetings and channel meetings. However, private channel meetings are not supported at this time.
  */
 export function list(
   params?: IEndpoints['GET /users/{user-id}/onlineMeetings/{onlineMeeting-id}/transcripts']['parameters']

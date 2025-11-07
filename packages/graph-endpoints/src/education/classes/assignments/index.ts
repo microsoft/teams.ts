@@ -1,3 +1,4 @@
+export * as resources from './resources';
 export * as submissions from './submissions';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
@@ -43,29 +44,13 @@ export interface IEndpoints {
     '/education/classes/{educationClass-id}/assignments/{educationAssignment-id}/gradingCategory',
     'get'
   >;
+  'GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/gradingScheme': Operation<
+    '/education/classes/{educationClass-id}/assignments/{educationAssignment-id}/gradingScheme',
+    'get'
+  >;
   'POST /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/publish': Operation<
     '/education/classes/{educationClass-id}/assignments/{educationAssignment-id}/publish',
     'post'
-  >;
-  'GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources': Operation<
-    '/education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources',
-    'get'
-  >;
-  'POST /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources': Operation<
-    '/education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources',
-    'post'
-  >;
-  'GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}': Operation<
-    '/education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}',
-    'get'
-  >;
-  'PATCH /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}': Operation<
-    '/education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}',
-    'patch'
-  >;
-  'DELETE /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}': Operation<
-    '/education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}',
-    'delete'
   >;
   'GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/rubric': Operation<
     '/education/classes/{educationClass-id}/assignments/{educationAssignment-id}/rubric',
@@ -307,6 +292,29 @@ export const gradingCategory = {
   },
 };
 
+export const gradingScheme = {
+  /**
+   * `GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/gradingScheme`
+   *
+   * When set, enables users to configure custom string grades based on the percentage of total points earned on this assignment.
+   */
+  get: function get(
+    params?: IEndpoints['GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/gradingScheme']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/gradingScheme']['response']
+  > {
+    return {
+      method: 'get',
+      path: '/education/classes/{educationClass-id}/assignments/{educationAssignment-id}/gradingScheme',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['educationClass-id', 'educationAssignment-id'],
+      },
+      params,
+    };
+  },
+};
+
 export const publish = {
   /**
    * `POST /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/publish`
@@ -323,110 +331,6 @@ export const publish = {
       path: '/education/classes/{educationClass-id}/assignments/{educationAssignment-id}/publish',
       paramDefs: {
         path: ['educationClass-id', 'educationAssignment-id'],
-      },
-      params,
-    };
-  },
-};
-
-export const resources = {
-  /**
-   * `GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources`
-   *
-   * Get all the educationAssignmentResource objects associated with an assignment. Only teachers, students, and applications with application permissions can perform this operation.
-   */
-  list: function list(
-    params?: IEndpoints['GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources']['parameters']
-  ): EndpointRequest<
-    IEndpoints['GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources']['response']
-  > {
-    return {
-      method: 'get',
-      path: '/education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources',
-      paramDefs: {
-        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
-        path: ['educationClass-id', 'educationAssignment-id'],
-      },
-      params,
-    };
-  },
-  /**
-   * `POST /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources`
-   *
-   * Create an assignment resource. Only teachers can perform this operation. You can create the following types of assignment resources: Every resource has an @odata.type property to indicate which type of resource is being created.
-   */
-  create: function create(
-    body: IEndpoints['POST /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources']['body'],
-    params?: IEndpoints['POST /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources']['parameters']
-  ): EndpointRequest<
-    IEndpoints['POST /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources']['response']
-  > {
-    return {
-      method: 'post',
-      path: '/education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources',
-      paramDefs: {
-        path: ['educationClass-id', 'educationAssignment-id'],
-      },
-      params,
-      body,
-    };
-  },
-  /**
-   * `GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}`
-   *
-   * Get the properties of an education assignment resource associated with an assignment. Only teachers, students, and applications with application permissions can perform this operation.
-   */
-  get: function get(
-    params?: IEndpoints['GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}']['parameters']
-  ): EndpointRequest<
-    IEndpoints['GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}']['response']
-  > {
-    return {
-      method: 'get',
-      path: '/education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}',
-      paramDefs: {
-        query: ['$select', '$expand'],
-        path: ['educationClass-id', 'educationAssignment-id', 'educationAssignmentResource-id'],
-      },
-      params,
-    };
-  },
-  /**
-   * `PATCH /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}`
-   *
-   */
-  update: function update(
-    body: IEndpoints['PATCH /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}']['body'],
-    params?: IEndpoints['PATCH /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}']['parameters']
-  ): EndpointRequest<
-    IEndpoints['PATCH /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}']['response']
-  > {
-    return {
-      method: 'patch',
-      path: '/education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}',
-      paramDefs: {
-        path: ['educationClass-id', 'educationAssignment-id', 'educationAssignmentResource-id'],
-      },
-      params,
-      body,
-    };
-  },
-  /**
-   * `DELETE /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}`
-   *
-   * Delete a specific educationAssignmentResource attached to an assignment. In general, only teachers in the class can remove a resource. However, teachers can&#x27;t remove resources marked as &#x27;distributeToStudents&#x27;, after the assignment has been published to students.
-   */
-  del: function del(
-    params?: IEndpoints['DELETE /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}']['parameters']
-  ): EndpointRequest<
-    IEndpoints['DELETE /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}']['response']
-  > {
-    return {
-      method: 'delete',
-      path: '/education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}',
-      paramDefs: {
-        header: ['If-Match'],
-        path: ['educationClass-id', 'educationAssignment-id', 'educationAssignmentResource-id'],
       },
       params,
     };

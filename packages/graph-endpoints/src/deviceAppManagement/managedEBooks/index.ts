@@ -81,7 +81,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}`
  *
- * Deletes a iosVppEBook.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}']['parameters']
@@ -102,7 +101,7 @@ export function del(
 /**
  * `GET /deviceAppManagement/managedEBooks`
  *
- * List properties and relationships of the managedEBook objects.
+ * The Managed eBook.
  */
 export function list(
   params?: IEndpoints['GET /deviceAppManagement/managedEBooks']['parameters']
@@ -120,7 +119,7 @@ export function list(
 /**
  * `GET /deviceAppManagement/managedEBooks/{managedEBook-id}`
  *
- * Read properties and relationships of the managedEBook object.
+ * The Managed eBook.
  */
 export function get(
   params?: IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}']['parameters']
@@ -141,7 +140,6 @@ export function get(
 /**
  * `PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}`
  *
- * Update the properties of a iosVppEBook object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}']['body'],
@@ -163,7 +161,6 @@ export function update(
 /**
  * `POST /deviceAppManagement/managedEBooks`
  *
- * Create a new iosVppEBook object.
  */
 export function create(
   body: IEndpoints['POST /deviceAppManagement/managedEBooks']['body']
@@ -179,7 +176,6 @@ export const assign = {
   /**
    * `POST /deviceAppManagement/managedEBooks/{managedEBook-id}/assign`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceAppManagement/managedEBooks/{managedEBook-id}/assign']['body'],
@@ -203,7 +199,7 @@ export const assignments = {
   /**
    * `GET /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments`
    *
-   * List properties and relationships of the managedEBookAssignment objects.
+   * The list of assignments for this eBook.
    */
   list: function list(
     params?: IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments']['parameters']
@@ -223,7 +219,6 @@ export const assignments = {
   /**
    * `POST /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments`
    *
-   * Create a new iosVppEBookAssignment object.
    */
   create: function create(
     body: IEndpoints['POST /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments']['body'],
@@ -244,7 +239,7 @@ export const assignments = {
   /**
    * `GET /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}`
    *
-   * Read properties and relationships of the managedEBookAssignment object.
+   * The list of assignments for this eBook.
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}']['parameters']
@@ -264,7 +259,6 @@ export const assignments = {
   /**
    * `PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}`
    *
-   * Update the properties of a iosVppEBookAssignment object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}']['body'],
@@ -285,7 +279,6 @@ export const assignments = {
   /**
    * `DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}`
    *
-   * Deletes a managedEBookAssignment.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/assignments/{managedEBookAssignment-id}']['parameters']
@@ -308,7 +301,7 @@ export const deviceStates = {
   /**
    * `GET /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates`
    *
-   * List properties and relationships of the deviceInstallState objects.
+   * The list of installation states for this eBook.
    */
   list: function list(
     params?: IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates']['parameters']
@@ -328,7 +321,6 @@ export const deviceStates = {
   /**
    * `POST /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates`
    *
-   * Create a new deviceInstallState object.
    */
   create: function create(
     body: IEndpoints['POST /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates']['body'],
@@ -349,7 +341,7 @@ export const deviceStates = {
   /**
    * `GET /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}`
    *
-   * Read properties and relationships of the deviceInstallState object.
+   * The list of installation states for this eBook.
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}']['parameters']
@@ -369,7 +361,6 @@ export const deviceStates = {
   /**
    * `PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}`
    *
-   * Update the properties of a deviceInstallState object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}']['body'],
@@ -390,7 +381,6 @@ export const deviceStates = {
   /**
    * `DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}`
    *
-   * Deletes a deviceInstallState.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/deviceStates/{deviceInstallState-id}']['parameters']
@@ -413,7 +403,7 @@ export const installSummary = {
   /**
    * `GET /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary`
    *
-   * Read properties and relationships of the eBookInstallSummary object.
+   * Mobile App Install Summary.
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary']['parameters']
@@ -433,7 +423,6 @@ export const installSummary = {
   /**
    * `PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary`
    *
-   * Update the properties of a eBookInstallSummary object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/installSummary']['body'],

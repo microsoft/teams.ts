@@ -28,7 +28,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/detectedApps/{detectedApp-id}`
  *
- * Deletes a detectedApp.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/detectedApps/{detectedApp-id}']['parameters']
@@ -49,7 +48,7 @@ export function del(
 /**
  * `GET /deviceManagement/detectedApps`
  *
- * List properties and relationships of the detectedApp objects.
+ * The list of detected apps associated with a device.
  */
 export function list(
   params?: IEndpoints['GET /deviceManagement/detectedApps']['parameters']
@@ -67,7 +66,7 @@ export function list(
 /**
  * `GET /deviceManagement/detectedApps/{detectedApp-id}`
  *
- * Read properties and relationships of the detectedApp object.
+ * The list of detected apps associated with a device.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/detectedApps/{detectedApp-id}']['parameters']
@@ -86,7 +85,6 @@ export function get(
 /**
  * `PATCH /deviceManagement/detectedApps/{detectedApp-id}`
  *
- * Update the properties of a detectedApp object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceManagement/detectedApps/{detectedApp-id}']['body'],
@@ -108,7 +106,6 @@ export function update(
 /**
  * `POST /deviceManagement/detectedApps`
  *
- * Create a new detectedApp object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/detectedApps']['body']

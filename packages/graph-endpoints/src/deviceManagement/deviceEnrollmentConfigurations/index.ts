@@ -54,7 +54,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}`
  *
- * Deletes a deviceEnrollmentWindowsHelloForBusinessConfiguration.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}']['parameters']
@@ -75,7 +74,7 @@ export function del(
 /**
  * `GET /deviceManagement/deviceEnrollmentConfigurations`
  *
- * List properties and relationships of the deviceEnrollmentWindowsHelloForBusinessConfiguration objects.
+ * The list of device enrollment configurations
  */
 export function list(
   params?: IEndpoints['GET /deviceManagement/deviceEnrollmentConfigurations']['parameters']
@@ -93,7 +92,7 @@ export function list(
 /**
  * `GET /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}`
  *
- * Read properties and relationships of the deviceEnrollmentWindowsHelloForBusinessConfiguration object.
+ * The list of device enrollment configurations
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}']['parameters']
@@ -114,7 +113,6 @@ export function get(
 /**
  * `PATCH /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}`
  *
- * Update the properties of a deviceEnrollmentPlatformRestrictionsConfiguration object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}']['body'],
@@ -136,7 +134,6 @@ export function update(
 /**
  * `POST /deviceManagement/deviceEnrollmentConfigurations`
  *
- * Create a new deviceEnrollmentLimitConfiguration object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/deviceEnrollmentConfigurations']['body']
@@ -154,7 +151,6 @@ export const assign = {
   /**
    * `POST /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}/assign`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}/assign']['body'],
@@ -178,7 +174,7 @@ export const assignments = {
   /**
    * `GET /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}/assignments`
    *
-   * List properties and relationships of the enrollmentConfigurationAssignment objects.
+   * The list of group assignments for the device configuration profile
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}/assignments']['parameters']
@@ -198,7 +194,6 @@ export const assignments = {
   /**
    * `POST /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}/assignments`
    *
-   * Create a new enrollmentConfigurationAssignment object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}/assignments']['body'],
@@ -219,7 +214,7 @@ export const assignments = {
   /**
    * `GET /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}/assignments/{enrollmentConfigurationAssignment-id}`
    *
-   * Read properties and relationships of the enrollmentConfigurationAssignment object.
+   * The list of group assignments for the device configuration profile
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}/assignments/{enrollmentConfigurationAssignment-id}']['parameters']
@@ -239,7 +234,6 @@ export const assignments = {
   /**
    * `PATCH /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}/assignments/{enrollmentConfigurationAssignment-id}`
    *
-   * Update the properties of a enrollmentConfigurationAssignment object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}/assignments/{enrollmentConfigurationAssignment-id}']['body'],
@@ -260,7 +254,6 @@ export const assignments = {
   /**
    * `DELETE /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}/assignments/{enrollmentConfigurationAssignment-id}`
    *
-   * Deletes a enrollmentConfigurationAssignment.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}/assignments/{enrollmentConfigurationAssignment-id}']['parameters']
@@ -283,7 +276,6 @@ export const setPriority = {
   /**
    * `POST /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}/setPriority`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/deviceEnrollmentConfigurations/{deviceEnrollmentConfiguration-id}/setPriority']['body'],

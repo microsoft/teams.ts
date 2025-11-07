@@ -285,7 +285,7 @@ export const customWorkflowExtensions = {
   /**
    * `DELETE /identityGovernance/entitlementManagement/catalogs/{accessPackageCatalog-id}/customWorkflowExtensions/{customCalloutExtension-id}`
    *
-   * Delete an accessPackageAssignmentWorkflowExtension object. The custom workflow extension must first be removed from any associated policies before it can be deleted. Follow these steps to remove the custom workflow extension from any associated policies:
+   * Delete an accessPackageAssignmentRequestWorkflowExtension object. The custom workflow extension must first be removed from any associated policies before it can be deleted. Follow these steps to remove the custom workflow extension from any associated policies:
    */
   del: function del(
     params?: IEndpoints['DELETE /identityGovernance/entitlementManagement/catalogs/{accessPackageCatalog-id}/customWorkflowExtensions/{customCalloutExtension-id}']['parameters']

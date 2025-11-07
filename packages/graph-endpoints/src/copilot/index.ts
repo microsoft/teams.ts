@@ -9,6 +9,7 @@ export interface IEndpoints {
   'GET /copilot/interactionHistory': Operation<'/copilot/interactionHistory', 'get'>;
   'PATCH /copilot/interactionHistory': Operation<'/copilot/interactionHistory', 'patch'>;
   'DELETE /copilot/interactionHistory': Operation<'/copilot/interactionHistory', 'delete'>;
+  'POST /copilot/retrieval': Operation<'/copilot/retrieval', 'post'>;
 }
 
 /**
@@ -86,6 +87,23 @@ export const interactionHistory = {
         header: ['If-Match'],
       },
       params,
+    };
+  },
+};
+
+export const retrieval = {
+  /**
+   * `POST /copilot/retrieval`
+   *
+   * @deprecated
+   */
+  create: function create(
+    body: IEndpoints['POST /copilot/retrieval']['body']
+  ): EndpointRequest<IEndpoints['POST /copilot/retrieval']['response']> {
+    return {
+      method: 'post',
+      path: '/copilot/retrieval',
+      body,
     };
   },
 };

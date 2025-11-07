@@ -3,6 +3,7 @@ export * as authenticationEventsFlows from './authenticationEventsFlows';
 export * as b2xUserFlows from './b2xUserFlows';
 export * as conditionalAccess from './conditionalAccess';
 export * as customAuthenticationExtensions from './customAuthenticationExtensions';
+export * as riskPrevention from './riskPrevention';
 
 import type { EndpointRequest, Operation } from './../types/common.ts';
 

@@ -62,7 +62,7 @@ export function list(
 /**
  * `GET /chats/{chat-id}/members/{conversationMember-id}`
  *
- * Retrieve a conversationMember from a chat or channel.
+ * Retrieve a conversationMember from a chat.
  */
 export function get(
   params?: IEndpoints['GET /chats/{chat-id}/members/{conversationMember-id}']['parameters']

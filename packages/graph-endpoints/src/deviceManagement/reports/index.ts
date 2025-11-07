@@ -122,7 +122,6 @@ export function del(
 /**
  * `GET /deviceManagement/reports`
  *
- * Read properties and relationships of the deviceManagementReports object.
  */
 export function list(
   params?: IEndpoints['GET /deviceManagement/reports']['parameters']
@@ -140,7 +139,6 @@ export function list(
 /**
  * `PATCH /deviceManagement/reports`
  *
- * Update the properties of a deviceManagementReports object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceManagement/reports']['body']
@@ -156,7 +154,7 @@ export const exportJobs = {
   /**
    * `GET /deviceManagement/reports/exportJobs`
    *
-   * List properties and relationships of the deviceManagementExportJob objects.
+   * Entity representing a job to export a report.
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/reports/exportJobs']['parameters']
@@ -173,7 +171,6 @@ export const exportJobs = {
   /**
    * `POST /deviceManagement/reports/exportJobs`
    *
-   * Create a new deviceManagementExportJob object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/exportJobs']['body']
@@ -187,7 +184,7 @@ export const exportJobs = {
   /**
    * `GET /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}`
    *
-   * Read properties and relationships of the deviceManagementExportJob object.
+   * Entity representing a job to export a report.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}']['parameters']
@@ -207,7 +204,6 @@ export const exportJobs = {
   /**
    * `PATCH /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}`
    *
-   * Update the properties of a deviceManagementExportJob object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}']['body'],
@@ -228,7 +224,6 @@ export const exportJobs = {
   /**
    * `DELETE /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}`
    *
-   * Deletes a deviceManagementExportJob.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/reports/exportJobs/{deviceManagementExportJob-id}']['parameters']
@@ -251,7 +246,6 @@ export const getCachedReport = {
   /**
    * `POST /deviceManagement/reports/getCachedReport`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getCachedReport']['body']
@@ -268,7 +262,6 @@ export const getCompliancePolicyNonComplianceReport = {
   /**
    * `POST /deviceManagement/reports/getCompliancePolicyNonComplianceReport`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getCompliancePolicyNonComplianceReport']['body']
@@ -287,7 +280,6 @@ export const getCompliancePolicyNonComplianceSummaryReport = {
   /**
    * `POST /deviceManagement/reports/getCompliancePolicyNonComplianceSummaryReport`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getCompliancePolicyNonComplianceSummaryReport']['body']
@@ -306,7 +298,6 @@ export const getComplianceSettingNonComplianceReport = {
   /**
    * `POST /deviceManagement/reports/getComplianceSettingNonComplianceReport`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getComplianceSettingNonComplianceReport']['body']
@@ -325,7 +316,6 @@ export const getConfigurationPolicyNonComplianceReport = {
   /**
    * `POST /deviceManagement/reports/getConfigurationPolicyNonComplianceReport`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getConfigurationPolicyNonComplianceReport']['body']
@@ -344,7 +334,6 @@ export const getConfigurationPolicyNonComplianceSummaryReport = {
   /**
    * `POST /deviceManagement/reports/getConfigurationPolicyNonComplianceSummaryReport`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getConfigurationPolicyNonComplianceSummaryReport']['body']
@@ -363,7 +352,6 @@ export const getConfigurationSettingNonComplianceReport = {
   /**
    * `POST /deviceManagement/reports/getConfigurationSettingNonComplianceReport`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getConfigurationSettingNonComplianceReport']['body']
@@ -382,7 +370,6 @@ export const getDeviceManagementIntentPerSettingContributingProfiles = {
   /**
    * `POST /deviceManagement/reports/getDeviceManagementIntentPerSettingContributingProfiles`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getDeviceManagementIntentPerSettingContributingProfiles']['body']
@@ -401,7 +388,6 @@ export const getDeviceManagementIntentSettingsReport = {
   /**
    * `POST /deviceManagement/reports/getDeviceManagementIntentSettingsReport`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getDeviceManagementIntentSettingsReport']['body']
@@ -420,7 +406,6 @@ export const getDeviceNonComplianceReport = {
   /**
    * `POST /deviceManagement/reports/getDeviceNonComplianceReport`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getDeviceNonComplianceReport']['body']
@@ -439,7 +424,6 @@ export const getDevicesWithoutCompliancePolicyReport = {
   /**
    * `POST /deviceManagement/reports/getDevicesWithoutCompliancePolicyReport`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getDevicesWithoutCompliancePolicyReport']['body']
@@ -458,7 +442,6 @@ export const getHistoricalReport = {
   /**
    * `POST /deviceManagement/reports/getHistoricalReport`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getHistoricalReport']['body']
@@ -475,7 +458,6 @@ export const getNoncompliantDevicesAndSettingsReport = {
   /**
    * `POST /deviceManagement/reports/getNoncompliantDevicesAndSettingsReport`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getNoncompliantDevicesAndSettingsReport']['body']
@@ -494,7 +476,6 @@ export const getPolicyNonComplianceMetadata = {
   /**
    * `POST /deviceManagement/reports/getPolicyNonComplianceMetadata`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getPolicyNonComplianceMetadata']['body']
@@ -513,7 +494,6 @@ export const getPolicyNonComplianceReport = {
   /**
    * `POST /deviceManagement/reports/getPolicyNonComplianceReport`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getPolicyNonComplianceReport']['body']
@@ -532,7 +512,6 @@ export const getPolicyNonComplianceSummaryReport = {
   /**
    * `POST /deviceManagement/reports/getPolicyNonComplianceSummaryReport`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getPolicyNonComplianceSummaryReport']['body']
@@ -551,7 +530,6 @@ export const getReportFilters = {
   /**
    * `POST /deviceManagement/reports/getReportFilters`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getReportFilters']['body']
@@ -568,7 +546,6 @@ export const getSettingNonComplianceReport = {
   /**
    * `POST /deviceManagement/reports/getSettingNonComplianceReport`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/reports/getSettingNonComplianceReport']['body']
