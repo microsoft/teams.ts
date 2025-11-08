@@ -259,7 +259,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     );
 
     // initialize credentials
-    const clientId = this.options.clientId || process.env.CLIENT_ID;
+    const clientId = this.options.clientId ?? process.env.CLIENT_ID;
     const tenantId = this.options.tenantId ?? process.env.TENANT_ID;
     const clientSecret = this.options.clientSecret ?? process.env.CLIENT_SECRET;
     const token = this.options.token;
