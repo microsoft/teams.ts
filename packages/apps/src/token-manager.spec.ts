@@ -1,7 +1,7 @@
-import { AuthenticationResult, ConfidentialClientApplication } from '@azure/msal-node';
+import { AuthenticationResult, ConfidentialClientApplication, ManagedIdentityApplication } from '@azure/msal-node';
 import { type MockedObject } from 'jest-mock';
 
-import { ClientCredentials, TokenCredentials } from '@microsoft/teams.api';
+import { ClientCredentials, TokenCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
 import { TokenManager } from './token-manager';
@@ -50,6 +50,7 @@ describe('TokenManager', () => {
   let logger: ConsoleLogger;
 
   const mockClientCredentials: ClientCredentials = {
+    type: 'clientSecret',
     clientId: 'test-client-id',
     clientSecret: 'test-client-secret',
     tenantId: 'test-tenant-id'
@@ -97,6 +98,7 @@ describe('TokenManager', () => {
 
     it('should use default bot framework tenant when credentials have no tenantId', async () => {
       const credentialsWithoutTenant: ClientCredentials = {
+        type: 'clientSecret',
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret'
       };
@@ -172,6 +174,7 @@ describe('TokenManager', () => {
 
     it('should use default common tenant when no tenant is specified', async () => {
       const credentialsWithoutTenant: ClientCredentials = {
+        type: 'clientSecret',
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret'
       };
@@ -247,6 +250,7 @@ describe('TokenManager', () => {
     it('should use token provider for bot token when TokenCredentials provided', async () => {
       const mockTokenProvider = jest.fn().mockResolvedValue('mock-provider-token');
       const tokenCredentials: TokenCredentials = {
+        type: 'token',
         clientId: 'test-client-id',
         token: mockTokenProvider,
         tenantId: 'test-tenant-id'
@@ -269,6 +273,7 @@ describe('TokenManager', () => {
     it('should use token provider for graph token when TokenCredentials provided', async () => {
       const mockTokenProvider = jest.fn().mockResolvedValue('mock-graph-provider-token');
       const tokenCredentials: TokenCredentials = {
+        type: 'token',
         clientId: 'test-client-id',
         token: mockTokenProvider,
         tenantId: 'test-tenant-id'
@@ -291,6 +296,7 @@ describe('TokenManager', () => {
     it('should use default tenant for token provider when no tenant specified', async () => {
       const mockTokenProvider = jest.fn().mockResolvedValue('mock-token');
       const tokenCredentials: TokenCredentials = {
+        type: 'token',
         clientId: 'test-client-id',
         token: mockTokenProvider
       };
@@ -309,6 +315,7 @@ describe('TokenManager', () => {
     it('should prioritize explicit tenant ID over credentials tenant ID', async () => {
       const mockTokenProvider = jest.fn().mockResolvedValue('mock-token');
       const tokenCredentials: TokenCredentials = {
+        type: 'token',
         clientId: 'test-client-id',
         token: mockTokenProvider,
         tenantId: 'credentials-tenant'
@@ -326,6 +333,7 @@ describe('TokenManager', () => {
     it('should use credentials tenant ID when explicit tenant not provided', async () => {
       const mockTokenProvider = jest.fn().mockResolvedValue('mock-token');
       const tokenCredentials: TokenCredentials = {
+        type: 'token',
         clientId: 'test-client-id',
         token: mockTokenProvider,
         tenantId: 'credentials-tenant'
@@ -343,6 +351,7 @@ describe('TokenManager', () => {
     it('should use default tenant when neither explicit nor credentials tenant provided', async () => {
       const mockTokenProvider = jest.fn().mockResolvedValue('mock-token');
       const tokenCredentials: TokenCredentials = {
+        type: 'token',
         clientId: 'test-client-id',
         token: mockTokenProvider
       };
@@ -379,6 +388,7 @@ describe('TokenManager', () => {
       const providerError = new Error('Token provider failed');
       const mockTokenProvider = jest.fn().mockRejectedValue(providerError);
       const tokenCredentials: TokenCredentials = {
+        type: 'token',
         clientId: 'test-client-id',
         token: mockTokenProvider,
         tenantId: 'test-tenant-id'
@@ -387,6 +397,113 @@ describe('TokenManager', () => {
       const tokenManager = new TokenManager(tokenCredentials, logger);
 
       await expect(tokenManager.getBotToken()).rejects.toThrow('Token provider failed');
+    });
+  });
+
+  describe('UserManagedIdentityCredentials', () => {
+    let mockManagedIdentityClient: MockedObject<ManagedIdentityApplication>;
+    let mockAcquireToken: jest.Mock;
+
+    const mockUMICredentials: UserManagedIdentityCredentials = {
+      type: 'userManagedIdentity',
+      clientId: 'test-client-id',
+      tenantId: 'test-tenant-id'
+    };
+
+    beforeEach(() => {
+      // Mock the acquireToken method
+      mockAcquireToken = jest.fn();
+
+      // Mock the ManagedIdentityApplication instance
+      mockManagedIdentityClient = {
+        acquireToken: mockAcquireToken
+      } as unknown as MockedObject<ManagedIdentityApplication>;
+
+      // Mock the ManagedIdentityApplication constructor
+      (ManagedIdentityApplication as jest.MockedClass<typeof ManagedIdentityApplication>).mockImplementation(() => mockManagedIdentityClient);
+    });
+
+    it('should acquire bot token via ManagedIdentityApplication', async () => {
+      mockAcquireToken.mockResolvedValue(createMockAuthResult('mock-umi-bot-token'));
+
+      const tokenManager = new TokenManager(mockUMICredentials, logger);
+      const token = await tokenManager.getBotToken();
+
+      expect(ManagedIdentityApplication).toHaveBeenCalledWith({
+        managedIdentityIdParams: {
+          userAssignedClientId: 'test-client-id'
+        }
+      });
+
+      expect(mockAcquireToken).toHaveBeenCalledWith({
+        resource: 'https://api.botframework.com'
+      });
+
+      expect(token).not.toBeNull();
+      expect(token?.toString()).toBe('mock-umi-bot-token');
+    });
+
+    it('should acquire graph token via ManagedIdentityApplication', async () => {
+      mockAcquireToken.mockResolvedValue(createMockAuthResult('mock-umi-graph-token'));
+
+      const tokenManager = new TokenManager(mockUMICredentials, logger);
+      const token = await tokenManager.getGraphToken();
+
+      expect(ManagedIdentityApplication).toHaveBeenCalledWith({
+        managedIdentityIdParams: {
+          userAssignedClientId: 'test-client-id'
+        }
+      });
+
+      expect(mockAcquireToken).toHaveBeenCalledWith({
+        resource: 'https://graph.microsoft.com'
+      });
+
+      expect(token).not.toBeNull();
+      expect(token?.toString()).toBe('mock-umi-graph-token');
+    });
+
+    it('should strip /.default suffix from scope when acquiring token', async () => {
+      mockAcquireToken.mockResolvedValue(createMockAuthResult('mock-token'));
+
+      const tokenManager = new TokenManager(mockUMICredentials, logger);
+      await tokenManager.getBotToken();
+
+      // Verify that /.default was stripped from the scope
+      expect(mockAcquireToken).toHaveBeenCalledWith({
+        resource: 'https://api.botframework.com'
+      });
+    });
+
+    it('should cache and reuse ManagedIdentityApplication instance', async () => {
+      mockAcquireToken.mockResolvedValue(createMockAuthResult('mock-token'));
+
+      const tokenManager = new TokenManager(mockUMICredentials, logger);
+
+      // First call - should create new client
+      await tokenManager.getBotToken();
+      expect(ManagedIdentityApplication).toHaveBeenCalledTimes(1);
+
+      // Second call - should reuse cached client
+      await tokenManager.getGraphToken();
+      expect(ManagedIdentityApplication).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw error when MSAL returns null', async () => {
+      mockAcquireToken.mockResolvedValue(null);
+
+      const tokenManager = new TokenManager(mockUMICredentials, logger);
+
+      await expect(tokenManager.getBotToken()).rejects.toThrow('Failed to get token');
+    });
+
+    it('should propagate MSAL errors', async () => {
+      const msalError = new Error('Managed identity authentication failed');
+      mockAcquireToken.mockRejectedValue(msalError);
+
+      const tokenManager = new TokenManager(mockUMICredentials, logger);
+
+      await expect(tokenManager.getGraphToken()).rejects.toThrow('Managed identity authentication failed');
     });
   });
 });

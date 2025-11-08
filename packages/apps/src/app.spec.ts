@@ -25,6 +25,10 @@ class TestApp extends App {
   public async testGetAppGraphToken(tenantId?: string) {
     return this.getAppGraphToken(tenantId);
   }
+
+  public getCredentials() {
+    return this.credentials;
+  }
 }
 
 describe('App', () => {
@@ -178,6 +182,153 @@ describe('App', () => {
 
       // Tokens should not be acquired during start
       expect(mockAcquireToken).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Credentials', () => {
+    const originalEnv = process.env;
+
+    beforeEach(() => {
+      jest.resetModules();
+      process.env = { ...originalEnv };
+    });
+
+    afterEach(() => {
+      process.env = originalEnv;
+    });
+
+    it('should create ClientCredentials with clientSecret from options or env', () => {
+      // From options
+      const appWithSecret = new TestApp({
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        tenantId: 'test-tenant-id',
+        plugins: [new TestHttpPlugin()],
+      });
+
+      expect(appWithSecret.getCredentials()).toEqual({
+        type: 'clientSecret',
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        tenantId: 'test-tenant-id',
+      });
+
+      // From environment variables
+      process.env.CLIENT_ID = 'env-client-id';
+      process.env.CLIENT_SECRET = 'env-client-secret';
+      process.env.TENANT_ID = 'env-tenant-id';
+
+      const appFromEnv = new TestApp({
+        plugins: [new TestHttpPlugin()],
+      });
+
+      expect(appFromEnv.getCredentials()).toEqual({
+        type: 'clientSecret',
+        clientId: 'env-client-id',
+        clientSecret: 'env-client-secret',
+        tenantId: 'env-tenant-id',
+      });
+    });
+
+    it('should create TokenCredentials with token provider', () => {
+      const tokenProvider = jest.fn().mockResolvedValue('mock-token');
+      const appWithToken = new TestApp({
+        clientId: 'test-client-id',
+        token: tokenProvider,
+        tenantId: 'test-tenant-id',
+        plugins: [new TestHttpPlugin()],
+      });
+
+      expect(appWithToken.getCredentials()).toEqual({
+        type: 'token',
+        clientId: 'test-client-id',
+        token: tokenProvider,
+        tenantId: 'test-tenant-id',
+      });
+    });
+
+    it('should create UserManagedIdentity credentials with only clientId from options or env', () => {
+      // From options
+      const appWithUMI = new TestApp({
+        clientId: 'test-client-id',
+        tenantId: 'test-tenant-id',
+        plugins: [new TestHttpPlugin()],
+      });
+
+      expect(appWithUMI.getCredentials()).toEqual({
+        type: 'userManagedIdentity',
+        clientId: 'test-client-id',
+        tenantId: 'test-tenant-id',
+      });
+
+      // From environment variables
+      process.env.CLIENT_ID = 'env-client-id';
+      process.env.TENANT_ID = 'env-tenant-id';
+
+      const appFromEnv = new TestApp({
+        plugins: [new TestHttpPlugin()],
+      });
+
+      expect(appFromEnv.getCredentials()).toEqual({
+        type: 'userManagedIdentity',
+        clientId: 'env-client-id',
+        tenantId: 'env-tenant-id',
+      });
+    });
+
+    it('should prioritize clientSecret over token when both provided', () => {
+      const tokenProvider = jest.fn().mockResolvedValue('mock-token');
+      const appWithBoth = new TestApp({
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        token: tokenProvider,
+        tenantId: 'test-tenant-id',
+        plugins: [new TestHttpPlugin()],
+      });
+
+      expect(appWithBoth.getCredentials()).toEqual({
+        type: 'clientSecret',
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        tenantId: 'test-tenant-id',
+      });
+    });
+
+    it('should merge options and environment variables', () => {
+      // Options take precedence over env
+      process.env.CLIENT_ID = 'env-client-id';
+      process.env.CLIENT_SECRET = 'env-client-secret';
+      process.env.TENANT_ID = 'env-tenant-id';
+
+      const appWithOptions = new TestApp({
+        clientId: 'options-client-id',
+        clientSecret: 'options-client-secret',
+        tenantId: 'options-tenant-id',
+        plugins: [new TestHttpPlugin()],
+      });
+
+      expect(appWithOptions.getCredentials()).toEqual({
+        type: 'clientSecret',
+        clientId: 'options-client-id',
+        clientSecret: 'options-client-secret',
+        tenantId: 'options-tenant-id',
+      });
+
+      // Mix options and env
+      process.env.CLIENT_SECRET = 'env-client-secret';
+      process.env.TENANT_ID = 'env-tenant-id';
+
+      const appMerged = new TestApp({
+        clientId: 'options-client-id',
+        plugins: [new TestHttpPlugin()],
+      });
+
+      expect(appMerged.getCredentials()).toEqual({
+        type: 'clientSecret',
+        clientId: 'options-client-id',
+        clientSecret: 'env-client-secret',
+        tenantId: 'env-tenant-id',
+      });
     });
   });
 });
