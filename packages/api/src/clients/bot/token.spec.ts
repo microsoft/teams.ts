@@ -9,6 +9,7 @@ describe('BotTokenClient', () => {
     const spy = jest.spyOn(http, 'post').mockResolvedValueOnce({});
 
     await client.get({
+      type: 'clientSecret',
       clientId: 'test',
       clientSecret: '123',
     });
@@ -25,6 +26,7 @@ describe('BotTokenClient', () => {
     const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
 
     await client.get({
+      type: 'clientSecret',
       clientId: 'test',
       clientSecret: '123',
     });
@@ -42,6 +44,7 @@ describe('BotTokenClient', () => {
       const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
 
       await client.get({
+        type: 'clientSecret',
         clientId: 'test',
         clientSecret: '123',
       });
@@ -58,6 +61,7 @@ describe('BotTokenClient', () => {
       const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
 
       await client.get({
+        type: 'clientSecret',
         clientId: 'test',
         clientSecret: '123',
         tenantId: 'test-tenant',
@@ -77,6 +81,7 @@ describe('BotTokenClient', () => {
       const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
 
       await client.getGraph({
+        type: 'clientSecret',
         clientId: 'test',
         clientSecret: '123',
       });
@@ -93,6 +98,7 @@ describe('BotTokenClient', () => {
       const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
 
       await client.getGraph({
+        type: 'clientSecret',
         clientId: 'test',
         clientSecret: '123',
         tenantId: 'test-tenant',
