@@ -45,8 +45,6 @@ import { IPlugin, AppEvents } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 
 /**
-import { send } from 'process';
-import { start } from 'repl';
  * App initialization options
  */
 export type AppOptions<TPlugin extends IPlugin> = {
@@ -292,7 +290,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
           tenantId
         };
       } else {
-        const identityType = managedIdentityClientId === 'system' ? 'system' : 'user' as const
+        const identityType = managedIdentityClientId === 'system' ? 'system' : 'user' as const;
         this.credentials = {
           type: 'federatedIdentityCredentials',
           clientId,

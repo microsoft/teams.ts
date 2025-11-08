@@ -1,6 +1,6 @@
 import { AuthenticationResult, ConfidentialClientApplication, ManagedIdentityApplication } from '@azure/msal-node';
 
-import { ClientCredentials, Credentials, IToken, JsonWebToken, TokenCredentials , FederatedIdentityCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api';
+import { ClientCredentials, Credentials, IToken, JsonWebToken, TokenCredentials, FederatedIdentityCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api';
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
 const DEFAULT_BOT_TOKEN_SCOPE = 'https://api.botframework.com/.default';
@@ -69,11 +69,11 @@ export class TokenManager {
 
   private async getTokenWithFederatedCredentials(credentials: FederatedIdentityCredentials, scope: string, tenantId: string) {
     const managedIdentityClient = this.getManagedIdentityClient(credentials);
-    const managedIdentityTokeRes = await managedIdentityClient.acquireToken({ resource: 'api://AzureADTokenExchange' });
+    const managedIdentityTokenRes = await managedIdentityClient.acquireToken({ resource: 'api://AzureADTokenExchange' });
     const confidentialClient = new ConfidentialClientApplication({
       auth: {
         clientId: credentials.clientId,
-        clientAssertion: managedIdentityTokeRes.accessToken,
+        clientAssertion: managedIdentityTokenRes.accessToken,
         authority: GET_DEFAULT_TOKEN_AUTHORITY(tenantId)
       }
     });

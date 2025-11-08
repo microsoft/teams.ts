@@ -1,7 +1,7 @@
 import { AuthenticationResult, ConfidentialClientApplication, ManagedIdentityApplication } from '@azure/msal-node';
 import { type MockedObject } from 'jest-mock';
 
-import { ClientCredentials, TokenCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api';
+import { ClientCredentials, TokenCredentials, UserManagedIdentityCredentials, FederatedIdentityCredentials } from '@microsoft/teams.api';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
 import { TokenManager } from './token-manager';
@@ -504,6 +504,237 @@ describe('TokenManager', () => {
       const tokenManager = new TokenManager(mockUMICredentials, logger);
 
       await expect(tokenManager.getGraphToken()).rejects.toThrow('Managed identity authentication failed');
+    });
+  });
+
+  describe('FederatedIdentityCredentials', () => {
+    let mockManagedIdentityClient: MockedObject<ManagedIdentityApplication>;
+    let mockManagedIdentityAcquireToken: jest.Mock;
+    let mockConfidentialClient: MockedObject<ConfidentialClientApplication>;
+    let mockConfidentialAcquireToken: jest.Mock;
+
+    beforeEach(() => {
+      // Mock the ManagedIdentityApplication acquireToken method
+      mockManagedIdentityAcquireToken = jest.fn();
+      mockManagedIdentityClient = {
+        acquireToken: mockManagedIdentityAcquireToken
+      } as unknown as MockedObject<ManagedIdentityApplication>;
+
+      // Mock the ConfidentialClientApplication acquireTokenByClientCredential method
+      mockConfidentialAcquireToken = jest.fn();
+      mockConfidentialClient = {
+        acquireTokenByClientCredential: mockConfidentialAcquireToken
+      } as unknown as MockedObject<ConfidentialClientApplication>;
+
+      // Mock both constructors
+      (ManagedIdentityApplication as jest.MockedClass<typeof ManagedIdentityApplication>).mockImplementation(() => mockManagedIdentityClient);
+      (ConfidentialClientApplication as jest.MockedClass<typeof ConfidentialClientApplication>).mockImplementation(() => mockConfidentialClient);
+    });
+
+    describe('System Managed Identity', () => {
+      const mockSystemFICCredentials: FederatedIdentityCredentials = {
+        type: 'federatedIdentityCredentials',
+        clientId: 'test-client-id',
+        managedIdentityType: 'system',
+        tenantId: 'test-tenant-id'
+      };
+
+      it('should acquire bot token via system managed identity and FIC', async () => {
+        mockManagedIdentityAcquireToken.mockResolvedValue(createMockAuthResult('mock-mi-token'));
+        mockConfidentialAcquireToken.mockResolvedValue(createMockAuthResult('mock-fic-bot-token'));
+
+        const tokenManager = new TokenManager(mockSystemFICCredentials, logger);
+        const token = await tokenManager.getBotToken();
+
+        // Verify system managed identity client created with no params
+        expect(ManagedIdentityApplication).toHaveBeenCalledWith();
+
+        // Verify managed identity token acquisition
+        expect(mockManagedIdentityAcquireToken).toHaveBeenCalledWith({
+          resource: 'api://AzureADTokenExchange'
+        });
+
+        // Verify confidential client created with managed identity token as assertion
+        // getBotToken always uses 'test-tenant-id' from credentials tenantId when available
+        expect(ConfidentialClientApplication).toHaveBeenCalledWith({
+          auth: {
+            clientId: 'test-client-id',
+            clientAssertion: 'mock-mi-token',
+            authority: 'https://login.microsoftonline.com/test-tenant-id'
+          }
+        });
+
+        // Verify bot token acquisition
+        expect(mockConfidentialAcquireToken).toHaveBeenCalledWith({
+          scopes: ['https://api.botframework.com/.default']
+        });
+
+        expect(token).not.toBeNull();
+        expect(token?.toString()).toBe('mock-fic-bot-token');
+      });
+
+      it('should acquire graph token via system managed identity and FIC', async () => {
+        mockManagedIdentityAcquireToken.mockResolvedValue(createMockAuthResult('mock-mi-token'));
+        mockConfidentialAcquireToken.mockResolvedValue(createMockAuthResult('mock-fic-graph-token'));
+
+        const tokenManager = new TokenManager(mockSystemFICCredentials, logger);
+        const token = await tokenManager.getGraphToken();
+
+        expect(ManagedIdentityApplication).toHaveBeenCalledWith();
+
+        expect(mockManagedIdentityAcquireToken).toHaveBeenCalledWith({
+          resource: 'api://AzureADTokenExchange'
+        });
+
+        // getGraphToken uses credentials tenantId when no explicit tenant provided
+        expect(ConfidentialClientApplication).toHaveBeenCalledWith({
+          auth: {
+            clientId: 'test-client-id',
+            clientAssertion: 'mock-mi-token',
+            authority: 'https://login.microsoftonline.com/test-tenant-id'
+          }
+        });
+
+        expect(mockConfidentialAcquireToken).toHaveBeenCalledWith({
+          scopes: ['https://graph.microsoft.com/.default']
+        });
+
+        expect(token).not.toBeNull();
+        expect(token?.toString()).toBe('mock-fic-graph-token');
+      });
+    });
+
+    describe('User Managed Identity', () => {
+      const mockUserFICCredentials: FederatedIdentityCredentials = {
+        type: 'federatedIdentityCredentials',
+        clientId: 'test-client-id',
+        managedIdentityClientId: 'managed-identity-client-id',
+        managedIdentityType: 'user',
+        tenantId: 'test-tenant-id'
+      };
+
+      it('should acquire bot token via user managed identity and FIC', async () => {
+        mockManagedIdentityAcquireToken.mockResolvedValue(createMockAuthResult('mock-umi-token'));
+        mockConfidentialAcquireToken.mockResolvedValue(createMockAuthResult('mock-fic-bot-token'));
+
+        const tokenManager = new TokenManager(mockUserFICCredentials, logger);
+        const token = await tokenManager.getBotToken();
+
+        // Verify user managed identity client created with userAssignedClientId
+        expect(ManagedIdentityApplication).toHaveBeenCalledWith({
+          managedIdentityIdParams: {
+            userAssignedClientId: 'managed-identity-client-id'
+          }
+        });
+
+        // Verify managed identity token acquisition
+        expect(mockManagedIdentityAcquireToken).toHaveBeenCalledWith({
+          resource: 'api://AzureADTokenExchange'
+        });
+
+        // Verify confidential client created with managed identity token as assertion
+        // getBotToken uses credentials tenantId when available
+        expect(ConfidentialClientApplication).toHaveBeenCalledWith({
+          auth: {
+            clientId: 'test-client-id',
+            clientAssertion: 'mock-umi-token',
+            authority: 'https://login.microsoftonline.com/test-tenant-id'
+          }
+        });
+
+        // Verify bot token acquisition
+        expect(mockConfidentialAcquireToken).toHaveBeenCalledWith({
+          scopes: ['https://api.botframework.com/.default']
+        });
+
+        expect(token).not.toBeNull();
+        expect(token?.toString()).toBe('mock-fic-bot-token');
+      });
+
+      it('should acquire graph token via user managed identity and FIC', async () => {
+        mockManagedIdentityAcquireToken.mockResolvedValue(createMockAuthResult('mock-umi-token'));
+        mockConfidentialAcquireToken.mockResolvedValue(createMockAuthResult('mock-fic-graph-token'));
+
+        const tokenManager = new TokenManager(mockUserFICCredentials, logger);
+        const token = await tokenManager.getGraphToken('custom-tenant');
+
+        expect(ManagedIdentityApplication).toHaveBeenCalledWith({
+          managedIdentityIdParams: {
+            userAssignedClientId: 'managed-identity-client-id'
+          }
+        });
+
+        expect(mockManagedIdentityAcquireToken).toHaveBeenCalledWith({
+          resource: 'api://AzureADTokenExchange'
+        });
+
+        expect(ConfidentialClientApplication).toHaveBeenCalledWith({
+          auth: {
+            clientId: 'test-client-id',
+            clientAssertion: 'mock-umi-token',
+            authority: 'https://login.microsoftonline.com/custom-tenant'
+          }
+        });
+
+        expect(mockConfidentialAcquireToken).toHaveBeenCalledWith({
+          scopes: ['https://graph.microsoft.com/.default']
+        });
+
+        expect(token).not.toBeNull();
+        expect(token?.toString()).toBe('mock-fic-graph-token');
+      });
+    });
+
+    describe('Caching and error handling', () => {
+      const mockSystemFICCredentials: FederatedIdentityCredentials = {
+        type: 'federatedIdentityCredentials',
+        clientId: 'test-client-id',
+        managedIdentityType: 'system',
+        tenantId: 'test-tenant-id'
+      };
+
+      it('should cache and reuse ManagedIdentityApplication instance', async () => {
+        mockManagedIdentityAcquireToken.mockResolvedValue(createMockAuthResult('mock-mi-token'));
+        mockConfidentialAcquireToken.mockResolvedValue(createMockAuthResult('mock-token'));
+
+        const tokenManager = new TokenManager(mockSystemFICCredentials, logger);
+
+        // First call - should create new managed identity client
+        await tokenManager.getBotToken();
+        expect(ManagedIdentityApplication).toHaveBeenCalledTimes(1);
+
+        // Second call - should reuse cached managed identity client
+        await tokenManager.getGraphToken();
+        expect(ManagedIdentityApplication).toHaveBeenCalledTimes(1);
+      });
+
+      it('should throw error when managed identity token acquisition fails', async () => {
+        const miError = new Error('Managed identity token acquisition failed');
+        mockManagedIdentityAcquireToken.mockRejectedValue(miError);
+
+        const tokenManager = new TokenManager(mockSystemFICCredentials, logger);
+
+        await expect(tokenManager.getBotToken()).rejects.toThrow('Managed identity token acquisition failed');
+      });
+
+      it('should throw error when confidential client token acquisition fails', async () => {
+        mockManagedIdentityAcquireToken.mockResolvedValue(createMockAuthResult('mock-mi-token'));
+        const confClientError = new Error('Confidential client token acquisition failed');
+        mockConfidentialAcquireToken.mockRejectedValue(confClientError);
+
+        const tokenManager = new TokenManager(mockSystemFICCredentials, logger);
+
+        await expect(tokenManager.getGraphToken()).rejects.toThrow('Confidential client token acquisition failed');
+      });
+
+      it('should throw error when confidential client returns null', async () => {
+        mockManagedIdentityAcquireToken.mockResolvedValue(createMockAuthResult('mock-mi-token'));
+        mockConfidentialAcquireToken.mockResolvedValue(null);
+
+        const tokenManager = new TokenManager(mockSystemFICCredentials, logger);
+
+        await expect(tokenManager.getBotToken()).rejects.toThrow('Failed to get token');
+      });
     });
   });
 });

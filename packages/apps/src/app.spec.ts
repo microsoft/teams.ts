@@ -276,6 +276,74 @@ describe('App', () => {
       });
     });
 
+    it('should create FederatedIdentityCredentials with managedIdentityClientId', () => {
+      // System managed identity (managedIdentityClientId = 'system')
+      const appWithSystemFIC = new TestApp({
+        clientId: 'test-client-id',
+        tenantId: 'test-tenant-id',
+        managedIdentityClientId: 'system',
+        plugins: [new TestHttpPlugin()],
+      });
+
+      expect(appWithSystemFIC.getCredentials()).toEqual({
+        type: 'federatedIdentityCredentials',
+        clientId: 'test-client-id',
+        tenantId: 'test-tenant-id',
+        managedIdentityClientId: 'system',
+        managedIdentityType: 'system',
+      });
+
+      // User managed identity (managedIdentityClientId different from clientId)
+      const appWithUserFIC = new TestApp({
+        clientId: 'test-client-id',
+        tenantId: 'test-tenant-id',
+        managedIdentityClientId: 'different-managed-identity-id',
+        plugins: [new TestHttpPlugin()],
+      });
+
+      expect(appWithUserFIC.getCredentials()).toEqual({
+        type: 'federatedIdentityCredentials',
+        clientId: 'test-client-id',
+        tenantId: 'test-tenant-id',
+        managedIdentityClientId: 'different-managed-identity-id',
+        managedIdentityType: 'user',
+      });
+
+      // From environment variables - system managed identity
+      process.env.CLIENT_ID = 'env-client-id';
+      process.env.TENANT_ID = 'env-tenant-id';
+      process.env.MANAGED_IDENTITY_CLIENT_ID = 'system';
+
+      const appFromEnvSystem = new TestApp({
+        plugins: [new TestHttpPlugin()],
+      });
+
+      expect(appFromEnvSystem.getCredentials()).toEqual({
+        type: 'federatedIdentityCredentials',
+        clientId: 'env-client-id',
+        tenantId: 'env-tenant-id',
+        managedIdentityClientId: 'system',
+        managedIdentityType: 'system',
+      });
+
+      // From environment variables - user managed identity
+      process.env.CLIENT_ID = 'env-client-id';
+      process.env.TENANT_ID = 'env-tenant-id';
+      process.env.MANAGED_IDENTITY_CLIENT_ID = 'env-managed-identity-id';
+
+      const appFromEnvUser = new TestApp({
+        plugins: [new TestHttpPlugin()],
+      });
+
+      expect(appFromEnvUser.getCredentials()).toEqual({
+        type: 'federatedIdentityCredentials',
+        clientId: 'env-client-id',
+        tenantId: 'env-tenant-id',
+        managedIdentityClientId: 'env-managed-identity-id',
+        managedIdentityType: 'user',
+      });
+    });
+
     it('should prioritize clientSecret over token when both provided', () => {
       const tokenProvider = jest.fn().mockResolvedValue('mock-token');
       const appWithBoth = new TestApp({
