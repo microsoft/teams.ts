@@ -70,7 +70,7 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * (Note: That MultiTenant auth has been deprecated, so only legacy apps will have this
    * value enabled)
    */
-  tenantId?: string;
+  readonly tenantId?: string;
 
   /**
    * token - An override to perform token fetching.
