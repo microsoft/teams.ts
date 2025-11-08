@@ -263,7 +263,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     const tenantId = this.options.tenantId ?? process.env.TENANT_ID;
     const clientSecret = this.options.clientSecret ?? process.env.CLIENT_SECRET;
     const token = this.options.token;
-    const managedIdentityClientId = this.options.managedIdentityClientId ?? (process.env.MANAGED_IDENTITY_CLIENT_ID as 'system' | (string & {}) | undefined);
+    const managedIdentityClientId = this.options.managedIdentityClientId ?? (process.env.MANAGED_IDENTITY_CLIENT_ID as AppOptions<TPlugin>['managedIdentityClientId']);
 
     if (clientId && clientSecret) {
       this.log.debug('Using Client Credentials auth');
