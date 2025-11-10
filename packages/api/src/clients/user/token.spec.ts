@@ -37,7 +37,7 @@ describe('UserTokenClient', () => {
   });
 
     it('should use client options and regional endpoint', async () => {
-    const client = new UserTokenClient({}, { tokenUrl: 'https://europe.token.botframework.com' });
+    const client = new UserTokenClient({}, { oauthUrl: 'https://europe.token.botframework.com' });
     const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
 
     await client.get({
@@ -93,7 +93,7 @@ describe('UserTokenClient', () => {
 
   
   it('should get AAD token in regional endpoint', async () => {
-    const client = new UserTokenClient({}, { tokenUrl: 'https://europe.token.botframework.com' });
+    const client = new UserTokenClient({}, { oauthUrl: 'https://europe.token.botframework.com' });
     const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
 
     await client.getAad({
@@ -131,7 +131,7 @@ describe('UserTokenClient', () => {
   });
 
     it('should get token status with regional endpoint', async () => {
-    const client = new UserTokenClient({}, { tokenUrl: 'https://europe.token.botframework.com' });
+    const client = new UserTokenClient({}, { oauthUrl: 'https://europe.token.botframework.com' });
     const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
 
     await client.getStatus({
@@ -168,7 +168,7 @@ describe('UserTokenClient', () => {
   });
 
     it('should delete token in regional endpoint', async () => {
-    const client = new UserTokenClient({}, { tokenUrl: 'https://europe.token.botframework.com' });
+    const client = new UserTokenClient({}, { oauthUrl: 'https://europe.token.botframework.com' });
     const spy = jest.spyOn(client.http, 'delete').mockResolvedValueOnce({});
 
     await client.signOut({
@@ -213,7 +213,7 @@ describe('UserTokenClient', () => {
   });
 
     it('should exchange token with regional endpoint', async () => {
-    const client = new UserTokenClient({}, { tokenUrl: 'https://europe.token.botframework.com' });
+    const client = new UserTokenClient({}, { oauthUrl: 'https://europe.token.botframework.com' });
     const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
 
     await client.exchange({

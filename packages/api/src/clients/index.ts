@@ -1,7 +1,7 @@
 import * as http from '@microsoft/teams.common/http';
 
 import { BotClient } from './bot';
-import { ClientSettings, DEFAULT_CLIENT_SETTINGS } from './client-settings';
+import { ClientSettings, mergeClientSettings } from './client-settings';
 import { ConversationClient } from './conversation';
 import { MeetingClient } from './meeting';
 import { TeamClient } from './team';
@@ -27,9 +27,9 @@ export class Client {
     this._http = v;
   }
   protected _http: http.Client;
-  protected _clientSettings: ClientSettings;
+  protected _clientSettings: Partial<ClientSettings>;
 
-  constructor(serviceUrl: string, options?: http.Client | http.ClientOptions, clientSettings?: ClientSettings) {
+  constructor(serviceUrl: string, options?: http.Client | http.ClientOptions, clientSettings?: Partial<ClientSettings>) {
     this.serviceUrl = serviceUrl;
 
     if (!options) {
@@ -46,7 +46,7 @@ export class Client {
       });
     }
 
-    this._clientSettings = {...DEFAULT_CLIENT_SETTINGS, ...(clientSettings ?? {})};
+    this._clientSettings = mergeClientSettings(clientSettings);
 
     this.bots = new BotClient(this.http, this._clientSettings);
     this.users = new UserClient(this.http, this._clientSettings);

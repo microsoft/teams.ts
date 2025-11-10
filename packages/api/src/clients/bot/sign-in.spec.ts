@@ -47,7 +47,7 @@ describe('BotSignInClient', () => {
   });
 
   it('should use regional endpoint', async () => {
-    const client = new BotSignInClient({}, { tokenUrl: 'https://europe.token.botframework.com' });
+    const client = new BotSignInClient({}, { oauthUrl: 'https://europe.token.botframework.com' });
     const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
 
     await client.getUrl({ state: 'test' });
