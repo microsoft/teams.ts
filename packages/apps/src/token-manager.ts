@@ -26,13 +26,23 @@ const LOG_LEVEL_TO_MSAL_LOG_LEVEL: Record<LogLevel, MSALLogLevel> = {
 
 type MSALLoggerOptions = NodeSystemOptions['loggerOptions'];
 
+export type TokenManagerOptions = {
+  readonly clientId?: string;
+  readonly clientSecret?: string;
+  readonly tenantId?: string;
+  readonly token?: TokenCredentials['token'];
+  managedIdentityClientId?: 'system' | (string & {});
+};
+
 export class TokenManager {
+  readonly credentials?: Credentials;
   private logger: ILogger;
   private confidentialClientsByTenantId: Record<string, ConfidentialClientApplication> = {};
   private managedIdentityClient: ManagedIdentityApplication | null = null;
 
-  constructor(private credentials: Credentials | undefined, logger: ILogger) {
+  constructor(options: TokenManagerOptions, logger: ILogger) {
     this.logger = logger.child('TokenManager') ?? new ConsoleLogger('TokenManager');
+    this.credentials = this.initializeCredentials(options);
   }
 
   async getBotToken(): Promise<IToken | null> {
@@ -41,6 +51,53 @@ export class TokenManager {
 
   async getGraphToken(tenantId?: string): Promise<IToken | null> {
     return await this.getToken(DEFAULT_GRAPH_TOKEN_SCOPE, this.resolveTenantId(tenantId, DEFAULT_TENANT_FOR_GRAPH_TOKEN));
+  }
+
+  private initializeCredentials(options: TokenManagerOptions): Credentials | undefined {
+    const clientId = options.clientId ?? process.env.CLIENT_ID;
+    const tenantId = options.tenantId ?? process.env.TENANT_ID;
+    const clientSecret = options.clientSecret ?? process.env.CLIENT_SECRET;
+    const token = options.token;
+    const managedIdentityClientId = options.managedIdentityClientId ?? (process.env.MANAGED_IDENTITY_CLIENT_ID as TokenManagerOptions['managedIdentityClientId']);
+
+    if (clientId && clientSecret) {
+      this.logger.debug('Using Client Credentials auth');
+      return {
+        type: 'clientSecret',
+        clientId,
+        clientSecret,
+        tenantId,
+      };
+    } else if (clientId && token) {
+      this.logger.debug(('Using custom token factory auth'));
+      return {
+        type: 'token',
+        clientId,
+        tenantId,
+        token,
+      };
+    } else if (clientId && !clientSecret) {
+      if (managedIdentityClientId == null || managedIdentityClientId.toLowerCase() === clientId.toLowerCase()) {
+        this.logger.debug('Using user managed identity auth');
+        return {
+          type: 'userManagedIdentity',
+          clientId,
+          tenantId
+        };
+      } else {
+        const identityType = managedIdentityClientId === 'system' ? 'system' : 'user' as const;
+        this.logger.debug(`Using Federated Identity Credentials auth (${identityType})`);
+        return {
+          type: 'federatedIdentityCredentials',
+          clientId,
+          tenantId,
+          managedIdentityClientId,
+          managedIdentityType: identityType,
+        };
+      }
+    }
+
+    return undefined;
   }
 
   private async getToken(scope: string, tenantId: string): Promise<IToken | null> {

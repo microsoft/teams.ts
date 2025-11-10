@@ -5,7 +5,6 @@ import {
   ApiClientSettings,
   ChannelID,
   ConversationReference,
-  Credentials,
   StripMentionsTextOptions,
   toActivityParams
   TokenCredentials,
@@ -153,9 +152,15 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   readonly http: HttpPlugin;
   readonly client: http.Client;
   readonly storage: IStorage;
-  readonly credentials?: Credentials;
   readonly entraTokenValidator?: middleware.JwtValidator;
-  readonly tokenManager: TokenManager | null;
+  readonly tokenManager: TokenManager;
+
+  /**
+   * the apps credentials
+   */
+  get credentials() {
+    return this.tokenManager.credentials;
+  }
 
   /**
    * the apps id
@@ -258,56 +263,19 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       this.client.clone({ token: () => this.getAppGraphToken() })
     );
 
-    // initialize credentials
-    const clientId = this.options.clientId ?? process.env.CLIENT_ID;
-    const tenantId = this.options.tenantId ?? process.env.TENANT_ID;
-    const clientSecret = this.options.clientSecret ?? process.env.CLIENT_SECRET;
-    const token = this.options.token;
-    const managedIdentityClientId = this.options.managedIdentityClientId ?? (process.env.MANAGED_IDENTITY_CLIENT_ID as AppOptions<TPlugin>['managedIdentityClientId']);
+    // initialize TokenManager with credentials
+    this.tokenManager = new TokenManager({
+      clientId: this.options.clientId,
+      clientSecret: this.options.clientSecret,
+      tenantId: this.options.tenantId,
+      token: this.options.token,
+      managedIdentityClientId: this.options.managedIdentityClientId,
+    }, this.log);
 
-    if (clientId && clientSecret) {
-      this.log.debug('Using Client Credentials auth');
-      this.credentials = {
-        type: 'clientSecret',
-        clientId,
-        clientSecret,
-        tenantId,
-      };
-    } else if (clientId && token) {
-      this.log.debug(('Using custom token factory auth'));
-      this.credentials = {
-        type: 'token',
-        clientId,
-        tenantId,
-        token,
-      };
-    } else if (clientId && !clientSecret) {
-      if (managedIdentityClientId == null || managedIdentityClientId.toLowerCase() === clientId.toLowerCase()) {
-        this.log.debug('Using user managed identity auth');
-        this.credentials = {
-          type: 'userManagedIdentity',
-          clientId,
-          tenantId
-        };
-      } else {
-        const identityType = managedIdentityClientId === 'system' ? 'system' : 'user' as const;
-        this.credentials = {
-          type: 'federatedIdentityCredentials',
-          clientId,
-          tenantId,
-          managedIdentityClientId,
-          managedIdentityType: identityType,
-        };
-        this.log.debug(`Using Federated Identity Credentials auth (${identityType})`);
-      }
-    }
-
-    this.tokenManager = new TokenManager(this.credentials, this.log);
-
-    if (clientId) {
+    if (this.credentials?.clientId) {
       this.entraTokenValidator = middleware.createEntraTokenValidator(
-        tenantId || 'common',
-        clientId,
+        this.credentials.tenantId || 'common',
+        this.credentials.clientId,
         { logger: this.log, }
       );
     }
