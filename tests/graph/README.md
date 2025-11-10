@@ -49,9 +49,11 @@ If you want to add the `People.Read.All` and `User.ReadBasic.All` scopes.
 
 2. Update the `properties.scopes` to be `People.Read.All,User.ReadBasic.All`.
 
-## Configuring a Regional Bot
+## Configuring a Regional Bot 
+NOTE: This example uses west europe, but follow the equivalent for other locations.
 
 1. In `azurebot.bicep`, replace all `global` occurrences to `westeurope`
+2. In `manifest.json`, in `validDomains`, `*.botframework.com` should be replaced by `europe.token.botframework.com`
 2. In `aad.manifest.json`, replace `https://token.botframework.com/.auth/web/redirect` with `https://europe.token.botframework.com/.auth/web/redirect`
 3. In `index.ts`, update `OauthSettings` to include `clientSettings`
 
@@ -60,7 +62,7 @@ const app = new App({
 oauth: {
 defaultConnectionName: 'graph',
     clientSettings: {
-        OAuthUrl: "https://europe.token.botframework.com",
+        oauthUrl: "https://europe.token.botframework.com",
     }
 },
 logger: new ConsoleLogger('@tests/auth', { level: 'debug' })
