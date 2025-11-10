@@ -1,13 +1,21 @@
-import { AuthenticationResult, ConfidentialClientApplication, ManagedIdentityApplication } from '@azure/msal-node';
+import { AuthenticationResult, ConfidentialClientApplication, ManagedIdentityApplication, LogLevel as MSALLogLevel } from '@azure/msal-node';
 
 import { ClientCredentials, Credentials, IToken, JsonWebToken, TokenCredentials, FederatedIdentityCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api';
-import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
+import { ConsoleLogger, ILogger, LogLevel } from '@microsoft/teams.common';
 
 const DEFAULT_BOT_TOKEN_SCOPE = 'https://api.botframework.com/.default';
 const DEFAULT_GRAPH_TOKEN_SCOPE = 'https://graph.microsoft.com/.default';
 const DEFAULT_TENANT_FOR_BOT_TOKEN = 'botframework.com';
 const DEFAULT_TENANT_FOR_GRAPH_TOKEN = 'common';
 const GET_DEFAULT_TOKEN_AUTHORITY = (tenantId: string) => `https://login.microsoftonline.com/${tenantId}`;
+
+const LOG_LEVEL_MAP: Record<MSALLogLevel, LogLevel> = {
+  [MSALLogLevel.Error]: 'error',
+  [MSALLogLevel.Warning]: 'warn',
+  [MSALLogLevel.Info]: 'info',
+  [MSALLogLevel.Verbose]: 'debug',
+  [MSALLogLevel.Trace]: 'trace'
+};
 
 export class TokenManager {
   private logger: ILogger;
@@ -75,6 +83,11 @@ export class TokenManager {
         clientId: credentials.clientId,
         clientAssertion: managedIdentityTokenRes.accessToken,
         authority: GET_DEFAULT_TOKEN_AUTHORITY(tenantId)
+      },
+      system: {
+        loggerOptions: {
+          loggerCallback: this.log.bind(this)
+        }
       }
     });
     const result = await confidentialClient.acquireTokenByClientCredential({ scopes: [scope] });
@@ -96,6 +109,11 @@ export class TokenManager {
         clientId: credentials.clientId,
         clientSecret: credentials.clientSecret,
         authority: GET_DEFAULT_TOKEN_AUTHORITY(tenantId)
+      },
+      system: {
+        loggerOptions: {
+          loggerCallback: this.log.bind(this)
+        }
       }
     });
     this.confidentialClientsByTenantId[tenantId] = client;
@@ -117,11 +135,24 @@ export class TokenManager {
       this.managedIdentityClient = new ManagedIdentityApplication({
         managedIdentityIdParams: {
           userAssignedClientId: clientId
+        },
+        system: {
+          loggerOptions: {
+            loggerCallback: this.log.bind(this)
+          }
         }
       });
     } else {
       this.managedIdentityClient = new ManagedIdentityApplication(
-        /* no options automatically indicates system assigned managed identity */
+        {
+          managedIdentityIdParams: undefined, //no options automatically indicates system assigned managed identity
+          system: {
+            loggerOptions: {
+              loggerCallback: this.log.bind(this)
+            }
+          }
+
+        }
       );
     }
 
@@ -134,5 +165,9 @@ export class TokenManager {
     }
 
     return new JsonWebToken(result.accessToken);
+  }
+
+  private log(level: MSALLogLevel, message: string, _containsPii: boolean) {
+    this.logger.log(LOG_LEVEL_MAP[level], message);
   }
 }

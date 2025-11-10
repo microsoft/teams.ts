@@ -11,6 +11,7 @@ export class ConsoleLogger implements ILogger {
     warn: 200,
     info: 300,
     debug: 400,
+    trace: 500,
   };
 
   private readonly _colors = {
@@ -18,6 +19,7 @@ export class ConsoleLogger implements ILogger {
     warn: ANSI.ForegroundYellow,
     info: ANSI.ForegroundCyan,
     debug: ANSI.ForegroundMagenta,
+    trace: ANSI.BackgroundBlue
   };
 
   constructor(name: string, options?: ILoggerOptions) {
@@ -43,6 +45,10 @@ export class ConsoleLogger implements ILogger {
 
   debug(...msg: any[]) {
     this.log('debug', ...msg);
+  }
+
+  trace(...msg: any[]) {
+    this.log('trace', ...msg);
   }
 
   log(level: LogLevel, ...msg: any[]) {
@@ -99,6 +105,7 @@ function parseLogLevel(level?: string): LogLevel | undefined {
     case 'warn':
     case 'info':
     case 'debug':
+    case 'trace':
       return value;
     default:
       return undefined;
