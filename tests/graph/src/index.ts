@@ -13,7 +13,7 @@ const app = new App({
     // This is an example of overriding the token URL for a specific region (e.g., Europe).
     // Uncomment this block if needed.
     // clientSettings: {
-    //   OAuthUrl: "https://europe.token.botframework.com",
+    //   oauthUrl: 'https://europe.token.botframework.com',
     // }
   },
   logger: new ConsoleLogger('@tests/auth', { level: 'debug' })
@@ -30,7 +30,6 @@ app.message('/signout', async ({ send, signout, isSignedIn }) => {
 
 // :snippet-start: auth-signin
 app.on('message', async ({ log, signin, userGraph, isSignedIn }) => {
-  console.log("printing")
   if (!isSignedIn) {
     await signin({
       // Customize the OAuth card text (only applies to OAuth flow, not SSO)
