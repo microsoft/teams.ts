@@ -2,6 +2,8 @@ import { ANSI } from './ansi';
 import { ILogger, ILoggerOptions, LogLevel } from './logger';
 
 export class ConsoleLogger implements ILogger {
+  readonly loggerOptions: ILoggerOptions;
+
   protected readonly name: string;
   protected readonly level: LogLevel;
 
@@ -29,6 +31,10 @@ export class ConsoleLogger implements ILogger {
     const logNamePattern = env?.LOG || options?.pattern || '*';
     this._enabled = parseMagicExpr(logNamePattern).test(name);
     this.level = parseLogLevel(env?.LOG_LEVEL) || options?.level || 'info';
+    this.loggerOptions = options ?? {
+      level: this.level,
+      pattern: logNamePattern,
+    };
   }
 
   error(...msg: any[]) {

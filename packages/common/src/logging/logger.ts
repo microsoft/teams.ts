@@ -15,6 +15,11 @@ export interface ILoggerOptions {
 
 export interface ILogger {
   /**
+   * Active logger options for this logger
+   */
+  loggerOptions?: ILoggerOptions;
+
+  /**
    * Output debug message
    * @param msg any data to log
    */

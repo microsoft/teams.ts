@@ -1,4 +1,4 @@
-import { AuthenticationResult, ConfidentialClientApplication, ManagedIdentityApplication, LogLevel as MSALLogLevel } from '@azure/msal-node';
+import { AuthenticationResult, ConfidentialClientApplication, ManagedIdentityApplication, LogLevel as MSALLogLevel, NodeSystemOptions } from '@azure/msal-node';
 
 import { ClientCredentials, Credentials, IToken, JsonWebToken, TokenCredentials, FederatedIdentityCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api';
 import { ConsoleLogger, ILogger, LogLevel } from '@microsoft/teams.common';
@@ -9,13 +9,22 @@ const DEFAULT_TENANT_FOR_BOT_TOKEN = 'botframework.com';
 const DEFAULT_TENANT_FOR_GRAPH_TOKEN = 'common';
 const GET_DEFAULT_TOKEN_AUTHORITY = (tenantId: string) => `https://login.microsoftonline.com/${tenantId}`;
 
-const LOG_LEVEL_MAP: Record<MSALLogLevel, LogLevel> = {
+const MSAL_LOG_LEVEL_TO_LOG_LEVEL: Record<MSALLogLevel, LogLevel> = {
   [MSALLogLevel.Error]: 'error',
   [MSALLogLevel.Warning]: 'warn',
   [MSALLogLevel.Info]: 'info',
   [MSALLogLevel.Verbose]: 'debug',
   [MSALLogLevel.Trace]: 'trace'
 };
+const LOG_LEVEL_TO_MSAL_LOG_LEVEL: Record<LogLevel, MSALLogLevel> = {
+  'error': MSALLogLevel.Error,
+  'warn': MSALLogLevel.Warning,
+  'info': MSALLogLevel.Info,
+  'debug': MSALLogLevel.Verbose,
+  'trace': MSALLogLevel.Trace
+};
+
+type MSALLoggerOptions = NodeSystemOptions['loggerOptions'];
 
 export class TokenManager {
   private logger: ILogger;
@@ -85,9 +94,7 @@ export class TokenManager {
         authority: GET_DEFAULT_TOKEN_AUTHORITY(tenantId)
       },
       system: {
-        loggerOptions: {
-          loggerCallback: this.log.bind(this)
-        }
+        loggerOptions: this.buildLoggerOptions()
       }
     });
     const result = await confidentialClient.acquireTokenByClientCredential({ scopes: [scope] });
@@ -111,9 +118,7 @@ export class TokenManager {
         authority: GET_DEFAULT_TOKEN_AUTHORITY(tenantId)
       },
       system: {
-        loggerOptions: {
-          loggerCallback: this.log.bind(this)
-        }
+        loggerOptions: this.buildLoggerOptions()
       }
     });
     this.confidentialClientsByTenantId[tenantId] = client;
@@ -137,9 +142,7 @@ export class TokenManager {
           userAssignedClientId: clientId
         },
         system: {
-          loggerOptions: {
-            loggerCallback: this.log.bind(this)
-          }
+          loggerOptions: this.buildLoggerOptions()
         }
       });
     } else {
@@ -147,9 +150,7 @@ export class TokenManager {
         {
           managedIdentityIdParams: undefined, //no options automatically indicates system assigned managed identity
           system: {
-            loggerOptions: {
-              loggerCallback: this.log.bind(this)
-            }
+            loggerOptions: this.buildLoggerOptions()
           }
 
         }
@@ -167,7 +168,11 @@ export class TokenManager {
     return new JsonWebToken(result.accessToken);
   }
 
-  private log(level: MSALLogLevel, message: string, _containsPii: boolean) {
-    this.logger.log(LOG_LEVEL_MAP[level], message);
+  private buildLoggerOptions(): MSALLoggerOptions {
+    return {
+      logLevel: this.logger.loggerOptions?.level != null ? LOG_LEVEL_TO_MSAL_LOG_LEVEL[this.logger.loggerOptions.level] : undefined,
+      loggerCallback: (level, message) => this.logger.log(MSAL_LOG_LEVEL_TO_LOG_LEVEL[level], message),
+      piiLoggingEnabled: false,
+    };
   }
 }
