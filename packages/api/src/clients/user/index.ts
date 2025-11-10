@@ -1,6 +1,6 @@
 import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
-import { ClientSettings, mergeClientSettings } from '../client-settings';
+import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 
 import { UserTokenClient } from './token';
 
@@ -14,9 +14,9 @@ export class UserClient {
     this._http = v;
   }
   protected _http: Client;
-  protected _clientSettings: Partial<ClientSettings>;
+  protected _apiClientSettings: Partial<ApiClientSettings>;
 
-  constructor(options?: Client | ClientOptions, clientSettings?: Partial<ClientSettings>) {
+  constructor(options?: Client | ClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
     if (!options) {
       this._http = new Client();
     } else if ('request' in options) {
@@ -25,8 +25,8 @@ export class UserClient {
       this._http = new Client(options);
     }
 
-    this._clientSettings = mergeClientSettings(clientSettings);
-    this.token = new UserTokenClient(this.http, this._clientSettings);
+    this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
+    this.token = new UserTokenClient(this.http, this._apiClientSettings);
   }
 }
 

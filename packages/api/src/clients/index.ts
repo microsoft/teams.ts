@@ -1,7 +1,7 @@
 import * as http from '@microsoft/teams.common/http';
 
+import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
 import { BotClient } from './bot';
-import { ClientSettings, mergeClientSettings } from './client-settings';
 import { ConversationClient } from './conversation';
 import { MeetingClient } from './meeting';
 import { TeamClient } from './team';
@@ -27,9 +27,9 @@ export class Client {
     this._http = v;
   }
   protected _http: http.Client;
-  protected _clientSettings: Partial<ClientSettings>;
+  protected _apiClientSettings: Partial<ApiClientSettings>;
 
-  constructor(serviceUrl: string, options?: http.Client | http.ClientOptions, clientSettings?: Partial<ClientSettings>) {
+  constructor(serviceUrl: string, options?: http.Client | http.ClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
     this.serviceUrl = serviceUrl;
 
     if (!options) {
@@ -46,13 +46,13 @@ export class Client {
       });
     }
 
-    this._clientSettings = mergeClientSettings(clientSettings);
+    this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
 
-    this.bots = new BotClient(this.http, this._clientSettings);
-    this.users = new UserClient(this.http, this._clientSettings);
-    this.conversations = new ConversationClient(serviceUrl, this.http);
-    this.teams = new TeamClient(serviceUrl, this.http);
-    this.meetings = new MeetingClient(serviceUrl, this.http);
+    this.bots = new BotClient(this.http, this._apiClientSettings);
+    this.users = new UserClient(this.http, this._apiClientSettings);
+    this.conversations = new ConversationClient(serviceUrl, this.http, this._apiClientSettings);
+    this.teams = new TeamClient(serviceUrl, this.http, this._apiClientSettings);
+    this.meetings = new MeetingClient(serviceUrl, this.http, this._apiClientSettings);
   }
 }
 
@@ -61,4 +61,4 @@ export * from './bot';
 export * from './conversation';
 export * from './meeting';
 export * from './team';
-export * from './client-settings';
+export * from './api-client-settings';

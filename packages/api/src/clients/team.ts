@@ -2,6 +2,8 @@ import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
 import { ChannelInfo, TeamDetails } from '../models';
 
+import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
+
 export class TeamClient {
   readonly serviceUrl: string;
 
@@ -12,8 +14,9 @@ export class TeamClient {
     this._http = v;
   }
   protected _http: Client;
+  protected _apiClientSettings: Partial<ApiClientSettings>;
 
-  constructor(serviceUrl: string, options?: Client | ClientOptions) {
+  constructor(serviceUrl: string, options?: Client | ClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
     this.serviceUrl = serviceUrl;
 
     if (!options) {
@@ -23,6 +26,8 @@ export class TeamClient {
     } else {
       this._http = new Client(options);
     }
+
+    this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
   }
 
   async getById(id: string) {

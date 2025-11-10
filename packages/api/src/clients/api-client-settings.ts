@@ -1,4 +1,4 @@
-export type ClientSettings = {
+export type ApiClientSettings = {
   /**
    * the URL to use for managing user oauth tokens.
    * Specify this value if you are using a regional bot.
@@ -8,19 +8,19 @@ export type ClientSettings = {
   readonly oauthUrl: string;
 };
 
-export const DEFAULT_CLIENT_SETTINGS: ClientSettings = {
+export const DEFAULT_API_CLIENT_SETTINGS: ApiClientSettings = {
   oauthUrl: 'https://token.botframework.com',
 };
 
-export function mergeClientSettings(
-  clientSettings?: Partial<ClientSettings>
-): ClientSettings {
+export function mergeApiClientSettings(
+  apiClientSettings?: Partial<ApiClientSettings>
+): ApiClientSettings {
   const env = typeof process === 'undefined' ? undefined : process.env;
   
   return {
     oauthUrl: 
-      clientSettings?.oauthUrl ?? 
+      apiClientSettings?.oauthUrl ?? 
       env?.OAUTH_URL ?? 
-      DEFAULT_CLIENT_SETTINGS.oauthUrl,
+      DEFAULT_API_CLIENT_SETTINGS.oauthUrl,
   };
 }

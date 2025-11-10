@@ -3,7 +3,7 @@ import qs from 'qs';
 import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
 import { ChannelID, TokenExchangeRequest, TokenResponse, TokenStatus } from '../../models';
-import { ClientSettings, mergeClientSettings } from '../client-settings';
+import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 
 export type GetUserTokenParams = {
   userId: string;
@@ -54,9 +54,9 @@ export class UserTokenClient {
     this._http = v;
   }
   protected _http: Client;
-  protected _clientSettings: Partial<ClientSettings>;
+  protected _apiClientSettings: Partial<ApiClientSettings>;
 
-  constructor(options?: Client | ClientOptions, clientSettings?: Partial<ClientSettings>) {
+  constructor(options?: Client | ClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
     if (!options) {
       this._http = new Client();
     } else if ('request' in options) {
@@ -65,13 +65,13 @@ export class UserTokenClient {
       this._http = new Client(options);
     }
 
-    this._clientSettings = mergeClientSettings(clientSettings);
+    this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
   }
 
   async get(params: GetUserTokenParams) {
     const q = qs.stringify(params);
     const res = await this.http.get<TokenResponse>(
-      `${this._clientSettings.oauthUrl}/${USER_TOKEN_ENDPOINTS.GET_TOKEN}?${q}`
+      `${this._apiClientSettings.oauthUrl}/${USER_TOKEN_ENDPOINTS.GET_TOKEN}?${q}`
     );
 
     return res.data;
@@ -80,7 +80,7 @@ export class UserTokenClient {
   async getAad(params: GetUserAADTokenParams) {
     const q = qs.stringify(params);
     const res = await this.http.post<Record<string, TokenResponse>>(
-      `${this._clientSettings.oauthUrl}/${USER_TOKEN_ENDPOINTS.GET_AAD_TOKENS}?${q}`,
+      `${this._apiClientSettings.oauthUrl}/${USER_TOKEN_ENDPOINTS.GET_AAD_TOKENS}?${q}`,
       params
     );
 
@@ -90,7 +90,7 @@ export class UserTokenClient {
   async getStatus(params: GetUserTokenStatusParams) {
     const q = qs.stringify(params);
     const res = await this.http.get<TokenStatus[]>(
-      `${this._clientSettings.oauthUrl}/${USER_TOKEN_ENDPOINTS.GET_STATUS}?${q}`
+      `${this._apiClientSettings.oauthUrl}/${USER_TOKEN_ENDPOINTS.GET_STATUS}?${q}`
     );
 
     return res.data;
@@ -99,7 +99,7 @@ export class UserTokenClient {
   async signOut(params: SignOutUserParams) {
     const q = qs.stringify(params);
     const res = await this.http.delete<void>(
-      `${this._clientSettings.oauthUrl}/${USER_TOKEN_ENDPOINTS.SIGN_OUT}?${q}`,
+      `${this._apiClientSettings.oauthUrl}/${USER_TOKEN_ENDPOINTS.SIGN_OUT}?${q}`,
       { data: params }
     );
 
@@ -114,7 +114,7 @@ export class UserTokenClient {
     });
 
     const res = await this.http.post<TokenResponse>(
-      `${this._clientSettings.oauthUrl}/${USER_TOKEN_ENDPOINTS.EXCHANGE}?${q}`,
+      `${this._apiClientSettings.oauthUrl}/${USER_TOKEN_ENDPOINTS.EXCHANGE}?${q}`,
       params.exchangeRequest
     );
 

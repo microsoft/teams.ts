@@ -3,7 +3,7 @@ import qs from 'qs';
 import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
 import { SignInUrlResponse } from '../../models';
-import { ClientSettings, mergeClientSettings } from '../client-settings';
+import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 
 export const BOT_SIGNIN_ENDPOINTS = {
   URL: 'api/botsignin/GetSignInUrl',
@@ -32,9 +32,9 @@ export class BotSignInClient {
     this._http = v;
   }
   protected _http: Client;
-  protected _clientSettings: Partial<ClientSettings>;
+  protected _apiClientSettings: Partial<ApiClientSettings>;
 
-  constructor(options?: Client | ClientOptions, clientSettings?: Partial<ClientSettings>) {
+  constructor(options?: Client | ClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
     if (!options) {
       this._http = new Client();
     } else if ('request' in options) {
@@ -42,13 +42,13 @@ export class BotSignInClient {
     } else {
       this._http = new Client(options);
     }
-    this._clientSettings = mergeClientSettings(clientSettings);
+    this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
   }
 
   async getUrl(params: GetBotSignInUrlParams) {
     const q = qs.stringify(params);
     const res = await this.http.get<string>(
-      `${this._clientSettings.oauthUrl}/${BOT_SIGNIN_ENDPOINTS.URL}?${q}`
+      `${this._apiClientSettings.oauthUrl}/${BOT_SIGNIN_ENDPOINTS.URL}?${q}`
     );
 
     return res.data;
@@ -57,7 +57,7 @@ export class BotSignInClient {
   async getResource(params: GetBotSignInResourceParams) {
     const q = qs.stringify(params);
     const res = await this.http.get<SignInUrlResponse>(
-      `${this._clientSettings.oauthUrl}/${BOT_SIGNIN_ENDPOINTS.RESOURCE}?${q}`
+      `${this._apiClientSettings.oauthUrl}/${BOT_SIGNIN_ENDPOINTS.RESOURCE}?${q}`
     );
 
     return res.data;

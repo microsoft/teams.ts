@@ -3,6 +3,7 @@ import qs from 'qs';
 import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
 import { Credentials } from '../../auth';
+import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 
 export type GetBotTokenResponse = {
   readonly token_type: 'Bearer';
@@ -19,8 +20,9 @@ export class BotTokenClient {
     this._http = v;
   }
   protected _http: Client;
+  protected _apiClientSettings: Partial<ApiClientSettings>;
 
-  constructor(options?: Client | ClientOptions) {
+  constructor(options?: Client | ClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
     if (!options) {
       this._http = new Client();
     } else if ('request' in options) {
@@ -28,6 +30,8 @@ export class BotTokenClient {
     } else {
       this._http = new Client(options);
     }
+
+    this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
   }
 
   async get(credentials: Credentials) {

@@ -1,6 +1,6 @@
 import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
-import { ClientSettings, mergeClientSettings } from '../client-settings';
+import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 
 import { BotSignInClient } from './sign-in';
 import { BotTokenClient } from './token';
@@ -18,9 +18,9 @@ export class BotClient {
     this._http = v;
   }
   protected _http: Client;
-  protected _clientSettings: Partial<ClientSettings>;
+  protected _clientSettings: Partial<ApiClientSettings>;
 
-  constructor(options?: Client | ClientOptions, clientSettings?: Partial<ClientSettings>) {
+  constructor(options?: Client | ClientOptions, clientSettings?: Partial<ApiClientSettings>) {
     if (!options) {
       this._http = new Client();
     } else if ('request' in options) {
@@ -29,8 +29,8 @@ export class BotClient {
       this._http = new Client(options);
     }
 
-    this._clientSettings = mergeClientSettings(clientSettings);
-    this.token = new BotTokenClient(this.http);
+    this._clientSettings = mergeApiClientSettings(clientSettings);
+    this.token = new BotTokenClient(this.http, this._clientSettings);
     this.signIn = new BotSignInClient(this.http, this._clientSettings);
   }
 }

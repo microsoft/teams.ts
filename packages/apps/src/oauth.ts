@@ -1,6 +1,6 @@
 import {
-  ClientSettings,
-  DEFAULT_CLIENT_SETTINGS
+  ApiClientSettings,
+  DEFAULT_API_CLIENT_SETTINGS
 } from '@microsoft/teams.api';
 
 export type OAuthSettings = {
@@ -16,10 +16,10 @@ export type OAuthSettings = {
    * authentication. This is important to
    * configure for regional bots.
    */
-  readonly clientSettings?: ClientSettings
+  readonly clientSettings?: ApiClientSettings
 };
 
 export const DEFAULT_OAUTH_SETTINGS: Required<OAuthSettings> = {
   defaultConnectionName: 'graph',
-  clientSettings: DEFAULT_CLIENT_SETTINGS
+  clientSettings: DEFAULT_API_CLIENT_SETTINGS
 };
