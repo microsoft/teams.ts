@@ -90,7 +90,6 @@ export type AppOptions<TPlugin extends IPlugin> = Partial<Credentials> & {
   
   /**
    * API client settings used for overriding.
-   * If you have a regional bot, specify your oauthUrl here. 
    */
   readonly apiClientSettings?: ApiClientSettings
 };
