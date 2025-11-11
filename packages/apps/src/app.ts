@@ -6,7 +6,7 @@ import {
   ChannelID,
   ConversationReference,
   StripMentionsTextOptions,
-  toActivityParams
+  toActivityParams,
   TokenCredentials,
 } from '@microsoft/teams.api';
 import { EventEmitter } from '@microsoft/teams.common/events';
@@ -50,7 +50,6 @@ export type AppOptions<TPlugin extends IPlugin> = {
   /**
    * client id - Your application's client identifier
    * Uses environment variable CLIENT_ID if not explicitly provided
-   * If not available, uses
    */
   readonly clientId?: string;
 
