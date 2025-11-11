@@ -228,7 +228,14 @@ export class TokenManager {
   private buildLoggerOptions(): MSALLoggerOptions {
     return {
       logLevel: this.logger.loggerOptions?.level != null ? LOG_LEVEL_TO_MSAL_LOG_LEVEL[this.logger.loggerOptions.level] : undefined,
-      loggerCallback: (level, message) => this.logger.log(MSAL_LOG_LEVEL_TO_LOG_LEVEL[level], message),
+      loggerCallback: (level, message) => {
+        // There's a bug in MSAL where it warns this on all requests.
+        // https://github.com/AzureAD/microsoft-authentication-library-for-js/issues/7917
+        if (message === 'Warning - No client info in response') {
+          return;
+        }
+        this.logger.log(MSAL_LOG_LEVEL_TO_LOG_LEVEL[level], message);
+      },
       piiLoggingEnabled: false,
     };
   }
