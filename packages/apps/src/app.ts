@@ -129,7 +129,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @deprecated Name will be removed in the near future. Please remove dependencies from it.
    */
   get name() {
-    this.log.warn('app.name will be removed in the future');
     return this._manifest.name?.full;
   }
 
