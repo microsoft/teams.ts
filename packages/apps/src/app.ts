@@ -2,14 +2,14 @@ import { AxiosError } from 'axios';
 
 import {
   ActivityLike,
+  ApiClientSettings,
   ChannelID,
   ConversationReference,
   Credentials,
   IToken,
   JsonWebToken,
   StripMentionsTextOptions,
-  toActivityParams,
-  DEFAULT_API_CLIENT_SETTINGS
+  toActivityParams
 } from '@microsoft/teams.api';
 import { EventEmitter } from '@microsoft/teams.common/events';
 import * as http from '@microsoft/teams.common/http';
@@ -87,6 +87,12 @@ export type AppOptions<TPlugin extends IPlugin> = Partial<Credentials> & {
    * Skip authentication for HTTP requests
    */
   readonly skipAuth?: boolean;
+
+  
+  /**
+   * API client settings to use.
+   */
+  readonly apiClientSettings?: ApiClientSettings
 };
 
 export type AppActivityOptions = {
@@ -226,7 +232,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     this.api = new ApiClient(
       'https://smba.trafficmanager.net/teams',
       this.client.clone({ token: () => this._tokens.bot }),
-      this.options.oauth?.clientSettings ?? DEFAULT_API_CLIENT_SETTINGS
+      this.options.apiClientSettings
     );
 
     this.graph = new GraphClient(

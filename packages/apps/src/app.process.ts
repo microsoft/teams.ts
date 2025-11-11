@@ -1,4 +1,4 @@
-import { ActivityLike, ConversationReference, DEFAULT_API_CLIENT_SETTINGS, isInvokeResponse } from '@microsoft/teams.api';
+import { ActivityLike, ConversationReference, isInvokeResponse } from '@microsoft/teams.api';
 
 import { ApiClient, GraphClient } from './api';
 import { App } from './app';
@@ -47,7 +47,7 @@ export async function $process<TPlugin extends IPlugin>(
   }
 
   const client = this.client.clone();
-  const apiClient = new ApiClient(serviceUrl, this.client.clone({ token: () => this.tokens.bot }), this.options.oauth?.clientSettings ?? DEFAULT_API_CLIENT_SETTINGS);
+  const apiClient = new ApiClient(serviceUrl, this.client.clone({ token: () => this.tokens.bot }), this.options.apiClientSettings);
   const userGraph = new GraphClient(
     client.clone({ token: () => userToken })
   );
