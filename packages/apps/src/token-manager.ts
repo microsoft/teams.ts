@@ -20,7 +20,7 @@ const MSAL_LOG_LEVEL_TO_LOG_LEVEL: Record<MSALLogLevel, LogLevel> = {
 const LOG_LEVEL_TO_MSAL_LOG_LEVEL: Record<LogLevel, MSALLogLevel> = {
   'error': MSALLogLevel.Error,
   'warn': MSALLogLevel.Warning,
-  'info': MSALLogLevel.Info,
+  'info': MSALLogLevel.Warning,// MSAL logs are noisy, so we if logging is set to info, we set msal logging to warning
   'debug': MSALLogLevel.Verbose,
   'trace': MSALLogLevel.Trace
 };
