@@ -1,3 +1,4 @@
+
 import { AuthenticationResult, ConfidentialClientApplication, ManagedIdentityApplication, LogLevel as MSALLogLevel, NodeSystemOptions } from '@azure/msal-node';
 
 import { ClientCredentials, Credentials, IToken, JsonWebToken, TokenCredentials, FederatedIdentityCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api';
@@ -12,7 +13,7 @@ const GET_DEFAULT_TOKEN_AUTHORITY = (tenantId: string) => `https://login.microso
 const MSAL_LOG_LEVEL_TO_LOG_LEVEL: Record<MSALLogLevel, LogLevel> = {
   [MSALLogLevel.Error]: 'error',
   [MSALLogLevel.Warning]: 'warn',
-  [MSALLogLevel.Info]: 'info',
+  [MSALLogLevel.Info]: 'debug', // MSAL logs are noisy, so only enable it only if debug logging is enabled
   [MSALLogLevel.Verbose]: 'debug',
   [MSALLogLevel.Trace]: 'trace'
 };
@@ -231,9 +232,10 @@ export class TokenManager {
       loggerCallback: (level, message) => {
         // There's a bug in MSAL where it warns this on all requests.
         // https://github.com/AzureAD/microsoft-authentication-library-for-js/issues/7917
-        if (message === 'Warning - No client info in response') {
+        if (message.endsWith('Warning - No client info in response')) {
           return;
         }
+        // If log level is info for
         this.logger.log(MSAL_LOG_LEVEL_TO_LOG_LEVEL[level], message);
       },
       piiLoggingEnabled: false,
