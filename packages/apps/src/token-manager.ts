@@ -235,7 +235,6 @@ export class TokenManager {
         if (message.endsWith('Warning - No client info in response')) {
           return;
         }
-        // If log level is info for
         this.logger.log(MSAL_LOG_LEVEL_TO_LOG_LEVEL[level], message);
       },
       piiLoggingEnabled: false,
