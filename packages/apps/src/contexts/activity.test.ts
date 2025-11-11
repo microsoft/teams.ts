@@ -53,8 +53,8 @@ describe('ActivityContext', () => {
       info: jest.fn(),
       warn: jest.fn(),
       error: jest.fn(),
-      log: jest.fn(),
       trace: jest.fn(),
+      log: jest.fn(),
     };
     mockLogger = {
       ...partialLogger,

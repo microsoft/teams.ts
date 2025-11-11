@@ -361,9 +361,12 @@ describe('McpClientPlugin', () => {
       mockCallTool.mockRejectedValueOnce(error);
       const mockLogger = {
         error: jest.fn(),
-        child: () => mockLogger,
+        info: jest.fn(),
         debug: jest.fn(),
         warn: jest.fn(),
+        trace: jest.fn(),
+        log: jest.fn(),
+        child: () => mockLogger,
       };
       const schema: Schema = {
         type: 'object',
