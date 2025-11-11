@@ -87,10 +87,10 @@ export type AppOptions<TPlugin extends IPlugin> = Partial<Credentials> & {
    * Skip authentication for HTTP requests
    */
   readonly skipAuth?: boolean;
-
   
   /**
-   * API client settings to use.
+   * API client settings used for overriding.
+   * If you have a regional bot, specify your oauthUrl here. 
    */
   readonly apiClientSettings?: ApiClientSettings
 };
