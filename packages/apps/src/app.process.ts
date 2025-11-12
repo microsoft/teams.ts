@@ -119,10 +119,6 @@ export async function $process<TPlugin extends IPlugin>(
     ...pluginContexts
   });
 
-  if (routes.length === 0) {
-    return { status: 200 };
-  }
-
   const send = context.send.bind(context);
   context.send = async (activity: ActivityLike, conversationRef?: ConversationReference) => {
     const res = await send(activity, conversationRef);
