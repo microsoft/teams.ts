@@ -13,16 +13,18 @@ const GET_DEFAULT_TOKEN_AUTHORITY = (tenantId: string) => `https://login.microso
 const MSAL_LOG_LEVEL_TO_LOG_LEVEL: Record<MSALLogLevel, LogLevel> = {
   [MSALLogLevel.Error]: 'error',
   [MSALLogLevel.Warning]: 'warn',
-  [MSALLogLevel.Info]: 'debug', // MSAL logs are noisy, so only enable it only if debug logging is enabled
-  [MSALLogLevel.Verbose]: 'debug',
+  // MSAL logs are noisy, so only enable it only if debug logging is enabled
+  [MSALLogLevel.Info]: 'trace',
+  [MSALLogLevel.Verbose]: 'trace',
   [MSALLogLevel.Trace]: 'trace'
 };
 const LOG_LEVEL_TO_MSAL_LOG_LEVEL: Record<LogLevel, MSALLogLevel> = {
   'error': MSALLogLevel.Error,
   'warn': MSALLogLevel.Warning,
-  'info': MSALLogLevel.Warning,// MSAL logs are noisy, so we if logging is set to info, we set msal logging to warning
-  'debug': MSALLogLevel.Verbose,
-  'trace': MSALLogLevel.Trace
+  // MSAL logs are noisy, so we if logging is set to info, we set msal logging to warning
+  'info': MSALLogLevel.Warning,
+  'debug': MSALLogLevel.Warning,
+  'trace': MSALLogLevel.Verbose
 };
 
 type MSALLoggerOptions = NodeSystemOptions['loggerOptions'];
