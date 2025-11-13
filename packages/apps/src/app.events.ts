@@ -1,3 +1,4 @@
+import { InvokeResponse } from '@microsoft/teams.api';
 import { EventHandler } from '@microsoft/teams.common';
 
 import { App } from './app';
@@ -39,9 +40,9 @@ export async function onActivity<TPlugin extends IPlugin>(
   this: App<TPlugin>,
   sender: ISender,
   event: IActivityEvent
-) {
+): Promise<InvokeResponse> {
   this.events.emit('activity', event);
-  await this.process(sender, { ...event, sender });
+  return await this.process(sender, { ...event, sender });
 }
 
 export async function onActivitySent<TPlugin extends IPlugin>(
