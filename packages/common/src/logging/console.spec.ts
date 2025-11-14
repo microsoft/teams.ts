@@ -124,4 +124,283 @@ describe('ConsoleLogger', () => {
 
     expect(infoSpy).toHaveBeenCalledTimes(3);
   });
+
+  describe('pattern matching with exclusions', () => {
+    afterEach(() => {
+      delete process.env.LOG;
+    });
+
+    it('should exclude specific logger with *,-LoggerName pattern', () => {
+      process.env.LOG = '*,-TokenManager';
+
+      const tokenLogger = new ConsoleLogger('TokenManager');
+      tokenLogger.info('Should not log');
+      expect(infoSpy).not.toHaveBeenCalled();
+
+      const appLogger = new ConsoleLogger('AppManager');
+      appLogger.info('Should log');
+      expect(infoSpy).toHaveBeenCalled();
+    });
+
+    it('should exclude loggers matching wildcard pattern', () => {
+      process.env.LOG = '*,-MSAL*';
+
+      const msalLogger = new ConsoleLogger('MSAL/TokenManager');
+      msalLogger.info('Should not log');
+      expect(infoSpy).not.toHaveBeenCalled();
+
+      const msalClientLogger = new ConsoleLogger('MSALClient');
+      msalClientLogger.info('Should not log');
+      expect(infoSpy).not.toHaveBeenCalled();
+
+      const appLogger = new ConsoleLogger('AppManager');
+      appLogger.info('Should log');
+      expect(infoSpy).toHaveBeenCalled();
+    });
+
+    it('should support multiple inclusion patterns', () => {
+      process.env.LOG = 'App*,Token*';
+
+      const appLogger = new ConsoleLogger('AppManager');
+      appLogger.info('Should log');
+      expect(infoSpy).toHaveBeenCalledTimes(1);
+
+      const tokenLogger = new ConsoleLogger('TokenManager');
+      tokenLogger.info('Should log');
+      expect(infoSpy).toHaveBeenCalledTimes(2);
+
+      const graphLogger = new ConsoleLogger('GraphClient');
+      graphLogger.info('Should not log');
+      expect(infoSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('should combine multiple inclusions with exclusions', () => {
+      process.env.LOG = 'App*,Token*,-TokenInternal';
+
+      const appLogger = new ConsoleLogger('AppManager');
+      appLogger.info('Should log');
+      expect(infoSpy).toHaveBeenCalledTimes(1);
+
+      const tokenLogger = new ConsoleLogger('TokenManager');
+      tokenLogger.info('Should log');
+      expect(infoSpy).toHaveBeenCalledTimes(2);
+
+      const internalLogger = new ConsoleLogger('TokenInternal');
+      internalLogger.info('Should not log');
+      expect(infoSpy).toHaveBeenCalledTimes(2);
+
+      const graphLogger = new ConsoleLogger('GraphClient');
+      graphLogger.info('Should not log');
+      expect(infoSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('should make exclusions always win over inclusions', () => {
+      process.env.LOG = 'App*,-App*';
+
+      const appLogger = new ConsoleLogger('AppManager');
+      appLogger.info('Should not log');
+      expect(infoSpy).not.toHaveBeenCalled();
+
+      const appClientLogger = new ConsoleLogger('AppClient');
+      appClientLogger.info('Should not log');
+      expect(infoSpy).not.toHaveBeenCalled();
+    });
+
+    it('should support exclusion-only patterns (implicit match all)', () => {
+      process.env.LOG = '-TokenManager';
+
+      const tokenLogger = new ConsoleLogger('TokenManager');
+      tokenLogger.info('Should not log');
+      expect(infoSpy).not.toHaveBeenCalled();
+
+      const appLogger = new ConsoleLogger('AppManager');
+      appLogger.info('Should log');
+      expect(infoSpy).toHaveBeenCalled();
+    });
+
+    it('should support multiple exclusions', () => {
+      process.env.LOG = '*,-Internal*,-*Debug';
+
+      const internalLogger = new ConsoleLogger('InternalService');
+      internalLogger.info('Should not log');
+      expect(infoSpy).not.toHaveBeenCalled();
+
+      const debugLogger = new ConsoleLogger('AppDebug');
+      debugLogger.info('Should not log');
+      expect(infoSpy).not.toHaveBeenCalled();
+
+      const appLogger = new ConsoleLogger('AppManager');
+      appLogger.info('Should log');
+      expect(infoSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle whitespace in comma-separated patterns', () => {
+      process.env.LOG = 'App* , Token* , -TokenInternal';
+
+      const appLogger = new ConsoleLogger('AppManager');
+      appLogger.info('Should log');
+      expect(infoSpy).toHaveBeenCalledTimes(1);
+
+      const tokenLogger = new ConsoleLogger('TokenManager');
+      tokenLogger.info('Should log');
+      expect(infoSpy).toHaveBeenCalledTimes(2);
+
+      const internalLogger = new ConsoleLogger('TokenInternal');
+      internalLogger.info('Should not log');
+      expect(infoSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('should handle exclusion patterns with wildcards at different positions', () => {
+      process.env.LOG = '*,-*Internal,-Debug*,-*Middle*';
+
+      const internalLogger = new ConsoleLogger('ServiceInternal');
+      internalLogger.info('Should not log');
+      expect(infoSpy).not.toHaveBeenCalled();
+
+      const debugLogger = new ConsoleLogger('DebugManager');
+      debugLogger.info('Should not log');
+      expect(infoSpy).not.toHaveBeenCalled();
+
+      const middleLogger = new ConsoleLogger('ServiceMiddleManager');
+      middleLogger.info('Should not log');
+      expect(infoSpy).not.toHaveBeenCalled();
+
+      const appLogger = new ConsoleLogger('AppManager');
+      appLogger.info('Should log');
+      expect(infoSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should match everything when pattern is *', () => {
+      process.env.LOG = '*';
+
+      const logger1 = new ConsoleLogger('AnyLogger');
+      logger1.info('Should log');
+      expect(infoSpy).toHaveBeenCalledTimes(1);
+
+      const logger2 = new ConsoleLogger('AnotherLogger');
+      logger2.info('Should log');
+      expect(infoSpy).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('pattern merging in child loggers', () => {
+    afterEach(() => {
+      delete process.env.LOG;
+    });
+
+    it('should merge basic patterns from parent and child', () => {
+      const parent = new ConsoleLogger('Parent', { pattern: 'App*' });
+      const child = parent.child('Child', { pattern: 'Token*' });
+
+      expect((child as any).loggerOptions.pattern).toBe('App*,Token*');
+    });
+
+    it('should deduplicate inclusion patterns', () => {
+      const parent = new ConsoleLogger('Parent', { pattern: 'App*,Token*' });
+      const child = parent.child('Child', { pattern: 'App*' });
+
+      expect((child as any).loggerOptions.pattern).toBe('App*,Token*');
+    });
+
+    it('should optimize wildcards by removing redundant patterns', () => {
+      const parent = new ConsoleLogger('Parent', { pattern: '*,App*' });
+      const child = parent.child('Child', { pattern: 'Token*' });
+
+      expect((child as any).loggerOptions.pattern).toBe('*');
+    });
+
+    it('should merge exclusions from parent and child', () => {
+      const parent = new ConsoleLogger('Parent', { pattern: '*,-MSAL*' });
+      const child = parent.child('Child', { pattern: '-TokenInternal' });
+
+      expect((child as any).loggerOptions.pattern).toBe('*,-MSAL*,-TokenInternal');
+
+      // Verify behavior - MSAL and TokenInternal are both excluded
+      const msalLogger = new ConsoleLogger('MSAL/Client', {
+        pattern: '*,-MSAL*,-TokenInternal',
+      });
+      msalLogger.info('Should not log');
+      expect(infoSpy).not.toHaveBeenCalled();
+
+      const internalLogger = new ConsoleLogger('TokenInternal', {
+        pattern: '*,-MSAL*,-TokenInternal',
+      });
+      internalLogger.info('Should not log');
+      expect(infoSpy).not.toHaveBeenCalled();
+    });
+
+    it('should deduplicate exclusion patterns', () => {
+      const parent = new ConsoleLogger('Parent', {
+        pattern: '-MSAL*,-Internal*',
+      });
+      const child = parent.child('Child', { pattern: '-MSAL*' });
+
+      expect((child as any).loggerOptions.pattern).toBe('*,-MSAL*,-Internal*');
+    });
+
+    it('should merge complex patterns with inclusions and exclusions', () => {
+      const parent = new ConsoleLogger('Parent', {
+        pattern: 'App*,-AppInternal',
+      });
+      const child = parent.child('Child', { pattern: 'Token*,-TokenDebug' });
+
+      expect((child as any).loggerOptions.pattern).toBe(
+        'App*,Token*,-AppInternal,-TokenDebug'
+      );
+
+      // Verify behavior
+      process.env.LOG = 'App*,Token*,-AppInternal,-TokenDebug';
+
+      const appLogger = new ConsoleLogger('AppManager');
+      appLogger.info('Should log');
+      expect(infoSpy).toHaveBeenCalledTimes(1);
+
+      const tokenLogger = new ConsoleLogger('TokenManager');
+      tokenLogger.info('Should log');
+      expect(infoSpy).toHaveBeenCalledTimes(2);
+
+      const appInternalLogger = new ConsoleLogger('AppInternal');
+      appInternalLogger.info('Should not log');
+      expect(infoSpy).toHaveBeenCalledTimes(2);
+
+      const tokenDebugLogger = new ConsoleLogger('TokenDebug');
+      tokenDebugLogger.info('Should not log');
+      expect(infoSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('should handle multi-level inheritance without duplicates', () => {
+      const grandparent = new ConsoleLogger('Grandparent', {
+        pattern: 'App*,-AppInternal',
+      });
+      const parent = grandparent.child('Parent', { pattern: 'Token*' });
+      const child = parent.child('Child', { pattern: 'Graph*,-GraphDebug' });
+
+      expect((child as any).loggerOptions.pattern).toBe(
+        'App*,Token*,Graph*,-AppInternal,-GraphDebug'
+      );
+    });
+
+    it('should merge when parent has no pattern (defaults to *)', () => {
+      const parent = new ConsoleLogger('Parent'); // No pattern = defaults to *
+      const child = parent.child('Child', { pattern: '-TokenInternal' });
+
+      expect((child as any).loggerOptions.pattern).toBe('*,-TokenInternal');
+    });
+
+    it('should preserve parent pattern when child has no pattern', () => {
+      const parent = new ConsoleLogger('Parent', { pattern: 'App*,-AppInternal' });
+      const child = parent.child('Child'); // No override options
+
+      expect((child as any).loggerOptions.pattern).toBe('App*,-AppInternal');
+    });
+
+    it('should handle child with wildcard merging with parent exclusions', () => {
+      const parent = new ConsoleLogger('Parent', { pattern: '*,-MSAL*' });
+      const child = parent.child('Child', { pattern: '*,-TokenInternal' });
+
+      expect((child as any).loggerOptions.pattern).toBe(
+        '*,-MSAL*,-TokenInternal'
+      );
+    });
+  });
 });

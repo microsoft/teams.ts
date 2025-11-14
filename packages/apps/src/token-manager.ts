@@ -13,18 +13,16 @@ const GET_DEFAULT_TOKEN_AUTHORITY = (tenantId: string) => `https://login.microso
 const MSAL_LOG_LEVEL_TO_LOG_LEVEL: Record<MSALLogLevel, LogLevel> = {
   [MSALLogLevel.Error]: 'error',
   [MSALLogLevel.Warning]: 'warn',
-  // MSAL logs are noisy, so only enable it only if debug logging is enabled
-  [MSALLogLevel.Info]: 'trace',
-  [MSALLogLevel.Verbose]: 'trace',
+  [MSALLogLevel.Info]: 'info',
+  [MSALLogLevel.Verbose]: 'debug',
   [MSALLogLevel.Trace]: 'trace'
 };
 const LOG_LEVEL_TO_MSAL_LOG_LEVEL: Record<LogLevel, MSALLogLevel> = {
   'error': MSALLogLevel.Error,
   'warn': MSALLogLevel.Warning,
-  // MSAL logs are noisy, so we if logging is set to info, we set msal logging to warning
-  'info': MSALLogLevel.Warning,
-  'debug': MSALLogLevel.Warning,
-  'trace': MSALLogLevel.Verbose
+  'info': MSALLogLevel.Info,
+  'debug': MSALLogLevel.Verbose,
+  'trace': MSALLogLevel.Trace
 };
 
 type MSALLoggerOptions = NodeSystemOptions['loggerOptions'];
@@ -40,11 +38,17 @@ export type TokenManagerOptions = {
 export class TokenManager {
   readonly credentials?: Credentials;
   private logger: ILogger;
+  private _msalLogger: ILogger;
   private confidentialClientsByTenantId: Record<string, ConfidentialClientApplication> = {};
   private managedIdentityClient: ManagedIdentityApplication | null = null;
 
   constructor(options: TokenManagerOptions, logger: ILogger) {
     this.logger = logger.child('TokenManager') ?? new ConsoleLogger('TokenManager');
+    this._msalLogger = this.logger.child('azure/msal-node', {
+      // Msal logging is fairly noisy. So we keep it quiet unless the user
+      // explicitly turns it on
+      pattern: '-azure/msal-node'
+    })
     this.credentials = this.initializeCredentials(options);
   }
 
@@ -237,7 +241,7 @@ export class TokenManager {
         if (message.endsWith('Warning - No client info in response')) {
           return;
         }
-        this.logger.log(MSAL_LOG_LEVEL_TO_LOG_LEVEL[level], message);
+        this._msalLogger.log(MSAL_LOG_LEVEL_TO_LOG_LEVEL[level], message);
       },
       piiLoggingEnabled: false,
     };
