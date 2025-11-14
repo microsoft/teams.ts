@@ -48,7 +48,7 @@ export class TokenManager {
       // Msal logging is fairly noisy. So we keep it quiet unless the user
       // explicitly turns it on
       pattern: '-azure/msal-node'
-    })
+    });
     this.credentials = this.initializeCredentials(options);
   }
 
