@@ -183,11 +183,12 @@ function mergePatterns(parentPattern?: string, childPattern?: string): string {
   // Combine and deduplicate exclusions
   const allExclusions = [...new Set([...parent.exclusions, ...child.exclusions])];
 
-  // Build merged pattern
-  const inclusionPart = optimizedInclusions.join(',');
-  const exclusionPart = allExclusions.length > 0 ? ',-' + allExclusions.join(',-') : '';
+  // Build merged pattern: combine inclusions and exclusions
+  const inclusionStrings = optimizedInclusions;
+  const exclusionStrings = allExclusions.map(e => '-' + e);
+  const allPatterns = [...inclusionStrings, ...exclusionStrings];
 
-  return inclusionPart + exclusionPart;
+  return allPatterns.join(',');
 }
 
 function parseLogLevel(level?: string): LogLevel | undefined {
