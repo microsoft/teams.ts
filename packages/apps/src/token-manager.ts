@@ -40,9 +40,6 @@ function isFederatedIdentityCredentials(credentials: Credentials): credentials i
   return 'managedIdentityType' in credentials;
 }
 
-function isUserManagedIdentityCredentials(credentials: Credentials): credentials is UserManagedIdentityCredentials {
-  return !isClientCredentials(credentials) && !isTokenCredentials(credentials) && !isFederatedIdentityCredentials(credentials);
-}
 
 export type TokenManagerOptions = {
   readonly clientId?: string;
@@ -131,12 +128,10 @@ export class TokenManager {
       return this.getTokenWithTokenProvider(this.credentials, scope, tenantId);
     } else if (isFederatedIdentityCredentials(this.credentials)) {
       return this.getTokenWithFederatedCredentials(this.credentials, scope, tenantId);
-    } else if (isUserManagedIdentityCredentials(this.credentials)) {
+    } else {
       return this.getTokenWithManagedIdentity(this.credentials, scope);
     }
 
-    this.logger.warn('getToken was called, but credentials did not match any of the available credential types');
-    return null;
   }
 
   private async getTokenWithClientCredentials(credentials: ClientCredentials, scope: string, tenantId: string): Promise<IToken | null> {
@@ -228,7 +223,6 @@ export class TokenManager {
         );
       }
     } else {
-      // Must be UserManagedIdentityCredentials
       this.managedIdentityClient = new ManagedIdentityApplication({
         managedIdentityIdParams: {
           userAssignedClientId: credentials.clientId
