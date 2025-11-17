@@ -27,6 +27,23 @@ const LOG_LEVEL_TO_MSAL_LOG_LEVEL: Record<LogLevel, MSALLogLevel> = {
 
 type MSALLoggerOptions = NodeSystemOptions['loggerOptions'];
 
+// Type guard functions
+function isClientCredentials(credentials: Credentials): credentials is ClientCredentials {
+  return 'clientSecret' in credentials;
+}
+
+function isTokenCredentials(credentials: Credentials): credentials is TokenCredentials {
+  return 'token' in credentials;
+}
+
+function isFederatedIdentityCredentials(credentials: Credentials): credentials is FederatedIdentityCredentials {
+  return 'managedIdentityType' in credentials;
+}
+
+function isUserManagedIdentityCredentials(credentials: Credentials): credentials is UserManagedIdentityCredentials {
+  return !isClientCredentials(credentials) && !isTokenCredentials(credentials) && !isFederatedIdentityCredentials(credentials);
+}
+
 export type TokenManagerOptions = {
   readonly clientId?: string;
   readonly clientSecret?: string;
@@ -85,7 +102,6 @@ export class TokenManager {
       if (managedIdentityClientId == null || managedIdentityClientId.toLowerCase() === clientId.toLowerCase()) {
         this.logger.debug('Using user managed identity auth');
         return {
-          type: 'userManagedIdentity',
           clientId,
           tenantId
         };
@@ -93,7 +109,6 @@ export class TokenManager {
         const identityType = managedIdentityClientId === 'system' ? 'system' : 'user' as const;
         this.logger.debug(`Using Federated Identity Credentials auth (${identityType})`);
         return {
-          type: 'federatedIdentityCredentials',
           clientId,
           tenantId,
           managedIdentityClientId,
@@ -110,14 +125,14 @@ export class TokenManager {
       return null;
     }
 
-    if ('clientSecret' in this.credentials) {
+    if (isClientCredentials(this.credentials)) {
       return this.getTokenWithClientCredentials(this.credentials, scope, tenantId);
-    } else if ('token' in this.credentials) {
+    } else if (isTokenCredentials(this.credentials)) {
       return this.getTokenWithTokenProvider(this.credentials, scope, tenantId);
-    } else if (this.credentials.type === 'userManagedIdentity') {
-      return this.getTokenWithManagedIdentity(this.credentials, scope);
-    } else if (this.credentials.type === 'federatedIdentityCredentials') {
+    } else if (isFederatedIdentityCredentials(this.credentials)) {
       return this.getTokenWithFederatedCredentials(this.credentials, scope, tenantId);
+    } else if (isUserManagedIdentityCredentials(this.credentials)) {
+      return this.getTokenWithManagedIdentity(this.credentials, scope);
     }
 
     this.logger.warn('getToken was called, but credentials did not match any of the available credential types');
@@ -191,31 +206,37 @@ export class TokenManager {
       return this.managedIdentityClient;
     }
 
-    if (credentials.type === 'userManagedIdentity' || credentials.managedIdentityType === 'user') {
-      let clientId: string;
-      if (credentials.type === 'userManagedIdentity') {
-        clientId = credentials.clientId;
+    if (isFederatedIdentityCredentials(credentials)) {
+      if (credentials.managedIdentityType === 'user') {
+        this.managedIdentityClient = new ManagedIdentityApplication({
+          managedIdentityIdParams: {
+            userAssignedClientId: credentials.managedIdentityClientId
+          },
+          system: {
+            loggerOptions: this.buildLoggerOptions()
+          }
+        });
       } else {
-        clientId = credentials.managedIdentityClientId;
+        this.managedIdentityClient = new ManagedIdentityApplication(
+          {
+            managedIdentityIdParams: undefined, //no options automatically indicates system assigned managed identity
+            system: {
+              loggerOptions: this.buildLoggerOptions()
+            }
+
+          }
+        );
       }
+    } else {
+      // Must be UserManagedIdentityCredentials
       this.managedIdentityClient = new ManagedIdentityApplication({
         managedIdentityIdParams: {
-          userAssignedClientId: clientId
+          userAssignedClientId: credentials.clientId
         },
         system: {
           loggerOptions: this.buildLoggerOptions()
         }
       });
-    } else {
-      this.managedIdentityClient = new ManagedIdentityApplication(
-        {
-          managedIdentityIdParams: undefined, //no options automatically indicates system assigned managed identity
-          system: {
-            loggerOptions: this.buildLoggerOptions()
-          }
-
-        }
-      );
     }
 
     return this.managedIdentityClient;
