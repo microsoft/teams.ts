@@ -1,5 +1,15 @@
 # @microsoft/teams.apps
 
+## 2.0.3
+
+### Patch Changes
+
+- Regional oauth support, additional auth mechanisms support, resync graph endpoints
+- Updated dependencies
+  - @microsoft/teams.api@2.0.3
+  - @microsoft/teams.common@2.0.3
+  - @microsoft/teams.graph@2.0.3
+
 ## 2.0.2
 
 ### Patch Changes

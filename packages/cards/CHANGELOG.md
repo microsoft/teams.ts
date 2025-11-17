@@ -1,5 +1,11 @@
 # @microsoft/teams.cards
 
+## 2.0.3
+
+### Patch Changes
+
+- Regional oauth support, additional auth mechanisms support, resync graph endpoints
+
 ## 2.0.2
 
 ### Patch Changes

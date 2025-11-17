@@ -1,6 +1,6 @@
 {
   "name": "@tests/mcp",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "license": "MIT",
   "main": "dist/index",
@@ -22,19 +22,19 @@
     "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
   },
   "dependencies": {
-    "@microsoft/teams.api": "2.0.2",
-    "@microsoft/teams.apps": "2.0.2",
-    "@microsoft/teams.cards": "2.0.2",
-    "@microsoft/teams.common": "2.0.2",
-    "@microsoft/teams.dev": "2.0.2",
-    "@microsoft/teams.graph": "2.0.2",
-    "@microsoft/teams.mcp": "2.0.2",
-    "@microsoft/teams.openai": "2.0.2",
+    "@microsoft/teams.api": "2.0.3",
+    "@microsoft/teams.apps": "2.0.3",
+    "@microsoft/teams.cards": "2.0.3",
+    "@microsoft/teams.common": "2.0.3",
+    "@microsoft/teams.dev": "2.0.3",
+    "@microsoft/teams.graph": "2.0.3",
+    "@microsoft/teams.mcp": "2.0.3",
+    "@microsoft/teams.openai": "2.0.3",
     "@modelcontextprotocol/sdk": "^1.9.0",
     "zod": "^3.24.3"
   },
   "devDependencies": {
-    "@microsoft/teams.config": "2.0.2",
+    "@microsoft/teams.config": "2.0.3",
     "@modelcontextprotocol/inspector": "^0.16.5",
     "@types/node": "^22.5.4",
     "cross-env": "^7.0.3",

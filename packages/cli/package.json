@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.cli",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -40,7 +40,7 @@
     "test": "npx jest"
   },
   "dependencies": {
-    "@microsoft/teams.common": "2.0.2",
+    "@microsoft/teams.common": "2.0.3",
     "change-case": "^5.4.4",
     "handlebars": "^4.7.8",
     "yaml": "^2.7.0",
@@ -48,7 +48,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@microsoft/teams.config": "2.0.2",
+    "@microsoft/teams.config": "2.0.3",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.10.7",
     "@types/yargs": "^17.0.33",

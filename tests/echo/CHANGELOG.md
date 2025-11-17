@@ -1,5 +1,17 @@
 # @tests/echo
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies
+  - @microsoft/teams.api@2.0.3
+  - @microsoft/teams.apps@2.0.3
+  - @microsoft/teams.cards@2.0.3
+  - @microsoft/teams.common@2.0.3
+  - @microsoft/teams.dev@2.0.3
+  - @microsoft/teams.graph@2.0.3
+
 ## 0.0.3
 
 ### Patch Changes
