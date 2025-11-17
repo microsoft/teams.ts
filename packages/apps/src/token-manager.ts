@@ -70,7 +70,6 @@ export class TokenManager {
     if (clientId && clientSecret) {
       this.logger.debug('Using Client Credentials auth');
       return {
-        type: 'clientSecret',
         clientId,
         clientSecret,
         tenantId,
@@ -78,7 +77,6 @@ export class TokenManager {
     } else if (clientId && token) {
       this.logger.debug(('Using custom token factory auth'));
       return {
-        type: 'token',
         clientId,
         tenantId,
         token,
@@ -112,19 +110,18 @@ export class TokenManager {
       return null;
     }
 
-    switch (this.credentials.type) {
-      case 'clientSecret':
-        return this.getTokenWithClientCredentials(this.credentials, scope, tenantId);
-      case 'token':
-        return this.getTokenWithTokenProvider(this.credentials, scope, tenantId);
-      case 'userManagedIdentity':
-        return this.getTokenWithManagedIdentity(this.credentials, scope);
-      case 'federatedIdentityCredentials':
-        return this.getTokenWithFederatedCredentials(this.credentials, scope, tenantId);
-      default:
-        this.logger.warn('getToken was called, but credentials did not match any of the available credential types');
-        return null;
+    if ('clientSecret' in this.credentials) {
+      return this.getTokenWithClientCredentials(this.credentials, scope, tenantId);
+    } else if ('token' in this.credentials) {
+      return this.getTokenWithTokenProvider(this.credentials, scope, tenantId);
+    } else if (this.credentials.type === 'userManagedIdentity') {
+      return this.getTokenWithManagedIdentity(this.credentials, scope);
+    } else if (this.credentials.type === 'federatedIdentityCredentials') {
+      return this.getTokenWithFederatedCredentials(this.credentials, scope, tenantId);
     }
+
+    this.logger.warn('getToken was called, but credentials did not match any of the available credential types');
+    return null;
   }
 
   private async getTokenWithClientCredentials(credentials: ClientCredentials, scope: string, tenantId: string): Promise<IToken | null> {
