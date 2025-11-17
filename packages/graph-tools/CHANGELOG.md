@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.4
+
+### Patch Changes
+
+- Fix backward compat issue with TokenCredentials
+
 ## 2.0.3
 
 ### Patch Changes

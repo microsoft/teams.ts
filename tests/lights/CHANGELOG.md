@@ -1,5 +1,19 @@
 # @tests/lights
 
+## 0.0.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @microsoft/teams.ai@2.0.4
+  - @microsoft/teams.api@2.0.4
+  - @microsoft/teams.apps@2.0.4
+  - @microsoft/teams.cards@2.0.4
+  - @microsoft/teams.common@2.0.4
+  - @microsoft/teams.dev@2.0.4
+  - @microsoft/teams.graph@2.0.4
+  - @microsoft/teams.openai@2.0.4
+
 ## 0.0.4
 
 ### Patch Changes
