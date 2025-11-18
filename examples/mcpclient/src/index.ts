@@ -10,7 +10,6 @@ const app = new App({
 });
 
 
-// :snippet-start: mcp-client-prompt-config
 const logger = new ConsoleLogger('mcp-client', { level: 'debug' });
 const prompt = new ChatPrompt(
   {
@@ -61,6 +60,5 @@ app.on('message', async ({ send, activity }) => {
     await send(result.content);
   }
 });
-// :snippet-end:
 
 app.start(process.env.PORT || 3002).catch(console.error);

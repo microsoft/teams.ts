@@ -19,17 +19,6 @@ import {
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 function createBasicCard() {
-  // :snippet-start: basic-card-building
-  /**
- import {
-  AdaptiveCard,
-  TextBlock,
-  ToggleInput,
-  ExecuteAction,
-  ActionSet,
-} from "@microsoft/teams.cards";
-*/
-
   const card = new AdaptiveCard(
     new TextBlock('Hello world', { wrap: true, weight: 'Bolder' }),
     new ToggleInput('Notify me').withId('notify'),
@@ -39,20 +28,16 @@ function createBasicCard() {
         .withAssociatedInputs('auto')
     )
   );
-  // :snippet-end:
 
   return card;
 }
 
 // @ts-expect-error no-unused-vars
 function invalidCard() {
-  // :snippet-start: improved-type-checking
   // @ts-expect-error: "huge" is not a valid size for TextBlock
   const textBlock = new TextBlock('Valid', { size: 'huge' });
-  // :snippet-end:
 }
 
-// :snippet-start: form-card
 function createFormCard() {
   return new AdaptiveCard(
     new TextBlock('Please fill out the below form:', {
@@ -81,10 +66,8 @@ function createFormCard() {
     )
   );
 }
-// :snippet-end:
 
 function createJsonCard() {
-  // :snippet-start: raw-card-json
   const rawCard: IAdaptiveCard = {
     type: 'AdaptiveCard',
     body: [
@@ -128,7 +111,6 @@ function createJsonCard() {
     ],
     version: '1.5',
   };
-  // :snippet-end:
 
   return rawCard;
 }
@@ -142,15 +124,6 @@ function createActionCard() {
     new TextInput({ id: 'feedback' })
       .withLabel('Feedback')
       .withPlaceholder('Enter your feedback'),
-    // :snippet-start: multiple-actions-card
-    /**
-     * import {
-     *  AdaptiveCard,
-     *  ExecuteAction,
-     *  OpenUrlAction,
-     *  ActionSet,
-     * } from "@microsoft/teams.cards";
-     */
     new ActionSet(
       new ExecuteAction({ title: 'Submit Feedback' })
         .withData({ action: 'submit_feedback' })
@@ -159,7 +132,6 @@ function createActionCard() {
         'Learn More'
       )
     )
-    // :snippet-end:
   );
 }
 
@@ -173,24 +145,18 @@ function createActionCardMixed() {
       .withLabel('Feedback')
       .withPlaceholder('Enter your feedback'),
     new ActionSet(
-      // :snippet-start: single-action
-      /** import { ExecuteAction } from "@microsoft/teams.cards"; */
       new ExecuteAction({ title: 'Submit Feedback' })
         .withData({ action: 'submit_feedback' })
         .withAssociatedInputs('auto'),
-      // :snippet-end:
-      // :snippet-start: raw-json-action
       {
         type: 'Action.OpenUrl',
         url: 'https://adaptivecards.microsoft.com',
         title: 'Learn More',
       } as const
-      // :snippet-end:
     )
   );
 }
 
-// :snippet-start: inputs-included
 function editProfileCard() {
   const card = new AdaptiveCard(
     new TextInput({ id: 'name' }).withLabel('Name').withValue('John Doe'),
@@ -221,9 +187,7 @@ function editProfileCard() {
 
   return card;
 }
-// :snippet-end:
 
-// :snippet-start: input-validation
 function createProfileCardInputValidation() {
   const ageInput = new NumberInput({ id: 'age' })
     .withLabel('Age')
@@ -250,7 +214,6 @@ function createProfileCardInputValidation() {
 
   return card;
 }
-// :snippet-end:
 
 const app = new App({
   plugins: [new DevtoolsPlugin()],
@@ -287,10 +250,8 @@ const cardGeneratorByName: Record<
   },
 };
 
-// :snippet-start: sending-adaptive-card-e2e
 app.on('message', async ({ send, activity }) => {
   await send({ type: 'typing' });
-  // :remove-start:
 
   const cardGenerator =
     cardGeneratorByName[activity.text.toLowerCase().slice(1)];
@@ -310,7 +271,6 @@ app.on('message', async ({ send, activity }) => {
 
   await send(usageCard);
 
-  // :remove-end:
   const card = new AdaptiveCard(
     new TextBlock('Create New Task', {
       size: 'Large',
@@ -346,9 +306,7 @@ app.on('message', async ({ send, activity }) => {
   // const message  = new MessageActivity('Enter this form').addCard('adaptive', card);
   // await send(message);
 });
-// :snippet-end:
 
-// :snippet-start: message-handler
 app.on('card.action', async ({ activity, send }) => {
   const data = activity.value?.action?.data;
   if (!data?.action) {
@@ -369,7 +327,6 @@ app.on('card.action', async ({ activity, send }) => {
   console.debug('Received action data:', data);
 
   switch (data.action) {
-    // :remove-start:
     case 'submit_basic':
       await send(`Notification preference set to: ${data.notify}`);
       break;
@@ -386,7 +343,6 @@ app.on('card.action', async ({ activity, send }) => {
       );
       break;
 
-    // :remove-end:
     case 'submit_feedback':
       await send(`Feedback received: ${data.feedback}`);
       break;
@@ -424,6 +380,5 @@ app.on('card.action', async ({ activity, send }) => {
     value: 'Action processed successfully',
   } satisfies AdaptiveCardActionMessageResponse;
 });
-// :snippet-end:
 
 app.start(process.env.PORT || 3978).catch(console.error);

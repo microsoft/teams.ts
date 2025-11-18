@@ -34,7 +34,6 @@ app.on('message', async ({ send, activity }) => {
   await send(`you said "${activity.text}"`);
 });
 
-// :snippet-start: message-ext-query-link
 app.on('message.ext.query-link', async ({ activity }) => {
   const { url } = activity.value;
 
@@ -56,8 +55,6 @@ app.on('message.ext.query-link', async ({ activity }) => {
     },
   };
 });
-// :snippet-end: message-ext-query-link
-// :snippet-start: message-ext-submit
 app.on('message.ext.submit', async ({ activity }) => {
   const { commandId } = activity.value;
   let card: IAdaptiveCard;
@@ -83,9 +80,7 @@ app.on('message.ext.submit', async ({ activity }) => {
     },
   };
 });
-// :snippet-end: message-ext-submit
 
-// :snippet-start: message-ext-open
 app.on('message.ext.open', async ({ activity, api }) => {
   const conversationId = activity.conversation.id;
   const members = await api.conversations.members(conversationId).get();
@@ -103,9 +98,7 @@ app.on('message.ext.open', async ({ activity, api }) => {
     },
   };
 });
-// :snippet-end: message-ext-open
 
-// :snippet-start: message-ext-query
 app.on('message.ext.query', async ({ activity }) => {
   const { commandId } = activity.value;
   const searchQuery = activity.value.parameters![0].value;
@@ -130,9 +123,7 @@ app.on('message.ext.query', async ({ activity }) => {
 
   return { status: 400 };
 });
-// :snippet-end: message-ext-query
 
-// :snippet-start: message-ext-select-item
 app.on('message.ext.select-item', async ({ activity, send }) => {
   const { option } = activity.value;
 
@@ -142,9 +133,7 @@ app.on('message.ext.select-item', async ({ activity, send }) => {
     status: 200,
   };
 });
-// :snippet-end: message-ext-select-item
 
-// :snippet-start: message-ext-query-settings-url
 app.on('message.ext.query-settings-url', async ({ activity }) => {
   // Get user settings from storage if available
   const userSettings = await app.storage.get(activity.from.id) || { selectedOption: '' };
@@ -167,9 +156,7 @@ app.on('message.ext.query-settings-url', async ({ activity }) => {
     }
   };
 });
-// :snippet-end: message-ext-query-settings-url
 
-// :snippet-start: message-ext-setting
 app.on('message.ext.setting', async ({ activity, send }) => {
   const { state } = activity.value;
   if (state == 'CancelledByUser') {
@@ -188,10 +175,7 @@ app.on('message.ext.setting', async ({ activity, send }) => {
     status: 200
   };
 });
-// :snippet-end: message-ext-setting
 
-// :snippet-start: message-ext-serve-html
 app.tab('settings', path.resolve(__dirname));
-// :snippet-end: message-ext-serve-html
 
 app.start().catch(console.error);

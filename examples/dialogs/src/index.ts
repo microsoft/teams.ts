@@ -35,7 +35,6 @@ const app = new App({
 // Hosts a static webpage at /tabs/dialog-form
 app.tab('dialog-form', path.join(__dirname, 'views', 'customform'));
 
-// :snippet-start: dialog-entry-point
 app.on('message', async ({ send }) => {
   await send({ type: 'typing' });
 
@@ -74,10 +73,8 @@ app.on('message', async ({ send }) => {
   // Send the card as an attachment
   await send(new MessageActivity('Enter this form').addCard('adaptive', card));
 });
-// :snippet-end:
 
 /**
-// :snippet-start: dialog-open
 app.on('dialog.open', async ({ activity }) => {
   const card: IAdaptiveCard = new AdaptiveCard()...
 
@@ -92,7 +89,6 @@ app.on('dialog.open', async ({ activity }) => {
     },
   };
 }
-// :snippet-end:
 */
 
 app.event('error', ({ error }) => {
@@ -102,7 +98,6 @@ app.event('error', ({ error }) => {
 app.on('dialog.open', async ({ activity, next }) => {
   const dialogType = activity.value.data.opendialogtype;
 
-  // :snippet-start: dialog-simple-card
   if (dialogType === 'simple_form') {
     const dialogCard = new AdaptiveCard(
       {
@@ -136,10 +131,8 @@ app.on('dialog.open', async ({ activity, next }) => {
       },
     };
   }
-  // :snippet-end:
 
   if (dialogType === 'webpage_dialog') {
-    // :snippet-start: dialog-webpage
     return {
       task: {
         type: 'continue',
@@ -155,7 +148,6 @@ app.on('dialog.open', async ({ activity, next }) => {
         },
       },
     };
-    // :snippet-end:
   }
   next();
 });
@@ -164,7 +156,6 @@ app.on('dialog.open', async ({ activity, next }) => {
   const dialogType = activity.value.data.opendialogtype;
 
   if (dialogType === 'multi_step_form') {
-    // :snippet-start: dialog-multi-step-step-1
     const dialogCard = new AdaptiveCard(
       {
         type: 'TextBlock',
@@ -196,13 +187,11 @@ app.on('dialog.open', async ({ activity, next }) => {
         },
       },
     };
-    // :snippet-end:
   }
 
   next();
 });
 
-// :snippet-start: dialog-submission
 app.on('dialog.submit', async ({ activity, send, next }) => {
   const dialogType = activity.value.data?.submissiondialogtype;
 
@@ -219,13 +208,9 @@ app.on('dialog.submit', async ({ activity, send, next }) => {
     };
   }
 
-  // :remove-start:
   next();
-  // :remove-end:
 });
-// :snippet-end:
 
-// :snippet-start: dialog-submission-webpage
 // The submission from a webpage happens via the microsoftTeams.tasks.submitTask(formData)
 // call.
 app.on('dialog.submit', async ({ activity, send, next }) => {
@@ -244,13 +229,9 @@ app.on('dialog.submit', async ({ activity, send, next }) => {
     };
   }
 
-  // :remove-start:
   next();
-  // :remove-end:
 });
-// :snippet-end:
 
-// :snippet-start: dialog-submission-multistep
 app.on('dialog.submit', async ({ activity, send, next }) => {
   const dialogType = activity.value.data.submissiondialogtype;
 
@@ -301,10 +282,7 @@ app.on('dialog.submit', async ({ activity, send, next }) => {
     };
   }
 
-  // :remove-start:
   next();
-  // :remove-end:
 });
-// :snippet-end:
 
 app.start(process.env.PORT || 3978).catch(console.error);

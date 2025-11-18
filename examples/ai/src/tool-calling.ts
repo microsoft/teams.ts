@@ -13,7 +13,6 @@ export const handlePokemonToolCalling = async (
   send: (activity: ActivityLike) => Promise<SentActivity>,
   log: ILogger
 ) => {
-  // :snippet-start: single-function-calling
   const prompt = new ChatPrompt({
     instructions: 'You are a helpful assistant that can look up Pokemon for the user.',
     model,
@@ -57,7 +56,6 @@ export const handlePokemonToolCalling = async (
   // activity.text could have text like 'pikachu'
   const result = await prompt.send(activity.text);
   await send(result.content ?? 'Sorry I could not find that pokemon');
-  // :snippet-end:
 };
 
 export const handleGetWeatherToolCalling = async (
@@ -66,7 +64,6 @@ export const handleGetWeatherToolCalling = async (
   send: (activity: ActivityLike) => Promise<SentActivity>,
   log: ILogger
 ) => {
-  // :snippet-start: multiple-function-calling
   // activity.text could be something like "what's my weather?"
   // The LLM will need to first figure out the user's location
   // Then pass that in to the weatherSearch
@@ -121,5 +118,4 @@ export const handleGetWeatherToolCalling = async (
   // The LLM will then produce a final response to be sent back to the user
   const result = await prompt.send(activity.text);
   await send(result.content ?? 'Sorry I could not figure it out');
-  // :snippet-end:
 };

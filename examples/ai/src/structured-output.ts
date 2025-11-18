@@ -39,7 +39,6 @@ export const handleStructuredOutput = async (
     throw new Error('Not implemented');
   });
 
-  // :snippet-start: structured-output
   const result = await prompt.send(activity.text, {
     autoFunctionCalling: false // Disable automatic function calling
   });
@@ -48,10 +47,8 @@ export const handleStructuredOutput = async (
   await send(`The LLM responed with the following structured output: ${JSON.stringify(functionCallArgs, undefined, 2)}"`); // :remove:
 
   const firstCall = result.function_calls?.[0];
-  // :remove-start:
   if (firstCall?.name === 'pong') {
     console.log('ponging');
-    // :remove-end:
     const fnResult = actualFunction(firstCall.arguments);
     messages.push({
       role: 'function',
@@ -66,6 +63,5 @@ export const handleStructuredOutput = async (
     });
     const functionCallArgs = result.function_calls?.[0].arguments; // Extract the function call arguments
     await send(`The LLM responed with the following structured output: ${JSON.stringify(functionCallArgs, undefined, 2)}.`);
-    // :snippet-end:
   }
 };

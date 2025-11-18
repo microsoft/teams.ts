@@ -19,7 +19,6 @@ app.on('message', async ({ reply, activity }) => {
 // Scheduled Queue to trigger proactiveMessage in 10s
 const notificationQueue = new MockReminderService<string>();
 
-// :snippet-start: proactive-messaging-prepare
 // This would be some persistent storage
 const myConversationIdStorage = new Map<string, string>();
 
@@ -32,9 +31,7 @@ app.on('install.add', async ({ activity, send }) => {
   await send('Hi! I am going to remind you to say something to me soon!');
   notificationQueue.addReminder(activity.from.aadObjectId!, sendProactiveNotification, 10_000);
 });
-// :snippet-end:
 
-// :snippet-start: proactive-messaging-send
 const sendProactiveNotification = async (userId: string) => {
   const conversationId = myConversationIdStorage.get(userId);
   if (!conversationId) {
@@ -43,6 +40,5 @@ const sendProactiveNotification = async (userId: string) => {
   const activity = new MessageActivity('Hey! It\'s been a while. How are you?');
   await app.send(conversationId, activity);
 };
-// :snippet-end:
 
 app.start().catch(console.error);

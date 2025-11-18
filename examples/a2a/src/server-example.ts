@@ -12,9 +12,6 @@ const logger = new ConsoleLogger('a2a-server', { level: 'debug' });
 
 const PORT = process.env.PORT || 4000;
 
-// :snippet-start: a2a-server-app-initialization-example
-// import { A2APlugin, schema } from "@microsoft/teams.a2a";
-// import { App } from "@microsoft/teams.apps";
 const agentCard: AgentCard = {
   name: 'Weather Agent',
   description: 'An agent that can tell you the weather',
@@ -48,7 +45,6 @@ const app = new App({
     agentCard
   })],
 });
-// :snippet-end:
 const myEventHandler = async (userMessage: string): Promise<Message | string> => {
   logger.info(`Received message: ${userMessage}`);
   let toolLocation: string | null = null;
@@ -90,7 +86,6 @@ const myEventHandler = async (userMessage: string): Promise<Message | string> =>
 };
 
 
-// :snippet-start: a2a-server-event-handler-example
 app.event('a2a:message', async ({ respond, requestContext }) => {
   logger.info(`Received message: ${requestContext.userMessage}`);
   const textInput = requestContext.userMessage.parts.filter((p): p is TextPart => p.kind === 'text').at(0)?.text;
@@ -101,6 +96,5 @@ app.event('a2a:message', async ({ respond, requestContext }) => {
   const result = await myEventHandler(textInput);
   await respond(result);
 });
-// :snippet-end:
 
 app.start(PORT).catch(console.error);

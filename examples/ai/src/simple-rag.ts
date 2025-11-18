@@ -93,7 +93,6 @@ export const handleDocumentationSearch = async (
   const result = await documentation.send(activity.text);
 
   if (result.content) {
-    // :snippet-start: citation-example
     const messageActivity = new MessageActivity(result.content).addAiGenerated();
     for (let i = 0; i < citedDocs.length; i++) {
       const doc = citedDocs[i];
@@ -104,7 +103,6 @@ export const handleDocumentationSearch = async (
         abstract: doc.content,
       });
     }
-    // :snippet-end:
     log.info(messageActivity);
     await send(messageActivity);
   }

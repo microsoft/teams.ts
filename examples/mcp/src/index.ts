@@ -7,7 +7,6 @@ import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 import { McpPlugin } from '@microsoft/teams.mcp';
 
-// :snippet-start: mcp-server-plugin-config
 const mcpServerPlugin = new McpPlugin({
   // Describe the MCP server with a helpful name and description
   // for MCP clients to discover and use it.
@@ -38,27 +37,21 @@ const mcpServerPlugin = new McpPlugin({
     };
   }
 );
-// :snippet-end:
 
-// :snippet-start: mcp-server-app-config
 const app = new App({
-  // :remove-start:
   logger: new ConsoleLogger('@tests/mcp-server', { level: 'debug' }),
-  // :remove-end:
   plugins: [
     new DevtoolsPlugin(),
     // Add this plugin
     mcpServerPlugin,
   ],
 });
-// :snippet-end:
 
 const isAuthValid = (_authInfo: AuthInfo | undefined): boolean => {
   // Mocking yes.
   return true;
 };
 
-// :snippet-start: mcp-server-alert-tool
 // Keep a store of the user to the conversation id
 // In a production app, you probably would want to use a
 // persistent store like a database
@@ -107,9 +100,7 @@ mcpServerPlugin.tool(
     };
   }
 );
-// :snippet-end:
 
-// :snippet-start: mcp-server-message-handler-store-conversation-id
 app.on('message', async ({ send, activity }) => {
   await send({ type: 'typing' });
   await send(`you said "${activity.text}"`);
@@ -120,6 +111,5 @@ app.on('message', async ({ send, activity }) => {
     );
   }
 });
-// :snippet-end:
 
 app.start().catch(console.error);

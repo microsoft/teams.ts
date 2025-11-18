@@ -13,10 +13,6 @@ const app = new App({
   plugins: [new DevtoolsPlugin()],
 });
 
-// :snippet-start: a2a-client-use-with-chat-prompt-example
-// import { ChatPrompt } from "@microsoft/teams.ai";
-// import { OpenAIChatModel } from "@microsoft/teams.openai";
-// import { A2AClientPlugin } from "@microsoft/teams.a2a";
 const prompt = new ChatPrompt(
   {
     logger,
@@ -35,9 +31,7 @@ const prompt = new ChatPrompt(
     key: 'my-weather-agent',
     cardUrl: 'http://localhost:4000/a2a/.well-known/agent-card.json',
   });
-// :snippet-end:
 
-// :snippet-start: a2a-client-advanced-customization-example
 // Example with custom message builders and response processors
 export const advancedPrompt = new ChatPrompt(
   {
@@ -85,15 +79,12 @@ export const advancedPrompt = new ChatPrompt(
     key: 'weather-agent',
     cardUrl: 'http://localhost:4000/a2a/.well-known/agent-card.json',
   });
-// :snippet-end:
 
 const handler = async (message: string) => {
-  // :snippet-start: a2a-client-use-with-chat-prompt-example-send
   // Now we can send the message to the prompt and it will decide if
   // the a2a agent should be used or not and also manages contacting the agent
   const result = await prompt.send(message);
   return result;
-  // :snippet-end:
 };
 
 app.on('message', async ({ send, activity }) => {

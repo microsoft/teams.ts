@@ -2,7 +2,6 @@ import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import * as endpoints from '@microsoft/teams.graph-endpoints';
 
-// :snippet-start: auth-config
 const app = new App({
   oauth: { // oauth configurations
     /**
@@ -18,17 +17,13 @@ const app = new App({
     //   oauthUrl: 'https://europe.token.botframework.com',
     // }
 });
-// :snippet-end: auth-config
 
-// :snippet-start: auth-signout
 app.message('/signout', async ({ send, signout, isSignedIn }) => {
   if (!isSignedIn) return;
   await signout(); // call signout for your auth connection...
   await send('you have been signed out!');
 });
-// :snippet-end:
 
-// :snippet-start: auth-signin
 app.on('message', async ({ log, signin, userGraph, isSignedIn }) => {
   if (!isSignedIn) {
     await signin({
@@ -47,6 +42,5 @@ app.event('signin', async ({ send, userGraph, token }) => {
   const me = await userGraph.call(endpoints.me.get);
   await send(`user "${me.displayName}" signed in. Here's the token: ${JSON.stringify(token)}`);
 });
-// :snippet-end:
 
 app.start().catch(console.error);

@@ -6,7 +6,6 @@ import {
   SentActivity,
 } from '@microsoft/teams.api';
 
-// :snippet-start: feedback-loop-store
 // This store would ideally be persisted in a database
 export const storedFeedbackByMessageId = new Map<
   string,
@@ -18,7 +17,6 @@ export const storedFeedbackByMessageId = new Map<
     feedbacks: string[];
   }
 >();
-// :snippet-end:
 
 export const handleFeedbackLoop = async (
   model: IChatModel,
@@ -33,7 +31,6 @@ export const handleFeedbackLoop = async (
   const result = await prompt.send(activity.text);
 
   if (result) {
-    // :snippet-start: feedback-loop
     const { id: sentMessageId } = await send(
       result.content != null
         ? new MessageActivity(result.content)
@@ -51,6 +48,5 @@ export const handleFeedbackLoop = async (
       feedbacks: [],
     });
 
-    // :snippet-end:
   }
 };

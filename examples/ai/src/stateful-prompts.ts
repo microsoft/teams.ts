@@ -3,7 +3,6 @@ import { ActivityLike, IMessageActivity, MessageActivity } from '@microsoft/team
 
 import { ILogger } from '../../../packages/common/dist/logging/logger';
 
-// :snippet-start: stateful-prompts-state-initialization
 // Simple in-memory store for conversation histories
 // In your application, it may be a good idea to use a more
 // persistent store backed by a database or other storage solution
@@ -20,9 +19,7 @@ const getOrCreateConversationHistory = (conversationId: string) => {
   conversationStore.set(conversationId, newMessages);
   return newMessages;
 };
-// :snippet-end:
 
-// :snippet-start: stateful-prompts-example
 /**
  * Example of a stateful conversation handler that maintains conversation history
  * using an in-memory store keyed by conversation ID.
@@ -62,4 +59,3 @@ export const handleStatefulConversation = async (
 
   log.info('Messages after sending to prompt:', existingMessages);
 };
-// :snippet-end:

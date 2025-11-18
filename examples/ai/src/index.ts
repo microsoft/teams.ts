@@ -3,9 +3,7 @@ import { MessageActivity } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
-// :snippet-start: ai-imports
 import { OpenAIChatModel } from '@microsoft/teams.openai';
-// :snippet-end:
 
 import {
   feedbackLoopCommand,
@@ -34,15 +32,12 @@ const model = new OpenAIChatModel({
 });
 
 // Handle "hi" message
-// :snippet-start: simple-chat
 app.on('message', async ({ send, activity, next, log }) => {
-  // :remove-start:
   if (activity.text.toLowerCase() !== 'hi') {
     await next();
     return;
   }
   log.info('Received "hi" message, responding with AI-generated response');
-  // :remove-end:
   const model = new OpenAIChatModel({
     apiKey: process.env.AZURE_OPENAI_API_KEY || process.env.OPENAI_API_KEY,
     endpoint: process.env.AZURE_OPENAI_ENDPOINT,
@@ -62,7 +57,6 @@ app.on('message', async ({ send, activity, next, log }) => {
     // Ahoy, matey! 🏴‍☠️ How be ye doin' this fine day on th' high seas? What can this ol’ salty sea dog help ye with? 🚢☠️
   }
 });
-// :snippet-end:
 
 // Handle "<supported-command> <query>" message
 app.on('message', async ({ send, activity, next, log }) => {
@@ -111,9 +105,7 @@ app.on('message', async ({ send, activity, next, log }) => {
 });
 
 // Handle messages that start with stream <query>
-// :snippet-start: streaming-chat
 app.on('message', async ({ stream, send, activity, next, log }) => {
-  // :remove-start:
   const commandAndQuery = streamCommand(activity.text);
   if (!commandAndQuery) {
     await next();
@@ -121,7 +113,6 @@ app.on('message', async ({ stream, send, activity, next, log }) => {
   }
   log.info('Received "stream" command, processing query');
   const { query } = commandAndQuery;
-  // :remove-end:
   // const query = activity.text;
 
   const prompt = new ChatPrompt({
@@ -147,14 +138,12 @@ app.on('message', async ({ stream, send, activity, next, log }) => {
     stream.emit(new MessageActivity().addAiGenerated());
   }
 });
-// :snippet-end:
 
 // Fall through conversation handler
 app.on('message', async ({ send, activity, log }) => {
   await handleStatefulConversation(model, activity, send, log);
 });
 
-// :snippet-start: feedback-loop-handler
 app.on('message.submit.feedback', async ({ activity, log }) => {
   const { reaction, feedback: feedbackJson } = activity.value.actionValue;
   if (activity.replyToId == null) {
@@ -177,6 +166,5 @@ app.on('message.submit.feedback', async ({ activity, log }) => {
     });
   }
 });
-// :snippet-end:
 
 app.start(process.env.PORT || 3978).catch(console.error);
