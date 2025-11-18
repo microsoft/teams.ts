@@ -29,7 +29,7 @@ describe('App', () => {
     app.stop();
   });
 
-  describe('process', async () => {
+  describe('process', () => {
     it('should return status 200 if no route matches', async () => {
       const event: IActivityEvent = {
         token: token,
