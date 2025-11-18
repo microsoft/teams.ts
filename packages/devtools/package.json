@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.devtools",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "private": true,
   "files": [
     "dist",
@@ -20,10 +20,10 @@
     "@codemirror/lang-json": "^6.0.1",
     "@fluentui/react-components": "^9.6.0",
     "@fluentui/react-icons": "^2.0.274",
-    "@microsoft/teams.api": "2.0.3",
-    "@microsoft/teams.apps": "2.0.3",
-    "@microsoft/teams.cards": "2.0.3",
-    "@microsoft/teams.common": "2.0.3",
+    "@microsoft/teams.api": "2.0.4",
+    "@microsoft/teams.apps": "2.0.4",
+    "@microsoft/teams.cards": "2.0.4",
+    "@microsoft/teams.common": "2.0.4",
     "@uiw/codemirror-themes-all": "^4.23.9",
     "codemirror": "^6.0.1",
     "date-fns": "^4.1.0",

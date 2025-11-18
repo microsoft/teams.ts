@@ -1,5 +1,17 @@
 # @microsoft/teams.dev
 
+## 2.0.4
+
+### Patch Changes
+
+- Fix backward compat issue with TokenCredentials
+- Updated dependencies
+  - @microsoft/teams.api@2.0.4
+  - @microsoft/teams.apps@2.0.4
+  - @microsoft/teams.cards@2.0.4
+  - @microsoft/teams.common@2.0.4
+  - @microsoft/teams.graph@2.0.4
+
 ## 2.0.3
 
 ### Patch Changes

@@ -8,7 +8,6 @@ export type Credentials = ClientCredentials | TokenCredentials | UserManagedIden
  * of an app via `clientId` and `clientSecret`
  */
 export type ClientCredentials = {
-  type: 'clientSecret';
   readonly clientId: string;
   readonly clientSecret: string;
   readonly tenantId?: string;
@@ -19,7 +18,6 @@ export type ClientCredentials = {
  * of an app via any external auth method
  */
 export type TokenCredentials = {
-  type: 'token';
   readonly clientId: string;
   readonly tenantId?: string;
   readonly token: (scope: string | string[], tenantId?: string) => string | Promise<string>;
@@ -29,7 +27,6 @@ export type TokenCredentials = {
  * credentials for user managed identity
 */
 export type UserManagedIdentityCredentials = {
-  type: 'userManagedIdentity';
   readonly clientId: string;
   readonly tenantId?: string;
 };
@@ -37,13 +34,11 @@ export type UserManagedIdentityCredentials = {
  * credentials for fedrated identity credentials
 */
 type SystemFederatedIdentityCredentials = {
-  type: 'federatedIdentityCredentials';
   readonly clientId: string;
   readonly managedIdentityType: 'system';
   readonly tenantId?: string;
 };
 type UserFederatedIdentityCredentials = {
-  type: 'federatedIdentityCredentials';
   readonly clientId: string;
   readonly managedIdentityClientId: string;
   readonly managedIdentityType: 'user';

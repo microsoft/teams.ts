@@ -1,5 +1,14 @@
 # @microsoft/teams.openai
 
+## 2.0.4
+
+### Patch Changes
+
+- Fix backward compat issue with TokenCredentials
+- Updated dependencies
+  - @microsoft/teams.ai@2.0.4
+  - @microsoft/teams.common@2.0.4
+
 ## 2.0.3
 
 ### Patch Changes

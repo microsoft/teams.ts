@@ -1,5 +1,15 @@
 # @tests/dialogs
 
+## 0.0.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @microsoft/teams.ai@2.0.4
+  - @microsoft/teams.apps@2.0.4
+  - @microsoft/teams.cards@2.0.4
+  - @microsoft/teams.dev@2.0.4
+
 ## 0.0.4
 
 ### Patch Changes
