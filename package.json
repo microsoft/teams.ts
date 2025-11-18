@@ -15,7 +15,7 @@
   "workspaces": [
     "packages/*",
     "external/*",
-    "tests/*"
+    "examples/*"
   ],
   "keywords": [
     "microsoft",
@@ -31,7 +31,7 @@
     "clean": "npx turbo clean",
     "build": "npx turbo build",
     "build:packages": "npx turbo build --filter=./packages/*",
-    "build:tests": "npx turbo build --filter=./tests/*",
+    "build:examples": "npx turbo build --filter=./examples/*",
     "build:external": "npx turbo build --filter=./external/*",
     "dev": "npx turbo dev",
     "lint": "npx turbo lint --concurrency=100%",

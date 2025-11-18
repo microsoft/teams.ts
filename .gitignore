@@ -6,7 +6,7 @@ node_modules
 .pnp.js
 
 # Local env files
-tests/*/env
+examples/*/env
 .env
 .env.local
 .env.development.local
