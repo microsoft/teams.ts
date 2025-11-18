@@ -58,5 +58,5 @@ export interface ILogger {
   /**
    * Create a child logger instance
    */
-  child(name: string): ILogger;
+  child(name: string, overrides?: ILoggerOptions): ILogger;
 }

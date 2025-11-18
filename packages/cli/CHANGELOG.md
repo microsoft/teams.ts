@@ -1,5 +1,21 @@
 # @microsoft/teams.cli
 
+## 2.0.4
+
+### Patch Changes
+
+- Fix backward compat issue with TokenCredentials
+- Updated dependencies
+  - @microsoft/teams.common@2.0.4
+
+## 2.0.3
+
+### Patch Changes
+
+- Regional oauth support, additional auth mechanisms support, resync graph endpoints
+- Updated dependencies
+  - @microsoft/teams.common@2.0.3
+
 ## 2.0.2
 
 ### Patch Changes
