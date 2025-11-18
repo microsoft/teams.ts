@@ -6,12 +6,12 @@
  */
 export type SignInFailure = {
   /**
-   * The error code for the sign-in failure
+   * The error code for the sign-in failure.
    */
   code?: string;
 
   /**
-   * The error message for the sign-in failure
+   * The error message for the sign-in failure.
    */
   message?: string;
 };
