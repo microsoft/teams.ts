@@ -3,18 +3,7 @@ import jwt from 'jsonwebtoken';
 import { JsonWebToken } from '@microsoft/teams.api';
 
 import { App } from './app';
-import { HttpPlugin } from './plugins';
-import { IPluginStartEvent } from './types';
-
-class TestHttpPlugin extends HttpPlugin {
-  async onStart(_event: IPluginStartEvent) {
-    // No-op for tests
-  }
-
-  async onStop() {
-    // No-op for tests
-  }
-}
+import { TestHttpPlugin } from './plugins/http/plugin.spec';
 
 class TestApp extends App {
   // Expose protected members for testing

@@ -82,7 +82,6 @@ export class HttpPlugin implements ISender {
   protected _port?: number | string;
 
   protected express: express.Application;
-  protected pending: Record<string, express.Response> = {};
   protected skipAuth: boolean;
 
   constructor(server?: http.Server, options?: { skipAuth?: boolean }) {
