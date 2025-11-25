@@ -10,9 +10,14 @@ a suite of packages used to build on the Teams Platform.
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 
+## Questions & Issues
+
+- **Questions or Feature Requests**: Please use [GitHub Discussions](https://github.com/microsoft/teams-sdk/discussions)
+- **Bug Reports**: Please [open an issue](https://github.com/microsoft/teams.ts/issues/new/choose)
+
 - [Scripts](#scripts)
 - [Packages](#packages)
-- [Tests](#tests)
+- [Examples](#examples)
 
 ## Scripts
 
@@ -42,7 +47,7 @@ $: npm run lint:fix
 
 ### Dev
 
-> for apps/tests only
+> for apps/examples only
 
 ```bash
 $: npm run dev
@@ -83,7 +88,7 @@ $: npm run test
 - [`@microsoft/teams.mcp`](./external/mcp/README.md)
 - [`@microsoft/teams.mcpclient`](./external/mcpclient/README.md)
 
-## Test apps
+## Example apps
 
 > ℹ️ used to test the SDK or as a visual sample of how certain features can be implemented.
 
@@ -92,13 +97,13 @@ $: npm run test
 > the `@microsoft/teams.cli` and follow the
 > [Getting Started](https://microsoft.github.io/teams-sdk/typescript/getting-started) documentation!
 
-- [`@tests/echo`](./tests/echo/README.md)
-- [`@tests/auth`](./tests/auth/README.md)
-- [`@tests/botbuilder`](./tests/botbuilder/README.md)
-- [`@tests/graph`](./tests/graph/README.md)
-- [`@tests/lights`](./tests/lights/README.md)
-- [`@tests/tab`](./tests/tab/README.md)
-- [`@tests/mcp`](./tests/mcp/README.md)
+- [`@examples/echo`](./examples/echo/README.md)
+- [`@examples/auth`](./examples/auth/README.md)
+- [`@examples/botbuilder`](./examples/botbuilder/README.md)
+- [`@examples/graph`](./examples/graph/README.md)
+- [`@examples/lights`](./examples/lights/README.md)
+- [`@examples/tab`](./examples/tab/README.md)
+- [`@examples/mcp`](./examples/mcp/README.md)
 
 ## Links
 

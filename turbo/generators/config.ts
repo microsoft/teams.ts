@@ -101,9 +101,9 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
     ],
   });
 
-  // Generator for creating new applications in tests
-  plop.setGenerator("Test Application", {
-    description: "Create a new Teams SDK test application",
+  // Generator for creating new applications in examples
+  plop.setGenerator("Example Application", {
+    description: "Create a new Teams SDK example application",
     prompts: [
       {
         type: "input",
@@ -125,33 +125,33 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
     actions: [
       {
         type: "add",
-        path: "tests/{{name}}/package.json",
-        templateFile: "templates/tests/package.json.hbs",
+        path: "examples/{{name}}/package.json",
+        templateFile: "templates/examples/package.json.hbs",
       },
       {
         type: "add",
-        path: "tests/{{name}}/README.md",
-        templateFile: "templates/tests/README.md.hbs",
+        path: "examples/{{name}}/README.md",
+        templateFile: "templates/examples/README.md.hbs",
       },
       {
         type: "add",
-        path: "tests/{{name}}/eslint.config.js",
+        path: "examples/{{name}}/eslint.config.js",
         template: "module.exports = require('@microsoft/teams.config/eslint.config');\n",
       },
       {
         type: "add",
-        path: "tests/{{name}}/tsconfig.json",
-        templateFile: "templates/tests/tsconfig.json",
+        path: "examples/{{name}}/tsconfig.json",
+        templateFile: "templates/examples/tsconfig.json",
       },
       {
         type: "add",
-        path: "tests/{{name}}/src/index.ts",
-        templateFile: "templates/tests/index.ts",
+        path: "examples/{{name}}/src/index.ts",
+        templateFile: "templates/examples/index.ts",
       },
       {
         type: "add",
-        path: "tests/{{name}}/.gitignore",
-        templateFile: "templates/tests/.gitignore",
+        path: "examples/{{name}}/.gitignore",
+        templateFile: "templates/examples/.gitignore",
       },
       {
         type: "addMany",
@@ -163,7 +163,7 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
           console.log("Generating app package...");
           return false;
         },
-        destination: "tests/{{name}}/appPackage/",
+        destination: "examples/{{name}}/appPackage/",
         templateFiles: "templates/appPackage/**",
       },
     ],

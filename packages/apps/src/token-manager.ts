@@ -13,19 +13,33 @@ const GET_DEFAULT_TOKEN_AUTHORITY = (tenantId: string) => `https://login.microso
 const MSAL_LOG_LEVEL_TO_LOG_LEVEL: Record<MSALLogLevel, LogLevel> = {
   [MSALLogLevel.Error]: 'error',
   [MSALLogLevel.Warning]: 'warn',
-  [MSALLogLevel.Info]: 'debug', // MSAL logs are noisy, so only enable it only if debug logging is enabled
+  [MSALLogLevel.Info]: 'info',
   [MSALLogLevel.Verbose]: 'debug',
   [MSALLogLevel.Trace]: 'trace'
 };
 const LOG_LEVEL_TO_MSAL_LOG_LEVEL: Record<LogLevel, MSALLogLevel> = {
   'error': MSALLogLevel.Error,
   'warn': MSALLogLevel.Warning,
-  'info': MSALLogLevel.Warning,// MSAL logs are noisy, so we if logging is set to info, we set msal logging to warning
+  'info': MSALLogLevel.Info,
   'debug': MSALLogLevel.Verbose,
   'trace': MSALLogLevel.Trace
 };
 
 type MSALLoggerOptions = NodeSystemOptions['loggerOptions'];
+
+// Type guard functions
+function isClientCredentials(credentials: Credentials): credentials is ClientCredentials {
+  return 'clientSecret' in credentials;
+}
+
+function isTokenCredentials(credentials: Credentials): credentials is TokenCredentials {
+  return 'token' in credentials;
+}
+
+function isFederatedIdentityCredentials(credentials: Credentials): credentials is FederatedIdentityCredentials {
+  return 'managedIdentityType' in credentials;
+}
+
 
 export type TokenManagerOptions = {
   readonly clientId?: string;
@@ -38,11 +52,17 @@ export type TokenManagerOptions = {
 export class TokenManager {
   readonly credentials?: Credentials;
   private logger: ILogger;
+  private _msalLogger: ILogger;
   private confidentialClientsByTenantId: Record<string, ConfidentialClientApplication> = {};
   private managedIdentityClient: ManagedIdentityApplication | null = null;
 
   constructor(options: TokenManagerOptions, logger: ILogger) {
     this.logger = logger.child('TokenManager') ?? new ConsoleLogger('TokenManager');
+    this._msalLogger = this.logger.child('azure/msal-node', {
+      // Msal logging is fairly noisy. So we keep it quiet unless the user
+      // explicitly turns it on
+      pattern: '-azure/msal-node'
+    });
     this.credentials = this.initializeCredentials(options);
   }
 
@@ -64,7 +84,6 @@ export class TokenManager {
     if (clientId && clientSecret) {
       this.logger.debug('Using Client Credentials auth');
       return {
-        type: 'clientSecret',
         clientId,
         clientSecret,
         tenantId,
@@ -72,7 +91,6 @@ export class TokenManager {
     } else if (clientId && token) {
       this.logger.debug(('Using custom token factory auth'));
       return {
-        type: 'token',
         clientId,
         tenantId,
         token,
@@ -81,7 +99,6 @@ export class TokenManager {
       if (managedIdentityClientId == null || managedIdentityClientId.toLowerCase() === clientId.toLowerCase()) {
         this.logger.debug('Using user managed identity auth');
         return {
-          type: 'userManagedIdentity',
           clientId,
           tenantId
         };
@@ -89,7 +106,6 @@ export class TokenManager {
         const identityType = managedIdentityClientId === 'system' ? 'system' : 'user' as const;
         this.logger.debug(`Using Federated Identity Credentials auth (${identityType})`);
         return {
-          type: 'federatedIdentityCredentials',
           clientId,
           tenantId,
           managedIdentityClientId,
@@ -106,19 +122,16 @@ export class TokenManager {
       return null;
     }
 
-    switch (this.credentials.type) {
-      case 'clientSecret':
-        return this.getTokenWithClientCredentials(this.credentials, scope, tenantId);
-      case 'token':
-        return this.getTokenWithTokenProvider(this.credentials, scope, tenantId);
-      case 'userManagedIdentity':
-        return this.getTokenWithManagedIdentity(this.credentials, scope);
-      case 'federatedIdentityCredentials':
-        return this.getTokenWithFederatedCredentials(this.credentials, scope, tenantId);
-      default:
-        this.logger.warn('getToken was called, but credentials did not match any of the available credential types');
-        return null;
+    if (isClientCredentials(this.credentials)) {
+      return this.getTokenWithClientCredentials(this.credentials, scope, tenantId);
+    } else if (isTokenCredentials(this.credentials)) {
+      return this.getTokenWithTokenProvider(this.credentials, scope, tenantId);
+    } else if (isFederatedIdentityCredentials(this.credentials)) {
+      return this.getTokenWithFederatedCredentials(this.credentials, scope, tenantId);
+    } else {
+      return this.getTokenWithManagedIdentity(this.credentials, scope);
     }
+
   }
 
   private async getTokenWithClientCredentials(credentials: ClientCredentials, scope: string, tenantId: string): Promise<IToken | null> {
@@ -188,31 +201,36 @@ export class TokenManager {
       return this.managedIdentityClient;
     }
 
-    if (credentials.type === 'userManagedIdentity' || credentials.managedIdentityType === 'user') {
-      let clientId: string;
-      if (credentials.type === 'userManagedIdentity') {
-        clientId = credentials.clientId;
+    if (isFederatedIdentityCredentials(credentials)) {
+      if (credentials.managedIdentityType === 'user') {
+        this.managedIdentityClient = new ManagedIdentityApplication({
+          managedIdentityIdParams: {
+            userAssignedClientId: credentials.managedIdentityClientId
+          },
+          system: {
+            loggerOptions: this.buildLoggerOptions()
+          }
+        });
       } else {
-        clientId = credentials.managedIdentityClientId;
+        this.managedIdentityClient = new ManagedIdentityApplication(
+          {
+            managedIdentityIdParams: undefined, //no options automatically indicates system assigned managed identity
+            system: {
+              loggerOptions: this.buildLoggerOptions()
+            }
+
+          }
+        );
       }
+    } else {
       this.managedIdentityClient = new ManagedIdentityApplication({
         managedIdentityIdParams: {
-          userAssignedClientId: clientId
+          userAssignedClientId: credentials.clientId
         },
         system: {
           loggerOptions: this.buildLoggerOptions()
         }
       });
-    } else {
-      this.managedIdentityClient = new ManagedIdentityApplication(
-        {
-          managedIdentityIdParams: undefined, //no options automatically indicates system assigned managed identity
-          system: {
-            loggerOptions: this.buildLoggerOptions()
-          }
-
-        }
-      );
     }
 
     return this.managedIdentityClient;
@@ -235,7 +253,7 @@ export class TokenManager {
         if (message.endsWith('Warning - No client info in response')) {
           return;
         }
-        this.logger.log(MSAL_LOG_LEVEL_TO_LOG_LEVEL[level], message);
+        this._msalLogger.log(MSAL_LOG_LEVEL_TO_LOG_LEVEL[level], message);
       },
       piiLoggingEnabled: false,
     };
