@@ -10,6 +10,19 @@ export type Account<P = any> = {
   readonly membershipSources?: MembershipSource[];
 };
 
+export type TeamsChannelAccount<P = any> = {
+  readonly id: string;
+  readonly name: string;
+  readonly objectId?: string;
+  readonly userRole: Role;
+  readonly givenName?: string;
+  readonly surname?: string;
+  readonly email?: string;
+  readonly userPrincipalName?: string;
+  readonly tenantId?: string;
+  readonly properties?: P;
+};
+
 export type ConversationAccount = {
   readonly id: string;
   readonly tenantId?: string;

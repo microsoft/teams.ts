@@ -1,4 +1,4 @@
-import { Account } from '../../models';
+import { TeamsChannelAccount } from '../../models';
 import { IActivity } from '../activity';
 
 export interface IMeetingParticipantJoinEventActivity extends IActivity<'event'> {
@@ -18,7 +18,7 @@ export interface IMeetingParticipantJoinEventActivity extends IActivity<'event'>
       /**
        * The participant account.
        */
-      user: Account;
+      user: TeamsChannelAccount;
 
       /**
        * The participants info.
