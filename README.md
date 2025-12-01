@@ -10,6 +10,11 @@ a suite of packages used to build on the Teams Platform.
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 
+## Questions & Issues
+
+- **Questions or Feature Requests**: Please use [GitHub Discussions](https://github.com/microsoft/teams-sdk/discussions)
+- **Bug Reports**: Please [open an issue](https://github.com/microsoft/teams.ts/issues/new/choose)
+
 - [Scripts](#scripts)
 - [Packages](#packages)
 - [Examples](#examples)
