@@ -30,7 +30,7 @@
     "@microsoft/teams.graph": "2.0.4",
     "@microsoft/teams.mcp": "2.0.4",
     "@microsoft/teams.openai": "2.0.4",
-    "@modelcontextprotocol/sdk": "^1.9.0",
+    "@modelcontextprotocol/sdk": "^1.24.0",
     "zod": "^3.24.3"
   },
   "devDependencies": {
