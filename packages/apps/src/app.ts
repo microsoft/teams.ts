@@ -400,7 +400,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param activity the activity to send
    */
   async send(conversationId: string, activity: ActivityLike) {
-    if (!this.id || !this.name) {
+    if (!this.id) {
       throw new Error('app not started');
     }
 
@@ -409,7 +409,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       serviceUrl: this.api.serviceUrl,
       bot: {
         id: this.id,
-        name: this.name,
+        name: this.name || this.id,
         role: 'bot',
       },
       conversation: {
