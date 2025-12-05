@@ -2,10 +2,10 @@ import asyncio
 import os
 
 from dotenv import load_dotenv
-from microsoft.teams.ai import ChatPrompt
-from microsoft.teams.apps import App
-from microsoft.teams.devtools import DevToolsPlugin
-from microsoft.teams.openai import OpenAICompletionsAIModel
+from microsoft_teams.ai import ChatPrompt
+from microsoft_teams.apps import App
+from microsoft_teams.devtools import DevToolsPlugin
+from microsoft_teams.openai import OpenAICompletionsAIModel
 
 # Load variables from a .env file (if present) so os.environ.get() will pick them up.
 # Developers should copy `sample.env` -> `.env` to provide local values.

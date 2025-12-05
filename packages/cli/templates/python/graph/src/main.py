@@ -7,8 +7,8 @@ import asyncio
 import logging
 import os
 
-from microsoft.teams.api import MessageActivity
-from microsoft.teams.apps import ActivityContext, App, SignInEvent
+from microsoft_teams.api import MessageActivity
+from microsoft_teams.apps import ActivityContext, App, SignInEvent
 
 logger = logging.getLogger(__name__)
 
