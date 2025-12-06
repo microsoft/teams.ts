@@ -208,10 +208,12 @@ describe('app.plugin', () => {
       plugins: [new MyPlugin(), new TestHttpPlugin()]
     });
 
-    let receivedContext: any;
 
+    let receivedFoo: number = -1;
+    let receivedBar: string = '';
     app.on('message', (context) => {
-      receivedContext = context;
+      receivedFoo = context.foo;
+      receivedBar = context.bar;
     });
 
     await app.start();
@@ -233,11 +235,8 @@ describe('app.plugin', () => {
       }
     });
 
-    expect(receivedContext).toBeDefined();
-    expect(receivedContext.foo).toEqual(4);
-    expect(receivedContext.bar).toEqual('str');
-    // @ts-expect-error - ensure context has the correct type
-    const _nonExistent = receivedContext.foo.nonExistentProperty;
+    expect(receivedFoo).toEqual(4);
+    expect(receivedBar).toEqual('str');
 
     await app.stop();
   });
