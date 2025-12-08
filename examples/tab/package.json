@@ -16,10 +16,7 @@
     "start": "node -r dotenv/config .",
     "dev": "npx nodemon",
     "build": "npx tsup && npm run build:client",
-    "build:client": "npx vite build --outDir dist/client",
-    "dev:teamsfx": "npx cross-env NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
-    "dev:teamsfx:testtool": "npx cross-env NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
-    "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
+    "build:client": "npx vite build --outDir dist/client"
   },
   "dependencies": {
     "@microsoft/teams.api": "2.0.4",
@@ -40,8 +37,6 @@
     "nodemon": "^3.1.4",
     "rimraf": "^6.0.1",
     "tsup": "^8.4.0",
-    "typescript": "^5.4.5",
-    "vite": "^6.4.1",
-    "env-cmd": "latest"
+    "typescript": "^5.4.5"
   }
 }
