@@ -1,4 +1,4 @@
-import { Account, ConversationAccount } from '../account';
+import { ConversationAccount, TeamsChannelAccount } from '../account';
 
 import { MeetingDetails } from './meeting-details';
 
@@ -25,5 +25,5 @@ export type MeetingInfo = {
   /**
    * @member {TeamsChannelAccount} [organizer] The organizer's user information.
    */
-  organizer?: Account;
+  organizer?: TeamsChannelAccount;
 };

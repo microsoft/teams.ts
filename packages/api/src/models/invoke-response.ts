@@ -59,5 +59,6 @@ type InvokeResponseBody = {
   'handoff/action': void;
   'signin/tokenExchange': TokenExchangeInvokeResponse | void;
   'signin/verifyState': void;
+  'signin/failure': void;
   'adaptiveCard/action': AdaptiveCardActionResponse;
 };
