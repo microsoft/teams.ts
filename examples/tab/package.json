@@ -27,8 +27,8 @@
     "@microsoft/teams.dev": "2.0.4",
     "@microsoft/teams.graph": "2.0.4",
     "@microsoft/teams.graph-endpoints": "2.0.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1"
   },
   "devDependencies": {
     "@microsoft/teams.config": "2.0.4",
