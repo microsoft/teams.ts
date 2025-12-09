@@ -3,18 +3,7 @@ import jwt from 'jsonwebtoken';
 import { JsonWebToken } from '@microsoft/teams.api';
 
 import { App } from './app';
-import { HttpPlugin } from './plugins';
-import { IPluginStartEvent } from './types';
-
-class TestHttpPlugin extends HttpPlugin {
-  async onStart(_event: IPluginStartEvent) {
-    // No-op for tests
-  }
-
-  async onStop() {
-    // No-op for tests
-  }
-}
+import { TestHttpPlugin } from './plugins/http/plugin.spec';
 
 class TestApp extends App {
   // Expose protected members for testing
@@ -24,6 +13,10 @@ class TestApp extends App {
 
   public async testGetAppGraphToken(tenantId?: string) {
     return this.getAppGraphToken(tenantId);
+  }
+
+  public async testSend(conversationId: string, activity: any) {
+    return this.send(conversationId, activity);
   }
 }
 
@@ -111,6 +104,69 @@ describe('App', () => {
       await app.start();
 
       expect(mockAcquireToken).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('send', () => {
+    let app: TestApp;
+
+    it('should send message without manifest.name configured', async () => {
+      app = new TestApp({
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        tenantId: 'test-tenant-id',
+        plugins: [new TestHttpPlugin()],
+      });
+
+      await app.start();
+
+      // Mock the http.send method
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.http, 'send').mockImplementation(mockSend);
+
+      await app.testSend('conversation-id', { text: 'Hello' });
+
+      expect(mockSend).toHaveBeenCalled();
+      const [, ref] = mockSend.mock.calls[0];
+      expect(ref.bot.id).toBe('test-client-id');
+      expect(ref.bot.name).toBe('test-client-id'); // Falls back to id when name is not provided
+    });
+
+    it('should send message with manifest.name configured', async () => {
+      app = new TestApp({
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        tenantId: 'test-tenant-id',
+        manifest: {
+          name: { short: 'TestBot', full: 'Test Bot Application' },
+        },
+        plugins: [new TestHttpPlugin()],
+      });
+
+      await app.start();
+
+      // Mock the http.send method
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.http, 'send').mockImplementation(mockSend);
+
+      await app.testSend('conversation-id', { text: 'Hello' });
+
+      expect(mockSend).toHaveBeenCalled();
+      const [, ref] = mockSend.mock.calls[0];
+      expect(ref.bot.id).toBe('test-client-id');
+      expect(ref.bot.name).toBe('Test Bot Application');
+    });
+
+    it('should throw error when app is not started (no clientId)', async () => {
+      app = new TestApp({
+        plugins: [new TestHttpPlugin()],
+      });
+
+      await app.start();
+
+      await expect(
+        app.testSend('conversation-id', { text: 'Hello' })
+      ).rejects.toThrow('app not started');
     });
   });
 });

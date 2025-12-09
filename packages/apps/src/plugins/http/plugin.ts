@@ -9,6 +9,7 @@ import {
   Client,
   ConversationReference,
   Credentials,
+  InvokeResponse,
   IToken
 } from '@microsoft/teams.api';
 
@@ -22,8 +23,6 @@ import { JwtValidatedRequest, withJwtValidation } from '../../middleware/jwt-val
 import {
   Dependency,
   Event,
-  IPluginActivityResponseEvent,
-  IPluginErrorEvent,
   IPluginStartEvent,
   ISender,
   IStreamer,
@@ -62,7 +61,7 @@ export class HttpPlugin implements ISender {
   readonly $onError!: (event: IErrorEvent) => void;
 
   @Event('activity')
-  readonly $onActivity!: (event: IActivityEvent) => void;
+  readonly $onActivity!: (event: IActivityEvent) => Promise<InvokeResponse>;
 
   readonly get: express.Application['get'];
   readonly post: express.Application['post'];
@@ -83,7 +82,6 @@ export class HttpPlugin implements ISender {
   protected _port?: number | string;
 
   protected express: express.Application;
-  protected pending: Record<string, express.Response> = {};
   protected skipAuth: boolean;
 
   constructor(server?: http.Server, options?: { skipAuth?: boolean }) {
@@ -150,35 +148,6 @@ export class HttpPlugin implements ISender {
     this._server.close();
   }
 
-  onError({ error, activity }: IPluginErrorEvent) {
-    if (!activity) return;
-    const res = this.pending[activity.id];
-
-    if (!res) {
-      return;
-    }
-
-    if (!res.headersSent) {
-      res.status(500).send(error.message);
-    }
-
-    delete this.pending[activity.id];
-  }
-
-  onActivityResponse({ response, activity }: IPluginActivityResponseEvent) {
-    const res = this.pending[activity.id];
-
-    if (!res) {
-      return;
-    }
-
-    if (!res.headersSent) {
-      res.status(response.status || 200).send(JSON.stringify(response.body));
-    }
-
-    delete this.pending[activity.id];
-  }
-
   async send(activity: ActivityParams, ref: ConversationReference) {
     const api = new Client(
       ref.serviceUrl,
@@ -240,11 +209,12 @@ export class HttpPlugin implements ISender {
       };
     }
 
-    this.pending[activity.id] = res;
-    this.$onActivity({
+    const response = await this.$onActivity({
       sender: this,
       activity,
       token,
     });
+
+    res.status(response.status || 200).send(response.body);
   }
 }

@@ -38,6 +38,7 @@ type InvokeAliases = {
   'handoff/action': 'handoff.action';
   'signin/tokenExchange': 'signin.token-exchange';
   'signin/verifyState': 'signin.verify-state';
+  'signin/failure': 'signin.failure';
   'adaptiveCard/action': 'card.action';
 };
 
@@ -63,6 +64,7 @@ export const INVOKE_ALIASES: InvokeAliases = {
   'handoff/action': 'handoff.action',
   'signin/tokenExchange': 'signin.token-exchange',
   'signin/verifyState': 'signin.verify-state',
+  'signin/failure': 'signin.failure',
   'adaptiveCard/action': 'card.action',
 };
 

@@ -9,7 +9,7 @@ import {
 
 import express from 'express';
 
-import { $Activity, Activity, Credentials, IToken } from '@microsoft/teams.api';
+import { $Activity, Activity, Credentials, InvokeResponse, IToken } from '@microsoft/teams.api';
 import {
   Dependency,
   Event,
@@ -61,7 +61,7 @@ export class BotBuilderPlugin extends HttpPlugin implements ISender {
   declare readonly $onError: (event: IErrorEvent) => void;
 
   @Event('activity')
-  declare readonly $onActivity: (event: IActivityEvent) => void;
+  declare readonly $onActivity: (event: IActivityEvent) => Promise<InvokeResponse>;
 
   protected adapter?: CloudAdapter;
   protected handler?: ActivityHandler;
@@ -132,12 +132,13 @@ export class BotBuilderPlugin extends HttpPlugin implements ISender {
           return next();
         }
 
-        this.pending[context.activity.id] = res;
-        this.$onActivity({
+        const response = await this.$onActivity({
           sender: this,
           token,
           activity: new $Activity(context.activity as any) as Activity,
         });
+
+        res.status(response.status || 200).send(response.body);
       });
     } catch (err) {
       this.logger.error(err);

@@ -5,6 +5,7 @@ import {
   ApiClientSettings,
   ChannelID,
   ConversationReference,
+  InvokeResponse,
   StripMentionsTextOptions,
   toActivityParams,
   TokenCredentials,
@@ -21,7 +22,6 @@ import { ApiClient, GraphClient } from './api';
 import { configTab, func, tab } from './app.embed';
 import {
   event,
-  onActivity,
   onActivityResponse,
   onActivitySent,
   onError,
@@ -34,13 +34,14 @@ import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
 import { $process } from './app.process';
 import { message, on, use } from './app.routing';
 import { Container } from './container';
+import { IActivityEvent } from './events';
 import * as manifest from './manifest';
 import * as middleware from './middleware';
 import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { TokenManager } from './token-manager';
-import { IPlugin, AppEvents } from './types';
+import { IPlugin, AppEvents, ISender } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 
 /**
@@ -400,7 +401,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param activity the activity to send
    */
   async send(conversationId: string, activity: ActivityLike) {
-    if (!this.id || !this.name) {
+    if (!this.id) {
       throw new Error('app not started');
     }
 
@@ -409,7 +410,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       serviceUrl: this.api.serviceUrl,
       bot: {
         id: this.id,
-        name: this.name,
+        name: this.name || this.id,
         role: 'bot',
       },
       conversation: {
@@ -504,9 +505,16 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
   protected inject = inject; // eslint-disable-line @typescript-eslint/member-ordering
   protected onError = onError; // eslint-disable-line @typescript-eslint/member-ordering
-  protected onActivity = onActivity; // eslint-disable-line @typescript-eslint/member-ordering
   protected onActivitySent = onActivitySent; // eslint-disable-line @typescript-eslint/member-ordering
   protected onActivityResponse = onActivityResponse; // eslint-disable-line @typescript-eslint/member-ordering
+
+  async onActivity(
+    sender: ISender,
+    event: IActivityEvent
+  ): Promise<InvokeResponse> {
+    this.events.emit('activity', event);
+    return await this.process(sender, { ...event, sender });
+  }
 
   ///
   /// Token

@@ -1,9 +1,9 @@
 import asyncio
 import re
 
-from microsoft.teams.api import MessageActivity, TypingActivityInput
-from microsoft.teams.apps import ActivityContext, App
-from microsoft.teams.devtools import DevToolsPlugin
+from microsoft_teams.api import MessageActivity, TypingActivityInput
+from microsoft_teams.apps import ActivityContext, App
+from microsoft_teams.devtools import DevToolsPlugin
 
 app = App(plugins=[DevToolsPlugin()])
 

@@ -1,4 +1,4 @@
-import { Account, Message, ThumbnailCard } from '@microsoft/teams.api';
+import { Account, Message, TeamsChannelAccount, ThumbnailCard } from '@microsoft/teams.api';
 import {
   ActionSet,
   AdaptiveCard,
@@ -108,7 +108,7 @@ export function createMessageDetailsCard(messagePayload: Message) {
   return new AdaptiveCard(...cardElements);
 }
 
-export function createConversationMembersCard(members: Account[]) {
+export function createConversationMembersCard(members: (Account | TeamsChannelAccount)[]) {
   const membersList = members.map((member) => member.name).join(', ');
 
   return new AdaptiveCard(
@@ -157,7 +157,7 @@ export async function createDummyCards(searchQuery: string) {
         // When a user clicks on a list item in Teams:
         // - If the thumbnail has a `tap` property: Teams will trigger the `message.ext.select-item` activity
         // - If no `tap` property: Teams will insert the full adaptive card into the compose box
-        // tap: { 
+        // tap: {
         //   type: "invoke",
         //   title: item.title,
         //   value: {
