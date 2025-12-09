@@ -1,6 +1,6 @@
 {
   "name": "@examples/botbuilder",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": true,
   "license": "MIT",
   "main": "dist/index",
@@ -18,17 +18,17 @@
     "dev": "tsx watch -r dotenv/config src/index.ts"
   },
   "dependencies": {
-    "@microsoft/teams.api": "2.0.4",
-    "@microsoft/teams.apps": "2.0.4",
-    "@microsoft/teams.botbuilder": "2.0.4",
-    "@microsoft/teams.cards": "2.0.4",
-    "@microsoft/teams.common": "2.0.4",
-    "@microsoft/teams.dev": "2.0.4",
-    "@microsoft/teams.graph": "2.0.4",
+    "@microsoft/teams.api": "2.0.5",
+    "@microsoft/teams.apps": "2.0.5",
+    "@microsoft/teams.botbuilder": "2.0.5",
+    "@microsoft/teams.cards": "2.0.5",
+    "@microsoft/teams.common": "2.0.5",
+    "@microsoft/teams.dev": "2.0.5",
+    "@microsoft/teams.graph": "2.0.5",
     "botbuilder": "4.23.1"
   },
   "devDependencies": {
-    "@microsoft/teams.config": "2.0.4",
+    "@microsoft/teams.config": "2.0.5",
     "@types/node": "^22.0.2",
     "dotenv": "^16.4.5",
     "rimraf": "^6.0.1",

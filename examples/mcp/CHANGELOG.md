@@ -1,5 +1,19 @@
 # @examples/mcp
 
+## 0.0.6
+
+### Patch Changes
+
+- Updated dependencies
+  - @microsoft/teams.mcp@2.0.5
+  - @microsoft/teams.api@2.0.5
+  - @microsoft/teams.apps@2.0.5
+  - @microsoft/teams.cards@2.0.5
+  - @microsoft/teams.common@2.0.5
+  - @microsoft/teams.dev@2.0.5
+  - @microsoft/teams.graph@2.0.5
+  - @microsoft/teams.openai@2.0.5
+
 ## 0.0.5
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.a2a",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -30,12 +30,12 @@
   },
   "peerDependencies": {
     "@a2a-js/sdk": "^0.3.4",
-    "@microsoft/teams.ai": "2.0.4",
-    "@microsoft/teams.apps": "2.0.4",
-    "@microsoft/teams.common": "2.0.4"
+    "@microsoft/teams.ai": "2.0.5",
+    "@microsoft/teams.apps": "2.0.5",
+    "@microsoft/teams.common": "2.0.5"
   },
   "devDependencies": {
-    "@microsoft/teams.config": "2.0.4",
+    "@microsoft/teams.config": "2.0.5",
     "@types/jest": "^29.5.12",
     "@types/lodash.camelcase": "^4.3.9",
     "@types/node": "^22.0.2",

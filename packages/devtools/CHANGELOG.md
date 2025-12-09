@@ -1,5 +1,16 @@
 # @microsoft/teams.devtools
 
+## 2.0.5
+
+### Patch Changes
+
+- Bug fixes and minor improvements
+- Updated dependencies
+  - @microsoft/teams.api@2.0.5
+  - @microsoft/teams.apps@2.0.5
+  - @microsoft/teams.cards@2.0.5
+  - @microsoft/teams.common@2.0.5
+
 ## 2.0.4
 
 ### Patch Changes

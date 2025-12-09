@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.cards",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -35,7 +35,7 @@
     "test": "npx jest"
   },
   "devDependencies": {
-    "@microsoft/teams.config": "2.0.4",
+    "@microsoft/teams.config": "2.0.5",
     "@types/jest": "^29.5.12",
     "jest": "^29.7.0",
     "rimraf": "^6.0.1",

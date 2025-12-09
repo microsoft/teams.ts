@@ -1,5 +1,11 @@
 # @microsoft/teams.cards
 
+## 2.0.5
+
+### Patch Changes
+
+- Bug fixes and minor improvements
+
 ## 2.0.4
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.ts",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "private": true,
   "homepage": "https://github.com/microsoft/teams.ts",
   "bugs": "https://github.com/microsoft/teams.ts/issues",
