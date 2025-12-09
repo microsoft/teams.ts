@@ -33,7 +33,7 @@ describe('McpClientPlugin', () => {
       .mockResolvedValue({ tools: [] });
     mockCallTool = jest
       .spyOn(Client.prototype, 'callTool')
-      .mockResolvedValue({ content: 'result' });
+      .mockResolvedValue({ content: 'result', toolResult: null });
 
     jest.useFakeTimers().setSystemTime(mockDate);
   });
