@@ -1,12 +1,12 @@
-# yaml-language-server: $schema=https://aka.ms/teams-toolkit/1.0.0/yaml.schema.json
+# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.9/yaml.schema.json
 #
-# The teamsapp.yml composes automation tasks for M365 Agents Toolkit when running other environment configurations.
+# The m365agents.yml composes automation tasks for M365 Agents Toolkit when running other environment configurations.
 # This file is used when selecting the Provision, Deploy, or Publish menu items in the M365 Agents Toolkit for Visual Studio Code window
 # or with the TeamsFx CLI commands.
 # i.e. `teamsfx provision --env {environment name}` or `teamsfx deploy --env {environment name}`.
 #
 # You can customize this file. Visit https://aka.ms/teamsfx-v5.0-guide for more info about M365 Agents Toolkit project files.
-version: 1.0.0
+version: v1.9
 
 environmentFolderPath: ./env
 
@@ -31,6 +31,7 @@ provision:
         name: {{ toPascalCase name }}$\{{APP_NAME_SUFFIX}}
         # If the value is false, the driver will not generate client secret for you
         generateClientSecret: true
+        generateServicePrincipal: true
         # organization's Microsoft Entra tenant (for example, single tenant).
         signInAudience: AzureADMultipleOrgs
     # Write the information of created resources into environment file for the
@@ -78,7 +79,7 @@ provision:
     with:
       manifestPath: ./appPackage/manifest.json
       outputZipPath: ./appPackage/build/appPackage.$\{{TEAMSFX_ENV}}.zip
-      outputJsonPath: ./appPackage/build/manifest.$\{{TEAMSFX_ENV}}.json
+      outputFolder: ./appPackage/build
 
   # Optional: Automates an app package check for errors that would prevent the app from being published and reports any problems.
   - uses: teamsApp/validateAppPackage
@@ -120,7 +121,7 @@ publish:
     with:
       manifestPath: ./appPackage/manifest.json
       outputZipPath: ./appPackage/build/appPackage.$\{{TEAMSFX_ENV}}.zip
-      outputJsonPath: ./appPackage/build/manifest.$\{{TEAMSFX_ENV}}.json
+      outputFolder: ./appPackage/build
 
   # Optional: Automates an app package check for errors that would prevent the app from being published and reports any problems.
   - uses: teamsApp/validateAppPackage
