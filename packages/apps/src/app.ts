@@ -421,11 +421,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     try {
       await this.initialize();
 
-      // Start HTTP server
-      if (this.server) {
-        await this.server.start(this.port);
-      }
-
       // Start plugins
       for (const plugin of this.plugins) {
         if (plugin.onStart) {
@@ -434,6 +429,9 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       }
       this.events.emit('start', this.log);
       this.startedAt = new Date();
+
+      // Start HTTP server
+      await this.server.start(this.port);
     } catch (error: any) {
       this.onError({ error });
     }
