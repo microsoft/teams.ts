@@ -7,7 +7,7 @@ import * as uuid from 'uuid';
 
 import { WebSocket, WebSocketServer } from 'ws';
 
-import { ActivityParams, ConversationReference, IToken } from '@microsoft/teams.api';
+import { IToken } from '@microsoft/teams.api';
 import {
   HttpPlugin,
   Logger,
@@ -15,8 +15,6 @@ import {
   IPluginActivityResponseEvent,
   IPluginActivitySentEvent,
   IPluginStartEvent,
-  ISender,
-  IStreamer,
   Plugin,
   Dependency,
   Event,
@@ -47,7 +45,7 @@ export type DevtoolsPluginOptions = {
     '\n'
   ),
 })
-export class DevtoolsPlugin implements ISender {
+export class DevtoolsPlugin {
   @Logger()
   readonly log!: ILogger;
 
@@ -119,9 +117,8 @@ export class DevtoolsPlugin implements ISender {
           return new Promise((resolve, reject) => {
             this.pending[activity.id] = { resolve, reject };
             this.$onActivity({
-              sender: this.httpPlugin,
               token,
-              activity,
+              body: activity,
             });
           });
         },
@@ -168,14 +165,6 @@ export class DevtoolsPlugin implements ISender {
 
     promise.resolve(response);
     delete this.pending[activity.id];
-  }
-
-  async send(activity: ActivityParams, ref: ConversationReference) {
-    return await this.httpPlugin.send(activity, ref);
-  }
-
-  createStream(ref: ConversationReference): IStreamer {
-    return this.httpPlugin.createStream(ref);
   }
 
   protected onSocketConnection(socket: WebSocket) {

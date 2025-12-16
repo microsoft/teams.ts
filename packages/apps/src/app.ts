@@ -17,6 +17,7 @@ import { IStorage, LocalStorage } from '@microsoft/teams.common/storage';
 
 import pkg from '../package.json';
 
+import { ActivitySender } from './activity-sender';
 import { ApiClient, GraphClient } from './api';
 
 import { configTab, func, tab } from './app.embed';
@@ -41,7 +42,7 @@ import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { TokenManager } from './token-manager';
-import { IPlugin, AppEvents, ISender } from './types';
+import { IPlugin, AppEvents } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 
 /**
@@ -218,6 +219,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected events = new EventEmitter<AppEvents<TPlugin>>();
   protected startedAt?: Date;
   protected port?: number | string;
+  protected activitySender: ActivitySender;
 
   private readonly _userAgent = `teams.ts[apps]/${pkg.version}`;
 
@@ -271,6 +273,12 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       token: this.options.token,
       managedIdentityClientId: this.options.managedIdentityClientId,
     }, this.log);
+
+    // initialize ActivitySender for sending activities
+    this.activitySender = new ActivitySender(
+      this.client.clone({ token: () => this.getBotToken() }),
+      this.log
+    );
 
     if (this.credentials?.clientId) {
       this.entraTokenValidator = middleware.createEntraTokenValidator(
@@ -349,22 +357,30 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   }
 
   /**
-   * start the app
+   * initialize the app.
+   */
+  async initialize() {
+    // initialize plugins
+    for (const plugin of this.plugins) {
+      // inject dependencies
+      this.inject(plugin);
+
+      if (plugin.onInit) {
+        plugin.onInit();
+      }
+    }
+
+  }
+
+  /**
+   * start the server after initialization
    * @param port port to listen on
    */
   async start(port?: number | string) {
     this.port = port || process.env.PORT || 3978;
 
     try {
-      // initialize plugins
-      for (const plugin of this.plugins) {
-        // inject dependencies
-        this.inject(plugin);
-
-        if (plugin.onInit) {
-          plugin.onInit();
-        }
-      }
+      await this.initialize();
 
       // start plugins
       for (const plugin of this.plugins) {
@@ -372,7 +388,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
           await plugin.onStart({ port: this.port });
         }
       }
-
       this.events.emit('start', this.log);
       this.startedAt = new Date();
     } catch (error: any) {
@@ -419,7 +434,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       },
     };
 
-    const res = await this.http.send(toActivityParams(activity), ref);
+    const res = await this.activitySender.send(toActivityParams(activity), ref);
     return res;
   }
 
@@ -509,11 +524,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected onActivityResponse = onActivityResponse; // eslint-disable-line @typescript-eslint/member-ordering
 
   async onActivity(
-    sender: ISender,
     event: IActivityEvent
   ): Promise<InvokeResponse> {
     this.events.emit('activity', event);
-    return await this.process(sender, { ...event, sender });
+    return await this.process(event);
   }
 
   ///

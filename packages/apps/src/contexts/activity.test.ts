@@ -12,12 +12,11 @@ import { ILogger } from '@microsoft/teams.common/logging';
 import { IStorage } from '@microsoft/teams.common/storage';
 
 import { ApiClient, GraphClient } from '../api';
-import { ISender } from '../types';
 
 import { ActivityContext } from './activity';
 
 describe('ActivityContext', () => {
-  let mockSender: ISender;
+  let mockSender: { send: jest.Mock; createStream: jest.Mock };
   let mockApiClient: MockedObject<ApiClient>;
   let mockLogger: ILogger;
   let mockStorage: MockedObject<IStorage>;
@@ -100,7 +99,7 @@ describe('ActivityContext', () => {
   };
 
   const buildActivityContext = (activity: Activity): ActivityContext => {
-    return new ActivityContext(mockSender, {
+    return new ActivityContext({
       appId: 'test-app',
       activity,
       ref: mockRef,
@@ -111,6 +110,8 @@ describe('ActivityContext', () => {
       storage: mockStorage,
       connectionName: 'test-connection',
       next: jest.fn(),
+      send: mockSender.send.bind(mockSender),
+      stream: mockSender.createStream(mockRef),
     });
   };
 
@@ -282,7 +283,7 @@ describe('ActivityContext', () => {
     });
 
     it('creates new 1:1 conversation for group chat signin', async () => {
-      context = new ActivityContext(mockSender, {
+      context = new ActivityContext({
         ...context,
         activity: {
           ...buildIncomingMessageActivity('Test message'),
@@ -292,6 +293,8 @@ describe('ActivityContext', () => {
             conversationType: 'group',
           },
         },
+        send: mockSender.send.bind(mockSender),
+        stream: mockSender.createStream(mockRef),
       });
 
       mockApiClient.users.token.get.mockRejectedValueOnce(
