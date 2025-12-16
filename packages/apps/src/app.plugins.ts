@@ -1,8 +1,8 @@
 import { ILogger } from '@microsoft/teams.common';
 
 import { App } from './app';
-import { allIEventKeys, IEvents } from './events';
-import { IPlugin, IPluginActivityEvent, IPluginErrorEvent, ISender, PluginName } from './types';
+import { allIEventKeys, IActivityEvent, IEvents } from './events';
+import { IPlugin, IPluginErrorEvent, PluginName } from './types';
 import {
   DependencyMetadata,
   PLUGIN_DEPENDENCIES_METADATA_KEY,
@@ -84,8 +84,8 @@ export function inject<TPlugin extends IPlugin>(this: App<TPlugin>, plugin: IPlu
         this.onError({ ...event, sender: plugin });
       };
     } else if (name === 'activity') {
-      handler = (event: IPluginActivityEvent) => {
-        return this.onActivity(plugin as ISender, event);
+      handler = (event: IActivityEvent) => {
+        return this.onActivity(event);
       };
     } else if (name === 'custom') {
       handler = (name: string, event: unknown) => {

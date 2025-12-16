@@ -13,10 +13,11 @@ import {
 } from '@microsoft/teams.api';
 import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/teams.common';
 
-import { IStreamer, IStreamerEvents } from '../../types';
-import { promises } from '../../utils';
+import { IStreamer, IStreamerEvents } from './types';
+import { promises } from './utils';
 
 /**
+<<<<<<< HEAD:packages/apps/src/plugins/http/stream.ts
  * HTTP-based streaming implementation for Microsoft Teams activities.
  *
  * Allows sending typing indicators and messages in chunks to Teams.
@@ -30,6 +31,10 @@ import { promises } from '../../utils';
  * 4. Message text is combined and sent as a typing activity.
  * 5. `_flush()` schedules another flush if more items remain in queue.
  * 6. `close()` waits for the queue to empty and sends the final message activity.
+=======
+ * HTTP streaming implementation
+ * Handles batching, retry logic, and streaming state
+>>>>>>> 3d505721 (Separate activity sending from HTTP transport layer):packages/apps/src/http-stream.ts
  */
 export class HttpStream implements IStreamer {
   readonly events = new EventEmitter<IStreamerEvents>();
@@ -53,7 +58,7 @@ export class HttpStream implements IStreamer {
   constructor(client: Client, ref: ConversationReference, logger?: ILogger) {
     this.client = client;
     this.ref = ref;
-    this._logger = logger?.child('stream') || new ConsoleLogger('@teams/http/stream');
+    this._logger = logger?.child('stream') || new ConsoleLogger('@teams/http-stream');
   }
 
   /**

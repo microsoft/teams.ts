@@ -16,7 +16,6 @@ import {
   HttpPlugin,
   IActivityEvent,
   IErrorEvent,
-  ISender,
   Logger,
   Plugin,
   manifest,
@@ -38,7 +37,7 @@ export type BotBuilderPluginOptions = {
   name: 'http',
   version: pkg.version,
 })
-export class BotBuilderPlugin extends HttpPlugin implements ISender {
+export class BotBuilderPlugin extends HttpPlugin {
   @Logger()
   declare readonly logger: ILogger;
 

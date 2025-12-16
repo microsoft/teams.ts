@@ -1,6 +1,32 @@
-import { Activity, IToken } from '@microsoft/teams.api';
+import { IToken } from '@microsoft/teams.api';
 
-import { IEvent, ISender } from '../types';
+import { IEvent } from '../types';
+
+/**
+ * Core activity fields that all transports need to know about
+ * Extensible for protocol-specific fields
+ */
+export interface ICoreActivity {
+  /**
+   * Service URL for routing
+   */
+  serviceUrl?: string;
+
+  /**
+   * Activity ID for correlation
+   */
+  id?: string;
+
+  /**
+   * Activity type for basic routing
+   */
+  type?: string;
+
+  /**
+   * Allow any additional protocol-specific fields
+   */
+  [key: string]: any;
+}
 
 /**
  * the event emitted by a plugin
@@ -8,17 +34,12 @@ import { IEvent, ISender } from '../types';
  */
 export interface IActivityEvent extends IEvent {
   /**
-   * the sender of the event
-   */
-  sender: ISender;
-
-  /**
    * inbound request token
    */
   token: IToken;
 
   /**
-   * inbound request activity payload
+   * inbound request body payload
    */
-  activity: Activity;
+  body: ICoreActivity;
 }

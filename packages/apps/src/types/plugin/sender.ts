@@ -2,21 +2,18 @@ import { ActivityParams, ConversationReference, SentActivity } from '@microsoft/
 
 import { IStreamer } from '../streamer';
 
-import { IPlugin } from './plugin';
-
 /**
- * a plugin that can send activities
+ * Interface for activity sending (NOT a plugin)
+ * Separates sending concerns from transport concerns
  */
-export interface ISender<TCustomEvents extends {} = {}> extends IPlugin<TCustomEvents> {
+export interface IActivitySender {
   /**
-   * called by the `App`
-   * to send an activity
+   * Send an activity
    */
   send(activity: ActivityParams, ref: ConversationReference): Promise<SentActivity>;
 
   /**
-   * called by the `App`
-   * to create a new activity stream
+   * Create a new activity stream
    */
   createStream(ref: ConversationReference): IStreamer;
-};
+}

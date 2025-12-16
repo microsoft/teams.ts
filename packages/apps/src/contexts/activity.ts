@@ -1,6 +1,7 @@
 import {
   Activity,
   ActivityLike,
+  ActivityParams,
   cardAttachment,
   ConversationAccount,
   ConversationReference,
@@ -19,7 +20,7 @@ import { ILogger } from '@microsoft/teams.common/logging';
 import { IStorage } from '@microsoft/teams.common/storage';
 
 import { ApiClient, GraphClient } from '../api';
-import { ISender, IStreamer } from '../types';
+import { IStreamer } from '../types';
 
 export interface IBaseActivityContextOptions<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>> {
   /**
@@ -79,6 +80,16 @@ export interface IBaseActivityContextOptions<T extends Activity = Activity, TExt
    * the user token for the activity context
    */
   userToken?: string;
+
+  /**
+   * send callback for sending activities
+   */
+  send: (activity: ActivityParams, ref: ConversationReference) => Promise<SentActivity>;
+
+  /**
+   * stream for this conversation
+   */
+  stream: IStreamer;
 
   /**
    * extra data
@@ -176,7 +187,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   appGraph!: GraphClient;
   userGraph!: GraphClient;
   storage!: IStorage;
-  stream: IStreamer;
+  stream!: IStreamer;
   isSignedIn?: boolean;
   connectionName: string;
   next!: (
@@ -184,15 +195,14 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
   [key: string]: any;
 
-  protected _plugin: ISender;
+  protected _send: (activity: ActivityParams, ref: ConversationReference) => Promise<SentActivity>;
   protected _next?: (
     context?: IActivityContext
   ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 
-  constructor(plugin: ISender, value: IBaseActivityContextOptions) {
+  constructor(value: IBaseActivityContextOptions) {
     Object.assign(this, value);
-    this._plugin = plugin;
-    this.stream = plugin.createStream(value.ref);
+    this._send = value.send;
     this.connectionName = value.connectionName;
 
     if (value.activity.type === 'message') {
@@ -213,17 +223,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   }
 
   async send(activity: ActivityLike, conversationRef?: ConversationReference) {
-    const params = toActivityParams(activity);
-
-    // For targeted send, set the recipient if not already set.
-    // For targeted update (params.id exists), we dont update recipient since recipient cannot be changed.
-    if (params.type === 'message' && params.isTargeted && !params.id) {
-      if (!params.recipient) {
-        params.recipient = this.activity.from;
-      }
-    }
-
-    return await this._plugin.send(params, conversationRef ?? this.ref);
+    return await this._send(toActivityParams(activity), conversationRef ?? this.ref);
   }
 
   async reply(activity: ActivityLike) {
