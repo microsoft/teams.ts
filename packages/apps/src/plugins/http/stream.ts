@@ -48,6 +48,7 @@ export class HttpStream implements IStreamer {
   private _timeout?: NodeJS.Timeout;
   private _logger: ILogger;
   private _flushing: boolean = false;
+  private readonly _totalTimeout = 30000; // 30 seconds
 
   constructor(client: Client, ref: ConversationReference, logger?: ILogger) {
     this.client = client;
@@ -104,8 +105,14 @@ export class HttpStream implements IStreamer {
     }
 
     // Wait until all queued activities are flushed
+    const start = Date.now();
+
     while (!this.id || this.queue.length) {
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      if (Date.now() - start > this._totalTimeout) {
+        this._logger.warn('Timeout while waiting for id and queue to flush');
+      }
+      this._logger.debug('waiting for id to be set or queue to be empty');
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     if (this.text === '' && !this.attachments.length) {
