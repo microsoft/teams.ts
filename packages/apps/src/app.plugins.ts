@@ -85,7 +85,7 @@ export function inject<TPlugin extends IPlugin>(this: App<TPlugin>, plugin: IPlu
       };
     } else if (name === 'activity') {
       handler = (event: IPluginActivityEvent) => {
-        this.onActivity(plugin as ISender, event);
+        return this.onActivity(plugin as ISender, event);
       };
     } else if (name === 'custom') {
       handler = (name: string, event: unknown) => {

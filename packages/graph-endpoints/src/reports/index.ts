@@ -76,7 +76,6 @@ export interface IEndpoints {
 /**
  * `GET /reports`
  *
- * Read properties and relationships of the reportRoot object.
  */
 export function list(
   params?: IEndpoints['GET /reports']['parameters']
@@ -94,7 +93,6 @@ export function list(
 /**
  * `PATCH /reports`
  *
- * Update the properties of a reportRoot object.
  */
 export function update(
   body: IEndpoints['PATCH /reports']['body']

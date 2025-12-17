@@ -1,6 +1,7 @@
 import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
-import { Account } from '../../models';
+import { TeamsChannelAccount } from '../../models';
+import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 
 export class ConversationMemberClient {
   readonly serviceUrl: string;
@@ -12,8 +13,9 @@ export class ConversationMemberClient {
     this._http = v;
   }
   protected _http: Client;
+  protected _apiClientSettings: Partial<ApiClientSettings>;
 
-  constructor(serviceUrl: string, options?: Client | ClientOptions) {
+  constructor(serviceUrl: string, options?: Client | ClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
     this.serviceUrl = serviceUrl;
 
     if (!options) {
@@ -23,17 +25,18 @@ export class ConversationMemberClient {
     } else {
       this._http = new Client(options);
     }
+    this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
   }
 
   async get(conversationId: string) {
-    const res = await this.http.get<Account[]>(
+    const res = await this.http.get<TeamsChannelAccount[]>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/members`
     );
     return res.data;
   }
 
   async getById(conversationId: string, id: string) {
-    const res = await this.http.get<Account>(
+    const res = await this.http.get<TeamsChannelAccount>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/members/${id}`
     );
     return res.data;

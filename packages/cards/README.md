@@ -13,14 +13,14 @@
     <a href="https://www.npmjs.com/package/@microsoft/teams.cards" target="_blank">
         <img src="https://img.shields.io/npm/dw/@microsoft/teams.cards" />
     </a>
-    <a href="https://microsoft.github.io/teams-ai" target="_blank">
+    <a href="https://microsoft.github.io/teams-sdk" target="_blank">
         <img src="https://img.shields.io/badge/📖 docs-open-blue" />
     </a>
 </p>
 
 An Adaptive Cards implementation with support for Teams-specific Adaptive Card elements.
 
-<a href="https://microsoft.github.io/teams-ai" target="_blank">
+<a href="https://microsoft.github.io/teams-sdk" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 
@@ -32,8 +32,8 @@ $: npm install @microsoft/teams.cards
 
 ## Links
 
--   [Adaptive Cards documentation](https://adaptivecards.microsoft.com/)
--   [Adaptive Cards Designer](https://adaptivecards.microsoft.com/designer)
+- [Adaptive Cards documentation](https://adaptivecards.microsoft.com/)
+- [Adaptive Cards Designer](https://adaptivecards.microsoft.com/designer)
 
 ## Dependencies
 

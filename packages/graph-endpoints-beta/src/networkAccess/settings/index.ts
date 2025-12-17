@@ -28,6 +28,18 @@ export interface IEndpoints {
     '/networkAccess/settings/crossTenantAccess',
     'delete'
   >;
+  'GET /networkAccess/settings/customBlockPage': Operation<
+    '/networkAccess/settings/customBlockPage',
+    'get'
+  >;
+  'PATCH /networkAccess/settings/customBlockPage': Operation<
+    '/networkAccess/settings/customBlockPage',
+    'patch'
+  >;
+  'DELETE /networkAccess/settings/customBlockPage': Operation<
+    '/networkAccess/settings/customBlockPage',
+    'delete'
+  >;
   'GET /networkAccess/settings/forwardingOptions': Operation<
     '/networkAccess/settings/forwardingOptions',
     'get'
@@ -192,6 +204,57 @@ export const crossTenantAccess = {
       ver: 'beta',
       method: 'delete',
       path: '/networkAccess/settings/crossTenantAccess',
+      paramDefs: {
+        header: ['If-Match'],
+      },
+      params,
+    };
+  },
+};
+
+export const customBlockPage = {
+  /**
+   * `GET /networkAccess/settings/customBlockPage`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /networkAccess/settings/customBlockPage']['parameters']
+  ): EndpointRequest<IEndpoints['GET /networkAccess/settings/customBlockPage']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/networkAccess/settings/customBlockPage',
+      paramDefs: {
+        query: ['$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /networkAccess/settings/customBlockPage`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /networkAccess/settings/customBlockPage']['body']
+  ): EndpointRequest<IEndpoints['PATCH /networkAccess/settings/customBlockPage']['response']> {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/networkAccess/settings/customBlockPage',
+      body,
+    };
+  },
+  /**
+   * `DELETE /networkAccess/settings/customBlockPage`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /networkAccess/settings/customBlockPage']['parameters']
+  ): EndpointRequest<IEndpoints['DELETE /networkAccess/settings/customBlockPage']['response']> {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/networkAccess/settings/customBlockPage',
       paramDefs: {
         header: ['If-Match'],
       },

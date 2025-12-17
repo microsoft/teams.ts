@@ -28,9 +28,14 @@ export interface IEndpoints {
 }
 
 /**
- * `DELETE /identity/conditionalAccess/deletedItems/namedLocations/{namedLocation-id}`
- *
- */
+  * `DELETE /identity/conditionalAccess/deletedItems/namedLocations/{namedLocation-id}`
+  *
+  * Permanently delete a policyDeletableItem object, which might be one of the following deleted policy types:
+- crossTenantAccessPolicyConfigurationPartner
+- crossTenantIdentitySyncPolicyPartner
+- conditionalAccessPolicy
+- namedLocation
+  */
 export function del(
   params?: IEndpoints['DELETE /identity/conditionalAccess/deletedItems/namedLocations/{namedLocation-id}']['parameters']
 ): EndpointRequest<
@@ -49,9 +54,14 @@ export function del(
 }
 
 /**
- * `GET /identity/conditionalAccess/deletedItems/namedLocations`
- *
- */
+  * `GET /identity/conditionalAccess/deletedItems/namedLocations`
+  *
+  * Get a list of the policyDeletableItem objects and their properties, which might be one of the following deleted policy types:
+- crossTenantAccessPolicyConfigurationPartner
+- crossTenantIdentitySyncPolicyPartner
+- conditionalAccessPolicy
+- namedLocation
+  */
 export function list(
   params?: IEndpoints['GET /identity/conditionalAccess/deletedItems/namedLocations']['parameters']
 ): EndpointRequest<
@@ -69,9 +79,14 @@ export function list(
 }
 
 /**
- * `GET /identity/conditionalAccess/deletedItems/namedLocations/{namedLocation-id}`
- *
- */
+  * `GET /identity/conditionalAccess/deletedItems/namedLocations/{namedLocation-id}`
+  *
+  * Read the properties and relationships of a policyDeletableItem object, which might be one of the following deleted policy types:
+- crossTenantAccessPolicyConfigurationPartner
+- crossTenantIdentitySyncPolicyPartner
+- conditionalAccessPolicy
+- namedLocation
+  */
 export function get(
   params?: IEndpoints['GET /identity/conditionalAccess/deletedItems/namedLocations/{namedLocation-id}']['parameters']
 ): EndpointRequest<
@@ -132,6 +147,7 @@ export const restore = {
   /**
    * `POST /identity/conditionalAccess/deletedItems/namedLocations/{namedLocation-id}/restore`
    *
+   * Restore a deleted countryNamedLocation object.
    */
   create: function create(
     params?: IEndpoints['POST /identity/conditionalAccess/deletedItems/namedLocations/{namedLocation-id}/restore']['parameters']

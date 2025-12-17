@@ -71,7 +71,7 @@ export function del(
 /**
  * `GET /users/{user-id}/adhocCalls/{adhocCall-id}/transcripts`
  *
- * The transcripts of a call. Read-only.
+ * Retrieve a callTranscript object associated with a scheduled onlineMeeting and an ad hoc call. This API supports the retrieval of call transcripts from private chat meetings and channel meetings, and ad hoc calls including PSTN, 1:1, and group calls. Private channel meetings are not supported.  Retrieving the transcript returns the metadata of the single transcript associated with an online meeting or an ad hoc call. Retrieving the content of the transcript returns the stream of text associated with the transcript.
  */
 export function list(
   params?: IEndpoints['GET /users/{user-id}/adhocCalls/{adhocCall-id}/transcripts']['parameters']
@@ -93,7 +93,7 @@ export function list(
 /**
  * `GET /users/{user-id}/adhocCalls/{adhocCall-id}/transcripts/{callTranscript-id}`
  *
- * The transcripts of a call. Read-only.
+ * Retrieve a callTranscript object associated with a scheduled onlineMeeting and an ad hoc call. This API supports the retrieval of call transcripts from private chat meetings and channel meetings, and ad hoc calls including PSTN, 1:1, and group calls. Private channel meetings are not supported.  Retrieving the transcript returns the metadata of the single transcript associated with an online meeting or an ad hoc call. Retrieving the content of the transcript returns the stream of text associated with the transcript.
  */
 export function get(
   params?: IEndpoints['GET /users/{user-id}/adhocCalls/{adhocCall-id}/transcripts/{callTranscript-id}']['parameters']

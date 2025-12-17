@@ -1,4 +1,5 @@
 export * as sensors from './sensors';
+export * as settings from './settings';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
 

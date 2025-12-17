@@ -19,6 +19,7 @@ export interface IEndpoints {
   'GET /sites': Operation<'/sites', 'get'>;
   'GET /sites/{site-id}': Operation<'/sites/{site-id}', 'get'>;
   'PATCH /sites/{site-id}': Operation<'/sites/{site-id}', 'patch'>;
+  'POST /sites': Operation<'/sites', 'post'>;
   'POST /sites/add': Operation<'/sites/add', 'post'>;
   'POST /sites/{site-id}/archive': Operation<'/sites/{site-id}/archive', 'post'>;
   'GET /sites/{site-id}/documentProcessingJobs': Operation<
@@ -145,6 +146,22 @@ export function update(
       path: ['site-id'],
     },
     params,
+    body,
+  };
+}
+
+/**
+ * `POST /sites`
+ *
+ * Create a new SharePoint site.
+ */
+export function create(
+  body: IEndpoints['POST /sites']['body']
+): EndpointRequest<IEndpoints['POST /sites']['response']> {
+  return {
+    ver: 'beta',
+    method: 'post',
+    path: '/sites',
     body,
   };
 }

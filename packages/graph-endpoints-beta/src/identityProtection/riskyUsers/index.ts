@@ -71,7 +71,7 @@ export function del(
 /**
  * `GET /identityProtection/riskyUsers`
  *
- * Retrieve the properties and relationships of a collection of riskyUser objects.
+ * Retrieve the properties and relationships of a riskyUser object.
  */
 export function list(
   params?: IEndpoints['GET /identityProtection/riskyUsers']['parameters']

@@ -156,7 +156,7 @@ export const identitySynchronization = {
   /**
    * `PUT /policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization`
    *
-   * Update the user synchronization policy of a partner-specific configuration.
+   * Create a cross-tenant user synchronization policy for a partner-specific configuration.
    */
   set: function set(
     body: IEndpoints['PUT /policies/crossTenantAccessPolicy/partners/{crossTenantAccessPolicyConfigurationPartner-tenantId}/identitySynchronization']['body'],

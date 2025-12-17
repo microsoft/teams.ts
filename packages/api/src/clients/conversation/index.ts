@@ -4,6 +4,8 @@ import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
 import { Account, Conversation, ConversationResource } from '../../models';
 
+import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
+
 import { ActivityParams, ConversationActivityClient } from './activity';
 import { ConversationMemberClient } from './member';
 
@@ -45,8 +47,9 @@ export class ConversationClient {
   protected _http: Client;
   protected _activities: ConversationActivityClient;
   protected _members: ConversationMemberClient;
+  protected _apiClientSettings: Partial<ApiClientSettings>;
 
-  constructor(serviceUrl: string, options?: Client | ClientOptions) {
+  constructor(serviceUrl: string, options?: Client | ClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
     this.serviceUrl = serviceUrl;
 
     if (!options) {
@@ -56,9 +59,10 @@ export class ConversationClient {
     } else {
       this._http = new Client(options);
     }
-
-    this._activities = new ConversationActivityClient(serviceUrl, this.http);
-    this._members = new ConversationMemberClient(serviceUrl, this.http);
+  
+    this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
+    this._activities = new ConversationActivityClient(serviceUrl, this.http, this._apiClientSettings);
+    this._members = new ConversationMemberClient(serviceUrl, this.http, this._apiClientSettings);
   }
 
   activities(conversationId: string) {

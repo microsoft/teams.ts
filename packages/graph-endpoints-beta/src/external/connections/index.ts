@@ -351,7 +351,7 @@ export const schema = {
   /**
    * `PATCH /external/connections/{externalConnection-id}/schema`
    *
-   * Update the properties of a schema for an externalConnection.
+   * Create a new or update an existing schema for a Microsoft Search connection.
    */
   update: function update(
     body: IEndpoints['PATCH /external/connections/{externalConnection-id}/schema']['body'],

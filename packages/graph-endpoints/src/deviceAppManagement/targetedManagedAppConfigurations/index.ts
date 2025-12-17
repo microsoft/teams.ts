@@ -86,7 +86,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceAppManagement/targetedManagedAppConfigurations/{targetedManagedAppConfiguration-id}`
  *
- * Deletes a targetedManagedAppConfiguration.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceAppManagement/targetedManagedAppConfigurations/{targetedManagedAppConfiguration-id}']['parameters']
@@ -107,7 +106,7 @@ export function del(
 /**
  * `GET /deviceAppManagement/targetedManagedAppConfigurations`
  *
- * List properties and relationships of the targetedManagedAppConfiguration objects.
+ * Targeted managed app configurations.
  */
 export function list(
   params?: IEndpoints['GET /deviceAppManagement/targetedManagedAppConfigurations']['parameters']
@@ -127,7 +126,7 @@ export function list(
 /**
  * `GET /deviceAppManagement/targetedManagedAppConfigurations/{targetedManagedAppConfiguration-id}`
  *
- * Read properties and relationships of the targetedManagedAppConfiguration object.
+ * Targeted managed app configurations.
  */
 export function get(
   params?: IEndpoints['GET /deviceAppManagement/targetedManagedAppConfigurations/{targetedManagedAppConfiguration-id}']['parameters']
@@ -148,7 +147,6 @@ export function get(
 /**
  * `PATCH /deviceAppManagement/targetedManagedAppConfigurations/{targetedManagedAppConfiguration-id}`
  *
- * Update the properties of a targetedManagedAppConfiguration object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceAppManagement/targetedManagedAppConfigurations/{targetedManagedAppConfiguration-id}']['body'],
@@ -170,7 +168,6 @@ export function update(
 /**
  * `POST /deviceAppManagement/targetedManagedAppConfigurations`
  *
- * Create a new targetedManagedAppConfiguration object.
  */
 export function create(
   body: IEndpoints['POST /deviceAppManagement/targetedManagedAppConfigurations']['body']
@@ -290,7 +287,6 @@ export const assign = {
   /**
    * `POST /deviceAppManagement/targetedManagedAppConfigurations/{targetedManagedAppConfiguration-id}/assign`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceAppManagement/targetedManagedAppConfigurations/{targetedManagedAppConfiguration-id}/assign']['body'],
@@ -478,7 +474,6 @@ export const targetApps = {
   /**
    * `POST /deviceAppManagement/targetedManagedAppConfigurations/{targetedManagedAppConfiguration-id}/targetApps`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceAppManagement/targetedManagedAppConfigurations/{targetedManagedAppConfiguration-id}/targetApps']['body'],

@@ -1,4 +1,4 @@
-import { ActivityLike, ConversationReference, isInvokeResponse } from '@microsoft/teams.api';
+import { ActivityLike, ConversationReference, InvokeResponse, isInvokeResponse } from '@microsoft/teams.api';
 
 import { ApiClient, GraphClient } from './api';
 import { App } from './app';
@@ -15,7 +15,7 @@ export async function $process<TPlugin extends IPlugin>(
   this: App<TPlugin>,
   sender: ISender,
   event: IActivityEvent
-) {
+): Promise<InvokeResponse> {
   const { token, activity } = event;
 
   this.log.debug(
@@ -28,8 +28,6 @@ export async function $process<TPlugin extends IPlugin>(
     serviceUrl = serviceUrl.slice(0, serviceUrl.length - 1);
   }
 
-  await this.refreshTokens();
-
   let userToken: string | undefined;
 
   try {
@@ -38,21 +36,13 @@ export async function $process<TPlugin extends IPlugin>(
     // noop
   }
 
-
-  let appToken: string | undefined;
-  try {
-    appToken = await this.getOrRefreshTenantToken(activity.conversation.tenantId ?? 'common');
-  } catch (err) {
-    // noop
-  }
-
   const client = this.client.clone();
-  const apiClient = new ApiClient(serviceUrl, this.client.clone({ token: () => this.tokens.bot }));
+  const apiClient = new ApiClient(serviceUrl, this.client.clone({ token: () => this.getBotToken() }), this.options.apiClientSettings);
   const userGraph = new GraphClient(
     client.clone({ token: () => userToken })
   );
   const appGraph = new GraphClient(
-    client.clone({ token: () => appToken })
+    client.clone({ token: () => this.getAppGraphToken(activity.conversation.tenantId ?? 'common') })
   );
 
   const ref: ConversationReference = {
@@ -121,7 +111,6 @@ export async function $process<TPlugin extends IPlugin>(
     appGraph,
     appId: this.id || '',
     log: this.log,
-    tokens: this.tokens,
     userToken: userToken,
     ref,
     storage: this.storage,
@@ -129,10 +118,6 @@ export async function $process<TPlugin extends IPlugin>(
     connectionName: this.oauth.defaultConnectionName,
     ...pluginContexts
   });
-
-  if (routes.length === 0) {
-    return { status: 200 };
-  }
 
   const send = context.send.bind(context);
   context.send = async (activity: ActivityLike, conversationRef?: ConversationReference) => {
@@ -163,13 +148,16 @@ export async function $process<TPlugin extends IPlugin>(
     });
   });
 
+  let response: InvokeResponse;
   try {
-    let res = await next();
+    const res = await next();
 
     await context.stream.close();
 
-    if (!res || !isInvokeResponse(res)) {
-      res = { status: 200, body: res };
+    if (isInvokeResponse(res)) {
+      response = res;
+    } else {
+      response = { status: 200, body: res };
     }
 
     this.onActivityResponse(sender, {
@@ -179,12 +167,15 @@ export async function $process<TPlugin extends IPlugin>(
       response: res,
     });
   } catch (error: any) {
+    response = { status: 500 };
     this.onError({ error, activity, sender });
     this.onActivityResponse(sender, {
       ...ref,
       sender,
       activity,
-      response: { status: 500 },
+      response: response,
     });
   }
+
+  return response;
 }

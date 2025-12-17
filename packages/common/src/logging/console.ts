@@ -2,6 +2,8 @@ import { ANSI } from './ansi';
 import { ILogger, ILoggerOptions, LogLevel } from './logger';
 
 export class ConsoleLogger implements ILogger {
+  readonly loggerOptions: ILoggerOptions;
+
   protected readonly name: string;
   protected readonly level: LogLevel;
 
@@ -11,6 +13,7 @@ export class ConsoleLogger implements ILogger {
     warn: 200,
     info: 300,
     debug: 400,
+    trace: 500,
   };
 
   private readonly _colors = {
@@ -18,6 +21,7 @@ export class ConsoleLogger implements ILogger {
     warn: ANSI.ForegroundYellow,
     info: ANSI.ForegroundCyan,
     debug: ANSI.ForegroundMagenta,
+    trace: ANSI.BackgroundBlue
   };
 
   constructor(name: string, options?: ILoggerOptions) {
@@ -27,6 +31,10 @@ export class ConsoleLogger implements ILogger {
     const logNamePattern = env?.LOG || options?.pattern || '*';
     this._enabled = parseMagicExpr(logNamePattern).test(name);
     this.level = parseLogLevel(env?.LOG_LEVEL) || options?.level || 'info';
+    this.loggerOptions = options ?? {
+      level: this.level,
+      pattern: logNamePattern,
+    };
   }
 
   error(...msg: any[]) {
@@ -43,6 +51,10 @@ export class ConsoleLogger implements ILogger {
 
   debug(...msg: any[]) {
     this.log('debug', ...msg);
+  }
+
+  trace(...msg: any[]) {
+    this.log('trace', ...msg);
   }
 
   log(level: LogLevel, ...msg: any[]) {
@@ -70,14 +82,63 @@ export class ConsoleLogger implements ILogger {
     }
   }
 
-  child(name: string) {
+  child(name: string, overrideOptions?: ILoggerOptions) {
+    const mergedPattern = mergePatterns(
+      this.loggerOptions.pattern,
+      overrideOptions?.pattern
+    );
+
     return new ConsoleLogger(`${this.name}/${name}`, {
-      level: this.level,
+      ...this.loggerOptions,
+      ...overrideOptions,
+      pattern: mergedPattern
     });
   }
 }
 
+function parsePatternString(pattern: string): { inclusions: string[]; exclusions: string[] } {
+  const patterns = pattern.split(',').map(p => p.trim());
+  const inclusions: string[] = [];
+  const exclusions: string[] = [];
+
+  for (const p of patterns) {
+    if (p.startsWith('-')) {
+      exclusions.push(p.substring(1));
+    } else {
+      inclusions.push(p);
+    }
+  }
+
+  return { inclusions, exclusions };
+}
+
 function parseMagicExpr(pattern: string) {
+  const { inclusions: inclusionPatterns, exclusions: exclusionPatterns } = parsePatternString(pattern);
+
+  const inclusions: RegExp[] = inclusionPatterns.map(p => patternToRegex(p));
+  const exclusions: RegExp[] = exclusionPatterns.map(p => patternToRegex(p));
+
+  // If only exclusions specified, implicitly include everything
+  if (inclusions.length === 0 && exclusions.length > 0) {
+    inclusions.push(/.*/);
+  }
+
+  return {
+    test: (name: string) => {
+      // Check if name matches any inclusion pattern
+      const matchesInclusion = inclusions.some(regex => regex.test(name));
+      if (!matchesInclusion) return false;
+
+      // Check if name matches any exclusion pattern
+      const matchesExclusion = exclusions.some(regex => regex.test(name));
+
+      // Must match inclusion AND not match any exclusion
+      return !matchesExclusion;
+    }
+  };
+}
+
+function patternToRegex(pattern: string): RegExp {
   let res = '';
   const parts = pattern.split('*');
 
@@ -92,6 +153,44 @@ function parseMagicExpr(pattern: string) {
   return new RegExp(res);
 }
 
+function mergePatterns(parentPattern?: string, childPattern?: string): string {
+  if (!parentPattern && !childPattern) {
+    return '*';
+  }
+
+  if (!parentPattern) {
+    return childPattern!;
+  }
+
+  if (!childPattern) {
+    return parentPattern;
+  }
+
+  const parent = parsePatternString(parentPattern);
+  const child = parsePatternString(childPattern);
+
+  // Combine and deduplicate inclusions
+  let allInclusions = [...new Set([...parent.inclusions, ...child.inclusions])];
+
+  // If only exclusions specified, implicitly include everything
+  if (allInclusions.length === 0) {
+    allInclusions = ['*'];
+  }
+
+  // Optimize: If '*' exists, it matches everything, so remove other inclusions
+  const optimizedInclusions = allInclusions.includes('*') ? ['*'] : allInclusions;
+
+  // Combine and deduplicate exclusions
+  const allExclusions = [...new Set([...parent.exclusions, ...child.exclusions])];
+
+  // Build merged pattern: combine inclusions and exclusions
+  const inclusionStrings = optimizedInclusions;
+  const exclusionStrings = allExclusions.map(e => '-' + e);
+  const allPatterns = [...inclusionStrings, ...exclusionStrings];
+
+  return allPatterns.join(',');
+}
+
 function parseLogLevel(level?: string): LogLevel | undefined {
   const value = level?.toLowerCase();
   switch (value) {
@@ -99,6 +198,7 @@ function parseLogLevel(level?: string): LogLevel | undefined {
     case 'warn':
     case 'info':
     case 'debug':
+    case 'trace':
       return value;
     default:
       return undefined;

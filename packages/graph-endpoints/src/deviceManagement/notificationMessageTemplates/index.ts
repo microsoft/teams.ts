@@ -50,7 +50,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/notificationMessageTemplates/{notificationMessageTemplate-id}`
  *
- * Deletes a notificationMessageTemplate.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/notificationMessageTemplates/{notificationMessageTemplate-id}']['parameters']
@@ -71,7 +70,7 @@ export function del(
 /**
  * `GET /deviceManagement/notificationMessageTemplates`
  *
- * List properties and relationships of the notificationMessageTemplate objects.
+ * The Notification Message Templates.
  */
 export function list(
   params?: IEndpoints['GET /deviceManagement/notificationMessageTemplates']['parameters']
@@ -89,7 +88,7 @@ export function list(
 /**
  * `GET /deviceManagement/notificationMessageTemplates/{notificationMessageTemplate-id}`
  *
- * Read properties and relationships of the notificationMessageTemplate object.
+ * The Notification Message Templates.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/notificationMessageTemplates/{notificationMessageTemplate-id}']['parameters']
@@ -110,7 +109,6 @@ export function get(
 /**
  * `PATCH /deviceManagement/notificationMessageTemplates/{notificationMessageTemplate-id}`
  *
- * Update the properties of a notificationMessageTemplate object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceManagement/notificationMessageTemplates/{notificationMessageTemplate-id}']['body'],
@@ -132,7 +130,6 @@ export function update(
 /**
  * `POST /deviceManagement/notificationMessageTemplates`
  *
- * Create a new notificationMessageTemplate object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/notificationMessageTemplates']['body']
@@ -148,7 +145,7 @@ export const localizedNotificationMessages = {
   /**
    * `GET /deviceManagement/notificationMessageTemplates/{notificationMessageTemplate-id}/localizedNotificationMessages`
    *
-   * List properties and relationships of the localizedNotificationMessage objects.
+   * The list of localized messages for this Notification Message Template.
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/notificationMessageTemplates/{notificationMessageTemplate-id}/localizedNotificationMessages']['parameters']
@@ -168,7 +165,6 @@ export const localizedNotificationMessages = {
   /**
    * `POST /deviceManagement/notificationMessageTemplates/{notificationMessageTemplate-id}/localizedNotificationMessages`
    *
-   * Create a new localizedNotificationMessage object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/notificationMessageTemplates/{notificationMessageTemplate-id}/localizedNotificationMessages']['body'],
@@ -189,7 +185,7 @@ export const localizedNotificationMessages = {
   /**
    * `GET /deviceManagement/notificationMessageTemplates/{notificationMessageTemplate-id}/localizedNotificationMessages/{localizedNotificationMessage-id}`
    *
-   * Read properties and relationships of the localizedNotificationMessage object.
+   * The list of localized messages for this Notification Message Template.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/notificationMessageTemplates/{notificationMessageTemplate-id}/localizedNotificationMessages/{localizedNotificationMessage-id}']['parameters']
@@ -209,7 +205,6 @@ export const localizedNotificationMessages = {
   /**
    * `PATCH /deviceManagement/notificationMessageTemplates/{notificationMessageTemplate-id}/localizedNotificationMessages/{localizedNotificationMessage-id}`
    *
-   * Update the properties of a localizedNotificationMessage object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/notificationMessageTemplates/{notificationMessageTemplate-id}/localizedNotificationMessages/{localizedNotificationMessage-id}']['body'],
@@ -230,7 +225,6 @@ export const localizedNotificationMessages = {
   /**
    * `DELETE /deviceManagement/notificationMessageTemplates/{notificationMessageTemplate-id}/localizedNotificationMessages/{localizedNotificationMessage-id}`
    *
-   * Deletes a localizedNotificationMessage.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/notificationMessageTemplates/{notificationMessageTemplate-id}/localizedNotificationMessages/{localizedNotificationMessage-id}']['parameters']

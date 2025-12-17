@@ -13,14 +13,14 @@
     <a href="https://www.npmjs.com/package/@microsoft/teams.dev" target="_blank">
         <img src="https://img.shields.io/npm/dw/@microsoft/teams.dev" />
     </a>
-    <a href="https://microsoft.github.io/teams-ai" target="_blank">
+    <a href="https://microsoft.github.io/teams-sdk" target="_blank">
         <img src="https://img.shields.io/badge/📖 docs-open-blue" />
     </a>
 </p>
 
 developer tools for making debugging/development of Teams apps easier.
 
-<a href="https://microsoft.github.io/teams-ai" target="_blank">
+<a href="https://microsoft.github.io/teams-sdk" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 
@@ -32,5 +32,5 @@ $: npm install @microsoft/teams.dev
 
 ## Dependencies
 
--   [`express`](https://www.npmjs.com/package/express)
--   [`open`](https://www.npmjs.com/package/open)
+- [`express`](https://www.npmjs.com/package/express)
+- [`open`](https://www.npmjs.com/package/open)

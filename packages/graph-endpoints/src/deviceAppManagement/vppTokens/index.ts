@@ -24,7 +24,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceAppManagement/vppTokens/{vppToken-id}`
  *
- * Deletes a vppToken.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceAppManagement/vppTokens/{vppToken-id}']['parameters']
@@ -43,7 +42,7 @@ export function del(
 /**
  * `GET /deviceAppManagement/vppTokens`
  *
- * List properties and relationships of the vppToken objects.
+ * List of Vpp tokens for this organization.
  */
 export function list(
   params?: IEndpoints['GET /deviceAppManagement/vppTokens']['parameters']
@@ -61,7 +60,7 @@ export function list(
 /**
  * `GET /deviceAppManagement/vppTokens/{vppToken-id}`
  *
- * Read properties and relationships of the vppToken object.
+ * List of Vpp tokens for this organization.
  */
 export function get(
   params?: IEndpoints['GET /deviceAppManagement/vppTokens/{vppToken-id}']['parameters']
@@ -80,7 +79,6 @@ export function get(
 /**
  * `PATCH /deviceAppManagement/vppTokens/{vppToken-id}`
  *
- * Update the properties of a vppToken object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceAppManagement/vppTokens/{vppToken-id}']['body'],
@@ -100,7 +98,6 @@ export function update(
 /**
  * `POST /deviceAppManagement/vppTokens`
  *
- * Create a new vppToken object.
  */
 export function create(
   body: IEndpoints['POST /deviceAppManagement/vppTokens']['body']

@@ -50,7 +50,7 @@ export function del(
 /**
  * `GET /employeeExperience/roles/{engagementRole-id}/members`
  *
- * Get a list of the engagementRoleMember objects and their properties.
+ * Get a list of users with assigned roles in Viva Engage.
  */
 export function list(
   params?: IEndpoints['GET /employeeExperience/roles/{engagementRole-id}/members']['parameters']
@@ -72,7 +72,7 @@ export function list(
 /**
  * `GET /employeeExperience/roles/{engagementRole-id}/members/{engagementRoleMember-id}`
  *
- * Users who have been assigned this role.
+ * Users that have this role assigned.
  */
 export function get(
   params?: IEndpoints['GET /employeeExperience/roles/{engagementRole-id}/members/{engagementRoleMember-id}']['parameters']
@@ -116,7 +116,7 @@ export function update(
 /**
  * `POST /employeeExperience/roles/{engagementRole-id}/members`
  *
- * Assign a Viva Engage role to a user.
+ * Create a new engagementRoleMember object that assigns a Viva Engage role to a user.
  */
 export function create(
   body: IEndpoints['POST /employeeExperience/roles/{engagementRole-id}/members']['body'],

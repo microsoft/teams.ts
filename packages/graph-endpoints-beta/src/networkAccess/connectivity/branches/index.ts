@@ -1,5 +1,4 @@
 export * as connectivityConfiguration from './connectivityConfiguration';
-export * as forwardingProfiles from './forwardingProfiles';
 
 import type { EndpointRequest, Operation } from './../../../types/common.ts';
 

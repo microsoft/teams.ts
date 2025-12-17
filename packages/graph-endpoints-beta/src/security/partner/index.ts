@@ -43,7 +43,7 @@ export function del(
 /**
  * `GET /security/partner`
  *
- * A container that safeguards the Microsoft Azure resources of Microsoft Cloud Solution Provider (CSP) partners’ customers, including alerts, scores, and all aspects of security.
+ * A container that safeguards the Microsoft Azure resources of Microsoft Cloud Solution Provider (CSP) partners&#x27; customers, including alerts, scores, and all aspects of security.
  */
 export function get(
   params?: IEndpoints['GET /security/partner']['parameters']

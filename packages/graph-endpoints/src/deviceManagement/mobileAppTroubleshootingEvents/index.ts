@@ -28,7 +28,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}`
  *
- * Deletes a mobileAppTroubleshootingEvent.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}']['parameters']
@@ -49,7 +48,7 @@ export function del(
 /**
  * `GET /deviceManagement/mobileAppTroubleshootingEvents`
  *
- * List properties and relationships of the mobileAppTroubleshootingEvent objects.
+ * The collection property of MobileAppTroubleshootingEvent.
  */
 export function list(
   params?: IEndpoints['GET /deviceManagement/mobileAppTroubleshootingEvents']['parameters']
@@ -67,7 +66,7 @@ export function list(
 /**
  * `GET /deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}`
  *
- * Read properties and relationships of the mobileAppTroubleshootingEvent object.
+ * The collection property of MobileAppTroubleshootingEvent.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}']['parameters']
@@ -88,7 +87,6 @@ export function get(
 /**
  * `PATCH /deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}`
  *
- * Update the properties of a mobileAppTroubleshootingEvent object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceManagement/mobileAppTroubleshootingEvents/{mobileAppTroubleshootingEvent-id}']['body'],
@@ -110,7 +108,6 @@ export function update(
 /**
  * `POST /deviceManagement/mobileAppTroubleshootingEvents`
  *
- * Create a new mobileAppTroubleshootingEvent object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/mobileAppTroubleshootingEvents']['body']

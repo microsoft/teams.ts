@@ -13,6 +13,7 @@ export * as labels from './labels';
 export * as partner from './partner';
 export * as rules from './rules';
 export * as securityActions from './securityActions';
+export * as securityCopilot from './securityCopilot';
 export * as subjectRightsRequests from './subjectRightsRequests';
 export * as threatIntelligence from './threatIntelligence';
 export * as threatSubmission from './threatSubmission';
@@ -928,7 +929,7 @@ export const secureScores = {
   /**
    * `GET /security/secureScores/{secureScore-id}`
    *
-   * Measurements of tenants’ security posture to help protect them from threats.
+   * Measurements of tenants&#x27; security posture to help protect them from threats.
    */
   get: function get(
     params?: IEndpoints['GET /security/secureScores/{secureScore-id}']['parameters']

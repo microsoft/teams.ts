@@ -13,14 +13,14 @@
     <a href="https://www.npmjs.com/package/@microsoft/teams.api" target="_blank">
         <img src="https://img.shields.io/npm/dw/@microsoft/teams.api" />
     </a>
-    <a href="https://microsoft.github.io/teams-ai" target="_blank">
+    <a href="https://microsoft.github.io/teams-sdk" target="_blank">
         <img src="https://img.shields.io/badge/📖 docs-open-blue" />
     </a>
 </p>
 
 Model and client implementations used to send and receive requests from Teams.
 
-<a href="https://microsoft.github.io/teams-ai" target="_blank">
+<a href="https://microsoft.github.io/teams-sdk" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 
@@ -32,6 +32,6 @@ $: npm install @microsoft/teams.api
 
 ## Dependencies
 
--   [`axios`](https://www.npmjs.com/package/axios)
--   [`jwt-decode`](https://www.npmjs.com/package/jwt-decode)
--   [`qs`](https://www.npmjs.com/package/qs)
+- [`axios`](https://www.npmjs.com/package/axios)
+- [`jwt-decode`](https://www.npmjs.com/package/jwt-decode)
+- [`qs`](https://www.npmjs.com/package/qs)

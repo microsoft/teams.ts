@@ -247,7 +247,7 @@ export const namedLocations = {
   /**
    * `PATCH /identity/conditionalAccess/namedLocations/{namedLocation-id}`
    *
-   * Update the properties of an ipNamedLocation object.
+   * Update the properties of a countryNamedLocation object.
    */
   update: function update(
     body: IEndpoints['PATCH /identity/conditionalAccess/namedLocations/{namedLocation-id}']['body'],
@@ -268,7 +268,7 @@ export const namedLocations = {
   /**
    * `DELETE /identity/conditionalAccess/namedLocations/{namedLocation-id}`
    *
-   * Delete an ipNamedLocation object.
+   * Delete a countryNamedLocation object.
    */
   del: function del(
     params?: IEndpoints['DELETE /identity/conditionalAccess/namedLocations/{namedLocation-id}']['parameters']

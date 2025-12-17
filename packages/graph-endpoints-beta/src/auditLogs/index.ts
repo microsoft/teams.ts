@@ -1,3 +1,4 @@
+export * as signInEventsAppSummary from './signInEventsAppSummary';
 export * as signIns from './signIns';
 
 import type { EndpointRequest, Operation } from './../types/common.ts';
@@ -5,6 +6,20 @@ import type { EndpointRequest, Operation } from './../types/common.ts';
 export interface IEndpoints {
   'GET /auditLogs': Operation<'/auditLogs', 'get'>;
   'PATCH /auditLogs': Operation<'/auditLogs', 'patch'>;
+  'GET /auditLogs/auditActivityTypes': Operation<'/auditLogs/auditActivityTypes', 'get'>;
+  'POST /auditLogs/auditActivityTypes': Operation<'/auditLogs/auditActivityTypes', 'post'>;
+  'GET /auditLogs/auditActivityTypes/{auditActivityType-id}': Operation<
+    '/auditLogs/auditActivityTypes/{auditActivityType-id}',
+    'get'
+  >;
+  'PATCH /auditLogs/auditActivityTypes/{auditActivityType-id}': Operation<
+    '/auditLogs/auditActivityTypes/{auditActivityType-id}',
+    'patch'
+  >;
+  'DELETE /auditLogs/auditActivityTypes/{auditActivityType-id}': Operation<
+    '/auditLogs/auditActivityTypes/{auditActivityType-id}',
+    'delete'
+  >;
   'GET /auditLogs/customSecurityAttributeAudits': Operation<
     '/auditLogs/customSecurityAttributeAudits',
     'get'
@@ -67,6 +82,20 @@ export interface IEndpoints {
     '/auditLogs/provisioning/{provisioningObjectSummary-id}',
     'delete'
   >;
+  'GET /auditLogs/signInEventsSummary': Operation<'/auditLogs/signInEventsSummary', 'get'>;
+  'POST /auditLogs/signInEventsSummary': Operation<'/auditLogs/signInEventsSummary', 'post'>;
+  'GET /auditLogs/signInEventsSummary/{signInEventsActivity-id}': Operation<
+    '/auditLogs/signInEventsSummary/{signInEventsActivity-id}',
+    'get'
+  >;
+  'PATCH /auditLogs/signInEventsSummary/{signInEventsActivity-id}': Operation<
+    '/auditLogs/signInEventsSummary/{signInEventsActivity-id}',
+    'patch'
+  >;
+  'DELETE /auditLogs/signInEventsSummary/{signInEventsActivity-id}': Operation<
+    '/auditLogs/signInEventsSummary/{signInEventsActivity-id}',
+    'delete'
+  >;
   'GET /auditLogs/signUps': Operation<'/auditLogs/signUps', 'get'>;
   'POST /auditLogs/signUps': Operation<'/auditLogs/signUps', 'post'>;
   'GET /auditLogs/signUps/{selfServiceSignUp-id}': Operation<
@@ -115,6 +144,103 @@ export function update(
     body,
   };
 }
+
+export const auditActivityTypes = {
+  /**
+   * `GET /auditLogs/auditActivityTypes`
+   *
+   * Gets a list of all of the possible audit log types and which services they come from as defined in the auditActivityType object.
+   */
+  list: function list(
+    params?: IEndpoints['GET /auditLogs/auditActivityTypes']['parameters']
+  ): EndpointRequest<IEndpoints['GET /auditLogs/auditActivityTypes']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/auditLogs/auditActivityTypes',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /auditLogs/auditActivityTypes`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /auditLogs/auditActivityTypes']['body']
+  ): EndpointRequest<IEndpoints['POST /auditLogs/auditActivityTypes']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/auditLogs/auditActivityTypes',
+      body,
+    };
+  },
+  /**
+   * `GET /auditLogs/auditActivityTypes/{auditActivityType-id}`
+   *
+   * Represents an audit activity type which includes the associated service and category for a specific activity.
+   */
+  get: function get(
+    params?: IEndpoints['GET /auditLogs/auditActivityTypes/{auditActivityType-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /auditLogs/auditActivityTypes/{auditActivityType-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/auditLogs/auditActivityTypes/{auditActivityType-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['auditActivityType-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /auditLogs/auditActivityTypes/{auditActivityType-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /auditLogs/auditActivityTypes/{auditActivityType-id}']['body'],
+    params?: IEndpoints['PATCH /auditLogs/auditActivityTypes/{auditActivityType-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /auditLogs/auditActivityTypes/{auditActivityType-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/auditLogs/auditActivityTypes/{auditActivityType-id}',
+      paramDefs: {
+        path: ['auditActivityType-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /auditLogs/auditActivityTypes/{auditActivityType-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /auditLogs/auditActivityTypes/{auditActivityType-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /auditLogs/auditActivityTypes/{auditActivityType-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/auditLogs/auditActivityTypes/{auditActivityType-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['auditActivityType-id'],
+      },
+      params,
+    };
+  },
+};
 
 export const customSecurityAttributeAudits = {
   /**
@@ -494,6 +620,103 @@ export const provisioning = {
       paramDefs: {
         header: ['If-Match'],
         path: ['provisioningObjectSummary-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const signInEventsSummary = {
+  /**
+   * `GET /auditLogs/signInEventsSummary`
+   *
+   * Get a list of the number of signin events for a specific day as defined in the signInEventsActivity object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /auditLogs/signInEventsSummary']['parameters']
+  ): EndpointRequest<IEndpoints['GET /auditLogs/signInEventsSummary']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/auditLogs/signInEventsSummary',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /auditLogs/signInEventsSummary`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /auditLogs/signInEventsSummary']['body']
+  ): EndpointRequest<IEndpoints['POST /auditLogs/signInEventsSummary']['response']> {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/auditLogs/signInEventsSummary',
+      body,
+    };
+  },
+  /**
+   * `GET /auditLogs/signInEventsSummary/{signInEventsActivity-id}`
+   *
+   * Represents the total number of sign-in events for a specific day.
+   */
+  get$1: function get$1(
+    params?: IEndpoints['GET /auditLogs/signInEventsSummary/{signInEventsActivity-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /auditLogs/signInEventsSummary/{signInEventsActivity-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/auditLogs/signInEventsSummary/{signInEventsActivity-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['signInEventsActivity-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /auditLogs/signInEventsSummary/{signInEventsActivity-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /auditLogs/signInEventsSummary/{signInEventsActivity-id}']['body'],
+    params?: IEndpoints['PATCH /auditLogs/signInEventsSummary/{signInEventsActivity-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /auditLogs/signInEventsSummary/{signInEventsActivity-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/auditLogs/signInEventsSummary/{signInEventsActivity-id}',
+      paramDefs: {
+        path: ['signInEventsActivity-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /auditLogs/signInEventsSummary/{signInEventsActivity-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /auditLogs/signInEventsSummary/{signInEventsActivity-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /auditLogs/signInEventsSummary/{signInEventsActivity-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/auditLogs/signInEventsSummary/{signInEventsActivity-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['signInEventsActivity-id'],
       },
       params,
     };

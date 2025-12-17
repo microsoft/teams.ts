@@ -1,4 +1,4 @@
-import { Account, ConversationAccount } from '../account';
+import { ConversationAccount, TeamsChannelAccount } from '../account';
 
 import { Meeting } from './meeting';
 
@@ -11,7 +11,7 @@ export type MeetingParticipant = {
   /**
    * @member {TeamsChannelAccount} [user] The user details
    */
-  user?: Account;
+  user?: TeamsChannelAccount;
 
   /**
    * @member {Meeting} [meeting] The meeting details.

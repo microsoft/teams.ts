@@ -20,6 +20,14 @@ export interface IEndpoints {
     '/teams/{team-id}/primaryChannel/completeMigration',
     'post'
   >;
+  'GET /teams/{team-id}/primaryChannel/enabledApps': Operation<
+    '/teams/{team-id}/primaryChannel/enabledApps',
+    'get'
+  >;
+  'GET /teams/{team-id}/primaryChannel/enabledApps/{teamsApp-id}': Operation<
+    '/teams/{team-id}/primaryChannel/enabledApps/{teamsApp-id}',
+    'get'
+  >;
   'POST /teams/{team-id}/primaryChannel/provisionEmail': Operation<
     '/teams/{team-id}/primaryChannel/provisionEmail',
     'post'
@@ -133,6 +141,47 @@ export const completeMigration = {
       path: '/teams/{team-id}/primaryChannel/completeMigration',
       paramDefs: {
         path: ['team-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const enabledApps = {
+  /**
+   * `GET /teams/{team-id}/primaryChannel/enabledApps`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /teams/{team-id}/primaryChannel/enabledApps']['parameters']
+  ): EndpointRequest<IEndpoints['GET /teams/{team-id}/primaryChannel/enabledApps']['response']> {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teams/{team-id}/primaryChannel/enabledApps',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['team-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /teams/{team-id}/primaryChannel/enabledApps/{teamsApp-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /teams/{team-id}/primaryChannel/enabledApps/{teamsApp-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teams/{team-id}/primaryChannel/enabledApps/{teamsApp-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teams/{team-id}/primaryChannel/enabledApps/{teamsApp-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['team-id', 'teamsApp-id'],
       },
       params,
     };

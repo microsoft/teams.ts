@@ -86,7 +86,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceAppManagement/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}`
  *
- * Deletes a windowsInformationProtectionPolicy.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceAppManagement/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}']['parameters']
@@ -107,7 +106,7 @@ export function del(
 /**
  * `GET /deviceAppManagement/windowsInformationProtectionPolicies`
  *
- * List properties and relationships of the windowsInformationProtectionPolicy objects.
+ * Windows information protection for apps running on devices which are not MDM enrolled.
  */
 export function list(
   params?: IEndpoints['GET /deviceAppManagement/windowsInformationProtectionPolicies']['parameters']
@@ -127,7 +126,7 @@ export function list(
 /**
  * `GET /deviceAppManagement/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}`
  *
- * Read properties and relationships of the windowsInformationProtectionPolicy object.
+ * Windows information protection for apps running on devices which are not MDM enrolled.
  */
 export function get(
   params?: IEndpoints['GET /deviceAppManagement/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}']['parameters']
@@ -148,7 +147,6 @@ export function get(
 /**
  * `PATCH /deviceAppManagement/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}`
  *
- * Update the properties of a windowsInformationProtectionPolicy object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceAppManagement/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}']['body'],
@@ -170,7 +168,6 @@ export function update(
 /**
  * `POST /deviceAppManagement/windowsInformationProtectionPolicies`
  *
- * Create a new windowsInformationProtectionPolicy object.
  */
 export function create(
   body: IEndpoints['POST /deviceAppManagement/windowsInformationProtectionPolicies']['body']
@@ -290,7 +287,7 @@ export const exemptAppLockerFiles = {
   /**
    * `GET /deviceAppManagement/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}/exemptAppLockerFiles`
    *
-   * List properties and relationships of the windowsInformationProtectionAppLockerFile objects.
+   * Another way to input exempt apps through xml files
    */
   list: function list(
     params?: IEndpoints['GET /deviceAppManagement/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}/exemptAppLockerFiles']['parameters']
@@ -310,7 +307,6 @@ export const exemptAppLockerFiles = {
   /**
    * `POST /deviceAppManagement/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}/exemptAppLockerFiles`
    *
-   * Create a new windowsInformationProtectionAppLockerFile object.
    */
   create: function create(
     body: IEndpoints['POST /deviceAppManagement/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}/exemptAppLockerFiles']['body'],
@@ -331,7 +327,7 @@ export const exemptAppLockerFiles = {
   /**
    * `GET /deviceAppManagement/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}/exemptAppLockerFiles/{windowsInformationProtectionAppLockerFile-id}`
    *
-   * Read properties and relationships of the windowsInformationProtectionAppLockerFile object.
+   * Another way to input exempt apps through xml files
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}/exemptAppLockerFiles/{windowsInformationProtectionAppLockerFile-id}']['parameters']
@@ -354,7 +350,6 @@ export const exemptAppLockerFiles = {
   /**
    * `PATCH /deviceAppManagement/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}/exemptAppLockerFiles/{windowsInformationProtectionAppLockerFile-id}`
    *
-   * Update the properties of a windowsInformationProtectionAppLockerFile object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceAppManagement/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}/exemptAppLockerFiles/{windowsInformationProtectionAppLockerFile-id}']['body'],
@@ -378,7 +373,6 @@ export const exemptAppLockerFiles = {
   /**
    * `DELETE /deviceAppManagement/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}/exemptAppLockerFiles/{windowsInformationProtectionAppLockerFile-id}`
    *
-   * Deletes a windowsInformationProtectionAppLockerFile.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceAppManagement/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}/exemptAppLockerFiles/{windowsInformationProtectionAppLockerFile-id}']['parameters']

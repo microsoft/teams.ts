@@ -194,26 +194,6 @@ export interface IEndpoints {
     '/deviceManagement/softwareUpdateStatusSummary',
     'get'
   >;
-  'GET /deviceManagement/telecomExpenseManagementPartners': Operation<
-    '/deviceManagement/telecomExpenseManagementPartners',
-    'get'
-  >;
-  'POST /deviceManagement/telecomExpenseManagementPartners': Operation<
-    '/deviceManagement/telecomExpenseManagementPartners',
-    'post'
-  >;
-  'GET /deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}': Operation<
-    '/deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}',
-    'get'
-  >;
-  'PATCH /deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}': Operation<
-    '/deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}',
-    'patch'
-  >;
-  'DELETE /deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}': Operation<
-    '/deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}',
-    'delete'
-  >;
   'GET /deviceManagement/troubleshootingEvents': Operation<
     '/deviceManagement/troubleshootingEvents',
     'get'
@@ -643,7 +623,6 @@ export interface IEndpoints {
 /**
  * `GET /deviceManagement`
  *
- * Read properties and relationships of the deviceManagement object.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement']['parameters']
@@ -661,7 +640,6 @@ export function get(
 /**
  * `PATCH /deviceManagement`
  *
- * Update the properties of a deviceManagement object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceManagement']['body']
@@ -677,7 +655,7 @@ export const applePushNotificationCertificate = {
   /**
    * `GET /deviceManagement/applePushNotificationCertificate`
    *
-   * Read properties and relationships of the applePushNotificationCertificate object.
+   * Apple push notification certificate.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/applePushNotificationCertificate']['parameters']
@@ -696,7 +674,6 @@ export const applePushNotificationCertificate = {
   /**
    * `PATCH /deviceManagement/applePushNotificationCertificate`
    *
-   * Update the properties of a applePushNotificationCertificate object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/applePushNotificationCertificate']['body']
@@ -733,7 +710,7 @@ export const auditEvents = {
   /**
    * `GET /deviceManagement/auditEvents`
    *
-   * List properties and relationships of the auditEvent objects.
+   * The Audit Events
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/auditEvents']['parameters']
@@ -750,7 +727,6 @@ export const auditEvents = {
   /**
    * `POST /deviceManagement/auditEvents`
    *
-   * Create a new auditEvent object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/auditEvents']['body']
@@ -764,7 +740,7 @@ export const auditEvents = {
   /**
    * `GET /deviceManagement/auditEvents/{auditEvent-id}`
    *
-   * Read properties and relationships of the auditEvent object.
+   * The Audit Events
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/auditEvents/{auditEvent-id}']['parameters']
@@ -782,7 +758,6 @@ export const auditEvents = {
   /**
    * `PATCH /deviceManagement/auditEvents/{auditEvent-id}`
    *
-   * Update the properties of a auditEvent object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/auditEvents/{auditEvent-id}']['body'],
@@ -803,7 +778,6 @@ export const auditEvents = {
   /**
    * `DELETE /deviceManagement/auditEvents/{auditEvent-id}`
    *
-   * Deletes a auditEvent.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/auditEvents/{auditEvent-id}']['parameters']
@@ -826,7 +800,7 @@ export const complianceManagementPartners = {
   /**
    * `GET /deviceManagement/complianceManagementPartners`
    *
-   * List properties and relationships of the complianceManagementPartner objects.
+   * The list of Compliance Management Partners configured by the tenant.
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/complianceManagementPartners']['parameters']
@@ -843,7 +817,6 @@ export const complianceManagementPartners = {
   /**
    * `POST /deviceManagement/complianceManagementPartners`
    *
-   * Create a new complianceManagementPartner object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/complianceManagementPartners']['body']
@@ -859,7 +832,7 @@ export const complianceManagementPartners = {
   /**
    * `GET /deviceManagement/complianceManagementPartners/{complianceManagementPartner-id}`
    *
-   * Read properties and relationships of the complianceManagementPartner object.
+   * The list of Compliance Management Partners configured by the tenant.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/complianceManagementPartners/{complianceManagementPartner-id}']['parameters']
@@ -879,7 +852,6 @@ export const complianceManagementPartners = {
   /**
    * `PATCH /deviceManagement/complianceManagementPartners/{complianceManagementPartner-id}`
    *
-   * Update the properties of a complianceManagementPartner object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/complianceManagementPartners/{complianceManagementPartner-id}']['body'],
@@ -900,7 +872,6 @@ export const complianceManagementPartners = {
   /**
    * `DELETE /deviceManagement/complianceManagementPartners/{complianceManagementPartner-id}`
    *
-   * Deletes a complianceManagementPartner.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/complianceManagementPartners/{complianceManagementPartner-id}']['parameters']
@@ -923,7 +894,7 @@ export const conditionalAccessSettings = {
   /**
    * `GET /deviceManagement/conditionalAccessSettings`
    *
-   * Read properties and relationships of the onPremisesConditionalAccessSettings object.
+   * The Exchange on premises conditional access settings. On premises conditional access will require devices to be both enrolled and compliant for mail access
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/conditionalAccessSettings']['parameters']
@@ -940,7 +911,6 @@ export const conditionalAccessSettings = {
   /**
    * `PATCH /deviceManagement/conditionalAccessSettings`
    *
-   * Update the properties of a onPremisesConditionalAccessSettings object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/conditionalAccessSettings']['body']
@@ -973,7 +943,7 @@ export const deviceCategories = {
   /**
    * `GET /deviceManagement/deviceCategories`
    *
-   * List properties and relationships of the deviceCategory objects.
+   * The list of device categories with the tenant.
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/deviceCategories']['parameters']
@@ -990,7 +960,6 @@ export const deviceCategories = {
   /**
    * `POST /deviceManagement/deviceCategories`
    *
-   * Create a new deviceCategory object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/deviceCategories']['body']
@@ -1004,7 +973,7 @@ export const deviceCategories = {
   /**
    * `GET /deviceManagement/deviceCategories/{deviceCategory-id}`
    *
-   * Read properties and relationships of the deviceCategory object.
+   * The list of device categories with the tenant.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/deviceCategories/{deviceCategory-id}']['parameters']
@@ -1024,7 +993,6 @@ export const deviceCategories = {
   /**
    * `PATCH /deviceManagement/deviceCategories/{deviceCategory-id}`
    *
-   * Update the properties of a deviceCategory object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/deviceCategories/{deviceCategory-id}']['body'],
@@ -1045,7 +1013,6 @@ export const deviceCategories = {
   /**
    * `DELETE /deviceManagement/deviceCategories/{deviceCategory-id}`
    *
-   * Deletes a deviceCategory.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/deviceCategories/{deviceCategory-id}']['parameters']
@@ -1068,7 +1035,7 @@ export const deviceCompliancePolicyDeviceStateSummary = {
   /**
    * `GET /deviceManagement/deviceCompliancePolicyDeviceStateSummary`
    *
-   * Read properties and relationships of the deviceCompliancePolicyDeviceStateSummary object.
+   * The device compliance state summary for this account.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/deviceCompliancePolicyDeviceStateSummary']['parameters']
@@ -1087,7 +1054,6 @@ export const deviceCompliancePolicyDeviceStateSummary = {
   /**
    * `PATCH /deviceManagement/deviceCompliancePolicyDeviceStateSummary`
    *
-   * Update the properties of a deviceCompliancePolicyDeviceStateSummary object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/deviceCompliancePolicyDeviceStateSummary']['body']
@@ -1124,7 +1090,7 @@ export const deviceConfigurationDeviceStateSummaries = {
   /**
    * `GET /deviceManagement/deviceConfigurationDeviceStateSummaries`
    *
-   * Read properties and relationships of the deviceConfigurationDeviceStateSummary object.
+   * The device configuration device state summary for this account.
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/deviceConfigurationDeviceStateSummaries']['parameters']
@@ -1143,7 +1109,6 @@ export const deviceConfigurationDeviceStateSummaries = {
   /**
    * `PATCH /deviceManagement/deviceConfigurationDeviceStateSummaries`
    *
-   * Update the properties of a deviceConfigurationDeviceStateSummary object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/deviceConfigurationDeviceStateSummaries']['body']
@@ -1180,7 +1145,7 @@ export const iosUpdateStatuses = {
   /**
    * `GET /deviceManagement/iosUpdateStatuses`
    *
-   * List properties and relationships of the iosUpdateDeviceStatus objects.
+   * The IOS software update installation statuses for this account.
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/iosUpdateStatuses']['parameters']
@@ -1197,7 +1162,6 @@ export const iosUpdateStatuses = {
   /**
    * `POST /deviceManagement/iosUpdateStatuses`
    *
-   * Create a new iosUpdateDeviceStatus object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/iosUpdateStatuses']['body']
@@ -1211,7 +1175,7 @@ export const iosUpdateStatuses = {
   /**
    * `GET /deviceManagement/iosUpdateStatuses/{iosUpdateDeviceStatus-id}`
    *
-   * Read properties and relationships of the iosUpdateDeviceStatus object.
+   * The IOS software update installation statuses for this account.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/iosUpdateStatuses/{iosUpdateDeviceStatus-id}']['parameters']
@@ -1231,7 +1195,6 @@ export const iosUpdateStatuses = {
   /**
    * `PATCH /deviceManagement/iosUpdateStatuses/{iosUpdateDeviceStatus-id}`
    *
-   * Update the properties of a iosUpdateDeviceStatus object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/iosUpdateStatuses/{iosUpdateDeviceStatus-id}']['body'],
@@ -1252,7 +1215,6 @@ export const iosUpdateStatuses = {
   /**
    * `DELETE /deviceManagement/iosUpdateStatuses/{iosUpdateDeviceStatus-id}`
    *
-   * Deletes a iosUpdateDeviceStatus.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/iosUpdateStatuses/{iosUpdateDeviceStatus-id}']['parameters']
@@ -1295,7 +1257,7 @@ export const mobileThreatDefenseConnectors = {
   /**
    * `GET /deviceManagement/mobileThreatDefenseConnectors`
    *
-   * List properties and relationships of the mobileThreatDefenseConnector objects.
+   * The list of Mobile threat Defense connectors configured by the tenant.
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/mobileThreatDefenseConnectors']['parameters']
@@ -1314,7 +1276,6 @@ export const mobileThreatDefenseConnectors = {
   /**
    * `POST /deviceManagement/mobileThreatDefenseConnectors`
    *
-   * Create a new mobileThreatDefenseConnector object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/mobileThreatDefenseConnectors']['body']
@@ -1330,7 +1291,7 @@ export const mobileThreatDefenseConnectors = {
   /**
    * `GET /deviceManagement/mobileThreatDefenseConnectors/{mobileThreatDefenseConnector-id}`
    *
-   * Read properties and relationships of the mobileThreatDefenseConnector object.
+   * The list of Mobile threat Defense connectors configured by the tenant.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/mobileThreatDefenseConnectors/{mobileThreatDefenseConnector-id}']['parameters']
@@ -1350,7 +1311,6 @@ export const mobileThreatDefenseConnectors = {
   /**
    * `PATCH /deviceManagement/mobileThreatDefenseConnectors/{mobileThreatDefenseConnector-id}`
    *
-   * Update the properties of a mobileThreatDefenseConnector object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/mobileThreatDefenseConnectors/{mobileThreatDefenseConnector-id}']['body'],
@@ -1371,7 +1331,6 @@ export const mobileThreatDefenseConnectors = {
   /**
    * `DELETE /deviceManagement/mobileThreatDefenseConnectors/{mobileThreatDefenseConnector-id}`
    *
-   * Deletes a mobileThreatDefenseConnector.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/mobileThreatDefenseConnectors/{mobileThreatDefenseConnector-id}']['parameters']
@@ -1394,7 +1353,7 @@ export const resourceOperations = {
   /**
    * `GET /deviceManagement/resourceOperations`
    *
-   * List properties and relationships of the resourceOperation objects.
+   * The Resource Operations.
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/resourceOperations']['parameters']
@@ -1411,7 +1370,6 @@ export const resourceOperations = {
   /**
    * `POST /deviceManagement/resourceOperations`
    *
-   * Create a new resourceOperation object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/resourceOperations']['body']
@@ -1425,7 +1383,7 @@ export const resourceOperations = {
   /**
    * `GET /deviceManagement/resourceOperations/{resourceOperation-id}`
    *
-   * Read properties and relationships of the resourceOperation object.
+   * The Resource Operations.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/resourceOperations/{resourceOperation-id}']['parameters']
@@ -1445,7 +1403,6 @@ export const resourceOperations = {
   /**
    * `PATCH /deviceManagement/resourceOperations/{resourceOperation-id}`
    *
-   * Update the properties of a resourceOperation object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/resourceOperations/{resourceOperation-id}']['body'],
@@ -1466,7 +1423,6 @@ export const resourceOperations = {
   /**
    * `DELETE /deviceManagement/resourceOperations/{resourceOperation-id}`
    *
-   * Deletes a resourceOperation.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/resourceOperations/{resourceOperation-id}']['parameters']
@@ -1489,7 +1445,7 @@ export const softwareUpdateStatusSummary = {
   /**
    * `GET /deviceManagement/softwareUpdateStatusSummary`
    *
-   * Read properties and relationships of the softwareUpdateStatusSummary object.
+   * The software update status summary.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/softwareUpdateStatusSummary']['parameters']
@@ -1499,105 +1455,6 @@ export const softwareUpdateStatusSummary = {
       path: '/deviceManagement/softwareUpdateStatusSummary',
       paramDefs: {
         query: ['$select', '$expand'],
-      },
-      params,
-    };
-  },
-};
-
-export const telecomExpenseManagementPartners = {
-  /**
-   * `GET /deviceManagement/telecomExpenseManagementPartners`
-   *
-   * List properties and relationships of the telecomExpenseManagementPartner objects.
-   */
-  list: function list(
-    params?: IEndpoints['GET /deviceManagement/telecomExpenseManagementPartners']['parameters']
-  ): EndpointRequest<
-    IEndpoints['GET /deviceManagement/telecomExpenseManagementPartners']['response']
-  > {
-    return {
-      method: 'get',
-      path: '/deviceManagement/telecomExpenseManagementPartners',
-      paramDefs: {
-        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
-      },
-      params,
-    };
-  },
-  /**
-   * `POST /deviceManagement/telecomExpenseManagementPartners`
-   *
-   * Create a new telecomExpenseManagementPartner object.
-   */
-  create: function create(
-    body: IEndpoints['POST /deviceManagement/telecomExpenseManagementPartners']['body']
-  ): EndpointRequest<
-    IEndpoints['POST /deviceManagement/telecomExpenseManagementPartners']['response']
-  > {
-    return {
-      method: 'post',
-      path: '/deviceManagement/telecomExpenseManagementPartners',
-      body,
-    };
-  },
-  /**
-   * `GET /deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}`
-   *
-   * Read properties and relationships of the telecomExpenseManagementPartner object.
-   */
-  get: function get(
-    params?: IEndpoints['GET /deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}']['parameters']
-  ): EndpointRequest<
-    IEndpoints['GET /deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}']['response']
-  > {
-    return {
-      method: 'get',
-      path: '/deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}',
-      paramDefs: {
-        query: ['$select', '$expand'],
-        path: ['telecomExpenseManagementPartner-id'],
-      },
-      params,
-    };
-  },
-  /**
-   * `PATCH /deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}`
-   *
-   * Update the properties of a telecomExpenseManagementPartner object.
-   */
-  update: function update(
-    body: IEndpoints['PATCH /deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}']['body'],
-    params?: IEndpoints['PATCH /deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}']['parameters']
-  ): EndpointRequest<
-    IEndpoints['PATCH /deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}']['response']
-  > {
-    return {
-      method: 'patch',
-      path: '/deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}',
-      paramDefs: {
-        path: ['telecomExpenseManagementPartner-id'],
-      },
-      params,
-      body,
-    };
-  },
-  /**
-   * `DELETE /deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}`
-   *
-   * Deletes a telecomExpenseManagementPartner.
-   */
-  del: function del(
-    params?: IEndpoints['DELETE /deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}']['parameters']
-  ): EndpointRequest<
-    IEndpoints['DELETE /deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}']['response']
-  > {
-    return {
-      method: 'delete',
-      path: '/deviceManagement/telecomExpenseManagementPartners/{telecomExpenseManagementPartner-id}',
-      paramDefs: {
-        header: ['If-Match'],
-        path: ['telecomExpenseManagementPartner-id'],
       },
       params,
     };
@@ -3442,7 +3299,7 @@ export const windowsInformationProtectionAppLearningSummaries = {
   /**
    * `GET /deviceManagement/windowsInformationProtectionAppLearningSummaries`
    *
-   * List properties and relationships of the windowsInformationProtectionAppLearningSummary objects.
+   * The windows information protection app learning summaries.
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/windowsInformationProtectionAppLearningSummaries']['parameters']
@@ -3461,7 +3318,6 @@ export const windowsInformationProtectionAppLearningSummaries = {
   /**
    * `POST /deviceManagement/windowsInformationProtectionAppLearningSummaries`
    *
-   * Create a new windowsInformationProtectionAppLearningSummary object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/windowsInformationProtectionAppLearningSummaries']['body']
@@ -3477,7 +3333,7 @@ export const windowsInformationProtectionAppLearningSummaries = {
   /**
    * `GET /deviceManagement/windowsInformationProtectionAppLearningSummaries/{windowsInformationProtectionAppLearningSummary-id}`
    *
-   * Read properties and relationships of the windowsInformationProtectionAppLearningSummary object.
+   * The windows information protection app learning summaries.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/windowsInformationProtectionAppLearningSummaries/{windowsInformationProtectionAppLearningSummary-id}']['parameters']
@@ -3497,7 +3353,6 @@ export const windowsInformationProtectionAppLearningSummaries = {
   /**
    * `PATCH /deviceManagement/windowsInformationProtectionAppLearningSummaries/{windowsInformationProtectionAppLearningSummary-id}`
    *
-   * Update the properties of a windowsInformationProtectionAppLearningSummary object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/windowsInformationProtectionAppLearningSummaries/{windowsInformationProtectionAppLearningSummary-id}']['body'],
@@ -3518,7 +3373,6 @@ export const windowsInformationProtectionAppLearningSummaries = {
   /**
    * `DELETE /deviceManagement/windowsInformationProtectionAppLearningSummaries/{windowsInformationProtectionAppLearningSummary-id}`
    *
-   * Deletes a windowsInformationProtectionAppLearningSummary.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/windowsInformationProtectionAppLearningSummaries/{windowsInformationProtectionAppLearningSummary-id}']['parameters']
@@ -3541,7 +3395,7 @@ export const windowsInformationProtectionNetworkLearningSummaries = {
   /**
    * `GET /deviceManagement/windowsInformationProtectionNetworkLearningSummaries`
    *
-   * List properties and relationships of the windowsInformationProtectionNetworkLearningSummary objects.
+   * The windows information protection network learning summaries.
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/windowsInformationProtectionNetworkLearningSummaries']['parameters']
@@ -3560,7 +3414,6 @@ export const windowsInformationProtectionNetworkLearningSummaries = {
   /**
    * `POST /deviceManagement/windowsInformationProtectionNetworkLearningSummaries`
    *
-   * Create a new windowsInformationProtectionNetworkLearningSummary object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/windowsInformationProtectionNetworkLearningSummaries']['body']
@@ -3576,7 +3429,7 @@ export const windowsInformationProtectionNetworkLearningSummaries = {
   /**
    * `GET /deviceManagement/windowsInformationProtectionNetworkLearningSummaries/{windowsInformationProtectionNetworkLearningSummary-id}`
    *
-   * Read properties and relationships of the windowsInformationProtectionNetworkLearningSummary object.
+   * The windows information protection network learning summaries.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/windowsInformationProtectionNetworkLearningSummaries/{windowsInformationProtectionNetworkLearningSummary-id}']['parameters']
@@ -3596,7 +3449,6 @@ export const windowsInformationProtectionNetworkLearningSummaries = {
   /**
    * `PATCH /deviceManagement/windowsInformationProtectionNetworkLearningSummaries/{windowsInformationProtectionNetworkLearningSummary-id}`
    *
-   * Update the properties of a windowsInformationProtectionNetworkLearningSummary object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/windowsInformationProtectionNetworkLearningSummaries/{windowsInformationProtectionNetworkLearningSummary-id}']['body'],
@@ -3617,7 +3469,6 @@ export const windowsInformationProtectionNetworkLearningSummaries = {
   /**
    * `DELETE /deviceManagement/windowsInformationProtectionNetworkLearningSummaries/{windowsInformationProtectionNetworkLearningSummary-id}`
    *
-   * Deletes a windowsInformationProtectionNetworkLearningSummary.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/windowsInformationProtectionNetworkLearningSummaries/{windowsInformationProtectionNetworkLearningSummary-id}']['parameters']

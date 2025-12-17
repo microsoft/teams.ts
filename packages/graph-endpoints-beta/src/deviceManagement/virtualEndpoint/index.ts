@@ -5,6 +5,7 @@ export * as deviceImages from './deviceImages';
 export * as onPremisesConnections from './onPremisesConnections';
 export * as provisioningPolicies from './provisioningPolicies';
 export * as reports from './reports';
+export * as snapshots from './snapshots';
 export * as userSettings from './userSettings';
 
 import type { EndpointRequest, Operation } from './../../types/common.ts';
@@ -71,6 +72,26 @@ export interface IEndpoints {
     '/deviceManagement/virtualEndpoint/externalPartnerSettings/{cloudPcExternalPartnerSetting-id}',
     'delete'
   >;
+  'GET /deviceManagement/virtualEndpoint/externalPartners': Operation<
+    '/deviceManagement/virtualEndpoint/externalPartners',
+    'get'
+  >;
+  'POST /deviceManagement/virtualEndpoint/externalPartners': Operation<
+    '/deviceManagement/virtualEndpoint/externalPartners',
+    'post'
+  >;
+  'GET /deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}': Operation<
+    '/deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}',
+    'get'
+  >;
+  'PATCH /deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}': Operation<
+    '/deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}',
+    'patch'
+  >;
+  'DELETE /deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}': Operation<
+    '/deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}',
+    'delete'
+  >;
   'GET /deviceManagement/virtualEndpoint/frontLineServicePlans': Operation<
     '/deviceManagement/virtualEndpoint/frontLineServicePlans',
     'get'
@@ -111,6 +132,26 @@ export interface IEndpoints {
     '/deviceManagement/virtualEndpoint/galleryImages/{cloudPcGalleryImage-id}',
     'delete'
   >;
+  'GET /deviceManagement/virtualEndpoint/managedLicenses': Operation<
+    '/deviceManagement/virtualEndpoint/managedLicenses',
+    'get'
+  >;
+  'POST /deviceManagement/virtualEndpoint/managedLicenses': Operation<
+    '/deviceManagement/virtualEndpoint/managedLicenses',
+    'post'
+  >;
+  'GET /deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}': Operation<
+    '/deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}',
+    'get'
+  >;
+  'PATCH /deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}': Operation<
+    '/deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}',
+    'patch'
+  >;
+  'DELETE /deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}': Operation<
+    '/deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}',
+    'delete'
+  >;
   'GET /deviceManagement/virtualEndpoint/organizationSettings': Operation<
     '/deviceManagement/virtualEndpoint/organizationSettings',
     'get'
@@ -141,26 +182,6 @@ export interface IEndpoints {
   >;
   'DELETE /deviceManagement/virtualEndpoint/servicePlans/{cloudPcServicePlan-id}': Operation<
     '/deviceManagement/virtualEndpoint/servicePlans/{cloudPcServicePlan-id}',
-    'delete'
-  >;
-  'GET /deviceManagement/virtualEndpoint/snapshots': Operation<
-    '/deviceManagement/virtualEndpoint/snapshots',
-    'get'
-  >;
-  'POST /deviceManagement/virtualEndpoint/snapshots': Operation<
-    '/deviceManagement/virtualEndpoint/snapshots',
-    'post'
-  >;
-  'GET /deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}': Operation<
-    '/deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}',
-    'get'
-  >;
-  'PATCH /deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}': Operation<
-    '/deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}',
-    'patch'
-  >;
-  'DELETE /deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}': Operation<
-    '/deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}',
     'delete'
   >;
   'GET /deviceManagement/virtualEndpoint/supportedRegions': Operation<
@@ -396,6 +417,7 @@ export const externalPartnerSettings = {
    * `GET /deviceManagement/virtualEndpoint/externalPartnerSettings`
    *
    * Get a list of the cloudPcExternalPartnerSetting objects and their properties.
+   * @deprecated
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/virtualEndpoint/externalPartnerSettings']['parameters']
@@ -416,6 +438,7 @@ export const externalPartnerSettings = {
    * `POST /deviceManagement/virtualEndpoint/externalPartnerSettings`
    *
    * Create a new cloudPcExternalPartnerSetting object.
+   * @deprecated
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/virtualEndpoint/externalPartnerSettings']['body']
@@ -433,6 +456,7 @@ export const externalPartnerSettings = {
    * `GET /deviceManagement/virtualEndpoint/externalPartnerSettings/{cloudPcExternalPartnerSetting-id}`
    *
    * Read the properties and relationships of a cloudPcExternalPartnerSetting object.
+   * @deprecated
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/virtualEndpoint/externalPartnerSettings/{cloudPcExternalPartnerSetting-id}']['parameters']
@@ -454,6 +478,7 @@ export const externalPartnerSettings = {
    * `PATCH /deviceManagement/virtualEndpoint/externalPartnerSettings/{cloudPcExternalPartnerSetting-id}`
    *
    * Update the properties of a cloudPcExternalPartnerSetting object.
+   * @deprecated
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/virtualEndpoint/externalPartnerSettings/{cloudPcExternalPartnerSetting-id}']['body'],
@@ -475,6 +500,7 @@ export const externalPartnerSettings = {
   /**
    * `DELETE /deviceManagement/virtualEndpoint/externalPartnerSettings/{cloudPcExternalPartnerSetting-id}`
    *
+   * @deprecated
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/virtualEndpoint/externalPartnerSettings/{cloudPcExternalPartnerSetting-id}']['parameters']
@@ -488,6 +514,109 @@ export const externalPartnerSettings = {
       paramDefs: {
         header: ['If-Match'],
         path: ['cloudPcExternalPartnerSetting-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const externalPartners = {
+  /**
+   * `GET /deviceManagement/virtualEndpoint/externalPartners`
+   *
+   * Get a list of the cloudPcExternalPartner objects and their properties.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/virtualEndpoint/externalPartners']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/virtualEndpoint/externalPartners']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/virtualEndpoint/externalPartners',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceManagement/virtualEndpoint/externalPartners`
+   *
+   * Create a new cloudPcExternalPartner object.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/virtualEndpoint/externalPartners']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/externalPartners']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/externalPartners',
+      body,
+    };
+  },
+  /**
+   * `GET /deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}`
+   *
+   * Read the properties and relationships of a cloudPcExternalPartner object.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['cloudPcExternalPartner-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}`
+   *
+   * Update the properties of a cloudPcExternalPartner object.
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}']['body'],
+    params?: IEndpoints['PATCH /deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}',
+      paramDefs: {
+        path: ['cloudPcExternalPartner-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/deviceManagement/virtualEndpoint/externalPartners/{cloudPcExternalPartner-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['cloudPcExternalPartner-id'],
       },
       params,
     };
@@ -696,6 +825,107 @@ export const galleryImages = {
   },
 };
 
+export const managedLicenses = {
+  /**
+   * `GET /deviceManagement/virtualEndpoint/managedLicenses`
+   *
+   * Get information about cloudPcManagedLicense objects that the Cloud PC service manages directly.
+   */
+  list: function list(
+    params?: IEndpoints['GET /deviceManagement/virtualEndpoint/managedLicenses']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/virtualEndpoint/managedLicenses']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/virtualEndpoint/managedLicenses',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /deviceManagement/virtualEndpoint/managedLicenses`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/virtualEndpoint/managedLicenses']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/virtualEndpoint/managedLicenses']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/virtualEndpoint/managedLicenses',
+      body,
+    };
+  },
+  /**
+   * `GET /deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}`
+   *
+   * The managed licenses for Cloud PCs in the organization.
+   */
+  get: function get(
+    params?: IEndpoints['GET /deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['cloudPcManagedLicense-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}']['body'],
+    params?: IEndpoints['PATCH /deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}',
+      paramDefs: {
+        path: ['cloudPcManagedLicense-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/deviceManagement/virtualEndpoint/managedLicenses/{cloudPcManagedLicense-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['cloudPcManagedLicense-id'],
+      },
+      params,
+    };
+  },
+};
+
 export const organizationSettings = {
   /**
    * `GET /deviceManagement/virtualEndpoint/organizationSettings`
@@ -848,103 +1078,6 @@ export const servicePlans = {
       paramDefs: {
         header: ['If-Match'],
         path: ['cloudPcServicePlan-id'],
-      },
-      params,
-    };
-  },
-};
-
-export const snapshots = {
-  /**
-   * `GET /deviceManagement/virtualEndpoint/snapshots`
-   *
-   * Cloud PC snapshots.
-   */
-  list: function list(
-    params?: IEndpoints['GET /deviceManagement/virtualEndpoint/snapshots']['parameters']
-  ): EndpointRequest<IEndpoints['GET /deviceManagement/virtualEndpoint/snapshots']['response']> {
-    return {
-      ver: 'beta',
-      method: 'get',
-      path: '/deviceManagement/virtualEndpoint/snapshots',
-      paramDefs: {
-        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
-      },
-      params,
-    };
-  },
-  /**
-   * `POST /deviceManagement/virtualEndpoint/snapshots`
-   *
-   */
-  create: function create(
-    body: IEndpoints['POST /deviceManagement/virtualEndpoint/snapshots']['body']
-  ): EndpointRequest<IEndpoints['POST /deviceManagement/virtualEndpoint/snapshots']['response']> {
-    return {
-      ver: 'beta',
-      method: 'post',
-      path: '/deviceManagement/virtualEndpoint/snapshots',
-      body,
-    };
-  },
-  /**
-   * `GET /deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}`
-   *
-   * Cloud PC snapshots.
-   */
-  get: function get(
-    params?: IEndpoints['GET /deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}']['parameters']
-  ): EndpointRequest<
-    IEndpoints['GET /deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}']['response']
-  > {
-    return {
-      ver: 'beta',
-      method: 'get',
-      path: '/deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}',
-      paramDefs: {
-        query: ['$select', '$expand'],
-        path: ['cloudPcSnapshot-id'],
-      },
-      params,
-    };
-  },
-  /**
-   * `PATCH /deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}`
-   *
-   */
-  update: function update(
-    body: IEndpoints['PATCH /deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}']['body'],
-    params?: IEndpoints['PATCH /deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}']['parameters']
-  ): EndpointRequest<
-    IEndpoints['PATCH /deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}']['response']
-  > {
-    return {
-      ver: 'beta',
-      method: 'patch',
-      path: '/deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}',
-      paramDefs: {
-        path: ['cloudPcSnapshot-id'],
-      },
-      params,
-      body,
-    };
-  },
-  /**
-   * `DELETE /deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}`
-   *
-   */
-  del: function del(
-    params?: IEndpoints['DELETE /deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}']['parameters']
-  ): EndpointRequest<
-    IEndpoints['DELETE /deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}']['response']
-  > {
-    return {
-      ver: 'beta',
-      method: 'delete',
-      path: '/deviceManagement/virtualEndpoint/snapshots/{cloudPcSnapshot-id}',
-      paramDefs: {
-        header: ['If-Match'],
-        path: ['cloudPcSnapshot-id'],
       },
       params,
     };

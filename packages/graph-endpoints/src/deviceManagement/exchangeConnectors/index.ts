@@ -30,7 +30,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}`
  *
- * Deletes a deviceManagementExchangeConnector.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}']['parameters']
@@ -51,7 +50,7 @@ export function del(
 /**
  * `GET /deviceManagement/exchangeConnectors`
  *
- * List properties and relationships of the deviceManagementExchangeConnector objects.
+ * The list of Exchange Connectors configured by the tenant.
  */
 export function list(
   params?: IEndpoints['GET /deviceManagement/exchangeConnectors']['parameters']
@@ -69,7 +68,7 @@ export function list(
 /**
  * `GET /deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}`
  *
- * Read properties and relationships of the deviceManagementExchangeConnector object.
+ * The list of Exchange Connectors configured by the tenant.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}']['parameters']
@@ -90,7 +89,6 @@ export function get(
 /**
  * `PATCH /deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}`
  *
- * Update the properties of a deviceManagementExchangeConnector object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}']['body'],
@@ -112,7 +110,6 @@ export function update(
 /**
  * `POST /deviceManagement/exchangeConnectors`
  *
- * Create a new deviceManagementExchangeConnector object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/exchangeConnectors']['body']
@@ -128,7 +125,6 @@ export const sync = {
   /**
    * `POST /deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}/sync`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/exchangeConnectors/{deviceManagementExchangeConnector-id}/sync']['body'],

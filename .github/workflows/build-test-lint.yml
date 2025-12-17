@@ -32,5 +32,3 @@ jobs:
         run: npm run build
       - name: Test
         run: npm run test
-      - name: Validate Snippets
-        run: npm run validate:snippets

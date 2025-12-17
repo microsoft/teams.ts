@@ -176,7 +176,7 @@ export function update(
 /**
  * `POST /me/mailFolders/{mailFolder-id}/childFolders`
  *
- * Create a new mailSearchFolder in the specified user&#x27;s mailbox.
+ * Use this API to create a new child mailFolder. If you intend a new folder to be hidden, you must set the isHidden property to true on creation.
  */
 export function create(
   body: IEndpoints['POST /me/mailFolders/{mailFolder-id}/childFolders']['body'],

@@ -808,7 +808,6 @@ export const syncDevice = {
   /**
    * `POST /users/{user-id}/managedDevices/{managedDevice-id}/syncDevice`
    *
-   * Not yet documented
    */
   create: function create(
     params?: IEndpoints['POST /users/{user-id}/managedDevices/{managedDevice-id}/syncDevice']['parameters']
@@ -830,7 +829,6 @@ export const updateWindowsDeviceAccount = {
   /**
    * `POST /users/{user-id}/managedDevices/{managedDevice-id}/updateWindowsDeviceAccount`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /users/{user-id}/managedDevices/{managedDevice-id}/updateWindowsDeviceAccount']['body'],
@@ -877,7 +875,6 @@ export const windowsDefenderScan = {
   /**
    * `POST /users/{user-id}/managedDevices/{managedDevice-id}/windowsDefenderScan`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /users/{user-id}/managedDevices/{managedDevice-id}/windowsDefenderScan']['body'],
@@ -901,7 +898,6 @@ export const windowsDefenderUpdateSignatures = {
   /**
    * `POST /users/{user-id}/managedDevices/{managedDevice-id}/windowsDefenderUpdateSignatures`
    *
-   * Not yet documented
    */
   create: function create(
     params?: IEndpoints['POST /users/{user-id}/managedDevices/{managedDevice-id}/windowsDefenderUpdateSignatures']['parameters']

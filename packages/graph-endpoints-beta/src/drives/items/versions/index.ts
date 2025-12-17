@@ -213,7 +213,7 @@ export const restoreVersion = {
   /**
    * `POST /drives/{drive-id}/items/{driveItem-id}/versions/{driveItemVersion-id}/restoreVersion`
    *
-   * Restore a previous version of a DriveItem to be the current version. This will create a new version with the contents of the previous version, but preserves all existing versions of the file.
+   * Restore a previous version of a driveItem to be the current version. This operation creates a new version with the contents of the previous version, and it preserves all existing versions of the file.
    */
   create: function create(
     params?: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/versions/{driveItemVersion-id}/restoreVersion']['parameters']

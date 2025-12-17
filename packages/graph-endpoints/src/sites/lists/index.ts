@@ -83,7 +83,7 @@ export function list(
 /**
  * `GET /sites/{site-id}/lists/{list-id}`
  *
- * Get a list of rich long-running operations associated with a list.
+ * Returns the metadata for a list.
  */
 export function get(
   params?: IEndpoints['GET /sites/{site-id}/lists/{list-id}']['parameters']

@@ -13,14 +13,14 @@
     <a href="https://www.npmjs.com/package/@microsoft/teams.graph" target="_blank">
         <img src="https://img.shields.io/npm/dw/@microsoft/teams.graph" />
     </a>
-    <a href="https://microsoft.github.io/teams-ai" target="_blank">
+    <a href="https://microsoft.github.io/teams-sdk" target="_blank">
         <img src="https://img.shields.io/badge/📖 docs-open-blue" />
     </a>
 </p>
 
 An api client for making HTTP requests to MSGraph.
 
-<a href="https://microsoft.github.io/teams-ai" target="_blank">
+<a href="https://microsoft.github.io/teams-sdk" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 

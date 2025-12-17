@@ -46,7 +46,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}`
  *
- * Deletes a userInstallStateSummary.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}']['parameters']
@@ -67,7 +66,7 @@ export function del(
 /**
  * `GET /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary`
  *
- * List properties and relationships of the userInstallStateSummary objects.
+ * The list of installation states for this eBook.
  */
 export function get(
   params?: IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary']['parameters']
@@ -88,7 +87,7 @@ export function get(
 /**
  * `GET /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}`
  *
- * Read properties and relationships of the userInstallStateSummary object.
+ * The list of installation states for this eBook.
  */
 export function get$1(
   params?: IEndpoints['GET /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}']['parameters']
@@ -109,7 +108,6 @@ export function get$1(
 /**
  * `PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}`
  *
- * Update the properties of a userInstallStateSummary object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary/{userInstallStateSummary-id}']['body'],
@@ -131,7 +129,6 @@ export function update(
 /**
  * `POST /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary`
  *
- * Create a new userInstallStateSummary object.
  */
 export function create(
   body: IEndpoints['POST /deviceAppManagement/managedEBooks/{managedEBook-id}/userStateSummary']['body'],

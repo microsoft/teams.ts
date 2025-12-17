@@ -158,6 +158,7 @@ export const dependentResources = {
   /**
    * `GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources`
    *
+   * List the dependent education assignment resources for a given education assignment resource.
    */
   list: function list(
     params?: IEndpoints['GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources']['parameters']
@@ -199,6 +200,7 @@ export const dependentResources = {
   /**
    * `GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}`
    *
+   * A collection of assignment resources that depend on the parent educationAssignmentResource.
    */
   get: function get(
     params?: IEndpoints['GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/resources/{educationAssignmentResource-id}/dependentResources/{educationAssignmentResource-id1}']['parameters']

@@ -46,7 +46,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}`
  *
- * Deletes a deviceComplianceScheduledActionForRule.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}']['parameters']
@@ -67,7 +66,7 @@ export function del(
 /**
  * `GET /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule`
  *
- * List properties and relationships of the deviceComplianceScheduledActionForRule objects.
+ * The list of scheduled action per rule for this compliance policy. This is a required property when creating any individual per-platform compliance policies.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule']['parameters']
@@ -88,7 +87,7 @@ export function get(
 /**
  * `GET /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}`
  *
- * Read properties and relationships of the deviceComplianceScheduledActionForRule object.
+ * The list of scheduled action per rule for this compliance policy. This is a required property when creating any individual per-platform compliance policies.
  */
 export function get$1(
   params?: IEndpoints['GET /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}']['parameters']
@@ -109,7 +108,6 @@ export function get$1(
 /**
  * `PATCH /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}`
  *
- * Update the properties of a deviceComplianceScheduledActionForRule object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}']['body'],
@@ -131,7 +129,6 @@ export function update(
 /**
  * `POST /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule`
  *
- * Create a new deviceComplianceScheduledActionForRule object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule']['body'],
@@ -154,7 +151,7 @@ export const scheduledActionConfigurations = {
   /**
    * `GET /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}/scheduledActionConfigurations`
    *
-   * List properties and relationships of the deviceComplianceActionItem objects.
+   * The list of scheduled action configurations for this compliance policy. Compliance policy must have one and only one block scheduled action.
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}/scheduledActionConfigurations']['parameters']
@@ -174,7 +171,6 @@ export const scheduledActionConfigurations = {
   /**
    * `POST /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}/scheduledActionConfigurations`
    *
-   * Create a new deviceComplianceActionItem object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}/scheduledActionConfigurations']['body'],
@@ -195,7 +191,7 @@ export const scheduledActionConfigurations = {
   /**
    * `GET /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceComplianceActionItem-id}`
    *
-   * Read properties and relationships of the deviceComplianceActionItem object.
+   * The list of scheduled action configurations for this compliance policy. Compliance policy must have one and only one block scheduled action.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceComplianceActionItem-id}']['parameters']
@@ -219,7 +215,6 @@ export const scheduledActionConfigurations = {
   /**
    * `PATCH /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceComplianceActionItem-id}`
    *
-   * Update the properties of a deviceComplianceActionItem object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceComplianceActionItem-id}']['body'],
@@ -244,7 +239,6 @@ export const scheduledActionConfigurations = {
   /**
    * `DELETE /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceComplianceActionItem-id}`
    *
-   * Deletes a deviceComplianceActionItem.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/deviceCompliancePolicies/{deviceCompliancePolicy-id}/scheduledActionsForRule/{deviceComplianceScheduledActionForRule-id}/scheduledActionConfigurations/{deviceComplianceActionItem-id}']['parameters']

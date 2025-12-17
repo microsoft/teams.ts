@@ -1,8 +1,10 @@
 import type { EndpointRequest, Operation } from './../types/common.ts';
 
 export interface IEndpoints {
+  'DELETE /contacts/{orgContact-id}': Operation<'/contacts/{orgContact-id}', 'delete'>;
   'GET /contacts': Operation<'/contacts', 'get'>;
   'GET /contacts/{orgContact-id}': Operation<'/contacts/{orgContact-id}', 'get'>;
+  'PATCH /contacts/{orgContact-id}': Operation<'/contacts/{orgContact-id}', 'patch'>;
   'POST /contacts/{orgContact-id}/checkMemberGroups': Operation<
     '/contacts/{orgContact-id}/checkMemberGroups',
     'post'
@@ -35,6 +37,18 @@ export interface IEndpoints {
     '/contacts/{orgContact-id}/memberOf/{directoryObject-id}',
     'get'
   >;
+  'GET /contacts/{orgContact-id}/onPremisesSyncBehavior': Operation<
+    '/contacts/{orgContact-id}/onPremisesSyncBehavior',
+    'get'
+  >;
+  'PATCH /contacts/{orgContact-id}/onPremisesSyncBehavior': Operation<
+    '/contacts/{orgContact-id}/onPremisesSyncBehavior',
+    'patch'
+  >;
+  'DELETE /contacts/{orgContact-id}/onPremisesSyncBehavior': Operation<
+    '/contacts/{orgContact-id}/onPremisesSyncBehavior',
+    'delete'
+  >;
   'POST /contacts/{orgContact-id}/restore': Operation<'/contacts/{orgContact-id}/restore', 'post'>;
   'POST /contacts/{orgContact-id}/retryServiceProvisioning': Operation<
     '/contacts/{orgContact-id}/retryServiceProvisioning',
@@ -64,6 +78,25 @@ export interface IEndpoints {
 }
 
 /**
+ * `DELETE /contacts/{orgContact-id}`
+ *
+ */
+export function del(
+  params?: IEndpoints['DELETE /contacts/{orgContact-id}']['parameters']
+): EndpointRequest<IEndpoints['DELETE /contacts/{orgContact-id}']['response']> {
+  return {
+    ver: 'beta',
+    method: 'delete',
+    path: '/contacts/{orgContact-id}',
+    paramDefs: {
+      header: ['If-Match'],
+      path: ['orgContact-id'],
+    },
+    params,
+  };
+}
+
+/**
  * `GET /contacts`
  *
  * Get the list of organizational contacts for this organization.
@@ -77,7 +110,7 @@ export function list(
     path: '/contacts',
     paramDefs: {
       header: ['ConsistencyLevel'],
-      query: ['$top', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+      query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
     },
     params,
   };
@@ -100,6 +133,26 @@ export function get(
       query: ['$select', '$expand'],
     },
     params,
+  };
+}
+
+/**
+ * `PATCH /contacts/{orgContact-id}`
+ *
+ */
+export function update(
+  body: IEndpoints['PATCH /contacts/{orgContact-id}']['body'],
+  params?: IEndpoints['PATCH /contacts/{orgContact-id}']['parameters']
+): EndpointRequest<IEndpoints['PATCH /contacts/{orgContact-id}']['response']> {
+  return {
+    ver: 'beta',
+    method: 'patch',
+    path: '/contacts/{orgContact-id}',
+    paramDefs: {
+      path: ['orgContact-id'],
+    },
+    params,
+    body,
   };
 }
 
@@ -341,6 +394,71 @@ export const memberOf = {
         header: ['ConsistencyLevel'],
         query: ['$select', '$expand'],
         path: ['orgContact-id', 'directoryObject-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const onPremisesSyncBehavior = {
+  /**
+   * `GET /contacts/{orgContact-id}/onPremisesSyncBehavior`
+   *
+   * Indicates the state of synchronization for an orgContact between the cloud and on-premises Active Directory. Supports $filter only with advanced query capabilities, for example, $filter&#x3D;onPremisesSyncBehavior/isCloudManaged eq true&amp;$count&#x3D;true.
+   */
+  get: function get(
+    params?: IEndpoints['GET /contacts/{orgContact-id}/onPremisesSyncBehavior']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /contacts/{orgContact-id}/onPremisesSyncBehavior']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/contacts/{orgContact-id}/onPremisesSyncBehavior',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['orgContact-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /contacts/{orgContact-id}/onPremisesSyncBehavior`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /contacts/{orgContact-id}/onPremisesSyncBehavior']['body'],
+    params?: IEndpoints['PATCH /contacts/{orgContact-id}/onPremisesSyncBehavior']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /contacts/{orgContact-id}/onPremisesSyncBehavior']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/contacts/{orgContact-id}/onPremisesSyncBehavior',
+      paramDefs: {
+        path: ['orgContact-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /contacts/{orgContact-id}/onPremisesSyncBehavior`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /contacts/{orgContact-id}/onPremisesSyncBehavior']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /contacts/{orgContact-id}/onPremisesSyncBehavior']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/contacts/{orgContact-id}/onPremisesSyncBehavior',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['orgContact-id'],
       },
       params,
     };

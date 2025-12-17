@@ -29,6 +29,14 @@ export interface IEndpoints {
     '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/completeMigration',
     'post'
   >;
+  'GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/enabledApps': Operation<
+    '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/enabledApps',
+    'get'
+  >;
+  'GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/enabledApps/{teamsApp-id}': Operation<
+    '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/enabledApps/{teamsApp-id}',
+    'get'
+  >;
   'POST /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/provisionEmail': Operation<
     '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/provisionEmail',
     'post'
@@ -150,6 +158,49 @@ export const completeMigration = {
       path: '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/completeMigration',
       paramDefs: {
         path: ['teamTemplateDefinition-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const enabledApps = {
+  /**
+   * `GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/enabledApps`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/enabledApps']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/enabledApps']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/enabledApps',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['teamTemplateDefinition-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/enabledApps/{teamsApp-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/enabledApps/{teamsApp-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/enabledApps/{teamsApp-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/teamTemplateDefinition/{teamTemplateDefinition-id}/teamDefinition/primaryChannel/enabledApps/{teamsApp-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['teamTemplateDefinition-id', 'teamsApp-id'],
       },
       params,
     };

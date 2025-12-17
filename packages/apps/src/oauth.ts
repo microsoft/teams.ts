@@ -8,5 +8,5 @@ export type OAuthSettings = {
 };
 
 export const DEFAULT_OAUTH_SETTINGS: Required<OAuthSettings> = {
-  defaultConnectionName: 'graph',
+  defaultConnectionName: 'graph'
 };

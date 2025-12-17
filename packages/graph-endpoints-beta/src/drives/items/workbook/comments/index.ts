@@ -50,6 +50,7 @@ export function del(
 /**
  * `GET /drives/{drive-id}/items/{driveItem-id}/workbook/comments`
  *
+ * Represents a collection of comments in a workbook.
  */
 export function list(
   params?: IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/workbook/comments']['parameters']
@@ -71,6 +72,7 @@ export function list(
 /**
  * `GET /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}`
  *
+ * Represents a collection of comments in a workbook.
  */
 export function get(
   params?: IEndpoints['GET /drives/{drive-id}/items/{driveItem-id}/workbook/comments/{workbookComment-id}']['parameters']

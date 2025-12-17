@@ -1,7 +1,7 @@
 /**
  * credentials for app authentication
  */
-export type Credentials = ClientCredentials | TokenCredentials;
+export type Credentials = ClientCredentials | TokenCredentials | UserManagedIdentityCredentials | FederatedIdentityCredentials;
 
 /**
  * credentials for authentication
@@ -22,3 +22,26 @@ export type TokenCredentials = {
   readonly tenantId?: string;
   readonly token: (scope: string | string[], tenantId?: string) => string | Promise<string>;
 };
+
+/**
+ * credentials for user managed identity
+*/
+export type UserManagedIdentityCredentials = {
+  readonly clientId: string;
+  readonly tenantId?: string;
+};
+/**
+ * credentials for fedrated identity credentials
+*/
+type SystemFederatedIdentityCredentials = {
+  readonly clientId: string;
+  readonly managedIdentityType: 'system';
+  readonly tenantId?: string;
+};
+type UserFederatedIdentityCredentials = {
+  readonly clientId: string;
+  readonly managedIdentityClientId: string;
+  readonly managedIdentityType: 'user';
+  readonly tenantId?: string;
+};
+export type FederatedIdentityCredentials = SystemFederatedIdentityCredentials | UserFederatedIdentityCredentials;

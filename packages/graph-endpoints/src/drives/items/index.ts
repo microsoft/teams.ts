@@ -497,11 +497,10 @@ export const follow = {
 
 export const invite = {
   /**
-  * `POST /drives/{drive-id}/items/{driveItem-id}/invite`
-  *
-  * Sends a sharing invitation for a driveItem.
-A sharing invitation provides permissions to the recipients and optionally sends them an email with a sharing link.
-  */
+   * `POST /drives/{drive-id}/items/{driveItem-id}/invite`
+   *
+   * Send a sharing invitation for a driveItem. A sharing invitation provides permissions to the recipients and, optionally, sends them an email to notify them that the item was shared.
+   */
   create: function create(
     body: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/invite']['body'],
     params?: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/invite']['parameters']
@@ -591,7 +590,7 @@ export const restore = {
   /**
    * `POST /drives/{drive-id}/items/{driveItem-id}/restore`
    *
-   * Restore a driveItem that has been deleted and is currently in the recycle bin.
+   * Restore a deleted driveItem that is currently in the recycle bin.
    */
   create: function create(
     body: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/restore']['body'],

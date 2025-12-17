@@ -39,6 +39,7 @@ export function del(
 /**
  * `GET /identity/conditionalAccess/deletedItems`
  *
+ * Read-only. Nullable. Returns a collection of the deleted Conditional Access objects.
  */
 export function list(
   params?: IEndpoints['GET /identity/conditionalAccess/deletedItems']['parameters']

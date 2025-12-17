@@ -771,7 +771,7 @@ export const claimsPolicy = {
   /**
    * `PATCH /servicePrincipals/{servicePrincipal-id}/claimsPolicy`
    *
-   * Create a new customClaimsPolicy object if it doesn&#x27;t exist, or replace an existing one.
+   * Update a customClaimsPolicy object.
    */
   update: function update(
     body: IEndpoints['PATCH /servicePrincipals/{servicePrincipal-id}/claimsPolicy']['body'],
@@ -793,7 +793,7 @@ export const claimsPolicy = {
   /**
    * `PUT /servicePrincipals/{servicePrincipal-id}/claimsPolicy`
    *
-   * Create a new customClaimsPolicy object if it doesn&#x27;t exist, or replace an existing one.
+   * Update a customClaimsPolicy object.
    */
   set: function set(
     body: IEndpoints['PUT /servicePrincipals/{servicePrincipal-id}/claimsPolicy']['body'],

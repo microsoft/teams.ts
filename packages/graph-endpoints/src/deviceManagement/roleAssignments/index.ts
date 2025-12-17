@@ -24,7 +24,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}`
  *
- * Deletes a deviceAndAppManagementRoleAssignment.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}']['parameters']
@@ -45,7 +44,7 @@ export function del(
 /**
  * `GET /deviceManagement/roleAssignments`
  *
- * List properties and relationships of the deviceAndAppManagementRoleAssignment objects.
+ * The Role Assignments.
  */
 export function list(
   params?: IEndpoints['GET /deviceManagement/roleAssignments']['parameters']
@@ -63,7 +62,7 @@ export function list(
 /**
  * `GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}`
  *
- * Read properties and relationships of the deviceAndAppManagementRoleAssignment object.
+ * The Role Assignments.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}']['parameters']
@@ -84,7 +83,6 @@ export function get(
 /**
  * `PATCH /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}`
  *
- * Update the properties of a deviceAndAppManagementRoleAssignment object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}']['body'],
@@ -106,7 +104,6 @@ export function update(
 /**
  * `POST /deviceManagement/roleAssignments`
  *
- * Create a new deviceAndAppManagementRoleAssignment object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/roleAssignments']['body']
@@ -122,7 +119,7 @@ export const roleDefinition = {
   /**
    * `GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleDefinition`
    *
-   * Role definition this assignment is part of.
+   * Indicates the role definition for this role assignment.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/roleAssignments/{deviceAndAppManagementRoleAssignment-id}/roleDefinition']['parameters']

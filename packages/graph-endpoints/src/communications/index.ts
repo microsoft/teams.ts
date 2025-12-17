@@ -1,5 +1,6 @@
 export * as callRecords from './callRecords';
 export * as calls from './calls';
+export * as onlineMeetingConversations from './onlineMeetingConversations';
 export * as onlineMeetings from './onlineMeetings';
 export * as presences from './presences';
 

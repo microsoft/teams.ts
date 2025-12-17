@@ -13,14 +13,14 @@
     <a href="https://www.npmjs.com/package/@microsoft/teams.openai" target="_blank">
         <img src="https://img.shields.io/npm/dw/@microsoft/teams.openai" />
     </a>
-    <a href="https://microsoft.github.io/teams-ai" target="_blank">
+    <a href="https://microsoft.github.io/teams-sdk" target="_blank">
         <img src="https://img.shields.io/badge/📖 docs-open-blue" />
     </a>
 </p>
 
 OpenAI model implementations to be used with `@microsoft/teams.ai`. Supports all OpenAI-like API models.
 
-<a href="https://microsoft.github.io/teams-ai" target="_blank">
+<a href="https://microsoft.github.io/teams-sdk" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 
@@ -32,4 +32,4 @@ $: npm install @microsoft/teams.openai
 
 ## Dependencies
 
--   [`openai`](https://www.npmjs.com/package/openai)
+- [`openai`](https://www.npmjs.com/package/openai)

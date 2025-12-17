@@ -30,7 +30,7 @@ export interface IEndpoints {
 /**
  * `DELETE /admin/windows/updates/updatePolicies/{updatePolicy-id}/complianceChanges/{complianceChange-id}`
  *
- * Delete a contentApproval object.
+ * Delete a complianceChange object.
  */
 export function del(
   params?: IEndpoints['DELETE /admin/windows/updates/updatePolicies/{updatePolicy-id}/complianceChanges/{complianceChange-id}']['parameters']
@@ -74,7 +74,7 @@ export function list(
 /**
  * `GET /admin/windows/updates/updatePolicies/{updatePolicy-id}/complianceChanges/{complianceChange-id}`
  *
- * Read the properties and relationships of a contentApproval object.
+ * Read the properties and relationships of a complianceChange object.
  */
 export function get(
   params?: IEndpoints['GET /admin/windows/updates/updatePolicies/{updatePolicy-id}/complianceChanges/{complianceChange-id}']['parameters']
@@ -96,7 +96,7 @@ export function get(
 /**
  * `PATCH /admin/windows/updates/updatePolicies/{updatePolicy-id}/complianceChanges/{complianceChange-id}`
  *
- * Update the properties of a contentApproval object.
+ * Update the properties of a complianceChange object.
  */
 export function update(
   body: IEndpoints['PATCH /admin/windows/updates/updatePolicies/{updatePolicy-id}/complianceChanges/{complianceChange-id}']['body'],

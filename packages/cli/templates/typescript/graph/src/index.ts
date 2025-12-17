@@ -6,7 +6,9 @@ import * as endpoints from '@microsoft/teams.graph-endpoints';
 
 const app = new App({
   plugins: [new DevtoolsPlugin()],
-  oauth: { defaultConnectionName: 'graph' },
+  oauth: {
+    defaultConnectionName: 'graph'
+  },
 });
 
 app.message('/signout', async ({ send, signout, isSignedIn }) => {

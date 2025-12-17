@@ -50,7 +50,7 @@ export function del(
 /**
  * `GET /deviceAppManagement/managedAppPolicies`
  *
- * List properties and relationships of the targetedManagedAppProtection objects.
+ * Managed app policies.
  */
 export function list(
   params?: IEndpoints['GET /deviceAppManagement/managedAppPolicies']['parameters']
@@ -68,7 +68,7 @@ export function list(
 /**
  * `GET /deviceAppManagement/managedAppPolicies/{managedAppPolicy-id}`
  *
- * Read properties and relationships of the managedAppConfiguration object.
+ * Managed app policies.
  */
 export function get(
   params?: IEndpoints['GET /deviceAppManagement/managedAppPolicies/{managedAppPolicy-id}']['parameters']
@@ -125,7 +125,6 @@ export const targetApps = {
   /**
    * `POST /deviceAppManagement/managedAppPolicies/{managedAppPolicy-id}/targetApps`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceAppManagement/managedAppPolicies/{managedAppPolicy-id}/targetApps']['body'],

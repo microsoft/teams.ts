@@ -103,6 +103,18 @@ export interface IEndpoints {
     '/groups/{group-id}/membersWithLicenseErrors/{directoryObject-id}',
     'get'
   >;
+  'GET /groups/{group-id}/onPremisesSyncBehavior': Operation<
+    '/groups/{group-id}/onPremisesSyncBehavior',
+    'get'
+  >;
+  'PATCH /groups/{group-id}/onPremisesSyncBehavior': Operation<
+    '/groups/{group-id}/onPremisesSyncBehavior',
+    'patch'
+  >;
+  'DELETE /groups/{group-id}/onPremisesSyncBehavior': Operation<
+    '/groups/{group-id}/onPremisesSyncBehavior',
+    'delete'
+  >;
   'GET /groups/{group-id}/owners': Operation<'/groups/{group-id}/owners', 'get'>;
   'GET /groups/{group-id}/permissionGrants': Operation<
     '/groups/{group-id}/permissionGrants',
@@ -916,6 +928,61 @@ export const membersWithLicenseErrors = {
         header: ['ConsistencyLevel'],
         query: ['$select', '$expand'],
         path: ['group-id', 'directoryObject-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const onPremisesSyncBehavior = {
+  /**
+   * `GET /groups/{group-id}/onPremisesSyncBehavior`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /groups/{group-id}/onPremisesSyncBehavior']['parameters']
+  ): EndpointRequest<IEndpoints['GET /groups/{group-id}/onPremisesSyncBehavior']['response']> {
+    return {
+      method: 'get',
+      path: '/groups/{group-id}/onPremisesSyncBehavior',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['group-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /groups/{group-id}/onPremisesSyncBehavior`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /groups/{group-id}/onPremisesSyncBehavior']['body'],
+    params?: IEndpoints['PATCH /groups/{group-id}/onPremisesSyncBehavior']['parameters']
+  ): EndpointRequest<IEndpoints['PATCH /groups/{group-id}/onPremisesSyncBehavior']['response']> {
+    return {
+      method: 'patch',
+      path: '/groups/{group-id}/onPremisesSyncBehavior',
+      paramDefs: {
+        path: ['group-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /groups/{group-id}/onPremisesSyncBehavior`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /groups/{group-id}/onPremisesSyncBehavior']['parameters']
+  ): EndpointRequest<IEndpoints['DELETE /groups/{group-id}/onPremisesSyncBehavior']['response']> {
+    return {
+      method: 'delete',
+      path: '/groups/{group-id}/onPremisesSyncBehavior',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['group-id'],
       },
       params,
     };

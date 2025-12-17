@@ -306,6 +306,7 @@ export const gradingScheme = {
   /**
    * `GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/gradingScheme`
    *
+   * When set, enables users to configure custom string grades based on the percentage of total points earned on this assignment.
    */
   get: function get(
     params?: IEndpoints['GET /education/classes/{educationClass-id}/assignments/{educationAssignment-id}/gradingScheme']['parameters']

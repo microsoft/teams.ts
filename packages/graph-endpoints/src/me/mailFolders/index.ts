@@ -112,7 +112,7 @@ export function get(
 /**
  * `PATCH /me/mailFolders/{mailFolder-id}`
  *
- * Update the writable properties of a mailSearchFolder object.
+ * Update the properties of mailfolder object.
  */
 export function update(
   body: IEndpoints['PATCH /me/mailFolders/{mailFolder-id}']['body'],

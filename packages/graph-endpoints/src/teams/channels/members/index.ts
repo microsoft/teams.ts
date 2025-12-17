@@ -95,7 +95,7 @@ export function get(
 /**
  * `PATCH /teams/{team-id}/channels/{channel-id}/members/{conversationMember-id}`
  *
- * Update the role of a conversationMember in a team or channel.
+ * Update the role of a conversationMember in a channel. This operation is allowed only for channels with a membershipType value of private or shared.
  */
 export function update(
   body: IEndpoints['PATCH /teams/{team-id}/channels/{channel-id}/members/{conversationMember-id}']['body'],
@@ -117,7 +117,7 @@ export function update(
 /**
  * `POST /teams/{team-id}/channels/{channel-id}/members`
  *
- * Add a conversationMember to a channel.
+ * Add a conversationMember to a channel. This operation is allowed only for channels with a membershipType value of private or shared.
  */
 export function create(
   body: IEndpoints['POST /teams/{team-id}/channels/{channel-id}/members']['body'],

@@ -109,7 +109,7 @@ export class DevtoolsPlugin implements ISender {
 
   onStart({ port }: IPluginStartEvent) {
     const numericPort = this.options.customPort ?? (
-    typeof port === 'string' ? parseInt(port, 10) + 1: port + 1);
+      typeof port === 'string' ? parseInt(port, 10) + 1 : port + 1);
 
     this.express.use(
       router({
@@ -188,7 +188,6 @@ export class DevtoolsPlugin implements ISender {
         type: 'metadata',
         body: {
           id: this.id?.toString(),
-          name: this.name?.toString(),
           pages: this.pages,
         },
         sentAt: new Date(),

@@ -160,7 +160,7 @@ export const add = {
   /**
    * `POST /drives/{drive-id}/items/{driveItem-id}/workbook/tables/add`
    *
-   * Use this API to create a new Table.
+   * Create a new table. The range source address determines the worksheet under which the table will be added. If the table can&#x27;t be added (for example, because the address is invalid, or the table would overlap with another table), an error is thrown.
    */
   create: function create(
     body: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/workbook/tables/add']['body'],

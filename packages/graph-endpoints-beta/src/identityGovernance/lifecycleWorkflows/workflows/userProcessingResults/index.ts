@@ -12,6 +12,14 @@ export interface IEndpoints {
     '/identityGovernance/lifecycleWorkflows/workflows/{workflow-id}/userProcessingResults/{userProcessingResult-id}',
     'get'
   >;
+  'GET /identityGovernance/lifecycleWorkflows/workflows/{workflow-id}/userProcessingResults/{userProcessingResult-id}/reprocessedRuns': Operation<
+    '/identityGovernance/lifecycleWorkflows/workflows/{workflow-id}/userProcessingResults/{userProcessingResult-id}/reprocessedRuns',
+    'get'
+  >;
+  'GET /identityGovernance/lifecycleWorkflows/workflows/{workflow-id}/userProcessingResults/{userProcessingResult-id}/reprocessedRuns/{run-id}': Operation<
+    '/identityGovernance/lifecycleWorkflows/workflows/{workflow-id}/userProcessingResults/{userProcessingResult-id}/reprocessedRuns/{run-id}',
+    'get'
+  >;
 }
 
 /**
@@ -57,3 +65,50 @@ export function get(
     params,
   };
 }
+
+export const reprocessedRuns = {
+  /**
+   * `GET /identityGovernance/lifecycleWorkflows/workflows/{workflow-id}/userProcessingResults/{userProcessingResult-id}/reprocessedRuns`
+   *
+   * The related reprocessed workflow run.
+   * @deprecated
+   */
+  list: function list(
+    params?: IEndpoints['GET /identityGovernance/lifecycleWorkflows/workflows/{workflow-id}/userProcessingResults/{userProcessingResult-id}/reprocessedRuns']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /identityGovernance/lifecycleWorkflows/workflows/{workflow-id}/userProcessingResults/{userProcessingResult-id}/reprocessedRuns']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/identityGovernance/lifecycleWorkflows/workflows/{workflow-id}/userProcessingResults/{userProcessingResult-id}/reprocessedRuns',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['workflow-id', 'userProcessingResult-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /identityGovernance/lifecycleWorkflows/workflows/{workflow-id}/userProcessingResults/{userProcessingResult-id}/reprocessedRuns/{run-id}`
+   *
+   * The related reprocessed workflow run.
+   * @deprecated
+   */
+  get: function get(
+    params?: IEndpoints['GET /identityGovernance/lifecycleWorkflows/workflows/{workflow-id}/userProcessingResults/{userProcessingResult-id}/reprocessedRuns/{run-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /identityGovernance/lifecycleWorkflows/workflows/{workflow-id}/userProcessingResults/{userProcessingResult-id}/reprocessedRuns/{run-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/identityGovernance/lifecycleWorkflows/workflows/{workflow-id}/userProcessingResults/{userProcessingResult-id}/reprocessedRuns/{run-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['workflow-id', 'userProcessingResult-id', 'run-id'],
+      },
+      params,
+    };
+  },
+};

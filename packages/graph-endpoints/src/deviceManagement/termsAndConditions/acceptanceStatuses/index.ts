@@ -30,7 +30,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses/{termsAndConditionsAcceptanceStatus-id}`
  *
- * Deletes a termsAndConditionsAcceptanceStatus.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses/{termsAndConditionsAcceptanceStatus-id}']['parameters']
@@ -51,7 +50,7 @@ export function del(
 /**
  * `GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses`
  *
- * List properties and relationships of the termsAndConditionsAcceptanceStatus objects.
+ * The list of acceptance statuses for this T&amp;C policy.
  */
 export function list(
   params?: IEndpoints['GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses']['parameters']
@@ -72,7 +71,7 @@ export function list(
 /**
  * `GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses/{termsAndConditionsAcceptanceStatus-id}`
  *
- * Read properties and relationships of the termsAndConditionsAcceptanceStatus object.
+ * The list of acceptance statuses for this T&amp;C policy.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses/{termsAndConditionsAcceptanceStatus-id}']['parameters']
@@ -93,7 +92,6 @@ export function get(
 /**
  * `PATCH /deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses/{termsAndConditionsAcceptanceStatus-id}`
  *
- * Update the properties of a termsAndConditionsAcceptanceStatus object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses/{termsAndConditionsAcceptanceStatus-id}']['body'],
@@ -115,7 +113,6 @@ export function update(
 /**
  * `POST /deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses`
  *
- * Create a new termsAndConditionsAcceptanceStatus object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/termsAndConditions/{termsAndConditions-id}/acceptanceStatuses']['body'],

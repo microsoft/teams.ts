@@ -22,7 +22,7 @@ export interface IEndpoints {
 /**
  * `GET /users/{user-id}/employeeExperience/assignedRoles/{engagementRole-id}/members/{engagementRoleMember-id}/user`
  *
- * User entity of the member who has been assigned the role.
+ * The user who has this role assigned.
  */
 export function get(
   params?: IEndpoints['GET /users/{user-id}/employeeExperience/assignedRoles/{engagementRole-id}/members/{engagementRoleMember-id}/user']['parameters']

@@ -45,4 +45,15 @@ describe('BotSignInClient', () => {
       'https://token.botframework.com/api/botsignin/GetSignInUrl?state=test'
     );
   });
+
+  it('should use regional endpoint', async () => {
+    const client = new BotSignInClient({}, { oauthUrl: 'https://europe.token.botframework.com' });
+    const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
+
+    await client.getUrl({ state: 'test' });
+
+    expect(spy).toHaveBeenCalledWith(
+      'https://europe.token.botframework.com/api/botsignin/GetSignInUrl?state=test'
+    );
+  });
 });

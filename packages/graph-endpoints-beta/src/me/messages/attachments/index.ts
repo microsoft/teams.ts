@@ -47,7 +47,7 @@ export function del(
 /**
  * `GET /me/messages/{message-id}/attachments`
  *
- * Retrieve a list of attachment objects attached to a message.
+ * Retrieve a list of attachment objects.
  */
 export function list(
   params?: IEndpoints['GET /me/messages/{message-id}/attachments']['parameters']

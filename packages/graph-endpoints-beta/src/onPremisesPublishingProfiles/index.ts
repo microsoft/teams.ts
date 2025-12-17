@@ -29,6 +29,26 @@ export interface IEndpoints {
     '/onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/applicationSegments/{ipApplicationSegment-id}',
     'get'
   >;
+  'GET /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors': Operation<
+    '/onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors',
+    'get'
+  >;
+  'POST /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors': Operation<
+    '/onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors',
+    'post'
+  >;
+  'GET /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}': Operation<
+    '/onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}',
+    'get'
+  >;
+  'PATCH /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}': Operation<
+    '/onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}',
+    'patch'
+  >;
+  'DELETE /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}': Operation<
+    '/onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}',
+    'delete'
+  >;
 }
 
 /**
@@ -167,6 +187,111 @@ export const applicationSegments = {
       paramDefs: {
         query: ['$select', '$expand'],
         path: ['onPremisesPublishingProfile-id', 'ipApplicationSegment-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const sensors = {
+  /**
+   * `GET /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['onPremisesPublishingProfile-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `POST /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors`
+   *
+   */
+  create: function create(
+    body: IEndpoints['POST /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors']['body'],
+    params?: IEndpoints['POST /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors']['parameters']
+  ): EndpointRequest<
+    IEndpoints['POST /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors',
+      paramDefs: {
+        path: ['onPremisesPublishingProfile-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `GET /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['onPremisesPublishingProfile-id', 'privateAccessSensor-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `PATCH /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}`
+   *
+   */
+  update: function update(
+    body: IEndpoints['PATCH /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}']['body'],
+    params?: IEndpoints['PATCH /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['PATCH /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'patch',
+      path: '/onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}',
+      paramDefs: {
+        path: ['onPremisesPublishingProfile-id', 'privateAccessSensor-id'],
+      },
+      params,
+      body,
+    };
+  },
+  /**
+   * `DELETE /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}`
+   *
+   */
+  del: function del(
+    params?: IEndpoints['DELETE /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['DELETE /onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'delete',
+      path: '/onPremisesPublishingProfiles/{onPremisesPublishingProfile-id}/sensors/{privateAccessSensor-id}',
+      paramDefs: {
+        header: ['If-Match'],
+        path: ['onPremisesPublishingProfile-id', 'privateAccessSensor-id'],
       },
       params,
     };

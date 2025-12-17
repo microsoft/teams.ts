@@ -29,6 +29,14 @@ export interface IEndpoints {
     '/groups/{group-id}/team/primaryChannel/completeMigration',
     'post'
   >;
+  'GET /groups/{group-id}/team/primaryChannel/enabledApps': Operation<
+    '/groups/{group-id}/team/primaryChannel/enabledApps',
+    'get'
+  >;
+  'GET /groups/{group-id}/team/primaryChannel/enabledApps/{teamsApp-id}': Operation<
+    '/groups/{group-id}/team/primaryChannel/enabledApps/{teamsApp-id}',
+    'get'
+  >;
   'POST /groups/{group-id}/team/primaryChannel/provisionEmail': Operation<
     '/groups/{group-id}/team/primaryChannel/provisionEmail',
     'post'
@@ -144,6 +152,49 @@ export const completeMigration = {
       path: '/groups/{group-id}/team/primaryChannel/completeMigration',
       paramDefs: {
         path: ['group-id'],
+      },
+      params,
+    };
+  },
+};
+
+export const enabledApps = {
+  /**
+   * `GET /groups/{group-id}/team/primaryChannel/enabledApps`
+   *
+   */
+  list: function list(
+    params?: IEndpoints['GET /groups/{group-id}/team/primaryChannel/enabledApps']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/team/primaryChannel/enabledApps']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/groups/{group-id}/team/primaryChannel/enabledApps',
+      paramDefs: {
+        query: ['$top', '$skip', '$search', '$filter', '$count', '$orderby', '$select', '$expand'],
+        path: ['group-id'],
+      },
+      params,
+    };
+  },
+  /**
+   * `GET /groups/{group-id}/team/primaryChannel/enabledApps/{teamsApp-id}`
+   *
+   */
+  get: function get(
+    params?: IEndpoints['GET /groups/{group-id}/team/primaryChannel/enabledApps/{teamsApp-id}']['parameters']
+  ): EndpointRequest<
+    IEndpoints['GET /groups/{group-id}/team/primaryChannel/enabledApps/{teamsApp-id}']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'get',
+      path: '/groups/{group-id}/team/primaryChannel/enabledApps/{teamsApp-id}',
+      paramDefs: {
+        query: ['$select', '$expand'],
+        path: ['group-id', 'teamsApp-id'],
       },
       params,
     };

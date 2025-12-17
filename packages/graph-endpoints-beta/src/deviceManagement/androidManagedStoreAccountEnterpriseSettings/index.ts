@@ -29,12 +29,20 @@ export interface IEndpoints {
     '/deviceManagement/androidManagedStoreAccountEnterpriseSettings/createGooglePlayWebToken',
     'post'
   >;
+  'POST /deviceManagement/androidManagedStoreAccountEnterpriseSettings/requestEnterpriseUpgradeUrl': Operation<
+    '/deviceManagement/androidManagedStoreAccountEnterpriseSettings/requestEnterpriseUpgradeUrl',
+    'post'
+  >;
   'POST /deviceManagement/androidManagedStoreAccountEnterpriseSettings/requestSignupUrl': Operation<
     '/deviceManagement/androidManagedStoreAccountEnterpriseSettings/requestSignupUrl',
     'post'
   >;
   'POST /deviceManagement/androidManagedStoreAccountEnterpriseSettings/setAndroidDeviceOwnerFullyManagedEnrollmentState': Operation<
     '/deviceManagement/androidManagedStoreAccountEnterpriseSettings/setAndroidDeviceOwnerFullyManagedEnrollmentState',
+    'post'
+  >;
+  'POST /deviceManagement/androidManagedStoreAccountEnterpriseSettings/setStoreLayout': Operation<
+    '/deviceManagement/androidManagedStoreAccountEnterpriseSettings/setStoreLayout',
     'post'
   >;
   'POST /deviceManagement/androidManagedStoreAccountEnterpriseSettings/syncApps': Operation<
@@ -182,6 +190,22 @@ export const createGooglePlayWebToken = {
   },
 };
 
+export const requestEnterpriseUpgradeUrl = {
+  /**
+   * `POST /deviceManagement/androidManagedStoreAccountEnterpriseSettings/requestEnterpriseUpgradeUrl`
+   *
+   */
+  create: function create(): EndpointRequest<
+    IEndpoints['POST /deviceManagement/androidManagedStoreAccountEnterpriseSettings/requestEnterpriseUpgradeUrl']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/androidManagedStoreAccountEnterpriseSettings/requestEnterpriseUpgradeUrl',
+    };
+  },
+};
+
 export const requestSignupUrl = {
   /**
    * `POST /deviceManagement/androidManagedStoreAccountEnterpriseSettings/requestSignupUrl`
@@ -216,6 +240,26 @@ export const setAndroidDeviceOwnerFullyManagedEnrollmentState = {
       ver: 'beta',
       method: 'post',
       path: '/deviceManagement/androidManagedStoreAccountEnterpriseSettings/setAndroidDeviceOwnerFullyManagedEnrollmentState',
+      body,
+    };
+  },
+};
+
+export const setStoreLayout = {
+  /**
+   * `POST /deviceManagement/androidManagedStoreAccountEnterpriseSettings/setStoreLayout`
+   *
+   * Sets the Managed Google Play store layout type via Google EMM API.
+   */
+  create: function create(
+    body: IEndpoints['POST /deviceManagement/androidManagedStoreAccountEnterpriseSettings/setStoreLayout']['body']
+  ): EndpointRequest<
+    IEndpoints['POST /deviceManagement/androidManagedStoreAccountEnterpriseSettings/setStoreLayout']['response']
+  > {
+    return {
+      ver: 'beta',
+      method: 'post',
+      path: '/deviceManagement/androidManagedStoreAccountEnterpriseSettings/setStoreLayout',
       body,
     };
   },

@@ -64,7 +64,7 @@ export const cancelOffboard = {
   /**
    * `POST /solutions/backupRestore/protectionUnits/{protectionUnitBase-id}/cancelOffboard`
    *
-   * Cancel offboard for a protectionUnitBase.
+   * Cancel the offboarding of a protectionUnitBase.
    */
   create: function create(
     params?: IEndpoints['POST /solutions/backupRestore/protectionUnits/{protectionUnitBase-id}/cancelOffboard']['parameters']

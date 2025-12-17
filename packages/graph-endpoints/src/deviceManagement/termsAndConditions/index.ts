@@ -48,7 +48,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/termsAndConditions/{termsAndConditions-id}`
  *
- * Deletes a termsAndConditions.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/termsAndConditions/{termsAndConditions-id}']['parameters']
@@ -69,7 +68,7 @@ export function del(
 /**
  * `GET /deviceManagement/termsAndConditions`
  *
- * List properties and relationships of the termsAndConditions objects.
+ * The terms and conditions associated with device management of the company.
  */
 export function list(
   params?: IEndpoints['GET /deviceManagement/termsAndConditions']['parameters']
@@ -87,7 +86,7 @@ export function list(
 /**
  * `GET /deviceManagement/termsAndConditions/{termsAndConditions-id}`
  *
- * Read properties and relationships of the termsAndConditions object.
+ * The terms and conditions associated with device management of the company.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/termsAndConditions/{termsAndConditions-id}']['parameters']
@@ -108,7 +107,6 @@ export function get(
 /**
  * `PATCH /deviceManagement/termsAndConditions/{termsAndConditions-id}`
  *
- * Update the properties of a termsAndConditions object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceManagement/termsAndConditions/{termsAndConditions-id}']['body'],
@@ -130,7 +128,6 @@ export function update(
 /**
  * `POST /deviceManagement/termsAndConditions`
  *
- * Create a new termsAndConditions object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/termsAndConditions']['body']
@@ -146,7 +143,7 @@ export const assignments = {
   /**
    * `GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments`
    *
-   * List properties and relationships of the termsAndConditionsAssignment objects.
+   * The list of assignments for this T&amp;C policy.
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments']['parameters']
@@ -166,7 +163,6 @@ export const assignments = {
   /**
    * `POST /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments`
    *
-   * Create a new termsAndConditionsAssignment object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments']['body'],
@@ -187,7 +183,7 @@ export const assignments = {
   /**
    * `GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}`
    *
-   * Read properties and relationships of the termsAndConditionsAssignment object.
+   * The list of assignments for this T&amp;C policy.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}']['parameters']
@@ -207,7 +203,6 @@ export const assignments = {
   /**
    * `PATCH /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}`
    *
-   * Update the properties of a termsAndConditionsAssignment object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}']['body'],
@@ -228,7 +223,6 @@ export const assignments = {
   /**
    * `DELETE /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}`
    *
-   * Deletes a termsAndConditionsAssignment.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/termsAndConditions/{termsAndConditions-id}/assignments/{termsAndConditionsAssignment-id}']['parameters']

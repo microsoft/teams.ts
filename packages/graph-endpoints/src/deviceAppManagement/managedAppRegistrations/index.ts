@@ -69,7 +69,7 @@ export function del(
 /**
  * `GET /deviceAppManagement/managedAppRegistrations`
  *
- * List properties and relationships of the managedAppRegistration objects.
+ * The managed app registrations.
  */
 export function list(
   params?: IEndpoints['GET /deviceAppManagement/managedAppRegistrations']['parameters']
@@ -87,7 +87,7 @@ export function list(
 /**
  * `GET /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}`
  *
- * Read properties and relationships of the managedAppRegistration object.
+ * The managed app registrations.
  */
 export function get(
   params?: IEndpoints['GET /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}']['parameters']
@@ -129,7 +129,6 @@ export function update(
 /**
  * `POST /deviceAppManagement/managedAppRegistrations`
  *
- * Create a new androidManagedAppRegistration object.
  */
 export function create(
   body: IEndpoints['POST /deviceAppManagement/managedAppRegistrations']['body']
@@ -145,7 +144,7 @@ export const operations = {
   /**
    * `GET /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations`
    *
-   * List properties and relationships of the managedAppOperation objects.
+   * Zero or more long running operations triggered on the app registration.
    */
   list: function list(
     params?: IEndpoints['GET /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations']['parameters']
@@ -165,7 +164,6 @@ export const operations = {
   /**
    * `POST /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations`
    *
-   * Create a new managedAppOperation object.
    */
   create: function create(
     body: IEndpoints['POST /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations']['body'],
@@ -186,7 +184,7 @@ export const operations = {
   /**
    * `GET /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}`
    *
-   * Read properties and relationships of the managedAppOperation object.
+   * Zero or more long running operations triggered on the app registration.
    */
   get: function get(
     params?: IEndpoints['GET /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}']['parameters']
@@ -206,7 +204,6 @@ export const operations = {
   /**
    * `PATCH /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}`
    *
-   * Update the properties of a managedAppOperation object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}']['body'],
@@ -227,7 +224,6 @@ export const operations = {
   /**
    * `DELETE /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}`
    *
-   * Deletes a managedAppOperation.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceAppManagement/managedAppRegistrations/{managedAppRegistration-id}/operations/{managedAppOperation-id}']['parameters']

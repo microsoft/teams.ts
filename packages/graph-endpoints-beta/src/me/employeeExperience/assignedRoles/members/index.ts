@@ -49,7 +49,7 @@ export function del(
 /**
  * `GET /me/employeeExperience/assignedRoles/{engagementRole-id}/members`
  *
- * Users who have been assigned this role.
+ * Users that have this role assigned.
  */
 export function list(
   params?: IEndpoints['GET /me/employeeExperience/assignedRoles/{engagementRole-id}/members']['parameters']
@@ -71,7 +71,7 @@ export function list(
 /**
  * `GET /me/employeeExperience/assignedRoles/{engagementRole-id}/members/{engagementRoleMember-id}`
  *
- * Users who have been assigned this role.
+ * Users that have this role assigned.
  */
 export function get(
   params?: IEndpoints['GET /me/employeeExperience/assignedRoles/{engagementRole-id}/members/{engagementRoleMember-id}']['parameters']

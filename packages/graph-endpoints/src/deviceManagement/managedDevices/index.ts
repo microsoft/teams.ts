@@ -151,7 +151,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/managedDevices/{managedDevice-id}`
  *
- * Deletes a managedDevice.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/managedDevices/{managedDevice-id}']['parameters']
@@ -232,7 +231,6 @@ export function update(
 /**
  * `POST /deviceManagement/managedDevices`
  *
- * Create a new managedDevice object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/managedDevices']['body']
@@ -804,7 +802,6 @@ export const syncDevice = {
   /**
    * `POST /deviceManagement/managedDevices/{managedDevice-id}/syncDevice`
    *
-   * Not yet documented
    */
   create: function create(
     params?: IEndpoints['POST /deviceManagement/managedDevices/{managedDevice-id}/syncDevice']['parameters']
@@ -826,7 +823,6 @@ export const updateWindowsDeviceAccount = {
   /**
    * `POST /deviceManagement/managedDevices/{managedDevice-id}/updateWindowsDeviceAccount`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/managedDevices/{managedDevice-id}/updateWindowsDeviceAccount']['body'],
@@ -873,7 +869,6 @@ export const windowsDefenderScan = {
   /**
    * `POST /deviceManagement/managedDevices/{managedDevice-id}/windowsDefenderScan`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/managedDevices/{managedDevice-id}/windowsDefenderScan']['body'],
@@ -897,7 +892,6 @@ export const windowsDefenderUpdateSignatures = {
   /**
    * `POST /deviceManagement/managedDevices/{managedDevice-id}/windowsDefenderUpdateSignatures`
    *
-   * Not yet documented
    */
   create: function create(
     params?: IEndpoints['POST /deviceManagement/managedDevices/{managedDevice-id}/windowsDefenderUpdateSignatures']['parameters']

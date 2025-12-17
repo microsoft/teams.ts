@@ -86,7 +86,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceAppManagement/mdmWindowsInformationProtectionPolicies/{mdmWindowsInformationProtectionPolicy-id}`
  *
- * Deletes a mdmWindowsInformationProtectionPolicy.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceAppManagement/mdmWindowsInformationProtectionPolicies/{mdmWindowsInformationProtectionPolicy-id}']['parameters']
@@ -107,7 +106,7 @@ export function del(
 /**
  * `GET /deviceAppManagement/mdmWindowsInformationProtectionPolicies`
  *
- * List properties and relationships of the mdmWindowsInformationProtectionPolicy objects.
+ * Windows information protection for apps running on devices which are MDM enrolled.
  */
 export function list(
   params?: IEndpoints['GET /deviceAppManagement/mdmWindowsInformationProtectionPolicies']['parameters']
@@ -127,7 +126,7 @@ export function list(
 /**
  * `GET /deviceAppManagement/mdmWindowsInformationProtectionPolicies/{mdmWindowsInformationProtectionPolicy-id}`
  *
- * Read properties and relationships of the mdmWindowsInformationProtectionPolicy object.
+ * Windows information protection for apps running on devices which are MDM enrolled.
  */
 export function get(
   params?: IEndpoints['GET /deviceAppManagement/mdmWindowsInformationProtectionPolicies/{mdmWindowsInformationProtectionPolicy-id}']['parameters']
@@ -148,7 +147,6 @@ export function get(
 /**
  * `PATCH /deviceAppManagement/mdmWindowsInformationProtectionPolicies/{mdmWindowsInformationProtectionPolicy-id}`
  *
- * Update the properties of a mdmWindowsInformationProtectionPolicy object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceAppManagement/mdmWindowsInformationProtectionPolicies/{mdmWindowsInformationProtectionPolicy-id}']['body'],
@@ -170,7 +168,6 @@ export function update(
 /**
  * `POST /deviceAppManagement/mdmWindowsInformationProtectionPolicies`
  *
- * Create a new mdmWindowsInformationProtectionPolicy object.
  */
 export function create(
   body: IEndpoints['POST /deviceAppManagement/mdmWindowsInformationProtectionPolicies']['body']

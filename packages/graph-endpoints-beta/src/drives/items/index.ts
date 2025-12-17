@@ -527,7 +527,7 @@ export const copy = {
   /**
    * `POST /drives/{drive-id}/items/{driveItem-id}/copy`
    *
-   * Create a copy of a driveItem asynchronously. You can optionally copy exclusively the child items, specify a new parent folder, or provide a new name. Once the request is accepted, the operation is queued and processed asynchronously. Use the monitor URL to track progress until the operation completes.
+   * Create a copy of a driveItem asynchronously. You can optionally copy exclusively the child items, specify a new parent folder, or provide a new name. Once the request is accepted, the operation is queued and processed asynchronously. Use the monitor URL to track progress until the operation completes. The copy operation is restricted to 30,000 driveItems. For more information, see SharePoint limits.
    */
   create: function create(
     body: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/copy']['body'],
@@ -773,11 +773,10 @@ export const follow = {
 
 export const invite = {
   /**
-  * `POST /drives/{drive-id}/items/{driveItem-id}/invite`
-  *
-  * Sends a sharing invitation for a driveItem.
-A sharing invitation provides permissions to the recipients and optionally sends an email to the recipients to notify them the item was shared.
-  */
+   * `POST /drives/{drive-id}/items/{driveItem-id}/invite`
+   *
+   * Send a sharing invitation for a driveItem. A sharing invitation provides permissions to the recipients and, optionally, sends them an email to notify them that the item was shared.
+   */
   create: function create(
     body: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/invite']['body'],
     params?: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/invite']['parameters']
@@ -871,7 +870,7 @@ export const restore = {
   /**
    * `POST /drives/{drive-id}/items/{driveItem-id}/restore`
    *
-   * Restore a driveItem that has been deleted and is currently in the recycle bin.
+   * Restore a deleted driveItem that is currently in the recycle bin.
    */
   create: function create(
     body: IEndpoints['POST /drives/{drive-id}/items/{driveItem-id}/restore']['body'],

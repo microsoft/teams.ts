@@ -134,7 +134,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/deviceConfigurations/{deviceConfiguration-id}`
  *
- * Deletes a androidWorkProfileGeneralDeviceConfiguration.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/deviceConfigurations/{deviceConfiguration-id}']['parameters']
@@ -155,7 +154,7 @@ export function del(
 /**
  * `GET /deviceManagement/deviceConfigurations`
  *
- * List properties and relationships of the appleDeviceFeaturesConfigurationBase objects.
+ * The device configurations.
  */
 export function list(
   params?: IEndpoints['GET /deviceManagement/deviceConfigurations']['parameters']
@@ -173,7 +172,7 @@ export function list(
 /**
  * `GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}`
  *
- * Read properties and relationships of the windowsPhone81CustomConfiguration object.
+ * The device configurations.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}']['parameters']
@@ -194,7 +193,6 @@ export function get(
 /**
  * `PATCH /deviceManagement/deviceConfigurations/{deviceConfiguration-id}`
  *
- * Update the properties of a sharedPCConfiguration object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceManagement/deviceConfigurations/{deviceConfiguration-id}']['body'],
@@ -216,7 +214,6 @@ export function update(
 /**
  * `POST /deviceManagement/deviceConfigurations`
  *
- * Create a new windows10TeamGeneralConfiguration object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/deviceConfigurations']['body']
@@ -232,7 +229,6 @@ export const assign = {
   /**
    * `POST /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/assign`
    *
-   * Not yet documented
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/assign']['body'],
@@ -256,7 +252,7 @@ export const assignments = {
   /**
    * `GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/assignments`
    *
-   * List properties and relationships of the deviceConfigurationAssignment objects.
+   * The list of assignments for the device configuration profile.
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/assignments']['parameters']
@@ -276,7 +272,6 @@ export const assignments = {
   /**
    * `POST /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/assignments`
    *
-   * Create a new deviceConfigurationAssignment object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/assignments']['body'],
@@ -297,7 +292,7 @@ export const assignments = {
   /**
    * `GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/assignments/{deviceConfigurationAssignment-id}`
    *
-   * Read properties and relationships of the deviceConfigurationAssignment object.
+   * The list of assignments for the device configuration profile.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/assignments/{deviceConfigurationAssignment-id}']['parameters']
@@ -317,7 +312,6 @@ export const assignments = {
   /**
    * `PATCH /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/assignments/{deviceConfigurationAssignment-id}`
    *
-   * Update the properties of a deviceConfigurationAssignment object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/assignments/{deviceConfigurationAssignment-id}']['body'],
@@ -338,7 +332,6 @@ export const assignments = {
   /**
    * `DELETE /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/assignments/{deviceConfigurationAssignment-id}`
    *
-   * Deletes a deviceConfigurationAssignment.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/assignments/{deviceConfigurationAssignment-id}']['parameters']
@@ -361,7 +354,7 @@ export const deviceSettingStateSummaries = {
   /**
    * `GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceSettingStateSummaries`
    *
-   * List properties and relationships of the settingStateDeviceSummary objects.
+   * Device Configuration Setting State Device Summary
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceSettingStateSummaries']['parameters']
@@ -381,7 +374,6 @@ export const deviceSettingStateSummaries = {
   /**
    * `POST /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceSettingStateSummaries`
    *
-   * Create a new settingStateDeviceSummary object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceSettingStateSummaries']['body'],
@@ -402,7 +394,7 @@ export const deviceSettingStateSummaries = {
   /**
    * `GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceSettingStateSummaries/{settingStateDeviceSummary-id}`
    *
-   * Read properties and relationships of the settingStateDeviceSummary object.
+   * Device Configuration Setting State Device Summary
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceSettingStateSummaries/{settingStateDeviceSummary-id}']['parameters']
@@ -422,7 +414,6 @@ export const deviceSettingStateSummaries = {
   /**
    * `PATCH /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceSettingStateSummaries/{settingStateDeviceSummary-id}`
    *
-   * Update the properties of a settingStateDeviceSummary object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceSettingStateSummaries/{settingStateDeviceSummary-id}']['body'],
@@ -443,7 +434,6 @@ export const deviceSettingStateSummaries = {
   /**
    * `DELETE /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceSettingStateSummaries/{settingStateDeviceSummary-id}`
    *
-   * Deletes a settingStateDeviceSummary.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceSettingStateSummaries/{settingStateDeviceSummary-id}']['parameters']
@@ -466,7 +456,7 @@ export const deviceStatusOverview = {
   /**
    * `GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceStatusOverview`
    *
-   * Read properties and relationships of the deviceConfigurationDeviceOverview object.
+   * Device Configuration devices status overview
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceStatusOverview']['parameters']
@@ -486,7 +476,6 @@ export const deviceStatusOverview = {
   /**
    * `PATCH /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceStatusOverview`
    *
-   * Update the properties of a deviceConfigurationDeviceOverview object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceStatusOverview']['body'],
@@ -529,7 +518,7 @@ export const deviceStatuses = {
   /**
    * `GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceStatuses`
    *
-   * List properties and relationships of the deviceConfigurationDeviceStatus objects.
+   * Device configuration installation status by device.
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceStatuses']['parameters']
@@ -549,7 +538,6 @@ export const deviceStatuses = {
   /**
    * `POST /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceStatuses`
    *
-   * Create a new deviceConfigurationDeviceStatus object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceStatuses']['body'],
@@ -570,7 +558,7 @@ export const deviceStatuses = {
   /**
    * `GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceStatuses/{deviceConfigurationDeviceStatus-id}`
    *
-   * Read properties and relationships of the deviceConfigurationDeviceStatus object.
+   * Device configuration installation status by device.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceStatuses/{deviceConfigurationDeviceStatus-id}']['parameters']
@@ -590,7 +578,6 @@ export const deviceStatuses = {
   /**
    * `PATCH /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceStatuses/{deviceConfigurationDeviceStatus-id}`
    *
-   * Update the properties of a deviceConfigurationDeviceStatus object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceStatuses/{deviceConfigurationDeviceStatus-id}']['body'],
@@ -611,7 +598,6 @@ export const deviceStatuses = {
   /**
    * `DELETE /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceStatuses/{deviceConfigurationDeviceStatus-id}`
    *
-   * Deletes a deviceConfigurationDeviceStatus.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/deviceStatuses/{deviceConfigurationDeviceStatus-id}']['parameters']
@@ -634,7 +620,7 @@ export const userStatusOverview = {
   /**
    * `GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/userStatusOverview`
    *
-   * Read properties and relationships of the deviceConfigurationUserOverview object.
+   * Device Configuration users status overview
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/userStatusOverview']['parameters']
@@ -654,7 +640,6 @@ export const userStatusOverview = {
   /**
    * `PATCH /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/userStatusOverview`
    *
-   * Update the properties of a deviceConfigurationUserOverview object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/userStatusOverview']['body'],
@@ -697,7 +682,7 @@ export const userStatuses = {
   /**
    * `GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/userStatuses`
    *
-   * List properties and relationships of the deviceConfigurationUserStatus objects.
+   * Device configuration installation status by user.
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/userStatuses']['parameters']
@@ -717,7 +702,6 @@ export const userStatuses = {
   /**
    * `POST /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/userStatuses`
    *
-   * Create a new deviceConfigurationUserStatus object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/userStatuses']['body'],
@@ -738,7 +722,7 @@ export const userStatuses = {
   /**
    * `GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/userStatuses/{deviceConfigurationUserStatus-id}`
    *
-   * Read properties and relationships of the deviceConfigurationUserStatus object.
+   * Device configuration installation status by user.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/userStatuses/{deviceConfigurationUserStatus-id}']['parameters']
@@ -758,7 +742,6 @@ export const userStatuses = {
   /**
    * `PATCH /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/userStatuses/{deviceConfigurationUserStatus-id}`
    *
-   * Update the properties of a deviceConfigurationUserStatus object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/userStatuses/{deviceConfigurationUserStatus-id}']['body'],
@@ -779,7 +762,6 @@ export const userStatuses = {
   /**
    * `DELETE /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/userStatuses/{deviceConfigurationUserStatus-id}`
    *
-   * Deletes a deviceConfigurationUserStatus.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/deviceConfigurations/{deviceConfiguration-id}/userStatuses/{deviceConfigurationUserStatus-id}']['parameters']

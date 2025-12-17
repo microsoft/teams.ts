@@ -46,7 +46,6 @@ export interface IEndpoints {
 /**
  * `DELETE /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}`
  *
- * Deletes a deviceCompliancePolicySettingStateSummary.
  */
 export function del(
   params?: IEndpoints['DELETE /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}']['parameters']
@@ -67,7 +66,7 @@ export function del(
 /**
  * `GET /deviceManagement/deviceCompliancePolicySettingStateSummaries`
  *
- * List properties and relationships of the deviceCompliancePolicySettingStateSummary objects.
+ * The summary states of compliance policy settings for this account.
  */
 export function list(
   params?: IEndpoints['GET /deviceManagement/deviceCompliancePolicySettingStateSummaries']['parameters']
@@ -87,7 +86,7 @@ export function list(
 /**
  * `GET /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}`
  *
- * Read properties and relationships of the deviceCompliancePolicySettingStateSummary object.
+ * The summary states of compliance policy settings for this account.
  */
 export function get(
   params?: IEndpoints['GET /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}']['parameters']
@@ -108,7 +107,6 @@ export function get(
 /**
  * `PATCH /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}`
  *
- * Update the properties of a deviceCompliancePolicySettingStateSummary object.
  */
 export function update(
   body: IEndpoints['PATCH /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}']['body'],
@@ -130,7 +128,6 @@ export function update(
 /**
  * `POST /deviceManagement/deviceCompliancePolicySettingStateSummaries`
  *
- * Create a new deviceCompliancePolicySettingStateSummary object.
  */
 export function create(
   body: IEndpoints['POST /deviceManagement/deviceCompliancePolicySettingStateSummaries']['body']
@@ -148,7 +145,6 @@ export const deviceComplianceSettingStates = {
   /**
    * `GET /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates`
    *
-   * List properties and relationships of the deviceComplianceSettingState objects.
    */
   list: function list(
     params?: IEndpoints['GET /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates']['parameters']
@@ -168,7 +164,6 @@ export const deviceComplianceSettingStates = {
   /**
    * `POST /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates`
    *
-   * Create a new deviceComplianceSettingState object.
    */
   create: function create(
     body: IEndpoints['POST /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates']['body'],
@@ -189,7 +184,6 @@ export const deviceComplianceSettingStates = {
   /**
    * `GET /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}`
    *
-   * Read properties and relationships of the deviceComplianceSettingState object.
    */
   get: function get(
     params?: IEndpoints['GET /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}']['parameters']
@@ -209,7 +203,6 @@ export const deviceComplianceSettingStates = {
   /**
    * `PATCH /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}`
    *
-   * Update the properties of a deviceComplianceSettingState object.
    */
   update: function update(
     body: IEndpoints['PATCH /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}']['body'],
@@ -230,7 +223,6 @@ export const deviceComplianceSettingStates = {
   /**
    * `DELETE /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}`
    *
-   * Deletes a deviceComplianceSettingState.
    */
   del: function del(
     params?: IEndpoints['DELETE /deviceManagement/deviceCompliancePolicySettingStateSummaries/{deviceCompliancePolicySettingStateSummary-id}/deviceComplianceSettingStates/{deviceComplianceSettingState-id}']['parameters']

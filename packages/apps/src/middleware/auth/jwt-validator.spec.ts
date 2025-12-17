@@ -33,6 +33,7 @@ const mockLogger = {
   info: jest.fn(),
   debug: jest.fn(),
   warn: jest.fn(),
+  trace: jest.fn(),
   log: jest.fn(),
   child: jest.fn().mockReturnThis(),
 };
