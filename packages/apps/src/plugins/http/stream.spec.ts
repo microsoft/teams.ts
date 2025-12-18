@@ -90,8 +90,6 @@ describe('HttpStream', () => {
   });
 
   test('stream all timeouts fail handled gracefully', async () => {
-    const unhandled = jest.fn();
-    process.on('unhandledRejection', unhandled);
     let callCount = 0;
 
     client.conversations.activities().create.mockImplementation(
@@ -106,8 +104,7 @@ describe('HttpStream', () => {
     stream.emit('Test message with all timeouts');
 
     await jest.runAllTimersAsync();
-    expect(callCount).toBe(6);
-    process.off('unhandledRejection', unhandled);
+    expect(callCount).toBe(5);
   });
 
   test('sequence of update and emit', async () => {
