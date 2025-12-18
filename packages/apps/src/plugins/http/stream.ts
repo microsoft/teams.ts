@@ -107,7 +107,7 @@ export class HttpStream implements IStreamer {
     // Wait until all queued activities are flushed
     const start = Date.now();
 
-    while (!this.id || this.queue.length) {
+    while (this.queue.length || !this.id) {
       if (Date.now() - start > this._totalTimeout) {
         this._logger.warn('Timeout while waiting for id and queue to flush');
       }
@@ -215,6 +215,8 @@ export class HttpStream implements IStreamer {
       if (this.queue.length) {
         this._timeout = setTimeout(this.flush.bind(this), 500);
       }
+    } catch (err) {
+      this._logger.error(err, 'flush failed');
     } finally {
       this._flushing = false;
     }

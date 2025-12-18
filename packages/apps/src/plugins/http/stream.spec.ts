@@ -89,6 +89,27 @@ describe('HttpStream', () => {
     expect(stream['index']).toBeGreaterThanOrEqual(0);
   });
 
+  test('stream all timeouts fail handled gracefully', async () => {
+    const unhandled = jest.fn();
+    process.on('unhandledRejection', unhandled);
+    let callCount = 0;
+
+    client.conversations.activities().create.mockImplementation(
+      async () => {
+        callCount++;
+        throw new Error('All operations timed out');
+      }
+    );
+
+    const stream = new HttpStream(client, ref, logger);
+
+    stream.emit('Test message with all timeouts');
+
+    await jest.runAllTimersAsync();
+    expect(callCount).toBe(6);
+    process.off('unhandledRejection', unhandled);
+  });
+
   test('sequence of update and emit', async () => {
     const sent: any[] = [];
     client.conversations.activities().create.mockImplementation(
