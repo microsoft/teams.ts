@@ -110,6 +110,7 @@ export class HttpStream implements IStreamer {
     while (this.queue.length || !this.id) {
       if (Date.now() - start > this._totalTimeout) {
         this._logger.warn('Timeout while waiting for id and queue to flush');
+        return;
       }
       this._logger.debug('waiting for id to be set or queue to be empty');
       await new Promise((resolve) => setTimeout(resolve, 100));
