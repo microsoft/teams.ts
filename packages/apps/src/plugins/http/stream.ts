@@ -246,28 +246,25 @@ export class HttpStream implements IStreamer {
   /**
    * Send or update a streaming activity
    * @param activity ActivityParams to send.
-   * @param isTargeted when true, sends the message privately to the specified recipient
    */
-  protected async send(activity: ActivityParams, isTargeted: boolean = false) {
+  protected async send(activity: ActivityParams) {
     activity = {
       ...activity,
       from: this.ref.bot,
       conversation: this.ref.conversation,
-      // Set recipient from ref.user if provided (for targeted messages)
-      ...(this.ref.user && { recipient: this.ref.user }),
     };
 
     if (activity.id && !(activity.entities?.some((e) => e.type === 'streaminfo') || false)) {
       const res = await this.client.conversations
         .activities(this.ref.conversation.id)
-        .update(activity.id, activity, isTargeted);
+        .update(activity.id, activity);
 
       return { ...activity, ...res };
     }
 
     const res = await this.client.conversations
       .activities(this.ref.conversation.id)
-      .create(activity, isTargeted);
+      .create(activity);
 
     return { ...activity, ...res };
   }

@@ -11,11 +11,8 @@ export interface ISender<TCustomEvents extends {} = {}> extends IPlugin<TCustomE
   /**
    * called by the `App`
    * to send an activity
-   * @param activity the activity to send
-   * @param ref the conversation reference
-   * @param isTargeted when true, the message is sent privately to the recipient specified in activity.Recipient
    */
-  send(activity: ActivityParams, ref: ConversationReference, isTargeted?: boolean): Promise<SentActivity>;
+  send(activity: ActivityParams, ref: ConversationReference): Promise<SentActivity>;
 
   /**
    * called by the `App`

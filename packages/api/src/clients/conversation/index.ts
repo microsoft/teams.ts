@@ -67,14 +67,12 @@ export class ConversationClient {
 
   activities(conversationId: string) {
     return {
-      create: (params: ActivityParams, isTargeted?: boolean) => 
-        this._activities.create(conversationId, params, isTargeted),
-      update: (id: string, params: ActivityParams, isTargeted?: boolean) =>
-        this._activities.update(conversationId, id, params, isTargeted),
-      reply: (id: string, params: ActivityParams, isTargeted?: boolean) =>
-        this._activities.reply(conversationId, id, params, isTargeted),
-      delete: (id: string, isTargeted?: boolean) => 
-        this._activities.delete(conversationId, id, isTargeted),
+      create: (params: ActivityParams) => this._activities.create(conversationId, params),
+      update: (id: string, params: ActivityParams) =>
+        this._activities.update(conversationId, id, params),
+      reply: (id: string, params: ActivityParams) =>
+        this._activities.reply(conversationId, id, params),
+      delete: (id: string) => this._activities.delete(conversationId, id),
       members: (activityId: string) => this._activities.getMembers(conversationId, activityId),
     };
   }

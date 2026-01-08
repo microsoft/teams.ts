@@ -32,44 +32,35 @@ export class ConversationActivityClient {
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
   }
 
-  async create(conversationId: string, params: ActivityParams, isTargeted: boolean = false) {
-    let url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities`;
-    if (isTargeted) {
-      url += '?isTargetedActivity=true';
-    }
-
-    const res = await this.http.post<Resource>(url, params);
+  async create(conversationId: string, params: ActivityParams) {
+    const res = await this.http.post<Resource>(
+      `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
+      params
+    );
     return res.data;
   }
 
-  async update(conversationId: string, id: string, params: ActivityParams, isTargeted: boolean = false) {
-    let url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`;
-    if (isTargeted) {
-      url += '?isTargetedActivity=true';
-    }
-
-    const res = await this.http.put<Resource>(url, params);
+  async update(conversationId: string, id: string, params: ActivityParams) {
+    const res = await this.http.put<Resource>(
+      `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
+      params
+    );
     return res.data;
   }
 
-  async reply(conversationId: string, id: string, params: ActivityParams, isTargeted: boolean = false) {
+  async reply(conversationId: string, id: string, params: ActivityParams) {
     params.replyToId = id;
-    let url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`;
-    if (isTargeted) {
-      url += '?isTargetedActivity=true';
-    }
-
-    const res = await this.http.post<Resource>(url, params);
+    const res = await this.http.post<Resource>(
+      `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
+      params
+    );
     return res.data;
   }
 
-  async delete(conversationId: string, id: string, isTargeted: boolean = false) {
-    let url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`;
-    if (isTargeted) {
-      url += '?isTargetedActivity=true';
-    }
-
-    const res = await this.http.delete<void>(url);
+  async delete(conversationId: string, id: string) {
+    const res = await this.http.delete<void>(
+      `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`
+    );
     return res.data;
   }
 

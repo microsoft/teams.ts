@@ -131,8 +131,7 @@ describe('ActivityContext', () => {
 </blockquote>\r\nWhat is up?`,
           type: 'message',
         }),
-        mockRef,
-        undefined
+        mockRef
       );
     });
 
@@ -153,8 +152,7 @@ describe('ActivityContext', () => {
 </blockquote>\r\nWhat is up?`,
           type: 'message',
         }),
-        mockRef,
-        undefined
+        mockRef
       );
     });
 
@@ -171,8 +169,7 @@ describe('ActivityContext', () => {
           text: 'What is up?',
           type: 'message',
         }),
-        mockRef,
-        undefined
+        mockRef
       );
     });
 
@@ -189,8 +186,7 @@ describe('ActivityContext', () => {
           text: '',
           type: 'message',
         }),
-        mockRef,
-        undefined
+        mockRef
       );
     });
   });
@@ -207,8 +203,7 @@ describe('ActivityContext', () => {
           text: 'What is up?',
           type: 'message',
         }),
-        mockRef,
-        undefined
+        mockRef
       );
     });
   });
@@ -282,8 +277,7 @@ describe('ActivityContext', () => {
           inputHint: 'acceptingInput',
           recipient: { id: 'test-user', name: 'Test User', role: 'user' },
         }),
-        mockRef,
-        undefined
+        mockRef
       );
     });
 
@@ -320,8 +314,7 @@ describe('ActivityContext', () => {
       expect(mockApiClient.conversations.create).toHaveBeenCalled();
       expect(mockSender.send).toHaveBeenCalledWith(
         expect.objectContaining({ type: 'message', text: 'Please Sign In...' }),
-        expect.any(Object),
-        undefined
+        expect.any(Object)
       );
     });
 

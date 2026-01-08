@@ -399,18 +399,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * send an activity proactively
    * @param conversationId the conversation to send to
    * @param activity the activity to send
-   * @param isTargeted when true, sends the message privately to the recipient specified in activity.recipient
    */
-  async send(conversationId: string, activity: ActivityLike, isTargeted: boolean = false) {
+  async send(conversationId: string, activity: ActivityLike) {
     if (!this.id) {
       throw new Error('app not started');
-    }
-
-    const activityParams = toActivityParams(activity);
-
-    // Validate that recipient is provided for targeted messages
-    if (isTargeted && !activityParams.recipient) {
-      throw new Error('activity.recipient is required for targeted messages');
     }
 
     const ref: ConversationReference = {
@@ -425,10 +417,9 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         id: conversationId,
         conversationType: 'personal',
       },
-      user: isTargeted ? activityParams.recipient : undefined,
     };
 
-    const res = await this.http.send(activityParams, ref, isTargeted);
+    const res = await this.http.send(toActivityParams(activity), ref);
     return res;
   }
 
