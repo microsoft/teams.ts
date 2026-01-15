@@ -17,7 +17,6 @@ import { IStreamer, IStreamerEvents } from './types';
 import { promises } from './utils';
 
 /**
-<<<<<<< HEAD:packages/apps/src/plugins/http/stream.ts
  * HTTP-based streaming implementation for Microsoft Teams activities.
  *
  * Allows sending typing indicators and messages in chunks to Teams.
@@ -31,10 +30,6 @@ import { promises } from './utils';
  * 4. Message text is combined and sent as a typing activity.
  * 5. `_flush()` schedules another flush if more items remain in queue.
  * 6. `close()` waits for the queue to empty and sends the final message activity.
-=======
- * HTTP streaming implementation
- * Handles batching, retry logic, and streaming state
->>>>>>> 3d505721 (Separate activity sending from HTTP transport layer):packages/apps/src/http-stream.ts
  */
 export class HttpStream implements IStreamer {
   readonly events = new EventEmitter<IStreamerEvents>();
@@ -233,19 +228,19 @@ export class HttpStream implements IStreamer {
    * @param activity TypingActivity to send.
    */
   protected async pushStreamChunk(activity: TypingActivity) {
-      if (this.id) {
-        activity.id = this.id;
-      }
-      activity.addStreamUpdate(this.index + 1);
+    if (this.id) {
+      activity.id = this.id;
+    }
+    activity.addStreamUpdate(this.index + 1);
 
-      const res = await promises.retry(() => this.send(activity as ActivityParams), {
-        logger: this._logger
-      });
-      this.events.emit('chunk', res);
-      this.index++;
-      if (!this.id) {
-        this.id = res.id;
-      }
+    const res = await promises.retry(() => this.send(activity as ActivityParams), {
+      logger: this._logger
+    });
+    this.events.emit('chunk', res);
+    this.index++;
+    if (!this.id) {
+      this.id = res.id;
+    }
   }
 
   /**
