@@ -1,6 +1,8 @@
 import http from 'http';
+
 import cors from 'cors';
 import express from 'express';
+
 import { IHttpAdapter, IRouteConfig } from './adapter';
 
 /**
@@ -13,10 +15,6 @@ import { IHttpAdapter, IRouteConfig } from './adapter';
  * - Server lifecycle management
  */
 export class ExpressAdapter implements IHttpAdapter {
-  protected express: express.Application;
-  protected server: http.Server;
-  protected isUserProvidedServer: boolean;
-
   // Expose Express methods for backwards compatibility
   readonly get: express.Application['get'];
   readonly post: express.Application['post'];
@@ -25,6 +23,10 @@ export class ExpressAdapter implements IHttpAdapter {
   readonly delete: express.Application['delete'];
   readonly route: express.Application['route'];
   readonly use: express.Application['use'];
+
+  protected express: express.Application;
+  protected server: http.Server;
+  protected isUserProvidedServer: boolean;
 
   constructor(server?: http.Server) {
     this.isUserProvidedServer = !!server;
