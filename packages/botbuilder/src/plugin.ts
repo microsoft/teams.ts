@@ -62,18 +62,18 @@ export class BotBuilderPlugin extends HttpPlugin {
   @Event('activity')
   declare readonly $onActivity: (event: IActivityEvent) => Promise<InvokeResponse>;
 
-  protected adapter?: CloudAdapter;
+  protected cloudAdapter?: CloudAdapter;
   protected handler?: ActivityHandler;
 
   constructor(options?: BotBuilderPluginOptions) {
     super(options?.server, { skipAuth: options?.skipAuth });
-    this.adapter = options?.adapter;
+    this.cloudAdapter = options?.adapter;
     this.handler = options?.handler;
   }
 
   async onInit() {
     await super.onInit();
-    if (!this.adapter) {
+    if (!this.cloudAdapter) {
       const clientId = this.credentials?.clientId;
       const clientSecret =
         this.credentials && 'clientSecret' in this.credentials
@@ -82,7 +82,7 @@ export class BotBuilderPlugin extends HttpPlugin {
       const tenantId =
         this.credentials && 'tenantId' in this.credentials ? this.credentials?.tenantId : undefined;
 
-      this.adapter = new CloudAdapter(
+      this.cloudAdapter = new CloudAdapter(
         new ConfigurationBotFrameworkAuthentication(
           {},
           new ConfigurationServiceClientCredentialFactory({
@@ -101,7 +101,7 @@ export class BotBuilderPlugin extends HttpPlugin {
     res: express.Response,
     next: express.NextFunction
   ) {
-    if (!this.adapter) {
+    if (!this.cloudAdapter) {
       throw new Error('plugin not registered');
     }
 
@@ -120,7 +120,7 @@ export class BotBuilderPlugin extends HttpPlugin {
         };
       }
 
-      await this.adapter.process(req, res, async (context) => {
+      await this.cloudAdapter.process(req, res, async (context) => {
         if (!context.activity.id) return;
 
         if (this.handler) {
@@ -133,8 +133,7 @@ export class BotBuilderPlugin extends HttpPlugin {
 
         const response = await this.$onActivity({
           token,
-          body:
-            new $Activity(context.activity as any) as Activity,
+          body: new $Activity(context.activity as any) as Activity,
         });
 
         res.status(response.status || 200).send(response.body);
