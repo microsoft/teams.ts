@@ -201,8 +201,10 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 
   constructor(value: IBaseActivityContextOptions) {
-    Object.assign(this, value);
-    this._send = value.send;
+    // Extract send before Object.assign to avoid overwriting the send() method
+    const { send, ...rest } = value;
+    Object.assign(this, rest);
+    this._send = send;
     this.connectionName = value.connectionName;
 
     if (value.activity.type === 'message') {
