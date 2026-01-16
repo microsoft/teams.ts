@@ -18,6 +18,11 @@ class TestApp extends App {
   public async testSend(conversationId: string, activity: any) {
     return this.send(conversationId, activity);
   }
+
+  // Expose activitySender for mocking (it's protected, so we expose it publicly)
+  public get testActivitySender() {
+    return this.activitySender;
+  }
 }
 
 describe('App', () => {
@@ -120,9 +125,9 @@ describe('App', () => {
 
       await app.start();
 
-      // Mock the http.send method
+      // Mock the activitySender.send method
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
-      jest.spyOn(app.http, 'send').mockImplementation(mockSend);
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
       await app.testSend('conversation-id', { text: 'Hello' });
 
@@ -145,9 +150,9 @@ describe('App', () => {
 
       await app.start();
 
-      // Mock the http.send method
+      // Mock the activitySender.send method
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
-      jest.spyOn(app.http, 'send').mockImplementation(mockSend);
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
       await app.testSend('conversation-id', { text: 'Hello' });
 

@@ -1,4 +1,4 @@
-import { HttpStream } from './stream';
+import { HttpStream } from './http-stream';
 
 describe('HttpStream', () => {
   let client: any;
