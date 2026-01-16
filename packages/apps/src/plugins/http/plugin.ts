@@ -51,6 +51,16 @@ export class HttpPlugin extends ConfigurableHttpPlugin {
   }
 
   /**
+   * serve static files
+   * @param path the url path to serve
+   * @param dist the dist file path to serve
+   */
+  static(path: string, dist: string) {
+    this.expressAdapter.static(path, dist);
+    return this;
+  }
+
+  /**
    * Override initialization to add manifest route (backwards compatibility)
    */
   protected async ensureInitialized() {
@@ -72,15 +82,5 @@ export class HttpPlugin extends ConfigurableHttpPlugin {
         });
       }
     });
-  }
-
-  /**
-   * serve static files
-   * @param path the url path to serve
-   * @param dist the dist file path to serve
-   */
-  static(path: string, dist: string) {
-    this.expressAdapter.static(path, dist);
-    return this;
   }
 }
