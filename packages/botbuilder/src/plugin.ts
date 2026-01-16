@@ -71,8 +71,8 @@ export class BotBuilderPlugin extends HttpPlugin {
     this.handler = options?.handler;
   }
 
-  onInit() {
-    super.onInit();
+  async onInit() {
+    await super.onInit();
     if (!this.adapter) {
       const clientId = this.credentials?.clientId;
       const clientSecret =

@@ -33,11 +33,10 @@ describe('App', () => {
     it('should return status 200 if no route matches', async () => {
       const event: IActivityEvent = {
         token: token,
-        activity: activity,
-        sender: senderPlugin,
+        body: activity,
       };
 
-      const response = await app.process(senderPlugin, event);
+      const response = await app.process(event);
       expect(response.status).toBe(200);
       expect(response.body).toBeUndefined();
     });
@@ -45,8 +44,7 @@ describe('App', () => {
     it('should return an invoke response', async () => {
       const event: IActivityEvent = {
         token: token,
-        activity: activity,
-        sender: senderPlugin,
+        body: activity,
       };
 
       app.use(() => {
@@ -58,7 +56,7 @@ describe('App', () => {
         return response;
       });
 
-      const response = await app.process(senderPlugin, event);
+      const response = await app.process(event);
       expect(response.status).toBe(413);
       expect(response.body).toEqual({ result: 'success' });
     });
@@ -72,8 +70,7 @@ describe('App', () => {
 
       const event: IActivityEvent = {
         token: token,
-        activity: taskFetchInvokeActivity,
-        sender: senderPlugin,
+        body: taskFetchInvokeActivity,
       };
 
       const dialogOpenResponse: TaskModuleResponse = {
@@ -88,7 +85,7 @@ describe('App', () => {
         return dialogOpenResponse;
       });
 
-      const response = await app.process(senderPlugin, event);
+      const response = await app.process(event);
       expect(response.status).toBe(200);
       expect(response.body).toEqual(dialogOpenResponse);
     });
@@ -96,15 +93,14 @@ describe('App', () => {
     it('should return 500 status response if an error is thrown', async () => {
       const event: IActivityEvent = {
         token: token,
-        activity: activity,
-        sender: senderPlugin,
+        body: activity,
       };
 
       app.use(() => {
         throw new Error('Test error');
       });
 
-      const response = await app.process(senderPlugin, event);
+      const response = await app.process(event);
       expect(response.status).toBe(500);
       expect(response.body).toBeUndefined();
     });
