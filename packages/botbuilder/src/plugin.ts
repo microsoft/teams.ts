@@ -134,7 +134,8 @@ export class BotBuilderPlugin extends HttpPlugin {
         const response = await this.$onActivity({
           sender: this,
           token,
-          activity: new $Activity(context.activity as any) as Activity,
+          body:
+            new $Activity(context.activity as any) as Activity,
         });
 
         res.status(response.status || 200).send(response.body);
