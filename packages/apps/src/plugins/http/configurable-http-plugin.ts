@@ -58,39 +58,15 @@ export class ConfigurableHttpPlugin {
   }
   protected _port?: number | string;
 
-  private adapter: IHttpAdapter;
   protected skipAuth: boolean;
   protected initialized: boolean = false;
+
+  private adapter: IHttpAdapter;
 
   constructor(adapter: IHttpAdapter, options?: { skipAuth?: boolean }) {
     this.adapter = adapter;
     this._server = adapter.getServer();
     this.skipAuth = options?.skipAuth ?? false;
-  }
-
-  /**
-   * Ensure adapter is initialized (only runs once)
-   */
-  protected async ensureInitialized() {
-    if (this.initialized) {
-      return;
-    }
-
-    // Framework-specific initialization (e.g., Next.js prepare)
-    if (this.adapter.initialize) {
-      await this.adapter.initialize();
-    }
-
-    // Register Teams bot endpoint
-    this.adapter.registerRoute({
-      method: 'post',
-      path: '/api/messages',
-      handler: async (helpers) => {
-        await this.handleActivity(helpers);
-      }
-    });
-
-    this.initialized = true;
   }
 
   /**
@@ -133,6 +109,31 @@ export class ConfigurableHttpPlugin {
    */
   onStop() {
     this._server.close();
+  }
+
+  /**
+   * Ensure adapter is initialized (only runs once)
+   */
+  protected async ensureInitialized() {
+    if (this.initialized) {
+      return;
+    }
+
+    // Framework-specific initialization (e.g., Next.js prepare)
+    if (this.adapter.initialize) {
+      await this.adapter.initialize();
+    }
+
+    // Register Teams bot endpoint
+    this.adapter.registerRoute({
+      method: 'post',
+      path: '/api/messages',
+      handler: async (helpers) => {
+        await this.handleActivity(helpers);
+      }
+    });
+
+    this.initialized = true;
   }
 
   /**
