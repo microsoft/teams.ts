@@ -15,6 +15,11 @@ export async function $process<TPlugin extends IPlugin>(
   event: IActivityEvent
 ): Promise<InvokeResponse> {
   const { token, body } = event;
+
+  if (!body) {
+    throw new Error('Activity body is required');
+  }
+
   // TODO: We currently simply cast the models to Activity,
   // but we should probably be validating this conversion
   const activity = body as Activity;
