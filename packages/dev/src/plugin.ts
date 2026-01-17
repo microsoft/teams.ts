@@ -7,7 +7,7 @@ import * as uuid from 'uuid';
 
 import { WebSocket, WebSocketServer } from 'ws';
 
-import { IToken } from '@microsoft/teams.api';
+import { InvokeResponse, IToken } from '@microsoft/teams.api';
 import {
   HttpPlugin,
   Logger,
@@ -62,7 +62,7 @@ export class DevtoolsPlugin {
   readonly $onError!: (event: IErrorEvent) => void;
 
   @Event('activity')
-  readonly $onActivity!: (event: IActivityEvent) => void;
+  readonly $onActivity!: (event: IActivityEvent) => Promise<InvokeResponse>;
 
   protected http: http.Server;
   protected express: express.Application;
@@ -119,6 +119,10 @@ export class DevtoolsPlugin {
             this.$onActivity({
               token,
               body: activity,
+            }).catch((err) => {
+              this.log.error('Error processing activity:', err);
+              reject(err);
+              delete this.pending[activity.id];
             });
           });
         },

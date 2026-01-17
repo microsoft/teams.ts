@@ -143,24 +143,31 @@ export class HttpPlugin {
     res: express.Response,
     _next: express.NextFunction
   ) {
-    let token: IToken | undefined;
-    if (req.validatedToken) {
-      token = req.validatedToken;
-    } else {
-      token = {
-        appId: '',
-        from: 'azure',
-        fromId: '',
-        serviceUrl: req.body.serviceUrl || '',
-        isExpired: () => false,
-      };
+    try {
+      let token: IToken | undefined;
+      if (req.validatedToken) {
+        token = req.validatedToken;
+      } else {
+        token = {
+          appId: '',
+          from: 'azure',
+          fromId: '',
+          serviceUrl: req.body.serviceUrl || '',
+          isExpired: () => false,
+        };
+      }
+
+      const response = await this.$onActivity({
+        body: req.body,
+        token,
+      });
+
+      res.status(response.status || 200).send(response.body);
+    } catch (err) {
+      this.logger.error('Error processing activity:', err);
+      if (!res.headersSent) {
+        res.status(500).send({ error: 'Internal server error' });
+      }
     }
-
-    const response = await this.$onActivity({
-      body: req.body,
-      token,
-    });
-
-    res.status(response.status || 200).send(response.body);
   }
 }

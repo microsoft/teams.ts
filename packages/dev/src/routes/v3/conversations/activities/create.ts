@@ -24,6 +24,24 @@ export function create({ port, log, process }: RouteContext) {
     }
 
     try {
+      const activity = {
+        ...req.body,
+        type: req.body.type || 'message',
+        id: req.body.id || uuid.v4(),
+        channelId: 'msteams',
+        from: {
+          id: 'devtools',
+          name: 'devtools',
+          role: 'user',
+        },
+        conversation: {
+          id: req.params.conversationId,
+          conversationType: 'personal',
+          isGroup: false,
+          name: 'default',
+        },
+      };
+
       process(
         new JsonWebToken(
           jwt.sign(
@@ -33,22 +51,7 @@ export function create({ port, log, process }: RouteContext) {
             'secret'
           )
         ),
-        {
-          ...req.body,
-          id: req.body.id || uuid.v4(),
-          channelId: 'msteams',
-          from: {
-            id: 'devtools',
-            name: 'devtools',
-            role: 'user',
-          },
-          conversation: {
-            id: req.params.conversationId,
-            conversationType: 'personal',
-            isGroup: false,
-            name: 'default',
-          },
-        }
+        activity as Activity
       );
 
       res.status(201).send({ id });
