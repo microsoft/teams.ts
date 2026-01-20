@@ -14,6 +14,7 @@ import { IChatPrompt } from '@microsoft/teams.ai';
 import {
   Dependency,
   ExpressAdapter,
+  HttpServer,
   IHttpServer,
   IPlugin,
   IPluginStartEvent,
@@ -113,7 +114,7 @@ export class McpPlugin implements IPlugin {
   @Logger()
   readonly logger!: ILogger;
 
-  @Dependency()
+  @HttpServer()
   readonly httpServer!: IHttpServer;
 
   @Dependency({ optional: true })
