@@ -12,7 +12,7 @@ import {
   Dependency,
   Event,
   ExpressAdapter,
-  HttpServer,
+  IHttpServer,
   IActivityEvent,
   IErrorEvent,
   IPlugin,
@@ -43,7 +43,7 @@ export class BotBuilderPlugin implements IPlugin {
   declare readonly client: $http.Client;
 
   @Dependency()
-  declare readonly httpServer: HttpServer;
+  declare readonly httpServer: IHttpServer;
 
   @Dependency()
   declare readonly manifest: Partial<manifest.Manifest>;

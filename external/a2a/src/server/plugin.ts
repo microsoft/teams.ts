@@ -18,7 +18,7 @@ import {
   EmitPluginEvent,
   Event,
   ExpressAdapter,
-  HttpServer,
+  IHttpServer,
   IPlugin,
   Logger,
   Plugin,
@@ -78,7 +78,7 @@ export class A2APlugin implements IPlugin {
   protected readonly emit!: EmitPluginEvent<A2AEvents>;
 
   @Dependency()
-  protected readonly httpServer!: HttpServer;
+  protected readonly httpServer!: IHttpServer;
 
   __eventType!: A2AEvents;
 

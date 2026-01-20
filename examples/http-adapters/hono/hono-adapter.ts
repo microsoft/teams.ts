@@ -1,6 +1,6 @@
 import http from 'http';
 import { Hono, Context } from 'hono';
-import { IHttpAdapter, IRouteConfig } from '@microsoft/teams.apps/dist/plugins/http/adapter';
+import { IHttpAdapter, IRouteConfig } from '@microsoft/teams.apps/dist/http/adapter';
 
 /**
  * Hono adapter for HttpServer

@@ -4,7 +4,7 @@ This example demonstrates how to use **teams.ts** with different HTTP frameworks
 
 ## What is an HTTP Adapter?
 
-An HTTP adapter bridges a specific HTTP framework (Express, Hono, Next.js, etc.) with the teams.ts `ConfigurableHttpPlugin`. This allows you to:
+An HTTP adapter bridges a specific HTTP framework (Express, Hono, Next.js, etc.) with teams.ts. This allows you to:
 
 - ✅ Use any HTTP framework you prefer
 - ✅ Co-locate your bot with existing web applications
@@ -65,8 +65,7 @@ All adapters start on `http://localhost:3978` with the Teams bot endpoint at `/a
 │   teams.ts App  │
 │                 │
 │  ┌───────────┐  │
-│  │Configurable│ │  ← Generic plugin (framework-agnostic)
-│  │HttpPlugin  │  │
+│  │HttpServer │  │  ← Teams bot infrastructure (framework-agnostic)
 │  └─────┬──────┘  │
 └────────┼─────────┘
          │
@@ -197,7 +196,7 @@ interface IHttpAdapter {
 All adapters follow the same pattern:
 
 ```typescript
-import { App, HttpServer } from '@microsoft/teams.apps';
+import { App } from '@microsoft/teams.apps';
 import { MyAdapter } from './my-adapter';
 
 // 1. Create adapter
@@ -205,7 +204,7 @@ const adapter = new MyAdapter();
 
 // 2. Create teams.ts app with adapter
 const app = new App({
-  server: new HttpServer(adapter)
+  httpAdapter: adapter
 });
 
 // 3. Start the app

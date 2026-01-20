@@ -3,10 +3,9 @@ import http from 'http';
 import express from 'express';
 
 import pkg from '../../../package.json';
+import { ExpressAdapter } from '../../http';
+import { HttpServer } from '../../http/http-server';
 import { Plugin } from '../../types';
-
-import { ExpressAdapter } from './express-adapter';
-import { HttpServer } from './http-server';
 
 /**
  * @deprecated Will be deprecated. Use HttpServer instead:

@@ -13,8 +13,8 @@ import {
 } from '@microsoft/teams.api';
 import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/teams.common';
 
-import { IStreamer, IStreamerEvents } from './types';
-import { promises } from './utils';
+import { IStreamer, IStreamerEvents } from '../types';
+import { promises } from '../utils';
 
 /**
  * HTTP-based streaming implementation for Microsoft Teams activities.
