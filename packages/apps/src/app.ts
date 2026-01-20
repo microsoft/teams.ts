@@ -341,14 +341,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       if (!server) {
         throw new Error('HttpPlugin.asServer() returned undefined');
       }
-    }
-    // Explicit httpAdapter option
-    else if (this.options.httpAdapter) {
-      server = new HttpServer(this.options.httpAdapter, { skipAuth: this.options.skipAuth });
-    }
-    // Default: create Express server
-    else {
-      server = new HttpServer(new ExpressAdapter(), { skipAuth: this.options.skipAuth });
+    } else {
+      server = new HttpServer(this.options.httpAdapter ?? new ExpressAdapter(), { skipAuth: this.options.skipAuth });
     }
 
     // Always set this.server
@@ -426,21 +420,20 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       return;
     }
 
-    // initialize server (register routes)
-    await this.server.initialize({
-      logger: this.log,
-      credentials: this.credentials,
-    });
-
     // initialize plugins
     for (const plugin of this.plugins) {
-      // inject dependencies
       this.inject(plugin);
 
       if (plugin.onInit) {
         await plugin.onInit();
       }
     }
+
+    // initialize server
+    await this.server.initialize({
+      logger: this.log,
+      credentials: this.credentials,
+    });
 
     this.isInitialized = true;
   }

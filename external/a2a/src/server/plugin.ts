@@ -14,10 +14,10 @@ import { A2AExpressApp } from '@a2a-js/sdk/server/express';
 import express, { RequestHandler } from 'express';
 
 import {
-  Dependency,
   EmitPluginEvent,
   Event,
   ExpressAdapter,
+  HttpServer,
   IHttpServer,
   IPlugin,
   Logger,
@@ -77,7 +77,7 @@ export class A2APlugin implements IPlugin {
   @Event('custom')
   protected readonly emit!: EmitPluginEvent<A2AEvents>;
 
-  @Dependency()
+  @HttpServer()
   protected readonly httpServer!: IHttpServer;
 
   __eventType!: A2AEvents;
