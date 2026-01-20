@@ -42,7 +42,7 @@ import { HttpServer } from './http/http-server';
 import * as manifest from './manifest';
 import * as middleware from './middleware';
 import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
-import { HttpPlugin } from './plugins';
+import { HttpPlugin, HttpServer, ExpressAdapter } from './plugins';
 import { Router } from './router';
 import { TokenManager } from './token-manager';
 import { IPlugin, AppEvents } from './types';
