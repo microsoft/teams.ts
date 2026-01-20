@@ -1,4 +1,4 @@
-# @examples/echo
+# @examples/meetings
 
 ## 0.0.6
 
