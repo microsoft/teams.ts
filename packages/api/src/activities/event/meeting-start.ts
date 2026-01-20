@@ -11,28 +11,28 @@ export interface IMeetingStartEventActivity extends IActivity<'event'> {
    */
   value: {
     /**
-     * @member {string} [id] The meeting's Id, encoded as a BASE64 string.
+     * @member {string} [Id] The meeting's Id, encoded as a BASE64 string.
      */
-    id: string;
+    Id: string;
 
     /**
-     * @member {string} [meetingType] The meeting's type.
+     * @member {string} [MeetingType] The meeting's type.
      */
-    meetingType: string;
+    MeetingType: string;
 
     /**
-     * @member {string} [joinUrl] The URL used to join the meeting.
+     * @member {string} [JoinUrl] The URL used to join the meeting.
      */
-    joinUrl: string;
+    JoinUrl: string;
 
     /**
-     * @member {string} [title] The title of the meeting.
+     * @member {string} [Title] The title of the meeting.
      */
-    title: string;
+    Title: string;
 
     /**
-     * @member {Date} [startTime] Timestamp for meeting start, in UTC.
+     * @member {Date} [StartTime] Timestamp for meeting start, in UTC.
      */
-    startTime: Date;
+    StartTime: Date;
   };
 }
