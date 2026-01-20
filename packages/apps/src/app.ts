@@ -396,12 +396,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * initialize the app.
    */
   async initialize() {
-    // initialize server (register routes)
-    await this.server.initialize({
-      logger: this.log,
-      credentials: this.credentials,
-    });
-
     // initialize plugins
     for (const plugin of this.plugins) {
       this.inject(plugin);
