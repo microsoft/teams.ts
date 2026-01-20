@@ -6,7 +6,7 @@ import {
 
 import { ILogger } from '@microsoft/teams.common';
 
-import { IActivityEvent } from '../../events';
+import { IActivityEvent } from '../events';
 
 import { IHttpAdapter, IRequestHelpers, IRouteConfig } from './adapter';
 
@@ -15,9 +15,32 @@ export type HttpServerOptions = {
 };
 
 /**
+ * Interface for HTTP server - exposed to plugins
+ */
+export interface IHttpServer {
+  /**
+   * Get the underlying adapter
+   * Useful for plugins that need adapter-specific features
+   */
+  readonly adapter: IHttpAdapter;
+
+  /**
+   * Register a route with the HTTP server
+   * Framework-agnostic way to add routes
+   */
+  registerRoute(config: IRouteConfig): void;
+
+  /**
+   * Serve static files from a directory
+   * Useful for plugins that need to serve UI assets
+   */
+  serveStatic(path: string, directory: string): void;
+}
+
+/**
  * Configurable HTTP server for receiving Teams activities
  */
-export class HttpServer {
+export class HttpServer implements IHttpServer {
   /**
    * Callback invoked when a valid activity request arrives
    * App should set this to process activities

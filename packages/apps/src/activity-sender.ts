@@ -2,8 +2,8 @@ import { ActivityParams, Client, ConversationReference, SentActivity } from '@mi
 import * as $http from '@microsoft/teams.common/http';
 import { ILogger } from '@microsoft/teams.common/logging';
 
-import { HttpStream } from './http-stream';
-import { IActivitySender, IStreamer } from './types';
+import { HttpStream } from './http/http-stream';
+import { IStreamer, IActivitySender } from './types';
 
 /**
  * Handles sending activities to the Bot Framework

@@ -1,8 +1,8 @@
 import http from 'http';
 
 import { App } from '../../app';
+import { HttpServer } from '../../http/http-server';
 
-import { HttpServer } from './http-server';
 import { HttpPlugin } from './plugin';
 
 describe('HttpPlugin', () => {

@@ -89,7 +89,7 @@ hono.get('/api/users', (c) => {
 ### 2. Hook Into teams.ts
 
 ```typescript
-import { App, HttpServer } from '@microsoft/teams.apps';
+import { App } from '@microsoft/teams.apps';
 import { HonoAdapter } from './hono-adapter';
 
 // Pass YOUR Hono app to the adapter
@@ -97,7 +97,7 @@ const adapter = new HonoAdapter(hono);
 
 // Create teams.ts app
 const app = new App({
-  server: new HttpServer(adapter)
+  httpAdapter: adapter
 });
 
 // Handle bot messages

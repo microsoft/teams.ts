@@ -37,10 +37,12 @@ import { $process } from './app.process';
 import { message, on, use } from './app.routing';
 import { Container } from './container';
 import { IActivityEvent } from './events';
+import { ExpressAdapter, IHttpAdapter } from './http';
+import { HttpServer } from './http/http-server';
 import * as manifest from './manifest';
 import * as middleware from './middleware';
 import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
-import { HttpPlugin, HttpServer, ExpressAdapter } from './plugins';
+import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { TokenManager } from './token-manager';
 import { IPlugin, AppEvents } from './types';
@@ -115,10 +117,9 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly plugins?: Array<TPlugin>;
 
   /**
-   * HTTP server instance (recommended)
-   * Use this instead of HttpPlugin in plugins array
+   * HTTP adapter for handling bot requests
    */
-  readonly server?: HttpServer;
+  readonly httpAdapter?: IHttpAdapter;
 
   /**
    * OAuth Settings
@@ -318,12 +319,12 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       return meta.name === 'http';
     }) as HttpPlugin | undefined;
 
-    // Error if both server and http plugin are provided
-    if (this.options.server && httpPlugin) {
+    // Error if both httpAdapter and http plugin are provided
+    if (this.options.httpAdapter && httpPlugin) {
       throw new Error(
-        'Cannot provide both server option and HttpPlugin in plugins array. ' +
+        'Cannot provide both httpAdapter option and HttpPlugin in plugins array. ' +
         'Use either:\n' +
-        '  - new App({ server: new HttpServer(new ExpressAdapter()) }) (recommended)\n' +
+        '  - new App({ httpAdapter: new ExpressAdapter() }) (recommended)\n' +
         '  - new App({ plugins: [new HttpPlugin()] }) (deprecated)'
       );
     }
@@ -332,8 +333,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     // HttpPlugin in plugins array (backwards compatibility)
     if (httpPlugin) {
-      this.log.warn('[DEPRECATED] HttpPlugin in plugins array will be deprecated. Use server option instead:\n' +
-        '  new App({ server: new HttpServer(new ExpressAdapter()) })');
+      this.log.warn('[DEPRECATED] HttpPlugin in plugins array will be deprecated. Use httpAdapter option instead:\n' +
+        '  new App({ httpAdapter: new ExpressAdapter() })');
       this.http = httpPlugin;
       // Extract internal server and always set this.server
       server = (httpPlugin as any).asServer?.();
@@ -341,9 +342,9 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         throw new Error('HttpPlugin.asServer() returned undefined');
       }
     }
-    // Explicit server option
-    else if (this.options.server) {
-      server = this.options.server;
+    // Explicit httpAdapter option
+    else if (this.options.httpAdapter) {
+      server = new HttpServer(this.options.httpAdapter, { skipAuth: this.options.skipAuth });
     }
     // Default: create Express server
     else {
@@ -369,7 +370,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     });
 
     // Register HttpServer for plugins that need HTTP capabilities
-    this.container.register('HttpServer', { useValue: server });
+    this.container.register('IHttpServer', { useValue: server });
 
     // Register all plugins (including HttpPlugin if using old way)
     for (const plugin of plugins) {

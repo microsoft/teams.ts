@@ -1,6 +1,6 @@
 import http from 'http';
 import express from 'express';
-import { App, HttpServer, ExpressAdapter } from '@microsoft/teams.apps';
+import { App, ExpressAdapter } from '@microsoft/teams.apps';
 
 // 1. Create your existing Express app with routes
 export const expressApp = express();
@@ -39,15 +39,12 @@ expressApp.get('/', (req, res) => {
 // 2. Create Express adapter with your existing server
 export const adapter = new ExpressAdapter(httpServer);
 
-// 3. Create HTTP server with the adapter
-export const server = new HttpServer(adapter);
-
-// 4. Create teams.ts app with the HTTP server
+// 3. Create teams.ts app with the adapter
 export const app = new App({
-  server
+  httpAdapter: adapter
 });
 
-// 5. Handle incoming messages
+// 4. Handle incoming messages
 app.on('message', async ({ send, activity }) => {
   await send(`Echo from Express server: ${activity.text}`);
 });

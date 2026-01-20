@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { App, HttpServer } from '@microsoft/teams.apps';
+import { App } from '@microsoft/teams.apps';
 import { HonoAdapter } from './hono-adapter';
 
 // 1. Create your Hono app with your own routes
@@ -38,15 +38,12 @@ hono.get('/', (c) => {
 // 2. Create Hono adapter with your Hono app
 export const adapter = new HonoAdapter(hono);
 
-// 3. Create HTTP server with the adapter
-export const server = new HttpServer(adapter);
-
-// 4. Create teams.ts app with the HTTP server
+// 3. Create teams.ts app with the adapter
 export const app = new App({
-  server
+  httpAdapter: adapter
 });
 
-// 5. Handle Teams bot messages
+// 4. Handle Teams bot messages
 app.on('message', async ({ send, activity }) => {
   await send(`Echo from Hono server: ${activity.text}`);
 });

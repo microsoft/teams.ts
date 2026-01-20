@@ -1,6 +1,6 @@
 import http from 'http';
 import next from 'next';
-import { IHttpAdapter, IRouteConfig } from '@microsoft/teams.apps/dist/plugins/http/adapter';
+import { IHttpAdapter, IRouteConfig } from '@microsoft/teams.apps/dist/http/adapter';
 
 /**
  * Next.js adapter for HttpServer
