@@ -7,6 +7,7 @@ import {
 import { ILogger } from '@microsoft/teams.common';
 
 import { IActivityEvent } from '../events';
+import { createServiceTokenValidator, JwtValidator } from '../middleware/auth/jwt-validator';
 
 import { IHttpAdapter, IRequestHelpers, IRouteConfig } from './adapter';
 
@@ -51,6 +52,7 @@ export class HttpServer implements IHttpServer {
   protected credentials?: Credentials;
   protected skipAuth: boolean;
   protected initialized: boolean = false;
+  protected jwtValidator?: JwtValidator;
 
   private _adapter: IHttpAdapter;
 
@@ -83,6 +85,16 @@ export class HttpServer implements IHttpServer {
 
     this.logger = deps.logger;
     this.credentials = deps.credentials;
+
+    // Initialize JWT validator if credentials provided and auth not skipped
+    if (this.credentials && !this.skipAuth) {
+      this.jwtValidator = createServiceTokenValidator(
+        this.credentials.clientId,
+        this.credentials.tenantId,
+        undefined, // serviceUrl will be validated from activity body
+        this.logger
+      );
+    }
 
     // Framework-specific initialization (e.g., Next.js prepare)
     await this._adapter.initialize();
@@ -196,17 +208,34 @@ export class HttpServer implements IHttpServer {
 
   /**
    * Validate JWT token
-   * Uses existing withJwtValidation middleware logic
+   * Uses JwtValidator for proper Bot Framework token validation
    */
-  protected async validateJwt(_authHeader: string, body: any): Promise<IToken> {
-    // TODO: Implement proper JWT validation using withJwtValidation middleware
-    // For now, return a basic token with credentials info
+  protected async validateJwt(authHeader: string, body: any): Promise<IToken> {
+    if (!this.jwtValidator) {
+      throw new Error('JWT validator not initialized - credentials required');
+    }
+
+    // Extract token from "Bearer <token>" format
+    const token = authHeader.startsWith('Bearer ')
+      ? authHeader.substring(7)
+      : authHeader;
+
+    // Validate token using service token validator
+    const payload = await this.jwtValidator.validateAccessToken(token, {
+      validateServiceUrl: body.serviceUrl ? { expectedServiceUrl: body.serviceUrl } : undefined
+    });
+
+    if (!payload) {
+      throw new Error('Invalid token');
+    }
+
+    // Convert JWT payload to IToken
     return {
-      appId: this.credentials?.clientId || '',
+      appId: payload.appid as string || this.credentials?.clientId || '',
       from: 'azure',
-      fromId: '',
-      serviceUrl: body.serviceUrl || '',
-      isExpired: () => false,
+      fromId: payload.sub as string || '',
+      serviceUrl: body.serviceUrl || payload.serviceurl as string || '',
+      isExpired: () => false, // Already validated by JWT validator
     };
   }
 }
