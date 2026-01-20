@@ -47,7 +47,7 @@ export class BotBuilderPlugin implements IPlugin {
   declare readonly httpServer: IHttpServer;
 
   @Dependency()
-  declare readonly httpServer: HttpServer;
+  declare readonly httpServer: IHttpServer;
 
   @Dependency()
   declare readonly manifest: Partial<manifest.Manifest>;

@@ -43,7 +43,7 @@ export const app = new App({
   httpAdapter: adapter
 });
 
-// 5. Handle Teams bot messages
+// 4. Handle Teams bot messages
 app.on('message', async ({ send, activity }) => {
   await send(`Echo from Hono server: ${activity.text}`);
 });
