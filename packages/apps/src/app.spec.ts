@@ -169,4 +169,80 @@ describe('App', () => {
       ).rejects.toThrow('app not started');
     });
   });
+
+  describe('service URL configuration', () => {
+    const originalEnv = process.env.SERVICE_URL;
+
+    afterEach(() => {
+      if (originalEnv === undefined) {
+        delete process.env.SERVICE_URL;
+      } else {
+        process.env.SERVICE_URL = originalEnv;
+      }
+    });
+
+    it('should use default service URL when no configuration provided', () => {
+      delete process.env.SERVICE_URL;
+
+      const app = new App({
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        plugins: [new TestHttpPlugin()],
+      });
+
+      expect(app.api.serviceUrl).toBe('https://smba.trafficmanager.net/teams');
+    });
+
+    it('should use service URL from environment variable', () => {
+      process.env.SERVICE_URL = 'https://custom.service.url/teams';
+
+      const app = new App({
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        plugins: [new TestHttpPlugin()],
+      });
+
+      expect(app.api.serviceUrl).toBe('https://custom.service.url/teams');
+    });
+
+    it('should use service URL from options when provided', () => {
+      process.env.SERVICE_URL = 'https://env.service.url/teams';
+
+      const app = new App({
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        serviceUrl: 'https://options.service.url/teams',
+        plugins: [new TestHttpPlugin()],
+      });
+
+      expect(app.api.serviceUrl).toBe('https://options.service.url/teams');
+    });
+
+    it('should prioritize options > env > default', () => {
+      delete process.env.SERVICE_URL;
+
+      const app1 = new App({
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        plugins: [new TestHttpPlugin()],
+      });
+      expect(app1.api.serviceUrl).toBe('https://smba.trafficmanager.net/teams');
+
+      process.env.SERVICE_URL = 'https://env.service.url/teams';
+      const app2 = new App({
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        plugins: [new TestHttpPlugin()],
+      });
+      expect(app2.api.serviceUrl).toBe('https://env.service.url/teams');
+
+      const app3 = new App({
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        serviceUrl: 'https://options.service.url/teams',
+        plugins: [new TestHttpPlugin()],
+      });
+      expect(app3.api.serviceUrl).toBe('https://options.service.url/teams');
+    });
+  });
 });

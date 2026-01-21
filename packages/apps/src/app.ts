@@ -127,6 +127,13 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly skipAuth?: boolean;
 
   /**
+   * Base Service URL for BotBackend
+   * Uses environment variable SERVICE_URL  if not provided
+   * and defaults to https://smba.trafficmanager.net/teams
+   */
+  readonly serviceUrl?: string;
+
+  /**
    * API client settings used for overriding.
    */
   readonly apiClientSettings?: ApiClientSettings
@@ -253,8 +260,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       });
     }
 
+    const serviceUrl = this.options.serviceUrl ?? process.env.SERVICE_URL ??
+      'https://smba.trafficmanager.net/teams';
     this.api = new ApiClient(
-      'https://smba.trafficmanager.net/teams',
+      serviceUrl,
       this.client.clone({ token: () => this.getBotToken() }),
       this.options.apiClientSettings
     );
