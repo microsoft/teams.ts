@@ -52,6 +52,10 @@ describe('App', () => {
       });
     });
 
+    afterEach(async () => {
+      await app.stop();
+    });
+
     it('should acquire bot token via TokenManager', async () => {
       const mockAcquireToken = jest.fn().mockResolvedValue({
         accessToken: mockBotToken,
@@ -111,6 +115,10 @@ describe('App', () => {
 
   describe('send', () => {
     let app: TestApp;
+
+    afterEach(async () => {
+      await app.stop();
+    });
 
     it('should send message without manifest.name configured', async () => {
       app = new TestApp({

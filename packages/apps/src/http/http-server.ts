@@ -27,10 +27,10 @@ export interface IHttpServer {
   readonly adapter: IHttpAdapter;
 
   /**
-   * Register a route with the HTTP server
+   * Register a route handler with the HTTP server
    * Framework-agnostic way to add routes
    */
-  registerRoute(config: IRouteConfig): void;
+  registerRouteHandler(config: IRouteConfig): void;
 
   /**
    * Serve static files from a directory
@@ -97,10 +97,12 @@ export class HttpServer implements IHttpServer {
     }
 
     // Framework-specific initialization (e.g., Next.js prepare)
-    await this._adapter.initialize();
+    if (this._adapter.initialize) {
+      await this._adapter.initialize();
+    }
 
     // Register Teams bot endpoint
-    this._adapter.registerRoute({
+    this._adapter.registerRouteHandler({
       method: 'post',
       path: '/api/messages',
       handler: async (helpers) => {
@@ -117,16 +119,35 @@ export class HttpServer implements IHttpServer {
    */
   async start(port: number | string) {
     const portNumber = typeof port === 'string' ? parseInt(port, 10) : port;
+    if (!this._adapter.start) {
+      throw new Error(
+        'Adapter does not implement start(). ' +
+        'Either implement start() in your adapter, or manage server lifecycle manually.'
+      );
+    }
     await this._adapter.start(portNumber);
     this.logger.info(`listening on port ${port} 🚀`);
   }
 
   /**
-   * Register a route with the adapter
+   * Stop the HTTP server
+   * Called by App.stop() if implemented
+   */
+  async stop() {
+    if (!this._adapter.stop) {
+      this.logger.warn('Adapter does not implement stop(). Skipping server shutdown.');
+      return;
+    }
+    await this._adapter.stop();
+    this.logger.info('server stopped');
+  }
+
+  /**
+   * Register a route handler with the adapter
    * Used by app.function() and other app methods
    */
-  registerRoute(config: IRouteConfig) {
-    this._adapter.registerRoute(config);
+  registerRouteHandler(config: IRouteConfig) {
+    this._adapter.registerRouteHandler(config);
   }
 
   /**
@@ -134,7 +155,9 @@ export class HttpServer implements IHttpServer {
    * Used by app.tab() and other app methods
    */
   serveStatic(path: string, directory: string) {
-    this._adapter.serveStatic(path, directory);
+    if (this._adapter.serveStatic) {
+      this._adapter.serveStatic(path, directory);
+    }
   }
 
 

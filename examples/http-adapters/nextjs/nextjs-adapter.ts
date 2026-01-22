@@ -14,13 +14,11 @@ import { IHttpAdapter, IRouteConfig } from '@microsoft/teams.apps/dist/http/adap
 export class NextjsAdapter implements IHttpAdapter {
   protected nextApp: ReturnType<typeof next>;
   protected server: http.Server;
-  protected isUserProvidedServer: boolean;
   protected routes: Map<string, IRouteConfig> = new Map();
   protected dev: boolean;
   protected requestHandlerAttached: boolean = false;
 
   constructor(server?: http.Server, options?: { dev?: boolean; dir?: string }) {
-    this.isUserProvidedServer = !!server;
     this.dev = options?.dev ?? process.env.NODE_ENV !== 'production';
 
     // Create Next.js app
@@ -29,22 +27,15 @@ export class NextjsAdapter implements IHttpAdapter {
       dir: options?.dir
     });
 
-    // Always create or use the server in constructor
-    // ConfigurableHttpPlugin needs it immediately
-    if (server) {
-      // User-provided server
-      this.server = server;
-    } else {
-      // Create placeholder server now, will attach handlers in initialize()
-      this.server = http.createServer();
-    }
+    // Create server
+    this.server = server || http.createServer();
   }
 
   /**
-   * Register a route with the adapter
+   * Register a route handler with the adapter
    * Routes are stored and handled before Next.js gets the request
    */
-  registerRoute(config: IRouteConfig): void {
+  registerRouteHandler(config: IRouteConfig): void {
     const key = `${config.method.toUpperCase()}:${config.path}`;
     this.routes.set(key, config);
   }
@@ -122,22 +113,29 @@ export class NextjsAdapter implements IHttpAdapter {
   }
 
   /**
-   * Start the server
-   * Throws if server was user-provided
+   * Start the server listening on the specified port
    */
   async start(port: number): Promise<void> {
-    if (this.isUserProvidedServer) {
-      throw new Error(
-        'Cannot call start() when server was provided by user. ' +
-        'User should call server.listen() directly.'
-      );
-    }
-
     return new Promise<void>((resolve, reject) => {
       this.server.listen(port, () => {
         resolve();
       });
       this.server.once('error', reject);
+    });
+  }
+
+  /**
+   * Stop the server and close all connections
+   */
+  async stop(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.server.close((err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
     });
   }
 

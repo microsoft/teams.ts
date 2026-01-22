@@ -1,5 +1,6 @@
 import 'dotenv/config';
-import { app, adapter } from './teams-app';
+import { serve } from '@hono/node-server';
+import { app, hono } from './teams-app';
 
 const port = parseInt(process.env.PORT || '3978', 10);
 
@@ -9,8 +10,13 @@ async function main() {
   // Initialize teams.ts app - this adds /api/messages to your Hono app
   await app.initialize();
 
-  // Start your Hono server
-  await adapter.start(port);
+  // If you wanted the App class to handle server lifecycle, your adapter would need to implement start / stop
+  // app.start().catch(console.error)
+
+  serve({
+    fetch: hono.fetch,
+    port
+  });
 
   console.log(`✓ Server ready on http://localhost:${port}`);
   console.log(`\nYour Hono routes:`);
