@@ -4,7 +4,7 @@ import {
   IToken
 } from '@microsoft/teams.api';
 
-import { ILogger } from '@microsoft/teams.common';
+import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
 import { IActivityEvent } from '../events';
 import { createServiceTokenValidator, JwtValidator } from '../middleware/auth/jwt-validator';
@@ -13,6 +13,7 @@ import { IHttpAdapter, IRequestHelpers, IRouteConfig } from './adapter';
 
 export type HttpServerOptions = {
   readonly skipAuth?: boolean;
+  readonly logger?: ILogger;
 };
 
 /**
@@ -48,7 +49,7 @@ export class HttpServer implements IHttpServer {
    */
   onRequest?: (event: IActivityEvent) => Promise<InvokeResponse>;
 
-  protected logger!: ILogger;
+  protected logger: ILogger;
   protected credentials?: Credentials;
   protected skipAuth: boolean;
   protected initialized: boolean = false;
@@ -67,6 +68,7 @@ export class HttpServer implements IHttpServer {
   constructor(adapter: IHttpAdapter, options?: HttpServerOptions) {
     this._adapter = adapter;
     this.skipAuth = options?.skipAuth ?? false;
+    this.logger = options?.logger ?? new ConsoleLogger('HttpServer');
   }
 
   /**
@@ -75,15 +77,13 @@ export class HttpServer implements IHttpServer {
    * Called by App.initialize()
    */
   async initialize(deps: {
-    logger: ILogger;
     credentials?: Credentials;
   }) {
     if (this.initialized) {
-      this.logger?.debug('HttpServer already initialized, skipping');
+      this.logger.debug('HttpServer already initialized, skipping');
       return;
     }
 
-    this.logger = deps.logger;
     this.credentials = deps.credentials;
 
     // Initialize JWT validator if credentials provided and auth not skipped
