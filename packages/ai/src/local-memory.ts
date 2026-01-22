@@ -45,9 +45,10 @@ export class LocalMemory implements IMemory {
     }
 
     while (
-      len > (this.options.max || 100) ||
-      (this.messages[0].role === 'model' && this.messages[0].function_calls?.length) ||
-      this.messages[0].role === 'function'
+      len > 0 &&
+      (len > (this.options.max || 100) ||
+      (this.messages[0]?.role === 'model' && this.messages[0]?.function_calls?.length) ||
+      this.messages[0]?.role === 'function')
     ) {
       const removed = this.pop();
 
@@ -87,8 +88,9 @@ export class LocalMemory implements IMemory {
 
     let last = this.messages[end];
 
-    while ((last.role === 'model' && last.function_calls?.length) || last.role === 'function') {
+    while (last && ((last.role === 'model' && last.function_calls?.length) || last.role === 'function')) {
       end++;
+      if (end >= this.messages.length) break;
       last = this.messages[end];
     }
 
