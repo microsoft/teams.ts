@@ -1,19 +1,20 @@
-import http from 'http';
 import { Hono, Context } from 'hono';
 import { IHttpAdapter, IRouteConfig } from '@microsoft/teams.apps/dist/http/adapter';
 
 /**
  * Hono adapter for HttpServer
  *
- * Handles Hono-specific HTTP framework concerns:
- * - Accepts an existing Hono app (with your own routes)
- * - Route registration via Hono routing (adds Teams bot routes)
- * - Request/response data extraction and sending
- * - Server lifecycle management
+ * Wraps an existing Hono app to add Teams bot routes.
+ * Server lifecycle (start/stop) is managed by the user externally.
+ *
+ * Usage:
+ *   const hono = new Hono();
+ *   const app = new App({ httpAdapter: new HonoAdapter(hono) });
+ *   await app.initialize();
+ *   // Start your Hono server separately with serve() or @hono/node-server
  */
 export class HonoAdapter implements IHttpAdapter {
   protected hono: Hono;
-  protected server: http.Server;
 
   /**
    * Create adapter with your existing Hono app
@@ -21,14 +22,12 @@ export class HonoAdapter implements IHttpAdapter {
    */
   constructor(hono: Hono) {
     this.hono = hono;
-    // Create server - will be attached in initialize()
-    this.server = http.createServer();
   }
 
   /**
-   * Register a route with Hono
+   * Register a route handler with Hono
    */
-  registerRoute(config: IRouteConfig): void {
+  registerRouteHandler(config: IRouteConfig): void {
     const { method, path, handler } = config;
 
     // Convert handler to Hono handler signature
@@ -91,6 +90,8 @@ export class HonoAdapter implements IHttpAdapter {
 
   /**
    * Serve static files from a directory
+   * Note: For production, consider using Hono's built-in static middleware
+   * or a CDN for better performance
    */
   serveStatic(path: string, directory: string): void {
     // Hono's static file serving
@@ -103,65 +104,6 @@ export class HonoAdapter implements IHttpAdapter {
       } catch {
         return c.notFound();
       }
-    });
-  }
-
-  /**
-   * Initialize - attach Hono request handler to Node.js server
-   */
-  async initialize(): Promise<void> {
-    // Simple approach: manually convert Node.js request to Web API Request
-    // This is what @hono/node-server does internally
-    this.server.on('request', async (req, res) => {
-      try {
-        const url = `http://${req.headers.host || 'localhost'}${req.url}`;
-
-        // Read body as string for POST/PUT/PATCH
-        let bodyData: string | undefined;
-        if (req.method !== 'GET' && req.method !== 'HEAD') {
-          bodyData = await new Promise<string>((resolve, reject) => {
-            let data = '';
-            req.on('data', (chunk) => { data += chunk; });
-            req.on('end', () => resolve(data));
-            req.on('error', reject);
-          });
-        }
-
-        // Create Web API Request for Hono
-        const webRequest = new Request(url, {
-          method: req.method,
-          headers: req.headers as HeadersInit,
-          body: bodyData
-        });
-
-        // Call Hono's fetch - it will route through registered routes and parse JSON
-        const webResponse = await this.hono.fetch(webRequest);
-
-        // Convert Web API Response to Node.js response
-        res.statusCode = webResponse.status;
-        webResponse.headers.forEach((value, key) => {
-          res.setHeader(key, value);
-        });
-        const body = await webResponse.text();
-        res.end(body);
-      } catch (err) {
-        console.error('Hono adapter error:', err);
-        res.statusCode = 500;
-        res.end(JSON.stringify({ error: 'Internal server error' }));
-      }
-    });
-  }
-
-  /**
-   * Start the server
-   */
-  async start(port: number): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      this.server.listen(port, () => {
-        resolve();
-      });
-
-      this.server.once('error', reject);
     });
   }
 }

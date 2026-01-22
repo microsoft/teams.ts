@@ -37,27 +37,31 @@ export interface IHttpAdapter {
    * The adapter handles framework-specific routing logic and provides helpers to the handler
    * @param config Route configuration with method, path, and handler
    */
-  registerRoute(config: IRouteConfig): void;
+  registerRouteHandler(config: IRouteConfig): void;
 
   /**
    * Serve static files from a directory
+   * Primarily used for serving static files like for tabs
    * @param path URL path prefix (e.g., '/static')
    * @param directory File system directory to serve from
    */
-  serveStatic(path: string, directory: string): void;
+  serveStatic?(path: string, directory: string): void;
 
   /**
-   * Framework-specific initialization
-   * Called during HttpServer.ensureInitialized()
-   * Example: Next.js needs nextApp.prepare()
-   * Throw if not needed
+   * Optional framework-specific initialization
+   * Called when app.initialize() or app.start() is invoked if any prep is needed
    */
-  initialize(): Promise<void>;
+  initialize?(): Promise<void>;
 
   /**
-   * Start the server
-   * Called during HttpServer.start()
-   * Throw if server is user-provided and cannot be started
+   * Start the server listening to incoming requests
+   * Not needed if app.start() is not called
+   * @param port Port number to listen on
    */
-  start(port: number): Promise<void>;
+  start?(port: number): Promise<void>;
+
+  /**
+   * Stop the server from listening and perform any cleanup that needs to be done
+   */
+  stop?(): Promise<void>;
 }

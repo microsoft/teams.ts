@@ -168,26 +168,32 @@ All adapters implement the `IHttpAdapter` interface:
 ```typescript
 interface IHttpAdapter {
   /**
-   * Get the underlying HTTP server
-   */
-  getServer(): http.Server;
-
-  /**
    * Register a route handler
    */
-  registerRoute(config: IRouteConfig): void;
+  registerRouteHandler(config: IRouteConfig): void;
 
   /**
-   * Initialize the adapter (optional)
-   * Called before routes are registered
+   * Serve static files from a directory
+   * Primarily used for serving static files like for tabs
+   */
+  serveStatic?(path: string, directory: string): void;
+
+  /**
+   * Optional framework-specific initialization
+   * Called when app.initialize() or app.start() is invoked if any prep is needed
    */
   initialize?(): Promise<void>;
 
   /**
-   * Start the server (optional)
-   * Called when user calls app.start() or adapter.start()
+   * Start the server listening to incoming requests
+   * Not needed if app.start() is not called
    */
-  start?(port: number | string): Promise<void>;
+  start?(port: number): Promise<void>;
+
+  /**
+   * Stop the server from listening and perform any cleanup that needs to be done
+   */
+  stop?(): Promise<void>;
 }
 ```
 

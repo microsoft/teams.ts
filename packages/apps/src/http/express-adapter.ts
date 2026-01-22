@@ -26,10 +26,8 @@ export class ExpressAdapter implements IHttpAdapter {
 
   protected express: express.Application;
   protected server: http.Server;
-  protected isUserProvidedServer: boolean;
 
   constructor(server?: http.Server) {
-    this.isUserProvidedServer = !!server;
     this.express = express();
     this.server = server || http.createServer();
     this.server.on('request', this.express);
@@ -49,9 +47,9 @@ export class ExpressAdapter implements IHttpAdapter {
   }
 
   /**
-   * Register a route with Express
+   * Register a route handler with Express
    */
-  registerRoute(config: IRouteConfig): void {
+  registerRouteHandler(config: IRouteConfig): void {
     const { method, path, handler } = config;
 
     // Convert handler to Express middleware signature
@@ -107,17 +105,9 @@ export class ExpressAdapter implements IHttpAdapter {
   }
 
   /**
-   * Start the server
-   * Throws if server was user-provided
+   * Start the server listening on the specified port
    */
   async start(port: number): Promise<void> {
-    if (this.isUserProvidedServer) {
-      throw new Error(
-        'Cannot call start() when server was provided by user. ' +
-        'User should call server.listen() directly.'
-      );
-    }
-
     return new Promise<void>((resolve, reject) => {
       this.server.listen(port, () => {
         resolve();
@@ -131,5 +121,20 @@ export class ExpressAdapter implements IHttpAdapter {
    */
   serveStatic(path: string, directory: string): void {
     this.express.use(path, express.static(directory));
+  }
+
+  /**
+   * Stop the server and close all connections
+   */
+  async stop(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.server.close((err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
   }
 }

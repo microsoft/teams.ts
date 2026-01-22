@@ -22,7 +22,7 @@ export function func<TPlugin extends IPlugin, TData>(
   const log = this.log.child('functions').child(name);
   const entraTokenValidator = this.entraTokenValidator;
 
-  this.server.registerRoute({
+  this.server.registerRouteHandler({
     method: 'post',
     path: `/api/functions/${name}`,
     handler: async (helpers) => {
@@ -136,7 +136,7 @@ export function tab<TPlugin extends IPlugin>(
 
   // SPA fallback - serve index.html for sub-routes
   const indexPath = npath.join(path, 'index.html');
-  this.server.registerRoute({
+  this.server.registerRouteHandler({
     method: 'get',
     path: `/tabs/${name}/*`,
     handler: async (helpers) => {
