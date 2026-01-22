@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "jwt-decode": "^4.0.0",
-    "qs": "^6.13.0"
+    "qs": "^6.14.1"
   },
   "peerDependencies": {
     "@microsoft/teams.cards": "2.0.5",
