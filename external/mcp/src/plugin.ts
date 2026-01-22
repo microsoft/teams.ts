@@ -4,6 +4,7 @@ import { ServerOptions } from '@modelcontextprotocol/sdk/server/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
 import { jsonSchemaToZod } from 'json-schema-to-zod';
@@ -42,6 +43,28 @@ export type McpSSETransportOptions = {
 };
 
 /**
+ * MCP transport options for streamable-http
+ */
+export type McpStreamableHTTPTransportOptions = {
+  /**
+   * the transport type
+   */
+  readonly type: 'streamable-http';
+
+  /**
+   * the url path
+   * @default /mcp
+   */
+  readonly path?: string;
+
+  /**
+   * whether to use stateful sessions
+   * @default true
+   */
+  readonly stateful?: boolean;
+};
+
+/**
  * MCP transport options for stdio
  */
 export type McpStdioTransportOptions = {
@@ -60,6 +83,14 @@ export type McpStdioTransportOptions = {
    */
   readonly stdout?: Writable;
 };
+
+/**
+ * Union type for all MCP transport options
+ */
+export type McpTransportOptions =
+  | McpSSETransportOptions
+  | McpStreamableHTTPTransportOptions
+  | McpStdioTransportOptions;
 
 export type McpPluginOptions = ServerOptions & {
   /**
@@ -83,7 +114,7 @@ export type McpPluginOptions = ServerOptions & {
    * the transport or transport options
    * @default sse
    */
-  readonly transport?: McpSSETransportOptions | McpStdioTransportOptions;
+  readonly transport?: McpTransportOptions;
 
   /**
    * the url to use for the local
@@ -121,9 +152,10 @@ export class McpPlugin implements IPlugin {
   protected id: number = -1;
   protected inspector: string;
   protected connections: Record<number, IConnection> = {};
-  protected transport: McpSSETransportOptions | McpStdioTransportOptions = {
+  protected transport: McpTransportOptions = {
     type: 'sse',
   };
+  protected httpSessions: Map<string, StreamableHTTPServerTransport> = new Map();
 
   constructor(options: McpServer | McpPluginOptions = {}) {
     this.inspector =
@@ -197,20 +229,31 @@ export class McpPlugin implements IPlugin {
       url: this.inspector,
     });
 
-    if (this.transport.type === 'sse') {
-      return this.onInitSSE(this.httpPlugin, this.transport);
+    switch (this.transport.type) {
+      case 'sse':
+        return this.onInitSSE(this.httpPlugin, this.transport);
+      case 'streamable-http':
+        return this.onInitStreamableHTTP(this.httpPlugin, this.transport);
+      case 'stdio':
+        return this.onInitStdio(this.transport);
     }
-
-    return this.onInitStdio(this.transport);
   }
 
   onStart({ port }: IPluginStartEvent) {
-    if (this.transport.type === 'sse') {
-      this.logger.info(
-        `listening at http://localhost:${port}${this.transport.path || '/mcp'}`,
-      );
-    } else {
-      this.logger.info('listening on stdin');
+    switch (this.transport.type) {
+      case 'sse':
+        this.logger.info(
+          `listening at http://localhost:${port}${this.transport.path || '/mcp'} (SSE)`,
+        );
+        break;
+      case 'streamable-http':
+        this.logger.info(
+          `listening at http://localhost:${port}${this.transport.path || '/mcp'} (Streamable HTTP)`,
+        );
+        break;
+      case 'stdio':
+        this.logger.info('listening on stdin');
+        break;
     }
   }
 
@@ -248,6 +291,94 @@ export class McpPlugin implements IPlugin {
       }
 
       transport.handlePostMessage(req, res);
+    });
+  }
+
+  protected onInitStreamableHTTP(
+    http: HttpPlugin,
+    options: McpStreamableHTTPTransportOptions
+  ) {
+    const path = options.path || '/mcp';
+    const stateful = options.stateful !== false; // default to true
+
+    // POST handler - main request handler for MCP messages
+    http.post(path, async (req, res) => {
+      const sessionId = req.headers['mcp-session-id'] as string | undefined;
+
+      // Check for existing session
+      if (sessionId && this.httpSessions.has(sessionId)) {
+        const transport = this.httpSessions.get(sessionId)!;
+        await transport.handleRequest(req, res);
+        return;
+      }
+
+      // Create new session for stateful mode or handle stateless request
+      const transport = new StreamableHTTPServerTransport({
+        sessionIdGenerator: stateful ? undefined : () => undefined,
+      });
+
+      // For stateful sessions, store the transport
+      if (stateful) {
+        transport.onclose = () => {
+          const sid = transport.sessionId;
+          if (sid) {
+            this.httpSessions.delete(sid);
+            this.logger.debug(`Session ${sid} closed`);
+          }
+        };
+      }
+
+      // Connect to the MCP server
+      await this.server.connect(transport);
+
+      // Handle the initial request
+      await transport.handleRequest(req, res);
+
+      // Store session after handling first request (sessionId is set)
+      if (stateful && transport.sessionId) {
+        this.httpSessions.set(transport.sessionId, transport);
+        this.logger.debug(`Session ${transport.sessionId} created`);
+      }
+    });
+
+    // GET handler - for SSE stream (reconnection in stateful mode)
+    http.get(path, async (req, res) => {
+      const sessionId = req.headers['mcp-session-id'] as string | undefined;
+
+      if (!sessionId || !this.httpSessions.has(sessionId)) {
+        res.status(400).json({
+          jsonrpc: '2.0',
+          error: {
+            code: -32000,
+            message: 'Bad Request: No valid session ID provided',
+          },
+          id: null,
+        });
+        return;
+      }
+
+      const transport = this.httpSessions.get(sessionId)!;
+      await transport.handleRequest(req, res);
+    });
+
+    // DELETE handler - for session termination
+    http.delete(path, async (req, res) => {
+      const sessionId = req.headers['mcp-session-id'] as string | undefined;
+
+      if (!sessionId || !this.httpSessions.has(sessionId)) {
+        res.status(400).json({
+          jsonrpc: '2.0',
+          error: {
+            code: -32000,
+            message: 'Bad Request: No valid session ID provided',
+          },
+          id: null,
+        });
+        return;
+      }
+
+      const transport = this.httpSessions.get(sessionId)!;
+      await transport.handleRequest(req, res);
     });
   }
 
