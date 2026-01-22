@@ -342,7 +342,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         throw new Error('HttpPlugin.asServer() returned undefined');
       }
     } else {
-      server = new HttpServer(this.options.httpAdapter ?? new ExpressAdapter(), { skipAuth: this.options.skipAuth });
+      server = new HttpServer(this.options.httpAdapter ?? new ExpressAdapter(), {
+        skipAuth: this.options.skipAuth,
+        logger: this.log
+      });
     }
 
     // Always set this.server
@@ -431,7 +434,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     // initialize server
     await this.server.initialize({
-      logger: this.log,
       credentials: this.credentials,
     });
 
