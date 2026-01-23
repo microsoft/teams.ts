@@ -25,20 +25,17 @@ export class HonoAdapter implements IHttpAdapter {
   }
 
   /**
-   * Register a route handler with Hono
+   * Register a POST route handler with Hono
+   * All routes are POST-only (Teams bot protocol uses POST)
    */
   registerRouteHandler(config: IRouteConfig): void {
-    const { method, path, handler } = config;
+    const { path, handler } = config;
 
     // Convert handler to Hono handler signature
     const honoHandler = async (c: Context) => {
       try {
-        // Parse body the Hono way
-        let body: any = {};
-        if (c.req.method !== 'GET' && c.req.method !== 'HEAD') {
-          body = await c.req.json().catch(() => ({}));
-        }
-
+        // Parse JSON body
+        const body = await c.req.json().catch(() => ({}));
         const headers = Object.fromEntries(c.req.raw.headers.entries());
 
         let responseData: { status: number; body: any } | undefined;
@@ -66,26 +63,8 @@ export class HonoAdapter implements IHttpAdapter {
       }
     };
 
-    // Register with Hono using the appropriate method
-    switch (method.toLowerCase()) {
-      case 'get':
-        this.hono.get(path, honoHandler);
-        break;
-      case 'post':
-        this.hono.post(path, honoHandler);
-        break;
-      case 'put':
-        this.hono.put(path, honoHandler);
-        break;
-      case 'patch':
-        this.hono.patch(path, honoHandler);
-        break;
-      case 'delete':
-        this.hono.delete(path, honoHandler);
-        break;
-      default:
-        throw new Error(`Unsupported HTTP method: ${method}`);
-    }
+    // Register as POST route
+    this.hono.post(path, honoHandler);
   }
 
   /**

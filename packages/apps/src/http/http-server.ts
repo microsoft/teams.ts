@@ -101,9 +101,8 @@ export class HttpServer implements IHttpServer {
       await this._adapter.initialize();
     }
 
-    // Register Teams bot endpoint
+    // Register Teams bot endpoint (POST only)
     this._adapter.registerRouteHandler({
-      method: 'post',
       path: '/api/messages',
       handler: async (helpers) => {
         await this.handleActivity(helpers);

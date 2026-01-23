@@ -1,6 +1,3 @@
-import fs from 'fs';
-import npath from 'path';
-
 import { ActivityLike } from '@microsoft/teams.api';
 
 import { App } from './app';
@@ -23,7 +20,6 @@ export function func<TPlugin extends IPlugin, TData>(
   const entraTokenValidator = this.entraTokenValidator;
 
   this.server.registerRouteHandler({
-    method: 'post',
     path: `/api/functions/${name}`,
     handler: async (helpers) => {
       const { body, headers } = helpers.extractRequestData();
@@ -133,17 +129,6 @@ export function tab<TPlugin extends IPlugin>(
   }
 
   this.server.serveStatic(`/tabs/${name}`, path);
-
-  // SPA fallback - serve index.html for sub-routes
-  const indexPath = npath.join(path, 'index.html');
-  this.server.registerRouteHandler({
-    method: 'get',
-    path: `/tabs/${name}/*`,
-    handler: async (helpers) => {
-      const html = fs.readFileSync(indexPath, 'utf-8');
-      helpers.sendResponse({ status: 200, body: html });
-    }
-  });
 
   return this;
 }

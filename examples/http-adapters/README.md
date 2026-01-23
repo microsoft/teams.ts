@@ -168,7 +168,8 @@ All adapters implement the `IHttpAdapter` interface:
 ```typescript
 interface IHttpAdapter {
   /**
-   * Register a route handler
+   * Register a POST route handler
+   * All routes are POST-only (Teams bot protocol uses POST)
    */
   registerRouteHandler(config: IRouteConfig): void;
 
@@ -194,6 +195,11 @@ interface IHttpAdapter {
    * Stop the server from listening and perform any cleanup that needs to be done
    */
   stop?(): Promise<void>;
+}
+
+interface IRouteConfig {
+  path: string;
+  handler: (helpers: IRequestHelpers) => Promise<void>;
 }
 ```
 
