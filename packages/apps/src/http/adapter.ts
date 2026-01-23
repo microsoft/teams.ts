@@ -18,9 +18,9 @@ export interface IRequestHelpers {
 
 /**
  * Configuration for registering a route with the adapter
+ * All routes are POST only (Teams bot protocol uses POST)
  */
 export interface IRouteConfig {
-  method: string;
   path: string;
   handler: (helpers: IRequestHelpers) => Promise<void>;
 }
@@ -33,9 +33,10 @@ export interface IRouteConfig {
  */
 export interface IHttpAdapter {
   /**
-   * Register a route with the adapter
+   * Register a POST route with the adapter
+   * All routes are POST-only (Teams bot protocol uses POST)
    * The adapter handles framework-specific routing logic and provides helpers to the handler
-   * @param config Route configuration with method, path, and handler
+   * @param config Route configuration with path and handler
    */
   registerRouteHandler(config: IRouteConfig): void;
 

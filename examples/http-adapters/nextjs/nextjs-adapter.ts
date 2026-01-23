@@ -32,11 +32,12 @@ export class NextjsAdapter implements IHttpAdapter {
   }
 
   /**
-   * Register a route handler with the adapter
+   * Register a POST route handler with the adapter
    * Routes are stored and handled before Next.js gets the request
+   * All routes are POST-only (Teams bot protocol uses POST)
    */
   registerRouteHandler(config: IRouteConfig): void {
-    const key = `${config.method.toUpperCase()}:${config.path}`;
+    const key = `POST:${config.path}`;
     this.routes.set(key, config);
   }
 

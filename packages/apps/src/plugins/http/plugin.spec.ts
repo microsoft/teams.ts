@@ -157,7 +157,6 @@ describe('HttpPlugin', () => {
       // App should still be able to register routes
       const mockHandler = jest.fn();
       app.server.registerRouteHandler({
-        method: 'get',
         path: '/test',
         handler: mockHandler,
       });

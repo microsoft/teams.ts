@@ -47,10 +47,11 @@ export class ExpressAdapter implements IHttpAdapter {
   }
 
   /**
-   * Register a route handler with Express
+   * Register a POST route handler with Express
+   * All routes are POST-only (Teams bot protocol uses POST)
    */
   registerRouteHandler(config: IRouteConfig): void {
-    const { method, path, handler } = config;
+    const { path, handler } = config;
 
     // Convert handler to Express middleware signature
     const expressHandler = async (
@@ -74,26 +75,8 @@ export class ExpressAdapter implements IHttpAdapter {
       }
     };
 
-    // Register with Express using the appropriate method
-    switch (method.toLowerCase()) {
-      case 'get':
-        this.express.get(path, expressHandler);
-        break;
-      case 'post':
-        this.express.post(path, expressHandler);
-        break;
-      case 'put':
-        this.express.put(path, expressHandler);
-        break;
-      case 'patch':
-        this.express.patch(path, expressHandler);
-        break;
-      case 'delete':
-        this.express.delete(path, expressHandler);
-        break;
-      default:
-        throw new Error(`Unsupported HTTP method: ${method}`);
-    }
+    // Register as POST route
+    this.express.post(path, expressHandler);
   }
 
   /**
