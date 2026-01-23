@@ -203,6 +203,13 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
 
       if (!(completion instanceof Stream)) {
         message = completion.choices[0].message;
+        if (completion.usage) {
+          this._log.debug('Token usage', {
+            prompt_tokens: completion.usage.prompt_tokens,
+            completion_tokens: completion.usage.completion_tokens,
+            total_tokens: completion.usage.total_tokens,
+          });
+        }
       } else {
         for await (const chunk of completion) {
           if (!chunk.choices.length) continue;
