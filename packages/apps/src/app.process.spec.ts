@@ -2,6 +2,7 @@ import { IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFe
 
 import { App } from './app';
 import { IActivityEvent } from './events/activity';
+import { createTestApp } from './test-utils';
 
 describe('App', () => {
   let app: App;
@@ -16,7 +17,7 @@ describe('App', () => {
   const activity: IMessageActivity = new MessageActivity();
 
   beforeEach(() => {
-    app = new App();
+    app = createTestApp();
     app.start();
   });
 
