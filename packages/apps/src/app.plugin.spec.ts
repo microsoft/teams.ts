@@ -1,9 +1,7 @@
-import { MessageActivity } from '@microsoft/teams.api';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 
-import { App } from './app';
 import { IErrorEvent } from './events';
-import { HttpPlugin } from './plugins';
+import { createTestApp } from './test-utils';
 import { EmitPluginEvent, IPlugin, IPluginActivityEvent, IPluginStartEvent } from './types';
 import { Event, Plugin } from './types/plugin/decorators';
 
@@ -11,16 +9,6 @@ interface ITestEvents {
   test: {
     message: string;
     bar: number;
-  }
-}
-
-class TestHttpPlugin extends HttpPlugin {
-  async onStart(_event: IPluginStartEvent) {
-    // No-op for tests
-  }
-
-  async onStop() {
-    // No-op for tests
   }
 }
 
@@ -49,9 +37,9 @@ describe('app.plugin', () => {
   it('plugins should be able to emit events that reach the app', async () => {
     // Create an App with our test plugin
     const testPlugin = new TestPlugin();
-    const app = new App({
+    const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'debug' }),
-      plugins: [testPlugin, new TestHttpPlugin()]
+      plugins: [testPlugin]
     });
 
     let receivedEventMessage: string = '';
@@ -71,7 +59,7 @@ describe('app.plugin', () => {
   it('should throw error when registering duplicate plugin names', () => {
     const plugin1 = new TestPlugin();
     const plugin2 = new TestPlugin();
-    const app = new App({
+    const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'debug' }),
       plugins: [plugin1]
     });
@@ -103,7 +91,7 @@ describe('app.plugin', () => {
       }
     }
 
-    const app = new App({
+    const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'debug' }),
       plugins: [new ReservedEventPlugin()]
     });
@@ -116,6 +104,8 @@ describe('app.plugin', () => {
 
     plugin.testEmit();
     expect(eventFn).not.toHaveBeenCalled();
+
+    await app.stop();
   });
 
   it('should call plugin lifecycle methods in correct order', async () => {
@@ -141,9 +131,9 @@ describe('app.plugin', () => {
       }
     }
 
-    const app = new App({
+    const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'debug' }),
-      plugins: [new LifecyclePlugin(), new TestHttpPlugin()]
+      plugins: [new LifecyclePlugin()]
     });
 
     await app.start();
@@ -164,9 +154,9 @@ describe('app.plugin', () => {
       }
     }
 
-    const app = new App({
+    const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'debug' }),
-      plugins: [new ErrorPlugin(), new TestHttpPlugin()]
+      plugins: [new ErrorPlugin()]
     });
 
     let errorReceived = null as Error | null;
@@ -178,7 +168,10 @@ describe('app.plugin', () => {
 
     expect(errorReceived).toBeDefined();
     expect(errorReceived?.message).toBe('test error');
+
+    await app.stop();
   });
+
   it('should be able to include additional context', async () => {
     interface IMyContext {
       foo: number;
@@ -203,9 +196,9 @@ describe('app.plugin', () => {
       }
     }
 
-    const app = new App({
+    const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'debug' }),
-      plugins: [new MyPlugin(), new TestHttpPlugin()]
+      plugins: [new MyPlugin()]
     });
 
 
@@ -219,10 +212,16 @@ describe('app.plugin', () => {
     await app.start();
 
     // Trigger a message activity by directly calling onActivity (internal API for testing)
-    const activity = new MessageActivity('test message');
-
     await app.onActivity({
-      body: activity.toInterface(),
+      body: {
+        type: 'message',
+        text: 'test message',
+        from: { id: 'user-id', name: 'Test User' },
+        recipient: { id: 'bot-id', name: 'Bot' },
+        conversation: { id: 'conv-id' },
+        channelId: 'test',
+        serviceUrl: 'https://test.botframework.com'
+      },
       token: {
         appId: 'test-app-id',
         serviceUrl: 'https://test.botframework.com',
