@@ -1,11 +1,11 @@
+import fs from 'fs';
 import npath from 'path';
 
 import { ActivityLike } from '@microsoft/teams.api';
 
 import { App } from './app';
-import { IFunctionContext } from './contexts';
+import { IClientContext, IFunctionContext } from './contexts';
 import * as manifest from './manifest';
-import { JwtRemoteFunctionRequest, withRemoteFunctionJwtValidation } from './middleware';
 import { IPlugin } from './types';
 import { functionContext } from './utils';
 
@@ -20,23 +20,60 @@ export function func<TPlugin extends IPlugin, TData>(
   cb: (context: IFunctionContext<TData>) => any | Promise<any>
 ) {
   const log = this.log.child('functions').child(name);
-  this.http.post(
-    `/api/functions/${name}`,
-    withRemoteFunctionJwtValidation({
-      logger: log,
-      entraTokenValidator: this.entraTokenValidator,
-      ...this.credentials,
-    }),
-    async (req: JwtRemoteFunctionRequest, res) => {
-      if (!req.context) {
-        throw new Error('expected client context');
+  const entraTokenValidator = this.entraTokenValidator;
+
+  this.server.registerRoute({
+    method: 'post',
+    path: `/api/functions/${name}`,
+    handler: async (helpers) => {
+      const { body, headers } = helpers.extractRequestData();
+
+      // Extract and validate JWT token
+      const appSessionId = headers['x-teams-app-session-id'];
+      const pageId = headers['x-teams-page-id'];
+      const authorization = headers['authorization']?.split(' ');
+      const authToken =
+        authorization?.length === 2 && authorization[0].toLowerCase() === 'bearer'
+          ? authorization[1]
+          : '';
+
+      const tokenPayload = !entraTokenValidator
+        ? null
+        : await entraTokenValidator.validateAccessToken(authToken);
+
+      if (
+        !pageId ||
+        !appSessionId ||
+        !authToken ||
+        !entraTokenValidator ||
+        !tokenPayload
+      ) {
+        log.debug('unauthorized');
+        helpers.sendResponse({ status: 401, body: 'unauthorized' });
+        return;
       }
+
+      const context: IClientContext = {
+        appId: tokenPayload?.['appId'],
+        appSessionId,
+        authToken,
+        channelId: headers['x-teams-channel-id'],
+        chatId: headers['x-teams-chat-id'],
+        meetingId: headers['x-teams-meeting-id'],
+        messageId: headers['x-teams-message-id'],
+        pageId,
+        subPageId: headers['x-teams-sub-page-id'],
+        teamId: headers['x-teams-team-id'],
+        tenantId: tokenPayload['tid'],
+        userId: tokenPayload['oid'],
+        userName: tokenPayload['name'],
+      };
 
       const getCurrentConversationId =
         functionContext.getConversationIdResolver(
           this,
           log.child('getCurrentConversationId'),
-          req.context
+          context
         );
 
       const send = async (activity: ActivityLike) => {
@@ -47,18 +84,18 @@ export function func<TPlugin extends IPlugin, TData>(
       };
 
       const data = await cb({
-        ...req.context,
+        ...context,
         log,
         api: this.api,
         appGraph: this.graph,
-        data: req.body,
+        data: body,
         getCurrentConversationId,
         send,
       });
 
-      res.send(data);
+      helpers.sendResponse({ status: 200, body: data });
     }
-  );
+  });
 
   return this;
 }
@@ -95,9 +132,17 @@ export function tab<TPlugin extends IPlugin>(
     this._manifest.staticTabs.push(tab);
   }
 
-  this.http.static(`/tabs/${name}`, path);
-  this.http.use(`/tabs/${name}*`, async (_, res) => {
-    res.sendFile(npath.join(path, 'index.html'));
+  this.server.serveStatic(`/tabs/${name}`, path);
+
+  // SPA fallback - serve index.html for sub-routes
+  const indexPath = npath.join(path, 'index.html');
+  this.server.registerRoute({
+    method: 'get',
+    path: `/tabs/${name}/*`,
+    handler: async (helpers) => {
+      const html = fs.readFileSync(indexPath, 'utf-8');
+      helpers.sendResponse({ status: 200, body: html });
+    }
   });
 
   return this;

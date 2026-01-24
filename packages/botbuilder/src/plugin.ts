@@ -1,5 +1,3 @@
-import http from 'http';
-
 import {
   ActivityHandler,
   CloudAdapter,
@@ -13,9 +11,11 @@ import { $Activity, Activity, Credentials, InvokeResponse, IToken } from '@micro
 import {
   Dependency,
   Event,
-  HttpPlugin,
+  ExpressAdapter,
+  HttpServer,
   IActivityEvent,
   IErrorEvent,
+  IPlugin,
   Logger,
   Plugin,
   manifest,
@@ -29,20 +29,21 @@ import pkg from '../package.json';
 export type BotBuilderPluginOptions = {
   readonly adapter?: CloudAdapter;
   readonly handler?: ActivityHandler;
-  readonly server?: http.Server;
-  readonly skipAuth?: boolean;
 };
 
 @Plugin({
-  name: 'http',
+  name: 'botbuilder',
   version: pkg.version,
 })
-export class BotBuilderPlugin extends HttpPlugin {
+export class BotBuilderPlugin implements IPlugin {
   @Logger()
   declare readonly logger: ILogger;
 
   @Dependency()
   declare readonly client: $http.Client;
+
+  @Dependency()
+  declare readonly httpServer: HttpServer;
 
   @Dependency()
   declare readonly manifest: Partial<manifest.Manifest>;
@@ -66,13 +67,19 @@ export class BotBuilderPlugin extends HttpPlugin {
   protected handler?: ActivityHandler;
 
   constructor(options?: BotBuilderPluginOptions) {
-    super(options?.server, { skipAuth: options?.skipAuth });
     this.cloudAdapter = options?.adapter;
     this.handler = options?.handler;
   }
 
   async onInit() {
-    await super.onInit();
+    const adapter = this.httpServer.adapter;
+    if (!(adapter instanceof ExpressAdapter)) {
+      throw new Error(
+        'BotBuilderPlugin requires ExpressAdapter. ' +
+        'Please use: new App({ server: new HttpServer(new ExpressAdapter()) })'
+      );
+    }
+
     if (!this.cloudAdapter) {
       const clientId = this.credentials?.clientId;
       const clientSecret =
@@ -94,6 +101,14 @@ export class BotBuilderPlugin extends HttpPlugin {
         )
       );
     }
+
+    // Register /api/messages route with BotBuilder handler
+    adapter.post(
+      '/api/messages',
+      (req: JwtValidatedRequest, res: express.Response, next: express.NextFunction) => {
+        this.onRequest(req, res, next).catch(next);
+      }
+    );
   }
 
   protected async onRequest(

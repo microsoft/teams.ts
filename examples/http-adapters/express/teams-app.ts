@@ -1,22 +1,53 @@
-import { App, ConfigurableHttpPlugin, ExpressAdapter } from '@microsoft/teams.apps';
+import http from 'http';
+import express from 'express';
+import { App, HttpServer, ExpressAdapter } from '@microsoft/teams.apps';
 
-// Create teams.ts app with ExpressAdapter
-// This is functionally equivalent to using HttpPlugin, but demonstrates
-// the explicit adapter pattern for consistency with other frameworks
-export const app = new App({
-  plugins: [
-    new ConfigurableHttpPlugin(
-      new ExpressAdapter(),
-      { skipAuth: true }
-    )
-  ]
+// 1. Create your existing Express app with routes
+export const expressApp = express();
+export const httpServer = http.createServer(expressApp);
+
+// Add your custom routes
+expressApp.get('/health', (req, res) => {
+  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
-// Handle incoming messages
+expressApp.get('/api/users', (req, res) => {
+  res.json({
+    users: [
+      { id: 1, name: 'Alice' },
+      { id: 2, name: 'Bob' }
+    ]
+  });
+});
+
+expressApp.get('/', (req, res) => {
+  res.send(`
+    <html>
+      <body>
+        <h1>Express + teams.ts</h1>
+        <p>Your Express server is running with a Teams bot!</p>
+        <ul>
+          <li><a href="/health">Health Check</a></li>
+          <li><a href="/api/users">API: Users</a></li>
+          <li><strong>/api/messages</strong> - Teams bot endpoint</li>
+        </ul>
+      </body>
+    </html>
+  `);
+});
+
+// 2. Create Express adapter with your existing server
+export const adapter = new ExpressAdapter(httpServer);
+
+// 3. Create HTTP server with the adapter
+export const server = new HttpServer(adapter);
+
+// 4. Create teams.ts app with the HTTP server
+export const app = new App({
+  server
+});
+
+// 5. Handle incoming messages
 app.on('message', async ({ send, activity }) => {
   await send(`Echo from Express server: ${activity.text}`);
 });
-
-// Example: Access the underlying Express app to add custom routes
-// const adapter = app.http.adapter as ExpressAdapter;
-// adapter.get('/health', (req, res) => res.json({ status: 'ok' }));

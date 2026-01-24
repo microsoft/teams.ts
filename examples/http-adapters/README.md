@@ -197,7 +197,7 @@ interface IHttpAdapter {
 All adapters follow the same pattern:
 
 ```typescript
-import { App, ConfigurableHttpPlugin } from '@microsoft/teams.apps';
+import { App, HttpServer } from '@microsoft/teams.apps';
 import { MyAdapter } from './my-adapter';
 
 // 1. Create adapter
@@ -205,16 +205,11 @@ const adapter = new MyAdapter();
 
 // 2. Create teams.ts app with adapter
 const app = new App({
-  plugins: [
-    new ConfigurableHttpPlugin(adapter, { skipAuth: true })
-  ]
+  server: new HttpServer(adapter)
 });
 
-// 3. Initialize app (registers routes)
-await app.initialize();
-
-// 4. Manually start the server
-await adapter.start(3978);
+// 3. Start the app
+await app.start(3978);
 ```
 
 ## Creating Your Own Adapter

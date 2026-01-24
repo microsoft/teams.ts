@@ -1,5 +1,3 @@
-import http from 'http';
-
 /**
  * Helpers provided to route handlers
  */
@@ -30,16 +28,10 @@ export interface IRouteConfig {
 /**
  * Adapter interface for different HTTP frameworks
  *
- * Adapters handle framework-specific HTTP concerns while ConfigurableHttpPlugin
+ * Adapters handle framework-specific HTTP concerns while HttpServer
  * handles Teams protocol logic (JWT validation, activity processing, etc.)
  */
 export interface IHttpAdapter {
-  /**
-   * Get the underlying HTTP server
-   * The adapter owns the server (creates it or accepts it from user)
-   */
-  getServer(): http.Server;
-
   /**
    * Register a route with the adapter
    * The adapter handles framework-specific routing logic and provides helpers to the handler
@@ -48,16 +40,24 @@ export interface IHttpAdapter {
   registerRoute(config: IRouteConfig): void;
 
   /**
-   * Optional: Framework-specific initialization
-   * Called during ConfigurableHttpPlugin.initialize()
-   * Example: Next.js needs nextApp.prepare()
+   * Serve static files from a directory
+   * @param path URL path prefix (e.g., '/static')
+   * @param directory File system directory to serve from
    */
-  initialize?(): Promise<void>;
+  serveStatic(path: string, directory: string): void;
 
   /**
-   * Optional: Start the server
-   * Called during ConfigurableHttpPlugin.start()
-   * Should throw error if server is user-provided
+   * Framework-specific initialization
+   * Called during HttpServer.ensureInitialized()
+   * Example: Next.js needs nextApp.prepare()
+   * Throw if not needed
    */
-  start?(port: number): Promise<void>;
+  initialize(): Promise<void>;
+
+  /**
+   * Start the server
+   * Called during HttpServer.start()
+   * Throw if server is user-provided and cannot be started
+   */
+  start(port: number): Promise<void>;
 }

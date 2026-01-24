@@ -3,7 +3,7 @@ import next from 'next';
 import { IHttpAdapter, IRouteConfig } from '@microsoft/teams.apps/dist/plugins/http/adapter';
 
 /**
- * Next.js adapter for ConfigurableHttpPlugin
+ * Next.js adapter for HttpServer
  *
  * Handles Next.js-specific concerns:
  * - Next.js app preparation and initialization
@@ -41,19 +41,27 @@ export class NextjsAdapter implements IHttpAdapter {
   }
 
   /**
-   * Get the underlying HTTP server
-   */
-  getServer(): http.Server {
-    return this.server;
-  }
-
-  /**
    * Register a route with the adapter
    * Routes are stored and handled before Next.js gets the request
    */
   registerRoute(config: IRouteConfig): void {
     const key = `${config.method.toUpperCase()}:${config.path}`;
     this.routes.set(key, config);
+  }
+
+  /**
+   * Serve static files from a directory
+   * Note: Next.js handles static files in public/ directory automatically
+   * This is for serving additional static directories
+   */
+  serveStatic(_path: string, _directory: string): void {
+    // Next.js handles static files automatically via public/ directory
+    // For custom static file serving, users should use Next.js's built-in mechanisms
+    // This method is a no-op for Next.js adapter
+    throw new Error(
+      'serveStatic() is not supported in Next.js adapter. ' +
+      'Use Next.js built-in static file serving (public/ directory) instead.'
+    );
   }
 
   /**
