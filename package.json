@@ -33,6 +33,7 @@
     "clean": "npx turbo clean",
     "build": "npx turbo build",
     "build:packages": "npx turbo build --filter=./packages/*",
+    "build:essential": "npx turbo build --filter='./packages/*' --filter='!./packages/graph' --filter='!./packages/graph-endpoints' --filter='!./packages/graph-endpoints-beta' --filter='!./packages/graph-tools' --filter='!./external/*'",
     "build:examples": "npx turbo build --filter=./examples/*",
     "build:external": "npx turbo build --filter=./external/*",
     "dev": "npx turbo dev",
