@@ -110,7 +110,7 @@ export async function $process<TPlugin extends IPlugin>(
   };
 
   // Create stream once for this conversation
-
+  const stream = this.activitySender.createStream(ref);
   const context = new ActivityContext({
     activity,
     next,
