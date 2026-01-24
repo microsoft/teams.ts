@@ -36,11 +36,11 @@ export class FastifyAdapter implements IHttpAdapter {
    * Register a route with Fastify
    */
   registerRouteHandler(config: IRouteConfig): void {
-    const { method, path, handler } = config;
+    const { path, handler } = config;
 
     // Register with Fastify
     this.fastify.route({
-      method: method.toUpperCase() as any,
+      method: 'POST',
       url: path,
       handler: async (request, reply) => {
         try {
