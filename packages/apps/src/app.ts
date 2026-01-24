@@ -342,7 +342,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         throw new Error('HttpPlugin.asServer() returned undefined');
       }
     } else {
-      server = new HttpServer(this.options.httpAdapter ?? new ExpressAdapter(), {
+      server = new HttpServer(this.options.httpAdapter ?? new ExpressAdapter(undefined, {
+        logger: this.log,
+        onError: (err) => this.onError({ error: err })
+      }), {
         skipAuth: this.options.skipAuth,
         logger: this.log
       });

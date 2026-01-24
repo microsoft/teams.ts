@@ -2,7 +2,7 @@ import crypto from 'crypto';
 
 import jwt from 'jsonwebtoken';
 
-import { JwtValidator, createEntraTokenValidator, createServiceTokenValidator } from './jwt-validator';
+import { JwtValidator, createEntraTokenValidator } from './jwt-validator';
 
 // Generate test RSA key pair
 const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
@@ -649,43 +649,6 @@ describe('JwtValidator', () => {
       });
     });
 
-    describe('createServiceTokenValidator', () => {
-      it('should create validator with minimal options', () => {
-        const validator = createServiceTokenValidator(mockClientId, mockTenantId);
-
-        expect(validator).toBeInstanceOf(JwtValidator);
-        expect(validator.options.clientId).toBe(mockClientId);
-        expect(validator.options.tenantId).toBe(mockTenantId);
-        expect(validator.options.validateIssuer).toEqual({
-          allowedIssuer: 'https://api.botframework.com'
-        });
-        expect(validator.options.jwksUriOptions).toEqual({
-          type: 'uri',
-          uri: 'https://login.botframework.com/v1/.well-known/keys'
-        });
-      });
-
-      it('should create validator with service URL', () => {
-        const serviceUrl = 'https://example.com/api';
-        const validator = createServiceTokenValidator(mockClientId, mockTenantId, serviceUrl);
-
-        expect(validator.options.validateServiceUrl).toEqual({
-          expectedServiceUrl: serviceUrl
-        });
-      });
-
-      it('should create validator without service URL validation when not provided', () => {
-        const validator = createServiceTokenValidator(mockClientId, mockTenantId);
-
-        expect(validator.options.validateServiceUrl).toBeUndefined();
-      });
-
-      it('should create validator with logger', () => {
-        const validator = createServiceTokenValidator(mockClientId, mockTenantId, undefined, mockLogger);
-
-        expect(validator).toBeInstanceOf(JwtValidator);
-      });
-    });
   });
 
   describe('error handling and logging', () => {

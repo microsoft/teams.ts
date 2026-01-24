@@ -7,7 +7,7 @@ import {
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
 import { IActivityEvent } from '../events';
-import { createServiceTokenValidator, JwtValidator } from '../middleware/auth/jwt-validator';
+import { ServiceTokenValidator } from '../middleware/auth/service-token-validator';
 
 import { IHttpAdapter, IRequestHelpers, IRouteConfig } from './adapter';
 
@@ -53,7 +53,7 @@ export class HttpServer implements IHttpServer {
   protected credentials?: Credentials;
   protected skipAuth: boolean;
   protected initialized: boolean = false;
-  protected jwtValidator?: JwtValidator;
+  protected serviceTokenValidator?: ServiceTokenValidator;
 
   private _adapter: IHttpAdapter;
 
@@ -86,9 +86,9 @@ export class HttpServer implements IHttpServer {
 
     this.credentials = deps.credentials;
 
-    // Initialize JWT validator if credentials provided and auth not skipped
+    // Initialize service token validator if credentials provided and auth not skipped
     if (this.credentials && !this.skipAuth) {
-      this.jwtValidator = createServiceTokenValidator(
+      this.serviceTokenValidator = new ServiceTokenValidator(
         this.credentials.clientId,
         this.credentials.tenantId,
         undefined, // serviceUrl will be validated from activity body
@@ -125,7 +125,6 @@ export class HttpServer implements IHttpServer {
       );
     }
     await this._adapter.start(portNumber);
-    this.logger.info(`listening on port ${port} 🚀`);
   }
 
   /**
@@ -138,7 +137,6 @@ export class HttpServer implements IHttpServer {
       return;
     }
     await this._adapter.stop();
-    this.logger.info('server stopped');
   }
 
   /**
@@ -183,8 +181,12 @@ export class HttpServer implements IHttpServer {
           return;
         }
 
+        if (!this.serviceTokenValidator) {
+          throw new Error('Service token validator not initialized - credentials required');
+        }
+
         try {
-          token = await this.validateJwt(authHeader, body);
+          token = await this.serviceTokenValidator.check(authHeader, body);
         } catch (err) {
           this.logger.error('JWT validation failed', err);
           sendResponse({
@@ -228,36 +230,4 @@ export class HttpServer implements IHttpServer {
     }
   }
 
-  /**
-   * Validate JWT token
-   * Uses JwtValidator for proper Bot Framework token validation
-   */
-  protected async validateJwt(authHeader: string, body: any): Promise<IToken> {
-    if (!this.jwtValidator) {
-      throw new Error('JWT validator not initialized - credentials required');
-    }
-
-    // Extract token from "Bearer <token>" format
-    const token = authHeader.startsWith('Bearer ')
-      ? authHeader.substring(7)
-      : authHeader;
-
-    // Validate token using service token validator
-    const payload = await this.jwtValidator.validateAccessToken(token, {
-      validateServiceUrl: body.serviceUrl ? { expectedServiceUrl: body.serviceUrl } : undefined
-    });
-
-    if (!payload) {
-      throw new Error('Invalid token');
-    }
-
-    // Convert JWT payload to IToken
-    return {
-      appId: payload.appid as string || this.credentials?.clientId || '',
-      from: 'azure',
-      fromId: payload.sub as string || '',
-      serviceUrl: body.serviceUrl || payload.serviceurl as string || '',
-      isExpired: () => false, // Already validated by JWT validator
-    };
-  }
 }

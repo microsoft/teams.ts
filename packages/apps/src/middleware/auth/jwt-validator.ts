@@ -284,20 +284,3 @@ export const createEntraTokenValidator = (
   }, options?.logger);
 };
 
-export const createServiceTokenValidator = (
-  appId: string,
-  tenantId?: string,
-  serviceUrl?: string,
-  logger?: ILogger
-) => {
-  return new JwtValidator({
-    clientId: appId,
-    tenantId,
-    validateIssuer: { allowedIssuer: 'https://api.botframework.com' },
-    validateServiceUrl: serviceUrl ? { expectedServiceUrl: serviceUrl } : undefined,
-    jwksUriOptions: {
-      type: 'uri',
-      uri: 'https://login.botframework.com/v1/.well-known/keys'
-    },
-  }, logger);
-};
