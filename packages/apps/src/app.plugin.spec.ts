@@ -219,12 +219,10 @@ describe('app.plugin', () => {
     await app.start();
 
     // Trigger a message activity by directly calling onActivity (internal API for testing)
-    const httpPlugin = app.getPlugin('http') as TestHttpPlugin;
     const activity = new MessageActivity('test message');
 
-    // @ts-expect-error - accessing internal method for testing
-    await app.onActivity(httpPlugin, {
-      activity: activity.toInterface(),
+    await app.onActivity({
+      body: activity.toInterface(),
       token: {
         appId: 'test-app-id',
         serviceUrl: 'https://test.botframework.com',
