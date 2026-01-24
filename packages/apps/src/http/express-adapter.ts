@@ -3,6 +3,8 @@ import http from 'http';
 import cors from 'cors';
 import express from 'express';
 
+import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
+
 import { IHttpAdapter, IRouteConfig } from './adapter';
 
 /**
@@ -26,11 +28,15 @@ export class ExpressAdapter implements IHttpAdapter {
 
   protected express: express.Application;
   protected server: http.Server;
+  protected logger: ILogger;
+  protected onError?: (err: Error) => void;
 
-  constructor(server?: http.Server) {
+  constructor(server?: http.Server, options?: { logger?: ILogger; onError?: (err: Error) => void }) {
     this.express = express();
     this.server = server || http.createServer();
     this.server.on('request', this.express);
+    this.logger = options?.logger ?? new ConsoleLogger('ExpressAdapter');
+    this.onError = options?.onError;
 
     // Bind Express methods
     this.get = this.express.get.bind(this.express);
@@ -92,10 +98,24 @@ export class ExpressAdapter implements IHttpAdapter {
    */
   async start(port: number): Promise<void> {
     return new Promise<void>((resolve, reject) => {
+      // Handle startup errors
+      this.server.once('error', (err) => {
+        if (this.onError) {
+          this.onError(err);
+        }
+        reject(err);
+      });
+
       this.server.listen(port, () => {
+        this.logger.info(`listening on port ${port} 🚀`);
+
+        // Set up persistent error listener after startup
+        if (this.onError) {
+          this.server.on('error', this.onError);
+        }
+
         resolve();
       });
-      this.server.once('error', reject);
     });
   }
 
@@ -115,6 +135,7 @@ export class ExpressAdapter implements IHttpAdapter {
         if (err) {
           reject(err);
         } else {
+          this.logger.info('server stopped');
           resolve();
         }
       });

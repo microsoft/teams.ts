@@ -42,7 +42,7 @@ export interface IHttpAdapter {
 
   /**
    * Serve static files from a directory
-   * Primarily used for serving static files like for tabs
+   * Primarily used for serving static files like for tabs, or static pages via MessageExtensions and Dialogs
    * @param path URL path prefix (e.g., '/static')
    * @param directory File system directory to serve from
    */

@@ -1,8 +1,9 @@
 import { ActivityLike } from '@microsoft/teams.api';
 
 import { App } from './app';
-import { IClientContext, IFunctionContext } from './contexts';
+import { IFunctionContext } from './contexts';
 import * as manifest from './manifest';
+import { RemoteFunctionValidator } from './middleware/auth/remote-function-validator';
 import { IPlugin } from './types';
 import { functionContext } from './utils';
 
@@ -19,51 +20,28 @@ export function func<TPlugin extends IPlugin, TData>(
   const log = this.log.child('functions').child(name);
   const entraTokenValidator = this.entraTokenValidator;
 
+  // Create the remote function validator once
+  const validator = entraTokenValidator
+    ? new RemoteFunctionValidator(entraTokenValidator, log)
+    : null;
+
   this.server.registerRouteHandler({
     path: `/api/functions/${name}`,
     handler: async (helpers) => {
       const { body, headers } = helpers.extractRequestData();
 
-      // Extract and validate JWT token
-      const appSessionId = headers['x-teams-app-session-id'];
-      const pageId = headers['x-teams-page-id'];
-      const authorization = headers['authorization']?.split(' ');
-      const authToken =
-        authorization?.length === 2 && authorization[0].toLowerCase() === 'bearer'
-          ? authorization[1]
-          : '';
-
-      const tokenPayload = !entraTokenValidator
-        ? null
-        : await entraTokenValidator.validateAccessToken(authToken);
-
-      if (
-        !pageId ||
-        !appSessionId ||
-        !authToken ||
-        !entraTokenValidator ||
-        !tokenPayload
-      ) {
-        log.debug('unauthorized');
+      // Validate JWT token and extract context
+      if (!validator) {
+        log.debug('unauthorized - no token validator configured');
         helpers.sendResponse({ status: 401, body: 'unauthorized' });
         return;
       }
 
-      const context: IClientContext = {
-        appId: tokenPayload?.['appId'],
-        appSessionId,
-        authToken,
-        channelId: headers['x-teams-channel-id'],
-        chatId: headers['x-teams-chat-id'],
-        meetingId: headers['x-teams-meeting-id'],
-        messageId: headers['x-teams-message-id'],
-        pageId,
-        subPageId: headers['x-teams-sub-page-id'],
-        teamId: headers['x-teams-team-id'],
-        tenantId: tokenPayload['tid'],
-        userId: tokenPayload['oid'],
-        userName: tokenPayload['name'],
-      };
+      const context = await validator.check(headers);
+      if (!context) {
+        helpers.sendResponse({ status: 401, body: 'unauthorized' });
+        return;
+      }
 
       const getCurrentConversationId =
         functionContext.getConversationIdResolver(
