@@ -3,10 +3,29 @@ import e from 'express';
 
 import { IMessageActivity, IToken, MessageActivity } from '@microsoft/teams.api';
 
-import { App, IPluginStartEvent } from '@microsoft/teams.apps';
+import { App, IPluginStartEvent, ExpressAdapter } from '@microsoft/teams.apps';
 import { JwtValidatedRequest } from '@microsoft/teams.apps/dist/middleware';
 
 import { BotBuilderPlugin } from './plugin';
+
+// Mock adapter that extends ExpressAdapter to pass instanceof check
+// while avoiding real server operations in tests
+class MockExpressAdapter extends ExpressAdapter {
+  constructor() {
+    // Don't create real server - pass undefined
+    super(undefined);
+  }
+
+  // Override to prevent actual server start
+  async start(_port: number): Promise<void> {
+    return Promise.resolve();
+  }
+
+  // Override to prevent server close operations
+  async stop(): Promise<void> {
+    return Promise.resolve();
+  }
+}
 
 class TestBotBuilderPlugin extends BotBuilderPlugin {
   async onStart(_event: IPluginStartEvent) {
@@ -47,6 +66,7 @@ describe('BotBuilderPlugin', () => {
     });
     app = new App({
       plugins: [plugin],
+      httpAdapter: new MockExpressAdapter(),
     });
     app.start();
   });
