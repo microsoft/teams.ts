@@ -17,7 +17,7 @@
     "@microsoft/teams.apps": "2.0.5",
     "@microsoft/teams.common": "2.0.5",
     "cors": "^2.8.5",
-    "express": "^4.21.0",
+    "express": "^5.0.0",
     "fastify": "^5.2.0",
     "hono": "^4.6.14"
   },
