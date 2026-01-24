@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 import { JsonWebToken } from '@microsoft/teams.api';
 
 import { App } from './app';
-import { TestHttpPlugin } from './plugins/http/plugin.spec';
 
 class TestApp extends App {
   // Expose protected members for testing
@@ -50,7 +49,6 @@ describe('App', () => {
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
         tenantId: 'test-tenant-id',
-        plugins: [new TestHttpPlugin()],
       });
     });
 
@@ -88,7 +86,6 @@ describe('App', () => {
 
     it('should return null when credentials are not provided', async () => {
       const appWithoutCreds = new TestApp({
-        plugins: [new TestHttpPlugin()],
       });
 
       const botToken = await appWithoutCreds.testGetBotToken();
@@ -120,7 +117,6 @@ describe('App', () => {
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
         tenantId: 'test-tenant-id',
-        plugins: [new TestHttpPlugin()],
       });
 
       await app.start();
@@ -145,7 +141,6 @@ describe('App', () => {
         manifest: {
           name: { short: 'TestBot', full: 'Test Bot Application' },
         },
-        plugins: [new TestHttpPlugin()],
       });
 
       await app.start();
@@ -164,7 +159,6 @@ describe('App', () => {
 
     it('should throw error when app is not started (no clientId)', async () => {
       app = new TestApp({
-        plugins: [new TestHttpPlugin()],
       });
 
       await app.start();

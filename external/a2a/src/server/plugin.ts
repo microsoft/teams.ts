@@ -17,7 +17,8 @@ import {
   Dependency,
   EmitPluginEvent,
   Event,
-  HttpPlugin,
+  ExpressAdapter,
+  HttpServer,
   IPlugin,
   Logger,
   Plugin,
@@ -77,7 +78,8 @@ export class A2APlugin implements IPlugin {
   protected readonly emit!: EmitPluginEvent<A2AEvents>;
 
   @Dependency()
-  protected readonly _httpPlugin!: HttpPlugin;
+  protected readonly httpServer!: HttpServer;
+
   __eventType!: A2AEvents;
 
   public readonly card: AgentCard;
@@ -105,6 +107,14 @@ export class A2APlugin implements IPlugin {
     this.middlewares.push(middleware);
   }
   onInit() {
+    const adapter = this.httpServer.adapter;
+    if (!(adapter instanceof ExpressAdapter)) {
+      throw new Error(
+        'A2APlugin requires ExpressAdapter. ' +
+        'Please use: new App({ server: new HttpServer(new ExpressAdapter()) })'
+      );
+    }
+
     const a2aExpressApp = new A2AExpressApp(this._setupRequestHandler());
     const expressApp = express();
 
@@ -122,7 +132,8 @@ export class A2APlugin implements IPlugin {
     );
     this.log.info(`A2A agent set up at ${this.path}/${this.agentCardPath}`);
     this.log.info(`A2A agent listening at ${this.path}`);
-    this._httpPlugin.use(expressApp);
+
+    adapter.use(expressApp);
   }
 
   _createLoggingMiddleware(): RequestHandler {

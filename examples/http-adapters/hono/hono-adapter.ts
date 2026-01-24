@@ -3,7 +3,7 @@ import { Hono, Context } from 'hono';
 import { IHttpAdapter, IRouteConfig } from '@microsoft/teams.apps/dist/plugins/http/adapter';
 
 /**
- * Hono adapter for ConfigurableHttpPlugin
+ * Hono adapter for HttpServer
  *
  * Handles Hono-specific HTTP framework concerns:
  * - Accepts an existing Hono app (with your own routes)
@@ -23,13 +23,6 @@ export class HonoAdapter implements IHttpAdapter {
     this.hono = hono;
     // Create server - will be attached in initialize()
     this.server = http.createServer();
-  }
-
-  /**
-   * Get the underlying HTTP server
-   */
-  getServer(): http.Server {
-    return this.server;
   }
 
   /**
@@ -94,6 +87,23 @@ export class HonoAdapter implements IHttpAdapter {
       default:
         throw new Error(`Unsupported HTTP method: ${method}`);
     }
+  }
+
+  /**
+   * Serve static files from a directory
+   */
+  serveStatic(path: string, directory: string): void {
+    // Hono's static file serving
+    this.hono.get(`${path}/*`, async (c) => {
+      const filePath = c.req.path.replace(path, directory);
+      try {
+        const fs = await import('fs/promises');
+        const content = await fs.readFile(filePath);
+        return c.body(content);
+      } catch {
+        return c.notFound();
+      }
+    });
   }
 
   /**

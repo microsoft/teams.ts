@@ -34,7 +34,7 @@ The server will start on `http://localhost:3978` with:
 ## How It Works
 
 ```typescript
-import { App, ConfigurableHttpPlugin } from '@microsoft/teams.apps';
+import { App, HttpServer } from '@microsoft/teams.apps';
 import { NextjsAdapter } from './nextjs-adapter';
 
 // Create adapter and app
@@ -43,14 +43,11 @@ const adapter = new NextjsAdapter(undefined, {
 });
 
 const app = new App({
-  plugins: [new ConfigurableHttpPlugin(adapter, { skipAuth: true })]
+  server: new HttpServer(adapter)
 });
 
-// Initialize app (registers routes)
-await app.initialize();
-
-// Manually start the server
-await adapter.start(3978);
+// Start the app
+await app.start(3978);
 ```
 
 The `NextjsAdapter` handles:

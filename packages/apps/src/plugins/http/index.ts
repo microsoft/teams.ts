@@ -1,4 +1,4 @@
 export * from './plugin';
-export * from './configurable-http-plugin';
+export * from './http-server';
 export * from './adapter';
 export * from './express-adapter';

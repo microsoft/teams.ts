@@ -9,7 +9,6 @@ import { WebSocket, WebSocketServer } from 'ws';
 
 import { InvokeResponse, IToken } from '@microsoft/teams.api';
 import {
-  HttpPlugin,
   Logger,
   IPluginActivityEvent,
   IPluginActivityResponseEvent,
@@ -54,9 +53,6 @@ export class DevtoolsPlugin {
 
   @Dependency({ optional: true })
   readonly name?: IToken;
-
-  @Dependency()
-  readonly httpPlugin!: HttpPlugin;
 
   @Event('error')
   readonly $onError!: (event: IErrorEvent) => void;

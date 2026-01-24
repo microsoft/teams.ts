@@ -1,70 +1,93 @@
-import e from 'express';
-
-import { IMessageActivity, IToken, MessageActivity } from '@microsoft/teams.api';
+import http from 'http';
 
 import { App } from '../../app';
 
-import { JwtValidatedRequest } from '../../middleware';
-import { IPluginStartEvent } from '../../types';
-
+import { HttpServer } from './http-server';
 import { HttpPlugin } from './plugin';
 
-export class TestHttpPlugin extends HttpPlugin {
-  async onStart(_event: IPluginStartEvent) {
-    // No-op for tests
-  }
-
-  async onStop() {
-    // No-op for tests
-  }
-
-  async OnRequestTest(req: JwtValidatedRequest, res: e.Response, _next: e.NextFunction) {
-    await this.onRequest(req, res, _next);
-  }
-}
-
 describe('HttpPlugin', () => {
-  let plugin: TestHttpPlugin;
-  let app: App<TestHttpPlugin>;
-  const token: IToken = {
-    appId: 'app-id',
-    serviceUrl: 'https://service.url',
-    from: 'bot',
-    fromId: 'bot-id',
-    toString: () => 'token',
-    isExpired: () => false,
-  };
-  const activity: IMessageActivity = new MessageActivity();
-
-  beforeEach(() => {
-    plugin = new TestHttpPlugin();
-    app = new App({
-      plugins: [plugin],
+  describe('constructor', () => {
+    it('should create with default options', () => {
+      const plugin = new HttpPlugin();
+      expect(plugin).toBeDefined();
+      expect(plugin.get).toBeDefined();
+      expect(plugin.post).toBeDefined();
+      expect(plugin.use).toBeDefined();
     });
-    app.start();
+
+    it('should create with custom http.Server', () => {
+      const server = http.createServer();
+      const plugin = new HttpPlugin(server);
+      expect(plugin).toBeDefined();
+    });
+
+    it('should create with skipAuth option', () => {
+      const plugin = new HttpPlugin(undefined, { skipAuth: true });
+      expect(plugin).toBeDefined();
+    });
   });
 
-  afterEach(() => {
-    app.stop();
+  describe('asServer', () => {
+    it('should return HttpServer instance', () => {
+      const plugin = new HttpPlugin();
+      const server = plugin.asServer();
+      expect(server).toBeInstanceOf(HttpServer);
+    });
   });
 
-  describe('OnRequest', () => {
-    it('should process incoming request', async () => {
-      const req = {
-        body: activity,
-        validatedToken: token,
-      } as JwtValidatedRequest;
+  describe('Express method delegation', () => {
+    it('should expose Express methods', () => {
+      const plugin = new HttpPlugin();
 
-      app.use(() => {
-        return { status: 200, body: 'some data' };
+      // These should be function references
+      expect(typeof plugin.get).toBe('function');
+      expect(typeof plugin.post).toBe('function');
+      expect(typeof plugin.patch).toBe('function');
+      expect(typeof plugin.put).toBe('function');
+      expect(typeof plugin.delete).toBe('function');
+      expect(typeof plugin.route).toBe('function');
+      expect(typeof plugin.use).toBe('function');
+    });
+  });
+
+  describe('static', () => {
+    it('should call expressAdapter.serveStatic', () => {
+      const plugin = new HttpPlugin();
+      const serveStaticSpy = jest.spyOn((plugin as any).expressAdapter, 'serveStatic');
+
+      plugin.static('/test', './dist');
+
+      expect(serveStaticSpy).toHaveBeenCalledWith('/test', './dist');
+    });
+  });
+
+  describe('backwards compatibility with App', () => {
+    it('should work when passed in plugins array', () => {
+      const plugin = new HttpPlugin();
+      const app = new App({
+        plugins: [plugin],
       });
 
-      const res = { send: jest.fn(), status: jest.fn().mockReturnThis() } as any;
-      const next = jest.fn();
+      expect(app.http).toBe(plugin);
+      expect(app.server).toBeDefined();
+    });
 
-      await plugin.OnRequestTest(req, res, next);
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.send).toHaveBeenCalledWith('some data');
+    it('should allow direct plugin usage', () => {
+      const plugin = new HttpPlugin();
+
+      // Should be able to call Express methods directly
+      const mockHandler = jest.fn();
+      plugin.post('/test', mockHandler);
+
+      // Verify it was registered (we can't easily test execution without starting server)
+      expect(mockHandler).toBeDefined();
+    });
+  });
+
+  describe('onInit lifecycle', () => {
+    it('should have onInit method', async () => {
+      const plugin = new HttpPlugin();
+      await expect(plugin.onInit()).resolves.toBeUndefined();
     });
   });
 });

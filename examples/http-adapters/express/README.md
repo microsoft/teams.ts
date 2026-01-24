@@ -60,15 +60,10 @@ The server will start on `http://localhost:3978` with:
 ## How It Works
 
 ```typescript
-import { App, ConfigurableHttpPlugin, ExpressAdapter } from '@microsoft/teams.apps';
+import { App, HttpServer, ExpressAdapter } from '@microsoft/teams.apps';
 
 const app = new App({
-  plugins: [
-    new ConfigurableHttpPlugin(
-      new ExpressAdapter(),
-      { skipAuth: true }
-    )
-  ]
+  server: new HttpServer(new ExpressAdapter())
 });
 ```
 

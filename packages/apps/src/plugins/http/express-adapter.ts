@@ -6,7 +6,7 @@ import express from 'express';
 import { IHttpAdapter, IRouteConfig } from './adapter';
 
 /**
- * Express adapter for ConfigurableHttpPlugin
+ * Express adapter for HttpServer
  *
  * Handles Express-specific HTTP framework concerns:
  * - Express app creation and middleware setup
@@ -46,13 +46,6 @@ export class ExpressAdapter implements IHttpAdapter {
     // Setup middleware
     this.express.use(cors());
     this.express.use('/api*', express.json());
-  }
-
-  /**
-   * Get the underlying HTTP server
-   */
-  getServer(): http.Server {
-    return this.server;
   }
 
   /**
@@ -106,6 +99,14 @@ export class ExpressAdapter implements IHttpAdapter {
   }
 
   /**
+   * Initialize the adapter
+   * No-op for Express
+   */
+  async initialize(): Promise<void> {
+    // No initialization needed for Express
+  }
+
+  /**
    * Start the server
    * Throws if server was user-provided
    */
@@ -126,12 +127,9 @@ export class ExpressAdapter implements IHttpAdapter {
   }
 
   /**
-   * Serve static files
-   * @param path the url path to serve
-   * @param dist the dist file path to serve
+   * Serve static files from a directory
    */
-  static(path: string, dist: string): this {
-    this.express.use(path, express.static(dist));
-    return this;
+  serveStatic(path: string, directory: string): void {
+    this.express.use(path, express.static(directory));
   }
 }
