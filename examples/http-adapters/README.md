@@ -8,9 +8,9 @@ An adapter bridges your HTTP framework with teams.ts. You create your server, pa
 
 ## Examples
 
-- **[express/](./express/)** - Hook teams.ts into an existing Express server
-- **[hono/](./hono/)** - Build a custom adapter (Hono example)
-- **[nextjs/](./nextjs/)** - Integrate with Next.js app
+- **[express/](./express/)** - Hook your own Express server with the built-in Express adapter
+- **[hono/](./hono/)** - Build a custom adapter and manage the lifecycle yourself
+- **[fastify/](./fastify/)** - Build a custom adapter and let App manage its lifecycle
 
 ## Running
 
@@ -21,7 +21,7 @@ cp .env.example .env
 # Run an example
 npm run dev:express
 npm run dev:hono
-npm run dev:nextjs
+npm run dev:fastify
 ```
 
 All examples start on `http://localhost:3978` with `/api/messages` as the bot endpoint.

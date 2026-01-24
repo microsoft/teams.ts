@@ -6,11 +6,10 @@
   "scripts": {
     "dev:express": "tsx watch express/index.ts",
     "dev:hono": "tsx watch hono/index.ts",
-    "dev:nextjs": "tsx watch nextjs/server.ts",
+    "dev:fastify": "tsx watch fastify/index.ts",
     "start:express": "NODE_ENV=production tsx express/index.ts",
     "start:hono": "NODE_ENV=production tsx hono/index.ts",
-    "start:nextjs": "NODE_ENV=production tsx nextjs/server.ts",
-    "build:nextjs": "next build"
+    "start:fastify": "NODE_ENV=production tsx fastify/index.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",
@@ -19,17 +18,14 @@
     "@microsoft/teams.common": "2.0.5",
     "cors": "^2.8.5",
     "express": "^4.21.0",
-    "hono": "^4.6.14",
-    "next": "^14.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "fastify": "^5.2.0",
+    "hono": "^4.6.14"
   },
   "devDependencies": {
     "@microsoft/teams.config": "2.0.5",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.5.4",
-    "@types/react": "^18.2.0",
     "dotenv": "^16.4.5",
     "tsx": "^4.20.6",
     "typescript": "^5.4.5"
