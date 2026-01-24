@@ -81,7 +81,7 @@ export function inject<TPlugin extends IPlugin>(this: App<TPlugin>, plugin: IPlu
 
     if (name === 'error') {
       handler = (event: IPluginErrorEvent) => {
-        this.onError({ ...event, sender: plugin });
+        this.onError(event);
       };
     } else if (name === 'activity') {
       handler = (event: IActivityEvent) => {
