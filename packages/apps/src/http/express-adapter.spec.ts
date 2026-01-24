@@ -19,7 +19,8 @@ describe('ExpressAdapter', () => {
   });
 
   it('should initialize without errors', () => {
-    // This test ensures that the middleware setup works correctly
+    // This test ensures that the middleware setup works with Express 5's
+    // stricter path-to-regexp validation (no wildcards like /api*)
     server = http.createServer();
     expect(() => {
       adapter = new ExpressAdapter(server);
