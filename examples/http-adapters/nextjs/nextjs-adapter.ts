@@ -9,7 +9,13 @@ import { IHttpAdapter, IRouteConfig } from '@microsoft/teams.apps/dist/http/adap
  * - Next.js app preparation and initialization
  * - Route interception for Teams bot endpoints
  * - Fallback to Next.js handler for all other routes
- * - Server lifecycle management
+ *
+ * Usage:
+ *   const server = http.createServer();
+ *   const adapter = new NextjsAdapter(server);
+ *   const app = new App({ httpAdapter: adapter });
+ *   await app.initialize();
+ *   server.listen(3978);
  */
 export class NextjsAdapter implements IHttpAdapter {
   protected nextApp: ReturnType<typeof next>;
@@ -18,7 +24,8 @@ export class NextjsAdapter implements IHttpAdapter {
   protected dev: boolean;
   protected requestHandlerAttached: boolean = false;
 
-  constructor(server?: http.Server, options?: { dev?: boolean; dir?: string }) {
+  constructor(server: http.Server, options?: { dev?: boolean; dir?: string }) {
+    this.server = server;
     this.dev = options?.dev ?? process.env.NODE_ENV !== 'production';
 
     // Create Next.js app
@@ -26,9 +33,6 @@ export class NextjsAdapter implements IHttpAdapter {
       dev: this.dev,
       dir: options?.dir
     });
-
-    // Create server
-    this.server = server || http.createServer();
   }
 
   /**
@@ -108,36 +112,9 @@ export class NextjsAdapter implements IHttpAdapter {
       }
     };
 
-    // Attach request handler to the server created in constructor
+    // Attach request handler to the server
     this.server.on('request', requestHandler);
     this.requestHandlerAttached = true;
-  }
-
-  /**
-   * Start the server listening on the specified port
-   */
-  async start(port: number): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      this.server.listen(port, () => {
-        resolve();
-      });
-      this.server.once('error', reject);
-    });
-  }
-
-  /**
-   * Stop the server and close all connections
-   */
-  async stop(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      this.server.close((err) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
   }
 
   /**

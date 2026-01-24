@@ -7,11 +7,11 @@ export const expressApp = express();
 export const httpServer = http.createServer(expressApp);
 
 // Add your custom routes
-expressApp.get('/health', (req, res) => {
+expressApp.get('/health', (_req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
-expressApp.get('/api/users', (req, res) => {
+expressApp.get('/api/users', (_req, res) => {
   res.json({
     users: [
       { id: 1, name: 'Alice' },
@@ -20,7 +20,7 @@ expressApp.get('/api/users', (req, res) => {
   });
 });
 
-expressApp.get('/', (req, res) => {
+expressApp.get('/', (_req, res) => {
   res.send(`
     <html>
       <body>
