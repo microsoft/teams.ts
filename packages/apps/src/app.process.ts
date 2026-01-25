@@ -57,33 +57,30 @@ export async function $process<TPlugin extends IPlugin>(
 
   const routes = this.router.select(activity);
 
+  // Collect plugin contexts BEFORE creating the activity context
   let pluginContexts: {} = {};
   for (let i = this.plugins.length - 1; i > -1; i--) {
     const plugin = this.plugins[i];
 
     if (plugin.onActivity) {
-      routes.unshift(async ({ next }) => {
-        const additionalPluginContext = await plugin.onActivity!({
-          ...ref,
-          sender: sender,
-          activity,
-          token,
-        });
-
-        if (additionalPluginContext) {
-          for (const key in additionalPluginContext) {
-            if (key in pluginContexts) {
-              this.log.warn(`Plugin context key "${key}" already exists. Overriding.`);
-            }
-          }
-          pluginContexts = {
-            ...pluginContexts,
-            ...additionalPluginContext,
-          };
-        }
-
-        return next();
+      const additionalPluginContext = await plugin.onActivity({
+        ...ref,
+        sender: sender,
+        activity,
+        token,
       });
+
+      if (additionalPluginContext) {
+        for (const key in additionalPluginContext) {
+          if (key in pluginContexts) {
+            this.log.warn(`Plugin context key "${key}" already exists. Overriding.`);
+          }
+        }
+        pluginContexts = {
+          ...pluginContexts,
+          ...additionalPluginContext,
+        };
+      }
     }
   }
 
@@ -94,7 +91,11 @@ export async function $process<TPlugin extends IPlugin>(
     if (i === routes.length - 1) return data;
     i++;
 
-    const res = await routes[i](ctx || context.toInterface());
+    const mergedContext = ctx || {
+      ...context.toInterface(),
+      ...pluginContexts,
+    };
+    const res = await routes[i](mergedContext);
 
     if (res) {
       data = res;
@@ -116,7 +117,6 @@ export async function $process<TPlugin extends IPlugin>(
     storage: this.storage,
     isSignedIn: !!userToken,
     connectionName: this.oauth.defaultConnectionName,
-    ...pluginContexts
   });
 
   const send = context.send.bind(context);

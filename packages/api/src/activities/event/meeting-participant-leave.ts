@@ -30,9 +30,9 @@ export interface IMeetingParticipantLeaveEventActivity extends IActivity<'event'
         inMeeting: boolean;
 
         /**
-         * The user's role.
+         * Optional. The user's role.
          */
-        role: string;
+        role?: string;
       };
     }[];
   };

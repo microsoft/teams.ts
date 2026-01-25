@@ -1,5 +1,5 @@
 {
-  "name": "@examples/mcpclient",
+  "name": "@examples/meetings",
   "version": "0.0.6",
   "private": true,
   "license": "MIT",
@@ -14,22 +14,21 @@
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
-    "start": "node -r dotenv/config .",
+    "start": "node .",
     "dev": "tsx watch -r dotenv/config src/index.ts"
   },
   "dependencies": {
-    "@microsoft/teams.ai": "2.0.5",
+    "@microsoft/teams.api": "2.0.5",
     "@microsoft/teams.apps": "2.0.5",
-    "@microsoft/teams.dev": "2.0.5",
-    "@microsoft/teams.mcpclient": "2.0.5",
-    "@microsoft/teams.openai": "2.0.5",
-    "@modelcontextprotocol/sdk": "^1.25.2"
+    "@microsoft/teams.common": "2.0.5",
+    "@microsoft/teams.cards": "2.0.5"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",
     "dotenv": "^16.4.5",
     "rimraf": "^6.0.1",
     "tsx": "^4.20.6",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "env-cmd": "latest"
   }
 }

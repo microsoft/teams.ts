@@ -2,7 +2,7 @@ import { ILogger } from '@microsoft/teams.common';
 
 export type RetryOptions = {
   /**
-   * the max number of retry attempts
+   * the max number of attempts
    * @default 5
    */
   readonly max?: number;
@@ -27,7 +27,7 @@ export async function retry<T = any>(factory: () => Promise<T>, options?: RetryO
   try {
     return await factory();
   } catch (err) {
-    if (max > 0) {
+    if (max > 1) {
       log?.debug(`delaying ${delay}ms...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
       log?.debug('retrying...');

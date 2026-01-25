@@ -16,6 +16,21 @@ import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/teams.common';
 import { IStreamer, IStreamerEvents } from '../../types';
 import { promises } from '../../utils';
 
+/**
+ * HTTP-based streaming implementation for Microsoft Teams activities.
+ *
+ * Allows sending typing indicators and messages in chunks to Teams.
+ * Queues incoming activities and flushes them periodically to avoid
+ * rate limits.
+ *
+ * Flow:
+ * 1. `emit()` adds activities to the queue and starts a flush if none scheduled.
+ * 2. `_flush()` starts by cancelling any pending flush, then processes up to 10 queued activities under a lock.
+ * 3. Informative typing updates are sent immediately.
+ * 4. Message text is combined and sent as a typing activity.
+ * 5. `_flush()` schedules another flush if more items remain in queue.
+ * 6. `close()` waits for the queue to empty and sends the final message activity.
+ */
 export class HttpStream implements IStreamer {
   readonly events = new EventEmitter<IStreamerEvents>();
 
@@ -33,6 +48,7 @@ export class HttpStream implements IStreamer {
   private _timeout?: NodeJS.Timeout;
   private _logger: ILogger;
   private _flushing: boolean = false;
+  private readonly _totalTimeout = 30000; // 30 seconds
 
   constructor(client: Client, ref: ConversationReference, logger?: ILogger) {
     this.client = client;
@@ -40,11 +56,11 @@ export class HttpStream implements IStreamer {
     this._logger = logger?.child('stream') || new ConsoleLogger('@teams/http/stream');
   }
 
+  /**
+   * Emit a new activity or text to the stream.
+   * @param activity Activity object or string message.
+   */
   emit(activity: Partial<IMessageActivity | ITypingActivity> | string) {
-    if (this._timeout) {
-      clearTimeout(this._timeout);
-      this._timeout = undefined;
-    }
 
     if (typeof activity === 'string') {
       activity = {
@@ -54,9 +70,17 @@ export class HttpStream implements IStreamer {
     }
 
     this.queue.push(activity);
-    this._timeout = setTimeout(this.flush.bind(this), 500);
+
+    // Start flush if not already scheduled
+    if (!this._timeout) {
+      this.flush();
+    }
   }
 
+  /**
+   * Send a typing/status update without adding to the main text.
+   * @param text Status text (ex. "Thinking...")
+   */
   update(text: string) {
     this.emit({
       type: 'typing',
@@ -65,6 +89,10 @@ export class HttpStream implements IStreamer {
     });
   }
 
+  /**
+   * Close the stream by sending the final message.
+   * Waits for all queued activities to flush.
+   */
   async close() {
     if (!this.index && !this.queue.length && !this._flushing) {
       this._logger.debug('closed with no content');
@@ -76,8 +104,16 @@ export class HttpStream implements IStreamer {
       return this._result;
     }
 
-    while (!this.id || this.queue.length) {
-      await new Promise((resolve) => setTimeout(resolve, 200));
+    // Wait until all queued activities are flushed
+    const start = Date.now();
+
+    while (this.queue.length || !this.id) {
+      if (Date.now() - start > this._totalTimeout) {
+        this._logger.warn('Timeout while waiting for id and queue to flush');
+        return;
+      }
+      this._logger.debug('waiting for id to be set or queue to be empty');
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     if (this.text === '' && !this.attachments.length) {
@@ -85,6 +121,7 @@ export class HttpStream implements IStreamer {
       return;
     }
 
+    // Build final message activity
     const activity = new MessageActivity(this.text)
       .withId(this.id)
       .addAttachments(...this.attachments)
@@ -98,6 +135,7 @@ export class HttpStream implements IStreamer {
 
     this.events.emit('close', res);
 
+    // Reset internal state
     this.index = 0;
     this.id = undefined;
     this.text = '';
@@ -109,6 +147,10 @@ export class HttpStream implements IStreamer {
     return res;
   }
 
+  /**
+   * Flush queued activities.
+   * Processes up to 10 items at a time.
+   */
   protected async flush() {
     // if locked or no queue, return early
     if (!this.queue.length || this._flushing) return;
@@ -170,14 +212,21 @@ export class HttpStream implements IStreamer {
         await this.pushStreamChunk(activity);
       }
 
+      // Schedule another flush if queue is not empty
       if (this.queue.length) {
         this._timeout = setTimeout(this.flush.bind(this), 500);
       }
+    } catch (err) {
+      this._logger.error(err, 'flush failed');
     } finally {
       this._flushing = false;
     }
   }
 
+  /**
+   * Push a new chunk to the stream.
+   * @param activity TypingActivity to send.
+   */
   protected async pushStreamChunk(activity: TypingActivity) {
       if (this.id) {
         activity.id = this.id;
@@ -194,6 +243,10 @@ export class HttpStream implements IStreamer {
       }
   }
 
+  /**
+   * Send or update a streaming activity
+   * @param activity ActivityParams to send.
+   */
   protected async send(activity: ActivityParams) {
     activity = {
       ...activity,

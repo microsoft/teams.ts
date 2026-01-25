@@ -16,8 +16,10 @@ const prompt = new ChatPrompt(
     instructions:
       'You are a helpful assistant. You MUST use tool calls to do all your work.',
     model: new OpenAIChatModel({
-      model: 'gpt-4o-mini',
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: process.env.AZURE_OPENAI_API_KEY || process.env.OPENAI_API_KEY,
+      endpoint: process.env.AZURE_OPENAI_ENDPOINT,
+      apiVersion: process.env.AZURE_OPENAI_API_VERSION,
+      model: process.env.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME!,
     }),
     logger
   },
