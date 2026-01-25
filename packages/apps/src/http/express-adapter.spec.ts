@@ -1,4 +1,8 @@
+import fs from 'fs';
 import http from 'http';
+
+import os from 'os';
+import path from 'path';
 
 import supertest from 'supertest';
 
@@ -141,10 +145,6 @@ describe('ExpressAdapter', () => {
     });
 
     it('should serve static files from directory', async () => {
-      const fs = require('fs');
-      const path = require('path');
-      const os = require('os');
-
       // Create a temporary directory with a test file
       const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'express-static-test-'));
       const testHtml = path.join(tmpDir, 'index.html');
@@ -169,10 +169,6 @@ describe('ExpressAdapter', () => {
     });
 
     it('should serve index.html when accessing directory path with trailing slash', async () => {
-      const fs = require('fs');
-      const path = require('path');
-      const os = require('os');
-
       // Create a temporary directory with an index.html file
       const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'express-static-test-'));
       const indexHtml = path.join(tmpDir, 'index.html');
