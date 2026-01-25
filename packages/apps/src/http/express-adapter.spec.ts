@@ -139,5 +139,62 @@ describe('ExpressAdapter', () => {
         adapter.serveStatic('/static', './public');
       }).not.toThrow();
     });
+
+    it('should serve static files from directory', async () => {
+      const fs = require('fs');
+      const path = require('path');
+      const os = require('os');
+
+      // Create a temporary directory with a test file
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'express-static-test-'));
+      const testHtml = path.join(tmpDir, 'index.html');
+      fs.writeFileSync(testHtml, '<html><body>Test Page</body></html>');
+
+      try {
+        server = http.createServer();
+        adapter = new ExpressAdapter(server);
+
+        adapter.serveStatic('/tabs/test', tmpDir);
+
+        const response = await supertest(server)
+          .get('/tabs/test/index.html')
+          .expect(200);
+
+        expect(response.text).toContain('Test Page');
+      } finally {
+        // Clean up
+        fs.unlinkSync(testHtml);
+        fs.rmdirSync(tmpDir);
+      }
+    });
+
+    it('should serve index.html when accessing directory path with trailing slash', async () => {
+      const fs = require('fs');
+      const path = require('path');
+      const os = require('os');
+
+      // Create a temporary directory with an index.html file
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'express-static-test-'));
+      const indexHtml = path.join(tmpDir, 'index.html');
+      fs.writeFileSync(indexHtml, '<html><body>Index Page</body></html>');
+
+      try {
+        server = http.createServer();
+        adapter = new ExpressAdapter(server);
+
+        adapter.serveStatic('/tabs/test', tmpDir);
+
+        // Accessing /tabs/test/ with trailing slash should serve index.html
+        const response = await supertest(server)
+          .get('/tabs/test/')
+          .expect(200);
+
+        expect(response.text).toContain('Index Page');
+      } finally {
+        // Clean up
+        fs.unlinkSync(indexHtml);
+        fs.rmdirSync(tmpDir);
+      }
+    });
   });
 });
