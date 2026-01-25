@@ -260,8 +260,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       });
     }
 
-    const serviceUrl = this.options.serviceUrl ?? process.env.SERVICE_URL ??
-      'https://smba.trafficmanager.net/teams';
+    const serviceUrl = (this.options.serviceUrl ?? process.env.SERVICE_URL ??
+      'https://smba.trafficmanager.net/teams').replace(/\/+$/, '');
     this.api = new ApiClient(
       serviceUrl,
       this.client.clone({ token: () => this.getBotToken() }),
