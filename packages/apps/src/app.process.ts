@@ -109,7 +109,6 @@ export async function $process<TPlugin extends IPlugin>(
     return data;
   };
 
-  const stream = this.activitySender.createStream(ref);
   const context = new ActivityContext({
     activity,
     next,
@@ -123,8 +122,7 @@ export async function $process<TPlugin extends IPlugin>(
     storage: this.storage,
     isSignedIn: !!userToken,
     connectionName: this.oauth.defaultConnectionName,
-    send: (activity, ref) => this.activitySender.send(activity, ref),
-    stream: stream,
+    activitySender: this.activitySender,
     ...pluginContexts
   });
 
