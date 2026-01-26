@@ -3,17 +3,17 @@ import * as $http from '@microsoft/teams.common/http';
 import { ILogger } from '@microsoft/teams.common/logging';
 
 import { HttpStream } from './http-stream';
-import { IStreamer } from './types';
+import { IActivitySender, IStreamer } from './types';
 
 /**
  * Handles sending activities to the Bot Framework
  * Separate from transport concerns (HTTP, WebSocket, etc.)
  */
-export class ActivitySender {
+export class ActivitySender implements IActivitySender {
   constructor(
     private client: $http.Client,
     private logger: ILogger
-  ) {}
+  ) { }
 
   async send(activity: ActivityParams, ref: ConversationReference): Promise<SentActivity> {
     // Create API client for this conversation's service URL
