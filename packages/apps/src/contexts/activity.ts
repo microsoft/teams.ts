@@ -1,7 +1,6 @@
 import {
   Activity,
   ActivityLike,
-  ActivityParams,
   cardAttachment,
   ConversationAccount,
   ConversationReference,
@@ -21,8 +20,31 @@ import { IStorage } from '@microsoft/teams.common/storage';
 
 import { ApiClient, GraphClient } from '../api';
 import { IStreamer } from '../types';
+import { IActivitySender } from '../types/plugin/sender';
 
-export interface IBaseActivityContextOptions<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>> {
+/**
+ * Constructor arguments for ActivityContext
+ * Internal implementation details not exposed in public interface
+ */
+export interface IActivityContextConstructorArgs {
+  /**
+   * activity sender for sending activities and creating streams
+   */
+  activitySender: IActivitySender;
+
+  /**
+   * call the next event/middleware handler
+   */
+  next: (
+    context?: IActivityContext
+  ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
+}
+
+/**
+ * Base activity context options
+ * These are the public properties exposed on the context
+ */
+export interface IBaseActivityContextOptions<T extends Activity = Activity> {
   /**
    * the app id of the bot
    */
@@ -80,31 +102,9 @@ export interface IBaseActivityContextOptions<T extends Activity = Activity, TExt
    * the user token for the activity context
    */
   userToken?: string;
-
-  /**
-   * send callback for sending activities
-   */
-  send: (activity: ActivityParams, ref: ConversationReference) => Promise<SentActivity>;
-
-  /**
-   * stream for this conversation
-   */
-  stream: IStreamer;
-
-  /**
-   * extra data
-   */
-  [key: string]: any;
-
-  /**
-   * call the next event/middleware handler
-   */
-  next: (
-    context?: IActivityContext & TExtraCtx
-  ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 }
 
-export type IActivityContextOptions<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>> = IBaseActivityContextOptions<T, TExtraCtx> & TExtraCtx;
+export type IActivityContextOptions<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>> = IBaseActivityContextOptions<T> & TExtraCtx;
 
 type SignInOptions = {
   /**
@@ -142,11 +142,18 @@ type SignInOptions = {
 };
 
 export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>>
-  extends IBaseActivityContextOptions<T, TExtraCtx> {
+  extends IBaseActivityContextOptions<T> {
   /**
    * a stream that can emit activity chunks
    */
   stream: IStreamer;
+
+  /**
+   * call the next event/middleware handler
+   */
+  next: (
+    context?: IActivityContext & TExtraCtx
+  ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 
   /**
    * send an activity to the conversation
@@ -195,16 +202,15 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
   [key: string]: any;
 
-  protected _send: (activity: ActivityParams, ref: ConversationReference) => Promise<SentActivity>;
-  protected _next?: (
-    context?: IActivityContext
-  ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
+  private activitySender: IActivitySender;
 
-  constructor(value: IBaseActivityContextOptions) {
-    // Extract send before Object.assign to avoid overwriting the send() method
-    const { send, ...rest } = value;
+  constructor(value: IBaseActivityContextOptions & IActivityContextConstructorArgs) {
+    // Extract activitySender and next before Object.assign to avoid overwriting methods
+    const { activitySender, next, ...rest } = value;
     Object.assign(this, rest);
-    this._send = send;
+    this.activitySender = activitySender;
+    this.next = next;
+    this.stream = activitySender.createStream(value.ref);
     this.connectionName = value.connectionName;
 
     if (value.activity.type === 'message') {
@@ -225,7 +231,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   }
 
   async send(activity: ActivityLike, conversationRef?: ConversationReference) {
-    return await this._send(toActivityParams(activity), conversationRef ?? this.ref);
+    return await this.activitySender.send(toActivityParams(activity), conversationRef ?? this.ref);
   }
 
   async reply(activity: ActivityLike) {

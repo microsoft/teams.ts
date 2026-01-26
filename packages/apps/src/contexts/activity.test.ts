@@ -110,8 +110,7 @@ describe('ActivityContext', () => {
       storage: mockStorage,
       connectionName: 'test-connection',
       next: jest.fn(),
-      send: mockSender.send.bind(mockSender),
-      stream: mockSender.createStream(mockRef),
+      activitySender: mockSender,
     });
   };
 
@@ -358,8 +357,7 @@ describe('ActivityContext', () => {
             conversationType: 'group',
           },
         },
-        send: mockSender.send.bind(mockSender),
-        stream: mockSender.createStream(mockRef),
+        activitySender: mockSender,
       });
 
       mockApiClient.users.token.get.mockRejectedValueOnce(
