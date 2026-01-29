@@ -141,20 +141,25 @@ export function Python(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
           .toString()
       );
 
-      const uvCheck = cp.spawnSync('uv', ['--version'], {
+      const pythonCheck = cp.spawnSync('python', ['--version'], {
         encoding: 'utf-8',
         shell: true,
       });
-      if (uvCheck.status !== 0) {
+      if (pythonCheck.status !== 0) {
         throw new Error(
-          '"uv" is required but was not found in your PATH. Please install uv (https://github.com/astral-sh/uv) and run "cd ${name} && uv venv && uv sync && uv run src/main.py".'
+          '"python" is required but was not found in your PATH. Please install Python 3.12+ (https://www.python.org/downloads/) and run "cd ${name} && python -m venv .venv && pip install -e . && python src/main.py".'
         );
       }
 
       if (start) {
-        console.log(`cd ${name} && uv venv && uv sync && uv run src/main.py`);
+        console.log(`cd ${name} && python -m venv .venv && . .venv/bin/activate && pip install -e . && python src/main.py`);
 
-        cp.spawnSync('uv', ['venv' , '&&', 'uv', 'sync', '&&', 'uv', 'run', 'src/main.py'], {
+        cp.spawnSync('python', ['-m', 'venv', '.venv'], {
+          stdio: 'inherit',
+          shell: true,
+          cwd: name,
+        });
+        cp.spawnSync('. .venv/bin/activate && pip install -e . && python src/main.py', [], {
           stdio: 'inherit',
           shell: true,
           cwd: name,
@@ -162,7 +167,7 @@ export function Python(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
 
       } else {
         console.log('Next steps to start the app:');
-        console.log(`cd ${name} && uv venv && uv sync && uv run src/main.py`);
+        console.log(`cd ${name} && python -m venv .venv && . .venv/bin/activate && pip install -e . && python src/main.py`);
       }
     },
   };
