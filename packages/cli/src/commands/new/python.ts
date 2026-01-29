@@ -1,4 +1,3 @@
-import cp from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
@@ -16,10 +15,21 @@ const ArgsSchema = z.object({
   name: z.string(),
   template: z.string(),
   atk: z.string().optional(),
-  start: z.boolean().optional(),
   clientId: z.string().optional(),
   clientSecret: z.string().optional(),
 });
+
+/**
+ * Prints next steps to start the app.
+ */
+function printNextSteps(name: string): void {
+  console.log(new String().bold('Next steps to start the app:').toString());
+  console.log(new String().cyan(`  cd ${name}`).toString());
+  console.log(new String().cyan('  python -m venv .venv').toString());
+  console.log(new String().gray('  # activate your venv, then:').toString());
+  console.log(new String().cyan('  pip install -e .').toString());
+  console.log(new String().cyan('  python src/main.py').toString());
+}
 
 export function Python(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema>> {
   const isPython = Settings.load().language == 'python';
@@ -53,12 +63,6 @@ export function Python(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
           choices: fs.readdirSync(
             path.resolve(url.fileURLToPath(import.meta.url), '../..', 'templates', 'python')
           ),
-        })
-        .option('start', {
-          alias: 's',
-          type: 'boolean',
-          describe: 'start the project',
-          default: false,
         })
         .option('toolkit', {
           alias: 'atk',
@@ -101,7 +105,7 @@ export function Python(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
           return true;
         });
     },
-    handler: async ({ name, template, atk, start, clientId, clientSecret }) => {
+    handler: async ({ name, template, atk, clientId, clientSecret }) => {
       const projectDir = path.join(process.cwd(), name);
       const builder = Project.builder()
         .withPath(projectDir)
@@ -135,40 +139,14 @@ export function Python(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
 
       const project = builder.build();
       await project.up();
+
       console.log(
         new String()
           .bold(new String().green(`✅ App "${name}" created successfully at ${projectDir}`))
           .toString()
       );
 
-      const pythonCheck = cp.spawnSync('python', ['--version'], {
-        encoding: 'utf-8',
-        shell: true,
-      });
-      if (pythonCheck.status !== 0) {
-        throw new Error(
-          '"python" is required but was not found in your PATH. Please install Python 3.12+ (https://www.python.org/downloads/) and run "cd ${name} && python -m venv .venv && pip install -e . && python src/main.py".'
-        );
-      }
-
-      if (start) {
-        console.log(`cd ${name} && python -m venv .venv && . .venv/bin/activate && pip install -e . && python src/main.py`);
-
-        cp.spawnSync('python', ['-m', 'venv', '.venv'], {
-          stdio: 'inherit',
-          shell: true,
-          cwd: name,
-        });
-        cp.spawnSync('. .venv/bin/activate && pip install -e . && python src/main.py', [], {
-          stdio: 'inherit',
-          shell: true,
-          cwd: name,
-        });
-
-      } else {
-        console.log('Next steps to start the app:');
-        console.log(`cd ${name} && python -m venv .venv && . .venv/bin/activate && pip install -e . && python src/main.py`);
-      }
+      printNextSteps(name);
     },
   };
 }
