@@ -1,7 +1,7 @@
 {
   "name": "@microsoft/teams.graph-endpoints-beta",
   "sideEffects": false,
-  "version": "2.0.5",
+  "version": "0.0.0",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.graph-tools",
-  "version": "2.0.5",
+  "version": "0.0.0",
   "private": true,
   "license": "MIT",
   "description": "Tools for generating TypeScript Graph API endpoints from OpenAPI specifications",

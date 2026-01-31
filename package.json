@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.ts",
-  "version": "2.0.5",
+  "version": "0.0.0",
   "private": true,
   "homepage": "https://github.com/microsoft/teams.ts",
   "bugs": "https://github.com/microsoft/teams.ts/issues",
@@ -28,6 +28,8 @@
     "bots"
   ],
   "scripts": {
+    "version:set": "node scripts/version.js",
+    "version:get": "node scripts/get-current-version.js",
     "clean": "npx turbo clean",
     "build": "npx turbo build",
     "build:packages": "npx turbo build --filter=./packages/*",
