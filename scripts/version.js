@@ -1,27 +1,40 @@
 #!/usr/bin/env node
 
+const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
 
-let version = process.argv[2];
-
-if (!version) {
-  console.error('Usage: node scripts/version.js <version>');
-  console.error('Example: node scripts/version.js 2.0.6');
-  process.exit(1);
-}
-
-// Strip leading 'v' if present
-version = version.replace(/^v/, '');
-
-if (!/^\d+\.\d+\.\d+(-[\w.]+)?$/.test(version)) {
-  console.error(`Invalid version format: ${version}`);
-  console.error('Expected format: X.Y.Z or X.Y.Z-prerelease (with optional v prefix)');
-  process.exit(1);
-}
-
 const rootDir = path.resolve(__dirname, '..');
+const isReset = process.argv.includes('--reset');
+
+let version;
+
+if (isReset) {
+  version = '0.0.0';
+  console.log('Resetting versions to placeholder (0.0.0)...\n');
+} else {
+  // Get version from nbgv
+  try {
+    version = execSync('nbgv get-version -v NpmPackageVersion', {
+      cwd: rootDir,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe']
+    }).trim();
+  } catch (error) {
+    console.error('Failed to get version from nbgv:', error.message);
+    console.error('Make sure version.json exists and is committed to git.');
+    process.exit(1);
+  }
+
+  if (!version || version === '0.0.0') {
+    console.error('nbgv returned invalid version:', version);
+    console.error('Make sure version.json exists and is committed to git.');
+    process.exit(1);
+  }
+
+  console.log(`Setting version to ${version} (from nbgv)...\n`);
+}
 
 // Use forward slashes for glob patterns (works cross-platform)
 const files = [
@@ -29,8 +42,6 @@ const files = [
   ...glob.sync('packages/*/package.json', { cwd: rootDir, absolute: true }),
   ...glob.sync('external/*/package.json', { cwd: rootDir, absolute: true })
 ];
-
-console.log(`Setting version to ${version}...\n`);
 
 files.forEach(file => {
   const content = fs.readFileSync(file, 'utf8');
@@ -43,11 +54,12 @@ files.forEach(file => {
   }
 
   // Update internal dependencies
+  const depVersion = isReset ? '*' : version;
   ['dependencies', 'devDependencies', 'peerDependencies'].forEach(depType => {
     if (pkg[depType]) {
       Object.keys(pkg[depType]).forEach(dep => {
         if (dep.startsWith('@microsoft/teams.')) {
-          pkg[depType][dep] = version;
+          pkg[depType][dep] = depVersion;
         }
       });
     }
@@ -57,4 +69,4 @@ files.forEach(file => {
   console.log(`  ${relativePath}`);
 });
 
-console.log(`\nDone. Updated ${files.length} files to version ${version}`);
+console.log(`\nDone. Updated ${files.length} files to version ${version}${isReset ? ' with * deps' : ''}`);
