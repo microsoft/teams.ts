@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
 
-const version = process.argv[2];
+let version = process.argv[2];
 
 if (!version) {
   console.error('Usage: node scripts/version.js <version>');
@@ -12,9 +12,12 @@ if (!version) {
   process.exit(1);
 }
 
+// Strip leading 'v' if present
+version = version.replace(/^v/, '');
+
 if (!/^\d+\.\d+\.\d+(-[\w.]+)?$/.test(version)) {
   console.error(`Invalid version format: ${version}`);
-  console.error('Expected format: X.Y.Z or X.Y.Z-prerelease');
+  console.error('Expected format: X.Y.Z or X.Y.Z-prerelease (with optional v prefix)');
   process.exit(1);
 }
 
