@@ -20,10 +20,11 @@ if (!/^\d+\.\d+\.\d+(-[\w.]+)?$/.test(version)) {
 
 const rootDir = path.resolve(__dirname, '..');
 
+// Use forward slashes for glob patterns (works cross-platform)
 const files = [
   path.join(rootDir, 'package.json'),
-  ...glob.sync(path.join(rootDir, 'packages/*/package.json')),
-  ...glob.sync(path.join(rootDir, 'external/*/package.json'))
+  ...glob.sync('packages/*/package.json', { cwd: rootDir, absolute: true }),
+  ...glob.sync('external/*/package.json', { cwd: rootDir, absolute: true })
 ];
 
 console.log(`Setting version to ${version}...\n`);
