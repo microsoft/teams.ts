@@ -36,15 +36,15 @@ To fix a bug in a released version without including new preview changes:
 
 2. **Make your fix and commit**
 
-3. **Update version.json** on the release branch to use 4-segment versioning:
-   ```json
-   {
-     "version": "2.0.6.{height}"
-   }
-   ```
-   This produces: `2.0.6.1`, `2.0.6.2`, etc.
+3. **Push and trigger the release pipeline**
 
-4. **Push and trigger the release pipeline**
+4. **Cherry-pick the fix back to main**:
+   ```bash
+   git checkout main
+   git cherry-pick <commit-sha>
+   git push origin main
+   ```
+   This ensures the fix is included in future releases.
 
 ## Experimental Features
 
