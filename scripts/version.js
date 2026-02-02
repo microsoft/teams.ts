@@ -6,35 +6,28 @@ const path = require('path');
 const glob = require('glob');
 
 const rootDir = path.resolve(__dirname, '..');
-const isReset = process.argv.includes('--reset');
 
+// Get version from nbgv
 let version;
-
-if (isReset) {
-  version = '0.0.0';
-  console.log('Resetting versions to placeholder (0.0.0)...\n');
-} else {
-  // Get version from nbgv
-  try {
-    version = execSync('nbgv get-version -v NpmPackageVersion', {
-      cwd: rootDir,
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe']
-    }).trim();
-  } catch (error) {
-    console.error('Failed to get version from nbgv:', error.message);
-    console.error('Make sure version.json exists and is committed to git.');
-    process.exit(1);
-  }
-
-  if (!version || version === '0.0.0') {
-    console.error('nbgv returned invalid version:', version);
-    console.error('Make sure version.json exists and is committed to git.');
-    process.exit(1);
-  }
-
-  console.log(`Setting version to ${version} (from nbgv)...\n`);
+try {
+  version = execSync('nbgv get-version -v NpmPackageVersion', {
+    cwd: rootDir,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe']
+  }).trim();
+} catch (error) {
+  console.error('Failed to get version from nbgv:', error.message);
+  console.error('Make sure version.json exists and is committed to git.');
+  process.exit(1);
 }
+
+if (!version || version === '0.0.0') {
+  console.error('nbgv returned invalid version:', version);
+  console.error('Make sure version.json exists and is committed to git.');
+  process.exit(1);
+}
+
+console.log(`Setting version to ${version} (from nbgv)...\n`);
 
 // Use forward slashes for glob patterns (works cross-platform)
 const files = [
@@ -54,12 +47,11 @@ files.forEach(file => {
   }
 
   // Update internal dependencies
-  const depVersion = isReset ? '*' : version;
   ['dependencies', 'devDependencies', 'peerDependencies'].forEach(depType => {
     if (pkg[depType]) {
       Object.keys(pkg[depType]).forEach(dep => {
         if (dep.startsWith('@microsoft/teams.')) {
-          pkg[depType][dep] = depVersion;
+          pkg[depType][dep] = version;
         }
       });
     }
@@ -69,4 +61,4 @@ files.forEach(file => {
   console.log(`  ${relativePath}`);
 });
 
-console.log(`\nDone. Updated ${files.length} files to version ${version}${isReset ? ' with * deps' : ''}`);
+console.log(`\nDone. Updated ${files.length} files to version ${version}`);

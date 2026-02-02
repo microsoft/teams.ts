@@ -29,7 +29,6 @@
   ],
   "scripts": {
     "version:stamp": "node scripts/version.js",
-    "version:reset": "node scripts/version.js --reset",
     "version:get": "nbgv get-version -v NpmPackageVersion",
     "release:prepare": "nbgv prepare-release",
     "clean": "npx turbo clean",
