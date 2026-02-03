@@ -5,46 +5,45 @@ This project uses [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.Gi
 ## How Versioning Works
 
 - Versions are computed automatically from git history based on `version.json`
-- **Main branch**: `2.0.6-preview.1`, `2.0.6-preview.2`, etc. (prerelease)
-- **Release branch**: `2.0.6`, `2.0.7`, etc. (stable)
+- **Main branch**: `2.0.6-preview.1`, `2.0.6-preview.2`, etc. (prerelease, published with `next` npm tag)
+- **Release branch**: `2.0.6`, `2.0.7`, etc. (stable, published with `latest` npm tag)
 
 ## Creating a Release
 
-1. **Prepare the release** (from main branch):
-   ```bash
-   npm run release:prepare
-   ```
-   This will:
-   - Create a release branch (e.g., `release/v2.0.6`)
-   - Bump main to the next preview version (e.g., `2.0.7-preview.{height}`)
+1. **Create a PR from `main` to `release`**:
+   - Go to GitHub → Pull requests → New pull request
+   - Base: `release`, Compare: `main`
+   - Get teammate approval and merge
 
-2. **Push the release branch**:
-   ```bash
-   git push origin release/v2.0.6
-   ```
+2. **Trigger the release pipeline**: [Azure DevOps Pipeline](https://dev.azure.com/DomoreexpGithub/Github_Pipelines/_build?definitionId=46&_a=summary)
 
-3. **Trigger the release pipeline**: [Azure DevOps Pipeline](https://dev.azure.com/DomoreexpGithub/Github_Pipelines/_build?definitionId=46&_a=summary)
+3. **Bump the version on main** for the next release cycle:
+   - Edit `version.json` on main
+   - Change `"version": "2.0.6-preview.{height}"` to `"version": "2.0.7-preview.{height}"`
+   - Commit and push (or PR)
 
 ## Hotfixes
 
 To fix a bug in a released version without including new preview changes:
 
-1. **Checkout the release branch**:
+1. **Create a branch from `release`**:
    ```bash
-   git checkout release/v2.0.6
+   git checkout release
+   git checkout -b hotfix/fix-description
    ```
 
 2. **Make your fix and commit**
 
-3. **Push and trigger the release pipeline**
+3. **Create a PR to `release`**, get approval, and merge
 
-4. **Cherry-pick the fix back to main**:
+4. **Trigger the release pipeline**
+
+5. **Cherry-pick the fix back to main**:
    ```bash
    git checkout main
    git cherry-pick <commit-sha>
    git push origin main
    ```
-   This ensures the fix is included in future releases.
 
 ## Experimental Features
 

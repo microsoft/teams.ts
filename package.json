@@ -30,7 +30,6 @@
   "scripts": {
     "version:stamp": "node scripts/version.js",
     "version:get": "nbgv get-version -v NpmPackageVersion",
-    "release:prepare": "nbgv prepare-release",
     "clean": "npx turbo clean",
     "build": "npx turbo build",
     "build:packages": "npx turbo build --filter=./packages/*",

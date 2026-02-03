@@ -2,12 +2,8 @@
   "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/main/src/NerdBank.GitVersioning/version.schema.json",
   "version": "2.0.6-preview.{height}",
   "publicReleaseRefSpec": [
-    "^refs/heads/release/v\\d+\\.\\d+\\.\\d+$"
+    "^refs/heads/release$"
   ],
-  "release": {
-    "branchName": "release/v{version}",
-    "versionIncrement": "build"
-  },
   "pathFilters": [
     "./packages/*/src",
     "./packages/*/package.json",
