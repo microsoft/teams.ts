@@ -26,19 +26,21 @@ This project uses [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.Gi
 
 To fix a bug in a released version without including new preview changes:
 
-1. **Create a branch from `release`**:
+1. **Consider if a normal release would work instead** - merging main to release includes all updates and is simpler. Only use a hotfix if you need to exclude preview changes from main.
+
+2. **Create a branch from `release`**:
    ```bash
    git checkout release
    git checkout -b hotfix/fix-description
    ```
 
-2. **Make your fix and commit**
+3. **Make your fix and commit**
 
-3. **Create a PR to `release`**, get approval, and merge
+4. **Create a PR to `release`**, get approval, and merge
 
-4. **Trigger the release pipeline**
+5. **Trigger the release pipeline**
 
-5. **Cherry-pick the fix back to main**:
+6. **Cherry-pick the fix back to main**:
    ```bash
    git checkout main
    git cherry-pick <commit-sha>
