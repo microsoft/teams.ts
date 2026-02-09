@@ -18,6 +18,13 @@ describe('MeetingClient', () => {
     expect(spy).toHaveBeenCalledWith('/v1/meetings/1');
   });
 
+  it('should set http client', () => {
+    const client = new MeetingClient('');
+    const http = new Client();
+    client.http = http;
+    expect(client.http).toBe(http);
+  });
+
   it('should get by id', async () => {
     const client = new MeetingClient('');
     const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
@@ -28,7 +35,23 @@ describe('MeetingClient', () => {
   it('should get participant', async () => {
     const client = new MeetingClient('');
     const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
-    await client.getParticipant('1', '2');
-    expect(spy).toHaveBeenCalledWith('/v1/meetings/1/participants/2');
+    await client.getParticipant('1', '2', '3');
+    expect(spy).toHaveBeenCalledWith('/v1/meetings/1/participants/2?tenantId=3');
+  });
+
+  it('should URL-encode meeting id in getById', async () => {
+    const client = new MeetingClient('');
+    const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
+    await client.getById('abc+def/ghi=');
+    expect(spy).toHaveBeenCalledWith('/v1/meetings/abc%2Bdef%2Fghi%3D');
+  });
+
+  it('should URL-encode participant parameters', async () => {
+    const client = new MeetingClient('');
+    const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
+    await client.getParticipant('abc+def/ghi=', 'user=1', 'tenant/1');
+    expect(spy).toHaveBeenCalledWith(
+      '/v1/meetings/abc%2Bdef%2Fghi%3D/participants/user%3D1?tenantId=tenant%2F1'
+    );
   });
 });

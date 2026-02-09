@@ -31,13 +31,13 @@ export class MeetingClient {
   }
 
   async getById(id: string) {
-    const res = await this.http.get<MeetingInfo>(`${this.serviceUrl}/v1/meetings/${id}`);
+    const res = await this.http.get<MeetingInfo>(`${this.serviceUrl}/v1/meetings/${encodeURIComponent(id)}`);
     return res.data;
   }
 
-  async getParticipant(meetingId: string, id: string) {
+  async getParticipant(meetingId: string, id: string, tenantId: string) {
     const res = await this.http.get<MeetingParticipant>(
-      `${this.serviceUrl}/v1/meetings/${meetingId}/participants/${id}`
+      `${this.serviceUrl}/v1/meetings/${encodeURIComponent(meetingId)}/participants/${encodeURIComponent(id)}?tenantId=${encodeURIComponent(tenantId)}`
     );
     return res.data;
   }
