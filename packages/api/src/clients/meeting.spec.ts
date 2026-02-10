@@ -18,11 +18,15 @@ describe('MeetingClient', () => {
     expect(spy).toHaveBeenCalledWith('/v1/meetings/1');
   });
 
-  it('should set http client', () => {
+  it('should use replaced http client for subsequent calls', async () => {
     const client = new MeetingClient('');
+    const oldSpy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
     const http = new Client();
+    const newSpy = jest.spyOn(http, 'get').mockResolvedValueOnce({});
     client.http = http;
-    expect(client.http).toBe(http);
+    await client.getById('123');
+    expect(newSpy).toHaveBeenCalledWith('/v1/meetings/123');
+    expect(oldSpy).not.toHaveBeenCalled();
   });
 
   it('should get by id', async () => {
