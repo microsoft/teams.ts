@@ -4,7 +4,7 @@ This is a Microsoft Teams bot project built with the new Teams SDK and OpenAI in
 
 IMPORTANT: To actually run this bot inside a real Microsoft Teams instance, fetch and follow the instructions in the linked AGENTS.md below (comprehensive development guidance, Azure setup instructions, and troubleshooting):
 
-https://raw.githubusercontent.com/microsoft/teams.ts/main/AGENTS.md
+https://raw.githubusercontent.com/microsoft/teams.ts/main/AGENTS_TEMPLATE.md
 
 ## Project-Specific Notes
 
