@@ -19,7 +19,7 @@ app.on('message', async ({ send, reply, activity, api }) => {
   if (text.includes('test send')) {
     const targetedMessage = new MessageActivity(
       '🔒 [SEND] Targeted message - only YOU can see this!'
-    ).withTargetedRecipient(true);
+    ).withRecipient(activity.from, true);
 
     const result = await send(targetedMessage);
     console.log('Targeted SEND result:', result);
@@ -32,7 +32,7 @@ app.on('message', async ({ send, reply, activity, api }) => {
   if (text.includes('test reply')) {
     const targetedReply = new MessageActivity(
       '🔒 [REPLY] Targeted reply - only YOU can see this!'
-    ).withTargetedRecipient(true);
+    ).withRecipient(activity.from, true);
 
     const result = await reply(targetedReply);
     console.log('Targeted REPLY result:', result);
@@ -46,7 +46,7 @@ app.on('message', async ({ send, reply, activity, api }) => {
     // First send a targeted message
     const targetedMessage = new MessageActivity(
       '🔒 [UPDATE] Original targeted message...'
-    ).withTargetedRecipient(true);
+    ).withRecipient(activity.from, true);
 
     const result = await send(targetedMessage);
     console.log('Initial targeted message ID:', result.id);
@@ -78,7 +78,7 @@ app.on('message', async ({ send, reply, activity, api }) => {
     // First send a targeted message
     const targetedMessage = new MessageActivity(
       '🔒 [DELETE] This targeted message will be DELETED in 5 seconds...'
-    ).withTargetedRecipient(true);
+    ).withRecipient(activity.from, true);
 
     const result = await send(targetedMessage);
     console.log('Targeted message to delete, ID:', result.id);

@@ -213,7 +213,7 @@ describe('ActivityContext', () => {
         context = buildActivityContext(activity);
 
         const targetedActivity = new MessageActivity('Secret message')
-          .withTargetedRecipient(true);
+          .withRecipient({ id: 'test-user', name: 'Test User', role: 'user' }, true);
 
         await context.send(targetedActivity);
 
@@ -234,7 +234,7 @@ describe('ActivityContext', () => {
         context = buildActivityContext(activity);
 
         const targetedActivity = new MessageActivity('Secret message')
-          .withTargetedRecipient('explicit-user-id');
+          .withRecipient({ id: 'explicit-user-id', name: '', role: 'user' }, true);
 
         await context.send(targetedActivity);
 
@@ -255,8 +255,8 @@ describe('ActivityContext', () => {
         context = buildActivityContext(activity);
 
         const updateActivity = new MessageActivity('Updated message')
-          .withTargetedRecipient(true)
           .withId('existing-activity-id');
+        updateActivity.isTargeted = true;
 
         await context.send(updateActivity);
 

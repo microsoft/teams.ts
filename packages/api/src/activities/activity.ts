@@ -83,6 +83,11 @@ export interface IActivity<T extends string = string> {
   replyToId?: string;
 
   /**
+   * Indicates if this is a targeted message visible only to a specific recipient.
+   */
+  isTargeted: boolean;
+
+  /**
    * Represents the entities that were mentioned in the message.
    */
   entities?: Entity[];
@@ -186,6 +191,11 @@ export class Activity<T extends string = string> implements IActivity<T> {
   replyToId?: string;
 
   /**
+   * Indicates if this is a targeted message visible only to a specific recipient.
+   */
+  isTargeted: boolean = false;
+
+  /**
    * Represents the entities that were mentioned in the message.
    */
   entities?: Entity[];
@@ -282,8 +292,11 @@ export class Activity<T extends string = string> implements IActivity<T> {
     return this;
   }
 
-  withRecipient(value: Account) {
+  withRecipient(value: Account, isTargeted: boolean = false) {
     this.recipient = value;
+    if (isTargeted !== undefined) {
+      this.isTargeted = isTargeted;
+    }
     return this;
   }
 
