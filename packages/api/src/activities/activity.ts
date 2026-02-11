@@ -294,9 +294,7 @@ export class Activity<T extends string = string> implements IActivity<T> {
 
   withRecipient(value: Account, isTargeted: boolean = false) {
     this.recipient = value;
-    if (isTargeted !== undefined) {
-      this.isTargeted = isTargeted;
-    }
+    this.isTargeted = isTargeted;
     return this;
   }
 
