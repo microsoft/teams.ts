@@ -256,7 +256,9 @@ describe('ActivityContext', () => {
 
         const updateActivity = new MessageActivity('Updated message')
           .withId('existing-activity-id');
-        // Set isTargeted directly to test that context doesn't set recipient for updates
+        // Set isTargeted directly to test that context doesn't override recipient for updates.
+        // The context logic checks params.id and skips setting recipient for updates,
+        // so we need to test this by setting isTargeted without a recipient.
         updateActivity.isTargeted = true;
 
         await context.send(updateActivity);

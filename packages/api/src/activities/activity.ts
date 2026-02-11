@@ -292,6 +292,12 @@ export class Activity<T extends string = string> implements IActivity<T> {
     return this;
   }
 
+  /**
+   * Set the recipient of this activity, optionally marking it as a targeted message.
+   * @param value - The recipient account
+   * @param isTargeted - If true, marks this as a targeted message visible only to the recipient (default: false)
+   * @returns this instance for chaining
+   */
   withRecipient(value: Account, isTargeted: boolean = false) {
     this.recipient = value;
     this.isTargeted = isTargeted;
