@@ -19,7 +19,6 @@ describe('ExpressAdapter', () => {
   });
 
   it('should initialize without errors', () => {
-    // This test ensures that the middleware setup works correctly
     server = http.createServer();
     expect(() => {
       adapter = new ExpressAdapter(server);

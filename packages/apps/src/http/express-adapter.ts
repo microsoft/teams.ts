@@ -49,7 +49,7 @@ export class ExpressAdapter implements IHttpAdapter {
 
     // Setup middleware
     this.express.use(cors());
-    this.express.use('/api*', express.json());
+    this.express.use(express.json());
   }
 
   /**
