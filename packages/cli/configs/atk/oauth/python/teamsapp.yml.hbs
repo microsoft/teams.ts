@@ -106,8 +106,8 @@ deploy:
   - uses: script
     with:
       run: |
-        uv sync
-        uv export --no-hashes -o src/requirements.txt
+        pip install .
+        pip freeze > src/requirements.txt
   - uses: azureAppService/zipDeploy
     with:
       artifactFolder: src
