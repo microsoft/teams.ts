@@ -114,7 +114,7 @@ const messages = storage.get(key);
 
 ### Prerequisites
 
-1. Node.js 18+ installed
+1. Node.js >= 20 (LTS) installed
 2. OpenAI API key configured in `.env`
 3. Azure Bot registration (for Teams deployment)
 
@@ -212,7 +212,7 @@ MESSAGING_ENDPOINT="https://your-tunnel-id.region.devtunnels.ms/api/messages"
 # Create Azure AD App Registration
 APP_ID=$(az ad app create \
   --display-name "$BOT_NAME" \
-  --sign-in-audience "AzureADMultipleOrgs" \
+  --sign-in-audience "AzureADMyOrg" \
   --query appId -o tsv)
 
 # CRITICAL: Create a Service Principal for the app
