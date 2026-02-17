@@ -16,19 +16,20 @@ describe('MessageReactionActivity', () => {
   };
 
   it('should build', () => {
-    const activity = new MessageReactionActivity()
-      .addReaction({
-        type: 'angry',
-        user: a,
-      })
-      .addReaction({
-        type: 'heart',
-        user: b,
-      })
-      .removeReaction({
-        type: 'heart',
-        user: b,
-      });
+    const activity = new MessageReactionActivity({
+      reactionsAdded: [
+        {
+          type: 'angry',
+          user: a,
+        },
+      ],
+      reactionsRemoved: [
+        {
+          type: 'heart',
+          user: b,
+        },
+      ],
+    });
 
     expect(activity.type).toEqual('messageReaction');
     expect(activity.reactionsAdded).toStrictEqual([
@@ -47,22 +48,21 @@ describe('MessageReactionActivity', () => {
   });
 
   it('should build from interface', () => {
-    const activity = MessageReactionActivity.from(
-      new MessageReactionActivity()
-        .addReaction({
+    const activity = MessageReactionActivity.from({
+      type: 'messageReaction',
+      reactionsAdded: [
+        {
           type: 'angry',
           user: a,
-        })
-        .addReaction({
+        },
+      ],
+      reactionsRemoved: [
+        {
           type: 'heart',
           user: b,
-        })
-        .removeReaction({
-          type: 'heart',
-          user: b,
-        })
-        .toInterface()
-    );
+        },
+      ],
+    } as any);
 
     expect(activity.type).toEqual('messageReaction');
     expect(activity.reactionsAdded).toStrictEqual([
@@ -81,22 +81,20 @@ describe('MessageReactionActivity', () => {
   });
 
   it('should clone', () => {
-    const activity = MessageReactionActivity.from(
-      new MessageReactionActivity()
-        .addReaction({
+    const activity = new MessageReactionActivity({
+      reactionsAdded: [
+        {
           type: 'angry',
           user: a,
-        })
-        .addReaction({
+        },
+      ],
+      reactionsRemoved: [
+        {
           type: 'heart',
           user: b,
-        })
-        .removeReaction({
-          type: 'heart',
-          user: b,
-        })
-        .toInterface()
-    ).clone();
+        },
+      ],
+    }).clone();
 
     expect(activity.type).toEqual('messageReaction');
     expect(activity.reactionsAdded).toStrictEqual([
