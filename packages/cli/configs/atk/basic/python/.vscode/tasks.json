@@ -71,7 +71,7 @@
     {
       "label": "setup-env",
       "type": "shell",
-      "command": "uv sync",
+      "command": "pip install -e .",
       "problemMatcher": [],
       "group": {
           "kind": "build",

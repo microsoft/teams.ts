@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.ts",
-  "version": "2.0.5",
+  "version": "0.0.0",
   "private": true,
   "homepage": "https://github.com/microsoft/teams.ts",
   "bugs": "https://github.com/microsoft/teams.ts/issues",
@@ -28,6 +28,8 @@
     "bots"
   ],
   "scripts": {
+    "version:stamp": "node scripts/version.js",
+    "version:get": "nbgv get-version -v NpmPackageVersion",
     "clean": "npx turbo clean",
     "build": "npx turbo build",
     "build:packages": "npx turbo build --filter=./packages/*",
@@ -39,8 +41,8 @@
     "test": "npx turbo test --concurrency=100%"
   },
   "devDependencies": {
-    "@changesets/cli": "latest",
     "@turbo/gen": "^2.5.7",
+    "nerdbank-gitversioning": "^3.9.50",
     "turbo": "^2.4.0",
     "typescript": "^5.4.5"
   }

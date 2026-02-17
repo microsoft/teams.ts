@@ -19,19 +19,19 @@
     "build:client": "npx vite build --outDir dist/client"
   },
   "dependencies": {
-    "@microsoft/teams.api": "2.0.5",
-    "@microsoft/teams.apps": "2.0.5",
-    "@microsoft/teams.cards": "2.0.5",
-    "@microsoft/teams.client": "2.0.5",
-    "@microsoft/teams.common": "2.0.5",
-    "@microsoft/teams.dev": "2.0.5",
-    "@microsoft/teams.graph": "2.0.5",
-    "@microsoft/teams.graph-endpoints": "2.0.5",
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.apps": "*",
+    "@microsoft/teams.cards": "*",
+    "@microsoft/teams.client": "*",
+    "@microsoft/teams.common": "*",
+    "@microsoft/teams.dev": "*",
+    "@microsoft/teams.graph": "*",
+    "@microsoft/teams.graph-endpoints": "*",
     "react": "^19.2.2",
     "react-dom": "^19.2.2"
   },
   "devDependencies": {
-    "@microsoft/teams.config": "2.0.5",
+    "@microsoft/teams.config": "*",
     "@types/node": "^22.5.4",
     "@vitejs/plugin-react": "^4.3.4",
     "dotenv": "^16.4.5",

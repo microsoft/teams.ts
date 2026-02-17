@@ -18,10 +18,10 @@
     "dev": "tsx watch -r dotenv/config src/index.ts"
   },
   "dependencies": {
-    "@microsoft/teams.api": "2.0.5",
-    "@microsoft/teams.apps": "2.0.5",
-    "@microsoft/teams.common": "2.0.5",
-    "@microsoft/teams.cards": "2.0.5"
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.apps": "*",
+    "@microsoft/teams.common": "*",
+    "@microsoft/teams.cards": "*"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",

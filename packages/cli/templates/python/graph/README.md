@@ -5,10 +5,12 @@ This is a minimal Microsoft Teams graph bot template using [microsoft-teams](htt
 ## Structure
 
 - `src/main.py`: Main application code for the Teams bot.
-- `pyproject.toml`: Project dependencies and metadata (use [uv](https://github.com/astral-sh/uv) for dependency management).
+- `pyproject.toml`: Project dependencies and metadata.
 - `apppackage/`: Teams app manifest and related files.
 
 ## Getting Started
 
-1. Install [uv](https://github.com/astral-sh/uv).
-2. Run `uv run start`
+1. Create a virtual environment: `python -m venv .venv`
+2. Activate it: `. .venv/bin/activate` (Unix) or `.venv\Scripts\activate` (Windows)
+3. Install dependencies: `pip install -e .`
+4. Run the app: `python src/main.py`

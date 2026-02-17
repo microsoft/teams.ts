@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams.api",
-  "version": "2.0.5",
+  "version": "0.0.0",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -36,14 +36,14 @@
   },
   "dependencies": {
     "jwt-decode": "^4.0.0",
-    "qs": "^6.14.1"
+    "qs": "^6.14.2"
   },
   "peerDependencies": {
-    "@microsoft/teams.cards": "2.0.5",
-    "@microsoft/teams.common": "2.0.5"
+    "@microsoft/teams.cards": "*",
+    "@microsoft/teams.common": "*"
   },
   "devDependencies": {
-    "@microsoft/teams.config": "2.0.5",
+    "@microsoft/teams.config": "*",
     "@types/jest": "^29.5.12",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/qs": "^6.9.15",
