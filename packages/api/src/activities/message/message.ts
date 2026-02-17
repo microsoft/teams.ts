@@ -383,10 +383,10 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
   /**
    * Set the recipient of this message, optionally marking it as a targeted message.
    * @param account - The recipient account
-   * @param isTargeted - If true, marks this as a targeted message visible only to the recipient
+   * @param isTargeted - If true, marks this as a targeted message visible only to the recipient. Defaults to false.
    * @returns this instance for chaining
    */
-  override withRecipient(account: Account, isTargeted: boolean = false): this {
+  withRecipient(account: Account, isTargeted: boolean = false): this {
     super.withRecipient(account, isTargeted);
     return this;
   }

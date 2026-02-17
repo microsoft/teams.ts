@@ -160,6 +160,13 @@ module.exports = (async () => {
         '@stylistic/block-spacing': 'error',
         '@stylistic/keyword-spacing': 'error'
       },
+      languageOptions: {
+        parser: tseslint.parser,
+        parserOptions: {
+          projectService: true,
+          tsconfigRootDir: import.meta.dirname
+        }
+      }
     }
   );
 })();
