@@ -23,7 +23,7 @@
     "@microsoft/teams.dev": "*",
     "@microsoft/teams.mcpclient": "*",
     "@microsoft/teams.openai": "*",
-    "@modelcontextprotocol/sdk": "^1.25.2"
+    "@modelcontextprotocol/sdk": "^1.26.0"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",
