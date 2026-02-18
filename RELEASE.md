@@ -8,6 +8,29 @@ This project uses [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.Gi
 - **Main branch**: `2.0.6-preview.1`, `2.0.6-preview.2`, etc. (prerelease, published with `next` npm tag)
 - **Release branch**: `2.0.6`, `2.0.7`, etc. (stable, published with `latest` npm tag)
 
+## Publishing
+
+The [publish pipeline](https://dev.azure.com/DomoreexpGithub/Github_Pipelines/_build?definitionId=46&_a=summary) (`.azdo/publish.yml`) is manually triggered and requires selecting a **Publish Type**: `Internal` or `Public`.
+
+1. Go to **Pipelines** > **teams.ts** in ADO
+2. Click **Run pipeline**
+3. Select the branch to build from
+4. Choose a **Publish Type**:
+   - **Internal** — publishes unsigned packages to the Azure Artifacts `TeamsSDKPreviews` npm feed. No approval required. Packages are available immediately.
+   - **Public** — signs and publishes packages to npm via ESRP. Requires approval via the ADO pipeline environment.
+5. Pipeline runs: Build > Test > Stamp versions > Pack > Publish
+
+The pipeline packs all non-private packages from `packages/` and `external/` directories. Packages with `"private": true` in their `package.json` are skipped.
+
+## Approvers
+
+The ADO pipeline environment controls who can approve public releases. To modify approvers:
+
+1. Go to **Pipelines** > **Environments** in ADO
+2. Select the publish environment `teams-sdk-publish`
+3. Click the **three dots** menu > **Approvals and checks**
+4. Add/remove approvers as needed
+
 ## Creating a Release
 
 1. **Create a PR from `main` to `release`**:
@@ -15,7 +38,9 @@ This project uses [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.Gi
    - Base: `release`, Compare: `main`
    - Get teammate approval and merge
 
-2. **Trigger the release pipeline**: [Azure DevOps Pipeline](https://dev.azure.com/DomoreexpGithub/Github_Pipelines/_build?definitionId=46&_a=summary)
+   > **Note:** The `release` branch must be created before the first stable release. The `publicReleaseRefSpec` in `version.json` is configured to produce stable versions (without the `-preview` suffix) only on the `release` branch.
+
+2. **Trigger the release pipeline** with **Public** publish type
 
 3. **Bump the version on main** for the next release cycle:
    - Edit `version.json` on main
