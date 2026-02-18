@@ -1,5 +1,6 @@
-import { Client, MessageReactionActivity, ReactionType } from '@microsoft/teams.api';
+import { Client, MessageReactionActivity } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
+import { ApiClient } from '@microsoft/teams.apps/dist/api';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
@@ -9,17 +10,14 @@ const app = new App({
 });
 
 // Store the service URL and conversation reference to use with ReactionClient
-let serviceUrl: string;
-let reactionClient: Client | undefined;
+
+type ReactionParameter = Parameters<Client['reactions']['add']>[2];
 
 // Handle incoming messages
 app.on('message', async ({ reply, activity, log }) => {
   // Save the service URL from the first message
-  if (!serviceUrl && activity.serviceUrl) {
-    serviceUrl = activity.serviceUrl;
-    reactionClient = new Client(serviceUrl);
-    log.info(`ReactionClient initialized with serviceUrl: ${serviceUrl}`);
-  }
+
+  const api = new ApiClient(activity.serviceUrl!, app.client.clone({ token: () => app.tokenManager.getBotToken() }));
 
   const userMessage = activity.text?.toLowerCase() || '';
 
@@ -29,22 +27,19 @@ app.on('message', async ({ reply, activity, log }) => {
       text: '**Reactions Bot Help**\n\n' +
         'I demonstrate how to use the ReactionClient API!\n\n' +
         '**Commands:**\n' +
-        '- Type "add like" - I\'ll add a 👍 reaction to your message\n' +
-        '- Type "add heart" - I\'ll add a ❤️ reaction to your message\n' +
-        '- Type "add laugh" - I\'ll add a 😂 reaction to your message\n' +
+        '- Type "add [reaction]" - I\'ll add that reaction to your message\n' +
         '- Type "remove [reaction]" - I\'ll remove a reaction from your message\n' +
-        '- Add any reaction to my messages and I\'ll tell you about it!\n\n' +
-        '**Supported reactions:** like, heart, laugh, surprised, sad, angry',
+        '- Add any reaction to my messages and I\'ll tell you about it!',
     });
     return;
   }
 
   // Handle commands to add reactions
-  const addMatch = userMessage.match(/add\s+(like|heart|laugh|surprised|sad|angry)/);
-  if (addMatch && reactionClient) {
-    const reactionType = addMatch[1] as ReactionType;
+  const addMatch = userMessage.match(/add\s+(\S+)/);
+  if (addMatch && api) {
+    const reactionType = addMatch[1] as ReactionParameter;
     try {
-      await reactionClient.reactions.add(
+      await api.reactions.add(
         activity.conversation.id,
         activity.id,
         reactionType
@@ -59,11 +54,11 @@ app.on('message', async ({ reply, activity, log }) => {
   }
 
   // Handle commands to remove reactions
-  const removeMatch = userMessage.match(/remove\s+(like|heart|laugh|surprised|sad|angry)/);
-  if (removeMatch && reactionClient) {
-    const reactionType = removeMatch[1] as ReactionType;
+  const removeMatch = userMessage.match(/remove\s+(\S+)/);
+  if (removeMatch && api) {
+    const reactionType = removeMatch[1] as ReactionParameter;
     try {
-      await reactionClient.reactions.remove(
+      await api.reactions.remove(
         activity.conversation.id,
         activity.id,
         reactionType
@@ -124,15 +119,7 @@ app.on('install.add', async ({ send }) => {
 
 // Helper function to get emoji for reaction type
 function getReactionEmoji(reactionType: string): string {
-  const emojiMap: Record<string, string> = {
-    like: '👍',
-    heart: '❤️',
-    laugh: '😂',
-    surprised: '😮',
-    sad: '😢',
-    angry: '😠',
-  };
-  return emojiMap[reactionType] || reactionType;
+  return reactionType;
 }
 
 app.start().catch(console.error);
