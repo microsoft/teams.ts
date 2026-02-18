@@ -32,7 +32,7 @@ module.exports = tseslint.config(
       parser: tseslint.parser,
       parserOptions: {
         projectService: true,
-        tsconfigRootDir: import.meta.dirname
+        tsconfigRootDir: __dirname
       }
     }
   }
