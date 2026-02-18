@@ -102,6 +102,7 @@ $: npm run test
 - [`@examples/botbuilder`](./examples/botbuilder/README.md)
 - [`@examples/graph`](./examples/graph/README.md)
 - [`@examples/lights`](./examples/lights/README.md)
+- [`@examples/reactions`](./examples/reactions/README.md)
 - [`@examples/tab`](./examples/tab/README.md)
 - [`@examples/mcp`](./examples/mcp/README.md)
 - [`@examples/meetings`](./examples/meetings/README.md)
