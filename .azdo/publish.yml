@@ -103,7 +103,7 @@ extends:
             # Get version from nbgv and set NpmTag
             $version = (npm run version:get --silent).Trim()
             Write-Host "Version from nbgv: $version"
-            Write-Host "##vso[task.setvariable variable=CUSTOM_VERSION]$version"
+            Write-Host "##vso[task.setvariable variable=VersionNumber]$version"
 
             # If version contains '-' it's a prerelease, use 'next' tag; otherwise 'latest'
             if ($version -match '-') {
@@ -116,12 +116,6 @@ extends:
           displayName: 'Stamp package versions (nbgv)'
           env:
             PublicRelease: 'true'
-
-        - task: onebranch.pipeline.version@1
-          displayName: 'Set pipeline version'
-          inputs:
-            system: 'Custom'
-            customVersion: '$(CUSTOM_VERSION)'
 
         - powershell: |
             New-Item -ItemType Directory -Force -Path ./out
