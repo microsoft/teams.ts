@@ -68,7 +68,10 @@ extends:
             dotnet tool install -g nbgv
             Write-Host "##vso[task.prependpath]$env:USERPROFILE\.dotnet\tools"
             nbgv --version
-          displayName: 'Install nbgv'
+
+            # Set cloud build number and variables (resolves detached HEAD in ADO)
+            nbgv cloud
+          displayName: 'Install nbgv and set cloud build version'
 
         # Always use internal feed for dependency resolution (avoids firewall issues on 1ES pool)
         - task: CmdLine@2
