@@ -3,11 +3,5 @@
   "version": "2.0.6-preview.{height}",
   "publicReleaseRefSpec": [
     "^refs/heads/release$"
-  ],
-  "pathFilters": [
-    "./packages/*/src",
-    "./packages/*/package.json",
-    "./external/*/src",
-    "./external/*/package.json"
   ]
 }
