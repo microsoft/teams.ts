@@ -1,11 +1,10 @@
-import { Client, MessageReactionActivity } from '@microsoft/teams.api';
+import { Client, MessageReactionActivity, MessageReactionType } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 const app = new App({
-  logger: new ConsoleLogger('@examples/reactions', { level: 'debug' }),
-  plugins: [new DevtoolsPlugin()],
+  logger: new ConsoleLogger('@examples/reactions', { level: 'debug' })
 });
 
 // Store the service URL and conversation reference to use with ReactionClient
