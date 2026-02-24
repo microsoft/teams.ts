@@ -1,7 +1,6 @@
 import { Client, MessageReactionActivity, MessageReactionType } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
-import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 const app = new App({
   logger: new ConsoleLogger('@examples/reactions', { level: 'debug' })
