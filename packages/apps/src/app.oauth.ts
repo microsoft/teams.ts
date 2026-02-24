@@ -127,8 +127,8 @@ export async function onSignInFailure<TPlugin extends IPlugin>(
 
   log.warn(
     `sign-in failed for user "${activity.from.id}" in conversation "${activity.conversation.id}": ${code} — ${message}. ` +
-    `If the code is 'resourcematchfailed', verify that your Entra app registration has 'Expose an API' configured ` +
-    `with the correct Application ID URI matching your OAuth connection's Token Exchange URL.`
+    'If the code is \'resourcematchfailed\', verify that your Entra app registration has \'Expose an API\' configured ' +
+    'with the correct Application ID URI matching your OAuth connection\'s Token Exchange URL.'
   );
 
   this.events.emit('error', {
