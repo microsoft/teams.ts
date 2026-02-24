@@ -1,6 +1,5 @@
 import { Client, MessageReactionActivity } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
-import { ApiClient } from '@microsoft/teams.apps/dist/api';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
@@ -14,10 +13,8 @@ const app = new App({
 type ReactionParameter = Parameters<Client['reactions']['add']>[2];
 
 // Handle incoming messages
-app.on('message', async ({ reply, activity, log }) => {
+app.on('message', async ({ reply, activity, log, api }) => {
   // Save the service URL from the first message
-
-  const api = new ApiClient(activity.serviceUrl!, app.client.clone({ token: () => app.tokenManager.getBotToken() }));
 
   const userMessage = activity.text?.toLowerCase() || '';
 
@@ -44,7 +41,7 @@ app.on('message', async ({ reply, activity, log }) => {
         activity.id,
         reactionType
       );
-      await reply(`Added a ${getReactionEmoji(reactionType)} reaction to your message!`);
+      await reply(`Added a ${reactionType} reaction to your message!`);
       log.info(`Added ${reactionType} reaction to message ${activity.id}`);
     } catch (error) {
       log.error('Failed to add reaction:', error);
@@ -63,7 +60,7 @@ app.on('message', async ({ reply, activity, log }) => {
         activity.id,
         reactionType
       );
-      await reply(`Removed the ${getReactionEmoji(reactionType)} reaction from your message!`);
+      await reply(`Removed the ${reactionType} reaction from your message!`);
       log.info(`Removed ${reactionType} reaction from message ${activity.id}`);
     } catch (error) {
       log.error('Failed to remove reaction:', error);
@@ -87,7 +84,7 @@ app.on('messageReaction', async ({ activity, send, log }) => {
   if (reactionActivity.reactionsAdded && reactionActivity.reactionsAdded.length > 0) {
     for (const reaction of reactionActivity.reactionsAdded) {
       const userName = reaction.user?.displayName || 'Someone';
-      const reactionEmoji = getReactionEmoji(reaction.type);
+      const reactionEmoji = reaction.type;
       log.info(`${userName} added a ${reaction.type} reaction (${reactionEmoji})`);
 
       // Send a message acknowledging the reaction
@@ -101,7 +98,7 @@ app.on('messageReaction', async ({ activity, send, log }) => {
   if (reactionActivity.reactionsRemoved && reactionActivity.reactionsRemoved.length > 0) {
     for (const reaction of reactionActivity.reactionsRemoved) {
       const userName = reaction.user?.displayName || 'Someone';
-      const reactionEmoji = getReactionEmoji(reaction.type);
+      const reactionEmoji = reaction.type;
       log.info(`${userName} removed a ${reaction.type} reaction (${reactionEmoji})`);
     }
   }
@@ -116,10 +113,5 @@ app.on('install.add', async ({ send }) => {
       'Type "help" to see what I can do!',
   });
 });
-
-// Helper function to get emoji for reaction type
-function getReactionEmoji(reactionType: string): string {
-  return reactionType;
-}
 
 app.start().catch(console.error);

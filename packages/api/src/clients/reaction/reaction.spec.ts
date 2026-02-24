@@ -60,7 +60,7 @@ describe('ReactionClient', () => {
   it('should URL-encode reaction type in add', async () => {
     const client = new ReactionClient('');
     const spy = jest.spyOn(client.http, 'put').mockResolvedValueOnce({});
-    await client.add('conv1', 'act1', 'like' as any);
+    await client.add('conv1', 'act1', 'like');
     expect(spy).toHaveBeenCalledWith('/v3/conversations/conv1/activities/act1/reactions/like');
   });
 
