@@ -1,6 +1,6 @@
 import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
-import { ReactionType } from '../../models';
+import { MessageReactionType } from '../../models/message/message-reaction';
 
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 
@@ -30,14 +30,14 @@ export class ReactionClient {
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
   }
 
-  async add(conversationId: string, activityId: string, reactionType: ReactionType) {
+  async add(conversationId: string, activityId: string, reactionType: MessageReactionType) {
     const res = await this.http.put<void>(
       `${this.serviceUrl}/v3/conversations/${encodeURIComponent(conversationId)}/activities/${encodeURIComponent(activityId)}/reactions/${encodeURIComponent(reactionType)}`
     );
     return res.data;
   }
 
-  async remove(conversationId: string, activityId: string, reactionType: ReactionType) {
+  async remove(conversationId: string, activityId: string, reactionType: MessageReactionType) {
     const res = await this.http.delete<void>(
       `${this.serviceUrl}/v3/conversations/${encodeURIComponent(conversationId)}/activities/${encodeURIComponent(activityId)}/reactions/${encodeURIComponent(reactionType)}`
     );

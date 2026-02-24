@@ -19,7 +19,7 @@ describe('MessageReactionActivity', () => {
     const activity = new MessageReactionActivity({
       reactionsAdded: [
         {
-          type: 'angry',
+          type: 'like',
           user: a,
         },
       ],
@@ -34,7 +34,7 @@ describe('MessageReactionActivity', () => {
     expect(activity.type).toEqual('messageReaction');
     expect(activity.reactionsAdded).toStrictEqual([
       {
-        type: 'angry',
+        type: 'like',
         user: a,
       },
     ]);
@@ -52,7 +52,7 @@ describe('MessageReactionActivity', () => {
       type: 'messageReaction',
       reactionsAdded: [
         {
-          type: 'angry',
+          type: 'like',
           user: a,
         },
       ],
@@ -67,7 +67,7 @@ describe('MessageReactionActivity', () => {
     expect(activity.type).toEqual('messageReaction');
     expect(activity.reactionsAdded).toStrictEqual([
       {
-        type: 'angry',
+        type: 'like',
         user: a,
       },
     ]);
@@ -84,7 +84,7 @@ describe('MessageReactionActivity', () => {
     const activity = new MessageReactionActivity({
       reactionsAdded: [
         {
-          type: 'angry',
+          type: 'like',
           user: a,
         },
       ],
@@ -99,7 +99,7 @@ describe('MessageReactionActivity', () => {
     expect(activity.type).toEqual('messageReaction');
     expect(activity.reactionsAdded).toStrictEqual([
       {
-        type: 'angry',
+        type: 'like',
         user: a,
       },
     ]);

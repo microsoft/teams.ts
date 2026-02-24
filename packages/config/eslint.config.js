@@ -31,6 +31,11 @@ module.exports = (async () => {
         '**/coverage/**'
       ],
       files: ['src/**/*.ts'],
+      languageOptions: {
+        parserOptions: {
+          tsconfigRootDir: __dirname,
+        },
+      },
       rules: {
         'grouped-accessor-pairs': ['error', 'getBeforeSet'],
 

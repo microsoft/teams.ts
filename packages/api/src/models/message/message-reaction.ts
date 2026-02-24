@@ -2,19 +2,13 @@ import { MessageUser } from './message-user';
 
 /**
  * Defines values for ReactionType.
- * Possible values include: 'like', 'heart', 'laugh', 'surprised', 'sad', 'angry'
+ * Possible values include: 'like', 'heart', '1f440_eyes', '2705_whiteheavycheckmark', 'launch', '1f4cc_pushpin'
  *
  * @readonly
  * @enum {string}
  */
-export type MessageReactionType =
-  | 'like'
-  | 'heart'
-  | 'laugh'
-  | 'surprised'
-  | 'sad'
-  | 'angry'
-  | 'plusOne';
+export type MessageReactionType = 'like' | 'heart' | '1f440_eyes' | '2705_whiteheavycheckmark' | 'launch' | '1f4cc_pushpin' | string;
+ 
 
 export type MessageReaction = {
   /**
