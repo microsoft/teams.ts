@@ -3,6 +3,12 @@ import tseslint from 'typescript-eslint';
 import importPlugin from 'eslint-plugin-import';
 import stylistic from '@stylistic/eslint-plugin';
 
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 /** @type {import("eslint").Linter.Config} */
 export default tseslint.config(
   {
