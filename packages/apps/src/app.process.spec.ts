@@ -1,4 +1,4 @@
-import { IMessageActivity, InvokeResponse, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse } from '@microsoft/teams.api';
+import { IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse } from '@microsoft/teams.api';
 
 import { App } from './app';
 import { IActivityEvent } from './events/activity';
@@ -107,6 +107,30 @@ describe('App', () => {
       const response = await app.process(senderPlugin, event);
       expect(response.status).toBe(500);
       expect(response.body).toBeUndefined();
+    });
+
+    it('should handle signin/failure invoke with default handler', async () => {
+      const signinFailureActivity = {
+        type: 'invoke',
+        name: 'signin/failure',
+        channelId: 'msteams',
+        from: { id: 'user-1', name: 'Test User' },
+        conversation: { id: 'conv-1' },
+        recipient: { id: 'bot-1', name: 'Test Bot' },
+        value: {
+          code: 'resourcematchfailed',
+          message: 'Resource match failed',
+        },
+      } as unknown as ISignInFailureInvokeActivity;
+
+      const event: IActivityEvent = {
+        token: token,
+        activity: signinFailureActivity,
+        sender: senderPlugin,
+      };
+
+      const response = await app.process(senderPlugin, event);
+      expect(response.status).toBe(200);
     });
   });
 });

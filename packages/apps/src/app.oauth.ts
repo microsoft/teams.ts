@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios';
 
 import {
+  ISignInFailureInvokeActivity,
   ISignInTokenExchangeInvokeActivity,
   ISignInVerifyStateInvokeActivity,
   TokenExchangeInvokeResponse,
@@ -102,4 +103,39 @@ export async function onVerifyState<TPlugin extends IPlugin>(
 
     return { status: 412 };
   }
+}
+
+/**
+ * Default handler for signin/failure invoke activities.
+ *
+ * Teams sends a signin/failure invoke when SSO token exchange fails
+ * (e.g., due to a misconfigured Entra app registration). This handler
+ * logs the failure details and emits an error event so developers are
+ * notified rather than having the failure silently swallowed.
+ *
+ * Common failure codes:
+ * - `resourcematchfailed`: The token exchange resource URI on the
+ *   OAuthCard does not match the Application ID URI configured in
+ *   the Entra app registration's "Expose an API" section.
+ */
+export async function onSignInFailure<TPlugin extends IPlugin>(
+  this: App<TPlugin>,
+  ctx: contexts.IActivityContext<ISignInFailureInvokeActivity, PluginAdditionalContext<TPlugin>>
+) {
+  const { log, activity, next } = ctx;
+  const { code, message } = activity.value;
+
+  log.warn(
+    `sign-in failed for user "${activity.from.id}" in conversation "${activity.conversation.id}": ${code} — ${message}. ` +
+    `If the code is 'resourcematchfailed', verify that your Entra app registration has 'Expose an API' configured ` +
+    `with the correct Application ID URI matching your OAuth connection's Token Exchange URL.`
+  );
+
+  this.events.emit('error', {
+    error: new Error(`Sign-in failure: ${code} — ${message}`),
+    activity,
+  });
+
+  next(ctx);
+  return { status: 200 };
 }

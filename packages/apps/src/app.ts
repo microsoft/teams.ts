@@ -27,8 +27,9 @@ import {
   onError,
 } from './app.events';
 import {
+  onSignInFailure,
   onTokenExchange,
-  onVerifyState
+  onVerifyState,
 } from './app.oauth';
 import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
 import { $process } from './app.process';
@@ -347,6 +348,13 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       callback: ctx => this.onVerifyState(ctx),
     });
 
+    this.router.register({
+      name: 'signin.failure',
+      type: 'system',
+      select: activity => activity.type === 'invoke' && activity.name === 'signin/failure',
+      callback: ctx => this.onSignInFailure(ctx),
+    });
+
     this.event('error', ({ error }) => {
       this.log.error(error.message);
 
@@ -518,6 +526,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
   protected onTokenExchange = onTokenExchange; // eslint-disable-line @typescript-eslint/member-ordering
   protected onVerifyState = onVerifyState; // eslint-disable-line @typescript-eslint/member-ordering
+  protected onSignInFailure = onSignInFailure; // eslint-disable-line @typescript-eslint/member-ordering
 
   ///
   /// Events
