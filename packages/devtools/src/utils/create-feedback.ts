@@ -66,6 +66,7 @@ export const createFeedbackActivity = ({
     team: undefined,
     meeting: undefined,
     notification: undefined,
+    isTargeted: false,
     isStreaming() {
       return this.entities?.some((e) => e.type === 'streaminfo') || false;
     },

@@ -419,7 +419,9 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     // Validate targeted messages in proactive context
     if (params.type === 'message' && params.isTargeted) {
       if (!params.recipient) {
-        throw new Error('Targeted messages sent proactively must specify an explicit recipient ID using withTargetedRecipient(recipientId)');
+        throw new Error(
+          'Targeted messages sent proactively must specify an explicit recipient using .withRecipient(account, true)'
+        );
       }
     }
 

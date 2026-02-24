@@ -213,7 +213,7 @@ describe('ActivityContext', () => {
         context = buildActivityContext(activity);
 
         const targetedActivity = new MessageActivity('Secret message')
-          .withTargetedRecipient(true);
+          .withRecipient({ id: 'test-user', name: 'Test User', role: 'user' }, true);
 
         await context.send(targetedActivity);
 
@@ -234,7 +234,7 @@ describe('ActivityContext', () => {
         context = buildActivityContext(activity);
 
         const targetedActivity = new MessageActivity('Secret message')
-          .withTargetedRecipient('explicit-user-id');
+          .withRecipient({ id: 'explicit-user-id', name: '', role: 'user' }, true);
 
         await context.send(targetedActivity);
 
@@ -255,8 +255,11 @@ describe('ActivityContext', () => {
         context = buildActivityContext(activity);
 
         const updateActivity = new MessageActivity('Updated message')
-          .withTargetedRecipient(true)
           .withId('existing-activity-id');
+        // Set isTargeted directly to test that context doesn't override recipient for updates.
+        // The context logic checks params.id and skips setting recipient for updates,
+        // so we need to test this by setting isTargeted without a recipient.
+        updateActivity.isTargeted = true;
 
         await context.send(updateActivity);
 
