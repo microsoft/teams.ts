@@ -7,7 +7,7 @@ import { MessageUser } from './message-user';
  * @readonly
  * @enum {string}
  */
-export type MessageReactionType = 'like' | 'heart' | '1f440_eyes' | '2705_whiteheavycheckmark' | 'launch' | '1f4cc_pushpin' | string;
+export type MessageReactionType = 'like' | 'heart' | '1f440_eyes' | '2705_whiteheavycheckmark' | 'launch' | '1f4cc_pushpin' | (string & {});
  
 
 export type MessageReaction = {

@@ -1,4 +1,4 @@
-import { Client, MessageReactionActivity, MessageReactionType } from '@microsoft/teams.api';
+import { Client, MessageReactionActivity } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 
