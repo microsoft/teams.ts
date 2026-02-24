@@ -1,6 +1,6 @@
 import { Account } from '../../models';
 
-import { MessageReactionActivity } from './message-reaction';
+import { IMessageReactionActivity, MessageReactionActivity } from './message-reaction';
 
 describe('MessageReactionActivity', () => {
   const a: Account = {
@@ -62,39 +62,7 @@ describe('MessageReactionActivity', () => {
           user: b,
         },
       ],
-      id: '',
-      channelId: 'webchat',
-      from: {
-        id: '',
-        aadObjectId: undefined,
-        role: 'user',
-        name: '',
-        properties: undefined,
-        membershipSources: undefined
-      },
-      conversation: {
-        id: '',
-        tenantId: undefined,
-        conversationType: 'personal',
-        name: undefined,
-        isGroup: undefined
-      },
-      recipient: {
-        id: '',
-        aadObjectId: undefined,
-        role: 'user',
-        name: '',
-        properties: undefined,
-        membershipSources: undefined
-      },
-      channel: undefined,
-      team: undefined,
-      meeting: undefined,
-      notification: undefined,
-      isStreaming: function (): boolean {
-        throw new Error('Function not implemented.');
-      }
-    });
+    } as unknown as IMessageReactionActivity);
 
     expect(activity.type).toEqual('messageReaction');
     expect(activity.reactionsAdded).toStrictEqual([
