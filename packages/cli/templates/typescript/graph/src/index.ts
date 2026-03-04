@@ -42,4 +42,10 @@ app.event('signin', async ({ send, userGraph }) => {
   );
 });
 
+app.on('signin.failure', async ({ activity, send }) => {
+  const { code, message } = activity.value;
+  console.log(`sign-in failed: ${code} - ${message}`);
+  await send('sign-in failed. please contact your admin.');
+});
+
 app.start(process.env.PORT || 3978).catch(console.error);
