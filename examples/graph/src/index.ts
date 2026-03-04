@@ -43,4 +43,10 @@ app.event('signin', async ({ send, userGraph, token }) => {
   await send(`user "${me.displayName}" signed in. Here's the token: ${JSON.stringify(token)}`);
 });
 
+app.on('signin.failure', async ({ activity, send }) => {
+  const { code, message } = activity.value;
+  console.log(`sign-in failed: ${code} - ${message}`);
+  await send('sign-in failed. please contact your admin.');
+});
+
 app.start().catch(console.error);
