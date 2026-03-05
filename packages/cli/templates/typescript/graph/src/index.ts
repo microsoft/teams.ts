@@ -42,9 +42,9 @@ app.event('signin', async ({ send, userGraph }) => {
   );
 });
 
-app.on('signin.failure', async ({ activity, send }) => {
+app.on('signin.failure', async ({ activity, log, send }) => {
   const { code, message } = activity.value;
-  console.log(`sign-in failed: ${code} - ${message}`);
+  log.error(`sign-in failed: ${code} - ${message}`);
   await send('sign-in failed. please contact your admin.');
 });
 

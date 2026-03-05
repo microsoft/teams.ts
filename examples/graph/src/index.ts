@@ -10,6 +10,8 @@ const app = new App({
      */
     defaultConnectionName: 'graph'
   },
+  // Instead of setting in ConsoleLogger like below, you can also 
+  // set LOG_LEVEL=debug or LOG_LEVEL=trace env var for verbose SDK logging
   logger: new ConsoleLogger('@tests/auth', { level: 'debug' }),
     // This is an example of overriding the token URL for a specific region (e.g., Europe).
     // Uncomment this block if needed.
@@ -43,9 +45,9 @@ app.event('signin', async ({ send, userGraph, token }) => {
   await send(`user "${me.displayName}" signed in. Here's the token: ${JSON.stringify(token)}`);
 });
 
-app.on('signin.failure', async ({ activity, send }) => {
+app.on('signin.failure', async ({ activity, log, send }) => {
   const { code, message } = activity.value;
-  console.log(`sign-in failed: ${code} - ${message}`);
+  log.error(`sign-in failed: ${code} - ${message}`);
   await send('sign-in failed. please contact your admin.');
 });
 
