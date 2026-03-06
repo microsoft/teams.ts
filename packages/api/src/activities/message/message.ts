@@ -381,10 +381,14 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
   }
 
   /**
-   * Set the recipient of this message, optionally marking it as a targeted message.
+   * Set the recipient of this message, optionally marking it as a targeted (ephemeral) message.
+   * Targeted messages are only visible to the specified recipient in a shared conversation.
    * @param account - The recipient account
-   * @param isTargeted - If true, marks this as a targeted message visible only to the recipient. Defaults to false.
+   * @param isTargeted - If true, marks this as a targeted message visible only to the recipient
    * @returns this instance for chaining
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: TEAMS0002
    */
   withRecipient(account: Account, isTargeted: boolean = false): this {
     super.withRecipient(account, isTargeted);

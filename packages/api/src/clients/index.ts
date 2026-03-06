@@ -15,6 +15,10 @@ export class Client {
   readonly conversations: ConversationClient;
   readonly teams: TeamClient;
   readonly meetings: MeetingClient;
+  /**
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: TEAMS0001
+   */
   readonly reactions: ReactionClient;
 
   get http() {

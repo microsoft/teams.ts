@@ -4,6 +4,12 @@ import { MessageReactionType } from '../../models/message/message-reaction';
 
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 
+/**
+ * Client for adding and removing emoji reactions on messages in a conversation.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: TEAMS0001
+ */
 export class ReactionClient {
   readonly serviceUrl: string;
 
@@ -30,6 +36,12 @@ export class ReactionClient {
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
   }
 
+  /**
+   * Add a reaction to a message.
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: TEAMS0001
+   */
   async add(conversationId: string, activityId: string, reactionType: MessageReactionType) {
     const res = await this.http.put<void>(
       `${this.serviceUrl}/v3/conversations/${encodeURIComponent(conversationId)}/activities/${encodeURIComponent(activityId)}/reactions/${encodeURIComponent(reactionType)}`
@@ -37,6 +49,12 @@ export class ReactionClient {
     return res.data;
   }
 
+  /**
+   * Remove a reaction from a message.
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: TEAMS0001
+   */
   async remove(conversationId: string, activityId: string, reactionType: MessageReactionType) {
     const res = await this.http.delete<void>(
       `${this.serviceUrl}/v3/conversations/${encodeURIComponent(conversationId)}/activities/${encodeURIComponent(activityId)}/reactions/${encodeURIComponent(reactionType)}`
