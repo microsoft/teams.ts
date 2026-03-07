@@ -155,11 +155,8 @@ describe('HttpPlugin', () => {
       expect(app.server).toBeDefined();
 
       // App should still be able to register routes
-      const mockHandler = jest.fn();
-      app.server.registerRouteHandler({
-        path: '/test',
-        handler: mockHandler,
-      });
+      const mockHandler = jest.fn(async () => ({ status: 200 }));
+      app.server.registerRoute('POST', '/test', mockHandler);
 
       expect(app.server).toBeDefined();
     });

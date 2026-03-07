@@ -3,7 +3,7 @@
  */
 
 import { App, AppOptions } from './app';
-import { IHttpAdapter, IRouteConfig } from './http/adapter';
+import { HttpMethod, IHttpAdapter, HttpRouteHandler } from './http/adapter';
 import { IPlugin } from './types';
 
 /**
@@ -11,15 +11,11 @@ import { IPlugin } from './types';
  * Provides no-op implementations for all methods
  */
 export class TestAdapter implements IHttpAdapter {
-  registerRouteHandler(_config: IRouteConfig): void {
+  registerRoute(_method: HttpMethod, _path: string, _handler: HttpRouteHandler): void {
     // No-op for tests
   }
 
   serveStatic(_path: string, _directory: string): void {
-    // No-op for tests
-  }
-
-  async initialize(): Promise<void> {
     // No-op for tests
   }
 

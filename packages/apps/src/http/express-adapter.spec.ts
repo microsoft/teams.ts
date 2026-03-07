@@ -30,15 +30,11 @@ describe('ExpressAdapter', () => {
       server = http.createServer();
       adapter = new ExpressAdapter(server);
 
-      const mockHandler = jest.fn(async ({ extractRequestData, sendResponse }) => {
-        const { body } = extractRequestData();
-        sendResponse({ status: 200, body: { echo: body.message } });
+      const mockHandler = jest.fn(async ({ body }) => {
+        return { status: 200, body: { echo: (body as Record<string, unknown>).message } };
       });
 
-      adapter.registerRouteHandler({
-        path: '/api/messages',
-        handler: mockHandler
-      });
+      adapter.registerRoute('POST', '/api/messages', mockHandler);
 
       const response = await supertest(server)
         .post('/api/messages')
@@ -55,13 +51,9 @@ describe('ExpressAdapter', () => {
 
       let extractedHeaders: Record<string, string> | undefined;
 
-      adapter.registerRouteHandler({
-        path: '/api/test',
-        handler: async ({ extractRequestData, sendResponse }) => {
-          const { headers } = extractRequestData();
-          extractedHeaders = headers;
-          sendResponse({ status: 200, body: { ok: true } });
-        }
+      adapter.registerRoute('POST', '/api/test', async ({ headers }) => {
+        extractedHeaders = headers;
+        return { status: 200, body: { ok: true } };
       });
 
       await supertest(server)
@@ -79,11 +71,8 @@ describe('ExpressAdapter', () => {
       server = http.createServer();
       adapter = new ExpressAdapter(server);
 
-      adapter.registerRouteHandler({
-        path: '/api/error',
-        handler: async () => {
-          throw new Error('Handler error');
-        }
+      adapter.registerRoute('POST', '/api/error', async () => {
+        throw new Error('Handler error');
       });
 
       // Express default error handler should catch this and return 500
@@ -99,11 +88,8 @@ describe('ExpressAdapter', () => {
       server = http.createServer();
       adapter = new ExpressAdapter(server);
 
-      adapter.registerRouteHandler({
-        path: '/api/test',
-        handler: async ({ sendResponse }) => {
-          sendResponse({ status: 200, body: { data: 'test' } });
-        }
+      adapter.registerRoute('POST', '/api/test', async () => {
+        return { status: 200, body: { data: 'test' } };
       });
 
       const response = await supertest(server)
@@ -117,11 +103,8 @@ describe('ExpressAdapter', () => {
       server = http.createServer();
       adapter = new ExpressAdapter(server);
 
-      adapter.registerRouteHandler({
-        path: '/api/test',
-        handler: async ({ sendResponse }) => {
-          sendResponse({ status: 200, body: { ok: true } });
-        }
+      adapter.registerRoute('POST', '/api/test', async () => {
+        return { status: 200, body: { ok: true } };
       });
 
       const response = await supertest(server)

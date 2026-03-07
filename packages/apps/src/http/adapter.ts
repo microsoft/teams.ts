@@ -1,29 +1,6 @@
-/**
- * Helpers provided to route handlers
- */
-export interface IRequestHelpers {
-  /**
-   * Extract standardized request data from the framework request
-   */
-  extractRequestData: () => {
-    body: any;
-    headers: Record<string, string>;
-  };
-
-  /**
-   * Send standardized response using the framework response
-   */
-  sendResponse: (response: { status: number; body: any }) => void;
-}
-
-/**
- * Configuration for registering a route with the adapter
- * All routes are POST only (Teams bot protocol uses POST)
- */
-export interface IRouteConfig {
-  path: string;
-  handler: (helpers: IRequestHelpers) => Promise<void>;
-}
+export type HttpRouteHandler = (
+  request: { body: unknown; headers: Record<string, string> }
+) => Promise<{ status: number; body?: unknown }>;
 
 /**
  * Adapter interface for different HTTP frameworks
@@ -31,14 +8,18 @@ export interface IRouteConfig {
  * Adapters handle framework-specific HTTP concerns while HttpServer
  * handles Teams protocol logic (JWT validation, activity processing, etc.)
  */
+// Only POST is needed today (Teams bot protocol + remote functions).
+// This may become a union (e.g., 'GET' | 'POST' | ...) if the need comes up.
+export type HttpMethod = 'POST';
+
 export interface IHttpAdapter {
   /**
-   * Register a POST route with the adapter
-   * All routes are POST-only (Teams bot protocol uses POST)
-   * The adapter handles framework-specific routing logic and provides helpers to the handler
-   * @param config Route configuration with path and handler
+   * Register a route handler for a given HTTP method and path
+   * @param method HTTP method
+   * @param path URL path (e.g., '/api/messages')
+   * @param handler Pure function: ({ body, headers }) → { status, body }
    */
-  registerRouteHandler(config: IRouteConfig): void;
+  registerRoute(method: HttpMethod, path: string, handler: HttpRouteHandler): void;
 
   /**
    * Serve static files from a directory
@@ -47,12 +28,6 @@ export interface IHttpAdapter {
    * @param directory File system directory to serve from
    */
   serveStatic?(path: string, directory: string): void;
-
-  /**
-   * Optional framework-specific initialization
-   * Called when app.initialize() or app.start() is invoked if any prep is needed
-   */
-  initialize?(): Promise<void>;
 
   /**
    * Start the server listening to incoming requests

@@ -25,50 +25,43 @@ export function func<TPlugin extends IPlugin, TData>(
     ? new RemoteFunctionValidator(entraTokenValidator, log)
     : null;
 
-  this.server.registerRouteHandler({
-    path: `/api/functions/${name}`,
-    handler: async (helpers) => {
-      const { body, headers } = helpers.extractRequestData();
-
-      // Validate JWT token and extract context
-      if (!validator) {
-        log.debug('unauthorized - no token validator configured');
-        helpers.sendResponse({ status: 401, body: 'unauthorized' });
-        return;
-      }
-
-      const context = await validator.check(headers);
-      if (!context) {
-        helpers.sendResponse({ status: 401, body: 'unauthorized' });
-        return;
-      }
-
-      const getCurrentConversationId =
-        functionContext.getConversationIdResolver(
-          this,
-          log.child('getCurrentConversationId'),
-          context
-        );
-
-      const send = async (activity: ActivityLike) => {
-        const conversationId = await getCurrentConversationId();
-        return !conversationId
-          ? null
-          : await this.send(conversationId, activity);
-      };
-
-      const data = await cb({
-        ...context,
-        log,
-        api: this.api,
-        appGraph: this.graph,
-        data: body,
-        getCurrentConversationId,
-        send,
-      });
-
-      helpers.sendResponse({ status: 200, body: data });
+  this.server.registerRoute('POST', `/api/functions/${name}`, async ({ body, headers }) => {
+    // Validate JWT token and extract context
+    if (!validator) {
+      log.debug('unauthorized - no token validator configured');
+      return { status: 401, body: 'unauthorized' };
     }
+
+    const context = await validator.check(headers);
+    if (!context) {
+      return { status: 401, body: 'unauthorized' };
+    }
+
+    const getCurrentConversationId =
+      functionContext.getConversationIdResolver(
+        this,
+        log.child('getCurrentConversationId'),
+        context
+      );
+
+    const send = async (activity: ActivityLike) => {
+      const conversationId = await getCurrentConversationId();
+      return !conversationId
+        ? null
+        : await this.send(conversationId, activity);
+    };
+
+    const data = await cb({
+      ...context,
+      log,
+      api: this.api,
+      appGraph: this.graph,
+      data: body as TData,
+      getCurrentConversationId,
+      send,
+    });
+
+    return { status: 200, body: data };
   });
 
   return this;

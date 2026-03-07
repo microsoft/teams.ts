@@ -1,5 +1,5 @@
 import fastify, { FastifyInstance } from 'fastify';
-import { IHttpAdapter, IRouteConfig } from '@microsoft/teams.apps/dist/http/adapter';
+import { HttpMethod, IHttpAdapter, HttpRouteHandler } from '@microsoft/teams.apps/dist/http/adapter';
 
 /**
  * Fastify adapter for HttpServer
@@ -33,42 +33,24 @@ export class FastifyAdapter implements IHttpAdapter {
   }
 
   /**
-   * Register a route with Fastify
+   * Register a route handler for a given HTTP method and path
    */
-  registerRouteHandler(config: IRouteConfig): void {
-    const { path, handler } = config;
-
-    // Register with Fastify
+  registerRoute(method: HttpMethod, path: string, handler: HttpRouteHandler): void {
     this.fastify.route({
-      method: 'POST',
+      method,
       url: path,
       handler: async (request, reply) => {
         try {
-          // Provide helpers to the handler
-          await handler({
-            extractRequestData: () => ({
-              body: request.body as any,
-              headers: request.headers as Record<string, string>
-            }),
-            sendResponse: (response) => {
-              reply.status(response.status).send(response.body);
-            }
+          const response = await handler({
+            body: request.body as unknown,
+            headers: request.headers as Record<string, string>
           });
+          reply.status(response.status).send(response.body);
         } catch (err) {
           reply.status(500).send({ error: 'Internal server error' });
         }
       }
     });
-  }
-
-  /**
-   * Initialize the adapter
-   * No initialization needed - Fastify will call ready() automatically when listen() is called
-   */
-  async initialize(): Promise<void> {
-    // No initialization needed for Fastify
-    // Routes must be registered before calling listen()
-    // Fastify will automatically call ready() when listen() is invoked
   }
 
   /**

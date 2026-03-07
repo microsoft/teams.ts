@@ -6,10 +6,10 @@ import {
 
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
-import { IActivityEvent } from '../events';
+import { IActivityEvent, ICoreActivity } from '../events';
 import { ServiceTokenValidator } from '../middleware/auth/service-token-validator';
 
-import { IHttpAdapter, IRequestHelpers, IRouteConfig } from './adapter';
+import { HttpMethod, IHttpAdapter, HttpRouteHandler } from './adapter';
 
 export type HttpServerOptions = {
   readonly skipAuth?: boolean;
@@ -30,7 +30,7 @@ export interface IHttpServer {
    * Register a route handler with the HTTP server
    * Framework-agnostic way to add routes
    */
-  registerRouteHandler(config: IRouteConfig): void;
+  registerRoute(method: HttpMethod, path: string, handler: HttpRouteHandler): void;
 
   /**
    * Serve static files from a directory
@@ -96,17 +96,9 @@ export class HttpServer implements IHttpServer {
       );
     }
 
-    // Framework-specific initialization (e.g., Next.js prepare)
-    if (this._adapter.initialize) {
-      await this._adapter.initialize();
-    }
-
     // Register Teams bot endpoint (POST only)
-    this._adapter.registerRouteHandler({
-      path: '/api/messages',
-      handler: async (helpers) => {
-        await this.handleActivity(helpers);
-      }
+    this._adapter.registerRoute('POST', '/api/messages', async (request) => {
+      return this.handleActivity(request);
     });
 
     this.initialized = true;
@@ -143,8 +135,8 @@ export class HttpServer implements IHttpServer {
    * Register a route handler with the adapter
    * Used by app.function() and other app methods
    */
-  registerRouteHandler(config: IRouteConfig) {
-    this._adapter.registerRouteHandler(config);
+  registerRoute(method: HttpMethod, path: string, handler: HttpRouteHandler) {
+    this._adapter.registerRoute(method, path, handler);
   }
 
   /**
@@ -162,10 +154,11 @@ export class HttpServer implements IHttpServer {
    * Handle incoming activity
    * Validates JWT, signals app, sends response
    */
-  protected async handleActivity({ extractRequestData, sendResponse }: IRequestHelpers) {
+  protected async handleActivity(request: { body: unknown; headers: Record<string, string> }): Promise<{ status: number; body?: unknown }> {
     try {
-      // Extract data from request
-      const { body, headers } = extractRequestData();
+      // Extract data from request — body is a Teams activity at this endpoint
+      const { headers } = request;
+      const body = request.body as ICoreActivity;
       this.logger.debug('Handling activity', body);
 
       // Validate JWT if not skipped
@@ -174,11 +167,7 @@ export class HttpServer implements IHttpServer {
         // Validate JWT token
         const authHeader = headers['authorization'];
         if (!authHeader) {
-          sendResponse({
-            status: 401,
-            body: { error: 'Unauthorized' }
-          });
-          return;
+          return { status: 401, body: { error: 'Unauthorized' } };
         }
 
         if (!this.serviceTokenValidator) {
@@ -189,11 +178,7 @@ export class HttpServer implements IHttpServer {
           token = await this.serviceTokenValidator.check(authHeader, body);
         } catch (err) {
           this.logger.error('JWT validation failed', err);
-          sendResponse({
-            status: 401,
-            body: { error: 'Unauthorized' }
-          });
-          return;
+          return { status: 401, body: { error: 'Unauthorized' } };
         }
       } else {
         // Skip auth - create dummy token
@@ -217,16 +202,10 @@ export class HttpServer implements IHttpServer {
       });
 
       // Send response
-      sendResponse({
-        status: response.status || 200,
-        body: response.body
-      });
+      return { status: response.status || 200, body: response.body };
     } catch (err) {
       this.logger.error('Error processing activity:', err);
-      sendResponse({
-        status: 500,
-        body: { error: 'Internal server error' }
-      });
+      return { status: 500, body: { error: 'Internal server error' } };
     }
   }
 

@@ -1,5 +1,6 @@
 import { Hono, Context } from 'hono';
-import { IHttpAdapter, IRouteConfig } from '@microsoft/teams.apps/dist/http/adapter';
+import type { StatusCode } from 'hono/utils/http-status';
+import { HttpMethod, IHttpAdapter, HttpRouteHandler } from '@microsoft/teams.apps/dist/http/adapter';
 
 /**
  * Hono adapter for HttpServer
@@ -25,46 +26,16 @@ export class HonoAdapter implements IHttpAdapter {
   }
 
   /**
-   * Register a POST route handler with Hono
-   * All routes are POST-only (Teams bot protocol uses POST)
+   * Register a route handler for a given HTTP method and path
    */
-  registerRouteHandler(config: IRouteConfig): void {
-    const { path, handler } = config;
-
-    // Convert handler to Hono handler signature
-    const honoHandler = async (c: Context) => {
-      try {
-        // Parse JSON body
-        const body = await c.req.json().catch(() => ({}));
-        const headers = Object.fromEntries(c.req.raw.headers.entries());
-
-        let responseData: { status: number; body: any } | undefined;
-
-        // Provide helpers to the handler
-        await handler({
-          extractRequestData: () => ({
-            body,
-            headers
-          }),
-          sendResponse: (response) => {
-            responseData = response;
-          }
-        });
-
-        // Send the response
-        if (responseData) {
-          return c.json(responseData.body, responseData.status as any);
-        } else {
-          return c.json({ error: 'No response provided' }, 500);
-        }
-      } catch (err) {
-        console.error('Hono handler error:', err);
-        return c.json({ error: 'Internal server error' }, 500);
-      }
-    };
-
-    // Register as POST route
-    this.hono.post(path, honoHandler);
+  registerRoute(method: HttpMethod, path: string, handler: HttpRouteHandler): void {
+    const m = method.toLowerCase() as Lowercase<HttpMethod>;
+    this.hono[m](path, async (c: Context) => {
+      const body = await c.req.json().catch(() => ({}));
+      const headers = Object.fromEntries(c.req.raw.headers.entries());
+      const response = await handler({ body, headers });
+      return c.json(response.body as object, response.status as StatusCode);
+    });
   }
 
   /**

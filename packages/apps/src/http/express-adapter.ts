@@ -5,7 +5,7 @@ import express from 'express';
 
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
-import { IHttpAdapter, IRouteConfig } from './adapter';
+import { HttpMethod, IHttpAdapter, HttpRouteHandler } from './adapter';
 
 /**
  * Express adapter for HttpServer
@@ -53,44 +53,30 @@ export class ExpressAdapter implements IHttpAdapter {
   }
 
   /**
-   * Register a POST route handler with Express
-   * All routes are POST-only (Teams bot protocol uses POST)
+   * Register a route handler for a given HTTP method and path
    */
-  registerRouteHandler(config: IRouteConfig): void {
-    const { path, handler } = config;
+  registerRoute(method: HttpMethod, path: string, handler: HttpRouteHandler): void {
+    if (method !== 'POST') {
+      throw new Error(`Unsupported HTTP method: ${method}`);
+    }
 
-    // Convert handler to Express middleware signature
     const expressHandler = async (
       req: express.Request,
       res: express.Response,
       next: express.NextFunction
     ) => {
       try {
-        // Provide helpers to the handler
-        await handler({
-          extractRequestData: () => ({
-            body: req.body,
-            headers: req.headers as Record<string, string>
-          }),
-          sendResponse: (response) => {
-            res.status(response.status).send(response.body);
-          }
+        const response = await handler({
+          body: req.body,
+          headers: req.headers as Record<string, string>
         });
+        res.status(response.status).send(response.body);
       } catch (err) {
         next(err);
       }
     };
 
-    // Register as POST route
     this.express.post(path, expressHandler);
-  }
-
-  /**
-   * Initialize the adapter
-   * No-op for Express
-   */
-  async initialize(): Promise<void> {
-    // No initialization needed for Express
   }
 
   /**
