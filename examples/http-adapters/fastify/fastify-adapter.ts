@@ -1,5 +1,5 @@
 import fastify, { FastifyInstance } from 'fastify';
-import { HttpMethod, IHttpAdapter, HttpRouteHandler } from '@microsoft/teams.apps/dist/http/adapter';
+import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from '@microsoft/teams.apps/dist/http/adapter';
 
 /**
  * Fastify adapter for HttpServer
@@ -12,11 +12,11 @@ import { HttpMethod, IHttpAdapter, HttpRouteHandler } from '@microsoft/teams.app
  *
  * Usage:
  *   const adapter = new FastifyAdapter();
- *   const app = new App({ httpAdapter: adapter });
+ *   const app = new App({ httpServerAdapter: adapter });
  *   await app.initialize();
  *   await app.start(3978);
  */
-export class FastifyAdapter implements IHttpAdapter {
+export class FastifyAdapter implements IHttpServerAdapter {
   protected fastify: FastifyInstance;
   protected isUserProvidedInstance: boolean;
 

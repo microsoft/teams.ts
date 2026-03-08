@@ -3,14 +3,14 @@
  */
 
 import { App, AppOptions } from './app';
-import { HttpMethod, IHttpAdapter, HttpRouteHandler } from './http/adapter';
+import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from './http/adapter';
 import { IPlugin } from './types';
 
 /**
  * Mock HTTP adapter for testing
  * Provides no-op implementations for all methods
  */
-export class TestAdapter implements IHttpAdapter {
+export class TestAdapter implements IHttpServerAdapter {
   registerRoute(_method: HttpMethod, _path: string, _handler: HttpRouteHandler): void {
     // No-op for tests
   }
@@ -30,7 +30,7 @@ export class TestAdapter implements IHttpAdapter {
 
 /**
  * Creates an App instance configured for testing
- * Automatically uses TestAdapter if no httpAdapter is provided
+ * Automatically uses TestAdapter if no httpServerAdapter is provided
  *
  * @param options App configuration options
  * @returns App instance with TestAdapter
@@ -46,6 +46,6 @@ export function createTestApp<TPlugin extends IPlugin = IPlugin>(
 ): App<TPlugin> {
   return new App({
     ...options,
-    httpAdapter: options?.httpAdapter ?? new TestAdapter()
+    httpServerAdapter: options?.httpServerAdapter ?? new TestAdapter()
   });
 }

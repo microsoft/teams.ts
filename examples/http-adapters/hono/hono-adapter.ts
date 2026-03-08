@@ -1,6 +1,6 @@
 import { Hono, Context } from 'hono';
 import type { StatusCode } from 'hono/utils/http-status';
-import { HttpMethod, IHttpAdapter, HttpRouteHandler } from '@microsoft/teams.apps/dist/http/adapter';
+import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from '@microsoft/teams.apps/dist/http/adapter';
 
 /**
  * Hono adapter for HttpServer
@@ -10,11 +10,11 @@ import { HttpMethod, IHttpAdapter, HttpRouteHandler } from '@microsoft/teams.app
  *
  * Usage:
  *   const hono = new Hono();
- *   const app = new App({ httpAdapter: new HonoAdapter(hono) });
+ *   const app = new App({ httpServerAdapter: new HonoAdapter(hono) });
  *   await app.initialize();
  *   // Start your Hono server separately with serve() or @hono/node-server
  */
-export class HonoAdapter implements IHttpAdapter {
+export class HonoAdapter implements IHttpServerAdapter {
   protected hono: Hono;
 
   /**

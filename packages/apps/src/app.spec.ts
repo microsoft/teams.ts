@@ -47,7 +47,7 @@ describe('App', () => {
 
     beforeEach(() => {
       app = new TestApp({
-        httpAdapter: new TestAdapter(),
+        httpServerAdapter: new TestAdapter(),
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
         tenantId: 'test-tenant-id',
@@ -92,7 +92,7 @@ describe('App', () => {
 
     it('should return null when credentials are not provided', async () => {
       const appWithoutCreds = new TestApp({
-        httpAdapter: new TestAdapter()
+        httpServerAdapter: new TestAdapter()
       });
 
       const botToken = await appWithoutCreds.testGetBotToken();
@@ -125,7 +125,7 @@ describe('App', () => {
 
     it('should send message without manifest.name configured', async () => {
       app = new TestApp({
-        httpAdapter: new TestAdapter(),
+        httpServerAdapter: new TestAdapter(),
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
         tenantId: 'test-tenant-id',
@@ -147,7 +147,7 @@ describe('App', () => {
 
     it('should send message with manifest.name configured', async () => {
       app = new TestApp({
-        httpAdapter: new TestAdapter(),
+        httpServerAdapter: new TestAdapter(),
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
         tenantId: 'test-tenant-id',
@@ -172,7 +172,7 @@ describe('App', () => {
 
     it('should throw error when app is not started (no clientId)', async () => {
       app = new TestApp({
-        httpAdapter: new TestAdapter()
+        httpServerAdapter: new TestAdapter()
       });
 
       await app.start();

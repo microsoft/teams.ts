@@ -5,7 +5,7 @@ import express from 'express';
 
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
-import { HttpMethod, IHttpAdapter, HttpRouteHandler } from './adapter';
+import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from './adapter';
 
 /**
  * Express adapter for HttpServer
@@ -16,7 +16,7 @@ import { HttpMethod, IHttpAdapter, HttpRouteHandler } from './adapter';
  * - Request/response data extraction and sending
  * - Server lifecycle management
  */
-export class ExpressAdapter implements IHttpAdapter {
+export class ExpressAdapter implements IHttpServerAdapter {
   // Expose Express methods for backwards compatibility
   readonly get: express.Application['get'];
   readonly post: express.Application['post'];

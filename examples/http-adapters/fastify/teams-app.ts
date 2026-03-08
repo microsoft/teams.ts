@@ -39,7 +39,7 @@ fastify.get('/', async (_request, reply) => {
 
 // 3. Create teams.ts app with the adapter
 export const app = new App({
-  httpAdapter: adapter,
+  httpServerAdapter: adapter,
 });
 
 // 4. Handle incoming messages

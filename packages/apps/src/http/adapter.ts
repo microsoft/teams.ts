@@ -12,7 +12,7 @@ export type HttpRouteHandler = (
 // This may become a union (e.g., 'GET' | 'POST' | ...) if the need comes up.
 export type HttpMethod = 'POST';
 
-export interface IHttpAdapter {
+export interface IHttpServerAdapter {
   /**
    * Register a route handler for a given HTTP method and path
    * @param method HTTP method

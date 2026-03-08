@@ -47,7 +47,7 @@ async function main() {
 
   // 3. Create teams.ts app with the adapter
   const app = new App({
-    httpAdapter: adapter
+    httpServerAdapter: adapter
   });
 
   // 4. Handle Teams bot messages

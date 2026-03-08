@@ -97,16 +97,16 @@ describe('HttpPlugin', () => {
       expect((adapter as any).server).toBe(customServer);
     });
 
-    it('should work equivalently to new httpAdapter approach', () => {
+    it('should work equivalently to new httpServerAdapter approach', () => {
       // Old way with HttpPlugin
       const oldPlugin = new HttpPlugin();
       const oldApp = new App({
         plugins: [oldPlugin],
       });
 
-      // New way with httpAdapter
+      // New way with httpServerAdapter
       const newApp = new App({
-        httpAdapter: new ExpressAdapter(),
+        httpServerAdapter: new ExpressAdapter(),
       });
 
       // Both should have server

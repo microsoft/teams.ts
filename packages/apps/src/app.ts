@@ -37,7 +37,7 @@ import { $process } from './app.process';
 import { message, on, use } from './app.routing';
 import { Container } from './container';
 import { IActivityEvent } from './events';
-import { ExpressAdapter, IHttpAdapter } from './http';
+import { ExpressAdapter, IHttpServerAdapter } from './http';
 import { HttpServer } from './http/http-server';
 import * as manifest from './manifest';
 import * as middleware from './middleware';
@@ -117,9 +117,9 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly plugins?: Array<TPlugin>;
 
   /**
-   * HTTP adapter for handling bot requests
+   * HTTP server adapter for handling bot requests
    */
-  readonly httpAdapter?: IHttpAdapter;
+  readonly httpServerAdapter?: IHttpServerAdapter;
 
   /**
    * OAuth Settings
@@ -319,12 +319,12 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       return meta.name === 'http';
     }) as HttpPlugin | undefined;
 
-    // Error if both httpAdapter and http plugin are provided
-    if (this.options.httpAdapter && httpPlugin) {
+    // Error if both httpServerAdapter and http plugin are provided
+    if (this.options.httpServerAdapter && httpPlugin) {
       throw new Error(
-        'Cannot provide both httpAdapter option and HttpPlugin in plugins array. ' +
+        'Cannot provide both httpServerAdapter option and HttpPlugin in plugins array. ' +
         'Use either:\n' +
-        '  - new App({ httpAdapter: new ExpressAdapter() }) (recommended)\n' +
+        '  - new App({ httpServerAdapter: new ExpressAdapter() }) (recommended)\n' +
         '  - new App({ plugins: [new HttpPlugin()] }) (deprecated)'
       );
     }
@@ -333,8 +333,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     // HttpPlugin in plugins array (backwards compatibility)
     if (httpPlugin) {
-      this.log.warn('[DEPRECATED] HttpPlugin in plugins array will be deprecated. Use httpAdapter option instead:\n' +
-        '  new App({ httpAdapter: new ExpressAdapter() })');
+      this.log.warn('[DEPRECATED] HttpPlugin in plugins array will be deprecated. Use httpServerAdapter option instead:\n' +
+        '  new App({ httpServerAdapter: new ExpressAdapter() })');
       this.http = httpPlugin;
       // Extract internal server and always set this.server
       server = (httpPlugin as any).asServer?.();
@@ -342,7 +342,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         throw new Error('HttpPlugin.asServer() returned undefined');
       }
     } else {
-      server = new HttpServer(this.options.httpAdapter ?? new ExpressAdapter(undefined, {
+      server = new HttpServer(this.options.httpServerAdapter ?? new ExpressAdapter(undefined, {
         logger: this.log,
         onError: (err) => this.onError({ error: err })
       }), {

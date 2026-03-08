@@ -9,7 +9,7 @@ import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 import { IActivityEvent, ICoreActivity } from '../events';
 import { ServiceTokenValidator } from '../middleware/auth/service-token-validator';
 
-import { HttpMethod, IHttpAdapter, HttpRouteHandler } from './adapter';
+import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from './adapter';
 
 export type HttpServerOptions = {
   readonly skipAuth?: boolean;
@@ -24,7 +24,7 @@ export interface IHttpServer {
    * Get the underlying adapter
    * Useful for plugins that need adapter-specific features
    */
-  readonly adapter: IHttpAdapter;
+  readonly adapter: IHttpServerAdapter;
 
   /**
    * Register a route handler with the HTTP server
@@ -55,17 +55,17 @@ export class HttpServer implements IHttpServer {
   protected initialized: boolean = false;
   protected serviceTokenValidator?: ServiceTokenValidator;
 
-  private _adapter: IHttpAdapter;
+  private _adapter: IHttpServerAdapter;
 
   /**
    * Get the underlying adapter
    * Useful for plugins that need adapter-specific features
    */
-  get adapter(): IHttpAdapter {
+  get adapter(): IHttpServerAdapter {
     return this._adapter;
   }
 
-  constructor(adapter: IHttpAdapter, options?: HttpServerOptions) {
+  constructor(adapter: IHttpServerAdapter, options?: HttpServerOptions) {
     this._adapter = adapter;
     this.skipAuth = options?.skipAuth ?? false;
     this.logger = options?.logger ?? new ConsoleLogger('HttpServer');
