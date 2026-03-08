@@ -266,12 +266,14 @@ export const createEntraTokenValidator = (
   options?: {
     allowedTenantIds?: string[];
     requiredScope?: string;
+    applicationIdUri?: string;
     logger?: ILogger
   },
 ) => {
   return new JwtValidator({
     clientId,
     tenantId,
+    audience: options?.applicationIdUri ? [options.applicationIdUri] : undefined,
     validateIssuer: {
       allowedTenantIds: options?.allowedTenantIds
     },

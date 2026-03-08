@@ -160,6 +160,51 @@ describe('JwtValidator', () => {
 
         expect(result).toEqual(expect.objectContaining(mockTokenPayload));
       });
+
+      it.each([
+        ['clientId', mockClientId],
+        ['api://botid-{clientId}', `api://botid-${mockClientId}`],
+        ['api://{clientId}', `api://${mockClientId}`],
+      ])('should accept %s audience', async (_label, aud) => {
+        const validator = new JwtValidator({
+          clientId: mockClientId,
+          tenantId: mockTenantId,
+          jwksUriOptions: { type: 'tenantId' }
+        });
+
+        const token = createTestToken({ ...mockTokenPayload, aud });
+        const result = await validator.validateAccessToken(token);
+
+        expect(result).not.toBeNull();
+      });
+
+      it('should accept custom audience values', async () => {
+        const customAudience = 'api://my-custom-app.contoso.com/test-client-id';
+        const validator = new JwtValidator({
+          clientId: mockClientId,
+          tenantId: mockTenantId,
+          audience: [customAudience],
+          jwksUriOptions: { type: 'tenantId' }
+        });
+
+        const token = createTestToken({ ...mockTokenPayload, aud: customAudience });
+        const result = await validator.validateAccessToken(token);
+
+        expect(result).not.toBeNull();
+      });
+
+      it('should reject unrecognized audience', async () => {
+        const validator = new JwtValidator({
+          clientId: mockClientId,
+          tenantId: mockTenantId,
+          jwksUriOptions: { type: 'tenantId' }
+        }, mockLogger);
+
+        const token = createTestToken({ ...mockTokenPayload, aud: 'api://wrong-client-id' });
+        const result = await validator.validateAccessToken(token);
+
+        expect(result).toBeNull();
+      });
     });
 
     describe('issuer validation', () => {
@@ -255,6 +300,23 @@ describe('JwtValidator', () => {
             message: expect.stringContaining('not in allowed tenant IDs')
           })
         );
+      });
+
+      it.each([
+        ['empty object', {} as any],
+        ['allowedTenantIds: undefined', { allowedTenantIds: undefined }],
+        ['allowedTenantIds: []', { allowedTenantIds: [] }],
+      ])('should skip validation when validateIssuer is %s', async (_label, validateIssuer) => {
+        const validator = new JwtValidator({
+          clientId: mockClientId,
+          tenantId: 'common',
+          jwksUriOptions: { type: 'tenantId' },
+          validateIssuer
+        });
+
+        const result = await validator.validateAccessToken(validToken);
+
+        expect(result).toEqual(expect.objectContaining(mockTokenPayload));
       });
 
       it('should reject token with missing issuer', async () => {
@@ -570,6 +632,20 @@ describe('JwtValidator', () => {
         });
 
         expect(validator.options.validateScope).toBeUndefined();
+      });
+
+      it('should pass applicationIdUri as audience', () => {
+        const validator = createEntraTokenValidator(mockTenantId, mockClientId, {
+          applicationIdUri: 'api://my-app.contoso.com/test-client-id'
+        });
+
+        expect(validator.options.audience).toEqual(['api://my-app.contoso.com/test-client-id']);
+      });
+
+      it('should not set audience when applicationIdUri is not provided', () => {
+        const validator = createEntraTokenValidator(mockTenantId, mockClientId);
+
+        expect(validator.options.audience).toBeUndefined();
       });
     });
 

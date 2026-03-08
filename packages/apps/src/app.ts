@@ -63,6 +63,12 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly clientSecret?: string;
 
   /**
+   * Application ID URI from the Azure portal. Used for user authentication.
+   * Matches webApplicationInfo.resource in the app manifest.
+   */
+  readonly applicationIdUri?: string;
+
+  /**
    * tenantId - The tenantId where your app is registered
    * Uses environment variable TENANT_ID if not explicitly provided
    * If your app has MultiTenant auth enabled (this value should not be provided).
@@ -285,7 +291,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       this.entraTokenValidator = middleware.createEntraTokenValidator(
         this.credentials.tenantId || 'common',
         this.credentials.clientId,
-        { logger: this.log, }
+        { applicationIdUri: this.options.applicationIdUri, logger: this.log }
       );
     }
 
