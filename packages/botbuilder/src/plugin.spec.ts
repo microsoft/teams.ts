@@ -66,7 +66,7 @@ describe('BotBuilderPlugin', () => {
     });
     app = new App({
       plugins: [plugin],
-      httpAdapter: new MockExpressAdapter(),
+      httpServerAdapter: new MockExpressAdapter(),
     });
     app.start();
   });
