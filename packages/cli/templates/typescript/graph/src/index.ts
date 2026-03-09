@@ -45,7 +45,7 @@ app.event('signin', async ({ send, userGraph }) => {
 app.on('signin.failure', async ({ activity, log, send }) => {
   const { code, message } = activity.value;
   log.error(`sign-in failed: ${code} - ${message}`);
-  await send('sign-in failed. please contact your admin.');
+  await send('Sign-in failed.');
 });
 
 app.start(process.env.PORT || 3978).catch(console.error);
