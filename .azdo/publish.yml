@@ -53,18 +53,24 @@ extends:
         - checkout: self
           displayName: 'Checkout'
           fetchDepth: 0
+          target:
+            container: host
 
         - task: NodeTool@0
           displayName: 'Use Node 24.x'
           inputs:
             versionSpec: '24.x'
             checkLatest: true
+          target:
+            container: host
 
         - task: UseDotNet@2
           displayName: 'Use .NET SDK'
           inputs:
             packageType: 'sdk'
             version: '8.x'
+          target:
+            container: host
 
         - powershell: |
             # Install nbgv
@@ -75,6 +81,8 @@ extends:
             # Set cloud build number and variables (resolves detached HEAD in ADO)
             nbgv cloud
           displayName: 'Install nbgv and set cloud build version'
+          target:
+            container: host
 
         # Always use internal feed for dependency resolution (avoids firewall issues on 1ES pool)
         - task: CmdLine@2
@@ -83,24 +91,34 @@ extends:
             script: |
               echo always-auth=true >> .npmrc
               echo registry=https://pkgs.dev.azure.com/DomoreexpGithub/Github_Pipelines/_packaging/TeamsSDKPreviews/npm/registry/ >> .npmrc
+          target:
+            container: host
 
         - task: NpmAuthenticate@0
           displayName: 'Authenticate npm registry'
           inputs:
             workingFile: .npmrc
+          target:
+            container: host
 
         - task: Npm@1
           displayName: 'npm ci'
           inputs:
             command: ci
             verbose: true
+          target:
+            container: host
 
         - script: npm run build
           displayName: 'npm build'
+          target:
+            container: host
 
         - script: npm test
           displayName: 'npm test'
           continueOnError: false
+          target:
+            container: host
 
         - powershell: |
             Write-Host "Stamping package versions from nbgv..."
@@ -122,6 +140,8 @@ extends:
           displayName: 'Stamp package versions (nbgv)'
           env:
             PublicRelease: 'true'
+          target:
+            container: host
 
         - powershell: |
             New-Item -ItemType Directory -Force -Path ./out
@@ -144,6 +164,8 @@ extends:
             Write-Host "`nFiles to publish:"
             Get-ChildItem ./out
           displayName: 'npm pack (excluding private packages)'
+          target:
+            container: host
 
         # Publish to internal npm feed (Azure Artifacts)
         - powershell: |
@@ -153,6 +175,8 @@ extends:
             }
           displayName: 'Publish packages to internal npm feed'
           condition: and(succeeded(), eq('${{ parameters.publishType }}', 'Internal'))
+          target:
+            container: host
 
         # Publish to npm via ESRP
         - task: EsrpRelease@10
@@ -175,3 +199,6 @@ extends:
             mainpublisher: 'ESRPRELPACMAN'
             domaintenantid: '975f013f-7f24-47e8-a7d3-abc4752bf346'
             productState: $(NpmTag)
+            releasetitle: 'Teams SDK TypeScript $(VersionNumber)'
+          target:
+            container: host
