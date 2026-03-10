@@ -17,7 +17,7 @@ export class Client {
   readonly meetings: MeetingClient;
   /**
    * @experimental This API is in preview and may change in the future.
-   * Diagnostic: TEAMS0001
+   * Diagnostic: ExperimentalTeamsReactions
    */
   readonly reactions: ReactionClient;
 

@@ -388,7 +388,7 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
    * @returns this instance for chaining
    *
    * @experimental This API is in preview and may change in the future.
-   * Diagnostic: TEAMS0002
+   * Diagnostic: ExperimentalTeamsTargeted
    */
   withRecipient(account: Account, isTargeted: boolean = false): this {
     super.withRecipient(account, isTargeted);

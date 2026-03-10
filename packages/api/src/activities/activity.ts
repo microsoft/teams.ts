@@ -86,7 +86,7 @@ export interface IActivity<T extends string = string> {
    * Indicates if this is a targeted (ephemeral) message visible only to a specific recipient.
    *
    * @experimental This API is in preview and may change in the future.
-   * Diagnostic: TEAMS0002
+   * Diagnostic: ExperimentalTeamsTargeted
    */
   isTargeted: boolean;
 
@@ -198,7 +198,7 @@ export class Activity<T extends string = string> implements IActivity<T> {
    * recipient in a shared conversation. Other participants will not see this message.
    *
    * @experimental This API is in preview and may change in the future.
-   * Diagnostic: TEAMS0002
+   * Diagnostic: ExperimentalTeamsTargeted
    */
   isTargeted: boolean = false;
 
@@ -307,7 +307,7 @@ export class Activity<T extends string = string> implements IActivity<T> {
    * @returns this instance for chaining
    *
    * @experimental This API is in preview and may change in the future.
-   * Diagnostic: TEAMS0002
+   * Diagnostic: ExperimentalTeamsTargeted
    */
   withRecipient(value: Account, isTargeted: boolean = false) {
     this.recipient = value;

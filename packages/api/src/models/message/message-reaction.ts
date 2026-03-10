@@ -5,7 +5,7 @@ import { MessageUser } from './message-user';
  * Possible values include: 'like', 'heart', '1f440_eyes', '2705_whiteheavycheckmark', 'launch', '1f4cc_pushpin'
  *
  * @experimental This API is in preview and may change in the future.
- * Diagnostic: TEAMS0001
+ * Diagnostic: ExperimentalTeamsReactions
  */
 export type MessageReactionType = 'like' | 'heart' | '1f440_eyes' | '2705_whiteheavycheckmark' | 'launch' | '1f4cc_pushpin' | (string & {});
 
@@ -14,7 +14,7 @@ export type MessageReactionType = 'like' | 'heart' | '1f440_eyes' | '2705_whiteh
  * Represents a reaction on a message, including the reaction type, timestamp, and user.
  *
  * @experimental This API is in preview and may change in the future.
- * Diagnostic: TEAMS0001
+ * Diagnostic: ExperimentalTeamsReactions
  */
 export type MessageReaction = {
   /** The emoji reaction type applied to the message. */
