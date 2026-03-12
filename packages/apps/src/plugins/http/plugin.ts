@@ -83,7 +83,6 @@ export class HttpPlugin {
     this.use = this.express.use.bind(this.express);
 
     this.express.use(cors());
-    this.express.use('/api*', express.json());
   }
 
   /**
@@ -106,7 +105,7 @@ export class HttpPlugin {
       });
       messageHandlers.unshift(jwtMiddleware);
     }
-    this.express.post('/api/messages', ...messageHandlers);
+    this.express.post('/api/messages', express.json(), ...messageHandlers);
   }
 
   async onStart({ port }: IPluginStartEvent) {

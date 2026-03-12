@@ -231,7 +231,17 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   }
 
   async send(activity: ActivityLike, conversationRef?: ConversationReference) {
-    return await this.activitySender.send(toActivityParams(activity), conversationRef ?? this.ref);
+    const params = toActivityParams(activity);
+
+    // For targeted send, set the recipient if not already set.
+    // For targeted update (params.id exists), we don't update recipient since recipient cannot be changed.
+    if (params.type === 'message' && params.isTargeted && !params.id) {
+      if (!params.recipient) {
+        params.recipient = this.activity.from;
+      }
+    }
+
+    return await this.activitySender.send(params, conversationRef ?? this.ref);
   }
 
   async reply(activity: ActivityLike) {

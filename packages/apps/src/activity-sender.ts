@@ -26,15 +26,20 @@ export class ActivitySender implements IActivitySender {
       conversation: ref.conversation,
     };
 
-    // Decide create vs update
+    // Check if this is a targeted message
+    const isTargeted = 'isTargeted' in activity && activity.isTargeted === true;
+
+    // Decide create vs update, with targeted variants
     if (activity.id) {
-      const res = await api.conversations
-        .activities(ref.conversation.id)
-        .update(activity.id, activity);
+      const res = isTargeted
+        ? await api.conversations.activities(ref.conversation.id).updateTargeted(activity.id, activity)
+        : await api.conversations.activities(ref.conversation.id).update(activity.id, activity);
       return { ...activity, ...res };
     }
 
-    const res = await api.conversations.activities(ref.conversation.id).create(activity);
+    const res = isTargeted
+      ? await api.conversations.activities(ref.conversation.id).createTargeted(activity)
+      : await api.conversations.activities(ref.conversation.id).create(activity);
     return { ...activity, ...res };
   }
 
