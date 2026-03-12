@@ -17,32 +17,9 @@ export type HttpServerOptions = {
 };
 
 /**
- * Interface for HTTP server - exposed to plugins
- */
-export interface IHttpServer {
-  /**
-   * Get the underlying adapter
-   * Useful for plugins that need adapter-specific features
-   */
-  readonly adapter: IHttpServerAdapter;
-
-  /**
-   * Register a route handler with the HTTP server
-   * Framework-agnostic way to add routes
-   */
-  registerRoute(method: HttpMethod, path: string, handler: HttpRouteHandler): void;
-
-  /**
-   * Serve static files from a directory
-   * Useful for plugins that need to serve UI assets
-   */
-  serveStatic(path: string, directory: string): void;
-}
-
-/**
  * Configurable HTTP server for receiving Teams activities
  */
-export class HttpServer implements IHttpServer {
+export class HttpServer {
   /**
    * Callback invoked when a valid activity request arrives
    * App should set this to process activities

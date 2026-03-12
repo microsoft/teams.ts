@@ -47,9 +47,6 @@ export class ExpressAdapter implements IHttpServerAdapter {
     this.route = this.express.route.bind(this.express);
     this.use = this.express.use.bind(this.express);
 
-    // Setup middleware
-    this.express.use(cors());
-    this.express.use(express.json());
   }
 
   /**
@@ -76,7 +73,7 @@ export class ExpressAdapter implements IHttpServerAdapter {
       }
     };
 
-    this.express.post(path, expressHandler);
+    this.express.post(path, express.json(), expressHandler);
   }
 
   /**
@@ -109,7 +106,7 @@ export class ExpressAdapter implements IHttpServerAdapter {
    * Serve static files from a directory
    */
   serveStatic(path: string, directory: string): void {
-    this.express.use(path, express.static(directory));
+    this.express.use(path, cors(), express.static(directory));
   }
 
   /**

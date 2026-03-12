@@ -14,8 +14,8 @@ import { IChatPrompt } from '@microsoft/teams.ai';
 import {
   Dependency,
   ExpressAdapter,
-  HttpServer,
-  IHttpServer,
+  HttpServerAdapter,
+  IHttpServerAdapter,
   IPlugin,
   IPluginStartEvent,
   Logger,
@@ -114,8 +114,8 @@ export class McpPlugin implements IPlugin {
   @Logger()
   readonly logger!: ILogger;
 
-  @HttpServer()
-  readonly httpServer!: IHttpServer;
+  @HttpServerAdapter()
+  readonly httpServerAdapter!: IHttpServerAdapter;
 
   @Dependency({ optional: true })
   readonly devtoolsPlugin?: DevtoolsPlugin;
@@ -225,7 +225,7 @@ export class McpPlugin implements IPlugin {
   protected onInitSSE(options: McpSSETransportOptions) {
     const path = options.path || '/mcp';
 
-    const adapter = this.httpServer.adapter;
+    const adapter = this.httpServerAdapter;
     if (!(adapter instanceof ExpressAdapter)) {
       throw new Error(
         'McpPlugin with SSE transport requires ExpressAdapter. ' +

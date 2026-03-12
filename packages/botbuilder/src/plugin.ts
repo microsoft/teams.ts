@@ -12,10 +12,10 @@ import {
   Dependency,
   Event,
   ExpressAdapter,
-  HttpServer,
-  IHttpServer,
+  HttpServerAdapter,
   IActivityEvent,
   IErrorEvent,
+  IHttpServerAdapter,
   IPlugin,
   Logger,
   Plugin,
@@ -43,8 +43,8 @@ export class BotBuilderPlugin implements IPlugin {
   @Dependency()
   declare readonly client: $http.Client;
 
-  @HttpServer()
-  declare readonly httpServer: IHttpServer;
+  @HttpServerAdapter()
+  declare readonly httpServerAdapter: IHttpServerAdapter;
 
   @Dependency()
   declare readonly manifest: Partial<manifest.Manifest>;
@@ -73,7 +73,7 @@ export class BotBuilderPlugin implements IPlugin {
   }
 
   async onInit() {
-    const adapter = this.httpServer.adapter;
+    const adapter = this.httpServerAdapter;
     if (!(adapter instanceof ExpressAdapter)) {
       throw new Error(
         'BotBuilderPlugin requires ExpressAdapter. ' +
