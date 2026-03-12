@@ -1,7 +1,5 @@
 import { IToken } from '@microsoft/teams.api';
 
-import { IEvent } from '../types';
-
 /**
  * Core activity fields that all transports need to know about
  * Extensible for protocol-specific fields
@@ -32,7 +30,7 @@ export interface ICoreActivity {
  * the event emitted by a plugin
  * when an activity is received
  */
-export interface IActivityEvent extends IEvent {
+export interface IActivityEvent {
   /**
    * inbound request token
    */

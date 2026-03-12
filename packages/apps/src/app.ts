@@ -231,7 +231,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected router = new Router<PluginAdditionalContext<TPlugin>>();
   protected tenantTokens = new LocalStorage<string>({}, { max: 20000 });
   protected events = new EventEmitter<AppEvents<TPlugin>>();
-  protected startedAt?: Date;
+  protected isInitialized = false;
   protected port?: number | string;
   protected activitySender: ActivitySender;
 
@@ -383,16 +383,21 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * initialize the app.
    */
   async initialize() {
+    if (this.isInitialized) {
+      return;
+    }
+
     // initialize plugins
     for (const plugin of this.plugins) {
       // inject dependencies
       this.inject(plugin);
 
       if (plugin.onInit) {
-        plugin.onInit();
+        await plugin.onInit();
       }
     }
 
+    this.isInitialized = true;
   }
 
   /**
@@ -412,7 +417,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         }
       }
       this.events.emit('start', this.log);
-      this.startedAt = new Date();
     } catch (error: any) {
       this.onError({ error });
     }

@@ -96,6 +96,11 @@ export class HttpPlugin {
   }
 
   onInit() {
+    // Parse JSON for all /api routes so custom plugin routes also receive parsed bodies.
+    // TODO: Remove this when HttpPlugin is fully replaced by HttpServer,
+    // which delegates body parsing to the user's server framework.
+    this.express.use('/api', express.json());
+
     const messageHandlers = [this.onRequest.bind(this)];
     if (!this.skipAuth) {
       // Setup /api/messages route with JWT validation middleware
@@ -105,7 +110,7 @@ export class HttpPlugin {
       });
       messageHandlers.unshift(jwtMiddleware);
     }
-    this.express.post('/api/messages', express.json(), ...messageHandlers);
+    this.express.post('/api/messages', ...messageHandlers);
   }
 
   async onStart({ port }: IPluginStartEvent) {
