@@ -40,7 +40,6 @@ export class ConversationActivityClient {
     return res.data;
   }
 
-
   async update(conversationId: string, id: string, params: ActivityParams) {
     const res = await this.http.put<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
