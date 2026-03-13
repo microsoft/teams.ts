@@ -1,6 +1,6 @@
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 
-import { IErrorEvent } from './events';
+import { ICoreActivity, IErrorEvent } from './events';
 import { createTestApp } from './test-utils';
 import { EmitPluginEvent, IPlugin, IPluginActivityEvent, IPluginStartEvent } from './types';
 import { Event, Plugin } from './types/plugin/decorators';
@@ -221,7 +221,7 @@ describe('app.plugin', () => {
         conversation: { id: 'conv-id' },
         channelId: 'test',
         serviceUrl: 'https://test.botframework.com'
-      },
+      } as ICoreActivity,
       token: {
         appId: 'test-app-id',
         serviceUrl: 'https://test.botframework.com',

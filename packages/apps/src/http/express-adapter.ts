@@ -46,7 +46,6 @@ export class ExpressAdapter implements IHttpServerAdapter {
     this.delete = this.express.delete.bind(this.express);
     this.route = this.express.route.bind(this.express);
     this.use = this.express.use.bind(this.express);
-
   }
 
   /**

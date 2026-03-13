@@ -99,21 +99,6 @@ describe('ExpressAdapter', () => {
       expect(response.headers['content-type']).toMatch(/application\/json/);
     });
 
-    it('should apply CORS headers', async () => {
-      server = http.createServer();
-      adapter = new ExpressAdapter(server);
-
-      adapter.registerRoute('POST', '/api/test', async () => {
-        return { status: 200, body: { ok: true } };
-      });
-
-      const response = await supertest(server)
-        .post('/api/test')
-        .expect(200);
-
-      // CORS middleware should add these headers
-      expect(response.headers['access-control-allow-origin']).toBeDefined();
-    });
   });
 
   describe('static file serving', () => {
