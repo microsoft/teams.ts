@@ -1,5 +1,5 @@
-import { HttpServer } from './http-server';
 import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from './adapter';
+import { HttpServer } from './http-server';
 
 class MockAdapter implements IHttpServerAdapter {
   routes: Array<{ method: HttpMethod; path: string; handler: HttpRouteHandler }> = [];
