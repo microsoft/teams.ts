@@ -77,7 +77,7 @@ export class BotBuilderPlugin implements IPlugin {
     if (!(adapter instanceof ExpressAdapter)) {
       throw new Error(
         'BotBuilderPlugin requires ExpressAdapter. ' +
-        'Please use: new App({ server: new HttpServer(new ExpressAdapter()) })'
+        'Please use: new App({ httpServerAdapter: new ExpressAdapter() })'
       );
     }
 

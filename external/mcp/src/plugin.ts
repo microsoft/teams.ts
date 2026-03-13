@@ -229,7 +229,7 @@ export class McpPlugin implements IPlugin {
     if (!(adapter instanceof ExpressAdapter)) {
       throw new Error(
         'McpPlugin with SSE transport requires ExpressAdapter. ' +
-        'Please use: new App({ server: new HttpServer(new ExpressAdapter()) })'
+        'Please use: new App({ httpServerAdapter: new ExpressAdapter() })'
       );
     }
 

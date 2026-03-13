@@ -191,7 +191,7 @@ describe('App', () => {
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
         tenantId: 'test-tenant-id',
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter(),
       });
 
       // Only initialize - no start(), no HTTP server
@@ -214,7 +214,7 @@ describe('App', () => {
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
         tenantId: 'test-tenant-id',
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter(),
       });
 
       await app.initialize();
@@ -235,7 +235,7 @@ describe('App', () => {
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
         tenantId: 'test-tenant-id',
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter(),
       });
 
       await app.initialize();
@@ -266,7 +266,7 @@ describe('App', () => {
       const app = new App({
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter(),
       });
 
       expect(app.api.serviceUrl).toBe('https://smba.trafficmanager.net/teams');
@@ -278,7 +278,7 @@ describe('App', () => {
       const app = new App({
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter(),
       });
 
       expect(app.api.serviceUrl).toBe('https://custom.service.url/teams');
@@ -291,7 +291,7 @@ describe('App', () => {
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
         serviceUrl: 'https://options.service.url/teams',
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter(),
       });
 
       expect(app.api.serviceUrl).toBe('https://options.service.url/teams');
@@ -303,7 +303,7 @@ describe('App', () => {
       const app1 = new App({
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter(),
       });
       expect(app1.api.serviceUrl).toBe('https://smba.trafficmanager.net/teams');
 
@@ -311,7 +311,7 @@ describe('App', () => {
       const app2 = new App({
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter(),
       });
       expect(app2.api.serviceUrl).toBe('https://env.service.url/teams');
 
@@ -319,7 +319,7 @@ describe('App', () => {
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
         serviceUrl: 'https://options.service.url/teams',
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter(),
       });
       expect(app3.api.serviceUrl).toBe('https://options.service.url/teams');
     });

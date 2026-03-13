@@ -464,6 +464,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       // Start HTTP server
       await this.server.start(this.port);
     } catch (error: any) {
+      await this.stop();
       this.onError({ error });
     }
   }
@@ -479,6 +480,9 @@ export class App<TPlugin extends IPlugin = IPlugin> {
           await plugin.onStop();
         }
       }
+
+      // Stop HTTP server
+      await this.server.stop();
     } catch (error: any) {
       this.onError({ error });
     }

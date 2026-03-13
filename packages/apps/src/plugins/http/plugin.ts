@@ -8,10 +8,10 @@ import { HttpServer } from '../../http/http-server';
 import { Plugin } from '../../types';
 
 /**
- * @deprecated Will be deprecated. Use HttpServer instead:
- *   new App({ server: new HttpServer(new ExpressAdapter()) })
+ * @deprecated Use the httpServerAdapter option instead:
+ *   new App({ httpServerAdapter: new ExpressAdapter() })
  *
- * This wrapper will be removed in a few patch versions.
+ * This wrapper will be removed in a future version.
  *
  * NOTE: This plugin is named "HttpPlugin" for historical reasons and backwards compatibility.
  * It is the default HTTP plugin that uses Express as the underlying framework.
@@ -19,7 +19,7 @@ import { Plugin } from '../../types';
 @Plugin({
   name: 'http',
   version: pkg.version,
-  description: 'Will be deprecated: Use HttpServer with server option instead',
+  description: 'Deprecated: Use httpServerAdapter option instead',
 })
 export class HttpPlugin {
   // Expose Express methods for backwards compatibility
@@ -60,7 +60,10 @@ export class HttpPlugin {
    * Plugin lifecycle hook
    */
   async onInit() {
-    // No-op
+    // Backwards compatibility: parse JSON for all /api routes so custom routes
+    // added via plugin.post()/plugin.use() receive parsed bodies.
+    // New HttpServer users handle body parsing in their own server framework.
+    this.use('/api', express.json());
   }
 
   /**
