@@ -83,6 +83,10 @@ export class HttpPlugin {
     this.use = this.express.use.bind(this.express);
 
     this.express.use(cors());
+    // Parse JSON for all /api routes so custom plugin routes also receive parsed bodies.
+    // TODO: Remove this when HttpPlugin is fully replaced by HttpServer,
+    // which delegates body parsing to the user's server framework.
+    this.express.use('/api', express.json());
   }
 
   /**
@@ -96,10 +100,6 @@ export class HttpPlugin {
   }
 
   onInit() {
-    // Parse JSON for all /api routes so custom plugin routes also receive parsed bodies.
-    // TODO: Remove this when HttpPlugin is fully replaced by HttpServer,
-    // which delegates body parsing to the user's server framework.
-    this.express.use('/api', express.json());
 
     const messageHandlers = [this.onRequest.bind(this)];
     if (!this.skipAuth) {
