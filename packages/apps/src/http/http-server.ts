@@ -11,6 +11,10 @@ import { ServiceTokenValidator } from '../middleware/auth/service-token-validato
 
 import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from './adapter';
 
+type AuthResult =
+  | { success: true; token: IToken }
+  | { success: false; error: string };
+
 export type HttpServerOptions = {
   readonly skipAuth?: boolean;
   readonly logger?: ILogger;
@@ -128,57 +132,62 @@ export class HttpServer {
 
 
   /**
-   * Handle incoming activity
-   * Validates JWT, signals app, sends response
+   * Authorize the request by validating the JWT token.
    */
-  protected async handleActivity(request: { body: unknown; headers: Record<string, string> }): Promise<{ status: number; body?: unknown }> {
-    try {
-      // Extract data from request — body is a Teams activity at this endpoint
-      const { headers } = request;
-      const body = request.body as ICoreActivity;
-      this.logger.debug('Handling activity', body);
-
-      // Validate JWT if not skipped
-      let token: IToken;
-      if (!this.skipAuth && this.credentials) {
-        // Validate JWT token
-        const authHeader = headers['authorization'];
-        if (!authHeader) {
-          return { status: 401, body: { error: 'Unauthorized' } };
-        }
-
-        if (!this.serviceTokenValidator) {
-          throw new Error('Service token validator not initialized - credentials required');
-        }
-
-        try {
-          token = await this.serviceTokenValidator.check(authHeader, body);
-        } catch (err) {
-          this.logger.error('JWT validation failed', err);
-          return { status: 401, body: { error: 'Unauthorized' } };
-        }
-      } else {
-        // Skip auth - create dummy token
-        token = {
+  protected async authorize(
+    headers: Record<string, string>,
+    body: ICoreActivity
+  ): Promise<AuthResult> {
+    if (this.skipAuth || !this.credentials) {
+      return {
+        success: true,
+        token: {
           appId: '',
           from: 'azure',
           fromId: '',
           serviceUrl: body.serviceUrl || '',
           isExpired: () => false,
-        };
+        },
+      };
+    }
+
+    const authHeader = headers['authorization'];
+    if (!authHeader) {
+      return { success: false, error: 'Missing authorization header' };
+    }
+
+    if (!this.serviceTokenValidator) {
+      throw new Error('Service token validator not initialized - credentials required');
+    }
+
+    try {
+      const token = await this.serviceTokenValidator.check(authHeader, body);
+      return { success: true, token };
+    } catch (err) {
+      this.logger.error('JWT validation failed', err);
+      return { success: false, error: 'JWT validation failed' };
+    }
+  }
+
+  /**
+   * Handle incoming activity
+   * Validates JWT, signals app, sends response
+   */
+  protected async handleActivity(request: { body: unknown; headers: Record<string, string> }): Promise<{ status: number; body?: unknown }> {
+    try {
+      const body = request.body as ICoreActivity;
+      this.logger.debug('Handling activity', body);
+
+      const auth = await this.authorize(request.headers, body);
+      if (!auth.success) {
+        return { status: 401, body: { error: auth.error } };
       }
 
-      // Signal app to process activity
       if (!this.onRequest) {
         throw new Error('HttpServer.onRequest callback not set');
       }
 
-      const response = await this.onRequest({
-        body,
-        token,
-      });
-
-      // Send response
+      const response = await this.onRequest({ body, token: auth.token });
       return { status: response.status || 200, body: response.body };
     } catch (err) {
       this.logger.error('Error processing activity:', err);
