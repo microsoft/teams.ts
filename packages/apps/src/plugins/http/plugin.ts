@@ -82,10 +82,10 @@ export class HttpPlugin {
     this.route = this.express.route.bind(this.express);
     this.use = this.express.use.bind(this.express);
 
+    // TODO: Setting cors globally and body parsing for all routes in /api
+    // is actually a mistake. When HttpPlugin is officially deprecated, this
+    // behavior will go away as well.
     this.express.use(cors());
-    // Parse JSON for all /api routes so custom plugin routes also receive parsed bodies.
-    // TODO: Remove this when HttpPlugin is fully replaced by HttpServer,
-    // which delegates body parsing to the user's server framework.
     this.express.use('/api', express.json());
   }
 
