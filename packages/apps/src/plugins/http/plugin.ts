@@ -1,5 +1,6 @@
 import http from 'http';
 
+import cors from 'cors';
 import express from 'express';
 
 import pkg from '../../../package.json';
@@ -32,11 +33,11 @@ export class HttpPlugin {
   readonly use: express.Application['use'];
 
   protected expressAdapter: ExpressAdapter;
-  protected _server: HttpServer;
+  protected server: HttpServer;
 
   constructor(server?: http.Server, options?: { skipAuth?: boolean }) {
     this.expressAdapter = new ExpressAdapter(server);
-    this._server = new HttpServer(this.expressAdapter, options);
+    this.server = new HttpServer(this.expressAdapter, options);
 
     // Expose Express methods
     this.get = this.expressAdapter.get;
@@ -53,16 +54,17 @@ export class HttpPlugin {
    * @internal
    */
   asServer(): HttpServer {
-    return this._server;
+    return this.server;
   }
 
   /**
    * Plugin lifecycle hook
    */
   async onInit() {
-    // Backwards compatibility: parse JSON for all /api routes so custom routes
-    // added via plugin.post()/plugin.use() receive parsed bodies.
-    // New HttpServer users handle body parsing in their own server framework.
+    // TODO: Setting cors globally and body parsing for all routes in /api
+    // is actually a mistake. When HttpPlugin is officially deprecated, this
+    // behavior will go away as well.
+    this.use(cors());
     this.use('/api', express.json());
   }
 
