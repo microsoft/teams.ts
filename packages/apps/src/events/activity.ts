@@ -2,7 +2,6 @@ import { IToken } from '@microsoft/teams.api';
 
 /**
  * Core activity fields that all transports need to know about
- * Extensible for protocol-specific fields
  */
 export interface ICoreActivity {
   /**
@@ -19,11 +18,6 @@ export interface ICoreActivity {
    * Activity type for basic routing
    */
   type?: string;
-
-  /**
-   * Allow any additional protocol-specific fields
-   */
-  [key: string]: any;
 }
 
 /**

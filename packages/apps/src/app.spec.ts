@@ -175,6 +175,72 @@ describe('App', () => {
     });
   });
 
+  describe('proactive messaging (initialize without start)', () => {
+    let app: TestApp;
+
+    it('should send message after initialize() without start()', async () => {
+      app = new TestApp({
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        tenantId: 'test-tenant-id',
+        plugins: [new TestHttpPlugin()],
+      });
+
+      // Only initialize - no start(), no HTTP server
+      await app.initialize();
+
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+
+      await app.testSend('conversation-id', { text: 'Proactive hello' });
+
+      expect(mockSend).toHaveBeenCalled();
+      const [activity, ref] = mockSend.mock.calls[0];
+      expect(activity.text).toBe('Proactive hello');
+      expect(ref.bot.id).toBe('test-client-id');
+      expect(ref.conversation.id).toBe('conversation-id');
+    });
+
+    it('should send adaptive card after initialize() without start()', async () => {
+      app = new TestApp({
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        tenantId: 'test-tenant-id',
+        plugins: [new TestHttpPlugin()],
+      });
+
+      await app.initialize();
+
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+
+      await app.testSend('conversation-id', {
+        type: 'message',
+        attachments: [{ contentType: 'application/vnd.microsoft.card.adaptive', content: {} }],
+      });
+
+      expect(mockSend).toHaveBeenCalled();
+    });
+
+    it('should not initialize twice', async () => {
+      app = new TestApp({
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        tenantId: 'test-tenant-id',
+        plugins: [new TestHttpPlugin()],
+      });
+
+      await app.initialize();
+      await app.initialize(); // should be a no-op
+
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+
+      await app.testSend('conversation-id', { text: 'hello' });
+      expect(mockSend).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('service URL configuration', () => {
     const originalEnv = process.env.SERVICE_URL;
 

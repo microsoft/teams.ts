@@ -472,7 +472,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       },
     };
 
-    const res = await this.activitySender.send(toActivityParams(activity), ref);
+    const res = await this.activitySender.send(params, ref);
     return res;
   }
 

@@ -12,7 +12,7 @@ import {
 import { ILogger } from '@microsoft/teams.common';
 
 import pkg from '../../../package.json';
-import { IActivityEvent, IErrorEvent } from '../../events';
+import { IActivityEvent, ICoreActivity, IErrorEvent } from '../../events';
 import { Manifest } from '../../manifest';
 import { JwtValidatedRequest, withJwtValidation } from '../../middleware/jwt-validation-middleware';
 import {
@@ -148,6 +148,7 @@ export class HttpPlugin {
     _next: express.NextFunction
   ) {
     try {
+      const body = req.body as ICoreActivity;
       let token: IToken | undefined;
       if (req.validatedToken) {
         token = req.validatedToken;
@@ -156,13 +157,13 @@ export class HttpPlugin {
           appId: '',
           from: 'azure',
           fromId: '',
-          serviceUrl: req.body.serviceUrl || '',
+          serviceUrl: body.serviceUrl || '',
           isExpired: () => false,
         };
       }
 
       const response = await this.$onActivity({
-        body: req.body,
+        body,
         token,
       });
 
