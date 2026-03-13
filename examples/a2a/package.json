@@ -23,7 +23,6 @@
     "@microsoft/teams.a2a": "*",
     "@microsoft/teams.ai": "*",
     "@microsoft/teams.apps": "*",
-    "@microsoft/teams.cards": "*",
     "@microsoft/teams.dev": "*",
     "@microsoft/teams.openai": "*"
   },

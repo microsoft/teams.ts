@@ -33,7 +33,7 @@
     "build": "npx tsup",
     "test": "npx jest"
   },
-  "peerDependencies": {
+  "dependencies": {
     "@microsoft/teams.common": "*"
   },
   "devDependencies": {

@@ -35,12 +35,10 @@
     "test": "npx jest"
   },
   "dependencies": {
+    "@microsoft/teams.cards": "*",
+    "@microsoft/teams.common": "*",
     "jwt-decode": "^4.0.0",
     "qs": "^6.14.2"
-  },
-  "peerDependencies": {
-    "@microsoft/teams.cards": "*",
-    "@microsoft/teams.common": "*"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",

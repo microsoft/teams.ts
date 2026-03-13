@@ -38,12 +38,12 @@
   },
   "dependencies": {
     "@azure/msal-browser": "^4.9.1",
-    "uuid": "^11.0.5"
-  },
-  "peerDependencies": {
     "@microsoft/teams.api": "*",
     "@microsoft/teams.common": "*",
     "@microsoft/teams.graph": "*",
+    "uuid": "^11.0.5"
+  },
+  "peerDependencies": {
     "@microsoft/teams-js": "^2.35.0"
   },
   "devDependencies": {
