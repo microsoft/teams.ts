@@ -20,10 +20,28 @@ export type HttpServerOptions = {
   readonly logger?: ILogger;
 };
 
+export interface IHttpServerRequest {
+  readonly body: unknown;
+  readonly headers: Record<string, string>;
+}
+
+export interface IHttpServerResponse {
+  readonly status: number;
+  readonly body?: unknown;
+}
+
+/**
+ * Public interface for HttpServer, exposed via DI for plugins
+ */
+export interface IHttpServer {
+  handleRequest(request: IHttpServerRequest): Promise<IHttpServerResponse>;
+  readonly adapter: IHttpServerAdapter;
+}
+
 /**
  * Configurable HTTP server for receiving Teams activities
  */
-export class HttpServer {
+export class HttpServer implements IHttpServer {
   /**
    * Callback invoked when a valid activity request arrives
    * App should set this to process activities
@@ -79,7 +97,7 @@ export class HttpServer {
 
     // Register Teams bot endpoint (POST only)
     this._adapter.registerRoute('POST', '/api/messages', async (request) => {
-      return this.handleActivity(request);
+      return this.handleRequest(request);
     });
 
     this.initialized = true;
@@ -170,10 +188,10 @@ export class HttpServer {
   }
 
   /**
-   * Handle incoming activity
-   * Validates JWT, signals app, sends response
+   * Handle incoming activity request
+   * Validates JWT, dispatches to app, returns response
    */
-  protected async handleActivity(request: { body: unknown; headers: Record<string, string> }): Promise<{ status: number; body?: unknown }> {
+  async handleRequest(request: IHttpServerRequest): Promise<IHttpServerResponse> {
     try {
       const body = request.body as ICoreActivity;
       this.logger.debug('Handling activity', body);

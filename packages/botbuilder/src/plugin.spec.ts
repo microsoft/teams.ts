@@ -1,10 +1,9 @@
 import { CloudAdapter, TurnContext } from 'botbuilder';
 import e from 'express';
 
-import { IMessageActivity, IToken, MessageActivity } from '@microsoft/teams.api';
+import { IMessageActivity, MessageActivity } from '@microsoft/teams.api';
 
 import { App, IPluginStartEvent, ExpressAdapter } from '@microsoft/teams.apps';
-import { JwtValidatedRequest } from '@microsoft/teams.apps/dist/middleware';
 
 import { BotBuilderPlugin } from './plugin';
 
@@ -36,8 +35,8 @@ class TestBotBuilderPlugin extends BotBuilderPlugin {
     // No-op for tests
   }
 
-  async OnRequestTest(req: JwtValidatedRequest, res: e.Response, _next: e.NextFunction) {
-    await this.onRequest(req, res, _next);
+  async OnRequestTest(req: e.Request, res: e.Response, next: e.NextFunction) {
+    await this.onRequest(req, res, next);
   }
 }
 
@@ -46,14 +45,6 @@ describe('BotBuilderPlugin', () => {
   let app: App<TestBotBuilderPlugin>;
   let adapter: { process: jest.Mock };
   let adapterProcessFn: (req: any, res: any, fn: (context: TurnContext) => Promise<void>) => Promise<void>;
-  const token: IToken = {
-    appId: 'app-id',
-    serviceUrl: 'https://service.url',
-    from: 'bot',
-    fromId: 'bot-id',
-    toString: () => 'token',
-    isExpired: () => false,
-  };
   const activity: IMessageActivity = new MessageActivity();
 
   beforeEach(() => {
@@ -67,6 +58,7 @@ describe('BotBuilderPlugin', () => {
     app = new App({
       plugins: [plugin],
       httpServerAdapter: new MockExpressAdapter(),
+      skipAuth: true,
     });
     app.start();
   });
@@ -79,8 +71,8 @@ describe('BotBuilderPlugin', () => {
     it('should default to teams sdk if no activity handler registered', async () => {
       const req = {
         body: activity,
-        validatedToken: token,
-      } as JwtValidatedRequest;
+        headers: {},
+      } as e.Request;
 
       app.use(() => {
         return { status: 200, body: 'some data' };

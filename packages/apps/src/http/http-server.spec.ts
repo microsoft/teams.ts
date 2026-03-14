@@ -52,7 +52,7 @@ describe('HttpServer', () => {
     });
   });
 
-  describe('handleActivity', () => {
+  describe('handleRequest', () => {
     beforeEach(async () => {
       await server.initialize({ credentials: undefined });
     });
@@ -115,7 +115,7 @@ describe('HttpServer', () => {
     });
   });
 
-  describe('handleActivity with auth', () => {
+  describe('handleRequest with auth', () => {
     let authServer: HttpServer;
 
     beforeEach(async () => {

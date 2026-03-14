@@ -70,10 +70,10 @@ export function Storage() {
 }
 
 /**
- * inject the `App` `IHttpServerAdapter` instance
+ * inject the `App` `IHttpServer` instance
  */
-export function HttpServerAdapter() {
-  return Dependency({ name: 'IHttpServerAdapter' });
+export function HttpServer() {
+  return Dependency({ name: 'IHttpServer' });
 }
 
 /**
@@ -90,7 +90,7 @@ export type DependencyOptions =
   | GraphTokenDependencyOptions
   | LoggerDependencyOptions
   | StorageDependencyOptions
-  | HttpServerAdapterDependencyOptions
+  | HttpServerDependencyOptions
   | PluginDependencyOptions;
 
 export type IdDependencyOptions = {
@@ -197,11 +197,11 @@ export type StorageDependencyOptions = {
   readonly optional?: false;
 };
 
-export type HttpServerAdapterDependencyOptions = {
+export type HttpServerDependencyOptions = {
   /**
    * the name used to resolve the dependency
    */
-  readonly name: 'IHttpServerAdapter';
+  readonly name: 'IHttpServer';
 
   /**
    * if optional, the app will not throw
@@ -216,7 +216,7 @@ export type PluginDependencyOptions = {
    */
   readonly name?: Omit<
     string,
-    'id' | 'name' | 'manifest' | 'credentials' | 'botToken' | 'graphToken' | 'ILogger' | 'IStorage' | 'IHttpServerAdapter'
+    'id' | 'name' | 'manifest' | 'credentials' | 'botToken' | 'graphToken' | 'ILogger' | 'IStorage' | 'IHttpServer'
   >;
 
   /**

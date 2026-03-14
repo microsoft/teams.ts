@@ -369,8 +369,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       useFactory: () => this.client,
     });
 
-    // Register HTTP adapter for plugins that need HTTP capabilities
-    this.container.register('IHttpServerAdapter', { useValue: server.adapter });
+    // Register HTTP server for plugins that need HTTP capabilities
+    this.container.register('IHttpServer', { useValue: server });
 
     // Register all plugins (including HttpPlugin if using old way)
     for (const plugin of plugins) {

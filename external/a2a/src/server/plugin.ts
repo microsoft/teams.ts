@@ -17,8 +17,8 @@ import {
   EmitPluginEvent,
   Event,
   ExpressAdapter,
-  HttpServerAdapter,
-  IHttpServerAdapter,
+  HttpServer as HttpServerDecorator,
+  IHttpServer,
   IPlugin,
   Logger,
   Plugin,
@@ -77,8 +77,8 @@ export class A2APlugin implements IPlugin {
   @Event('custom')
   protected readonly emit!: EmitPluginEvent<A2AEvents>;
 
-  @HttpServerAdapter()
-  protected readonly httpServerAdapter!: IHttpServerAdapter;
+  @HttpServerDecorator()
+  protected readonly httpServer!: IHttpServer;
 
   __eventType!: A2AEvents;
 
@@ -107,7 +107,7 @@ export class A2APlugin implements IPlugin {
     this.middlewares.push(middleware);
   }
   onInit() {
-    const adapter = this.httpServerAdapter;
+    const adapter = this.httpServer.adapter;
     if (!(adapter instanceof ExpressAdapter)) {
       throw new Error(
         'A2APlugin requires ExpressAdapter. ' +
