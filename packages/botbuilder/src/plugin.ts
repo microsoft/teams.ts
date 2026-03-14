@@ -121,7 +121,7 @@ export class BotBuilderPlugin implements IPlugin {
         }
 
         if (res.headersSent) {
-          this.logger.debug("Request handled by botbuilder. Not sending to TeamsSDK")
+          this.logger.debug('Request handled by botbuilder. Not sending to TeamsSDK');
           return next();
         }
 
