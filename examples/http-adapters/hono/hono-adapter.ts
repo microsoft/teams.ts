@@ -1,6 +1,6 @@
 import { Hono, Context } from 'hono';
 import type { StatusCode } from 'hono/utils/http-status';
-import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from '@microsoft/teams.apps/dist/http/adapter';
+import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from '@microsoft/teams.apps';
 
 /**
  * Hono adapter for HttpServer

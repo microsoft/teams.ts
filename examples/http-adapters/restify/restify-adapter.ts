@@ -1,5 +1,5 @@
 import restify from 'restify';
-import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from '@microsoft/teams.apps/dist/http/adapter';
+import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from '@microsoft/teams.apps';
 
 /**
  * Restify adapter for HttpServer

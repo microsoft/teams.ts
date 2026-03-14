@@ -9,7 +9,7 @@ import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 import { IActivityEvent, ICoreActivity } from '../events';
 import { ServiceTokenValidator } from '../middleware/auth/service-token-validator';
 
-import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from './adapter';
+import { HttpMethod, IHttpServerAdapter, IHttpServerRequest, IHttpServerResponse, HttpRouteHandler } from './adapter';
 
 type AuthResult =
   | { success: true; token: IToken }
@@ -19,16 +19,6 @@ export type HttpServerOptions = {
   readonly skipAuth?: boolean;
   readonly logger?: ILogger;
 };
-
-export interface IHttpServerRequest {
-  readonly body: unknown;
-  readonly headers: Record<string, string>;
-}
-
-export interface IHttpServerResponse {
-  readonly status: number;
-  readonly body?: unknown;
-}
 
 /**
  * Public interface for HttpServer, exposed via DI for plugins
@@ -148,6 +138,31 @@ export class HttpServer implements IHttpServer {
     }
   }
 
+  /**
+   * Handle incoming activity request
+   * Validates JWT, dispatches to app, returns response
+   */
+  async handleRequest(request: IHttpServerRequest): Promise<IHttpServerResponse> {
+    try {
+      const body = request.body as ICoreActivity;
+      this.logger.debug('Handling activity', body);
+
+      const auth = await this.authorize(request.headers, body);
+      if (!auth.success) {
+        return { status: 401, body: { error: auth.error } };
+      }
+
+      if (!this.onRequest) {
+        throw new Error('HttpServer.onRequest callback not set');
+      }
+
+      const response = await this.onRequest({ body, token: auth.token });
+      return { status: response.status || 200, body: response.body };
+    } catch (err) {
+      this.logger.error('Error processing activity:', err);
+      return { status: 500, body: { error: 'Internal server error' } };
+    }
+  }
 
   /**
    * Authorize the request by validating the JWT token.
@@ -184,32 +199,6 @@ export class HttpServer implements IHttpServer {
     } catch (err) {
       this.logger.error('JWT validation failed', err);
       return { success: false, error: 'JWT validation failed' };
-    }
-  }
-
-  /**
-   * Handle incoming activity request
-   * Validates JWT, dispatches to app, returns response
-   */
-  async handleRequest(request: IHttpServerRequest): Promise<IHttpServerResponse> {
-    try {
-      const body = request.body as ICoreActivity;
-      this.logger.debug('Handling activity', body);
-
-      const auth = await this.authorize(request.headers, body);
-      if (!auth.success) {
-        return { status: 401, body: { error: auth.error } };
-      }
-
-      if (!this.onRequest) {
-        throw new Error('HttpServer.onRequest callback not set');
-      }
-
-      const response = await this.onRequest({ body, token: auth.token });
-      return { status: response.status || 200, body: response.body };
-    } catch (err) {
-      this.logger.error('Error processing activity:', err);
-      return { status: 500, body: { error: 'Internal server error' } };
     }
   }
 

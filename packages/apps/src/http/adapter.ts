@@ -1,6 +1,16 @@
+export interface IHttpServerRequest {
+  readonly body: unknown;
+  readonly headers: Record<string, string>;
+}
+
+export interface IHttpServerResponse {
+  readonly status: number;
+  readonly body?: unknown;
+}
+
 export type HttpRouteHandler = (
-  request: { body: unknown; headers: Record<string, string> }
-) => Promise<{ status: number; body?: unknown }>;
+  request: IHttpServerRequest
+) => Promise<IHttpServerResponse>;
 
 /**
  * Adapter interface for different HTTP frameworks
