@@ -11,7 +11,7 @@ import { Credentials, IToken } from '@microsoft/teams.api';
 import {
   Dependency,
   ExpressAdapter,
-  HttpServer as HttpServerDecorator,
+  HttpServer,
   IHttpServer,
   IPlugin,
   Logger,
@@ -39,7 +39,7 @@ export class BotBuilderPlugin implements IPlugin {
   @Dependency()
   declare readonly client: $http.Client;
 
-  @HttpServerDecorator()
+  @HttpServer()
   declare readonly httpServer: IHttpServer;
 
   @Dependency()
