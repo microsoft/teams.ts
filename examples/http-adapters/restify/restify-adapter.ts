@@ -36,7 +36,7 @@ export class RestifyAdapter implements IHttpServerAdapter {
       try {
         const response = await handler({
           body: req.body,
-          headers: req.headers as Record<string, string>
+          headers: req.headers as Record<string, string | string[]>
         });
         res.send(response.status, response.body);
       } catch (err) {

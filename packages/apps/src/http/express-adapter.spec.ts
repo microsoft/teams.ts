@@ -49,7 +49,7 @@ describe('ExpressAdapter', () => {
       server = http.createServer();
       adapter = new ExpressAdapter(server);
 
-      let extractedHeaders: Record<string, string> | undefined;
+      let extractedHeaders: Record<string, string | string[]> | undefined;
 
       adapter.registerRoute('POST', '/api/test', async ({ headers }) => {
         extractedHeaders = headers;

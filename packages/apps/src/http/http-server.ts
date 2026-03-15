@@ -168,7 +168,7 @@ export class HttpServer implements IHttpServer {
    * Authorize the request by validating the JWT token.
    */
   protected async authorize(
-    headers: Record<string, string>,
+    headers: Record<string, string | string[]>,
     body: ICoreActivity
   ): Promise<AuthResult> {
     if (this.skipAuth || !this.credentials) {
@@ -184,7 +184,8 @@ export class HttpServer implements IHttpServer {
       };
     }
 
-    const authHeader = headers['authorization'];
+    const raw = headers['authorization'];
+    const authHeader = Array.isArray(raw) ? raw[0] : raw;
     if (!authHeader) {
       return { success: false, error: 'Missing authorization header' };
     }

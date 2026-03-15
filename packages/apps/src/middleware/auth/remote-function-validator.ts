@@ -44,10 +44,14 @@ export class RemoteFunctionValidator {
     return new RemoteFunctionValidator(jwtValidator, logger);
   }
 
-  async check(headers: Record<string, string>): Promise<IClientContext | null> {
-    const appSessionId = headers['x-teams-app-session-id'];
-    const pageId = headers['x-teams-page-id'];
-    const authorization = headers['authorization']?.split(' ');
+  async check(headers: Record<string, string | string[]>): Promise<IClientContext | null> {
+    const h = (key: string) => {
+      const v = headers[key];
+      return Array.isArray(v) ? v[0] : v;
+    };
+    const appSessionId = h('x-teams-app-session-id');
+    const pageId = h('x-teams-page-id');
+    const authorization = h('authorization')?.split(' ');
     const authToken =
       authorization?.length === 2 && authorization[0].toLowerCase() === 'bearer'
         ? authorization[1]
@@ -69,13 +73,13 @@ export class RemoteFunctionValidator {
       appId: tokenPayload?.['appId'],
       appSessionId,
       authToken,
-      channelId: headers['x-teams-channel-id'],
-      chatId: headers['x-teams-chat-id'],
-      meetingId: headers['x-teams-meeting-id'],
-      messageId: headers['x-teams-message-id'],
+      channelId: h('x-teams-channel-id'),
+      chatId: h('x-teams-chat-id'),
+      meetingId: h('x-teams-meeting-id'),
+      messageId: h('x-teams-message-id'),
       pageId,
-      subPageId: headers['x-teams-sub-page-id'],
-      teamId: headers['x-teams-team-id'],
+      subPageId: h('x-teams-sub-page-id'),
+      teamId: h('x-teams-team-id'),
       tenantId: tokenPayload['tid'],
       userId: tokenPayload['oid'],
       userName: tokenPayload['name'],

@@ -1,6 +1,6 @@
 export interface IHttpServerRequest {
   readonly body: unknown;
-  readonly headers: Record<string, string>;
+  readonly headers: Record<string, string | string[]>;
 }
 
 export interface IHttpServerResponse {

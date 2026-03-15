@@ -64,7 +64,7 @@ export class ExpressAdapter implements IHttpServerAdapter {
       try {
         const response = await handler({
           body: req.body,
-          headers: req.headers as Record<string, string>
+          headers: req.headers as Record<string, string | string[]>
         });
         res.status(response.status).send(response.body);
       } catch (err) {
