@@ -18,8 +18,8 @@
     "@microsoft/teams.common": "*",
     "cors": "^2.8.5",
     "express": "^5.0.0",
-    "restify": "^11.1.0",
-    "hono": "^4.6.14"
+    "hono": "^4.6.14",
+    "restify": "^11.1.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",

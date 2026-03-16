@@ -49,5 +49,11 @@
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.40.1"
+  },
+  "overrides": {
+    "restify": {
+      "send": "^1.2.0",
+      "find-my-way": "^9.0.0"
+    }
   }
 }
