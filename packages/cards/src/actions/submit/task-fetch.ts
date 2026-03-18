@@ -11,6 +11,9 @@ export type TaskFetchDataValues = {
   type?: never;
 };
 
+/**
+ * @deprecated This type is deprecated. Please use {@link ITaskFetchSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export interface ITaskFetchAction extends ISubmitAction {
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
@@ -18,6 +21,9 @@ export interface ITaskFetchAction extends ISubmitAction {
   data: MSTeamsData<ITaskFetchData>;
 }
 
+/**
+ * @deprecated This class is deprecated. Please use {@link TaskFetchSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export class TaskFetchAction extends SubmitAction implements ITaskFetchAction {
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
@@ -50,10 +56,16 @@ export class TaskFetchAction extends SubmitAction implements ITaskFetchAction {
   }
 }
 
+/**
+ * @deprecated This type is deprecated. Please use {@link ITaskFetchSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export interface ITaskFetchData {
   type: 'task/fetch';
 }
 
+/**
+ * @deprecated This class is deprecated. Please use {@link TaskFetchSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export class TaskFetchData implements MSTeamsData<ITaskFetchData> {
   msteams = {
     type: 'task/fetch' as const,

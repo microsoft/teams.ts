@@ -6,6 +6,9 @@ export type MessageBackActionOptions = SubmitActionOptions & {
   data: MSTeamsData<IMessageBackData>;
 };
 
+/**
+ * @deprecated This type is deprecated. Please use {@link IMessageBackSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export interface IMessageBackAction extends ISubmitAction {
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
@@ -13,6 +16,9 @@ export interface IMessageBackAction extends ISubmitAction {
   data: MSTeamsData<IMessageBackData>;
 }
 
+/**
+ * @deprecated This class is deprecated. Please use {@link MessageBackSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export class MessageBackAction extends SubmitAction implements IMessageBackAction {
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
@@ -37,6 +43,9 @@ export class MessageBackAction extends SubmitAction implements IMessageBackActio
   }
 }
 
+/**
+ * @deprecated This type is deprecated. Please use {@link IMessageBackSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export interface IMessageBackData {
   type: 'messageBack';
 
@@ -58,6 +67,9 @@ export interface IMessageBackData {
   value: string;
 }
 
+/**
+ * @deprecated This class is deprecated. Please use {@link MessageBackSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export class MessageBackData implements IMessageBackData {
   type: 'messageBack';
 

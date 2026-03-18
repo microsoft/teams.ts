@@ -4,6 +4,9 @@ import { MSTeamsData } from './ms-teams-data';
 
 export type IMBackActionOptions = SubmitActionOptions & { data: MSTeamsData<IIMBackData> };
 
+/**
+ * @deprecated This type is deprecated. Please use {@link IImBackSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export interface IIMBackAction extends ISubmitAction {
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
@@ -11,6 +14,9 @@ export interface IIMBackAction extends ISubmitAction {
   data: MSTeamsData<IIMBackData>;
 }
 
+/**
+ * @deprecated This class is deprecated. Please use {@link ImBackSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export class IMBackAction extends SubmitAction implements IIMBackAction {
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
@@ -38,6 +44,9 @@ export class IMBackAction extends SubmitAction implements IIMBackAction {
   }
 }
 
+/**
+ * @deprecated This type is deprecated. Please use {@link IImBackSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export interface IIMBackData {
   type: 'imBack';
 
@@ -47,6 +56,9 @@ export interface IIMBackData {
   value: string;
 }
 
+/**
+ * @deprecated This class is deprecated. Please use {@link ImBackSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export class IMBackData implements IIMBackData {
   type: 'imBack';
 

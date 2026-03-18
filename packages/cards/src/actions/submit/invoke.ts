@@ -4,6 +4,9 @@ import { MSTeamsData } from './ms-teams-data';
 
 export type InvokeActionOptions = SubmitActionOptions & { data: MSTeamsData<IInvokeData> };
 
+/**
+ * @deprecated This type is deprecated. Please use {@link IInvokeSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export interface IInvokeAction extends ISubmitAction {
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
@@ -11,6 +14,9 @@ export interface IInvokeAction extends ISubmitAction {
   data: MSTeamsData<IInvokeData>;
 }
 
+/**
+ * @deprecated This class is deprecated. Please use {@link InvokeSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export class InvokeAction extends SubmitAction implements IInvokeAction {
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
@@ -38,6 +44,9 @@ export class InvokeAction extends SubmitAction implements IInvokeAction {
   }
 }
 
+/**
+ * @deprecated This type is deprecated. Please use {@link IInvokeSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export interface IInvokeData {
   type: 'invoke';
 
@@ -47,6 +56,9 @@ export interface IInvokeData {
   value?: any;
 }
 
+/**
+ * @deprecated This class is deprecated. Please use {@link InvokeSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export class InvokeData implements IInvokeData {
   type: 'invoke';
 

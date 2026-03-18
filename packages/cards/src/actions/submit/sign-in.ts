@@ -4,6 +4,9 @@ import { MSTeamsData } from './ms-teams-data';
 
 export type SignInActionOptions = SubmitActionOptions & { data: MSTeamsData<ISignInData> };
 
+/**
+ * @deprecated This type is deprecated. Please use {@link ISigninSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export interface ISignInAction extends ISubmitAction {
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
@@ -11,6 +14,9 @@ export interface ISignInAction extends ISubmitAction {
   data: MSTeamsData<ISignInData>;
 }
 
+/**
+ * @deprecated This class is deprecated. Please use {@link SigninSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export class SignInAction extends SubmitAction implements ISignInAction {
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
@@ -38,6 +44,9 @@ export class SignInAction extends SubmitAction implements ISignInAction {
   }
 }
 
+/**
+ * @deprecated This type is deprecated. Please use {@link ISigninSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export interface ISignInData {
   type: 'signin';
 
@@ -47,6 +56,9 @@ export interface ISignInData {
   value: string;
 }
 
+/**
+ * @deprecated This class is deprecated. Please use {@link SigninSubmitActionData} instead. This will be removed in a future version of the SDK.
+ */
 export class SignInData implements ISignInData {
   type: 'signin';
 
