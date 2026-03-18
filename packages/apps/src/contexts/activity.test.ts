@@ -123,7 +123,6 @@ describe('ActivityContext', () => {
 
       expect(mockSender.send).toHaveBeenCalledTimes(1);
       const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
-      expect(sentActivity.replyToId).toEqual('test-activity-id');
       expect(sentActivity.entities).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -174,15 +173,6 @@ describe('ActivityContext', () => {
       expect(sentActivity.entities).toBeUndefined();
     });
 
-    it('preserves replyToId', async () => {
-      const activity = buildIncomingMessageActivity('Hello world');
-      context = buildActivityContext(activity);
-
-      await context.reply('What is up?');
-
-      const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
-      expect(sentActivity.replyToId).toEqual('test-activity-id');
-    });
   });
 
   describe('quoteReply', () => {
@@ -224,15 +214,6 @@ describe('ActivityContext', () => {
       expect(sentActivity.text).toEqual('<quoted messageId="msg-42"/>');
     });
 
-    it('does not set replyToId', async () => {
-      const activity = buildIncomingMessageActivity('Hello world');
-      context = buildActivityContext(activity);
-
-      await context.quoteReply('msg-42', 'some text');
-
-      const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
-      expect(sentActivity.replyToId).toBeUndefined();
-    });
   });
 
   describe('send', () => {

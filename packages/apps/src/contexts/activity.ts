@@ -172,6 +172,9 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * send a reply quoting a specific message by ID
    * @param messageId the ID of the message to quote
    * @param activity activity to send
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsQuotedReplies
    */
   quoteReply: (messageId: string, activity: ActivityLike) => Promise<SentActivity>;
 
@@ -290,7 +293,6 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    */
   async reply(activity: ActivityLike) {
     activity = toActivityParams(activity);
-    activity.replyToId = this.activity.id;
 
     if (this.activity.id) {
       const placeholder = `<quoted messageId="${this.activity.id}"/>`;
@@ -311,6 +313,14 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     return this.send(activity);
   }
 
+  /**
+   * Send a reply quoting a specific message by ID.
+   * @param messageId - The ID of the message to quote
+   * @param activity - The activity to send
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsQuotedReplies
+   */
   async quoteReply(messageId: string, activity: ActivityLike) {
     activity = toActivityParams(activity);
     const placeholder = `<quoted messageId="${messageId}"/>`;
