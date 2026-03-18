@@ -40,7 +40,7 @@ export class CollabStageAction extends SubmitAction implements ICollabStageActio
     this.data = new SubmitActionData({
       msteams: new InvokeSubmitActionData(
         tab
-          ? new CollabStageInvokeDataValue(tab)
+          ? new CollabStageInvokeDataValue({ tabInfo: tab })
           : undefined,
       ),
     });
@@ -60,7 +60,7 @@ export class CollabStageAction extends SubmitAction implements ICollabStageActio
   withValue(value: ITabInfo) {
     const msteams = this.data.msteams as IInvokeSubmitActionData | undefined;
     if (msteams) {
-      msteams.value = new CollabStageInvokeDataValue(value);
+      msteams.value = new CollabStageInvokeDataValue({ tabInfo: value });
     }
     return this;
   }
