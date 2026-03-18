@@ -1,14 +1,19 @@
-import { CollabStageAction, CollabStageData, CollabStageValueData } from './collab-stage';
+import { CollabStageAction } from './collab-stage';
+import { CollabStageInvokeDataValue, InvokeSubmitActionData, SubmitActionData } from '../../core';
 
 describe('Actions.Submit.CollabStage', () => {
   it('should build', () => {
-    const action = new CollabStageAction().withData(new CollabStageData()).withValue({
+    const action = new CollabStageAction().withData(
+      new InvokeSubmitActionData(undefined)
+    ).withValue({
       name: 'test',
       entityId: 'test',
       contentUrl: 'http://localhost/tabs/test',
     });
 
-    expect(action.data.msteams.value?.tabInfo).toEqual({
+    const msteams = action.data.msteams as InvokeSubmitActionData;
+    const value = msteams.value as CollabStageInvokeDataValue;
+    expect(value.tabInfo).toEqual({
       name: 'test',
       entityId: 'test',
       contentUrl: 'http://localhost/tabs/test',
@@ -17,18 +22,20 @@ describe('Actions.Submit.CollabStage', () => {
 
   it('should build from interface', () => {
     const action = CollabStageAction.from({
-      data: {
-        msteams: new CollabStageData(
-          new CollabStageValueData({
+      data: new SubmitActionData({
+        msteams: new InvokeSubmitActionData(
+          new CollabStageInvokeDataValue({
             name: 'test',
             entityId: 'test',
             contentUrl: 'http://localhost/tabs/test',
           })
         ),
-      },
+      }),
     });
 
-    expect(action.data.msteams.value?.tabInfo).toEqual({
+    const msteams = action.data.msteams as InvokeSubmitActionData;
+    const value = msteams.value as CollabStageInvokeDataValue;
+    expect(value.tabInfo).toEqual({
       name: 'test',
       entityId: 'test',
       contentUrl: 'http://localhost/tabs/test',
