@@ -1,5 +1,6 @@
-import { CollabStageAction } from './collab-stage';
 import { CollabStageInvokeDataValue, InvokeSubmitActionData, SubmitActionData } from '../../core';
+
+import { CollabStageAction } from './collab-stage';
 
 describe('Actions.Submit.CollabStage', () => {
   it('should build', () => {
