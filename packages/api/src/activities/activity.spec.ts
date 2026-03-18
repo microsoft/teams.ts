@@ -33,7 +33,6 @@ describe('Activity', () => {
         conversation: chat,
       })
       .withRecipient(bot)
-      .withReplyToId('3')
       .withServiceUrl('http://localhost')
       .withTimestamp(new Date())
       .withLocalTimestamp(new Date());
@@ -51,7 +50,6 @@ describe('Activity', () => {
     });
 
     expect(activity.recipient).toEqual(bot);
-    expect(activity.replyToId).toEqual('3');
     expect(activity.serviceUrl).toEqual('http://localhost');
     expect(activity.timestamp).toBeDefined();
     expect(activity.localTimestamp).toBeDefined();

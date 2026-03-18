@@ -356,4 +356,110 @@ describe('MessageActivity', () => {
       expect(msg.recipient.role).toBe('user');
     });
   });
+
+  describe('getQuotedMessages', () => {
+    it('should return quoted reply entities', () => {
+      const activity = new MessageActivity('hello');
+      activity.addEntity({
+        type: 'quotedReply',
+        quotedReply: { messageId: 'msg-1' },
+      });
+
+      expect(activity.getQuotedMessages()).toHaveLength(1);
+      expect(activity.getQuotedMessages()[0].quotedReply.messageId).toEqual('msg-1');
+    });
+
+    it('should return empty array when no quoted replies', () => {
+      const activity = new MessageActivity('hello');
+      expect(activity.getQuotedMessages()).toHaveLength(0);
+    });
+
+    it('should return empty array when no entities', () => {
+      const activity = new MessageActivity('hello');
+      activity.entities = undefined;
+      expect(activity.getQuotedMessages()).toHaveLength(0);
+    });
+
+    it('should filter out non-quoted-reply entities', () => {
+      const activity = new MessageActivity('hello')
+        .addMention({ id: '1', name: 'user', role: 'user' });
+      activity.addEntity({
+        type: 'quotedReply',
+        quotedReply: { messageId: 'msg-1' },
+      });
+
+      expect(activity.getQuotedMessages()).toHaveLength(1);
+      expect(activity.entities).toHaveLength(2);
+    });
+
+    it('should return multiple quoted replies', () => {
+      const activity = new MessageActivity('hello');
+      activity.addEntity({
+        type: 'quotedReply',
+        quotedReply: { messageId: 'msg-1' },
+      });
+      activity.addEntity({
+        type: 'quotedReply',
+        quotedReply: { messageId: 'msg-2' },
+      });
+
+      expect(activity.getQuotedMessages()).toHaveLength(2);
+      expect(activity.getQuotedMessages()[0].quotedReply.messageId).toEqual('msg-1');
+      expect(activity.getQuotedMessages()[1].quotedReply.messageId).toEqual('msg-2');
+    });
+
+    it('should be accessible via toInterface', () => {
+      const activity = new MessageActivity('hello');
+      activity.addEntity({
+        type: 'quotedReply',
+        quotedReply: { messageId: 'msg-1' },
+      });
+
+      const iface = activity.toInterface();
+      expect(iface.getQuotedMessages()).toHaveLength(1);
+      expect(iface.getQuotedMessages()[0].quotedReply.messageId).toEqual('msg-1');
+    });
+  });
+
+  describe('addQuotedReply', () => {
+    it('should add entity and append placeholder', () => {
+      const activity = new MessageActivity().addQuotedReply('msg-1');
+      expect(activity.entities).toHaveLength(1);
+      expect(activity.entities![0]).toEqual(
+        expect.objectContaining({ type: 'quotedReply', quotedReply: { messageId: 'msg-1' } })
+      );
+      expect(activity.text).toEqual('<quoted messageId="msg-1"/>');
+    });
+
+    it('should append response text after placeholder', () => {
+      const activity = new MessageActivity().addQuotedReply('msg-1', 'my response');
+      expect(activity.text).toEqual('<quoted messageId="msg-1"/> my response');
+    });
+
+    it('should support multi-quote with interleaved responses', () => {
+      const activity = new MessageActivity()
+        .addQuotedReply('msg-1', 'response to first')
+        .addQuotedReply('msg-2', 'response to second');
+      expect(activity.text).toEqual(
+        '<quoted messageId="msg-1"/> response to first<quoted messageId="msg-2"/> response to second'
+      );
+      expect(activity.entities).toHaveLength(2);
+    });
+
+    it('should support grouped quotes', () => {
+      const activity = new MessageActivity()
+        .addQuotedReply('msg-1')
+        .addQuotedReply('msg-2', 'response to both');
+      expect(activity.text).toEqual(
+        '<quoted messageId="msg-1"/><quoted messageId="msg-2"/> response to both'
+      );
+    });
+
+    it('should be chainable', () => {
+      const activity = new MessageActivity()
+        .addQuotedReply('msg-1')
+        .addText(' manual text');
+      expect(activity.text).toEqual('<quoted messageId="msg-1"/> manual text');
+    });
+  });
 });

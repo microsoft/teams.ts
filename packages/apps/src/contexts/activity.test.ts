@@ -115,79 +115,123 @@ describe('ActivityContext', () => {
   };
 
   describe('reply', () => {
-    it('generates blockquote for message activity with short text', async () => {
+    it('stamps quotedReply entity with activity id', async () => {
       const activity = buildIncomingMessageActivity('Hello world');
-
       context = buildActivityContext(activity);
 
       await context.reply('What is up?');
 
       expect(mockSender.send).toHaveBeenCalledTimes(1);
-      expect(mockSender.send).toHaveBeenCalledWith(
-        expect.objectContaining({
-          text: `<blockquote itemscope="" itemtype="http://schema.skype.com/Reply" itemid="test-activity-id">
-<strong itemprop="mri" itemid="test-user">Test User</strong><span itemprop="time" itemid="test-activity-id"></span>
-<p itemprop="preview">Hello world</p>
-</blockquote>\r\nWhat is up?`,
-          type: 'message',
-        }),
-        mockRef
+      const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+      expect(sentActivity.replyToId).toEqual('test-activity-id');
+      expect(sentActivity.entities).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: 'quotedReply',
+            quotedReply: { messageId: 'test-activity-id' },
+          }),
+        ])
       );
     });
 
-    it('truncates long messages over 120 characters in blockquote', async () => {
-      const longText = 'A'.repeat(150);
-      const activity = buildIncomingMessageActivity(longText);
-
+    it('prepends placeholder to text', async () => {
+      const activity = buildIncomingMessageActivity('Hello world');
       context = buildActivityContext(activity);
 
       await context.reply('What is up?');
 
-      expect(mockSender.send).toHaveBeenCalledTimes(1);
-      expect(mockSender.send).toHaveBeenCalledWith(
-        expect.objectContaining({
-          text: `<blockquote itemscope="" itemtype="http://schema.skype.com/Reply" itemid="test-activity-id">
-<strong itemprop="mri" itemid="test-user">Test User</strong><span itemprop="time" itemid="test-activity-id"></span>
-<p itemprop="preview">${'A'.repeat(120)}...</p>
-</blockquote>\r\nWhat is up?`,
-          type: 'message',
-        }),
-        mockRef
-      );
+      const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+      expect(sentActivity.text).toEqual('<quoted messageId="test-activity-id"/> What is up?');
     });
 
-    it('does not add blockquotes for empty quoted messages', async () => {
-      const activity = buildIncomingMessageActivity('');
-
-      context = buildActivityContext(activity);
-
-      await context.reply('What is up?');
-
-      expect(mockSender.send).toHaveBeenCalledTimes(1);
-      expect(mockSender.send).toHaveBeenCalledWith(
-        expect.objectContaining({
-          text: 'What is up?',
-          type: 'message',
-        }),
-        mockRef
-      );
-    });
-
-    it('does not add blockquotes for empty messages', async () => {
-      const activity = buildIncomingMessageActivity('Original Message');
-
+    it('sets placeholder as text when reply text is empty', async () => {
+      const activity = buildIncomingMessageActivity('Hello world');
       context = buildActivityContext(activity);
 
       await context.reply('');
 
+      const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+      expect(sentActivity.text).toEqual('<quoted messageId="test-activity-id"/>');
+    });
+
+    it('sets placeholder as text when reply has no text', async () => {
+      const activity = buildIncomingMessageActivity('Hello world');
+      context = buildActivityContext(activity);
+
+      await context.reply({ type: 'message' });
+
+      const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+      expect(sentActivity.text).toEqual('<quoted messageId="test-activity-id"/>');
+    });
+
+    it('does not stamp entity when activity has no id', async () => {
+      const activity = buildIncomingMessageActivity('Hello world', '');
+      context = buildActivityContext(activity);
+
+      await context.reply('What is up?');
+
+      const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+      expect(sentActivity.entities).toBeUndefined();
+    });
+
+    it('preserves replyToId', async () => {
+      const activity = buildIncomingMessageActivity('Hello world');
+      context = buildActivityContext(activity);
+
+      await context.reply('What is up?');
+
+      const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+      expect(sentActivity.replyToId).toEqual('test-activity-id');
+    });
+  });
+
+  describe('quoteReply', () => {
+    it('stamps quotedReply entity with given messageId', async () => {
+      const activity = buildIncomingMessageActivity('Hello world');
+      context = buildActivityContext(activity);
+
+      await context.quoteReply('arbitrary-msg-id', 'some text');
+
       expect(mockSender.send).toHaveBeenCalledTimes(1);
-      expect(mockSender.send).toHaveBeenCalledWith(
-        expect.objectContaining({
-          text: '',
-          type: 'message',
-        }),
-        mockRef
+      const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+      expect(sentActivity.entities).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: 'quotedReply',
+            quotedReply: { messageId: 'arbitrary-msg-id' },
+          }),
+        ])
       );
+    });
+
+    it('prepends placeholder to text', async () => {
+      const activity = buildIncomingMessageActivity('Hello world');
+      context = buildActivityContext(activity);
+
+      await context.quoteReply('msg-42', 'reply text');
+
+      const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+      expect(sentActivity.text).toEqual('<quoted messageId="msg-42"/> reply text');
+    });
+
+    it('sets placeholder as text when no text provided', async () => {
+      const activity = buildIncomingMessageActivity('Hello world');
+      context = buildActivityContext(activity);
+
+      await context.quoteReply('msg-42', { type: 'message' });
+
+      const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+      expect(sentActivity.text).toEqual('<quoted messageId="msg-42"/>');
+    });
+
+    it('does not set replyToId', async () => {
+      const activity = buildIncomingMessageActivity('Hello world');
+      context = buildActivityContext(activity);
+
+      await context.quoteReply('msg-42', 'some text');
+
+      const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+      expect(sentActivity.replyToId).toBeUndefined();
     });
   });
 

@@ -163,10 +163,17 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   send: (activity: ActivityLike, conversationRef?: ConversationReference) => Promise<SentActivity>;
 
   /**
-   * reply to the inbound activity
+   * reply to the inbound activity, automatically quoting the inbound message
    * @param activity activity to send
    */
   reply: (activity: ActivityLike) => Promise<SentActivity>;
+
+  /**
+   * send a reply quoting a specific message by ID
+   * @param messageId the ID of the message to quote
+   * @param activity activity to send
+   */
+  quoteReply: (messageId: string, activity: ActivityLike) => Promise<SentActivity>;
 
   /**
    * trigger user signin flow for the activity sender
@@ -268,12 +275,40 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     activity = toActivityParams(activity);
     activity.replyToId = this.activity.id;
 
-    if (activity.type === 'message' && activity.text) {
-      const blockQuote = this.buildBlockQuoteForActivity();
-
-      if (blockQuote) {
-        activity.text = `${blockQuote}\r\n${activity.text}`;
+    if (this.activity.id) {
+      const placeholder = `<quoted messageId="${this.activity.id}"/>`;
+      if (!activity.entities) {
+        activity.entities = [];
       }
+      activity.entities.push({
+        type: 'quotedReply',
+        quotedReply: { messageId: this.activity.id },
+      });
+
+      if (activity.type === 'message') {
+        const text = activity.text?.trim() ?? '';
+        activity.text = text ? `${placeholder} ${text}` : placeholder;
+      }
+    }
+
+    return this.send(activity);
+  }
+
+  async quoteReply(messageId: string, activity: ActivityLike) {
+    activity = toActivityParams(activity);
+    const placeholder = `<quoted messageId="${messageId}"/>`;
+
+    if (!activity.entities) {
+      activity.entities = [];
+    }
+    activity.entities.push({
+      type: 'quotedReply',
+      quotedReply: { messageId },
+    });
+
+    if (activity.type === 'message') {
+      const text = activity.text?.trim() ?? '';
+      activity.text = text ? `${placeholder} ${text}` : placeholder;
     }
 
     return this.send(activity);
@@ -383,28 +418,11 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       userToken: this.userToken,
       next: this.next.bind(this),
       reply: this.reply.bind(this),
+      quoteReply: this.quoteReply.bind(this),
       send: this.send.bind(this),
       signin: this.signin.bind(this),
       signout: this.signout.bind(this),
     };
   }
 
-  private buildBlockQuoteForActivity(): string | null {
-    if (this.activity.type === 'message' && this.activity.text) {
-      const maxLength = 120;
-      const truncatedText =
-        this.activity.text.length > maxLength
-          ? `${this.activity.text.substring(0, maxLength)}...`
-          : this.activity.text;
-
-      return `<blockquote itemscope="" itemtype="http://schema.skype.com/Reply" itemid="${this.activity.id}">
-<strong itemprop="mri" itemid="${this.activity.from.id}">${this.activity.from.name}</strong><span itemprop="time" itemid="${this.activity.id}"></span>
-<p itemprop="preview">${truncatedText}</p>
-</blockquote>`;
-    } else {
-      this.log.debug('Skipping building blockquote for activity type:', this.activity.type);
-    }
-
-    return null;
-  }
 }
