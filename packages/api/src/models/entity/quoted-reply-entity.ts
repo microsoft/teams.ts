@@ -1,3 +1,9 @@
+/**
+ * Data for a quoted reply entity.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsQuotedReplies
+ */
 export type QuotedReplyData = {
   /**
    * ID of the message being quoted
@@ -35,6 +41,12 @@ export type QuotedReplyData = {
   validatedMessageReference?: boolean;
 };
 
+/**
+ * Entity containing quoted reply information.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsQuotedReplies
+ */
 export type QuotedReplyEntity = {
   readonly type: 'quotedReply';
 

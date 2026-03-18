@@ -103,6 +103,9 @@ export interface IMessageActivity extends IActivity<'message'> {
 
   /**
    * get all quoted reply entities from this message
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsQuotedReplies
    */
   getQuotedMessages(): QuotedReplyEntity[];
 }
@@ -382,6 +385,9 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
 
   /**
    * get all quoted reply entities from this message
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsQuotedReplies
    */
   getQuotedMessages(): QuotedReplyEntity[] {
     return (this.entities ?? []).filter(
@@ -430,6 +436,9 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
    * @param messageId - The IC3 message ID of the message to quote
    * @param response - Optional response text to append after the placeholder
    * @returns this instance for chaining
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsQuotedReplies
    */
   addQuotedReply(messageId: string, response?: string): this {
     if (!this.entities) {
