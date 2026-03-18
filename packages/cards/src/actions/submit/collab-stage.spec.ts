@@ -26,9 +26,11 @@ describe('Actions.Submit.CollabStage', () => {
       data: new SubmitActionData({
         msteams: new InvokeSubmitActionData(
           new CollabStageInvokeDataValue({
-            name: 'test',
-            entityId: 'test',
-            contentUrl: 'http://localhost/tabs/test',
+            tabInfo: {
+              name: 'test',
+              entityId: 'test',
+              contentUrl: 'http://localhost/tabs/test',
+            },
           })
         ),
       }),
