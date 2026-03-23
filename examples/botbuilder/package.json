@@ -18,14 +18,10 @@
     "dev": "tsx watch -r dotenv/config src/index.ts"
   },
   "dependencies": {
-    "@microsoft/teams.api": "*",
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.botbuilder": "*",
-    "@microsoft/teams.cards": "*",
-    "@microsoft/teams.common": "*",
     "@microsoft/teams.dev": "*",
-    "@microsoft/teams.graph": "*",
-    "botbuilder": "^4.23.1"
+    "botbuilder": "4.23.1"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",

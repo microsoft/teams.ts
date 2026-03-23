@@ -28,10 +28,12 @@
     "build": "npx tsup",
     "test": "npx jest"
   },
-  "peerDependencies": {
-    "@modelcontextprotocol/sdk": "^1.13.0",
-    "@microsoft/teams.ai": "*",
+  "dependencies": {
     "@microsoft/teams.common": "*"
+  },
+  "peerDependencies": {
+    "@microsoft/teams.ai": "*",
+    "@modelcontextprotocol/sdk": "^1.13.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",

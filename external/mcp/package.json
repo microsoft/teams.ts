@@ -33,20 +33,14 @@
     "test": "npx jest"
   },
   "dependencies": {
+    "@microsoft/teams.ai": "*",
+    "@microsoft/teams.common": "*",
     "json-schema-to-zod": "^2.6.0",
     "zod": "^3.24.2"
   },
   "peerDependencies": {
-    "@microsoft/teams.ai": "*",
     "@microsoft/teams.apps": "*",
-    "@microsoft/teams.common": "*",
-    "@microsoft/teams.dev": "*",
     "@modelcontextprotocol/sdk": "^1.9.0"
-  },
-  "peerDependenciesMeta": {
-    "@microsoft/teams.dev": {
-      "optional": true
-    }
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
