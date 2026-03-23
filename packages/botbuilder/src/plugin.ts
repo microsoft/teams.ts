@@ -1,5 +1,3 @@
-import http from 'http';
-
 import {
   ActivityHandler,
   CloudAdapter,
@@ -9,19 +7,17 @@ import {
 
 import express from 'express';
 
-import { $Activity, Activity, Credentials, InvokeResponse, IToken } from '@microsoft/teams.api';
+import { Credentials, IToken } from '@microsoft/teams.api';
 import {
   Dependency,
-  Event,
-  HttpPlugin,
-  IActivityEvent,
-  IErrorEvent,
-  ISender,
+  ExpressAdapter,
+  HttpServer,
+  IHttpServer,
+  IPlugin,
   Logger,
   Plugin,
   manifest,
 } from '@microsoft/teams.apps';
-import { JwtValidatedRequest } from '@microsoft/teams.apps/dist/middleware';
 import { ILogger } from '@microsoft/teams.common';
 import * as $http from '@microsoft/teams.common/http';
 
@@ -30,20 +26,21 @@ import pkg from '../package.json';
 export type BotBuilderPluginOptions = {
   readonly adapter?: CloudAdapter;
   readonly handler?: ActivityHandler;
-  readonly server?: http.Server;
-  readonly skipAuth?: boolean;
 };
 
 @Plugin({
-  name: 'http',
+  name: 'botbuilder',
   version: pkg.version,
 })
-export class BotBuilderPlugin extends HttpPlugin implements ISender {
+export class BotBuilderPlugin implements IPlugin {
   @Logger()
   declare readonly logger: ILogger;
 
   @Dependency()
   declare readonly client: $http.Client;
+
+  @HttpServer()
+  declare readonly httpServer: IHttpServer;
 
   @Dependency()
   declare readonly manifest: Partial<manifest.Manifest>;
@@ -57,24 +54,24 @@ export class BotBuilderPlugin extends HttpPlugin implements ISender {
   @Dependency({ optional: true })
   declare readonly botToken?: () => IToken;
 
-  @Event('error')
-  declare readonly $onError: (event: IErrorEvent) => void;
-
-  @Event('activity')
-  declare readonly $onActivity: (event: IActivityEvent) => Promise<InvokeResponse>;
-
-  protected adapter?: CloudAdapter;
+  protected cloudAdapter?: CloudAdapter;
   protected handler?: ActivityHandler;
 
   constructor(options?: BotBuilderPluginOptions) {
-    super(options?.server, { skipAuth: options?.skipAuth });
-    this.adapter = options?.adapter;
+    this.cloudAdapter = options?.adapter;
     this.handler = options?.handler;
   }
 
-  onInit() {
-    super.onInit();
-    if (!this.adapter) {
+  async onInit() {
+    const adapter = this.httpServer.adapter;
+    if (!(adapter instanceof ExpressAdapter)) {
+      throw new Error(
+        'BotBuilderPlugin requires ExpressAdapter. ' +
+        'Please use: new App({ httpServerAdapter: new ExpressAdapter() })'
+      );
+    }
+
+    if (!this.cloudAdapter) {
       const clientId = this.credentials?.clientId;
       const clientSecret =
         this.credentials && 'clientSecret' in this.credentials
@@ -83,7 +80,7 @@ export class BotBuilderPlugin extends HttpPlugin implements ISender {
       const tenantId =
         this.credentials && 'tenantId' in this.credentials ? this.credentials?.tenantId : undefined;
 
-      this.adapter = new CloudAdapter(
+      this.cloudAdapter = new CloudAdapter(
         new ConfigurationBotFrameworkAuthentication(
           {},
           new ConfigurationServiceClientCredentialFactory({
@@ -95,33 +92,28 @@ export class BotBuilderPlugin extends HttpPlugin implements ISender {
         )
       );
     }
+
+    // Register /api/messages route with BotBuilder handler
+    adapter.post(
+      '/api/messages',
+      express.json(),
+      (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        this.onRequest(req, res, next).catch(next);
+      }
+    );
   }
 
   protected async onRequest(
-    req: JwtValidatedRequest,
+    req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
-    if (!this.adapter) {
+    if (!this.cloudAdapter) {
       throw new Error('plugin not registered');
     }
 
-    const activity: Activity = req.body;
     try {
-      let token: IToken | undefined;
-      if (req.validatedToken) {
-        token = req.validatedToken;
-      } else {
-        token = {
-          appId: '',
-          from: 'azure',
-          fromId: '',
-          serviceUrl: activity.serviceUrl || '',
-          isExpired: () => false,
-        };
-      }
-
-      await this.adapter.process(req, res, async (context) => {
+      await this.cloudAdapter.process(req, res, async (context) => {
         if (!context.activity.id) return;
 
         if (this.handler) {
@@ -129,13 +121,14 @@ export class BotBuilderPlugin extends HttpPlugin implements ISender {
         }
 
         if (res.headersSent) {
+          this.logger.debug('Request handled by botbuilder. Not sending to TeamsSDK');
           return next();
         }
 
-        const response = await this.$onActivity({
-          sender: this,
-          token,
-          activity: new $Activity(context.activity as any) as Activity,
+        // Now send it to the TeamsSDK handler
+        const response = await this.httpServer.handleRequest({
+          body: req.body,
+          headers: req.headers as Record<string, string>,
         });
 
         res.status(response.status || 200).send(response.body);

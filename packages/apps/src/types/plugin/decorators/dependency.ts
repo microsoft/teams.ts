@@ -70,6 +70,13 @@ export function Storage() {
 }
 
 /**
+ * inject the `App` `IHttpServer` instance
+ */
+export function HttpServer() {
+  return Dependency({ name: 'IHttpServer' });
+}
+
+/**
  * options for a plugins dependency
  * that should get injected into it
  * by the `App`
@@ -83,6 +90,7 @@ export type DependencyOptions =
   | GraphTokenDependencyOptions
   | LoggerDependencyOptions
   | StorageDependencyOptions
+  | HttpServerDependencyOptions
   | PluginDependencyOptions;
 
 export type IdDependencyOptions = {
@@ -189,13 +197,26 @@ export type StorageDependencyOptions = {
   readonly optional?: false;
 };
 
+export type HttpServerDependencyOptions = {
+  /**
+   * the name used to resolve the dependency
+   */
+  readonly name: 'IHttpServer';
+
+  /**
+   * if optional, the app will not throw
+   * if the dependency is not found
+   */
+  readonly optional?: false;
+};
+
 export type PluginDependencyOptions = {
   /**
    * the name used to resolve the dependency
    */
   readonly name?: Omit<
     string,
-    'id' | 'name' | 'manifest' | 'credentials' | 'botToken' | 'graphToken' | 'ILogger' | 'IStorage'
+    'id' | 'name' | 'manifest' | 'credentials' | 'botToken' | 'graphToken' | 'ILogger' | 'IStorage' | 'IHttpServer'
   >;
 
   /**

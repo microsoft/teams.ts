@@ -33,6 +33,7 @@
     "clean": "npx turbo clean",
     "build": "npx turbo build",
     "build:packages": "npx turbo build --filter=./packages/*",
+    "build:essential": "npx turbo build --filter='./packages/*' --filter='!./packages/graph' --filter='!./packages/graph-endpoints' --filter='!./packages/graph-endpoints-beta' --filter='!./packages/graph-tools' --filter='!./external/*'",
     "build:examples": "npx turbo build --filter=./examples/*",
     "build:external": "npx turbo build --filter=./external/*",
     "dev": "npx turbo dev",
@@ -45,5 +46,14 @@
     "nerdbank-gitversioning": "^3.9.50",
     "turbo": "^2.4.0",
     "typescript": "^5.4.5"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.40.1"
+  },
+  "overrides": {
+    "restify": {
+      "send": "^1.2.0",
+      "find-my-way": "^9.0.0"
+    }
   }
 }

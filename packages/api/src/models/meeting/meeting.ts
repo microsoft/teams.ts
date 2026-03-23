@@ -1,7 +1,6 @@
 /**
- *
- * An interface representing a Meeting.
- * Meeting details.
+ * A participant's meeting-specific details, including their
+ * role and current presence status within the meeting.
  */
 export type Meeting = {
   /**

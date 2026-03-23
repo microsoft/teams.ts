@@ -42,7 +42,7 @@
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.common": "*",
     "@microsoft/teams.graph": "*",
-    "botbuilder": "4.23.1"
+    "botbuilder": "^4.23.1"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",

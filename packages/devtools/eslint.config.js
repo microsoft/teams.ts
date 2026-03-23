@@ -14,6 +14,9 @@ module.exports = tseslint.config(
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+      parserOptions: {
+        tsconfigRootDir: __dirname,
+      },
     },
     plugins: {
       'react-compiler': reactCompiler,
@@ -28,5 +31,12 @@ module.exports = tseslint.config(
       '@typescript-eslint/no-explicit-any': 'off',
       'order-imports/order-imports': 'error',
     },
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: __dirname
+      }
+    }
   }
 );

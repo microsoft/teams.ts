@@ -13,8 +13,8 @@ import {
 } from '@microsoft/teams.api';
 import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/teams.common';
 
-import { IStreamer, IStreamerEvents } from '../../types';
-import { promises } from '../../utils';
+import { IStreamer, IStreamerEvents } from '../types';
+import { promises } from '../utils';
 
 /**
  * HTTP-based streaming implementation for Microsoft Teams activities.
@@ -53,7 +53,7 @@ export class HttpStream implements IStreamer {
   constructor(client: Client, ref: ConversationReference, logger?: ILogger) {
     this.client = client;
     this.ref = ref;
-    this._logger = logger?.child('stream') || new ConsoleLogger('@teams/http/stream');
+    this._logger = logger?.child('stream') || new ConsoleLogger('@teams/http-stream');
   }
 
   /**
@@ -228,19 +228,19 @@ export class HttpStream implements IStreamer {
    * @param activity TypingActivity to send.
    */
   protected async pushStreamChunk(activity: TypingActivity) {
-      if (this.id) {
-        activity.id = this.id;
-      }
-      activity.addStreamUpdate(this.index + 1);
+    if (this.id) {
+      activity.id = this.id;
+    }
+    activity.addStreamUpdate(this.index + 1);
 
-      const res = await promises.retry(() => this.send(activity as ActivityParams), {
-        logger: this._logger
-      });
-      this.events.emit('chunk', res);
-      this.index++;
-      if (!this.id) {
-        this.id = res.id;
-      }
+    const res = await promises.retry(() => this.send(activity as ActivityParams), {
+      logger: this._logger
+    });
+    this.events.emit('chunk', res);
+    this.index++;
+    if (!this.id) {
+      this.id = res.id;
+    }
   }
 
   /**

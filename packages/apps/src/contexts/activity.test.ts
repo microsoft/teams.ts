@@ -12,12 +12,11 @@ import { ILogger } from '@microsoft/teams.common/logging';
 import { IStorage } from '@microsoft/teams.common/storage';
 
 import { ApiClient, GraphClient } from '../api';
-import { ISender } from '../types';
 
 import { ActivityContext } from './activity';
 
 describe('ActivityContext', () => {
-  let mockSender: ISender;
+  let mockSender: { send: jest.Mock; createStream: jest.Mock };
   let mockApiClient: MockedObject<ApiClient>;
   let mockLogger: ILogger;
   let mockStorage: MockedObject<IStorage>;
@@ -100,7 +99,7 @@ describe('ActivityContext', () => {
   };
 
   const buildActivityContext = (activity: Activity): ActivityContext => {
-    return new ActivityContext(mockSender, {
+    return new ActivityContext({
       appId: 'test-app',
       activity,
       ref: mockRef,
@@ -111,6 +110,7 @@ describe('ActivityContext', () => {
       storage: mockStorage,
       connectionName: 'test-connection',
       next: jest.fn(),
+      activitySender: mockSender,
     });
   };
 
@@ -213,7 +213,7 @@ describe('ActivityContext', () => {
         context = buildActivityContext(activity);
 
         const targetedActivity = new MessageActivity('Secret message')
-          .withTargetedRecipient(true);
+          .withRecipient({ id: 'test-user', name: 'Test User', role: 'user' }, true);
 
         await context.send(targetedActivity);
 
@@ -234,7 +234,7 @@ describe('ActivityContext', () => {
         context = buildActivityContext(activity);
 
         const targetedActivity = new MessageActivity('Secret message')
-          .withTargetedRecipient('explicit-user-id');
+          .withRecipient({ id: 'explicit-user-id', name: '', role: 'user' }, true);
 
         await context.send(targetedActivity);
 
@@ -255,8 +255,11 @@ describe('ActivityContext', () => {
         context = buildActivityContext(activity);
 
         const updateActivity = new MessageActivity('Updated message')
-          .withTargetedRecipient(true)
           .withId('existing-activity-id');
+        // Set isTargeted directly to test that context doesn't override recipient for updates.
+        // The context logic checks params.id and skips setting recipient for updates,
+        // so we need to test this by setting isTargeted without a recipient.
+        updateActivity.isTargeted = true;
 
         await context.send(updateActivity);
 
@@ -344,7 +347,7 @@ describe('ActivityContext', () => {
     });
 
     it('creates new 1:1 conversation for group chat signin', async () => {
-      context = new ActivityContext(mockSender, {
+      context = new ActivityContext({
         ...context,
         activity: {
           ...buildIncomingMessageActivity('Test message'),
@@ -354,6 +357,7 @@ describe('ActivityContext', () => {
             conversationType: 'group',
           },
         },
+        activitySender: mockSender,
       });
 
       mockApiClient.users.token.get.mockRejectedValueOnce(

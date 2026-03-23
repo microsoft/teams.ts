@@ -277,50 +277,83 @@ describe('MessageActivity', () => {
     });
   });
 
-  describe('withTargetedRecipient', () => {
-    it('should set isTargeted to true when called with true', () => {
-      const activity = new MessageActivity('hello').withTargetedRecipient(true);
+  describe('withRecipient', () => {
+    it('should default to not targeted', () => {
+      const activity = new MessageActivity('hello').withRecipient({ id: '1', name: '', role: 'user' });
 
-      expect(activity.isTargeted).toBe(true);
-      expect(activity.recipient).toBeUndefined();
+      expect(activity.isTargeted).toBe(false);
+      expect(activity.recipient).toBeDefined();
     });
 
-    it('should set isTargeted to true and recipient when called with recipient id', () => {
-      const activity = new MessageActivity('hello').withTargetedRecipient('user-123');
+    it('should set isTargeted when second parameter is true', () => {
+      const activity = new MessageActivity('hello').withRecipient({ id: '1', name: '', role: 'user' }, true);
 
       expect(activity.isTargeted).toBe(true);
-      expect(activity.recipient).toEqual({ id: 'user-123', name: '', role: 'user' });
+      expect(activity.recipient).toBeDefined();
     });
 
-    it('should be chainable with other methods', () => {
+    it('should set isTargeted and recipient with full account', () => {
+      const activity = new MessageActivity('hello').withRecipient(
+        { id: 'user-123', name: 'user', role: 'user' },
+        true
+      );
+
+      expect(activity.isTargeted).toBe(true);
+      expect(activity.recipient).toBeDefined();
+      expect(activity.recipient.id).toBe('user-123');
+      expect(activity.recipient.name).toBe('user');
+      expect(activity.recipient.role).toBe('user');
+    });
+
+    it('should maintain fluent chaining', () => {
       const activity = new MessageActivity('hello')
         .withImportance('high')
-        .withTargetedRecipient('user-456')
+        .withRecipient({ id: 'user-123', name: '', role: 'user' })
+        .addText(' world');
+
+      expect(activity.text).toBe('hello world');
+      expect(activity.importance).toBe('high');
+      expect(activity.recipient).toBeDefined();
+      expect(activity.recipient.id).toBe('user-123');
+      expect(activity.isTargeted).toBe(false);
+    });
+
+    it('should be chainable with targeted flag', () => {
+      const activity = new MessageActivity('hello')
+        .withImportance('high')
+        .withRecipient({ id: 'user-456', name: '', role: 'user' }, true)
         .withDeliveryMode('notification');
 
       expect(activity.text).toBe('hello');
       expect(activity.importance).toBe('high');
       expect(activity.deliveryMode).toBe('notification');
       expect(activity.isTargeted).toBe(true);
-      expect(activity.recipient).toEqual({ id: 'user-456', name: '', role: 'user' });
+      expect(activity.recipient.id).toBe('user-456');
     });
 
     it('should preserve isTargeted and recipient when using from()', () => {
       const original = new MessageActivity('test')
-        .withTargetedRecipient('user-789')
+        .withRecipient({ id: 'user-789', name: '', role: 'user' }, true)
         .toInterface();
 
       const restored = MessageActivity.from(original);
 
       expect(restored.isTargeted).toBe(true);
-      expect(restored.recipient).toEqual({ id: 'user-789', name: '', role: 'user' });
+      expect(restored.recipient.id).toBe('user-789');
     });
 
-    it('should not set recipient when called with true', () => {
-      const activity = new MessageActivity('hello').withTargetedRecipient(true);
+    it('should validate fluent API', () => {
+      const msg = new MessageActivity('Hello')
+        .withDeliveryMode('notification')
+        .withRecipient({ id: 'user-123', name: 'Test User', role: 'user' }, true)
+        .withImportance('high');
 
-      expect(activity.isTargeted).toBe(true);
-      expect(activity.recipient).toBeUndefined();
+      expect(msg.text).toBe('Hello');
+      expect(msg.isTargeted).toBe(true);
+      expect(msg.recipient).toBeDefined();
+      expect(msg.recipient.id).toBe('user-123');
+      expect(msg.recipient.name).toBe('Test User');
+      expect(msg.recipient.role).toBe('user');
     });
   });
 });

@@ -1,0 +1,34 @@
+{
+  "name": "@examples/http-adapters",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "dev:express": "tsx watch express/index.ts",
+    "dev:hono": "tsx watch hono/index.ts",
+    "dev:restify": "tsx watch restify/index.ts",
+    "start:express": "NODE_ENV=production tsx express/index.ts",
+    "start:hono": "NODE_ENV=production tsx hono/index.ts",
+    "start:restify": "NODE_ENV=production tsx restify/index.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.9",
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.apps": "*",
+    "@microsoft/teams.common": "*",
+    "cors": "^2.8.5",
+    "express": "^5.0.0",
+    "hono": "^4.6.14",
+    "restify": "^11.1.0"
+  },
+  "devDependencies": {
+    "@microsoft/teams.config": "*",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.5.4",
+    "@types/restify": "^8.5.12",
+    "dotenv": "^16.4.5",
+    "tsx": "^4.20.6",
+    "typescript": "^5.4.5"
+  }
+}

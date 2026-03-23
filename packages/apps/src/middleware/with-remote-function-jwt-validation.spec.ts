@@ -1,4 +1,8 @@
+import { RemoteFunctionValidator } from './auth/remote-function-validator';
 import { withRemoteFunctionJwtValidation } from './with-remote-function-jwt-validation';
+
+// Mock RemoteFunctionValidator
+jest.mock('./auth/remote-function-validator');
 
 const mockLogger = {
   error: jest.fn(),
@@ -9,36 +13,43 @@ const mockLogger = {
   log: jest.fn(),
   child: jest.fn().mockReturnThis(),
 };
+
 const tokenValidatorMock = {
   validateAccessToken: jest.fn(),
 };
-const mockRequestHeaders = {
-  Authorization: 'Bearer valid-token',
-  'X-Teams-App-Session-Id': 'test-app-session-id',
-  'X-Teams-Page-Id': 'test-page-id',
-  'X-Teams-Channel-Id': 'test-channel-id',
-  'X-Teams-Chat-Id': 'test-chat-id',
-  'X-Teams-Meeting-Id': 'test-meeting-id',
-  'X-Teams-Message-Id': 'test-message-id',
-  'X-Teams-Sub-Page-Id': 'test-sub-page-id',
-  'X-Teams-Team-Id': 'test-team-id',
-} as const;
 
 describe('withRemoteFunctionJwtValidation Middleware', () => {
   let mockRequest: any;
   let mockResponse: any;
   let mockNext: jest.Mock;
-  const mockRequestStatus = jest.fn();
-  const mockRequestStatusSend = jest.fn();
+  let mockValidatorCheck: jest.Mock;
 
   beforeEach(() => {
+    mockValidatorCheck = jest.fn();
+    (RemoteFunctionValidator as unknown as jest.Mock).mockImplementation(() => ({
+      check: mockValidatorCheck
+    }));
+
     mockRequest = {
-      header: (headerName: keyof typeof mockRequestHeaders) => mockRequestHeaders[headerName],
-      context: {},
+      headers: {
+        'authorization': 'Bearer valid-token',
+        'x-teams-app-session-id': 'test-app-session-id',
+        'x-teams-page-id': 'test-page-id',
+        'x-teams-channel-id': 'test-channel-id',
+        'x-teams-chat-id': 'test-chat-id',
+        'x-teams-meeting-id': 'test-meeting-id',
+        'x-teams-message-id': 'test-message-id',
+        'x-teams-sub-page-id': 'test-sub-page-id',
+        'x-teams-team-id': 'test-team-id',
+      },
+      context: undefined,
     };
+
     mockResponse = {
-      status: mockRequestStatus.mockReturnValue({ send: mockRequestStatusSend }),
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn(),
     };
+
     mockNext = jest.fn();
   });
 
@@ -47,22 +58,7 @@ describe('withRemoteFunctionJwtValidation Middleware', () => {
   });
 
   it('should set context and call next if authentication is successful', async () => {
-    // Mock a valid authentication scenario
-    tokenValidatorMock.validateAccessToken.mockResolvedValue({
-      appId: 'test-app-id',
-      tid: 'test-tenant-id',
-      oid: 'test-user-id',
-    });
-
-    const handleRequest = withRemoteFunctionJwtValidation({
-      logger: mockLogger,
-      entraTokenValidator: tokenValidatorMock,
-    });
-    await handleRequest(mockRequest, mockResponse, mockNext);
-
-    expect(mockNext).toHaveBeenCalled();
-    expect(mockResponse.status).not.toHaveBeenCalled();
-    expect(mockRequest.context).toEqual({
+    const mockContext = {
       appId: 'test-app-id',
       appSessionId: 'test-app-session-id',
       authToken: 'valid-token',
@@ -75,81 +71,130 @@ describe('withRemoteFunctionJwtValidation Middleware', () => {
       teamId: 'test-team-id',
       tenantId: 'test-tenant-id',
       userId: 'test-user-id',
-    });
-  });
+      userName: 'Test User'
+    };
 
-  it.each`
-    missingHeader
-    ${'X-Teams-App-Session-Id'}
-    ${'X-Teams-Page-Id'}
-  `('should return 401 if the $missingHeader header is missing', async ({ missingHeader }) => {
-    mockRequest.header = (headerName: keyof typeof mockRequestHeaders) =>
-      headerName === missingHeader ? undefined : mockRequestHeaders[headerName];
+    mockValidatorCheck.mockResolvedValue(mockContext);
 
     const handleRequest = withRemoteFunctionJwtValidation({
       logger: mockLogger,
       entraTokenValidator: tokenValidatorMock,
     });
+
     await handleRequest(mockRequest, mockResponse, mockNext);
 
-    expect(mockRequestStatus).toHaveBeenCalledWith(401);
-    expect(mockRequestStatusSend).toHaveBeenCalledWith('unauthorized');
-    expect(mockNext).not.toHaveBeenCalled();
+    expect(mockValidatorCheck).toHaveBeenCalledWith({
+      'authorization': 'Bearer valid-token',
+      'x-teams-app-session-id': 'test-app-session-id',
+      'x-teams-page-id': 'test-page-id',
+      'x-teams-channel-id': 'test-channel-id',
+      'x-teams-chat-id': 'test-chat-id',
+      'x-teams-meeting-id': 'test-meeting-id',
+      'x-teams-message-id': 'test-message-id',
+      'x-teams-sub-page-id': 'test-sub-page-id',
+      'x-teams-team-id': 'test-team-id',
+    });
+    expect(mockRequest.context).toEqual(mockContext);
+    expect(mockNext).toHaveBeenCalled();
+    expect(mockResponse.status).not.toHaveBeenCalled();
   });
 
-  it.each`
-    authorizationHeader         | expected
-    ${undefined}                | ${''}
-    ${'Bearer '}                | ${''}
-    ${'Bearer invalid data '}   | ${''}
-    ${'Bearer   invalid-data '} | ${''}
-    ${'pop valid-token'}        | ${''}
-    ${'Bearer valid-token'}     | ${'valid-token'}
-    ${'BEARER valid-token'}     | ${'valid-token'}
-    ${'bearer valid-token'}     | ${'valid-token'}
-  `(
-    'should invoke validateAccessToken with "$expected" when authorization header value is "$authorizationHeader"',
-    async ({ authorizationHeader, expected }) => {
-      mockRequest.header = (headerName: keyof typeof mockRequestHeaders) =>
-        headerName === 'Authorization' ? authorizationHeader : mockRequestHeaders[headerName];
+  it('should convert Express headers to lowercase', async () => {
+    mockRequest.headers = {
+      'Authorization': 'Bearer valid-token',
+      'X-Teams-App-Session-Id': 'test-app-session-id',
+      'X-Teams-Page-Id': 'test-page-id',
+    };
 
-      const handleRequest = withRemoteFunctionJwtValidation({
-        logger: mockLogger,
-        entraTokenValidator: tokenValidatorMock,
-      });
-      await handleRequest(mockRequest, mockResponse, mockNext);
-      expect(tokenValidatorMock.validateAccessToken).toHaveBeenCalledWith(expected);
-    }
-  );
+    mockValidatorCheck.mockResolvedValue({
+      appId: 'test-app-id',
+      pageId: 'test-page-id',
+    });
+
+    const handleRequest = withRemoteFunctionJwtValidation({
+      logger: mockLogger,
+      entraTokenValidator: tokenValidatorMock,
+    });
+
+    await handleRequest(mockRequest, mockResponse, mockNext);
+
+    expect(mockValidatorCheck).toHaveBeenCalledWith({
+      'authorization': 'Bearer valid-token',
+      'x-teams-app-session-id': 'test-app-session-id',
+      'x-teams-page-id': 'test-page-id',
+    });
+  });
+
+  it('should skip non-string header values', async () => {
+    mockRequest.headers = {
+      'authorization': 'Bearer valid-token',
+      'x-teams-app-session-id': 'test-app-session-id',
+      'x-teams-page-id': 'test-page-id',
+      'x-forwarded-for': ['1.2.3.4', '5.6.7.8'], // array value - should be skipped
+    };
+
+    mockValidatorCheck.mockResolvedValue({
+      appId: 'test-app-id',
+      pageId: 'test-page-id',
+    });
+
+    const handleRequest = withRemoteFunctionJwtValidation({
+      logger: mockLogger,
+      entraTokenValidator: tokenValidatorMock,
+    });
+
+    await handleRequest(mockRequest, mockResponse, mockNext);
+
+    expect(mockValidatorCheck).toHaveBeenCalledWith({
+      'authorization': 'Bearer valid-token',
+      'x-teams-app-session-id': 'test-app-session-id',
+      'x-teams-page-id': 'test-page-id',
+      // x-forwarded-for should not be included
+    });
+  });
 
   it('should return 401 if the token validator is missing', async () => {
     const handleRequest = withRemoteFunctionJwtValidation({
       logger: mockLogger,
       entraTokenValidator: undefined,
     });
+
     await handleRequest(mockRequest, mockResponse, mockNext);
 
-    expect(mockRequestStatus).toHaveBeenCalledWith(401);
-    expect(mockRequestStatusSend).toHaveBeenCalledWith('unauthorized');
+    expect(mockLogger.debug).toHaveBeenCalledWith('unauthorized - no token validator configured');
+    expect(mockResponse.status).toHaveBeenCalledWith(401);
+    expect(mockResponse.send).toHaveBeenCalledWith('unauthorized');
     expect(mockNext).not.toHaveBeenCalled();
   });
 
   it('should return 401 if token validation fails', async () => {
+    mockValidatorCheck.mockResolvedValue(null);
+
     const handleRequest = withRemoteFunctionJwtValidation({
       logger: mockLogger,
       entraTokenValidator: tokenValidatorMock,
     });
 
-    tokenValidatorMock.validateAccessToken.mockResolvedValue(null);
+    await handleRequest(mockRequest, mockResponse, mockNext);
+
+    expect(mockResponse.status).toHaveBeenCalledWith(401);
+    expect(mockResponse.send).toHaveBeenCalledWith('unauthorized');
+    expect(mockNext).not.toHaveBeenCalled();
+  });
+
+  it('should create RemoteFunctionValidator with correct params', async () => {
+    mockValidatorCheck.mockResolvedValue({
+      appId: 'test-app-id',
+      pageId: 'test-page-id',
+    });
+
+    const handleRequest = withRemoteFunctionJwtValidation({
+      logger: mockLogger,
+      entraTokenValidator: tokenValidatorMock,
+    });
 
     await handleRequest(mockRequest, mockResponse, mockNext);
 
-    expect(mockLogger.debug).toHaveBeenCalledWith('unauthorized');
-    const send = jest.fn();
-    const response: any = {
-      status: jest.fn().mockReturnValue({ send }),
-    };
-    await handleRequest(mockRequest, response, mockNext);
-    expect(mockNext).not.toHaveBeenCalled();
+    expect(RemoteFunctionValidator).toHaveBeenCalledWith(tokenValidatorMock, mockLogger);
   });
 });

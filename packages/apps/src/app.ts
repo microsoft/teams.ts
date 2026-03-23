@@ -17,6 +17,7 @@ import { IStorage, LocalStorage } from '@microsoft/teams.common/storage';
 
 import pkg from '../package.json';
 
+import { ActivitySender } from './activity-sender';
 import { ApiClient, GraphClient } from './api';
 
 import { configTab, func, tab } from './app.embed';
@@ -27,21 +28,24 @@ import {
   onError,
 } from './app.events';
 import {
+  onSignInFailure,
   onTokenExchange,
-  onVerifyState
+  onVerifyState,
 } from './app.oauth';
 import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
 import { $process } from './app.process';
 import { message, on, use } from './app.routing';
 import { Container } from './container';
 import { IActivityEvent } from './events';
+import { ExpressAdapter, IHttpServerAdapter } from './http';
+import { HttpServer } from './http/http-server';
 import * as manifest from './manifest';
 import * as middleware from './middleware';
 import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { TokenManager } from './token-manager';
-import { IPlugin, AppEvents, ISender } from './types';
+import { IPlugin, AppEvents } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 
 /**
@@ -61,6 +65,12 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * If not available, uses ManagedIdentity to authenticate
    */
   readonly clientSecret?: string;
+
+  /**
+   * Application ID URI from the Azure portal. Used for user authentication.
+   * Matches webApplicationInfo.resource in the app manifest.
+   */
+  readonly applicationIdUri?: string;
 
   /**
    * tenantId - The tenantId where your app is registered
@@ -105,6 +115,11 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * plugins to extend the apps functionality
    */
   readonly plugins?: Array<TPlugin>;
+
+  /**
+   * HTTP server adapter for handling bot requests
+   */
+  readonly httpServerAdapter?: IHttpServerAdapter;
 
   /**
    * OAuth Settings
@@ -156,7 +171,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   readonly api: ApiClient;
   readonly graph: GraphClient;
   readonly log: ILogger;
-  readonly http: HttpPlugin;
+  readonly server: HttpServer;
+  readonly http?: HttpPlugin;
   readonly client: http.Client;
   readonly storage: IStorage;
   readonly entraTokenValidator?: middleware.JwtValidator;
@@ -223,8 +239,9 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected router = new Router<PluginAdditionalContext<TPlugin>>();
   protected tenantTokens = new LocalStorage<string>({}, { max: 20000 });
   protected events = new EventEmitter<AppEvents<TPlugin>>();
-  protected startedAt?: Date;
+  protected isInitialized = false;
   protected port?: number | string;
+  protected activitySender: ActivitySender;
 
   private readonly _userAgent = `teams.ts[apps]/${pkg.version}`;
 
@@ -281,31 +298,64 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       managedIdentityClientId: this.options.managedIdentityClientId,
     }, this.log);
 
+    // initialize ActivitySender for sending activities
+    this.activitySender = new ActivitySender(
+      this.client.clone({ token: () => this.getBotToken() }),
+      this.log
+    );
+
     if (this.credentials?.clientId) {
       this.entraTokenValidator = middleware.createEntraTokenValidator(
         this.credentials.tenantId || 'common',
         this.credentials.clientId,
-        { logger: this.log, }
+        { applicationIdUri: this.options.applicationIdUri, logger: this.log }
       );
     }
 
-    // add/validate plugins
+    // Determine HTTP server
     const plugins: Array<TPlugin> = this.options.plugins || [];
-    let httpPlugin = plugins.find((p) => {
+    const httpPlugin = plugins.find((p) => {
       const meta = getMetadata(p);
       return meta.name === 'http';
     }) as HttpPlugin | undefined;
 
-    if (!httpPlugin) {
-      httpPlugin = new HttpPlugin(undefined, { skipAuth: this.options.skipAuth });
-      // Casting to any here because a default HttpPlugin is not assignable to TPlugin
-      // without a silly level of indirection.
-      plugins.unshift(httpPlugin as any);
-    } else if (this.options.skipAuth) {
-      this.log.warn('skipAuth option has no effect when a custom HTTP plugin is provided. Configure authentication on the plugin directly.');
+    // Error if both httpServerAdapter and http plugin are provided
+    if (this.options.httpServerAdapter && httpPlugin) {
+      throw new Error(
+        'Cannot provide both httpServerAdapter option and HttpPlugin in plugins array. ' +
+        'Use either:\n' +
+        '  - new App({ httpServerAdapter: new ExpressAdapter() }) (recommended)\n' +
+        '  - new App({ plugins: [new HttpPlugin()] }) (deprecated)'
+      );
     }
 
-    this.http = httpPlugin;
+    let server: HttpServer;
+
+    // HttpPlugin in plugins array (backwards compatibility)
+    if (httpPlugin) {
+      this.log.warn('[DEPRECATED] HttpPlugin in plugins array will be deprecated. Use httpServerAdapter option instead:\n' +
+        '  new App({ httpServerAdapter: new ExpressAdapter() })');
+      this.http = httpPlugin;
+      // Extract internal server and always set this.server
+      server = (httpPlugin as any).asServer?.();
+      if (!server) {
+        throw new Error('HttpPlugin.asServer() returned undefined');
+      }
+    } else {
+      server = new HttpServer(this.options.httpServerAdapter ?? new ExpressAdapter(undefined, {
+        logger: this.log,
+        onError: (err) => this.onError({ error: err })
+      }), {
+        skipAuth: this.options.skipAuth,
+        logger: this.log
+      });
+    }
+
+    // Always set this.server
+    this.server = server;
+
+    // Set callback for handling activities
+    server.onRequest = (event) => this.onActivity(event);
 
     // add injectable items to container
     this.container.register('id', { useValue: this.id });
@@ -319,6 +369,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       useFactory: () => this.client,
     });
 
+    // Register HTTP server for plugins that need HTTP capabilities
+    this.container.register('IHttpServer', { useValue: server });
+
+    // Register all plugins (including HttpPlugin if using old way)
     for (const plugin of plugins) {
       this.plugin(plugin);
     }
@@ -347,6 +401,13 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       callback: ctx => this.onVerifyState(ctx),
     });
 
+    this.router.register({
+      name: 'signin.failure',
+      type: 'system',
+      select: activity => activity.type === 'invoke' && activity.name === 'signin/failure',
+      callback: ctx => this.onSignInFailure(ctx),
+    });
+
     this.event('error', ({ error }) => {
       this.log.error(error.message);
 
@@ -358,33 +419,52 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   }
 
   /**
-   * start the app
+   * initialize the app.
+   */
+  async initialize() {
+    if (this.isInitialized) {
+      return;
+    }
+
+    // initialize plugins
+    for (const plugin of this.plugins) {
+      this.inject(plugin);
+
+      if (plugin.onInit) {
+        await plugin.onInit();
+      }
+    }
+
+    // initialize server
+    await this.server.initialize({
+      credentials: this.credentials,
+    });
+
+    this.isInitialized = true;
+  }
+
+  /**
+   * start the server after initialization
    * @param port port to listen on
    */
   async start(port?: number | string) {
     this.port = port || process.env.PORT || 3978;
 
     try {
-      // initialize plugins
-      for (const plugin of this.plugins) {
-        // inject dependencies
-        this.inject(plugin);
+      await this.initialize();
 
-        if (plugin.onInit) {
-          plugin.onInit();
-        }
-      }
-
-      // start plugins
+      // Start plugins
       for (const plugin of this.plugins) {
         if (plugin.onStart) {
           await plugin.onStart({ port: this.port });
         }
       }
-
       this.events.emit('start', this.log);
-      this.startedAt = new Date();
+
+      // Start HTTP server
+      await this.server.start(this.port);
     } catch (error: any) {
+      await this.stop();
       this.onError({ error });
     }
   }
@@ -394,11 +474,15 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    */
   async stop() {
     try {
+      // Stop plugins
       for (const plugin of this.plugins) {
         if (plugin.onStop) {
           await plugin.onStop();
         }
       }
+
+      // Stop HTTP server
+      await this.server.stop();
     } catch (error: any) {
       this.onError({ error });
     }
@@ -419,7 +503,9 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     // Validate targeted messages in proactive context
     if (params.type === 'message' && params.isTargeted) {
       if (!params.recipient) {
-        throw new Error('Targeted messages sent proactively must specify an explicit recipient ID using withTargetedRecipient(recipientId)');
+        throw new Error(
+          'Targeted messages sent proactively must specify an explicit recipient using .withRecipient(account, true)'
+        );
       }
     }
 
@@ -437,7 +523,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       },
     };
 
-    const res = await this.http.send(params, ref);
+    const res = await this.activitySender.send(params, ref);
     return res;
   }
 
@@ -516,6 +602,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
   protected onTokenExchange = onTokenExchange; // eslint-disable-line @typescript-eslint/member-ordering
   protected onVerifyState = onVerifyState; // eslint-disable-line @typescript-eslint/member-ordering
+  protected onSignInFailure = onSignInFailure; // eslint-disable-line @typescript-eslint/member-ordering
 
   ///
   /// Events
@@ -527,11 +614,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected onActivityResponse = onActivityResponse; // eslint-disable-line @typescript-eslint/member-ordering
 
   async onActivity(
-    sender: ISender,
     event: IActivityEvent
   ): Promise<InvokeResponse> {
     this.events.emit('activity', event);
-    return await this.process(sender, { ...event, sender });
+    return await this.process(event);
   }
 
   ///

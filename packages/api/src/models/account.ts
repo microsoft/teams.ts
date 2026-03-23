@@ -27,9 +27,9 @@ export type TeamsChannelAccount<P = any> = {
   readonly name: string;
 
   /**
-   * @member {string} [objectId] The user's Object ID in Azure Active Directory (AAD).
+   * @member {string} [aadObjectId] The user's Object ID in Azure Active Directory (AAD).
    */
-  readonly objectId?: string;
+  readonly aadObjectId?: string;
 
   /**
    * @member {Role} [userRole] Role of the user (e.g., 'user' or 'bot').

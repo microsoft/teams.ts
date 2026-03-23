@@ -95,8 +95,8 @@ deploy:
   - uses: script
     with:
       run: |
-        pip install .
-        pip freeze > src/requirements.txt
+        uv sync
+        uv export --no-hashes -o src/requirements.txt
   # Deploy to an Azure App Service using the zip file created in the provision step.
   - uses: azureAppService/zipDeploy
     with:

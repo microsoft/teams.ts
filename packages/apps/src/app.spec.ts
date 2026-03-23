@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { JsonWebToken } from '@microsoft/teams.api';
 
 import { App } from './app';
-import { TestHttpPlugin } from './plugins/http/plugin.spec';
+import { TestAdapter } from './test-utils';
 
 class TestApp extends App {
   // Expose protected members for testing
@@ -17,6 +17,11 @@ class TestApp extends App {
 
   public async testSend(conversationId: string, activity: any) {
     return this.send(conversationId, activity);
+  }
+
+  // Expose activitySender for mocking (it's protected, so we expose it publicly)
+  public get testActivitySender() {
+    return this.activitySender;
   }
 }
 
@@ -42,11 +47,15 @@ describe('App', () => {
 
     beforeEach(() => {
       app = new TestApp({
+        httpServerAdapter: new TestAdapter(),
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
         tenantId: 'test-tenant-id',
-        plugins: [new TestHttpPlugin()],
       });
+    });
+
+    afterEach(async () => {
+      await app.stop();
     });
 
     it('should acquire bot token via TokenManager', async () => {
@@ -83,7 +92,7 @@ describe('App', () => {
 
     it('should return null when credentials are not provided', async () => {
       const appWithoutCreds = new TestApp({
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter()
       });
 
       const botToken = await appWithoutCreds.testGetBotToken();
@@ -110,19 +119,23 @@ describe('App', () => {
   describe('send', () => {
     let app: TestApp;
 
+    afterEach(async () => {
+      await app.stop();
+    });
+
     it('should send message without manifest.name configured', async () => {
       app = new TestApp({
+        httpServerAdapter: new TestAdapter(),
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
         tenantId: 'test-tenant-id',
-        plugins: [new TestHttpPlugin()],
       });
 
       await app.start();
 
-      // Mock the http.send method
+      // Mock the activitySender.send method
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
-      jest.spyOn(app.http, 'send').mockImplementation(mockSend);
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
       await app.testSend('conversation-id', { text: 'Hello' });
 
@@ -134,20 +147,20 @@ describe('App', () => {
 
     it('should send message with manifest.name configured', async () => {
       app = new TestApp({
+        httpServerAdapter: new TestAdapter(),
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
         tenantId: 'test-tenant-id',
         manifest: {
           name: { short: 'TestBot', full: 'Test Bot Application' },
         },
-        plugins: [new TestHttpPlugin()],
       });
 
       await app.start();
 
-      // Mock the http.send method
+      // Mock the activitySender.send method
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
-      jest.spyOn(app.http, 'send').mockImplementation(mockSend);
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
       await app.testSend('conversation-id', { text: 'Hello' });
 
@@ -159,7 +172,7 @@ describe('App', () => {
 
     it('should throw error when app is not started (no clientId)', async () => {
       app = new TestApp({
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter()
       });
 
       await app.start();
@@ -167,6 +180,72 @@ describe('App', () => {
       await expect(
         app.testSend('conversation-id', { text: 'Hello' })
       ).rejects.toThrow('app not started');
+    });
+  });
+
+  describe('proactive messaging (initialize without start)', () => {
+    let app: TestApp;
+
+    it('should send message after initialize() without start()', async () => {
+      app = new TestApp({
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        tenantId: 'test-tenant-id',
+        httpServerAdapter: new TestAdapter(),
+      });
+
+      // Only initialize - no start(), no HTTP server
+      await app.initialize();
+
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+
+      await app.testSend('conversation-id', { text: 'Proactive hello' });
+
+      expect(mockSend).toHaveBeenCalled();
+      const [activity, ref] = mockSend.mock.calls[0];
+      expect(activity.text).toBe('Proactive hello');
+      expect(ref.bot.id).toBe('test-client-id');
+      expect(ref.conversation.id).toBe('conversation-id');
+    });
+
+    it('should send adaptive card after initialize() without start()', async () => {
+      app = new TestApp({
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        tenantId: 'test-tenant-id',
+        httpServerAdapter: new TestAdapter(),
+      });
+
+      await app.initialize();
+
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+
+      await app.testSend('conversation-id', {
+        type: 'message',
+        attachments: [{ contentType: 'application/vnd.microsoft.card.adaptive', content: {} }],
+      });
+
+      expect(mockSend).toHaveBeenCalled();
+    });
+
+    it('should not initialize twice', async () => {
+      app = new TestApp({
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        tenantId: 'test-tenant-id',
+        httpServerAdapter: new TestAdapter(),
+      });
+
+      await app.initialize();
+      await app.initialize(); // should be a no-op
+
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+
+      await app.testSend('conversation-id', { text: 'hello' });
+      expect(mockSend).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -187,7 +266,7 @@ describe('App', () => {
       const app = new App({
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter(),
       });
 
       expect(app.api.serviceUrl).toBe('https://smba.trafficmanager.net/teams');
@@ -199,7 +278,7 @@ describe('App', () => {
       const app = new App({
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter(),
       });
 
       expect(app.api.serviceUrl).toBe('https://custom.service.url/teams');
@@ -212,7 +291,7 @@ describe('App', () => {
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
         serviceUrl: 'https://options.service.url/teams',
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter(),
       });
 
       expect(app.api.serviceUrl).toBe('https://options.service.url/teams');
@@ -224,7 +303,7 @@ describe('App', () => {
       const app1 = new App({
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter(),
       });
       expect(app1.api.serviceUrl).toBe('https://smba.trafficmanager.net/teams');
 
@@ -232,7 +311,7 @@ describe('App', () => {
       const app2 = new App({
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter(),
       });
       expect(app2.api.serviceUrl).toBe('https://env.service.url/teams');
 
@@ -240,7 +319,7 @@ describe('App', () => {
         clientId: 'test-client-id',
         clientSecret: 'test-client-secret',
         serviceUrl: 'https://options.service.url/teams',
-        plugins: [new TestHttpPlugin()],
+        httpServerAdapter: new TestAdapter(),
       });
       expect(app3.api.serviceUrl).toBe('https://options.service.url/teams');
     });

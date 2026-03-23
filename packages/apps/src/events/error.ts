@@ -1,12 +1,17 @@
 import { Activity } from '@microsoft/teams.api';
 
-import { IEvent } from '../types';
+import { IPlugin } from '../types';
 
 /**
  * the event emitted by a plugin
  * when an error occurs
  */
-export interface IErrorEvent extends IEvent {
+export interface IErrorEvent {
+  /**
+   * the sender
+   */
+  readonly sender?: IPlugin;
+
   /**
    * the error
    */

@@ -83,6 +83,14 @@ export interface IActivity<T extends string = string> {
   replyToId?: string;
 
   /**
+   * Indicates if this is a targeted (ephemeral) message visible only to a specific recipient.
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsTargeted
+   */
+  isTargeted: boolean;
+
+  /**
    * Represents the entities that were mentioned in the message.
    */
   entities?: Entity[];
@@ -186,6 +194,15 @@ export class Activity<T extends string = string> implements IActivity<T> {
   replyToId?: string;
 
   /**
+   * Indicates whether this is a targeted (ephemeral) message visible only to a specific
+   * recipient in a shared conversation. Other participants will not see this message.
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsTargeted
+   */
+  isTargeted: boolean = false;
+
+  /**
    * Represents the entities that were mentioned in the message.
    */
   entities?: Entity[];
@@ -282,8 +299,19 @@ export class Activity<T extends string = string> implements IActivity<T> {
     return this;
   }
 
-  withRecipient(value: Account) {
+  /**
+   * Set the recipient of this activity, optionally marking it as a targeted message.
+   * Targeted messages are ephemeral to the specified recipient in a shared conversation.
+   * @param value - The recipient account
+   * @param isTargeted - If true, marks this as a targeted message visible only to the recipient (default: false)
+   * @returns this instance for chaining
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsTargeted
+   */
+  withRecipient(value: Account, isTargeted: boolean = false) {
     this.recipient = value;
+    this.isTargeted = isTargeted;
     return this;
   }
 

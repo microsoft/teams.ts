@@ -1,0 +1,64 @@
+import { Client, ClientOptions } from '@microsoft/teams.common/http';
+
+import { MessageReactionType } from '../../models/message/message-reaction';
+
+import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
+
+/**
+ * Client for adding and removing emoji reactions on messages in a conversation.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsReactions
+ */
+export class ReactionClient {
+  readonly serviceUrl: string;
+
+  get http() {
+    return this._http;
+  }
+  set http(v) {
+    this._http = v;
+  }
+  protected _http: Client;
+  protected _apiClientSettings: Partial<ApiClientSettings>;
+
+  constructor(serviceUrl: string, options?: Client | ClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
+    this.serviceUrl = serviceUrl;
+
+    if (!options) {
+      this._http = new Client();
+    } else if ('request' in options) {
+      this._http = options;
+    } else {
+      this._http = new Client(options);
+    }
+
+    this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
+  }
+
+  /**
+   * Add a reaction to a message.
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsReactions
+   */
+  async add(conversationId: string, activityId: string, reactionType: MessageReactionType) {
+    const res = await this.http.put<void>(
+      `${this.serviceUrl}/v3/conversations/${encodeURIComponent(conversationId)}/activities/${encodeURIComponent(activityId)}/reactions/${encodeURIComponent(reactionType)}`
+    );
+    return res.data;
+  }
+
+  /**
+   * Remove a reaction from a message.
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsReactions
+   */
+  async remove(conversationId: string, activityId: string, reactionType: MessageReactionType) {
+    const res = await this.http.delete<void>(
+      `${this.serviceUrl}/v3/conversations/${encodeURIComponent(conversationId)}/activities/${encodeURIComponent(activityId)}/reactions/${encodeURIComponent(reactionType)}`
+    );
+    return res.data;
+  }
+}

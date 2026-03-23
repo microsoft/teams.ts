@@ -1,11 +1,9 @@
-import npath from 'path';
-
 import { ActivityLike } from '@microsoft/teams.api';
 
 import { App } from './app';
 import { IFunctionContext } from './contexts';
 import * as manifest from './manifest';
-import { JwtRemoteFunctionRequest, withRemoteFunctionJwtValidation } from './middleware';
+import { RemoteFunctionValidator } from './middleware/auth/remote-function-validator';
 import { IPlugin } from './types';
 import { functionContext } from './utils';
 
@@ -20,45 +18,51 @@ export function func<TPlugin extends IPlugin, TData>(
   cb: (context: IFunctionContext<TData>) => any | Promise<any>
 ) {
   const log = this.log.child('functions').child(name);
-  this.http.post(
-    `/api/functions/${name}`,
-    withRemoteFunctionJwtValidation({
-      logger: log,
-      entraTokenValidator: this.entraTokenValidator,
-      ...this.credentials,
-    }),
-    async (req: JwtRemoteFunctionRequest, res) => {
-      if (!req.context) {
-        throw new Error('expected client context');
-      }
+  const entraTokenValidator = this.entraTokenValidator;
 
-      const getCurrentConversationId =
-        functionContext.getConversationIdResolver(
-          this,
-          log.child('getCurrentConversationId'),
-          req.context
-        );
+  // Create the remote function validator once
+  const validator = entraTokenValidator
+    ? new RemoteFunctionValidator(entraTokenValidator, log)
+    : null;
 
-      const send = async (activity: ActivityLike) => {
-        const conversationId = await getCurrentConversationId();
-        return !conversationId
-          ? null
-          : await this.send(conversationId, activity);
-      };
-
-      const data = await cb({
-        ...req.context,
-        log,
-        api: this.api,
-        appGraph: this.graph,
-        data: req.body,
-        getCurrentConversationId,
-        send,
-      });
-
-      res.send(data);
+  this.server.registerRoute('POST', `/api/functions/${name}`, async ({ body, headers }) => {
+    // Validate JWT token and extract context
+    if (!validator) {
+      log.debug('unauthorized - no token validator configured');
+      return { status: 401, body: 'unauthorized' };
     }
-  );
+
+    const context = await validator.check(headers);
+    if (!context) {
+      return { status: 401, body: 'unauthorized' };
+    }
+
+    const getCurrentConversationId =
+      functionContext.getConversationIdResolver(
+        this,
+        log.child('getCurrentConversationId'),
+        context
+      );
+
+    const send = async (activity: ActivityLike) => {
+      const conversationId = await getCurrentConversationId();
+      return !conversationId
+        ? null
+        : await this.send(conversationId, activity);
+    };
+
+    const data = await cb({
+      ...context,
+      log,
+      api: this.api,
+      appGraph: this.graph,
+      data: body as TData,
+      getCurrentConversationId,
+      send,
+    });
+
+    return { status: 200, body: data };
+  });
 
   return this;
 }
@@ -95,10 +99,7 @@ export function tab<TPlugin extends IPlugin>(
     this._manifest.staticTabs.push(tab);
   }
 
-  this.http.static(`/tabs/${name}`, path);
-  this.http.use(`/tabs/${name}*`, async (_, res) => {
-    res.sendFile(npath.join(path, 'index.html'));
-  });
+  this.server.serveStatic(`/tabs/${name}`, path);
 
   return this;
 }

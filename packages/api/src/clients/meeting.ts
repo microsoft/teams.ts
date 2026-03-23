@@ -30,11 +30,22 @@ export class MeetingClient {
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
   }
 
+  /**
+   * Retrieves meeting information including details, organizer, and conversation.
+   * @param id - The meeting ID.
+   */
   async getById(id: string) {
     const res = await this.http.get<MeetingInfo>(`${this.serviceUrl}/v1/meetings/${encodeURIComponent(id)}`);
     return res.data;
   }
 
+  /**
+   * Retrieves information about a specific participant in a meeting.
+   * @param meetingId - The meeting ID.
+   * @param id - The user AAD object ID
+   * @param tenantId - The tenant ID of the meeting and user.
+   * @returns {MeetingParticipant} The meeting participant information.
+   */
   async getParticipant(meetingId: string, id: string, tenantId: string) {
     const res = await this.http.get<MeetingParticipant>(
       `${this.serviceUrl}/v1/meetings/${encodeURIComponent(meetingId)}/participants/${encodeURIComponent(id)}?tenantId=${encodeURIComponent(tenantId)}`

@@ -1,38 +1,28 @@
 import { MessageUser } from './message-user';
 
 /**
- * Defines values for ReactionType.
- * Possible values include: 'like', 'heart', 'laugh', 'surprised', 'sad', 'angry'
+ * The type of emoji reaction that can be applied to a message.
+ * Possible values include: 'like', 'heart', '1f440_eyes', '2705_whiteheavycheckmark', 'launch', '1f4cc_pushpin'
  *
- * @readonly
- * @enum {string}
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsReactions
  */
-export type MessageReactionType =
-  | 'like'
-  | 'heart'
-  | 'laugh'
-  | 'surprised'
-  | 'sad'
-  | 'angry'
-  | 'plusOne';
+export type MessageReactionType = 'like' | 'heart' | '1f440_eyes' | '2705_whiteheavycheckmark' | 'launch' | '1f4cc_pushpin' | (string & {});
 
+
+/**
+ * Represents a reaction on a message, including the reaction type, timestamp, and user.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsReactions
+ */
 export type MessageReaction = {
-  /**
-   * @member {ReactionType} [reactionType] The type of reaction given to the
-   * message. Possible values include: 'like', 'heart', 'laugh', 'surprised',
-   * 'sad', 'angry', 'plusOne'
-   */
+  /** The emoji reaction type applied to the message. */
   type: MessageReactionType;
 
-  /**
-   * @member {string} [createdDateTime] Timestamp of when the user reacted to
-   * the message.
-   */
+  /** Timestamp of when the user reacted to the message. */
   createdDateTime?: string;
 
-  /**
-   * @member {MessageActionsPayloadFrom} [user] The user with which the
-   * reaction is associated.
-   */
+  /** The user who applied the reaction. */
   user?: MessageUser;
 };

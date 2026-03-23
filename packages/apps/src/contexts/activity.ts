@@ -19,9 +19,32 @@ import { ILogger } from '@microsoft/teams.common/logging';
 import { IStorage } from '@microsoft/teams.common/storage';
 
 import { ApiClient, GraphClient } from '../api';
-import { ISender, IStreamer } from '../types';
+import { IStreamer } from '../types';
+import { IActivitySender } from '../types/plugin/sender';
 
-export interface IBaseActivityContextOptions<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>> {
+/**
+ * Constructor arguments for ActivityContext
+ * Internal implementation details not exposed in public interface
+ */
+export interface IActivityContextConstructorArgs {
+  /**
+   * activity sender for sending activities and creating streams
+   */
+  activitySender: IActivitySender;
+
+  /**
+   * call the next event/middleware handler
+   */
+  next: (
+    context?: IActivityContext
+  ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
+}
+
+/**
+ * Base activity context options
+ * These are the public properties exposed on the context
+ */
+export interface IBaseActivityContextOptions<T extends Activity = Activity> {
   /**
    * the app id of the bot
    */
@@ -79,21 +102,9 @@ export interface IBaseActivityContextOptions<T extends Activity = Activity, TExt
    * the user token for the activity context
    */
   userToken?: string;
-
-  /**
-   * extra data
-   */
-  [key: string]: any;
-
-  /**
-   * call the next event/middleware handler
-   */
-  next: (
-    context?: IActivityContext & TExtraCtx
-  ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 }
 
-export type IActivityContextOptions<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>> = IBaseActivityContextOptions<T, TExtraCtx> & TExtraCtx;
+export type IActivityContextOptions<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>> = IBaseActivityContextOptions<T> & TExtraCtx;
 
 type SignInOptions = {
   /**
@@ -131,11 +142,18 @@ type SignInOptions = {
 };
 
 export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>>
-  extends IBaseActivityContextOptions<T, TExtraCtx> {
+  extends IBaseActivityContextOptions<T> {
   /**
    * a stream that can emit activity chunks
    */
   stream: IStreamer;
+
+  /**
+   * call the next event/middleware handler
+   */
+  next: (
+    context?: IActivityContext & TExtraCtx
+  ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 
   /**
    * send an activity to the conversation
@@ -176,7 +194,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   appGraph!: GraphClient;
   userGraph!: GraphClient;
   storage!: IStorage;
-  stream: IStreamer;
+  stream!: IStreamer;
   isSignedIn?: boolean;
   connectionName: string;
   next!: (
@@ -184,15 +202,15 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
   [key: string]: any;
 
-  protected _plugin: ISender;
-  protected _next?: (
-    context?: IActivityContext
-  ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
+  private activitySender: IActivitySender;
 
-  constructor(plugin: ISender, value: IBaseActivityContextOptions) {
-    Object.assign(this, value);
-    this._plugin = plugin;
-    this.stream = plugin.createStream(value.ref);
+  constructor(value: IBaseActivityContextOptions & IActivityContextConstructorArgs) {
+    // Extract activitySender and next before Object.assign to avoid overwriting methods
+    const { activitySender, next, ...rest } = value;
+    Object.assign(this, rest);
+    this.activitySender = activitySender;
+    this.next = next;
+    this.stream = activitySender.createStream(value.ref);
     this.connectionName = value.connectionName;
 
     if (value.activity.type === 'message') {
@@ -216,14 +234,14 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     const params = toActivityParams(activity);
 
     // For targeted send, set the recipient if not already set.
-    // For targeted update (params.id exists), we dont update recipient since recipient cannot be changed.
+    // For targeted update (params.id exists), we don't update recipient since recipient cannot be changed.
     if (params.type === 'message' && params.isTargeted && !params.id) {
       if (!params.recipient) {
         params.recipient = this.activity.from;
       }
     }
 
-    return await this._plugin.send(params, conversationRef ?? this.ref);
+    return await this.activitySender.send(params, conversationRef ?? this.ref);
   }
 
   async reply(activity: ActivityLike) {

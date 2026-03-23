@@ -2,7 +2,7 @@ import crypto from 'crypto';
 
 import jwt from 'jsonwebtoken';
 
-import { JwtValidator, createEntraTokenValidator, createServiceTokenValidator } from './jwt-validator';
+import { JwtValidator, createEntraTokenValidator } from './jwt-validator';
 
 // Generate test RSA key pair
 const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
@@ -160,6 +160,51 @@ describe('JwtValidator', () => {
 
         expect(result).toEqual(expect.objectContaining(mockTokenPayload));
       });
+
+      it.each([
+        ['clientId', mockClientId],
+        ['api://botid-{clientId}', `api://botid-${mockClientId}`],
+        ['api://{clientId}', `api://${mockClientId}`],
+      ])('should accept %s audience', async (_label, aud) => {
+        const validator = new JwtValidator({
+          clientId: mockClientId,
+          tenantId: mockTenantId,
+          jwksUriOptions: { type: 'tenantId' }
+        });
+
+        const token = createTestToken({ ...mockTokenPayload, aud });
+        const result = await validator.validateAccessToken(token);
+
+        expect(result).not.toBeNull();
+      });
+
+      it('should accept custom audience values', async () => {
+        const customAudience = 'api://my-custom-app.contoso.com/test-client-id';
+        const validator = new JwtValidator({
+          clientId: mockClientId,
+          tenantId: mockTenantId,
+          audience: [customAudience],
+          jwksUriOptions: { type: 'tenantId' }
+        });
+
+        const token = createTestToken({ ...mockTokenPayload, aud: customAudience });
+        const result = await validator.validateAccessToken(token);
+
+        expect(result).not.toBeNull();
+      });
+
+      it('should reject unrecognized audience', async () => {
+        const validator = new JwtValidator({
+          clientId: mockClientId,
+          tenantId: mockTenantId,
+          jwksUriOptions: { type: 'tenantId' }
+        }, mockLogger);
+
+        const token = createTestToken({ ...mockTokenPayload, aud: 'api://wrong-client-id' });
+        const result = await validator.validateAccessToken(token);
+
+        expect(result).toBeNull();
+      });
     });
 
     describe('issuer validation', () => {
@@ -255,6 +300,23 @@ describe('JwtValidator', () => {
             message: expect.stringContaining('not in allowed tenant IDs')
           })
         );
+      });
+
+      it.each([
+        ['empty object', {} as any],
+        ['allowedTenantIds: undefined', { allowedTenantIds: undefined }],
+        ['allowedTenantIds: []', { allowedTenantIds: [] }],
+      ])('should skip validation when validateIssuer is %s', async (_label, validateIssuer) => {
+        const validator = new JwtValidator({
+          clientId: mockClientId,
+          tenantId: 'common',
+          jwksUriOptions: { type: 'tenantId' },
+          validateIssuer
+        });
+
+        const result = await validator.validateAccessToken(validToken);
+
+        expect(result).toEqual(expect.objectContaining(mockTokenPayload));
       });
 
       it('should reject token with missing issuer', async () => {
@@ -571,45 +633,22 @@ describe('JwtValidator', () => {
 
         expect(validator.options.validateScope).toBeUndefined();
       });
+
+      it('should pass applicationIdUri as audience', () => {
+        const validator = createEntraTokenValidator(mockTenantId, mockClientId, {
+          applicationIdUri: 'api://my-app.contoso.com/test-client-id'
+        });
+
+        expect(validator.options.audience).toEqual(['api://my-app.contoso.com/test-client-id']);
+      });
+
+      it('should not set audience when applicationIdUri is not provided', () => {
+        const validator = createEntraTokenValidator(mockTenantId, mockClientId);
+
+        expect(validator.options.audience).toBeUndefined();
+      });
     });
 
-    describe('createServiceTokenValidator', () => {
-      it('should create validator with minimal options', () => {
-        const validator = createServiceTokenValidator(mockClientId, mockTenantId);
-
-        expect(validator).toBeInstanceOf(JwtValidator);
-        expect(validator.options.clientId).toBe(mockClientId);
-        expect(validator.options.tenantId).toBe(mockTenantId);
-        expect(validator.options.validateIssuer).toEqual({
-          allowedIssuer: 'https://api.botframework.com'
-        });
-        expect(validator.options.jwksUriOptions).toEqual({
-          type: 'uri',
-          uri: 'https://login.botframework.com/v1/.well-known/keys'
-        });
-      });
-
-      it('should create validator with service URL', () => {
-        const serviceUrl = 'https://example.com/api';
-        const validator = createServiceTokenValidator(mockClientId, mockTenantId, serviceUrl);
-
-        expect(validator.options.validateServiceUrl).toEqual({
-          expectedServiceUrl: serviceUrl
-        });
-      });
-
-      it('should create validator without service URL validation when not provided', () => {
-        const validator = createServiceTokenValidator(mockClientId, mockTenantId);
-
-        expect(validator.options.validateServiceUrl).toBeUndefined();
-      });
-
-      it('should create validator with logger', () => {
-        const validator = createServiceTokenValidator(mockClientId, mockTenantId, undefined, mockLogger);
-
-        expect(validator).toBeInstanceOf(JwtValidator);
-      });
-    });
   });
 
   describe('error handling and logging', () => {

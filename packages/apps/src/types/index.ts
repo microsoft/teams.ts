@@ -1,5 +1,4 @@
 export * from './app-events';
-export * from './event';
 export * from './event-handler';
 export * from './plugin';
 export * from './prefixed';
