@@ -12,7 +12,6 @@ import { z } from 'zod';
 
 import { IChatPrompt } from '@microsoft/teams.ai';
 import {
-  Dependency,
   ExpressAdapter,
   HttpServer,
   IHttpServer,

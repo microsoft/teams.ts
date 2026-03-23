@@ -1,7 +1,7 @@
 import { ChatPrompt, IChatModel, Message } from '@microsoft/teams.ai';
 import { ActivityLike, IMessageActivity, MessageActivity } from '@microsoft/teams.api';
 
-import { ILogger } from '../../../packages/common/dist/logging/logger';
+import { ILogger } from '@microsoft/teams.common';
 
 // Simple in-memory store for conversation histories
 // In your application, it may be a good idea to use a more

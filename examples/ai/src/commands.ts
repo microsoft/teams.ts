@@ -2,7 +2,7 @@ import { ActivityLike, IMessageActivity, SentActivity } from '@microsoft/teams.a
 
 import { OpenAIChatModel } from '@microsoft/teams.openai';
 
-import { ILogger } from '../../../packages/common/dist/logging/logger';
+import { ILogger } from '@microsoft/teams.common';
 
 import { handleFeedbackLoop } from './feedback';
 import { handleDocumentationSearch } from './simple-rag';

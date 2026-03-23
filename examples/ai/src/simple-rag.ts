@@ -3,7 +3,7 @@ import Fuse from 'fuse.js';
 import { ChatPrompt, IChatModel } from '@microsoft/teams.ai';
 import { ActivityLike, IMessageActivity, MessageActivity } from '@microsoft/teams.api';
 
-import { ILogger } from '../../../packages/common/dist/logging/logger';
+import { ILogger } from '@microsoft/teams.common';
 
 interface IDocumentationItem {
   id: string;
