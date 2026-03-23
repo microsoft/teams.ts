@@ -217,27 +217,28 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   constructor(value: IBaseActivityContextOptions & IActivityContextConstructorArgs) {
     // Extract activitySender and next before Object.assign to avoid overwriting methods
     const { activitySender, next, ...rest } = value;
+
+    if (rest.activity.type === 'message') {
+      rest.activity = MessageActivity.from(rest.activity).toInterface();
+    }
+
+    if (rest.activity.type === 'messageUpdate') {
+      rest.activity = MessageUpdateActivity.from(rest.activity).toInterface();
+    }
+
+    if (rest.activity.type === 'messageDelete') {
+      rest.activity = MessageDeleteActivity.from(rest.activity).toInterface();
+    }
+
+    if (rest.activity.type === 'typing') {
+      rest.activity = TypingActivity.from(rest.activity).toInterface();
+    }
+
     Object.assign(this, rest);
     this.activitySender = activitySender;
     this.next = next;
     this.stream = activitySender.createStream(value.ref);
     this.connectionName = value.connectionName;
-
-    if (value.activity.type === 'message') {
-      value.activity = MessageActivity.from(value.activity).toInterface();
-    }
-
-    if (value.activity.type === 'messageUpdate') {
-      value.activity = MessageUpdateActivity.from(value.activity).toInterface();
-    }
-
-    if (value.activity.type === 'messageDelete') {
-      value.activity = MessageDeleteActivity.from(value.activity).toInterface();
-    }
-
-    if (value.activity.type === 'typing') {
-      value.activity = TypingActivity.from(value.activity).toInterface();
-    }
   }
 
   /**

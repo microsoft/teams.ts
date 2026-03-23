@@ -215,5 +215,36 @@ describe('App', () => {
       // Verify both serviceUrls were used correctly
       expect(capturedServiceUrls).toEqual([serviceUrl1, serviceUrl2]);
     });
+
+    it('should expose interface methods like getQuotedMessages on message activities', async () => {
+      // Use a plain object (as would arrive from JSON deserialization over HTTP)
+      // rather than a MessageActivity instance, to verify the context constructor
+      // enriches it with bound interface methods.
+      const incomingActivity = {
+        type: 'message',
+        text: 'hello',
+        from: { id: 'user-1', name: 'Test User', role: 'user' },
+        recipient: { id: 'bot-1', name: 'Test Bot', role: 'bot' },
+        conversation: { id: 'conv-1', conversationType: 'personal' },
+        channelId: 'msteams',
+        serviceUrl: 'https://service.url',
+      } as unknown as IMessageActivity;
+
+      const event: IActivityEvent = {
+        token: token,
+        body: incomingActivity,
+      };
+
+      let capturedActivity: IMessageActivity | undefined;
+      app.on('message', async ({ activity }) => {
+        capturedActivity = activity;
+      });
+
+      await app.process(event);
+
+      expect(capturedActivity).toBeDefined();
+      expect(typeof capturedActivity!.getQuotedMessages).toBe('function');
+      expect(capturedActivity!.getQuotedMessages()).toEqual([]);
+    });
   });
 });
