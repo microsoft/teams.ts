@@ -83,14 +83,6 @@ export interface IActivity<T extends string = string> {
   replyToId?: string;
 
   /**
-   * Indicates if this is a targeted (ephemeral) message visible only to a specific recipient.
-   *
-   * @experimental This API is in preview and may change in the future.
-   * Diagnostic: ExperimentalTeamsTargeted
-   */
-  isTargeted: boolean;
-
-  /**
    * Represents the entities that were mentioned in the message.
    */
   entities?: Entity[];
@@ -192,15 +184,6 @@ export class Activity<T extends string = string> implements IActivity<T> {
    * Contains the ID of the message to which this message is a reply.
    */
   replyToId?: string;
-
-  /**
-   * Indicates whether this is a targeted (ephemeral) message visible only to a specific
-   * recipient in a shared conversation. Other participants will not see this message.
-   *
-   * @experimental This API is in preview and may change in the future.
-   * Diagnostic: ExperimentalTeamsTargeted
-   */
-  isTargeted: boolean = false;
 
   /**
    * Represents the entities that were mentioned in the message.
@@ -310,8 +293,7 @@ export class Activity<T extends string = string> implements IActivity<T> {
    * Diagnostic: ExperimentalTeamsTargeted
    */
   withRecipient(value: Account, isTargeted: boolean = false) {
-    this.recipient = value;
-    this.isTargeted = isTargeted;
+    this.recipient = { ...value, isTargeted: isTargeted ? true : undefined };
     return this;
   }
 

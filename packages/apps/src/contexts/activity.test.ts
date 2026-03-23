@@ -222,8 +222,7 @@ describe('ActivityContext', () => {
           expect.objectContaining({
             text: 'Secret message',
             type: 'message',
-            isTargeted: true,
-            recipient: { id: 'test-user', name: 'Test User', role: 'user' },
+            recipient: expect.objectContaining({ id: 'test-user', name: 'Test User', role: 'user', isTargeted: true }),
           }),
           mockRef
         );
@@ -243,8 +242,7 @@ describe('ActivityContext', () => {
           expect.objectContaining({
             text: 'Secret message',
             type: 'message',
-            isTargeted: true,
-            recipient: { id: 'explicit-user-id', name: '', role: 'user' },
+            recipient: expect.objectContaining({ id: 'explicit-user-id', name: '', role: 'user', isTargeted: true }),
           }),
           mockRef
         );
@@ -255,20 +253,15 @@ describe('ActivityContext', () => {
         context = buildActivityContext(activity);
 
         const updateActivity = new MessageActivity('Updated message')
-          .withId('existing-activity-id');
-        // Set isTargeted directly to test that context doesn't override recipient for updates.
-        // The context logic checks params.id and skips setting recipient for updates,
-        // so we need to test this by setting isTargeted without a recipient.
-        updateActivity.isTargeted = true;
+          .withId('existing-activity-id')
+          .withRecipient({ id: 'user-1', name: '', role: 'user' }, true);
 
         await context.send(updateActivity);
 
         expect(mockSender.send).toHaveBeenCalledTimes(1);
         const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
         expect(sentActivity.id).toBe('existing-activity-id');
-        expect(sentActivity.isTargeted).toBe(true);
-        // Recipient should NOT be set for updates
-        expect(sentActivity.recipient).toBeUndefined();
+        expect(sentActivity.recipient.isTargeted).toBe(true);
       });
     });
   });

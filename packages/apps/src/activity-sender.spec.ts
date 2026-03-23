@@ -63,7 +63,7 @@ describe('ActivitySender', () => {
       const activity = {
         type: 'message',
         text: 'targeted',
-        isTargeted: true,
+        recipient: { id: 'user-1', name: 'User', role: 'user', isTargeted: true },
       } as ActivityParams;
 
       await sender.send(activity, ref);
@@ -79,14 +79,16 @@ describe('ActivitySender', () => {
         type: 'message',
         text: 'targeted update',
         id: 'existing-id',
-        isTargeted: true,
+        recipient: { id: 'user-1', name: 'User', role: 'user', isTargeted: true },
       } as ActivityParams;
 
       await sender.send(activity, ref);
 
       expect(mockHttpClient.put).toHaveBeenCalledWith(
         'https://smba.trafficmanager.net/teams/v3/conversations/conv-123/activities/existing-id?isTargetedActivity=true',
-        expect.objectContaining({ isTargeted: true })
+        expect.objectContaining({
+          recipient: expect.objectContaining({ isTargeted: true }),
+        })
       );
       expect(mockHttpClient.put).toHaveBeenCalledTimes(1);
       expect(mockHttpClient.post).not.toHaveBeenCalled();

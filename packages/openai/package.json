@@ -35,11 +35,11 @@
     "test": "npx jest"
   },
   "dependencies": {
-    "@azure/openai": "^2.0.0"
+    "@azure/openai": "^2.0.0",
+    "@microsoft/teams.ai": "*",
+    "@microsoft/teams.common": "*"
   },
   "peerDependencies": {
-    "@microsoft/teams.ai": "*",
-    "@microsoft/teams.common": "*",
     "openai": "^4.55.0"
   },
   "devDependencies": {

@@ -235,7 +235,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
 
     // For targeted send, set the recipient if not already set.
     // For targeted update (params.id exists), we don't update recipient since recipient cannot be changed.
-    if (params.type === 'message' && params.isTargeted && !params.id) {
+    if (params.type === 'message' && params.recipient?.isTargeted && !params.id) {
       if (!params.recipient) {
         params.recipient = this.activity.from;
       }

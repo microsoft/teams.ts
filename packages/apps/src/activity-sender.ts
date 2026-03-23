@@ -27,7 +27,7 @@ export class ActivitySender implements IActivitySender {
     };
 
     // Check if this is a targeted message
-    const isTargeted = 'isTargeted' in activity && activity.isTargeted === true;
+    const isTargeted = activity.recipient?.isTargeted === true;
 
     // Decide create vs update, with targeted variants
     if (activity.id) {

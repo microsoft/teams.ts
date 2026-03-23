@@ -39,17 +39,15 @@
   },
   "dependencies": {
     "@azure/msal-node": "^3.8.1",
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.common": "*",
+    "@microsoft/teams.graph": "*",
     "axios": "^1.12.0",
     "cors": "^2.8.5",
     "express": "^5.0.0",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.0",
     "reflect-metadata": "^0.2.2"
-  },
-  "peerDependencies": {
-    "@microsoft/teams.api": "*",
-    "@microsoft/teams.common": "*",
-    "@microsoft/teams.graph": "*"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",

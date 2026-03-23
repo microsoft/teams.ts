@@ -500,15 +500,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     const params = toActivityParams(activity);
 
-    // Validate targeted messages in proactive context
-    if (params.type === 'message' && params.isTargeted) {
-      if (!params.recipient) {
-        throw new Error(
-          'Targeted messages sent proactively must specify an explicit recipient using .withRecipient(account, true)'
-        );
-      }
-    }
-
     const ref: ConversationReference = {
       channelId: 'msteams',
       serviceUrl: this.api.serviceUrl,

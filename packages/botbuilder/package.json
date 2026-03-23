@@ -37,12 +37,13 @@
     "build": "npx tsc",
     "test": "npx jest"
   },
-  "peerDependencies": {
+  "dependencies": {
     "@microsoft/teams.api": "*",
+    "@microsoft/teams.common": "*"
+  },
+  "peerDependencies": {
     "@microsoft/teams.apps": "*",
-    "@microsoft/teams.common": "*",
-    "@microsoft/teams.graph": "*",
-    "botbuilder": "^4.23.1"
+    "botbuilder": "4.23.1"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",

@@ -281,14 +281,14 @@ describe('MessageActivity', () => {
     it('should default to not targeted', () => {
       const activity = new MessageActivity('hello').withRecipient({ id: '1', name: '', role: 'user' });
 
-      expect(activity.isTargeted).toBe(false);
+      expect(activity.recipient.isTargeted).toBeUndefined();
       expect(activity.recipient).toBeDefined();
     });
 
     it('should set isTargeted when second parameter is true', () => {
       const activity = new MessageActivity('hello').withRecipient({ id: '1', name: '', role: 'user' }, true);
 
-      expect(activity.isTargeted).toBe(true);
+      expect(activity.recipient.isTargeted).toBe(true);
       expect(activity.recipient).toBeDefined();
     });
 
@@ -298,7 +298,7 @@ describe('MessageActivity', () => {
         true
       );
 
-      expect(activity.isTargeted).toBe(true);
+      expect(activity.recipient.isTargeted).toBe(true);
       expect(activity.recipient).toBeDefined();
       expect(activity.recipient.id).toBe('user-123');
       expect(activity.recipient.name).toBe('user');
@@ -315,7 +315,7 @@ describe('MessageActivity', () => {
       expect(activity.importance).toBe('high');
       expect(activity.recipient).toBeDefined();
       expect(activity.recipient.id).toBe('user-123');
-      expect(activity.isTargeted).toBe(false);
+      expect(activity.recipient.isTargeted).toBeUndefined();
     });
 
     it('should be chainable with targeted flag', () => {
@@ -327,7 +327,7 @@ describe('MessageActivity', () => {
       expect(activity.text).toBe('hello');
       expect(activity.importance).toBe('high');
       expect(activity.deliveryMode).toBe('notification');
-      expect(activity.isTargeted).toBe(true);
+      expect(activity.recipient.isTargeted).toBe(true);
       expect(activity.recipient.id).toBe('user-456');
     });
 
@@ -338,7 +338,7 @@ describe('MessageActivity', () => {
 
       const restored = MessageActivity.from(original);
 
-      expect(restored.isTargeted).toBe(true);
+      expect(restored.recipient.isTargeted).toBe(true);
       expect(restored.recipient.id).toBe('user-789');
     });
 
@@ -349,7 +349,7 @@ describe('MessageActivity', () => {
         .withImportance('high');
 
       expect(msg.text).toBe('Hello');
-      expect(msg.isTargeted).toBe(true);
+      expect(msg.recipient.isTargeted).toBe(true);
       expect(msg.recipient).toBeDefined();
       expect(msg.recipient.id).toBe('user-123');
       expect(msg.recipient.name).toBe('Test User');

@@ -10,7 +10,7 @@ const app = new App({
 
 app.on('message', async ({ send, reply, activity, api }) => {
   await reply({ type: 'typing' });
-
+  
   const text = activity.text?.toLowerCase() || '';
 
   // ============================================
@@ -54,15 +54,13 @@ app.on('message', async ({ send, reply, activity, api }) => {
     // Wait then update
     setTimeout(async () => {
       try {
-        // For updates, we just set isTargeted but don't change the recipient
-        // The backend doesn't allow changing the recipient of a targeted message
         const updatedMessage = new MessageActivity(
           '🔒 [UPDATE] ✅ UPDATED targeted message! (only you see this)'
         );
-        updatedMessage.id = result.id;
-        updatedMessage.isTargeted = true; // Mark as targeted for the API URL
 
-        await send(updatedMessage);
+        await api.conversations
+          .activities(activity.conversation.id)
+          .updateTargeted(result.id, updatedMessage);
         console.log('Targeted UPDATE completed');
       } catch (err: any) {
         console.error('Targeted UPDATE error:', err?.response?.data || err?.message || err);

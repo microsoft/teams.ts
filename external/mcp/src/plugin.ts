@@ -12,7 +12,6 @@ import { z } from 'zod';
 
 import { IChatPrompt } from '@microsoft/teams.ai';
 import {
-  Dependency,
   ExpressAdapter,
   HttpServer,
   IHttpServer,
@@ -22,7 +21,6 @@ import {
   Plugin,
 } from '@microsoft/teams.apps';
 import { ILogger } from '@microsoft/teams.common';
-import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 import pkg from '../package.json';
 
@@ -117,9 +115,6 @@ export class McpPlugin implements IPlugin {
   @HttpServer()
   readonly httpServer!: IHttpServer;
 
-  @Dependency({ optional: true })
-  readonly devtoolsPlugin?: DevtoolsPlugin;
-
   readonly server: McpServer;
   protected id: number = -1;
   protected inspector: string;
@@ -194,12 +189,6 @@ export class McpPlugin implements IPlugin {
   }
 
   onInit() {
-    this.devtoolsPlugin?.addPage({
-      name: 'mcp',
-      displayName: 'MCP',
-      url: this.inspector,
-    });
-
     if (this.transport.type === 'sse') {
       return this.onInitSSE(this.transport);
     }

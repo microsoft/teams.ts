@@ -8,6 +8,14 @@ export type Account<P = any> = {
   readonly name: string;
   readonly properties?: P;
   readonly membershipSources?: MembershipSource[];
+
+  /**
+   * Indicates if this account is the target of a targeted message.
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsTargeted
+   */
+  isTargeted?: boolean;
 };
 
 /**

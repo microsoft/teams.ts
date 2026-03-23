@@ -23,9 +23,9 @@
   "dependencies": {
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.ai": "*",
+    "@microsoft/teams.common": "*",
     "@microsoft/teams.openai": "*",
     "@microsoft/teams.dev": "*",
-    "@microsoft/teams.cards": "*",
     "fuse.js": "^7.1.0"
   },
   "devDependencies": {
