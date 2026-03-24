@@ -8,7 +8,6 @@ import { MockReminderService } from './mock-reminder-service';
 const app = new App({
   logger: new ConsoleLogger('@tests/echo', { level: 'debug' }),
   plugins: [new DevtoolsPlugin()],
-  messagingEndpoint: '/my-endpoint',
 });
 
 app.on('message', async ({ reply, activity }) => {
