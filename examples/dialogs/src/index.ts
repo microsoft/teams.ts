@@ -8,8 +8,8 @@ import {
   AdaptiveCard,
   IAdaptiveCard,
   SubmitAction,
-  TaskFetchAction,
-  TaskFetchData,
+  SubmitActionData,
+  TaskFetchSubmitActionData,
   TextInput,
 } from '@microsoft/teams.cards';
 import { ConsoleLogger } from '@microsoft/teams.common';
@@ -25,6 +25,15 @@ if (!process.env['BOT_ENDPOINT']) {
   logger.warn(
     'No remote endpoing detected. Using webpages for dialog will not work as expected'
   );
+}
+
+function createTaskFetchSubmitAction(title: string, openDialogType: string): SubmitAction {
+  const data = new SubmitActionData({ msteams: new TaskFetchSubmitActionData() });
+  data.opendialogtype = openDialogType;
+  const action = new SubmitAction();
+  action.title = title;
+  action.data = data;
+  return action;
 }
 
 const app = new App({
@@ -45,29 +54,10 @@ app.on('message', async ({ send }) => {
     size: 'Large',
     weight: 'Bolder',
   }).withActions(
-    // raw action
-    {
-      type: 'Action.Submit',
-      title: 'Simple form test',
-      data: {
-        msteams: {
-          type: 'task/fetch',
-        },
-        opendialogtype: 'simple_form',
-      },
-    },
-    // Special type of action to open a dialog
-    new TaskFetchAction({})
-      .withTitle('Webpage Dialog')
-      // This data will be passed back in an event so we can
-      // handle what to show in the dialog
-      .withValue(new TaskFetchData({ opendialogtype: 'webpage_dialog' })),
-    new TaskFetchAction({})
-      .withTitle('Multi-step Form')
-      .withValue(new TaskFetchData({ opendialogtype: 'multi_step_form' })),
-    new TaskFetchAction({})
-      .withTitle('Mixed Example')
-      .withValue(new TaskFetchData({ opendialogtype: 'mixed_example' }))
+    createTaskFetchSubmitAction('Simple form test', 'simple_form'),
+    createTaskFetchSubmitAction('Webpage Dialog', 'webpage_dialog'),
+    createTaskFetchSubmitAction('Multi-step Form', 'multi_step_form'),
+    createTaskFetchSubmitAction('Mixed Example', 'mixed_example')
   );
 
   // Send the card as an attachment
