@@ -93,9 +93,9 @@ export class BotBuilderPlugin implements IPlugin {
       );
     }
 
-    // Register /api/messages route with BotBuilder handler
+    // Register messaging endpoint route with BotBuilder handler
     adapter.post(
-      '/api/messages',
+      this.httpServer.messagingEndpoint,
       express.json(),
       (req: express.Request, res: express.Response, next: express.NextFunction) => {
         this.onRequest(req, res, next).catch(next);

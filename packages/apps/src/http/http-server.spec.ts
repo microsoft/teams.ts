@@ -26,13 +26,15 @@ class MockAdapter implements IHttpServerAdapter {
   }
 }
 
+const defaultOptions = { skipAuth: true, messagingEndpoint: '/api/messages' };
+
 describe('HttpServer', () => {
   let adapter: MockAdapter;
   let server: HttpServer;
 
   beforeEach(() => {
     adapter = new MockAdapter();
-    server = new HttpServer(adapter, { skipAuth: true });
+    server = new HttpServer(adapter, defaultOptions);
   });
 
   describe('initialize', () => {
@@ -42,6 +44,15 @@ describe('HttpServer', () => {
       expect(adapter.routes).toHaveLength(1);
       expect(adapter.routes[0].method).toBe('POST');
       expect(adapter.routes[0].path).toBe('/api/messages');
+    });
+
+    it('should register route with custom messaging endpoint', async () => {
+      const customServer = new HttpServer(adapter, { skipAuth: true, messagingEndpoint: '/bot/incoming' });
+      await customServer.initialize({ credentials: undefined });
+
+      expect(adapter.routes).toHaveLength(1);
+      expect(adapter.routes[0].path).toBe('/bot/incoming');
+      expect(customServer.messagingEndpoint).toBe('/bot/incoming');
     });
 
     it('should only initialize once', async () => {
@@ -119,7 +130,7 @@ describe('HttpServer', () => {
     let authServer: HttpServer;
 
     beforeEach(async () => {
-      authServer = new HttpServer(adapter, { skipAuth: false });
+      authServer = new HttpServer(adapter, { ...defaultOptions, skipAuth: false });
       await authServer.initialize({
         credentials: { clientId: 'test-app', tenantId: 'test-tenant' } as any,
       });
@@ -150,7 +161,7 @@ describe('HttpServer', () => {
 
     it('should throw when adapter does not implement start', async () => {
       const noStartAdapter = { registerRoute: jest.fn() } as any;
-      const noStartServer = new HttpServer(noStartAdapter);
+      const noStartServer = new HttpServer(noStartAdapter, defaultOptions);
 
       await expect(noStartServer.start(3000)).rejects.toThrow('Adapter does not implement start()');
     });
@@ -165,7 +176,7 @@ describe('HttpServer', () => {
 
     it('should warn and skip when adapter does not implement stop', async () => {
       const noStopAdapter = { registerRoute: jest.fn() } as any;
-      const noStopServer = new HttpServer(noStopAdapter);
+      const noStopServer = new HttpServer(noStopAdapter, defaultOptions);
 
       // Should not throw
       await noStopServer.stop();
@@ -196,7 +207,7 @@ describe('HttpServer', () => {
 
     it('should no-op when adapter does not support serveStatic', () => {
       const minimalAdapter = { registerRoute: jest.fn() } as any;
-      const minimalServer = new HttpServer(minimalAdapter);
+      const minimalServer = new HttpServer(minimalAdapter, defaultOptions);
 
       // Should not throw
       minimalServer.serveStatic('/static', '/dist');

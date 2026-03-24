@@ -18,6 +18,10 @@ type AuthResult =
 export type HttpServerOptions = {
   readonly skipAuth?: boolean;
   readonly logger?: ILogger;
+  /**
+   * URL path for the Teams messaging endpoint
+   */
+  readonly messagingEndpoint: string;
 };
 
 /**
@@ -26,6 +30,7 @@ export type HttpServerOptions = {
 export interface IHttpServer {
   handleRequest(request: IHttpServerRequest): Promise<IHttpServerResponse>;
   readonly adapter: IHttpServerAdapter;
+  readonly messagingEndpoint: string;
 }
 
 /**
@@ -45,6 +50,7 @@ export class HttpServer implements IHttpServer {
   protected serviceTokenValidator?: ServiceTokenValidator;
 
   private _adapter: IHttpServerAdapter;
+  private _messagingEndpoint: string;
 
   /**
    * Get the underlying adapter
@@ -54,10 +60,18 @@ export class HttpServer implements IHttpServer {
     return this._adapter;
   }
 
-  constructor(adapter: IHttpServerAdapter, options?: HttpServerOptions) {
+  /**
+   * Get the messaging endpoint path
+   */
+  get messagingEndpoint(): string {
+    return this._messagingEndpoint;
+  }
+
+  constructor(adapter: IHttpServerAdapter, options: HttpServerOptions) {
     this._adapter = adapter;
-    this.skipAuth = options?.skipAuth ?? false;
-    this.logger = options?.logger ?? new ConsoleLogger('HttpServer');
+    this.skipAuth = options.skipAuth ?? false;
+    this.logger = options.logger ?? new ConsoleLogger('HttpServer');
+    this._messagingEndpoint = options.messagingEndpoint;
   }
 
   /**
@@ -86,7 +100,7 @@ export class HttpServer implements IHttpServer {
     }
 
     // Register Teams bot endpoint (POST only)
-    this._adapter.registerRoute('POST', '/api/messages', async (request) => {
+    this._adapter.registerRoute('POST', this._messagingEndpoint, async (request) => {
       return this.handleRequest(request);
     });
 

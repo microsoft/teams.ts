@@ -35,9 +35,12 @@ export class HttpPlugin {
   protected expressAdapter: ExpressAdapter;
   protected server: HttpServer;
 
-  constructor(server?: http.Server, options?: { skipAuth?: boolean }) {
+  constructor(server?: http.Server, options?: { skipAuth?: boolean; messagingEndpoint?: string }) {
     this.expressAdapter = new ExpressAdapter(server);
-    this.server = new HttpServer(this.expressAdapter, options);
+    this.server = new HttpServer(this.expressAdapter, {
+      ...options,
+      messagingEndpoint: options?.messagingEndpoint ?? '/api/messages',
+    });
 
     // Expose Express methods
     this.get = this.expressAdapter.get;

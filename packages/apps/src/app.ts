@@ -142,6 +142,12 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly skipAuth?: boolean;
 
   /**
+   * URL path for the Teams messaging endpoint
+   * @default '/api/messages'
+   */
+  readonly messagingEndpoint?: string;
+
+  /**
    * Base Service URL for BotBackend
    * Uses environment variable SERVICE_URL  if not provided
    * and defaults to https://smba.trafficmanager.net/teams
@@ -347,7 +353,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         onError: (err) => this.onError({ error: err })
       }), {
         skipAuth: this.options.skipAuth,
-        logger: this.log
+        logger: this.log,
+        messagingEndpoint: this.options.messagingEndpoint ?? '/api/messages',
       });
     }
 
