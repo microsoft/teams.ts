@@ -306,8 +306,8 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       });
 
       if (activity.type === 'message') {
-        const text = activity.text?.trim() ?? '';
-        activity.text = text ? `${placeholder} ${text}` : placeholder;
+        const hasText = !!activity.text?.trim();
+        activity.text = hasText ? `${placeholder} ${activity.text}` : placeholder;
       }
     }
 
@@ -335,8 +335,8 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     });
 
     if (activity.type === 'message') {
-      const text = activity.text?.trim() ?? '';
-      activity.text = text ? `${placeholder} ${text}` : placeholder;
+      const hasText = !!activity.text?.trim();
+      activity.text = hasText ? `${placeholder} ${activity.text}` : placeholder;
     }
 
     return this.send(activity);
