@@ -145,7 +145,7 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * URL path for the Teams messaging endpoint
    * @default '/api/messages'
    */
-  readonly messagingEndpoint?: string;
+  readonly messagingEndpoint?: `/${string}`;
 
   /**
    * Base Service URL for BotBackend
