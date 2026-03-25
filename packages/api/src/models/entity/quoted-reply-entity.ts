@@ -26,7 +26,8 @@ export type QuotedReplyData = {
   preview?: string | null;
 
   /**
-   * timestamp of the quoted message
+   * timestamp of the quoted message (IC3 epoch value, e.g. "1772050244572").
+   * Populated on inbound; ignored on outbound.
    */
   time?: string | null;
 
