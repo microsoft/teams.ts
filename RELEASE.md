@@ -4,15 +4,18 @@ This project uses [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.Gi
 
 ## Creating a Release
 
-1. **Create a PR from `main` to `release`**:
-   - Go to GitHub → Pull requests → New pull request
-   - Base: `release`, Compare: `main`
-   - Get teammate approval and merge
+1. **Merge `main` into `release` locally** and update `version.json`:
+   ```bash
+   git checkout release
+   git merge origin/main
+   ```
+   - Edit `version.json`: change `"version": "2.0.7-preview.{height}"` to `"version": "2.0.7"`
+   - Commit the change
 
-2. **Update `version.json` on the `release` branch**:
-   - After merging, the `release` branch will have `version.json` with the `-preview.{height}` suffix from main
-   - Create a commit on `release` changing `"version": "2.0.7-preview.{height}"` to `"version": "2.0.7"`
-   - This ensures the pipeline produces a stable version (e.g. `2.0.7`) instead of a prerelease
+2. **Create a PR to `release`**:
+   - Push the `release` branch and open a PR (base: `release`)
+   - The PR will include all changes from main plus the version bump
+   - Get teammate approval and merge
 
 3. **Trigger the release pipeline** with **Public** publish type
 
