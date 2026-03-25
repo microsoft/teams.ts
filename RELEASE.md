@@ -4,16 +4,14 @@ This project uses [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.Gi
 
 ## Creating a Release
 
-1. **Merge `main` into `release` locally** and update `version.json`:
+1. **Create a release branch from `main`** and update `version.json`:
    ```bash
-   git checkout release
-   git merge origin/main
+   git checkout -b release/2.0.7 main
    ```
    - Edit `version.json`: change `"version": "2.0.7-preview.{height}"` to `"version": "2.0.7"`
-   - Commit the change
+   - Commit and push
 
-2. **Create a PR to `release`**:
-   - Push the `release` branch and open a PR (base: `release`)
+2. **Create a PR to `release`** (base: `release`, compare: `release/2.0.7`):
    - The PR will include all changes from main plus the version bump
    - Get teammate approval and merge
 
