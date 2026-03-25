@@ -6,13 +6,13 @@ This project uses [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.Gi
 
 1. **Create a branch from `release`** and merge `main` into it:
    ```bash
-   git checkout -b prep-release/2.0.7 release
+   git checkout -b prep-release/<next-version> release
    git merge origin/main
    ```
-   - Resolve the `version.json` conflict: set `"version": "2.0.7"`
+   - Set `version.json` to the stable version being released (e.g. remove the `-preview.{height}` suffix)
    - Commit and push
 
-2. **Create a PR to `release`** (base: `release`, compare: `prep-release/2.0.7`):
+2. **Create a PR to `release`** (base: `release`, compare: `prep-release/<next-version>`):
    - The PR will include all changes from main plus the version bump
    - Get teammate approval and merge
 
@@ -20,7 +20,7 @@ This project uses [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.Gi
 
 4. **Bump the version on main** for the next release cycle:
    - Edit `version.json` on main
-   - Change `"version": "2.0.7-preview.{height}"` to `"version": "2.0.8-preview.{height}"`
+   - Increment the patch version (e.g. `"2.0.7-preview.{height}"` → `"2.0.8-preview.{height}"`)
    - Commit and push (or PR)
 
 ## Hotfixes
@@ -57,11 +57,11 @@ To publish experimental versions from a feature branch:
 2. **Edit `version.json`** on the feature branch:
    ```json
    {
-     "version": "2.0.7-myfeature.{height}"
+     "version": "<current-version>-myfeature.{height}"
    }
    ```
 
-3. **Commits produce**: `2.0.7-myfeature.1`, `2.0.7-myfeature.2`, etc.
+3. **Commits produce**: `<current-version>-myfeature.1`, `<current-version>-myfeature.2`, etc.
 
 4. **Publish** from the feature branch using the release pipeline
 
@@ -72,14 +72,14 @@ To publish experimental versions from a feature branch:
 To bump from `2.0.x` to `2.1.x` or `3.0.x`:
 
 1. Edit `version.json` on main branch
-2. Change `"version": "2.0.7-preview.{height}"` to `"version": "2.1.0-preview.{height}"` (or `3.0.0-preview.{height}`)
+2. Update the version (e.g. `"2.0.x-preview.{height}"` → `"2.1.0-preview.{height}"` or `"3.0.0-preview.{height}"`)
 3. Commit and push
 
 ## How Versioning Works
 
 - Versions are computed automatically from git history based on `version.json`
-- **Main branch**: `2.0.7-preview.1`, `2.0.7-preview.2`, etc. (prerelease, published with `next` npm tag)
-- **Release branch**: `2.0.7`, `2.0.8`, etc. (stable, published with `latest` npm tag)
+- **Main branch**: `X.Y.Z-preview.1`, `X.Y.Z-preview.2`, etc. (prerelease, published with `next` npm tag)
+- **Release branch**: `X.Y.Z`, etc. (stable, published with `latest` npm tag)
 
 ## Publishing
 
