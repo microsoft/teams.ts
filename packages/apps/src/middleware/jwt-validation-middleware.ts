@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { Activity, Credentials, IToken } from '@microsoft/teams.api';
+import { Activity, CloudEnvironment, Credentials, IToken } from '@microsoft/teams.api';
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
 import { ServiceTokenValidator } from './auth/service-token-validator';
@@ -8,6 +8,7 @@ import { ServiceTokenValidator } from './auth/service-token-validator';
 export type JwtValidationParams = {
   credentials?: Credentials;
   logger: ILogger;
+  cloud?: CloudEnvironment;
 };
 
 export type JwtValidatedRequest = express.Request & {
@@ -15,7 +16,7 @@ export type JwtValidatedRequest = express.Request & {
 };
 
 export function withJwtValidation(params: JwtValidationParams) {
-  const { credentials, logger: inputLogger } = params;
+  const { credentials, logger: inputLogger, cloud } = params;
   const logger = inputLogger?.child('jwt-validation-middleware') ?? new ConsoleLogger('jwt-validation-middleware');
 
   // Create service token validator if credentials are provided
@@ -25,7 +26,8 @@ export function withJwtValidation(params: JwtValidationParams) {
       credentials.clientId,
       credentials.tenantId,
       undefined,
-      logger
+      logger,
+      cloud
     );
   } else {
     logger.debug('No credentials provided, skipping service token validation');

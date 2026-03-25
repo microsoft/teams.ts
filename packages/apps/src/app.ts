@@ -4,8 +4,11 @@ import {
   ActivityLike,
   ApiClientSettings,
   ChannelID,
+  CloudEnvironment,
   ConversationReference,
+  fromName as cloudFromName,
   InvokeResponse,
+  PUBLIC,
   StripMentionsTextOptions,
   toActivityParams,
   TokenCredentials,
@@ -157,7 +160,15 @@ export type AppOptions<TPlugin extends IPlugin> = {
   /**
    * API client settings used for overriding.
    */
-  readonly apiClientSettings?: ApiClientSettings
+  readonly apiClientSettings?: ApiClientSettings;
+
+  /**
+   * Cloud environment for sovereign cloud support.
+   * Accepts a CloudEnvironment object or uses CLOUD environment variable.
+   * Valid env var values: "Public", "USGov", "USGovDoD", "China".
+   * Defaults to PUBLIC (commercial cloud).
+   */
+  readonly cloud?: CloudEnvironment;
 };
 
 export type AppActivityOptions = {
@@ -175,6 +186,7 @@ export type AppActivityOptions = {
  */
 export class App<TPlugin extends IPlugin = IPlugin> {
   readonly api: ApiClient;
+  readonly cloud: CloudEnvironment;
   readonly graph: GraphClient;
   readonly log: ILogger;
   readonly server: HttpServer;
@@ -255,6 +267,12 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     this.log = this.options.logger || new ConsoleLogger('@teams/app');
     this.storage = this.options.storage || new LocalStorage();
     this._manifest = this.options.manifest || {};
+
+    // Resolve cloud environment from options or CLOUD env var
+    const cloudEnvName = typeof process !== 'undefined' ? process.env.CLOUD : undefined;
+    this.cloud = this.options.cloud ?? (cloudEnvName ? cloudFromName(cloudEnvName) : PUBLIC);
+    const cloud = this.cloud;
+
     if (!options.client) {
       this.client = new http.Client({
         headers: {
@@ -288,7 +306,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     this.api = new ApiClient(
       serviceUrl,
       this.client.clone({ token: () => this.getBotToken() }),
-      this.options.apiClientSettings
+      this.options.apiClientSettings,
+      cloud
     );
 
     this.graph = new GraphClient(
@@ -302,6 +321,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       tenantId: this.options.tenantId,
       token: this.options.token,
       managedIdentityClientId: this.options.managedIdentityClientId,
+      cloud,
     }, this.log);
 
     // initialize ActivitySender for sending activities
@@ -314,7 +334,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       this.entraTokenValidator = middleware.createEntraTokenValidator(
         this.credentials.tenantId || 'common',
         this.credentials.clientId,
-        { applicationIdUri: this.options.applicationIdUri, logger: this.log }
+        { applicationIdUri: this.options.applicationIdUri, loginEndpoint: cloud.loginEndpoint, logger: this.log }
       );
     }
 
@@ -445,6 +465,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     // initialize server
     await this.server.initialize({
       credentials: this.credentials,
+      cloud: this.cloud,
     });
 
     this.isInitialized = true;
