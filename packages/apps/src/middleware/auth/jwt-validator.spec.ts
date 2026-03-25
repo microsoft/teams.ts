@@ -710,4 +710,94 @@ describe('JwtValidator', () => {
       );
     });
   });
+
+  describe('loginEndpoint support', () => {
+    const jwksRsa = require('jwks-rsa');
+
+    beforeEach(() => {
+      jwksRsa.mockClear();
+      mockGetSigningKey.mockImplementation((_kid: string, callback: Function) => {
+        callback(null, {
+          getPublicKey: () => publicKey,
+          publicKey: publicKey
+        });
+      });
+    });
+
+    it('should use default login endpoint for JWKS URI when loginEndpoint not specified', async () => {
+      const validator = new JwtValidator({
+        clientId: mockClientId,
+        tenantId: mockTenantId,
+        jwksUriOptions: { type: 'tenantId' }
+      }, mockLogger as any);
+
+      await validator.validateAccessToken(validToken);
+
+      expect(jwksRsa).toHaveBeenCalledWith({
+        jwksUri: `https://login.microsoftonline.com/${mockTenantId}/discovery/v2.0/keys`
+      });
+    });
+
+    it('should use custom loginEndpoint for JWKS URI construction', async () => {
+      const validator = new JwtValidator({
+        clientId: mockClientId,
+        tenantId: mockTenantId,
+        loginEndpoint: 'https://login.microsoftonline.us',
+        jwksUriOptions: { type: 'tenantId' }
+      }, mockLogger as any);
+
+      await validator.validateAccessToken(validToken);
+
+      expect(jwksRsa).toHaveBeenCalledWith({
+        jwksUri: `https://login.microsoftonline.us/${mockTenantId}/discovery/v2.0/keys`
+      });
+    });
+
+    it('should use loginEndpoint for issuer prefix validation with allowedTenantIds', async () => {
+      const govTenantId = 'gov-tenant-123';
+      const govIssuer = `https://login.microsoftonline.us/${govTenantId}/v2.0`;
+
+      const token = createTestToken({
+        ...mockTokenPayload,
+        aud: mockClientId,
+        iss: govIssuer,
+      });
+
+      const validator = new JwtValidator({
+        clientId: mockClientId,
+        tenantId: govTenantId,
+        loginEndpoint: 'https://login.microsoftonline.us',
+        validateIssuer: { allowedTenantIds: [govTenantId] },
+        jwksUriOptions: { type: 'tenantId' }
+      }, mockLogger as any);
+
+      const result = await validator.validateAccessToken(token);
+      expect(result).not.toBeNull();
+      expect(result?.iss).toBe(govIssuer);
+    });
+
+    it('should reject issuer from wrong cloud with loginEndpoint set', async () => {
+      const govTenantId = 'gov-tenant-123';
+      // Token issued by public cloud
+      const publicIssuer = `https://login.microsoftonline.com/${govTenantId}/v2.0`;
+
+      const token = createTestToken({
+        ...mockTokenPayload,
+        aud: mockClientId,
+        iss: publicIssuer,
+      });
+
+      const validator = new JwtValidator({
+        clientId: mockClientId,
+        tenantId: govTenantId,
+        loginEndpoint: 'https://login.microsoftonline.us',
+        validateIssuer: { allowedTenantIds: [govTenantId] },
+        jwksUriOptions: { type: 'tenantId' }
+      }, mockLogger as any);
+
+      const result = await validator.validateAccessToken(token);
+      // Should be null because issuer from public cloud doesn't match gov loginEndpoint
+      expect(result).toBeNull();
+    });
+  });
 });
