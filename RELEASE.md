@@ -4,18 +4,19 @@ This project uses [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.Gi
 
 ## Creating a Release
 
-1. **Create a release branch from `main`** and update `version.json`:
+1. **Create a branch from `release`** and merge `main` into it:
    ```bash
-   git checkout -b release/2.0.7 main
+   git checkout -b prep-release/2.0.7 release
+   git merge origin/main
    ```
-   - Edit `version.json`: change `"version": "2.0.7-preview.{height}"` to `"version": "2.0.7"`
+   - Resolve the `version.json` conflict: set `"version": "2.0.7"`
    - Commit and push
 
-2. **Create a PR to `release`** (base: `release`, compare: `release/2.0.7`):
+2. **Create a PR to `release`** (base: `release`, compare: `prep-release/2.0.7`):
    - The PR will include all changes from main plus the version bump
    - Get teammate approval and merge
 
-3. **Trigger the release pipeline** with **Public** publish type
+3. **Trigger the [release pipeline](https://dev.azure.com/DomoreexpGithub/Github_Pipelines/_build?definitionId=52&_a=summary)** for the `release` branch with **Public** publish type
 
 4. **Bump the version on main** for the next release cycle:
    - Edit `version.json` on main
@@ -82,7 +83,7 @@ To bump from `2.0.x` to `2.1.x` or `3.0.x`:
 
 ## Publishing
 
-The [publish pipeline](https://dev.azure.com/DomoreexpGithub/Github_Pipelines/_build?definitionId=46&_a=summary) (`.azdo/publish.yml`) is manually triggered and requires selecting a **Publish Type**: `Internal` or `Public`.
+The [publish pipeline](https://dev.azure.com/DomoreexpGithub/Github_Pipelines/_build?definitionId=52&_a=summary) (`.azdo/publish.yml`) is manually triggered and requires selecting a **Publish Type**: `Internal` or `Public`.
 
 1. Go to **Pipelines** > **teams.ts** in ADO
 2. Click **Run pipeline**
