@@ -276,24 +276,9 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * @param activity the activity to send
    */
   async reply(activity: ActivityLike) {
-    activity = toActivityParams(activity);
-
     if (this.activity.id) {
-      const placeholder = `<quoted messageId="${this.activity.id}"/>`;
-      if (!activity.entities) {
-        activity.entities = [];
-      }
-      activity.entities.push({
-        type: 'quotedReply',
-        quotedReply: { messageId: this.activity.id },
-      });
-
-      if (activity.type === 'message') {
-        const hasText = !!activity.text?.trim();
-        activity.text = hasText ? `${placeholder} ${activity.text}` : placeholder;
-      }
+      return this.quoteReply(this.activity.id, activity);
     }
-
     return this.send(activity);
   }
 
@@ -307,17 +292,16 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    */
   async quoteReply(messageId: string, activity: ActivityLike) {
     activity = toActivityParams(activity);
-    const placeholder = `<quoted messageId="${messageId}"/>`;
-
-    if (!activity.entities) {
-      activity.entities = [];
-    }
-    activity.entities.push({
-      type: 'quotedReply',
-      quotedReply: { messageId },
-    });
 
     if (activity.type === 'message') {
+      const placeholder = `<quoted messageId="${messageId}"/>`;
+      if (!activity.entities) {
+        activity.entities = [];
+      }
+      activity.entities.push({
+        type: 'quotedReply',
+        quotedReply: { messageId },
+      });
       const hasText = !!activity.text?.trim();
       activity.text = hasText ? `${placeholder} ${activity.text}` : placeholder;
     }
