@@ -454,6 +454,28 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
     }
     return this;
   }
+
+  /**
+   * Prepend a quotedReply entity and `<quoted messageId="..."/>` placeholder
+   * before existing text. Used by reply()/quoteReply() for quote-above-response.
+   * @param messageId - The IC3 message ID of the message to quote
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsQuotedReplies
+   */
+  prependQuotedReply(messageId: string): this {
+    if (!this.entities) {
+      this.entities = [];
+    }
+    this.entities.push({
+      type: 'quotedReply',
+      quotedReply: { messageId },
+    });
+    const placeholder = `<quoted messageId="${messageId}"/>`;
+    const hasText = !!this.text?.trim();
+    this.text = hasText ? `${placeholder} ${this.text}` : placeholder;
+    return this;
+  }
 }
 
 /**
