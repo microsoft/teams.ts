@@ -5,6 +5,7 @@ import {
   ConversationAccount,
   ConversationReference,
   InvokeResponse,
+  IMessageActivity,
   MessageActivity,
   MessageDeleteActivity,
   MessageUpdateActivity,
@@ -294,16 +295,9 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     activity = toActivityParams(activity);
 
     if (activity.type === 'message') {
-      const placeholder = `<quoted messageId="${messageId}"/>`;
-      if (!activity.entities) {
-        activity.entities = [];
-      }
-      activity.entities.push({
-        type: 'quotedReply',
-        quotedReply: { messageId },
-      });
-      const hasText = !!activity.text?.trim();
-      activity.text = hasText ? `${placeholder} ${activity.text}` : placeholder;
+      const message = MessageActivity.from(activity as IMessageActivity);
+      message.prependQuotedReply(messageId);
+      return this.send(message);
     }
 
     return this.send(activity);
