@@ -8,7 +8,7 @@ const app = new App({
   plugins: [new DevtoolsPlugin()],
 });
 
-app.on('message', async ({ send, reply, quoteReply, activity }) => {
+app.on('message', async ({ send, reply, quote, activity }) => {
   await reply({ type: 'typing' });
 
   const text = activity.text?.toLowerCase() || '';
@@ -39,21 +39,21 @@ app.on('message', async ({ send, reply, quoteReply, activity }) => {
   }
 
   // ============================================
-  // quoteReply() — quote a previously sent message by ID
+  // quote() — quote a previously sent message by ID
   // ============================================
   if (text.includes('test quote')) {
     const sent = await send('The meeting has been moved to 3 PM tomorrow.');
-    await quoteReply(sent.id, 'Just to confirm — does the new time work for everyone?');
+    await quote(sent.id, 'Just to confirm — does the new time work for everyone?');
     return;
   }
 
   // ============================================
-  // addQuotedReply() — builder with response
+  // addQuote() — builder with response
   // ============================================
   if (text.includes('test add')) {
     const sent = await send('Please review the latest PR before end of day.');
     const msg = new MessageActivity()
-      .addQuotedReply(sent.id, 'Done! Left my comments on the PR.');
+      .addQuote(sent.id, 'Done! Left my comments on the PR.');
     await send(msg);
     return;
   }
@@ -66,20 +66,20 @@ app.on('message', async ({ send, reply, quoteReply, activity }) => {
     const sentB = await send('The design mockups are ready for review.');
     const sentC = await send('CI pipeline is green on main.');
     const msg = new MessageActivity()
-      .addQuotedReply(sentA.id, 'I can take the docs — will have a draft by Thursday.')
-      .addQuotedReply(sentB.id, 'Looks great, approved!')
-      .addQuotedReply(sentC.id);
+      .addQuote(sentA.id, 'I can take the docs — will have a draft by Thursday.')
+      .addQuote(sentB.id, 'Looks great, approved!')
+      .addQuote(sentC.id);
     await send(msg);
     return;
   }
 
   // ============================================
-  // addQuotedReply() + addText() — manual control
+  // addQuote() + addText() — manual control
   // ============================================
   if (text.includes('test manual')) {
     const sent = await send('Deployment to staging is complete.');
     const msg = new MessageActivity()
-      .addQuotedReply(sent.id)
+      .addQuote(sent.id)
       .addText(' Verified — all smoke tests passing.');
     await send(msg);
     return;
@@ -93,10 +93,10 @@ app.on('message', async ({ send, reply, quoteReply, activity }) => {
       '**Quoted Replies Test Bot**\n\n' +
       '**Commands:**\n' +
       '- `test reply` - reply() auto-quotes your message\n' +
-      '- `test quote` - quoteReply() quotes a previously sent message\n' +
-      '- `test add` - addQuotedReply() builder with response\n' +
+      '- `test quote` - quote() quotes a previously sent message\n' +
+      '- `test add` - addQuote() builder with response\n' +
       '- `test multi` - Multi-quote with mixed responses (one bare quote with no response)\n' +
-      '- `test manual` - addQuotedReply() + addText() manual control\n\n' +
+      '- `test manual` - addQuote() + addText() manual control\n\n' +
       'Quote any message to me to see the parsed metadata!'
     );
     return;
