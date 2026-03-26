@@ -7,10 +7,10 @@ A bot that demonstrates quoted reply features in Microsoft Teams — referencing
 | Command | Behavior |
 |---------|----------|
 | `test reply` | `reply()` — auto-quotes the inbound message |
-| `test quote` | `quoteReply()` — sends a message, then quotes it by ID |
-| `test add` | `addQuotedReply()` — sends a message, then quotes it with builder + response |
+| `test quote` | `quote()` — sends a message, then quotes it by ID |
+| `test add` | `addQuote()` — sends a message, then quotes it with builder + response |
 | `test multi` | Sends two messages, then quotes both with interleaved responses |
-| `test manual` | `addQuotedReply()` + `addText()` — manual control |
+| `test manual` | `addQuote()` + `addText()` — manual control |
 | `help` | Shows available commands |
 | *(quote a message)* | Bot reads and displays the quoted reply metadata |
 

@@ -177,7 +177,7 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * @experimental This API is in preview and may change in the future.
    * Diagnostic: ExperimentalTeamsQuotedReplies
    */
-  quoteReply: (messageId: string, activity: ActivityLike) => Promise<SentActivity>;
+  quote: (messageId: string, activity: ActivityLike) => Promise<SentActivity>;
 
   /**
    * trigger user signin flow for the activity sender
@@ -295,25 +295,26 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    */
   async reply(activity: ActivityLike) {
     if (this.activity.id) {
-      return this.quoteReply(this.activity.id, activity);
+      return this.quote(this.activity.id, activity);
     }
     return this.send(activity);
   }
 
   /**
-   * Send a reply quoting a specific message by ID.
+   * Send a message to the conversation with a quoted message reference prepended to the text.
+   * Teams renders the quoted message as a preview bubble above the response text.
    * @param messageId - The ID of the message to quote
-   * @param activity - The activity to send
+   * @param activity - The activity to send — a quote placeholder for messageId will be prepended to its text
    *
    * @experimental This API is in preview and may change in the future.
    * Diagnostic: ExperimentalTeamsQuotedReplies
    */
-  async quoteReply(messageId: string, activity: ActivityLike) {
+  async quote(messageId: string, activity: ActivityLike) {
     activity = toActivityParams(activity);
 
     if (activity.type === 'message') {
       const message = MessageActivity.from(activity as IMessageActivity);
-      message.prependQuotedReply(messageId);
+      message.prependQuote(messageId);
       return this.send(message);
     }
 
@@ -424,7 +425,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       userToken: this.userToken,
       next: this.next.bind(this),
       reply: this.reply.bind(this),
-      quoteReply: this.quoteReply.bind(this),
+      quote: this.quote.bind(this),
       send: this.send.bind(this),
       signin: this.signin.bind(this),
       signout: this.signout.bind(this),

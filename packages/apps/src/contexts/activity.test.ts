@@ -175,12 +175,12 @@ describe('ActivityContext', () => {
 
   });
 
-  describe('quoteReply', () => {
+  describe('quote', () => {
     it('stamps quotedReply entity with given messageId', async () => {
       const activity = buildIncomingMessageActivity('Hello world');
       context = buildActivityContext(activity);
 
-      await context.quoteReply('arbitrary-msg-id', 'some text');
+      await context.quote('arbitrary-msg-id', 'some text');
 
       expect(mockSender.send).toHaveBeenCalledTimes(1);
       const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
@@ -198,7 +198,7 @@ describe('ActivityContext', () => {
       const activity = buildIncomingMessageActivity('Hello world');
       context = buildActivityContext(activity);
 
-      await context.quoteReply('msg-42', 'reply text');
+      await context.quote('msg-42', 'reply text');
 
       const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
       expect(sentActivity.text).toEqual('<quoted messageId="msg-42"/> reply text');
@@ -208,7 +208,7 @@ describe('ActivityContext', () => {
       const activity = buildIncomingMessageActivity('Hello world');
       context = buildActivityContext(activity);
 
-      await context.quoteReply('msg-42', { type: 'message' });
+      await context.quote('msg-42', { type: 'message' });
 
       const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
       expect(sentActivity.text).toEqual('<quoted messageId="msg-42"/>');

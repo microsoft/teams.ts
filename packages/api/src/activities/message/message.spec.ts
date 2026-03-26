@@ -421,9 +421,9 @@ describe('MessageActivity', () => {
     });
   });
 
-  describe('addQuotedReply', () => {
+  describe('addQuote', () => {
     it('should add entity and append placeholder', () => {
-      const activity = new MessageActivity().addQuotedReply('msg-1');
+      const activity = new MessageActivity().addQuote('msg-1');
       expect(activity.entities).toHaveLength(1);
       expect(activity.entities![0]).toEqual(
         expect.objectContaining({ type: 'quotedReply', quotedReply: { messageId: 'msg-1' } })
@@ -432,14 +432,14 @@ describe('MessageActivity', () => {
     });
 
     it('should append response text after placeholder', () => {
-      const activity = new MessageActivity().addQuotedReply('msg-1', 'my response');
+      const activity = new MessageActivity().addQuote('msg-1', 'my response');
       expect(activity.text).toEqual('<quoted messageId="msg-1"/> my response');
     });
 
     it('should support multi-quote with interleaved responses', () => {
       const activity = new MessageActivity()
-        .addQuotedReply('msg-1', 'response to first')
-        .addQuotedReply('msg-2', 'response to second');
+        .addQuote('msg-1', 'response to first')
+        .addQuote('msg-2', 'response to second');
       expect(activity.text).toEqual(
         '<quoted messageId="msg-1"/> response to first<quoted messageId="msg-2"/> response to second'
       );
@@ -448,8 +448,8 @@ describe('MessageActivity', () => {
 
     it('should support grouped quotes', () => {
       const activity = new MessageActivity()
-        .addQuotedReply('msg-1')
-        .addQuotedReply('msg-2', 'response to both');
+        .addQuote('msg-1')
+        .addQuote('msg-2', 'response to both');
       expect(activity.text).toEqual(
         '<quoted messageId="msg-1"/><quoted messageId="msg-2"/> response to both'
       );
@@ -457,7 +457,7 @@ describe('MessageActivity', () => {
 
     it('should be chainable', () => {
       const activity = new MessageActivity()
-        .addQuotedReply('msg-1')
+        .addQuote('msg-1')
         .addText(' manual text');
       expect(activity.text).toEqual('<quoted messageId="msg-1"/> manual text');
     });

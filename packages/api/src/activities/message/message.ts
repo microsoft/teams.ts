@@ -430,17 +430,17 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
   }
 
   /**
-   * Add a quotedReply entity for the given message ID and append a
-   * `<quoted messageId="..."/>` placeholder to text.
-   * If response is provided, it is appended after the placeholder.
-   * @param messageId - The IC3 message ID of the message to quote
-   * @param response - Optional response text to append after the placeholder
+   * Add a quoted message reference and append a `<quoted messageId="..."/>` placeholder to text.
+   * Teams renders the quoted message as a preview bubble above the response text.
+   * If text is provided, it is appended to the quoted message placeholder.
+   * @param messageId - The ID of the message to quote
+   * @param text - Optional text, appended to the quoted message placeholder
    * @returns this instance for chaining
    *
    * @experimental This API is in preview and may change in the future.
    * Diagnostic: ExperimentalTeamsQuotedReplies
    */
-  addQuotedReply(messageId: string, response?: string): this {
+  addQuote(messageId: string, text?: string): this {
     if (!this.entities) {
       this.entities = [];
     }
@@ -449,21 +449,21 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
       quotedReply: { messageId },
     });
     this.addText(`<quoted messageId="${messageId}"/>`);
-    if (response) {
-      this.addText(` ${response}`);
+    if (text) {
+      this.addText(` ${text}`);
     }
     return this;
   }
 
   /**
    * Prepend a quotedReply entity and `<quoted messageId="..."/>` placeholder
-   * before existing text. Used by reply()/quoteReply() for quote-above-response.
+   * before existing text. Used by reply()/quote() for quote-above-response.
    * @param messageId - The IC3 message ID of the message to quote
    *
    * @experimental This API is in preview and may change in the future.
    * Diagnostic: ExperimentalTeamsQuotedReplies
    */
-  prependQuotedReply(messageId: string): this {
+  prependQuote(messageId: string): this {
     if (!this.entities) {
       this.entities = [];
     }
