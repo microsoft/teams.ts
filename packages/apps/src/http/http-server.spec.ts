@@ -10,7 +10,7 @@ class MockAdapter implements IHttpServerAdapter {
     this.routes.push({ method, path, handler });
   }
 
-  async start(_port: number): Promise<void> {
+  async start(_port: number | string): Promise<void> {
     this.started = true;
   }
 
@@ -151,12 +151,20 @@ describe('HttpServer', () => {
       expect(adapter.started).toBe(true);
     });
 
-    it('should parse string port to number', async () => {
+    it('should pass string port through to adapter', async () => {
       const startSpy = jest.spyOn(adapter, 'start');
 
       await server.start('4000');
 
-      expect(startSpy).toHaveBeenCalledWith(4000);
+      expect(startSpy).toHaveBeenCalledWith('4000');
+    });
+
+    it('should pass named pipe path through to adapter', async () => {
+      const startSpy = jest.spyOn(adapter, 'start');
+
+      await server.start('\\\\.\\pipe\\507cb72a-6765-4f1e-a9f0-1234abcd5678');
+
+      expect(startSpy).toHaveBeenCalledWith('\\\\.\\pipe\\507cb72a-6765-4f1e-a9f0-1234abcd5678');
     });
 
     it('should throw when adapter does not implement start', async () => {

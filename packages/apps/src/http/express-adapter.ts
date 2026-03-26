@@ -78,7 +78,7 @@ export class ExpressAdapter implements IHttpServerAdapter {
   /**
    * Start the server listening on the specified port
    */
-  async start(port: number): Promise<void> {
+  async start(port: number | string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       // Handle startup errors
       this.server.once('error', (err) => {

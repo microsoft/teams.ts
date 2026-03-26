@@ -112,14 +112,13 @@ export class HttpServer implements IHttpServer {
    * Called by App.start()
    */
   async start(port: number | string) {
-    const portNumber = typeof port === 'string' ? parseInt(port, 10) : port;
     if (!this._adapter.start) {
       throw new Error(
         'Adapter does not implement start(). ' +
         'Either implement start() in your adapter, or manage server lifecycle manually.'
       );
     }
-    await this._adapter.start(portNumber);
+    await this._adapter.start(port);
   }
 
   /**

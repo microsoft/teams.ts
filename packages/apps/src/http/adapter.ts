@@ -44,7 +44,7 @@ export interface IHttpServerAdapter {
    * Not needed if app.start() is not called
    * @param port Port number to listen on
    */
-  start?(port: number): Promise<void>;
+  start?(port: number | string): Promise<void>;
 
   /**
    * Stop the server from listening and perform any cleanup that needs to be done
