@@ -24,13 +24,21 @@ type Options = (http.Client | http.ClientOptions) & {
  */
 export class Client {
   protected baseUrlRoot;
-  protected http: http.Client;
+  protected _http: http.Client;
   protected betaHttp?: http.Client;
+
+  /**
+   * The underlying HTTP client, pre-configured with Graph base URL and headers.
+   * Use for raw Graph API requests not covered by endpoint functions.
+   */
+  get http(): http.Client {
+    return this._http;
+  }
 
   constructor(options?: Options) {
     this.baseUrlRoot = options?.baseUrlRoot ?? defaultBaseUrlRoot;
     if (!options) {
-      this.http = new http.Client({
+      this._http = new http.Client({
         baseUrl: `${this.baseUrlRoot}/v1.0`,
         headers: {
           'Content-Type': 'application/json',
@@ -38,7 +46,7 @@ export class Client {
         },
       });
     } else if ('request' in options) {
-      this.http = options.clone({
+      this._http = options.clone({
         baseUrl: `${this.baseUrlRoot}/v1.0`,
         headers: {
           'Content-Type': 'application/json',
@@ -46,7 +54,7 @@ export class Client {
         },
       });
     } else {
-      this.http = new http.Client({
+      this._http = new http.Client({
         ...options,
         baseUrl: `${this.baseUrlRoot}/v1.0`,
         headers: {
@@ -121,12 +129,12 @@ export class Client {
 
   private getHttpClient(schemaVersion: SchemaVersion): http.Client {
     if (schemaVersion === 'v1.0') {
-      return this.http;
+      return this._http;
     }
 
     this.betaHttp =
       this.betaHttp ??
-      this.http.clone({
+      this._http.clone({
         baseUrl: `${this.baseUrlRoot}/beta`,
       });
 
