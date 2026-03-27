@@ -42,7 +42,7 @@
   "dependencies": {
     "@microsoft/teams.common": "*",
     "change-case": "^5.4.4",
-    "handlebars": "^4.7.8",
+    "handlebars": "^4.7.9",
     "yaml": "^2.7.0",
     "yargs": "^17.7.2",
     "zod": "^3.24.2"
