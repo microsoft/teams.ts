@@ -622,9 +622,9 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /// Token
   ///
 
-  protected async getBotToken() {
+  protected async getBotToken(skipCache?: boolean) {
     if (!this.tokenManager) return;
-    return await this.tokenManager.getBotToken();
+    return await this.tokenManager.getBotToken(skipCache);
   }
 
   protected async getUserToken(
@@ -640,8 +640,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     return res.token;
   }
 
-  protected async getAppGraphToken(tenantId?: string) {
+  protected async getAppGraphToken(tenantId?: string, skipCache?: boolean) {
     if (!this.tokenManager) return;
-    return await this.tokenManager.getGraphToken(tenantId);
+    return await this.tokenManager.getGraphToken(tenantId, skipCache);
   }
 }

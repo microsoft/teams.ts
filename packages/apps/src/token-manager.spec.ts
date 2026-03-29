@@ -89,7 +89,8 @@ describe('TokenManager', () => {
       );
 
       expect(mockAcquireTokenByClientCredential).toHaveBeenCalledWith({
-        scopes: ['https://api.botframework.com/.default']
+        scopes: ['https://api.botframework.com/.default'],
+        skipCache: false
       });
 
       expect(token).not.toBeNull();
@@ -141,7 +142,8 @@ describe('TokenManager', () => {
       const token = await tokenManager.getGraphToken();
 
       expect(mockAcquireTokenByClientCredential).toHaveBeenCalledWith({
-        scopes: ['https://graph.microsoft.com/.default']
+        scopes: ['https://graph.microsoft.com/.default'],
+        skipCache: false
       });
 
       expect(token).not.toBeNull();
@@ -213,6 +215,56 @@ describe('TokenManager', () => {
 
       await tokenManager.getGraphToken('tenant-1');
       expect(ConfidentialClientApplication).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('skipCache support', () => {
+    it('getBotToken should pass skipCache to MSAL when true', async () => {
+      mockAcquireTokenByClientCredential.mockResolvedValue(createMockAuthResult('fresh-bot-token'));
+
+      const tokenManager = new TokenManager(mockOptions, logger);
+      await tokenManager.getBotToken(true);
+
+      expect(mockAcquireTokenByClientCredential).toHaveBeenCalledWith({
+        scopes: ['https://api.botframework.com/.default'],
+        skipCache: true
+      });
+    });
+
+    it('getBotToken should not set skipCache when called without argument', async () => {
+      mockAcquireTokenByClientCredential.mockResolvedValue(createMockAuthResult('cached-bot-token'));
+
+      const tokenManager = new TokenManager(mockOptions, logger);
+      await tokenManager.getBotToken();
+
+      expect(mockAcquireTokenByClientCredential).toHaveBeenCalledWith({
+        scopes: ['https://api.botframework.com/.default'],
+        skipCache: false
+      });
+    });
+
+    it('getGraphToken should pass skipCache to MSAL when true', async () => {
+      mockAcquireTokenByClientCredential.mockResolvedValue(createMockAuthResult('fresh-graph-token'));
+
+      const tokenManager = new TokenManager(mockOptions, logger);
+      await tokenManager.getGraphToken(undefined, true);
+
+      expect(mockAcquireTokenByClientCredential).toHaveBeenCalledWith({
+        scopes: ['https://graph.microsoft.com/.default'],
+        skipCache: true
+      });
+    });
+
+    it('getGraphToken should not set skipCache when called without argument', async () => {
+      mockAcquireTokenByClientCredential.mockResolvedValue(createMockAuthResult('cached-graph-token'));
+
+      const tokenManager = new TokenManager(mockOptions, logger);
+      await tokenManager.getGraphToken();
+
+      expect(mockAcquireTokenByClientCredential).toHaveBeenCalledWith({
+        scopes: ['https://graph.microsoft.com/.default'],
+        skipCache: false
+      });
     });
   });
 
@@ -407,7 +459,8 @@ describe('TokenManager', () => {
         );
 
         expect(mockConfidentialAcquireToken).toHaveBeenCalledWith({
-          scopes: ['https://api.botframework.com/.default']
+          scopes: ['https://api.botframework.com/.default'],
+          skipCache: false
         });
 
         expect(token).not.toBeNull();
@@ -452,7 +505,8 @@ describe('TokenManager', () => {
         );
 
         expect(mockConfidentialAcquireToken).toHaveBeenCalledWith({
-          scopes: ['https://api.botframework.com/.default']
+          scopes: ['https://api.botframework.com/.default'],
+          skipCache: false
         });
 
         expect(token).not.toBeNull();

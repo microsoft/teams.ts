@@ -66,12 +66,12 @@ export class TokenManager {
     this.credentials = this.initializeCredentials(options);
   }
 
-  async getBotToken(): Promise<IToken | null> {
-    return await this.getToken(DEFAULT_BOT_TOKEN_SCOPE, this.resolveTenantId(undefined, DEFAULT_TENANT_FOR_BOT_TOKEN));
+  async getBotToken(skipCache?: boolean): Promise<IToken | null> {
+    return await this.getToken(DEFAULT_BOT_TOKEN_SCOPE, this.resolveTenantId(undefined, DEFAULT_TENANT_FOR_BOT_TOKEN), skipCache);
   }
 
-  async getGraphToken(tenantId?: string): Promise<IToken | null> {
-    return await this.getToken(DEFAULT_GRAPH_TOKEN_SCOPE, this.resolveTenantId(tenantId, DEFAULT_TENANT_FOR_GRAPH_TOKEN));
+  async getGraphToken(tenantId?: string, skipCache?: boolean): Promise<IToken | null> {
+    return await this.getToken(DEFAULT_GRAPH_TOKEN_SCOPE, this.resolveTenantId(tenantId, DEFAULT_TENANT_FOR_GRAPH_TOKEN), skipCache);
   }
 
   private initializeCredentials(options: TokenManagerOptions): Credentials | undefined {
@@ -117,26 +117,26 @@ export class TokenManager {
     return undefined;
   }
 
-  private async getToken(scope: string, tenantId: string): Promise<IToken | null> {
+  private async getToken(scope: string, tenantId: string, skipCache?: boolean): Promise<IToken | null> {
     if (!this.credentials) {
       return null;
     }
 
     if (isClientCredentials(this.credentials)) {
-      return this.getTokenWithClientCredentials(this.credentials, scope, tenantId);
+      return this.getTokenWithClientCredentials(this.credentials, scope, tenantId, skipCache);
     } else if (isTokenCredentials(this.credentials)) {
       return this.getTokenWithTokenProvider(this.credentials, scope, tenantId);
     } else if (isFederatedIdentityCredentials(this.credentials)) {
-      return this.getTokenWithFederatedCredentials(this.credentials, scope, tenantId);
+      return this.getTokenWithFederatedCredentials(this.credentials, scope, tenantId, skipCache);
     } else {
       return this.getTokenWithManagedIdentity(this.credentials, scope);
     }
 
   }
 
-  private async getTokenWithClientCredentials(credentials: ClientCredentials, scope: string, tenantId: string): Promise<IToken | null> {
+  private async getTokenWithClientCredentials(credentials: ClientCredentials, scope: string, tenantId: string, skipCache?: boolean): Promise<IToken | null> {
     const confidentialClient = this.getConfidentialClient(credentials, tenantId);
-    const result = await confidentialClient.acquireTokenByClientCredential({ scopes: [scope] });
+    const result = await confidentialClient.acquireTokenByClientCredential({ scopes: [scope], skipCache: skipCache ?? false });
     return this.handleTokenResponse(result);
   }
 
@@ -155,7 +155,7 @@ export class TokenManager {
     return this.handleTokenResponse(result);
   }
 
-  private async getTokenWithFederatedCredentials(credentials: FederatedIdentityCredentials, scope: string, tenantId: string) {
+  private async getTokenWithFederatedCredentials(credentials: FederatedIdentityCredentials, scope: string, tenantId: string, skipCache?: boolean) {
     const managedIdentityClient = this.getManagedIdentityClient(credentials);
     const managedIdentityTokenRes = await managedIdentityClient.acquireToken({ resource: 'api://AzureADTokenExchange' });
     const confidentialClient = new ConfidentialClientApplication({
@@ -168,7 +168,7 @@ export class TokenManager {
         loggerOptions: this.buildLoggerOptions()
       }
     });
-    const result = await confidentialClient.acquireTokenByClientCredential({ scopes: [scope] });
+    const result = await confidentialClient.acquireTokenByClientCredential({ scopes: [scope], skipCache: skipCache ?? false });
     return this.handleTokenResponse(result);
   }
 
