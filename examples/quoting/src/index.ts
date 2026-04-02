@@ -4,7 +4,7 @@ import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 const app = new App({
-  logger: new ConsoleLogger('@examples/quoted-replies', { level: 'debug' }),
+  logger: new ConsoleLogger('@examples/quoting', { level: 'debug' }),
   plugins: [new DevtoolsPlugin()],
 });
 
@@ -90,7 +90,7 @@ app.on('message', async ({ send, reply, quote, activity }) => {
   // ============================================
   if (text.includes('help')) {
     await reply(
-      '**Quoted Replies Test Bot**\n\n' +
+      '**Quoting Test Bot**\n\n' +
       '**Commands:**\n' +
       '- `test reply` - reply() auto-quotes your message\n' +
       '- `test quote` - quote() quotes a previously sent message\n' +
@@ -107,7 +107,7 @@ app.on('message', async ({ send, reply, quote, activity }) => {
 
 app.on('install.add', async ({ send }) => {
   await send(
-    'Hi! I demonstrate quoted replies.\n\n' +
+    'Hi! I demonstrate quoting.\n\n' +
     'Say **help** to see available commands.'
   );
 });
