@@ -12,6 +12,7 @@ import {
   IAdaptiveCard,
   NumberInput,
   OpenUrlAction,
+  SubmitData,
   TextBlock,
   TextInput,
   ToggleInput,
@@ -24,7 +25,7 @@ function createBasicCard() {
     new ToggleInput('Notify me').withId('notify'),
     new ActionSet(
       new ExecuteAction({ title: 'Submit' })
-        .withData({ action: 'submit_basic' })
+        .withData(new SubmitData('submit_basic'))
         .withAssociatedInputs('auto')
     )
   );
@@ -61,7 +62,7 @@ function createFormCard() {
       .withValue('blue'),
     new ActionSet(
       new ExecuteAction({ title: 'Submit Form' })
-        .withData({ action: 'submit_form' })
+        .withData(new SubmitData('submit_form'))
         .withAssociatedInputs('auto')
     )
   );
@@ -126,7 +127,7 @@ function createActionCard() {
       .withPlaceholder('Enter your feedback'),
     new ActionSet(
       new ExecuteAction({ title: 'Submit Feedback' })
-        .withData({ action: 'submit_feedback' })
+        .withData(new SubmitData('submit_feedback'))
         .withAssociatedInputs('auto'),
       new OpenUrlAction('https://adaptivecards.microsoft.com').withTitle(
         'Learn More'
@@ -146,7 +147,7 @@ function createActionCardMixed() {
       .withPlaceholder('Enter your feedback'),
     new ActionSet(
       new ExecuteAction({ title: 'Submit Feedback' })
-        .withData({ action: 'submit_feedback' })
+        .withData(new SubmitData('submit_feedback'))
         .withAssociatedInputs('auto'),
       {
         type: 'Action.OpenUrl',
@@ -166,10 +167,7 @@ function editProfileCard() {
       .withValue('false'),
     new ActionSet(
       new ExecuteAction({ title: 'Save' })
-        .withData({
-          action: 'save_profile',
-          entityId: '12345', // This will come back once the user submits
-        })
+        .withData(new SubmitData('save_profile', { entityId: '12345' }))
         .withAssociatedInputs('auto')
     )
   );
@@ -205,9 +203,7 @@ function createProfileCardInputValidation() {
     new TextInput({ id: 'location' }).withLabel('Location'),
     new ActionSet(
       new ExecuteAction({ title: 'Save' })
-        .withData({
-          action: 'save_profile',
-        })
+        .withData(new SubmitData('save_profile'))
         .withAssociatedInputs('auto') // All inputs should be validated
     )
   );
@@ -296,7 +292,7 @@ app.on('message', async ({ send, activity }) => {
       .withValue(new Date().toISOString().split('T')[0]),
     new ActionSet(
       new ExecuteAction({ title: 'Create Task' })
-        .withData({ action: 'create_task' })
+        .withData(new SubmitData('create_task'))
         .withAssociatedInputs('auto')
         .withStyle('positive')
     )

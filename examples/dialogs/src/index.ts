@@ -7,9 +7,8 @@ import { App } from '@microsoft/teams.apps';
 import {
   AdaptiveCard,
   IAdaptiveCard,
+  OpenDialogData,
   SubmitAction,
-  SubmitActionData,
-  TaskFetchSubmitActionData,
   TextInput,
 } from '@microsoft/teams.cards';
 import { ConsoleLogger } from '@microsoft/teams.common';
@@ -27,13 +26,8 @@ if (!process.env['BOT_ENDPOINT']) {
   );
 }
 
-function createTaskFetchSubmitAction(title: string, openDialogType: string): SubmitAction {
-  const data = new SubmitActionData({ msteams: new TaskFetchSubmitActionData() });
-  data.opendialogtype = openDialogType;
-  const action = new SubmitAction();
-  action.title = title;
-  action.data = data;
-  return action;
+function createTaskFetchSubmitAction(title: string, dialogId: string): SubmitAction {
+  return new SubmitAction().withTitle(title).withData(new OpenDialogData(dialogId));
 }
 
 const app = new App({
