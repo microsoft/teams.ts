@@ -1,7 +1,7 @@
 /**
  * Data for a quoted reply entity.
  *
- * @experimental This API is in preview and may change in the future.
+ * @experimental This API is coming soon and may change in the future.
  * Diagnostic: ExperimentalTeamsQuotedReplies
  */
 export type QuotedReplyData = {
@@ -45,7 +45,7 @@ export type QuotedReplyData = {
 /**
  * Entity containing quoted reply information.
  *
- * @experimental This API is in preview and may change in the future.
+ * @experimental This API is coming soon and may change in the future.
  * Diagnostic: ExperimentalTeamsQuotedReplies
  */
 export type QuotedReplyEntity = {
