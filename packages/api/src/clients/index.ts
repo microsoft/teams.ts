@@ -1,6 +1,7 @@
 import * as http from '@microsoft/teams.common/http';
 
 import { CloudEnvironment } from '../auth/cloud-environment';
+
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
 import { BotClient } from './bot';
 import { ConversationClient } from './conversation';

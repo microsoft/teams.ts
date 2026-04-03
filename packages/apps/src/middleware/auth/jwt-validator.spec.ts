@@ -712,11 +712,12 @@ describe('JwtValidator', () => {
   });
 
   describe('loginEndpoint support', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const jwksRsa = require('jwks-rsa');
 
     beforeEach(() => {
       jwksRsa.mockClear();
-      mockGetSigningKey.mockImplementation((_kid: string, callback: Function) => {
+      mockGetSigningKey.mockImplementation((_kid: string, callback: (...args: unknown[]) => void) => {
         callback(null, {
           getPublicKey: () => publicKey,
           publicKey: publicKey
