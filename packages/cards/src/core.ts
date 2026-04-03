@@ -55,2570 +55,2570 @@ export type Action =
   | IInsertImageAction;
 
 export type IconName =
-  | "AccessTime"
-  | "Accessibility"
-  | "AccessibilityCheckmark"
-  | "Add"
-  | "AddCircle"
-  | "AddSquare"
-  | "AddSquareMultiple"
-  | "AddSubtractCircle"
-  | "Airplane"
-  | "AirplaneLanding"
-  | "AirplaneTakeOff"
-  | "Album"
-  | "AlbumAdd"
-  | "Alert"
-  | "AlertBadge"
-  | "AlertOff"
-  | "AlertOn"
-  | "AlertSnooze"
-  | "AlertUrgent"
-  | "AlignBottom"
-  | "AlignCenterHorizontal"
-  | "AlignCenterVertical"
-  | "AlignDistributeBottom"
-  | "AlignDistributeLeft"
-  | "AlignDistributeRight"
-  | "AlignDistributeTop"
-  | "AlignEndHorizontal"
-  | "AlignEndVertical"
-  | "AlignLeft"
-  | "AlignRight"
-  | "AlignSpaceAroundHorizontal"
-  | "AlignSpaceAroundVertical"
-  | "AlignSpaceBetweenHorizontal"
-  | "AlignSpaceBetweenVertical"
-  | "AlignSpaceEvenlyHorizontal"
-  | "AlignSpaceEvenlyVertical"
-  | "AlignSpaceFitVertical"
-  | "AlignStartHorizontal"
-  | "AlignStartVertical"
-  | "AlignStraighten"
-  | "AlignStretchHorizontal"
-  | "AlignStretchVertical"
-  | "AlignTop"
-  | "AnimalCat"
-  | "AnimalDog"
-  | "AnimalRabbit"
-  | "AnimalRabbitOff"
-  | "AnimalTurtle"
-  | "AppFolder"
-  | "AppGeneric"
-  | "AppRecent"
-  | "AppStore"
-  | "AppTitle"
-  | "ApprovalsApp"
-  | "Apps"
-  | "AppsAddIn"
-  | "AppsList"
-  | "AppsListDetail"
-  | "Archive"
-  | "ArchiveArrowBack"
-  | "ArchiveMultiple"
-  | "ArchiveSettings"
-  | "ArrowAutofitContent"
-  | "ArrowAutofitDown"
-  | "ArrowAutofitHeight"
-  | "ArrowAutofitHeightDotted"
-  | "ArrowAutofitHeightIn"
-  | "ArrowAutofitUp"
-  | "ArrowAutofitWidth"
-  | "ArrowAutofitWidthDotted"
-  | "ArrowBetweenDown"
-  | "ArrowBetweenUp"
-  | "ArrowBidirectionalLeftRight"
-  | "ArrowBidirectionalUpDown"
-  | "ArrowBounce"
-  | "ArrowCircleDown"
-  | "ArrowCircleDownDouble"
-  | "ArrowCircleDownRight"
-  | "ArrowCircleDownSplit"
-  | "ArrowCircleDownUp"
-  | "ArrowCircleLeft"
-  | "ArrowCircleRight"
-  | "ArrowCircleUp"
-  | "ArrowCircleUpLeft"
-  | "ArrowCircleUpRight"
-  | "ArrowClockwise"
-  | "ArrowClockwiseDashes"
-  | "ArrowCollapseAll"
-  | "ArrowCounterclockwise"
-  | "ArrowCounterclockwiseDashes"
-  | "ArrowCurveDownLeft"
-  | "ArrowCurveDownRight"
-  | "ArrowCurveUpLeft"
-  | "ArrowCurveUpRight"
-  | "ArrowDown"
-  | "ArrowDownExclamation"
-  | "ArrowDownLeft"
-  | "ArrowDownload"
-  | "ArrowDownloadOff"
-  | "ArrowEject"
-  | "ArrowEnter"
-  | "ArrowEnterLeft"
-  | "ArrowEnterUp"
-  | "ArrowExit"
-  | "ArrowExpand"
-  | "ArrowExport"
-  | "ArrowExportLtr"
-  | "ArrowExportRtl"
-  | "ArrowExportUp"
-  | "ArrowFit"
-  | "ArrowFitIn"
-  | "ArrowFlowDiagonalUpRight"
-  | "ArrowFlowUpRight"
-  | "ArrowFlowUpRightRectangleMultiple"
-  | "ArrowForward"
-  | "ArrowForwardDownLightning"
-  | "ArrowForwardDownPerson"
-  | "ArrowHookDownLeft"
-  | "ArrowHookDownRight"
-  | "ArrowHookUpLeft"
-  | "ArrowHookUpRight"
-  | "ArrowImport"
-  | "ArrowJoin"
-  | "ArrowLeft"
-  | "ArrowMaximize"
-  | "ArrowMaximizeVertical"
-  | "ArrowMinimize"
-  | "ArrowMinimizeVertical"
-  | "ArrowMove"
-  | "ArrowMoveInward"
-  | "ArrowNext"
-  | "ArrowOutlineDownLeft"
-  | "ArrowOutlineUpRight"
-  | "ArrowParagraph"
-  | "ArrowPrevious"
-  | "ArrowRedo"
-  | "ArrowRepeat1"
-  | "ArrowRepeatAll"
-  | "ArrowRepeatAllOff"
-  | "ArrowReply"
-  | "ArrowReplyAll"
-  | "ArrowReplyDown"
-  | "ArrowReset"
-  | "ArrowRight"
-  | "ArrowRotateClockwise"
-  | "ArrowRotateCounterclockwise"
-  | "ArrowRouting"
-  | "ArrowRoutingRectangleMultiple"
-  | "ArrowShuffle"
-  | "ArrowShuffleOff"
-  | "ArrowSort"
-  | "ArrowSortDown"
-  | "ArrowSortDownLines"
-  | "ArrowSortUp"
-  | "ArrowSplit"
-  | "ArrowSprint"
-  | "ArrowSquareDown"
-  | "ArrowSquareUpRight"
-  | "ArrowStepBack"
-  | "ArrowStepIn"
-  | "ArrowStepInDiagonalDownLeft"
-  | "ArrowStepInLeft"
-  | "ArrowStepInRight"
-  | "ArrowStepOut"
-  | "ArrowStepOver"
-  | "ArrowSwap"
-  | "ArrowSync"
-  | "ArrowSyncCheckmark"
-  | "ArrowSyncCircle"
-  | "ArrowSyncDismiss"
-  | "ArrowSyncOff"
-  | "ArrowTrending"
-  | "ArrowTrendingCheckmark"
-  | "ArrowTrendingDown"
-  | "ArrowTrendingLines"
-  | "ArrowTrendingSettings"
-  | "ArrowTrendingSparkle"
-  | "ArrowTrendingText"
-  | "ArrowTrendingWrench"
-  | "ArrowTurnBidirectionalDownRight"
-  | "ArrowTurnDownLeft"
-  | "ArrowTurnDownRight"
-  | "ArrowTurnDownUp"
-  | "ArrowTurnLeftDown"
-  | "ArrowTurnLeftRight"
-  | "ArrowTurnLeftUp"
-  | "ArrowTurnRight"
-  | "ArrowTurnRightDown"
-  | "ArrowTurnRightLeft"
-  | "ArrowTurnRightUp"
-  | "ArrowTurnUpDown"
-  | "ArrowTurnUpLeft"
-  | "ArrowUndo"
-  | "ArrowUp"
-  | "ArrowUpLeft"
-  | "ArrowUpRight"
-  | "ArrowUpRightDashes"
-  | "ArrowUpSquareSettings"
-  | "ArrowUpload"
-  | "ArrowWrap"
-  | "ArrowWrapOff"
-  | "ArrowsBidirectional"
-  | "Attach"
-  | "AttachArrowRight"
-  | "AttachText"
-  | "AutoFitHeight"
-  | "AutoFitWidth"
-  | "Autocorrect"
-  | "Autosum"
-  | "Backpack"
-  | "BackpackAdd"
-  | "Backspace"
-  | "Badge"
-  | "Balloon"
-  | "BarcodeScanner"
-  | "Battery0"
-  | "Battery10"
-  | "Battery1"
-  | "Battery2"
-  | "Battery3"
-  | "Battery4"
-  | "Battery5"
-  | "Battery6"
-  | "Battery7"
-  | "Battery8"
-  | "Battery9"
-  | "BatteryCharge"
-  | "BatteryCheckmark"
-  | "BatterySaver"
-  | "BatteryWarning"
-  | "Beach"
-  | "Beaker"
-  | "BeakerAdd"
-  | "BeakerDismiss"
-  | "BeakerEdit"
-  | "BeakerEmpty"
-  | "BeakerOff"
-  | "BeakerSettings"
-  | "Bed"
-  | "BezierCurveSquare"
-  | "BinFull"
-  | "BinRecycle"
-  | "BinRecycleFull"
-  | "BinderTriangle"
-  | "Bluetooth"
-  | "BluetoothConnected"
-  | "BluetoothDisabled"
-  | "BluetoothSearching"
-  | "Blur"
-  | "Board"
-  | "BoardGames"
-  | "BoardHeart"
-  | "BoardSplit"
-  | "Book"
-  | "BookAdd"
-  | "BookArrowClockwise"
-  | "BookClock"
-  | "BookCoins"
-  | "BookCompass"
-  | "BookContacts"
-  | "BookDatabase"
-  | "BookDefault"
-  | "BookDismiss"
-  | "BookExclamationMark"
-  | "BookGlobe"
-  | "BookInformation"
-  | "BookLetter"
-  | "BookNumber"
-  | "BookOpen"
-  | "BookOpenGlobe"
-  | "BookOpenMicrophone"
-  | "BookPulse"
-  | "BookQuestionMark"
-  | "BookQuestionMarkRtl"
-  | "BookSearch"
-  | "BookStar"
-  | "BookTemplate"
-  | "BookTheta"
-  | "BookToolbox"
-  | "Bookmark"
-  | "BookmarkAdd"
-  | "BookmarkMultiple"
-  | "BookmarkOff"
-  | "BookmarkSearch"
-  | "BorderAll"
-  | "BorderBottom"
-  | "BorderBottomDouble"
-  | "BorderBottomThick"
-  | "BorderInside"
-  | "BorderLeft"
-  | "BorderLeftRight"
-  | "BorderNone"
-  | "BorderOutside"
-  | "BorderOutsideThick"
-  | "BorderRight"
-  | "BorderTop"
-  | "BorderTopBottom"
-  | "BorderTopBottomDouble"
-  | "BorderTopBottomThick"
-  | "Bot"
-  | "BotAdd"
-  | "BotSparkle"
-  | "BowTie"
-  | "BowlChopsticks"
-  | "BowlSalad"
-  | "Box"
-  | "BoxArrowLeft"
-  | "BoxArrowUp"
-  | "BoxCheckmark"
-  | "BoxDismiss"
-  | "BoxEdit"
-  | "BoxMultiple"
-  | "BoxMultipleArrowLeft"
-  | "BoxMultipleArrowRight"
-  | "BoxMultipleCheckmark"
-  | "BoxMultipleSearch"
-  | "BoxSearch"
-  | "BoxToolbox"
-  | "Braces"
-  | "BracesCheckmark"
-  | "BracesDismiss"
-  | "BracesVariable"
-  | "BrainCircuit"
-  | "Branch"
-  | "BranchCompare"
-  | "BranchFork"
-  | "BranchForkHint"
-  | "BranchForkLink"
-  | "BranchRequest"
-  | "BreakoutRoom"
-  | "Briefcase"
-  | "BriefcaseMedical"
-  | "BriefcaseOff"
-  | "BriefcasePerson"
-  | "BriefcaseSearch"
-  | "BrightnessHigh"
-  | "BrightnessLow"
-  | "BroadActivityFeed"
-  | "Broom"
-  | "BubbleMultiple"
-  | "Bug"
-  | "BugArrowCounterclockwise"
-  | "BugProhibited"
-  | "Building"
-  | "BuildingBank"
-  | "BuildingBankLink"
-  | "BuildingBankToolbox"
-  | "BuildingCloud"
-  | "BuildingDesktop"
-  | "BuildingFactory"
-  | "BuildingGovernment"
-  | "BuildingGovernmentSearch"
-  | "BuildingHome"
-  | "BuildingLighthouse"
-  | "BuildingMosque"
-  | "BuildingMultiple"
-  | "BuildingPeople"
-  | "BuildingRetail"
-  | "BuildingRetailMoney"
-  | "BuildingRetailMore"
-  | "BuildingRetailShield"
-  | "BuildingRetailToolbox"
-  | "BuildingShop"
-  | "BuildingSkyscraper"
-  | "BuildingSwap"
-  | "BuildingTownhouse"
-  | "Button"
-  | "Calculator"
-  | "CalculatorArrowClockwise"
-  | "CalculatorMultiple"
-  | "Calendar"
-  | "Calendar3Day"
-  | "CalendarAdd"
-  | "CalendarAgenda"
-  | "CalendarArrowCounterclockwise"
-  | "CalendarArrowDown"
-  | "CalendarArrowRight"
-  | "CalendarAssistant"
-  | "CalendarCancel"
-  | "CalendarChat"
-  | "CalendarCheckmark"
-  | "CalendarClock"
-  | "CalendarDataBar"
-  | "CalendarDate"
-  | "CalendarDay"
-  | "CalendarEdit"
-  | "CalendarEmpty"
-  | "CalendarError"
-  | "CalendarEye"
-  | "CalendarInfo"
-  | "CalendarLink"
-  | "CalendarLock"
-  | "CalendarLtr"
-  | "CalendarMail"
-  | "CalendarMention"
-  | "CalendarMonth"
-  | "CalendarMultiple"
-  | "CalendarNote"
-  | "CalendarPattern"
-  | "CalendarPerson"
-  | "CalendarPhone"
-  | "CalendarPlay"
-  | "CalendarQuestionMark"
-  | "CalendarRecord"
-  | "CalendarReply"
-  | "CalendarRtl"
-  | "CalendarSearch"
-  | "CalendarSettings"
-  | "CalendarShield"
-  | "CalendarStar"
-  | "CalendarSync"
-  | "CalendarToday"
-  | "CalendarToolbox"
-  | "CalendarVideo"
-  | "CalendarWeekNumbers"
-  | "CalendarWeekStart"
-  | "CalendarWorkWeek"
-  | "Call"
-  | "CallAdd"
-  | "CallCheckmark"
-  | "CallConnecting"
-  | "CallDismiss"
-  | "CallEnd"
-  | "CallExclamation"
-  | "CallForward"
-  | "CallInbound"
-  | "CallMissed"
-  | "CallOutbound"
-  | "CallPark"
-  | "CallPause"
-  | "CallProhibited"
-  | "CallTransfer"
-  | "CallWarning"
-  | "CalligraphyPen"
-  | "CalligraphyPenCheckmark"
-  | "CalligraphyPenError"
-  | "CalligraphyPenQuestionMark"
-  | "Camera"
-  | "CameraAdd"
-  | "CameraDome"
-  | "CameraEdit"
-  | "CameraOff"
-  | "CameraSparkles"
-  | "CameraSwitch"
-  | "CardUi"
-  | "CaretDown"
-  | "CaretDownRight"
-  | "CaretLeft"
-  | "CaretRight"
-  | "CaretUp"
-  | "Cart"
-  | "Cast"
-  | "CastMultiple"
-  | "CatchUp"
-  | "Cd"
-  | "Cellular3G"
-  | "Cellular4G"
-  | "Cellular5G"
-  | "CellularData1"
-  | "CellularData2"
-  | "CellularData3"
-  | "CellularData4"
-  | "CellularData5"
-  | "CellularOff"
-  | "CellularWarning"
-  | "CenterHorizontal"
-  | "CenterVertical"
-  | "Certificate"
-  | "Channel"
-  | "ChannelAdd"
-  | "ChannelAlert"
-  | "ChannelArrowLeft"
-  | "ChannelDismiss"
-  | "ChannelShare"
-  | "ChannelSubtract"
-  | "ChartMultiple"
-  | "ChartPerson"
-  | "Chat"
-  | "ChatAdd"
-  | "ChatArrowBack"
-  | "ChatArrowDoubleBack"
-  | "ChatBubblesQuestion"
-  | "ChatCursor"
-  | "ChatDismiss"
-  | "ChatEmpty"
-  | "ChatHelp"
-  | "ChatLock"
-  | "ChatMail"
-  | "ChatMultiple"
-  | "ChatMultipleHeart"
-  | "ChatOff"
-  | "ChatSettings"
-  | "ChatSparkle"
-  | "ChatVideo"
-  | "ChatWarning"
-  | "Check"
-  | "Checkbox1"
-  | "Checkbox2"
-  | "CheckboxArrowRight"
-  | "CheckboxChecked"
-  | "CheckboxCheckedSync"
-  | "CheckboxIndeterminate"
-  | "CheckboxPerson"
-  | "CheckboxUnchecked"
-  | "CheckboxWarning"
-  | "Checkmark"
-  | "CheckmarkCircle"
-  | "CheckmarkCircleSquare"
-  | "CheckmarkLock"
-  | "CheckmarkNote"
-  | "CheckmarkSquare"
-  | "CheckmarkStarburst"
-  | "CheckmarkUnderlineCircle"
-  | "Chess"
-  | "ChevronCircleDown"
-  | "ChevronCircleLeft"
-  | "ChevronCircleRight"
-  | "ChevronCircleUp"
-  | "ChevronDoubleDown"
-  | "ChevronDoubleLeft"
-  | "ChevronDoubleRight"
-  | "ChevronDoubleUp"
-  | "ChevronDown"
-  | "ChevronDownUp"
-  | "ChevronLeft"
-  | "ChevronRight"
-  | "ChevronUp"
-  | "ChevronUpDown"
-  | "Circle"
-  | "CircleEdit"
-  | "CircleEraser"
-  | "CircleHalfFill"
-  | "CircleHint"
-  | "CircleHintHalfVertical"
-  | "CircleImage"
-  | "CircleLine"
-  | "CircleMultipleSubtractCheckmark"
-  | "CircleOff"
-  | "CircleSmall"
-  | "City"
-  | "Class"
-  | "Classification"
-  | "ClearFormatting"
-  | "Clipboard"
-  | "Clipboard3Day"
-  | "ClipboardArrowRight"
-  | "ClipboardBrush"
-  | "ClipboardBulletList"
-  | "ClipboardBulletListLtr"
-  | "ClipboardBulletListRtl"
-  | "ClipboardCheckmark"
-  | "ClipboardClock"
-  | "ClipboardCode"
-  | "ClipboardDataBar"
-  | "ClipboardDay"
-  | "ClipboardEdit"
-  | "ClipboardError"
-  | "ClipboardHeart"
-  | "ClipboardImage"
-  | "ClipboardLetter"
-  | "ClipboardLink"
-  | "ClipboardMathFormula"
-  | "ClipboardMonth"
-  | "ClipboardMore"
-  | "ClipboardMultiple"
-  | "ClipboardNote"
-  | "ClipboardNumber123"
-  | "ClipboardPaste"
-  | "ClipboardPulse"
-  | "ClipboardSearch"
-  | "ClipboardSettings"
-  | "ClipboardTask"
-  | "ClipboardTaskAdd"
-  | "ClipboardTaskList"
-  | "ClipboardTaskListLtr"
-  | "ClipboardTaskListRtl"
-  | "ClipboardText"
-  | "ClipboardTextEdit"
-  | "ClipboardTextLtr"
-  | "ClipboardTextRtl"
-  | "Clock"
-  | "ClockAlarm"
-  | "ClockArrowDownload"
-  | "ClockDismiss"
-  | "ClockLock"
-  | "ClockPause"
-  | "ClockToolbox"
-  | "ClosedCaption"
-  | "ClosedCaptionOff"
-  | "Cloud"
-  | "CloudAdd"
-  | "CloudArchive"
-  | "CloudArrowDown"
-  | "CloudArrowUp"
-  | "CloudBeaker"
-  | "CloudBidirectional"
-  | "CloudCheckmark"
-  | "CloudCube"
-  | "CloudDatabase"
-  | "CloudDesktop"
-  | "CloudDismiss"
-  | "CloudEdit"
-  | "CloudError"
-  | "CloudFlow"
-  | "CloudLink"
-  | "CloudOff"
-  | "CloudSwap"
-  | "CloudSync"
-  | "CloudWords"
-  | "Clover"
-  | "Code"
-  | "CodeBlock"
-  | "CodeCircle"
-  | "CodeCs"
-  | "CodeCsRectangle"
-  | "CodeFs"
-  | "CodeFsRectangle"
-  | "CodeJs"
-  | "CodeJsRectangle"
-  | "CodePy"
-  | "CodePyRectangle"
-  | "CodeRb"
-  | "CodeRbRectangle"
-  | "CodeText"
-  | "CodeTextEdit"
-  | "CodeTextOff"
-  | "CodeTs"
-  | "CodeTsRectangle"
-  | "CodeVb"
-  | "CodeVbRectangle"
-  | "Collections"
-  | "CollectionsAdd"
-  | "Color"
-  | "ColorBackground"
-  | "ColorBackgroundAccent"
-  | "ColorFill"
-  | "ColorFillAccent"
-  | "ColorLine"
-  | "ColorLineAccent"
-  | "Column"
-  | "ColumnArrowRight"
-  | "ColumnDoubleCompare"
-  | "ColumnEdit"
-  | "ColumnSingle"
-  | "ColumnSingleCompare"
-  | "ColumnTriple"
-  | "ColumnTripleEdit"
-  | "Comma"
-  | "Comment"
-  | "CommentAdd"
-  | "CommentArrowLeft"
-  | "CommentArrowRight"
-  | "CommentCheckmark"
-  | "CommentDismiss"
-  | "CommentEdit"
-  | "CommentError"
-  | "CommentLightning"
-  | "CommentLink"
-  | "CommentMention"
-  | "CommentMultiple"
-  | "CommentMultipleCheckmark"
-  | "CommentMultipleLink"
-  | "CommentNote"
-  | "CommentOff"
-  | "Communication"
-  | "CommunicationPerson"
-  | "CommunicationShield"
-  | "CompassNorthwest"
-  | "Component2DoubleTapSwipeDown"
-  | "Component2DoubleTapSwipeUp"
-  | "Compose"
-  | "Cone"
-  | "ConferenceRoom"
-  | "Connected"
-  | "Connector"
-  | "ContactCard"
-  | "ContactCardGroup"
-  | "ContactCardLink"
-  | "ContactCardRibbon"
-  | "ContentSettings"
-  | "ContentView"
-  | "ContentViewGallery"
-  | "ContentViewGalleryLightning"
-  | "ContractDownLeft"
-  | "ContractUpRight"
-  | "ControlButton"
-  | "ConvertRange"
-  | "Cookies"
-  | "Copy"
-  | "CopyAdd"
-  | "CopyArrowRight"
-  | "CopySelect"
-  | "Couch"
-  | "CreditCardClock"
-  | "CreditCardPerson"
-  | "CreditCardToolbox"
-  | "Crop"
-  | "CropInterim"
-  | "CropInterimOff"
-  | "CropSparkle"
-  | "Crown"
-  | "CrownSubtract"
-  | "Cube"
-  | "CubeAdd"
-  | "CubeArrowCurveDown"
-  | "CubeLink"
-  | "CubeMultiple"
-  | "CubeQuick"
-  | "CubeRotate"
-  | "CubeSync"
-  | "CubeTree"
-  | "CurrencyDollarEuro"
-  | "CurrencyDollarRupee"
-  | "Cursor"
-  | "CursorClick"
-  | "CursorHover"
-  | "CursorHoverOff"
-  | "CursorProhibited"
-  | "Cut"
-  | "DarkTheme"
-  | "DataArea"
-  | "DataBarHorizontal"
-  | "DataBarHorizontalDescending"
-  | "DataBarVertical"
-  | "DataBarVerticalAdd"
-  | "DataBarVerticalAscending"
-  | "DataBarVerticalStar"
-  | "DataFunnel"
-  | "DataHistogram"
-  | "DataLine"
-  | "DataPie"
-  | "DataScatter"
-  | "DataSunburst"
-  | "DataTreemap"
-  | "DataTrending"
-  | "DataUsage"
-  | "DataUsageEdit"
-  | "DataUsageSettings"
-  | "DataUsageToolbox"
-  | "DataWaterfall"
-  | "DataWhisker"
-  | "Database"
-  | "DatabaseArrowDown"
-  | "DatabaseArrowRight"
-  | "DatabaseArrowUp"
-  | "DatabaseLightning"
-  | "DatabaseLink"
-  | "DatabaseMultiple"
-  | "DatabasePerson"
-  | "DatabasePlugConnected"
-  | "DatabaseSearch"
-  | "DatabaseStack"
-  | "DatabaseSwitch"
-  | "DatabaseWarning"
-  | "DatabaseWindow"
-  | "DecimalArrowLeft"
-  | "DecimalArrowRight"
-  | "Delete"
-  | "DeleteArrowBack"
-  | "DeleteDismiss"
-  | "DeleteLines"
-  | "DeleteOff"
-  | "Dentist"
-  | "DesignIdeas"
-  | "Desk"
-  | "Desktop"
-  | "DesktopArrowDown"
-  | "DesktopArrowRight"
-  | "DesktopCheckmark"
-  | "DesktopCursor"
-  | "DesktopEdit"
-  | "DesktopFlow"
-  | "DesktopKeyboard"
-  | "DesktopMac"
-  | "DesktopPulse"
-  | "DesktopSignal"
-  | "DesktopSpeaker"
-  | "DesktopSpeakerOff"
-  | "DesktopSync"
-  | "DesktopToolbox"
-  | "DesktopTower"
-  | "DeveloperBoard"
-  | "DeveloperBoardLightning"
-  | "DeveloperBoardLightningToolbox"
-  | "DeveloperBoardSearch"
-  | "DeviceEq"
-  | "DeviceMeetingRoom"
-  | "DeviceMeetingRoomRemote"
-  | "Diagram"
-  | "Dialpad"
-  | "DialpadOff"
-  | "DialpadQuestionMark"
-  | "Diamond"
-  | "Directions"
-  | "Dishwasher"
-  | "Dismiss"
-  | "DismissCircle"
-  | "DismissSquare"
-  | "DismissSquareMultiple"
-  | "Diversity"
-  | "DividerShort"
-  | "DividerTall"
-  | "Dock"
-  | "DockRow"
-  | "Doctor"
-  | "Document100"
-  | "Document"
-  | "DocumentAdd"
-  | "DocumentArrowDown"
-  | "DocumentArrowLeft"
-  | "DocumentArrowRight"
-  | "DocumentArrowUp"
-  | "DocumentBorder"
-  | "DocumentBorderPrint"
-  | "DocumentBriefcase"
-  | "DocumentBulletList"
-  | "DocumentBulletListArrowLeft"
-  | "DocumentBulletListClock"
-  | "DocumentBulletListCube"
-  | "DocumentBulletListMultiple"
-  | "DocumentBulletListOff"
-  | "DocumentCatchUp"
-  | "DocumentCheckmark"
-  | "DocumentChevronDouble"
-  | "DocumentContract"
-  | "DocumentCopy"
-  | "DocumentCs"
-  | "DocumentCss"
-  | "DocumentCube"
-  | "DocumentData"
-  | "DocumentDataLink"
-  | "DocumentDataLock"
-  | "DocumentDatabase"
-  | "DocumentDismiss"
-  | "DocumentEdit"
-  | "DocumentEndnote"
-  | "DocumentError"
-  | "DocumentFit"
-  | "DocumentFlowchart"
-  | "DocumentFolder"
-  | "DocumentFooter"
-  | "DocumentFooterDismiss"
-  | "DocumentFs"
-  | "DocumentHeader"
-  | "DocumentHeaderArrowDown"
-  | "DocumentHeaderDismiss"
-  | "DocumentHeaderFooter"
-  | "DocumentHeart"
-  | "DocumentHeartPulse"
-  | "DocumentImage"
-  | "DocumentJava"
-  | "DocumentJavascript"
-  | "DocumentJs"
-  | "DocumentKey"
-  | "DocumentLandscape"
-  | "DocumentLandscapeData"
-  | "DocumentLandscapeSplit"
-  | "DocumentLandscapeSplitHint"
-  | "DocumentLightning"
-  | "DocumentLink"
-  | "DocumentLock"
-  | "DocumentMargins"
-  | "DocumentMention"
-  | "DocumentMultiple"
-  | "DocumentMultiplePercent"
-  | "DocumentMultipleProhibited"
-  | "DocumentMultipleSync"
-  | "DocumentNumber1"
-  | "DocumentOnePage"
-  | "DocumentOnePageAdd"
-  | "DocumentOnePageBeaker"
-  | "DocumentOnePageColumns"
-  | "DocumentOnePageLink"
-  | "DocumentOnePageMultiple"
-  | "DocumentOnePageSparkle"
-  | "DocumentPageBottomCenter"
-  | "DocumentPageBottomLeft"
-  | "DocumentPageBottomRight"
-  | "DocumentPageBreak"
-  | "DocumentPageNumber"
-  | "DocumentPageTopCenter"
-  | "DocumentPageTopLeft"
-  | "DocumentPageTopRight"
-  | "DocumentPdf"
-  | "DocumentPercent"
-  | "DocumentPerson"
-  | "DocumentPill"
-  | "DocumentPrint"
-  | "DocumentProhibited"
-  | "DocumentPy"
-  | "DocumentQuestionMark"
-  | "DocumentQueue"
-  | "DocumentQueueAdd"
-  | "DocumentQueueMultiple"
-  | "DocumentRb"
-  | "DocumentRibbon"
-  | "DocumentSass"
-  | "DocumentSave"
-  | "DocumentSearch"
-  | "DocumentSettings"
-  | "DocumentSplitHint"
-  | "DocumentSplitHintOff"
-  | "DocumentSync"
-  | "DocumentTable"
-  | "DocumentTableArrowRight"
-  | "DocumentTableCheckmark"
-  | "DocumentTableCube"
-  | "DocumentTableSearch"
-  | "DocumentTableTruck"
-  | "DocumentTarget"
-  | "DocumentText"
-  | "DocumentTextClock"
-  | "DocumentTextExtract"
-  | "DocumentTextLink"
-  | "DocumentTextToolbox"
-  | "DocumentToolbox"
-  | "DocumentTs"
-  | "DocumentVb"
-  | "DocumentWidth"
-  | "DocumentYml"
-  | "Door"
-  | "DoorArrowLeft"
-  | "DoorArrowRight"
-  | "DoorTag"
-  | "DoubleSwipeDown"
-  | "DoubleSwipeUp"
-  | "DoubleTapSwipeDown"
-  | "DoubleTapSwipeUp"
-  | "Drafts"
-  | "Drag"
-  | "DrawImage"
-  | "DrawShape"
-  | "DrawText"
-  | "Drawer"
-  | "DrawerAdd"
-  | "DrawerArrowDownload"
-  | "DrawerDismiss"
-  | "DrawerPlay"
-  | "DrawerSubtract"
-  | "DrinkBeer"
-  | "DrinkBottle"
-  | "DrinkBottleOff"
-  | "DrinkCoffee"
-  | "DrinkMargarita"
-  | "DrinkToGo"
-  | "DrinkWine"
-  | "DriveTrain"
-  | "Drop"
-  | "DualScreen"
-  | "DualScreenAdd"
-  | "DualScreenArrowRight"
-  | "DualScreenArrowUp"
-  | "DualScreenClock"
-  | "DualScreenClosedAlert"
-  | "DualScreenDesktop"
-  | "DualScreenDismiss"
-  | "DualScreenGroup"
-  | "DualScreenHeader"
-  | "DualScreenLock"
-  | "DualScreenMirror"
-  | "DualScreenPagination"
-  | "DualScreenSettings"
-  | "DualScreenSpan"
-  | "DualScreenSpeaker"
-  | "DualScreenStatusBar"
-  | "DualScreenTablet"
-  | "DualScreenUpdate"
-  | "DualScreenVerticalScroll"
-  | "DualScreenVibrate"
-  | "Dumbbell"
-  | "Dust"
-  | "Earth"
-  | "EarthLeaf"
-  | "Edit"
-  | "EditArrowBack"
-  | "EditOff"
-  | "EditProhibited"
-  | "EditSettings"
-  | "Elevator"
-  | "Emoji"
-  | "EmojiAdd"
-  | "EmojiAngry"
-  | "EmojiEdit"
-  | "EmojiHand"
-  | "EmojiHint"
-  | "EmojiLaugh"
-  | "EmojiMeh"
-  | "EmojiMultiple"
-  | "EmojiSad"
-  | "EmojiSadSlight"
-  | "EmojiSmileSlight"
-  | "EmojiSparkle"
-  | "EmojiSurprise"
-  | "Engine"
-  | "EqualCircle"
-  | "EqualOff"
-  | "Eraser"
-  | "EraserMedium"
-  | "EraserSegment"
-  | "EraserSmall"
-  | "EraserTool"
-  | "ErrorCircle"
-  | "ErrorCircleSettings"
-  | "ExpandUpLeft"
-  | "ExpandUpRight"
-  | "ExtendedDock"
-  | "Eye"
-  | "EyeLines"
-  | "EyeOff"
-  | "EyeTracking"
-  | "EyeTrackingOff"
-  | "Eyedropper"
-  | "EyedropperOff"
-  | "FStop"
-  | "FastAcceleration"
-  | "FastForward"
-  | "Fax"
-  | "Feed"
-  | "Filmstrip"
-  | "FilmstripImage"
-  | "FilmstripOff"
-  | "FilmstripPlay"
-  | "FilmstripSplit"
-  | "Filter"
-  | "FilterAdd"
-  | "FilterDismiss"
-  | "FilterSync"
-  | "Fingerprint"
-  | "Fire"
-  | "Fireplace"
-  | "FixedWidth"
-  | "Flag"
-  | "FlagCheckered"
-  | "FlagClock"
-  | "FlagOff"
-  | "FlagPride"
-  | "FlagPrideIntersexInclusiveProgress"
-  | "FlagPridePhiladelphia"
-  | "FlagPrideProgress"
-  | "Flash"
-  | "FlashAdd"
-  | "FlashAuto"
-  | "FlashCheckmark"
-  | "FlashFlow"
-  | "FlashOff"
-  | "FlashPlay"
-  | "FlashSettings"
-  | "FlashSparkle"
-  | "Flashlight"
-  | "FlashlightOff"
-  | "FlipHorizontal"
-  | "FlipVertical"
-  | "Flow"
-  | "Flowchart"
-  | "FlowchartCircle"
-  | "Fluent"
-  | "Fluid"
-  | "Folder"
-  | "FolderAdd"
-  | "FolderArrowLeft"
-  | "FolderArrowRight"
-  | "FolderArrowUp"
-  | "FolderBriefcase"
-  | "FolderGlobe"
-  | "FolderLightning"
-  | "FolderLink"
-  | "FolderList"
-  | "FolderMail"
-  | "FolderMultiple"
-  | "FolderOpen"
-  | "FolderOpenVertical"
-  | "FolderPeople"
-  | "FolderPerson"
-  | "FolderProhibited"
-  | "FolderSearch"
-  | "FolderSwap"
-  | "FolderSync"
-  | "FolderZip"
-  | "FontDecrease"
-  | "FontIncrease"
-  | "FontSpaceTrackingIn"
-  | "FontSpaceTrackingOut"
-  | "Food"
-  | "FoodApple"
-  | "FoodCake"
-  | "FoodCarrot"
-  | "FoodChickenLeg"
-  | "FoodEgg"
-  | "FoodFish"
-  | "FoodGrains"
-  | "FoodPizza"
-  | "FoodToast"
-  | "Form"
-  | "FormMultiple"
-  | "FormNew"
-  | "Fps120"
-  | "Fps240"
-  | "Fps30"
-  | "Fps60"
-  | "Fps960"
-  | "Frame"
-  | "FullScreenMaximize"
-  | "FullScreenMinimize"
-  | "Games"
-  | "GanttChart"
-  | "Gas"
-  | "GasPump"
-  | "Gather"
-  | "Gauge"
-  | "GaugeAdd"
-  | "Gavel"
-  | "GavelProhibited"
-  | "Gesture"
-  | "Gif"
-  | "Gift"
-  | "GiftCard"
-  | "GiftCardAdd"
-  | "GiftCardArrowRight"
-  | "GiftCardMoney"
-  | "GiftCardMultiple"
-  | "GiftOpen"
-  | "Glance"
-  | "GlanceDefault"
-  | "GlanceHorizontal"
-  | "GlanceHorizontalSparkle"
-  | "GlanceHorizontalSparkles"
-  | "Glasses"
-  | "GlassesOff"
-  | "Globe"
-  | "GlobeAdd"
-  | "GlobeArrowForward"
-  | "GlobeArrowUp"
-  | "GlobeClock"
-  | "GlobeDesktop"
-  | "GlobeError"
-  | "GlobeLocation"
-  | "GlobePerson"
-  | "GlobeProhibited"
-  | "GlobeSearch"
-  | "GlobeShield"
-  | "GlobeStar"
-  | "GlobeSurface"
-  | "GlobeSync"
-  | "GlobeVideo"
-  | "GlobeWarning"
-  | "Grid"
-  | "GridCircles"
-  | "GridDots"
-  | "GridKanban"
-  | "Group"
-  | "GroupDismiss"
-  | "GroupList"
-  | "GroupReturn"
-  | "Guardian"
-  | "Guest"
-  | "GuestAdd"
-  | "Guitar"
-  | "HandDraw"
-  | "HandLeft"
-  | "HandLeftChat"
-  | "HandOpenHeart"
-  | "HandRight"
-  | "HandRightOff"
-  | "HandWave"
-  | "Handshake"
-  | "HardDrive"
-  | "HardDriveCall"
-  | "HatGraduation"
-  | "HatGraduationAdd"
-  | "HatGraduationSparkle"
-  | "Hd"
-  | "Hdr"
-  | "HdrOff"
-  | "Headphones"
-  | "HeadphonesSoundWave"
-  | "Headset"
-  | "HeadsetAdd"
-  | "HeadsetVr"
-  | "Heart"
-  | "HeartBroken"
-  | "HeartCircle"
-  | "HeartCircleHint"
-  | "HeartOff"
-  | "HeartPulse"
-  | "HeartPulseCheckmark"
-  | "HeartPulseError"
-  | "HeartPulseWarning"
-  | "Hexagon"
-  | "HexagonThree"
-  | "Highlight"
-  | "HighlightAccent"
-  | "HighlightLink"
-  | "History"
-  | "HistoryDismiss"
-  | "Home"
-  | "HomeAdd"
-  | "HomeCheckmark"
-  | "HomeDatabase"
-  | "HomeHeart"
-  | "HomeMore"
-  | "HomePerson"
-  | "HomeSplit"
-  | "Hourglass"
-  | "HourglassHalf"
-  | "HourglassOneQuarter"
-  | "HourglassThreeQuarter"
-  | "Icons"
-  | "Image"
-  | "ImageAdd"
-  | "ImageAltText"
-  | "ImageArrowBack"
-  | "ImageArrowCounterclockwise"
-  | "ImageArrowForward"
-  | "ImageBorder"
-  | "ImageCircle"
-  | "ImageCopy"
-  | "ImageEdit"
-  | "ImageGlobe"
-  | "ImageMultiple"
-  | "ImageMultipleOff"
-  | "ImageOff"
-  | "ImageProhibited"
-  | "ImageReflection"
-  | "ImageSearch"
-  | "ImageShadow"
-  | "ImageSparkle"
-  | "ImageStack"
-  | "ImageTable"
-  | "ImmersiveReader"
-  | "Important"
-  | "Incognito"
-  | "Info"
-  | "InfoShield"
-  | "InkStroke"
-  | "InkStrokeArrowDown"
-  | "InkStrokeArrowUpDown"
-  | "InkingTool"
-  | "InkingToolAccent"
-  | "InprivateAccount"
-  | "Insert"
-  | "IosArrow"
-  | "IosArrowLtr"
-  | "IosArrowRtl"
-  | "IosChevronRight"
-  | "Iot"
-  | "IotAlert"
-  | "Javascript"
-  | "Joystick"
-  | "Key"
-  | "KeyCommand"
-  | "KeyMultiple"
-  | "KeyReset"
-  | "Keyboard123"
-  | "Keyboard"
-  | "KeyboardDock"
-  | "KeyboardLayoutFloat"
-  | "KeyboardLayoutOneHandedLeft"
-  | "KeyboardLayoutResize"
-  | "KeyboardLayoutSplit"
-  | "KeyboardMouse"
-  | "KeyboardShift"
-  | "KeyboardShiftUppercase"
-  | "KeyboardTab"
-  | "Kiosk"
-  | "Laptop"
-  | "LaptopDismiss"
-  | "LaptopMultiple"
-  | "LaptopSettings"
-  | "LaptopShield"
-  | "LaserTool"
-  | "Lasso"
-  | "LauncherSettings"
-  | "Layer"
-  | "LayerDiagonal"
-  | "LayerDiagonalAdd"
-  | "LayerDiagonalPerson"
-  | "LayoutCellFour"
-  | "LayoutCellFourFocusBottomLeft"
-  | "LayoutCellFourFocusBottomRight"
-  | "LayoutCellFourFocusTopLeft"
-  | "LayoutCellFourFocusTopRight"
-  | "LayoutColumnFour"
-  | "LayoutColumnFourFocusCenterLeft"
-  | "LayoutColumnFourFocusCenterRight"
-  | "LayoutColumnFourFocusLeft"
-  | "LayoutColumnFourFocusRight"
-  | "LayoutColumnOneThirdLeft"
-  | "LayoutColumnOneThirdRight"
-  | "LayoutColumnOneThirdRightHint"
-  | "LayoutColumnThree"
-  | "LayoutColumnThreeFocusCenter"
-  | "LayoutColumnThreeFocusLeft"
-  | "LayoutColumnThreeFocusRight"
-  | "LayoutColumnTwo"
-  | "LayoutColumnTwoFocusLeft"
-  | "LayoutColumnTwoFocusRight"
-  | "LayoutColumnTwoSplitLeft"
-  | "LayoutColumnTwoSplitLeftFocusBottomLeft"
-  | "LayoutColumnTwoSplitLeftFocusRight"
-  | "LayoutColumnTwoSplitLeftFocusTopLeft"
-  | "LayoutColumnTwoSplitRight"
-  | "LayoutColumnTwoSplitRightFocusBottomRight"
-  | "LayoutColumnTwoSplitRightFocusLeft"
-  | "LayoutColumnTwoSplitRightFocusTopRight"
-  | "LayoutRowFour"
-  | "LayoutRowFourFocusBottom"
-  | "LayoutRowFourFocusCenterBottom"
-  | "LayoutRowFourFocusCenterTop"
-  | "LayoutRowFourFocusTop"
-  | "LayoutRowThree"
-  | "LayoutRowThreeFocusBottom"
-  | "LayoutRowThreeFocusCenter"
-  | "LayoutRowThreeFocusTop"
-  | "LayoutRowTwo"
-  | "LayoutRowTwoFocusBottom"
-  | "LayoutRowTwoFocusTop"
-  | "LayoutRowTwoSplitBottom"
-  | "LayoutRowTwoSplitBottomFocusBottomLeft"
-  | "LayoutRowTwoSplitBottomFocusBottomRight"
-  | "LayoutRowTwoSplitBottomFocusTop"
-  | "LayoutRowTwoSplitTop"
-  | "LayoutRowTwoSplitTopFocusBottom"
-  | "LayoutRowTwoSplitTopFocusTopLeft"
-  | "LayoutRowTwoSplitTopFocusTopRight"
-  | "LeafOne"
-  | "LeafThree"
-  | "LeafTwo"
-  | "LearningApp"
-  | "Library"
-  | "Lightbulb"
-  | "LightbulbCheckmark"
-  | "LightbulbCircle"
-  | "LightbulbFilament"
-  | "LightbulbPerson"
-  | "Likert"
-  | "Line"
-  | "LineDashes"
-  | "LineHorizontal1"
-  | "LineHorizontal1Dashes"
-  | "LineHorizontal2DashesSolid"
-  | "LineHorizontal3"
-  | "LineHorizontal4"
-  | "LineHorizontal4Search"
-  | "LineHorizontal5"
-  | "LineHorizontal5Error"
-  | "LineStyle"
-  | "LineThickness"
-  | "Link"
-  | "LinkAdd"
-  | "LinkDismiss"
-  | "LinkEdit"
-  | "LinkMultiple"
-  | "LinkPerson"
-  | "LinkSettings"
-  | "LinkSquare"
-  | "LinkToolbox"
-  | "List"
-  | "ListBar"
-  | "ListBarTree"
-  | "ListBarTreeOffset"
-  | "ListRtl"
-  | "Live"
-  | "LiveOff"
-  | "LocalLanguage"
-  | "Location"
-  | "LocationAdd"
-  | "LocationAddLeft"
-  | "LocationAddRight"
-  | "LocationAddUp"
-  | "LocationArrow"
-  | "LocationArrowLeft"
-  | "LocationArrowRight"
-  | "LocationArrowUp"
-  | "LocationDismiss"
-  | "LocationLive"
-  | "LocationOff"
-  | "LocationTargetSquare"
-  | "LockClosed"
-  | "LockClosedKey"
-  | "LockMultiple"
-  | "LockOpen"
-  | "LockShield"
-  | "Lottery"
-  | "Luggage"
-  | "Mail"
-  | "MailAdd"
-  | "MailAlert"
-  | "MailAllRead"
-  | "MailAllUnread"
-  | "MailArrowDoubleBack"
-  | "MailArrowDown"
-  | "MailArrowForward"
-  | "MailArrowUp"
-  | "MailAttach"
-  | "MailCheckmark"
-  | "MailClock"
-  | "MailCopy"
-  | "MailDismiss"
-  | "MailEdit"
-  | "MailError"
-  | "MailInbox"
-  | "MailInboxAdd"
-  | "MailInboxAll"
-  | "MailInboxArrowDown"
-  | "MailInboxArrowRight"
-  | "MailInboxArrowUp"
-  | "MailInboxCheckmark"
-  | "MailInboxDismiss"
-  | "MailLink"
-  | "MailList"
-  | "MailMultiple"
-  | "MailOff"
-  | "MailOpenPerson"
-  | "MailPause"
-  | "MailProhibited"
-  | "MailRead"
-  | "MailReadMultiple"
-  | "MailRewind"
-  | "MailSettings"
-  | "MailShield"
-  | "MailTemplate"
-  | "MailUnread"
-  | "MailWarning"
-  | "Mailbox"
-  | "Map"
-  | "MapDrive"
-  | "Markdown"
-  | "MatchAppLayout"
-  | "MathFormatLinear"
-  | "MathFormatProfessional"
-  | "MathFormula"
-  | "MathSymbols"
-  | "Maximize"
-  | "MeetNow"
-  | "Megaphone"
-  | "MegaphoneCircle"
-  | "MegaphoneLoud"
-  | "MegaphoneOff"
-  | "Memory"
-  | "Mention"
-  | "MentionArrowDown"
-  | "MentionBrackets"
-  | "Merge"
-  | "Mic"
-  | "MicOff"
-  | "MicProhibited"
-  | "MicPulse"
-  | "MicPulseOff"
-  | "MicRecord"
-  | "MicSettings"
-  | "MicSparkle"
-  | "MicSync"
-  | "Microscope"
-  | "Midi"
-  | "MobileOptimized"
-  | "Mold"
-  | "Molecule"
-  | "Money"
-  | "MoneyCalculator"
-  | "MoneyDismiss"
-  | "MoneyHand"
-  | "MoneyOff"
-  | "MoneySettings"
-  | "MoreCircle"
-  | "MoreHorizontal"
-  | "MoreVertical"
-  | "MountainLocationBottom"
-  | "MountainLocationTop"
-  | "MountainTrail"
-  | "MoviesAndTv"
-  | "Multiplier12X"
-  | "Multiplier15X"
-  | "Multiplier18X"
-  | "Multiplier1X"
-  | "Multiplier2X"
-  | "Multiplier5X"
-  | "MultiselectLtr"
-  | "MultiselectRtl"
-  | "MusicNote1"
-  | "MusicNote2"
-  | "MusicNote2Play"
-  | "MusicNoteOff1"
-  | "MusicNoteOff2"
-  | "MyLocation"
-  | "Navigation"
-  | "NavigationLocationTarget"
-  | "NavigationPlay"
-  | "NavigationUnread"
-  | "NetworkAdapter"
-  | "NetworkCheck"
-  | "New"
-  | "News"
-  | "Next"
-  | "NextFrame"
-  | "Note"
-  | "NoteAdd"
-  | "NoteEdit"
-  | "NotePin"
-  | "Notebook"
-  | "NotebookAdd"
-  | "NotebookArrowCurveDown"
-  | "NotebookError"
-  | "NotebookEye"
-  | "NotebookLightning"
-  | "NotebookQuestionMark"
-  | "NotebookSection"
-  | "NotebookSectionArrowRight"
-  | "NotebookSubsection"
-  | "NotebookSync"
-  | "Notepad"
-  | "NotepadEdit"
-  | "NotepadPerson"
-  | "NumberCircle0"
-  | "NumberCircle1"
-  | "NumberCircle2"
-  | "NumberCircle3"
-  | "NumberCircle4"
-  | "NumberCircle5"
-  | "NumberCircle6"
-  | "NumberCircle7"
-  | "NumberCircle8"
-  | "NumberCircle9"
-  | "NumberRow"
-  | "NumberSymbol"
-  | "NumberSymbolDismiss"
-  | "NumberSymbolSquare"
-  | "Open"
-  | "OpenFolder"
-  | "OpenOff"
-  | "Options"
-  | "Organization"
-  | "OrganizationHorizontal"
-  | "Orientation"
-  | "Oval"
-  | "Oven"
-  | "PaddingDown"
-  | "PaddingLeft"
-  | "PaddingRight"
-  | "PaddingTop"
-  | "PageFit"
-  | "PaintBrush"
-  | "PaintBrushArrowDown"
-  | "PaintBrushArrowUp"
-  | "PaintBucket"
-  | "Pair"
-  | "PanelBottom"
-  | "PanelBottomContract"
-  | "PanelBottomExpand"
-  | "PanelLeft"
-  | "PanelLeftAdd"
-  | "PanelLeftContract"
-  | "PanelLeftExpand"
-  | "PanelLeftFocusRight"
-  | "PanelLeftHeader"
-  | "PanelLeftHeaderAdd"
-  | "PanelLeftHeaderKey"
-  | "PanelLeftKey"
-  | "PanelLeftText"
-  | "PanelLeftTextAdd"
-  | "PanelLeftTextDismiss"
-  | "PanelRight"
-  | "PanelRightAdd"
-  | "PanelRightContract"
-  | "PanelRightCursor"
-  | "PanelRightExpand"
-  | "PanelRightGallery"
-  | "PanelSeparateWindow"
-  | "PanelTopContract"
-  | "PanelTopExpand"
-  | "PanelTopGallery"
-  | "Password"
-  | "Patch"
-  | "Patient"
-  | "Pause"
-  | "PauseCircle"
-  | "PauseOff"
-  | "PauseSettings"
-  | "Payment"
-  | "Pen"
-  | "PenDismiss"
-  | "PenOff"
-  | "PenProhibited"
-  | "PenSparkle"
-  | "Pentagon"
-  | "People"
-  | "PeopleAdd"
-  | "PeopleAudience"
-  | "PeopleCall"
-  | "PeopleChat"
-  | "PeopleCheckmark"
-  | "PeopleCommunity"
-  | "PeopleCommunityAdd"
-  | "PeopleEdit"
-  | "PeopleError"
-  | "PeopleList"
-  | "PeopleLock"
-  | "PeopleMoney"
-  | "PeopleProhibited"
-  | "PeopleQueue"
-  | "PeopleSearch"
-  | "PeopleSettings"
-  | "PeopleStar"
-  | "PeopleSwap"
-  | "PeopleSync"
-  | "PeopleTeam"
-  | "PeopleTeamAdd"
-  | "PeopleTeamDelete"
-  | "PeopleTeamToolbox"
-  | "PeopleToolbox"
-  | "Person"
-  | "Person5"
-  | "Person6"
-  | "PersonAccounts"
-  | "PersonAdd"
-  | "PersonAlert"
-  | "PersonArrowBack"
-  | "PersonArrowLeft"
-  | "PersonArrowRight"
-  | "PersonAvailable"
-  | "PersonBoard"
-  | "PersonCall"
-  | "PersonChat"
-  | "PersonCircle"
-  | "PersonClock"
-  | "PersonDelete"
-  | "PersonDesktop"
-  | "PersonEdit"
-  | "PersonFeedback"
-  | "PersonHeart"
-  | "PersonInfo"
-  | "PersonKey"
-  | "PersonLightbulb"
-  | "PersonLightning"
-  | "PersonLink"
-  | "PersonLock"
-  | "PersonMail"
-  | "PersonMoney"
-  | "PersonNote"
-  | "PersonPhone"
-  | "PersonPill"
-  | "PersonProhibited"
-  | "PersonQuestionMark"
-  | "PersonRibbon"
-  | "PersonRunning"
-  | "PersonSearch"
-  | "PersonSettings"
-  | "PersonSquare"
-  | "PersonSquareCheckmark"
-  | "PersonStanding"
-  | "PersonStar"
-  | "PersonStarburst"
-  | "PersonSubtract"
-  | "PersonSupport"
-  | "PersonSwap"
-  | "PersonSync"
-  | "PersonTag"
-  | "PersonVoice"
-  | "PersonWalking"
-  | "PersonWarning"
-  | "PersonWrench"
-  | "Phone"
-  | "PhoneAdd"
-  | "PhoneArrowRight"
-  | "PhoneBriefcase"
-  | "PhoneChat"
-  | "PhoneCheckmark"
-  | "PhoneDesktop"
-  | "PhoneDesktopAdd"
-  | "PhoneDismiss"
-  | "PhoneEdit"
-  | "PhoneEraser"
-  | "PhoneFooterArrowDown"
-  | "PhoneHeaderArrowUp"
-  | "PhoneKey"
-  | "PhoneLaptop"
-  | "PhoneLinkSetup"
-  | "PhoneLock"
-  | "PhoneMultiple"
-  | "PhoneMultipleSettings"
-  | "PhonePageHeader"
-  | "PhonePagination"
-  | "PhonePerson"
-  | "PhoneScreenTime"
-  | "PhoneShake"
-  | "PhoneSpanIn"
-  | "PhoneSpanOut"
-  | "PhoneSpeaker"
-  | "PhoneStatusBar"
-  | "PhoneSubtract"
-  | "PhoneTablet"
-  | "PhoneUpdate"
-  | "PhoneUpdateCheckmark"
-  | "PhoneVerticalScroll"
-  | "PhoneVibrate"
-  | "PhotoFilter"
-  | "Pi"
-  | "PictureInPicture"
-  | "PictureInPictureEnter"
-  | "PictureInPictureExit"
-  | "Pill"
-  | "Pin"
-  | "PinOff"
-  | "Pipeline"
-  | "PipelineAdd"
-  | "PipelineArrowCurveDown"
-  | "PipelinePlay"
-  | "Pivot"
-  | "PlantGrass"
-  | "PlantRagweed"
-  | "Play"
-  | "PlayCircle"
-  | "PlayCircleHint"
-  | "PlayMultiple"
-  | "PlaySettings"
-  | "PlayingCards"
-  | "PlugConnected"
-  | "PlugConnectedAdd"
-  | "PlugConnectedCheckmark"
-  | "PlugConnectedSettings"
-  | "PlugDisconnected"
-  | "PointScan"
-  | "Poll"
-  | "PollHorizontal"
-  | "PollOff"
-  | "PortHdmi"
-  | "PortMicroUsb"
-  | "PortUsbA"
-  | "PortUsbC"
-  | "PositionBackward"
-  | "PositionForward"
-  | "PositionToBack"
-  | "PositionToFront"
-  | "Power"
-  | "Predictions"
-  | "Premium"
-  | "PremiumPerson"
-  | "PresenceAvailable"
-  | "PresenceAway"
-  | "PresenceBlocked"
-  | "PresenceBusy"
-  | "PresenceDnd"
-  | "PresenceOffline"
-  | "PresenceOof"
-  | "PresenceUnknown"
-  | "Presenter"
-  | "PresenterOff"
-  | "PreviewLink"
-  | "Previous"
-  | "PreviousFrame"
-  | "Print"
-  | "PrintAdd"
-  | "Production"
-  | "ProductionCheckmark"
-  | "Prohibited"
-  | "ProhibitedMultiple"
-  | "ProhibitedNote"
-  | "ProjectionScreen"
-  | "ProjectionScreenDismiss"
-  | "ProjectionScreenText"
-  | "ProtocolHandler"
-  | "Pulse"
-  | "PulseSquare"
-  | "PuzzleCube"
-  | "PuzzleCubePiece"
-  | "PuzzlePiece"
-  | "PuzzlePieceShield"
-  | "QrCode"
-  | "Question"
-  | "QuestionCircle"
-  | "QuizNew"
-  | "Radar"
-  | "RadarCheckmark"
-  | "RadarRectangleMultiple"
-  | "RadioButton"
-  | "RadioButtonOff"
-  | "Ram"
-  | "RatingMature"
-  | "RatioOneToOne"
-  | "ReOrder"
-  | "ReOrderDotsHorizontal"
-  | "ReOrderDotsVertical"
-  | "ReadAloud"
-  | "ReadingList"
-  | "ReadingListAdd"
-  | "ReadingModeMobile"
-  | "RealEstate"
-  | "Receipt"
-  | "ReceiptAdd"
-  | "ReceiptBag"
-  | "ReceiptCube"
-  | "ReceiptMoney"
-  | "ReceiptPlay"
-  | "ReceiptSearch"
-  | "ReceiptSparkles"
-  | "Record"
-  | "RecordStop"
-  | "RectangleLandscape"
-  | "RectangleLandscapeHintCopy"
-  | "RectangleLandscapeSparkle"
-  | "RectangleLandscapeSync"
-  | "RectangleLandscapeSyncOff"
-  | "RectanglePortraitLocationTarget"
-  | "Recycle"
-  | "RemixAdd"
-  | "Remote"
-  | "Rename"
-  | "Reorder"
-  | "Replay"
-  | "Resize"
-  | "ResizeImage"
-  | "ResizeLarge"
-  | "ResizeSmall"
-  | "ResizeTable"
-  | "ResizeVideo"
-  | "Reward"
-  | "Rewind"
-  | "Rhombus"
-  | "Ribbon"
-  | "RibbonAdd"
-  | "RibbonOff"
-  | "RibbonStar"
-  | "RoadCone"
-  | "Rocket"
-  | "RotateLeft"
-  | "RotateRight"
-  | "Router"
-  | "RowTriple"
-  | "Rss"
-  | "Ruler"
-  | "Run"
-  | "Sanitize"
-  | "Save"
-  | "SaveArrowRight"
-  | "SaveCopy"
-  | "SaveEdit"
-  | "SaveImage"
-  | "SaveMultiple"
-  | "SaveSearch"
-  | "SaveSync"
-  | "Savings"
-  | "ScaleFill"
-  | "ScaleFit"
-  | "Scales"
-  | "Scan"
-  | "ScanCamera"
-  | "ScanDash"
-  | "ScanObject"
-  | "ScanPerson"
-  | "ScanQrCode"
-  | "ScanTable"
-  | "ScanText"
-  | "ScanThumbUp"
-  | "ScanThumbUpOff"
-  | "ScanType"
-  | "ScanTypeCheckmark"
-  | "ScanTypeOff"
-  | "Scratchpad"
-  | "ScreenCut"
-  | "ScreenPerson"
-  | "ScreenSearch"
-  | "Screenshot"
-  | "ScreenshotRecord"
-  | "Script"
-  | "Search"
-  | "SearchInfo"
-  | "SearchSettings"
-  | "SearchShield"
-  | "SearchSquare"
-  | "SearchVisual"
-  | "Seat"
-  | "SeatAdd"
-  | "SelectAllOff"
-  | "SelectAllOn"
-  | "SelectObject"
-  | "SelectObjectSkew"
-  | "SelectObjectSkewDismiss"
-  | "SelectObjectSkewEdit"
-  | "Send"
-  | "SendBeaker"
-  | "SendClock"
-  | "SendCopy"
-  | "SerialPort"
-  | "Server"
-  | "ServerLink"
-  | "ServerMultiple"
-  | "ServerPlay"
-  | "ServerSurface"
-  | "ServerSurfaceMultiple"
-  | "ServiceBell"
-  | "Settings"
-  | "SettingsChat"
-  | "SettingsCogMultiple"
-  | "ShapeExclude"
-  | "ShapeIntersect"
-  | "ShapeOrganic"
-  | "ShapeSubtract"
-  | "ShapeUnion"
-  | "Shapes"
-  | "Share"
-  | "ShareAndroid"
-  | "ShareCloseTray"
-  | "ShareIos"
-  | "ShareScreenPerson"
-  | "ShareScreenPersonOverlay"
-  | "ShareScreenPersonOverlayInside"
-  | "ShareScreenPersonP"
-  | "ShareScreenStart"
-  | "ShareScreenStop"
-  | "Shield"
-  | "ShieldAdd"
-  | "ShieldBadge"
-  | "ShieldCheckmark"
-  | "ShieldDismiss"
-  | "ShieldDismissShield"
-  | "ShieldError"
-  | "ShieldGlobe"
-  | "ShieldKeyhole"
-  | "ShieldLock"
-  | "ShieldPerson"
-  | "ShieldPersonAdd"
-  | "ShieldProhibited"
-  | "ShieldQuestion"
-  | "ShieldTask"
-  | "Shifts"
-  | "Shifts30Minutes"
-  | "ShiftsActivity"
-  | "ShiftsAdd"
-  | "ShiftsAvailability"
-  | "ShiftsCheckmark"
-  | "ShiftsDay"
-  | "ShiftsOpen"
-  | "ShiftsProhibited"
-  | "ShiftsQuestionMark"
-  | "ShiftsTeam"
-  | "ShoppingBag"
-  | "ShoppingBagAdd"
-  | "ShoppingBagArrowLeft"
-  | "ShoppingBagDismiss"
-  | "ShoppingBagPause"
-  | "ShoppingBagPercent"
-  | "ShoppingBagPlay"
-  | "ShoppingBagTag"
-  | "Shortpick"
-  | "Showerhead"
-  | "SidebarSearchLtr"
-  | "SidebarSearchRtl"
-  | "SignOut"
-  | "Signature"
-  | "Sim"
-  | "SkipBack10"
-  | "SkipForward10"
-  | "SkipForward30"
-  | "SkipForwardTab"
-  | "SlashForward"
-  | "Sleep"
-  | "SlideAdd"
-  | "SlideArrowRight"
-  | "SlideContent"
-  | "SlideEraser"
-  | "SlideGrid"
-  | "SlideHide"
-  | "SlideLayout"
-  | "SlideLink"
-  | "SlideMicrophone"
-  | "SlideMultiple"
-  | "SlideMultipleArrowRight"
-  | "SlideMultipleSearch"
-  | "SlideRecord"
-  | "SlideSearch"
-  | "SlideSettings"
-  | "SlideSize"
-  | "SlideText"
-  | "SlideTextEdit"
-  | "SlideTextMultiple"
-  | "SlideTextPerson"
-  | "SlideTextSparkle"
-  | "SlideTransition"
-  | "Smartwatch"
-  | "SmartwatchDot"
-  | "Snooze"
-  | "SoundSource"
-  | "SoundWaveCircle"
-  | "Space3D"
-  | "Spacebar"
-  | "Sparkle"
-  | "SparkleCircle"
-  | "Speaker0"
-  | "Speaker1"
-  | "Speaker2"
-  | "SpeakerBluetooth"
-  | "SpeakerBox"
-  | "SpeakerEdit"
-  | "SpeakerMute"
-  | "SpeakerOff"
-  | "SpeakerSettings"
-  | "SpeakerUsb"
-  | "SpinnerIos"
-  | "SplitHint"
-  | "SplitHorizontal"
-  | "SplitVertical"
-  | "Sport"
-  | "SportAmericanFootball"
-  | "SportBaseball"
-  | "SportBasketball"
-  | "SportHockey"
-  | "SportSoccer"
-  | "SprayCan"
-  | "Square"
-  | "SquareAdd"
-  | "SquareArrowForward"
-  | "SquareDismiss"
-  | "SquareEraser"
-  | "SquareHint"
-  | "SquareHintApps"
-  | "SquareHintArrowBack"
-  | "SquareHintHexagon"
-  | "SquareHintSparkles"
-  | "SquareMultiple"
-  | "SquareShadow"
-  | "SquaresNested"
-  | "Stack"
-  | "StackAdd"
-  | "StackArrowForward"
-  | "StackStar"
-  | "StackVertical"
-  | "Star"
-  | "StarAdd"
-  | "StarArrowBack"
-  | "StarArrowRightEnd"
-  | "StarArrowRightStart"
-  | "StarCheckmark"
-  | "StarDismiss"
-  | "StarEdit"
-  | "StarEmphasis"
-  | "StarHalf"
-  | "StarLineHorizontal3"
-  | "StarOff"
-  | "StarOneQuarter"
-  | "StarProhibited"
-  | "StarSettings"
-  | "StarThreeQuarter"
-  | "Status"
-  | "Step"
-  | "Steps"
-  | "Stethoscope"
-  | "Sticker"
-  | "StickerAdd"
-  | "Stop"
-  | "Storage"
-  | "StoreMicrosoft"
-  | "Stream"
-  | "StreamInput"
-  | "StreamInputOutput"
-  | "StreamOutput"
-  | "StreetSign"
-  | "StyleGuide"
-  | "SubGrid"
-  | "Subtitles"
-  | "Subtract"
-  | "SubtractCircle"
-  | "SubtractCircleArrowBack"
-  | "SubtractCircleArrowForward"
-  | "SubtractParentheses"
-  | "SubtractSquare"
-  | "SubtractSquareMultiple"
-  | "SurfaceEarbuds"
-  | "SurfaceHub"
-  | "SwimmingPool"
-  | "SwipeDown"
-  | "SwipeRight"
-  | "SwipeUp"
-  | "Symbols"
-  | "SyncOff"
-  | "Syringe"
-  | "System"
-  | "Tab"
-  | "TabAdd"
-  | "TabArrowLeft"
-  | "TabDesktop"
-  | "TabDesktopArrowClockwise"
-  | "TabDesktopArrowLeft"
-  | "TabDesktopBottom"
-  | "TabDesktopClock"
-  | "TabDesktopCopy"
-  | "TabDesktopImage"
-  | "TabDesktopLink"
-  | "TabDesktopMultiple"
-  | "TabDesktopMultipleAdd"
-  | "TabDesktopMultipleBottom"
-  | "TabDesktopNewPage"
-  | "TabInPrivate"
-  | "TabInprivateAccount"
-  | "TabProhibited"
-  | "TabShieldDismiss"
-  | "Table"
-  | "TableAdd"
-  | "TableArrowUp"
-  | "TableBottomRow"
-  | "TableCalculator"
-  | "TableCellEdit"
-  | "TableCellsMerge"
-  | "TableCellsSplit"
-  | "TableChecker"
-  | "TableColumnTopBottom"
-  | "TableCopy"
-  | "TableDefault"
-  | "TableDeleteColumn"
-  | "TableDeleteRow"
-  | "TableDismiss"
-  | "TableEdit"
-  | "TableFreezeColumn"
-  | "TableFreezeColumnAndRow"
-  | "TableFreezeRow"
-  | "TableImage"
-  | "TableInsertColumn"
-  | "TableInsertRow"
-  | "TableLightning"
-  | "TableLink"
-  | "TableLock"
-  | "TableMoveAbove"
-  | "TableMoveBelow"
-  | "TableMoveLeft"
-  | "TableMoveRight"
-  | "TableMultiple"
-  | "TableOffset"
-  | "TableOffsetAdd"
-  | "TableOffsetLessThanOrEqualTo"
-  | "TableOffsetSettings"
-  | "TableResizeColumn"
-  | "TableResizeRow"
-  | "TableSearch"
-  | "TableSettings"
-  | "TableSimple"
-  | "TableSimpleCheckmark"
-  | "TableSimpleExclude"
-  | "TableSimpleInclude"
-  | "TableSimpleMultiple"
-  | "TableSplit"
-  | "TableStackAbove"
-  | "TableStackBelow"
-  | "TableStackLeft"
-  | "TableStackRight"
-  | "TableSwitch"
-  | "Tablet"
-  | "TabletLaptop"
-  | "TabletSpeaker"
-  | "Tabs"
-  | "Tag"
-  | "TagCircle"
-  | "TagDismiss"
-  | "TagError"
-  | "TagLock"
-  | "TagLockAccent"
-  | "TagMultiple"
-  | "TagOff"
-  | "TagQuestionMark"
-  | "TagReset"
-  | "TagSearch"
-  | "TapDouble"
-  | "TapSingle"
-  | "Target"
-  | "TargetAdd"
-  | "TargetArrow"
-  | "TargetDismiss"
-  | "TargetEdit"
-  | "TaskListAdd"
-  | "TaskListLtr"
-  | "TaskListRtl"
-  | "TaskListSquareAdd"
-  | "TaskListSquareDatabase"
-  | "TaskListSquareLtr"
-  | "TaskListSquarePerson"
-  | "TaskListSquareRtl"
-  | "TaskListSquareSettings"
-  | "TasksApp"
-  | "TeardropBottomRight"
-  | "Teddy"
-  | "Temperature"
-  | "Tent"
-  | "TetrisApp"
-  | "Text"
-  | "TextAbcUnderlineDouble"
-  | "TextAdd"
-  | "TextAddSpaceAfter"
-  | "TextAddSpaceBefore"
-  | "TextAddT"
-  | "TextAlignCenter"
-  | "TextAlignCenterRotate270"
-  | "TextAlignCenterRotate90"
-  | "TextAlignDistributed"
-  | "TextAlignDistributedEvenly"
-  | "TextAlignDistributedVertical"
-  | "TextAlignJustify"
-  | "TextAlignJustifyLow"
-  | "TextAlignJustifyLow90"
-  | "TextAlignJustifyLowRotate270"
-  | "TextAlignJustifyLowRotate90"
-  | "TextAlignJustifyRotate270"
-  | "TextAlignJustifyRotate90"
-  | "TextAlignLeft"
-  | "TextAlignLeftRotate270"
-  | "TextAlignLeftRotate90"
-  | "TextAlignRight"
-  | "TextAlignRightRotate270"
-  | "TextAlignRightRotate90"
-  | "TextArrowDownRightColumn"
-  | "TextAsterisk"
-  | "TextBaseline"
-  | "TextBold"
-  | "TextBoxSettings"
-  | "TextBulletList"
-  | "TextBulletList270"
-  | "TextBulletList90"
-  | "TextBulletListAdd"
-  | "TextBulletListCheckmark"
-  | "TextBulletListDismiss"
-  | "TextBulletListLtr"
-  | "TextBulletListLtr90"
-  | "TextBulletListLtrRotate270"
-  | "TextBulletListRtl"
-  | "TextBulletListRtl90"
-  | "TextBulletListSquare"
-  | "TextBulletListSquareClock"
-  | "TextBulletListSquareEdit"
-  | "TextBulletListSquarePerson"
-  | "TextBulletListSquareSearch"
-  | "TextBulletListSquareSettings"
-  | "TextBulletListSquareShield"
-  | "TextBulletListSquareSparkle"
-  | "TextBulletListSquareToolbox"
-  | "TextBulletListSquareWarning"
-  | "TextBulletListTree"
-  | "TextCaseLowercase"
-  | "TextCaseTitle"
-  | "TextCaseUppercase"
-  | "TextChangeCase"
-  | "TextClearFormatting"
-  | "TextCollapse"
-  | "TextColor"
-  | "TextColorAccent"
-  | "TextColumnOne"
-  | "TextColumnOneNarrow"
-  | "TextColumnOneSemiNarrow"
-  | "TextColumnOneWide"
-  | "TextColumnOneWideLightning"
-  | "TextColumnThree"
-  | "TextColumnTwo"
-  | "TextColumnTwoLeft"
-  | "TextColumnTwoRight"
-  | "TextColumnWide"
-  | "TextContinuous"
-  | "TextDensity"
-  | "TextDescription"
-  | "TextDescriptionLtr"
-  | "TextDescriptionRtl"
-  | "TextDirectionHorizontalLeft"
-  | "TextDirectionHorizontalLtr"
-  | "TextDirectionHorizontalRight"
-  | "TextDirectionHorizontalRtl"
-  | "TextDirectionRotate270Right"
-  | "TextDirectionRotate315Right"
-  | "TextDirectionRotate45Right"
-  | "TextDirectionRotate90Left"
-  | "TextDirectionRotate90Ltr"
-  | "TextDirectionRotate90Right"
-  | "TextDirectionRotate90Rtl"
-  | "TextDirectionVertical"
-  | "TextEditStyle"
-  | "TextEditStyleCharacterA"
-  | "TextEditStyleCharacterGa"
-  | "TextEffects"
-  | "TextEffectsSparkle"
-  | "TextExpand"
-  | "TextField"
-  | "TextFirstLine"
-  | "TextFont"
-  | "TextFontInfo"
-  | "TextFontSize"
-  | "TextFootnote"
-  | "TextGrammarArrowLeft"
-  | "TextGrammarArrowRight"
-  | "TextGrammarCheckmark"
-  | "TextGrammarDismiss"
-  | "TextGrammarError"
-  | "TextGrammarLightning"
-  | "TextGrammarSettings"
-  | "TextGrammarWand"
-  | "TextHanging"
-  | "TextHeader1"
-  | "TextHeader1Lines"
-  | "TextHeader1LinesCaret"
-  | "TextHeader2"
-  | "TextHeader2Lines"
-  | "TextHeader2LinesCaret"
-  | "TextHeader3"
-  | "TextHeader3Lines"
-  | "TextHeader3LinesCaret"
-  | "TextIndentDecrease"
-  | "TextIndentDecreaseLtr"
-  | "TextIndentDecreaseLtr90"
-  | "TextIndentDecreaseLtrRotate270"
-  | "TextIndentDecreaseRotate270"
-  | "TextIndentDecreaseRotate90"
-  | "TextIndentDecreaseRtl"
-  | "TextIndentDecreaseRtl90"
-  | "TextIndentDecreaseRtlRotate270"
-  | "TextIndentIncrease"
-  | "TextIndentIncreaseLtr"
-  | "TextIndentIncreaseLtr90"
-  | "TextIndentIncreaseLtrRotate270"
-  | "TextIndentIncreaseRotate270"
-  | "TextIndentIncreaseRotate90"
-  | "TextIndentIncreaseRtl"
-  | "TextIndentIncreaseRtl90"
-  | "TextIndentIncreaseRtlRotate270"
-  | "TextItalic"
-  | "TextLineSpacing"
-  | "TextMore"
-  | "TextNumberFormat"
-  | "TextNumberListLtr"
-  | "TextNumberListLtr90"
-  | "TextNumberListLtrRotate270"
-  | "TextNumberListRotate270"
-  | "TextNumberListRotate90"
-  | "TextNumberListRtl"
-  | "TextNumberListRtl90"
-  | "TextNumberListRtlRotate270"
-  | "TextParagraph"
-  | "TextParagraphDirection"
-  | "TextParagraphDirectionLeft"
-  | "TextParagraphDirectionRight"
-  | "TextPeriodAsterisk"
-  | "TextPositionBehind"
-  | "TextPositionFront"
-  | "TextPositionLine"
-  | "TextPositionSquare"
-  | "TextPositionSquareLeft"
-  | "TextPositionSquareRight"
-  | "TextPositionThrough"
-  | "TextPositionTight"
-  | "TextPositionTopBottom"
-  | "TextProofingTools"
-  | "TextQuote"
-  | "TextSortAscending"
-  | "TextSortDescending"
-  | "TextStrikethrough"
-  | "TextSubscript"
-  | "TextSuperscript"
-  | "TextT"
-  | "TextTTag"
-  | "TextUnderline"
-  | "TextUnderlineCharacterU"
-  | "TextUnderlineDouble"
-  | "TextWholeWord"
-  | "TextWordCount"
-  | "TextWrap"
-  | "TextWrapOff"
-  | "Textbox"
-  | "TextboxAlignBottom"
-  | "TextboxAlignBottomCenter"
-  | "TextboxAlignBottomLeft"
-  | "TextboxAlignBottomRight"
-  | "TextboxAlignBottomRotate90"
-  | "TextboxAlignCenter"
-  | "TextboxAlignMiddle"
-  | "TextboxAlignMiddleLeft"
-  | "TextboxAlignMiddleRight"
-  | "TextboxAlignMiddleRotate90"
-  | "TextboxAlignTop"
-  | "TextboxAlignTopCenter"
-  | "TextboxAlignTopLeft"
-  | "TextboxAlignTopRight"
-  | "TextboxAlignTopRotate90"
-  | "TextboxMore"
-  | "TextboxRotate90"
-  | "TextboxSettings"
-  | "Thinking"
-  | "ThumbDislike"
-  | "ThumbLike"
-  | "ThumbLikeDislike"
-  | "TicketDiagonal"
-  | "TicketHorizontal"
-  | "TimeAndWeather"
-  | "TimePicker"
-  | "Timeline"
-  | "Timer10"
-  | "Timer"
-  | "Timer2"
-  | "Timer3"
-  | "TimerOff"
-  | "ToggleLeft"
-  | "ToggleMultiple"
-  | "ToggleRight"
-  | "Toolbox"
-  | "TooltipQuote"
-  | "TopSpeed"
-  | "Translate"
-  | "TranslateAuto"
-  | "TranslateOff"
-  | "Transmission"
-  | "TrayItemAdd"
-  | "TrayItemRemove"
-  | "TreeDeciduous"
-  | "TreeEvergreen"
-  | "Triangle"
-  | "TriangleDown"
-  | "TriangleLeft"
-  | "TriangleRight"
-  | "TriangleUp"
-  | "Trophy"
-  | "TrophyLock"
-  | "TrophyOff"
-  | "Tv"
-  | "TvArrowRight"
-  | "TvUsb"
-  | "Umbrella"
-  | "UninstallApp"
-  | "UsbPlug"
-  | "UsbStick"
-  | "Vault"
-  | "VehicleBicycle"
-  | "VehicleBus"
-  | "VehicleCab"
-  | "VehicleCableCar"
-  | "VehicleCar"
-  | "VehicleCarCollision"
-  | "VehicleCarParking"
-  | "VehicleCarProfile"
-  | "VehicleCarProfileLtr"
-  | "VehicleCarProfileLtrClock"
-  | "VehicleCarProfileRtl"
-  | "VehicleShip"
-  | "VehicleSubway"
-  | "VehicleSubwayClock"
-  | "VehicleTruck"
-  | "VehicleTruckBag"
-  | "VehicleTruckCube"
-  | "VehicleTruckProfile"
-  | "Video"
-  | "Video360"
-  | "Video360Off"
-  | "VideoAdd"
-  | "VideoBackgroundEffect"
-  | "VideoBackgroundEffectHorizontal"
-  | "VideoChat"
-  | "VideoClip"
-  | "VideoClipMultiple"
-  | "VideoClipOff"
-  | "VideoClipOptimize"
-  | "VideoLink"
-  | "VideoOff"
-  | "VideoPeople"
-  | "VideoPerson"
-  | "VideoPersonCall"
-  | "VideoPersonClock"
-  | "VideoPersonOff"
-  | "VideoPersonPulse"
-  | "VideoPersonSparkle"
-  | "VideoPersonSparkleOff"
-  | "VideoPersonStar"
-  | "VideoPersonStarOff"
-  | "VideoPlayPause"
-  | "VideoProhibited"
-  | "VideoRecording"
-  | "VideoSecurity"
-  | "VideoSwitch"
-  | "VideoSync"
-  | "ViewDesktop"
-  | "ViewDesktopMobile"
-  | "VirtualNetwork"
-  | "VirtualNetworkToolbox"
-  | "Voicemail"
-  | "VoicemailArrowBack"
-  | "VoicemailArrowForward"
-  | "VoicemailArrowSubtract"
-  | "VoicemailShield"
-  | "VoicemailSubtract"
-  | "Vote"
-  | "WalkieTalkie"
-  | "Wallet"
-  | "WalletCreditCard"
-  | "Wallpaper"
-  | "Wand"
-  | "Warning"
-  | "WarningShield"
-  | "Washer"
-  | "Water"
-  | "WeatherBlowingSnow"
-  | "WeatherCloudy"
-  | "WeatherDrizzle"
-  | "WeatherDuststorm"
-  | "WeatherFog"
-  | "WeatherHailDay"
-  | "WeatherHailNight"
-  | "WeatherHaze"
-  | "WeatherMoon"
-  | "WeatherMoonOff"
-  | "WeatherPartlyCloudyDay"
-  | "WeatherPartlyCloudyNight"
-  | "WeatherRain"
-  | "WeatherRainShowersDay"
-  | "WeatherRainShowersNight"
-  | "WeatherRainSnow"
-  | "WeatherSnow"
-  | "WeatherSnowShowerDay"
-  | "WeatherSnowShowerNight"
-  | "WeatherSnowflake"
-  | "WeatherSqualls"
-  | "WeatherSunny"
-  | "WeatherSunnyHigh"
-  | "WeatherSunnyLow"
-  | "WeatherThunderstorm"
-  | "WebAsset"
-  | "Whiteboard"
-  | "WhiteboardOff"
-  | "Wifi1"
-  | "Wifi2"
-  | "Wifi3"
-  | "Wifi4"
-  | "WifiLock"
-  | "WifiOff"
-  | "WifiSettings"
-  | "WifiWarning"
-  | "Window"
-  | "WindowAd"
-  | "WindowAdOff"
-  | "WindowAdPerson"
-  | "WindowApps"
-  | "WindowArrowUp"
-  | "WindowBulletList"
-  | "WindowBulletListAdd"
-  | "WindowConsole"
-  | "WindowDatabase"
-  | "WindowDevEdit"
-  | "WindowDevTools"
-  | "WindowEdit"
-  | "WindowHeaderHorizontal"
-  | "WindowHeaderHorizontalOff"
-  | "WindowHeaderVertical"
-  | "WindowInprivate"
-  | "WindowInprivateAccount"
-  | "WindowLocationTarget"
-  | "WindowMultiple"
-  | "WindowMultipleSwap"
-  | "WindowNew"
-  | "WindowPlay"
-  | "WindowSettings"
-  | "WindowShield"
-  | "WindowText"
-  | "WindowWrench"
-  | "Wrench"
-  | "WrenchScrewdriver"
-  | "WrenchSettings"
-  | "XboxConsole"
-  | "XboxController"
-  | "XboxControllerError"
-  | "Xray"
-  | "ZoomFit"
-  | "ZoomIn"
-  | "ZoomOut";
+  | 'AccessTime'
+  | 'Accessibility'
+  | 'AccessibilityCheckmark'
+  | 'Add'
+  | 'AddCircle'
+  | 'AddSquare'
+  | 'AddSquareMultiple'
+  | 'AddSubtractCircle'
+  | 'Airplane'
+  | 'AirplaneLanding'
+  | 'AirplaneTakeOff'
+  | 'Album'
+  | 'AlbumAdd'
+  | 'Alert'
+  | 'AlertBadge'
+  | 'AlertOff'
+  | 'AlertOn'
+  | 'AlertSnooze'
+  | 'AlertUrgent'
+  | 'AlignBottom'
+  | 'AlignCenterHorizontal'
+  | 'AlignCenterVertical'
+  | 'AlignDistributeBottom'
+  | 'AlignDistributeLeft'
+  | 'AlignDistributeRight'
+  | 'AlignDistributeTop'
+  | 'AlignEndHorizontal'
+  | 'AlignEndVertical'
+  | 'AlignLeft'
+  | 'AlignRight'
+  | 'AlignSpaceAroundHorizontal'
+  | 'AlignSpaceAroundVertical'
+  | 'AlignSpaceBetweenHorizontal'
+  | 'AlignSpaceBetweenVertical'
+  | 'AlignSpaceEvenlyHorizontal'
+  | 'AlignSpaceEvenlyVertical'
+  | 'AlignSpaceFitVertical'
+  | 'AlignStartHorizontal'
+  | 'AlignStartVertical'
+  | 'AlignStraighten'
+  | 'AlignStretchHorizontal'
+  | 'AlignStretchVertical'
+  | 'AlignTop'
+  | 'AnimalCat'
+  | 'AnimalDog'
+  | 'AnimalRabbit'
+  | 'AnimalRabbitOff'
+  | 'AnimalTurtle'
+  | 'AppFolder'
+  | 'AppGeneric'
+  | 'AppRecent'
+  | 'AppStore'
+  | 'AppTitle'
+  | 'ApprovalsApp'
+  | 'Apps'
+  | 'AppsAddIn'
+  | 'AppsList'
+  | 'AppsListDetail'
+  | 'Archive'
+  | 'ArchiveArrowBack'
+  | 'ArchiveMultiple'
+  | 'ArchiveSettings'
+  | 'ArrowAutofitContent'
+  | 'ArrowAutofitDown'
+  | 'ArrowAutofitHeight'
+  | 'ArrowAutofitHeightDotted'
+  | 'ArrowAutofitHeightIn'
+  | 'ArrowAutofitUp'
+  | 'ArrowAutofitWidth'
+  | 'ArrowAutofitWidthDotted'
+  | 'ArrowBetweenDown'
+  | 'ArrowBetweenUp'
+  | 'ArrowBidirectionalLeftRight'
+  | 'ArrowBidirectionalUpDown'
+  | 'ArrowBounce'
+  | 'ArrowCircleDown'
+  | 'ArrowCircleDownDouble'
+  | 'ArrowCircleDownRight'
+  | 'ArrowCircleDownSplit'
+  | 'ArrowCircleDownUp'
+  | 'ArrowCircleLeft'
+  | 'ArrowCircleRight'
+  | 'ArrowCircleUp'
+  | 'ArrowCircleUpLeft'
+  | 'ArrowCircleUpRight'
+  | 'ArrowClockwise'
+  | 'ArrowClockwiseDashes'
+  | 'ArrowCollapseAll'
+  | 'ArrowCounterclockwise'
+  | 'ArrowCounterclockwiseDashes'
+  | 'ArrowCurveDownLeft'
+  | 'ArrowCurveDownRight'
+  | 'ArrowCurveUpLeft'
+  | 'ArrowCurveUpRight'
+  | 'ArrowDown'
+  | 'ArrowDownExclamation'
+  | 'ArrowDownLeft'
+  | 'ArrowDownload'
+  | 'ArrowDownloadOff'
+  | 'ArrowEject'
+  | 'ArrowEnter'
+  | 'ArrowEnterLeft'
+  | 'ArrowEnterUp'
+  | 'ArrowExit'
+  | 'ArrowExpand'
+  | 'ArrowExport'
+  | 'ArrowExportLtr'
+  | 'ArrowExportRtl'
+  | 'ArrowExportUp'
+  | 'ArrowFit'
+  | 'ArrowFitIn'
+  | 'ArrowFlowDiagonalUpRight'
+  | 'ArrowFlowUpRight'
+  | 'ArrowFlowUpRightRectangleMultiple'
+  | 'ArrowForward'
+  | 'ArrowForwardDownLightning'
+  | 'ArrowForwardDownPerson'
+  | 'ArrowHookDownLeft'
+  | 'ArrowHookDownRight'
+  | 'ArrowHookUpLeft'
+  | 'ArrowHookUpRight'
+  | 'ArrowImport'
+  | 'ArrowJoin'
+  | 'ArrowLeft'
+  | 'ArrowMaximize'
+  | 'ArrowMaximizeVertical'
+  | 'ArrowMinimize'
+  | 'ArrowMinimizeVertical'
+  | 'ArrowMove'
+  | 'ArrowMoveInward'
+  | 'ArrowNext'
+  | 'ArrowOutlineDownLeft'
+  | 'ArrowOutlineUpRight'
+  | 'ArrowParagraph'
+  | 'ArrowPrevious'
+  | 'ArrowRedo'
+  | 'ArrowRepeat1'
+  | 'ArrowRepeatAll'
+  | 'ArrowRepeatAllOff'
+  | 'ArrowReply'
+  | 'ArrowReplyAll'
+  | 'ArrowReplyDown'
+  | 'ArrowReset'
+  | 'ArrowRight'
+  | 'ArrowRotateClockwise'
+  | 'ArrowRotateCounterclockwise'
+  | 'ArrowRouting'
+  | 'ArrowRoutingRectangleMultiple'
+  | 'ArrowShuffle'
+  | 'ArrowShuffleOff'
+  | 'ArrowSort'
+  | 'ArrowSortDown'
+  | 'ArrowSortDownLines'
+  | 'ArrowSortUp'
+  | 'ArrowSplit'
+  | 'ArrowSprint'
+  | 'ArrowSquareDown'
+  | 'ArrowSquareUpRight'
+  | 'ArrowStepBack'
+  | 'ArrowStepIn'
+  | 'ArrowStepInDiagonalDownLeft'
+  | 'ArrowStepInLeft'
+  | 'ArrowStepInRight'
+  | 'ArrowStepOut'
+  | 'ArrowStepOver'
+  | 'ArrowSwap'
+  | 'ArrowSync'
+  | 'ArrowSyncCheckmark'
+  | 'ArrowSyncCircle'
+  | 'ArrowSyncDismiss'
+  | 'ArrowSyncOff'
+  | 'ArrowTrending'
+  | 'ArrowTrendingCheckmark'
+  | 'ArrowTrendingDown'
+  | 'ArrowTrendingLines'
+  | 'ArrowTrendingSettings'
+  | 'ArrowTrendingSparkle'
+  | 'ArrowTrendingText'
+  | 'ArrowTrendingWrench'
+  | 'ArrowTurnBidirectionalDownRight'
+  | 'ArrowTurnDownLeft'
+  | 'ArrowTurnDownRight'
+  | 'ArrowTurnDownUp'
+  | 'ArrowTurnLeftDown'
+  | 'ArrowTurnLeftRight'
+  | 'ArrowTurnLeftUp'
+  | 'ArrowTurnRight'
+  | 'ArrowTurnRightDown'
+  | 'ArrowTurnRightLeft'
+  | 'ArrowTurnRightUp'
+  | 'ArrowTurnUpDown'
+  | 'ArrowTurnUpLeft'
+  | 'ArrowUndo'
+  | 'ArrowUp'
+  | 'ArrowUpLeft'
+  | 'ArrowUpRight'
+  | 'ArrowUpRightDashes'
+  | 'ArrowUpSquareSettings'
+  | 'ArrowUpload'
+  | 'ArrowWrap'
+  | 'ArrowWrapOff'
+  | 'ArrowsBidirectional'
+  | 'Attach'
+  | 'AttachArrowRight'
+  | 'AttachText'
+  | 'AutoFitHeight'
+  | 'AutoFitWidth'
+  | 'Autocorrect'
+  | 'Autosum'
+  | 'Backpack'
+  | 'BackpackAdd'
+  | 'Backspace'
+  | 'Badge'
+  | 'Balloon'
+  | 'BarcodeScanner'
+  | 'Battery0'
+  | 'Battery10'
+  | 'Battery1'
+  | 'Battery2'
+  | 'Battery3'
+  | 'Battery4'
+  | 'Battery5'
+  | 'Battery6'
+  | 'Battery7'
+  | 'Battery8'
+  | 'Battery9'
+  | 'BatteryCharge'
+  | 'BatteryCheckmark'
+  | 'BatterySaver'
+  | 'BatteryWarning'
+  | 'Beach'
+  | 'Beaker'
+  | 'BeakerAdd'
+  | 'BeakerDismiss'
+  | 'BeakerEdit'
+  | 'BeakerEmpty'
+  | 'BeakerOff'
+  | 'BeakerSettings'
+  | 'Bed'
+  | 'BezierCurveSquare'
+  | 'BinFull'
+  | 'BinRecycle'
+  | 'BinRecycleFull'
+  | 'BinderTriangle'
+  | 'Bluetooth'
+  | 'BluetoothConnected'
+  | 'BluetoothDisabled'
+  | 'BluetoothSearching'
+  | 'Blur'
+  | 'Board'
+  | 'BoardGames'
+  | 'BoardHeart'
+  | 'BoardSplit'
+  | 'Book'
+  | 'BookAdd'
+  | 'BookArrowClockwise'
+  | 'BookClock'
+  | 'BookCoins'
+  | 'BookCompass'
+  | 'BookContacts'
+  | 'BookDatabase'
+  | 'BookDefault'
+  | 'BookDismiss'
+  | 'BookExclamationMark'
+  | 'BookGlobe'
+  | 'BookInformation'
+  | 'BookLetter'
+  | 'BookNumber'
+  | 'BookOpen'
+  | 'BookOpenGlobe'
+  | 'BookOpenMicrophone'
+  | 'BookPulse'
+  | 'BookQuestionMark'
+  | 'BookQuestionMarkRtl'
+  | 'BookSearch'
+  | 'BookStar'
+  | 'BookTemplate'
+  | 'BookTheta'
+  | 'BookToolbox'
+  | 'Bookmark'
+  | 'BookmarkAdd'
+  | 'BookmarkMultiple'
+  | 'BookmarkOff'
+  | 'BookmarkSearch'
+  | 'BorderAll'
+  | 'BorderBottom'
+  | 'BorderBottomDouble'
+  | 'BorderBottomThick'
+  | 'BorderInside'
+  | 'BorderLeft'
+  | 'BorderLeftRight'
+  | 'BorderNone'
+  | 'BorderOutside'
+  | 'BorderOutsideThick'
+  | 'BorderRight'
+  | 'BorderTop'
+  | 'BorderTopBottom'
+  | 'BorderTopBottomDouble'
+  | 'BorderTopBottomThick'
+  | 'Bot'
+  | 'BotAdd'
+  | 'BotSparkle'
+  | 'BowTie'
+  | 'BowlChopsticks'
+  | 'BowlSalad'
+  | 'Box'
+  | 'BoxArrowLeft'
+  | 'BoxArrowUp'
+  | 'BoxCheckmark'
+  | 'BoxDismiss'
+  | 'BoxEdit'
+  | 'BoxMultiple'
+  | 'BoxMultipleArrowLeft'
+  | 'BoxMultipleArrowRight'
+  | 'BoxMultipleCheckmark'
+  | 'BoxMultipleSearch'
+  | 'BoxSearch'
+  | 'BoxToolbox'
+  | 'Braces'
+  | 'BracesCheckmark'
+  | 'BracesDismiss'
+  | 'BracesVariable'
+  | 'BrainCircuit'
+  | 'Branch'
+  | 'BranchCompare'
+  | 'BranchFork'
+  | 'BranchForkHint'
+  | 'BranchForkLink'
+  | 'BranchRequest'
+  | 'BreakoutRoom'
+  | 'Briefcase'
+  | 'BriefcaseMedical'
+  | 'BriefcaseOff'
+  | 'BriefcasePerson'
+  | 'BriefcaseSearch'
+  | 'BrightnessHigh'
+  | 'BrightnessLow'
+  | 'BroadActivityFeed'
+  | 'Broom'
+  | 'BubbleMultiple'
+  | 'Bug'
+  | 'BugArrowCounterclockwise'
+  | 'BugProhibited'
+  | 'Building'
+  | 'BuildingBank'
+  | 'BuildingBankLink'
+  | 'BuildingBankToolbox'
+  | 'BuildingCloud'
+  | 'BuildingDesktop'
+  | 'BuildingFactory'
+  | 'BuildingGovernment'
+  | 'BuildingGovernmentSearch'
+  | 'BuildingHome'
+  | 'BuildingLighthouse'
+  | 'BuildingMosque'
+  | 'BuildingMultiple'
+  | 'BuildingPeople'
+  | 'BuildingRetail'
+  | 'BuildingRetailMoney'
+  | 'BuildingRetailMore'
+  | 'BuildingRetailShield'
+  | 'BuildingRetailToolbox'
+  | 'BuildingShop'
+  | 'BuildingSkyscraper'
+  | 'BuildingSwap'
+  | 'BuildingTownhouse'
+  | 'Button'
+  | 'Calculator'
+  | 'CalculatorArrowClockwise'
+  | 'CalculatorMultiple'
+  | 'Calendar'
+  | 'Calendar3Day'
+  | 'CalendarAdd'
+  | 'CalendarAgenda'
+  | 'CalendarArrowCounterclockwise'
+  | 'CalendarArrowDown'
+  | 'CalendarArrowRight'
+  | 'CalendarAssistant'
+  | 'CalendarCancel'
+  | 'CalendarChat'
+  | 'CalendarCheckmark'
+  | 'CalendarClock'
+  | 'CalendarDataBar'
+  | 'CalendarDate'
+  | 'CalendarDay'
+  | 'CalendarEdit'
+  | 'CalendarEmpty'
+  | 'CalendarError'
+  | 'CalendarEye'
+  | 'CalendarInfo'
+  | 'CalendarLink'
+  | 'CalendarLock'
+  | 'CalendarLtr'
+  | 'CalendarMail'
+  | 'CalendarMention'
+  | 'CalendarMonth'
+  | 'CalendarMultiple'
+  | 'CalendarNote'
+  | 'CalendarPattern'
+  | 'CalendarPerson'
+  | 'CalendarPhone'
+  | 'CalendarPlay'
+  | 'CalendarQuestionMark'
+  | 'CalendarRecord'
+  | 'CalendarReply'
+  | 'CalendarRtl'
+  | 'CalendarSearch'
+  | 'CalendarSettings'
+  | 'CalendarShield'
+  | 'CalendarStar'
+  | 'CalendarSync'
+  | 'CalendarToday'
+  | 'CalendarToolbox'
+  | 'CalendarVideo'
+  | 'CalendarWeekNumbers'
+  | 'CalendarWeekStart'
+  | 'CalendarWorkWeek'
+  | 'Call'
+  | 'CallAdd'
+  | 'CallCheckmark'
+  | 'CallConnecting'
+  | 'CallDismiss'
+  | 'CallEnd'
+  | 'CallExclamation'
+  | 'CallForward'
+  | 'CallInbound'
+  | 'CallMissed'
+  | 'CallOutbound'
+  | 'CallPark'
+  | 'CallPause'
+  | 'CallProhibited'
+  | 'CallTransfer'
+  | 'CallWarning'
+  | 'CalligraphyPen'
+  | 'CalligraphyPenCheckmark'
+  | 'CalligraphyPenError'
+  | 'CalligraphyPenQuestionMark'
+  | 'Camera'
+  | 'CameraAdd'
+  | 'CameraDome'
+  | 'CameraEdit'
+  | 'CameraOff'
+  | 'CameraSparkles'
+  | 'CameraSwitch'
+  | 'CardUi'
+  | 'CaretDown'
+  | 'CaretDownRight'
+  | 'CaretLeft'
+  | 'CaretRight'
+  | 'CaretUp'
+  | 'Cart'
+  | 'Cast'
+  | 'CastMultiple'
+  | 'CatchUp'
+  | 'Cd'
+  | 'Cellular3G'
+  | 'Cellular4G'
+  | 'Cellular5G'
+  | 'CellularData1'
+  | 'CellularData2'
+  | 'CellularData3'
+  | 'CellularData4'
+  | 'CellularData5'
+  | 'CellularOff'
+  | 'CellularWarning'
+  | 'CenterHorizontal'
+  | 'CenterVertical'
+  | 'Certificate'
+  | 'Channel'
+  | 'ChannelAdd'
+  | 'ChannelAlert'
+  | 'ChannelArrowLeft'
+  | 'ChannelDismiss'
+  | 'ChannelShare'
+  | 'ChannelSubtract'
+  | 'ChartMultiple'
+  | 'ChartPerson'
+  | 'Chat'
+  | 'ChatAdd'
+  | 'ChatArrowBack'
+  | 'ChatArrowDoubleBack'
+  | 'ChatBubblesQuestion'
+  | 'ChatCursor'
+  | 'ChatDismiss'
+  | 'ChatEmpty'
+  | 'ChatHelp'
+  | 'ChatLock'
+  | 'ChatMail'
+  | 'ChatMultiple'
+  | 'ChatMultipleHeart'
+  | 'ChatOff'
+  | 'ChatSettings'
+  | 'ChatSparkle'
+  | 'ChatVideo'
+  | 'ChatWarning'
+  | 'Check'
+  | 'Checkbox1'
+  | 'Checkbox2'
+  | 'CheckboxArrowRight'
+  | 'CheckboxChecked'
+  | 'CheckboxCheckedSync'
+  | 'CheckboxIndeterminate'
+  | 'CheckboxPerson'
+  | 'CheckboxUnchecked'
+  | 'CheckboxWarning'
+  | 'Checkmark'
+  | 'CheckmarkCircle'
+  | 'CheckmarkCircleSquare'
+  | 'CheckmarkLock'
+  | 'CheckmarkNote'
+  | 'CheckmarkSquare'
+  | 'CheckmarkStarburst'
+  | 'CheckmarkUnderlineCircle'
+  | 'Chess'
+  | 'ChevronCircleDown'
+  | 'ChevronCircleLeft'
+  | 'ChevronCircleRight'
+  | 'ChevronCircleUp'
+  | 'ChevronDoubleDown'
+  | 'ChevronDoubleLeft'
+  | 'ChevronDoubleRight'
+  | 'ChevronDoubleUp'
+  | 'ChevronDown'
+  | 'ChevronDownUp'
+  | 'ChevronLeft'
+  | 'ChevronRight'
+  | 'ChevronUp'
+  | 'ChevronUpDown'
+  | 'Circle'
+  | 'CircleEdit'
+  | 'CircleEraser'
+  | 'CircleHalfFill'
+  | 'CircleHint'
+  | 'CircleHintHalfVertical'
+  | 'CircleImage'
+  | 'CircleLine'
+  | 'CircleMultipleSubtractCheckmark'
+  | 'CircleOff'
+  | 'CircleSmall'
+  | 'City'
+  | 'Class'
+  | 'Classification'
+  | 'ClearFormatting'
+  | 'Clipboard'
+  | 'Clipboard3Day'
+  | 'ClipboardArrowRight'
+  | 'ClipboardBrush'
+  | 'ClipboardBulletList'
+  | 'ClipboardBulletListLtr'
+  | 'ClipboardBulletListRtl'
+  | 'ClipboardCheckmark'
+  | 'ClipboardClock'
+  | 'ClipboardCode'
+  | 'ClipboardDataBar'
+  | 'ClipboardDay'
+  | 'ClipboardEdit'
+  | 'ClipboardError'
+  | 'ClipboardHeart'
+  | 'ClipboardImage'
+  | 'ClipboardLetter'
+  | 'ClipboardLink'
+  | 'ClipboardMathFormula'
+  | 'ClipboardMonth'
+  | 'ClipboardMore'
+  | 'ClipboardMultiple'
+  | 'ClipboardNote'
+  | 'ClipboardNumber123'
+  | 'ClipboardPaste'
+  | 'ClipboardPulse'
+  | 'ClipboardSearch'
+  | 'ClipboardSettings'
+  | 'ClipboardTask'
+  | 'ClipboardTaskAdd'
+  | 'ClipboardTaskList'
+  | 'ClipboardTaskListLtr'
+  | 'ClipboardTaskListRtl'
+  | 'ClipboardText'
+  | 'ClipboardTextEdit'
+  | 'ClipboardTextLtr'
+  | 'ClipboardTextRtl'
+  | 'Clock'
+  | 'ClockAlarm'
+  | 'ClockArrowDownload'
+  | 'ClockDismiss'
+  | 'ClockLock'
+  | 'ClockPause'
+  | 'ClockToolbox'
+  | 'ClosedCaption'
+  | 'ClosedCaptionOff'
+  | 'Cloud'
+  | 'CloudAdd'
+  | 'CloudArchive'
+  | 'CloudArrowDown'
+  | 'CloudArrowUp'
+  | 'CloudBeaker'
+  | 'CloudBidirectional'
+  | 'CloudCheckmark'
+  | 'CloudCube'
+  | 'CloudDatabase'
+  | 'CloudDesktop'
+  | 'CloudDismiss'
+  | 'CloudEdit'
+  | 'CloudError'
+  | 'CloudFlow'
+  | 'CloudLink'
+  | 'CloudOff'
+  | 'CloudSwap'
+  | 'CloudSync'
+  | 'CloudWords'
+  | 'Clover'
+  | 'Code'
+  | 'CodeBlock'
+  | 'CodeCircle'
+  | 'CodeCs'
+  | 'CodeCsRectangle'
+  | 'CodeFs'
+  | 'CodeFsRectangle'
+  | 'CodeJs'
+  | 'CodeJsRectangle'
+  | 'CodePy'
+  | 'CodePyRectangle'
+  | 'CodeRb'
+  | 'CodeRbRectangle'
+  | 'CodeText'
+  | 'CodeTextEdit'
+  | 'CodeTextOff'
+  | 'CodeTs'
+  | 'CodeTsRectangle'
+  | 'CodeVb'
+  | 'CodeVbRectangle'
+  | 'Collections'
+  | 'CollectionsAdd'
+  | 'Color'
+  | 'ColorBackground'
+  | 'ColorBackgroundAccent'
+  | 'ColorFill'
+  | 'ColorFillAccent'
+  | 'ColorLine'
+  | 'ColorLineAccent'
+  | 'Column'
+  | 'ColumnArrowRight'
+  | 'ColumnDoubleCompare'
+  | 'ColumnEdit'
+  | 'ColumnSingle'
+  | 'ColumnSingleCompare'
+  | 'ColumnTriple'
+  | 'ColumnTripleEdit'
+  | 'Comma'
+  | 'Comment'
+  | 'CommentAdd'
+  | 'CommentArrowLeft'
+  | 'CommentArrowRight'
+  | 'CommentCheckmark'
+  | 'CommentDismiss'
+  | 'CommentEdit'
+  | 'CommentError'
+  | 'CommentLightning'
+  | 'CommentLink'
+  | 'CommentMention'
+  | 'CommentMultiple'
+  | 'CommentMultipleCheckmark'
+  | 'CommentMultipleLink'
+  | 'CommentNote'
+  | 'CommentOff'
+  | 'Communication'
+  | 'CommunicationPerson'
+  | 'CommunicationShield'
+  | 'CompassNorthwest'
+  | 'Component2DoubleTapSwipeDown'
+  | 'Component2DoubleTapSwipeUp'
+  | 'Compose'
+  | 'Cone'
+  | 'ConferenceRoom'
+  | 'Connected'
+  | 'Connector'
+  | 'ContactCard'
+  | 'ContactCardGroup'
+  | 'ContactCardLink'
+  | 'ContactCardRibbon'
+  | 'ContentSettings'
+  | 'ContentView'
+  | 'ContentViewGallery'
+  | 'ContentViewGalleryLightning'
+  | 'ContractDownLeft'
+  | 'ContractUpRight'
+  | 'ControlButton'
+  | 'ConvertRange'
+  | 'Cookies'
+  | 'Copy'
+  | 'CopyAdd'
+  | 'CopyArrowRight'
+  | 'CopySelect'
+  | 'Couch'
+  | 'CreditCardClock'
+  | 'CreditCardPerson'
+  | 'CreditCardToolbox'
+  | 'Crop'
+  | 'CropInterim'
+  | 'CropInterimOff'
+  | 'CropSparkle'
+  | 'Crown'
+  | 'CrownSubtract'
+  | 'Cube'
+  | 'CubeAdd'
+  | 'CubeArrowCurveDown'
+  | 'CubeLink'
+  | 'CubeMultiple'
+  | 'CubeQuick'
+  | 'CubeRotate'
+  | 'CubeSync'
+  | 'CubeTree'
+  | 'CurrencyDollarEuro'
+  | 'CurrencyDollarRupee'
+  | 'Cursor'
+  | 'CursorClick'
+  | 'CursorHover'
+  | 'CursorHoverOff'
+  | 'CursorProhibited'
+  | 'Cut'
+  | 'DarkTheme'
+  | 'DataArea'
+  | 'DataBarHorizontal'
+  | 'DataBarHorizontalDescending'
+  | 'DataBarVertical'
+  | 'DataBarVerticalAdd'
+  | 'DataBarVerticalAscending'
+  | 'DataBarVerticalStar'
+  | 'DataFunnel'
+  | 'DataHistogram'
+  | 'DataLine'
+  | 'DataPie'
+  | 'DataScatter'
+  | 'DataSunburst'
+  | 'DataTreemap'
+  | 'DataTrending'
+  | 'DataUsage'
+  | 'DataUsageEdit'
+  | 'DataUsageSettings'
+  | 'DataUsageToolbox'
+  | 'DataWaterfall'
+  | 'DataWhisker'
+  | 'Database'
+  | 'DatabaseArrowDown'
+  | 'DatabaseArrowRight'
+  | 'DatabaseArrowUp'
+  | 'DatabaseLightning'
+  | 'DatabaseLink'
+  | 'DatabaseMultiple'
+  | 'DatabasePerson'
+  | 'DatabasePlugConnected'
+  | 'DatabaseSearch'
+  | 'DatabaseStack'
+  | 'DatabaseSwitch'
+  | 'DatabaseWarning'
+  | 'DatabaseWindow'
+  | 'DecimalArrowLeft'
+  | 'DecimalArrowRight'
+  | 'Delete'
+  | 'DeleteArrowBack'
+  | 'DeleteDismiss'
+  | 'DeleteLines'
+  | 'DeleteOff'
+  | 'Dentist'
+  | 'DesignIdeas'
+  | 'Desk'
+  | 'Desktop'
+  | 'DesktopArrowDown'
+  | 'DesktopArrowRight'
+  | 'DesktopCheckmark'
+  | 'DesktopCursor'
+  | 'DesktopEdit'
+  | 'DesktopFlow'
+  | 'DesktopKeyboard'
+  | 'DesktopMac'
+  | 'DesktopPulse'
+  | 'DesktopSignal'
+  | 'DesktopSpeaker'
+  | 'DesktopSpeakerOff'
+  | 'DesktopSync'
+  | 'DesktopToolbox'
+  | 'DesktopTower'
+  | 'DeveloperBoard'
+  | 'DeveloperBoardLightning'
+  | 'DeveloperBoardLightningToolbox'
+  | 'DeveloperBoardSearch'
+  | 'DeviceEq'
+  | 'DeviceMeetingRoom'
+  | 'DeviceMeetingRoomRemote'
+  | 'Diagram'
+  | 'Dialpad'
+  | 'DialpadOff'
+  | 'DialpadQuestionMark'
+  | 'Diamond'
+  | 'Directions'
+  | 'Dishwasher'
+  | 'Dismiss'
+  | 'DismissCircle'
+  | 'DismissSquare'
+  | 'DismissSquareMultiple'
+  | 'Diversity'
+  | 'DividerShort'
+  | 'DividerTall'
+  | 'Dock'
+  | 'DockRow'
+  | 'Doctor'
+  | 'Document100'
+  | 'Document'
+  | 'DocumentAdd'
+  | 'DocumentArrowDown'
+  | 'DocumentArrowLeft'
+  | 'DocumentArrowRight'
+  | 'DocumentArrowUp'
+  | 'DocumentBorder'
+  | 'DocumentBorderPrint'
+  | 'DocumentBriefcase'
+  | 'DocumentBulletList'
+  | 'DocumentBulletListArrowLeft'
+  | 'DocumentBulletListClock'
+  | 'DocumentBulletListCube'
+  | 'DocumentBulletListMultiple'
+  | 'DocumentBulletListOff'
+  | 'DocumentCatchUp'
+  | 'DocumentCheckmark'
+  | 'DocumentChevronDouble'
+  | 'DocumentContract'
+  | 'DocumentCopy'
+  | 'DocumentCs'
+  | 'DocumentCss'
+  | 'DocumentCube'
+  | 'DocumentData'
+  | 'DocumentDataLink'
+  | 'DocumentDataLock'
+  | 'DocumentDatabase'
+  | 'DocumentDismiss'
+  | 'DocumentEdit'
+  | 'DocumentEndnote'
+  | 'DocumentError'
+  | 'DocumentFit'
+  | 'DocumentFlowchart'
+  | 'DocumentFolder'
+  | 'DocumentFooter'
+  | 'DocumentFooterDismiss'
+  | 'DocumentFs'
+  | 'DocumentHeader'
+  | 'DocumentHeaderArrowDown'
+  | 'DocumentHeaderDismiss'
+  | 'DocumentHeaderFooter'
+  | 'DocumentHeart'
+  | 'DocumentHeartPulse'
+  | 'DocumentImage'
+  | 'DocumentJava'
+  | 'DocumentJavascript'
+  | 'DocumentJs'
+  | 'DocumentKey'
+  | 'DocumentLandscape'
+  | 'DocumentLandscapeData'
+  | 'DocumentLandscapeSplit'
+  | 'DocumentLandscapeSplitHint'
+  | 'DocumentLightning'
+  | 'DocumentLink'
+  | 'DocumentLock'
+  | 'DocumentMargins'
+  | 'DocumentMention'
+  | 'DocumentMultiple'
+  | 'DocumentMultiplePercent'
+  | 'DocumentMultipleProhibited'
+  | 'DocumentMultipleSync'
+  | 'DocumentNumber1'
+  | 'DocumentOnePage'
+  | 'DocumentOnePageAdd'
+  | 'DocumentOnePageBeaker'
+  | 'DocumentOnePageColumns'
+  | 'DocumentOnePageLink'
+  | 'DocumentOnePageMultiple'
+  | 'DocumentOnePageSparkle'
+  | 'DocumentPageBottomCenter'
+  | 'DocumentPageBottomLeft'
+  | 'DocumentPageBottomRight'
+  | 'DocumentPageBreak'
+  | 'DocumentPageNumber'
+  | 'DocumentPageTopCenter'
+  | 'DocumentPageTopLeft'
+  | 'DocumentPageTopRight'
+  | 'DocumentPdf'
+  | 'DocumentPercent'
+  | 'DocumentPerson'
+  | 'DocumentPill'
+  | 'DocumentPrint'
+  | 'DocumentProhibited'
+  | 'DocumentPy'
+  | 'DocumentQuestionMark'
+  | 'DocumentQueue'
+  | 'DocumentQueueAdd'
+  | 'DocumentQueueMultiple'
+  | 'DocumentRb'
+  | 'DocumentRibbon'
+  | 'DocumentSass'
+  | 'DocumentSave'
+  | 'DocumentSearch'
+  | 'DocumentSettings'
+  | 'DocumentSplitHint'
+  | 'DocumentSplitHintOff'
+  | 'DocumentSync'
+  | 'DocumentTable'
+  | 'DocumentTableArrowRight'
+  | 'DocumentTableCheckmark'
+  | 'DocumentTableCube'
+  | 'DocumentTableSearch'
+  | 'DocumentTableTruck'
+  | 'DocumentTarget'
+  | 'DocumentText'
+  | 'DocumentTextClock'
+  | 'DocumentTextExtract'
+  | 'DocumentTextLink'
+  | 'DocumentTextToolbox'
+  | 'DocumentToolbox'
+  | 'DocumentTs'
+  | 'DocumentVb'
+  | 'DocumentWidth'
+  | 'DocumentYml'
+  | 'Door'
+  | 'DoorArrowLeft'
+  | 'DoorArrowRight'
+  | 'DoorTag'
+  | 'DoubleSwipeDown'
+  | 'DoubleSwipeUp'
+  | 'DoubleTapSwipeDown'
+  | 'DoubleTapSwipeUp'
+  | 'Drafts'
+  | 'Drag'
+  | 'DrawImage'
+  | 'DrawShape'
+  | 'DrawText'
+  | 'Drawer'
+  | 'DrawerAdd'
+  | 'DrawerArrowDownload'
+  | 'DrawerDismiss'
+  | 'DrawerPlay'
+  | 'DrawerSubtract'
+  | 'DrinkBeer'
+  | 'DrinkBottle'
+  | 'DrinkBottleOff'
+  | 'DrinkCoffee'
+  | 'DrinkMargarita'
+  | 'DrinkToGo'
+  | 'DrinkWine'
+  | 'DriveTrain'
+  | 'Drop'
+  | 'DualScreen'
+  | 'DualScreenAdd'
+  | 'DualScreenArrowRight'
+  | 'DualScreenArrowUp'
+  | 'DualScreenClock'
+  | 'DualScreenClosedAlert'
+  | 'DualScreenDesktop'
+  | 'DualScreenDismiss'
+  | 'DualScreenGroup'
+  | 'DualScreenHeader'
+  | 'DualScreenLock'
+  | 'DualScreenMirror'
+  | 'DualScreenPagination'
+  | 'DualScreenSettings'
+  | 'DualScreenSpan'
+  | 'DualScreenSpeaker'
+  | 'DualScreenStatusBar'
+  | 'DualScreenTablet'
+  | 'DualScreenUpdate'
+  | 'DualScreenVerticalScroll'
+  | 'DualScreenVibrate'
+  | 'Dumbbell'
+  | 'Dust'
+  | 'Earth'
+  | 'EarthLeaf'
+  | 'Edit'
+  | 'EditArrowBack'
+  | 'EditOff'
+  | 'EditProhibited'
+  | 'EditSettings'
+  | 'Elevator'
+  | 'Emoji'
+  | 'EmojiAdd'
+  | 'EmojiAngry'
+  | 'EmojiEdit'
+  | 'EmojiHand'
+  | 'EmojiHint'
+  | 'EmojiLaugh'
+  | 'EmojiMeh'
+  | 'EmojiMultiple'
+  | 'EmojiSad'
+  | 'EmojiSadSlight'
+  | 'EmojiSmileSlight'
+  | 'EmojiSparkle'
+  | 'EmojiSurprise'
+  | 'Engine'
+  | 'EqualCircle'
+  | 'EqualOff'
+  | 'Eraser'
+  | 'EraserMedium'
+  | 'EraserSegment'
+  | 'EraserSmall'
+  | 'EraserTool'
+  | 'ErrorCircle'
+  | 'ErrorCircleSettings'
+  | 'ExpandUpLeft'
+  | 'ExpandUpRight'
+  | 'ExtendedDock'
+  | 'Eye'
+  | 'EyeLines'
+  | 'EyeOff'
+  | 'EyeTracking'
+  | 'EyeTrackingOff'
+  | 'Eyedropper'
+  | 'EyedropperOff'
+  | 'FStop'
+  | 'FastAcceleration'
+  | 'FastForward'
+  | 'Fax'
+  | 'Feed'
+  | 'Filmstrip'
+  | 'FilmstripImage'
+  | 'FilmstripOff'
+  | 'FilmstripPlay'
+  | 'FilmstripSplit'
+  | 'Filter'
+  | 'FilterAdd'
+  | 'FilterDismiss'
+  | 'FilterSync'
+  | 'Fingerprint'
+  | 'Fire'
+  | 'Fireplace'
+  | 'FixedWidth'
+  | 'Flag'
+  | 'FlagCheckered'
+  | 'FlagClock'
+  | 'FlagOff'
+  | 'FlagPride'
+  | 'FlagPrideIntersexInclusiveProgress'
+  | 'FlagPridePhiladelphia'
+  | 'FlagPrideProgress'
+  | 'Flash'
+  | 'FlashAdd'
+  | 'FlashAuto'
+  | 'FlashCheckmark'
+  | 'FlashFlow'
+  | 'FlashOff'
+  | 'FlashPlay'
+  | 'FlashSettings'
+  | 'FlashSparkle'
+  | 'Flashlight'
+  | 'FlashlightOff'
+  | 'FlipHorizontal'
+  | 'FlipVertical'
+  | 'Flow'
+  | 'Flowchart'
+  | 'FlowchartCircle'
+  | 'Fluent'
+  | 'Fluid'
+  | 'Folder'
+  | 'FolderAdd'
+  | 'FolderArrowLeft'
+  | 'FolderArrowRight'
+  | 'FolderArrowUp'
+  | 'FolderBriefcase'
+  | 'FolderGlobe'
+  | 'FolderLightning'
+  | 'FolderLink'
+  | 'FolderList'
+  | 'FolderMail'
+  | 'FolderMultiple'
+  | 'FolderOpen'
+  | 'FolderOpenVertical'
+  | 'FolderPeople'
+  | 'FolderPerson'
+  | 'FolderProhibited'
+  | 'FolderSearch'
+  | 'FolderSwap'
+  | 'FolderSync'
+  | 'FolderZip'
+  | 'FontDecrease'
+  | 'FontIncrease'
+  | 'FontSpaceTrackingIn'
+  | 'FontSpaceTrackingOut'
+  | 'Food'
+  | 'FoodApple'
+  | 'FoodCake'
+  | 'FoodCarrot'
+  | 'FoodChickenLeg'
+  | 'FoodEgg'
+  | 'FoodFish'
+  | 'FoodGrains'
+  | 'FoodPizza'
+  | 'FoodToast'
+  | 'Form'
+  | 'FormMultiple'
+  | 'FormNew'
+  | 'Fps120'
+  | 'Fps240'
+  | 'Fps30'
+  | 'Fps60'
+  | 'Fps960'
+  | 'Frame'
+  | 'FullScreenMaximize'
+  | 'FullScreenMinimize'
+  | 'Games'
+  | 'GanttChart'
+  | 'Gas'
+  | 'GasPump'
+  | 'Gather'
+  | 'Gauge'
+  | 'GaugeAdd'
+  | 'Gavel'
+  | 'GavelProhibited'
+  | 'Gesture'
+  | 'Gif'
+  | 'Gift'
+  | 'GiftCard'
+  | 'GiftCardAdd'
+  | 'GiftCardArrowRight'
+  | 'GiftCardMoney'
+  | 'GiftCardMultiple'
+  | 'GiftOpen'
+  | 'Glance'
+  | 'GlanceDefault'
+  | 'GlanceHorizontal'
+  | 'GlanceHorizontalSparkle'
+  | 'GlanceHorizontalSparkles'
+  | 'Glasses'
+  | 'GlassesOff'
+  | 'Globe'
+  | 'GlobeAdd'
+  | 'GlobeArrowForward'
+  | 'GlobeArrowUp'
+  | 'GlobeClock'
+  | 'GlobeDesktop'
+  | 'GlobeError'
+  | 'GlobeLocation'
+  | 'GlobePerson'
+  | 'GlobeProhibited'
+  | 'GlobeSearch'
+  | 'GlobeShield'
+  | 'GlobeStar'
+  | 'GlobeSurface'
+  | 'GlobeSync'
+  | 'GlobeVideo'
+  | 'GlobeWarning'
+  | 'Grid'
+  | 'GridCircles'
+  | 'GridDots'
+  | 'GridKanban'
+  | 'Group'
+  | 'GroupDismiss'
+  | 'GroupList'
+  | 'GroupReturn'
+  | 'Guardian'
+  | 'Guest'
+  | 'GuestAdd'
+  | 'Guitar'
+  | 'HandDraw'
+  | 'HandLeft'
+  | 'HandLeftChat'
+  | 'HandOpenHeart'
+  | 'HandRight'
+  | 'HandRightOff'
+  | 'HandWave'
+  | 'Handshake'
+  | 'HardDrive'
+  | 'HardDriveCall'
+  | 'HatGraduation'
+  | 'HatGraduationAdd'
+  | 'HatGraduationSparkle'
+  | 'Hd'
+  | 'Hdr'
+  | 'HdrOff'
+  | 'Headphones'
+  | 'HeadphonesSoundWave'
+  | 'Headset'
+  | 'HeadsetAdd'
+  | 'HeadsetVr'
+  | 'Heart'
+  | 'HeartBroken'
+  | 'HeartCircle'
+  | 'HeartCircleHint'
+  | 'HeartOff'
+  | 'HeartPulse'
+  | 'HeartPulseCheckmark'
+  | 'HeartPulseError'
+  | 'HeartPulseWarning'
+  | 'Hexagon'
+  | 'HexagonThree'
+  | 'Highlight'
+  | 'HighlightAccent'
+  | 'HighlightLink'
+  | 'History'
+  | 'HistoryDismiss'
+  | 'Home'
+  | 'HomeAdd'
+  | 'HomeCheckmark'
+  | 'HomeDatabase'
+  | 'HomeHeart'
+  | 'HomeMore'
+  | 'HomePerson'
+  | 'HomeSplit'
+  | 'Hourglass'
+  | 'HourglassHalf'
+  | 'HourglassOneQuarter'
+  | 'HourglassThreeQuarter'
+  | 'Icons'
+  | 'Image'
+  | 'ImageAdd'
+  | 'ImageAltText'
+  | 'ImageArrowBack'
+  | 'ImageArrowCounterclockwise'
+  | 'ImageArrowForward'
+  | 'ImageBorder'
+  | 'ImageCircle'
+  | 'ImageCopy'
+  | 'ImageEdit'
+  | 'ImageGlobe'
+  | 'ImageMultiple'
+  | 'ImageMultipleOff'
+  | 'ImageOff'
+  | 'ImageProhibited'
+  | 'ImageReflection'
+  | 'ImageSearch'
+  | 'ImageShadow'
+  | 'ImageSparkle'
+  | 'ImageStack'
+  | 'ImageTable'
+  | 'ImmersiveReader'
+  | 'Important'
+  | 'Incognito'
+  | 'Info'
+  | 'InfoShield'
+  | 'InkStroke'
+  | 'InkStrokeArrowDown'
+  | 'InkStrokeArrowUpDown'
+  | 'InkingTool'
+  | 'InkingToolAccent'
+  | 'InprivateAccount'
+  | 'Insert'
+  | 'IosArrow'
+  | 'IosArrowLtr'
+  | 'IosArrowRtl'
+  | 'IosChevronRight'
+  | 'Iot'
+  | 'IotAlert'
+  | 'Javascript'
+  | 'Joystick'
+  | 'Key'
+  | 'KeyCommand'
+  | 'KeyMultiple'
+  | 'KeyReset'
+  | 'Keyboard123'
+  | 'Keyboard'
+  | 'KeyboardDock'
+  | 'KeyboardLayoutFloat'
+  | 'KeyboardLayoutOneHandedLeft'
+  | 'KeyboardLayoutResize'
+  | 'KeyboardLayoutSplit'
+  | 'KeyboardMouse'
+  | 'KeyboardShift'
+  | 'KeyboardShiftUppercase'
+  | 'KeyboardTab'
+  | 'Kiosk'
+  | 'Laptop'
+  | 'LaptopDismiss'
+  | 'LaptopMultiple'
+  | 'LaptopSettings'
+  | 'LaptopShield'
+  | 'LaserTool'
+  | 'Lasso'
+  | 'LauncherSettings'
+  | 'Layer'
+  | 'LayerDiagonal'
+  | 'LayerDiagonalAdd'
+  | 'LayerDiagonalPerson'
+  | 'LayoutCellFour'
+  | 'LayoutCellFourFocusBottomLeft'
+  | 'LayoutCellFourFocusBottomRight'
+  | 'LayoutCellFourFocusTopLeft'
+  | 'LayoutCellFourFocusTopRight'
+  | 'LayoutColumnFour'
+  | 'LayoutColumnFourFocusCenterLeft'
+  | 'LayoutColumnFourFocusCenterRight'
+  | 'LayoutColumnFourFocusLeft'
+  | 'LayoutColumnFourFocusRight'
+  | 'LayoutColumnOneThirdLeft'
+  | 'LayoutColumnOneThirdRight'
+  | 'LayoutColumnOneThirdRightHint'
+  | 'LayoutColumnThree'
+  | 'LayoutColumnThreeFocusCenter'
+  | 'LayoutColumnThreeFocusLeft'
+  | 'LayoutColumnThreeFocusRight'
+  | 'LayoutColumnTwo'
+  | 'LayoutColumnTwoFocusLeft'
+  | 'LayoutColumnTwoFocusRight'
+  | 'LayoutColumnTwoSplitLeft'
+  | 'LayoutColumnTwoSplitLeftFocusBottomLeft'
+  | 'LayoutColumnTwoSplitLeftFocusRight'
+  | 'LayoutColumnTwoSplitLeftFocusTopLeft'
+  | 'LayoutColumnTwoSplitRight'
+  | 'LayoutColumnTwoSplitRightFocusBottomRight'
+  | 'LayoutColumnTwoSplitRightFocusLeft'
+  | 'LayoutColumnTwoSplitRightFocusTopRight'
+  | 'LayoutRowFour'
+  | 'LayoutRowFourFocusBottom'
+  | 'LayoutRowFourFocusCenterBottom'
+  | 'LayoutRowFourFocusCenterTop'
+  | 'LayoutRowFourFocusTop'
+  | 'LayoutRowThree'
+  | 'LayoutRowThreeFocusBottom'
+  | 'LayoutRowThreeFocusCenter'
+  | 'LayoutRowThreeFocusTop'
+  | 'LayoutRowTwo'
+  | 'LayoutRowTwoFocusBottom'
+  | 'LayoutRowTwoFocusTop'
+  | 'LayoutRowTwoSplitBottom'
+  | 'LayoutRowTwoSplitBottomFocusBottomLeft'
+  | 'LayoutRowTwoSplitBottomFocusBottomRight'
+  | 'LayoutRowTwoSplitBottomFocusTop'
+  | 'LayoutRowTwoSplitTop'
+  | 'LayoutRowTwoSplitTopFocusBottom'
+  | 'LayoutRowTwoSplitTopFocusTopLeft'
+  | 'LayoutRowTwoSplitTopFocusTopRight'
+  | 'LeafOne'
+  | 'LeafThree'
+  | 'LeafTwo'
+  | 'LearningApp'
+  | 'Library'
+  | 'Lightbulb'
+  | 'LightbulbCheckmark'
+  | 'LightbulbCircle'
+  | 'LightbulbFilament'
+  | 'LightbulbPerson'
+  | 'Likert'
+  | 'Line'
+  | 'LineDashes'
+  | 'LineHorizontal1'
+  | 'LineHorizontal1Dashes'
+  | 'LineHorizontal2DashesSolid'
+  | 'LineHorizontal3'
+  | 'LineHorizontal4'
+  | 'LineHorizontal4Search'
+  | 'LineHorizontal5'
+  | 'LineHorizontal5Error'
+  | 'LineStyle'
+  | 'LineThickness'
+  | 'Link'
+  | 'LinkAdd'
+  | 'LinkDismiss'
+  | 'LinkEdit'
+  | 'LinkMultiple'
+  | 'LinkPerson'
+  | 'LinkSettings'
+  | 'LinkSquare'
+  | 'LinkToolbox'
+  | 'List'
+  | 'ListBar'
+  | 'ListBarTree'
+  | 'ListBarTreeOffset'
+  | 'ListRtl'
+  | 'Live'
+  | 'LiveOff'
+  | 'LocalLanguage'
+  | 'Location'
+  | 'LocationAdd'
+  | 'LocationAddLeft'
+  | 'LocationAddRight'
+  | 'LocationAddUp'
+  | 'LocationArrow'
+  | 'LocationArrowLeft'
+  | 'LocationArrowRight'
+  | 'LocationArrowUp'
+  | 'LocationDismiss'
+  | 'LocationLive'
+  | 'LocationOff'
+  | 'LocationTargetSquare'
+  | 'LockClosed'
+  | 'LockClosedKey'
+  | 'LockMultiple'
+  | 'LockOpen'
+  | 'LockShield'
+  | 'Lottery'
+  | 'Luggage'
+  | 'Mail'
+  | 'MailAdd'
+  | 'MailAlert'
+  | 'MailAllRead'
+  | 'MailAllUnread'
+  | 'MailArrowDoubleBack'
+  | 'MailArrowDown'
+  | 'MailArrowForward'
+  | 'MailArrowUp'
+  | 'MailAttach'
+  | 'MailCheckmark'
+  | 'MailClock'
+  | 'MailCopy'
+  | 'MailDismiss'
+  | 'MailEdit'
+  | 'MailError'
+  | 'MailInbox'
+  | 'MailInboxAdd'
+  | 'MailInboxAll'
+  | 'MailInboxArrowDown'
+  | 'MailInboxArrowRight'
+  | 'MailInboxArrowUp'
+  | 'MailInboxCheckmark'
+  | 'MailInboxDismiss'
+  | 'MailLink'
+  | 'MailList'
+  | 'MailMultiple'
+  | 'MailOff'
+  | 'MailOpenPerson'
+  | 'MailPause'
+  | 'MailProhibited'
+  | 'MailRead'
+  | 'MailReadMultiple'
+  | 'MailRewind'
+  | 'MailSettings'
+  | 'MailShield'
+  | 'MailTemplate'
+  | 'MailUnread'
+  | 'MailWarning'
+  | 'Mailbox'
+  | 'Map'
+  | 'MapDrive'
+  | 'Markdown'
+  | 'MatchAppLayout'
+  | 'MathFormatLinear'
+  | 'MathFormatProfessional'
+  | 'MathFormula'
+  | 'MathSymbols'
+  | 'Maximize'
+  | 'MeetNow'
+  | 'Megaphone'
+  | 'MegaphoneCircle'
+  | 'MegaphoneLoud'
+  | 'MegaphoneOff'
+  | 'Memory'
+  | 'Mention'
+  | 'MentionArrowDown'
+  | 'MentionBrackets'
+  | 'Merge'
+  | 'Mic'
+  | 'MicOff'
+  | 'MicProhibited'
+  | 'MicPulse'
+  | 'MicPulseOff'
+  | 'MicRecord'
+  | 'MicSettings'
+  | 'MicSparkle'
+  | 'MicSync'
+  | 'Microscope'
+  | 'Midi'
+  | 'MobileOptimized'
+  | 'Mold'
+  | 'Molecule'
+  | 'Money'
+  | 'MoneyCalculator'
+  | 'MoneyDismiss'
+  | 'MoneyHand'
+  | 'MoneyOff'
+  | 'MoneySettings'
+  | 'MoreCircle'
+  | 'MoreHorizontal'
+  | 'MoreVertical'
+  | 'MountainLocationBottom'
+  | 'MountainLocationTop'
+  | 'MountainTrail'
+  | 'MoviesAndTv'
+  | 'Multiplier12X'
+  | 'Multiplier15X'
+  | 'Multiplier18X'
+  | 'Multiplier1X'
+  | 'Multiplier2X'
+  | 'Multiplier5X'
+  | 'MultiselectLtr'
+  | 'MultiselectRtl'
+  | 'MusicNote1'
+  | 'MusicNote2'
+  | 'MusicNote2Play'
+  | 'MusicNoteOff1'
+  | 'MusicNoteOff2'
+  | 'MyLocation'
+  | 'Navigation'
+  | 'NavigationLocationTarget'
+  | 'NavigationPlay'
+  | 'NavigationUnread'
+  | 'NetworkAdapter'
+  | 'NetworkCheck'
+  | 'New'
+  | 'News'
+  | 'Next'
+  | 'NextFrame'
+  | 'Note'
+  | 'NoteAdd'
+  | 'NoteEdit'
+  | 'NotePin'
+  | 'Notebook'
+  | 'NotebookAdd'
+  | 'NotebookArrowCurveDown'
+  | 'NotebookError'
+  | 'NotebookEye'
+  | 'NotebookLightning'
+  | 'NotebookQuestionMark'
+  | 'NotebookSection'
+  | 'NotebookSectionArrowRight'
+  | 'NotebookSubsection'
+  | 'NotebookSync'
+  | 'Notepad'
+  | 'NotepadEdit'
+  | 'NotepadPerson'
+  | 'NumberCircle0'
+  | 'NumberCircle1'
+  | 'NumberCircle2'
+  | 'NumberCircle3'
+  | 'NumberCircle4'
+  | 'NumberCircle5'
+  | 'NumberCircle6'
+  | 'NumberCircle7'
+  | 'NumberCircle8'
+  | 'NumberCircle9'
+  | 'NumberRow'
+  | 'NumberSymbol'
+  | 'NumberSymbolDismiss'
+  | 'NumberSymbolSquare'
+  | 'Open'
+  | 'OpenFolder'
+  | 'OpenOff'
+  | 'Options'
+  | 'Organization'
+  | 'OrganizationHorizontal'
+  | 'Orientation'
+  | 'Oval'
+  | 'Oven'
+  | 'PaddingDown'
+  | 'PaddingLeft'
+  | 'PaddingRight'
+  | 'PaddingTop'
+  | 'PageFit'
+  | 'PaintBrush'
+  | 'PaintBrushArrowDown'
+  | 'PaintBrushArrowUp'
+  | 'PaintBucket'
+  | 'Pair'
+  | 'PanelBottom'
+  | 'PanelBottomContract'
+  | 'PanelBottomExpand'
+  | 'PanelLeft'
+  | 'PanelLeftAdd'
+  | 'PanelLeftContract'
+  | 'PanelLeftExpand'
+  | 'PanelLeftFocusRight'
+  | 'PanelLeftHeader'
+  | 'PanelLeftHeaderAdd'
+  | 'PanelLeftHeaderKey'
+  | 'PanelLeftKey'
+  | 'PanelLeftText'
+  | 'PanelLeftTextAdd'
+  | 'PanelLeftTextDismiss'
+  | 'PanelRight'
+  | 'PanelRightAdd'
+  | 'PanelRightContract'
+  | 'PanelRightCursor'
+  | 'PanelRightExpand'
+  | 'PanelRightGallery'
+  | 'PanelSeparateWindow'
+  | 'PanelTopContract'
+  | 'PanelTopExpand'
+  | 'PanelTopGallery'
+  | 'Password'
+  | 'Patch'
+  | 'Patient'
+  | 'Pause'
+  | 'PauseCircle'
+  | 'PauseOff'
+  | 'PauseSettings'
+  | 'Payment'
+  | 'Pen'
+  | 'PenDismiss'
+  | 'PenOff'
+  | 'PenProhibited'
+  | 'PenSparkle'
+  | 'Pentagon'
+  | 'People'
+  | 'PeopleAdd'
+  | 'PeopleAudience'
+  | 'PeopleCall'
+  | 'PeopleChat'
+  | 'PeopleCheckmark'
+  | 'PeopleCommunity'
+  | 'PeopleCommunityAdd'
+  | 'PeopleEdit'
+  | 'PeopleError'
+  | 'PeopleList'
+  | 'PeopleLock'
+  | 'PeopleMoney'
+  | 'PeopleProhibited'
+  | 'PeopleQueue'
+  | 'PeopleSearch'
+  | 'PeopleSettings'
+  | 'PeopleStar'
+  | 'PeopleSwap'
+  | 'PeopleSync'
+  | 'PeopleTeam'
+  | 'PeopleTeamAdd'
+  | 'PeopleTeamDelete'
+  | 'PeopleTeamToolbox'
+  | 'PeopleToolbox'
+  | 'Person'
+  | 'Person5'
+  | 'Person6'
+  | 'PersonAccounts'
+  | 'PersonAdd'
+  | 'PersonAlert'
+  | 'PersonArrowBack'
+  | 'PersonArrowLeft'
+  | 'PersonArrowRight'
+  | 'PersonAvailable'
+  | 'PersonBoard'
+  | 'PersonCall'
+  | 'PersonChat'
+  | 'PersonCircle'
+  | 'PersonClock'
+  | 'PersonDelete'
+  | 'PersonDesktop'
+  | 'PersonEdit'
+  | 'PersonFeedback'
+  | 'PersonHeart'
+  | 'PersonInfo'
+  | 'PersonKey'
+  | 'PersonLightbulb'
+  | 'PersonLightning'
+  | 'PersonLink'
+  | 'PersonLock'
+  | 'PersonMail'
+  | 'PersonMoney'
+  | 'PersonNote'
+  | 'PersonPhone'
+  | 'PersonPill'
+  | 'PersonProhibited'
+  | 'PersonQuestionMark'
+  | 'PersonRibbon'
+  | 'PersonRunning'
+  | 'PersonSearch'
+  | 'PersonSettings'
+  | 'PersonSquare'
+  | 'PersonSquareCheckmark'
+  | 'PersonStanding'
+  | 'PersonStar'
+  | 'PersonStarburst'
+  | 'PersonSubtract'
+  | 'PersonSupport'
+  | 'PersonSwap'
+  | 'PersonSync'
+  | 'PersonTag'
+  | 'PersonVoice'
+  | 'PersonWalking'
+  | 'PersonWarning'
+  | 'PersonWrench'
+  | 'Phone'
+  | 'PhoneAdd'
+  | 'PhoneArrowRight'
+  | 'PhoneBriefcase'
+  | 'PhoneChat'
+  | 'PhoneCheckmark'
+  | 'PhoneDesktop'
+  | 'PhoneDesktopAdd'
+  | 'PhoneDismiss'
+  | 'PhoneEdit'
+  | 'PhoneEraser'
+  | 'PhoneFooterArrowDown'
+  | 'PhoneHeaderArrowUp'
+  | 'PhoneKey'
+  | 'PhoneLaptop'
+  | 'PhoneLinkSetup'
+  | 'PhoneLock'
+  | 'PhoneMultiple'
+  | 'PhoneMultipleSettings'
+  | 'PhonePageHeader'
+  | 'PhonePagination'
+  | 'PhonePerson'
+  | 'PhoneScreenTime'
+  | 'PhoneShake'
+  | 'PhoneSpanIn'
+  | 'PhoneSpanOut'
+  | 'PhoneSpeaker'
+  | 'PhoneStatusBar'
+  | 'PhoneSubtract'
+  | 'PhoneTablet'
+  | 'PhoneUpdate'
+  | 'PhoneUpdateCheckmark'
+  | 'PhoneVerticalScroll'
+  | 'PhoneVibrate'
+  | 'PhotoFilter'
+  | 'Pi'
+  | 'PictureInPicture'
+  | 'PictureInPictureEnter'
+  | 'PictureInPictureExit'
+  | 'Pill'
+  | 'Pin'
+  | 'PinOff'
+  | 'Pipeline'
+  | 'PipelineAdd'
+  | 'PipelineArrowCurveDown'
+  | 'PipelinePlay'
+  | 'Pivot'
+  | 'PlantGrass'
+  | 'PlantRagweed'
+  | 'Play'
+  | 'PlayCircle'
+  | 'PlayCircleHint'
+  | 'PlayMultiple'
+  | 'PlaySettings'
+  | 'PlayingCards'
+  | 'PlugConnected'
+  | 'PlugConnectedAdd'
+  | 'PlugConnectedCheckmark'
+  | 'PlugConnectedSettings'
+  | 'PlugDisconnected'
+  | 'PointScan'
+  | 'Poll'
+  | 'PollHorizontal'
+  | 'PollOff'
+  | 'PortHdmi'
+  | 'PortMicroUsb'
+  | 'PortUsbA'
+  | 'PortUsbC'
+  | 'PositionBackward'
+  | 'PositionForward'
+  | 'PositionToBack'
+  | 'PositionToFront'
+  | 'Power'
+  | 'Predictions'
+  | 'Premium'
+  | 'PremiumPerson'
+  | 'PresenceAvailable'
+  | 'PresenceAway'
+  | 'PresenceBlocked'
+  | 'PresenceBusy'
+  | 'PresenceDnd'
+  | 'PresenceOffline'
+  | 'PresenceOof'
+  | 'PresenceUnknown'
+  | 'Presenter'
+  | 'PresenterOff'
+  | 'PreviewLink'
+  | 'Previous'
+  | 'PreviousFrame'
+  | 'Print'
+  | 'PrintAdd'
+  | 'Production'
+  | 'ProductionCheckmark'
+  | 'Prohibited'
+  | 'ProhibitedMultiple'
+  | 'ProhibitedNote'
+  | 'ProjectionScreen'
+  | 'ProjectionScreenDismiss'
+  | 'ProjectionScreenText'
+  | 'ProtocolHandler'
+  | 'Pulse'
+  | 'PulseSquare'
+  | 'PuzzleCube'
+  | 'PuzzleCubePiece'
+  | 'PuzzlePiece'
+  | 'PuzzlePieceShield'
+  | 'QrCode'
+  | 'Question'
+  | 'QuestionCircle'
+  | 'QuizNew'
+  | 'Radar'
+  | 'RadarCheckmark'
+  | 'RadarRectangleMultiple'
+  | 'RadioButton'
+  | 'RadioButtonOff'
+  | 'Ram'
+  | 'RatingMature'
+  | 'RatioOneToOne'
+  | 'ReOrder'
+  | 'ReOrderDotsHorizontal'
+  | 'ReOrderDotsVertical'
+  | 'ReadAloud'
+  | 'ReadingList'
+  | 'ReadingListAdd'
+  | 'ReadingModeMobile'
+  | 'RealEstate'
+  | 'Receipt'
+  | 'ReceiptAdd'
+  | 'ReceiptBag'
+  | 'ReceiptCube'
+  | 'ReceiptMoney'
+  | 'ReceiptPlay'
+  | 'ReceiptSearch'
+  | 'ReceiptSparkles'
+  | 'Record'
+  | 'RecordStop'
+  | 'RectangleLandscape'
+  | 'RectangleLandscapeHintCopy'
+  | 'RectangleLandscapeSparkle'
+  | 'RectangleLandscapeSync'
+  | 'RectangleLandscapeSyncOff'
+  | 'RectanglePortraitLocationTarget'
+  | 'Recycle'
+  | 'RemixAdd'
+  | 'Remote'
+  | 'Rename'
+  | 'Reorder'
+  | 'Replay'
+  | 'Resize'
+  | 'ResizeImage'
+  | 'ResizeLarge'
+  | 'ResizeSmall'
+  | 'ResizeTable'
+  | 'ResizeVideo'
+  | 'Reward'
+  | 'Rewind'
+  | 'Rhombus'
+  | 'Ribbon'
+  | 'RibbonAdd'
+  | 'RibbonOff'
+  | 'RibbonStar'
+  | 'RoadCone'
+  | 'Rocket'
+  | 'RotateLeft'
+  | 'RotateRight'
+  | 'Router'
+  | 'RowTriple'
+  | 'Rss'
+  | 'Ruler'
+  | 'Run'
+  | 'Sanitize'
+  | 'Save'
+  | 'SaveArrowRight'
+  | 'SaveCopy'
+  | 'SaveEdit'
+  | 'SaveImage'
+  | 'SaveMultiple'
+  | 'SaveSearch'
+  | 'SaveSync'
+  | 'Savings'
+  | 'ScaleFill'
+  | 'ScaleFit'
+  | 'Scales'
+  | 'Scan'
+  | 'ScanCamera'
+  | 'ScanDash'
+  | 'ScanObject'
+  | 'ScanPerson'
+  | 'ScanQrCode'
+  | 'ScanTable'
+  | 'ScanText'
+  | 'ScanThumbUp'
+  | 'ScanThumbUpOff'
+  | 'ScanType'
+  | 'ScanTypeCheckmark'
+  | 'ScanTypeOff'
+  | 'Scratchpad'
+  | 'ScreenCut'
+  | 'ScreenPerson'
+  | 'ScreenSearch'
+  | 'Screenshot'
+  | 'ScreenshotRecord'
+  | 'Script'
+  | 'Search'
+  | 'SearchInfo'
+  | 'SearchSettings'
+  | 'SearchShield'
+  | 'SearchSquare'
+  | 'SearchVisual'
+  | 'Seat'
+  | 'SeatAdd'
+  | 'SelectAllOff'
+  | 'SelectAllOn'
+  | 'SelectObject'
+  | 'SelectObjectSkew'
+  | 'SelectObjectSkewDismiss'
+  | 'SelectObjectSkewEdit'
+  | 'Send'
+  | 'SendBeaker'
+  | 'SendClock'
+  | 'SendCopy'
+  | 'SerialPort'
+  | 'Server'
+  | 'ServerLink'
+  | 'ServerMultiple'
+  | 'ServerPlay'
+  | 'ServerSurface'
+  | 'ServerSurfaceMultiple'
+  | 'ServiceBell'
+  | 'Settings'
+  | 'SettingsChat'
+  | 'SettingsCogMultiple'
+  | 'ShapeExclude'
+  | 'ShapeIntersect'
+  | 'ShapeOrganic'
+  | 'ShapeSubtract'
+  | 'ShapeUnion'
+  | 'Shapes'
+  | 'Share'
+  | 'ShareAndroid'
+  | 'ShareCloseTray'
+  | 'ShareIos'
+  | 'ShareScreenPerson'
+  | 'ShareScreenPersonOverlay'
+  | 'ShareScreenPersonOverlayInside'
+  | 'ShareScreenPersonP'
+  | 'ShareScreenStart'
+  | 'ShareScreenStop'
+  | 'Shield'
+  | 'ShieldAdd'
+  | 'ShieldBadge'
+  | 'ShieldCheckmark'
+  | 'ShieldDismiss'
+  | 'ShieldDismissShield'
+  | 'ShieldError'
+  | 'ShieldGlobe'
+  | 'ShieldKeyhole'
+  | 'ShieldLock'
+  | 'ShieldPerson'
+  | 'ShieldPersonAdd'
+  | 'ShieldProhibited'
+  | 'ShieldQuestion'
+  | 'ShieldTask'
+  | 'Shifts'
+  | 'Shifts30Minutes'
+  | 'ShiftsActivity'
+  | 'ShiftsAdd'
+  | 'ShiftsAvailability'
+  | 'ShiftsCheckmark'
+  | 'ShiftsDay'
+  | 'ShiftsOpen'
+  | 'ShiftsProhibited'
+  | 'ShiftsQuestionMark'
+  | 'ShiftsTeam'
+  | 'ShoppingBag'
+  | 'ShoppingBagAdd'
+  | 'ShoppingBagArrowLeft'
+  | 'ShoppingBagDismiss'
+  | 'ShoppingBagPause'
+  | 'ShoppingBagPercent'
+  | 'ShoppingBagPlay'
+  | 'ShoppingBagTag'
+  | 'Shortpick'
+  | 'Showerhead'
+  | 'SidebarSearchLtr'
+  | 'SidebarSearchRtl'
+  | 'SignOut'
+  | 'Signature'
+  | 'Sim'
+  | 'SkipBack10'
+  | 'SkipForward10'
+  | 'SkipForward30'
+  | 'SkipForwardTab'
+  | 'SlashForward'
+  | 'Sleep'
+  | 'SlideAdd'
+  | 'SlideArrowRight'
+  | 'SlideContent'
+  | 'SlideEraser'
+  | 'SlideGrid'
+  | 'SlideHide'
+  | 'SlideLayout'
+  | 'SlideLink'
+  | 'SlideMicrophone'
+  | 'SlideMultiple'
+  | 'SlideMultipleArrowRight'
+  | 'SlideMultipleSearch'
+  | 'SlideRecord'
+  | 'SlideSearch'
+  | 'SlideSettings'
+  | 'SlideSize'
+  | 'SlideText'
+  | 'SlideTextEdit'
+  | 'SlideTextMultiple'
+  | 'SlideTextPerson'
+  | 'SlideTextSparkle'
+  | 'SlideTransition'
+  | 'Smartwatch'
+  | 'SmartwatchDot'
+  | 'Snooze'
+  | 'SoundSource'
+  | 'SoundWaveCircle'
+  | 'Space3D'
+  | 'Spacebar'
+  | 'Sparkle'
+  | 'SparkleCircle'
+  | 'Speaker0'
+  | 'Speaker1'
+  | 'Speaker2'
+  | 'SpeakerBluetooth'
+  | 'SpeakerBox'
+  | 'SpeakerEdit'
+  | 'SpeakerMute'
+  | 'SpeakerOff'
+  | 'SpeakerSettings'
+  | 'SpeakerUsb'
+  | 'SpinnerIos'
+  | 'SplitHint'
+  | 'SplitHorizontal'
+  | 'SplitVertical'
+  | 'Sport'
+  | 'SportAmericanFootball'
+  | 'SportBaseball'
+  | 'SportBasketball'
+  | 'SportHockey'
+  | 'SportSoccer'
+  | 'SprayCan'
+  | 'Square'
+  | 'SquareAdd'
+  | 'SquareArrowForward'
+  | 'SquareDismiss'
+  | 'SquareEraser'
+  | 'SquareHint'
+  | 'SquareHintApps'
+  | 'SquareHintArrowBack'
+  | 'SquareHintHexagon'
+  | 'SquareHintSparkles'
+  | 'SquareMultiple'
+  | 'SquareShadow'
+  | 'SquaresNested'
+  | 'Stack'
+  | 'StackAdd'
+  | 'StackArrowForward'
+  | 'StackStar'
+  | 'StackVertical'
+  | 'Star'
+  | 'StarAdd'
+  | 'StarArrowBack'
+  | 'StarArrowRightEnd'
+  | 'StarArrowRightStart'
+  | 'StarCheckmark'
+  | 'StarDismiss'
+  | 'StarEdit'
+  | 'StarEmphasis'
+  | 'StarHalf'
+  | 'StarLineHorizontal3'
+  | 'StarOff'
+  | 'StarOneQuarter'
+  | 'StarProhibited'
+  | 'StarSettings'
+  | 'StarThreeQuarter'
+  | 'Status'
+  | 'Step'
+  | 'Steps'
+  | 'Stethoscope'
+  | 'Sticker'
+  | 'StickerAdd'
+  | 'Stop'
+  | 'Storage'
+  | 'StoreMicrosoft'
+  | 'Stream'
+  | 'StreamInput'
+  | 'StreamInputOutput'
+  | 'StreamOutput'
+  | 'StreetSign'
+  | 'StyleGuide'
+  | 'SubGrid'
+  | 'Subtitles'
+  | 'Subtract'
+  | 'SubtractCircle'
+  | 'SubtractCircleArrowBack'
+  | 'SubtractCircleArrowForward'
+  | 'SubtractParentheses'
+  | 'SubtractSquare'
+  | 'SubtractSquareMultiple'
+  | 'SurfaceEarbuds'
+  | 'SurfaceHub'
+  | 'SwimmingPool'
+  | 'SwipeDown'
+  | 'SwipeRight'
+  | 'SwipeUp'
+  | 'Symbols'
+  | 'SyncOff'
+  | 'Syringe'
+  | 'System'
+  | 'Tab'
+  | 'TabAdd'
+  | 'TabArrowLeft'
+  | 'TabDesktop'
+  | 'TabDesktopArrowClockwise'
+  | 'TabDesktopArrowLeft'
+  | 'TabDesktopBottom'
+  | 'TabDesktopClock'
+  | 'TabDesktopCopy'
+  | 'TabDesktopImage'
+  | 'TabDesktopLink'
+  | 'TabDesktopMultiple'
+  | 'TabDesktopMultipleAdd'
+  | 'TabDesktopMultipleBottom'
+  | 'TabDesktopNewPage'
+  | 'TabInPrivate'
+  | 'TabInprivateAccount'
+  | 'TabProhibited'
+  | 'TabShieldDismiss'
+  | 'Table'
+  | 'TableAdd'
+  | 'TableArrowUp'
+  | 'TableBottomRow'
+  | 'TableCalculator'
+  | 'TableCellEdit'
+  | 'TableCellsMerge'
+  | 'TableCellsSplit'
+  | 'TableChecker'
+  | 'TableColumnTopBottom'
+  | 'TableCopy'
+  | 'TableDefault'
+  | 'TableDeleteColumn'
+  | 'TableDeleteRow'
+  | 'TableDismiss'
+  | 'TableEdit'
+  | 'TableFreezeColumn'
+  | 'TableFreezeColumnAndRow'
+  | 'TableFreezeRow'
+  | 'TableImage'
+  | 'TableInsertColumn'
+  | 'TableInsertRow'
+  | 'TableLightning'
+  | 'TableLink'
+  | 'TableLock'
+  | 'TableMoveAbove'
+  | 'TableMoveBelow'
+  | 'TableMoveLeft'
+  | 'TableMoveRight'
+  | 'TableMultiple'
+  | 'TableOffset'
+  | 'TableOffsetAdd'
+  | 'TableOffsetLessThanOrEqualTo'
+  | 'TableOffsetSettings'
+  | 'TableResizeColumn'
+  | 'TableResizeRow'
+  | 'TableSearch'
+  | 'TableSettings'
+  | 'TableSimple'
+  | 'TableSimpleCheckmark'
+  | 'TableSimpleExclude'
+  | 'TableSimpleInclude'
+  | 'TableSimpleMultiple'
+  | 'TableSplit'
+  | 'TableStackAbove'
+  | 'TableStackBelow'
+  | 'TableStackLeft'
+  | 'TableStackRight'
+  | 'TableSwitch'
+  | 'Tablet'
+  | 'TabletLaptop'
+  | 'TabletSpeaker'
+  | 'Tabs'
+  | 'Tag'
+  | 'TagCircle'
+  | 'TagDismiss'
+  | 'TagError'
+  | 'TagLock'
+  | 'TagLockAccent'
+  | 'TagMultiple'
+  | 'TagOff'
+  | 'TagQuestionMark'
+  | 'TagReset'
+  | 'TagSearch'
+  | 'TapDouble'
+  | 'TapSingle'
+  | 'Target'
+  | 'TargetAdd'
+  | 'TargetArrow'
+  | 'TargetDismiss'
+  | 'TargetEdit'
+  | 'TaskListAdd'
+  | 'TaskListLtr'
+  | 'TaskListRtl'
+  | 'TaskListSquareAdd'
+  | 'TaskListSquareDatabase'
+  | 'TaskListSquareLtr'
+  | 'TaskListSquarePerson'
+  | 'TaskListSquareRtl'
+  | 'TaskListSquareSettings'
+  | 'TasksApp'
+  | 'TeardropBottomRight'
+  | 'Teddy'
+  | 'Temperature'
+  | 'Tent'
+  | 'TetrisApp'
+  | 'Text'
+  | 'TextAbcUnderlineDouble'
+  | 'TextAdd'
+  | 'TextAddSpaceAfter'
+  | 'TextAddSpaceBefore'
+  | 'TextAddT'
+  | 'TextAlignCenter'
+  | 'TextAlignCenterRotate270'
+  | 'TextAlignCenterRotate90'
+  | 'TextAlignDistributed'
+  | 'TextAlignDistributedEvenly'
+  | 'TextAlignDistributedVertical'
+  | 'TextAlignJustify'
+  | 'TextAlignJustifyLow'
+  | 'TextAlignJustifyLow90'
+  | 'TextAlignJustifyLowRotate270'
+  | 'TextAlignJustifyLowRotate90'
+  | 'TextAlignJustifyRotate270'
+  | 'TextAlignJustifyRotate90'
+  | 'TextAlignLeft'
+  | 'TextAlignLeftRotate270'
+  | 'TextAlignLeftRotate90'
+  | 'TextAlignRight'
+  | 'TextAlignRightRotate270'
+  | 'TextAlignRightRotate90'
+  | 'TextArrowDownRightColumn'
+  | 'TextAsterisk'
+  | 'TextBaseline'
+  | 'TextBold'
+  | 'TextBoxSettings'
+  | 'TextBulletList'
+  | 'TextBulletList270'
+  | 'TextBulletList90'
+  | 'TextBulletListAdd'
+  | 'TextBulletListCheckmark'
+  | 'TextBulletListDismiss'
+  | 'TextBulletListLtr'
+  | 'TextBulletListLtr90'
+  | 'TextBulletListLtrRotate270'
+  | 'TextBulletListRtl'
+  | 'TextBulletListRtl90'
+  | 'TextBulletListSquare'
+  | 'TextBulletListSquareClock'
+  | 'TextBulletListSquareEdit'
+  | 'TextBulletListSquarePerson'
+  | 'TextBulletListSquareSearch'
+  | 'TextBulletListSquareSettings'
+  | 'TextBulletListSquareShield'
+  | 'TextBulletListSquareSparkle'
+  | 'TextBulletListSquareToolbox'
+  | 'TextBulletListSquareWarning'
+  | 'TextBulletListTree'
+  | 'TextCaseLowercase'
+  | 'TextCaseTitle'
+  | 'TextCaseUppercase'
+  | 'TextChangeCase'
+  | 'TextClearFormatting'
+  | 'TextCollapse'
+  | 'TextColor'
+  | 'TextColorAccent'
+  | 'TextColumnOne'
+  | 'TextColumnOneNarrow'
+  | 'TextColumnOneSemiNarrow'
+  | 'TextColumnOneWide'
+  | 'TextColumnOneWideLightning'
+  | 'TextColumnThree'
+  | 'TextColumnTwo'
+  | 'TextColumnTwoLeft'
+  | 'TextColumnTwoRight'
+  | 'TextColumnWide'
+  | 'TextContinuous'
+  | 'TextDensity'
+  | 'TextDescription'
+  | 'TextDescriptionLtr'
+  | 'TextDescriptionRtl'
+  | 'TextDirectionHorizontalLeft'
+  | 'TextDirectionHorizontalLtr'
+  | 'TextDirectionHorizontalRight'
+  | 'TextDirectionHorizontalRtl'
+  | 'TextDirectionRotate270Right'
+  | 'TextDirectionRotate315Right'
+  | 'TextDirectionRotate45Right'
+  | 'TextDirectionRotate90Left'
+  | 'TextDirectionRotate90Ltr'
+  | 'TextDirectionRotate90Right'
+  | 'TextDirectionRotate90Rtl'
+  | 'TextDirectionVertical'
+  | 'TextEditStyle'
+  | 'TextEditStyleCharacterA'
+  | 'TextEditStyleCharacterGa'
+  | 'TextEffects'
+  | 'TextEffectsSparkle'
+  | 'TextExpand'
+  | 'TextField'
+  | 'TextFirstLine'
+  | 'TextFont'
+  | 'TextFontInfo'
+  | 'TextFontSize'
+  | 'TextFootnote'
+  | 'TextGrammarArrowLeft'
+  | 'TextGrammarArrowRight'
+  | 'TextGrammarCheckmark'
+  | 'TextGrammarDismiss'
+  | 'TextGrammarError'
+  | 'TextGrammarLightning'
+  | 'TextGrammarSettings'
+  | 'TextGrammarWand'
+  | 'TextHanging'
+  | 'TextHeader1'
+  | 'TextHeader1Lines'
+  | 'TextHeader1LinesCaret'
+  | 'TextHeader2'
+  | 'TextHeader2Lines'
+  | 'TextHeader2LinesCaret'
+  | 'TextHeader3'
+  | 'TextHeader3Lines'
+  | 'TextHeader3LinesCaret'
+  | 'TextIndentDecrease'
+  | 'TextIndentDecreaseLtr'
+  | 'TextIndentDecreaseLtr90'
+  | 'TextIndentDecreaseLtrRotate270'
+  | 'TextIndentDecreaseRotate270'
+  | 'TextIndentDecreaseRotate90'
+  | 'TextIndentDecreaseRtl'
+  | 'TextIndentDecreaseRtl90'
+  | 'TextIndentDecreaseRtlRotate270'
+  | 'TextIndentIncrease'
+  | 'TextIndentIncreaseLtr'
+  | 'TextIndentIncreaseLtr90'
+  | 'TextIndentIncreaseLtrRotate270'
+  | 'TextIndentIncreaseRotate270'
+  | 'TextIndentIncreaseRotate90'
+  | 'TextIndentIncreaseRtl'
+  | 'TextIndentIncreaseRtl90'
+  | 'TextIndentIncreaseRtlRotate270'
+  | 'TextItalic'
+  | 'TextLineSpacing'
+  | 'TextMore'
+  | 'TextNumberFormat'
+  | 'TextNumberListLtr'
+  | 'TextNumberListLtr90'
+  | 'TextNumberListLtrRotate270'
+  | 'TextNumberListRotate270'
+  | 'TextNumberListRotate90'
+  | 'TextNumberListRtl'
+  | 'TextNumberListRtl90'
+  | 'TextNumberListRtlRotate270'
+  | 'TextParagraph'
+  | 'TextParagraphDirection'
+  | 'TextParagraphDirectionLeft'
+  | 'TextParagraphDirectionRight'
+  | 'TextPeriodAsterisk'
+  | 'TextPositionBehind'
+  | 'TextPositionFront'
+  | 'TextPositionLine'
+  | 'TextPositionSquare'
+  | 'TextPositionSquareLeft'
+  | 'TextPositionSquareRight'
+  | 'TextPositionThrough'
+  | 'TextPositionTight'
+  | 'TextPositionTopBottom'
+  | 'TextProofingTools'
+  | 'TextQuote'
+  | 'TextSortAscending'
+  | 'TextSortDescending'
+  | 'TextStrikethrough'
+  | 'TextSubscript'
+  | 'TextSuperscript'
+  | 'TextT'
+  | 'TextTTag'
+  | 'TextUnderline'
+  | 'TextUnderlineCharacterU'
+  | 'TextUnderlineDouble'
+  | 'TextWholeWord'
+  | 'TextWordCount'
+  | 'TextWrap'
+  | 'TextWrapOff'
+  | 'Textbox'
+  | 'TextboxAlignBottom'
+  | 'TextboxAlignBottomCenter'
+  | 'TextboxAlignBottomLeft'
+  | 'TextboxAlignBottomRight'
+  | 'TextboxAlignBottomRotate90'
+  | 'TextboxAlignCenter'
+  | 'TextboxAlignMiddle'
+  | 'TextboxAlignMiddleLeft'
+  | 'TextboxAlignMiddleRight'
+  | 'TextboxAlignMiddleRotate90'
+  | 'TextboxAlignTop'
+  | 'TextboxAlignTopCenter'
+  | 'TextboxAlignTopLeft'
+  | 'TextboxAlignTopRight'
+  | 'TextboxAlignTopRotate90'
+  | 'TextboxMore'
+  | 'TextboxRotate90'
+  | 'TextboxSettings'
+  | 'Thinking'
+  | 'ThumbDislike'
+  | 'ThumbLike'
+  | 'ThumbLikeDislike'
+  | 'TicketDiagonal'
+  | 'TicketHorizontal'
+  | 'TimeAndWeather'
+  | 'TimePicker'
+  | 'Timeline'
+  | 'Timer10'
+  | 'Timer'
+  | 'Timer2'
+  | 'Timer3'
+  | 'TimerOff'
+  | 'ToggleLeft'
+  | 'ToggleMultiple'
+  | 'ToggleRight'
+  | 'Toolbox'
+  | 'TooltipQuote'
+  | 'TopSpeed'
+  | 'Translate'
+  | 'TranslateAuto'
+  | 'TranslateOff'
+  | 'Transmission'
+  | 'TrayItemAdd'
+  | 'TrayItemRemove'
+  | 'TreeDeciduous'
+  | 'TreeEvergreen'
+  | 'Triangle'
+  | 'TriangleDown'
+  | 'TriangleLeft'
+  | 'TriangleRight'
+  | 'TriangleUp'
+  | 'Trophy'
+  | 'TrophyLock'
+  | 'TrophyOff'
+  | 'Tv'
+  | 'TvArrowRight'
+  | 'TvUsb'
+  | 'Umbrella'
+  | 'UninstallApp'
+  | 'UsbPlug'
+  | 'UsbStick'
+  | 'Vault'
+  | 'VehicleBicycle'
+  | 'VehicleBus'
+  | 'VehicleCab'
+  | 'VehicleCableCar'
+  | 'VehicleCar'
+  | 'VehicleCarCollision'
+  | 'VehicleCarParking'
+  | 'VehicleCarProfile'
+  | 'VehicleCarProfileLtr'
+  | 'VehicleCarProfileLtrClock'
+  | 'VehicleCarProfileRtl'
+  | 'VehicleShip'
+  | 'VehicleSubway'
+  | 'VehicleSubwayClock'
+  | 'VehicleTruck'
+  | 'VehicleTruckBag'
+  | 'VehicleTruckCube'
+  | 'VehicleTruckProfile'
+  | 'Video'
+  | 'Video360'
+  | 'Video360Off'
+  | 'VideoAdd'
+  | 'VideoBackgroundEffect'
+  | 'VideoBackgroundEffectHorizontal'
+  | 'VideoChat'
+  | 'VideoClip'
+  | 'VideoClipMultiple'
+  | 'VideoClipOff'
+  | 'VideoClipOptimize'
+  | 'VideoLink'
+  | 'VideoOff'
+  | 'VideoPeople'
+  | 'VideoPerson'
+  | 'VideoPersonCall'
+  | 'VideoPersonClock'
+  | 'VideoPersonOff'
+  | 'VideoPersonPulse'
+  | 'VideoPersonSparkle'
+  | 'VideoPersonSparkleOff'
+  | 'VideoPersonStar'
+  | 'VideoPersonStarOff'
+  | 'VideoPlayPause'
+  | 'VideoProhibited'
+  | 'VideoRecording'
+  | 'VideoSecurity'
+  | 'VideoSwitch'
+  | 'VideoSync'
+  | 'ViewDesktop'
+  | 'ViewDesktopMobile'
+  | 'VirtualNetwork'
+  | 'VirtualNetworkToolbox'
+  | 'Voicemail'
+  | 'VoicemailArrowBack'
+  | 'VoicemailArrowForward'
+  | 'VoicemailArrowSubtract'
+  | 'VoicemailShield'
+  | 'VoicemailSubtract'
+  | 'Vote'
+  | 'WalkieTalkie'
+  | 'Wallet'
+  | 'WalletCreditCard'
+  | 'Wallpaper'
+  | 'Wand'
+  | 'Warning'
+  | 'WarningShield'
+  | 'Washer'
+  | 'Water'
+  | 'WeatherBlowingSnow'
+  | 'WeatherCloudy'
+  | 'WeatherDrizzle'
+  | 'WeatherDuststorm'
+  | 'WeatherFog'
+  | 'WeatherHailDay'
+  | 'WeatherHailNight'
+  | 'WeatherHaze'
+  | 'WeatherMoon'
+  | 'WeatherMoonOff'
+  | 'WeatherPartlyCloudyDay'
+  | 'WeatherPartlyCloudyNight'
+  | 'WeatherRain'
+  | 'WeatherRainShowersDay'
+  | 'WeatherRainShowersNight'
+  | 'WeatherRainSnow'
+  | 'WeatherSnow'
+  | 'WeatherSnowShowerDay'
+  | 'WeatherSnowShowerNight'
+  | 'WeatherSnowflake'
+  | 'WeatherSqualls'
+  | 'WeatherSunny'
+  | 'WeatherSunnyHigh'
+  | 'WeatherSunnyLow'
+  | 'WeatherThunderstorm'
+  | 'WebAsset'
+  | 'Whiteboard'
+  | 'WhiteboardOff'
+  | 'Wifi1'
+  | 'Wifi2'
+  | 'Wifi3'
+  | 'Wifi4'
+  | 'WifiLock'
+  | 'WifiOff'
+  | 'WifiSettings'
+  | 'WifiWarning'
+  | 'Window'
+  | 'WindowAd'
+  | 'WindowAdOff'
+  | 'WindowAdPerson'
+  | 'WindowApps'
+  | 'WindowArrowUp'
+  | 'WindowBulletList'
+  | 'WindowBulletListAdd'
+  | 'WindowConsole'
+  | 'WindowDatabase'
+  | 'WindowDevEdit'
+  | 'WindowDevTools'
+  | 'WindowEdit'
+  | 'WindowHeaderHorizontal'
+  | 'WindowHeaderHorizontalOff'
+  | 'WindowHeaderVertical'
+  | 'WindowInprivate'
+  | 'WindowInprivateAccount'
+  | 'WindowLocationTarget'
+  | 'WindowMultiple'
+  | 'WindowMultipleSwap'
+  | 'WindowNew'
+  | 'WindowPlay'
+  | 'WindowSettings'
+  | 'WindowShield'
+  | 'WindowText'
+  | 'WindowWrench'
+  | 'Wrench'
+  | 'WrenchScrewdriver'
+  | 'WrenchSettings'
+  | 'XboxConsole'
+  | 'XboxController'
+  | 'XboxControllerError'
+  | 'Xray'
+  | 'ZoomFit'
+  | 'ZoomIn'
+  | 'ZoomOut';
 
-export type ActionStyle = "default" | "positive" | "destructive";
+export type ActionStyle = 'default' | 'positive' | 'destructive';
 
-export type ActionMode = "primary" | "secondary";
+export type ActionMode = 'primary' | 'secondary';
 
 export type MenuActionArray = (
   | IExecuteAction
@@ -2630,229 +2630,229 @@ export type MenuActionArray = (
   | IToggleVisibilityAction
 )[];
 
-export type ThemeName = "Light" | "Dark";
+export type ThemeName = 'Light' | 'Dark';
 
-export type ElementHeight = "auto" | "stretch";
+export type ElementHeight = 'auto' | 'stretch';
 
-export type HorizontalAlignment = "Left" | "Center" | "Right";
+export type HorizontalAlignment = 'Left' | 'Center' | 'Right';
 
 export type Spacing =
-  | "None"
-  | "ExtraSmall"
-  | "Small"
-  | "Default"
-  | "Medium"
-  | "Large"
-  | "ExtraLarge"
-  | "Padding";
+  | 'None'
+  | 'ExtraSmall'
+  | 'Small'
+  | 'Default'
+  | 'Medium'
+  | 'Large'
+  | 'ExtraLarge'
+  | 'Padding';
 
 export type TargetWidth =
-  | "VeryNarrow"
-  | "Narrow"
-  | "Standard"
-  | "Wide"
-  | "atLeast:VeryNarrow"
-  | "atMost:VeryNarrow"
-  | "atLeast:Narrow"
-  | "atMost:Narrow"
-  | "atLeast:Standard"
-  | "atMost:Standard"
-  | "atLeast:Wide"
-  | "atMost:Wide";
+  | 'VeryNarrow'
+  | 'Narrow'
+  | 'Standard'
+  | 'Wide'
+  | 'atLeast:VeryNarrow'
+  | 'atMost:VeryNarrow'
+  | 'atLeast:Narrow'
+  | 'atMost:Narrow'
+  | 'atLeast:Standard'
+  | 'atMost:Standard'
+  | 'atLeast:Wide'
+  | 'atMost:Wide';
 
 export type ContainerStyle =
-  | "default"
-  | "emphasis"
-  | "accent"
-  | "good"
-  | "attention"
-  | "warning";
+  | 'default'
+  | 'emphasis'
+  | 'accent'
+  | 'good'
+  | 'attention'
+  | 'warning';
 
-export type VerticalAlignment = "Top" | "Center" | "Bottom";
+export type VerticalAlignment = 'Top' | 'Center' | 'Bottom';
 
-export type FlowLayoutItemFit = "Fit" | "Fill";
+export type FlowLayoutItemFit = 'Fit' | 'Fill';
 
 export type FillMode =
-  | "Cover"
-  | "RepeatHorizontally"
-  | "RepeatVertically"
-  | "Repeat";
+  | 'Cover'
+  | 'RepeatHorizontally'
+  | 'RepeatVertically'
+  | 'Repeat';
 
-export type TextSize = "Small" | "Default" | "Medium" | "Large" | "ExtraLarge";
+export type TextSize = 'Small' | 'Default' | 'Medium' | 'Large' | 'ExtraLarge';
 
-export type TextWeight = "Lighter" | "Default" | "Bolder";
+export type TextWeight = 'Lighter' | 'Default' | 'Bolder';
 
 export type TextColor =
-  | "Default"
-  | "Dark"
-  | "Light"
-  | "Accent"
-  | "Good"
-  | "Warning"
-  | "Attention";
+  | 'Default'
+  | 'Dark'
+  | 'Light'
+  | 'Accent'
+  | 'Good'
+  | 'Warning'
+  | 'Attention';
 
-export type FontType = "Default" | "Monospace";
+export type FontType = 'Default' | 'Monospace';
 
-export type TextBlockStyle = "default" | "columnHeader" | "heading";
+export type TextBlockStyle = 'default' | 'columnHeader' | 'heading';
 
-export type ImageStyle = "Default" | "Person" | "RoundedCorners";
+export type ImageStyle = 'Default' | 'Person' | 'RoundedCorners';
 
-export type Size = "Auto" | "Stretch" | "Small" | "Medium" | "Large";
+export type Size = 'Auto' | 'Stretch' | 'Small' | 'Medium' | 'Large';
 
-export type ImageFitMode = "Cover" | "Contain" | "Fill";
+export type ImageFitMode = 'Cover' | 'Contain' | 'Fill';
 
-export type InputTextStyle = "Text" | "Tel" | "Url" | "Email" | "Password";
+export type InputTextStyle = 'Text' | 'Tel' | 'Url' | 'Email' | 'Password';
 
-export type AssociatedInputs = "auto" | "none";
+export type AssociatedInputs = 'auto' | 'none';
 
-export type ChoiceSetInputStyle = "compact" | "expanded" | "filtered";
+export type ChoiceSetInputStyle = 'compact' | 'expanded' | 'filtered';
 
-export type RatingSize = "Medium" | "Large";
+export type RatingSize = 'Medium' | 'Large';
 
-export type RatingColor = "Neutral" | "Marigold";
+export type RatingColor = 'Neutral' | 'Marigold';
 
-export type RatingStyle = "Default" | "Compact";
+export type RatingStyle = 'Default' | 'Compact';
 
 export type IconSize =
-  | "xxSmall"
-  | "xSmall"
-  | "Small"
-  | "Standard"
-  | "Medium"
-  | "Large"
-  | "xLarge"
-  | "xxLarge";
+  | 'xxSmall'
+  | 'xSmall'
+  | 'Small'
+  | 'Standard'
+  | 'Medium'
+  | 'Large'
+  | 'xLarge'
+  | 'xxLarge';
 
-export type IconStyle = "Regular" | "Filled";
+export type IconStyle = 'Regular' | 'Filled';
 
-export type CarouselPageAnimation = "Slide" | "CrossFade" | "None";
+export type CarouselPageAnimation = 'Slide' | 'CrossFade' | 'None';
 
-export type BadgeIconPosition = "Before" | "After";
+export type BadgeIconPosition = 'Before' | 'After';
 
-export type BadgeAppearance = "Filled" | "Tint";
+export type BadgeAppearance = 'Filled' | 'Tint';
 
-export type BadgeSize = "Medium" | "Large" | "ExtraLarge";
+export type BadgeSize = 'Medium' | 'Large' | 'ExtraLarge';
 
-export type BadgeShape = "Square" | "Rounded" | "Circular";
+export type BadgeShape = 'Square' | 'Rounded' | 'Circular';
 
 export type BadgeStyle =
-  | "Default"
-  | "Subtle"
-  | "Informative"
-  | "Accent"
-  | "Good"
-  | "Attention"
-  | "Warning";
+  | 'Default'
+  | 'Subtle'
+  | 'Informative'
+  | 'Accent'
+  | 'Good'
+  | 'Attention'
+  | 'Warning';
 
-export type ProgressRingLabelPosition = "Before" | "After" | "Above" | "Below";
+export type ProgressRingLabelPosition = 'Before' | 'After' | 'Above' | 'Below';
 
-export type ProgressRingSize = "Tiny" | "Small" | "Medium" | "Large";
+export type ProgressRingSize = 'Tiny' | 'Small' | 'Medium' | 'Large';
 
-export type ProgressBarColor = "Accent" | "Good" | "Warning" | "Attention";
+export type ProgressBarColor = 'Accent' | 'Good' | 'Warning' | 'Attention';
 
 export type ChartColorSet =
-  | "categorical"
-  | "sequential"
-  | "sequentialred"
-  | "sequentialgreen"
-  | "sequentialyellow"
-  | "diverging";
+  | 'categorical'
+  | 'sequential'
+  | 'sequentialred'
+  | 'sequentialgreen'
+  | 'sequentialyellow'
+  | 'diverging';
 
 export type ChartColor =
-  | "good"
-  | "warning"
-  | "attention"
-  | "neutral"
-  | "categoricalRed"
-  | "categoricalPurple"
-  | "categoricalLavender"
-  | "categoricalBlue"
-  | "categoricalLightBlue"
-  | "categoricalTeal"
-  | "categoricalGreen"
-  | "categoricalLime"
-  | "categoricalMarigold"
-  | "sequential1"
-  | "sequential2"
-  | "sequential3"
-  | "sequential4"
-  | "sequential5"
-  | "sequential6"
-  | "sequential7"
-  | "sequential8"
-  | "divergingBlue"
-  | "divergingLightBlue"
-  | "divergingCyan"
-  | "divergingTeal"
-  | "divergingYellow"
-  | "divergingPeach"
-  | "divergingLightRed"
-  | "divergingRed"
-  | "divergingMaroon"
-  | "divergingGray"
-  | "sequentialRed1"
-  | "sequentialRed2"
-  | "sequentialRed3"
-  | "sequentialRed4"
-  | "sequentialRed5"
-  | "sequentialRed6"
-  | "sequentialRed7"
-  | "sequentialRed8"
-  | "sequentialGreen1"
-  | "sequentialGreen2"
-  | "sequentialGreen3"
-  | "sequentialGreen4"
-  | "sequentialGreen5"
-  | "sequentialGreen6"
-  | "sequentialGreen7"
-  | "sequentialGreen8"
-  | "sequentialYellow1"
-  | "sequentialYellow2"
-  | "sequentialYellow3"
-  | "sequentialYellow4"
-  | "sequentialYellow5"
-  | "sequentialYellow6"
-  | "sequentialYellow7"
-  | "sequentialYellow8";
+  | 'good'
+  | 'warning'
+  | 'attention'
+  | 'neutral'
+  | 'categoricalRed'
+  | 'categoricalPurple'
+  | 'categoricalLavender'
+  | 'categoricalBlue'
+  | 'categoricalLightBlue'
+  | 'categoricalTeal'
+  | 'categoricalGreen'
+  | 'categoricalLime'
+  | 'categoricalMarigold'
+  | 'sequential1'
+  | 'sequential2'
+  | 'sequential3'
+  | 'sequential4'
+  | 'sequential5'
+  | 'sequential6'
+  | 'sequential7'
+  | 'sequential8'
+  | 'divergingBlue'
+  | 'divergingLightBlue'
+  | 'divergingCyan'
+  | 'divergingTeal'
+  | 'divergingYellow'
+  | 'divergingPeach'
+  | 'divergingLightRed'
+  | 'divergingRed'
+  | 'divergingMaroon'
+  | 'divergingGray'
+  | 'sequentialRed1'
+  | 'sequentialRed2'
+  | 'sequentialRed3'
+  | 'sequentialRed4'
+  | 'sequentialRed5'
+  | 'sequentialRed6'
+  | 'sequentialRed7'
+  | 'sequentialRed8'
+  | 'sequentialGreen1'
+  | 'sequentialGreen2'
+  | 'sequentialGreen3'
+  | 'sequentialGreen4'
+  | 'sequentialGreen5'
+  | 'sequentialGreen6'
+  | 'sequentialGreen7'
+  | 'sequentialGreen8'
+  | 'sequentialYellow1'
+  | 'sequentialYellow2'
+  | 'sequentialYellow3'
+  | 'sequentialYellow4'
+  | 'sequentialYellow5'
+  | 'sequentialYellow6'
+  | 'sequentialYellow7'
+  | 'sequentialYellow8';
 
-export type DonutThickness = "Thin" | "Thick";
+export type DonutThickness = 'Thin' | 'Thick';
 
 export type HorizontalBarChartDisplayMode =
-  | "AbsoluteWithAxis"
-  | "AbsoluteNoAxis"
-  | "PartToWhole";
+  | 'AbsoluteWithAxis'
+  | 'AbsoluteNoAxis'
+  | 'PartToWhole';
 
-export type GaugeChartValueFormat = "Percentage" | "Fraction";
+export type GaugeChartValueFormat = 'Percentage' | 'Fraction';
 
 export type CodeLanguage =
-  | "Bash"
-  | "C"
-  | "Cpp"
-  | "CSharp"
-  | "Css"
-  | "Dos"
-  | "Go"
-  | "Graphql"
-  | "Html"
-  | "Java"
-  | "JavaScript"
-  | "Json"
-  | "ObjectiveC"
-  | "Perl"
-  | "Php"
-  | "PlainText"
-  | "PowerShell"
-  | "Python"
-  | "Sql"
-  | "TypeScript"
-  | "VbNet"
-  | "Verilog"
-  | "Vhdl"
-  | "Xml";
+  | 'Bash'
+  | 'C'
+  | 'Cpp'
+  | 'CSharp'
+  | 'Css'
+  | 'Dos'
+  | 'Go'
+  | 'Graphql'
+  | 'Html'
+  | 'Java'
+  | 'JavaScript'
+  | 'Json'
+  | 'ObjectiveC'
+  | 'Perl'
+  | 'Php'
+  | 'PlainText'
+  | 'PowerShell'
+  | 'Python'
+  | 'Sql'
+  | 'TypeScript'
+  | 'VbNet'
+  | 'Verilog'
+  | 'Vhdl'
+  | 'Xml';
 
-export type PersonaIconStyle = "profilePicture" | "contactCard" | "none";
+export type PersonaIconStyle = 'profilePicture' | 'contactCard' | 'none';
 
-export type PersonaDisplayStyle = "iconAndName" | "iconOnly" | "nameOnly";
+export type PersonaDisplayStyle = 'iconAndName' | 'iconOnly' | 'nameOnly';
 
 export type FallbackElement =
   | IContainer
@@ -2893,7 +2893,7 @@ export type FallbackElement =
   | IComResourceMicrosoftGraphComponent
   | IComFileMicrosoftGraphComponent
   | IComEventMicrosoftGraphComponent
-  | "drop";
+  | 'drop';
 
 export type CardElementArray = (
   | IActionSet
@@ -2936,7 +2936,7 @@ export type CardElementArray = (
   | ITextBlock
 )[];
 
-export type ImageSize = "Small" | "Medium" | "Large";
+export type ImageSize = 'Small' | 'Medium' | 'Large';
 
 export type TableCellArray = ITableCell[];
 
@@ -2963,7 +2963,7 @@ export type ActionArray = (
   | IToggleVisibilityAction
 )[];
 
-export type PopoverPosition = "Above" | "Below" | "Before" | "After";
+export type PopoverPosition = 'Above' | 'Below' | 'Before' | 'After';
 
 export type FallbackAction =
   | ISubmitAction
@@ -2975,15 +2975,15 @@ export type FallbackAction =
   | IPopoverAction
   | IOpenUrlDialogAction
   | IInsertImageAction
-  | "drop";
+  | 'drop';
 
-export type ImageInsertPosition = "Selection" | "Top" | "Bottom";
+export type ImageInsertPosition = 'Selection' | 'Top' | 'Bottom';
 
-export type Version = "1.0" | "1.1" | "1.2" | "1.3" | "1.4" | "1.5" | "1.6";
+export type Version = '1.0' | '1.1' | '1.2' | '1.3' | '1.4' | '1.5' | '1.6';
 
-export type TeamsCardWidth = "full";
+export type TeamsCardWidth = 'full';
 
-export type MentionType = "Person" | "Tag";
+export type MentionType = 'Person' | 'Tag';
 
 /**
  * An Adaptive Card, containing a free-form body of card elements, and an optional set of actions.
@@ -2996,7 +2996,7 @@ export interface IAdaptiveCard {
   /**
    * Must be **AdaptiveCard**.
    */
-  readonly type: "AdaptiveCard";
+  readonly type: 'AdaptiveCard';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -3088,7 +3088,7 @@ export interface IAdaptiveCard {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -3114,10 +3114,10 @@ export interface IAdaptiveCard {
  */
 export function isAdaptiveCard(value: unknown): value is IAdaptiveCard {
   const obj = value as IAdaptiveCard;
-  return typeof obj === "object" && obj.type === "AdaptiveCard";
+  return typeof obj === 'object' && obj.type === 'AdaptiveCard';
 }
 
-export type AdaptiveCardOptions = Partial<Omit<IAdaptiveCard, "type" | "body">>;
+export type AdaptiveCardOptions = Partial<Omit<IAdaptiveCard, 'type' | 'body'>>;
 
 /**
  * An Adaptive Card, containing a free-form body of card elements, and an optional set of actions.
@@ -3130,7 +3130,7 @@ export class AdaptiveCard implements IAdaptiveCard {
   /**
    * Must be **AdaptiveCard**.
    */
-  readonly type = "AdaptiveCard";
+  readonly type = 'AdaptiveCard';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -3190,7 +3190,7 @@ export class AdaptiveCard implements IAdaptiveCard {
   /**
    * The Adaptive Card schema version the card is authored against.
    */
-  version?: Version = "1.5";
+  version?: Version = '1.5';
   /**
    * The text that should be displayed if the client is not able to render the card.
    */
@@ -3222,7 +3222,7 @@ export class AdaptiveCard implements IAdaptiveCard {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -3420,7 +3420,7 @@ export interface IExecuteAction {
   /**
    * Must be **Action.Execute**.
    */
-  readonly type: "Action.Execute";
+  readonly type: 'Action.Execute';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -3496,10 +3496,10 @@ export interface IExecuteAction {
  */
 export function isExecuteAction(value: unknown): value is IExecuteAction {
   const obj = value as IExecuteAction;
-  return typeof obj === "object" && obj.type === "Action.Execute";
+  return typeof obj === 'object' && obj.type === 'Action.Execute';
 }
 
-export type ExecuteActionOptions = Partial<Omit<IExecuteAction, "type">>;
+export type ExecuteActionOptions = Partial<Omit<IExecuteAction, 'type'>>;
 
 /**
  * Gathers input values, merges them with the data property if specified, and sends them to the Bot via an Invoke activity. The Bot can respond synchronously and return an updated Adaptive Card to be displayed by the client. Action.Execute works in all Adaptive Card hosts.
@@ -3512,7 +3512,7 @@ export class ExecuteAction implements IExecuteAction {
   /**
    * Must be **Action.Execute**.
    */
-  readonly type = "Action.Execute";
+  readonly type = 'Action.Execute';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -3534,11 +3534,11 @@ export class ExecuteAction implements IExecuteAction {
   /**
    * Control the style of the action, affecting its visual and spoken representations.
    */
-  style?: ActionStyle = "default";
+  style?: ActionStyle = 'default';
   /**
    * Controls if the action is primary or secondary. Secondary actions appear in an overflow menu.
    */
-  mode?: ActionMode = "primary";
+  mode?: ActionMode = 'primary';
   /**
    * The tooltip text to display when the action is hovered over.
    */
@@ -3580,7 +3580,7 @@ export class ExecuteAction implements IExecuteAction {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IExecuteAction, "type">): ExecuteAction {
+  static from(options: Omit<IExecuteAction, 'type'>): ExecuteAction {
     return new ExecuteAction(options);
   }
 
@@ -3676,7 +3676,7 @@ export interface IInsertImageAction {
   /**
    * Must be **Action.InsertImage**.
    */
-  readonly type: "Action.InsertImage";
+  readonly type: 'Action.InsertImage';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -3750,11 +3750,11 @@ export function isInsertImageAction(
   value: unknown,
 ): value is IInsertImageAction {
   const obj = value as IInsertImageAction;
-  return typeof obj === "object" && obj.type === "Action.InsertImage";
+  return typeof obj === 'object' && obj.type === 'Action.InsertImage';
 }
 
 export type InsertImageActionOptions = Partial<
-  Omit<IInsertImageAction, "type">
+  Omit<IInsertImageAction, 'type'>
 >;
 
 /**
@@ -3768,7 +3768,7 @@ export class InsertImageAction implements IInsertImageAction {
   /**
    * Must be **Action.InsertImage**.
    */
-  readonly type = "Action.InsertImage";
+  readonly type = 'Action.InsertImage';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -3790,11 +3790,11 @@ export class InsertImageAction implements IInsertImageAction {
   /**
    * Control the style of the action, affecting its visual and spoken representations.
    */
-  style?: ActionStyle = "default";
+  style?: ActionStyle = 'default';
   /**
    * Controls if the action is primary or secondary. Secondary actions appear in an overflow menu.
    */
-  mode?: ActionMode = "primary";
+  mode?: ActionMode = 'primary';
   /**
    * The tooltip text to display when the action is hovered over.
    */
@@ -3822,7 +3822,7 @@ export class InsertImageAction implements IInsertImageAction {
   /**
    * The position at which to insert the image.
    */
-  insertPosition?: ImageInsertPosition = "Selection";
+  insertPosition?: ImageInsertPosition = 'Selection';
   /**
    * An alternate action to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -3832,7 +3832,7 @@ export class InsertImageAction implements IInsertImageAction {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IInsertImageAction, "type">): InsertImageAction {
+  static from(options: Omit<IInsertImageAction, 'type'>): InsertImageAction {
     return new InsertImageAction(options);
   }
 
@@ -3923,7 +3923,7 @@ export interface IOpenUrlAction {
   /**
    * Must be **Action.OpenUrl**.
    */
-  readonly type: "Action.OpenUrl";
+  readonly type: 'Action.OpenUrl';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -3987,11 +3987,11 @@ export interface IOpenUrlAction {
  */
 export function isOpenUrlAction(value: unknown): value is IOpenUrlAction {
   const obj = value as IOpenUrlAction;
-  return typeof obj === "object" && obj.type === "Action.OpenUrl";
+  return typeof obj === 'object' && obj.type === 'Action.OpenUrl';
 }
 
 export type OpenUrlActionOptions = Partial<
-  Omit<IOpenUrlAction, "type" | "url">
+  Omit<IOpenUrlAction, 'type' | 'url'>
 >;
 
 /**
@@ -4005,7 +4005,7 @@ export class OpenUrlAction implements IOpenUrlAction {
   /**
    * Must be **Action.OpenUrl**.
    */
-  readonly type = "Action.OpenUrl";
+  readonly type = 'Action.OpenUrl';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -4027,11 +4027,11 @@ export class OpenUrlAction implements IOpenUrlAction {
   /**
    * Control the style of the action, affecting its visual and spoken representations.
    */
-  style?: ActionStyle = "default";
+  style?: ActionStyle = 'default';
   /**
    * Controls if the action is primary or secondary. Secondary actions appear in an overflow menu.
    */
-  mode?: ActionMode = "primary";
+  mode?: ActionMode = 'primary';
   /**
    * The tooltip text to display when the action is hovered over.
    */
@@ -4062,7 +4062,7 @@ export class OpenUrlAction implements IOpenUrlAction {
     this.url = url;
   }
 
-  static from(options: Omit<IOpenUrlAction, "type">): OpenUrlAction {
+  static from(options: Omit<IOpenUrlAction, 'type'>): OpenUrlAction {
     return new OpenUrlAction(options.url, options);
   }
 
@@ -4143,7 +4143,7 @@ export interface IOpenUrlDialogAction {
   /**
    * Must be **Action.OpenUrlDialog**.
    */
-  readonly type: "Action.OpenUrlDialog";
+  readonly type: 'Action.OpenUrlDialog';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -4193,11 +4193,11 @@ export interface IOpenUrlDialogAction {
   /**
    * The height of the dialog. To define height as a number of pixels, use the <number>px format.
    */
-  dialogHeight?: "small" | "medium" | "large" | string;
+  dialogHeight?: 'small' | 'medium' | 'large' | string;
   /**
    * The width of the dialog. To define width as a number of pixels, use the <number>px format.
    */
-  dialogWidth?: "small" | "medium" | "large" | string;
+  dialogWidth?: 'small' | 'medium' | 'large' | string;
   /**
    * The URL to open.
    */
@@ -4221,11 +4221,11 @@ export function isOpenUrlDialogAction(
   value: unknown,
 ): value is IOpenUrlDialogAction {
   const obj = value as IOpenUrlDialogAction;
-  return typeof obj === "object" && obj.type === "Action.OpenUrlDialog";
+  return typeof obj === 'object' && obj.type === 'Action.OpenUrlDialog';
 }
 
 export type OpenUrlDialogActionOptions = Partial<
-  Omit<IOpenUrlDialogAction, "type">
+  Omit<IOpenUrlDialogAction, 'type'>
 >;
 
 /**
@@ -4239,7 +4239,7 @@ export class OpenUrlDialogAction implements IOpenUrlDialogAction {
   /**
    * Must be **Action.OpenUrlDialog**.
    */
-  readonly type = "Action.OpenUrlDialog";
+  readonly type = 'Action.OpenUrlDialog';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -4261,11 +4261,11 @@ export class OpenUrlDialogAction implements IOpenUrlDialogAction {
   /**
    * Control the style of the action, affecting its visual and spoken representations.
    */
-  style?: ActionStyle = "default";
+  style?: ActionStyle = 'default';
   /**
    * Controls if the action is primary or secondary. Secondary actions appear in an overflow menu.
    */
-  mode?: ActionMode = "primary";
+  mode?: ActionMode = 'primary';
   /**
    * The tooltip text to display when the action is hovered over.
    */
@@ -4289,11 +4289,11 @@ export class OpenUrlDialogAction implements IOpenUrlDialogAction {
   /**
    * The height of the dialog. To define height as a number of pixels, use the <number>px format.
    */
-  dialogHeight?: "small" | "medium" | "large" | string;
+  dialogHeight?: 'small' | 'medium' | 'large' | string;
   /**
    * The width of the dialog. To define width as a number of pixels, use the <number>px format.
    */
-  dialogWidth?: "small" | "medium" | "large" | string;
+  dialogWidth?: 'small' | 'medium' | 'large' | string;
   /**
    * The URL to open.
    */
@@ -4308,7 +4308,7 @@ export class OpenUrlDialogAction implements IOpenUrlDialogAction {
   }
 
   static from(
-    options: Omit<IOpenUrlDialogAction, "type">,
+    options: Omit<IOpenUrlDialogAction, 'type'>,
   ): OpenUrlDialogAction {
     return new OpenUrlDialogAction(options);
   }
@@ -4373,12 +4373,12 @@ export class OpenUrlDialogAction implements IOpenUrlDialogAction {
     return this;
   }
 
-  withDialogHeight(dialogHeight: "small" | "medium" | "large" | string): this {
+  withDialogHeight(dialogHeight: 'small' | 'medium' | 'large' | string): this {
     this.dialogHeight = dialogHeight;
     return this;
   }
 
-  withDialogWidth(dialogWidth: "small" | "medium" | "large" | string): this {
+  withDialogWidth(dialogWidth: 'small' | 'medium' | 'large' | string): this {
     this.dialogWidth = dialogWidth;
     return this;
   }
@@ -4405,7 +4405,7 @@ export interface IResetInputsAction {
   /**
    * Must be **Action.ResetInputs**.
    */
-  readonly type: "Action.ResetInputs";
+  readonly type: 'Action.ResetInputs';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -4471,11 +4471,11 @@ export function isResetInputsAction(
   value: unknown,
 ): value is IResetInputsAction {
   const obj = value as IResetInputsAction;
-  return typeof obj === "object" && obj.type === "Action.ResetInputs";
+  return typeof obj === 'object' && obj.type === 'Action.ResetInputs';
 }
 
 export type ResetInputsActionOptions = Partial<
-  Omit<IResetInputsAction, "type">
+  Omit<IResetInputsAction, 'type'>
 >;
 
 /**
@@ -4489,7 +4489,7 @@ export class ResetInputsAction implements IResetInputsAction {
   /**
    * Must be **Action.ResetInputs**.
    */
-  readonly type = "Action.ResetInputs";
+  readonly type = 'Action.ResetInputs';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -4511,11 +4511,11 @@ export class ResetInputsAction implements IResetInputsAction {
   /**
    * Control the style of the action, affecting its visual and spoken representations.
    */
-  style?: ActionStyle = "default";
+  style?: ActionStyle = 'default';
   /**
    * Controls if the action is primary or secondary. Secondary actions appear in an overflow menu.
    */
-  mode?: ActionMode = "primary";
+  mode?: ActionMode = 'primary';
   /**
    * The tooltip text to display when the action is hovered over.
    */
@@ -4545,7 +4545,7 @@ export class ResetInputsAction implements IResetInputsAction {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IResetInputsAction, "type">): ResetInputsAction {
+  static from(options: Omit<IResetInputsAction, 'type'>): ResetInputsAction {
     return new ResetInputsAction(options);
   }
 
@@ -4626,7 +4626,7 @@ export interface ISubmitAction {
   /**
    * Must be **Action.Submit**.
    */
-  readonly type: "Action.Submit";
+  readonly type: 'Action.Submit';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -4702,10 +4702,10 @@ export interface ISubmitAction {
  */
 export function isSubmitAction(value: unknown): value is ISubmitAction {
   const obj = value as ISubmitAction;
-  return typeof obj === "object" && obj.type === "Action.Submit";
+  return typeof obj === 'object' && obj.type === 'Action.Submit';
 }
 
-export type SubmitActionOptions = Partial<Omit<ISubmitAction, "type">>;
+export type SubmitActionOptions = Partial<Omit<ISubmitAction, 'type'>>;
 
 /**
  * Gathers input values, merges them with the data property if specified, and sends them to the Bot via an Invoke activity. The Bot can only acknowledge is has received the request.
@@ -4718,7 +4718,7 @@ export class SubmitAction implements ISubmitAction {
   /**
    * Must be **Action.Submit**.
    */
-  readonly type = "Action.Submit";
+  readonly type = 'Action.Submit';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -4740,11 +4740,11 @@ export class SubmitAction implements ISubmitAction {
   /**
    * Control the style of the action, affecting its visual and spoken representations.
    */
-  style?: ActionStyle = "default";
+  style?: ActionStyle = 'default';
   /**
    * Controls if the action is primary or secondary. Secondary actions appear in an overflow menu.
    */
-  mode?: ActionMode = "primary";
+  mode?: ActionMode = 'primary';
   /**
    * The tooltip text to display when the action is hovered over.
    */
@@ -4786,7 +4786,7 @@ export class SubmitAction implements ISubmitAction {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<ISubmitAction, "type">): SubmitAction {
+  static from(options: Omit<ISubmitAction, 'type'>): SubmitAction {
     return new SubmitAction(options);
   }
 
@@ -4882,7 +4882,7 @@ export interface IToggleVisibilityAction {
   /**
    * Must be **Action.ToggleVisibility**.
    */
-  readonly type: "Action.ToggleVisibility";
+  readonly type: 'Action.ToggleVisibility';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -4948,11 +4948,11 @@ export function isToggleVisibilityAction(
   value: unknown,
 ): value is IToggleVisibilityAction {
   const obj = value as IToggleVisibilityAction;
-  return typeof obj === "object" && obj.type === "Action.ToggleVisibility";
+  return typeof obj === 'object' && obj.type === 'Action.ToggleVisibility';
 }
 
 export type ToggleVisibilityActionOptions = Partial<
-  Omit<IToggleVisibilityAction, "type">
+  Omit<IToggleVisibilityAction, 'type'>
 >;
 
 /**
@@ -4966,7 +4966,7 @@ export class ToggleVisibilityAction implements IToggleVisibilityAction {
   /**
    * Must be **Action.ToggleVisibility**.
    */
-  readonly type = "Action.ToggleVisibility";
+  readonly type = 'Action.ToggleVisibility';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -4988,11 +4988,11 @@ export class ToggleVisibilityAction implements IToggleVisibilityAction {
   /**
    * Control the style of the action, affecting its visual and spoken representations.
    */
-  style?: ActionStyle = "default";
+  style?: ActionStyle = 'default';
   /**
    * Controls if the action is primary or secondary. Secondary actions appear in an overflow menu.
    */
-  mode?: ActionMode = "primary";
+  mode?: ActionMode = 'primary';
   /**
    * The tooltip text to display when the action is hovered over.
    */
@@ -5023,7 +5023,7 @@ export class ToggleVisibilityAction implements IToggleVisibilityAction {
   }
 
   static from(
-    options: Omit<IToggleVisibilityAction, "type">,
+    options: Omit<IToggleVisibilityAction, 'type'>,
   ): ToggleVisibilityAction {
     return new ToggleVisibilityAction(options);
   }
@@ -5125,7 +5125,7 @@ export class ThemedUrl implements IThemedUrl {
   /**
    * The theme this URL applies to.
    */
-  theme?: ThemeName = "Light";
+  theme?: ThemeName = 'Light';
   /**
    * The URL to use for the associated theme.
    */
@@ -5214,7 +5214,7 @@ export interface IShowCardAction {
   /**
    * Must be **Action.ShowCard**.
    */
-  readonly type: "Action.ShowCard";
+  readonly type: 'Action.ShowCard';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -5278,10 +5278,10 @@ export interface IShowCardAction {
  */
 export function isShowCardAction(value: unknown): value is IShowCardAction {
   const obj = value as IShowCardAction;
-  return typeof obj === "object" && obj.type === "Action.ShowCard";
+  return typeof obj === 'object' && obj.type === 'Action.ShowCard';
 }
 
-export type ShowCardActionOptions = Partial<Omit<IShowCardAction, "type">>;
+export type ShowCardActionOptions = Partial<Omit<IShowCardAction, 'type'>>;
 
 /**
  * Expands or collapses an embedded card within the main card.
@@ -5294,7 +5294,7 @@ export class ShowCardAction implements IShowCardAction {
   /**
    * Must be **Action.ShowCard**.
    */
-  readonly type = "Action.ShowCard";
+  readonly type = 'Action.ShowCard';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -5316,11 +5316,11 @@ export class ShowCardAction implements IShowCardAction {
   /**
    * Control the style of the action, affecting its visual and spoken representations.
    */
-  style?: ActionStyle = "default";
+  style?: ActionStyle = 'default';
   /**
    * Controls if the action is primary or secondary. Secondary actions appear in an overflow menu.
    */
-  mode?: ActionMode = "primary";
+  mode?: ActionMode = 'primary';
   /**
    * The tooltip text to display when the action is hovered over.
    */
@@ -5350,7 +5350,7 @@ export class ShowCardAction implements IShowCardAction {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IShowCardAction, "type">): ShowCardAction {
+  static from(options: Omit<IShowCardAction, 'type'>): ShowCardAction {
     return new ShowCardAction(options);
   }
 
@@ -5431,7 +5431,7 @@ export interface IPopoverAction {
   /**
    * Must be **Action.Popover**.
    */
-  readonly type: "Action.Popover";
+  readonly type: 'Action.Popover';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -5544,10 +5544,10 @@ export interface IPopoverAction {
  */
 export function isPopoverAction(value: unknown): value is IPopoverAction {
   const obj = value as IPopoverAction;
-  return typeof obj === "object" && obj.type === "Action.Popover";
+  return typeof obj === 'object' && obj.type === 'Action.Popover';
 }
 
-export type PopoverActionOptions = Partial<Omit<IPopoverAction, "type">>;
+export type PopoverActionOptions = Partial<Omit<IPopoverAction, 'type'>>;
 
 /**
  * Shows a popover to display more information to the user.
@@ -5560,7 +5560,7 @@ export class PopoverAction implements IPopoverAction {
   /**
    * Must be **Action.Popover**.
    */
-  readonly type = "Action.Popover";
+  readonly type = 'Action.Popover';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -5582,11 +5582,11 @@ export class PopoverAction implements IPopoverAction {
   /**
    * Control the style of the action, affecting its visual and spoken representations.
    */
-  style?: ActionStyle = "default";
+  style?: ActionStyle = 'default';
   /**
    * Controls if the action is primary or secondary. Secondary actions appear in an overflow menu.
    */
-  mode?: ActionMode = "primary";
+  mode?: ActionMode = 'primary';
   /**
    * The tooltip text to display when the action is hovered over.
    */
@@ -5651,7 +5651,7 @@ export class PopoverAction implements IPopoverAction {
   /**
    * Controls where the popover should be displayed with regards to the element that triggered it.
    */
-  position?: PopoverPosition = "Above";
+  position?: PopoverPosition = 'Above';
   /**
    * The maximum width of the popover in pixels, in the `<number>px` format
    */
@@ -5665,7 +5665,7 @@ export class PopoverAction implements IPopoverAction {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IPopoverAction, "type">): PopoverAction {
+  static from(options: Omit<IPopoverAction, 'type'>): PopoverAction {
     return new PopoverAction(options);
   }
 
@@ -5799,7 +5799,7 @@ export interface IActionSet {
   /**
    * Must be **ActionSet**.
    */
-  readonly type: "ActionSet";
+  readonly type: 'ActionSet';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -5843,7 +5843,7 @@ export interface IActionSet {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -5865,10 +5865,10 @@ export interface IActionSet {
  */
 export function isActionSet(value: unknown): value is IActionSet {
   const obj = value as IActionSet;
-  return typeof obj === "object" && obj.type === "ActionSet";
+  return typeof obj === 'object' && obj.type === 'ActionSet';
 }
 
-export type ActionSetOptions = Partial<Omit<IActionSet, "type" | "actions">>;
+export type ActionSetOptions = Partial<Omit<IActionSet, 'type' | 'actions'>>;
 
 /**
  * Displays a set of action, which can be placed anywhere in the card.
@@ -5881,7 +5881,7 @@ export class ActionSet implements IActionSet {
   /**
    * Must be **ActionSet**.
    */
-  readonly type = "ActionSet";
+  readonly type = 'ActionSet';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -5905,7 +5905,7 @@ export class ActionSet implements IActionSet {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -5913,7 +5913,7 @@ export class ActionSet implements IActionSet {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -5925,7 +5925,7 @@ export class ActionSet implements IActionSet {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -6021,7 +6021,7 @@ export interface IContainer {
   /**
    * Must be **Container**.
    */
-  readonly type: "Container";
+  readonly type: 'Container';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -6117,7 +6117,7 @@ export interface IContainer {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -6139,10 +6139,10 @@ export interface IContainer {
  */
 export function isContainer(value: unknown): value is IContainer {
   const obj = value as IContainer;
-  return typeof obj === "object" && obj.type === "Container";
+  return typeof obj === 'object' && obj.type === 'Container';
 }
 
-export type ContainerOptions = Partial<Omit<IContainer, "type" | "items">>;
+export type ContainerOptions = Partial<Omit<IContainer, 'type' | 'items'>>;
 
 /**
  * A container for other elements. Use containers for styling purposes and/or to logically group a set of elements together, which can be especially useful when used with Action.ToggleVisibility.
@@ -6155,7 +6155,7 @@ export class Container implements IContainer {
   /**
    * Must be **Container**.
    */
-  readonly type = "Container";
+  readonly type = 'Container';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -6179,7 +6179,7 @@ export class Container implements IContainer {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -6187,7 +6187,7 @@ export class Container implements IContainer {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -6251,7 +6251,7 @@ export class Container implements IContainer {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -6416,7 +6416,7 @@ export interface IStackLayout {
   /**
    * Must be **Layout.Stack**.
    */
-  readonly type: "Layout.Stack";
+  readonly type: 'Layout.Stack';
   /**
    * Controls for which card width the layout should be used.
    */
@@ -6434,10 +6434,10 @@ export interface IStackLayout {
  */
 export function isStackLayout(value: unknown): value is IStackLayout {
   const obj = value as IStackLayout;
-  return typeof obj === "object" && obj.type === "Layout.Stack";
+  return typeof obj === 'object' && obj.type === 'Layout.Stack';
 }
 
-export type StackLayoutOptions = Partial<Omit<IStackLayout, "type">>;
+export type StackLayoutOptions = Partial<Omit<IStackLayout, 'type'>>;
 
 /**
  * A layout that stacks elements on top of each other. Layout.Stack is the default layout used by AdaptiveCard and all containers.
@@ -6450,7 +6450,7 @@ export class StackLayout implements IStackLayout {
   /**
    * Must be **Layout.Stack**.
    */
-  readonly type = "Layout.Stack";
+  readonly type = 'Layout.Stack';
   /**
    * Controls for which card width the layout should be used.
    */
@@ -6460,7 +6460,7 @@ export class StackLayout implements IStackLayout {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IStackLayout, "type">): StackLayout {
+  static from(options: Omit<IStackLayout, 'type'>): StackLayout {
     return new StackLayout(options);
   }
 
@@ -6486,7 +6486,7 @@ export interface IFlowLayout {
   /**
    * Must be **Layout.Flow**.
    */
-  readonly type: "Layout.Flow";
+  readonly type: 'Layout.Flow';
   /**
    * Controls for which card width the layout should be used.
    */
@@ -6536,10 +6536,10 @@ export interface IFlowLayout {
  */
 export function isFlowLayout(value: unknown): value is IFlowLayout {
   const obj = value as IFlowLayout;
-  return typeof obj === "object" && obj.type === "Layout.Flow";
+  return typeof obj === 'object' && obj.type === 'Layout.Flow';
 }
 
-export type FlowLayoutOptions = Partial<Omit<IFlowLayout, "type">>;
+export type FlowLayoutOptions = Partial<Omit<IFlowLayout, 'type'>>;
 
 /**
  * A layout that spreads elements horizontally and wraps them across multiple rows, as needed.
@@ -6552,7 +6552,7 @@ export class FlowLayout implements IFlowLayout {
   /**
    * Must be **Layout.Flow**.
    */
-  readonly type = "Layout.Flow";
+  readonly type = 'Layout.Flow';
   /**
    * Controls for which card width the layout should be used.
    */
@@ -6560,15 +6560,15 @@ export class FlowLayout implements IFlowLayout {
   /**
    * Controls how the content of the container should be horizontally aligned.
    */
-  horizontalItemsAlignment?: HorizontalAlignment = "Center";
+  horizontalItemsAlignment?: HorizontalAlignment = 'Center';
   /**
    * Controls how the content of the container should be vertically aligned.
    */
-  verticalItemsAlignment?: VerticalAlignment = "Top";
+  verticalItemsAlignment?: VerticalAlignment = 'Top';
   /**
    * Controls how item should fit inside the container.
    */
-  itemFit?: FlowLayoutItemFit = "Fit";
+  itemFit?: FlowLayoutItemFit = 'Fit';
   /**
    * The minimum width, in pixels, of each item, in the `<number>px` format. Should not be used if itemWidth is set.
    */
@@ -6584,17 +6584,17 @@ export class FlowLayout implements IFlowLayout {
   /**
    * The space between items.
    */
-  columnSpacing?: Spacing = "Default";
+  columnSpacing?: Spacing = 'Default';
   /**
    * The space between rows of items.
    */
-  rowSpacing?: Spacing = "Default";
+  rowSpacing?: Spacing = 'Default';
 
   constructor(options: FlowLayoutOptions = {}) {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IFlowLayout, "type">): FlowLayout {
+  static from(options: Omit<IFlowLayout, 'type'>): FlowLayout {
     return new FlowLayout(options);
   }
 
@@ -6662,7 +6662,7 @@ export interface IAreaGridLayout {
   /**
    * Must be **Layout.AreaGrid**.
    */
-  readonly type: "Layout.AreaGrid";
+  readonly type: 'Layout.AreaGrid';
   /**
    * Controls for which card width the layout should be used.
    */
@@ -6696,10 +6696,10 @@ export interface IAreaGridLayout {
  */
 export function isAreaGridLayout(value: unknown): value is IAreaGridLayout {
   const obj = value as IAreaGridLayout;
-  return typeof obj === "object" && obj.type === "Layout.AreaGrid";
+  return typeof obj === 'object' && obj.type === 'Layout.AreaGrid';
 }
 
-export type AreaGridLayoutOptions = Partial<Omit<IAreaGridLayout, "type">>;
+export type AreaGridLayoutOptions = Partial<Omit<IAreaGridLayout, 'type'>>;
 
 /**
  * A layout that divides a container into named areas into which elements can be placed.
@@ -6712,7 +6712,7 @@ export class AreaGridLayout implements IAreaGridLayout {
   /**
    * Must be **Layout.AreaGrid**.
    */
-  readonly type = "Layout.AreaGrid";
+  readonly type = 'Layout.AreaGrid';
   /**
    * Controls for which card width the layout should be used.
    */
@@ -6728,17 +6728,17 @@ export class AreaGridLayout implements IAreaGridLayout {
   /**
    * The space between columns.
    */
-  columnSpacing?: Spacing = "Default";
+  columnSpacing?: Spacing = 'Default';
   /**
    * The space between rows.
    */
-  rowSpacing?: Spacing = "Default";
+  rowSpacing?: Spacing = 'Default';
 
   constructor(options: AreaGridLayoutOptions = {}) {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IAreaGridLayout, "type">): AreaGridLayout {
+  static from(options: Omit<IAreaGridLayout, 'type'>): AreaGridLayout {
     return new AreaGridLayout(options);
   }
 
@@ -6920,15 +6920,15 @@ export class BackgroundImage implements IBackgroundImage {
   /**
    * Controls how the image should fill the area.
    */
-  fillMode?: FillMode = "Cover";
+  fillMode?: FillMode = 'Cover';
   /**
    * Controls how the image should be aligned if it must be cropped or if using repeat fill mode.
    */
-  horizontalAlignment?: HorizontalAlignment = "Left";
+  horizontalAlignment?: HorizontalAlignment = 'Left';
   /**
    * Controls how the image should be aligned if it must be cropped or if using repeat fill mode.
    */
-  verticalAlignment?: VerticalAlignment = "Top";
+  verticalAlignment?: VerticalAlignment = 'Top';
   /**
    * A set of theme-specific image URLs.
    */
@@ -6984,7 +6984,7 @@ export interface IColumnSet {
   /**
    * Must be **ColumnSet**.
    */
-  readonly type: "ColumnSet";
+  readonly type: 'ColumnSet';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -7060,11 +7060,11 @@ export interface IColumnSet {
   /**
    * The minimum width of the column set. `auto` will automatically adjust the column set's minimum width according to its content and using the `<number>px` format will give the column set an explicit minimum width in pixels. A scrollbar will be displayed if the available width is less than the specified minimum width.
    */
-  minWidth?: "auto" | string;
+  minWidth?: 'auto' | string;
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -7086,10 +7086,10 @@ export interface IColumnSet {
  */
 export function isColumnSet(value: unknown): value is IColumnSet {
   const obj = value as IColumnSet;
-  return typeof obj === "object" && obj.type === "ColumnSet";
+  return typeof obj === 'object' && obj.type === 'ColumnSet';
 }
 
-export type ColumnSetOptions = Partial<Omit<IColumnSet, "type">>;
+export type ColumnSetOptions = Partial<Omit<IColumnSet, 'type'>>;
 
 /**
  * Splits the available horizontal space into separate columns, so elements can be organized in a row.
@@ -7102,7 +7102,7 @@ export class ColumnSet implements IColumnSet {
   /**
    * Must be **ColumnSet**.
    */
-  readonly type = "ColumnSet";
+  readonly type = 'ColumnSet';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -7126,7 +7126,7 @@ export class ColumnSet implements IColumnSet {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -7134,7 +7134,7 @@ export class ColumnSet implements IColumnSet {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -7178,11 +7178,11 @@ export class ColumnSet implements IColumnSet {
   /**
    * The minimum width of the column set. `auto` will automatically adjust the column set's minimum width according to its content and using the `<number>px` format will give the column set an explicit minimum width in pixels. A scrollbar will be displayed if the available width is less than the specified minimum width.
    */
-  minWidth?: "auto" | string;
+  minWidth?: 'auto' | string;
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -7196,7 +7196,7 @@ export class ColumnSet implements IColumnSet {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IColumnSet, "type">): ColumnSet {
+  static from(options: Omit<IColumnSet, 'type'>): ColumnSet {
     return new ColumnSet(options);
   }
 
@@ -7295,7 +7295,7 @@ export class ColumnSet implements IColumnSet {
     return this;
   }
 
-  withMinWidth(minWidth: "auto" | string): this {
+  withMinWidth(minWidth: 'auto' | string): this {
     this.minWidth = minWidth;
     return this;
   }
@@ -7322,7 +7322,7 @@ export interface IMedia {
   /**
    * Must be **Media**.
    */
-  readonly type: "Media";
+  readonly type: 'Media';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -7378,7 +7378,7 @@ export interface IMedia {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -7396,10 +7396,10 @@ export interface IMedia {
  */
 export function isMedia(value: unknown): value is IMedia {
   const obj = value as IMedia;
-  return typeof obj === "object" && obj.type === "Media";
+  return typeof obj === 'object' && obj.type === 'Media';
 }
 
-export type MediaOptions = Partial<Omit<IMedia, "type">>;
+export type MediaOptions = Partial<Omit<IMedia, 'type'>>;
 
 /**
  * A media element, that makes it possible to embed videos inside a card.
@@ -7412,7 +7412,7 @@ export class Media implements IMedia {
   /**
    * Must be **Media**.
    */
-  readonly type = "Media";
+  readonly type = 'Media';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -7436,11 +7436,11 @@ export class Media implements IMedia {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -7468,7 +7468,7 @@ export class Media implements IMedia {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -7478,7 +7478,7 @@ export class Media implements IMedia {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IMedia, "type">): Media {
+  static from(options: Omit<IMedia, 'type'>): Media {
     return new Media(options);
   }
 
@@ -7704,7 +7704,7 @@ export interface IRichTextBlock {
   /**
    * Must be **RichTextBlock**.
    */
-  readonly type: "RichTextBlock";
+  readonly type: 'RichTextBlock';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -7752,7 +7752,7 @@ export interface IRichTextBlock {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -7774,10 +7774,10 @@ export interface IRichTextBlock {
  */
 export function isRichTextBlock(value: unknown): value is IRichTextBlock {
   const obj = value as IRichTextBlock;
-  return typeof obj === "object" && obj.type === "RichTextBlock";
+  return typeof obj === 'object' && obj.type === 'RichTextBlock';
 }
 
-export type RichTextBlockOptions = Partial<Omit<IRichTextBlock, "type">>;
+export type RichTextBlockOptions = Partial<Omit<IRichTextBlock, 'type'>>;
 
 /**
  * A rich text block that displays formatted text.
@@ -7790,7 +7790,7 @@ export class RichTextBlock implements IRichTextBlock {
   /**
    * Must be **RichTextBlock**.
    */
-  readonly type = "RichTextBlock";
+  readonly type = 'RichTextBlock';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -7814,7 +7814,7 @@ export class RichTextBlock implements IRichTextBlock {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -7822,7 +7822,7 @@ export class RichTextBlock implements IRichTextBlock {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -7838,7 +7838,7 @@ export class RichTextBlock implements IRichTextBlock {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -7852,7 +7852,7 @@ export class RichTextBlock implements IRichTextBlock {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IRichTextBlock, "type">): RichTextBlock {
+  static from(options: Omit<IRichTextBlock, 'type'>): RichTextBlock {
     return new RichTextBlock(options);
   }
 
@@ -7938,7 +7938,7 @@ export interface ITable {
   /**
    * Must be **Table**.
    */
-  readonly type: "Table";
+  readonly type: 'Table';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -7998,7 +7998,7 @@ export interface ITable {
   /**
    * The minimum width of the table in pixels. `auto` will automatically adjust the table's minimum width according to its content and using the `<number>px` format will give the table an explicit minimum width in pixels. A scrollbar will be displayed if the available width is less than the specified minimum width.
    */
-  minWidth?: "auto" | string;
+  minWidth?: 'auto' | string;
   /**
    * Controls whether the first row of the table should be treated as a header.
    */
@@ -8022,7 +8022,7 @@ export interface ITable {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -8044,10 +8044,10 @@ export interface ITable {
  */
 export function isTable(value: unknown): value is ITable {
   const obj = value as ITable;
-  return typeof obj === "object" && obj.type === "Table";
+  return typeof obj === 'object' && obj.type === 'Table';
 }
 
-export type TableOptions = Partial<Omit<ITable, "type">>;
+export type TableOptions = Partial<Omit<ITable, 'type'>>;
 
 /**
  * Use tables to display data in a tabular way, with rows, columns and cells.
@@ -8060,7 +8060,7 @@ export class Table implements ITable {
   /**
    * Must be **Table**.
    */
-  readonly type = "Table";
+  readonly type = 'Table';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -8084,7 +8084,7 @@ export class Table implements ITable {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -8092,7 +8092,7 @@ export class Table implements ITable {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -8120,7 +8120,7 @@ export class Table implements ITable {
   /**
    * The minimum width of the table in pixels. `auto` will automatically adjust the table's minimum width according to its content and using the `<number>px` format will give the table an explicit minimum width in pixels. A scrollbar will be displayed if the available width is less than the specified minimum width.
    */
-  minWidth?: "auto" | string;
+  minWidth?: 'auto' | string;
   /**
    * Controls whether the first row of the table should be treated as a header.
    */
@@ -8144,7 +8144,7 @@ export class Table implements ITable {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -8158,7 +8158,7 @@ export class Table implements ITable {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<ITable, "type">): Table {
+  static from(options: Omit<ITable, 'type'>): Table {
     return new Table(options);
   }
 
@@ -8237,7 +8237,7 @@ export class Table implements ITable {
     return this;
   }
 
-  withMinWidth(minWidth: "auto" | string): this {
+  withMinWidth(minWidth: 'auto' | string): this {
     this.minWidth = minWidth;
     return this;
   }
@@ -8301,7 +8301,7 @@ export interface IColumnDefinition {
   /**
    * The width of the column in the table. If expressed as a number, represents the relative weight of the column in the table. If expressed as a string, `auto` will automatically adjust the column's width according to its content and using the `<number>px` format will give the column an explicit width in pixels.
    */
-  width?: "auto" | string | number;
+  width?: 'auto' | string | number;
 }
 
 export type ColumnDefinitionOptions = Partial<IColumnDefinition>;
@@ -8325,7 +8325,7 @@ export class ColumnDefinition implements IColumnDefinition {
   /**
    * The width of the column in the table. If expressed as a number, represents the relative weight of the column in the table. If expressed as a string, `auto` will automatically adjust the column's width according to its content and using the `<number>px` format will give the column an explicit width in pixels.
    */
-  width?: "auto" | string | number;
+  width?: 'auto' | string | number;
 
   constructor(options: ColumnDefinitionOptions = {}) {
     Object.assign(this, options);
@@ -8354,7 +8354,7 @@ export class ColumnDefinition implements IColumnDefinition {
     return this;
   }
 
-  withWidth(width: "auto" | string | number): this {
+  withWidth(width: 'auto' | string | number): this {
     this.width = width;
     return this;
   }
@@ -8371,7 +8371,7 @@ export interface ITextBlock {
   /**
    * Must be **TextBlock**.
    */
-  readonly type: "TextBlock";
+  readonly type: 'TextBlock';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -8455,7 +8455,7 @@ export interface ITextBlock {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -8473,10 +8473,10 @@ export interface ITextBlock {
  */
 export function isTextBlock(value: unknown): value is ITextBlock {
   const obj = value as ITextBlock;
-  return typeof obj === "object" && obj.type === "TextBlock";
+  return typeof obj === 'object' && obj.type === 'TextBlock';
 }
 
-export type TextBlockOptions = Partial<Omit<ITextBlock, "type" | "text">>;
+export type TextBlockOptions = Partial<Omit<ITextBlock, 'type' | 'text'>>;
 
 /**
  * A block of text, optionally formatted using Markdown.
@@ -8489,7 +8489,7 @@ export class TextBlock implements ITextBlock {
   /**
    * Must be **TextBlock**.
    */
-  readonly type = "TextBlock";
+  readonly type = 'TextBlock';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -8513,7 +8513,7 @@ export class TextBlock implements ITextBlock {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -8521,7 +8521,7 @@ export class TextBlock implements ITextBlock {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -8573,7 +8573,7 @@ export class TextBlock implements ITextBlock {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -8584,7 +8584,7 @@ export class TextBlock implements ITextBlock {
     this.text = text;
   }
 
-  static from(options: Omit<ITextBlock, "type">): TextBlock {
+  static from(options: Omit<ITextBlock, 'type'>): TextBlock {
     return new TextBlock(options.text, options);
   }
 
@@ -8710,7 +8710,7 @@ export interface IFactSet {
   /**
    * Must be **FactSet**.
    */
-  readonly type: "FactSet";
+  readonly type: 'FactSet';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -8754,7 +8754,7 @@ export interface IFactSet {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -8772,10 +8772,10 @@ export interface IFactSet {
  */
 export function isFactSet(value: unknown): value is IFactSet {
   const obj = value as IFactSet;
-  return typeof obj === "object" && obj.type === "FactSet";
+  return typeof obj === 'object' && obj.type === 'FactSet';
 }
 
-export type FactSetOptions = Partial<Omit<IFactSet, "type" | "facts">>;
+export type FactSetOptions = Partial<Omit<IFactSet, 'type' | 'facts'>>;
 
 /**
  * A set of facts, displayed as a table or a vertical list when horizontal space is constrained.
@@ -8788,7 +8788,7 @@ export class FactSet implements IFactSet {
   /**
    * Must be **FactSet**.
    */
-  readonly type = "FactSet";
+  readonly type = 'FactSet';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -8812,11 +8812,11 @@ export class FactSet implements IFactSet {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -8832,7 +8832,7 @@ export class FactSet implements IFactSet {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -8982,7 +8982,7 @@ export interface IImageSet {
   /**
    * Must be **ImageSet**.
    */
-  readonly type: "ImageSet";
+  readonly type: 'ImageSet';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -9034,7 +9034,7 @@ export interface IImageSet {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -9052,10 +9052,10 @@ export interface IImageSet {
  */
 export function isImageSet(value: unknown): value is IImageSet {
   const obj = value as IImageSet;
-  return typeof obj === "object" && obj.type === "ImageSet";
+  return typeof obj === 'object' && obj.type === 'ImageSet';
 }
 
-export type ImageSetOptions = Partial<Omit<IImageSet, "type" | "images">>;
+export type ImageSetOptions = Partial<Omit<IImageSet, 'type' | 'images'>>;
 
 /**
  * A set of images, displayed side-by-side and wrapped across multiple rows as needed.
@@ -9068,7 +9068,7 @@ export class ImageSet implements IImageSet {
   /**
    * Must be **ImageSet**.
    */
-  readonly type = "ImageSet";
+  readonly type = 'ImageSet';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -9092,7 +9092,7 @@ export class ImageSet implements IImageSet {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -9100,7 +9100,7 @@ export class ImageSet implements IImageSet {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -9116,11 +9116,11 @@ export class ImageSet implements IImageSet {
   /**
    * The size to use to render all images in the set.
    */
-  imageSize?: ImageSize = "Medium";
+  imageSize?: ImageSize = 'Medium';
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -9217,7 +9217,7 @@ export interface IImage {
   /**
    * Must be **Image**.
    */
-  readonly type: "Image";
+  readonly type: 'Image';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -9277,7 +9277,7 @@ export interface IImage {
   /**
    * The width of the image.
    */
-  width?: "auto" | "stretch" | string;
+  width?: 'auto' | 'stretch' | string;
   /**
    * An Action that will be invoked when the image is tapped or clicked. Action.ShowCard is not supported.
    */
@@ -9317,11 +9317,11 @@ export interface IImage {
   /**
    * The height of the image.
    */
-  height?: "auto" | "stretch" | string;
+  height?: 'auto' | 'stretch' | string;
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -9339,10 +9339,10 @@ export interface IImage {
  */
 export function isImage(value: unknown): value is IImage {
   const obj = value as IImage;
-  return typeof obj === "object" && obj.type === "Image";
+  return typeof obj === 'object' && obj.type === 'Image';
 }
 
-export type ImageOptions = Partial<Omit<IImage, "type" | "url">>;
+export type ImageOptions = Partial<Omit<IImage, 'type' | 'url'>>;
 
 /**
  * A standalone image element.
@@ -9355,7 +9355,7 @@ export class Image implements IImage {
   /**
    * Must be **Image**.
    */
-  readonly type = "Image";
+  readonly type = 'Image';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -9383,7 +9383,7 @@ export class Image implements IImage {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -9407,15 +9407,15 @@ export class Image implements IImage {
   /**
    * The style of the image.
    */
-  style?: ImageStyle = "Default";
+  style?: ImageStyle = 'Default';
   /**
    * The size of the image.
    */
-  size?: Size = "Auto";
+  size?: Size = 'Auto';
   /**
    * The width of the image.
    */
-  width?: "auto" | "stretch" | string = "auto";
+  width?: 'auto' | 'stretch' | string = 'auto';
   /**
    * An Action that will be invoked when the image is tapped or clicked. Action.ShowCard is not supported.
    */
@@ -9443,23 +9443,23 @@ export class Image implements IImage {
   /**
    * Controls how the image should be fitted inside its bounding box. imageFit is only meaningful when both the width and height properties are set. When fitMode is set to contain, the default style is always used.
    */
-  fitMode?: ImageFitMode = "Fill";
+  fitMode?: ImageFitMode = 'Fill';
   /**
    * Controls the horizontal position of the image within its bounding box. horizontalContentAlignment is only meaningful when both the width and height properties are set and fitMode is set to either cover or contain.
    */
-  horizontalContentAlignment?: HorizontalAlignment = "Left";
+  horizontalContentAlignment?: HorizontalAlignment = 'Left';
   /**
    * Controls the vertical position of the image within its bounding box. verticalContentAlignment is only meaningful when both the width and height properties are set and fitMode is set to either cover or contain.
    */
-  verticalContentAlignment?: VerticalAlignment = "Top";
+  verticalContentAlignment?: VerticalAlignment = 'Top';
   /**
    * The height of the image.
    */
-  height?: "auto" | "stretch" | string = "auto";
+  height?: 'auto' | 'stretch' | string = 'auto';
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -9470,7 +9470,7 @@ export class Image implements IImage {
     this.url = url;
   }
 
-  static from(options: Omit<IImage, "type">): Image {
+  static from(options: Omit<IImage, 'type'>): Image {
     return new Image(options.url, options);
   }
 
@@ -9549,7 +9549,7 @@ export class Image implements IImage {
     return this;
   }
 
-  withWidth(width: "auto" | "stretch" | string): this {
+  withWidth(width: 'auto' | 'stretch' | string): this {
     this.width = width;
     return this;
   }
@@ -9603,7 +9603,7 @@ export class Image implements IImage {
     return this;
   }
 
-  withHeight(height: "auto" | "stretch" | string): this {
+  withHeight(height: 'auto' | 'stretch' | string): this {
     this.height = height;
     return this;
   }
@@ -9673,7 +9673,7 @@ export interface ITextInput {
   /**
    * Must be **Input.Text**.
    */
-  readonly type: "Input.Text";
+  readonly type: 'Input.Text';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -9770,7 +9770,7 @@ export interface ITextInput {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -9788,10 +9788,10 @@ export interface ITextInput {
  */
 export function isTextInput(value: unknown): value is ITextInput {
   const obj = value as ITextInput;
-  return typeof obj === "object" && obj.type === "Input.Text";
+  return typeof obj === 'object' && obj.type === 'Input.Text';
 }
 
-export type TextInputOptions = Partial<Omit<ITextInput, "type">>;
+export type TextInputOptions = Partial<Omit<ITextInput, 'type'>>;
 
 /**
  * An input to allow the user to enter text.
@@ -9804,7 +9804,7 @@ export class TextInput implements ITextInput {
   /**
    * Must be **Input.Text**.
    */
-  readonly type = "Input.Text";
+  readonly type = 'Input.Text';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -9828,11 +9828,11 @@ export class TextInput implements ITextInput {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -9881,7 +9881,7 @@ export class TextInput implements ITextInput {
   /**
    * The style of the input.
    */
-  style?: InputTextStyle = "Text";
+  style?: InputTextStyle = 'Text';
   /**
    * The action that should be displayed as a button alongside the input. Action.ShowCard is not supported.
    */
@@ -9901,7 +9901,7 @@ export class TextInput implements ITextInput {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -9911,7 +9911,7 @@ export class TextInput implements ITextInput {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<ITextInput, "type">): TextInput {
+  static from(options: Omit<ITextInput, 'type'>): TextInput {
     return new TextInput(options);
   }
 
@@ -10052,7 +10052,7 @@ export interface IDateInput {
   /**
    * Must be **Input.Date**.
    */
-  readonly type: "Input.Date";
+  readonly type: 'Input.Date';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -10129,7 +10129,7 @@ export interface IDateInput {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -10147,10 +10147,10 @@ export interface IDateInput {
  */
 export function isDateInput(value: unknown): value is IDateInput {
   const obj = value as IDateInput;
-  return typeof obj === "object" && obj.type === "Input.Date";
+  return typeof obj === 'object' && obj.type === 'Input.Date';
 }
 
-export type DateInputOptions = Partial<Omit<IDateInput, "type">>;
+export type DateInputOptions = Partial<Omit<IDateInput, 'type'>>;
 
 /**
  * An input to allow the user to select a date.
@@ -10163,7 +10163,7 @@ export class DateInput implements IDateInput {
   /**
    * Must be **Input.Date**.
    */
-  readonly type = "Input.Date";
+  readonly type = 'Input.Date';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -10187,11 +10187,11 @@ export class DateInput implements IDateInput {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -10240,7 +10240,7 @@ export class DateInput implements IDateInput {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -10250,7 +10250,7 @@ export class DateInput implements IDateInput {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IDateInput, "type">): DateInput {
+  static from(options: Omit<IDateInput, 'type'>): DateInput {
     return new DateInput(options);
   }
 
@@ -10366,7 +10366,7 @@ export interface ITimeInput {
   /**
    * Must be **Input.Time**.
    */
-  readonly type: "Input.Time";
+  readonly type: 'Input.Time';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -10443,7 +10443,7 @@ export interface ITimeInput {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -10461,10 +10461,10 @@ export interface ITimeInput {
  */
 export function isTimeInput(value: unknown): value is ITimeInput {
   const obj = value as ITimeInput;
-  return typeof obj === "object" && obj.type === "Input.Time";
+  return typeof obj === 'object' && obj.type === 'Input.Time';
 }
 
-export type TimeInputOptions = Partial<Omit<ITimeInput, "type">>;
+export type TimeInputOptions = Partial<Omit<ITimeInput, 'type'>>;
 
 /**
  * An input to allow the user to select a time.
@@ -10477,7 +10477,7 @@ export class TimeInput implements ITimeInput {
   /**
    * Must be **Input.Time**.
    */
-  readonly type = "Input.Time";
+  readonly type = 'Input.Time';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -10501,11 +10501,11 @@ export class TimeInput implements ITimeInput {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -10554,7 +10554,7 @@ export class TimeInput implements ITimeInput {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -10564,7 +10564,7 @@ export class TimeInput implements ITimeInput {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<ITimeInput, "type">): TimeInput {
+  static from(options: Omit<ITimeInput, 'type'>): TimeInput {
     return new TimeInput(options);
   }
 
@@ -10680,7 +10680,7 @@ export interface INumberInput {
   /**
    * Must be **Input.Number**.
    */
-  readonly type: "Input.Number";
+  readonly type: 'Input.Number';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -10757,7 +10757,7 @@ export interface INumberInput {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -10775,10 +10775,10 @@ export interface INumberInput {
  */
 export function isNumberInput(value: unknown): value is INumberInput {
   const obj = value as INumberInput;
-  return typeof obj === "object" && obj.type === "Input.Number";
+  return typeof obj === 'object' && obj.type === 'Input.Number';
 }
 
-export type NumberInputOptions = Partial<Omit<INumberInput, "type">>;
+export type NumberInputOptions = Partial<Omit<INumberInput, 'type'>>;
 
 /**
  * An input to allow the user to enter a number.
@@ -10791,7 +10791,7 @@ export class NumberInput implements INumberInput {
   /**
    * Must be **Input.Number**.
    */
-  readonly type = "Input.Number";
+  readonly type = 'Input.Number';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -10815,11 +10815,11 @@ export class NumberInput implements INumberInput {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -10868,7 +10868,7 @@ export class NumberInput implements INumberInput {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -10878,7 +10878,7 @@ export class NumberInput implements INumberInput {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<INumberInput, "type">): NumberInput {
+  static from(options: Omit<INumberInput, 'type'>): NumberInput {
     return new NumberInput(options);
   }
 
@@ -10994,7 +10994,7 @@ export interface IToggleInput {
   /**
    * Must be **Input.Toggle**.
    */
-  readonly type: "Input.Toggle";
+  readonly type: 'Input.Toggle';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -11079,7 +11079,7 @@ export interface IToggleInput {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -11097,10 +11097,10 @@ export interface IToggleInput {
  */
 export function isToggleInput(value: unknown): value is IToggleInput {
   const obj = value as IToggleInput;
-  return typeof obj === "object" && obj.type === "Input.Toggle";
+  return typeof obj === 'object' && obj.type === 'Input.Toggle';
 }
 
-export type ToggleInputOptions = Partial<Omit<IToggleInput, "type" | "title">>;
+export type ToggleInputOptions = Partial<Omit<IToggleInput, 'type' | 'title'>>;
 
 /**
  * An input to allow the user to select between on/off states.
@@ -11113,7 +11113,7 @@ export class ToggleInput implements IToggleInput {
   /**
    * Must be **Input.Toggle**.
    */
-  readonly type = "Input.Toggle";
+  readonly type = 'Input.Toggle';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -11137,11 +11137,11 @@ export class ToggleInput implements IToggleInput {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -11174,7 +11174,7 @@ export class ToggleInput implements IToggleInput {
   /**
    * The default value of the input.
    */
-  value?: string = "false";
+  value?: string = 'false';
   /**
    * The title (caption) to display next to the toggle.
    */
@@ -11182,11 +11182,11 @@ export class ToggleInput implements IToggleInput {
   /**
    * The value to send to the Bot when the toggle is on.
    */
-  valueOn?: string = "true";
+  valueOn?: string = 'true';
   /**
    * The value to send to the Bot when the toggle is off.
    */
-  valueOff?: string = "false";
+  valueOff?: string = 'false';
   /**
    * Controls if the title should wrap.
    */
@@ -11198,7 +11198,7 @@ export class ToggleInput implements IToggleInput {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -11209,7 +11209,7 @@ export class ToggleInput implements IToggleInput {
     this.title = title;
   }
 
-  static from(options: Omit<IToggleInput, "type">): ToggleInput {
+  static from(options: Omit<IToggleInput, 'type'>): ToggleInput {
     return new ToggleInput(options.title, options);
   }
 
@@ -11335,7 +11335,7 @@ export interface IChoiceSetInput {
   /**
    * Must be **Input.ChoiceSet**.
    */
-  readonly type: "Input.ChoiceSet";
+  readonly type: 'Input.ChoiceSet';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -11404,7 +11404,7 @@ export interface IChoiceSetInput {
   /**
    * A Data.Query object that defines the dataset from which to dynamically fetch the choices for the input.
    */
-  "choices.data"?: IQueryData;
+  'choices.data'?: IQueryData;
   /**
    * Controls whether the input should be displayed as a dropdown (compact) or a list of radio buttons or checkboxes (expanded).
    */
@@ -11432,7 +11432,7 @@ export interface IChoiceSetInput {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -11450,11 +11450,11 @@ export interface IChoiceSetInput {
  */
 export function isChoiceSetInput(value: unknown): value is IChoiceSetInput {
   const obj = value as IChoiceSetInput;
-  return typeof obj === "object" && obj.type === "Input.ChoiceSet";
+  return typeof obj === 'object' && obj.type === 'Input.ChoiceSet';
 }
 
 export type ChoiceSetInputOptions = Partial<
-  Omit<IChoiceSetInput, "type" | "choices">
+  Omit<IChoiceSetInput, 'type' | 'choices'>
 >;
 
 /**
@@ -11468,7 +11468,7 @@ export class ChoiceSetInput implements IChoiceSetInput {
   /**
    * Must be **Input.ChoiceSet**.
    */
-  readonly type = "Input.ChoiceSet";
+  readonly type = 'Input.ChoiceSet';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -11492,11 +11492,11 @@ export class ChoiceSetInput implements IChoiceSetInput {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -11537,11 +11537,11 @@ export class ChoiceSetInput implements IChoiceSetInput {
   /**
    * A Data.Query object that defines the dataset from which to dynamically fetch the choices for the input.
    */
-  "choices.data"?: IQueryData;
+  'choices.data'?: IQueryData;
   /**
    * Controls whether the input should be displayed as a dropdown (compact) or a list of radio buttons or checkboxes (expanded).
    */
-  style?: ChoiceSetInputStyle = "compact";
+  style?: ChoiceSetInputStyle = 'compact';
   /**
    * Controls whether multiple choices can be selected.
    */
@@ -11565,7 +11565,7 @@ export class ChoiceSetInput implements IChoiceSetInput {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -11773,7 +11773,7 @@ export interface IQueryData {
   /**
    * Must be **Data.Query**.
    */
-  readonly type: "Data.Query";
+  readonly type: 'Data.Query';
   /**
    * The dataset from which to fetch the data.
    */
@@ -11803,10 +11803,10 @@ export interface IQueryData {
  */
 export function isQueryData(value: unknown): value is IQueryData {
   const obj = value as IQueryData;
-  return typeof obj === "object" && obj.type === "Data.Query";
+  return typeof obj === 'object' && obj.type === 'Data.Query';
 }
 
-export type QueryDataOptions = Partial<Omit<IQueryData, "type">>;
+export type QueryDataOptions = Partial<Omit<IQueryData, 'type'>>;
 
 /**
  * Defines a query to dynamically fetch data from a Bot.
@@ -11819,7 +11819,7 @@ export class QueryData implements IQueryData {
   /**
    * Must be **Data.Query**.
    */
-  readonly type = "Data.Query";
+  readonly type = 'Data.Query';
   /**
    * The dataset from which to fetch the data.
    */
@@ -11841,7 +11841,7 @@ export class QueryData implements IQueryData {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IQueryData, "type">): QueryData {
+  static from(options: Omit<IQueryData, 'type'>): QueryData {
     return new QueryData(options);
   }
 
@@ -11882,7 +11882,7 @@ export interface IRatingInput {
   /**
    * Must be **Input.Rating**.
    */
-  readonly type: "Input.Rating";
+  readonly type: 'Input.Rating';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -11963,7 +11963,7 @@ export interface IRatingInput {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -11981,10 +11981,10 @@ export interface IRatingInput {
  */
 export function isRatingInput(value: unknown): value is IRatingInput {
   const obj = value as IRatingInput;
-  return typeof obj === "object" && obj.type === "Input.Rating";
+  return typeof obj === 'object' && obj.type === 'Input.Rating';
 }
 
-export type RatingInputOptions = Partial<Omit<IRatingInput, "type">>;
+export type RatingInputOptions = Partial<Omit<IRatingInput, 'type'>>;
 
 /**
  * An input to allow the user to rate something using stars.
@@ -11997,7 +11997,7 @@ export class RatingInput implements IRatingInput {
   /**
    * Must be **Input.Rating**.
    */
-  readonly type = "Input.Rating";
+  readonly type = 'Input.Rating';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -12021,11 +12021,11 @@ export class RatingInput implements IRatingInput {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -12070,15 +12070,15 @@ export class RatingInput implements IRatingInput {
   /**
    * The size of the stars.
    */
-  size?: RatingSize = "Large";
+  size?: RatingSize = 'Large';
   /**
    * The color of the stars.
    */
-  color?: RatingColor = "Neutral";
+  color?: RatingColor = 'Neutral';
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -12088,7 +12088,7 @@ export class RatingInput implements IRatingInput {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IRatingInput, "type">): RatingInput {
+  static from(options: Omit<IRatingInput, 'type'>): RatingInput {
     return new RatingInput(options);
   }
 
@@ -12209,7 +12209,7 @@ export interface IRating {
   /**
    * Must be **Rating**.
    */
-  readonly type: "Rating";
+  readonly type: 'Rating';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -12277,7 +12277,7 @@ export interface IRating {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -12295,10 +12295,10 @@ export interface IRating {
  */
 export function isRating(value: unknown): value is IRating {
   const obj = value as IRating;
-  return typeof obj === "object" && obj.type === "Rating";
+  return typeof obj === 'object' && obj.type === 'Rating';
 }
 
-export type RatingOptions = Partial<Omit<IRating, "type">>;
+export type RatingOptions = Partial<Omit<IRating, 'type'>>;
 
 /**
  * A read-only star rating element, to display the rating of something.
@@ -12311,7 +12311,7 @@ export class Rating implements IRating {
   /**
    * Must be **Rating**.
    */
-  readonly type = "Rating";
+  readonly type = 'Rating';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -12335,7 +12335,7 @@ export class Rating implements IRating {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -12343,7 +12343,7 @@ export class Rating implements IRating {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -12367,19 +12367,19 @@ export class Rating implements IRating {
   /**
    * The size of the stars.
    */
-  size?: RatingSize = "Large";
+  size?: RatingSize = 'Large';
   /**
    * The color of the stars.
    */
-  color?: RatingColor = "Neutral";
+  color?: RatingColor = 'Neutral';
   /**
    * The style of the stars.
    */
-  style?: RatingStyle = "Default";
+  style?: RatingStyle = 'Default';
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -12389,7 +12389,7 @@ export class Rating implements IRating {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IRating, "type">): Rating {
+  static from(options: Omit<IRating, 'type'>): Rating {
     return new Rating(options);
   }
 
@@ -12495,7 +12495,7 @@ export interface ICompoundButton {
   /**
    * Must be **CompoundButton**.
    */
-  readonly type: "CompoundButton";
+  readonly type: 'CompoundButton';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -12567,7 +12567,7 @@ export interface ICompoundButton {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -12585,10 +12585,10 @@ export interface ICompoundButton {
  */
 export function isCompoundButton(value: unknown): value is ICompoundButton {
   const obj = value as ICompoundButton;
-  return typeof obj === "object" && obj.type === "CompoundButton";
+  return typeof obj === 'object' && obj.type === 'CompoundButton';
 }
 
-export type CompoundButtonOptions = Partial<Omit<ICompoundButton, "type">>;
+export type CompoundButtonOptions = Partial<Omit<ICompoundButton, 'type'>>;
 
 /**
  * A special type of button with an icon, title and description.
@@ -12601,7 +12601,7 @@ export class CompoundButton implements ICompoundButton {
   /**
    * Must be **CompoundButton**.
    */
-  readonly type = "CompoundButton";
+  readonly type = 'CompoundButton';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -12625,7 +12625,7 @@ export class CompoundButton implements ICompoundButton {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -12633,7 +12633,7 @@ export class CompoundButton implements ICompoundButton {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -12673,7 +12673,7 @@ export class CompoundButton implements ICompoundButton {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -12683,7 +12683,7 @@ export class CompoundButton implements ICompoundButton {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<ICompoundButton, "type">): CompoundButton {
+  static from(options: Omit<ICompoundButton, 'type'>): CompoundButton {
     return new CompoundButton(options);
   }
 
@@ -12826,15 +12826,15 @@ export class IconInfo implements IIconInfo {
   /**
    * The size of the icon.
    */
-  size?: IconSize = "xSmall";
+  size?: IconSize = 'xSmall';
   /**
    * The style of the icon.
    */
-  style?: IconStyle = "Regular";
+  style?: IconStyle = 'Regular';
   /**
    * The color of the icon.
    */
-  color?: TextColor = "Default";
+  color?: TextColor = 'Default';
 
   constructor(options: IconInfoOptions = {}) {
     Object.assign(this, options);
@@ -12881,7 +12881,7 @@ export interface IIcon {
   /**
    * Must be **Icon**.
    */
-  readonly type: "Icon";
+  readonly type: 'Icon';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -12949,7 +12949,7 @@ export interface IIcon {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -12967,10 +12967,10 @@ export interface IIcon {
  */
 export function isIcon(value: unknown): value is IIcon {
   const obj = value as IIcon;
-  return typeof obj === "object" && obj.type === "Icon";
+  return typeof obj === 'object' && obj.type === 'Icon';
 }
 
-export type IconOptions = Partial<Omit<IIcon, "type" | "name">>;
+export type IconOptions = Partial<Omit<IIcon, 'type' | 'name'>>;
 
 /**
  * A standalone icon element. Icons can be picked from the vast [Adaptive Card icon catalog](https://adaptivecards.microsoft.com/?topic=icon-catalog).
@@ -12983,7 +12983,7 @@ export class Icon implements IIcon {
   /**
    * Must be **Icon**.
    */
-  readonly type = "Icon";
+  readonly type = 'Icon';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -13011,7 +13011,7 @@ export class Icon implements IIcon {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -13027,15 +13027,15 @@ export class Icon implements IIcon {
   /**
    * The size of the icon.
    */
-  size?: IconSize = "Standard";
+  size?: IconSize = 'Standard';
   /**
    * The style of the icon.
    */
-  style?: IconStyle = "Regular";
+  style?: IconStyle = 'Regular';
   /**
    * The color of the icon.
    */
-  color?: TextColor = "Default";
+  color?: TextColor = 'Default';
   /**
    * An Action that will be invoked when the icon is tapped or clicked. Action.ShowCard is not supported.
    */
@@ -13051,7 +13051,7 @@ export class Icon implements IIcon {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -13062,7 +13062,7 @@ export class Icon implements IIcon {
     this.name = name;
   }
 
-  static from(options: Omit<IIcon, "type">): Icon {
+  static from(options: Omit<IIcon, 'type'>): Icon {
     return new Icon(options.name, options);
   }
 
@@ -13168,7 +13168,7 @@ export interface ICarousel {
   /**
    * Must be **Carousel**.
    */
-  readonly type: "Carousel";
+  readonly type: 'Carousel';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -13220,7 +13220,7 @@ export interface ICarousel {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -13242,10 +13242,10 @@ export interface ICarousel {
  */
 export function isCarousel(value: unknown): value is ICarousel {
   const obj = value as ICarousel;
-  return typeof obj === "object" && obj.type === "Carousel";
+  return typeof obj === 'object' && obj.type === 'Carousel';
 }
 
-export type CarouselOptions = Partial<Omit<ICarousel, "type">>;
+export type CarouselOptions = Partial<Omit<ICarousel, 'type'>>;
 
 /**
  * A carousel with sliding pages.
@@ -13258,7 +13258,7 @@ export class Carousel implements ICarousel {
   /**
    * Must be **Carousel**.
    */
-  readonly type = "Carousel";
+  readonly type = 'Carousel';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -13282,11 +13282,11 @@ export class Carousel implements ICarousel {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -13306,11 +13306,11 @@ export class Carousel implements ICarousel {
   /**
    * Controls the type of animation to use to navigate between pages.
    */
-  pageAnimation?: CarouselPageAnimation = "Slide";
+  pageAnimation?: CarouselPageAnimation = 'Slide';
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -13324,7 +13324,7 @@ export class Carousel implements ICarousel {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<ICarousel, "type">): Carousel {
+  static from(options: Omit<ICarousel, 'type'>): Carousel {
     return new Carousel(options);
   }
 
@@ -13415,7 +13415,7 @@ export interface IBadge {
   /**
    * Must be **Badge**.
    */
-  readonly type: "Badge";
+  readonly type: 'Badge';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -13491,7 +13491,7 @@ export interface IBadge {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -13509,10 +13509,10 @@ export interface IBadge {
  */
 export function isBadge(value: unknown): value is IBadge {
   const obj = value as IBadge;
-  return typeof obj === "object" && obj.type === "Badge";
+  return typeof obj === 'object' && obj.type === 'Badge';
 }
 
-export type BadgeOptions = Partial<Omit<IBadge, "type">>;
+export type BadgeOptions = Partial<Omit<IBadge, 'type'>>;
 
 /**
  * A badge element to show an icon and/or text in a compact form over a colored background.
@@ -13525,7 +13525,7 @@ export class Badge implements IBadge {
   /**
    * Must be **Badge**.
    */
-  readonly type = "Badge";
+  readonly type = 'Badge';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -13549,7 +13549,7 @@ export class Badge implements IBadge {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -13557,7 +13557,7 @@ export class Badge implements IBadge {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -13577,23 +13577,23 @@ export class Badge implements IBadge {
   /**
    * Controls the position of the icon.
    */
-  iconPosition?: BadgeIconPosition = "Before";
+  iconPosition?: BadgeIconPosition = 'Before';
   /**
    * Controls the strength of the background color.
    */
-  appearance?: BadgeAppearance = "Filled";
+  appearance?: BadgeAppearance = 'Filled';
   /**
    * The size of the badge.
    */
-  size?: BadgeSize = "Medium";
+  size?: BadgeSize = 'Medium';
   /**
    * Controls the shape of the badge.
    */
-  shape?: BadgeShape = "Circular";
+  shape?: BadgeShape = 'Circular';
   /**
    * The style of the badge.
    */
-  style?: BadgeStyle = "Default";
+  style?: BadgeStyle = 'Default';
   /**
    * Controls the tooltip text to display when the badge is hovered over.
    */
@@ -13601,7 +13601,7 @@ export class Badge implements IBadge {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -13611,7 +13611,7 @@ export class Badge implements IBadge {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IBadge, "type">): Badge {
+  static from(options: Omit<IBadge, 'type'>): Badge {
     return new Badge(options);
   }
 
@@ -13727,7 +13727,7 @@ export interface IProgressRing {
   /**
    * Must be **ProgressRing**.
    */
-  readonly type: "ProgressRing";
+  readonly type: 'ProgressRing';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -13783,7 +13783,7 @@ export interface IProgressRing {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -13801,10 +13801,10 @@ export interface IProgressRing {
  */
 export function isProgressRing(value: unknown): value is IProgressRing {
   const obj = value as IProgressRing;
-  return typeof obj === "object" && obj.type === "ProgressRing";
+  return typeof obj === 'object' && obj.type === 'ProgressRing';
 }
 
-export type ProgressRingOptions = Partial<Omit<IProgressRing, "type">>;
+export type ProgressRingOptions = Partial<Omit<IProgressRing, 'type'>>;
 
 /**
  * A spinning ring element, to indicate progress.
@@ -13817,7 +13817,7 @@ export class ProgressRing implements IProgressRing {
   /**
    * Must be **ProgressRing**.
    */
-  readonly type = "ProgressRing";
+  readonly type = 'ProgressRing';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -13841,7 +13841,7 @@ export class ProgressRing implements IProgressRing {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -13849,7 +13849,7 @@ export class ProgressRing implements IProgressRing {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -13865,15 +13865,15 @@ export class ProgressRing implements IProgressRing {
   /**
    * Controls the relative position of the label to the progress ring.
    */
-  labelPosition?: ProgressRingLabelPosition = "Below";
+  labelPosition?: ProgressRingLabelPosition = 'Below';
   /**
    * The size of the progress ring.
    */
-  size?: ProgressRingSize = "Medium";
+  size?: ProgressRingSize = 'Medium';
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -13883,7 +13883,7 @@ export class ProgressRing implements IProgressRing {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IProgressRing, "type">): ProgressRing {
+  static from(options: Omit<IProgressRing, 'type'>): ProgressRing {
     return new ProgressRing(options);
   }
 
@@ -13974,7 +13974,7 @@ export interface IProgressBar {
   /**
    * Must be **ProgressBar**.
    */
-  readonly type: "ProgressBar";
+  readonly type: 'ProgressBar';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -14030,7 +14030,7 @@ export interface IProgressBar {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -14048,10 +14048,10 @@ export interface IProgressBar {
  */
 export function isProgressBar(value: unknown): value is IProgressBar {
   const obj = value as IProgressBar;
-  return typeof obj === "object" && obj.type === "ProgressBar";
+  return typeof obj === 'object' && obj.type === 'ProgressBar';
 }
 
-export type ProgressBarOptions = Partial<Omit<IProgressBar, "type">>;
+export type ProgressBarOptions = Partial<Omit<IProgressBar, 'type'>>;
 
 /**
  * A progress bar element, to represent a value within a range.
@@ -14064,7 +14064,7 @@ export class ProgressBar implements IProgressBar {
   /**
    * Must be **ProgressBar**.
    */
-  readonly type = "ProgressBar";
+  readonly type = 'ProgressBar';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -14088,7 +14088,7 @@ export class ProgressBar implements IProgressBar {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -14096,7 +14096,7 @@ export class ProgressBar implements IProgressBar {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -14116,11 +14116,11 @@ export class ProgressBar implements IProgressBar {
   /**
    * The color of the progress bar. `color` has no effect when the `ProgressBar` is in indeterminate mode, in which case the "accent" color is always used.
    */
-  color?: ProgressBarColor = "Accent";
+  color?: ProgressBarColor = 'Accent';
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -14130,7 +14130,7 @@ export class ProgressBar implements IProgressBar {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IProgressBar, "type">): ProgressBar {
+  static from(options: Omit<IProgressBar, 'type'>): ProgressBar {
     return new ProgressBar(options);
   }
 
@@ -14221,7 +14221,7 @@ export interface IDonutChart {
   /**
    * Must be **Chart.Donut**.
    */
-  readonly type: "Chart.Donut";
+  readonly type: 'Chart.Donut';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -14305,7 +14305,7 @@ export interface IDonutChart {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -14323,10 +14323,10 @@ export interface IDonutChart {
  */
 export function isDonutChart(value: unknown): value is IDonutChart {
   const obj = value as IDonutChart;
-  return typeof obj === "object" && obj.type === "Chart.Donut";
+  return typeof obj === 'object' && obj.type === 'Chart.Donut';
 }
 
-export type DonutChartOptions = Partial<Omit<IDonutChart, "type">>;
+export type DonutChartOptions = Partial<Omit<IDonutChart, 'type'>>;
 
 /**
  * A donut chart.
@@ -14339,7 +14339,7 @@ export class DonutChart implements IDonutChart {
   /**
    * Must be **Chart.Donut**.
    */
-  readonly type = "Chart.Donut";
+  readonly type = 'Chart.Donut';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -14363,7 +14363,7 @@ export class DonutChart implements IDonutChart {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -14371,7 +14371,7 @@ export class DonutChart implements IDonutChart {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -14423,7 +14423,7 @@ export class DonutChart implements IDonutChart {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -14433,7 +14433,7 @@ export class DonutChart implements IDonutChart {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IDonutChart, "type">): DonutChart {
+  static from(options: Omit<IDonutChart, 'type'>): DonutChart {
     return new DonutChart(options);
   }
 
@@ -14633,7 +14633,7 @@ export interface IPieChart {
   /**
    * Must be **Chart.Pie**.
    */
-  readonly type: "Chart.Pie";
+  readonly type: 'Chart.Pie';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -14717,7 +14717,7 @@ export interface IPieChart {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -14735,10 +14735,10 @@ export interface IPieChart {
  */
 export function isPieChart(value: unknown): value is IPieChart {
   const obj = value as IPieChart;
-  return typeof obj === "object" && obj.type === "Chart.Pie";
+  return typeof obj === 'object' && obj.type === 'Chart.Pie';
 }
 
-export type PieChartOptions = Partial<Omit<IPieChart, "type">>;
+export type PieChartOptions = Partial<Omit<IPieChart, 'type'>>;
 
 /**
  * A pie chart.
@@ -14751,7 +14751,7 @@ export class PieChart implements IPieChart {
   /**
    * Must be **Chart.Pie**.
    */
-  readonly type = "Chart.Pie";
+  readonly type = 'Chart.Pie';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -14775,7 +14775,7 @@ export class PieChart implements IPieChart {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -14783,7 +14783,7 @@ export class PieChart implements IPieChart {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -14835,7 +14835,7 @@ export class PieChart implements IPieChart {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -14845,7 +14845,7 @@ export class PieChart implements IPieChart {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IPieChart, "type">): PieChart {
+  static from(options: Omit<IPieChart, 'type'>): PieChart {
     return new PieChart(options);
   }
 
@@ -14971,7 +14971,7 @@ export interface IGroupedVerticalBarChart {
   /**
    * Must be **Chart.VerticalBar.Grouped**.
    */
-  readonly type: "Chart.VerticalBar.Grouped";
+  readonly type: 'Chart.VerticalBar.Grouped';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -15073,7 +15073,7 @@ export interface IGroupedVerticalBarChart {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -15093,11 +15093,11 @@ export function isGroupedVerticalBarChart(
   value: unknown,
 ): value is IGroupedVerticalBarChart {
   const obj = value as IGroupedVerticalBarChart;
-  return typeof obj === "object" && obj.type === "Chart.VerticalBar.Grouped";
+  return typeof obj === 'object' && obj.type === 'Chart.VerticalBar.Grouped';
 }
 
 export type GroupedVerticalBarChartOptions = Partial<
-  Omit<IGroupedVerticalBarChart, "type">
+  Omit<IGroupedVerticalBarChart, 'type'>
 >;
 
 /**
@@ -15111,7 +15111,7 @@ export class GroupedVerticalBarChart implements IGroupedVerticalBarChart {
   /**
    * Must be **Chart.VerticalBar.Grouped**.
    */
-  readonly type = "Chart.VerticalBar.Grouped";
+  readonly type = 'Chart.VerticalBar.Grouped';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -15135,7 +15135,7 @@ export class GroupedVerticalBarChart implements IGroupedVerticalBarChart {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -15143,7 +15143,7 @@ export class GroupedVerticalBarChart implements IGroupedVerticalBarChart {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -15213,7 +15213,7 @@ export class GroupedVerticalBarChart implements IGroupedVerticalBarChart {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -15224,7 +15224,7 @@ export class GroupedVerticalBarChart implements IGroupedVerticalBarChart {
   }
 
   static from(
-    options: Omit<IGroupedVerticalBarChart, "type">,
+    options: Omit<IGroupedVerticalBarChart, 'type'>,
   ): GroupedVerticalBarChart {
     return new GroupedVerticalBarChart(options);
   }
@@ -15504,7 +15504,7 @@ export interface IVerticalBarChart {
   /**
    * Must be **Chart.VerticalBar**.
    */
-  readonly type: "Chart.VerticalBar";
+  readonly type: 'Chart.VerticalBar';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -15596,7 +15596,7 @@ export interface IVerticalBarChart {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -15614,10 +15614,10 @@ export interface IVerticalBarChart {
  */
 export function isVerticalBarChart(value: unknown): value is IVerticalBarChart {
   const obj = value as IVerticalBarChart;
-  return typeof obj === "object" && obj.type === "Chart.VerticalBar";
+  return typeof obj === 'object' && obj.type === 'Chart.VerticalBar';
 }
 
-export type VerticalBarChartOptions = Partial<Omit<IVerticalBarChart, "type">>;
+export type VerticalBarChartOptions = Partial<Omit<IVerticalBarChart, 'type'>>;
 
 /**
  * A vertical bar chart.
@@ -15630,7 +15630,7 @@ export class VerticalBarChart implements IVerticalBarChart {
   /**
    * Must be **Chart.VerticalBar**.
    */
-  readonly type = "Chart.VerticalBar";
+  readonly type = 'Chart.VerticalBar';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -15654,7 +15654,7 @@ export class VerticalBarChart implements IVerticalBarChart {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -15662,7 +15662,7 @@ export class VerticalBarChart implements IVerticalBarChart {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -15722,7 +15722,7 @@ export class VerticalBarChart implements IVerticalBarChart {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -15732,7 +15732,7 @@ export class VerticalBarChart implements IVerticalBarChart {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IVerticalBarChart, "type">): VerticalBarChart {
+  static from(options: Omit<IVerticalBarChart, 'type'>): VerticalBarChart {
     return new VerticalBarChart(options);
   }
 
@@ -15943,7 +15943,7 @@ export interface IHorizontalBarChart {
   /**
    * Must be **Chart.HorizontalBar**.
    */
-  readonly type: "Chart.HorizontalBar";
+  readonly type: 'Chart.HorizontalBar';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -16027,7 +16027,7 @@ export interface IHorizontalBarChart {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -16047,11 +16047,11 @@ export function isHorizontalBarChart(
   value: unknown,
 ): value is IHorizontalBarChart {
   const obj = value as IHorizontalBarChart;
-  return typeof obj === "object" && obj.type === "Chart.HorizontalBar";
+  return typeof obj === 'object' && obj.type === 'Chart.HorizontalBar';
 }
 
 export type HorizontalBarChartOptions = Partial<
-  Omit<IHorizontalBarChart, "type">
+  Omit<IHorizontalBarChart, 'type'>
 >;
 
 /**
@@ -16065,7 +16065,7 @@ export class HorizontalBarChart implements IHorizontalBarChart {
   /**
    * Must be **Chart.HorizontalBar**.
    */
-  readonly type = "Chart.HorizontalBar";
+  readonly type = 'Chart.HorizontalBar';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -16089,7 +16089,7 @@ export class HorizontalBarChart implements IHorizontalBarChart {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -16097,7 +16097,7 @@ export class HorizontalBarChart implements IHorizontalBarChart {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -16145,11 +16145,11 @@ export class HorizontalBarChart implements IHorizontalBarChart {
   /**
    * Controls how the chart should be visually laid out.
    */
-  displayMode?: HorizontalBarChartDisplayMode = "AbsoluteWithAxis";
+  displayMode?: HorizontalBarChartDisplayMode = 'AbsoluteWithAxis';
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -16159,7 +16159,7 @@ export class HorizontalBarChart implements IHorizontalBarChart {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IHorizontalBarChart, "type">): HorizontalBarChart {
+  static from(options: Omit<IHorizontalBarChart, 'type'>): HorizontalBarChart {
     return new HorizontalBarChart(options);
   }
 
@@ -16362,7 +16362,7 @@ export interface IStackedHorizontalBarChart {
   /**
    * Must be **Chart.HorizontalBar.Stacked**.
    */
-  readonly type: "Chart.HorizontalBar.Stacked";
+  readonly type: 'Chart.HorizontalBar.Stacked';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -16442,7 +16442,7 @@ export interface IStackedHorizontalBarChart {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -16462,11 +16462,11 @@ export function isStackedHorizontalBarChart(
   value: unknown,
 ): value is IStackedHorizontalBarChart {
   const obj = value as IStackedHorizontalBarChart;
-  return typeof obj === "object" && obj.type === "Chart.HorizontalBar.Stacked";
+  return typeof obj === 'object' && obj.type === 'Chart.HorizontalBar.Stacked';
 }
 
 export type StackedHorizontalBarChartOptions = Partial<
-  Omit<IStackedHorizontalBarChart, "type">
+  Omit<IStackedHorizontalBarChart, 'type'>
 >;
 
 /**
@@ -16480,7 +16480,7 @@ export class StackedHorizontalBarChart implements IStackedHorizontalBarChart {
   /**
    * Must be **Chart.HorizontalBar.Stacked**.
    */
-  readonly type = "Chart.HorizontalBar.Stacked";
+  readonly type = 'Chart.HorizontalBar.Stacked';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -16504,7 +16504,7 @@ export class StackedHorizontalBarChart implements IStackedHorizontalBarChart {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -16512,7 +16512,7 @@ export class StackedHorizontalBarChart implements IStackedHorizontalBarChart {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -16560,7 +16560,7 @@ export class StackedHorizontalBarChart implements IStackedHorizontalBarChart {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -16571,7 +16571,7 @@ export class StackedHorizontalBarChart implements IStackedHorizontalBarChart {
   }
 
   static from(
-    options: Omit<IStackedHorizontalBarChart, "type">,
+    options: Omit<IStackedHorizontalBarChart, 'type'>,
   ): StackedHorizontalBarChart {
     return new StackedHorizontalBarChart(options);
   }
@@ -16834,7 +16834,7 @@ export interface ILineChart {
   /**
    * Must be **Chart.Line**.
    */
-  readonly type: "Chart.Line";
+  readonly type: 'Chart.Line';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -16922,7 +16922,7 @@ export interface ILineChart {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -16940,10 +16940,10 @@ export interface ILineChart {
  */
 export function isLineChart(value: unknown): value is ILineChart {
   const obj = value as ILineChart;
-  return typeof obj === "object" && obj.type === "Chart.Line";
+  return typeof obj === 'object' && obj.type === 'Chart.Line';
 }
 
-export type LineChartOptions = Partial<Omit<ILineChart, "type">>;
+export type LineChartOptions = Partial<Omit<ILineChart, 'type'>>;
 
 /**
  * A line chart.
@@ -16956,7 +16956,7 @@ export class LineChart implements ILineChart {
   /**
    * Must be **Chart.Line**.
    */
-  readonly type = "Chart.Line";
+  readonly type = 'Chart.Line';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -16980,7 +16980,7 @@ export class LineChart implements ILineChart {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -16988,7 +16988,7 @@ export class LineChart implements ILineChart {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -17044,7 +17044,7 @@ export class LineChart implements ILineChart {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -17054,7 +17054,7 @@ export class LineChart implements ILineChart {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<ILineChart, "type">): LineChart {
+  static from(options: Omit<ILineChart, 'type'>): LineChart {
     return new LineChart(options);
   }
 
@@ -17328,7 +17328,7 @@ export interface IGaugeChart {
   /**
    * Must be **Chart.Gauge**.
    */
-  readonly type: "Chart.Gauge";
+  readonly type: 'Chart.Gauge';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -17428,7 +17428,7 @@ export interface IGaugeChart {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -17446,10 +17446,10 @@ export interface IGaugeChart {
  */
 export function isGaugeChart(value: unknown): value is IGaugeChart {
   const obj = value as IGaugeChart;
-  return typeof obj === "object" && obj.type === "Chart.Gauge";
+  return typeof obj === 'object' && obj.type === 'Chart.Gauge';
 }
 
-export type GaugeChartOptions = Partial<Omit<IGaugeChart, "type">>;
+export type GaugeChartOptions = Partial<Omit<IGaugeChart, 'type'>>;
 
 /**
  * A gauge chart.
@@ -17462,7 +17462,7 @@ export class GaugeChart implements IGaugeChart {
   /**
    * Must be **Chart.Gauge**.
    */
-  readonly type = "Chart.Gauge";
+  readonly type = 'Chart.Gauge';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -17486,7 +17486,7 @@ export class GaugeChart implements IGaugeChart {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -17494,7 +17494,7 @@ export class GaugeChart implements IGaugeChart {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -17558,11 +17558,11 @@ export class GaugeChart implements IGaugeChart {
   /**
    * The format used to display the gauge's value.
    */
-  valueFormat?: GaugeChartValueFormat = "Percentage";
+  valueFormat?: GaugeChartValueFormat = 'Percentage';
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -17572,7 +17572,7 @@ export class GaugeChart implements IGaugeChart {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IGaugeChart, "type">): GaugeChart {
+  static from(options: Omit<IGaugeChart, 'type'>): GaugeChart {
     return new GaugeChart(options);
   }
 
@@ -17792,7 +17792,7 @@ export interface ICodeBlock {
   /**
    * Must be **CodeBlock**.
    */
-  readonly type: "CodeBlock";
+  readonly type: 'CodeBlock';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -17848,7 +17848,7 @@ export interface ICodeBlock {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -17866,10 +17866,10 @@ export interface ICodeBlock {
  */
 export function isCodeBlock(value: unknown): value is ICodeBlock {
   const obj = value as ICodeBlock;
-  return typeof obj === "object" && obj.type === "CodeBlock";
+  return typeof obj === 'object' && obj.type === 'CodeBlock';
 }
 
-export type CodeBlockOptions = Partial<Omit<ICodeBlock, "type">>;
+export type CodeBlockOptions = Partial<Omit<ICodeBlock, 'type'>>;
 
 /**
  * A formatted and syntax-colored code block.
@@ -17882,7 +17882,7 @@ export class CodeBlock implements ICodeBlock {
   /**
    * Must be **CodeBlock**.
    */
-  readonly type = "CodeBlock";
+  readonly type = 'CodeBlock';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -17906,7 +17906,7 @@ export class CodeBlock implements ICodeBlock {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -17914,7 +17914,7 @@ export class CodeBlock implements ICodeBlock {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -17930,7 +17930,7 @@ export class CodeBlock implements ICodeBlock {
   /**
    * The language the code snippet is expressed in.
    */
-  language?: CodeLanguage = "PlainText";
+  language?: CodeLanguage = 'PlainText';
   /**
    * A number that represents the line in the file from where the code snippet was extracted.
    */
@@ -17938,7 +17938,7 @@ export class CodeBlock implements ICodeBlock {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -17948,7 +17948,7 @@ export class CodeBlock implements ICodeBlock {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<ICodeBlock, "type">): CodeBlock {
+  static from(options: Omit<ICodeBlock, 'type'>): CodeBlock {
     return new CodeBlock(options);
   }
 
@@ -18039,7 +18039,7 @@ export interface IComUserMicrosoftGraphComponent {
   /**
    * Must be **Component**.
    */
-  readonly type: "Component";
+  readonly type: 'Component';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -18083,7 +18083,7 @@ export interface IComUserMicrosoftGraphComponent {
   /**
    * Must be **graph.microsoft.com/user**.
    */
-  readonly name: "graph.microsoft.com/user";
+  readonly name: 'graph.microsoft.com/user';
   /**
    * The properties of the Persona component.
    */
@@ -18091,7 +18091,7 @@ export interface IComUserMicrosoftGraphComponent {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -18112,14 +18112,14 @@ export function isComUserMicrosoftGraphComponent(
 ): value is IComUserMicrosoftGraphComponent {
   const obj = value as IComUserMicrosoftGraphComponent;
   return (
-    typeof obj === "object" &&
-    obj.type === "Component" &&
-    obj.name === "graph.microsoft.com/user"
+    typeof obj === 'object' &&
+    obj.type === 'Component' &&
+    obj.name === 'graph.microsoft.com/user'
   );
 }
 
 export type ComUserMicrosoftGraphComponentOptions = Partial<
-  Omit<IComUserMicrosoftGraphComponent, "type" | "name">
+  Omit<IComUserMicrosoftGraphComponent, 'type' | 'name'>
 >;
 
 /**
@@ -18133,7 +18133,7 @@ export class ComUserMicrosoftGraphComponent implements IComUserMicrosoftGraphCom
   /**
    * Must be **Component**.
    */
-  readonly type = "Component";
+  readonly type = 'Component';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -18157,7 +18157,7 @@ export class ComUserMicrosoftGraphComponent implements IComUserMicrosoftGraphCom
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -18165,7 +18165,7 @@ export class ComUserMicrosoftGraphComponent implements IComUserMicrosoftGraphCom
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -18177,7 +18177,7 @@ export class ComUserMicrosoftGraphComponent implements IComUserMicrosoftGraphCom
   /**
    * Must be **graph.microsoft.com/user**.
    */
-  readonly name = "graph.microsoft.com/user";
+  readonly name = 'graph.microsoft.com/user';
   /**
    * The properties of the Persona component.
    */
@@ -18185,7 +18185,7 @@ export class ComUserMicrosoftGraphComponent implements IComUserMicrosoftGraphCom
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -18196,7 +18196,7 @@ export class ComUserMicrosoftGraphComponent implements IComUserMicrosoftGraphCom
   }
 
   static from(
-    options: Omit<IComUserMicrosoftGraphComponent, "type" | "name">,
+    options: Omit<IComUserMicrosoftGraphComponent, 'type' | 'name'>,
   ): ComUserMicrosoftGraphComponent {
     return new ComUserMicrosoftGraphComponent(options);
   }
@@ -18378,7 +18378,7 @@ export interface IComUsersMicrosoftGraphComponent {
   /**
    * Must be **Component**.
    */
-  readonly type: "Component";
+  readonly type: 'Component';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -18422,7 +18422,7 @@ export interface IComUsersMicrosoftGraphComponent {
   /**
    * Must be **graph.microsoft.com/users**.
    */
-  readonly name: "graph.microsoft.com/users";
+  readonly name: 'graph.microsoft.com/users';
   /**
    * The properties of the PersonaSet component.
    */
@@ -18430,7 +18430,7 @@ export interface IComUsersMicrosoftGraphComponent {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -18451,14 +18451,14 @@ export function isComUsersMicrosoftGraphComponent(
 ): value is IComUsersMicrosoftGraphComponent {
   const obj = value as IComUsersMicrosoftGraphComponent;
   return (
-    typeof obj === "object" &&
-    obj.type === "Component" &&
-    obj.name === "graph.microsoft.com/users"
+    typeof obj === 'object' &&
+    obj.type === 'Component' &&
+    obj.name === 'graph.microsoft.com/users'
   );
 }
 
 export type ComUsersMicrosoftGraphComponentOptions = Partial<
-  Omit<IComUsersMicrosoftGraphComponent, "type" | "name">
+  Omit<IComUsersMicrosoftGraphComponent, 'type' | 'name'>
 >;
 
 /**
@@ -18472,7 +18472,7 @@ export class ComUsersMicrosoftGraphComponent implements IComUsersMicrosoftGraphC
   /**
    * Must be **Component**.
    */
-  readonly type = "Component";
+  readonly type = 'Component';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -18496,7 +18496,7 @@ export class ComUsersMicrosoftGraphComponent implements IComUsersMicrosoftGraphC
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -18504,7 +18504,7 @@ export class ComUsersMicrosoftGraphComponent implements IComUsersMicrosoftGraphC
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -18516,7 +18516,7 @@ export class ComUsersMicrosoftGraphComponent implements IComUsersMicrosoftGraphC
   /**
    * Must be **graph.microsoft.com/users**.
    */
-  readonly name = "graph.microsoft.com/users";
+  readonly name = 'graph.microsoft.com/users';
   /**
    * The properties of the PersonaSet component.
    */
@@ -18524,7 +18524,7 @@ export class ComUsersMicrosoftGraphComponent implements IComUsersMicrosoftGraphC
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -18535,7 +18535,7 @@ export class ComUsersMicrosoftGraphComponent implements IComUsersMicrosoftGraphC
   }
 
   static from(
-    options: Omit<IComUsersMicrosoftGraphComponent, "type" | "name">,
+    options: Omit<IComUsersMicrosoftGraphComponent, 'type' | 'name'>,
   ): ComUsersMicrosoftGraphComponent {
     return new ComUsersMicrosoftGraphComponent(options);
   }
@@ -18691,7 +18691,7 @@ export interface IComResourceMicrosoftGraphComponent {
   /**
    * Must be **Component**.
    */
-  readonly type: "Component";
+  readonly type: 'Component';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -18735,7 +18735,7 @@ export interface IComResourceMicrosoftGraphComponent {
   /**
    * Must be **graph.microsoft.com/resource**.
    */
-  readonly name: "graph.microsoft.com/resource";
+  readonly name: 'graph.microsoft.com/resource';
   /**
    * The properties of the resource.
    */
@@ -18743,7 +18743,7 @@ export interface IComResourceMicrosoftGraphComponent {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -18764,14 +18764,14 @@ export function isComResourceMicrosoftGraphComponent(
 ): value is IComResourceMicrosoftGraphComponent {
   const obj = value as IComResourceMicrosoftGraphComponent;
   return (
-    typeof obj === "object" &&
-    obj.type === "Component" &&
-    obj.name === "graph.microsoft.com/resource"
+    typeof obj === 'object' &&
+    obj.type === 'Component' &&
+    obj.name === 'graph.microsoft.com/resource'
   );
 }
 
 export type ComResourceMicrosoftGraphComponentOptions = Partial<
-  Omit<IComResourceMicrosoftGraphComponent, "type" | "name">
+  Omit<IComResourceMicrosoftGraphComponent, 'type' | 'name'>
 >;
 
 /**
@@ -18785,7 +18785,7 @@ export class ComResourceMicrosoftGraphComponent implements IComResourceMicrosoft
   /**
    * Must be **Component**.
    */
-  readonly type = "Component";
+  readonly type = 'Component';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -18809,7 +18809,7 @@ export class ComResourceMicrosoftGraphComponent implements IComResourceMicrosoft
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -18817,7 +18817,7 @@ export class ComResourceMicrosoftGraphComponent implements IComResourceMicrosoft
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -18829,7 +18829,7 @@ export class ComResourceMicrosoftGraphComponent implements IComResourceMicrosoft
   /**
    * Must be **graph.microsoft.com/resource**.
    */
-  readonly name = "graph.microsoft.com/resource";
+  readonly name = 'graph.microsoft.com/resource';
   /**
    * The properties of the resource.
    */
@@ -18837,7 +18837,7 @@ export class ComResourceMicrosoftGraphComponent implements IComResourceMicrosoft
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -18848,7 +18848,7 @@ export class ComResourceMicrosoftGraphComponent implements IComResourceMicrosoft
   }
 
   static from(
-    options: Omit<IComResourceMicrosoftGraphComponent, "type" | "name">,
+    options: Omit<IComResourceMicrosoftGraphComponent, 'type' | 'name'>,
   ): ComResourceMicrosoftGraphComponent {
     return new ComResourceMicrosoftGraphComponent(options);
   }
@@ -19054,7 +19054,7 @@ export interface IComFileMicrosoftGraphComponent {
   /**
    * Must be **Component**.
    */
-  readonly type: "Component";
+  readonly type: 'Component';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -19098,7 +19098,7 @@ export interface IComFileMicrosoftGraphComponent {
   /**
    * Must be **graph.microsoft.com/file**.
    */
-  readonly name: "graph.microsoft.com/file";
+  readonly name: 'graph.microsoft.com/file';
   /**
    * The properties of the file.
    */
@@ -19106,7 +19106,7 @@ export interface IComFileMicrosoftGraphComponent {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -19127,14 +19127,14 @@ export function isComFileMicrosoftGraphComponent(
 ): value is IComFileMicrosoftGraphComponent {
   const obj = value as IComFileMicrosoftGraphComponent;
   return (
-    typeof obj === "object" &&
-    obj.type === "Component" &&
-    obj.name === "graph.microsoft.com/file"
+    typeof obj === 'object' &&
+    obj.type === 'Component' &&
+    obj.name === 'graph.microsoft.com/file'
   );
 }
 
 export type ComFileMicrosoftGraphComponentOptions = Partial<
-  Omit<IComFileMicrosoftGraphComponent, "type" | "name">
+  Omit<IComFileMicrosoftGraphComponent, 'type' | 'name'>
 >;
 
 /**
@@ -19148,7 +19148,7 @@ export class ComFileMicrosoftGraphComponent implements IComFileMicrosoftGraphCom
   /**
    * Must be **Component**.
    */
-  readonly type = "Component";
+  readonly type = 'Component';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -19172,7 +19172,7 @@ export class ComFileMicrosoftGraphComponent implements IComFileMicrosoftGraphCom
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -19180,7 +19180,7 @@ export class ComFileMicrosoftGraphComponent implements IComFileMicrosoftGraphCom
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -19192,7 +19192,7 @@ export class ComFileMicrosoftGraphComponent implements IComFileMicrosoftGraphCom
   /**
    * Must be **graph.microsoft.com/file**.
    */
-  readonly name = "graph.microsoft.com/file";
+  readonly name = 'graph.microsoft.com/file';
   /**
    * The properties of the file.
    */
@@ -19200,7 +19200,7 @@ export class ComFileMicrosoftGraphComponent implements IComFileMicrosoftGraphCom
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -19211,7 +19211,7 @@ export class ComFileMicrosoftGraphComponent implements IComFileMicrosoftGraphCom
   }
 
   static from(
-    options: Omit<IComFileMicrosoftGraphComponent, "type" | "name">,
+    options: Omit<IComFileMicrosoftGraphComponent, 'type' | 'name'>,
   ): ComFileMicrosoftGraphComponent {
     return new ComFileMicrosoftGraphComponent(options);
   }
@@ -19367,7 +19367,7 @@ export interface IComEventMicrosoftGraphComponent {
   /**
    * Must be **Component**.
    */
-  readonly type: "Component";
+  readonly type: 'Component';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -19411,7 +19411,7 @@ export interface IComEventMicrosoftGraphComponent {
   /**
    * Must be **graph.microsoft.com/event**.
    */
-  readonly name: "graph.microsoft.com/event";
+  readonly name: 'graph.microsoft.com/event';
   /**
    * The properties of the event.
    */
@@ -19419,7 +19419,7 @@ export interface IComEventMicrosoftGraphComponent {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -19440,14 +19440,14 @@ export function isComEventMicrosoftGraphComponent(
 ): value is IComEventMicrosoftGraphComponent {
   const obj = value as IComEventMicrosoftGraphComponent;
   return (
-    typeof obj === "object" &&
-    obj.type === "Component" &&
-    obj.name === "graph.microsoft.com/event"
+    typeof obj === 'object' &&
+    obj.type === 'Component' &&
+    obj.name === 'graph.microsoft.com/event'
   );
 }
 
 export type ComEventMicrosoftGraphComponentOptions = Partial<
-  Omit<IComEventMicrosoftGraphComponent, "type" | "name">
+  Omit<IComEventMicrosoftGraphComponent, 'type' | 'name'>
 >;
 
 /**
@@ -19461,7 +19461,7 @@ export class ComEventMicrosoftGraphComponent implements IComEventMicrosoftGraphC
   /**
    * Must be **Component**.
    */
-  readonly type = "Component";
+  readonly type = 'Component';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -19485,7 +19485,7 @@ export class ComEventMicrosoftGraphComponent implements IComEventMicrosoftGraphC
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -19493,7 +19493,7 @@ export class ComEventMicrosoftGraphComponent implements IComEventMicrosoftGraphC
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -19505,7 +19505,7 @@ export class ComEventMicrosoftGraphComponent implements IComEventMicrosoftGraphC
   /**
    * Must be **graph.microsoft.com/event**.
    */
-  readonly name = "graph.microsoft.com/event";
+  readonly name = 'graph.microsoft.com/event';
   /**
    * The properties of the event.
    */
@@ -19513,7 +19513,7 @@ export class ComEventMicrosoftGraphComponent implements IComEventMicrosoftGraphC
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -19524,7 +19524,7 @@ export class ComEventMicrosoftGraphComponent implements IComEventMicrosoftGraphC
   }
 
   static from(
-    options: Omit<IComEventMicrosoftGraphComponent, "type" | "name">,
+    options: Omit<IComEventMicrosoftGraphComponent, 'type' | 'name'>,
   ): ComEventMicrosoftGraphComponent {
     return new ComEventMicrosoftGraphComponent(options);
   }
@@ -19897,7 +19897,7 @@ export interface ICarouselPage {
   /**
    * Must be **CarouselPage**.
    */
-  readonly type: "CarouselPage";
+  readonly type: 'CarouselPage';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -19977,7 +19977,7 @@ export interface ICarouselPage {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -19999,11 +19999,11 @@ export interface ICarouselPage {
  */
 export function isCarouselPage(value: unknown): value is ICarouselPage {
   const obj = value as ICarouselPage;
-  return typeof obj === "object" && obj.type === "CarouselPage";
+  return typeof obj === 'object' && obj.type === 'CarouselPage';
 }
 
 export type CarouselPageOptions = Partial<
-  Omit<ICarouselPage, "type" | "items">
+  Omit<ICarouselPage, 'type' | 'items'>
 >;
 
 /**
@@ -20017,7 +20017,7 @@ export class CarouselPage implements ICarouselPage {
   /**
    * Must be **CarouselPage**.
    */
-  readonly type = "CarouselPage";
+  readonly type = 'CarouselPage';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -20037,7 +20037,7 @@ export class CarouselPage implements ICarouselPage {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -20097,7 +20097,7 @@ export class CarouselPage implements ICarouselPage {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -20242,7 +20242,7 @@ export interface ITableRow {
   /**
    * Must be **TableRow**.
    */
-  readonly type: "TableRow";
+  readonly type: 'TableRow';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -20306,7 +20306,7 @@ export interface ITableRow {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -20328,10 +20328,10 @@ export interface ITableRow {
  */
 export function isTableRow(value: unknown): value is ITableRow {
   const obj = value as ITableRow;
-  return typeof obj === "object" && obj.type === "TableRow";
+  return typeof obj === 'object' && obj.type === 'TableRow';
 }
 
-export type TableRowOptions = Partial<Omit<ITableRow, "type">>;
+export type TableRowOptions = Partial<Omit<ITableRow, 'type'>>;
 
 /**
  * Represents a row of cells in a table.
@@ -20344,7 +20344,7 @@ export class TableRow implements ITableRow {
   /**
    * Must be **TableRow**.
    */
-  readonly type = "TableRow";
+  readonly type = 'TableRow';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -20368,7 +20368,7 @@ export class TableRow implements ITableRow {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -20376,7 +20376,7 @@ export class TableRow implements ITableRow {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -20408,7 +20408,7 @@ export class TableRow implements ITableRow {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -20422,7 +20422,7 @@ export class TableRow implements ITableRow {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<ITableRow, "type">): TableRow {
+  static from(options: Omit<ITableRow, 'type'>): TableRow {
     return new TableRow(options);
   }
 
@@ -20532,7 +20532,7 @@ export interface ITableCell {
   /**
    * Must be **TableCell**.
    */
-  readonly type: "TableCell";
+  readonly type: 'TableCell';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -20616,7 +20616,7 @@ export interface ITableCell {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -20638,10 +20638,10 @@ export interface ITableCell {
  */
 export function isTableCell(value: unknown): value is ITableCell {
   const obj = value as ITableCell;
-  return typeof obj === "object" && obj.type === "TableCell";
+  return typeof obj === 'object' && obj.type === 'TableCell';
 }
 
-export type TableCellOptions = Partial<Omit<ITableCell, "type" | "items">>;
+export type TableCellOptions = Partial<Omit<ITableCell, 'type' | 'items'>>;
 
 /**
  * Represents a cell in a table row.
@@ -20654,7 +20654,7 @@ export class TableCell implements ITableCell {
   /**
    * Must be **TableCell**.
    */
-  readonly type = "TableCell";
+  readonly type = 'TableCell';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -20678,11 +20678,11 @@ export class TableCell implements ITableCell {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -20738,7 +20738,7 @@ export class TableCell implements ITableCell {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -20888,7 +20888,7 @@ export interface ITextRun {
   /**
    * Must be **TextRun**.
    */
-  readonly type: "TextRun";
+  readonly type: 'TextRun';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -20960,7 +20960,7 @@ export interface ITextRun {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -20978,10 +20978,10 @@ export interface ITextRun {
  */
 export function isTextRun(value: unknown): value is ITextRun {
   const obj = value as ITextRun;
-  return typeof obj === "object" && obj.type === "TextRun";
+  return typeof obj === 'object' && obj.type === 'TextRun';
 }
 
-export type TextRunOptions = Partial<Omit<ITextRun, "type" | "text">>;
+export type TextRunOptions = Partial<Omit<ITextRun, 'type' | 'text'>>;
 
 /**
  * A block of text inside a RichTextBlock element.
@@ -20994,7 +20994,7 @@ export class TextRun implements ITextRun {
   /**
    * Must be **TextRun**.
    */
-  readonly type = "TextRun";
+  readonly type = 'TextRun';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -21066,7 +21066,7 @@ export class TextRun implements ITextRun {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -21077,7 +21077,7 @@ export class TextRun implements ITextRun {
     this.text = text;
   }
 
-  static from(options: Omit<ITextRun, "type">): TextRun {
+  static from(options: Omit<ITextRun, 'type'>): TextRun {
     return new TextRun(options.text, options);
   }
 
@@ -21188,7 +21188,7 @@ export interface IIconRun {
   /**
    * Must be **IconRun**.
    */
-  readonly type: "IconRun";
+  readonly type: 'IconRun';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -21212,7 +21212,7 @@ export interface IIconRun {
   /**
    * The size of the inline icon.
    */
-  size?: "Small" | "Default" | "Medium" | "Large" | "ExtraLarge";
+  size?: 'Small' | 'Default' | 'Medium' | 'Large' | 'ExtraLarge';
   /**
    * The style of the inline icon.
    */
@@ -21236,7 +21236,7 @@ export interface IIconRun {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -21254,10 +21254,10 @@ export interface IIconRun {
  */
 export function isIconRun(value: unknown): value is IIconRun {
   const obj = value as IIconRun;
-  return typeof obj === "object" && obj.type === "IconRun";
+  return typeof obj === 'object' && obj.type === 'IconRun';
 }
 
-export type IconRunOptions = Partial<Omit<IIconRun, "type">>;
+export type IconRunOptions = Partial<Omit<IIconRun, 'type'>>;
 
 /**
  * An inline icon inside a RichTextBlock element.
@@ -21270,7 +21270,7 @@ export class IconRun implements IIconRun {
   /**
    * Must be **IconRun**.
    */
-  readonly type = "IconRun";
+  readonly type = 'IconRun';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -21294,15 +21294,15 @@ export class IconRun implements IIconRun {
   /**
    * The size of the inline icon.
    */
-  size?: "Small" | "Default" | "Medium" | "Large" | "ExtraLarge" = "Default";
+  size?: 'Small' | 'Default' | 'Medium' | 'Large' | 'ExtraLarge' = 'Default';
   /**
    * The style of the inline icon.
    */
-  style?: IconStyle = "Regular";
+  style?: IconStyle = 'Regular';
   /**
    * The color of the inline icon.
    */
-  color?: TextColor = "Default";
+  color?: TextColor = 'Default';
   /**
    * An Action that will be invoked when the inline icon is tapped or clicked. Action.ShowCard is not supported.
    */
@@ -21318,7 +21318,7 @@ export class IconRun implements IIconRun {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -21328,7 +21328,7 @@ export class IconRun implements IIconRun {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IIconRun, "type">): IconRun {
+  static from(options: Omit<IIconRun, 'type'>): IconRun {
     return new IconRun(options);
   }
 
@@ -21363,7 +21363,7 @@ export class IconRun implements IIconRun {
   }
 
   withSize(
-    size: "Small" | "Default" | "Medium" | "Large" | "ExtraLarge",
+    size: 'Small' | 'Default' | 'Medium' | 'Large' | 'ExtraLarge',
   ): this {
     this.size = size;
     return this;
@@ -21411,7 +21411,7 @@ export interface IImageRun {
   /**
    * Must be **ImageRun**.
    */
-  readonly type: "ImageRun";
+  readonly type: 'ImageRun';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -21435,7 +21435,7 @@ export interface IImageRun {
   /**
    * The size of the inline image.
    */
-  size?: "Small" | "Default" | "Medium" | "Large" | "ExtraLarge";
+  size?: 'Small' | 'Default' | 'Medium' | 'Large' | 'ExtraLarge';
   /**
    * The style of the inline image.
    */
@@ -21459,7 +21459,7 @@ export interface IImageRun {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -21477,10 +21477,10 @@ export interface IImageRun {
  */
 export function isImageRun(value: unknown): value is IImageRun {
   const obj = value as IImageRun;
-  return typeof obj === "object" && obj.type === "ImageRun";
+  return typeof obj === 'object' && obj.type === 'ImageRun';
 }
 
-export type ImageRunOptions = Partial<Omit<IImageRun, "type">>;
+export type ImageRunOptions = Partial<Omit<IImageRun, 'type'>>;
 
 /**
  * An inline image inside a RichTextBlock element.
@@ -21493,7 +21493,7 @@ export class ImageRun implements IImageRun {
   /**
    * Must be **ImageRun**.
    */
-  readonly type = "ImageRun";
+  readonly type = 'ImageRun';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -21517,11 +21517,11 @@ export class ImageRun implements IImageRun {
   /**
    * The size of the inline image.
    */
-  size?: "Small" | "Default" | "Medium" | "Large" | "ExtraLarge" = "Default";
+  size?: 'Small' | 'Default' | 'Medium' | 'Large' | 'ExtraLarge' = 'Default';
   /**
    * The style of the inline image.
    */
-  style?: ImageStyle = "Default";
+  style?: ImageStyle = 'Default';
   /**
    * An Action that will be invoked when the image is tapped or clicked. Action.ShowCard is not supported.
    */
@@ -21541,7 +21541,7 @@ export class ImageRun implements IImageRun {
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -21551,7 +21551,7 @@ export class ImageRun implements IImageRun {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IImageRun, "type">): ImageRun {
+  static from(options: Omit<IImageRun, 'type'>): ImageRun {
     return new ImageRun(options);
   }
 
@@ -21586,7 +21586,7 @@ export class ImageRun implements IImageRun {
   }
 
   withSize(
-    size: "Small" | "Default" | "Medium" | "Large" | "ExtraLarge",
+    size: 'Small' | 'Default' | 'Medium' | 'Large' | 'ExtraLarge',
   ): this {
     this.size = size;
     return this;
@@ -21634,7 +21634,7 @@ export interface IColumn {
   /**
    * Optional. If specified, must be **Column**.
    */
-  readonly type: "Column";
+  readonly type: 'Column';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -21730,11 +21730,11 @@ export interface IColumn {
   /**
    * The width of the column. If expressed as a number, represents the relative weight of the column in the set. If expressed as a string, `auto` will automatically adjust the column's width according to its content, `stretch` will make the column use the remaining horizontal space (shared with other columns with width set to `stretch`) and using the `<number>px` format will give the column an explicit width in pixels.
    */
-  width?: "auto" | "stretch" | string | number;
+  width?: 'auto' | 'stretch' | string | number;
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -21756,10 +21756,10 @@ export interface IColumn {
  */
 export function isColumn(value: unknown): value is IColumn {
   const obj = value as IColumn;
-  return typeof obj === "object" && obj.type === "Column";
+  return typeof obj === 'object' && obj.type === 'Column';
 }
 
-export type ColumnOptions = Partial<Omit<IColumn, "type" | "items">>;
+export type ColumnOptions = Partial<Omit<IColumn, 'type' | 'items'>>;
 
 /**
  * A column in a ColumnSet element.
@@ -21772,7 +21772,7 @@ export class Column implements IColumn {
   /**
    * Optional. If specified, must be **Column**.
    */
-  readonly type = "Column";
+  readonly type = 'Column';
   /**
    * A unique identifier for the element or action. Input elements must have an id, otherwise they will not be validated and their values will not be sent to the Bot.
    */
@@ -21796,7 +21796,7 @@ export class Column implements IColumn {
   /**
    * The height of the element. When set to stretch, the element will use the remaining vertical space in its container.
    */
-  height?: ElementHeight = "auto";
+  height?: ElementHeight = 'auto';
   /**
    * Controls how the element should be horizontally aligned.
    */
@@ -21804,7 +21804,7 @@ export class Column implements IColumn {
   /**
    * Controls the amount of space between this element and the previous one. No space will be added for the first element in a container.
    */
-  spacing?: Spacing = "Default";
+  spacing?: Spacing = 'Default';
   /**
    * Controls for which card width the element should be displayed. If targetWidth isn't specified, the element is rendered at all card widths. Using targetWidth makes it possible to author responsive cards that adapt their layout to the available horizontal space. For more details, see [Responsive layout](https://adaptivecards.microsoft.com/?topic=responsive-layout).
    */
@@ -21868,11 +21868,11 @@ export class Column implements IColumn {
   /**
    * The width of the column. If expressed as a number, represents the relative weight of the column in the set. If expressed as a string, `auto` will automatically adjust the column's width according to its content, `stretch` will make the column use the remaining horizontal space (shared with other columns with width set to `stretch`) and using the `<number>px` format will give the column an explicit width in pixels.
    */
-  width?: "auto" | "stretch" | string | number;
+  width?: 'auto' | 'stretch' | string | number;
   /**
    * The area of a Layout.AreaGrid layout in which an element should be displayed.
    */
-  "grid.area"?: string;
+  'grid.area'?: string;
   /**
    * An alternate element to render if the type of this one is unsupported or if the host application doesn't support all the capabilities specified in the requires property.
    */
@@ -22015,7 +22015,7 @@ export class Column implements IColumn {
     return this;
   }
 
-  withWidth(width: "auto" | "stretch" | string | number): this {
+  withWidth(width: 'auto' | 'stretch' | string | number): this {
     this.width = width;
     return this;
   }
@@ -22077,7 +22077,7 @@ export interface IImBackSubmitActionData {
   /**
    * Must be **imBack**.
    */
-  readonly type: "imBack";
+  readonly type: 'imBack';
   /**
    * The value that will be sent to the Bot.
    */
@@ -22097,11 +22097,11 @@ export function isImBackSubmitActionData(
   value: unknown,
 ): value is IImBackSubmitActionData {
   const obj = value as IImBackSubmitActionData;
-  return typeof obj === "object" && obj.type === "imBack";
+  return typeof obj === 'object' && obj.type === 'imBack';
 }
 
 export type ImBackSubmitActionDataOptions = Partial<
-  Omit<IImBackSubmitActionData, "type" | "value">
+  Omit<IImBackSubmitActionData, 'type' | 'value'>
 >;
 
 /**
@@ -22115,7 +22115,7 @@ export class ImBackSubmitActionData implements IImBackSubmitActionData {
   /**
    * Must be **imBack**.
    */
-  readonly type = "imBack";
+  readonly type = 'imBack';
   /**
    * The value that will be sent to the Bot.
    */
@@ -22127,7 +22127,7 @@ export class ImBackSubmitActionData implements IImBackSubmitActionData {
   }
 
   static from(
-    options: Omit<IImBackSubmitActionData, "type">,
+    options: Omit<IImBackSubmitActionData, 'type'>,
   ): ImBackSubmitActionData {
     return new ImBackSubmitActionData(options.value, options);
   }
@@ -22154,7 +22154,7 @@ export interface IInvokeSubmitActionData {
   /**
    * Must be **invoke**.
    */
-  readonly type: "invoke";
+  readonly type: 'invoke';
   /**
    * The object to send to the Bot with the Invoke request. Can be strongly typed as one of the below values to trigger a specific action in Teams.
    */
@@ -22174,11 +22174,11 @@ export function isInvokeSubmitActionData(
   value: unknown,
 ): value is IInvokeSubmitActionData {
   const obj = value as IInvokeSubmitActionData;
-  return typeof obj === "object" && obj.type === "invoke";
+  return typeof obj === 'object' && obj.type === 'invoke';
 }
 
 export type InvokeSubmitActionDataOptions = Partial<
-  Omit<IInvokeSubmitActionData, "type" | "value">
+  Omit<IInvokeSubmitActionData, 'type' | 'value'>
 >;
 
 /**
@@ -22192,7 +22192,7 @@ export class InvokeSubmitActionData implements IInvokeSubmitActionData {
   /**
    * Must be **invoke**.
    */
-  readonly type = "invoke";
+  readonly type = 'invoke';
   /**
    * The object to send to the Bot with the Invoke request. Can be strongly typed as one of the below values to trigger a specific action in Teams.
    */
@@ -22207,7 +22207,7 @@ export class InvokeSubmitActionData implements IInvokeSubmitActionData {
   }
 
   static from(
-    options: Omit<IInvokeSubmitActionData, "type">,
+    options: Omit<IInvokeSubmitActionData, 'type'>,
   ): InvokeSubmitActionData {
     return new InvokeSubmitActionData(options.value, options);
   }
@@ -22230,7 +22230,7 @@ export interface ICollabStageInvokeDataValue {
   /**
    * Must be **tab/tabInfoAction**.
    */
-  readonly type: "tab/tabInfoAction";
+  readonly type: 'tab/tabInfoAction';
   /**
    * Provides information about the iFrame content, rendered in the collab stage popout window.
    */
@@ -22250,11 +22250,11 @@ export function isCollabStageInvokeDataValue(
   value: unknown,
 ): value is ICollabStageInvokeDataValue {
   const obj = value as ICollabStageInvokeDataValue;
-  return typeof obj === "object" && obj.type === "tab/tabInfoAction";
+  return typeof obj === 'object' && obj.type === 'tab/tabInfoAction';
 }
 
 export type CollabStageInvokeDataValueOptions = Partial<
-  Omit<ICollabStageInvokeDataValue, "type">
+  Omit<ICollabStageInvokeDataValue, 'type'>
 >;
 
 /**
@@ -22264,7 +22264,7 @@ export class CollabStageInvokeDataValue implements ICollabStageInvokeDataValue {
   /**
    * Must be **tab/tabInfoAction**.
    */
-  readonly type = "tab/tabInfoAction";
+  readonly type = 'tab/tabInfoAction';
   /**
    * Provides information about the iFrame content, rendered in the collab stage popout window.
    */
@@ -22275,7 +22275,7 @@ export class CollabStageInvokeDataValue implements ICollabStageInvokeDataValue {
   }
 
   static from(
-    options: Omit<ICollabStageInvokeDataValue, "type">,
+    options: Omit<ICollabStageInvokeDataValue, 'type'>,
   ): CollabStageInvokeDataValue {
     return new CollabStageInvokeDataValue(options);
   }
@@ -22371,7 +22371,7 @@ export interface IMessageBackSubmitActionData {
   /**
    * Must be **messageBack**.
    */
-  readonly type: "messageBack";
+  readonly type: 'messageBack';
   /**
    * The text that will be sent to the Bot.
    */
@@ -22399,11 +22399,11 @@ export function isMessageBackSubmitActionData(
   value: unknown,
 ): value is IMessageBackSubmitActionData {
   const obj = value as IMessageBackSubmitActionData;
-  return typeof obj === "object" && obj.type === "messageBack";
+  return typeof obj === 'object' && obj.type === 'messageBack';
 }
 
 export type MessageBackSubmitActionDataOptions = Partial<
-  Omit<IMessageBackSubmitActionData, "type">
+  Omit<IMessageBackSubmitActionData, 'type'>
 >;
 
 /**
@@ -22417,7 +22417,7 @@ export class MessageBackSubmitActionData implements IMessageBackSubmitActionData
   /**
    * Must be **messageBack**.
    */
-  readonly type = "messageBack";
+  readonly type = 'messageBack';
   /**
    * The text that will be sent to the Bot.
    */
@@ -22436,7 +22436,7 @@ export class MessageBackSubmitActionData implements IMessageBackSubmitActionData
   }
 
   static from(
-    options: Omit<IMessageBackSubmitActionData, "type">,
+    options: Omit<IMessageBackSubmitActionData, 'type'>,
   ): MessageBackSubmitActionData {
     return new MessageBackSubmitActionData(options);
   }
@@ -22473,7 +22473,7 @@ export interface ISigninSubmitActionData {
   /**
    * Must be **signin**.
    */
-  readonly type: "signin";
+  readonly type: 'signin';
   /**
    * The URL to redirect the end-user for signing in.
    */
@@ -22493,11 +22493,11 @@ export function isSigninSubmitActionData(
   value: unknown,
 ): value is ISigninSubmitActionData {
   const obj = value as ISigninSubmitActionData;
-  return typeof obj === "object" && obj.type === "signin";
+  return typeof obj === 'object' && obj.type === 'signin';
 }
 
 export type SigninSubmitActionDataOptions = Partial<
-  Omit<ISigninSubmitActionData, "type" | "value">
+  Omit<ISigninSubmitActionData, 'type' | 'value'>
 >;
 
 /**
@@ -22511,7 +22511,7 @@ export class SigninSubmitActionData implements ISigninSubmitActionData {
   /**
    * Must be **signin**.
    */
-  readonly type = "signin";
+  readonly type = 'signin';
   /**
    * The URL to redirect the end-user for signing in.
    */
@@ -22523,7 +22523,7 @@ export class SigninSubmitActionData implements ISigninSubmitActionData {
   }
 
   static from(
-    options: Omit<ISigninSubmitActionData, "type">,
+    options: Omit<ISigninSubmitActionData, 'type'>,
   ): SigninSubmitActionData {
     return new SigninSubmitActionData(options.value, options);
   }
@@ -22550,7 +22550,7 @@ export interface ITaskFetchSubmitActionData {
   /**
    * Must be **task/fetch**.
    */
-  readonly type: "task/fetch";
+  readonly type: 'task/fetch';
 }
 
 /**
@@ -22566,11 +22566,11 @@ export function isTaskFetchSubmitActionData(
   value: unknown,
 ): value is ITaskFetchSubmitActionData {
   const obj = value as ITaskFetchSubmitActionData;
-  return typeof obj === "object" && obj.type === "task/fetch";
+  return typeof obj === 'object' && obj.type === 'task/fetch';
 }
 
 export type TaskFetchSubmitActionDataOptions = Partial<
-  Omit<ITaskFetchSubmitActionData, "type">
+  Omit<ITaskFetchSubmitActionData, 'type'>
 >;
 
 /**
@@ -22584,14 +22584,14 @@ export class TaskFetchSubmitActionData implements ITaskFetchSubmitActionData {
   /**
    * Must be **task/fetch**.
    */
-  readonly type = "task/fetch";
+  readonly type = 'task/fetch';
 
   constructor(options: TaskFetchSubmitActionDataOptions = {}) {
     Object.assign(this, options);
   }
 
   static from(
-    options: Omit<ITaskFetchSubmitActionData, "type">,
+    options: Omit<ITaskFetchSubmitActionData, 'type'>,
   ): TaskFetchSubmitActionData {
     return new TaskFetchSubmitActionData(options);
   }
@@ -23089,7 +23089,7 @@ export interface IMention {
   /**
    * Must be **mention**.
    */
-  readonly type: "mention";
+  readonly type: 'mention';
   /**
    * The text that will be substituted with the mention.
    */
@@ -23111,10 +23111,10 @@ export interface IMention {
  */
 export function isMention(value: unknown): value is IMention {
   const obj = value as IMention;
-  return typeof obj === "object" && obj.type === "mention";
+  return typeof obj === 'object' && obj.type === 'mention';
 }
 
-export type MentionOptions = Partial<Omit<IMention, "type">>;
+export type MentionOptions = Partial<Omit<IMention, 'type'>>;
 
 /**
  * Represents a mention to a person.
@@ -23127,7 +23127,7 @@ export class Mention implements IMention {
   /**
    * Must be **mention**.
    */
-  readonly type = "mention";
+  readonly type = 'mention';
   /**
    * The text that will be substituted with the mention.
    */
@@ -23141,7 +23141,7 @@ export class Mention implements IMention {
     Object.assign(this, options);
   }
 
-  static from(options: Omit<IMention, "type">): Mention {
+  static from(options: Omit<IMention, 'type'>): Mention {
     return new Mention(options);
   }
 
@@ -23204,7 +23204,7 @@ export class MentionedEntity implements IMentionedEntity {
   /**
    * The type of the mentioned entity.
    */
-  mentionType?: MentionType = "Person";
+  mentionType?: MentionType = 'Person';
 
   constructor(options: MentionedEntityOptions = {}) {
     Object.assign(this, options);
