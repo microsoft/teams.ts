@@ -80,7 +80,7 @@ app.event('error', ({ error }) => {
 });
 
 app.on('dialog.open', async ({ activity, next }) => {
-  const dialogType = activity.value.data.opendialogtype;
+  const dialogType = activity.value.data.dialog_id;
 
   if (dialogType === 'simple_form') {
     const dialogCard = new AdaptiveCard(
@@ -137,7 +137,7 @@ app.on('dialog.open', async ({ activity, next }) => {
 });
 
 app.on('dialog.open', async ({ activity, next }) => {
-  const dialogType = activity.value.data.opendialogtype;
+  const dialogType = activity.value.data.dialog_id;
 
   if (dialogType === 'multi_step_form') {
     const dialogCard = new AdaptiveCard(
