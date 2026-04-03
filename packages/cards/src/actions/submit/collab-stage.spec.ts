@@ -5,7 +5,7 @@ import { CollabStageAction } from './collab-stage';
 describe('Actions.Submit.CollabStage', () => {
   it('should build', () => {
     const action = new CollabStageAction().withData(
-      new InvokeSubmitActionData(undefined)
+      new InvokeSubmitActionData()
     ).withValue({
       name: 'test',
       entityId: 'test',
