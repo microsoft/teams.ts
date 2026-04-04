@@ -33,6 +33,9 @@ export class ExpressAdapter implements IHttpServerAdapter {
 
   constructor(serverOrApp?: http.Server | express.Application, options?: { logger?: ILogger; onError?: (err: Error) => void }) {
     if (serverOrApp instanceof http.Server) {
+      // The adapter handles all requests on this server. Use the adapter's
+      // methods (get, post, use, etc.) to add routes. If you need your own
+      // Express app, pass it in instead and manage the server yourself.
       this.express = express();
       this.server = serverOrApp;
       this.server.on('request', this.express);
