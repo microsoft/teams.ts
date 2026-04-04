@@ -38,8 +38,8 @@ describe('ExpressAdapter', () => {
       return { status: 200, body: { echo: (body as Record<string, unknown>).message } };
     });
 
-    // Access the server created by the adapter for supertest
-    server = (adapter as any).server;
+    // User manages the server themselves
+    server = http.createServer(app);
 
     // Verify custom routes on the Express app still work
     const healthRes = await supertest(server).get('/health').expect(200);
@@ -51,6 +51,14 @@ describe('ExpressAdapter', () => {
       .send({ message: 'hello' })
       .expect(200);
     expect(botRes.body).toEqual({ echo: 'hello' });
+  });
+
+  it('should throw on start/stop when Express app is passed', () => {
+    const app = express();
+    adapter = new ExpressAdapter(app);
+
+    expect(() => adapter.start(3000)).rejects.toThrow('server lifecycle is managed externally');
+    expect(() => adapter.stop()).rejects.toThrow('server lifecycle is managed externally');
   });
 
   describe('route registration and request handling', () => {

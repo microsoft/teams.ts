@@ -35,7 +35,6 @@ expressApp.get('/', (_req, res) => {
 });
 
 // 2. Create Express adapter with your existing Express app
-//    The adapter creates an http.Server internally, avoiding double request handling.
 export const adapter = new ExpressAdapter(expressApp);
 
 // 3. Create teams.ts app with the adapter

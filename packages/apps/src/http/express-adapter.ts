@@ -27,7 +27,7 @@ export class ExpressAdapter implements IHttpServerAdapter {
   readonly use: express.Application['use'];
 
   protected express: express.Application;
-  protected server: http.Server;
+  protected server?: http.Server;
   protected logger: ILogger;
   protected onError?: (err: Error) => void;
 
@@ -38,7 +38,6 @@ export class ExpressAdapter implements IHttpServerAdapter {
       this.server.on('request', this.express);
     } else if (typeof serverOrApp === 'function') {
       this.express = serverOrApp;
-      this.server = http.createServer(this.express);
     } else {
       this.express = express();
       this.server = http.createServer(this.express);
@@ -87,21 +86,27 @@ export class ExpressAdapter implements IHttpServerAdapter {
    * Start the server listening on the specified port
    */
   async start(port: number | string): Promise<void> {
+    const server = this.server;
+
+    if (!server) {
+      throw new Error('Cannot start: server lifecycle is managed externally. Call listen() on your Express app or http.Server directly.');
+    }
+
     return new Promise<void>((resolve, reject) => {
       // Handle startup errors
-      this.server.once('error', (err) => {
+      server.once('error', (err) => {
         if (this.onError) {
           this.onError(err);
         }
         reject(err);
       });
 
-      this.server.listen(port, () => {
+      server.listen(port, () => {
         this.logger.info(`listening on port ${port} 🚀`);
 
         // Set up persistent error listener after startup
         if (this.onError) {
-          this.server.on('error', this.onError);
+          server.on('error', this.onError);
         }
 
         resolve();
@@ -120,8 +125,14 @@ export class ExpressAdapter implements IHttpServerAdapter {
    * Stop the server and close all connections
    */
   async stop(): Promise<void> {
+    const server = this.server;
+
+    if (!server) {
+      throw new Error('Cannot stop: server lifecycle is managed externally. Call close() on your Express app or http.Server directly.');
+    }
+
     return new Promise<void>((resolve, reject) => {
-      this.server.close((err) => {
+      server.close((err) => {
         if (err) {
           reject(err);
         } else {
