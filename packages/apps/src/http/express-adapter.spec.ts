@@ -4,6 +4,7 @@ import http from 'http';
 import os from 'os';
 import path from 'path';
 
+import express from 'express';
 import supertest from 'supertest';
 
 import { ExpressAdapter } from './express-adapter';
@@ -23,6 +24,33 @@ describe('ExpressAdapter', () => {
     expect(() => {
       adapter = new ExpressAdapter(server);
     }).not.toThrow();
+  });
+
+  it('should accept an Express app and handle requests without double handling', async () => {
+    const app = express();
+    app.get('/health', (_req, res) => {
+      res.json({ ok: true });
+    });
+
+    adapter = new ExpressAdapter(app);
+
+    adapter.registerRoute('POST', '/api/messages', async ({ body }) => {
+      return { status: 200, body: { echo: (body as Record<string, unknown>).message } };
+    });
+
+    // Access the server created by the adapter for supertest
+    server = (adapter as any).server;
+
+    // Verify custom routes on the Express app still work
+    const healthRes = await supertest(server).get('/health').expect(200);
+    expect(healthRes.body).toEqual({ ok: true });
+
+    // Verify teams route registered by the adapter works
+    const botRes = await supertest(server)
+      .post('/api/messages')
+      .send({ message: 'hello' })
+      .expect(200);
+    expect(botRes.body).toEqual({ echo: 'hello' });
   });
 
   describe('route registration and request handling', () => {

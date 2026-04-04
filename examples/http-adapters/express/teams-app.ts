@@ -1,10 +1,8 @@
-import http from 'http';
 import express from 'express';
 import { App, ExpressAdapter } from '@microsoft/teams.apps';
 
 // 1. Create your existing Express app with routes
 export const expressApp = express();
-export const httpServer = http.createServer(expressApp);
 
 // Add your custom routes
 expressApp.get('/health', (_req, res) => {
@@ -36,8 +34,9 @@ expressApp.get('/', (_req, res) => {
   `);
 });
 
-// 2. Create Express adapter with your existing server
-export const adapter = new ExpressAdapter(httpServer);
+// 2. Create Express adapter with your existing Express app
+//    The adapter creates an http.Server internally, avoiding double request handling.
+export const adapter = new ExpressAdapter(expressApp);
 
 // 3. Create teams.ts app with the adapter
 export const app = new App({

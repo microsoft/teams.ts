@@ -31,10 +31,18 @@ export class ExpressAdapter implements IHttpServerAdapter {
   protected logger: ILogger;
   protected onError?: (err: Error) => void;
 
-  constructor(server?: http.Server, options?: { logger?: ILogger; onError?: (err: Error) => void }) {
-    this.express = express();
-    this.server = server || http.createServer();
-    this.server.on('request', this.express);
+  constructor(serverOrApp?: http.Server | express.Application, options?: { logger?: ILogger; onError?: (err: Error) => void }) {
+    if (serverOrApp instanceof http.Server) {
+      this.express = express();
+      this.server = serverOrApp;
+      this.server.on('request', this.express);
+    } else if (typeof serverOrApp === 'function') {
+      this.express = serverOrApp;
+      this.server = http.createServer(this.express);
+    } else {
+      this.express = express();
+      this.server = http.createServer(this.express);
+    }
     this.logger = options?.logger ?? new ConsoleLogger('ExpressAdapter');
     this.onError = options?.onError;
 
