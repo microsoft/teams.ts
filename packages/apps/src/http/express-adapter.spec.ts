@@ -53,12 +53,12 @@ describe('ExpressAdapter', () => {
     expect(botRes.body).toEqual({ echo: 'hello' });
   });
 
-  it('should throw on start/stop when Express app is passed', () => {
+  it('should throw on start/stop when Express app is passed', async () => {
     const app = express();
     adapter = new ExpressAdapter(app);
 
-    expect(() => adapter.start(3000)).rejects.toThrow('server lifecycle is managed externally');
-    expect(() => adapter.stop()).rejects.toThrow('server lifecycle is managed externally');
+    await expect(adapter.start(3000)).rejects.toThrow('server lifecycle is managed externally');
+    await expect(adapter.stop()).rejects.toThrow('server lifecycle is managed externally');
   });
 
   describe('route registration and request handling', () => {
