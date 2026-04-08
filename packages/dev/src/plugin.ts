@@ -91,6 +91,13 @@ export class DevtoolsPlugin {
   }
 
   onInit() {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        'Devtools plugin cannot be used in production environments (NODE_ENV=production). ' +
+        'Remove the devtools plugin from your app configuration.'
+      );
+    }
+
     this.log.warn(
       new String()
         .bold(
