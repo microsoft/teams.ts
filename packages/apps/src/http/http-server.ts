@@ -8,7 +8,7 @@ import {
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
 import { IActivityEvent, ICoreActivity } from '../events';
-import { ServiceTokenValidator } from '../middleware/auth/service-token-validator';
+import { ServiceTokenValidator, isAllowedServiceUrl } from '../middleware/auth/service-token-validator';
 
 import { HttpMethod, IHttpServerAdapter, IHttpServerRequest, IHttpServerResponse, HttpRouteHandler } from './adapter';
 
@@ -18,6 +18,8 @@ type AuthResult =
 
 export type HttpServerOptions = {
   readonly skipAuth?: boolean;
+  readonly skipServiceUrlValidation?: boolean;
+  readonly additionalAllowedDomains?: string[];
   readonly logger?: ILogger;
   /**
    * URL path for the Teams messaging endpoint
@@ -47,6 +49,8 @@ export class HttpServer implements IHttpServer {
   protected logger: ILogger;
   protected credentials?: Credentials;
   protected skipAuth: boolean;
+  protected skipServiceUrlValidation: boolean;
+  protected additionalAllowedDomains?: string[];
   protected initialized: boolean = false;
   protected serviceTokenValidator?: ServiceTokenValidator;
 
@@ -71,6 +75,8 @@ export class HttpServer implements IHttpServer {
   constructor(adapter: IHttpServerAdapter, options: HttpServerOptions) {
     this._adapter = adapter;
     this.skipAuth = options.skipAuth ?? false;
+    this.skipServiceUrlValidation = options.skipServiceUrlValidation ?? false;
+    this.additionalAllowedDomains = options.additionalAllowedDomains;
     this.logger = options.logger ?? new ConsoleLogger('HttpServer');
     this._messagingEndpoint = options.messagingEndpoint;
   }
@@ -98,6 +104,7 @@ export class HttpServer implements IHttpServer {
         this.credentials.tenantId,
         undefined, // serviceUrl will be validated from activity body
         this.logger,
+        this.additionalAllowedDomains,
         deps.cloud
       );
     }
@@ -188,13 +195,20 @@ export class HttpServer implements IHttpServer {
     body: ICoreActivity
   ): Promise<AuthResult> {
     if (this.skipAuth || !this.credentials) {
+      const serviceUrl = body.serviceUrl || '';
+
+      // Validate serviceUrl even when auth is skipped
+      if (serviceUrl && !this.skipServiceUrlValidation && !isAllowedServiceUrl(serviceUrl, this.additionalAllowedDomains)) {
+        return { success: false, error: `Service URL '${serviceUrl}' is not from an allowed domain` };
+      }
+
       return {
         success: true,
         token: {
           appId: '',
           from: 'azure',
           fromId: '',
-          serviceUrl: body.serviceUrl || '',
+          serviceUrl,
           isExpired: () => false,
         },
       };

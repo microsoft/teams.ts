@@ -148,11 +148,143 @@ describe('ServiceTokenValidator', () => {
       expect(result.appId).toBe(mockClientId);
     });
 
-    it('should prefer payload.serviceurl over body.serviceUrl', async () => {
+    it('should reject serviceUrl from non-allowed domain', async () => {
       const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
 
-      const payloadServiceUrl = 'https://payload.example.com';
-      const bodyServiceUrl = 'https://body.example.com';
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://evil.com/api'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://evil.com/api' };
+
+      await expect(validator.check(authHeader, body)).rejects.toThrow(
+        "Service URL 'https://evil.com/api' is not from an allowed domain"
+      );
+    });
+
+    it('should accept serviceUrl from botframework.com', async () => {
+      const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://webchat.botframework.com'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://webchat.botframework.com' };
+
+      const result = await validator.check(authHeader, body);
+      expect(result.serviceUrl).toBe('https://webchat.botframework.com');
+    });
+
+    it('should accept localhost serviceUrl', async () => {
+      const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'http://localhost:3978'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'http://localhost:3978' };
+
+      const result = await validator.check(authHeader, body);
+      expect(result.serviceUrl).toBe('http://localhost:3978');
+    });
+
+    it('should reject domain that contains allowed suffix as substring', async () => {
+      const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://botframework.com.evil.com'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://botframework.com.evil.com' };
+
+      await expect(validator.check(authHeader, body)).rejects.toThrow(
+        'is not from an allowed domain'
+      );
+    });
+
+    it('should accept serviceUrl with additionalAllowedDomains', async () => {
+      const validator = new ServiceTokenValidator(
+        mockClientId, mockTenantId, undefined, undefined, ['.custom-channel.com']
+      );
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://api.custom-channel.com'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://api.custom-channel.com' };
+
+      const result = await validator.check(authHeader, body);
+      expect(result.serviceUrl).toBe('https://api.custom-channel.com');
+    });
+
+    it('should skip serviceUrl validation when skipServiceUrlValidation is true', async () => {
+      const validator = new ServiceTokenValidator(
+        mockClientId, mockTenantId, undefined, undefined, undefined, true
+      );
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://evil.com/api'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://evil.com/api' };
+
+      const result = await validator.check(authHeader, body);
+      expect(result.serviceUrl).toBe('https://evil.com/api');
+    });
+
+    it('should accept US Government serviceUrl', async () => {
+      const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://smba.infra.gcc.teams.microsoft.com/'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://smba.infra.gcc.teams.microsoft.com/' };
+
+      const result = await validator.check(authHeader, body);
+      expect(result.serviceUrl).toBe('https://smba.infra.gcc.teams.microsoft.com/');
+    });
+
+    it('should prefer body.serviceUrl over payload.serviceurl', async () => {
+      const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
+
+      const payloadServiceUrl = 'https://payload.botframework.com';
+      const bodyServiceUrl = 'https://body.botframework.com';
 
       const mockPayload = {
         appid: mockClientId,
