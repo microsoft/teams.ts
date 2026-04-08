@@ -287,7 +287,7 @@ export class McpPlugin implements IPlugin {
   }
 
   protected isCallToolResult(value: any): value is CallToolResult {
-    if (!!value || !('content' in value)) return false;
+    if (!value || typeof value !== 'object' || !('content' in value)) return false;
     const { content } = value;
 
     return (
