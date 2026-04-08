@@ -204,7 +204,7 @@ export class JwtValidator {
       }
 
       if (!this.options.tenantId) {
-        return;
+        throw new Error('Tenant ID is required when allowedTenantIds is configured');
       }
 
       const isMultiTenant = ['common', 'organizations', 'consumers'].includes(this.options.tenantId);
@@ -234,8 +234,8 @@ export class JwtValidator {
   private validateScope(scp: string | undefined, overrideValidateScope?: { requiredScope: string }): void {
     const validateScope = overrideValidateScope || this.options.validateScope;
     if (validateScope) {
-      const scopes = scp ?? '';
-      if (!scopes.includes(validateScope.requiredScope)) {
+      const scopeSet = new Set((scp ?? '').split(' '));
+      if (!scopeSet.has(validateScope.requiredScope)) {
         throw new Error(`Token missing required scope: ${validateScope.requiredScope}`);
       }
     }
