@@ -138,6 +138,11 @@ export class HttpStream implements IStreamer {
       return;
     }
 
+    if (!this.id) {
+      this._logger.warn('no stream id set, cannot close stream');
+      return;
+    }
+
     if (this.text === '' && !this.attachments.length) {
       this._logger.warn('no text or attachments to send, cannot close stream');
       return;
@@ -145,7 +150,7 @@ export class HttpStream implements IStreamer {
 
     // Build final message activity
     const activity = new MessageActivity(this.text)
-      .withId(this.id!)
+      .withId(this.id)
       .addAttachments(...this.attachments)
       .addEntities(...this.entities)
       .addStreamFinal()
