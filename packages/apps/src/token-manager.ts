@@ -4,7 +4,6 @@ import { AuthenticationResult, ConfidentialClientApplication, ManagedIdentityApp
 import { ClientCredentials, CloudEnvironment, Credentials, IToken, JsonWebToken, PUBLIC, TokenCredentials, FederatedIdentityCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api';
 import { ConsoleLogger, ILogger, LogLevel } from '@microsoft/teams.common';
 
-const DEFAULT_GRAPH_TOKEN_SCOPE = 'https://graph.microsoft.com/.default';
 const DEFAULT_TENANT_FOR_GRAPH_TOKEN = 'common';
 
 const MSAL_LOG_LEVEL_TO_LOG_LEVEL: Record<MSALLogLevel, LogLevel> = {
@@ -71,7 +70,7 @@ export class TokenManager {
   }
 
   async getGraphToken(tenantId?: string): Promise<IToken | null> {
-    return await this.getToken(DEFAULT_GRAPH_TOKEN_SCOPE, this.resolveTenantId(tenantId, DEFAULT_TENANT_FOR_GRAPH_TOKEN));
+    return await this.getToken(this.cloud.graphScope, this.resolveTenantId(tenantId, DEFAULT_TENANT_FOR_GRAPH_TOKEN));
   }
 
   private initializeCredentials(options: TokenManagerOptions): Credentials | undefined {

@@ -23,6 +23,8 @@ export type CloudEnvironment = {
   readonly channelService: string;
   /** The OAuth redirect URL (e.g. "https://token.botframework.com/.auth/web/redirect") */
   readonly oauthRedirectUrl: string;
+  /** The Microsoft Graph token scope (e.g. "https://graph.microsoft.com/.default") */
+  readonly graphScope: string;
 };
 
 /** Microsoft public (commercial) cloud. */
@@ -35,6 +37,7 @@ export const PUBLIC: CloudEnvironment = Object.freeze({
   tokenIssuer: 'https://api.botframework.com',
   channelService: '',
   oauthRedirectUrl: 'https://token.botframework.com/.auth/web/redirect',
+  graphScope: 'https://graph.microsoft.com/.default',
 });
 
 /** US Government Community Cloud High (GCCH). */
@@ -47,6 +50,7 @@ export const US_GOV: CloudEnvironment = Object.freeze({
   tokenIssuer: 'https://api.botframework.us',
   channelService: 'https://botframework.azure.us',
   oauthRedirectUrl: 'https://tokengcch.botframework.azure.us/.auth/web/redirect',
+  graphScope: 'https://graph.microsoft.us/.default',
 });
 
 /** US Government Department of Defense (DoD). */
@@ -59,6 +63,7 @@ export const US_GOV_DOD: CloudEnvironment = Object.freeze({
   tokenIssuer: 'https://api.botframework.us',
   channelService: 'https://botframework.azure.us',
   oauthRedirectUrl: 'https://apiDoD.botframework.azure.us/.auth/web/redirect',
+  graphScope: 'https://dod-graph.microsoft.us/.default',
 });
 
 /** China cloud (21Vianet). */
@@ -71,6 +76,7 @@ export const CHINA: CloudEnvironment = Object.freeze({
   tokenIssuer: 'https://api.botframework.azure.cn',
   channelService: 'https://botframework.azure.cn',
   oauthRedirectUrl: 'https://token.botframework.azure.cn/.auth/web/redirect',
+  graphScope: 'https://microsoftgraph.chinacloudapi.cn/.default',
 });
 
 /**
@@ -95,6 +101,7 @@ export function withOverrides(
     tokenIssuer: overrides.tokenIssuer ?? base.tokenIssuer,
     channelService: overrides.channelService ?? base.channelService,
     oauthRedirectUrl: overrides.oauthRedirectUrl ?? base.oauthRedirectUrl,
+    graphScope: overrides.graphScope ?? base.graphScope,
   });
 }
 
