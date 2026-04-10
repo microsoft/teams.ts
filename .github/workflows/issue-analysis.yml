@@ -5,12 +5,6 @@ name: "Issue Analysis → Teams"
 on:
   issues:
     types: [opened]
-  workflow_dispatch:
-    inputs:
-      issue_number:
-        description: "Issue number to analyze"
-        required: true
-        type: number
 
 # Declare default permissions as read only.
 permissions: read-all
@@ -19,7 +13,7 @@ jobs:
   analyze-and-notify:
     name: Analyze Issue & Notify Teams
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event.issue.performed_via_github_app == null
+    if: github.event.issue.performed_via_github_app == null
 
     permissions:
       issues: read
@@ -51,8 +45,6 @@ jobs:
         id: issue
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          EVENT_NAME: ${{ github.event_name }}
-          INPUT_NUMBER: ${{ inputs.issue_number }}
           # Pass event data through env vars to avoid shell injection
           EVENT_ISSUE_NUMBER: ${{ github.event.issue.number }}
           EVENT_ISSUE_TITLE: ${{ github.event.issue.title }}
@@ -74,22 +66,12 @@ jobs:
             } >> "$GITHUB_OUTPUT"
           }
 
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            ISSUE=$(gh api repos/microsoft/teams.ts/issues/"$INPUT_NUMBER")
-            write_output "number" "$(echo "$ISSUE" | jq -r '.number')"
-            write_output "title" "$(echo "$ISSUE" | jq -r '.title')"
-            write_output "author" "$(echo "$ISSUE" | jq -r '.user.login')"
-            write_output "html_url" "$(echo "$ISSUE" | jq -r '.html_url')"
-            write_output "labels" "$(echo "$ISSUE" | jq -r '[.labels[].name] | join(",")')"
-            write_output "body" "$(echo "$ISSUE" | jq -r '.body // ""')"
-          else
-            write_output "number" "$EVENT_ISSUE_NUMBER"
-            write_output "title" "$EVENT_ISSUE_TITLE"
-            write_output "author" "$EVENT_ISSUE_AUTHOR"
-            write_output "html_url" "$EVENT_ISSUE_URL"
-            write_output "labels" "$(echo "$EVENT_ISSUE_LABELS" | jq -r '[.[].name] | join(",")')"
-            write_output "body" "$EVENT_ISSUE_BODY"
-          fi
+          write_output "number" "$EVENT_ISSUE_NUMBER"
+          write_output "title" "$EVENT_ISSUE_TITLE"
+          write_output "author" "$EVENT_ISSUE_AUTHOR"
+          write_output "html_url" "$EVENT_ISSUE_URL"
+          write_output "labels" "$(echo "$EVENT_ISSUE_LABELS" | jq -r '[.[].name] | join(",")')"
+          write_output "body" "$EVENT_ISSUE_BODY"
 
       - name: Analyze issue with Copilot CLI
         env:
