@@ -3,7 +3,7 @@ import {
   US_GOV,
   US_GOV_DOD,
   CHINA,
-  fromName,
+  cloudFromName,
   withOverrides,
 } from './cloud-environment';
 
@@ -53,7 +53,7 @@ describe('CloudEnvironment', () => {
     });
   });
 
-  describe('fromName', () => {
+  describe('cloudFromName', () => {
     it.each([
       ['Public', PUBLIC],
       ['public', PUBLIC],
@@ -65,26 +65,26 @@ describe('CloudEnvironment', () => {
       ['China', CHINA],
       ['china', CHINA],
     ])('resolves "%s" correctly', (name, expected) => {
-      expect(fromName(name)).toBe(expected);
+      expect(cloudFromName(name)).toBe(expected);
     });
 
     it.each(['invalid', '', 'Azure'])('throws for unknown name "%s"', (name) => {
-      expect(() => fromName(name)).toThrow(/Unknown cloud environment/);
+      expect(() => cloudFromName(name)).toThrow(/Unknown cloud environment/);
     });
   });
 
   describe('withOverrides', () => {
-    it('returns same instance when no overrides provided', () => {
+    it('returns equivalent object when no overrides provided', () => {
       const result = withOverrides(PUBLIC, {});
-      expect(result).toBe(PUBLIC);
+      expect(result).toEqual(PUBLIC);
     });
 
-    it('returns same instance when all overrides are undefined', () => {
+    it('returns equivalent object when all overrides are undefined', () => {
       const result = withOverrides(PUBLIC, {
         loginEndpoint: undefined,
         loginTenant: undefined,
       });
-      expect(result).toBe(PUBLIC);
+      expect(result).toEqual(PUBLIC);
     });
 
     it('replaces only the overridden property', () => {

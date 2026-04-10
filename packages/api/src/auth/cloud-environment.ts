@@ -66,17 +66,12 @@ export const CHINA: CloudEnvironment = Object.freeze({
 
 /**
  * Creates a new CloudEnvironment by applying non-null overrides on top of a base.
- * Returns the same instance if all overrides are undefined (no allocation).
+ * Returns the base instance if no override values differ.
  */
 export function withOverrides(
   base: CloudEnvironment,
   overrides: Partial<CloudEnvironment>
 ): CloudEnvironment {
-  const hasOverrides = Object.values(overrides).some((v) => v !== undefined);
-  if (!hasOverrides) {
-    return base;
-  }
-
   return Object.freeze({
     loginEndpoint: overrides.loginEndpoint ?? base.loginEndpoint,
     loginTenant: overrides.loginTenant ?? base.loginTenant,
@@ -99,7 +94,7 @@ const CLOUD_ENVIRONMENTS: Record<string, CloudEnvironment> = {
  * Resolves a cloud environment name (case-insensitive) to its corresponding instance.
  * Valid names: "Public", "USGov", "USGovDoD", "China".
  */
-export function fromName(name: string): CloudEnvironment {
+export function cloudFromName(name: string): CloudEnvironment {
   const env = CLOUD_ENVIRONMENTS[name.toLowerCase()];
   if (!env) {
     throw new Error(

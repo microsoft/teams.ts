@@ -6,7 +6,7 @@ import {
   ChannelID,
   CloudEnvironment,
   ConversationReference,
-  fromName as cloudFromName,
+  cloudFromName,
   InvokeResponse,
   PUBLIC,
   StripMentionsTextOptions,
@@ -271,7 +271,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     // Resolve cloud environment from options or CLOUD env var
     const cloudEnvName = typeof process !== 'undefined' ? process.env.CLOUD : undefined;
     this.cloud = this.options.cloud ?? (cloudEnvName ? cloudFromName(cloudEnvName) : PUBLIC);
-    const cloud = this.cloud;
 
     if (!options.client) {
       this.client = new http.Client({
@@ -307,7 +306,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       serviceUrl,
       this.client.clone({ token: () => this.getBotToken() }),
       this.options.apiClientSettings,
-      cloud
+      this.cloud
     );
 
     this.graph = new GraphClient(
@@ -321,7 +320,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       tenantId: this.options.tenantId,
       token: this.options.token,
       managedIdentityClientId: this.options.managedIdentityClientId,
-      cloud,
+      cloud: this.cloud,
     }, this.log);
 
     // initialize ActivitySender for sending activities
@@ -334,7 +333,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       this.entraTokenValidator = middleware.createEntraTokenValidator(
         this.credentials.tenantId || 'common',
         this.credentials.clientId,
-        { applicationIdUri: this.options.applicationIdUri, loginEndpoint: cloud.loginEndpoint, logger: this.log }
+        { applicationIdUri: this.options.applicationIdUri, loginEndpoint: this.cloud.loginEndpoint, logger: this.log }
       );
     }
 
