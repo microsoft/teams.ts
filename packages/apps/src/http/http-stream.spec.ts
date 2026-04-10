@@ -204,7 +204,7 @@ describe('HttpStream', () => {
 
     const result = await stream.close();
     expect(result).toBeUndefined();
-    expect(logger.debug).toHaveBeenCalledWith('stream was cancelled, nothing to close');
+    expect(logger.debug).toHaveBeenCalledWith('stream canceled, nothing to close');
   });
 
   test('stream canceled after successful message', async () => {

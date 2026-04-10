@@ -29,7 +29,7 @@ export async function retry<T = any>(factory: () => Promise<T>, options?: RetryO
   try {
     return await factory();
   } catch (err) {
-    if (err instanceof StreamCancelledError) {
+    if (err instanceof StreamCancelledError || (err instanceof Error && err.name === 'StreamCancelledError')) {
       throw err;
     }
 

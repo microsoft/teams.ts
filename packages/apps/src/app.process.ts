@@ -170,8 +170,8 @@ export async function $process<TPlugin extends IPlugin>(
       response: res,
     });
   } catch (error: any) {
-    if (error instanceof StreamCancelledError) {
-      this.log.debug('Activity processing was cancelled (stream stopped)');
+    if (error instanceof StreamCancelledError || error?.name === 'StreamCancelledError') {
+      this.log.debug('stream canceled, returning 200');
       await context.stream.close();
       response = { status: 200 };
     } else {

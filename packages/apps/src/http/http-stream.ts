@@ -71,7 +71,7 @@ export class HttpStream implements IStreamer {
    */
   emit(activity: Partial<IMessageActivity | ITypingActivity> | string) {
     if (this._canceled) {
-      throw new StreamCancelledError('Stream has been cancelled.');
+      throw new StreamCancelledError();
     }
 
     if (typeof activity === 'string') {
@@ -117,7 +117,7 @@ export class HttpStream implements IStreamer {
     }
 
     if (this._canceled) {
-      this._logger.debug('stream was cancelled, nothing to close');
+      this._logger.debug('stream canceled, nothing to close');
       return;
     }
 
@@ -134,7 +134,7 @@ export class HttpStream implements IStreamer {
     }
 
     if (this._canceled) {
-      this._logger.debug('stream was cancelled, nothing to close');
+      this._logger.debug('stream canceled, nothing to close');
       return;
     }
 
@@ -278,7 +278,7 @@ export class HttpStream implements IStreamer {
    */
   protected async send(activity: ActivityParams) {
     if (this._canceled) {
-      throw new StreamCancelledError('Teams channel stopped the stream.');
+      throw new StreamCancelledError();
     }
 
     activity = {
@@ -304,8 +304,8 @@ export class HttpStream implements IStreamer {
     } catch (err: any) {
       if (err?.response?.status === 403) {
         this._canceled = true;
-        this._logger.debug('Teams channel stopped the stream.');
-        throw new StreamCancelledError('Teams channel stopped the stream.');
+        this._logger.debug('stream canceled by Teams (403)');
+        throw new StreamCancelledError();
       }
       throw err;
     }

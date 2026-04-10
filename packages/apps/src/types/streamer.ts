@@ -2,11 +2,11 @@ import { IMessageActivity, ITypingActivity, SentActivity } from '@microsoft/team
 import { IEventEmitter } from '@microsoft/teams.common';
 
 /**
- * Raised when a stream operation is attempted after the stream has been cancelled.
+ * Raised when Teams cancels a stream (403) or when a stream operation is attempted after cancellation.
  */
 export class StreamCancelledError extends Error {
   constructor(message?: string) {
-    super(message ?? 'Stream has been cancelled.');
+    super(message ?? 'stream canceled');
     this.name = 'StreamCancelledError';
   }
 }
