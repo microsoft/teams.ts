@@ -16,8 +16,6 @@ describe('CloudEnvironment', () => {
       expect(PUBLIC.tokenServiceUrl).toBe('https://token.botframework.com');
       expect(PUBLIC.openIdMetadataUrl).toBe('https://login.botframework.com/v1/.well-known/openidconfiguration');
       expect(PUBLIC.tokenIssuer).toBe('https://api.botframework.com');
-      expect(PUBLIC.channelService).toBe('');
-      expect(PUBLIC.oauthRedirectUrl).toBe('https://token.botframework.com/.auth/web/redirect');
     });
 
     it('US_GOV has correct endpoints', () => {
@@ -27,8 +25,6 @@ describe('CloudEnvironment', () => {
       expect(US_GOV.tokenServiceUrl).toBe('https://tokengcch.botframework.azure.us');
       expect(US_GOV.openIdMetadataUrl).toBe('https://login.botframework.azure.us/v1/.well-known/openidconfiguration');
       expect(US_GOV.tokenIssuer).toBe('https://api.botframework.us');
-      expect(US_GOV.channelService).toBe('https://botframework.azure.us');
-      expect(US_GOV.oauthRedirectUrl).toBe('https://tokengcch.botframework.azure.us/.auth/web/redirect');
     });
 
     it('US_GOV_DOD has correct endpoints', () => {
@@ -38,8 +34,6 @@ describe('CloudEnvironment', () => {
       expect(US_GOV_DOD.tokenServiceUrl).toBe('https://apiDoD.botframework.azure.us');
       expect(US_GOV_DOD.openIdMetadataUrl).toBe('https://login.botframework.azure.us/v1/.well-known/openidconfiguration');
       expect(US_GOV_DOD.tokenIssuer).toBe('https://api.botframework.us');
-      expect(US_GOV_DOD.channelService).toBe('https://botframework.azure.us');
-      expect(US_GOV_DOD.oauthRedirectUrl).toBe('https://apiDoD.botframework.azure.us/.auth/web/redirect');
     });
 
     it('CHINA has correct endpoints', () => {
@@ -49,8 +43,6 @@ describe('CloudEnvironment', () => {
       expect(CHINA.tokenServiceUrl).toBe('https://token.botframework.azure.cn');
       expect(CHINA.openIdMetadataUrl).toBe('https://login.botframework.azure.cn/v1/.well-known/openidconfiguration');
       expect(CHINA.tokenIssuer).toBe('https://api.botframework.azure.cn');
-      expect(CHINA.channelService).toBe('https://botframework.azure.cn');
-      expect(CHINA.oauthRedirectUrl).toBe('https://token.botframework.azure.cn/.auth/web/redirect');
     });
 
     it('presets are frozen', () => {
@@ -105,8 +97,6 @@ describe('CloudEnvironment', () => {
       expect(result.tokenServiceUrl).toBe(PUBLIC.tokenServiceUrl);
       expect(result.openIdMetadataUrl).toBe(PUBLIC.openIdMetadataUrl);
       expect(result.tokenIssuer).toBe(PUBLIC.tokenIssuer);
-      expect(result.channelService).toBe(PUBLIC.channelService);
-      expect(result.oauthRedirectUrl).toBe(PUBLIC.oauthRedirectUrl);
     });
 
     it('replaces multiple properties', () => {
@@ -131,8 +121,6 @@ describe('CloudEnvironment', () => {
         tokenServiceUrl: 'd',
         openIdMetadataUrl: 'e',
         tokenIssuer: 'f',
-        channelService: 'g',
-        oauthRedirectUrl: 'h',
       });
 
       expect(result.loginEndpoint).toBe('a');
@@ -141,8 +129,6 @@ describe('CloudEnvironment', () => {
       expect(result.tokenServiceUrl).toBe('d');
       expect(result.openIdMetadataUrl).toBe('e');
       expect(result.tokenIssuer).toBe('f');
-      expect(result.channelService).toBe('g');
-      expect(result.oauthRedirectUrl).toBe('h');
     });
 
     it('result is frozen', () => {

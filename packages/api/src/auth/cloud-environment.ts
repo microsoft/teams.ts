@@ -16,13 +16,6 @@ export type CloudEnvironment = {
   readonly openIdMetadataUrl: string;
   /** The token issuer for Bot Framework tokens (e.g. "https://api.botframework.com") */
   readonly tokenIssuer: string;
-  /**
-   * The channel service URL. Empty for public cloud; set for sovereign clouds
-   * (e.g. "https://botframework.azure.us")
-   */
-  readonly channelService: string;
-  /** The OAuth redirect URL (e.g. "https://token.botframework.com/.auth/web/redirect") */
-  readonly oauthRedirectUrl: string;
   /** The Microsoft Graph token scope (e.g. "https://graph.microsoft.com/.default") */
   readonly graphScope: string;
 };
@@ -35,8 +28,6 @@ export const PUBLIC: CloudEnvironment = Object.freeze({
   tokenServiceUrl: 'https://token.botframework.com',
   openIdMetadataUrl: 'https://login.botframework.com/v1/.well-known/openidconfiguration',
   tokenIssuer: 'https://api.botframework.com',
-  channelService: '',
-  oauthRedirectUrl: 'https://token.botframework.com/.auth/web/redirect',
   graphScope: 'https://graph.microsoft.com/.default',
 });
 
@@ -48,8 +39,6 @@ export const US_GOV: CloudEnvironment = Object.freeze({
   tokenServiceUrl: 'https://tokengcch.botframework.azure.us',
   openIdMetadataUrl: 'https://login.botframework.azure.us/v1/.well-known/openidconfiguration',
   tokenIssuer: 'https://api.botframework.us',
-  channelService: 'https://botframework.azure.us',
-  oauthRedirectUrl: 'https://tokengcch.botframework.azure.us/.auth/web/redirect',
   graphScope: 'https://graph.microsoft.us/.default',
 });
 
@@ -61,8 +50,6 @@ export const US_GOV_DOD: CloudEnvironment = Object.freeze({
   tokenServiceUrl: 'https://apiDoD.botframework.azure.us',
   openIdMetadataUrl: 'https://login.botframework.azure.us/v1/.well-known/openidconfiguration',
   tokenIssuer: 'https://api.botframework.us',
-  channelService: 'https://botframework.azure.us',
-  oauthRedirectUrl: 'https://apiDoD.botframework.azure.us/.auth/web/redirect',
   graphScope: 'https://dod-graph.microsoft.us/.default',
 });
 
@@ -74,8 +61,6 @@ export const CHINA: CloudEnvironment = Object.freeze({
   tokenServiceUrl: 'https://token.botframework.azure.cn',
   openIdMetadataUrl: 'https://login.botframework.azure.cn/v1/.well-known/openidconfiguration',
   tokenIssuer: 'https://api.botframework.azure.cn',
-  channelService: 'https://botframework.azure.cn',
-  oauthRedirectUrl: 'https://token.botframework.azure.cn/.auth/web/redirect',
   graphScope: 'https://microsoftgraph.chinacloudapi.cn/.default',
 });
 
@@ -99,8 +84,6 @@ export function withOverrides(
     tokenServiceUrl: overrides.tokenServiceUrl ?? base.tokenServiceUrl,
     openIdMetadataUrl: overrides.openIdMetadataUrl ?? base.openIdMetadataUrl,
     tokenIssuer: overrides.tokenIssuer ?? base.tokenIssuer,
-    channelService: overrides.channelService ?? base.channelService,
-    oauthRedirectUrl: overrides.oauthRedirectUrl ?? base.oauthRedirectUrl,
     graphScope: overrides.graphScope ?? base.graphScope,
   });
 }
