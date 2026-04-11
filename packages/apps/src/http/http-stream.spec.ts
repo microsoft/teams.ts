@@ -66,17 +66,17 @@ describe('HttpStream', () => {
     stream.emit('Message 13');
 
     await jest.advanceTimersByTimeAsync(300);
-    // 500ms passed since first emit, second flush should happen
+    // 500ms passed since first emit, second flush drains entire queue
     expect(client.conversations.activities().create).toHaveBeenCalledTimes(2);
     stream.emit('Message 14');
 
     await jest.advanceTimersByTimeAsync(500);
-    // another 500ms passed, third flush should happen
+    // another 500ms passed, third flush picks up Message 14
     expect(client.conversations.activities().create).toHaveBeenCalledTimes(3);
 
     const calls = client.conversations.activities().create.mock.calls;
     expect(calls[0][0].text).toBe('Message 1');
-    expect(calls[1][0].text).toBe('Message 1Message 2Message 3Message 4Message 5Message 6Message 7Message 8Message 9Message 10Message 11');
+    expect(calls[1][0].text).toBe('Message 1Message 2Message 3Message 4Message 5Message 6Message 7Message 8Message 9Message 10Message 11Message 12Message 13');
     expect(calls[2][0].text).toBe('Message 1Message 2Message 3Message 4Message 5Message 6Message 7Message 8Message 9Message 10Message 11Message 12Message 13Message 14');
   });
 

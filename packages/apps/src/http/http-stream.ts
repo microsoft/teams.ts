@@ -190,10 +190,10 @@ export class HttpStream implements IStreamer {
         this._timeout = undefined;
       }
 
-      let i = 0;
       const informativeUpdates: Partial<ITypingActivity>[] = [];
+      const startLength = this.queue.length;
 
-      while (this.queue.length && i < 10) {
+      while (this.queue.length) {
         const activity = this.queue.shift();
 
         if (!activity) continue;
@@ -222,11 +222,9 @@ export class HttpStream implements IStreamer {
             ...activity.channelData,
           };
         }
-
-        i++;
       }
 
-      if (i === 0) return;
+      if (startLength === 0) return;
 
       // Send informative updates immediately
       for (const informativeUpdate of informativeUpdates) {
