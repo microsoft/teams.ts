@@ -108,6 +108,19 @@ describe('Client', () => {
     });
   });
 
+  it('should merge User-Agent headers case-insensitively', async () => {
+    const a = new HttpClient({ headers: { 'user-agent': 'parent/1.0' } });
+    const b = a.clone({ headers: { 'User-Agent': 'child/1.0' } });
+    const spy = jest.spyOn((b as any).http, 'get').mockResolvedValueOnce({});
+
+    await b.get('/test');
+    expect(spy).toHaveBeenCalledWith('/test', {
+      headers: {
+        'User-Agent': 'child/1.0 parent/1.0',
+      },
+    });
+  });
+
   it('should merge User-Agent across three levels of cloning', async () => {
     const a = new HttpClient({ headers: { 'User-Agent': 'grandparent/1.0' } });
     const b = a.clone({ headers: { 'User-Agent': 'parent/1.0' } });

@@ -202,8 +202,14 @@ export class Client {
    * Create a copy of the client
    */
   clone(options?: ClientOptions) {
-    const parentUA = this.options.headers?.['User-Agent'];
-    const childUA = options?.headers?.['User-Agent'];
+    const findUA = (h?: RawAxiosRequestHeaders) => {
+      if (!h) return undefined;
+      const key = Object.keys(h).find((k) => k.toLowerCase() === 'user-agent');
+      return key ? String(h[key]) : undefined;
+    };
+
+    const parentUA = findUA(this.options.headers);
+    const childUA = findUA(options?.headers);
     const mergedUA =
       parentUA && childUA ? `${childUA} ${parentUA}` : (childUA || parentUA);
 
@@ -213,6 +219,12 @@ export class Client {
     };
 
     if (mergedUA) {
+      for (const key of Object.keys(headers)) {
+        if (key.toLowerCase() === 'user-agent') {
+          delete headers[key];
+        }
+      }
+
       headers['User-Agent'] = mergedUA;
     }
 
