@@ -1,6 +1,6 @@
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
-import { chats, teams } from '@microsoft/teams.graph-endpoints';
+import { applications, chats, teams } from '@microsoft/teams.graph-endpoints';
 
 const app = new App({
   logger: new ConsoleLogger('@examples/fetch-messages', { level: 'debug' }),
@@ -83,8 +83,52 @@ app.message(/history/i, async ({ send, activity }) => {
   }
 });
 
+/**
+ * Fetch the bot's own app registration details from Azure AD.
+ *
+ * This shows getAppGraph(tenantId) for a non-chat Graph endpoint:
+ * GET /applications?$filter=appId eq '{appId}'
+ *
+ * Requires Azure AD app permission: Application.Read.All (admin consent).
+ */
+app.message(/app-info/i, async ({ send, activity }) => {
+  const tenantId = activity.conversation.tenantId;
+
+  if (!app.id) {
+    await send('App ID not configured.');
+    return;
+  }
+
+  try {
+    const graph = app.getAppGraph(tenantId);
+    const result = await graph.call(applications.list, {
+      $filter: `appId eq '${app.id}'`,
+      $select: ['id', 'appId', 'displayName', 'signInAudience'],
+    });
+
+    const registration = result.value?.[0];
+    if (!registration) {
+      await send(`No app registration found for appId \`${app.id}\`.`);
+      return;
+    }
+
+    await send(
+      `**App Registration**\n\n` +
+      `- **Name:** ${registration.displayName}\n` +
+      `- **App ID:** \`${registration.appId}\`\n` +
+      `- **Object ID:** \`${registration.id}\`\n` +
+      `- **Sign-in audience:** ${registration.signInAudience}`
+    );
+  } catch (e) {
+    await send(
+      `Failed to fetch app details: ${e}\n\n` +
+      'Requires **Application.Read.All** Azure AD permission. See README.'
+    );
+  }
+});
+
 app.on('message', async ({ reply }) => {
-  await reply('Send `history` to fetch message history for this conversation.');
+  await reply('Commands: `history` (message history), `app-info` (app registration details).');
 });
 
 app.start().catch(console.error);

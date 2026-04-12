@@ -1,6 +1,6 @@
-# Fetch Messages Example
+# Graph API Example
 
-Demonstrates fetching chat message history using the Graph API with `app.getAppGraph(tenantId)`.
+Demonstrates using the Graph API with `app.getAppGraph(tenantId)` for tenant-scoped app-only access.
 
 ## Why `getAppGraph(tenantId)`?
 
@@ -87,7 +87,7 @@ teams app rsc add <appId> ChannelMessage.Read.Group --type Application
 teams app rsc add <appId> ChatMessage.Read.Chat --type Application
 ```
 
-For DM message history, RSC is not sufficient. Add the `Chat.Read.All` Azure AD app permission and grant admin consent:
+For DM message history, RSC is not sufficient. Add the `Chat.Read.All` Azure AD app permission:
 
 ```bash
 # Chat.Read.All (6b7d71aa-...) on Microsoft Graph (00000003-...)
@@ -99,10 +99,37 @@ az ad app permission add \
 az ad app permission admin-consent --id <appId>
 ```
 
+### App registration details (`app-info`)
+
+The `app-info` command shows `getAppGraph(tenantId)` used for a non-chat Graph endpoint — reading the bot's own app registration via `GET /applications`.
+
+Requires the `Application.Read.All` Azure AD app permission:
+
+```bash
+# Application.Read.All (9a5d68dd-...) on Microsoft Graph (00000003-...)
+az ad app permission add \
+  --id <appId> \
+  --api 00000003-0000-0000-c000-000000000000 \
+  --api-permissions 9a5d68dd-52b0-4cc2-bd40-abcf44ac3a30=Role
+
+az ad app permission admin-consent --id <appId>
+```
+
+```typescript
+const graph = app.getAppGraph(activity.conversation.tenantId);
+const result = await graph.call(applications.list, {
+  $filter: `appId eq '${app.id}'`,
+  $select: ['id', 'appId', 'displayName', 'signInAudience'],
+});
+```
+
 ## Run
 
 ```bash
 pnpm dev
 ```
 
-Send `history` in any conversation (DM, group chat, or @mention in a channel).
+| Command | Description |
+|---------|-------------|
+| `history` | Fetch message history (DM, group chat, or @mention in channel) |
+| `app-info` | Fetch the bot's app registration from Azure AD |
