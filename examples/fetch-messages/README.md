@@ -126,7 +126,7 @@ const result = await graph.call(applications.list, {
 ## Run
 
 ```bash
-pnpm dev
+npm run dev
 ```
 
 | Command | Description |
