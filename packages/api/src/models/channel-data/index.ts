@@ -2,12 +2,12 @@ import { MeetingInfo } from '../meeting';
 import { MembershipSource } from '../membership-source';
 
 import { ChannelInfo } from './channel-info';
+import { FeedbackLoop } from './feedback-loop';
 import { NotificationInfo } from './notification-info';
 import { OnBehalfOf } from './on-behalf-of';
 import { ChannelDataSettings } from './settings';
 import { TeamInfo } from './team-info';
 import { TenantInfo } from './tenant-info';
-import { FeedbackLoop } from './feedback-loop';
 
 /**
  *
