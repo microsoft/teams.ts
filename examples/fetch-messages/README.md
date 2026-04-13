@@ -1,13 +1,28 @@
 # Graph API Example
 
-Demonstrates using the Graph API with `app.getAppGraph(tenantId)` for tenant-scoped app-only access.
+Demonstrates using the Graph API with tenant-scoped app-only access.
 
-## Why `getAppGraph(tenantId)`?
+## Getting a tenant-scoped Graph client
 
-The Graph API requires an app-only token scoped to the conversation's tenant. `app.getAppGraph(tenantId)` returns a Graph client with the correct token:
+The Graph API requires an app-only token scoped to the correct tenant. There are two ways to get one:
+
+**Reactive** — inside an event handler, use `ctx.appGraph` (already tenant-scoped):
 
 ```typescript
-const graph = app.getAppGraph(activity.conversation.tenantId);
+app.on('message', async (ctx) => {
+  const response = await ctx.appGraph.call(chats.messages.list, {
+    'chat-id': chatId,
+  });
+});
+```
+
+**Proactive** — outside an event handler, use `app.getAppGraph(tenantId)`:
+
+```typescript
+const graph = app.getAppGraph(tenantId);
+const response = await graph.call(chats.messages.list, {
+  'chat-id': chatId,
+});
 ```
 
 ## Permissions
@@ -24,13 +39,12 @@ RSC permissions don't require admin consent — chat/team members grant them on 
 
 ### Channel
 
-Uses `/teams/{aadGroupId}/channels/{channelId}/messages`. The `aadGroupId` comes from `activity.channelData.team.aadGroupId`:
+Uses `/teams/{aadGroupId}/channels/{channelId}/messages`. The `aadGroupId` comes from `channelData.team.aadGroupId`:
 
 ```typescript
-const graph = app.getAppGraph(activity.conversation.tenantId);
 const response = await graph.call(teams.channels.messages.list, {
-  'team-id': activity.channelData.team.aadGroupId,
-  'channel-id': activity.channelData.channel.id,
+  'team-id': channelData.team.aadGroupId,
+  'channel-id': channelData.channel.id,
   $top: 5,
 });
 ```
@@ -40,9 +54,8 @@ const response = await graph.call(teams.channels.messages.list, {
 Uses `/chats/{chat-id}/messages`. The `conversationId` works directly:
 
 ```typescript
-const graph = app.getAppGraph(activity.conversation.tenantId);
 const response = await graph.call(chats.messages.list, {
-  'chat-id': activity.conversation.id,
+  'chat-id': conversationId,
   $top: 5,
   $orderby: ['createdDateTime desc'],
 });
@@ -53,12 +66,36 @@ const response = await graph.call(chats.messages.list, {
 Uses `/chats/{chat-id}/messages`. The Bot Framework conversation ID (`a:...`) doesn't work — construct the Graph chat ID from the user and bot AAD IDs:
 
 ```typescript
-const chatId = `19:${activity.from.aadObjectId}_${app.id}@unq.gbl.spaces`;
-const graph = app.getAppGraph(activity.conversation.tenantId);
+const chatId = `19:${userAadObjectId}_${botAppId}@unq.gbl.spaces`;
 const response = await graph.call(chats.messages.list, {
   'chat-id': chatId,
   $top: 5,
   $orderby: ['createdDateTime desc'],
+});
+```
+
+## Other Graph endpoints
+
+### App registration details (`app-info`)
+
+The `app-info` command shows a non-chat Graph endpoint — reading the bot's own app registration via `GET /applications`.
+
+Requires the `Application.Read.All` Azure AD app permission:
+
+```bash
+# Application.Read.All (9a5d68dd-...) on Microsoft Graph (00000003-...)
+az ad app permission add \
+  --id <appId> \
+  --api 00000003-0000-0000-c000-000000000000 \
+  --api-permissions 9a5d68dd-52b0-4cc2-bd40-abcf44ac3a30=Role
+
+az ad app permission admin-consent --id <appId>
+```
+
+```typescript
+const result = await graph.call(applications.list, {
+  $filter: `appId eq '${appId}'`,
+  $select: ['id', 'appId', 'displayName', 'signInAudience'],
 });
 ```
 
@@ -97,30 +134,6 @@ az ad app permission add \
   --api-permissions 6b7d71aa-70aa-4810-a8d9-5d9fb2830017=Role
 
 az ad app permission admin-consent --id <appId>
-```
-
-### App registration details (`app-info`)
-
-The `app-info` command shows `getAppGraph(tenantId)` used for a non-chat Graph endpoint — reading the bot's own app registration via `GET /applications`.
-
-Requires the `Application.Read.All` Azure AD app permission:
-
-```bash
-# Application.Read.All (9a5d68dd-...) on Microsoft Graph (00000003-...)
-az ad app permission add \
-  --id <appId> \
-  --api 00000003-0000-0000-c000-000000000000 \
-  --api-permissions 9a5d68dd-52b0-4cc2-bd40-abcf44ac3a30=Role
-
-az ad app permission admin-consent --id <appId>
-```
-
-```typescript
-const graph = app.getAppGraph(activity.conversation.tenantId);
-const result = await graph.call(applications.list, {
-  $filter: `appId eq '${app.id}'`,
-  $select: ['id', 'appId', 'displayName', 'signInAudience'],
-});
 ```
 
 ## Run
