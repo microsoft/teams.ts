@@ -9,7 +9,6 @@ Demonstrates Microsoft Graph access from a Teams bot using both user-delegated a
 | Any message | Triggers SSO sign-in, then shows your profile |
 | `/signout` | Sign out of your account |
 | `/app-users` | List org users via `app.getAppGraph()` (no sign-in needed) |
-| `/app-users ctx` | List org users via `ctx.appGraph` (no sign-in needed) |
 
 ## Setup
 

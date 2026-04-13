@@ -26,27 +26,6 @@ app.message('/signout', async ({ send, signout, isSignedIn }) => {
   await send('you have been signed out!');
 });
 
-app.message('/app-users ctx', async ({ appGraph, send }) => {
-  try {
-    const users = await appGraph.call(endpoints.users.list);
-
-    if (users?.value?.length) {
-      const userList = users.value.slice(0, 5).map(
-        (u, i) => `**${i + 1}.** ${u.displayName ?? 'N/A'} (${u.userPrincipalName ?? 'N/A'})`
-      ).join('\n\n');
-      await send(`**Organization Users**\n\n*Fetched using \`ctx.appGraph\`*\n\n${userList}`);
-    } else {
-      await send('No users found.');
-    }
-  } catch (e) {
-    await send(
-      `Failed to list users: ${e}\n\n` +
-      'Ensure the app has **User.Read.All** application permission granted ' +
-      'in Azure Portal > App registrations > API permissions, and that an admin has consented.'
-    );
-  }
-});
-
 app.message('/app-users', async ({ send }) => {
   try {
     const graph = app.getAppGraph();
@@ -56,7 +35,7 @@ app.message('/app-users', async ({ send }) => {
       const userList = users.value.slice(0, 5).map(
         (u, i) => `**${i + 1}.** ${u.displayName ?? 'N/A'} (${u.userPrincipalName ?? 'N/A'})`
       ).join('\n\n');
-      await send(`**Organization Users**\n\n*Fetched using \`app.getAppGraph()\`*\n\n${userList}`);
+      await send(`**Organization Users**\n\n${userList}`);
     } else {
       await send('No users found.');
     }

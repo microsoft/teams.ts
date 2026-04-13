@@ -13,6 +13,7 @@ export interface IFunctionContext<T = any> extends IClientContext {
 
   /**
    * the app graph client
+   * @deprecated Use `app.getAppGraph(tenantId?)` instead for tenant-specific Graph access.
    */
   appGraph: GraphClient;
 
