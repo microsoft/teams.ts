@@ -1,3 +1,5 @@
+import { US_GOV, CHINA } from '@microsoft/teams.api';
+
 import { JwtValidator } from './jwt-validator';
 import { ServiceTokenValidator } from './service-token-validator';
 
@@ -166,6 +168,55 @@ describe('ServiceTokenValidator', () => {
       const result = await validator.check(authHeader, body);
 
       expect(result.serviceUrl).toBe(bodyServiceUrl);
+    });
+  });
+
+  describe('sovereign cloud support', () => {
+    it('should use public cloud defaults when no cloud provided', () => {
+      new ServiceTokenValidator(mockClientId, mockTenantId);
+
+      expect(JwtValidator).toHaveBeenCalledWith(
+        expect.objectContaining({
+          validateIssuer: { allowedIssuer: 'https://api.botframework.com' },
+          jwksUriOptions: {
+            type: 'uri',
+            uri: 'https://login.botframework.com/v1/.well-known/keys',
+          },
+        }),
+        undefined
+      );
+    });
+
+    it('should use US_GOV cloud issuer and JWKS URI', () => {
+      new ServiceTokenValidator(mockClientId, mockTenantId, undefined, undefined, US_GOV);
+
+      expect(JwtValidator).toHaveBeenCalledWith(
+        expect.objectContaining({
+          loginEndpoint: 'https://login.microsoftonline.us',
+          validateIssuer: { allowedIssuer: 'https://api.botframework.us' },
+          jwksUriOptions: {
+            type: 'uri',
+            uri: 'https://login.botframework.azure.us/v1/.well-known/keys',
+          },
+        }),
+        undefined
+      );
+    });
+
+    it('should use CHINA cloud issuer and JWKS URI', () => {
+      new ServiceTokenValidator(mockClientId, mockTenantId, undefined, undefined, CHINA);
+
+      expect(JwtValidator).toHaveBeenCalledWith(
+        expect.objectContaining({
+          loginEndpoint: 'https://login.partner.microsoftonline.cn',
+          validateIssuer: { allowedIssuer: 'https://api.botframework.azure.cn' },
+          jwksUriOptions: {
+            type: 'uri',
+            uri: 'https://login.botframework.azure.cn/v1/.well-known/keys',
+          },
+        }),
+        undefined
+      );
     });
   });
 });

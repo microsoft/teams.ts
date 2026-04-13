@@ -69,6 +69,72 @@ describe('Client', () => {
     });
   });
 
+  it('should merge User-Agent headers when cloning', async () => {
+    const a = new HttpClient({ headers: { 'User-Agent': 'parent/1.0' } });
+    const b = a.clone({ headers: { 'User-Agent': 'child/1.0' } });
+    const spy = jest.spyOn((b as any).http, 'get').mockResolvedValueOnce({});
+
+    await b.get('/test');
+    expect(spy).toHaveBeenCalledWith('/test', {
+      headers: {
+        'User-Agent': 'child/1.0 parent/1.0',
+      },
+    });
+  });
+
+  it('should preserve parent User-Agent when clone has none', async () => {
+    const a = new HttpClient({ headers: { 'User-Agent': 'parent/1.0' } });
+    const b = a.clone();
+    const spy = jest.spyOn((b as any).http, 'get').mockResolvedValueOnce({});
+
+    await b.get('/test');
+    expect(spy).toHaveBeenCalledWith('/test', {
+      headers: {
+        'User-Agent': 'parent/1.0',
+      },
+    });
+  });
+
+  it('should use child User-Agent when parent has none', async () => {
+    const a = new HttpClient();
+    const b = a.clone({ headers: { 'User-Agent': 'child/1.0' } });
+    const spy = jest.spyOn((b as any).http, 'get').mockResolvedValueOnce({});
+
+    await b.get('/test');
+    expect(spy).toHaveBeenCalledWith('/test', {
+      headers: {
+        'User-Agent': 'child/1.0',
+      },
+    });
+  });
+
+  it('should merge User-Agent headers case-insensitively', async () => {
+    const a = new HttpClient({ headers: { 'user-agent': 'parent/1.0' } });
+    const b = a.clone({ headers: { 'User-Agent': 'child/1.0' } });
+    const spy = jest.spyOn((b as any).http, 'get').mockResolvedValueOnce({});
+
+    await b.get('/test');
+    expect(spy).toHaveBeenCalledWith('/test', {
+      headers: {
+        'User-Agent': 'child/1.0 parent/1.0',
+      },
+    });
+  });
+
+  it('should merge User-Agent across three levels of cloning', async () => {
+    const a = new HttpClient({ headers: { 'User-Agent': 'grandparent/1.0' } });
+    const b = a.clone({ headers: { 'User-Agent': 'parent/1.0' } });
+    const c = b.clone({ headers: { 'User-Agent': 'child/1.0' } });
+    const spy = jest.spyOn((c as any).http, 'get').mockResolvedValueOnce({});
+
+    await c.get('/test');
+    expect(spy).toHaveBeenCalledWith('/test', {
+      headers: {
+        'User-Agent': 'child/1.0 parent/1.0 grandparent/1.0',
+      },
+    });
+  });
+
   describe('headers', () => {
     it('should add custom request headers', async () => {
       const client = new HttpClient();

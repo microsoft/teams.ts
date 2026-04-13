@@ -1,5 +1,7 @@
 import { ILogger } from '@microsoft/teams.common';
 
+import { StreamCancelledError } from '../../types';
+
 export type RetryOptions = {
   /**
    * the max number of attempts
@@ -27,6 +29,10 @@ export async function retry<T = any>(factory: () => Promise<T>, options?: RetryO
   try {
     return await factory();
   } catch (err) {
+    if (err instanceof StreamCancelledError || (err instanceof Error && err.name === 'StreamCancelledError')) {
+      throw err;
+    }
+
     if (max > 1) {
       log?.debug(`delaying ${delay}ms...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
