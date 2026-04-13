@@ -89,9 +89,18 @@ describe('ConversationActivityClient', () => {
 
   it('should get members', async () => {
     const client = new ConversationActivityClient('');
-    const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
+    const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({ data: [] });
     await client.getMembers('1', '2');
     expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2/members');
+  });
+
+  it('should resolve objectId to aadObjectId in getMembers', async () => {
+    const client = new ConversationActivityClient('');
+    jest.spyOn(client.http, 'get').mockResolvedValueOnce({
+      data: [{ id: 'user1', objectId: 'aad-123' }],
+    });
+    const result = await client.getMembers('1', '2');
+    expect(result).toEqual([{ id: 'user1', objectId: 'aad-123', aadObjectId: 'aad-123' }]);
   });
 
   describe('targeted activities', () => {
