@@ -24,6 +24,12 @@ export interface IJwtValidationOptions {
   tenantId?: string;
 
   /**
+   * The Azure AD login endpoint. Used for JWKS URI construction and issuer validation.
+   * Defaults to "https://login.microsoftonline.com".
+   */
+  loginEndpoint?: string;
+
+  /**
    * JWKS URI options for fetching public keys
    */
   jwksUriOptions: {
@@ -129,8 +135,9 @@ export class JwtValidator {
             this.logger?.debug(`Using cached JWKS client for tenant ID: ${this.options.tenantId}`);
             return cachedClient;
           }
+          const loginEndpoint = this.options.loginEndpoint ?? 'https://login.microsoftonline.com';
           this.jwksCache.set(`${this.options.tenantId}`, jwksRsa({
-            jwksUri: `https://login.microsoftonline.com/${this.options.tenantId}/discovery/v2.0/keys`,
+            jwksUri: `${loginEndpoint}/${this.options.tenantId}/discovery/v2.0/keys`,
           }));
 
           return this.jwksCache.get(`${this.options.tenantId}`)!;
@@ -217,7 +224,8 @@ export class JwtValidator {
         return;
       }
 
-      if (!allowedTenantIds.some((tenantId) => iss.startsWith(`https://login.microsoftonline.com/${tenantId}/`))) {
+      const loginEndpoint = this.options.loginEndpoint ?? 'https://login.microsoftonline.com';
+      if (!allowedTenantIds.some((tenantId) => iss.startsWith(`${loginEndpoint}/${tenantId}/`))) {
         throw new Error(`Token issuer '${iss}' not in allowed tenant IDs: ${allowedTenantIds.join(', ')}`);
       }
     }
@@ -267,12 +275,14 @@ export const createEntraTokenValidator = (
     allowedTenantIds?: string[];
     requiredScope?: string;
     applicationIdUri?: string;
+    loginEndpoint?: string;
     logger?: ILogger
   },
 ) => {
   return new JwtValidator({
     clientId,
     tenantId,
+    loginEndpoint: options?.loginEndpoint,
     audience: options?.applicationIdUri ? [options.applicationIdUri] : undefined,
     validateIssuer: {
       allowedTenantIds: options?.allowedTenantIds

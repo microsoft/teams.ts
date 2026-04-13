@@ -2,6 +2,16 @@ import { IMessageActivity, ITypingActivity, SentActivity } from '@microsoft/team
 import { IEventEmitter } from '@microsoft/teams.common';
 
 /**
+ * Raised when Teams cancels a stream (403) or when a stream operation is attempted after cancellation.
+ */
+export class StreamCancelledError extends Error {
+  constructor(message?: string) {
+    super(message ?? 'stream canceled');
+    this.name = 'StreamCancelledError';
+  }
+}
+
+/**
  * the minimum events a streamer
  * should support
  */
@@ -22,6 +32,12 @@ export interface IStreamerEvents {
  */
 export interface IStreamer {
   readonly events: Omit<IEventEmitter<IStreamerEvents>, 'emit'>;
+
+  /**
+   * whether the stream has been canceled.
+   * For example when the user pressed the Stop button or the 2-minute timeout has exceeded.
+   */
+  readonly canceled: boolean;
 
   /**
    * emit an activity chunk

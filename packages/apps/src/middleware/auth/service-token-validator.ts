@@ -1,7 +1,16 @@
-import { Credentials, IToken } from '@microsoft/teams.api';
+import { CloudEnvironment, Credentials, IToken, PUBLIC } from '@microsoft/teams.api';
 import { ILogger } from '@microsoft/teams.common';
 
 import { JwtValidator } from './jwt-validator';
+
+/**
+ * Derives the JWKS keys URI from an OpenID metadata URL.
+ * e.g. "https://login.botframework.com/v1/.well-known/openidconfiguration"
+ *   -> "https://login.botframework.com/v1/.well-known/keys"
+ */
+function openIdMetadataToKeysUri(openIdMetadataUrl: string): string {
+  return openIdMetadataUrl.replace(/\/openidconfiguration$/, '/keys');
+}
 
 /**
  * Service token validator for Bot Framework /api/messages requests
@@ -15,16 +24,19 @@ export class ServiceTokenValidator {
     appId: string,
     tenantId?: string,
     serviceUrl?: string,
-    logger?: ILogger
+    logger?: ILogger,
+    cloud?: CloudEnvironment
   ) {
+    const env = cloud ?? PUBLIC;
     this.jwtValidator = new JwtValidator({
       clientId: appId,
       tenantId,
-      validateIssuer: { allowedIssuer: 'https://api.botframework.com' },
+      loginEndpoint: env.loginEndpoint,
+      validateIssuer: { allowedIssuer: env.tokenIssuer },
       validateServiceUrl: serviceUrl ? { expectedServiceUrl: serviceUrl } : undefined,
       jwksUriOptions: {
         type: 'uri',
-        uri: 'https://login.botframework.com/v1/.well-known/keys'
+        uri: openIdMetadataToKeysUri(env.openIdMetadataUrl),
       },
     }, logger);
 

@@ -1,4 +1,5 @@
 import {
+  CloudEnvironment,
   Credentials,
   InvokeResponse,
   IToken
@@ -81,6 +82,7 @@ export class HttpServer implements IHttpServer {
    */
   async initialize(deps: {
     credentials?: Credentials;
+    cloud?: CloudEnvironment;
   }) {
     if (this.initialized) {
       this.logger.debug('HttpServer already initialized, skipping');
@@ -95,7 +97,8 @@ export class HttpServer implements IHttpServer {
         this.credentials.clientId,
         this.credentials.tenantId,
         undefined, // serviceUrl will be validated from activity body
-        this.logger
+        this.logger,
+        deps.cloud
       );
     }
 

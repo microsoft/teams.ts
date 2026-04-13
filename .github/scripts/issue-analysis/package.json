@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@microsoft/teams.apps": "latest",
+    "@microsoft/teams.cards": "latest",
+    "openai": "latest",
+    "tsx": "latest"
+  }
+}
