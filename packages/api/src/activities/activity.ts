@@ -318,7 +318,16 @@ export class Activity<T extends string = string> implements IActivity<T> {
   }
 
   withChannelData(value: ChannelData) {
-    this.channelData = { ...this.channelData, ...value };
+    const merged: ChannelData = { ...this.channelData, ...value };
+
+    if (merged.feedbackLoop !== undefined) {
+      merged.feedbackLoopEnabled = undefined;
+    } else if (merged.feedbackLoopEnabled === true) {
+      merged.feedbackLoop = { type: 'default' };
+      merged.feedbackLoopEnabled = undefined;
+    }
+
+    this.channelData = merged;
     return this;
   }
 
