@@ -21,11 +21,12 @@
     "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
   },
   "dependencies": {
-    "@microsoft/teams.apps": "*",
     "@microsoft/teams.ai": "*",
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.apps": "*",
     "@microsoft/teams.common": "*",
-    "@microsoft/teams.openai": "*",
     "@microsoft/teams.dev": "*",
+    "@microsoft/teams.openai": "*",
     "fuse.js": "^7.1.0"
   },
   "devDependencies": {

@@ -11,7 +11,7 @@ const app = new App({
 
 app.tab('test', path.resolve('dist/client'));
 
-app.function<{ message: string }, { conversationId: string }>(
+app.function<{ message: string }>(
   'post-to-chat',
   async ({ data, send, getCurrentConversationId }) => {
     // post to the current conversation; return the conversation ID to the caller
