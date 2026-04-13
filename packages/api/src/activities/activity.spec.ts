@@ -141,11 +141,20 @@ describe('Activity', () => {
   });
 
   describe('addFeedback', () => {
-    it('should add', () => {
+    it('should add default feedback loop', () => {
       const activity = new Activity({ type: 'test' }).addFeedback();
 
       expect(activity.type).toEqual('test');
-      expect(activity.channelData?.feedbackLoopEnabled).toEqual(true);
+      expect(activity.channelData?.feedbackLoop).toEqual({ type: 'default' });
+      expect(activity.channelData?.feedbackLoopEnabled).toBeUndefined();
+    });
+
+    it('should add custom feedback loop', () => {
+      const activity = new Activity({ type: 'test' }).addFeedback('custom');
+
+      expect(activity.type).toEqual('test');
+      expect(activity.channelData?.feedbackLoop).toEqual({ type: 'custom' });
+      expect(activity.channelData?.feedbackLoopEnabled).toBeUndefined();
     });
   });
 
