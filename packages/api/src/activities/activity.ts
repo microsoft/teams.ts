@@ -364,14 +364,17 @@ export class Activity<T extends string = string> implements IActivity<T> {
   }
 
   /**
-   * Enable message feedback
+   * Enable message feedback.
+   * @param mode - `'default'` shows Teams' built-in thumbs up/down UI.
+   *               `'custom'` triggers a `message/fetchTask` invoke so the bot can return its own task module dialog.
    */
-  addFeedback() {
+  addFeedback(mode: 'default' | 'custom' = 'default') {
     if (!this.channelData) {
       this.channelData = {};
     }
 
-    this.channelData.feedbackLoopEnabled = true;
+    this.channelData.feedbackLoop = { type: mode };
+    this.channelData.feedbackLoopEnabled = undefined;
     return this;
   }
 

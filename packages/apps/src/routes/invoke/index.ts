@@ -34,6 +34,7 @@ type InvokeAliases = {
   'task/submit': 'dialog.submit';
   'tab/fetch': 'tab.open';
   'tab/submit': 'tab.submit';
+  'message/fetchTask': 'message.fetch-task';
   'message/submitAction': 'message.submit';
   'handoff/action': 'handoff.action';
   'signin/tokenExchange': 'signin.token-exchange';
@@ -60,6 +61,7 @@ export const INVOKE_ALIASES: InvokeAliases = {
   'task/submit': 'dialog.submit',
   'tab/fetch': 'tab.open',
   'tab/submit': 'tab.submit',
+  'message/fetchTask': 'message.fetch-task',
   'message/submitAction': 'message.submit',
   'handoff/action': 'handoff.action',
   'signin/tokenExchange': 'signin.token-exchange',
