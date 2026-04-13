@@ -1,5 +1,7 @@
 import * as http from '@microsoft/teams.common/http';
 
+import { CloudEnvironment } from '../auth/cloud-environment';
+
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
 import { BotClient } from './bot';
 import { ConversationClient } from './conversation';
@@ -36,7 +38,7 @@ export class Client {
   protected _http: http.Client;
   protected _apiClientSettings: Partial<ApiClientSettings>;
 
-  constructor(serviceUrl: string, options?: http.Client | http.ClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
+  constructor(serviceUrl: string, options?: http.Client | http.ClientOptions, apiClientSettings?: Partial<ApiClientSettings>, cloud?: CloudEnvironment) {
     this.serviceUrl = serviceUrl;
 
     if (!options) {
@@ -53,7 +55,7 @@ export class Client {
       });
     }
 
-    this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
+    this._apiClientSettings = mergeApiClientSettings(apiClientSettings, cloud);
 
     this.bots = new BotClient(this.http, this._apiClientSettings);
     this.users = new UserClient(this.http, this._apiClientSettings);

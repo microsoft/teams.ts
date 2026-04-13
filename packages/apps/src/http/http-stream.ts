@@ -13,7 +13,7 @@ import {
 } from '@microsoft/teams.api';
 import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/teams.common';
 
-import { IStreamer, IStreamerEvents } from '../types';
+import { IStreamer, IStreamerEvents, StreamCancelledError } from '../types';
 import { promises } from '../utils';
 
 /**
@@ -48,7 +48,16 @@ export class HttpStream implements IStreamer {
   private _timeout?: NodeJS.Timeout;
   private _logger: ILogger;
   private _flushing: boolean = false;
+  private _canceled: boolean = false;
   private readonly _totalTimeout = 30000; // 30 seconds
+
+  /**
+   * Whether the stream has been canceled.
+   * For example when the user pressed the Stop button or the 2-minute timeout has exceeded.
+   */
+  get canceled(): boolean {
+    return this._canceled;
+  }
 
   constructor(client: Client, ref: ConversationReference, logger?: ILogger) {
     this.client = client;
@@ -61,6 +70,9 @@ export class HttpStream implements IStreamer {
    * @param activity Activity object or string message.
    */
   emit(activity: Partial<IMessageActivity | ITypingActivity> | string) {
+    if (this._canceled) {
+      throw new StreamCancelledError();
+    }
 
     if (typeof activity === 'string') {
       activity = {
@@ -104,16 +116,31 @@ export class HttpStream implements IStreamer {
       return this._result;
     }
 
+    if (this._canceled) {
+      this._logger.debug('stream canceled, nothing to close');
+      return;
+    }
+
     // Wait until all queued activities are flushed
     const start = Date.now();
 
-    while (this.queue.length || !this.id) {
+    while ((this.queue.length || !this.id) && !this._canceled) {
       if (Date.now() - start > this._totalTimeout) {
         this._logger.warn('Timeout while waiting for id and queue to flush');
         return;
       }
       this._logger.debug('waiting for id to be set or queue to be empty');
       await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    if (this._canceled) {
+      this._logger.debug('stream canceled, nothing to close');
+      return;
+    }
+
+    if (!this.id) {
+      this._logger.warn('no stream id set, cannot close stream');
+      return;
     }
 
     if (this.text === '' && !this.attachments.length) {
@@ -163,10 +190,10 @@ export class HttpStream implements IStreamer {
         this._timeout = undefined;
       }
 
-      let i = 0;
       const informativeUpdates: Partial<ITypingActivity>[] = [];
+      const startLength = this.queue.length;
 
-      while (this.queue.length && i < 10) {
+      while (this.queue.length) {
         const activity = this.queue.shift();
 
         if (!activity) continue;
@@ -195,11 +222,9 @@ export class HttpStream implements IStreamer {
             ...activity.channelData,
           };
         }
-
-        i++;
       }
 
-      if (i === 0) return;
+      if (startLength === 0) return;
 
       // Send informative updates immediately
       for (const informativeUpdate of informativeUpdates) {
@@ -217,7 +242,9 @@ export class HttpStream implements IStreamer {
         this._timeout = setTimeout(this.flush.bind(this), 500);
       }
     } catch (err) {
-      this._logger.error(err, 'flush failed');
+      if (!(err instanceof StreamCancelledError)) {
+        this._logger.error(err, 'flush failed');
+      }
     } finally {
       this._flushing = false;
     }
@@ -248,24 +275,37 @@ export class HttpStream implements IStreamer {
    * @param activity ActivityParams to send.
    */
   protected async send(activity: ActivityParams) {
+    if (this._canceled) {
+      throw new StreamCancelledError();
+    }
+
     activity = {
       ...activity,
       from: this.ref.bot,
       conversation: this.ref.conversation,
     };
 
-    if (activity.id && !(activity.entities?.some((e) => e.type === 'streaminfo') || false)) {
+    try {
+      if (activity.id && !(activity.entities?.some((e) => e.type === 'streaminfo') || false)) {
+        const res = await this.client.conversations
+          .activities(this.ref.conversation.id)
+          .update(activity.id, activity);
+
+        return { ...activity, ...res };
+      }
+
       const res = await this.client.conversations
         .activities(this.ref.conversation.id)
-        .update(activity.id, activity);
+        .create(activity);
 
       return { ...activity, ...res };
+    } catch (err: any) {
+      if (err?.response?.status === 403) {
+        this._canceled = true;
+        this._logger.debug('stream canceled by Teams (403)');
+        throw new StreamCancelledError();
+      }
+      throw err;
     }
-
-    const res = await this.client.conversations
-      .activities(this.ref.conversation.id)
-      .create(activity);
-
-    return { ...activity, ...res };
   }
 }

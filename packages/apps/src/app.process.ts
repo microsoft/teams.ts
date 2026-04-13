@@ -4,7 +4,7 @@ import { ApiClient, GraphClient } from './api';
 import { App } from './app';
 import { ActivityContext, IActivityContext } from './contexts';
 import { IActivityEvent } from './events';
-import { IPlugin } from './types';
+import { IPlugin, StreamCancelledError } from './types';
 
 /**
  * activity handler called when an inbound activity is received
@@ -170,8 +170,15 @@ export async function $process<TPlugin extends IPlugin>(
       response: res,
     });
   } catch (error: any) {
-    response = { status: 500 };
-    this.onError({ error, activity });
+    if (error instanceof StreamCancelledError || error?.name === 'StreamCancelledError') {
+      this.log.debug('stream canceled, returning 200');
+      await context.stream.close();
+      response = { status: 200 };
+    } else {
+      response = { status: 500 };
+      this.onError({ error, activity });
+    }
+
     this.onActivityResponse({
       ...ref,
       activity,

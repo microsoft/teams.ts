@@ -1,3 +1,7 @@
+import { AxiosError } from 'axios';
+
+import { StreamCancelledError } from '../types';
+
 import { HttpStream } from './http-stream';
 
 describe('HttpStream', () => {
@@ -62,17 +66,17 @@ describe('HttpStream', () => {
     stream.emit('Message 13');
 
     await jest.advanceTimersByTimeAsync(300);
-    // 500ms passed since first emit, second flush should happen
+    // 500ms passed since first emit, second flush drains entire queue
     expect(client.conversations.activities().create).toHaveBeenCalledTimes(2);
     stream.emit('Message 14');
 
     await jest.advanceTimersByTimeAsync(500);
-    // another 500ms passed, third flush should happen
+    // another 500ms passed, third flush picks up Message 14
     expect(client.conversations.activities().create).toHaveBeenCalledTimes(3);
 
     const calls = client.conversations.activities().create.mock.calls;
     expect(calls[0][0].text).toBe('Message 1');
-    expect(calls[1][0].text).toBe('Message 1Message 2Message 3Message 4Message 5Message 6Message 7Message 8Message 9Message 10Message 11');
+    expect(calls[1][0].text).toBe('Message 1Message 2Message 3Message 4Message 5Message 6Message 7Message 8Message 9Message 10Message 11Message 12Message 13');
     expect(calls[2][0].text).toBe('Message 1Message 2Message 3Message 4Message 5Message 6Message 7Message 8Message 9Message 10Message 11Message 12Message 13Message 14');
   });
 
@@ -157,5 +161,84 @@ describe('HttpStream', () => {
     );
     const result = await res;
     expect(result).toBeUndefined();
+  });
+
+  test('stream canceled on 403', async () => {
+    const stream = new HttpStream(client, ref, logger);
+    const axiosError = new AxiosError('Forbidden', '403', undefined, undefined, {
+      status: 403,
+      data: {},
+      headers: {},
+      statusText: 'Forbidden',
+      config: {} as any,
+    });
+    client.conversations.activities().create.mockRejectedValue(axiosError);
+
+    stream.emit('Test message');
+    await jest.runAllTimersAsync();
+
+    expect(stream.canceled).toBe(true);
+  });
+
+  test('emit blocked after cancel', () => {
+    const stream = new HttpStream(client, ref, logger);
+    (stream as any)._canceled = true;
+
+    expect(() => stream.emit('Should fail')).toThrow(StreamCancelledError);
+  });
+
+  test('send blocked after cancel', async () => {
+    const stream = new HttpStream(client, ref, logger);
+    (stream as any)._canceled = true;
+
+    await expect((stream as any).send({ type: 'typing', text: 'test' })).rejects.toThrow(
+      StreamCancelledError
+    );
+  });
+
+  test('close returns undefined when canceled', async () => {
+    const stream = new HttpStream(client, ref, logger);
+    (stream as any)._canceled = true;
+    // Set index so we get past the "no content" early return
+    (stream as any).index = 1;
+
+    const result = await stream.close();
+    expect(result).toBeUndefined();
+    expect(logger.debug).toHaveBeenCalledWith('stream canceled, nothing to close');
+  });
+
+  test('stream canceled after successful message', async () => {
+    const stream = new HttpStream(client, ref, logger);
+    let callCount = 0;
+    const axiosError = new AxiosError('Forbidden', '403', undefined, undefined, {
+      status: 403,
+      data: {},
+      headers: {},
+      statusText: 'Forbidden',
+      config: {} as any,
+    });
+
+    client.conversations.activities().create.mockImplementation(async (_activity: any) => {
+      callCount++;
+      if (callCount === 1) {
+        return { _activity, id: 'activity-1' };
+      }
+      throw axiosError;
+    });
+
+    // First emit succeeds
+    stream.emit('First message');
+    await jest.runAllTimersAsync();
+    expect(stream.canceled).toBe(false);
+    expect(callCount).toBe(1);
+
+    // Second emit triggers 403
+    stream.emit('Second message');
+    await jest.runAllTimersAsync();
+    expect(stream.canceled).toBe(true);
+    expect(callCount).toBe(2);
+
+    // Further emits throw
+    expect(() => stream.emit('Should fail')).toThrow(StreamCancelledError);
   });
 });
