@@ -175,7 +175,7 @@ export type AppActivityOptions = {
  */
 export class App<TPlugin extends IPlugin = IPlugin> {
   readonly api: ApiClient;
-  readonly graph: GraphClient;
+
   readonly log: ILogger;
   readonly server: HttpServer;
   readonly http?: HttpPlugin;
@@ -189,6 +189,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    */
   get credentials() {
     return this.tokenManager.credentials;
+  }
+
+  /**
+   * A Microsoft Graph client using the app's default tenant.
+   * @deprecated Use {@link getAppGraph}() instead. This getter always uses the app's default tenant. `getAppGraph(tenantId?)` supports multi-tenant scenarios.
+   */
+  get graph(): GraphClient {
+    return this.getAppGraph();
   }
 
   /**
@@ -289,10 +297,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       serviceUrl,
       this.client.clone({ token: () => this.getBotToken() }),
       this.options.apiClientSettings
-    );
-
-    this.graph = new GraphClient(
-      this.client.clone({ token: () => this.getAppGraphToken() })
     );
 
     // initialize TokenManager with credentials
