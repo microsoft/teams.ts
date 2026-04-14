@@ -50,6 +50,7 @@ import { Router } from './router';
 import { TokenManager } from './token-manager';
 import { IPlugin, AppEvents } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
+import { supportsThreading, toThreadId } from './utils/thread';
 
 /**
  * App initialization options
@@ -516,7 +517,12 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   }
 
   /**
-   * send an activity proactively
+   * send an activity proactively to a conversation.
+   *
+   * Sends to the exact conversation ID provided. For channel threads,
+   * the conversation ID must include `;messageid=` - use {@link toThreadId}
+   * to construct it, or use {@link reply} which handles this automatically.
+   *
    * @param conversationId the conversation to send to
    * @param activity the activity to send
    */
@@ -537,12 +543,45 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       },
       conversation: {
         id: conversationId,
-        conversationType: 'personal',
-      },
+      } as ConversationReference['conversation'],
     };
 
     const res = await this.activitySender.send(params, ref);
     return res;
+  }
+
+  /**
+   * send an activity proactively to a channel thread.
+   *
+   * In channels, construct a threaded conversation ID from the
+   * conversation ID and message ID, then send to that thread.
+   * In flat scopes (1:1, group chat, meetings), send as a
+   * normal message - the message ID is ignored.
+   *
+   * @param conversationId the channel or conversation ID
+   * @param messageId the thread root message ID
+   * @param activity the activity to send
+   */
+  async reply(conversationId: string, messageId: string, activity: ActivityLike): Promise<any>;
+  /**
+   * send an activity proactively to a conversation.
+   *
+   * Sends to the exact conversation ID provided - threaded if
+   * it contains `;messageid=`, flat otherwise.
+   *
+   * @param conversationId the conversation to send to
+   * @param activity the activity to send
+   */
+  async reply(conversationId: string, activity: ActivityLike): Promise<any>;
+  async reply(conversationId: string, messageId: string | ActivityLike, activity?: ActivityLike) {
+    if (typeof messageId === 'string' && activity !== undefined) {
+      const targetId = supportsThreading(conversationId)
+        ? toThreadId(conversationId, messageId)
+        : conversationId;
+      return this.send(targetId, activity);
+    }
+
+    return this.send(conversationId, messageId as ActivityLike);
   }
 
   /**
