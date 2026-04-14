@@ -996,6 +996,7 @@ describe('Client', () => {
                 message: 'Insufficient privileges to complete the operation.',
               },
             });
+            expect(graphErr.cause).toBe(axiosError);
           }
         });
 

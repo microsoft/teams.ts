@@ -22,16 +22,16 @@ export class GraphError extends Error {
   /** The full response body from the Graph API */
   readonly body: unknown;
 
-  constructor(statusCode: number, body: unknown, method: string, path: string) {
+  constructor(statusCode: number, body: unknown, method: string, url: string, cause?: Error) {
     const graphError = body && typeof body === 'object' && 'error' in body
       ? (body as { error: { code?: string; message?: string } }).error
       : undefined;
 
     const message = graphError?.message
-      ? `Graph ${method.toUpperCase()} ${path} failed (${statusCode}): ${graphError.message}`
-      : `Graph ${method.toUpperCase()} ${path} failed with status ${statusCode}`;
+      ? `Graph ${method.toUpperCase()} ${url} failed (${statusCode}): ${graphError.message}`
+      : `Graph ${method.toUpperCase()} ${url} failed with status ${statusCode}`;
 
-    super(message);
+    super(message, { cause });
     this.name = 'GraphError';
     this.statusCode = statusCode;
     this.code = graphError?.code;
@@ -158,7 +158,7 @@ export class Client {
       }
     } catch (err) {
       if (isAxiosError(err) && err.response) {
-        throw new GraphError(err.response.status, err.response.data, method, url);
+        throw new GraphError(err.response.status, err.response.data, method, url, err);
       }
       throw err;
     }
