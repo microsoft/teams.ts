@@ -1,4 +1,5 @@
 import * as http from '@microsoft/teams.common/http';
+import { isAxiosError } from 'axios';
 
 import { getInjectedUrl, getInjectedRequestConfig } from './utils/url';
 
@@ -8,6 +9,35 @@ import type { CallOptions, EndpointRequest, SchemaVersion } from './types';
 declare const __PACKAGE_VERSION__: string;
 
 export { CallOptions, EndpointRequest, SchemaVersion } from './types';
+
+/**
+ * Error thrown when a Graph API request fails.
+ * Surfaces the response body from the Graph API for easier debugging.
+ */
+export class GraphError extends Error {
+  /** HTTP status code */
+  readonly statusCode: number;
+  /** Graph API error code (e.g. "Authorization_RequestDenied") */
+  readonly code?: string;
+  /** The full response body from the Graph API */
+  readonly body: unknown;
+
+  constructor(statusCode: number, body: unknown, method: string, path: string) {
+    const graphError = body && typeof body === 'object' && 'error' in body
+      ? (body as { error: { code?: string; message?: string } }).error
+      : undefined;
+
+    const message = graphError?.message
+      ? `Graph ${method.toUpperCase()} ${path} failed (${statusCode}): ${graphError.message}`
+      : `Graph ${method.toUpperCase()} ${path} failed with status ${statusCode}`;
+
+    super(message);
+    this.name = 'GraphError';
+    this.statusCode = statusCode;
+    this.code = graphError?.code;
+    this.body = body;
+  }
+}
 
 const defaultBaseUrlRoot = 'https://graph.microsoft.com';
 
@@ -114,16 +144,23 @@ export class Client {
     const requestConfig = getInjectedRequestConfig(paramDefs, params, callOptions?.requestConfig);
     const httpClient = this.getHttpClient(ver);
 
-    switch (method) {
-      case 'delete':
-      case 'get':
-        return (await httpClient[method](url, requestConfig)).data as R;
-      case 'patch':
-      case 'post':
-      case 'put':
-        return (await httpClient[method](url, body, requestConfig)).data as R;
-      default:
-        throw new Error(`Unsupported HTTP method: ${method}`);
+    try {
+      switch (method) {
+        case 'delete':
+        case 'get':
+          return (await httpClient[method](url, requestConfig)).data as R;
+        case 'patch':
+        case 'post':
+        case 'put':
+          return (await httpClient[method](url, body, requestConfig)).data as R;
+        default:
+          throw new Error(`Unsupported HTTP method: ${method}`);
+      }
+    } catch (err) {
+      if (isAxiosError(err) && err.response) {
+        throw new GraphError(err.response.status, err.response.data, method, url);
+      }
+      throw err;
     }
   }
 

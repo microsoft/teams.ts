@@ -1,6 +1,6 @@
 import * as http from '@microsoft/teams.common/http';
 
-import { Client } from './index';
+import { Client, GraphError } from './index';
 
 import type { EndpointRequest } from './types';
 
@@ -954,6 +954,78 @@ describe('Client', () => {
           await expect(client.call(mockEndpoint)).rejects.toThrow(
             'Network error',
           );
+        });
+
+        it('should throw GraphError with response body for axios errors', async () => {
+          const axiosError = Object.assign(new Error('Request failed'), {
+            isAxiosError: true,
+            response: {
+              status: 403,
+              data: {
+                error: {
+                  code: 'Authorization_RequestDenied',
+                  message: 'Insufficient privileges to complete the operation.',
+                },
+              },
+            },
+          });
+          mockHttpClient.get.mockRejectedValue(axiosError);
+
+          const mockEndpoint = jest.fn(
+            (): EndpointRequest<any> => ({
+              method: 'get',
+              path: '/chats/{chatId}/messages',
+              paramDefs: { path: ['chatId'] },
+              params: { chatId: 'chat-123' },
+            }),
+          );
+
+          try {
+            await client.call(mockEndpoint);
+            fail('Expected GraphError to be thrown');
+          } catch (err) {
+            expect(err).toBeInstanceOf(GraphError);
+            const graphErr = err as GraphError;
+            expect(graphErr.statusCode).toBe(403);
+            expect(graphErr.code).toBe('Authorization_RequestDenied');
+            expect(graphErr.message).toContain('Insufficient privileges');
+            expect(graphErr.message).toContain('GET');
+            expect(graphErr.body).toEqual({
+              error: {
+                code: 'Authorization_RequestDenied',
+                message: 'Insufficient privileges to complete the operation.',
+              },
+            });
+          }
+        });
+
+        it('should throw GraphError with status for non-standard error bodies', async () => {
+          const axiosError = Object.assign(new Error('Request failed'), {
+            isAxiosError: true,
+            response: {
+              status: 500,
+              data: 'Internal Server Error',
+            },
+          });
+          mockHttpClient.get.mockRejectedValue(axiosError);
+
+          const mockEndpoint = jest.fn(
+            (): EndpointRequest<any> => ({
+              method: 'get',
+              path: '/users',
+            }),
+          );
+
+          try {
+            await client.call(mockEndpoint);
+            fail('Expected GraphError to be thrown');
+          } catch (err) {
+            expect(err).toBeInstanceOf(GraphError);
+            const graphErr = err as GraphError;
+            expect(graphErr.statusCode).toBe(500);
+            expect(graphErr.code).toBeUndefined();
+            expect(graphErr.message).toContain('failed with status 500');
+          }
         });
       });
     });
