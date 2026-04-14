@@ -3,6 +3,7 @@ import { Client, ClientOptions } from '@microsoft/teams.common/http';
 import {
   MeetingInfo,
   MeetingNotificationParams,
+  MeetingNotificationResponse,
   MeetingParticipant,
 } from '../models';
 
@@ -72,12 +73,12 @@ export class MeetingClient {
   async sendNotification(
     meetingId: string,
     params: MeetingNotificationParams
-  ) {
+  ): Promise<MeetingNotificationResponse | undefined> {
     const body = {
       type: params.type ?? 'targetedMeetingNotification',
       value: params.value,
     };
-    const res = await this.http.post<any>(
+    const res = await this.http.post<MeetingNotificationResponse>(
       `${this.serviceUrl}/v1/meetings/${encodeURIComponent(meetingId)}/notification`,
       body
     );

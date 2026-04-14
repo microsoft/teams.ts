@@ -85,8 +85,10 @@ export type TeamsChannelAccount<P = any> = {
  * This function normalizes both into `aadObjectId`.
  */
 export function resolveAadObjectId(data: any): TeamsChannelAccount {
-  data.aadObjectId ??= data.objectId;
-  return data;
+  return {
+    ...data,
+    aadObjectId: data.aadObjectId ?? data.objectId,
+  };
 }
 
 export type ConversationAccount = {
