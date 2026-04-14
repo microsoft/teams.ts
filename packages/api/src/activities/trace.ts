@@ -2,6 +2,10 @@ import { ConversationReference } from '../models';
 
 import { IActivity } from './activity';
 
+/**
+ * @deprecated 
+ * Only used by the Bot Framework Emulator which is now deprecated.
+ */
 export interface ITraceActivity extends IActivity<'trace'> {
   /**
    * The name of the operation associated with an invoke or event activity.
@@ -25,6 +29,7 @@ export interface ITraceActivity extends IActivity<'trace'> {
 
   /**
    * A reference to another conversation or activity.
+   * @deprecated No longer returned by the service backend.
    */
   relatesTo?: ConversationReference;
 }

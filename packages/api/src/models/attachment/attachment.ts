@@ -1,6 +1,7 @@
 export type Attachment = {
   /**
    * @member {string} [id] The id of the attachment.
+   * @deprecated No longer returned by the service backend.
    */
   id?: string;
 

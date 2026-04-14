@@ -19,6 +19,7 @@ export interface IConversationUpdateActivity extends IActivity<'conversationUpda
 
   /**
    * Indicates whether the prior history of the channel is disclosed.
+   * @deprecated Not recognized by the service backend.
    */
   historyDisclosed?: boolean;
 

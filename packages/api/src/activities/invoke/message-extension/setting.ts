@@ -14,6 +14,7 @@ export interface IMessageExtensionSettingInvokeActivity extends IActivity<'invok
 
   /**
    * A reference to another conversation or activity.
+   * @deprecated No longer returned by the service backend.
    */
   relatesTo?: ConversationReference;
 }

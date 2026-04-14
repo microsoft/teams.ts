@@ -9,6 +9,7 @@ export interface IMessageUpdateActivity extends IActivity<'messageUpdate'> {
 
   /**
    * The text to speak.
+   * @deprecated Not recognized by the service backend.
    */
   speak?: string;
 
@@ -20,6 +21,7 @@ export interface IMessageUpdateActivity extends IActivity<'messageUpdate'> {
   /**
    * The time at which the activity should be considered to be "expired" and should not be
    * presented to the recipient.
+   * @deprecated Not recognized by the service backend.
    */
   expiration?: Date;
 
@@ -44,6 +46,7 @@ export class MessageUpdateActivity
 
   /**
    * The text to speak.
+   * @deprecated Not recognized by the service backend.
    */
   speak?: string;
 
@@ -55,6 +58,7 @@ export class MessageUpdateActivity
   /**
    * The time at which the activity should be considered to be "expired" and should not be
    * presented to the recipient.
+   * @deprecated Not recognized by the service backend.
    */
   expiration?: Date;
 
@@ -123,6 +127,7 @@ export class MessageUpdateActivity
 
   /**
    * The text to speak.
+   * @deprecated Not recognized by the service backend.
    */
   withSpeak(value: string) {
     this.speak = value;
@@ -140,6 +145,7 @@ export class MessageUpdateActivity
   /**
    * The time at which the activity should be considered to be "expired" and should not be
    * presented to the recipient.
+   * @deprecated Not recognized by the service backend.
    */
   withExpiration(value: Date) {
     this.expiration = value;

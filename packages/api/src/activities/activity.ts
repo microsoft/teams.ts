@@ -69,6 +69,7 @@ export interface IActivity<T extends string = string> {
 
   /**
    * A reference to another conversation or activity.
+   * @deprecated No longer returned by the service backend.
    */
   relatesTo?: ConversationReference;
 
@@ -172,6 +173,7 @@ export class Activity<T extends string = string> implements IActivity<T> {
 
   /**
    * A reference to another conversation or activity.
+   * @deprecated No longer returned by the service backend.
    */
   relatesTo?: ConversationReference;
 
@@ -277,6 +279,9 @@ export class Activity<T extends string = string> implements IActivity<T> {
     return this;
   }
 
+  /**
+   * @deprecated No longer returned by the service backend.
+   */
   withRelatesTo(value: ConversationReference) {
     this.relatesTo = value;
     return this;
