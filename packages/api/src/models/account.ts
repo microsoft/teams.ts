@@ -7,7 +7,7 @@ export type Account<P = any> = {
   /**
    * @deprecated No longer returned by the service backend.
    */
-  readonly role?: Role;
+  readonly role: Role;
   /**
    * The type of the account. Possible values: 'person', 'bot', 'channel', 'team', 'tag'.
    * Primarily present on mention entities for non-person accounts. Absent for regular person accounts.
