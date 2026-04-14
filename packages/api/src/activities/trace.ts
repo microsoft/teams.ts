@@ -3,8 +3,7 @@ import { ConversationReference } from '../models';
 import { IActivity } from './activity';
 
 /**
- * @deprecated 
- * Only used by the Bot Framework Emulator which is now deprecated.
+ * @deprecated Only used by the Bot Framework Emulator which is now deprecated.
  */
 export interface ITraceActivity extends IActivity<'trace'> {
   /**
