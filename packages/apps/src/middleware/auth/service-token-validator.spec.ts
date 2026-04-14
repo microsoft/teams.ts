@@ -279,24 +279,24 @@ describe('ServiceTokenValidator', () => {
       expect(result.serviceUrl).toBe('https://smba.onyx.prod.teams.trafficmanager.net');
     });
 
-    it('should skip serviceUrl validation when skipServiceUrlValidation is true', async () => {
+    it('should accept any domain when additionalAllowedDomains includes wildcard', async () => {
       const validator = new ServiceTokenValidator(
-        mockClientId, mockTenantId, undefined, undefined, undefined, true
+        mockClientId, mockTenantId, undefined, undefined, ['*']
       );
 
       const mockPayload = {
         appid: mockClientId,
         sub: 'bot-id',
-        serviceurl: 'https://evil.com/api'
+        serviceurl: 'https://any-domain.com/api'
       };
 
       mockValidateAccessToken.mockResolvedValue(mockPayload);
 
       const authHeader = 'Bearer test-token';
-      const body = { serviceUrl: 'https://evil.com/api' };
+      const body = { serviceUrl: 'https://any-domain.com/api' };
 
       const result = await validator.check(authHeader, body);
-      expect(result.serviceUrl).toBe('https://evil.com/api');
+      expect(result.serviceUrl).toBe('https://any-domain.com/api');
     });
 
     it('should accept US Government serviceUrl', async () => {
@@ -357,7 +357,7 @@ describe('ServiceTokenValidator', () => {
     });
 
     it('should use US_GOV cloud issuer and JWKS URI', () => {
-      new ServiceTokenValidator(mockClientId, mockTenantId, undefined, undefined, US_GOV);
+      new ServiceTokenValidator(mockClientId, mockTenantId, undefined, undefined, undefined, US_GOV);
 
       expect(JwtValidator).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -373,7 +373,7 @@ describe('ServiceTokenValidator', () => {
     });
 
     it('should use CHINA cloud issuer and JWKS URI', () => {
-      new ServiceTokenValidator(mockClientId, mockTenantId, undefined, undefined, CHINA);
+      new ServiceTokenValidator(mockClientId, mockTenantId, undefined, undefined, undefined, CHINA);
 
       expect(JwtValidator).toHaveBeenCalledWith(
         expect.objectContaining({

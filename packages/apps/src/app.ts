@@ -146,13 +146,6 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly skipAuth?: boolean;
 
   /**
-   * Skip service URL domain validation.
-   * When true, the SDK will not validate that incoming serviceUrl values
-   * belong to known domains. Not recommended for production.
-   */
-  readonly skipServiceUrlValidation?: boolean;
-
-  /**
    * Additional allowed service URL domain suffixes beyond the built-in defaults.
    * Use this if your bot receives activities from non-standard channels
    * with service URLs outside the known Bot Framework domains.
@@ -388,7 +381,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         onError: (err) => this.onError({ error: err })
       }), {
         skipAuth: this.options.skipAuth,
-        skipServiceUrlValidation: this.options.skipServiceUrlValidation,
         additionalAllowedDomains: this.options.additionalAllowedDomains,
         logger: this.log,
         messagingEndpoint: this.options.messagingEndpoint ?? '/api/messages',

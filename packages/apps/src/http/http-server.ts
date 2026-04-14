@@ -18,7 +18,6 @@ type AuthResult =
 
 export type HttpServerOptions = {
   readonly skipAuth?: boolean;
-  readonly skipServiceUrlValidation?: boolean;
   readonly additionalAllowedDomains?: string[];
   readonly logger?: ILogger;
   /**
@@ -49,7 +48,6 @@ export class HttpServer implements IHttpServer {
   protected logger: ILogger;
   protected credentials?: Credentials;
   protected skipAuth: boolean;
-  protected skipServiceUrlValidation: boolean;
   protected additionalAllowedDomains?: string[];
   protected initialized: boolean = false;
   protected serviceTokenValidator?: ServiceTokenValidator;
@@ -75,7 +73,6 @@ export class HttpServer implements IHttpServer {
   constructor(adapter: IHttpServerAdapter, options: HttpServerOptions) {
     this._adapter = adapter;
     this.skipAuth = options.skipAuth ?? false;
-    this.skipServiceUrlValidation = options.skipServiceUrlValidation ?? false;
     this.additionalAllowedDomains = options.additionalAllowedDomains;
     this.logger = options.logger ?? new ConsoleLogger('HttpServer');
     this._messagingEndpoint = options.messagingEndpoint;
@@ -198,7 +195,7 @@ export class HttpServer implements IHttpServer {
       const serviceUrl = body.serviceUrl || '';
 
       // Validate serviceUrl even when auth is skipped
-      if (serviceUrl && !this.skipServiceUrlValidation && !isAllowedServiceUrl(serviceUrl, this.additionalAllowedDomains)) {
+      if (serviceUrl && !isAllowedServiceUrl(serviceUrl, this.additionalAllowedDomains)) {
         return { success: false, error: `Service URL '${serviceUrl}' is not from an allowed domain` };
       }
 
