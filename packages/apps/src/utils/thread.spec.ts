@@ -1,4 +1,4 @@
-import { toThreadId } from './thread';
+import { toThreadId, supportsThreading } from './thread';
 
 describe('toThreadId', () => {
   it('should construct a threaded conversation ID', () => {
@@ -53,5 +53,28 @@ describe('toThreadId', () => {
     expect(toThreadId('19:abc@thread.skype;messageid=111', '222')).toBe(
       '19:abc@thread.skype;messageid=222'
     );
+  });
+});
+
+describe('supportsThreading', () => {
+  it('should return true for @thread.tacv2 (channel)', () => {
+    expect(supportsThreading('19:abc@thread.tacv2')).toBe(true);
+  });
+
+  it('should return true for @thread.skype (classic channel)', () => {
+    expect(supportsThreading('19:abc@thread.skype')).toBe(true);
+  });
+
+  it('should return true for @unq.gbl.spaces (1:1 chat)', () => {
+    expect(supportsThreading('a]8:orgid:user-guid@unq.gbl.spaces')).toBe(true);
+  });
+
+  it('should return false for @thread.v2 (group chat / meeting)', () => {
+    expect(supportsThreading('19:meeting_abc@thread.v2')).toBe(false);
+  });
+
+  it('should check base ID when ;messageid= suffix is present', () => {
+    expect(supportsThreading('19:abc@thread.tacv2;messageid=123')).toBe(true);
+    expect(supportsThreading('19:meeting_abc@thread.v2;messageid=123')).toBe(false);
   });
 });

@@ -555,8 +555,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    *
    * In channels, construct a threaded conversation ID from the
    * conversation ID and message ID, then send to that thread.
-   * In flat scopes (1:1, group chat, meetings), send as a
-   * normal message - the message ID is ignored.
+   * In scopes that do not support threading (group chat, meetings),
+   * send as a normal message - the message ID is ignored.
    *
    * @param conversationId the channel or conversation ID
    * @param messageId the thread root message ID

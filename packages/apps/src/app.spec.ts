@@ -384,6 +384,17 @@ describe('App', () => {
       expect(ref.conversation.id).toBe('19:abc@thread.skype;messageid=123');
     });
 
+    it('should pass conversationId as-is when conversation does not support threading (three-arg form)', async () => {
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+
+      await app.testReply('19:meeting_abc@thread.v2', '123', { text: 'Hello' });
+
+      expect(mockSend).toHaveBeenCalled();
+      const [, ref] = mockSend.mock.calls[0];
+      expect(ref.conversation.id).toBe('19:meeting_abc@thread.v2');
+    });
+
     it('should throw on invalid messageId in three-arg form', async () => {
       await expect(
         app.testReply('19:abc@thread.skype', 'not-a-number', { text: 'Hello' })
@@ -394,13 +405,10 @@ describe('App', () => {
       const unstartedApp = new TestApp({
         httpServerAdapter: new TestAdapter(),
       });
-      await unstartedApp.start();
 
       await expect(
         unstartedApp.testReply('conv-id', { text: 'Hello' })
       ).rejects.toThrow('app not started');
-
-      await unstartedApp.stop();
     });
   });
 });
