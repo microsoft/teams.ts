@@ -298,8 +298,6 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       // because groupchats don't support it.
       const res = await this.api.conversations.create({
         tenantId: this.activity.conversation.tenantId,
-        isGroup: false,
-        bot: { id: this.activity.recipient.id },
         members: [this.activity.from],
       });
 

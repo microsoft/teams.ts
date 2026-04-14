@@ -9,20 +9,35 @@ import { ApiClientSettings, mergeApiClientSettings } from '../api-client-setting
 import { ActivityParams, ConversationActivityClient } from './activity';
 import { ConversationMemberClient } from './member';
 
+/**
+ * @deprecated The GET /v3/conversations endpoint is not supported. This type will be removed in a future version.
+ */
 export type GetConversationsParams = {
   readonly continuationToken?: string;
 };
 
 export type CreateConversationParams = {
+  /**
+   * @deprecated Ignored by the backend. This field will be removed in a future version.
+   */
   readonly isGroup?: boolean;
+  /**
+   * @deprecated Ignored by the backend. This field will be removed in a future version.
+   */
   readonly bot?: Partial<Account>;
   readonly members?: Account[];
+  /**
+   * @deprecated Ignored by the backend. This field will be removed in a future version.
+   */
   readonly topicName?: string;
   readonly tenantId?: string;
   readonly activity?: ActivityParams;
   readonly channelData?: Record<string, any>;
 };
 
+/**
+ * @deprecated The GET /v3/conversations endpoint is not supported. This type will be removed in a future version.
+ */
 export type GetConversationsResponse = {
   /**
    * Paging token
@@ -85,10 +100,18 @@ export class ConversationClient {
     return {
       get: () => this._members.get(conversationId),
       getById: (id: string) => this._members.getById(conversationId, id),
+      getPaged: (pageSize?: number, continuationToken?: string) =>
+        this._members.getPaged(conversationId, pageSize, continuationToken),
+      /**
+       * @deprecated The DELETE member endpoint is not supported by the backend. This method will be removed in a future version.
+       */
       delete: (id: string) => this._members.delete(conversationId, id),
     };
   }
 
+  /**
+   * @deprecated The GET /v3/conversations endpoint is not supported. This method will be removed in a future version.
+   */
   async get(params: GetConversationsParams) {
     const q = qs.stringify(params, { addQueryPrefix: true });
     const res = await this.http.get<GetConversationsResponse>(

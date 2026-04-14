@@ -93,10 +93,8 @@ describe('getConversationIdResolver', () => {
     const id = await resolver();
     expect(id).toBe('new-conv-id');
     expect(app.api.conversations.create).toHaveBeenCalledWith({
-      bot: { id: 'bot-id' },
       members: [{ id: 'user-id', role: 'user', name: 'Test User' }],
       tenantId: 'tenant-1',
-      isGroup: false,
     });
   });
 
