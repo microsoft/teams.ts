@@ -30,13 +30,13 @@ export const createFeedbackActivity = ({
   const invokeFrom: Account & { displayName?: string } = {
     id: from?.id || '',
     name: from?.name || '',
-    type: from?.type || 'user',
+    role: from?.role || 'user',
   };
 
   const invokeRecipient: Account & { displayName?: string } = {
     id: recipient?.id || '',
     name: recipient?.name || '',
-    type: recipient?.type || 'bot',
+    role: recipient?.role || 'bot',
   };
 
   const activity = {
