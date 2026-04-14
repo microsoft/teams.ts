@@ -242,6 +242,43 @@ describe('ServiceTokenValidator', () => {
       expect(result.serviceUrl).toBe('https://api.custom-channel.com');
     });
 
+    it('should reject attacker-controlled trafficmanager subdomain', async () => {
+      const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://attacker.trafficmanager.net'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://attacker.trafficmanager.net' };
+
+      await expect(validator.check(authHeader, body)).rejects.toThrow(
+        'is not from an allowed domain'
+      );
+    });
+
+    it('should accept smba.onyx.prod.teams.trafficmanager.net', async () => {
+      const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://smba.onyx.prod.teams.trafficmanager.net'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://smba.onyx.prod.teams.trafficmanager.net' };
+
+      const result = await validator.check(authHeader, body);
+      expect(result.serviceUrl).toBe('https://smba.onyx.prod.teams.trafficmanager.net');
+    });
+
     it('should skip serviceUrl validation when skipServiceUrlValidation is true', async () => {
       const validator = new ServiceTokenValidator(
         mockClientId, mockTenantId, undefined, undefined, undefined, true
