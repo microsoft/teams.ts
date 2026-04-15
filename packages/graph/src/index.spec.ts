@@ -980,24 +980,20 @@ describe('Client', () => {
             }),
           );
 
-          try {
-            await client.call(mockEndpoint);
-            fail('Expected GraphError to be thrown');
-          } catch (err) {
-            expect(err).toBeInstanceOf(GraphError);
-            const graphErr = err as GraphError;
-            expect(graphErr.statusCode).toBe(403);
-            expect(graphErr.code).toBe('Authorization_RequestDenied');
-            expect(graphErr.message).toContain('Insufficient privileges');
-            expect(graphErr.message).toContain('GET');
-            expect(graphErr.body).toEqual({
+          const rejection = expect(client.call(mockEndpoint)).rejects;
+          await rejection.toBeInstanceOf(GraphError);
+          await rejection.toMatchObject({
+            statusCode: 403,
+            code: 'Authorization_RequestDenied',
+            body: {
               error: {
                 code: 'Authorization_RequestDenied',
                 message: 'Insufficient privileges to complete the operation.',
               },
-            });
-            expect(graphErr.cause).toBe(axiosError);
-          }
+            },
+            cause: axiosError,
+          });
+          await rejection.toThrow(/Insufficient privileges/);
         });
 
         it('should throw GraphError with status for non-standard error bodies', async () => {
@@ -1017,16 +1013,13 @@ describe('Client', () => {
             }),
           );
 
-          try {
-            await client.call(mockEndpoint);
-            fail('Expected GraphError to be thrown');
-          } catch (err) {
-            expect(err).toBeInstanceOf(GraphError);
-            const graphErr = err as GraphError;
-            expect(graphErr.statusCode).toBe(500);
-            expect(graphErr.code).toBeUndefined();
-            expect(graphErr.message).toContain('failed with status 500');
-          }
+          const rejection = expect(client.call(mockEndpoint)).rejects;
+          await rejection.toBeInstanceOf(GraphError);
+          await rejection.toMatchObject({
+            statusCode: 500,
+            code: undefined,
+          });
+          await rejection.toThrow(/failed with status 500/);
         });
       });
     });

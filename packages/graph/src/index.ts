@@ -1,5 +1,6 @@
-import * as http from '@microsoft/teams.common/http';
 import { isAxiosError } from 'axios';
+
+import * as http from '@microsoft/teams.common/http';
 
 import { getInjectedUrl, getInjectedRequestConfig } from './utils/url';
 
@@ -22,7 +23,7 @@ export class GraphError extends Error {
   /** The full response body from the Graph API */
   readonly body: unknown;
 
-  constructor(statusCode: number, body: unknown, method: string, url: string, cause?: Error) {
+  constructor(statusCode: number, body: unknown, method: string, url: string, cause?: unknown) {
     const graphError = body && typeof body === 'object' && 'error' in body
       ? (body as { error: { code?: string; message?: string } }).error
       : undefined;
