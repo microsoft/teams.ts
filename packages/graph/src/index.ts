@@ -1,5 +1,3 @@
-import { isAxiosError } from 'axios';
-
 import * as http from '@microsoft/teams.common/http';
 
 import { getInjectedUrl, getInjectedRequestConfig } from './utils/url';
@@ -158,8 +156,9 @@ export class Client {
           throw new Error(`Unsupported HTTP method: ${method}`);
       }
     } catch (err) {
-      if (isAxiosError(err) && err.response) {
-        throw new GraphError(err.response.status, err.response.data, method, url, err);
+      if (err && typeof err === 'object' && 'isAxiosError' in err && 'response' in err && err.response) {
+        const { response } = err as { response: { status: number; data: unknown } };
+        throw new GraphError(response.status, response.data, method, url, err);
       }
       throw err;
     }
