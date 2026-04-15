@@ -36,9 +36,9 @@ export class TeamClient {
   }
 
   async getConversations(id: string) {
-    const res = await this.http.get<ChannelInfo[]>(
+    const res = await this.http.get<{ conversations: ChannelInfo[] }>(
       `${this.serviceUrl}/v3/teams/${id}/conversations`
     );
-    return res.data;
+    return res.data.conversations;
   }
 }

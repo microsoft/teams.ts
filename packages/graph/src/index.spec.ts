@@ -1,6 +1,8 @@
+import { AxiosError } from 'axios';
+
 import * as http from '@microsoft/teams.common/http';
 
-import { Client } from './index';
+import { Client, GraphError } from './index';
 
 import type { EndpointRequest } from './types';
 
@@ -954,6 +956,68 @@ describe('Client', () => {
           await expect(client.call(mockEndpoint)).rejects.toThrow(
             'Network error',
           );
+        });
+
+        it('should throw GraphError with response body for axios errors', async () => {
+          const responseData = {
+            error: {
+              code: 'Authorization_RequestDenied',
+              message: 'Insufficient privileges to complete the operation.',
+            },
+          };
+          const axiosError = new AxiosError(
+            'Request failed with status code 403',
+            'ERR_BAD_REQUEST',
+            undefined,
+            undefined,
+            { status: 403, data: responseData, statusText: 'Forbidden', headers: {}, config: {} as any },
+          );
+          mockHttpClient.get.mockRejectedValue(axiosError);
+
+          const mockEndpoint = jest.fn(
+            (): EndpointRequest<any> => ({
+              method: 'get',
+              path: '/chats/{chatId}/messages',
+              paramDefs: { path: ['chatId'] },
+              params: { chatId: 'chat-123' },
+            }),
+          );
+
+          const rejection = expect(client.call(mockEndpoint)).rejects;
+          await rejection.toBeInstanceOf(GraphError);
+          await rejection.toMatchObject({
+            statusCode: 403,
+            code: 'Authorization_RequestDenied',
+            body: responseData,
+            cause: axiosError,
+          });
+          await rejection.toThrow(/Insufficient privileges/);
+        });
+
+        it('should throw GraphError with status for non-standard error bodies', async () => {
+          const axiosError = new AxiosError(
+            'Request failed with status code 500',
+            'ERR_BAD_RESPONSE',
+            undefined,
+            undefined,
+            { status: 500, data: 'Internal Server Error', statusText: 'Internal Server Error', headers: {}, config: {} as any },
+          );
+          mockHttpClient.get.mockRejectedValue(axiosError);
+
+          const mockEndpoint = jest.fn(
+            (): EndpointRequest<any> => ({
+              method: 'get',
+              path: '/users',
+            }),
+          );
+
+          const rejection = expect(client.call(mockEndpoint)).rejects;
+          await rejection.toBeInstanceOf(GraphError);
+          await rejection.toMatchObject({
+            statusCode: 500,
+            code: undefined,
+          });
+          await rejection.toThrow(/failed with status 500/);
         });
       });
     });

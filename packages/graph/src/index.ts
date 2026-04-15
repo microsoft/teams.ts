@@ -9,6 +9,35 @@ declare const __PACKAGE_VERSION__: string;
 
 export { CallOptions, EndpointRequest, SchemaVersion } from './types';
 
+/**
+ * Error thrown when a Graph API request fails.
+ * Surfaces the response body from the Graph API for easier debugging.
+ */
+export class GraphError extends Error {
+  /** HTTP status code */
+  readonly statusCode: number;
+  /** Graph API error code (e.g. "Authorization_RequestDenied") */
+  readonly code?: string;
+  /** The full response body from the Graph API */
+  readonly body: unknown;
+
+  constructor(statusCode: number, body: unknown, method: string, url: string, cause?: unknown) {
+    const graphError = body && typeof body === 'object' && 'error' in body
+      ? (body as { error: { code?: string; message?: string } }).error
+      : undefined;
+
+    const message = graphError?.message
+      ? `Graph ${method.toUpperCase()} ${url} failed (${statusCode}): ${graphError.message}`
+      : `Graph ${method.toUpperCase()} ${url} failed with status ${statusCode}`;
+
+    super(message, { cause });
+    this.name = 'GraphError';
+    this.statusCode = statusCode;
+    this.code = graphError?.code;
+    this.body = body;
+  }
+}
+
 const defaultBaseUrlRoot = 'https://graph.microsoft.com';
 
 type Options = (http.Client | http.ClientOptions) & {
@@ -114,16 +143,24 @@ export class Client {
     const requestConfig = getInjectedRequestConfig(paramDefs, params, callOptions?.requestConfig);
     const httpClient = this.getHttpClient(ver);
 
-    switch (method) {
-      case 'delete':
-      case 'get':
-        return (await httpClient[method](url, requestConfig)).data as R;
-      case 'patch':
-      case 'post':
-      case 'put':
-        return (await httpClient[method](url, body, requestConfig)).data as R;
-      default:
-        throw new Error(`Unsupported HTTP method: ${method}`);
+    try {
+      switch (method) {
+        case 'delete':
+        case 'get':
+          return (await httpClient[method](url, requestConfig)).data as R;
+        case 'patch':
+        case 'post':
+        case 'put':
+          return (await httpClient[method](url, body, requestConfig)).data as R;
+        default:
+          throw new Error(`Unsupported HTTP method: ${method}`);
+      }
+    } catch (err) {
+      if (err && typeof err === 'object' && 'isAxiosError' in err && 'response' in err && err.response) {
+        const { response } = err as { response: { status: number; data: unknown } };
+        throw new GraphError(response.status, response.data, method, url, err);
+      }
+      throw err;
     }
   }
 

@@ -29,10 +29,8 @@ export function getConversationIdResolver<TPlugin extends IPlugin>(
       // a pre-existing one.
       try {
         const conversation = await app.api.conversations.create({
-          bot: { id: app.id },
           members: [{ id: userId, role: 'user', name: userName }],
           tenantId: tenantId,
-          isGroup: false,
         });
         state = { id: conversation.id };
       } catch {
