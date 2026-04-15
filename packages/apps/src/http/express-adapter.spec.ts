@@ -1,5 +1,6 @@
 import fs from 'fs';
 import http from 'http';
+import https from 'https';
 
 import os from 'os';
 import path from 'path';
@@ -10,7 +11,7 @@ import supertest from 'supertest';
 import { ExpressAdapter } from './express-adapter';
 
 describe('ExpressAdapter', () => {
-  let server: http.Server;
+  let server: http.Server | https.Server;
   let adapter: ExpressAdapter;
 
   afterEach(() => {
@@ -194,6 +195,38 @@ describe('ExpressAdapter', () => {
         fs.unlinkSync(indexHtml);
         fs.rmdirSync(tmpDir);
       }
+    });
+  });
+
+  describe('HTTPS server support', () => {
+    it('should accept an https.Server and wire it up correctly', async () => {
+      // https.createServer() without certs creates a valid server object
+      // that is instanceof https.Server (but NOT instanceof http.Server)
+      const httpsServer = https.createServer({});
+
+      expect(httpsServer instanceof https.Server).toBe(true);
+      expect(httpsServer instanceof http.Server).toBe(false);
+
+      expect(() => {
+        adapter = new ExpressAdapter(httpsServer);
+      }).not.toThrow();
+
+      // Verify the adapter stored the server: stop() should reject with
+      // "Server is not running" (not "managed externally" which would mean
+      // the adapter didn't recognize the https.Server and created its own)
+      await expect(adapter.stop()).rejects.toThrow('Server is not running');
+    });
+
+    it('should register routes on https.Server', () => {
+      const httpsServer = https.createServer({});
+      adapter = new ExpressAdapter(httpsServer);
+
+      // Should not throw — routes register on the internal Express app
+      expect(() => {
+        adapter.registerRoute('POST', '/api/messages', async () => {
+          return { status: 200, body: { ok: true } };
+        });
+      }).not.toThrow();
     });
   });
 });
