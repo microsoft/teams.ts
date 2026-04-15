@@ -10,7 +10,7 @@ import { ActivityParams, ConversationActivityClient } from './activity';
 import { ConversationMemberClient } from './member';
 
 /**
- * @deprecated The GET /v3/conversations endpoint is not supported. This type will be removed in a future version.
+ * @deprecated This will be removed by end of summer 2026.
  */
 export type GetConversationsParams = {
   readonly continuationToken?: string;
@@ -18,16 +18,16 @@ export type GetConversationsParams = {
 
 export type CreateConversationParams = {
   /**
-   * @deprecated Ignored by the backend. This field will be removed in a future version.
+   * @deprecated This will be removed by end of summer 2026.
    */
   readonly isGroup?: boolean;
   /**
-   * @deprecated Ignored by the backend. This field will be removed in a future version.
+   * @deprecated This will be removed by end of summer 2026.
    */
   readonly bot?: Partial<Account>;
   readonly members?: Account[];
   /**
-   * @deprecated Ignored by the backend. This field will be removed in a future version.
+   * @deprecated This will be removed by end of summer 2026.
    */
   readonly topicName?: string;
   readonly tenantId?: string;
@@ -36,7 +36,7 @@ export type CreateConversationParams = {
 };
 
 /**
- * @deprecated The GET /v3/conversations endpoint is not supported. This type will be removed in a future version.
+ * @deprecated This will be removed by end of summer 2026.
  */
 export type GetConversationsResponse = {
   /**
@@ -103,14 +103,14 @@ export class ConversationClient {
       getPaged: (pageSize?: number, continuationToken?: string) =>
         this._members.getPaged(conversationId, pageSize, continuationToken),
       /**
-       * @deprecated The DELETE member endpoint is not supported by the backend. This method will be removed in a future version.
+       * @deprecated This will be removed by end of summer 2026.
        */
       delete: (id: string) => this._members.delete(conversationId, id),
     };
   }
 
   /**
-   * @deprecated The GET /v3/conversations endpoint is not supported. This method will be removed in a future version.
+   * @deprecated This will be removed by end of summer 2026.
    */
   async get(params: GetConversationsParams) {
     const q = qs.stringify(params, { addQueryPrefix: true });

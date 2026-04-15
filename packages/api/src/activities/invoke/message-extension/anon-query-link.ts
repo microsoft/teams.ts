@@ -14,7 +14,7 @@ export interface IMessageExtensionAnonQueryLinkInvokeActivity extends IActivity<
 
   /**
    * A reference to another conversation or activity.
-   * @deprecated No longer returned by the service backend.
+   * @deprecated This will be removed by end of summer 2026.
    */
   relatesTo?: ConversationReference;
 }

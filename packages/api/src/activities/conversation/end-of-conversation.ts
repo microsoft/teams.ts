@@ -1,7 +1,7 @@
 import { IActivity } from '../activity';
 
 /**
- * @deprecated Not recognized as a valid activity by the service backend.
+ * @deprecated This will be removed by end of summer 2026.
  */
 export type EndOfConversationCode =
   | 'unknown'
@@ -12,7 +12,7 @@ export type EndOfConversationCode =
   | 'channelFailed';
 
 /**
- * @deprecated Not recognized as a valid activity by the service backend.
+ * @deprecated This will be removed by end of summer 2026.
  */
 export interface IEndOfConversationActivity extends IActivity<'endOfConversation'> {
   /**

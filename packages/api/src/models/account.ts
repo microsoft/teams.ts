@@ -5,7 +5,7 @@ export type Account<P = any> = {
   readonly id: string;
   readonly aadObjectId?: string;
   /**
-   * @deprecated No longer returned by the service backend.
+   * @deprecated This will be removed by end of summer 2026.
    */
   readonly role: Role;
   /**

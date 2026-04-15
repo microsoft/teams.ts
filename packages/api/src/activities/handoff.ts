@@ -1,6 +1,6 @@
 import { IActivity } from './activity';
 
 /**
- * @deprecated Not recognized as a valid activity by the service backend.
+ * @deprecated This will be removed by end of summer 2026.
  */
 export interface IHandoffActivity extends IActivity<'handoff'> {}

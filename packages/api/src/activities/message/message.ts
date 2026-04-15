@@ -23,7 +23,7 @@ export interface IMessageActivity extends IActivity<'message'> {
 
   /**
    * The text to speak.
-   * @deprecated Not recognized by the service backend.
+   * @deprecated This will be removed by end of summer 2026.
    */
   speak?: string;
 
@@ -31,7 +31,7 @@ export interface IMessageActivity extends IActivity<'message'> {
    * Indicates whether your bot is accepting,
    * expecting, or ignoring user input after the message is delivered to the client. Possible
    * values include: 'acceptingInput', 'ignoringInput', 'expectingInput'
-   * @deprecated Not recognized by the service backend.
+   * @deprecated This will be removed by end of summer 2026.
    */
   inputHint?: InputHint;
 
@@ -63,7 +63,7 @@ export interface IMessageActivity extends IActivity<'message'> {
 
   /**
    * The importance of the activity. Possible values include: 'low', 'normal', 'high'
-   * @deprecated Not recognized by the service backend.
+   * @deprecated This will be removed by end of summer 2026.
    */
   importance?: Importance;
 
@@ -76,7 +76,7 @@ export interface IMessageActivity extends IActivity<'message'> {
   /**
    * The time at which the activity should be considered to be "expired" and should not be
    * presented to the recipient.
-   * @deprecated Not recognized by the service backend.
+   * @deprecated This will be removed by end of summer 2026.
    */
   expiration?: Date;
 
@@ -109,7 +109,7 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
 
   /**
    * The text to speak.
-   * @deprecated Not recognized by the service backend.
+   * @deprecated This will be removed by end of summer 2026.
    */
   speak?: string;
 
@@ -117,7 +117,7 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
    * Indicates whether your bot is accepting,
    * expecting, or ignoring user input after the message is delivered to the client. Possible
    * values include: 'acceptingInput', 'ignoringInput', 'expectingInput'
-   * @deprecated Not recognized by the service backend.
+   * @deprecated This will be removed by end of summer 2026.
    */
   inputHint?: InputHint;
 
@@ -149,7 +149,7 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
 
   /**
    * The importance of the activity. Possible values include: 'low', 'normal', 'high'
-   * @deprecated Not recognized by the service backend.
+   * @deprecated This will be removed by end of summer 2026.
    */
   importance?: Importance;
 
@@ -162,7 +162,7 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
   /**
    * The time at which the activity should be considered to be "expired" and should not be
    * presented to the recipient.
-   * @deprecated Not recognized by the service backend.
+   * @deprecated This will be removed by end of summer 2026.
    */
   expiration?: Date;
 
@@ -221,7 +221,7 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
 
   /**
    * The text to speak.
-   * @deprecated Not recognized by the service backend.
+   * @deprecated This will be removed by end of summer 2026.
    */
   withSpeak(value: string) {
     this.speak = value;
@@ -232,7 +232,7 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
    * Indicates whether your bot is accepting,
    * expecting, or ignoring user input after the message is delivered to the client. Possible
    * values include: 'acceptingInput', 'ignoringInput', 'expectingInput'
-   * @deprecated Not recognized by the service backend.
+   * @deprecated This will be removed by end of summer 2026.
    */
   withInputHint(value: InputHint) {
     this.inputHint = value;
@@ -274,7 +274,7 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
 
   /**
    * The importance of the activity. Possible values include: 'low', 'normal', 'high'
-   * @deprecated Not recognized by the service backend.
+   * @deprecated This will be removed by end of summer 2026.
    */
   withImportance(value: Importance) {
     this.importance = value;
@@ -293,7 +293,7 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
   /**
    * The time at which the activity should be considered to be "expired" and should not be
    * presented to the recipient.
-   * @deprecated Not recognized by the service backend.
+   * @deprecated This will be removed by end of summer 2026.
    */
   withExpiration(value: Date) {
     this.expiration = value;
