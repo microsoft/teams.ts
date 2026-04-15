@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import * as http from '@microsoft/teams.common/http';
 
 import { Client, GraphError } from './index';
@@ -957,18 +958,19 @@ describe('Client', () => {
         });
 
         it('should throw GraphError with response body for axios errors', async () => {
-          const axiosError = Object.assign(new Error('Request failed'), {
-            isAxiosError: true,
-            response: {
-              status: 403,
-              data: {
-                error: {
-                  code: 'Authorization_RequestDenied',
-                  message: 'Insufficient privileges to complete the operation.',
-                },
-              },
+          const responseData = {
+            error: {
+              code: 'Authorization_RequestDenied',
+              message: 'Insufficient privileges to complete the operation.',
             },
-          });
+          };
+          const axiosError = new AxiosError(
+            'Request failed with status code 403',
+            'ERR_BAD_REQUEST',
+            undefined,
+            undefined,
+            { status: 403, data: responseData, statusText: 'Forbidden', headers: {}, config: {} as any },
+          );
           mockHttpClient.get.mockRejectedValue(axiosError);
 
           const mockEndpoint = jest.fn(
@@ -985,25 +987,20 @@ describe('Client', () => {
           await rejection.toMatchObject({
             statusCode: 403,
             code: 'Authorization_RequestDenied',
-            body: {
-              error: {
-                code: 'Authorization_RequestDenied',
-                message: 'Insufficient privileges to complete the operation.',
-              },
-            },
+            body: responseData,
             cause: axiosError,
           });
           await rejection.toThrow(/Insufficient privileges/);
         });
 
         it('should throw GraphError with status for non-standard error bodies', async () => {
-          const axiosError = Object.assign(new Error('Request failed'), {
-            isAxiosError: true,
-            response: {
-              status: 500,
-              data: 'Internal Server Error',
-            },
-          });
+          const axiosError = new AxiosError(
+            'Request failed with status code 500',
+            'ERR_BAD_RESPONSE',
+            undefined,
+            undefined,
+            { status: 500, data: 'Internal Server Error', statusText: 'Internal Server Error', headers: {}, config: {} as any },
+          );
           mockHttpClient.get.mockRejectedValue(axiosError);
 
           const mockEndpoint = jest.fn(
