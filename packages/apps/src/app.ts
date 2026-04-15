@@ -187,7 +187,6 @@ export type AppActivityOptions = {
 export class App<TPlugin extends IPlugin = IPlugin> {
   readonly api: ApiClient;
   readonly cloud: CloudEnvironment;
-  readonly graph: GraphClient;
   readonly log: ILogger;
   readonly server: HttpServer;
   readonly http?: HttpPlugin;
@@ -201,6 +200,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    */
   get credentials() {
     return this.tokenManager.credentials;
+  }
+
+  /**
+   * A Microsoft Graph client using the app's default tenant.
+   * @deprecated Use {@link getAppGraph}() instead. This getter always uses the app's default tenant. `getAppGraph(tenantId?)` supports multi-tenant scenarios.
+   */
+  get graph(): GraphClient {
+    return this.getAppGraph();
   }
 
   /**
@@ -307,10 +314,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       this.client.clone({ token: () => this.getBotToken() }),
       this.options.apiClientSettings,
       this.cloud
-    );
-
-    this.graph = new GraphClient(
-      this.client.clone({ token: () => this.getAppGraphToken() })
     );
 
     // initialize TokenManager with credentials
@@ -543,6 +546,22 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     const res = await this.activitySender.send(params, ref);
     return res;
+  }
+
+  /**
+   * Get a Microsoft Graph client configured with the app's token.
+   *
+   * @remarks
+   * This client can be used for app-only operations that don't require user context.
+   * For multi-tenant apps, pass a tenantId to get a tenant-specific token.
+   *
+   * @param tenantId - Optional tenant ID. If not provided, uses the app's default tenant.
+   * @returns A GraphClient for app-only Graph operations.
+   */
+  getAppGraph(tenantId?: string) {
+    return new GraphClient(
+      this.client.clone({ token: () => this.getAppGraphToken(tenantId) })
+    );
   }
 
   /**

@@ -72,6 +72,7 @@ export interface IBaseActivityContextOptions<T extends Activity = Activity> {
 
   /**
    * the app graph client
+   * @deprecated Use `app.getAppGraph(tenantId?)` instead for tenant-specific Graph access.
    */
   appGraph: GraphClient;
 
