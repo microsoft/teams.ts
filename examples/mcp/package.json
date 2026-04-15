@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@microsoft/teams.apps": "*",
+    "@microsoft/teams.common": "*",
     "@microsoft/teams.dev": "*",
     "@microsoft/teams.mcp": "*",
     "@modelcontextprotocol/sdk": "^1.25.2",
