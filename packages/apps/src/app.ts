@@ -522,7 +522,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    */
   async send(conversationId: string, activity: ActivityLike) {
     if (!this.id) {
-      throw new Error('app not started');
+      throw new Error('App has no credentials set up');
     }
 
     const params = toActivityParams(activity);
