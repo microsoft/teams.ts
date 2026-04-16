@@ -31,7 +31,7 @@ export const PUBLIC: CloudEnvironment = Object.freeze({
   openIdMetadataUrl: 'https://login.botframework.com/v1/.well-known/openidconfiguration',
   tokenIssuer: 'https://api.botframework.com',
   graphScope: 'https://graph.microsoft.com/.default',
-  allowedServiceUrls: ['smba.trafficmanager.net', 'smba.onyx.prod.teams.trafficmanager.net'],
+  allowedServiceUrls: ['smba.trafficmanager.net', 'smba.onyx.prod.teams.trafficmanager.net', 'smba.infra.gcc.teams.microsoft.com'],
 });
 
 /** US Government Community Cloud High (GCCH). */
