@@ -199,7 +199,8 @@ export class HttpServer implements IHttpServer {
 
       // Validate serviceUrl even when auth is skipped
       if (serviceUrl && !isAllowedServiceUrl(serviceUrl, this.cloud ?? PUBLIC, this.additionalAllowedDomains)) {
-        return { success: false, error: `Service URL '${serviceUrl}' is not from an allowed domain` };
+        this.logger.warn(`Rejected service URL: ${serviceUrl}`);
+        return { success: false, error: 'Service URL is not from an allowed domain' };
       }
 
       return {

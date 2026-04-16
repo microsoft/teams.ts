@@ -103,7 +103,7 @@ export class ServiceTokenValidator {
 
     // Validate serviceUrl against allowed domains
     if (serviceUrl && !isAllowedServiceUrl(serviceUrl, this.cloud, this.additionalAllowedDomains)) {
-      throw new Error(`Service URL '${serviceUrl}' is not from an allowed domain`);
+      throw new Error('Service URL is not from an allowed domain');
     }
 
     // Convert JWT payload to IToken
