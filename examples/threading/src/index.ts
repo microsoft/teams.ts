@@ -1,4 +1,4 @@
-import { App, toThreadId } from '@microsoft/teams.apps';
+import { App, toThreadedConversationId } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
@@ -44,17 +44,17 @@ app.on('message', async ({ reply, send, activity, ref }) => {
   }
 
   // ============================================
-  // toThreadId() + app.send() — advanced manual control (channels only)
+  // toThreadedConversationId() + app.send() — advanced manual control (channels only)
   // ============================================
   if (text.includes('test manual')) {
-    // toThreadId() is only valid for conversations that support threading
+    // toThreadedConversationId() is only valid for conversations that support threading
     const base = conversationId.split(';')[0];
     if (!base.endsWith('@thread.tacv2') && !base.endsWith('@thread.skype') && !base.endsWith('@unq.gbl.spaces')) {
       await reply('This command doesn\'t support threading in this conversation type.');
       return;
     }
-    const threadId = toThreadId(conversationId, threadRootId);
-    await app.send(threadId, 'This was sent using toThreadId() + app.send() for manual control.');
+    const threadId = toThreadedConversationId(conversationId, threadRootId);
+    await app.send(threadId, 'This was sent using toThreadedConversationId() + app.send() for manual control.');
     return;
   }
 
@@ -68,19 +68,12 @@ app.on('message', async ({ reply, send, activity, ref }) => {
       '- `test reply` - context.reply() reactive threaded reply\n' +
       '- `test send` - context.send() to same thread without quoting\n' +
       '- `test proactive` - app.reply() proactive threaded reply\n' +
-      '- `test manual` - toThreadId() + app.send() for advanced control'
+      '- `test manual` - toThreadedConversationId() + app.send() for advanced control'
     );
     return;
   }
 
   await send('Say "help" for available commands.');
-});
-
-app.on('install.add', async ({ send }) => {
-  await send(
-    'Hi! I demonstrate threading.\n\n' +
-    'Say **help** to see available commands.'
-  );
 });
 
 app.start().catch(console.error);

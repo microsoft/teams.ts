@@ -7,7 +7,7 @@
  * @param messageId the thread root message ID (must be a non-zero numeric string)
  * @returns the threaded conversation ID (e.g. `19:abc@thread.skype;messageid=123`)
  */
-export function toThreadId(conversationId: string, messageId: string): string {
+export function toThreadedConversationId(conversationId: string, messageId: string): string {
   if (!conversationId) {
     throw new Error('conversationId must be a non-empty string');
   }

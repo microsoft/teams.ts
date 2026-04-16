@@ -50,7 +50,7 @@ import { Router } from './router';
 import { TokenManager } from './token-manager';
 import { IPlugin, AppEvents } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
-import { supportsThreading, toThreadId } from './utils/thread';
+import { supportsThreading, toThreadedConversationId } from './utils/thread';
 
 /**
  * App initialization options
@@ -520,7 +520,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * send an activity proactively to a conversation.
    *
    * Sends to the exact conversation ID provided. For channel threads,
-   * the conversation ID must include `;messageid=` - use {@link toThreadId}
+   * the conversation ID must include `;messageid=` - use {@link toThreadedConversationId}
    * to construct it, or use {@link reply} which handles this automatically.
    *
    * @param conversationId the conversation to send to
@@ -576,7 +576,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   async reply(conversationId: string, messageId: string | ActivityLike, activity?: ActivityLike) {
     if (typeof messageId === 'string' && activity !== undefined) {
       const targetId = supportsThreading(conversationId)
-        ? toThreadId(conversationId, messageId)
+        ? toThreadedConversationId(conversationId, messageId)
         : conversationId;
       return this.send(targetId, activity);
     }

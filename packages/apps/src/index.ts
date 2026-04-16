@@ -10,4 +10,4 @@ export * as manifest from './manifest';
 export * from './http';
 
 // Threading utilities
-export { toThreadId } from './utils/thread';
+export { toThreadedConversationId } from './utils/thread';
