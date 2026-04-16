@@ -1,1 +1,1 @@
-export type Role = 'user' | 'bot';
+export type Role = 'user' | 'bot' | 'skill';

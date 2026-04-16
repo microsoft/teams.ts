@@ -1,3 +1,5 @@
+import { CloudEnvironment } from '../auth/cloud-environment';
+
 export type ApiClientSettings = {
   /**
    * the URL to use for managing user oauth tokens.
@@ -13,14 +15,16 @@ export const DEFAULT_API_CLIENT_SETTINGS: ApiClientSettings = {
 };
 
 export function mergeApiClientSettings(
-  apiClientSettings?: Partial<ApiClientSettings>
+  apiClientSettings?: Partial<ApiClientSettings>,
+  cloud?: CloudEnvironment
 ): ApiClientSettings {
   const env = typeof process === 'undefined' ? undefined : process.env;
-  
+  const defaultOauthUrl = cloud?.tokenServiceUrl ?? DEFAULT_API_CLIENT_SETTINGS.oauthUrl;
+
   return {
-    oauthUrl: 
-      apiClientSettings?.oauthUrl ?? 
-      env?.OAUTH_URL ?? 
-      DEFAULT_API_CLIENT_SETTINGS.oauthUrl,
+    oauthUrl:
+      apiClientSettings?.oauthUrl ??
+      env?.OAUTH_URL ??
+      defaultOauthUrl,
   };
 }

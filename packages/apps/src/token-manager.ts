@@ -1,14 +1,10 @@
 
 import { AuthenticationResult, ConfidentialClientApplication, ManagedIdentityApplication, LogLevel as MSALLogLevel, NodeSystemOptions } from '@azure/msal-node';
 
-import { ClientCredentials, Credentials, IToken, JsonWebToken, TokenCredentials, FederatedIdentityCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api';
+import { ClientCredentials, CloudEnvironment, Credentials, IToken, JsonWebToken, PUBLIC, TokenCredentials, FederatedIdentityCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api';
 import { ConsoleLogger, ILogger, LogLevel } from '@microsoft/teams.common';
 
-const DEFAULT_BOT_TOKEN_SCOPE = 'https://api.botframework.com/.default';
-const DEFAULT_GRAPH_TOKEN_SCOPE = 'https://graph.microsoft.com/.default';
-const DEFAULT_TENANT_FOR_BOT_TOKEN = 'botframework.com';
 const DEFAULT_TENANT_FOR_GRAPH_TOKEN = 'common';
-const GET_DEFAULT_TOKEN_AUTHORITY = (tenantId: string) => `https://login.microsoftonline.com/${tenantId}`;
 
 const MSAL_LOG_LEVEL_TO_LOG_LEVEL: Record<MSALLogLevel, LogLevel> = {
   [MSALLogLevel.Error]: 'error',
@@ -47,12 +43,14 @@ export type TokenManagerOptions = {
   readonly tenantId?: string;
   readonly token?: TokenCredentials['token'];
   managedIdentityClientId?: 'system' | (string & {});
+  readonly cloud?: CloudEnvironment;
 };
 
 export class TokenManager {
   readonly credentials?: Credentials;
   private logger: ILogger;
   private _msalLogger: ILogger;
+  private cloud: CloudEnvironment;
   private confidentialClientsByTenantId: Record<string, ConfidentialClientApplication> = {};
   private managedIdentityClient: ManagedIdentityApplication | null = null;
 
@@ -63,15 +61,16 @@ export class TokenManager {
       // explicitly turns it on
       pattern: '-azure/msal-node'
     });
+    this.cloud = options.cloud ?? PUBLIC;
     this.credentials = this.initializeCredentials(options);
   }
 
   async getBotToken(): Promise<IToken | null> {
-    return await this.getToken(DEFAULT_BOT_TOKEN_SCOPE, this.resolveTenantId(undefined, DEFAULT_TENANT_FOR_BOT_TOKEN));
+    return await this.getToken(this.cloud.botScope, this.resolveTenantId(undefined, this.cloud.loginTenant));
   }
 
   async getGraphToken(tenantId?: string): Promise<IToken | null> {
-    return await this.getToken(DEFAULT_GRAPH_TOKEN_SCOPE, this.resolveTenantId(tenantId, DEFAULT_TENANT_FOR_GRAPH_TOKEN));
+    return await this.getToken(this.cloud.graphScope, this.resolveTenantId(tenantId, DEFAULT_TENANT_FOR_GRAPH_TOKEN));
   }
 
   private initializeCredentials(options: TokenManagerOptions): Credentials | undefined {
@@ -162,7 +161,7 @@ export class TokenManager {
       auth: {
         clientId: credentials.clientId,
         clientAssertion: managedIdentityTokenRes.accessToken,
-        authority: GET_DEFAULT_TOKEN_AUTHORITY(tenantId)
+        authority: `${this.cloud.loginEndpoint}/${tenantId}`
       },
       system: {
         loggerOptions: this.buildLoggerOptions()
@@ -186,7 +185,7 @@ export class TokenManager {
       auth: {
         clientId: credentials.clientId,
         clientSecret: credentials.clientSecret,
-        authority: GET_DEFAULT_TOKEN_AUTHORITY(tenantId)
+        authority: `${this.cloud.loginEndpoint}/${tenantId}`
       },
       system: {
         loggerOptions: this.buildLoggerOptions()

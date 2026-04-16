@@ -1,0 +1,134 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: "Issue Analysis → Teams"
+
+on:
+  issues:
+    types: [opened]
+
+# Declare default permissions as read only.
+permissions: read-all
+
+jobs:
+  analyze-and-notify:
+    name: Analyze Issue & Notify Teams
+    runs-on: ubuntu-latest
+    if: github.event.issue.performed_via_github_app == null
+
+    permissions:
+      issues: read
+      contents: read
+      models: read
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.x'
+
+      - name: Install dependencies
+        run: cd .github/scripts/issue-analysis && npm install
+
+      - name: Install Copilot CLI
+        run: npm install -g @github/copilot
+
+      - name: Resolve issue details
+        id: issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Pass event data through env vars to avoid shell injection
+          EVENT_ISSUE_NUMBER: ${{ github.event.issue.number }}
+          EVENT_ISSUE_TITLE: ${{ github.event.issue.title }}
+          EVENT_ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          EVENT_ISSUE_URL: ${{ github.event.issue.html_url }}
+          EVENT_ISSUE_LABELS: ${{ toJSON(github.event.issue.labels) }}
+          EVENT_ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          # Use heredoc form for all fields to prevent output injection
+          # (issue titles/authors could contain newlines or %)
+          write_output() {
+            local name="$1"
+            local value="$2"
+            local delimiter="EOF_${name}_$$"
+            {
+              printf '%s<<%s\n' "$name" "$delimiter"
+              printf '%s\n' "$value"
+              printf '%s\n' "$delimiter"
+            } >> "$GITHUB_OUTPUT"
+          }
+
+          write_output "number" "$EVENT_ISSUE_NUMBER"
+          write_output "title" "$EVENT_ISSUE_TITLE"
+          write_output "author" "$EVENT_ISSUE_AUTHOR"
+          write_output "html_url" "$EVENT_ISSUE_URL"
+          write_output "labels" "$(echo "$EVENT_ISSUE_LABELS" | jq -r '[.[].name] | join(",")')"
+          write_output "body" "$EVENT_ISSUE_BODY"
+
+      - name: Analyze issue with Copilot CLI
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
+          GITHUB_UPSTREAM_REPO: microsoft/teams.ts
+        run: |
+          ISSUE_NUMBER="${{ steps.issue.outputs.number }}"
+          ISSUE_URL="https://github.com/${GITHUB_UPSTREAM_REPO}/issues/${ISSUE_NUMBER}"
+
+          copilot -p "You are analyzing GitHub issue #${ISSUE_NUMBER} for the Microsoft Teams TypeScript SDK.
+
+          Issue URL: ${ISSUE_URL}
+
+          Read the codebase to understand the architecture, then provide a concrete action plan in markdown:
+          1. **Root cause** — What's likely going wrong or what's missing
+          2. **Files to investigate** — Specific file paths to look at (use actual paths you found)
+          3. **Proposed approach** — Step-by-step what a developer should do to resolve this
+          4. **Estimated complexity** — Small (< 1 day), Medium (1-3 days), or Large (3+ days)
+
+          Be specific. Reference actual files and code you found in the repo." \
+            --allow-tool='shell(git:*)' \
+            --allow-tool='read' \
+            --allow-tool='glob' \
+            --allow-tool='grep' \
+            --no-ask-user > /tmp/raw_analysis.txt
+
+          # Strip tool call lines (● prefix and └ prefix) to get just the analysis
+          node -e "
+          const lines = require('fs').readFileSync('/tmp/raw_analysis.txt', 'utf-8').split('\n');
+          let result = [];
+          for (const line of lines) {
+            const stripped = line.trim();
+            if (stripped.startsWith('●') || stripped.startsWith('└') || stripped.startsWith('│')) {
+              result = [];
+            } else {
+              result.push(line);
+            }
+          }
+          process.stdout.write(result.join('\n').trim());
+          " > /tmp/analysis.txt
+
+          echo "--- Copilot analysis ---"
+          cat /tmp/analysis.txt
+
+      - name: Triage and notify Teams
+        env:
+          CLIENT_ID: ${{ secrets.TEAMS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.TEAMS_CLIENT_SECRET }}
+          TENANT_ID: ${{ secrets.TEAMS_TENANT_ID }}
+          TEAMS_CONVERSATION_ID: ${{ secrets.TEAMS_CONVERSATION_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_UPSTREAM_REPO: microsoft/teams.ts
+          COPILOT_ANALYSIS_FILE: /tmp/analysis.txt
+          ISSUE_NUMBER: ${{ steps.issue.outputs.number }}
+          ISSUE_TITLE: ${{ steps.issue.outputs.title }}
+          ISSUE_AUTHOR: ${{ steps.issue.outputs.author }}
+          ISSUE_HTML_URL: ${{ steps.issue.outputs.html_url }}
+          ISSUE_LABELS: ${{ steps.issue.outputs.labels }}
+          ISSUE_BODY: ${{ steps.issue.outputs.body }}
+        run: npx --prefix .github/scripts/issue-analysis tsx .github/scripts/issue-analysis/analyze-issue.ts
