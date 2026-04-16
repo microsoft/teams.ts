@@ -261,7 +261,7 @@ describe('Router', () => {
 
       router.on('invoke', handler);
       router.on('dialog.open', handler);
-      router.on('dialog.open.simple_form' as any, handler);
+      router.on('dialog.open.simple_form', handler);
 
       // Matches invoke + dialog.open + dialog.open.simple_form
       expect(router.select({
@@ -291,7 +291,7 @@ describe('Router', () => {
 
       router.on('invoke', handler);
       router.on('dialog.submit', handler);
-      router.on('dialog.submit.submit_form' as any, handler);
+      router.on('dialog.submit.submit_form', handler);
 
       // Matches invoke + dialog.submit + dialog.submit.submit_form
       expect(router.select({
@@ -314,7 +314,7 @@ describe('Router', () => {
 
       router.on('invoke', handler);
       router.on('card.action', handler);
-      router.on('card.action.save_profile' as any, handler);
+      router.on('card.action.save_profile', handler);
 
       // Matches invoke + card.action + card.action.save_profile
       expect(router.select({
