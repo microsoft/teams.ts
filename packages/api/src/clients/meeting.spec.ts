@@ -58,4 +58,28 @@ describe('MeetingClient', () => {
       '/v1/meetings/abc%2Bdef%2Fghi%3D/participants/user%3D1?tenantId=tenant%2F1'
     );
   });
+
+  it('should send notification', async () => {
+    const client = new MeetingClient('');
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+    await client.sendNotification('1', {
+      value: { recipients: ['user1'], surfaces: [{ surface: 'meetingTabIcon' }] },
+    });
+    expect(spy).toHaveBeenCalledWith('/v1/meetings/1/notification', {
+      type: 'targetedMeetingNotification',
+      value: { recipients: ['user1'], surfaces: [{ surface: 'meetingTabIcon' }] },
+    });
+  });
+
+  it('should URL-encode meeting id in sendNotification', async () => {
+    const client = new MeetingClient('');
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+    await client.sendNotification('abc+def/ghi=', {
+      value: { recipients: ['user1'], surfaces: [{ surface: 'meetingTabIcon' }] },
+    });
+    expect(spy).toHaveBeenCalledWith(
+      '/v1/meetings/abc%2Bdef%2Fghi%3D/notification',
+      expect.any(Object)
+    );
+  });
 });

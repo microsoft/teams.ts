@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@microsoft/teams.apps": "*",
+    "@microsoft/teams.common": "*",
     "@microsoft/teams.graph-endpoints": "*"
   },
   "devDependencies": {

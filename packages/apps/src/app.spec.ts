@@ -179,7 +179,7 @@ describe('App', () => {
 
       await expect(
         app.testSend('conversation-id', { text: 'Hello' })
-      ).rejects.toThrow('app not started');
+      ).rejects.toThrow('App has no credentials set up');
     });
   });
 
