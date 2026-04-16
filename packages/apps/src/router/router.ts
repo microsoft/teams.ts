@@ -107,28 +107,16 @@ export class Router<TExtraCtx extends Record<string, any> = Record<string, any>>
             return event === `message.submit.${activity.value.actionName}`;
           }
 
-          // dialog.open.{dialogId} → matches value.data.dialog_id
-          if (activity.name === 'task/fetch') {
-            const prefix = 'dialog.open.';
-            if (typeof event === 'string' && (event as string).startsWith(prefix)) {
-              return activity.value?.data?.dialog_id === (event as string).slice(prefix.length);
-            }
+          if (activity.name === 'task/fetch' && activity.value?.data?.dialog_id) {
+            return event === `dialog.open.${activity.value.data.dialog_id}`;
           }
 
-          // dialog.submit.{action} → matches value.data.action
-          if (activity.name === 'task/submit') {
-            const prefix = 'dialog.submit.';
-            if (typeof event === 'string' && (event as string).startsWith(prefix)) {
-              return activity.value?.data?.action === (event as string).slice(prefix.length);
-            }
+          if (activity.name === 'task/submit' && activity.value?.data?.action) {
+            return event === `dialog.submit.${activity.value.data.action}`;
           }
 
-          // card.action.{action} → matches value.action.data.action
-          if (activity.name === 'adaptiveCard/action') {
-            const prefix = 'card.action.';
-            if (typeof event === 'string' && (event as string).startsWith(prefix)) {
-              return activity.value?.action?.data?.action === (event as string).slice(prefix.length);
-            }
+          if (activity.name === 'adaptiveCard/action' && activity.value?.action?.data?.action) {
+            return event === `card.action.${activity.value.action.data.action}`;
           }
         }
 
