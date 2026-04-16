@@ -3,6 +3,9 @@ import { InvokeActivity, InvokeResponse } from '@microsoft/teams.api';
 import { IActivityContext } from '../../contexts';
 import { RouteHandler } from '../../types';
 
+import { CardActionSubRoutes } from './card-action';
+import { DialogOpenSubRoutes } from './dialog-open';
+import { DialogSubmitSubRoutes } from './dialog-submit';
 import { FileConsentActivityRoutes } from './file-consent';
 import { MessageExtensionSubmitActivityRoutes } from './message-extension-submit';
 import { MessageSubmitActivityRoutes } from './message-submit';
@@ -14,7 +17,10 @@ export type InvokeActivityRoutes<TExtraCtx extends Record<string, any> = Record<
   >;
 } & FileConsentActivityRoutes &
   MessageExtensionSubmitActivityRoutes &
-  MessageSubmitActivityRoutes;
+  MessageSubmitActivityRoutes &
+  DialogOpenSubRoutes<TExtraCtx> &
+  DialogSubmitSubRoutes<TExtraCtx> &
+  CardActionSubRoutes<TExtraCtx>;
 
 type InvokeAliases = {
   'config/fetch': 'config.open';
@@ -68,6 +74,9 @@ export const INVOKE_ALIASES: InvokeAliases = {
   'adaptiveCard/action': 'card.action',
 };
 
+export * from './card-action';
+export * from './dialog-open';
+export * from './dialog-submit';
 export * from './file-consent';
 export * from './message-extension-submit';
 export * from './message-submit';
