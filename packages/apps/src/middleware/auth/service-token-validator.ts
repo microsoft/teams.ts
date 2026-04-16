@@ -13,28 +13,16 @@ function openIdMetadataToKeysUri(openIdMetadataUrl: string): string {
 }
 
 /**
- * Default allowed service URL domain patterns.
- * These cover the known domains used by the Bot Framework Channel Service
- * across public, government, sovereign, and regional clouds.
+ * Validates that a service URL hostname is allowed.
+ * Checks against the cloud environment's allowed service URLs,
+ * plus any additional domains provided by the caller.
+ * Localhost is always allowed for local development.
  */
-const DEFAULT_ALLOWED_SERVICE_URL_DOMAINS = [
-  // Public cloud
-  '.botframework.com',
-  // US Government
-  '.botframework.azure.us',
-  '.teams.microsoft.com',
-  '.teams.microsoft.us',
-  // China (21Vianet)
-  '.botframework.azure.cn',
-  '.teams.microsoftonline.cn',
-];
-
-/**
- * Validates that a service URL belongs to a known domain.
- * Returns true if the URL's hostname ends with one of the allowed domain suffixes,
- * or if the hostname is localhost (for local development).
- */
-export function isAllowedServiceUrl(serviceUrl: string, additionalDomains?: string[]): boolean {
+export function isAllowedServiceUrl(
+  serviceUrl: string,
+  cloud: CloudEnvironment,
+  additionalDomains?: string[]
+): boolean {
   try {
     const url = new URL(serviceUrl);
     const hostname = url.hostname.toLowerCase();
@@ -43,13 +31,18 @@ export function isAllowedServiceUrl(serviceUrl: string, additionalDomains?: stri
       return true;
     }
 
-    // trafficmanager.net is a shared Azure service; only allow smba-prefixed hostnames
-    if (hostname.endsWith('.trafficmanager.net') || hostname === 'trafficmanager.net') {
-      return hostname.startsWith('smba');
+    const additional = additionalDomains ?? [];
+    if (additional.includes('*')) {
+      return true;
     }
 
-    const allowed = [...DEFAULT_ALLOWED_SERVICE_URL_DOMAINS, ...(additionalDomains ?? [])];
-    return allowed.some((domain) => domain === '*' || hostname.endsWith(domain.toLowerCase()));
+    // Check against cloud environment's allowed FQDNs
+    if (cloud.allowedServiceUrls.some((allowed) => hostname === allowed.toLowerCase())) {
+      return true;
+    }
+
+    // Check against additional domains (suffix match)
+    return additional.some((domain) => hostname.endsWith(domain.toLowerCase()));
   } catch {
     return false;
   }
@@ -63,6 +56,7 @@ export class ServiceTokenValidator {
   private jwtValidator: JwtValidator;
   private credentials?: Credentials;
   private additionalAllowedDomains?: string[];
+  private cloud: CloudEnvironment;
 
   constructor(
     appId: string,
@@ -73,6 +67,7 @@ export class ServiceTokenValidator {
     cloud?: CloudEnvironment
   ) {
     const env = cloud ?? PUBLIC;
+    this.cloud = env;
     this.jwtValidator = new JwtValidator({
       clientId: appId,
       tenantId,
@@ -107,7 +102,7 @@ export class ServiceTokenValidator {
     const serviceUrl = body.serviceUrl || payload.serviceurl as string || '';
 
     // Validate serviceUrl against allowed domains
-    if (serviceUrl && !isAllowedServiceUrl(serviceUrl, this.additionalAllowedDomains)) {
+    if (serviceUrl && !isAllowedServiceUrl(serviceUrl, this.cloud, this.additionalAllowedDomains)) {
       throw new Error(`Service URL '${serviceUrl}' is not from an allowed domain`);
     }
 

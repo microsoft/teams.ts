@@ -2,7 +2,8 @@ import {
   CloudEnvironment,
   Credentials,
   InvokeResponse,
-  IToken
+  IToken,
+  PUBLIC
 } from '@microsoft/teams.api';
 
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
@@ -49,6 +50,7 @@ export class HttpServer implements IHttpServer {
   protected credentials?: Credentials;
   protected skipAuth: boolean;
   protected additionalAllowedDomains?: string[];
+  protected cloud?: CloudEnvironment;
   protected initialized: boolean = false;
   protected serviceTokenValidator?: ServiceTokenValidator;
 
@@ -93,6 +95,7 @@ export class HttpServer implements IHttpServer {
     }
 
     this.credentials = deps.credentials;
+    this.cloud = deps.cloud;
 
     // Initialize service token validator if credentials provided and auth not skipped
     if (this.credentials && !this.skipAuth) {
@@ -195,7 +198,7 @@ export class HttpServer implements IHttpServer {
       const serviceUrl = body.serviceUrl || '';
 
       // Validate serviceUrl even when auth is skipped
-      if (serviceUrl && !isAllowedServiceUrl(serviceUrl, this.additionalAllowedDomains)) {
+      if (serviceUrl && !isAllowedServiceUrl(serviceUrl, this.cloud ?? PUBLIC, this.additionalAllowedDomains)) {
         return { success: false, error: `Service URL '${serviceUrl}' is not from an allowed domain` };
       }
 

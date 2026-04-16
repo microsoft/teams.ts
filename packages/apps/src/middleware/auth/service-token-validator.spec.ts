@@ -167,22 +167,22 @@ describe('ServiceTokenValidator', () => {
       );
     });
 
-    it('should accept serviceUrl from botframework.com', async () => {
+    it('should accept serviceUrl from cloud preset', async () => {
       const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
 
       const mockPayload = {
         appid: mockClientId,
         sub: 'bot-id',
-        serviceurl: 'https://webchat.botframework.com'
+        serviceurl: 'https://smba.trafficmanager.net/amer/'
       };
 
       mockValidateAccessToken.mockResolvedValue(mockPayload);
 
       const authHeader = 'Bearer test-token';
-      const body = { serviceUrl: 'https://webchat.botframework.com' };
+      const body = { serviceUrl: 'https://smba.trafficmanager.net/amer/' };
 
       const result = await validator.check(authHeader, body);
-      expect(result.serviceUrl).toBe('https://webchat.botframework.com');
+      expect(result.serviceUrl).toBe('https://smba.trafficmanager.net/amer/');
     });
 
     it('should accept localhost serviceUrl', async () => {
@@ -201,6 +201,25 @@ describe('ServiceTokenValidator', () => {
 
       const result = await validator.check(authHeader, body);
       expect(result.serviceUrl).toBe('http://localhost:3978');
+    });
+
+    it('should reject botframework.com by default (non-Teams channel)', async () => {
+      const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://webchat.botframework.com'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://webchat.botframework.com' };
+
+      await expect(validator.check(authHeader, body)).rejects.toThrow(
+        'is not from an allowed domain'
+      );
     });
 
     it('should reject domain that contains allowed suffix as substring', async () => {
@@ -299,29 +318,32 @@ describe('ServiceTokenValidator', () => {
       expect(result.serviceUrl).toBe('https://any-domain.com/api');
     });
 
-    it('should accept US Government serviceUrl', async () => {
-      const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
+    it('should accept US Government serviceUrl with US_GOV cloud', async () => {
+      const { US_GOV } = await import('@microsoft/teams.api');
+      const validator = new ServiceTokenValidator(
+        mockClientId, mockTenantId, undefined, undefined, undefined, US_GOV
+      );
 
       const mockPayload = {
         appid: mockClientId,
         sub: 'bot-id',
-        serviceurl: 'https://smba.infra.gcc.teams.microsoft.com/'
+        serviceurl: 'https://smba.infra.gov.teams.microsoft.us/'
       };
 
       mockValidateAccessToken.mockResolvedValue(mockPayload);
 
       const authHeader = 'Bearer test-token';
-      const body = { serviceUrl: 'https://smba.infra.gcc.teams.microsoft.com/' };
+      const body = { serviceUrl: 'https://smba.infra.gov.teams.microsoft.us/' };
 
       const result = await validator.check(authHeader, body);
-      expect(result.serviceUrl).toBe('https://smba.infra.gcc.teams.microsoft.com/');
+      expect(result.serviceUrl).toBe('https://smba.infra.gov.teams.microsoft.us/');
     });
 
     it('should prefer body.serviceUrl over payload.serviceurl', async () => {
       const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
 
-      const payloadServiceUrl = 'https://payload.botframework.com';
-      const bodyServiceUrl = 'https://body.botframework.com';
+      const payloadServiceUrl = 'https://smba.trafficmanager.net/emea/';
+      const bodyServiceUrl = 'https://smba.trafficmanager.net/amer/';
 
       const mockPayload = {
         appid: mockClientId,
