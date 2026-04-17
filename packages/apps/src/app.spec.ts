@@ -401,14 +401,14 @@ describe('App', () => {
       ).rejects.toThrow('Invalid messageId');
     });
 
-    it('should throw when app is not started', async () => {
+    it('should throw when app has no credentials', async () => {
       const unstartedApp = new TestApp({
         httpServerAdapter: new TestAdapter(),
       });
 
       await expect(
         unstartedApp.testReply('conv-id', { text: 'Hello' })
-      ).rejects.toThrow('app not started');
+      ).rejects.toThrow('App has no credentials set up');
     });
   });
 });
