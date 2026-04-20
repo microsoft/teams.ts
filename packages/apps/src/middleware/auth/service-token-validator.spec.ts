@@ -243,7 +243,7 @@ describe('ServiceTokenValidator', () => {
 
     it('should accept serviceUrl with additionalAllowedDomains', async () => {
       const validator = new ServiceTokenValidator(
-        mockClientId, mockTenantId, undefined, undefined, ['.custom-channel.com']
+        mockClientId, mockTenantId, undefined, undefined, ['api.custom-channel.com']
       );
 
       const mockPayload = {

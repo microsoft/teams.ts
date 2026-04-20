@@ -97,6 +97,10 @@ export class HttpServer implements IHttpServer {
     this.credentials = deps.credentials;
     this.cloud = deps.cloud;
 
+    if (this.additionalAllowedDomains?.includes('*')) {
+      this.logger.warn('Service URL validation is disabled via wildcard in additionalAllowedDomains');
+    }
+
     // Initialize service token validator if credentials provided and auth not skipped
     if (this.credentials && !this.skipAuth) {
       this.serviceTokenValidator = new ServiceTokenValidator(

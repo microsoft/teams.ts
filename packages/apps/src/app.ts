@@ -146,10 +146,10 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly skipAuth?: boolean;
 
   /**
-   * Additional allowed service URL domain suffixes beyond the built-in defaults.
+   * Additional allowed service URL hostnames beyond the built-in defaults.
    * Use this if your bot receives activities from non-standard channels
-   * with service URLs outside the known Bot Framework domains.
-   * @example ['.my-custom-channel.com']
+   * with service URLs outside the cloud environment's allowed hostnames.
+   * @example ['api.my-custom-channel.com']
    */
   readonly additionalAllowedDomains?: string[];
 

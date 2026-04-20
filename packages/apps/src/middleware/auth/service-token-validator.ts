@@ -31,19 +31,18 @@ export function isAllowedServiceUrl(
       return true;
     }
 
-    const additional = additionalDomains ?? [];
-    if (additional.includes('*')) {
+    if (url.protocol !== 'https:') {
+      return false;
+    }
+
+    const allowed = [...cloud.allowedServiceUrls, ...(additionalDomains ?? [])].map((d) => d.toLowerCase());
+    if (allowed.includes('*')) {
       return true;
     }
 
-    // Check against cloud environment's allowed FQDNs
-    if (cloud.allowedServiceUrls.some((allowed) => hostname === allowed.toLowerCase())) {
-      return true;
-    }
-
-    // Check against additional domains (suffix match)
-    return additional.some((domain) => hostname.endsWith(domain.toLowerCase()));
-  } catch {
+    return allowed.some((domain) => hostname === domain);
+  } catch (err) {
+    console.error('Failed to parse service URL for validation:', err);
     return false;
   }
 }
