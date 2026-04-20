@@ -106,6 +106,18 @@ export class Router<TExtraCtx extends Record<string, any> = Record<string, any>>
           if (activity.name === 'message/submitAction') {
             return event === `message.submit.${activity.value.actionName}`;
           }
+
+          if (activity.name === 'task/fetch' && activity.value?.data?.dialog_id) {
+            return event === `dialog.open.${activity.value.data.dialog_id}`;
+          }
+
+          if (activity.name === 'task/submit' && activity.value?.data?.action) {
+            return event === `dialog.submit.${activity.value.data.action}`;
+          }
+
+          if (activity.name === 'adaptiveCard/action' && activity.value?.action?.data?.action) {
+            return event === `card.action.${activity.value.action.data.action}`;
+          }
         }
 
         // custom routes

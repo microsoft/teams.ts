@@ -255,6 +255,89 @@ describe('Router', () => {
       } as any)).toHaveLength(1);
     });
 
+    it('should select dialog open sub-routes by dialog_id', () => {
+      const router = new Router();
+      const handler = jest.fn();
+
+      router.on('invoke', handler);
+      router.on('dialog.open', handler);
+      router.on('dialog.open.simple_form', handler);
+
+      // Matches invoke + dialog.open + dialog.open.simple_form
+      expect(router.select({
+        type: 'invoke',
+        name: 'task/fetch',
+        value: { data: { dialog_id: 'simple_form' } }
+      } as any)).toHaveLength(3);
+
+      // Matches invoke + dialog.open but NOT dialog.open.simple_form
+      expect(router.select({
+        type: 'invoke',
+        name: 'task/fetch',
+        value: { data: { dialog_id: 'other_form' } }
+      } as any)).toHaveLength(2);
+
+      // Matches invoke + dialog.open (no data at all)
+      expect(router.select({
+        type: 'invoke',
+        name: 'task/fetch',
+        value: {}
+      } as any)).toHaveLength(2);
+    });
+
+    it('should select dialog submit sub-routes by action', () => {
+      const router = new Router();
+      const handler = jest.fn();
+
+      router.on('invoke', handler);
+      router.on('dialog.submit', handler);
+      router.on('dialog.submit.submit_form', handler);
+
+      // Matches invoke + dialog.submit + dialog.submit.submit_form
+      expect(router.select({
+        type: 'invoke',
+        name: 'task/submit',
+        value: { data: { action: 'submit_form' } }
+      } as any)).toHaveLength(3);
+
+      // Matches invoke + dialog.submit but NOT dialog.submit.submit_form
+      expect(router.select({
+        type: 'invoke',
+        name: 'task/submit',
+        value: { data: { action: 'other_action' } }
+      } as any)).toHaveLength(2);
+    });
+
+    it('should select card action sub-routes by action', () => {
+      const router = new Router();
+      const handler = jest.fn();
+
+      router.on('invoke', handler);
+      router.on('card.action', handler);
+      router.on('card.action.save_profile', handler);
+
+      // Matches invoke + card.action + card.action.save_profile
+      expect(router.select({
+        type: 'invoke',
+        name: 'adaptiveCard/action',
+        value: { action: { type: 'Action.Execute', data: { action: 'save_profile' } } }
+      } as any)).toHaveLength(3);
+
+      // Matches invoke + card.action but NOT card.action.save_profile
+      expect(router.select({
+        type: 'invoke',
+        name: 'adaptiveCard/action',
+        value: { action: { type: 'Action.Execute', data: { action: 'other_action' } } }
+      } as any)).toHaveLength(2);
+
+      // Does not match sub-route when no action field in data
+      expect(router.select({
+        type: 'invoke',
+        name: 'adaptiveCard/action',
+        value: { action: { type: 'Action.Execute', data: { name: 'test' } } }
+      } as any)).toHaveLength(2);
+    });
+
     it('should select message submit action routes', () => {
       const router = new Router();
       const handler = jest.fn();

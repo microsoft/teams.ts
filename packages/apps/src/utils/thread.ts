@@ -1,3 +1,8 @@
+// Conversation ID suffixes that support threading.
+// Channels use @thread.tacv2 or @thread.skype, 1:1 chats use @unq.gbl.spaces.
+// Group chats and meetings use @thread.v2 which does not support threading.
+const THREADING_SUFFIXES = ['@thread.tacv2', '@thread.skype', '@unq.gbl.spaces'] as const;
+
 /**
  * Constructs a threaded conversation ID by appending `;messageid={messageId}`
  * to the conversation ID. This is the format APX uses to route messages
@@ -23,10 +28,8 @@ export function toThreadedConversationId(conversationId: string, messageId: stri
   return `${baseId};messageid=${messageId}`;
 }
 
+// Check if a conversation ID represents a conversation that supports threading.
 export function supportsThreading(conversationId: string): boolean {
-  // Check if a conversation ID represents a conversation that supports threading.
-  // Channels use @thread.tacv2 or @thread.skype, 1:1 chats use @unq.gbl.spaces.
-  // Group chats and meetings use @thread.v2 which does not support threading.
   const base = conversationId.split(';')[0];
-  return base.endsWith('@thread.tacv2') || base.endsWith('@thread.skype') || base.endsWith('@unq.gbl.spaces');
+  return THREADING_SUFFIXES.some(suffix => base.endsWith(suffix));
 }
