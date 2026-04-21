@@ -384,7 +384,7 @@ describe('App', () => {
       expect(ref.conversation.id).toBe('19:abc@thread.skype;messageid=123');
     });
 
-    it('should pass conversationId as-is when conversation does not support threading (three-arg form)', async () => {
+    it('should construct threaded ID for any conversation type (three-arg form)', async () => {
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
@@ -392,7 +392,7 @@ describe('App', () => {
 
       expect(mockSend).toHaveBeenCalled();
       const [, ref] = mockSend.mock.calls[0];
-      expect(ref.conversation.id).toBe('19:meeting_abc@thread.v2');
+      expect(ref.conversation.id).toBe('19:meeting_abc@thread.v2;messageid=123');
     });
 
     it('should throw on invalid messageId in three-arg form', async () => {
