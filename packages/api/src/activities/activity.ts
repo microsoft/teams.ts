@@ -409,6 +409,18 @@ export class Activity<T extends string = string> implements IActivity<T> {
   }
 
   /**
+   * Add a targeted message info entity.
+   * This links the reply to the original targeted message for prompt preview.
+   * @param messageId the message ID of the targeted message
+   */
+  addTargetedMessageInfo(messageId: string) {
+    return this.addEntity({
+      type: 'targetedMessageInfo',
+      messageId,
+    });
+  }
+
+  /**
    * is this a streaming activity
    */
   isStreaming() {

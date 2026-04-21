@@ -40,6 +40,39 @@ app.on('message', async ({ send, reply, activity, api }) => {
   }
 
   // ============================================
+  // Test prompt preview (reactive)
+  // SDK auto-populates targetedMessageInfo entity
+  // ============================================
+  if (text.includes('test prompt preview')) {
+    // When the bot receives a targeted message (e.g. via /slash command)
+    // and replies with a targeted message, the SDK auto-injects a
+    // targetedMessageInfo entity so APX can render a prompt preview.
+    const response = new MessageActivity(
+      '📋 Here is the response to your prompt! (prompt preview auto-attached by SDK)'
+    ).withRecipient(activity.from, true);
+
+    await reply(response);
+    return;
+  }
+
+  // ============================================
+  // Test prompt preview (proactive / manual)
+  // Developer manually attaches targetedMessageInfo
+  // ============================================
+  if (text.includes('test proactive preview')) {
+    // In a proactive scenario, the developer stores the targeted message ID
+    // and manually attaches it when replying later.
+    const tmMessageId = activity.id;
+    const response = new MessageActivity(
+      '📋 Here is a delayed response with prompt preview!'
+    ).withRecipient(activity.from, true)
+     .addTargetedMessageInfo(tmMessageId);
+
+    await send(response);
+    return;
+  }
+
+  // ============================================
   // Test targeted UPDATE
   // ============================================
   if (text.includes('test update')) {
@@ -104,9 +137,12 @@ app.on('message', async ({ send, reply, activity, api }) => {
       '**Commands:**\n' +
       '- `test send` - Send a targeted message\n' +
       '- `test reply` - Reply with a targeted message\n' +
+      '- `test prompt preview` - Reply publicly with prompt preview (reactive, auto-managed)\n' +
+      '- `test proactive preview` - Send with prompt preview (proactive, manual)\n' +
       '- `test update` - Send then update a targeted message\n' +
       '- `test delete` - Send then delete a targeted message\n\n' +
-      '💡 *Test in a group chat to verify others don\'t see targeted messages!*'
+      '💡 *Test in a group chat to verify others don\'t see targeted messages!*\n' +
+      '💡 *Use /slash commands to trigger targeted messages for prompt preview testing.*'
     );
     return;
   }
