@@ -46,7 +46,7 @@ app.on('message', async ({ send, reply, activity, api }) => {
   if (text.includes('test prompt preview')) {
     // When the bot receives a targeted message (e.g. via /slash command)
     // and replies with a targeted message, the SDK auto-injects a
-    // targetedMessageInfo entity so APX can render a prompt preview.
+    // targetedMessageInfo entity to render a prompt preview.
     const response = new MessageActivity(
       '📋 Here is the response to your prompt! (prompt preview auto-attached by SDK)'
     ).withRecipient(activity.from, true);
@@ -137,8 +137,8 @@ app.on('message', async ({ send, reply, activity, api }) => {
       '**Commands:**\n' +
       '- `test send` - Send a targeted message\n' +
       '- `test reply` - Reply with a targeted message\n' +
-      '- `test prompt preview` - Reply publicly with prompt preview (reactive, auto-managed)\n' +
-      '- `test proactive preview` - Send with prompt preview (proactive, manual)\n' +
+      '- `test prompt preview` - Reply with targeted message + prompt preview (reactive, auto-managed)\n' +
+      '- `test proactive preview` - Send targeted message with prompt preview (proactive, manual)\n' +
       '- `test update` - Send then update a targeted message\n' +
       '- `test delete` - Send then delete a targeted message\n\n' +
       '💡 *Test in a group chat to verify others don\'t see targeted messages!*\n' +
