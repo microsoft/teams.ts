@@ -44,15 +44,9 @@ app.on('message', async ({ reply, send, activity, ref }) => {
   }
 
   // ============================================
-  // toThreadedConversationId() + app.send() — advanced manual control (channels only)
+  // toThreadedConversationId() + app.send() — advanced manual control
   // ============================================
   if (text.includes('test manual')) {
-    // toThreadedConversationId() is only valid for conversations that support threading
-    const base = conversationId.split(';')[0];
-    if (!base.endsWith('@thread.tacv2') && !base.endsWith('@thread.skype') && !base.endsWith('@unq.gbl.spaces')) {
-      await reply('This command doesn\'t support threading in this conversation type.');
-      return;
-    }
     const threadId = toThreadedConversationId(conversationId, threadRootId);
     await app.send(threadId, 'This was sent using toThreadedConversationId() + app.send() for manual control.');
     return;

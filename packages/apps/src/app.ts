@@ -50,7 +50,7 @@ import { Router } from './router';
 import { TokenManager } from './token-manager';
 import { IPlugin, AppEvents } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
-import { supportsThreading, toThreadedConversationId } from './utils/thread';
+import { toThreadedConversationId } from './utils/thread';
 
 /**
  * App initialization options
@@ -551,14 +551,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   }
 
   /**
-   * send an activity proactively to a channel thread.
+   * send an activity proactively as a threaded reply.
    *
-   * In channels, construct a threaded conversation ID from the
-   * conversation ID and message ID, then send to that thread.
-   * In scopes that do not support threading (group chat, meetings),
-   * send as a normal message - the message ID is ignored.
+   * Constructs a threaded conversation ID from the conversation ID
+   * and message ID via {@link toThreadedConversationId}, then sends
+   * to that thread. The service determines whether threading is
+   * supported for the given conversation type.
    *
-   * @param conversationId the channel or conversation ID
+   * @param conversationId the conversation ID
    * @param messageId the thread root message ID
    * @param activity the activity to send
    */
@@ -575,10 +575,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   async reply(conversationId: string, activity: ActivityLike): Promise<any>;
   async reply(conversationId: string, messageId: string | ActivityLike, activity?: ActivityLike) {
     if (typeof messageId === 'string' && activity !== undefined) {
-      const targetId = supportsThreading(conversationId)
-        ? toThreadedConversationId(conversationId, messageId)
-        : conversationId;
-      return this.send(targetId, activity);
+      return this.send(toThreadedConversationId(conversationId, messageId), activity);
     }
 
     return this.send(conversationId, messageId as ActivityLike);
