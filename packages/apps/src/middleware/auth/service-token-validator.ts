@@ -41,8 +41,7 @@ export function isAllowedServiceUrl(
     }
 
     return allowed.some((domain) => hostname === domain);
-  } catch (err) {
-    console.error('Failed to parse service URL for validation:', err);
+  } catch {
     return false;
   }
 }
