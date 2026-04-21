@@ -7,7 +7,6 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
 import express from 'express';
-import { jsonSchemaToZod } from 'json-schema-to-zod';
 import { z } from 'zod';
 
 import { IChatPrompt } from '@microsoft/teams.ai';
@@ -25,6 +24,7 @@ import { ILogger } from '@microsoft/teams.common';
 import pkg from '../package.json';
 
 import { IConnection } from './connection';
+import { jsonSchemaToZod } from './json-schema-to-zod';
 
 /**
  * MCP transport options for sse
@@ -150,13 +150,15 @@ export class McpPlugin implements IPlugin {
    */
   use(prompt: IChatPrompt) {
     for (const fn of prompt.functions) {
-      const schema: z.AnyZodObject = eval(
-        jsonSchemaToZod(fn.parameters, { module: 'cjs' }),
-      );
+      const zodSchema = jsonSchemaToZod(fn.parameters);
+      const shape =
+        zodSchema instanceof z.ZodObject
+          ? (zodSchema as z.AnyZodObject).shape
+          : {};
       this.server.tool(
         fn.name,
         fn.description,
-        schema.shape,
+        shape,
         this.onToolCall(fn.name, prompt)
       );
     }
