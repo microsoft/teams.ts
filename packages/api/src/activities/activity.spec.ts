@@ -140,12 +140,40 @@ describe('Activity', () => {
     });
   });
 
+  describe('withChannelData feedback normalization', () => {
+    it('should upgrade legacy feedbackLoopEnabled:true to feedbackLoop default', () => {
+      const activity = new Activity({ type: 'test' }).withChannelData({ feedbackLoopEnabled: true });
+
+      expect(activity.channelData?.feedbackLoop).toEqual({ type: 'default' });
+      expect(activity.channelData?.feedbackLoopEnabled).toBeUndefined();
+    });
+
+    it('should clear feedbackLoopEnabled when feedbackLoop is already set', () => {
+      const activity = new Activity({ type: 'test' }).withChannelData({
+        feedbackLoop: { type: 'custom' },
+        feedbackLoopEnabled: true,
+      });
+
+      expect(activity.channelData?.feedbackLoop).toEqual({ type: 'custom' });
+      expect(activity.channelData?.feedbackLoopEnabled).toBeUndefined();
+    });
+  });
+
   describe('addFeedback', () => {
-    it('should add', () => {
+    it('should add default feedback loop', () => {
       const activity = new Activity({ type: 'test' }).addFeedback();
 
       expect(activity.type).toEqual('test');
-      expect(activity.channelData?.feedbackLoopEnabled).toEqual(true);
+      expect(activity.channelData?.feedbackLoop).toEqual({ type: 'default' });
+      expect(activity.channelData?.feedbackLoopEnabled).toBeUndefined();
+    });
+
+    it('should add custom feedback loop', () => {
+      const activity = new Activity({ type: 'test' }).addFeedback('custom');
+
+      expect(activity.type).toEqual('test');
+      expect(activity.channelData?.feedbackLoop).toEqual({ type: 'custom' });
+      expect(activity.channelData?.feedbackLoopEnabled).toBeUndefined();
     });
   });
 

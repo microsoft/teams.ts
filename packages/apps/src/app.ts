@@ -146,6 +146,14 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly skipAuth?: boolean;
 
   /**
+   * Additional allowed service URL hostnames beyond the built-in defaults.
+   * Use this if your bot receives activities from non-standard channels
+   * with service URLs outside the cloud environment's allowed hostnames.
+   * @example ['api.my-custom-channel.com']
+   */
+  readonly additionalAllowedDomains?: string[];
+
+  /**
    * URL path for the Teams messaging endpoint
    * @default '/api/messages'
    */
@@ -373,6 +381,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         onError: (err) => this.onError({ error: err })
       }), {
         skipAuth: this.options.skipAuth,
+        additionalAllowedDomains: this.options.additionalAllowedDomains,
         logger: this.log,
         messagingEndpoint: this.options.messagingEndpoint ?? '/api/messages',
       });

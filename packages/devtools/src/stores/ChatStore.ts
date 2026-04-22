@@ -71,7 +71,7 @@ const createMessageBase = (
 };
 
 const getFeedbackState = (event: ActivityEvent<any>) => ({
-  feedbackLoopEnabled: event.body.channelData?.feedbackLoopEnabled ? true : false,
+  feedbackLoopEnabled: !!(event.body.channelData?.feedbackLoop ?? event.body.channelData?.feedbackLoopEnabled),
 });
 
 const clearTimer = (timers: Record<string, NodeJS.Timeout>, id: string) => {

@@ -148,11 +148,202 @@ describe('ServiceTokenValidator', () => {
       expect(result.appId).toBe(mockClientId);
     });
 
-    it('should prefer payload.serviceurl over body.serviceUrl', async () => {
+    it('should reject serviceUrl from non-allowed domain', async () => {
       const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
 
-      const payloadServiceUrl = 'https://payload.example.com';
-      const bodyServiceUrl = 'https://body.example.com';
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://evil.com/api'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://evil.com/api' };
+
+      await expect(validator.check(authHeader, body)).rejects.toThrow(
+        'Service URL is not from an allowed domain'
+      );
+    });
+
+    it('should accept serviceUrl from cloud preset', async () => {
+      const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://smba.trafficmanager.net/amer/'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://smba.trafficmanager.net/amer/' };
+
+      const result = await validator.check(authHeader, body);
+      expect(result.serviceUrl).toBe('https://smba.trafficmanager.net/amer/');
+    });
+
+    it('should accept localhost serviceUrl', async () => {
+      const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'http://localhost:3978'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'http://localhost:3978' };
+
+      const result = await validator.check(authHeader, body);
+      expect(result.serviceUrl).toBe('http://localhost:3978');
+    });
+
+    it('should reject botframework.com by default (non-Teams channel)', async () => {
+      const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://webchat.botframework.com'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://webchat.botframework.com' };
+
+      await expect(validator.check(authHeader, body)).rejects.toThrow(
+        'is not from an allowed domain'
+      );
+    });
+
+    it('should reject domain that contains allowed suffix as substring', async () => {
+      const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://botframework.com.evil.com'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://botframework.com.evil.com' };
+
+      await expect(validator.check(authHeader, body)).rejects.toThrow(
+        'is not from an allowed domain'
+      );
+    });
+
+    it('should accept serviceUrl with additionalAllowedDomains', async () => {
+      const validator = new ServiceTokenValidator(
+        mockClientId, mockTenantId, undefined, undefined, ['api.custom-channel.com']
+      );
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://api.custom-channel.com'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://api.custom-channel.com' };
+
+      const result = await validator.check(authHeader, body);
+      expect(result.serviceUrl).toBe('https://api.custom-channel.com');
+    });
+
+    it('should reject attacker-controlled trafficmanager subdomain', async () => {
+      const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://attacker.trafficmanager.net'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://attacker.trafficmanager.net' };
+
+      await expect(validator.check(authHeader, body)).rejects.toThrow(
+        'is not from an allowed domain'
+      );
+    });
+
+    it('should accept smba.onyx.prod.teams.trafficmanager.net', async () => {
+      const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://smba.onyx.prod.teams.trafficmanager.net'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://smba.onyx.prod.teams.trafficmanager.net' };
+
+      const result = await validator.check(authHeader, body);
+      expect(result.serviceUrl).toBe('https://smba.onyx.prod.teams.trafficmanager.net');
+    });
+
+    it('should accept any domain when additionalAllowedDomains includes wildcard', async () => {
+      const validator = new ServiceTokenValidator(
+        mockClientId, mockTenantId, undefined, undefined, ['*']
+      );
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://any-domain.com/api'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://any-domain.com/api' };
+
+      const result = await validator.check(authHeader, body);
+      expect(result.serviceUrl).toBe('https://any-domain.com/api');
+    });
+
+    it('should accept US Government serviceUrl with US_GOV cloud', async () => {
+      const { US_GOV } = await import('@microsoft/teams.api');
+      const validator = new ServiceTokenValidator(
+        mockClientId, mockTenantId, undefined, undefined, undefined, US_GOV
+      );
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://smba.infra.gov.teams.microsoft.us/'
+      };
+
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      const authHeader = 'Bearer test-token';
+      const body = { serviceUrl: 'https://smba.infra.gov.teams.microsoft.us/' };
+
+      const result = await validator.check(authHeader, body);
+      expect(result.serviceUrl).toBe('https://smba.infra.gov.teams.microsoft.us/');
+    });
+
+    it('should prefer body.serviceUrl over payload.serviceurl', async () => {
+      const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
+
+      const payloadServiceUrl = 'https://smba.trafficmanager.net/emea/';
+      const bodyServiceUrl = 'https://smba.trafficmanager.net/amer/';
 
       const mockPayload = {
         appid: mockClientId,
@@ -188,7 +379,7 @@ describe('ServiceTokenValidator', () => {
     });
 
     it('should use US_GOV cloud issuer and JWKS URI', () => {
-      new ServiceTokenValidator(mockClientId, mockTenantId, undefined, undefined, US_GOV);
+      new ServiceTokenValidator(mockClientId, mockTenantId, undefined, undefined, undefined, US_GOV);
 
       expect(JwtValidator).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -204,7 +395,7 @@ describe('ServiceTokenValidator', () => {
     });
 
     it('should use CHINA cloud issuer and JWKS URI', () => {
-      new ServiceTokenValidator(mockClientId, mockTenantId, undefined, undefined, CHINA);
+      new ServiceTokenValidator(mockClientId, mockTenantId, undefined, undefined, undefined, CHINA);
 
       expect(JwtValidator).toHaveBeenCalledWith(
         expect.objectContaining({
