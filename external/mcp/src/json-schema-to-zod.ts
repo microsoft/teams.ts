@@ -56,7 +56,16 @@ function buildString(schema: StringSchema): z.ZodString {
   let s = z.string();
   if (schema.minLength !== undefined) s = s.min(schema.minLength);
   if (schema.maxLength !== undefined) s = s.max(schema.maxLength);
-  if (schema.pattern) s = s.regex(new RegExp(schema.pattern));
+  if (schema.pattern) {
+    try {
+      s = s.regex(new RegExp(schema.pattern));
+    } catch (error) {
+      throw new Error(
+        `jsonSchemaToZod: invalid string pattern ${JSON.stringify(schema.pattern)}`,
+        { cause: error }
+      );
+    }
+  }
   if (schema.format) {
     switch (schema.format) {
       case 'email':
@@ -123,6 +132,16 @@ function buildEnum(values: readonly unknown[]): z.ZodTypeAny {
   if (values.every((v): v is string => typeof v === 'string')) {
     return z.enum(values as [string, ...string[]]);
   }
+
+  for (const v of values) {
+    if (v !== null && typeof v !== 'string' && typeof v !== 'number' && typeof v !== 'boolean') {
+      const kind = Array.isArray(v) ? 'array' : typeof v;
+      throw new Error(
+        `jsonSchemaToZod: enum values must be string, number, boolean, or null (got ${kind})`
+      );
+    }
+  }
+
   const literals = values.map((v) => z.literal(v as z.Primitive));
   if (literals.length === 1) return literals[0];
   return z.union(literals as [z.ZodLiteral<z.Primitive>, z.ZodLiteral<z.Primitive>, ...z.ZodLiteral<z.Primitive>[]]);

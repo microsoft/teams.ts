@@ -177,6 +177,17 @@ describe('jsonSchemaToZod', () => {
     it('throws on $ref (unsupported)', () => {
       expect(() => jsonSchemaToZod({ $ref: '#/defs/Foo' })).toThrow(/\$ref/);
     });
+
+    it('throws on enum values that are not string/number/boolean/null', () => {
+      expect(() => jsonSchemaToZod({ enum: [{ foo: 1 }] })).toThrow(/enum values must be/);
+      expect(() => jsonSchemaToZod({ enum: [[1, 2]] })).toThrow(/got array/);
+    });
+
+    it('throws a wrapped error for invalid regex patterns', () => {
+      expect(() => jsonSchemaToZod({ type: 'string', pattern: '[unterminated' })).toThrow(
+        /invalid string pattern/
+      );
+    });
   });
 
   describe('real-world ChatPrompt parameter schemas', () => {

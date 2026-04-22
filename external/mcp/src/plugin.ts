@@ -150,6 +150,12 @@ export class McpPlugin implements IPlugin {
    */
   use(prompt: IChatPrompt) {
     for (const fn of prompt.functions) {
+      if (fn.parameters.type !== undefined && fn.parameters.type !== 'object') {
+        throw new Error(
+          `McpPlugin.use: parameters for tool "${fn.name}" must be an object schema (got type "${fn.parameters.type}")`
+        );
+      }
+
       const zodSchema = jsonSchemaToZod(fn.parameters);
       const shape =
         zodSchema instanceof z.ZodObject
