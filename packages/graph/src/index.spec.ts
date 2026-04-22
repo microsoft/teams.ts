@@ -109,6 +109,35 @@ describe('Client', () => {
         },
       });
     });
+
+    it('should clone existing client and route to sovereign base URL via positional baseUrlRoot', () => {
+      const existingClient = {
+        ...mockHttpClient,
+        request: jest.fn(),
+        clone: jest.fn().mockReturnValue(mockHttpClient),
+      };
+      new Client(existingClient as any, 'https://graph.microsoft.us');
+
+      expect(existingClient.clone).toHaveBeenCalledWith({
+        baseUrl: 'https://graph.microsoft.us/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': expect.stringMatching(/^teams\.ts\[graph\]\/.+/),
+        },
+      });
+    });
+
+    it('should honor positional baseUrlRoot when no options provided', () => {
+      new Client(undefined, 'https://graph.microsoft.us');
+
+      expect(http.Client).toHaveBeenCalledWith({
+        baseUrl: 'https://graph.microsoft.us/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': expect.stringMatching(/^teams\.ts\[graph\]\/.+/),
+        },
+      });
+    });
   });
 
   describe('call method', () => {

@@ -318,8 +318,11 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       this.cloud
     );
 
+    // Derive Graph API base URL from the cloud's graphScope
+    const graphUrlMatch = /^(https?:\/\/[^/]+)/i.exec((this.cloud.graphScope ?? '').trim());
     this.graph = new GraphClient(
-      this.client.clone({ token: () => this.getAppGraphToken() })
+      this.client.clone({ token: () => this.getAppGraphToken() }),
+      graphUrlMatch?.[1]
     );
 
     // initialize TokenManager with credentials

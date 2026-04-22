@@ -64,8 +64,10 @@ export class Client {
     return this._http;
   }
 
-  constructor(options?: Options) {
-    this.baseUrlRoot = options?.baseUrlRoot ?? defaultBaseUrlRoot;
+  constructor(options?: Options, baseUrlRoot?: string) {
+    this.baseUrlRoot = baseUrlRoot
+      ?? (options && !('request' in options) ? options.baseUrlRoot : undefined)
+      ?? defaultBaseUrlRoot;
     if (!options) {
       this._http = new http.Client({
         baseUrl: `${this.baseUrlRoot}/v1.0`,
