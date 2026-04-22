@@ -138,6 +138,40 @@ describe('Client', () => {
         },
       });
     });
+
+    it('should prefer positional baseUrlRoot over options.baseUrlRoot', () => {
+      new Client(
+        { baseUrlRoot: 'https://graph.microsoft.com' },
+        'https://graph.microsoft.us'
+      );
+
+      expect(http.Client).toHaveBeenCalledWith({
+        baseUrlRoot: 'https://graph.microsoft.com',
+        baseUrl: 'https://graph.microsoft.us/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': expect.stringMatching(/^teams\.ts\[graph\]\/.+/),
+        },
+      });
+    });
+
+    it('should honor options.baseUrlRoot when baseUrlRoot is attached to an existing client', () => {
+      const existingClient = {
+        ...mockHttpClient,
+        request: jest.fn(),
+        clone: jest.fn().mockReturnValue(mockHttpClient),
+        baseUrlRoot: 'https://graph.microsoft.us',
+      };
+      new Client(existingClient as any);
+
+      expect(existingClient.clone).toHaveBeenCalledWith({
+        baseUrl: 'https://graph.microsoft.us/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': expect.stringMatching(/^teams\.ts\[graph\]\/.+/),
+        },
+      });
+    });
   });
 
   describe('call method', () => {

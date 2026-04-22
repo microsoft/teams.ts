@@ -64,10 +64,13 @@ export class Client {
     return this._http;
   }
 
+  /**
+   * Creates a Graph client.
+   * Base URL resolution order: positional `baseUrlRoot` argument, then `options.baseUrlRoot`
+   * (read whether options is a `Client` instance or `ClientOptions`), then the public-cloud default.
+   */
   constructor(options?: Options, baseUrlRoot?: string) {
-    this.baseUrlRoot = baseUrlRoot
-      ?? (options && !('request' in options) ? options.baseUrlRoot : undefined)
-      ?? defaultBaseUrlRoot;
+    this.baseUrlRoot = baseUrlRoot ?? options?.baseUrlRoot ?? defaultBaseUrlRoot;
     if (!options) {
       this._http = new http.Client({
         baseUrl: `${this.baseUrlRoot}/v1.0`,
