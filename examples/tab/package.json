@@ -19,8 +19,10 @@
     "build:client": "npx vite build --outDir dist/client"
   },
   "dependencies": {
+    "@microsoft/teams-js": "^2.35.0",
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.client": "*",
+    "@microsoft/teams.common": "*",
     "@microsoft/teams.dev": "*",
     "@microsoft/teams.graph-endpoints": "*",
     "react": "^19.2.2",

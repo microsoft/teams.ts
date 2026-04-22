@@ -1,6 +1,11 @@
 import { Client, ClientOptions } from '@microsoft/teams.common/http';
 
-import { MeetingInfo, MeetingParticipant } from '../models';
+import {
+  MeetingInfo,
+  MeetingNotificationParams,
+  MeetingNotificationResponse,
+  MeetingParticipant,
+} from '../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
 
@@ -51,5 +56,32 @@ export class MeetingClient {
       `${this.serviceUrl}/v1/meetings/${encodeURIComponent(meetingId)}/participants/${encodeURIComponent(id)}?tenantId=${encodeURIComponent(tenantId)}`
     );
     return res.data;
+  }
+
+  /**
+   * Send a targeted in-meeting notification to specific participants.
+   *
+   * Returns `undefined` on full success (HTTP 202). Returns a `MeetingNotificationResponse`
+   * with per-recipient failure info on partial success (HTTP 207).
+   *
+   * Requires the RSC permission `OnlineMeetingNotification.Send.Chat` and the ECS flag
+   * enabled for the tenant/bot.
+   *
+   * @param meetingId - The BASE64-encoded meeting ID.
+   * @param params - The notification parameters including recipients and surfaces.
+   */
+  async sendNotification(
+    meetingId: string,
+    params: MeetingNotificationParams
+  ): Promise<MeetingNotificationResponse | undefined> {
+    const body = {
+      type: params.type ?? 'targetedMeetingNotification',
+      value: params.value,
+    };
+    const res = await this.http.post<MeetingNotificationResponse>(
+      `${this.serviceUrl}/v1/meetings/${encodeURIComponent(meetingId)}/notification`,
+      body
+    );
+    return res.data || undefined;
   }
 }

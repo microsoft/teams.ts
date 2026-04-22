@@ -1,6 +1,7 @@
 import { ChatPrompt } from '@microsoft/teams.ai';
-import { MessageActivity } from '@microsoft/teams.api';
+import { cardAttachment, MessageActivity } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
+import { AdaptiveCard, SubmitAction, TextBlock, TextInput } from '@microsoft/teams.cards';
 import { ConsoleLogger } from '@microsoft/teams.common';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 import { OpenAIChatModel } from '@microsoft/teams.openai';
@@ -142,6 +143,28 @@ app.on('message', async ({ stream, send, activity, next, log }) => {
 // Fall through conversation handler
 app.on('message', async ({ send, activity, log }) => {
   await handleStatefulConversation(model, activity, send, log);
+});
+
+app.on('message.fetch-task', async ({ activity }) => {
+  const reaction = activity.value.data.actionValue.reaction;
+
+  const card = new AdaptiveCard(
+    new TextBlock(`You reacted ${reaction}. Tell us more (optional):`, { wrap: true }),
+    new TextInput().withId('feedbackText').withPlaceholder('Your feedback...').withIsMultiline()
+  ).withActions(new SubmitAction().withTitle('Submit'));
+
+  return {
+    status: 200,
+    body: {
+      task: {
+        type: 'continue',
+        value: {
+          title: 'Feedback',
+          card: cardAttachment('adaptive', card),
+        },
+      },
+    },
+  };
 });
 
 app.on('message.submit.feedback', async ({ activity, log }) => {

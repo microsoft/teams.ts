@@ -20,6 +20,7 @@
   "dependencies": {
     "@microsoft/teams.ai": "*",
     "@microsoft/teams.apps": "*",
+    "@microsoft/teams.common": "*",
     "@microsoft/teams.dev": "*",
     "@microsoft/teams.mcpclient": "*",
     "@microsoft/teams.openai": "*",

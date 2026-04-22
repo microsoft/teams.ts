@@ -40,9 +40,9 @@ export type TeamsChannelAccount<P = any> = {
   readonly aadObjectId?: string;
 
   /**
-   * @member {Role} [userRole] Role of the user (e.g., 'user' or 'bot').
+   * @member {string} [userRole] Role of the user in the conversation.
    */
-  readonly userRole: Role;
+  readonly userRole?: string;
 
   /**
    * @member {string} [givenName] Given name (first name) of the user.
@@ -74,6 +74,22 @@ export type TeamsChannelAccount<P = any> = {
    */
   readonly properties?: P;
 };
+
+/**
+ * The backend inconsistently populates either `objectId` or `aadObjectId` depending on the endpoint:
+ * - `GET /v3/conversations/{id}/members` (non-paginated) → `objectId`
+ * - `GET /v3/conversations/{id}/members/{memberId}`       → `aadObjectId`
+ * - `GET /v3/conversations/{id}/pagedMembers`             → `aadObjectId`
+ * - `GET /v3/conversations/{id}/activities/{id}/members`  → `objectId`
+ *
+ * This function normalizes both into `aadObjectId`.
+ */
+export function resolveAadObjectId(data: any): TeamsChannelAccount {
+  return {
+    ...data,
+    aadObjectId: data.aadObjectId ?? data.objectId,
+  };
+}
 
 export type ConversationAccount = {
   readonly id: string;

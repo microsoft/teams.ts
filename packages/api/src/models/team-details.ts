@@ -35,4 +35,9 @@ export type TeamDetails = {
    * the team.
    */
   memberCount?: number;
+
+  /**
+   * @member {string} [tenantId] Azure Active Directory (AAD) tenant ID for the team.
+   */
+  tenantId?: string;
 };

@@ -8,3 +8,6 @@ export * as manifest from './manifest';
 
 // HTTP infrastructure - public API
 export * from './http';
+
+// Threading utilities
+export { toThreadedConversationId } from './utils/thread';

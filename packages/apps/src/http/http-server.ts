@@ -2,13 +2,14 @@ import {
   CloudEnvironment,
   Credentials,
   InvokeResponse,
-  IToken
+  IToken,
+  PUBLIC
 } from '@microsoft/teams.api';
 
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
 import { IActivityEvent, ICoreActivity } from '../events';
-import { ServiceTokenValidator } from '../middleware/auth/service-token-validator';
+import { ServiceTokenValidator, isAllowedServiceUrl } from '../middleware/auth/service-token-validator';
 
 import { HttpMethod, IHttpServerAdapter, IHttpServerRequest, IHttpServerResponse, HttpRouteHandler } from './adapter';
 
@@ -18,6 +19,7 @@ type AuthResult =
 
 export type HttpServerOptions = {
   readonly skipAuth?: boolean;
+  readonly additionalAllowedDomains?: string[];
   readonly logger?: ILogger;
   /**
    * URL path for the Teams messaging endpoint
@@ -47,6 +49,8 @@ export class HttpServer implements IHttpServer {
   protected logger: ILogger;
   protected credentials?: Credentials;
   protected skipAuth: boolean;
+  protected additionalAllowedDomains?: string[];
+  protected cloud?: CloudEnvironment;
   protected initialized: boolean = false;
   protected serviceTokenValidator?: ServiceTokenValidator;
 
@@ -71,6 +75,7 @@ export class HttpServer implements IHttpServer {
   constructor(adapter: IHttpServerAdapter, options: HttpServerOptions) {
     this._adapter = adapter;
     this.skipAuth = options.skipAuth ?? false;
+    this.additionalAllowedDomains = options.additionalAllowedDomains;
     this.logger = options.logger ?? new ConsoleLogger('HttpServer');
     this._messagingEndpoint = options.messagingEndpoint;
   }
@@ -90,6 +95,11 @@ export class HttpServer implements IHttpServer {
     }
 
     this.credentials = deps.credentials;
+    this.cloud = deps.cloud;
+
+    if (this.additionalAllowedDomains?.includes('*')) {
+      this.logger.warn('Service URL validation is disabled via wildcard in additionalAllowedDomains');
+    }
 
     // Initialize service token validator if credentials provided and auth not skipped
     if (this.credentials && !this.skipAuth) {
@@ -98,6 +108,7 @@ export class HttpServer implements IHttpServer {
         this.credentials.tenantId,
         undefined, // serviceUrl will be validated from activity body
         this.logger,
+        this.additionalAllowedDomains,
         deps.cloud
       );
     }
@@ -188,13 +199,21 @@ export class HttpServer implements IHttpServer {
     body: ICoreActivity
   ): Promise<AuthResult> {
     if (this.skipAuth || !this.credentials) {
+      const serviceUrl = body.serviceUrl || '';
+
+      // Validate serviceUrl even when auth is skipped
+      if (serviceUrl && !isAllowedServiceUrl(serviceUrl, this.cloud ?? PUBLIC, this.additionalAllowedDomains)) {
+        this.logger.warn(`Rejected service URL: ${serviceUrl}`);
+        return { success: false, error: 'Service URL is not from an allowed domain' };
+      }
+
       return {
         success: true,
         token: {
           appId: '',
           from: 'azure',
           fromId: '',
-          serviceUrl: body.serviceUrl || '',
+          serviceUrl,
           isExpired: () => false,
         },
       };

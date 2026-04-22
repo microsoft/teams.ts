@@ -32,7 +32,7 @@
       let formData = {
         name: document.getElementById('name').value,
         email: document.getElementById('email').value,
-        submissiondialogtype: 'webpage_dialog'
+        action: 'webpage_dialog'
       };
       microsoftTeams.tasks.submitTask(formData);
     });
