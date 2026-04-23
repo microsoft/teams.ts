@@ -421,11 +421,17 @@ export class Activity<T extends string = string> implements IActivity<T> {
   }
 
   /**
-   * Add a targeted message info entity.
-   * This links the reply to the original targeted message for prompt preview.
+   * Add a targeted message info entity for prompt preview.
    * @param messageId the message ID of the targeted message
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsTargeted
    */
   addTargetedMessageInfo(messageId: string) {
+    if (this.entities?.some((e) => e.type === 'targetedMessageInfo')) {
+      return this;
+    }
+
     return this.addEntity({
       type: 'targetedMessageInfo',
       messageId,
