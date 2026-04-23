@@ -189,6 +189,28 @@ describe('ActivityContext', () => {
         mockRef
       );
     });
+
+    it('skips blockquote when incoming activity is targeted', async () => {
+      const activity = new MessageActivity('Hello world')
+        .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+        .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+        .withChannelId('test-channel')
+        .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+        .withId('test-activity-id');
+
+      context = buildActivityContext(activity);
+
+      await context.reply('Here is your agenda');
+
+      expect(mockSender.send).toHaveBeenCalledTimes(1);
+      expect(mockSender.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text: 'Here is your agenda',
+          type: 'message',
+        }),
+        mockRef
+      );
+    });
   });
 
   describe('send', () => {
