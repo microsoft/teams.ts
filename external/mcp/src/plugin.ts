@@ -92,6 +92,14 @@ export type McpPluginOptions = ServerOptions & {
    * @default `http://localhost:5173`
    */
   readonly inspector?: string;
+
+  /**
+   * Gate inbound MCP requests behind an authentication check. Called once per
+   * request; return `true` to allow, `false` (or throw) to reject with 401.
+   * When unset, all requests are accepted and a warning is emitted at plugin
+   * startup.
+   */
+  readonly requireAuth?: (req: express.Request) => boolean | Promise<boolean>;
 };
 
 /**
@@ -122,6 +130,7 @@ export class McpPlugin implements IPlugin {
   protected transport: McpSSETransportOptions | McpStdioTransportOptions = {
     type: 'sse',
   };
+  protected requireAuth?: (req: express.Request) => boolean | Promise<boolean>;
 
   constructor(options: McpServer | McpPluginOptions = {}) {
     this.inspector =
@@ -139,8 +148,11 @@ export class McpPlugin implements IPlugin {
           options,
         );
 
-    if (!(options instanceof McpServer) && options.transport) {
-      this.transport = options.transport;
+    if (!(options instanceof McpServer)) {
+      if (options.transport) {
+        this.transport = options.transport;
+      }
+      this.requireAuth = options.requireAuth;
     }
   }
 
@@ -206,12 +218,32 @@ export class McpPlugin implements IPlugin {
 
   onStart({ port }: IPluginStartEvent) {
     if (this.transport.type === 'sse') {
+      if (!this.requireAuth) {
+        this.logger.warn(
+          `McpPlugin started without requireAuth. All MCP requests at ${this.transport.path || '/mcp'} will be accepted. Pass requireAuth in McpPluginOptions to enforce authentication.`
+        );
+      }
       this.logger.info(
         `listening at http://localhost:${port}${this.transport.path || '/mcp'}`,
       );
     } else {
       this.logger.info('listening on stdin');
     }
+  }
+
+  protected async checkAuth(
+    req: express.Request,
+    res: express.Response
+  ): Promise<boolean> {
+    if (!this.requireAuth) return true;
+    try {
+      const ok = await this.requireAuth(req);
+      if (ok) return true;
+    } catch (err) {
+      this.logger.debug(`requireAuth threw: ${err}`);
+    }
+    res.status(401).send('unauthorized');
+    return false;
   }
 
   protected onInitStdio(options: McpStdioTransportOptions) {
@@ -231,7 +263,9 @@ export class McpPlugin implements IPlugin {
     }
 
     // Register GET endpoint for SSE connections
-    adapter.get(path, (_: express.Request, res: express.Response) => {
+    adapter.get(path, async (req: express.Request, res: express.Response) => {
+      if (!(await this.checkAuth(req, res))) return;
+
       this.id++;
       this.logger.debug('connecting...');
       const transport = new SSEServerTransport(
@@ -248,7 +282,9 @@ export class McpPlugin implements IPlugin {
     });
 
     // Register POST endpoint for SSE messages
-    adapter.post(`${path}/:id/messages`, (req: express.Request, res: express.Response) => {
+    adapter.post(`${path}/:id/messages`, async (req: express.Request, res: express.Response) => {
+      if (!(await this.checkAuth(req, res))) return;
+
       const id = +req.params.id;
       const { transport } = this.connections[id];
 

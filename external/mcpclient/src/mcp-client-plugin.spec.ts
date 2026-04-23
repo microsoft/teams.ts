@@ -1,3 +1,5 @@
+import dns from 'node:dns';
+
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 
@@ -34,6 +36,12 @@ describe('McpClientPlugin', () => {
     mockCallTool = jest
       .spyOn(Client.prototype, 'callTool')
       .mockResolvedValue({ content: 'result', toolResult: null });
+
+    // URL validation in makeMcpClient resolves hostnames; stub to a public IP
+    // so tests using placeholder URLs (test.com etc.) don't hit the network.
+    jest
+      .spyOn(dns.promises, 'lookup')
+      .mockResolvedValue([{ address: '8.8.8.8', family: 4 }] as any);
 
     jest.useFakeTimers().setSystemTime(mockDate);
   });
