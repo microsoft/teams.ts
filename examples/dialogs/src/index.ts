@@ -9,6 +9,7 @@ import {
   IAdaptiveCard,
   OpenDialogData,
   SubmitAction,
+  SubmitData,
   TextInput,
 } from '@microsoft/teams.cards';
 import { ConsoleLogger } from '@microsoft/teams.common';
@@ -58,215 +59,150 @@ app.on('message', async ({ send }) => {
   await send(new MessageActivity('Enter this form').addCard('adaptive', card));
 });
 
-/**
-app.on('dialog.open', async ({ activity }) => {
-  const card: IAdaptiveCard = new AdaptiveCard()...
-
-  // Return an object with the task value that renders a card
-  return {
-    task: {
-      type: 'continue',
-      value: {
-        title: 'Title of Dialog',
-        card: cardAttachment('adaptive', card),
-      },
-    },
-  };
-}
-*/
-
 app.event('error', ({ error }) => {
   logger.error('Error', error);
 });
 
-app.on('dialog.open', async ({ activity, next }) => {
-  const dialogType = activity.value.data.dialog_id;
+// Each dialog.open handler matches a specific dialog_id set by OpenDialogData
+app.on('dialog.open.simple_form', async () => {
+  const dialogCard = new AdaptiveCard(
+    {
+      type: 'TextBlock',
+      text: 'This is a simple form',
+      size: 'Large',
+      weight: 'Bolder',
+    },
+    new TextInput()
+      .withLabel('Name')
+      .withIsRequired()
+      .withId('name')
+      .withPlaceholder('Enter your name')
+  ).withActions(
+    new SubmitAction()
+      .withTitle('Submit')
+      .withData(new SubmitData('simple_form'))
+  );
 
-  if (dialogType === 'simple_form') {
-    const dialogCard = new AdaptiveCard(
-      {
-        type: 'TextBlock',
-        text: 'This is a simple form',
-        size: 'Large',
-        weight: 'Bolder',
+  return {
+    task: {
+      type: 'continue',
+      value: {
+        title: 'Simple Form Dialog',
+        card: cardAttachment('adaptive', dialogCard),
       },
-      new TextInput()
-        .withLabel('Name')
-        .withIsRequired()
-        .withId('name')
-        .withPlaceholder('Enter your name')
-    )
-      // Inside the dialog, the card actions for submitting the card must be
-      // of type Action.Submit
-      .withActions(
-        new SubmitAction()
-          .withTitle('Submit')
-          .withData({ submissiondialogtype: 'simple_form' })
-      );
-
-    // Return an object with the task value that renders a card
-    return {
-      task: {
-        type: 'continue',
-        value: {
-          title: 'Simple Form Dialog',
-          card: cardAttachment('adaptive', dialogCard),
-        },
-      },
-    };
-  }
-
-  if (dialogType === 'webpage_dialog') {
-    return {
-      task: {
-        type: 'continue',
-        value: {
-          title: 'Webpage Dialog',
-          // Here we are using a webpage that is hosted in the same
-          // server as the agent. This server needs to be publicly accessible,
-          // needs to set up teams.js client library (https://www.npmjs.com/package/@microsoft/teams-js)
-          // and needs to be registered in the manifest.
-          url: `${process.env['BOT_ENDPOINT']}/tabs/dialog-form`,
-          width: 1000,
-          height: 800,
-        },
-      },
-    };
-  }
-  next();
+    },
+  };
 });
 
-app.on('dialog.open', async ({ activity, next }) => {
-  const dialogType = activity.value.data.dialog_id;
-
-  if (dialogType === 'multi_step_form') {
-    const dialogCard = new AdaptiveCard(
-      {
-        type: 'TextBlock',
-        text: 'This is a multi-step form',
-        size: 'Large',
-        weight: 'Bolder',
+app.on('dialog.open.webpage_dialog', async () => {
+  return {
+    task: {
+      type: 'continue',
+      value: {
+        title: 'Webpage Dialog',
+        // Here we are using a webpage that is hosted in the same
+        // server as the agent. This server needs to be publicly accessible,
+        // needs to set up teams.js client library (https://www.npmjs.com/package/@microsoft/teams-js)
+        // and needs to be registered in the manifest.
+        url: `${process.env['BOT_ENDPOINT']}/tabs/dialog-form`,
+        width: 1000,
+        height: 800,
       },
-      new TextInput()
-        .withLabel('Name')
-        .withIsRequired()
-        .withId('name')
-        .withPlaceholder('Enter your name')
-    )
-      // Inside the dialog, the card actions for submitting the card must be
-      // of type Action.Submit
-      .withActions(
-        new SubmitAction()
-          .withTitle('Submit')
-          .withData({ submissiondialogtype: 'webpage_dialog_step_1' })
-      );
-
-    // Return an object with the task value that renders a card
-    return {
-      task: {
-        type: 'continue',
-        value: {
-          title: 'Multi-step Form Dialog',
-          card: cardAttachment('adaptive', dialogCard),
-        },
-      },
-    };
-  }
-
-  next();
+    },
+  };
 });
 
-app.on('dialog.submit', async ({ activity, send, next }) => {
-  const dialogType = activity.value.data?.submissiondialogtype;
+app.on('dialog.open.multi_step_form', async () => {
+  const dialogCard = new AdaptiveCard(
+    {
+      type: 'TextBlock',
+      text: 'This is a multi-step form',
+      size: 'Large',
+      weight: 'Bolder',
+    },
+    new TextInput()
+      .withLabel('Name')
+      .withIsRequired()
+      .withId('name')
+      .withPlaceholder('Enter your name')
+  ).withActions(
+    new SubmitAction()
+      .withTitle('Submit')
+      .withData(new SubmitData('multi_step_1'))
+  );
 
-  if (dialogType === 'simple_form') {
-    // This is data from the form that was submitted
-    const name = activity.value.data.name;
-    await send(`Hi ${name}, thanks for submitting the form!`);
-    return {
-      task: {
-        type: 'message',
-        // This appears as a final message in the dialog
-        value: 'Form was submitted',
+  return {
+    task: {
+      type: 'continue',
+      value: {
+        title: 'Multi-step Form Dialog',
+        card: cardAttachment('adaptive', dialogCard),
       },
-    };
-  }
+    },
+  };
+});
 
-  next();
+// Each dialog.submit handler matches a specific action set by SubmitData
+app.on('dialog.submit.simple_form', async ({ activity, send }) => {
+  const name = activity.value.data.name;
+  await send(`Hi ${name}, thanks for submitting the form!`);
+  return {
+    task: {
+      type: 'message',
+      value: 'Form was submitted',
+    },
+  };
 });
 
 // The submission from a webpage happens via the microsoftTeams.tasks.submitTask(formData)
 // call.
-app.on('dialog.submit', async ({ activity, send, next }) => {
-  const dialogType = activity.value.data.submissiondialogtype;
-
-  if (dialogType === 'webpage_dialog') {
-    // This is data from the form that was submitted
-    const name = activity.value.data.name;
-    const email = activity.value.data.email;
-    await send(
-      `Hi ${name}, thanks for submitting the form! We got that your email is ${email}`
-    );
-    // You can also return a blank response
-    return {
-      status: 200,
-    };
-  }
-
-  next();
+app.on('dialog.submit.webpage_dialog', async ({ activity, send }) => {
+  const name = activity.value.data.name;
+  const email = activity.value.data.email;
+  await send(
+    `Hi ${name}, thanks for submitting the form! We got that your email is ${email}`
+  );
+  return { status: 200 };
 });
 
-app.on('dialog.submit', async ({ activity, send, next }) => {
-  const dialogType = activity.value.data.submissiondialogtype;
-
-  if (dialogType === 'webpage_dialog_step_1') {
-    // This is data from the form that was submitted
-    const name = activity.value.data.name;
-    const nextStepCard = new AdaptiveCard(
-      {
-        type: 'TextBlock',
-        text: 'Email',
-        size: 'Large',
-        weight: 'Bolder',
+app.on('dialog.submit.multi_step_1', async ({ activity }) => {
+  const name = activity.value.data.name;
+  const nextStepCard = new AdaptiveCard(
+    {
+      type: 'TextBlock',
+      text: 'Email',
+      size: 'Large',
+      weight: 'Bolder',
+    },
+    new TextInput()
+      .withLabel('Email')
+      .withIsRequired()
+      .withId('email')
+      .withPlaceholder('Enter your email')
+  ).withActions(
+    new SubmitAction()
+      .withTitle('Submit')
+      // Carry forward data from previous step
+      .withData(new SubmitData('multi_step_2', { name }))
+  );
+  return {
+    task: {
+      type: 'continue',
+      value: {
+        title: `Thanks ${name} - Get Email`,
+        card: cardAttachment('adaptive', nextStepCard),
       },
-      new TextInput()
-        .withLabel('Email')
-        .withIsRequired()
-        .withId('email')
-        .withPlaceholder('Enter your email')
-    ).withActions(
-      new SubmitAction().withTitle('Submit').withData({
-        // This same handler will get called, so we need to identify the step
-        // in the returned data
-        submissiondialogtype: 'webpage_dialog_step_2',
-        // Carry forward data from previous step
-        name,
-      })
-    );
-    return {
-      task: {
-        // This indicates that the dialog flow should continue
-        type: 'continue',
-        value: {
-          // Here we customize the title based on the previous response
-          title: `Thanks ${name} - Get Email`,
-          card: cardAttachment('adaptive', nextStepCard),
-        },
-      },
-    };
-  } else if (dialogType === 'webpage_dialog_step_2') {
-    const name = activity.value.data.name;
-    const email = activity.value.data.email;
-    await send(
-      `Hi ${name}, thanks for submitting the form! We got that your email is ${email}`
-    );
-    // You can also return a blank response
-    return {
-      status: 200,
-    };
-  }
+    },
+  };
+});
 
-  next();
+app.on('dialog.submit.multi_step_2', async ({ activity, send }) => {
+  const name = activity.value.data.name;
+  const email = activity.value.data.email;
+  await send(
+    `Hi ${name}, thanks for submitting the form! We got that your email is ${email}`
+  );
+  return { status: 200 };
 });
 
 app.start(process.env.PORT || 3978).catch(console.error);

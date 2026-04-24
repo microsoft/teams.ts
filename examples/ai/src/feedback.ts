@@ -35,8 +35,8 @@ export const handleFeedbackLoop = async (
       result.content != null
         ? new MessageActivity(result.content)
             .addAiGenerated()
-            /** Add feedback buttons via this method */
-            .addFeedback()
+            /** Add custom feedback button */
+            .addFeedback('custom')
         : 'I did not generate a response.'
     );
 

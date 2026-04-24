@@ -50,6 +50,7 @@ import { Router } from './router';
 import { TokenManager } from './token-manager';
 import { IPlugin, AppEvents } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
+import { toThreadedConversationId } from './utils/thread';
 
 /**
  * App initialization options
@@ -143,6 +144,14 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * Skip authentication for HTTP requests
    */
   readonly skipAuth?: boolean;
+
+  /**
+   * Additional allowed service URL hostnames beyond the built-in defaults.
+   * Use this if your bot receives activities from non-standard channels
+   * with service URLs outside the cloud environment's allowed hostnames.
+   * @example ['api.my-custom-channel.com']
+   */
+  readonly additionalAllowedDomains?: string[];
 
   /**
    * URL path for the Teams messaging endpoint
@@ -372,6 +381,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         onError: (err) => this.onError({ error: err })
       }), {
         skipAuth: this.options.skipAuth,
+        additionalAllowedDomains: this.options.additionalAllowedDomains,
         logger: this.log,
         messagingEndpoint: this.options.messagingEndpoint ?? '/api/messages',
       });
@@ -516,13 +526,18 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   }
 
   /**
-   * send an activity proactively
+   * send an activity proactively to a conversation.
+   *
+   * Sends to the exact conversation ID provided. For channel threads,
+   * the conversation ID must include `;messageid=` - use {@link toThreadedConversationId}
+   * to construct it, or use {@link reply} which handles this automatically.
+   *
    * @param conversationId the conversation to send to
    * @param activity the activity to send
    */
   async send(conversationId: string, activity: ActivityLike) {
     if (!this.id) {
-      throw new Error('app not started');
+      throw new Error('App has no credentials set up');
     }
 
     const params = toActivityParams(activity);
@@ -537,12 +552,42 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       },
       conversation: {
         id: conversationId,
-        conversationType: 'personal',
-      },
+      } as ConversationReference['conversation'],
     };
 
     const res = await this.activitySender.send(params, ref);
     return res;
+  }
+
+  /**
+   * send an activity proactively as a threaded reply.
+   *
+   * Constructs a threaded conversation ID from the conversation ID
+   * and message ID via {@link toThreadedConversationId}, then sends
+   * to that thread. The service determines whether threading is
+   * supported for the given conversation type.
+   *
+   * @param conversationId the conversation ID
+   * @param messageId the thread root message ID
+   * @param activity the activity to send
+   */
+  async reply(conversationId: string, messageId: string, activity: ActivityLike): Promise<any>;
+  /**
+   * send an activity proactively to a conversation.
+   *
+   * Sends to the exact conversation ID provided - threaded if
+   * it contains `;messageid=`, flat otherwise.
+   *
+   * @param conversationId the conversation to send to
+   * @param activity the activity to send
+   */
+  async reply(conversationId: string, activity: ActivityLike): Promise<any>;
+  async reply(conversationId: string, messageId: string | ActivityLike, activity?: ActivityLike) {
+    if (typeof messageId === 'string' && activity !== undefined) {
+      return this.send(toThreadedConversationId(conversationId, messageId), activity);
+    }
+
+    return this.send(conversationId, messageId as ActivityLike);
   }
 
   /**

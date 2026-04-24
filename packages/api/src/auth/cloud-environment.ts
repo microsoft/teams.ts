@@ -18,6 +18,8 @@ export type CloudEnvironment = {
   readonly tokenIssuer: string;
   /** The Microsoft Graph token scope (e.g. "https://graph.microsoft.com/.default") */
   readonly graphScope: string;
+  /** Allowed service URL hostnames for this cloud environment */
+  readonly allowedServiceUrls: readonly string[];
 };
 
 /** Microsoft public (commercial) cloud. */
@@ -29,6 +31,7 @@ export const PUBLIC: CloudEnvironment = Object.freeze({
   openIdMetadataUrl: 'https://login.botframework.com/v1/.well-known/openidconfiguration',
   tokenIssuer: 'https://api.botframework.com',
   graphScope: 'https://graph.microsoft.com/.default',
+  allowedServiceUrls: ['smba.trafficmanager.net', 'smba.onyx.prod.teams.trafficmanager.net', 'smba.infra.gcc.teams.microsoft.com'],
 });
 
 /** US Government Community Cloud High (GCCH). */
@@ -40,6 +43,7 @@ export const US_GOV: CloudEnvironment = Object.freeze({
   openIdMetadataUrl: 'https://login.botframework.azure.us/v1/.well-known/openidconfiguration',
   tokenIssuer: 'https://api.botframework.us',
   graphScope: 'https://graph.microsoft.us/.default',
+  allowedServiceUrls: ['smba.infra.gov.teams.microsoft.us'],
 });
 
 /** US Government Department of Defense (DoD). */
@@ -51,6 +55,7 @@ export const US_GOV_DOD: CloudEnvironment = Object.freeze({
   openIdMetadataUrl: 'https://login.botframework.azure.us/v1/.well-known/openidconfiguration',
   tokenIssuer: 'https://api.botframework.us',
   graphScope: 'https://dod-graph.microsoft.us/.default',
+  allowedServiceUrls: ['smba.infra.dod.teams.microsoft.us'],
 });
 
 /** China cloud (21Vianet). */
@@ -62,6 +67,7 @@ export const CHINA: CloudEnvironment = Object.freeze({
   openIdMetadataUrl: 'https://login.botframework.azure.cn/v1/.well-known/openidconfiguration',
   tokenIssuer: 'https://api.botframework.azure.cn',
   graphScope: 'https://microsoftgraph.chinacloudapi.cn/.default',
+  allowedServiceUrls: ['frontend.botapi.msg.infra.teams.microsoftonline.cn'],
 });
 
 /**
@@ -80,6 +86,7 @@ export function withOverrides(
     openIdMetadataUrl: overrides.openIdMetadataUrl ?? base.openIdMetadataUrl,
     tokenIssuer: overrides.tokenIssuer ?? base.tokenIssuer,
     graphScope: overrides.graphScope ?? base.graphScope,
+    allowedServiceUrls: overrides.allowedServiceUrls ?? base.allowedServiceUrls,
   });
 }
 

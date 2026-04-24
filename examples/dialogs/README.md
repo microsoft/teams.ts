@@ -1,6 +1,13 @@
-# Sample: cards
+# Sample: dialogs
 
-a demo of dialogs in Teams
+A demo of dialogs (task modules) in Teams.
+
+## Features
+
+- **Sub-route routing** — Each dialog is handled by a targeted route (e.g., `dialog.open.simple_form`, `dialog.submit.webpage_dialog`) instead of a single catch-all handler with manual dispatch.
+- **Adaptive Card dialogs** — Simple form and multi-step form examples using Adaptive Cards with `Action.Submit`.
+- **Webpage dialogs** — Opens an HTML page hosted by the bot inside a Teams task module.
+- **Card action routing** — Adaptive Card `Action.Execute` actions routed via `card.action.{action}` sub-routes.
 
 ## Prerequisites
 

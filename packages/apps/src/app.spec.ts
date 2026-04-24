@@ -19,6 +19,15 @@ class TestApp extends App {
     return this.send(conversationId, activity);
   }
 
+  public async testReply(conversationId: string, messageId: string, activity: any): Promise<any>;
+  public async testReply(conversationId: string, activity: any): Promise<any>;
+  public async testReply(conversationId: string, messageId: string | any, activity?: any) {
+    if (typeof messageId === 'string' && activity !== undefined) {
+      return this.reply(conversationId, messageId, activity);
+    }
+    return this.reply(conversationId, messageId);
+  }
+
   // Expose activitySender for mocking (it's protected, so we expose it publicly)
   public get testActivitySender() {
     return this.activitySender;
@@ -179,7 +188,7 @@ describe('App', () => {
 
       await expect(
         app.testSend('conversation-id', { text: 'Hello' })
-      ).rejects.toThrow('app not started');
+      ).rejects.toThrow('App has no credentials set up');
     });
   });
 
@@ -322,6 +331,84 @@ describe('App', () => {
         httpServerAdapter: new TestAdapter(),
       });
       expect(app3.api.serviceUrl).toBe('https://options.service.url/teams');
+    });
+  });
+
+  describe('reply', () => {
+    let app: TestApp;
+
+    beforeEach(async () => {
+      app = new TestApp({
+        httpServerAdapter: new TestAdapter(),
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        tenantId: 'test-tenant-id',
+      });
+      await app.start();
+    });
+
+    afterEach(async () => {
+      await app.stop();
+    });
+
+    it('should construct threaded ID when called with conversationId, messageId, and activity', async () => {
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+
+      await app.testReply('19:abc@thread.skype', '1680000000000', { text: 'Hello thread' });
+
+      expect(mockSend).toHaveBeenCalled();
+      const [, ref] = mockSend.mock.calls[0];
+      expect(ref.conversation.id).toBe('19:abc@thread.skype;messageid=1680000000000');
+    });
+
+    it('should pass conversationId as-is when called with two args', async () => {
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+
+      await app.testReply('19:abc@thread.skype', { text: 'Hello flat' });
+
+      expect(mockSend).toHaveBeenCalled();
+      const [, ref] = mockSend.mock.calls[0];
+      expect(ref.conversation.id).toBe('19:abc@thread.skype');
+    });
+
+    it('should pass pre-constructed threaded ID as-is when called with two args', async () => {
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+
+      await app.testReply('19:abc@thread.skype;messageid=123', { text: 'Hello' });
+
+      expect(mockSend).toHaveBeenCalled();
+      const [, ref] = mockSend.mock.calls[0];
+      expect(ref.conversation.id).toBe('19:abc@thread.skype;messageid=123');
+    });
+
+    it('should construct threaded ID for any conversation type (three-arg form)', async () => {
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+
+      await app.testReply('19:meeting_abc@thread.v2', '123', { text: 'Hello' });
+
+      expect(mockSend).toHaveBeenCalled();
+      const [, ref] = mockSend.mock.calls[0];
+      expect(ref.conversation.id).toBe('19:meeting_abc@thread.v2;messageid=123');
+    });
+
+    it('should throw on invalid messageId in three-arg form', async () => {
+      await expect(
+        app.testReply('19:abc@thread.skype', 'not-a-number', { text: 'Hello' })
+      ).rejects.toThrow('Invalid messageId');
+    });
+
+    it('should throw when app has no credentials', async () => {
+      const unstartedApp = new TestApp({
+        httpServerAdapter: new TestAdapter(),
+      });
+
+      await expect(
+        unstartedApp.testReply('conv-id', { text: 'Hello' })
+      ).rejects.toThrow('App has no credentials set up');
     });
   });
 });
