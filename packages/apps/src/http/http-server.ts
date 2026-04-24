@@ -21,9 +21,10 @@ export type HttpServerOptions = {
   readonly skipAuth?: boolean;
   /**
    * Additional service URL hostnames accepted beyond the cloud preset.
-   * Entries must be bare hostnames matched exactly (case-insensitive)
+   * Entries must be bare hostnames matched exactly (case-insensitive);
    * wildcard patterns like `'*.example.com'`, URL suffixes, or full URLs are NOT supported.
-   * Pass `['*']` as the sole wildcard to accept any hostname (disables service-URL validation).
+   * If `'*'` is present anywhere in the list, hostname allowlist checks are disabled,
+   * but service URLs must still be valid URLs and use `https:` (except localhost).
    */
   readonly additionalAllowedDomains?: string[];
   readonly logger?: ILogger;

@@ -147,9 +147,10 @@ export type AppOptions<TPlugin extends IPlugin> = {
 
   /**
    * Additional service URL hostnames accepted beyond the cloud preset.
-   * Entries must be bare hostnames matched exactly (case-insensitive)
+   * Entries must be bare hostnames matched exactly (case-insensitive);
    * wildcard patterns like `'*.example.com'`, URL suffixes, or full URLs are NOT supported.
-   * Pass `['*']` as the sole wildcard to accept any hostname (disables service-URL validation).
+   * If `'*'` is present in the list, hostname allowlist validation is disabled,
+   * but service URLs are still parsed and must satisfy the existing scheme checks.
    * @example ['api.my-custom-channel.com']
    */
   readonly additionalAllowedDomains?: string[];
