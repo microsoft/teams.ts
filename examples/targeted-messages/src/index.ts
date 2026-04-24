@@ -8,154 +8,73 @@ const app = new App({
   plugins: [new DevtoolsPlugin()],
 });
 
-app.on('message', async ({ send, reply, activity, api }) => {
-  await reply({ type: 'typing' });
-  
+app.on('message', async ({ send, activity, api, log }) => {
   const text = activity.text?.toLowerCase() || '';
 
-  // ============================================
-  // Test targeted SEND (create)
-  // ============================================
-  if (text.includes('test send')) {
-    const targetedMessage = new MessageActivity(
-      '🔒 [SEND] Targeted message - only YOU can see this!'
-    ).withRecipient(activity.from, true);
+  log.info(`[MESSAGE] Received: ${text}`);
 
-    const result = await send(targetedMessage);
-    console.log('Targeted SEND result:', result);
-    return;
-  }
+  if (text.includes('update')) {
+    const conversationId = activity.conversation?.id ?? '';
+    const result = await send(
+      new MessageActivity('🔒 Original targeted message - updating in 3s...')
+        .withRecipient(activity.from, true)
+    );
+    log.info(`[UPDATE] Sent targeted message: ${result.id}`);
 
-  // ============================================
-  // Test targeted REPLY
-  // ============================================
-  if (text.includes('test reply')) {
-    const targetedReply = new MessageActivity(
-      '🔒 [REPLY] Targeted reply - only YOU can see this!'
-    ).withRecipient(activity.from, true);
-
-    const result = await reply(targetedReply);
-    console.log('Targeted REPLY result:', result);
-    return;
-  }
-
-  // ============================================
-  // Test prompt preview (reactive)
-  // SDK auto-populates targetedMessageInfo entity
-  // ============================================
-  if (text.includes('test prompt preview')) {
-    // When the bot receives a targeted message (e.g. via /slash command)
-    // and replies with a targeted message, the SDK auto-injects a
-    // targetedMessageInfo entity to render a prompt preview.
-    const response = new MessageActivity(
-      '📋 Here is the response to your prompt! (prompt preview auto-attached by SDK)'
-    ).withRecipient(activity.from, true);
-
-    await reply(response);
-    return;
-  }
-
-  // ============================================
-  // Test prompt preview (proactive / manual)
-  // Developer manually attaches targetedMessageInfo
-  // ============================================
-  if (text.includes('test proactive preview')) {
-    // In a proactive scenario, the developer stores the targeted message ID
-    // and manually attaches it when replying later.
-    const tmMessageId = activity.id;
-    const response = new MessageActivity(
-      '📋 Here is a delayed response with prompt preview!'
-    ).withRecipient(activity.from, true)
-     .addTargetedMessageInfo(tmMessageId);
-
-    await send(response);
-    return;
-  }
-
-  // ============================================
-  // Test targeted UPDATE
-  // ============================================
-  if (text.includes('test update')) {
-    // First send a targeted message
-    const targetedMessage = new MessageActivity(
-      '🔒 [UPDATE] Original targeted message...'
-    ).withRecipient(activity.from, true);
-
-    const result = await send(targetedMessage);
-    console.log('Initial targeted message ID:', result.id);
-
-    // Wait then update
     setTimeout(async () => {
       try {
-        const updatedMessage = new MessageActivity(
-          '🔒 [UPDATE] ✅ UPDATED targeted message! (only you see this)'
-        );
-
         await api.conversations
-          .activities(activity.conversation.id)
-          .updateTargeted(result.id, updatedMessage);
-        console.log('Targeted UPDATE completed');
+          .activities(conversationId)
+          .updateTargeted(result.id, new MessageActivity('🔒 ✅ UPDATED targeted message!'));
+        log.info('[UPDATE] Updated successfully');
       } catch (err: any) {
-        console.error('Targeted UPDATE error:', err?.response?.data || err?.message || err);
+        log.error('[UPDATE] Error:', err?.message || err);
       }
     }, 3000);
-    return;
-  }
+  } else if (text.includes('delete')) {
+    const conversationId = activity.conversation?.id ?? '';
+    const result = await send(
+      new MessageActivity('🔒 This targeted message will be deleted in 3s...')
+        .withRecipient(activity.from, true)
+    );
+    log.info(`[DELETE] Sent targeted message: ${result.id}`);
 
-  // ============================================
-  // Test targeted DELETE
-  // ============================================
-  if (text.includes('test delete')) {
-    // First send a targeted message
-    const targetedMessage = new MessageActivity(
-      '🔒 [DELETE] This targeted message will be DELETED in 5 seconds...'
-    ).withRecipient(activity.from, true);
-
-    const result = await send(targetedMessage);
-    console.log('Targeted message to delete, ID:', result.id);
-
-    // Wait then delete using the targeted API
     setTimeout(async () => {
       try {
         await api.conversations
-          .activities(activity.conversation.id)
+          .activities(conversationId)
           .deleteTargeted(result.id);
-        console.log('Targeted DELETE completed');
+        log.info('[DELETE] Deleted successfully');
       } catch (err: any) {
-        console.error('Targeted DELETE error:', err?.response?.data || err?.message || err);
+        log.error('[DELETE] Error:', err?.message || err);
       }
-    }, 5000);
-    return;
-  }
-
-  // ============================================
-  // Help / Default
-  // ============================================
-  if (text.includes('help')) {
-    await reply(
-      '**Targeted Messages Test Bot**\n\n' +
-      '**Commands:**\n' +
-      '- `test send` - Send a targeted message\n' +
-      '- `test reply` - Reply with a targeted message\n' +
-      '- `test prompt preview` - Reply with targeted message + prompt preview (reactive, auto-managed)\n' +
-      '- `test proactive preview` - Send targeted message with prompt preview (proactive, manual)\n' +
-      '- `test update` - Send then update a targeted message\n' +
-      '- `test delete` - Send then delete a targeted message\n\n' +
-      '💡 *Test in a group chat to verify others don\'t see targeted messages!*\n' +
-      '💡 *Use /slash commands to trigger targeted messages for prompt preview testing.*'
+    }, 3000);
+  } else if (text.includes('public')) {
+    // Public message — everyone in the chat sees the reply.
+    await send(
+      new MessageActivity('📋 Here is the public result - everyone can see this!')
     );
-    return;
+    log.info('[PUBLIC] Sent public message');
+  } else if (text.includes('send')) {
+    // Targeted message — the SDK auto-populates the targetedMessageInfo entity.
+    await send(
+      new MessageActivity('👋 This is a **targeted message** - only YOU can see this!')
+        .withRecipient(activity.from, true)
+    );
+    log.info('[SEND] Sent targeted message');
+  } else if (text.includes('help')) {
+    await send(
+      '**🎯 Targeted Messages Demo**\n\n' +
+      '**Commands:**\n' +
+      '- `send` - Send a targeted message (only you see it)\n' +
+      '- `update` - Send a targeted message, then update it after 3 seconds\n' +
+      '- `delete` - Send a targeted message, then delete it after 3 seconds\n' +
+      '- `public` - Send a public message (visible to all)\n\n' +
+      '_Targeted messages are only visible to you, even in group chats!_'
+    );
+  } else {
+    await send('Say **help** for available commands.');
   }
-
-  // Default
-  await reply('Say "help" for available commands.');
-});
-
-app.on('install.add', async ({ send }) => {
-  await send(
-    '👋 Hi! I demonstrate targeted messages.\n\n' +
-    'Say **help** to see available commands.'
-  );
 });
 
 app.start().catch(console.error);
