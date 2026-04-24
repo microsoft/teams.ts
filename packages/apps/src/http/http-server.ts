@@ -19,6 +19,12 @@ type AuthResult =
 
 export type HttpServerOptions = {
   readonly skipAuth?: boolean;
+  /**
+   * Additional service URL hostnames accepted beyond the cloud preset.
+   * Entries must be bare hostnames matched exactly (case-insensitive)
+   * wildcard patterns like `'*.example.com'`, URL suffixes, or full URLs are NOT supported.
+   * Pass `['*']` as the sole wildcard to accept any hostname (disables service-URL validation).
+   */
   readonly additionalAllowedDomains?: string[];
   readonly logger?: ILogger;
   /**
@@ -75,7 +81,11 @@ export class HttpServer implements IHttpServer {
   constructor(adapter: IHttpServerAdapter, options: HttpServerOptions) {
     this._adapter = adapter;
     this.skipAuth = options.skipAuth ?? false;
-    this.additionalAllowedDomains = options.additionalAllowedDomains;
+    // Defensive copy so post-construction mutation of the caller's array
+    // does not change validator behavior at runtime.
+    this.additionalAllowedDomains = options.additionalAllowedDomains
+      ? [...options.additionalAllowedDomains]
+      : undefined;
     this.logger = options.logger ?? new ConsoleLogger('HttpServer');
     this._messagingEndpoint = options.messagingEndpoint;
   }

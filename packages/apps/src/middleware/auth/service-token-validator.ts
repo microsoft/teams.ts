@@ -56,6 +56,12 @@ export class ServiceTokenValidator {
   private additionalAllowedDomains?: string[];
   private cloud: CloudEnvironment;
 
+  /**
+   * @param additionalAllowedDomains Additional service URL hostnames accepted beyond the cloud preset.
+   *   Entries must be bare hostnames matched exactly (case-insensitive); wildcard patterns
+   *   like `'*.example.com'`, URL suffixes, or full URLs are NOT supported.
+   *   Pass `['*']` as the sole wildcard to accept any hostname.
+   */
   constructor(
     appId: string,
     tenantId?: string,
@@ -79,7 +85,11 @@ export class ServiceTokenValidator {
     }, logger);
 
     this.credentials = { clientId: appId, tenantId };
-    this.additionalAllowedDomains = additionalAllowedDomains;
+    // Defensive copy so post-construction mutation of the caller's array
+    // does not change validator behavior at runtime.
+    this.additionalAllowedDomains = additionalAllowedDomains
+      ? [...additionalAllowedDomains]
+      : undefined;
   }
 
   async check(authHeader: string, body: any): Promise<IToken> {

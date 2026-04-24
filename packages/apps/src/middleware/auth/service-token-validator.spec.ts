@@ -318,6 +318,62 @@ describe('ServiceTokenValidator', () => {
       expect(result.serviceUrl).toBe('https://any-domain.com/api');
     });
 
+    it('should defensively copy additionalAllowedDomains so caller mutation does not affect validator', async () => {
+      // Guards against a future regression: if the constructor stored the caller's array
+      // by reference, post-construction mutation would change validator behavior at runtime.
+      const callerList = ['api.custom-channel.com'];
+      const validator = new ServiceTokenValidator(
+        mockClientId, mockTenantId, undefined, undefined, callerList
+      );
+
+      callerList.push('evil.com');
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://evil.com'
+      };
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      await expect(validator.check('Bearer test', { serviceUrl: 'https://evil.com' })).rejects.toThrow(
+        'is not from an allowed domain'
+      );
+    });
+
+    it('should handle undefined additionalAllowedDomains (construction + default rejection)', async () => {
+      const validator = new ServiceTokenValidator(
+        mockClientId, mockTenantId, undefined, undefined, undefined
+      );
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://not-in-defaults.example.com'
+      };
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      await expect(
+        validator.check('Bearer test', { serviceUrl: 'https://not-in-defaults.example.com' })
+      ).rejects.toThrow('is not from an allowed domain');
+    });
+
+    it('should handle empty additionalAllowedDomains array as no additions', async () => {
+      const validator = new ServiceTokenValidator(
+        mockClientId, mockTenantId, undefined, undefined, []
+      );
+
+      const mockPayload = {
+        appid: mockClientId,
+        sub: 'bot-id',
+        serviceurl: 'https://unlisted.example.com'
+      };
+      mockValidateAccessToken.mockResolvedValue(mockPayload);
+
+      await expect(
+        validator.check('Bearer test', { serviceUrl: 'https://unlisted.example.com' })
+      ).rejects.toThrow('is not from an allowed domain');
+    });
+
     it('should accept US Government serviceUrl with US_GOV cloud', async () => {
       const { US_GOV } = await import('@microsoft/teams.api');
       const validator = new ServiceTokenValidator(

@@ -1,5 +1,14 @@
+import { ServiceTokenValidator } from '../middleware/auth/service-token-validator';
+
 import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from './adapter';
 import { HttpServer } from './http-server';
+
+// Partial mock: replace ServiceTokenValidator with a spyable mock, but keep
+// isAllowedServiceUrl and other exports intact (http-server imports both).
+jest.mock('../middleware/auth/service-token-validator', () => ({
+  ...jest.requireActual('../middleware/auth/service-token-validator'),
+  ServiceTokenValidator: jest.fn(),
+}));
 
 class MockAdapter implements IHttpServerAdapter {
   routes: Array<{ method: HttpMethod; path: string; handler: HttpRouteHandler }> = [];
@@ -141,6 +150,71 @@ describe('HttpServer', () => {
 
       expect(result.status).toBe(401);
       expect(result.body).toEqual({ error: 'Missing authorization header' });
+    });
+  });
+
+  describe('additionalAllowedDomains plumbing', () => {
+    beforeEach(() => {
+      (ServiceTokenValidator as jest.Mock).mockClear();
+    });
+
+    it('should pass additionalAllowedDomains to ServiceTokenValidator at construction', async () => {
+      // Guard: verify the allowlist option travels from HttpServerOptions
+      //  all the way to the validator constructor.
+      const allowlist = ['canary.botapi.skype.com'];
+      const serverWithAllowlist = new HttpServer(adapter, {
+        skipAuth: false,
+        additionalAllowedDomains: allowlist,
+        messagingEndpoint: '/api/messages',
+      });
+
+      await serverWithAllowlist.initialize({
+        credentials: { clientId: 'test-app', tenantId: 'test-tenant' } as any,
+      });
+
+      expect(ServiceTokenValidator).toHaveBeenCalledWith(
+        'test-app',
+        'test-tenant',
+        undefined,
+        expect.anything(),
+        ['canary.botapi.skype.com'],
+        undefined,
+      );
+    });
+
+    it('should not construct ServiceTokenValidator when skipAuth=true', async () => {
+      const skipAuthServer = new HttpServer(adapter, {
+        skipAuth: true,
+        additionalAllowedDomains: ['canary.botapi.skype.com'],
+        messagingEndpoint: '/api/messages',
+      });
+
+      await skipAuthServer.initialize({
+        credentials: { clientId: 'test-app', tenantId: 'test-tenant' } as any,
+      });
+
+      expect(ServiceTokenValidator).not.toHaveBeenCalled();
+    });
+
+    it('should not share array reference with caller (defensive copy)', async () => {
+      // Guards against a future regression: if HttpServer stored the caller's array
+      // by reference, post-construction mutation would change validator behavior at runtime.
+      const callerList = ['first.example.com'];
+      const srv = new HttpServer(adapter, {
+        skipAuth: false,
+        additionalAllowedDomains: callerList,
+        messagingEndpoint: '/api/messages',
+      });
+
+      callerList.push('mutated.example.com');
+
+      await srv.initialize({
+        credentials: { clientId: 'test-app', tenantId: 'test-tenant' } as any,
+      });
+
+      // Validator received the list as it was at construction, not the mutated version.
+      const receivedList = (ServiceTokenValidator as jest.Mock).mock.calls[0][4];
+      expect(receivedList).toEqual(['first.example.com']);
     });
   });
 
