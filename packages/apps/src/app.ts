@@ -339,7 +339,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     }
     this.graph = new GraphClient(
       this.client.clone({ token: () => this.getAppGraphToken() }),
-      this.graphBaseUrl
+      { baseUrlRoot: this.graphBaseUrl }
     );
 
     // initialize TokenManager with credentials

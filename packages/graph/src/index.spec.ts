@@ -110,13 +110,13 @@ describe('Client', () => {
       });
     });
 
-    it('should clone existing client and route to sovereign base URL via positional baseUrlRoot', () => {
+    it('should clone existing client and route to sovereign base URL via graphOptions.baseUrlRoot', () => {
       const existingClient = {
         ...mockHttpClient,
         request: jest.fn(),
         clone: jest.fn().mockReturnValue(mockHttpClient),
       };
-      new Client(existingClient as any, 'https://graph.microsoft.us');
+      new Client(existingClient as any, { baseUrlRoot: 'https://graph.microsoft.us' });
 
       expect(existingClient.clone).toHaveBeenCalledWith({
         baseUrl: 'https://graph.microsoft.us/v1.0',
@@ -127,8 +127,8 @@ describe('Client', () => {
       });
     });
 
-    it('should honor positional baseUrlRoot when no options provided', () => {
-      new Client(undefined, 'https://graph.microsoft.us');
+    it('should honor graphOptions.baseUrlRoot when no options provided', () => {
+      new Client(undefined, { baseUrlRoot: 'https://graph.microsoft.us' });
 
       expect(http.Client).toHaveBeenCalledWith({
         baseUrl: 'https://graph.microsoft.us/v1.0',
@@ -139,10 +139,10 @@ describe('Client', () => {
       });
     });
 
-    it('should prefer positional baseUrlRoot over options.baseUrlRoot', () => {
+    it('should prefer graphOptions.baseUrlRoot over options.baseUrlRoot', () => {
       new Client(
         { baseUrlRoot: 'https://graph.microsoft.com' },
-        'https://graph.microsoft.us'
+        { baseUrlRoot: 'https://graph.microsoft.us' }
       );
 
       expect(http.Client).toHaveBeenCalledWith({

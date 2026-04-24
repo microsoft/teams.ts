@@ -46,11 +46,11 @@ export async function $process<TPlugin extends IPlugin>(
   const apiClient = new ApiClient(serviceUrl, this.client.clone({ token: () => this.getBotToken() }), this.options.apiClientSettings);
   const userGraph = new GraphClient(
     client.clone({ token: () => userToken }),
-    this.graphBaseUrl
+    { baseUrlRoot: this.graphBaseUrl }
   );
   const appGraph = new GraphClient(
     client.clone({ token: () => this.getAppGraphToken(activity.conversation.tenantId ?? 'common') }),
-    this.graphBaseUrl
+    { baseUrlRoot: this.graphBaseUrl }
   );
 
   const ref: ConversationReference = {
