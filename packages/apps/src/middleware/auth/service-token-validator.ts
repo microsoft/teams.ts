@@ -87,9 +87,7 @@ export class ServiceTokenValidator {
     this.credentials = { clientId: appId, tenantId };
     // Defensive copy so post-construction mutation of the caller's array
     // does not change validator behavior at runtime.
-    this.additionalAllowedDomains = additionalAllowedDomains
-      ? [...additionalAllowedDomains]
-      : undefined;
+    this.additionalAllowedDomains = additionalAllowedDomains?.slice();
   }
 
   async check(authHeader: string, body: any): Promise<IToken> {

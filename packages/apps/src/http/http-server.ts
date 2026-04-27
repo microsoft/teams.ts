@@ -84,9 +84,7 @@ export class HttpServer implements IHttpServer {
     this.skipAuth = options.skipAuth ?? false;
     // Defensive copy so post-construction mutation of the caller's array
     // does not change validator behavior at runtime.
-    this.additionalAllowedDomains = options.additionalAllowedDomains
-      ? [...options.additionalAllowedDomains]
-      : undefined;
+    this.additionalAllowedDomains = options.additionalAllowedDomains?.slice();
     this.logger = options.logger ?? new ConsoleLogger('HttpServer');
     this._messagingEndpoint = options.messagingEndpoint;
   }
