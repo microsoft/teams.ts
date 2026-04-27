@@ -7,7 +7,12 @@ module.exports = {
   treeshake: true,
   splitting: true,
   clean: true,
-  outDir: 'dist',
-  entry: ['src/**/*.ts', '!src/**/*.spec.ts'],
-  format: ['cjs', 'esm'],
+  outDir: "dist",
+  entry: ["src/**/*.ts", "!src/**/*.spec.ts"],
+  format: ["cjs", "esm"],
+  esbuildOptions: (options, { format }) => {
+    if (format === "esm") {
+      options.outExtension = { ".js": ".mjs" };
+    }
+  },
 };
