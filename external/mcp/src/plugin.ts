@@ -262,10 +262,15 @@ export class McpPlugin implements IPlugin {
       );
     }
 
-    // Register GET endpoint for SSE connections
-    adapter.get(path, async (req: express.Request, res: express.Response) => {
+    // Auth gate applied to the entire MCP path prefix so any current or future
+    // handler registered under this path is covered.
+    adapter.use(path, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (!(await this.checkAuth(req, res))) return;
+      next();
+    });
 
+    // Register GET endpoint for SSE connections
+    adapter.get(path, (_: express.Request, res: express.Response) => {
       this.id++;
       this.logger.debug('connecting...');
       const transport = new SSEServerTransport(
@@ -282,9 +287,7 @@ export class McpPlugin implements IPlugin {
     });
 
     // Register POST endpoint for SSE messages
-    adapter.post(`${path}/:id/messages`, async (req: express.Request, res: express.Response) => {
-      if (!(await this.checkAuth(req, res))) return;
-
+    adapter.post(`${path}/:id/messages`, (req: express.Request, res: express.Response) => {
       const id = +req.params.id;
       const { transport } = this.connections[id];
 
