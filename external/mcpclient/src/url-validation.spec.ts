@@ -24,6 +24,8 @@ describe('isPrivateAddress', () => {
     ['fd00::1', true],
     ['fc00::1', true],
     ['fe80::1', true],
+    ['fec0::1', true],
+    ['::', true],
     ['2001:4860:4860::8888', false],
     ['::ffff:127.0.0.1', true],
     ['::ffff:8.8.8.8', false],
@@ -129,5 +131,29 @@ describe('validateMcpServerUrl', () => {
         validateUrl: async (url) => url.hostname === 'example.com',
       })
     ).resolves.toBeInstanceOf(URL);
+  });
+
+  it('rejects when DNS lookup fails', async () => {
+    jest.spyOn(dns.promises, 'lookup').mockRejectedValue(new Error('ENOTFOUND'));
+    await expect(
+      validateMcpServerUrl('https://nonexistent.invalid/mcp')
+    ).rejects.toThrow(/Could not resolve host/);
+  });
+
+  it('rejects when DNS returns an empty address list', async () => {
+    jest.spyOn(dns.promises, 'lookup').mockResolvedValue([] as any);
+    await expect(
+      validateMcpServerUrl('https://example.com/mcp')
+    ).rejects.toThrow(/did not resolve to any address/);
+  });
+
+  it('propagates exceptions thrown by validateUrl', async () => {
+    await expect(
+      validateMcpServerUrl('https://example.com/mcp', {
+        validateUrl: () => {
+          throw new Error('custom failure');
+        },
+      })
+    ).rejects.toThrow(/custom failure/);
   });
 });

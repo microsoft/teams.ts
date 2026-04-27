@@ -49,7 +49,12 @@ export async function validateMcpServerUrl(
   }
 
   const hostname = stripBrackets(url.hostname);
-  const addresses = await resolveHost(hostname);
+  const addresses = await resolveHost(hostname, urlString);
+  if (addresses.length === 0) {
+    throw new UrlValidationError(
+      `URL ${urlString} did not resolve to any address`
+    );
+  }
   for (const addr of addresses) {
     if (isPrivateAddress(addr)) {
       throw new UrlValidationError(
@@ -95,6 +100,8 @@ function isPrivateIpv6(ip: string): boolean {
   if (/^f[cd][0-9a-f]{2}:/.test(lower)) return true;
   // fe80::/10 (link-local): first 10 bits are 1111 1110 10
   if (/^fe[89ab][0-9a-f]:/.test(lower)) return true;
+  // fec0::/10 (deprecated site-local per RFC 4291, still in some networks)
+  if (/^fe[cdef][0-9a-f]:/.test(lower)) return true;
   // IPv4-mapped IPv6: ::ffff:a.b.c.d -- check the embedded v4
   const v4Mapped = lower.match(/^::ffff:([0-9.]+)$/);
   if (v4Mapped) return isPrivateIpv4(v4Mapped[1]);
@@ -108,12 +115,18 @@ function stripBrackets(hostname: string): string {
   return hostname;
 }
 
-async function resolveHost(hostname: string): Promise<string[]> {
+async function resolveHost(hostname: string, urlString: string): Promise<string[]> {
   // If the hostname is already an IP literal, DNS lookup still returns it, but
   // skip the round-trip for clarity.
   if (net.isIP(hostname)) {
     return [hostname];
   }
-  const addresses = await dns.promises.lookup(hostname, { all: true });
-  return addresses.map((entry) => entry.address);
+  try {
+    const addresses = await dns.promises.lookup(hostname, { all: true });
+    return addresses.map((entry) => entry.address);
+  } catch (err) {
+    throw new UrlValidationError(
+      `Could not resolve host ${hostname} for URL ${urlString}: ${(err as Error).message}`
+    );
+  }
 }
