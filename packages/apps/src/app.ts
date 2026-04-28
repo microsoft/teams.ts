@@ -146,16 +146,6 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly skipAuth?: boolean;
 
   /**
-   * Additional service URL hostnames accepted beyond the cloud preset.
-   * Entries must be bare hostnames matched exactly (case-insensitive);
-   * wildcard patterns like `'*.example.com'`, URL suffixes, or full URLs are NOT supported.
-   * If `'*'` is present in the list, hostname allowlist validation is disabled,
-   * but service URLs are still parsed and must satisfy the existing scheme checks.
-   * @example ['api.my-custom-channel.com']
-   */
-  readonly additionalAllowedDomains?: string[];
-
-  /**
    * URL path for the Teams messaging endpoint
    * @default '/api/messages'
    */
@@ -403,7 +393,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         onError: (err) => this.onError({ error: err })
       }), {
         skipAuth: this.options.skipAuth,
-        additionalAllowedDomains: this.options.additionalAllowedDomains,
         logger: this.log,
         messagingEndpoint: this.options.messagingEndpoint ?? '/api/messages',
       });
