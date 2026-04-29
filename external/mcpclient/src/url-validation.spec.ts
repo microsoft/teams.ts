@@ -105,6 +105,18 @@ describe('validateMcpServerUrl', () => {
     ).resolves.toBeInstanceOf(URL);
   });
 
+  it('rejects unspecified IPv4 even when allowPrivateNetwork is true', async () => {
+    await expect(
+      validateMcpServerUrl('http://0.0.0.0:3000', { allowPrivateNetwork: true })
+    ).rejects.toThrow(/unspecified/);
+  });
+
+  it('rejects unspecified IPv6 even when allowPrivateNetwork is true', async () => {
+    await expect(
+      validateMcpServerUrl('http://[::]:3000', { allowPrivateNetwork: true })
+    ).rejects.toThrow(/unspecified/);
+  });
+
   it('accepts private hostnames when allowPrivateNetwork is true (skips DNS)', async () => {
     const lookupSpy = jest.spyOn(dns.promises, 'lookup');
     await expect(

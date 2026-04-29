@@ -48,11 +48,20 @@ export async function validateMcpServerUrl(
     );
   }
 
+  const hostname = stripBrackets(url.hostname);
+
+  // Always reject unspecified addresses (0.0.0.0 / ::) — even with allowPrivateNetwork.
+  // These aren't valid destinations and route to the local host on some platforms.
+  if (isUnspecifiedIp(hostname)) {
+    throw new UrlValidationError(
+      `URL ${redactCreds(urlString)} resolves to unspecified address ${hostname}`
+    );
+  }
+
   if (params.allowPrivateNetwork === true) {
     return url;
   }
 
-  const hostname = stripBrackets(url.hostname);
   const addresses = await resolveHost(hostname, urlString);
   if (addresses.length === 0) {
     throw new UrlValidationError(
@@ -80,6 +89,20 @@ export function isPrivateAddress(address: string): boolean {
   }
   // Unknown / unresolved: treat as private (fail closed).
   return true;
+}
+
+function isUnspecifiedIp(literal: string): boolean {
+  const family = net.isIP(literal);
+  if (family === 4) {
+    return literal.split('.').map(Number)[0] === 0;
+  }
+  if (family === 6) {
+    // Already validated as IPv6 by net.isIP; if it contains nothing but
+    // zeros and colons, it's the unspecified address (`::`, `0:0:0:0:0:0:0:0`,
+    // `0::`, `::0`, etc.).
+    return /^[0:]+$/.test(literal);
+  }
+  return false;
 }
 
 function isPrivateIpv4(ip: string): boolean {
