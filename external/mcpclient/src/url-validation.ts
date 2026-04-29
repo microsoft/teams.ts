@@ -126,6 +126,8 @@ function isPrivateIpv6(ip: string): boolean {
   const lower = ip.toLowerCase();
   if (lower === '::1') return true;
   if (lower === '::') return true;
+  // ff00::/8 (multicast) — first byte is 0xff
+  if (/^ff[0-9a-f]{2}:/.test(lower)) return true;
   // fc00::/7 (unique local)
   if (/^f[cd][0-9a-f]{2}:/.test(lower)) return true;
   // fe80::/10 (link-local): first 10 bits are 1111 1110 10
