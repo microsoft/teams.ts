@@ -8,6 +8,10 @@ export class UrlValidationError extends Error {
   }
 }
 
+function redactCreds(s: string): string {
+  return s.replace(/(\b[a-z][a-z0-9+.-]*:\/\/)[^@/?#]*@/i, '$1[REDACTED]@');
+}
+
 export type UrlValidationParams = {
   allowPrivateNetwork?: boolean;
   validateUrl?: (url: URL) => boolean | Promise<boolean>;
@@ -27,13 +31,13 @@ export async function validateMcpServerUrl(
   try {
     url = new URL(urlString);
   } catch {
-    throw new UrlValidationError(`Invalid URL: ${JSON.stringify(urlString)}`);
+    throw new UrlValidationError(`Invalid URL: ${JSON.stringify(redactCreds(urlString))}`);
   }
 
   if (params.validateUrl) {
     const ok = await params.validateUrl(url);
     if (!ok) {
-      throw new UrlValidationError(`URL rejected by validateUrl: ${urlString}`);
+      throw new UrlValidationError(`URL rejected by validateUrl: ${redactCreds(urlString)}`);
     }
     return url;
   }
@@ -52,13 +56,13 @@ export async function validateMcpServerUrl(
   const addresses = await resolveHost(hostname, urlString);
   if (addresses.length === 0) {
     throw new UrlValidationError(
-      `URL ${urlString} did not resolve to any address`
+      `URL ${redactCreds(urlString)} did not resolve to any address`
     );
   }
   for (const addr of addresses) {
     if (isPrivateAddress(addr)) {
       throw new UrlValidationError(
-        `URL ${urlString} resolves to private or loopback address ${addr}; set allowPrivateNetwork: true to bypass`
+        `URL ${redactCreds(urlString)} resolves to private or loopback address ${addr}; set allowPrivateNetwork: true to bypass`
       );
     }
   }
@@ -84,11 +88,14 @@ function isPrivateIpv4(ip: string): boolean {
     return true;
   }
   const [a, b] = parts;
-  if (a === 127) return true;
-  if (a === 10) return true;
-  if (a === 192 && b === 168) return true;
-  if (a === 172 && b >= 16 && b <= 31) return true;
-  if (a === 169 && b === 254) return true;
+  if (a === 0) return true;                          // 0.0.0.0/8 ("this network"; routes to localhost on Linux)
+  if (a === 127) return true;                        // 127.0.0.0/8 loopback
+  if (a === 10) return true;                         // 10.0.0.0/8
+  if (a === 192 && b === 168) return true;           // 192.168.0.0/16
+  if (a === 172 && b >= 16 && b <= 31) return true;  // 172.16.0.0/12
+  if (a === 169 && b === 254) return true;           // 169.254.0.0/16 link-local
+  if (a === 100 && b >= 64 && b <= 127) return true; // 100.64.0.0/10 CGNAT (RFC 6598)
+  if (a >= 224) return true;                         // 224.0.0.0/4 multicast + 240.0.0.0/4 reserved + 255.255.255.255
   return false;
 }
 
@@ -126,7 +133,7 @@ async function resolveHost(hostname: string, urlString: string): Promise<string[
     return addresses.map((entry) => entry.address);
   } catch (err) {
     throw new UrlValidationError(
-      `Could not resolve host ${hostname} for URL ${urlString}: ${(err as Error).message}`
+      `Could not resolve host ${hostname} for URL ${redactCreds(urlString)}: ${(err as Error).message}`
     );
   }
 }

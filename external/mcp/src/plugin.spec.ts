@@ -17,6 +17,7 @@ function mockRes() {
   const res: any = {};
   res.status = jest.fn().mockReturnValue(res);
   res.send = jest.fn().mockReturnValue(res);
+  res.set = jest.fn().mockReturnValue(res);
   return res as express.Response;
 }
 
@@ -130,6 +131,7 @@ describe('McpPlugin', () => {
       const res = mockRes();
       const ok = await plugin.testCheckAuth(mockReq(), res);
       expect(ok).toBe(false);
+      expect(res.set).toHaveBeenCalledWith('WWW-Authenticate', 'Bearer');
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.send).toHaveBeenCalledWith('unauthorized');
     });

@@ -240,9 +240,9 @@ export class McpPlugin implements IPlugin {
       const ok = await this.requireAuth(req);
       if (ok) return true;
     } catch (err) {
-      this.logger.debug(`requireAuth threw: ${err}`);
+      this.logger.debug('requireAuth threw:', err);
     }
-    res.status(401).send('unauthorized');
+    res.set('WWW-Authenticate', 'Bearer').status(401).send('unauthorized');
     return false;
   }
 
