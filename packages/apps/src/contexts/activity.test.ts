@@ -190,7 +190,7 @@ describe('ActivityContext', () => {
       );
     });
 
-    it('skips blockquote when incoming activity is targeted', async () => {
+    it('reply to targeted message strips blockquote via addTargetedMessageInfo', async () => {
       const activity = new MessageActivity('Hello world')
         .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
         .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
@@ -203,12 +203,17 @@ describe('ActivityContext', () => {
       await context.reply('Here is your agenda');
 
       expect(mockSender.send).toHaveBeenCalledTimes(1);
-      expect(mockSender.send).toHaveBeenCalledWith(
-        expect.objectContaining({
-          text: 'Here is your agenda',
-          type: 'message',
-        }),
-        mockRef
+      const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+      // Reply prepends blockquote, but send() auto-populates addTargetedMessageInfo
+      // which strips quotedReply entities — the blockquote text remains since it's
+      // the legacy format, not the <quoted .../> placeholder.
+      expect(sentActivity.entities).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: 'targetedMessageInfo',
+            messageId: 'test-activity-id',
+          }),
+        ])
       );
     });
   });
