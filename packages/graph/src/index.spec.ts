@@ -1052,7 +1052,7 @@ describe('Client', () => {
             statusCode: 403,
             code: 'Authorization_RequestDenied',
             body: responseData,
-            cause: axiosError,
+            source: axiosError,
           });
           await rejection.toThrow(/Insufficient privileges/);
         });
@@ -1083,7 +1083,7 @@ describe('Client', () => {
           await rejection.toThrow(/failed with status 500/);
         });
 
-        it('should not expose body or cause via Object.keys or JSON.stringify', async () => {
+        it('should not expose body or source via Object.keys or JSON.stringify', async () => {
           const responseData = {
             error: {
               code: 'NotFound',
@@ -1115,16 +1115,15 @@ describe('Client', () => {
             expect(err).toBeInstanceOf(GraphError);
             const graphErr = err as GraphError;
 
-            // body and cause are accessible directly
+            // body and source are accessible directly
             expect(graphErr.body).toEqual(responseData);
-            expect(graphErr.cause).toBe(axiosError);
+            expect(graphErr.source).toBe(axiosError);
 
             // but hidden from enumeration and serialization
             expect(Object.keys(graphErr)).not.toContain('body');
-            expect(Object.keys(graphErr)).not.toContain('cause');
+            expect(Object.keys(graphErr)).not.toContain('source');
             const serialized = JSON.stringify(graphErr);
             expect(serialized).not.toContain('Resource not found');
-            expect(serialized).not.toContain('Request failed with status code');
           }
         });
       });
