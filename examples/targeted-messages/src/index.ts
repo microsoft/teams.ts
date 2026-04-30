@@ -13,7 +13,7 @@ app.on('message', async ({ send, activity, api, log }) => {
 
   log.info(`[MESSAGE] Received: ${text}`);
 
-  if (text.includes('update')) {
+  if (text.includes('test update')) {
     const conversationId = activity.conversation?.id ?? '';
     const result = await send(
       new MessageActivity('🔒 Original targeted message - updating in 3s...')
@@ -31,7 +31,7 @@ app.on('message', async ({ send, activity, api, log }) => {
         log.error('[UPDATE] Error:', err?.message || err);
       }
     }, 3000);
-  } else if (text.includes('delete')) {
+  } else if (text.includes('test delete')) {
     const conversationId = activity.conversation?.id ?? '';
     const result = await send(
       new MessageActivity('🔒 This targeted message will be deleted in 3s...')
@@ -49,13 +49,13 @@ app.on('message', async ({ send, activity, api, log }) => {
         log.error('[DELETE] Error:', err?.message || err);
       }
     }, 3000);
-  } else if (text.includes('public')) {
+  } else if (text.includes('test public')) {
     // Public message — everyone in the chat sees the reply.
     await send(
       new MessageActivity('📋 Here is the public result - everyone can see this!')
     );
     log.info('[PUBLIC] Sent public message');
-  } else if (text.includes('send')) {
+  } else if (text.includes('test send')) {
     // Targeted message — the SDK auto-populates the targetedMessageInfo entity.
     await send(
       new MessageActivity('👋 This is a **targeted message** - only YOU can see this!')
@@ -66,10 +66,10 @@ app.on('message', async ({ send, activity, api, log }) => {
     await send(
       '**🎯 Targeted Messages Demo**\n\n' +
       '**Commands:**\n' +
-      '- `send` - Send a targeted message (only you see it)\n' +
-      '- `update` - Send a targeted message, then update it after 3 seconds\n' +
-      '- `delete` - Send a targeted message, then delete it after 3 seconds\n' +
-      '- `public` - Send a public message (visible to all)\n\n' +
+      '- `test send` - Send a targeted message (only you see it)\n' +
+      '- `test update` - Send a targeted message, then update it after 3 seconds\n' +
+      '- `test delete` - Send a targeted message, then delete it after 3 seconds\n' +
+      '- `test public` - Send a public message (visible to all)\n\n' +
       '_Targeted messages are only visible to you, even in group chats!_'
     );
   } else {

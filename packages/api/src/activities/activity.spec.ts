@@ -1,6 +1,7 @@
-import { Account, ConversationAccount } from '../models';
+import { Account, ConversationAccount, Entity } from '../models';
 
 import { Activity } from './activity';
+import { MessageActivity } from './message';
 
 describe('Activity', () => {
   const user: Account = {
@@ -239,6 +240,35 @@ describe('Activity', () => {
           ],
         },
       ]);
+    });
+  });
+
+  describe('addTargetedMessageInfo', () => {
+    it('should strip quotedReply entities', () => {
+      const activity = new MessageActivity('hello')
+        .addEntity({ type: 'quotedReply', messageId: '123' } as unknown as Entity)
+        .addEntity({ type: 'mention', text: '<at>bot</at>', mentioned: bot })
+        .addTargetedMessageInfo('123');
+
+      expect(activity.entities).toEqual([
+        { type: 'mention', text: '<at>bot</at>', mentioned: bot },
+        { type: 'targetedMessageInfo', messageId: '123' },
+      ]);
+    });
+
+    it('should strip quoted placeholder from text', () => {
+      const activity = new MessageActivity('hello <quoted messageId="123"/>')
+        .addTargetedMessageInfo('123');
+
+      expect(activity.text).toEqual('hello');
+    });
+
+    it('should not add duplicate targetedMessageInfo', () => {
+      const activity = new MessageActivity('hello')
+        .addTargetedMessageInfo('123')
+        .addTargetedMessageInfo('456');
+
+      expect(activity.entities?.filter((e) => e.type === 'targetedMessageInfo')).toHaveLength(1);
     });
   });
 });

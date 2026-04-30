@@ -285,11 +285,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     activity = toActivityParams(activity);
     activity.replyToId = this.activity.id;
 
-    // Skip quoted reply when incoming activity is targeted —
-    // prompt preview owns the preview surface for targeted messages.
-    const isTargeted = this.activity.recipient?.isTargeted === true;
-
-    if (!isTargeted && activity.type === 'message' && activity.text) {
+    if (activity.type === 'message' && activity.text) {
       const blockQuote = this.buildBlockQuoteForActivity();
 
       if (blockQuote) {

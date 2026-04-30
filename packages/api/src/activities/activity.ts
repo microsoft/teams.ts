@@ -442,6 +442,18 @@ export class Activity<T extends string = string> implements IActivity<T> {
       return this;
     }
 
+    if (this.entities) {
+      this.entities = this.entities.filter((e) => (e.type as string) !== 'quotedReply');
+    }
+
+    if (this.type === 'message') {
+      const msg = this as unknown as { text?: string };
+
+      if (msg.text) {
+        msg.text = msg.text.replace(`<quoted messageId="${messageId}"/>`, '').trim();
+      }
+    }
+
     return this.addEntity({
       type: 'targetedMessageInfo',
       messageId,
