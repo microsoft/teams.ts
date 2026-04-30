@@ -30,11 +30,14 @@ export class GraphError extends Error {
       ? `Graph ${method.toUpperCase()} ${url} failed (${statusCode}): ${graphError.message}`
       : `Graph ${method.toUpperCase()} ${url} failed with status ${statusCode}`;
 
-    super(message, { cause });
+    super(message);
     this.name = 'GraphError';
     this.statusCode = statusCode;
     this.code = graphError?.code;
-    this.body = body;
+    Object.defineProperty(this, 'body', { value: body, enumerable: false, writable: false });
+    if (cause !== undefined) {
+      Object.defineProperty(this, 'cause', { value: cause, enumerable: false, writable: false });
+    }
   }
 }
 
