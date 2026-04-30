@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios';
+import { AxiosError } from "axios";
 
 import {
   ActivityLike,
@@ -12,45 +12,41 @@ import {
   StripMentionsTextOptions,
   toActivityParams,
   TokenCredentials,
-} from '@microsoft/teams.api';
-import { EventEmitter } from '@microsoft/teams.common/events';
-import * as http from '@microsoft/teams.common/http';
-import { ConsoleLogger, ILogger } from '@microsoft/teams.common/logging';
-import { IStorage, LocalStorage } from '@microsoft/teams.common/storage';
+} from "@microsoft/teams.api";
+import { EventEmitter } from "@microsoft/teams.common/events";
+import * as http from "@microsoft/teams.common/http";
+import { ConsoleLogger, ILogger } from "@microsoft/teams.common/logging";
+import { IStorage, LocalStorage } from "@microsoft/teams.common/storage";
 
-import pkg from '../package.json';
+import pkg from "../package.json";
 
-import { ActivitySender } from './activity-sender';
-import { ApiClient, GraphClient } from './api';
+import { ActivitySender } from "./activity-sender";
+import { ApiClient, GraphClient } from "./api";
 
-import { configTab, func, tab } from './app.embed';
+import { configTab, func, tab } from "./app.embed";
 import {
   event,
   onActivityResponse,
   onActivitySent,
   onError,
-} from './app.events';
-import {
-  onSignInFailure,
-  onTokenExchange,
-  onVerifyState,
-} from './app.oauth';
-import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
-import { $process } from './app.process';
-import { message, on, use } from './app.routing';
-import { Container } from './container';
-import { IActivityEvent } from './events';
-import { ExpressAdapter, IHttpServerAdapter } from './http';
-import { HttpServer } from './http/http-server';
-import * as manifest from './manifest';
-import * as middleware from './middleware';
-import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
-import { HttpPlugin } from './plugins';
-import { Router } from './router';
-import { TokenManager } from './token-manager';
-import { IPlugin, AppEvents } from './types';
-import { PluginAdditionalContext } from './types/app-routing';
-import { toThreadedConversationId } from './utils/thread';
+} from "./app.events";
+import { onSignInFailure, onTokenExchange, onVerifyState } from "./app.oauth";
+import { getMetadata, getPlugin, inject, plugin } from "./app.plugins";
+import { $process } from "./app.process";
+import { message, on, use } from "./app.routing";
+import { Container } from "./container";
+import { IActivityEvent } from "./events";
+import { ExpressAdapter, IHttpServerAdapter } from "./http";
+import { HttpServer } from "./http/http-server";
+import * as manifest from "./manifest";
+import * as middleware from "./middleware";
+import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from "./oauth";
+import { HttpPlugin } from "./plugins";
+import { Router } from "./router";
+import { TokenManager } from "./token-manager";
+import { IPlugin, AppEvents } from "./types";
+import { PluginAdditionalContext } from "./types/app-routing";
+import { toThreadedConversationId } from "./utils/thread";
 
 /**
  * App initialization options
@@ -88,7 +84,7 @@ export type AppOptions<TPlugin extends IPlugin> = {
   /**
    * token - An override to perform token fetching.
    */
-  readonly token?: TokenCredentials['token'];
+  readonly token?: TokenCredentials["token"];
 
   /**
    * managed identity client id - A managed identity client id.
@@ -98,7 +94,7 @@ export type AppOptions<TPlugin extends IPlugin> = {
    *   - "system", uses System Managed Identity in a Federated Identity Credentials
    *   - Different from client id or system, uses UMI in a Federated Identity Credentials
    */
-  managedIdentityClientId?: 'system' | (string & {});
+  managedIdentityClientId?: "system" | (string & {});
 
   /**
    * http client or client options used to make api requests
@@ -241,19 +237,20 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     return {
       id: this.id,
       name: {
-        short: this._manifest.name?.short || '??',
-        full: this._manifest.name?.full || '??',
+        short: this._manifest.name?.short || "??",
+        full: this._manifest.name?.full || "??",
       },
       bots: [
         {
-          botId: this.id || '??',
-          scopes: ['personal'],
+          botId: this.id || "??",
+          scopes: ["personal"],
         },
       ],
       webApplicationInfo: {
-        id: this.credentials?.clientId || '??',
-        resource: `api://\${{BOT_DOMAIN}}/${this.credentials?.clientId || '??'
-          }`,
+        id: this.credentials?.clientId || "??",
+        resource: `api://\${{BOT_DOMAIN}}/${
+          this.credentials?.clientId || "??"
+        }`,
         ...this._manifest.webApplicationInfo,
       },
       ...this._manifest,
@@ -273,30 +270,33 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   private readonly _userAgent = `teams.ts[apps]/${pkg.version}`;
 
   constructor(readonly options: AppOptions<TPlugin> = {}) {
-    this.log = this.options.logger || new ConsoleLogger('@teams/app');
+    this.log = this.options.logger || new ConsoleLogger("@teams/app");
     this.storage = this.options.storage || new LocalStorage();
     this._manifest = this.options.manifest || {};
 
     // Resolve cloud environment from options or CLOUD env var
-    const cloudEnvName = typeof process !== 'undefined' ? process.env.CLOUD : undefined;
-    this.cloud = this.options.cloud ?? (cloudEnvName ? cloudFromName(cloudEnvName) : PUBLIC);
+    const cloudEnvName =
+      typeof process !== "undefined" ? process.env.CLOUD : undefined;
+    this.cloud =
+      this.options.cloud ??
+      (cloudEnvName ? cloudFromName(cloudEnvName) : PUBLIC);
 
     if (!options.client) {
       this.client = new http.Client({
         headers: {
-          'User-Agent': this._userAgent,
+          "User-Agent": this._userAgent,
         },
       });
-    } else if (typeof options.client === 'function') {
+    } else if (typeof options.client === "function") {
       this.client = options.client().clone({
         headers: {
-          'User-Agent': this._userAgent,
+          "User-Agent": this._userAgent,
         },
       });
-    } else if ('request' in options.client) {
+    } else if ("request" in options.client) {
       this.client = options.client.clone({
         headers: {
-          'User-Agent': this._userAgent,
+          "User-Agent": this._userAgent,
         },
       });
     } else {
@@ -304,57 +304,69 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         ...options.client,
         headers: {
           ...options.client.headers,
-          'User-Agent': this._userAgent,
+          "User-Agent": this._userAgent,
         },
       });
     }
 
-    const serviceUrl = (this.options.serviceUrl ?? process.env.SERVICE_URL ??
-      'https://smba.trafficmanager.net/teams').replace(/\/+$/, '');
+    const serviceUrl = (
+      this.options.serviceUrl ??
+      process.env.SERVICE_URL ??
+      "https://smba.trafficmanager.net/teams"
+    ).replace(/\/+$/, "");
     this.api = new ApiClient(
       serviceUrl,
       this.client.clone({ token: () => this.getBotToken() }),
       this.options.apiClientSettings,
-      this.cloud
+      this.cloud,
     );
 
     // Derive Graph API base URL from the cloud's graphScope (e.g. "https://graph.microsoft.us/.default"
     // -> "https://graph.microsoft.us"). Falls back to the public Graph endpoint inside GraphClient if
     // the scope isn't a URL (custom delegated scope, empty, etc.).
-    const graphUrlMatch = /^(https?:\/\/[^/]+)/i.exec((this.cloud.graphScope ?? '').trim());
+    const graphUrlMatch = /^(https?:\/\/[^/]+)/i.exec(
+      (this.cloud.graphScope ?? "").trim(),
+    );
     this.graphBaseUrl = graphUrlMatch?.[1];
     if (!this.graphBaseUrl && this.cloud.graphScope) {
       this.log.warn(
         `graphScope "${this.cloud.graphScope}" is not a URL; Graph calls will route to the public cloud. ` +
-        'Set graphScope to an "https://<host>/.default" value to route to the correct Graph endpoint.'
+          'Set graphScope to an "https://<host>/.default" value to route to the correct Graph endpoint.',
       );
     }
     this.graph = new GraphClient(
       this.client.clone({ token: () => this.getAppGraphToken() }),
-      { baseUrlRoot: this.graphBaseUrl }
+      { baseUrlRoot: this.graphBaseUrl },
     );
 
     // initialize TokenManager with credentials
-    this.tokenManager = new TokenManager({
-      clientId: this.options.clientId,
-      clientSecret: this.options.clientSecret,
-      tenantId: this.options.tenantId,
-      token: this.options.token,
-      managedIdentityClientId: this.options.managedIdentityClientId,
-      cloud: this.cloud,
-    }, this.log);
+    this.tokenManager = new TokenManager(
+      {
+        clientId: this.options.clientId,
+        clientSecret: this.options.clientSecret,
+        tenantId: this.options.tenantId,
+        token: this.options.token,
+        managedIdentityClientId: this.options.managedIdentityClientId,
+        cloud: this.cloud,
+      },
+      this.log,
+    );
 
     // initialize ActivitySender for sending activities
     this.activitySender = new ActivitySender(
       this.client.clone({ token: () => this.getBotToken() }),
-      this.log
+      this.log,
     );
 
     if (this.credentials?.clientId) {
       this.entraTokenValidator = middleware.createEntraTokenValidator(
-        this.credentials.tenantId || 'common',
+        this.credentials.tenantId || "common",
         this.credentials.clientId,
-        { applicationIdUri: this.options.applicationIdUri, loginEndpoint: this.cloud.loginEndpoint, logger: this.log }
+        {
+          applicationIdUri: this.options.applicationIdUri,
+          loginEndpoint: this.cloud.loginEndpoint,
+          logger: this.log,
+        },
       );
     }
 
@@ -362,16 +374,16 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     const plugins: Array<TPlugin> = this.options.plugins || [];
     const httpPlugin = plugins.find((p) => {
       const meta = getMetadata(p);
-      return meta.name === 'http';
+      return meta.name === "http";
     }) as HttpPlugin | undefined;
 
     // Error if both httpServerAdapter and http plugin are provided
     if (this.options.httpServerAdapter && httpPlugin) {
       throw new Error(
-        'Cannot provide both httpServerAdapter option and HttpPlugin in plugins array. ' +
-        'Use either:\n' +
-        '  - new App({ httpServerAdapter: new ExpressAdapter() }) (recommended)\n' +
-        '  - new App({ plugins: [new HttpPlugin()] }) (deprecated)'
+        "Cannot provide both httpServerAdapter option and HttpPlugin in plugins array. " +
+          "Use either:\n" +
+          "  - new App({ httpServerAdapter: new ExpressAdapter() }) (recommended)\n" +
+          "  - new App({ plugins: [new HttpPlugin()] }) (deprecated)",
       );
     }
 
@@ -379,23 +391,29 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     // HttpPlugin in plugins array (backwards compatibility)
     if (httpPlugin) {
-      this.log.warn('[DEPRECATED] HttpPlugin in plugins array will be deprecated. Use httpServerAdapter option instead:\n' +
-        '  new App({ httpServerAdapter: new ExpressAdapter() })');
+      this.log.warn(
+        "[DEPRECATED] HttpPlugin in plugins array will be deprecated. Use httpServerAdapter option instead:\n" +
+          "  new App({ httpServerAdapter: new ExpressAdapter() })",
+      );
       this.http = httpPlugin;
       // Extract internal server and always set this.server
       server = (httpPlugin as any).asServer?.();
       if (!server) {
-        throw new Error('HttpPlugin.asServer() returned undefined');
+        throw new Error("HttpPlugin.asServer() returned undefined");
       }
     } else {
-      server = new HttpServer(this.options.httpServerAdapter ?? new ExpressAdapter(undefined, {
-        logger: this.log,
-        onError: (err) => this.onError({ error: err })
-      }), {
-        skipAuth: this.options.skipAuth,
-        logger: this.log,
-        messagingEndpoint: this.options.messagingEndpoint ?? '/api/messages',
-      });
+      server = new HttpServer(
+        this.options.httpServerAdapter ??
+          new ExpressAdapter(undefined, {
+            logger: this.log,
+            onError: (err) => this.onError({ error: err }),
+          }),
+        {
+          skipAuth: this.options.skipAuth,
+          logger: this.log,
+          messagingEndpoint: this.options.messagingEndpoint ?? "/api/messages",
+        },
+      );
     }
 
     // Always set this.server
@@ -405,19 +423,19 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     server.onRequest = (event) => this.onActivity(event);
 
     // add injectable items to container
-    this.container.register('id', { useValue: this.id });
-    this.container.register('name', { useValue: this.name });
-    this.container.register('manifest', { useValue: this.manifest });
-    this.container.register('credentials', { useValue: this.credentials });
-    this.container.register('botToken', { useValue: () => this.getBotToken() });
-    this.container.register('ILogger', { useValue: this.log });
-    this.container.register('IStorage', { useValue: this.storage });
+    this.container.register("id", { useValue: this.id });
+    this.container.register("name", { useValue: this.name });
+    this.container.register("manifest", { useValue: this.manifest });
+    this.container.register("credentials", { useValue: this.credentials });
+    this.container.register("botToken", { useValue: () => this.getBotToken() });
+    this.container.register("ILogger", { useValue: this.log });
+    this.container.register("IStorage", { useValue: this.storage });
     this.container.register(this.client.constructor.name, {
       useFactory: () => this.client,
     });
 
     // Register HTTP server for plugins that need HTTP capabilities
-    this.container.register('IHttpServer', { useValue: server });
+    this.container.register("IHttpServer", { useValue: server });
 
     // Register all plugins (including HttpPlugin if using old way)
     for (const plugin of plugins) {
@@ -428,34 +446,37 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       const options = this.options.activity?.mentions?.stripText;
       this.use(
         middleware.stripMentionsText(
-          typeof options === 'boolean' ? {} : options
-        )
+          typeof options === "boolean" ? {} : options,
+        ),
       );
     }
 
     // default event handlers
     this.router.register({
-      name: 'signin.token-exchange',
-      type: 'system',
-      select: activity => activity.type === 'invoke' && activity.name === 'signin/tokenExchange',
-      callback: ctx => this.onTokenExchange(ctx),
+      name: "signin.token-exchange",
+      type: "system",
+      select: (activity) =>
+        activity.type === "invoke" && activity.name === "signin/tokenExchange",
+      callback: (ctx) => this.onTokenExchange(ctx),
     });
 
     this.router.register({
-      name: 'signin.verify-state',
-      type: 'system',
-      select: activity => activity.type === 'invoke' && activity.name === 'signin/verifyState',
-      callback: ctx => this.onVerifyState(ctx),
+      name: "signin.verify-state",
+      type: "system",
+      select: (activity) =>
+        activity.type === "invoke" && activity.name === "signin/verifyState",
+      callback: (ctx) => this.onVerifyState(ctx),
     });
 
     this.router.register({
-      name: 'signin.failure',
-      type: 'system',
-      select: activity => activity.type === 'invoke' && activity.name === 'signin/failure',
-      callback: ctx => this.onSignInFailure(ctx),
+      name: "signin.failure",
+      type: "system",
+      select: (activity) =>
+        activity.type === "invoke" && activity.name === "signin/failure",
+      callback: (ctx) => this.onSignInFailure(ctx),
     });
 
-    this.event('error', ({ error }) => {
+    this.event("error", ({ error }) => {
       this.log.error(error.message);
 
       if (error instanceof AxiosError) {
@@ -468,7 +489,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /**
    * initialize the app.
    */
-  async initialize() {
+  async initialize(port?: number | string) {
     if (this.isInitialized) {
       return;
     }
@@ -488,6 +509,13 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       cloud: this.cloud,
     });
 
+    const resolvedPort = port || this.port || process.env.PORT || 3978;
+    for (const plugin of this.plugins) {
+      if (plugin.onStart) {
+        await plugin.onStart({ port: resolvedPort });
+      }
+    }
+
     this.isInitialized = true;
   }
 
@@ -499,15 +527,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     this.port = port || process.env.PORT || 3978;
 
     try {
-      await this.initialize();
-
-      // Start plugins
-      for (const plugin of this.plugins) {
-        if (plugin.onStart) {
-          await plugin.onStart({ port: this.port });
-        }
-      }
-      this.events.emit('start', this.log);
+      await this.initialize(this.port); // ← pass port here
+      this.events.emit("start", this.log);
 
       // Start HTTP server
       await this.server.start(this.port);
@@ -548,22 +569,22 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    */
   async send(conversationId: string, activity: ActivityLike) {
     if (!this.id) {
-      throw new Error('App has no credentials set up');
+      throw new Error("App has no credentials set up");
     }
 
     const params = toActivityParams(activity);
 
     const ref: ConversationReference = {
-      channelId: 'msteams',
+      channelId: "msteams",
       serviceUrl: this.api.serviceUrl,
       bot: {
         id: this.id,
         name: this.name || this.id,
-        role: 'bot',
+        role: "bot",
       },
       conversation: {
         id: conversationId,
-      } as ConversationReference['conversation'],
+      } as ConversationReference["conversation"],
     };
 
     const res = await this.activitySender.send(params, ref);
@@ -582,7 +603,11 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param messageId the thread root message ID
    * @param activity the activity to send
    */
-  async reply(conversationId: string, messageId: string, activity: ActivityLike): Promise<any>;
+  async reply(
+    conversationId: string,
+    messageId: string,
+    activity: ActivityLike,
+  ): Promise<any>;
   /**
    * send an activity proactively to a conversation.
    *
@@ -593,9 +618,16 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param activity the activity to send
    */
   async reply(conversationId: string, activity: ActivityLike): Promise<any>;
-  async reply(conversationId: string, messageId: string | ActivityLike, activity?: ActivityLike) {
-    if (typeof messageId === 'string' && activity !== undefined) {
-      return this.send(toThreadedConversationId(conversationId, messageId), activity);
+  async reply(
+    conversationId: string,
+    messageId: string | ActivityLike,
+    activity?: ActivityLike,
+  ) {
+    if (typeof messageId === "string" && activity !== undefined) {
+      return this.send(
+        toThreadedConversationId(conversationId, messageId),
+        activity,
+      );
     }
 
     return this.send(conversationId, messageId as ActivityLike);
@@ -687,10 +719,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected onActivitySent = onActivitySent; // eslint-disable-line @typescript-eslint/member-ordering
   protected onActivityResponse = onActivityResponse; // eslint-disable-line @typescript-eslint/member-ordering
 
-  async onActivity(
-    event: IActivityEvent
-  ): Promise<InvokeResponse> {
-    this.events.emit('activity', event);
+  async onActivity(event: IActivityEvent): Promise<InvokeResponse> {
+    this.events.emit("activity", event);
     return await this.process(event);
   }
 
@@ -703,10 +733,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     return await this.tokenManager.getBotToken();
   }
 
-  protected async getUserToken(
-    channelId: ChannelID,
-    userId: string
-  ) {
+  protected async getUserToken(channelId: ChannelID, userId: string) {
     const res = await this.api.users.token.get({
       channelId,
       userId,
