@@ -30,13 +30,13 @@ export class GraphError extends Error {
       ? `Graph ${method.toUpperCase()} ${url} failed (${statusCode}): ${graphError.message}`
       : `Graph ${method.toUpperCase()} ${url} failed with status ${statusCode}`;
 
-    super(message);
+    super(message, cause !== undefined ? { cause } : undefined);
     this.name = 'GraphError';
     this.statusCode = statusCode;
     this.code = graphError?.code;
-    Object.defineProperty(this, 'body', { value: body, enumerable: false, writable: false });
+    Object.defineProperty(this, 'body', { value: body, enumerable: false, writable: true, configurable: true });
     if (cause !== undefined) {
-      Object.defineProperty(this, 'cause', { value: cause, enumerable: false, writable: false });
+      Object.defineProperty(this, 'cause', { value: cause, enumerable: false, writable: true, configurable: true });
     }
   }
 }
