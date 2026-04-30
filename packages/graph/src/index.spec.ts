@@ -1052,7 +1052,7 @@ describe('Client', () => {
             statusCode: 403,
             code: 'Authorization_RequestDenied',
             body: responseData,
-            cause: axiosError,
+            source: axiosError,
           });
           await rejection.toThrow(/Insufficient privileges/);
         });
@@ -1081,6 +1081,50 @@ describe('Client', () => {
             code: undefined,
           });
           await rejection.toThrow(/failed with status 500/);
+        });
+
+        it('should not expose body or source via Object.keys or JSON.stringify', async () => {
+          const responseData = {
+            error: {
+              code: 'NotFound',
+              message: 'Resource not found.',
+            },
+          };
+          const axiosError = new AxiosError(
+            'Request failed with status code 404',
+            'ERR_BAD_REQUEST',
+            undefined,
+            undefined,
+            { status: 404, data: responseData, statusText: 'Not Found', headers: {}, config: {} as any },
+          );
+          mockHttpClient.get.mockRejectedValue(axiosError);
+
+          const mockEndpoint = jest.fn(
+            (): EndpointRequest<any> => ({
+              method: 'get',
+              path: '/users/{id}',
+              paramDefs: { path: ['id'] },
+              params: { id: '123' },
+            }),
+          );
+
+          try {
+            await client.call(mockEndpoint);
+            fail('Expected GraphError to be thrown');
+          } catch (err) {
+            expect(err).toBeInstanceOf(GraphError);
+            const graphErr = err as GraphError;
+
+            // body and source are accessible directly
+            expect(graphErr.body).toEqual(responseData);
+            expect(graphErr.source).toBe(axiosError);
+
+            // but hidden from enumeration and serialization
+            expect(Object.keys(graphErr)).not.toContain('body');
+            expect(Object.keys(graphErr)).not.toContain('source');
+            const serialized = JSON.stringify(graphErr);
+            expect(serialized).not.toContain('Resource not found');
+          }
         });
       });
     });

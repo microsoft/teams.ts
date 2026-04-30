@@ -20,8 +20,10 @@ export class GraphError extends Error {
   readonly code?: string;
   /** The full response body from the Graph API */
   readonly body: unknown;
+  /** The underlying error that caused this GraphError (e.g. the Axios error) */
+  readonly source?: unknown;
 
-  constructor(statusCode: number, body: unknown, method: string, url: string, cause?: unknown) {
+  constructor(statusCode: number, body: unknown, method: string, url: string, source?: unknown) {
     const graphError = body && typeof body === 'object' && 'error' in body
       ? (body as { error: { code?: string; message?: string } }).error
       : undefined;
@@ -30,11 +32,14 @@ export class GraphError extends Error {
       ? `Graph ${method.toUpperCase()} ${url} failed (${statusCode}): ${graphError.message}`
       : `Graph ${method.toUpperCase()} ${url} failed with status ${statusCode}`;
 
-    super(message, { cause });
+    super(message);
     this.name = 'GraphError';
     this.statusCode = statusCode;
     this.code = graphError?.code;
-    this.body = body;
+    Object.defineProperty(this, 'body', { value: body, enumerable: false, writable: true, configurable: true });
+    if (source !== undefined) {
+      Object.defineProperty(this, 'source', { value: source, enumerable: false, writable: true, configurable: true });
+    }
   }
 }
 
