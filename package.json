@@ -54,6 +54,10 @@
     "restify": {
       "send": "^1.2.0",
       "find-my-way": "^9.0.0"
+    },
+    "follow-redirects": "^1.16.0",
+    "router": {
+      "path-to-regexp": "^8.4.0"
     }
   }
 }

@@ -38,7 +38,8 @@ export async function onTokenExchange<TPlugin extends IPlugin>(
     ctx.userGraph = new graph.Client(
       this.client.clone({
         token: token.token,
-      })
+      }),
+      { baseUrlRoot: this.graphBaseUrl }
     );
 
     this.events.emit('signin', { ...ctx, token, isSignedIn: true });
@@ -87,7 +88,8 @@ export async function onVerifyState<TPlugin extends IPlugin>(
     ctx.userGraph = new graph.Client(
       this.client.clone({
         token: token.token,
-      })
+      }),
+      { baseUrlRoot: this.graphBaseUrl }
     );
 
     this.events.emit('signin', { ...ctx, token, isSignedIn: true });

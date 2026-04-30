@@ -50,6 +50,7 @@ import { Router } from './router';
 import { TokenManager } from './token-manager';
 import { IPlugin, AppEvents } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
+import { toThreadedConversationId } from './utils/thread';
 
 /**
  * App initialization options
@@ -197,6 +198,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   readonly tokenManager: TokenManager;
 
   /**
+   * Graph API base URL derived from the configured cloud's `graphScope`.
+   * Undefined when the scope isn't a URL — `GraphClient` then uses its public-cloud default.
+   * Shared across every `GraphClient` the app constructs (`app.graph`, `ctx.appGraph`, `ctx.userGraph`)
+   * so sovereign customers get consistent routing.
+   */
+  readonly graphBaseUrl?: string;
+
+  /**
    * the apps credentials
    */
   get credentials() {
@@ -309,8 +318,20 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       this.cloud
     );
 
+    // Derive Graph API base URL from the cloud's graphScope (e.g. "https://graph.microsoft.us/.default"
+    // -> "https://graph.microsoft.us"). Falls back to the public Graph endpoint inside GraphClient if
+    // the scope isn't a URL (custom delegated scope, empty, etc.).
+    const graphUrlMatch = /^(https?:\/\/[^/]+)/i.exec((this.cloud.graphScope ?? '').trim());
+    this.graphBaseUrl = graphUrlMatch?.[1];
+    if (!this.graphBaseUrl && this.cloud.graphScope) {
+      this.log.warn(
+        `graphScope "${this.cloud.graphScope}" is not a URL; Graph calls will route to the public cloud. ` +
+        'Set graphScope to an "https://<host>/.default" value to route to the correct Graph endpoint.'
+      );
+    }
     this.graph = new GraphClient(
-      this.client.clone({ token: () => this.getAppGraphToken() })
+      this.client.clone({ token: () => this.getAppGraphToken() }),
+      { baseUrlRoot: this.graphBaseUrl }
     );
 
     // initialize TokenManager with credentials
@@ -516,7 +537,12 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   }
 
   /**
-   * send an activity proactively
+   * send an activity proactively to a conversation.
+   *
+   * Sends to the exact conversation ID provided. For channel threads,
+   * the conversation ID must include `;messageid=` - use {@link toThreadedConversationId}
+   * to construct it, or use {@link reply} which handles this automatically.
+   *
    * @param conversationId the conversation to send to
    * @param activity the activity to send
    */
@@ -537,12 +563,42 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       },
       conversation: {
         id: conversationId,
-        conversationType: 'personal',
-      },
+      } as ConversationReference['conversation'],
     };
 
     const res = await this.activitySender.send(params, ref);
     return res;
+  }
+
+  /**
+   * send an activity proactively as a threaded reply.
+   *
+   * Constructs a threaded conversation ID from the conversation ID
+   * and message ID via {@link toThreadedConversationId}, then sends
+   * to that thread. The service determines whether threading is
+   * supported for the given conversation type.
+   *
+   * @param conversationId the conversation ID
+   * @param messageId the thread root message ID
+   * @param activity the activity to send
+   */
+  async reply(conversationId: string, messageId: string, activity: ActivityLike): Promise<any>;
+  /**
+   * send an activity proactively to a conversation.
+   *
+   * Sends to the exact conversation ID provided - threaded if
+   * it contains `;messageid=`, flat otherwise.
+   *
+   * @param conversationId the conversation to send to
+   * @param activity the activity to send
+   */
+  async reply(conversationId: string, activity: ActivityLike): Promise<any>;
+  async reply(conversationId: string, messageId: string | ActivityLike, activity?: ActivityLike) {
+    if (typeof messageId === 'string' && activity !== undefined) {
+      return this.send(toThreadedConversationId(conversationId, messageId), activity);
+    }
+
+    return this.send(conversationId, messageId as ActivityLike);
   }
 
   /**

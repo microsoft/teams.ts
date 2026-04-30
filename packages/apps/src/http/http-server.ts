@@ -2,7 +2,7 @@ import {
   CloudEnvironment,
   Credentials,
   InvokeResponse,
-  IToken
+  IToken,
 } from '@microsoft/teams.api';
 
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
@@ -47,6 +47,7 @@ export class HttpServer implements IHttpServer {
   protected logger: ILogger;
   protected credentials?: Credentials;
   protected skipAuth: boolean;
+  protected cloud?: CloudEnvironment;
   protected initialized: boolean = false;
   protected serviceTokenValidator?: ServiceTokenValidator;
 
@@ -90,6 +91,7 @@ export class HttpServer implements IHttpServer {
     }
 
     this.credentials = deps.credentials;
+    this.cloud = deps.cloud;
 
     // Initialize service token validator if credentials provided and auth not skipped
     if (this.credentials && !this.skipAuth) {
@@ -188,13 +190,15 @@ export class HttpServer implements IHttpServer {
     body: ICoreActivity
   ): Promise<AuthResult> {
     if (this.skipAuth || !this.credentials) {
+      const serviceUrl = body.serviceUrl || '';
+
       return {
         success: true,
         token: {
           appId: '',
           from: 'azure',
           fromId: '',
-          serviceUrl: body.serviceUrl || '',
+          serviceUrl,
           isExpired: () => false,
         },
       };
