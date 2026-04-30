@@ -47,6 +47,12 @@ type Options = (http.Client | http.ClientOptions) & {
   baseUrlRoot?: string;
 };
 
+/** Graph-specific client options. */
+type GraphOptions = {
+  /** Graph service root override for routing Graph calls to sovereign cloud. */
+  baseUrlRoot?: string;
+};
+
 /**
  * /
  * Provides an entry point for invoking Microsoft Graph APIs.
@@ -64,8 +70,25 @@ export class Client {
     return this._http;
   }
 
-  constructor(options?: Options) {
-    this.baseUrlRoot = options?.baseUrlRoot ?? defaultBaseUrlRoot;
+  /**
+   * Creates a Graph client.
+   *
+   * @param options - The HTTP client to use; an existing {@link http.Client} will be cloned,
+   * or an {@link http.ClientOptions} bag will be used to build a new one.
+   * HTTP-level settings like headers, interceptors, and timeouts belong here.
+   * @param graphOptions - Graph-specific options. Takes precedence over `options.baseUrlRoot`
+   * when both are set.
+   *
+   * @example
+   * // Public cloud (default)
+   * new Client({ token });
+   *
+   * @example
+   * // Sovereign cloud (GCCH)
+   * new Client(httpClient, { baseUrlRoot: 'https://graph.microsoft.us' });
+   */
+  constructor(options?: Options, graphOptions?: GraphOptions) {
+    this.baseUrlRoot = graphOptions?.baseUrlRoot ?? options?.baseUrlRoot ?? defaultBaseUrlRoot;
     if (!options) {
       this._http = new http.Client({
         baseUrl: `${this.baseUrlRoot}/v1.0`,

@@ -148,11 +148,11 @@ describe('ServiceTokenValidator', () => {
       expect(result.appId).toBe(mockClientId);
     });
 
-    it('should prefer payload.serviceurl over body.serviceUrl', async () => {
+    it('should prefer body.serviceUrl over payload.serviceurl', async () => {
       const validator = new ServiceTokenValidator(mockClientId, mockTenantId);
 
-      const payloadServiceUrl = 'https://payload.example.com';
-      const bodyServiceUrl = 'https://body.example.com';
+      const payloadServiceUrl = 'https://smba.trafficmanager.net/emea/';
+      const bodyServiceUrl = 'https://smba.trafficmanager.net/amer/';
 
       const mockPayload = {
         appid: mockClientId,

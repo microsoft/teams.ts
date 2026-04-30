@@ -2,6 +2,7 @@ import { MeetingInfo } from '../meeting';
 import { MembershipSource } from '../membership-source';
 
 import { ChannelInfo } from './channel-info';
+import { FeedbackLoop } from './feedback-loop';
 import { NotificationInfo } from './notification-info';
 import { OnBehalfOf } from './on-behalf-of';
 import { ChannelDataSettings } from './settings';
@@ -57,9 +58,17 @@ export type ChannelData = {
   settings?: ChannelDataSettings;
 
   /**
-   * Whether or not the feedback loop feature is enabled.
+   * Legacy feedback loop flag. Setting this to `true` is equivalent to `feedbackLoop: { type: 'default' }`.
+   * Prefer using `feedbackLoop` directly.
    */
   feedbackLoopEnabled?: boolean;
+
+  /**
+   * Feedback loop configuration.
+   * Set `type` to `'custom'` to trigger a `message/fetchTask` invoke for a bot-provided task module dialog.
+   * Set `type` to `'default'` for the standard Teams thumbs up/down UI.
+   */
+  feedbackLoop?: FeedbackLoop;
 
   /**
    * ID of the stream.
@@ -111,3 +120,4 @@ export * from './on-behalf-of';
 export * from './settings';
 export * from './team-info';
 export * from './tenant-info';
+export * from './feedback-loop';

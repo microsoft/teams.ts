@@ -58,12 +58,14 @@ export class ServiceTokenValidator {
       throw new Error('Invalid token');
     }
 
+    const serviceUrl = body.serviceUrl || payload.serviceurl as string || '';
+
     // Convert JWT payload to IToken
     return {
       appId: payload.appid as string || this.credentials?.clientId || '',
       from: 'azure',
       fromId: payload.sub as string || '',
-      serviceUrl: body.serviceUrl || payload.serviceurl as string || '',
+      serviceUrl,
       isExpired: () => false, // Already validated by JWT validator
     };
   }

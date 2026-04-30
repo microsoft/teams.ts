@@ -1,0 +1,19 @@
+{
+  "name": "@examples/threading",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch -r dotenv/config src/index.ts"
+  },
+  "dependencies": {
+    "@microsoft/teams.apps": "*",
+    "@microsoft/teams.dev": "*"
+  },
+  "devDependencies": {
+    "@microsoft/teams.config": "*",
+    "@types/node": "^22.5.4",
+    "dotenv": "^16.4.5",
+    "tsx": "^4.20.6",
+    "typescript": "^5.4.5"
+  }
+}

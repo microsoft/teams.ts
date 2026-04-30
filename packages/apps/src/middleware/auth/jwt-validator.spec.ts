@@ -319,6 +319,25 @@ describe('JwtValidator', () => {
         expect(result).toEqual(expect.objectContaining(mockTokenPayload));
       });
 
+      it('should throw when allowedTenantIds is configured but tenantId is missing', async () => {
+        const validator = new JwtValidator({
+          clientId: mockClientId,
+          // tenantId intentionally omitted
+          jwksUriOptions: { type: 'tenantId' },
+          validateIssuer: { allowedTenantIds: [mockTenantId] }
+        }, mockLogger);
+
+        const result = await validator.validateAccessToken(validToken);
+
+        expect(result).toBeNull();
+        expect(mockLogger.error).toHaveBeenCalledWith(
+          'Custom validation failed:',
+          expect.objectContaining({
+            message: 'Tenant ID is required when allowedTenantIds is configured'
+          })
+        );
+      });
+
       it('should reject token with missing issuer', async () => {
         const validator = new JwtValidator({
           clientId: mockClientId,
@@ -368,6 +387,51 @@ describe('JwtValidator', () => {
         const result = await validator.validateAccessToken(validToken);
 
         expect(result).toEqual(expect.objectContaining(mockTokenPayload));
+      });
+
+      it('should reject token with substring-matching scope', async () => {
+        const validator = new JwtValidator({
+          clientId: mockClientId,
+          tenantId: mockTenantId,
+          jwksUriOptions: { type: 'tenantId' },
+          validateScope: { requiredScope: 'User.Read' }
+        }, mockLogger);
+
+        const substringToken = createTestToken({
+          ...mockTokenPayload,
+          scp: 'User.ReadBasic.All'
+        });
+
+        const result = await validator.validateAccessToken(substringToken);
+
+        expect(result).toBeNull();
+        expect(mockLogger.error).toHaveBeenCalledWith(
+          'Custom validation failed:',
+          expect.objectContaining({
+            message: 'Token missing required scope: User.Read'
+          })
+        );
+      });
+
+      it('should accept exact scope among multiple scopes', async () => {
+        const validator = new JwtValidator({
+          clientId: mockClientId,
+          tenantId: mockTenantId,
+          jwksUriOptions: { type: 'tenantId' },
+          validateScope: { requiredScope: 'User.Read' }
+        });
+
+        const multiScopeToken = createTestToken({
+          ...mockTokenPayload,
+          scp: 'Mail.Read User.Read Files.ReadWrite'
+        });
+
+        const result = await validator.validateAccessToken(multiScopeToken);
+
+        expect(result).toEqual(expect.objectContaining({
+          ...mockTokenPayload,
+          scp: 'Mail.Read User.Read Files.ReadWrite'
+        }));
       });
 
       it('should reject token with missing scope', async () => {

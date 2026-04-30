@@ -77,7 +77,7 @@
     "test": "npx jest"
   },
   "dependencies": {
-    "axios": "^1.15.0"
+    "axios": "^1.15.2"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
