@@ -1,6 +1,6 @@
 {
   "name": "@examples/mcp-server",
-  "version": "0.0.6",
+  "version": "0.0.0",
   "private": true,
   "license": "MIT",
   "main": "dist/index",
@@ -27,11 +27,13 @@
     "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
     "@modelcontextprotocol/sdk": "^1.25.2",
+    "express": "^5.0.0",
     "zod": "^3.24.3"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
     "@modelcontextprotocol/inspector": "^0.21.2",
+    "@types/express": "^5.0.0",
     "@types/node": "^22.5.4",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",

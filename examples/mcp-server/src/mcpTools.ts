@@ -49,6 +49,7 @@ async function getOrCreateConversation(userId: string): Promise<string> {
   const existing = state.conversations.get(userId);
   if (existing) return existing;
 
+  // Proactively open a 1:1 — the user hasn't messaged the bot yet, so we have no cached id.
   const resource = await app.api.conversations.create({
     members: [{ id: userId, role: 'user', name: '' }],
     tenantId: process.env.TENANT_ID,
@@ -75,17 +76,18 @@ structuredTool(
   'ask',
   {
     description:
-      'Ask a Teams user a question. Returns a requestId — use getReply for their response.',
+      'Ask a Teams user a question. The user must use Teams\' Reply action on the message to answer. ' +
+      'Returns a requestId — use getReply for their response.',
     inputSchema: { userId: z.string(), question: z.string() },
     outputSchema: z.object({ requestId: z.string() }),
   },
   async ({ userId, question }) => {
     const conversationId = await getOrCreateConversation(userId);
-    const requestId = randomUUID();
-    await app.send(conversationId, question);
-    state.pendingAsks.set(requestId, { userId, status: 'pending' });
-    state.userPendingAsk.set(userId, requestId);
-    return { requestId };
+    // The activity id of the sent question becomes the requestId; the inbound
+    // reply will carry it as `activity.replyToId`, which is how app.ts matches.
+    const sent = await app.send(conversationId, question);
+    state.pendingAsks.set(sent.id, { userId, status: 'pending' });
+    return { requestId: sent.id };
   }
 );
 
@@ -125,10 +127,12 @@ structuredTool(
   async ({ userId, title, description }) => {
     const conversationId = await getOrCreateConversation(userId);
     const approvalId = randomUUID();
+    // Create adaptive card to send to the user asking for approval/confirmation.
     const card = new AdaptiveCard(
       new TextBlock(title, { weight: 'Bolder', size: 'Large', wrap: true }),
       new TextBlock(description, { wrap: true })
     ).withActions(
+      // 'approval_response' routes the click to the card.action.approval_response handler in app.ts.
       new ExecuteAction({ title: 'Approve' }).withData(
         new SubmitData('approval_response', { approval_id: approvalId, decision: 'approved' })
       ),
@@ -137,6 +141,7 @@ structuredTool(
       )
     );
     await app.send(conversationId, card);
+   // Update state with pending approval
     state.approvals.set(approvalId, 'pending');
     return { approvalId };
   }

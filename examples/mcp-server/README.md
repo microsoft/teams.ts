@@ -24,6 +24,25 @@ Teams and wait for them to reply or approve.
 - `src/index.ts` — initializes the app, mounts a `StreamableHTTPServerTransport`
   at `/mcp` on the Express adapter, and starts the server.
 
+## Configure
+
+Create a `.env` file:
+
+```
+CLIENT_ID=<your-azure-bot-app-id>
+CLIENT_SECRET=<your-azure-bot-app-secret>
+TENANT_ID=<your-tenant-id>
+```
+
+`TENANT_ID` is required because the MCP tools
+open 1:1 conversations *proactively* via `app.api.conversations.create({
+tenantId })`. There's no inbound activity to read the tenant from.
+
+The `userId` argument passed to `notify`, `ask`, and `requestApproval` is the
+Teams AAD user id of someone in the same tenant. For the simplest setup,
+message the bot once with a real user, then read the user id off the first
+`message` activity in the server log and use that.
+
 ## Run
 
 ```bash
@@ -62,3 +81,17 @@ transport and enter `http://localhost:3978/mcp` as the URL, then click
 
 All state is in-memory. A server restart clears everything — pending asks
 and approvals in flight will be lost.
+
+## Security
+
+The `/mcp` endpoint is mounted **without authentication**. Anyone who can
+reach the port can call the tools — which means they can DM arbitrary users
+and mutate approval state on your behalf. This is fine for local dev (the
+MCP Inspector connects from the same machine), but **do not expose `/mcp`
+on the network as-is.**
+
+Before deploying or making the port reachable from anywhere but localhost,
+add an authentication check on `/mcp` — e.g. a bearer token / shared
+secret in a header, or proper OAuth. The Teams `/api/messages` endpoint
+already validates Bot Framework JWTs via the framework, so it is not
+affected; only `/mcp` needs guarding.

@@ -12,12 +12,10 @@ export const state = {
   // message, or on first proactive send.
   conversations: new Map<string, string>(),
 
-  // requestId -> PendingAsk.
+  // questionActivityId -> PendingAsk. The agent gets the activity id back
+  // as the requestId; the user must use Teams' Reply action on the question
+  // so the inbound message carries `replyToId === questionActivityId`.
   pendingAsks: new Map<string, PendingAsk>(),
-
-  // userId -> requestId for their current pending ask. Cleared once the
-  // user replies.
-  userPendingAsk: new Map<string, string>(),
 
   // approvalId -> approval status.
   approvals: new Map<string, ApprovalStatus>(),
