@@ -1,9 +1,9 @@
 import { randomUUID } from 'crypto';
 import http from 'http';
 
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import express from 'express';
 
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 
 import { app, expressApp } from './app';
 import { mcpServer } from './mcpTools';
