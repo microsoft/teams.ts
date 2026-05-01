@@ -87,14 +87,6 @@ the bot is treated as the answer to their open ask. Calling `ask` for the
 same user while a previous ask is still pending will overwrite the
 correlation, and the user's reply will resolve whichever ask is current.
 
-The natural fix would be to match inbound replies to a specific question via
-`activity.replyToId`, but Teams populates `replyToId` inconsistently in
-personal/1:1 chat across desktop, mobile, and web clients, so it is not
-reliable. To support concurrent asks per user, reshape `ask` to send an
-Adaptive Card with an `Input.Text` + Submit action — the same pattern
-`requestApproval` uses — so the `requestId` travels with the answer in the
-submit data instead of relying on free-typed messages.
-
 ## Security
 
 The `/mcp` endpoint is mounted **without authentication**. Anyone who can
@@ -105,6 +97,4 @@ on the network as-is.**
 
 Before deploying or making the port reachable from anywhere but localhost,
 add an authentication check on `/mcp` — e.g. a bearer token / shared
-secret in a header, or proper OAuth. The Teams `/api/messages` endpoint
-already validates Bot Framework JWTs via the framework, so it is not
-affected; only `/mcp` needs guarding.
+secret in a header, or proper OAuth.
