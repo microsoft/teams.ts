@@ -24,14 +24,14 @@ app.on('message', async ({ activity, send }) => {
     state.conversations.set(userId, conversationId);
   }
 
-  // Match the inbound message to a pending ask by replyToId. The user must
-  // use Teams' Reply action on the question message; a free-typed message
-  // has no replyToId and won't match (allowing many concurrent open asks).
-  const replyToId = activity.replyToId;
-  if (replyToId && state.pendingAsks.has(replyToId)) {
-    const entry = state.pendingAsks.get(replyToId)!;
+  // If this user has a pending ask, treat their next message as the answer.
+  // Only one outstanding ask per user is supported (see README Limitations).
+  const requestId = state.userPendingAsk.get(userId);
+  if (requestId && state.pendingAsks.has(requestId)) {
+    const entry = state.pendingAsks.get(requestId)!;
     entry.reply = activity.text ?? '';
     entry.status = 'answered';
+    state.userPendingAsk.delete(userId);
     await send('Got it, thank you!');
     return;
   }

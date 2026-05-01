@@ -76,18 +76,19 @@ structuredTool(
   'ask',
   {
     description:
-      'Ask a Teams user a question. The user must use Teams\' Reply action on the message to answer. ' +
-      'Returns a requestId — use getReply for their response.',
+      'Ask a Teams user a question. Returns a requestId — use getReply for their response. ' +
+      'Only one outstanding ask per user is supported; their next message answers it.',
     inputSchema: { userId: z.string(), question: z.string() },
     outputSchema: z.object({ requestId: z.string() }),
   },
   async ({ userId, question }) => {
     const conversationId = await getOrCreateConversation(userId);
-    // The activity id of the sent question becomes the requestId; the inbound
-    // reply will carry it as `activity.replyToId`, which is how app.ts matches.
-    const sent = await app.send(conversationId, question);
-    state.pendingAsks.set(sent.id, { userId, status: 'pending' });
-    return { requestId: sent.id };
+    const requestId = randomUUID();
+    await app.send(conversationId, question);
+    // The user's next message looks up these entries and flips status to 'answered'.
+    state.pendingAsks.set(requestId, { userId, status: 'pending' });
+    state.userPendingAsk.set(userId, requestId);
+    return { requestId };
   }
 );
 

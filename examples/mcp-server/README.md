@@ -82,6 +82,19 @@ transport and enter `http://localhost:3978/mcp` as the URL, then click
 All state is in-memory. A server restart clears everything — pending asks
 and approvals in flight will be lost.
 
+**Only one outstanding `ask` per user.** The next message that user sends to
+the bot is treated as the answer to their open ask. Calling `ask` for the
+same user while a previous ask is still pending will overwrite the
+correlation, and the user's reply will resolve whichever ask is current.
+
+The natural fix would be to match inbound replies to a specific question via
+`activity.replyToId`, but Teams populates `replyToId` inconsistently in
+personal/1:1 chat across desktop, mobile, and web clients, so it is not
+reliable. To support concurrent asks per user, reshape `ask` to send an
+Adaptive Card with an `Input.Text` + Submit action — the same pattern
+`requestApproval` uses — so the `requestId` travels with the answer in the
+submit data instead of relying on free-typed messages.
+
 ## Security
 
 The `/mcp` endpoint is mounted **without authentication**. Anyone who can
