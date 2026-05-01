@@ -241,4 +241,54 @@ describe('HttpStream', () => {
     // Further emits throw
     expect(() => stream.emit('Should fail')).toThrow(StreamCancelledError);
   });
+
+  test('close sends final message with streamType final after update', async () => {
+    const stream = new HttpStream(client, ref, logger);
+    mockCreate();
+
+    stream.update('Thinking...');
+    stream.emit('first message');
+    stream.emit('last message');
+    stream.close();
+    await jest.runAllTimersAsync();
+
+    expect(client.conversations.activities().create).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        type: 'message',
+        text: 'first messagelast message',
+        channelData: expect.objectContaining({
+          streamType: 'final',
+        }),
+      })
+    );
+  });
+
+  test('close waits for flush to complete before sending final message', async () => {
+    mockCreate();
+
+    const stream = new HttpStream(client, ref, logger);
+
+    (stream as any)._flushing = true;
+    (stream as any).id = 'activity-1';
+    (stream as any).text = 'Response text';
+    (stream as any).index = 1;
+
+    const closePromise = stream.close();
+
+    await jest.advanceTimersByTimeAsync(100);
+
+    // Verify close() is still waiting
+    const callsBeforeFlush = client.conversations.activities().create.mock.calls.length;
+    expect(callsBeforeFlush).toBe(0);
+
+    // Simulate flush completing
+    (stream as any)._flushing = false;
+    await jest.runAllTimersAsync();
+
+    await closePromise;
+
+    // Now create() should have been called
+    const createCalls = client.conversations.activities().create.mock.calls.length;
+    expect(createCalls).toBe(1);
+  });
 });
