@@ -109,6 +109,69 @@ describe('Client', () => {
         },
       });
     });
+
+    it('should clone existing client and route to sovereign base URL via graphOptions.baseUrlRoot', () => {
+      const existingClient = {
+        ...mockHttpClient,
+        request: jest.fn(),
+        clone: jest.fn().mockReturnValue(mockHttpClient),
+      };
+      new Client(existingClient as any, { baseUrlRoot: 'https://graph.microsoft.us' });
+
+      expect(existingClient.clone).toHaveBeenCalledWith({
+        baseUrl: 'https://graph.microsoft.us/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': expect.stringMatching(/^teams\.ts\[graph\]\/.+/),
+        },
+      });
+    });
+
+    it('should honor graphOptions.baseUrlRoot when no options provided', () => {
+      new Client(undefined, { baseUrlRoot: 'https://graph.microsoft.us' });
+
+      expect(http.Client).toHaveBeenCalledWith({
+        baseUrl: 'https://graph.microsoft.us/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': expect.stringMatching(/^teams\.ts\[graph\]\/.+/),
+        },
+      });
+    });
+
+    it('should prefer graphOptions.baseUrlRoot over options.baseUrlRoot', () => {
+      new Client(
+        { baseUrlRoot: 'https://graph.microsoft.com' },
+        { baseUrlRoot: 'https://graph.microsoft.us' }
+      );
+
+      expect(http.Client).toHaveBeenCalledWith({
+        baseUrlRoot: 'https://graph.microsoft.com',
+        baseUrl: 'https://graph.microsoft.us/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': expect.stringMatching(/^teams\.ts\[graph\]\/.+/),
+        },
+      });
+    });
+
+    it('should honor options.baseUrlRoot when baseUrlRoot is attached to an existing client', () => {
+      const existingClient = {
+        ...mockHttpClient,
+        request: jest.fn(),
+        clone: jest.fn().mockReturnValue(mockHttpClient),
+        baseUrlRoot: 'https://graph.microsoft.us',
+      };
+      new Client(existingClient as any);
+
+      expect(existingClient.clone).toHaveBeenCalledWith({
+        baseUrl: 'https://graph.microsoft.us/v1.0',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': expect.stringMatching(/^teams\.ts\[graph\]\/.+/),
+        },
+      });
+    });
   });
 
   describe('call method', () => {
@@ -989,7 +1052,7 @@ describe('Client', () => {
             statusCode: 403,
             code: 'Authorization_RequestDenied',
             body: responseData,
-            cause: axiosError,
+            source: axiosError,
           });
           await rejection.toThrow(/Insufficient privileges/);
         });
@@ -1018,6 +1081,50 @@ describe('Client', () => {
             code: undefined,
           });
           await rejection.toThrow(/failed with status 500/);
+        });
+
+        it('should not expose body or source via Object.keys or JSON.stringify', async () => {
+          const responseData = {
+            error: {
+              code: 'NotFound',
+              message: 'Resource not found.',
+            },
+          };
+          const axiosError = new AxiosError(
+            'Request failed with status code 404',
+            'ERR_BAD_REQUEST',
+            undefined,
+            undefined,
+            { status: 404, data: responseData, statusText: 'Not Found', headers: {}, config: {} as any },
+          );
+          mockHttpClient.get.mockRejectedValue(axiosError);
+
+          const mockEndpoint = jest.fn(
+            (): EndpointRequest<any> => ({
+              method: 'get',
+              path: '/users/{id}',
+              paramDefs: { path: ['id'] },
+              params: { id: '123' },
+            }),
+          );
+
+          try {
+            await client.call(mockEndpoint);
+            fail('Expected GraphError to be thrown');
+          } catch (err) {
+            expect(err).toBeInstanceOf(GraphError);
+            const graphErr = err as GraphError;
+
+            // body and source are accessible directly
+            expect(graphErr.body).toEqual(responseData);
+            expect(graphErr.source).toBe(axiosError);
+
+            // but hidden from enumeration and serialization
+            expect(Object.keys(graphErr)).not.toContain('body');
+            expect(Object.keys(graphErr)).not.toContain('source');
+            const serialized = JSON.stringify(graphErr);
+            expect(serialized).not.toContain('Resource not found');
+          }
         });
       });
     });

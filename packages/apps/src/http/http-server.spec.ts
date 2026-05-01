@@ -1,6 +1,8 @@
 import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from './adapter';
 import { HttpServer } from './http-server';
 
+jest.mock('../middleware/auth/service-token-validator');
+
 class MockAdapter implements IHttpServerAdapter {
   routes: Array<{ method: HttpMethod; path: string; handler: HttpRouteHandler }> = [];
   started = false;
@@ -90,13 +92,13 @@ describe('HttpServer', () => {
       server.onRequest = jest.fn().mockResolvedValue({ status: 200 });
 
       await adapter.simulateRequest('/api/messages', {
-        serviceUrl: 'https://test.botframework.com',
+        serviceUrl: 'https://smba.trafficmanager.net/amer/',
       });
 
       const event = (server.onRequest as jest.Mock).mock.calls[0][0];
       expect(event.token.appId).toBe('');
       expect(event.token.from).toBe('azure');
-      expect(event.token.serviceUrl).toBe('https://test.botframework.com');
+      expect(event.token.serviceUrl).toBe('https://smba.trafficmanager.net/amer/');
     });
 
     it('should return 500 when onRequest is not set', async () => {

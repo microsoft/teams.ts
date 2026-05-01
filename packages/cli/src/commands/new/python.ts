@@ -125,18 +125,6 @@ export function Python(_: IContext): CommandModule<{}, z.infer<typeof ArgsSchema
         builder.addEnv('CLIENT_SECRET', clientSecret);
       }
 
-      if (process.env.OPENAI_API_KEY) {
-        builder.addEnv('OPENAI_API_KEY', process.env.OPENAI_API_KEY);
-      }
-
-      if (process.env.AZURE_OPENAI_API_KEY) {
-        builder.addEnv('AZURE_OPENAI_API_KEY', process.env.AZURE_OPENAI_API_KEY);
-      }
-
-      if (process.env.AZURE_OPENAI_ENDPOINT) {
-        builder.addEnv('AZURE_OPENAI_ENDPOINT', process.env.AZURE_OPENAI_ENDPOINT);
-      }
-
       const project = builder.build();
       await project.up();
 

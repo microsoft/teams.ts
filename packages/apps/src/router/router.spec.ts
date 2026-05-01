@@ -363,5 +363,18 @@ describe('Router', () => {
         name: 'task/fetch'
       } as any)).toHaveLength(1);
     });
+
+    it('should select message fetch-task routes', () => {
+      const router = new Router();
+      const handler = jest.fn();
+
+      router.on('invoke', handler);
+      router.on('message.fetch-task', handler);
+
+      expect(router.select({
+        type: 'invoke',
+        name: 'message/fetchTask',
+      } as any)).toHaveLength(2);
+    });
   });
 });

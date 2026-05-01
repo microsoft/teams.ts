@@ -55,6 +55,7 @@ type InvokeResponseBody = {
   'task/submit': TaskModuleResponse;
   'tab/fetch': TabResponse;
   'tab/submit': TabResponse;
+  'message/fetchTask': TaskModuleResponse;
   'message/submitAction': void;
   'handoff/action': void;
   'signin/tokenExchange': TokenExchangeInvokeResponse | void;

@@ -39,7 +39,7 @@
     "@microsoft/teams.api": "*",
     "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
-    "axios": "^1.15.0",
+    "axios": "^1.15.2",
     "express": "^5.0.0",
     "jsonwebtoken": "^9.0.2",
     "uuid": "^11.0.5",
