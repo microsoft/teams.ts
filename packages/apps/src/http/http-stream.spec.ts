@@ -249,8 +249,9 @@ describe('HttpStream', () => {
     stream.update('Thinking...');
     stream.emit('first message');
     stream.emit('last message');
-    stream.close();
+    const closePromise = stream.close();
     await jest.runAllTimersAsync();
+    await closePromise;
 
     expect(client.conversations.activities().create).toHaveBeenLastCalledWith(
       expect.objectContaining({
