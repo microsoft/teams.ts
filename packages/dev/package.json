@@ -42,7 +42,7 @@
     "axios": "^1.15.2",
     "express": "^5.0.0",
     "jsonwebtoken": "^9.0.2",
-    "uuid": "^11.0.5",
+    "uuid": "^14.0.0",
     "ws": "^8.18.1"
   },
   "peerDependencies": {
