@@ -1,4 +1,4 @@
-# @examples/mcp
+# @examples/mcp-server
 
 ## 0.0.6
 
