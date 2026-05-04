@@ -124,7 +124,7 @@ export class HttpStream implements IStreamer {
     // Wait until all queued activities are flushed
     const start = Date.now();
 
-    while ((this.queue.length || !this.id) && !this._canceled) {
+    while ((this.queue.length || !this.id || this._flushing) && !this._canceled) {
       if (Date.now() - start > this._totalTimeout) {
         this._logger.warn('Timeout while waiting for id and queue to flush');
         return;
@@ -153,8 +153,8 @@ export class HttpStream implements IStreamer {
       .withId(this.id)
       .addAttachments(...this.attachments)
       .addEntities(...this.entities)
-      .addStreamFinal()
-      .withChannelData(this.channelData);
+      .withChannelData(this.channelData)
+      .addStreamFinal();
 
     const res = await promises.retry(() => this.send(activity), {
       logger: this._logger
