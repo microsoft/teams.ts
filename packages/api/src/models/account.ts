@@ -4,9 +4,6 @@ import { Role } from './role';
 export type Account<P = any> = {
   readonly id: string;
   readonly aadObjectId?: string;
-  /**
-   * @deprecated This will be removed by end of summer 2026.
-   */
   readonly role: Role;
   /**
    * The type of the account. Possible values: 'person', 'bot', 'channel', 'team', 'tag'.

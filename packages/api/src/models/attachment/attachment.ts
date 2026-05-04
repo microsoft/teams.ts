@@ -1,7 +1,6 @@
 export type Attachment = {
   /**
    * @member {string} [id] The id of the attachment.
-   * @deprecated This will be removed by end of summer 2026.
    */
   id?: string;
 
