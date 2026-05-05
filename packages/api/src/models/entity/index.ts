@@ -18,7 +18,8 @@ export type Entity =
   | CitationEntity
   | SensitiveUsageEntity
   | ProductInfoEntity
-  | QuotedReplyEntity;
+  | QuotedReplyEntity
+  | TargetedMessageInfoEntity;
 
 export * from './client-info-entity';
 export * from './mention-entity';
@@ -29,3 +30,4 @@ export * from './citation-entity';
 export * from './sensitive-usage-entity';
 export * from './product-info-entity';
 export * from './quoted-reply-entity';
+export * from './targeted-message-info-entity';
