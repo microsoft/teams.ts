@@ -15,7 +15,6 @@ import {
   ValueOrFactory,
 } from './mcp-client-types';
 import { buildSSEClientTransport, buildStreamableHttpClientTransport } from './mcp-transport';
-import { validateMcpServerUrl } from './url-validation';
 
 export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientPluginUseParams> {
   readonly name = 'mcpClient';
@@ -233,12 +232,6 @@ export class McpClientPlugin implements ChatPromptPlugin<'mcpClient', McpClientP
     headers: ValueOrFactory<Record<string, string>> | undefined,
     transportType: McpClientTransportType | undefined,
   ) {
-    const params = this._mcpServerUrlsByParams[serverUrl];
-    await validateMcpServerUrl(serverUrl, {
-      allowPrivateNetwork: params?.allowPrivateNetwork,
-      validateUrl: params?.validateUrl,
-    });
-
     const buildTransport = () => {
       if (this.createTransport) {
         return this.createTransport(serverUrl);

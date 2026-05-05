@@ -44,21 +44,6 @@ export type McpClientPluginParams = {
    * @default: uses the plugin's `refetchTimeoutMs` value
    */
   refetchTimeoutMs?: number;
-
-  /**
-   * When true, skip the default private-network filter and allow URLs that
-   * resolve to loopback, RFC1918, or link-local addresses. Use this for
-   * local development or intentional on-prem MCP servers.
-   * @default false
-   */
-  allowPrivateNetwork?: boolean;
-
-  /**
-   * Fully replace the default URL validation. When set, the callback decides
-   * whether the URL is allowed; the default scheme and private-network checks
-   * are skipped.
-   */
-  validateUrl?: (url: URL) => boolean | Promise<boolean>;
 };
 
 export type McpClientPluginCachedValue = Pick<McpClientPluginParams, 'availableTools' | 'headers' | 'transport'>;
