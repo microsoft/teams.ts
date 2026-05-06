@@ -62,7 +62,7 @@ export class ConversationMemberClient {
   }
 
   /**
-   * @deprecated The DELETE member endpoint is not supported by the backend. This method will be removed in a future version.
+   * @deprecated This will be removed by end of summer 2026.
    */
   async delete(conversationId: string, id: string) {
     const res = await this.http.delete<void>(

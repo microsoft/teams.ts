@@ -14,6 +14,7 @@ export interface IMessageExtensionQueryLinkInvokeActivity extends IActivity<'inv
 
   /**
    * A reference to another conversation or activity.
+   * @deprecated This will be removed by end of summer 2026.
    */
   relatesTo?: ConversationReference;
 }

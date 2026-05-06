@@ -2,6 +2,9 @@ import { ConversationReference } from '../models';
 
 import { IActivity } from './activity';
 
+/**
+ * @deprecated This will be removed by end of summer 2026.
+ */
 export interface ITraceActivity extends IActivity<'trace'> {
   /**
    * The name of the operation associated with an invoke or event activity.
@@ -25,6 +28,7 @@ export interface ITraceActivity extends IActivity<'trace'> {
 
   /**
    * A reference to another conversation or activity.
+   * @deprecated This will be removed by end of summer 2026.
    */
   relatesTo?: ConversationReference;
 }

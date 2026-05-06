@@ -270,6 +270,26 @@ describe('JwtValidator', () => {
         expect(result).toEqual(expect.objectContaining(mockTokenPayload)); // Single-tenant ignores allowedTenantIds
       });
 
+      it('should accept v1 sts issuer for single-tenant apps', async () => {
+        const validator = new JwtValidator({
+          clientId: mockClientId,
+          tenantId: mockTenantId,
+          jwksUriOptions: { type: 'tenantId' },
+          validateIssuer: { allowedTenantIds: ['different-tenant'] }
+        });
+
+        const token = createTestToken({
+          ...mockTokenPayload,
+          iss: `https://sts.windows.net/${mockTenantId}/`
+        });
+        const result = await validator.validateAccessToken(token);
+
+        expect(result).toEqual(expect.objectContaining({
+          ...mockTokenPayload,
+          iss: `https://sts.windows.net/${mockTenantId}/`
+        }));
+      });
+
       it('should validate tenant-based issuer for multi-tenant apps', async () => {
         const validator = new JwtValidator({
           clientId: mockClientId,
@@ -281,6 +301,26 @@ describe('JwtValidator', () => {
         const result = await validator.validateAccessToken(validToken);
 
         expect(result).toEqual(expect.objectContaining(mockTokenPayload));
+      });
+
+      it('should accept v1 sts issuer for multi-tenant apps', async () => {
+        const validator = new JwtValidator({
+          clientId: mockClientId,
+          tenantId: 'common',
+          jwksUriOptions: { type: 'tenantId' },
+          validateIssuer: { allowedTenantIds: [mockTenantId] }
+        });
+
+        const token = createTestToken({
+          ...mockTokenPayload,
+          iss: `https://sts.windows.net/${mockTenantId}/`
+        });
+        const result = await validator.validateAccessToken(token);
+
+        expect(result).toEqual(expect.objectContaining({
+          ...mockTokenPayload,
+          iss: `https://sts.windows.net/${mockTenantId}/`
+        }));
       });
 
       it('should reject invalid tenant issuer for multi-tenant apps', async () => {
@@ -706,7 +746,7 @@ describe('JwtValidator', () => {
         expect(validator.options.audience).toEqual(['api://my-app.contoso.com/test-client-id']);
       });
 
-      it('should not set audience when applicationIdUri is not provided', () => {
+      it('should not set audience when no audience options are provided', () => {
         const validator = createEntraTokenValidator(mockTenantId, mockClientId);
 
         expect(validator.options.audience).toBeUndefined();
@@ -865,4 +905,81 @@ describe('JwtValidator', () => {
       expect(result).toBeNull();
     });
   });
+
+  // Modeled on the public Microsoft Entra access token samples documented at
+  // https://learn.microsoft.com/en-us/entra/identity-platform/access-tokens
+  describe('Microsoft Entra docs sample tokens', () => {
+    // From the v2 sample token in the docs
+    const v2TenantId = '72f988bf-86f1-41af-91ab-2d7cd011db47';
+    const v2ClientId = '6e74172b-be56-4843-9ff4-e66a39bb12e3';
+    const v2Payload = {
+      iat: Math.floor(mockDate.getTime() / 1000 - 300),
+      nbf: Math.floor(mockDate.getTime() / 1000 - 300),
+      exp: Math.floor(mockDate.getTime() / 1000 + 300),
+      aud: v2ClientId,
+      iss: `https://login.microsoftonline.com/${v2TenantId}/v2.0`,
+      azp: v2ClientId,
+      scp: 'access_as_user',
+      tid: v2TenantId,
+      ver: '2.0',
+    };
+
+    // From the v1 sample token in the docs
+    const v1TenantId = 'fa15d692-e9c7-4460-a743-29f2956fd429';
+    const v1ClientId = 'ef1da9d4-ff77-4c3e-a005-840c3f830745';
+    const v1Payload = {
+      iat: Math.floor(mockDate.getTime() / 1000 - 300),
+      nbf: Math.floor(mockDate.getTime() / 1000 - 300),
+      exp: Math.floor(mockDate.getTime() / 1000 + 300),
+      aud: v1ClientId,
+      iss: `https://sts.windows.net/${v1TenantId}/`,
+      appid: '75dbe77f-10a3-4e59-85fd-8c127544f17c',
+      scp: 'user_impersonation',
+      tid: v1TenantId,
+      ver: '1.0',
+    };
+
+    it('passes the v2.0 docs sample (login.microsoftonline.com/.../v2.0)', async () => {
+      const validator = new JwtValidator({
+        clientId: v2ClientId,
+        tenantId: v2TenantId,
+        jwksUriOptions: { type: 'tenantId' },
+        validateIssuer: { allowedTenantIds: [v2TenantId] },
+        validateScope: { requiredScope: 'access_as_user' },
+      }, mockLogger as any);
+
+      const result = await validator.validateAccessToken(createTestToken(v2Payload as any));
+
+      expect(result).toEqual(expect.objectContaining(v2Payload));
+    });
+
+    it('passes the v1.0 docs sample (sts.windows.net/.../) — single-tenant', async () => {
+      const validator = new JwtValidator({
+        clientId: v1ClientId,
+        tenantId: v1TenantId,
+        jwksUriOptions: { type: 'tenantId' },
+        validateIssuer: { allowedTenantIds: [v1TenantId] },
+        validateScope: { requiredScope: 'user_impersonation' },
+      }, mockLogger as any);
+
+      const result = await validator.validateAccessToken(createTestToken(v1Payload as any));
+
+      expect(result).toEqual(expect.objectContaining(v1Payload));
+    });
+
+    it('passes the v1.0 docs sample (sts.windows.net/.../) — multi-tenant', async () => {
+      const validator = new JwtValidator({
+        clientId: v1ClientId,
+        tenantId: 'common',
+        jwksUriOptions: { type: 'tenantId' },
+        validateIssuer: { allowedTenantIds: [v1TenantId] },
+        validateScope: { requiredScope: 'user_impersonation' },
+      }, mockLogger as any);
+
+      const result = await validator.validateAccessToken(createTestToken(v1Payload as any));
+
+      expect(result).toEqual(expect.objectContaining(v1Payload));
+    });
+  });
+
 });
