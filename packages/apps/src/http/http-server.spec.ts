@@ -63,6 +63,7 @@ describe('HttpServer', () => {
 
       expect(adapter.routes).toHaveLength(1);
     });
+
   });
 
   describe('handleRequest', () => {
