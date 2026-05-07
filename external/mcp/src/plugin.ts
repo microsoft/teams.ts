@@ -242,6 +242,7 @@ export class McpPlugin implements IPlugin {
     } catch (err) {
       this.logger.debug('requireAuth threw:', err);
     }
+    if (req.aborted) return false;
     res.set('WWW-Authenticate', 'Bearer').status(401).send('unauthorized');
     return false;
   }
