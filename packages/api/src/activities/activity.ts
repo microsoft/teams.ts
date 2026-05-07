@@ -259,11 +259,6 @@ export class Activity<T extends string = string> implements IActivity<T> {
     return this;
   }
 
-  withReplyToId(value: string) {
-    this.replyToId = value;
-    return this;
-  }
-
   withChannelId(value: ChannelID) {
     this.channelId = value;
     return this;

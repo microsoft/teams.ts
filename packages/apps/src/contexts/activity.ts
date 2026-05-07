@@ -5,6 +5,7 @@ import {
   ConversationAccount,
   ConversationReference,
   InvokeResponse,
+  IMessageActivity,
   MessageActivity,
   MessageDeleteActivity,
   MessageUpdateActivity,
@@ -163,10 +164,20 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   send: (activity: ActivityLike, conversationRef?: ConversationReference) => Promise<SentActivity>;
 
   /**
-   * reply to the inbound activity
+   * reply to the inbound activity, automatically quoting the inbound message
    * @param activity activity to send
    */
   reply: (activity: ActivityLike) => Promise<SentActivity>;
+
+  /**
+   * send a reply quoting a specific message by ID
+   * @param messageId the ID of the message to quote
+   * @param activity activity to send
+   *
+   * @experimental This API is coming soon and may change in the future.
+   * Diagnostic: ExperimentalTeamsQuotedReplies
+   */
+  quote: (messageId: string, activity: ActivityLike) => Promise<SentActivity>;
 
   /**
    * trigger user signin flow for the activity sender
@@ -207,27 +218,28 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   constructor(value: IBaseActivityContextOptions & IActivityContextConstructorArgs) {
     // Extract activitySender and next before Object.assign to avoid overwriting methods
     const { activitySender, next, ...rest } = value;
+
+    if (rest.activity.type === 'message') {
+      rest.activity = MessageActivity.from(rest.activity).toInterface();
+    }
+
+    if (rest.activity.type === 'messageUpdate') {
+      rest.activity = MessageUpdateActivity.from(rest.activity).toInterface();
+    }
+
+    if (rest.activity.type === 'messageDelete') {
+      rest.activity = MessageDeleteActivity.from(rest.activity).toInterface();
+    }
+
+    if (rest.activity.type === 'typing') {
+      rest.activity = TypingActivity.from(rest.activity).toInterface();
+    }
+
     Object.assign(this, rest);
     this.activitySender = activitySender;
     this.next = next;
     this.stream = activitySender.createStream(value.ref);
     this.connectionName = value.connectionName;
-
-    if (value.activity.type === 'message') {
-      value.activity = MessageActivity.from(value.activity).toInterface();
-    }
-
-    if (value.activity.type === 'messageUpdate') {
-      value.activity = MessageUpdateActivity.from(value.activity).toInterface();
-    }
-
-    if (value.activity.type === 'messageDelete') {
-      value.activity = MessageDeleteActivity.from(value.activity).toInterface();
-    }
-
-    if (value.activity.type === 'typing') {
-      value.activity = TypingActivity.from(value.activity).toInterface();
-    }
   }
 
   /**
@@ -265,15 +277,28 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * @param activity the activity to send
    */
   async reply(activity: ActivityLike) {
+    if (this.activity.id) {
+      return this.quote(this.activity.id, activity);
+    }
+    return this.send(activity);
+  }
+
+  /**
+   * Send a message to the conversation with a quoted message reference prepended to the text.
+   * Teams renders the quoted message as a preview bubble above the response text.
+   * @param messageId - The ID of the message to quote
+   * @param activity - The activity to send — a quote placeholder for messageId will be prepended to its text
+   *
+   * @experimental This API is coming soon and may change in the future.
+   * Diagnostic: ExperimentalTeamsQuotedReplies
+   */
+  async quote(messageId: string, activity: ActivityLike) {
     activity = toActivityParams(activity);
-    activity.replyToId = this.activity.id;
 
-    if (activity.type === 'message' && activity.text) {
-      const blockQuote = this.buildBlockQuoteForActivity();
-
-      if (blockQuote) {
-        activity.text = `${blockQuote}\r\n${activity.text}`;
-      }
+    if (activity.type === 'message') {
+      const message = MessageActivity.from(activity as IMessageActivity);
+      message.prependQuote(messageId);
+      return this.send(message);
     }
 
     return this.send(activity);
@@ -383,28 +408,11 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       userToken: this.userToken,
       next: this.next.bind(this),
       reply: this.reply.bind(this),
+      quote: this.quote.bind(this),
       send: this.send.bind(this),
       signin: this.signin.bind(this),
       signout: this.signout.bind(this),
     };
   }
 
-  private buildBlockQuoteForActivity(): string | null {
-    if (this.activity.type === 'message' && this.activity.text) {
-      const maxLength = 120;
-      const truncatedText =
-        this.activity.text.length > maxLength
-          ? `${this.activity.text.substring(0, maxLength)}...`
-          : this.activity.text;
-
-      return `<blockquote itemscope="" itemtype="http://schema.skype.com/Reply" itemid="${this.activity.id}">
-<strong itemprop="mri" itemid="${this.activity.from.id}">${this.activity.from.name}</strong><span itemprop="time" itemid="${this.activity.id}"></span>
-<p itemprop="preview">${truncatedText}</p>
-</blockquote>`;
-    } else {
-      this.log.debug('Skipping building blockquote for activity type:', this.activity.type);
-    }
-
-    return null;
-  }
 }
