@@ -57,9 +57,9 @@ extends:
             container: host
 
         - task: NodeTool@0
-          displayName: 'Use Node 22.x'
+np          displayName: 'Use Node 24.x'
           inputs:
-            versionSpec: '22.x'
+            versionSpec: '24.x'
             checkLatest: true
           target:
             container: host
