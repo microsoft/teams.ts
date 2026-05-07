@@ -1,8 +1,8 @@
 import {
   createNestablePublicClientApplication,
-  Configuration,
-  IPublicClientApplication,
-  SilentRequest,
+  type Configuration,
+  type IPublicClientApplication,
+  type SilentRequest,
 } from '@azure/msal-browser';
 
 import { app } from '@microsoft/teams-js';

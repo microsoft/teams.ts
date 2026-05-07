@@ -1,4 +1,4 @@
-import { Client as HttpClient, ILogger, RequestContext } from '@microsoft/teams.common';
+import { Client as HttpClient, ILogger, type RequestContext } from '@microsoft/teams.common';
 import { Client as GraphClient } from '@microsoft/teams.graph';
 
 import { acquireMsalAccessToken } from './msal-utils';

@@ -1,6 +1,6 @@
 import {
   Client as HttpClient,
-  ClientOptions as HttpClientOptions
+  type ClientOptions as HttpClientOptions
 } from '@microsoft/teams.common';
 
 import { getInjectedUrl, getInjectedRequestConfig } from './utils/url';

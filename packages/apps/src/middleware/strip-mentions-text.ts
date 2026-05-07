@@ -1,6 +1,6 @@
 import {
-  Activity,
-  StripMentionsTextOptions,
+  type Activity,
+  type StripMentionsTextOptions,
   stripMentionsText as apiStripMentionsText
 } from '@microsoft/teams.api';
 

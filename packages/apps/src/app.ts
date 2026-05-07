@@ -15,7 +15,7 @@ import {
 } from '@microsoft/teams.api';
 import {
   Client as HttpClient,
-  ClientOptions as HttpClientOptions,
+  type ClientOptions as HttpClientOptions,
   ConsoleLogger,
   EventEmitter,
   ILogger,

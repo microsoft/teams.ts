@@ -1,4 +1,7 @@
-import { Client, ClientOptions } from '@microsoft/teams.common';
+import {
+  Client as HttpClient,
+  type ClientOptions as HttpClientOptions
+} from '@microsoft/teams.common';
 
 import { Activity } from '../../activities';
 import { resolveAadObjectId, Resource, TeamsChannelAccount } from '../../models';
@@ -15,18 +18,18 @@ export class ConversationActivityClient {
   set http(v) {
     this._http = v;
   }
-  protected _http: Client;
+  protected _http: HttpClient;
   protected _apiClientSettings: Partial<ApiClientSettings>;
 
-  constructor(serviceUrl: string, options?: Client | ClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
+  constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
     this.serviceUrl = serviceUrl;
 
     if (!options) {
-      this._http = new Client();
+      this._http = new HttpClient();
     } else if ('request' in options) {
       this._http = options;
     } else {
-      this._http = new Client(options);
+      this._http = new HttpClient(options);
     }
 
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings);

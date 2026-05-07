@@ -1,9 +1,9 @@
 import {
-  Configuration,
-  IPublicClientApplication,
+  type Configuration,
+  type IPublicClientApplication,
   InteractionRequiredAuthError,
   LogLevel,
-  SilentRequest,
+  type SilentRequest,
 } from '@azure/msal-browser';
 
 import { ILogger } from '@microsoft/teams.common';
