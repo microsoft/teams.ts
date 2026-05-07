@@ -7,7 +7,7 @@ import {
 
 import { app } from '@microsoft/teams-js';
 import { ConsoleLogger, Client as HttpClient, ILogger } from '@microsoft/teams.common';
-import  { Client as GraphClient }   from '@microsoft/teams.graph';
+import  { Client as GraphClient } from '@microsoft/teams.graph';
 
 import { buildGraphClient } from './graph-utils';
 import {

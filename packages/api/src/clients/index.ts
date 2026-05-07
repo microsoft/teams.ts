@@ -1,4 +1,7 @@
-import { Client as HttpClient, type ClientOptions as HttpClientOptions } from '@microsoft/teams.common';
+import {
+  Client as HttpClient,
+  type ClientOptions as HttpClientOptions
+} from '@microsoft/teams.common';
 
 import { CloudEnvironment } from '../auth/cloud-environment';
 
