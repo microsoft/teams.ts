@@ -1,15 +1,14 @@
-import * as http from '@microsoft/teams.common/http';
-import { ILogger } from '@microsoft/teams.common/logging';
-import * as graph from '@microsoft/teams.graph';
+import { Client as HttpClient, ILogger, RequestContext } from '@microsoft/teams.common';
+import { Client as GraphClient } from '@microsoft/teams.graph';
 
 import { acquireMsalAccessToken } from './msal-utils';
 
 export function buildGraphClient(
   getMsalInstance: () => { msalInstance: Parameters<typeof acquireMsalAccessToken>[0] },
   logger: ILogger
-): graph.Client {
+): GraphClient {
   {
-    const graphRequestAccessTokenInterceptor = async (ctx: http.RequestContext) => {
+    const graphRequestAccessTokenInterceptor = async (ctx: RequestContext) => {
       const { msalInstance } = getMsalInstance();
 
       // The developer should already have made sure that the user has consented to the scope
@@ -24,8 +23,8 @@ export function buildGraphClient(
       return ctx.config;
     };
 
-    return new graph.Client(
-      new http.Client({
+    return new GraphClient(
+      new HttpClient({
         interceptors: [{ request: graphRequestAccessTokenInterceptor }],
       })
     );

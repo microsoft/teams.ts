@@ -1,4 +1,4 @@
-import { Client, ClientOptions } from '@microsoft/teams.common/http';
+import { Client, ClientOptions } from '@microsoft/teams.common';
 
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 

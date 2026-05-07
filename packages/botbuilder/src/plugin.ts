@@ -18,8 +18,7 @@ import {
   Plugin,
   manifest,
 } from '@microsoft/teams.apps';
-import { ILogger } from '@microsoft/teams.common';
-import * as $http from '@microsoft/teams.common/http';
+import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
 
 import pkg from '../package.json';
 
@@ -37,7 +36,7 @@ export class BotBuilderPlugin implements IPlugin {
   declare readonly logger: ILogger;
 
   @Dependency()
-  declare readonly client: $http.Client;
+  declare readonly client: HttpClient;
 
   @HttpServer()
   declare readonly httpServer: IHttpServer;

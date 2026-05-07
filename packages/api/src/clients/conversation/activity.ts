@@ -1,4 +1,4 @@
-import { Client, ClientOptions } from '@microsoft/teams.common/http';
+import { Client, ClientOptions } from '@microsoft/teams.common';
 
 import { Activity } from '../../activities';
 import { resolveAadObjectId, Resource, TeamsChannelAccount } from '../../models';

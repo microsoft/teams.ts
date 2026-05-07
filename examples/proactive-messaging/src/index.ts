@@ -7,7 +7,7 @@
 
 import { App } from '@microsoft/teams.apps';
 import { ActionSet, AdaptiveCard, OpenUrlAction, TextBlock } from '@microsoft/teams.cards';
-import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { ConsoleLogger } from '@microsoft/teams.common';
 
 async function sendProactiveMessage(app: App, conversationId: string, message: string) {
   console.log(`Sending proactive message to conversation: ${conversationId}`);

@@ -1,4 +1,4 @@
-import { Client, ClientOptions } from '@microsoft/teams.common/http';
+import { Client, ClientOptions } from '@microsoft/teams.common';
 
 import { MessageReactionType } from '../../models/message/message-reaction';
 

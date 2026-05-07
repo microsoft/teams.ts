@@ -15,8 +15,7 @@ import {
   TokenPostResource,
   TypingActivity,
 } from '@microsoft/teams.api';
-import { ILogger } from '@microsoft/teams.common/logging';
-import { IStorage } from '@microsoft/teams.common/storage';
+import { ILogger, IStorage } from '@microsoft/teams.common';
 
 import { ApiClient, GraphClient } from '../api';
 import { IStreamer } from '../types';

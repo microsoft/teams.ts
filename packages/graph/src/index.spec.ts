@@ -1,19 +1,19 @@
 import { AxiosError } from 'axios';
 
-import * as http from '@microsoft/teams.common/http';
+import { Client as HttpClient} from '@microsoft/teams.common';
 
 import { Client, GraphError } from './index';
 
 import type { EndpointRequest } from './types';
 
 // Mock the http module
-jest.mock('@microsoft/teams.common/http', () => ({
+jest.mock('@microsoft/teams.common', () => ({
   Client: jest.fn(),
 }));
 
 describe('Client', () => {
-  let mockHttpClient: jest.Mocked<http.Client>;
-  let mockBetaHttpClient: jest.Mocked<http.Client>;
+  let mockHttpClient: jest.Mocked<HttpClient>;
+  let mockBetaHttpClient: jest.Mocked<HttpClient>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -41,7 +41,7 @@ describe('Client', () => {
     // Setup clone to return beta client
     mockHttpClient.clone.mockReturnValue(mockBetaHttpClient);
 
-    (http.Client as jest.MockedClass<typeof http.Client>).mockImplementation(
+    (HttpClient as jest.MockedClass<typeof HttpClient>).mockImplementation(
       () => mockHttpClient,
     );
   });
@@ -49,7 +49,7 @@ describe('Client', () => {
   describe('constructor', () => {
     it('should create client with default base URL', () => {
       new Client();
-      expect(http.Client).toHaveBeenCalledWith({
+      expect(HttpClient).toHaveBeenCalledWith({
         baseUrl: 'https://graph.microsoft.com/v1.0',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ describe('Client', () => {
         baseUrlRoot: 'https://graph.microsoft.us',
       });
 
-      expect(http.Client).toHaveBeenCalledWith({
+      expect(HttpClient).toHaveBeenCalledWith({
         baseUrlRoot: 'https://graph.microsoft.us',
         baseUrl: 'https://graph.microsoft.us/v1.0',
         headers: {
@@ -81,7 +81,7 @@ describe('Client', () => {
         timeout: 10000,
       });
 
-      expect(http.Client).toHaveBeenCalledWith({
+      expect(HttpClient).toHaveBeenCalledWith({
         baseUrlRoot: 'https://graph.microsoft.de',
         timeout: 10000,
         baseUrl: 'https://graph.microsoft.de/v1.0',
@@ -130,7 +130,7 @@ describe('Client', () => {
     it('should honor graphOptions.baseUrlRoot when no options provided', () => {
       new Client(undefined, { baseUrlRoot: 'https://graph.microsoft.us' });
 
-      expect(http.Client).toHaveBeenCalledWith({
+      expect(HttpClient).toHaveBeenCalledWith({
         baseUrl: 'https://graph.microsoft.us/v1.0',
         headers: {
           'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ describe('Client', () => {
         { baseUrlRoot: 'https://graph.microsoft.us' }
       );
 
-      expect(http.Client).toHaveBeenCalledWith({
+      expect(HttpClient).toHaveBeenCalledWith({
         baseUrlRoot: 'https://graph.microsoft.com',
         baseUrl: 'https://graph.microsoft.us/v1.0',
         headers: {

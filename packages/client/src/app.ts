@@ -1,9 +1,13 @@
-import * as msal from '@azure/msal-browser';
+import {
+  createNestablePublicClientApplication,
+  Configuration,
+  IPublicClientApplication,
+  SilentRequest,
+} from '@azure/msal-browser';
 
-import * as teamsJs from '@microsoft/teams-js';
-import * as http from '@microsoft/teams.common/http';
-import { ILogger, ConsoleLogger } from '@microsoft/teams.common/logging';
-import * as graph from '@microsoft/teams.graph';
+import { app } from '@microsoft/teams-js';
+import { ConsoleLogger, Client as HttpClient, ILogger } from '@microsoft/teams.common';
+import  { Client as GraphClient }   from '@microsoft/teams.graph';
 
 import { buildGraphClient } from './graph-utils';
 import {
@@ -23,7 +27,7 @@ export type MsalOptions = (
        * This is useful if you want to use a custom MSAL instance or if you want to share the
        * same MSAL instance across multiple apps.
        */
-      readonly msalInstance?: msal.IPublicClientApplication;
+      readonly msalInstance?: IPublicClientApplication;
       readonly configuration?: never;
     }
   | {
@@ -31,7 +35,7 @@ export type MsalOptions = (
       /**
        * MSAL configuration to use when constructing an MSAL instance used
        * to make authenticated function calls to remote endpoints. */
-      readonly configuration?: msal.Configuration;
+      readonly configuration?: Configuration;
     }
 ) & {
   /**
@@ -85,7 +89,7 @@ type AppState =
   | {
       phase: 'started';
       startedAt: Date;
-      msalInstance: msal.IPublicClientApplication;
+      msalInstance: IPublicClientApplication;
     };
 
 /**
@@ -93,7 +97,7 @@ type AppState =
  */
 export type ExecOptions = (
   | {
-      readonly msalTokenRequest?: msal.SilentRequest;
+      readonly msalTokenRequest?: SilentRequest;
       readonly permission?: never;
     }
   | { readonly msalTokenRequest?: never; readonly permission?: string }
@@ -108,8 +112,8 @@ export type ExecOptions = (
  */
 export class App {
   readonly options: AppOptions;
-  readonly http: http.Client;
-  readonly graph: graph.Client;
+  readonly http: HttpClient;
+  readonly graph: GraphClient;
   readonly clientId: string;
   protected _state: AppState = { phase: 'stopped' };
 
@@ -141,7 +145,7 @@ export class App {
     this.clientId = clientId;
     this.options = options;
     this._log = options?.logger || new ConsoleLogger('@teams/client');
-    this.http = new http.Client({
+    this.http = new HttpClient({
       baseUrl: options?.remoteApiOptions?.baseUrl,
     });
     this.graph = buildGraphClient(() => this.appStateGuard(), this._log);
@@ -161,14 +165,14 @@ export class App {
     this._log.debug('app starting');
     this._state = { phase: 'starting' };
 
-    await teamsJs.app.initialize();
+    await app.initialize();
 
     let msalInstance = this.options.msalOptions?.msalInstance;
     if (!msalInstance) {
       const msalConfig =
         this.options.msalOptions?.configuration ??
         buildMsalConfig(this.clientId, this._log);
-      msalInstance = await msal.createNestablePublicClientApplication(
+      msalInstance = await createNestablePublicClientApplication(
         msalConfig
       );
     }
@@ -201,7 +205,7 @@ export class App {
     options?: ExecOptions
   ): Promise<T> {
     const { msalInstance } = this.appStateGuard();
-    const context = await teamsJs.app.getContext();
+    const context = await app.getContext();
 
     const remoteAppResource =
       this.options.remoteApiOptions?.remoteAppResource ??

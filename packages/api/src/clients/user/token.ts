@@ -1,6 +1,6 @@
 import qs from 'qs';
 
-import { Client, ClientOptions } from '@microsoft/teams.common/http';
+import { Client, ClientOptions } from '@microsoft/teams.common';
 
 import { ChannelID, TokenExchangeRequest, TokenResponse, TokenStatus } from '../../models';
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';

@@ -1,4 +1,4 @@
-import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { ConsoleLogger } from '@microsoft/teams.common';
 
 import { ICoreActivity, IErrorEvent } from './events';
 import { createTestApp } from './test-utils';

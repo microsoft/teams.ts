@@ -1,6 +1,5 @@
 import { ActivityParams, Client, ConversationReference, SentActivity } from '@microsoft/teams.api';
-import * as $http from '@microsoft/teams.common/http';
-import { ILogger } from '@microsoft/teams.common/logging';
+import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
 
 import { HttpStream } from './http/http-stream';
 import { IStreamer, IActivitySender } from './types';
@@ -11,7 +10,7 @@ import { IStreamer, IActivitySender } from './types';
  */
 export class ActivitySender implements IActivitySender {
   constructor(
-    private client: $http.Client,
+    private client: HttpClient,
     private logger: ILogger
   ) { }
 
