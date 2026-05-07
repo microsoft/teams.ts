@@ -2,7 +2,7 @@ import qs from 'qs';
 
 import {
   Client as HttpClient,
-  type ClientOptions as HttpCLientOptions
+  type ClientOptions as HttpClientOptions
 } from '@microsoft/teams.common';
 
 import { ChannelID, TokenExchangeRequest, TokenResponse, TokenStatus } from '../../models';
@@ -59,7 +59,7 @@ export class UserTokenClient {
   protected _http: HttpClient;
   protected _apiClientSettings: Partial<ApiClientSettings>;
 
-  constructor(options?: HttpClient | HttpCLientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
+  constructor(options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
     if (!options) {
       this._http = new HttpClient();
     } else if ('request' in options) {
