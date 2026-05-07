@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-import { JsonWebToken } from '@microsoft/teams.api';
+import { CHINA, JsonWebToken, PUBLIC, US_GOV, US_GOV_DOD, withOverrides } from '@microsoft/teams.api';
 
 import { App } from './app';
 import { TestAdapter } from './test-utils';
@@ -409,6 +409,76 @@ describe('App', () => {
       await expect(
         unstartedApp.testReply('conv-id', { text: 'Hello' })
       ).rejects.toThrow('App has no credentials set up');
+    });
+  });
+
+  describe('sovereign cloud Graph routing', () => {
+    const newApp = (cloud?: any) =>
+      new App({
+        httpServerAdapter: new TestAdapter(),
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        tenantId: 'test-tenant-id',
+        cloud,
+      });
+
+    afterEach(async () => {
+      // individual tests await stop themselves
+    });
+
+    it('derives graphBaseUrl from PUBLIC cloud scope', async () => {
+      const app = newApp(PUBLIC);
+      try {
+        expect(app.graphBaseUrl).toBe('https://graph.microsoft.com');
+      } finally {
+        await app.stop();
+      }
+    });
+
+    it('derives graphBaseUrl from US_GOV cloud scope', async () => {
+      const app = newApp(US_GOV);
+      try {
+        expect(app.graphBaseUrl).toBe('https://graph.microsoft.us');
+      } finally {
+        await app.stop();
+      }
+    });
+
+    it('derives graphBaseUrl from US_GOV_DOD cloud scope', async () => {
+      const app = newApp(US_GOV_DOD);
+      try {
+        expect(app.graphBaseUrl).toBe('https://dod-graph.microsoft.us');
+      } finally {
+        await app.stop();
+      }
+    });
+
+    it('derives graphBaseUrl from CHINA cloud scope', async () => {
+      const app = newApp(CHINA);
+      try {
+        expect(app.graphBaseUrl).toBe('https://microsoftgraph.chinacloudapi.cn');
+      } finally {
+        await app.stop();
+      }
+    });
+
+    it('defaults to PUBLIC-derived graphBaseUrl when no cloud is specified', async () => {
+      const app = newApp();
+      try {
+        expect(app.graphBaseUrl).toBe('https://graph.microsoft.com');
+      } finally {
+        await app.stop();
+      }
+    });
+
+    it('leaves graphBaseUrl undefined when graphScope is not a URL', async () => {
+      const customCloud = withOverrides(PUBLIC, { graphScope: 'user.read' });
+      const app = newApp(customCloud);
+      try {
+        expect(app.graphBaseUrl).toBeUndefined();
+      } finally {
+        await app.stop();
+      }
     });
   });
 });

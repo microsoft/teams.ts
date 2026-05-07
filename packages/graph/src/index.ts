@@ -20,8 +20,10 @@ export class GraphError extends Error {
   readonly code?: string;
   /** The full response body from the Graph API */
   readonly body: unknown;
+  /** The underlying error that caused this GraphError (e.g. the Axios error) */
+  readonly source?: unknown;
 
-  constructor(statusCode: number, body: unknown, method: string, url: string, cause?: unknown) {
+  constructor(statusCode: number, body: unknown, method: string, url: string, source?: unknown) {
     const graphError = body && typeof body === 'object' && 'error' in body
       ? (body as { error: { code?: string; message?: string } }).error
       : undefined;
@@ -30,11 +32,14 @@ export class GraphError extends Error {
       ? `Graph ${method.toUpperCase()} ${url} failed (${statusCode}): ${graphError.message}`
       : `Graph ${method.toUpperCase()} ${url} failed with status ${statusCode}`;
 
-    super(message, { cause });
+    super(message);
     this.name = 'GraphError';
     this.statusCode = statusCode;
     this.code = graphError?.code;
-    this.body = body;
+    Object.defineProperty(this, 'body', { value: body, enumerable: false, writable: true, configurable: true });
+    if (source !== undefined) {
+      Object.defineProperty(this, 'source', { value: source, enumerable: false, writable: true, configurable: true });
+    }
   }
 }
 
@@ -44,6 +49,12 @@ type Options = (http.Client | http.ClientOptions) & {
   /** Graph service root. By default, the global commercial URL "https://graph.microsoft.com" is used,
    * but certain tenants may wish to override this to direct Graph API calls to a different cloud instance.
    */
+  baseUrlRoot?: string;
+};
+
+/** Graph-specific client options. */
+type GraphOptions = {
+  /** Graph service root override for routing Graph calls to sovereign cloud. */
   baseUrlRoot?: string;
 };
 
@@ -64,8 +75,25 @@ export class Client {
     return this._http;
   }
 
-  constructor(options?: Options) {
-    this.baseUrlRoot = options?.baseUrlRoot ?? defaultBaseUrlRoot;
+  /**
+   * Creates a Graph client.
+   *
+   * @param options - The HTTP client to use; an existing {@link http.Client} will be cloned,
+   * or an {@link http.ClientOptions} bag will be used to build a new one.
+   * HTTP-level settings like headers, interceptors, and timeouts belong here.
+   * @param graphOptions - Graph-specific options. Takes precedence over `options.baseUrlRoot`
+   * when both are set.
+   *
+   * @example
+   * // Public cloud (default)
+   * new Client({ token });
+   *
+   * @example
+   * // Sovereign cloud (GCCH)
+   * new Client(httpClient, { baseUrlRoot: 'https://graph.microsoft.us' });
+   */
+  constructor(options?: Options, graphOptions?: GraphOptions) {
+    this.baseUrlRoot = graphOptions?.baseUrlRoot ?? options?.baseUrlRoot ?? defaultBaseUrlRoot;
     if (!options) {
       this._http = new http.Client({
         baseUrl: `${this.baseUrlRoot}/v1.0`,

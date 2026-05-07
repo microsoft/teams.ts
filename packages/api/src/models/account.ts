@@ -5,6 +5,11 @@ export type Account<P = any> = {
   readonly id: string;
   readonly aadObjectId?: string;
   readonly role: Role;
+  /**
+   * The type of the account. Possible values: 'person', 'bot', 'channel', 'team', 'tag'.
+   * Primarily present on mention entities for non-person accounts. Absent for regular person accounts.
+   */
+  readonly type?: string;
   readonly name: string;
   readonly properties?: P;
   readonly membershipSources?: MembershipSource[];

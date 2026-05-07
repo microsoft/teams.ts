@@ -104,7 +104,7 @@ $: npm run test
 - [`@examples/lights`](./examples/lights/README.md)
 - [`@examples/reactions`](./examples/reactions/README.md)
 - [`@examples/tab`](./examples/tab/README.md)
-- [`@examples/mcp`](./examples/mcp/README.md)
+- [`@examples/mcp-server`](./examples/mcp-server/README.md)
 - [`@examples/meetings`](./examples/meetings/README.md)
 
 ## Links

@@ -224,8 +224,11 @@ export class JwtValidator {
         return;
       }
 
-      const loginEndpoint = this.options.loginEndpoint ?? 'https://login.microsoftonline.com';
-      if (!allowedTenantIds.some((tenantId) => iss.startsWith(`${loginEndpoint}/${tenantId}/`))) {
+      const issuerEndpoints = [
+        this.options.loginEndpoint ?? 'https://login.microsoftonline.com',
+        'https://sts.windows.net',
+      ];
+      if (!allowedTenantIds.some((tenantId) => issuerEndpoints.some((endpoint) => iss.startsWith(`${endpoint}/${tenantId}/`)))) {
         throw new Error(`Token issuer '${iss}' not in allowed tenant IDs: ${allowedTenantIds.join(', ')}`);
       }
     }

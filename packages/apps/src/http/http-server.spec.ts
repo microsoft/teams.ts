@@ -1,6 +1,8 @@
 import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from './adapter';
 import { HttpServer } from './http-server';
 
+jest.mock('../middleware/auth/service-token-validator');
+
 class MockAdapter implements IHttpServerAdapter {
   routes: Array<{ method: HttpMethod; path: string; handler: HttpRouteHandler }> = [];
   started = false;
@@ -61,6 +63,7 @@ describe('HttpServer', () => {
 
       expect(adapter.routes).toHaveLength(1);
     });
+
   });
 
   describe('handleRequest', () => {

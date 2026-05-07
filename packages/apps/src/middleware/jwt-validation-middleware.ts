@@ -27,7 +27,6 @@ export function withJwtValidation(params: JwtValidationParams) {
       credentials.tenantId,
       undefined,
       logger,
-      undefined, // additionalAllowedDomains
       cloud
     );
   } else {

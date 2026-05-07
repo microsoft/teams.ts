@@ -146,14 +146,6 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly skipAuth?: boolean;
 
   /**
-   * Additional allowed service URL hostnames beyond the built-in defaults.
-   * Use this if your bot receives activities from non-standard channels
-   * with service URLs outside the cloud environment's allowed hostnames.
-   * @example ['api.my-custom-channel.com']
-   */
-  readonly additionalAllowedDomains?: string[];
-
-  /**
    * URL path for the Teams messaging endpoint
    * @default '/api/messages'
    */
@@ -204,6 +196,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   readonly storage: IStorage;
   readonly entraTokenValidator?: middleware.JwtValidator;
   readonly tokenManager: TokenManager;
+
+  /**
+   * Graph API base URL derived from the configured cloud's `graphScope`.
+   * Undefined when the scope isn't a URL — `GraphClient` then uses its public-cloud default.
+   * Shared across every `GraphClient` the app constructs (`app.graph`, `ctx.appGraph`, `ctx.userGraph`)
+   * so sovereign customers get consistent routing.
+   */
+  readonly graphBaseUrl?: string;
 
   /**
    * the apps credentials
@@ -318,8 +318,20 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       this.cloud
     );
 
+    // Derive Graph API base URL from the cloud's graphScope (e.g. "https://graph.microsoft.us/.default"
+    // -> "https://graph.microsoft.us"). Falls back to the public Graph endpoint inside GraphClient if
+    // the scope isn't a URL (custom delegated scope, empty, etc.).
+    const graphUrlMatch = /^(https?:\/\/[^/]+)/i.exec((this.cloud.graphScope ?? '').trim());
+    this.graphBaseUrl = graphUrlMatch?.[1];
+    if (!this.graphBaseUrl && this.cloud.graphScope) {
+      this.log.warn(
+        `graphScope "${this.cloud.graphScope}" is not a URL; Graph calls will route to the public cloud. ` +
+        'Set graphScope to an "https://<host>/.default" value to route to the correct Graph endpoint.'
+      );
+    }
     this.graph = new GraphClient(
-      this.client.clone({ token: () => this.getAppGraphToken() })
+      this.client.clone({ token: () => this.getAppGraphToken() }),
+      { baseUrlRoot: this.graphBaseUrl }
     );
 
     // initialize TokenManager with credentials
@@ -381,7 +393,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         onError: (err) => this.onError({ error: err })
       }), {
         skipAuth: this.options.skipAuth,
-        additionalAllowedDomains: this.options.additionalAllowedDomains,
         logger: this.log,
         messagingEndpoint: this.options.messagingEndpoint ?? '/api/messages',
       });
