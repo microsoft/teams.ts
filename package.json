@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "https://github.com/microsoft/teams.ts",
   "bugs": "https://github.com/microsoft/teams.ts/issues",
+  "packageManager": "npm@11.12.1",
   "engines": {
     "node": ">=20"
   },
