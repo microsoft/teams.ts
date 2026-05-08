@@ -1,0 +1,39 @@
+{
+  "name": "@examples/teams-ag-ui",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "clean": "npx rimraf ./dist",
+    "lint": "npx eslint",
+    "lint:fix": "npx eslint --fix",
+    "build": "npx tsc",
+    "start": "node dist/main.js",
+    "dev": "tsx watch -r dotenv/config src/main.ts"
+  },
+  "dependencies": {
+    "@ag-ui/client": "^0.0.53",
+    "@ag-ui/core": "^0.0.53",
+    "@ag-ui/langchain": "^0.0.1",
+    "@langchain/core": "^0.3.79",
+    "@langchain/openai": "^0.6.17",
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.apps": "*",
+    "@microsoft/teams.common": "*",
+    "@microsoft/teams.dev": "*"
+  },
+  "devDependencies": {
+    "@microsoft/teams.config": "*",
+    "@types/node": "^22.5.4",
+    "dotenv": "^16.4.5",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.4.5"
+  }
+}
