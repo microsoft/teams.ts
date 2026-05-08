@@ -172,7 +172,6 @@ export class HttpServer implements IHttpServer {
   async handleRequest(request: IHttpServerRequest): Promise<IHttpServerResponse> {
     try {
       const body = request.body as ICoreActivity;
-      this.logger.info(`received activity: type=${safeLogField(body?.type)}, id=${safeLogField(body?.id)}`);
       this.logger.debug('Handling activity', body);
 
       const auth = await this.authorize(request.headers, body);
