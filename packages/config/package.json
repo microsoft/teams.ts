@@ -8,6 +8,7 @@
   "files": [
     "eslint.config.js",
     "jest.config.js",
+    "rewrite-esm-imports.js",
     "tsup.config.js"
   ],
   "publishConfig": {
