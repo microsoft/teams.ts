@@ -53,12 +53,12 @@ export class ReactionClient {
   }
 
   /**
-   * Remove a reaction from a message.
+   * Delete a reaction from a message.
    *
    * @experimental This API is in preview and may change in the future.
    * Diagnostic: ExperimentalTeamsReactions
    */
-  async remove(conversationId: string, activityId: string, reactionType: MessageReactionType) {
+  async delete(conversationId: string, activityId: string, reactionType: MessageReactionType) {
     const res = await this.http.delete<void>(
       `${this.serviceUrl}/v3/conversations/${encodeURIComponent(conversationId)}/activities/${encodeURIComponent(activityId)}/reactions/${encodeURIComponent(reactionType)}`
     );

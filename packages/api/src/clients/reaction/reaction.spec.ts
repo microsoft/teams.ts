@@ -36,10 +36,10 @@ describe('ReactionClient', () => {
     expect(spy).toHaveBeenCalledWith('/v3/conversations/conv1/activities/act1/reactions/like');
   });
 
-  it('should remove reaction', async () => {
+  it('should delete reaction', async () => {
     const client = new ReactionClient('');
     const spy = jest.spyOn(client.http, 'delete').mockResolvedValueOnce({});
-    await client.remove('conv1', 'act1', 'like');
+    await client.delete('conv1', 'act1', 'like');
     expect(spy).toHaveBeenCalledWith('/v3/conversations/conv1/activities/act1/reactions/like');
   });
 
@@ -64,10 +64,10 @@ describe('ReactionClient', () => {
     expect(spy).toHaveBeenCalledWith('/v3/conversations/conv1/activities/act1/reactions/like');
   });
 
-  it('should URL-encode parameters in remove', async () => {
+  it('should URL-encode parameters in delete', async () => {
     const client = new ReactionClient('');
     const spy = jest.spyOn(client.http, 'delete').mockResolvedValueOnce({});
-    await client.remove('conv+1/test=', 'act+1/test=', 'heart');
+    await client.delete('conv+1/test=', 'act+1/test=', 'heart');
     expect(spy).toHaveBeenCalledWith('/v3/conversations/conv%2B1%2Ftest%3D/activities/act%2B1%2Ftest%3D/reactions/heart');
   });
 });
