@@ -75,7 +75,7 @@ export class MessageReactionActivity
 
   /**
    * Remove a message reaction.
-   * @deprecated Use the api.reactions.remove instead.
+   * @deprecated Use the api.reactions.delete instead.
    */
   removeReaction(reaction: MessageReaction) {
     if (!this.reactionsRemoved) {

@@ -53,7 +53,7 @@ app.on('message', async ({ reply, activity, log, api }) => {
   if (removeMatch && api) {
     const reactionType = removeMatch[1] as ReactionParameter;
     try {
-      await api.reactions.remove(
+      await api.reactions.delete(
         activity.conversation.id,
         activity.id,
         reactionType
