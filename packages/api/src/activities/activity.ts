@@ -433,10 +433,6 @@ export class Activity<T extends string = string> implements IActivity<T> {
    * Diagnostic: ExperimentalTeamsTargeted
    */
   addTargetedMessageInfo(messageId: string) {
-    if (this.entities?.some((e) => e.type === 'targetedMessageInfo')) {
-      return this;
-    }
-
     if (this.entities) {
       this.entities = this.entities.filter((e) => e.type !== 'quotedReply');
     }
@@ -447,6 +443,10 @@ export class Activity<T extends string = string> implements IActivity<T> {
       if (msg.text) {
         msg.text = msg.text.replace(`<quoted messageId="${messageId}"/>`, '').trim();
       }
+    }
+
+    if (this.entities?.some((e) => e.type === 'targetedMessageInfo')) {
+      return this;
     }
 
     return this.addEntity({

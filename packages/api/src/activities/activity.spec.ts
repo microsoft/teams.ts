@@ -268,5 +268,15 @@ describe('Activity', () => {
 
       expect(activity.entities?.filter((e) => e.type === 'targetedMessageInfo')).toHaveLength(1);
     });
+
+    it('should strip quotedReply even when targetedMessageInfo already present', () => {
+      const activity = new MessageActivity('hello')
+        .addTargetedMessageInfo('123')
+        .addEntity({ type: 'quotedReply', quotedReply: { messageId: '123' } })
+        .addTargetedMessageInfo('123');
+
+      expect(activity.entities?.some((e) => e.type === 'quotedReply')).toBe(false);
+      expect(activity.entities?.filter((e) => e.type === 'targetedMessageInfo')).toHaveLength(1);
+    });
   });
 });
