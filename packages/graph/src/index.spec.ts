@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios';
 
-import { Client as HttpClient} from '@microsoft/teams.common';
+import { Client as HttpClient } from '@microsoft/teams.common';
 
 import { Client, GraphError } from './index';
 

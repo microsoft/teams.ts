@@ -6,7 +6,7 @@ import {
   ISignInVerifyStateInvokeActivity,
   TokenExchangeInvokeResponse,
 } from '@microsoft/teams.api';
-import { Client as GraphClient} from '@microsoft/teams.graph';
+import { Client as GraphClient } from '@microsoft/teams.graph';
 
 import { App } from './app';
 import * as contexts from './contexts';
