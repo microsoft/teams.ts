@@ -438,7 +438,7 @@ export class Activity<T extends string = string> implements IActivity<T> {
     }
 
     if (this.entities) {
-      this.entities = this.entities.filter((e) => (e.type as string) !== 'quotedReply');
+      this.entities = this.entities.filter((e) => e.type !== 'quotedReply');
     }
 
     if (this.type === 'message') {

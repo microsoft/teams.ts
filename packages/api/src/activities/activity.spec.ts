@@ -1,4 +1,4 @@
-import { Account, ConversationAccount, Entity } from '../models';
+import { Account, ConversationAccount } from '../models';
 
 import { Activity } from './activity';
 import { MessageActivity } from './message';
@@ -244,7 +244,7 @@ describe('Activity', () => {
   describe('addTargetedMessageInfo', () => {
     it('should strip quotedReply entities', () => {
       const activity = new MessageActivity('hello')
-        .addEntity({ type: 'quotedReply', messageId: '123' } as unknown as Entity)
+        .addEntity({ type: 'quotedReply', quotedReply: { messageId: '123' } })
         .addEntity({ type: 'mention', text: '<at>bot</at>', mentioned: bot })
         .addTargetedMessageInfo('123');
 
