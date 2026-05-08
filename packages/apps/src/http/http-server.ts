@@ -163,6 +163,7 @@ export class HttpServer implements IHttpServer {
   async handleRequest(request: IHttpServerRequest): Promise<IHttpServerResponse> {
     try {
       const body = request.body as ICoreActivity;
+      this.logger.info(`received activity: type=${body?.type ?? 'unknown'}, id=${body?.id ?? 'unknown'}`);
       this.logger.debug('Handling activity', body);
 
       const auth = await this.authorize(request.headers, body);
@@ -207,6 +208,7 @@ export class HttpServer implements IHttpServer {
     const raw = headers['authorization'];
     const authHeader = Array.isArray(raw) ? raw[0] : raw;
     if (!authHeader) {
+      this.logger.warn('inbound activity rejected: missing Authorization header (responding 401)');
       return { success: false, error: 'Missing authorization header' };
     }
 
