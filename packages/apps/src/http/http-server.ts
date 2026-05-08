@@ -16,6 +16,15 @@ type AuthResult =
   | { success: true; token: IToken }
   | { success: false; error: string };
 
+/**
+ * Sanitize an attacker-controlled activity field for inclusion in a log line.
+ * Strips control characters (CR/LF/tab/etc.) and caps length to defeat log injection.
+ */
+function safeLogField(v: unknown): string {
+  // eslint-disable-next-line no-control-regex
+  return String(v ?? 'unknown').replace(/[\r\n\t\x00-\x1f\x7f]/g, '').slice(0, 64);
+}
+
 export type HttpServerOptions = {
   readonly skipAuth?: boolean;
   readonly logger?: ILogger;
@@ -163,7 +172,7 @@ export class HttpServer implements IHttpServer {
   async handleRequest(request: IHttpServerRequest): Promise<IHttpServerResponse> {
     try {
       const body = request.body as ICoreActivity;
-      this.logger.info(`received activity: type=${body?.type ?? 'unknown'}, id=${body?.id ?? 'unknown'}`);
+      this.logger.info(`received activity: type=${safeLogField(body?.type)}, id=${safeLogField(body?.id)}`);
       this.logger.debug('Handling activity', body);
 
       const auth = await this.authorize(request.headers, body);
@@ -208,7 +217,9 @@ export class HttpServer implements IHttpServer {
     const raw = headers['authorization'];
     const authHeader = Array.isArray(raw) ? raw[0] : raw;
     if (!authHeader) {
-      this.logger.warn('inbound activity rejected: missing Authorization header (responding 401)');
+      this.logger.warn(
+        `inbound activity rejected (type=${safeLogField(body?.type)}, id=${safeLogField(body?.id)}): missing Authorization header (responding 401)`
+      );
       return { success: false, error: 'Missing authorization header' };
     }
 
