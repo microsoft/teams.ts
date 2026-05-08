@@ -1,6 +1,6 @@
 import { App } from '@microsoft/teams.apps';
 import { AdaptiveCard, TextBlock, OpenUrlAction, ActionSet } from '@microsoft/teams.cards';
-import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { ConsoleLogger } from '@microsoft/teams.common';
 
 const app = new App({
   logger: new ConsoleLogger('@examples/meetings', { level: 'debug' })

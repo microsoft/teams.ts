@@ -1,6 +1,6 @@
 import qs from 'qs';
 
-import * as http from '@microsoft/teams.common/http';
+import { type RequestConfig } from '@microsoft/teams.common';
 
 import { ParamDefs } from '../types';
 
@@ -25,8 +25,8 @@ export function getInjectedUrl(
 export function getInjectedRequestConfig(
   params: ParamDefs,
   data: Record<string, any>,
-  requestConfig?: http.RequestConfig,
-): http.RequestConfig | undefined {
+  requestConfig?: RequestConfig,
+): RequestConfig | undefined {
   const paramHeaders = (params.header ?? []).reduce<Record<string, any>>(
     (agg, param) => {
       if (data[param]) {

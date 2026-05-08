@@ -1,4 +1,4 @@
-import { Client } from '@microsoft/teams.common/http';
+import { Client } from '@microsoft/teams.common';
 
 import { UserTokenClient } from './token';
 
@@ -91,7 +91,7 @@ describe('UserTokenClient', () => {
     );
   });
 
-  
+
   it('should get AAD token in regional endpoint', async () => {
     const client = new UserTokenClient({}, { oauthUrl: 'https://europe.token.botframework.com' });
     const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});

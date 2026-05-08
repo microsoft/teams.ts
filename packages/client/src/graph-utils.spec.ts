@@ -2,9 +2,9 @@ const httpClientMock = jest.fn();
 
 import { buildGraphClient } from './graph-utils';
 
-jest.mock('@microsoft/teams.common/http', () => {
+jest.mock('@microsoft/teams.common', () => {
   return {
-    ...jest.requireActual('@microsoft/teams.common/http'),
+    ...jest.requireActual('@microsoft/teams.common'),
     Client: httpClientMock,
   };
 });

@@ -1,4 +1,7 @@
-import * as http from '@microsoft/teams.common/http';
+import {
+  Client as HttpClient,
+  type ClientOptions as HttpClientOptions
+} from '@microsoft/teams.common';
 
 import { getInjectedUrl, getInjectedRequestConfig } from './utils/url';
 
@@ -45,7 +48,7 @@ export class GraphError extends Error {
 
 const defaultBaseUrlRoot = 'https://graph.microsoft.com';
 
-type Options = (http.Client | http.ClientOptions) & {
+type Options = (HttpClient | HttpClientOptions) & {
   /** Graph service root. By default, the global commercial URL "https://graph.microsoft.com" is used,
    * but certain tenants may wish to override this to direct Graph API calls to a different cloud instance.
    */
@@ -64,22 +67,22 @@ type GraphOptions = {
  */
 export class Client {
   protected baseUrlRoot;
-  protected _http: http.Client;
-  protected betaHttp?: http.Client;
+  protected _http: HttpClient;
+  protected betaHttp?: HttpClient;
 
   /**
    * The underlying HTTP client, pre-configured with Graph base URL and headers.
    * Use for raw Graph API requests not covered by endpoint functions.
    */
-  get http(): http.Client {
+  get http(): HttpClient {
     return this._http;
   }
 
   /**
    * Creates a Graph client.
    *
-   * @param options - The HTTP client to use; an existing {@link http.Client} will be cloned,
-   * or an {@link http.ClientOptions} bag will be used to build a new one.
+   * @param options - The HTTP client to use; an existing {@link HttpClient} will be cloned,
+   * or an {@link HttpClientOptions} bag will be used to build a new one.
    * HTTP-level settings like headers, interceptors, and timeouts belong here.
    * @param graphOptions - Graph-specific options. Takes precedence over `options.baseUrlRoot`
    * when both are set.
@@ -95,7 +98,7 @@ export class Client {
   constructor(options?: Options, graphOptions?: GraphOptions) {
     this.baseUrlRoot = graphOptions?.baseUrlRoot ?? options?.baseUrlRoot ?? defaultBaseUrlRoot;
     if (!options) {
-      this._http = new http.Client({
+      this._http = new HttpClient({
         baseUrl: `${this.baseUrlRoot}/v1.0`,
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +114,7 @@ export class Client {
         },
       });
     } else {
-      this._http = new http.Client({
+      this._http = new HttpClient({
         ...options,
         baseUrl: `${this.baseUrlRoot}/v1.0`,
         headers: {
@@ -192,7 +195,7 @@ export class Client {
     }
   }
 
-  private getHttpClient(schemaVersion: SchemaVersion): http.Client {
+  private getHttpClient(schemaVersion: SchemaVersion): HttpClient {
     if (schemaVersion === 'v1.0') {
       return this._http;
     }

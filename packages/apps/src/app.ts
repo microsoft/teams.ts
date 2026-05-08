@@ -13,10 +13,15 @@ import {
   toActivityParams,
   TokenCredentials,
 } from '@microsoft/teams.api';
-import { EventEmitter } from '@microsoft/teams.common/events';
-import * as http from '@microsoft/teams.common/http';
-import { ConsoleLogger, ILogger } from '@microsoft/teams.common/logging';
-import { IStorage, LocalStorage } from '@microsoft/teams.common/storage';
+import {
+  Client as HttpClient,
+  type ClientOptions as HttpClientOptions,
+  ConsoleLogger,
+  EventEmitter,
+  ILogger,
+  IStorage,
+  LocalStorage
+} from '@microsoft/teams.common';
 
 import pkg from '../package.json';
 
@@ -103,7 +108,7 @@ export type AppOptions<TPlugin extends IPlugin> = {
   /**
    * http client or client options used to make api requests
    */
-  readonly client?: http.Client | http.ClientOptions | (() => http.Client);
+  readonly client?: HttpClient | HttpClientOptions | (() => HttpClient);
 
   /**
    * logger instance to use
@@ -192,7 +197,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   readonly log: ILogger;
   readonly server: HttpServer;
   readonly http?: HttpPlugin;
-  readonly client: http.Client;
+  readonly client: HttpClient;
   readonly storage: IStorage;
   readonly entraTokenValidator?: middleware.JwtValidator;
   readonly tokenManager: TokenManager;
@@ -282,7 +287,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     this.cloud = this.options.cloud ?? (cloudEnvName ? cloudFromName(cloudEnvName) : PUBLIC);
 
     if (!options.client) {
-      this.client = new http.Client({
+      this.client = new HttpClient({
         headers: {
           'User-Agent': this._userAgent,
         },
@@ -300,7 +305,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         },
       });
     } else {
-      this.client = new http.Client({
+      this.client = new HttpClient({
         ...options.client,
         headers: {
           ...options.client.headers,
