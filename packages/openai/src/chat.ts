@@ -10,7 +10,7 @@ import {
   Message,
   ModelMessage,
 } from '@microsoft/teams.ai';
-import { ConsoleLogger, ILogger } from '@microsoft/teams.common/logging';
+import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
 export type ChatCompletionCreateParams = Omit<
   OpenAI.ChatCompletionCreateParams,

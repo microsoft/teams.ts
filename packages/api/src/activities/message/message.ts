@@ -9,6 +9,7 @@ import {
   Importance,
   InputHint,
   MentionEntity,
+  QuotedReplyEntity,
   SuggestedActions,
   TextFormat,
 } from '../../models';
@@ -99,6 +100,14 @@ export interface IMessageActivity extends IActivity<'message'> {
    * get a mention by the account id if exists
    */
   getAccountMention(accountId: string): MentionEntity | undefined;
+
+  /**
+   * get all quoted reply entities from this message
+   *
+   * @experimental This API is coming soon and may change in the future.
+   * Diagnostic: ExperimentalTeamsQuotedReplies
+   */
+  getQuotedMessages(): QuotedReplyEntity[];
 }
 
 export class MessageActivity extends Activity<'message'> implements IMessageActivity {
@@ -196,6 +205,7 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
         stripMentionsText: this.stripMentionsText.bind(this),
         isRecipientMentioned: this.isRecipientMentioned.bind(this),
         getAccountMention: this.getAccountMention.bind(this),
+        getQuotedMessages: this.getQuotedMessages.bind(this),
       },
       this
     );
@@ -374,6 +384,18 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
   }
 
   /**
+   * get all quoted reply entities from this message
+   *
+   * @experimental This API is coming soon and may change in the future.
+   * Diagnostic: ExperimentalTeamsQuotedReplies
+   */
+  getQuotedMessages(): QuotedReplyEntity[] {
+    return (this.entities ?? []).filter(
+      (e): e is QuotedReplyEntity => e.type === 'quotedReply'
+    );
+  }
+
+  /**
    * Add stream info, making
    * this a final stream message
    */
@@ -399,11 +421,59 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
    * @param isTargeted - If true, marks this as a targeted message visible only to the recipient
    * @returns this instance for chaining
    *
-   * @experimental This API is in preview and may change in the future.
+   * @experimental This API is coming soon and may change in the future.
    * Diagnostic: ExperimentalTeamsTargeted
    */
   withRecipient(account: Account, isTargeted: boolean = false): this {
     super.withRecipient(account, isTargeted);
+    return this;
+  }
+
+  /**
+   * Add a quoted message reference and append a `<quoted messageId="..."/>` placeholder to text.
+   * Teams renders the quoted message as a preview bubble above the response text.
+   * If text is provided, it is appended to the quoted message placeholder.
+   * @param messageId - The ID of the message to quote
+   * @param text - Optional text, appended to the quoted message placeholder
+   * @returns this instance for chaining
+   *
+   * @experimental This API is coming soon and may change in the future.
+   * Diagnostic: ExperimentalTeamsQuotedReplies
+   */
+  addQuote(messageId: string, text?: string): this {
+    if (!this.entities) {
+      this.entities = [];
+    }
+    this.entities.push({
+      type: 'quotedReply',
+      quotedReply: { messageId },
+    });
+    this.addText(`<quoted messageId="${messageId}"/>`);
+    if (text) {
+      this.addText(` ${text}`);
+    }
+    return this;
+  }
+
+  /**
+   * Prepend a quotedReply entity and `<quoted messageId="..."/>` placeholder
+   * before existing text. Used by reply()/quote() for quote-above-response.
+   * @param messageId - The IC3 message ID of the message to quote
+   *
+   * @experimental This API is coming soon and may change in the future.
+   * Diagnostic: ExperimentalTeamsQuotedReplies
+   */
+  prependQuote(messageId: string): this {
+    if (!this.entities) {
+      this.entities = [];
+    }
+    this.entities.push({
+      type: 'quotedReply',
+      quotedReply: { messageId },
+    });
+    const placeholder = `<quoted messageId="${messageId}"/>`;
+    const hasText = !!this.text?.trim();
+    this.text = hasText ? `${placeholder} ${this.text}` : placeholder;
     return this;
   }
 }

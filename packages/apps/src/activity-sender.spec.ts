@@ -1,11 +1,11 @@
 import { ActivityParams, ConversationReference } from '@microsoft/teams.api';
-import * as $http from '@microsoft/teams.common/http';
+import  {Client as HttpClient } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
 
 describe('ActivitySender', () => {
   let sender: ActivitySender;
-  let mockHttpClient: $http.Client;
+  let mockHttpClient: HttpClient;
   let ref: ConversationReference;
 
   beforeEach(() => {

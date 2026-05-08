@@ -6,7 +6,7 @@ import {
   ISignInVerifyStateInvokeActivity,
   TokenExchangeInvokeResponse,
 } from '@microsoft/teams.api';
-import * as graph from '@microsoft/teams.graph';
+import { Client as GraphClient } from '@microsoft/teams.graph';
 
 import { App } from './app';
 import * as contexts from './contexts';
@@ -35,7 +35,7 @@ export async function onTokenExchange<TPlugin extends IPlugin>(
       },
     });
 
-    ctx.userGraph = new graph.Client(
+    ctx.userGraph = new GraphClient(
       this.client.clone({
         token: token.token,
       }),
@@ -85,7 +85,7 @@ export async function onVerifyState<TPlugin extends IPlugin>(
       code: activity.value.state,
     });
 
-    ctx.userGraph = new graph.Client(
+    ctx.userGraph = new GraphClient(
       this.client.clone({
         token: token.token,
       }),

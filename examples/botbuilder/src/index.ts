@@ -2,7 +2,7 @@ import { TeamsActivityHandler } from 'botbuilder';
 
 import { App } from '@microsoft/teams.apps';
 import { BotBuilderPlugin } from '@microsoft/teams.botbuilder';
-import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { ConsoleLogger } from '@microsoft/teams.common';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 export class ActivityHandler extends TeamsActivityHandler {

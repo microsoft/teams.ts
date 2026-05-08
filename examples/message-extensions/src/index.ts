@@ -3,7 +3,7 @@ import path from 'path';
 import { cardAttachment } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { IAdaptiveCard } from '@microsoft/teams.cards';
-import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { ConsoleLogger } from '@microsoft/teams.common';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 import {

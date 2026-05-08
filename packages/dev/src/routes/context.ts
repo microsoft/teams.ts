@@ -1,5 +1,5 @@
 import { Activity, InvokeResponse, IToken } from '@microsoft/teams.api';
-import { ILogger } from '@microsoft/teams.common/logging';
+import { ILogger } from '@microsoft/teams.common';
 
 export type RouteContext = {
   readonly port: number;

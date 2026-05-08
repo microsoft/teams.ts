@@ -1,4 +1,4 @@
-import * as http from '@microsoft/teams.common/http';
+import { type RequestConfig } from '@microsoft/teams.common';
 
 export type SchemaVersion = 'beta' | 'v1.0';
 
@@ -8,7 +8,7 @@ export type SchemaVersion = 'beta' | 'v1.0';
  */
 export type CallOptions = {
   /** HTTP request configuration */
-  requestConfig?: http.RequestConfig;
+  requestConfig?: RequestConfig;
 };
 
 export type ParamDefs = Partial<Record<'query' | 'header' | 'path', string[]>>;
@@ -20,6 +20,6 @@ export type EndpointRequest<TResponse> = {
   paramDefs?: ParamDefs;
   params?: Record<string, any>;
   body?: any;
-  config?: http.RequestConfig;
+  config?: RequestConfig;
   responseType?: TResponse;
 };
