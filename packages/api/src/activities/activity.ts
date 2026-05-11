@@ -421,6 +421,41 @@ export class Activity<T extends string = string> implements IActivity<T> {
   }
 
   /**
+   * Add a targeted message info entity for prompt preview.
+   * Skips if already present. In reactive flows, `ctx.send()` and `ctx.reply()`
+   * populate this automatically — use this helper for proactive or deferred sends.
+   * An invalid or expired messageId causes APX to silently drop the preview
+   * while still delivering the message.
+   *
+   * @param messageId the message ID of the targeted message (from the incoming activity's `id`)
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsTargeted
+   */
+  addTargetedMessageInfo(messageId: string) {
+    if (this.entities) {
+      this.entities = this.entities.filter((e) => e.type !== 'quotedReply');
+    }
+
+    if (this.type === 'message') {
+      const msg = this as unknown as { text?: string };
+
+      if (msg.text) {
+        msg.text = msg.text.replace(`<quoted messageId="${messageId}"/>`, '').trim();
+      }
+    }
+
+    if (this.entities?.some((e) => e.type === 'targetedMessageInfo')) {
+      return this;
+    }
+
+    return this.addEntity({
+      type: 'targetedMessageInfo',
+      messageId,
+    });
+  }
+
+  /**
    * is this a streaming activity
    */
   isStreaming() {

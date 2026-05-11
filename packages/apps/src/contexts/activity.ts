@@ -262,6 +262,32 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       }
     }
 
+    // Auto-populate targetedMessageInfo entity for prompt preview
+    // when replying to a targeted message in the reactive flow.
+    if (
+      params.type === 'message' &&
+      this.activity.recipient?.isTargeted === true
+    ) {
+      if (params.entities) {
+        params.entities = params.entities.filter((e) => e.type !== 'quotedReply');
+      }
+
+      if (params.text) {
+        params.text = params.text.replace(`<quoted messageId="${this.activity.id}"/>`, '').trim();
+      }
+
+      if (!params.entities?.some((e) => e.type === 'targetedMessageInfo')) {
+        if (!params.entities) {
+          params.entities = [];
+        }
+
+        params.entities.push({
+          type: 'targetedMessageInfo',
+          messageId: this.activity.id,
+        });
+      }
+    }
+
     return await this.activitySender.send(params, conversationRef ?? this.ref);
   }
 
