@@ -4,8 +4,8 @@
   "manifestVersion": "1.20",
   "id": "${{TEAMS_APP_ID}}",
   "name": {
-    "short": "ai-sample",
-    "full": "ai-sample"
+    "short": "ai-mcp",
+    "full": "AI + MCP sample bot"
   },
   "developer": {
     "name": "Microsoft",
@@ -15,8 +15,8 @@
     "termsOfUseUrl": "https://www.microsoft.com/legal/terms-of-use"
   },
   "description": {
-    "short": "Sample bot that repeats back what you say",
-    "full": "Sample bot that repeats back what you say"
+    "short": "Teams bot powered by Azure OpenAI + MS Learn MCP",
+    "full": "A Teams bot that streams answers grounded in MS Learn docs via the MCP protocol, with inline citations, follow-up chips, a clarification card tool, and custom feedback."
   },
   "icons": {
     "outline": "outline.png",
@@ -43,10 +43,7 @@
       "supportsFiles": false
     }
   ],
-  "validDomains": [
-    "${{BOT_DOMAIN}}",
-    "*.botframework.com"
-  ],
+  "validDomains": ["${{BOT_DOMAIN}}", "*.botframework.com"],
   "webApplicationInfo": {
     "id": "${{BOT_ID}}",
     "resource": "api://botid-${{BOT_ID}}"

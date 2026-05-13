@@ -1,5 +1,5 @@
 {
-  "name": "@examples/ai",
+  "name": "@examples/ai-mcp",
   "version": "0.0.6",
   "private": true,
   "license": "MIT",
@@ -21,21 +21,22 @@
     "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
   },
   "dependencies": {
-    "@microsoft/teams.ai": "*",
+    "@azure/ai-projects": "^2.1.1",
+    "@azure/identity": "^4.13.0",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
     "@microsoft/teams.dev": "*",
-    "@microsoft/teams.openai": "*",
-    "fuse.js": "^7.1.0"
+    "openai": "^6.16.0"
   },
   "devDependencies": {
-    "rimraf": "^6.0.1",
+    "@microsoft/teams.config": "*",
     "@types/node": "^22.5.4",
     "dotenv": "^16.4.5",
+    "env-cmd": "latest",
+    "rimraf": "^6.0.1",
     "tsx": "^4.20.6",
-    "typescript": "^5.4.5",
-    "env-cmd": "latest"
+    "typescript": "^5.4.5"
   }
 }
