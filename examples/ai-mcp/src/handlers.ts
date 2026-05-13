@@ -13,7 +13,7 @@ import {
 import { ILogger } from '@microsoft/teams.common';
 
 import { Agent, AgentRunResult } from './agent';
-import { CLARIFICATION_CALL_ID_FIELD, CLARIFICATION_INPUT_ID } from './local-tools';
+import { CLARIFICATION_INPUT_ID } from './local-tools';
 
 const OK_RESPONSE: AdaptiveCardActionMessageResponse = {
   statusCode: 200,
@@ -22,10 +22,11 @@ const OK_RESPONSE: AdaptiveCardActionMessageResponse = {
 };
 
 /**
- * Wire all bot routes to the agent.
- *   - `message`                   → new user turn (`agent.run`)
- *   - `card.action.clarification` → resumes the agent's pending function call
- *                                    (`agent.submitClarification`)
+ * Wire all bot routes to the agent. Both message paths funnel through
+ * `agent.run`:
+ *   - `message`                   → activity text as the user turn
+ *   - `card.action.clarification` → the option the user picked, as the user turn
+ *
  * Feedback routes are independent of the agent — `message.fetch-task` returns
  * a task module dialog and `message.submit.feedback` logs the result.
  */
@@ -38,15 +39,16 @@ export function registerHandlers(app: App, agent: Agent, log: ILogger): void {
 
   app.on('card.action.clarification', async ({ activity, stream, send }) => {
     const data = (activity.value.action.data ?? {}) as Record<string, unknown>;
-    const choice = typeof data[CLARIFICATION_INPUT_ID] === 'string' ? data[CLARIFICATION_INPUT_ID] as string : '';
-    const callId = typeof data[CLARIFICATION_CALL_ID_FIELD] === 'string' ? data[CLARIFICATION_CALL_ID_FIELD] as string : '';
+    const choice = typeof data[CLARIFICATION_INPUT_ID] === 'string'
+      ? (data[CLARIFICATION_INPUT_ID] as string)
+      : '';
 
-    if (!choice || !callId) {
-      log.warn(`Clarification submit missing fields — choice=${choice ? 'ok' : 'missing'}, callId=${callId ? 'ok' : 'missing'}`);
+    if (!choice) {
+      log.warn('Clarification submit had no clarificationChoice.');
       return OK_RESPONSE;
     }
 
-    const result = await agent.submitClarification(activity.conversation.id, callId, choice, stream);
+    const result = await agent.run(activity.conversation.id, choice, stream);
     await shipResult(result, stream, send, activity.from.id);
     return OK_RESPONSE;
   });

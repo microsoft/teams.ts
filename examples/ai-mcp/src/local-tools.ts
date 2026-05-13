@@ -5,46 +5,13 @@ import {
   SubmitData,
   TextBlock,
 } from '@microsoft/teams.cards';
+import { ILogger } from '@microsoft/teams.common';
+
+import type { RunnableToolFunction } from 'openai/lib/RunnableFunction';
 
 export const CLARIFICATION_TOOL_NAME = 'request_clarification';
 export const CLARIFICATION_VERB = 'clarification';
 export const CLARIFICATION_INPUT_ID = 'clarificationChoice';
-export const CLARIFICATION_CALL_ID_FIELD = 'pendingCallId';
-
-/**
- * The single local tool the agent can call. Defined in OpenAI Responses API
- * shape (flat `type/name/parameters`, not nested under `function: {...}` like
- * chat completions).
- *
- * When invoked, the agent surfaces the call to handler code: we build the
- * clarification card, send it as the bot reply, and submit the
- * function_call_output asynchronously when the user picks an option — so the
- * model's "next turn" is the user's choice, fed back as the tool result.
- */
-export const CLARIFICATION_FUNCTION_TOOL = {
-  type: 'function' as const,
-  name: CLARIFICATION_TOOL_NAME,
-  description:
-    'Show an Adaptive Card asking the user to clarify their request when ambiguous. ' +
-    'The user picks one option and submits; their choice is returned as this function\'s result.',
-  strict: true,
-  parameters: {
-    type: 'object',
-    properties: {
-      question: {
-        type: 'string',
-        description: 'The clarification question to ask the user.',
-      },
-      options: {
-        type: 'array',
-        description: '2-4 candidate interpretations the user can pick between.',
-        items: { type: 'string' },
-      },
-    },
-    required: ['question', 'options'],
-    additionalProperties: false,
-  },
-};
 
 export type ClarificationArgs = {
   question: string;
@@ -52,13 +19,55 @@ export type ClarificationArgs = {
 };
 
 /**
- * The card carries the agent-supplied options PLUS the `call_id` of the
- * function call that produced it. When the user submits, the action data
- * contains both `clarificationChoice` (chosen option) and `pendingCallId`,
- * so the handler can resume the agent's conversation with the right
- * function_call_output.
+ * Builds the clarification tool as a RunnableToolFunction. The `function`
+ * callback runs during the agent's tool loop: it pushes the card into a
+ * per-turn bucket the agent inspects after `runner.done()`, and returns a
+ * placeholder string so the model can wrap up the turn (the bot will discard
+ * its wrap-up text and send only the card).
+ *
+ * The user's choice arrives as a fresh user message via the
+ * `card.action.clarification` route — same code path as a normal message.
  */
-export function buildClarificationCard(args: ClarificationArgs, callId: string): AdaptiveCard {
+export function buildClarificationTool(
+  pendingCards: AdaptiveCard[],
+  log: ILogger
+): RunnableToolFunction<ClarificationArgs> {
+  return {
+    type: 'function',
+    function: {
+      name: CLARIFICATION_TOOL_NAME,
+      description:
+        'Show an Adaptive Card asking the user to clarify their request when ambiguous. ' +
+        'The user picks one option and submits; their choice arrives as the next user turn.',
+      parameters: {
+        type: 'object',
+        properties: {
+          question: {
+            type: 'string',
+            description: 'The clarification question to ask the user.',
+          },
+          options: {
+            type: 'array',
+            items: { type: 'string' },
+            description: '2-4 candidate interpretations the user can pick between.',
+          },
+        },
+        required: ['question', 'options'],
+        additionalProperties: false,
+      },
+      function: async (args: ClarificationArgs) => {
+        log.info(
+          `[tool] ${CLARIFICATION_TOOL_NAME}(question=${args.question}, options=[${args.options.join(', ')}])`
+        );
+        pendingCards.push(buildClarificationCard(args));
+        return 'Clarification card attached.';
+      },
+      parse: (raw: string) => JSON.parse(raw) as ClarificationArgs,
+    },
+  };
+}
+
+function buildClarificationCard(args: ClarificationArgs): AdaptiveCard {
   return new AdaptiveCard(
     new TextBlock(args.question, { weight: 'Bolder', size: 'Medium', wrap: true }),
     new ChoiceSetInput(
@@ -68,7 +77,7 @@ export function buildClarificationCard(args: ClarificationArgs, callId: string):
       .withIsRequired(true)
   ).withActions(
     new ExecuteAction({ title: 'Submit' })
-      .withData(new SubmitData(CLARIFICATION_VERB, { [CLARIFICATION_CALL_ID_FIELD]: callId }))
+      .withData(new SubmitData(CLARIFICATION_VERB))
       .withAssociatedInputs('auto')
   );
 }

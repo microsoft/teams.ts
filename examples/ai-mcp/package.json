@@ -21,14 +21,14 @@
     "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
   },
   "dependencies": {
-    "@azure/ai-projects": "^2.1.1",
     "@azure/identity": "^4.13.0",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
     "@microsoft/teams.dev": "*",
-    "openai": "^6.16.0"
+    "@modelcontextprotocol/sdk": "^1.25.2",
+    "openai": "^4.104.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
