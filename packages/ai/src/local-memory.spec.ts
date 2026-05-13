@@ -64,7 +64,7 @@ describe('LocalMemory', () => {
       const emptyMemory = new LocalMemory({ max: 1 });
       
       // Should not throw when pushing to empty memory
-      await expect(emptyMemory.push({ role: 'user', content: 'First' })).resolves.not.toThrow();
+      await expect(emptyMemory.push({ role: 'user', content: 'First' })).resolves.toBeUndefined();
       expect(emptyMemory.length()).toBe(1);
     });
 
@@ -91,7 +91,7 @@ describe('LocalMemory', () => {
       
       await tinyMemory.push(modelWithFunctionCalls);
       // Push another message - should trigger trim logic
-      await expect(tinyMemory.push({ role: 'function', content: 'result', function_id: '1' })).resolves.not.toThrow();
+      await expect(tinyMemory.push({ role: 'function', content: 'result', function_id: '1' })).resolves.toBeUndefined();
     });
   });
 
@@ -172,7 +172,7 @@ describe('LocalMemory', () => {
       });
 
       // Should not crash when collapse is called with edge cases
-      await expect(collapseMemory.push({ role: 'user', content: 'Hello' })).resolves.not.toThrow();
+      await expect(collapseMemory.push({ role: 'user', content: 'Hello' })).resolves.toBeUndefined();
     });
 
     it('should skip function messages when finding collapse end boundary', async () => {
@@ -223,7 +223,7 @@ describe('LocalMemory', () => {
       // at the end of the array
       await expect(
         collapseMemory.push({ role: 'user', content: 'trigger collapse' })
-      ).resolves.not.toThrow();
+      ).resolves.toBeUndefined();
     });
   });
 
@@ -238,7 +238,7 @@ describe('LocalMemory', () => {
       // Push another - the while loop should safely handle the empty check
       await expect(
         edgeMemory.push({ role: 'user', content: 'new message' })
-      ).resolves.not.toThrow();
+      ).resolves.toBeUndefined();
     });
 
     it('should use optional chaining for messages[0].role access', async () => {
