@@ -1,6 +1,6 @@
 import { MessageActivity } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
-import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { ConsoleLogger } from '@microsoft/teams.common';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 import { MockReminderService } from './mock-reminder-service';

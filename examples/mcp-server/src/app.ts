@@ -2,7 +2,7 @@ import express from 'express';
 
 import { AdaptiveCardActionMessageResponse } from '@microsoft/teams.api';
 import { App, ExpressAdapter } from '@microsoft/teams.apps';
-import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { ConsoleLogger } from '@microsoft/teams.common';
 
 import { state } from './state';
 

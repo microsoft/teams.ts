@@ -67,9 +67,9 @@ jest.mock('@azure/msal-browser', () => {
   };
 });
 
-jest.mock('@microsoft/teams.common/http', () => {
+jest.mock('@microsoft/teams.common', () => {
   return {
-    ...jest.requireActual('@microsoft/teams.common/http'),
+    ...jest.requireActual('@microsoft/teams.common'),
     Client: jest.fn().mockImplementation(() => {
       return {
         post: httpClientPostMock,

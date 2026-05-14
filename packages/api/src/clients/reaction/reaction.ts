@@ -1,4 +1,7 @@
-import { Client, ClientOptions } from '@microsoft/teams.common/http';
+import {
+  Client as HttpClient,
+  type ClientOptions as HttpClientOptions
+} from '@microsoft/teams.common';
 
 import { MessageReactionType } from '../../models/message/message-reaction';
 
@@ -6,9 +9,6 @@ import { ApiClientSettings, mergeApiClientSettings } from '../api-client-setting
 
 /**
  * Client for adding and removing emoji reactions on messages in a conversation.
- *
- * @experimental This API is in preview and may change in the future.
- * Diagnostic: ExperimentalTeamsReactions
  */
 export class ReactionClient {
   readonly serviceUrl: string;
@@ -19,18 +19,18 @@ export class ReactionClient {
   set http(v) {
     this._http = v;
   }
-  protected _http: Client;
+  protected _http: HttpClient;
   protected _apiClientSettings: Partial<ApiClientSettings>;
 
-  constructor(serviceUrl: string, options?: Client | ClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
+  constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
     this.serviceUrl = serviceUrl;
 
     if (!options) {
-      this._http = new Client();
+      this._http = new HttpClient();
     } else if ('request' in options) {
       this._http = options;
     } else {
-      this._http = new Client(options);
+      this._http = new HttpClient(options);
     }
 
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
@@ -38,9 +38,6 @@ export class ReactionClient {
 
   /**
    * Add a reaction to a message.
-   *
-   * @experimental This API is in preview and may change in the future.
-   * Diagnostic: ExperimentalTeamsReactions
    */
   async add(conversationId: string, activityId: string, reactionType: MessageReactionType) {
     const res = await this.http.put<void>(
@@ -50,12 +47,9 @@ export class ReactionClient {
   }
 
   /**
-   * Remove a reaction from a message.
-   *
-   * @experimental This API is in preview and may change in the future.
-   * Diagnostic: ExperimentalTeamsReactions
+   * Delete a reaction from a message.
    */
-  async remove(conversationId: string, activityId: string, reactionType: MessageReactionType) {
+  async delete(conversationId: string, activityId: string, reactionType: MessageReactionType) {
     const res = await this.http.delete<void>(
       `${this.serviceUrl}/v3/conversations/${encodeURIComponent(conversationId)}/activities/${encodeURIComponent(activityId)}/reactions/${encodeURIComponent(reactionType)}`
     );

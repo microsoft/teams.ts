@@ -2,8 +2,7 @@ import '@azure/openai/types';
 import { ChatPrompt, Message } from '@microsoft/teams.ai';
 import { MessageActivity } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
-import { ConsoleLogger } from '@microsoft/teams.common/logging';
-import { LocalStorage } from '@microsoft/teams.common/storage';
+import { ConsoleLogger, LocalStorage } from '@microsoft/teams.common';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 import { OpenAIChatModel } from '@microsoft/teams.openai';
 

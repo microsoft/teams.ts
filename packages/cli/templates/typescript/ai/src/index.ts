@@ -1,6 +1,6 @@
 import { App } from '@microsoft/teams.apps';
 import { ChatPrompt, Message } from '@microsoft/teams.ai';
-import { LocalStorage } from '@microsoft/teams.common/storage';
+import { LocalStorage } from '@microsoft/teams.common';
 import { DevtoolsPlugin } from '@microsoft/teams.dev';
 import { OpenAIChatModel } from '@microsoft/teams.openai';
 

@@ -8,8 +8,7 @@ import {
   TokenExchangeResource,
   TokenPostResource,
 } from '@microsoft/teams.api';
-import { ILogger } from '@microsoft/teams.common/logging';
-import { IStorage } from '@microsoft/teams.common/storage';
+import { ILogger, IStorage } from '@microsoft/teams.common';
 
 import { ApiClient, GraphClient } from '../api';
 
@@ -262,6 +261,96 @@ describe('ActivityContext', () => {
         const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
         expect(sentActivity.id).toBe('existing-activity-id');
         expect(sentActivity.recipient.isTargeted).toBe(true);
+      });
+    });
+
+    describe('prompt preview', () => {
+      it('auto-populates targetedMessageInfo entity when incoming activity is targeted', async () => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+          .withId('1772129782775');
+
+        context = buildActivityContext(activity);
+
+        await context.send('Here is your agenda');
+
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+        expect(mockSender.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Here is your agenda',
+            type: 'message',
+            entities: expect.arrayContaining([
+              expect.objectContaining({
+                type: 'targetedMessageInfo',
+                messageId: '1772129782775',
+              }),
+            ]),
+          }),
+          mockRef
+        );
+      });
+
+      it('does not auto-populate targetedMessageInfo when incoming activity is not targeted', async () => {
+        const activity = buildIncomingMessageActivity('Hello world');
+        context = buildActivityContext(activity);
+
+        await context.send('Response');
+
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity.entities).toBeUndefined();
+      });
+
+      it('does not overwrite existing targetedMessageInfo entity', async () => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+          .withId('1772129782775');
+
+        context = buildActivityContext(activity);
+
+        const outgoing = new MessageActivity('Response')
+          .addTargetedMessageInfo('custom-message-id');
+
+        await context.send(outgoing);
+
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        const targetedEntities = sentActivity.entities.filter((e: any) => e.type === 'targetedMessageInfo');
+        expect(targetedEntities).toHaveLength(1);
+        expect(targetedEntities[0].messageId).toBe('custom-message-id');
+      });
+
+      it('auto-populates targetedMessageInfo on reply to targeted message', async () => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+          .withId('1772129782775');
+
+        context = buildActivityContext(activity);
+
+        await context.reply('Here is your agenda');
+
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+        expect(mockSender.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: 'message',
+            entities: expect.arrayContaining([
+              expect.objectContaining({
+                type: 'targetedMessageInfo',
+                messageId: '1772129782775',
+              }),
+            ]),
+          }),
+          mockRef
+        );
       });
     });
   });

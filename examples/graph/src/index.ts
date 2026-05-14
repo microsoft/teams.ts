@@ -1,5 +1,5 @@
 import { App } from '@microsoft/teams.apps';
-import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { ConsoleLogger } from '@microsoft/teams.common';
 import * as endpoints from '@microsoft/teams.graph-endpoints';
 
 const app = new App({
@@ -10,7 +10,7 @@ const app = new App({
      */
     defaultConnectionName: 'graph'
   },
-  // Instead of setting in ConsoleLogger like below, you can also 
+  // Instead of setting in ConsoleLogger like below, you can also
   // set LOG_LEVEL=debug or LOG_LEVEL=trace env var for verbose SDK logging
   logger: new ConsoleLogger('@tests/auth', { level: 'debug' }),
     // This is an example of overriding the token URL for a specific region (e.g., Europe).

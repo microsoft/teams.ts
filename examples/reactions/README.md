@@ -30,15 +30,17 @@ const client = new Client(serviceUrl);
 // Add a reaction
 await client.reactions.add(conversationId, activityId, 'like');
 
-// Remove a reaction
-await client.reactions.remove(conversationId, activityId, 'like');
+// Delete a reaction
+await client.reactions.delete(conversationId, activityId, 'like');
 ```
 
 ## Supported Reaction Types
 
 - `like` - 👍
 - `heart` - ❤️
-- `laugh` - 😂
-- `surprised` - 😮
-- `sad` - 😢
-- `angry` - 😠
+- `1f440_eyes` - 👀
+- `2705_whiteheavycheckmark` - ✅
+- `launch` - 🚀
+- `1f4cc_pushpin` - 📌
+
+The `MessageReactionType` parameter also accepts any string, so you can pass other reaction IDs from the Teams reactions reference.

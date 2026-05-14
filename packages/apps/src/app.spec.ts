@@ -258,6 +258,28 @@ describe('App', () => {
     });
   });
 
+  describe('http client User-Agent', () => {
+    it('should merge App User-Agent with User-Agent from client options', async () => {
+      const app = new App({
+        httpServerAdapter: new TestAdapter(),
+        client: {
+          headers: {
+            'user-agent': 'MyApp/1.0',
+          },
+        },
+      });
+      const spy = jest.spyOn((app.client as any).http, 'get').mockResolvedValueOnce({});
+
+      await app.client.get('/test');
+
+      expect(spy).toHaveBeenCalledWith('/test', {
+        headers: {
+          'User-Agent': expect.stringMatching(/^teams\.ts\[apps\]\/.* MyApp\/1\.0$/),
+        },
+      });
+    });
+  });
+
   describe('service URL configuration', () => {
     const originalEnv = process.env.SERVICE_URL;
 

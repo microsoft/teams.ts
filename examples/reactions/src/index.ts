@@ -1,6 +1,6 @@
 import { Client, MessageReactionActivity } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
-import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { ConsoleLogger } from '@microsoft/teams.common';
 
 const app = new App({
   logger: new ConsoleLogger('@examples/reactions', { level: 'debug' })
@@ -23,7 +23,7 @@ app.on('message', async ({ reply, activity, log, api }) => {
         'I demonstrate how to use the ReactionClient API!\n\n' +
         '**Commands:**\n' +
         '- Type "add [reaction]" - I\'ll add that reaction to your message\n' +
-        '- Type "remove [reaction]" - I\'ll remove a reaction from your message\n' +
+        '- Type "remove [reaction]" - I\'ll add that reaction and then remove it 2s later\n' +
         '- Add any reaction to my messages and I\'ll tell you about it!',
     });
     return;
@@ -48,21 +48,29 @@ app.on('message', async ({ reply, activity, log, api }) => {
     return;
   }
 
-  // Handle commands to remove reactions
+  // Handle commands to remove reactions. To make this demo-able on an
+  // incoming message that doesn't already carry the reaction, we add it
+  // first, then delete it after a short delay so the user sees the cycle.
   const removeMatch = userMessage.match(/remove\s+(\S+)/);
   if (removeMatch && api) {
     const reactionType = removeMatch[1] as ReactionParameter;
     try {
-      await api.reactions.remove(
+      await api.reactions.add(
         activity.conversation.id,
         activity.id,
         reactionType
       );
-      await reply(`Removed the ${reactionType} reaction from your message!`);
-      log.info(`Removed ${reactionType} reaction from message ${activity.id}`);
+      await reply(`Added a ${reactionType} reaction, removing in 2s...`);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await api.reactions.delete(
+        activity.conversation.id,
+        activity.id,
+        reactionType
+      );
+      log.info(`Cycled ${reactionType} reaction on message ${activity.id}`);
     } catch (error) {
-      log.error('Failed to remove reaction:', error);
-      await reply('Sorry, I had trouble removing that reaction.');
+      log.error('Failed to cycle reaction:', error);
+      await reply('Sorry, I had trouble cycling that reaction.');
     }
     return;
   }

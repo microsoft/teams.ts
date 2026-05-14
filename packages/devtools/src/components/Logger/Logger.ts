@@ -1,4 +1,4 @@
-import { ConsoleLogger } from '@microsoft/teams.common/logging';
+import { ConsoleLogger } from '@microsoft/teams.common';
 
 const Logger = new ConsoleLogger('@teams/devtools');
 

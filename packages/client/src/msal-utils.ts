@@ -1,6 +1,12 @@
-import * as msal from '@azure/msal-browser';
+import {
+  type Configuration,
+  type IPublicClientApplication,
+  InteractionRequiredAuthError,
+  LogLevel,
+  type SilentRequest,
+} from '@azure/msal-browser';
 
-import { ILogger } from '@microsoft/teams.common/logging';
+import { ILogger } from '@microsoft/teams.common';
 
 /**
  * Gets a silent request used to acquire an Entra access token for invoking remote functions on behalf of a user.
@@ -11,7 +17,7 @@ import { ILogger } from '@microsoft/teams.common/logging';
 export const getStandardExecSilentRequest = (
   resource: string,
   permission = 'access_as_user'
-): msal.SilentRequest => ({
+): SilentRequest => ({
   scopes: [`${resource}/${permission}`],
 });
 
@@ -22,7 +28,7 @@ export const getStandardExecSilentRequest = (
  * @returns A default MSAL configuration object suitable for creating a
  * @see{IPublicClientApplication} instance for a multi-tenant application.
  */
-export const buildMsalConfig = (clientId: string, logger: ILogger): msal.Configuration => {
+export const buildMsalConfig = (clientId: string, logger: ILogger): Configuration => {
   return {
     auth: {
       clientId,
@@ -35,16 +41,16 @@ export const buildMsalConfig = (clientId: string, logger: ILogger): msal.Configu
         piiLoggingEnabled: false,
         loggerCallback: (level, message) => {
           switch (level) {
-            case msal.LogLevel.Error:
+            case LogLevel.Error:
               logger.error(message);
               return;
-            case msal.LogLevel.Info:
+            case LogLevel.Info:
               logger.info(message);
               return;
-            case msal.LogLevel.Verbose:
+            case LogLevel.Verbose:
               logger.debug(message);
               return;
-            case msal.LogLevel.Warning:
+            case LogLevel.Warning:
               logger.warn(message);
               return;
             default:
@@ -66,8 +72,8 @@ export const buildMsalConfig = (clientId: string, logger: ILogger): msal.Configu
  * @returns A promise that resolves to the acquired access token.
  */
 export const acquireMsalAccessToken = async (
-  msalInstance: Pick<msal.IPublicClientApplication, 'acquireTokenSilent' | 'acquireTokenPopup'>,
-  request: msal.SilentRequest,
+  msalInstance: Pick<IPublicClientApplication, 'acquireTokenSilent' | 'acquireTokenPopup'>,
+  request: SilentRequest,
   logger: ILogger
 ): Promise<string> => {
   try {
@@ -76,7 +82,7 @@ export const acquireMsalAccessToken = async (
   } catch (ex) {
     // InteractionRequiredAuthError indicates that the user may not have consented to the requested
     // scope yet -- for this, we can fall back on acquireTokenPopup instead.
-    const tryAcquireTokenPopup = ex instanceof msal.InteractionRequiredAuthError;
+    const tryAcquireTokenPopup = ex instanceof InteractionRequiredAuthError;
     if (!tryAcquireTokenPopup) {
       logger.error('acquireTokenSilent failed', ex);
       throw ex;
@@ -103,7 +109,7 @@ export const acquireMsalAccessToken = async (
  * @returns A promise that resolves to a boolean indicating whether the user has consented to the scopes.
  */
 export const hasConsentForScopes = async (
-  msalInstance: Pick<msal.IPublicClientApplication, 'acquireTokenSilent'>,
+  msalInstance: Pick<IPublicClientApplication, 'acquireTokenSilent'>,
   scopes: string[],
   logger: ILogger
 ): Promise<boolean> => {
@@ -116,7 +122,7 @@ export const hasConsentForScopes = async (
   } catch (ex) {
     // InteractionRequiredAuthError indicates that the user has not consented to the requested scope yet.
     // This is not an error, but may be interesting when trouble shooting.
-    const acquireTokenPopupNeeded = ex instanceof msal.InteractionRequiredAuthError;
+    const acquireTokenPopupNeeded = ex instanceof InteractionRequiredAuthError;
     const logLevel = acquireTokenPopupNeeded ? 'debug' : 'error';
     logger.log(logLevel, 'hasConsentForScopes failed', ex);
     return false;
