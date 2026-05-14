@@ -31,13 +31,13 @@ const OK_RESPONSE: AdaptiveCardActionMessageResponse = {
  * a task module dialog and `message.submit.feedback` logs the result.
  */
 export function registerHandlers(app: App, agent: Agent, log: ILogger): void {
-  app.on('message', async ({ activity, stream, send }) => {
+  app.on('message', async ({ activity, stream }) => {
     const userText = activity.stripMentionsText().text ?? '';
     const result = await agent.run(activity.conversation.id, userText, stream);
-    await shipResult(result, stream, send, activity.from.id);
+    shipResult(result, stream, activity.from.id);
   });
 
-  app.on('card.action.clarification', async ({ activity, stream, send }) => {
+  app.on('card.action.clarification', async ({ activity, stream }) => {
     const data = (activity.value.action.data ?? {}) as Record<string, unknown>;
     const choice = typeof data[CLARIFICATION_INPUT_ID] === 'string'
       ? (data[CLARIFICATION_INPUT_ID] as string)
@@ -49,7 +49,7 @@ export function registerHandlers(app: App, agent: Agent, log: ILogger): void {
     }
 
     const result = await agent.run(activity.conversation.id, choice, stream);
-    await shipResult(result, stream, send, activity.from.id);
+    shipResult(result, stream, activity.from.id);
     return OK_RESPONSE;
   });
 
@@ -78,50 +78,48 @@ export function registerHandlers(app: App, agent: Agent, log: ILogger): void {
 }
 
 /**
- * Ships a finished agent turn back to Teams. Two paths:
- *  - `pendingCard` (clarification): attachment-only message via `send`. The
- *    stream had no text emitted, so `close()` is a no-op.
- *  - normal reply: emit a final marker (AI label, custom feedback, citations)
- *    so the streamer folds them into the final activity, then `close`. Chips
- *    can't ride the streamed activity (`suggestedActions` is dropped by the
- *    streamer), so they ship as a tiny follow-on message.
+ * Ships a finished agent turn back to Teams. Both paths emit through the
+ * streamer so the turn produces exactly one final activity:
+ *  - `pendingCard` (clarification): discard any text the model produced
+ *    during the tool loop, then emit the card as the final shape — the
+ *    streamed activity becomes a card-only reply.
+ *  - normal reply: emit a final marker (AI label, custom feedback, citations,
+ *    follow-up chips) so the streamer folds them into the final activity.
  */
-async function shipResult(
+function shipResult(
   result: AgentRunResult,
   stream: IStreamer,
-  send: (activity: MessageActivity) => Promise<unknown>,
   recipientId: string
-): Promise<void> {
+): void {
   if (result.pendingCard) {
-    const cardMessage = new MessageActivity().addCard('adaptive', result.pendingCard);
-    await send(cardMessage);
-    await stream.close();
+    stream.clearText();
+    stream.emit(new MessageActivity().addCard('adaptive', result.pendingCard));
     return;
   }
 
-  finalizeStreamedMessage(stream, result);
-  await stream.close();
-
-  if (result.followUps.length > 0) {
-    await send(buildFollowUpChips(result.followUps, recipientId));
-  }
+  finalizeStreamedMessage(stream, result, recipientId);
 }
 
-function finalizeStreamedMessage(stream: IStreamer, result: AgentRunResult): void {
+function finalizeStreamedMessage(
+  stream: IStreamer,
+  result: AgentRunResult,
+  recipientId: string
+): void {
   const finalMarker = new MessageActivity().addAiGenerated().addFeedback('custom');
   result.citations.attachCitations(finalMarker, result.fullText);
-  stream.emit(finalMarker);
-}
 
-function buildFollowUpChips(followUps: string[], recipientId: string): MessageActivity {
-  return new MessageActivity('').withSuggestedActions({
-    to: [recipientId],
-    actions: followUps.map((prompt) => ({
-      type: 'imBack',
-      title: prompt,
-      value: prompt,
-    })),
-  });
+  if (result.followUps.length > 0) {
+    finalMarker.withSuggestedActions({
+      to: [recipientId],
+      actions: result.followUps.map((prompt) => ({
+        type: 'imBack',
+        title: prompt,
+        value: prompt,
+      })),
+    });
+  }
+
+  stream.emit(finalMarker);
 }
 
 function buildFeedbackCard(reaction: string | undefined): AdaptiveCard {

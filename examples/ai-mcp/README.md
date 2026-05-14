@@ -19,9 +19,8 @@ This is the TypeScript counterpart to the .NET [`ExtAIBot`](https://github.com/m
 ## Prerequisites
 
 - Node.js 20+
-- An **Azure OpenAI resource** with a deployed model (e.g. `gpt-4o`). No Foundry project required.
+- An **Azure OpenAI resource** with a deployed model (e.g. `gpt-4o`) and an API key. No Foundry project required.
 - A Teams bot registration (App ID + secret).
-- Either an Azure OpenAI API key OR an AAD principal with `Cognitive Services OpenAI User` role on the resource (for `DefaultAzureCredential`).
 
 ## Setup
 
@@ -29,19 +28,15 @@ Create a `.env` in this directory:
 
 ```env
 AZURE_OPENAI_ENDPOINT=https://<your-resource>.openai.azure.com
+AZURE_OPENAI_API_KEY=<your-api-key>
 AZURE_OPENAI_MODEL_DEPLOYMENT_NAME=<deployment-name>
 AZURE_OPENAI_API_VERSION=2024-10-21
-
-# Auth — provide either API key OR rely on DefaultAzureCredential (az login).
-AZURE_OPENAI_API_KEY=<your-api-key>
 
 # Optional — defaults to the public MS Learn MCP endpoint.
 MCP_SERVER_URL=https://learn.microsoft.com/api/mcp
 ```
 
 `AZURE_OPENAI_MODEL_DEPLOYMENT_NAME` is the **deployment name** on your Azure OpenAI resource, not the base model name.
-
-If `AZURE_OPENAI_API_KEY` is unset, the bot falls back to AAD via `DefaultAzureCredential` (so `az login` works for local dev).
 
 ## Running
 
