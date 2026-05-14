@@ -3,7 +3,7 @@ import OpenAI, { toFile } from 'openai';
 import { Fetch } from 'openai/core.mjs';
 
 import { IAudioModel, TextToAudioParams, AudioToTextParams } from '@microsoft/teams.ai';
-import { ILogger, ConsoleLogger } from '@microsoft/teams.common/logging';
+import { ILogger, ConsoleLogger } from '@microsoft/teams.common';
 
 export type OpenAIAudioPluginOptions = {
   readonly model: string;

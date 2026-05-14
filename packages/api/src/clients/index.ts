@@ -1,4 +1,7 @@
-import * as http from '@microsoft/teams.common/http';
+import {
+  Client as HttpClient,
+  type ClientOptions as HttpClientOptions
+} from '@microsoft/teams.common';
 
 import { CloudEnvironment } from '../auth/cloud-environment';
 
@@ -17,10 +20,6 @@ export class Client {
   readonly conversations: ConversationClient;
   readonly teams: TeamClient;
   readonly meetings: MeetingClient;
-  /**
-   * @experimental This API is in preview and may change in the future.
-   * Diagnostic: ExperimentalTeamsReactions
-   */
   readonly reactions: ReactionClient;
 
   get http() {
@@ -35,18 +34,18 @@ export class Client {
     this.reactions.http = v;
     this._http = v;
   }
-  protected _http: http.Client;
+  protected _http: HttpClient;
   protected _apiClientSettings: Partial<ApiClientSettings>;
 
-  constructor(serviceUrl: string, options?: http.Client | http.ClientOptions, apiClientSettings?: Partial<ApiClientSettings>, cloud?: CloudEnvironment) {
+  constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>, cloud?: CloudEnvironment) {
     this.serviceUrl = serviceUrl;
 
     if (!options) {
-      this._http = new http.Client();
+      this._http = new HttpClient();
     } else if ('request' in options) {
       this._http = options;
     } else {
-      this._http = new http.Client({
+      this._http = new HttpClient({
         ...options,
         headers: {
           ...options?.headers,

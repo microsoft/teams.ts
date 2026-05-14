@@ -1,11 +1,11 @@
 import { ActivityParams, ConversationReference } from '@microsoft/teams.api';
-import * as $http from '@microsoft/teams.common/http';
+import  {Client as HttpClient } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
 
 describe('ActivitySender', () => {
   let sender: ActivitySender;
-  let mockHttpClient: $http.Client;
+  let mockHttpClient: HttpClient;
   let ref: ConversationReference;
 
   beforeEach(() => {
@@ -60,13 +60,17 @@ describe('ActivitySender', () => {
     });
 
     it('should POST with isTargetedActivity query param for targeted messages', async () => {
+      const groupRef = {
+        ...ref,
+        conversation: { id: 'conv-123', conversationType: 'groupChat' },
+      };
       const activity = {
         type: 'message',
         text: 'targeted',
         recipient: { id: 'user-1', name: 'User', role: 'user', isTargeted: true },
       } as ActivityParams;
 
-      await sender.send(activity, ref);
+      await sender.send(activity, groupRef);
 
       expect(mockHttpClient.post).toHaveBeenCalledWith(
         'https://smba.trafficmanager.net/teams/v3/conversations/conv-123/activities?isTargetedActivity=true',
@@ -75,6 +79,10 @@ describe('ActivitySender', () => {
     });
 
     it('should PUT with isTargetedActivity query param for targeted updates', async () => {
+      const groupRef = {
+        ...ref,
+        conversation: { id: 'conv-123', conversationType: 'groupChat' },
+      };
       const activity = {
         type: 'message',
         text: 'targeted update',
@@ -82,7 +90,7 @@ describe('ActivitySender', () => {
         recipient: { id: 'user-1', name: 'User', role: 'user', isTargeted: true },
       } as ActivityParams;
 
-      await sender.send(activity, ref);
+      await sender.send(activity, groupRef);
 
       expect(mockHttpClient.put).toHaveBeenCalledWith(
         'https://smba.trafficmanager.net/teams/v3/conversations/conv-123/activities/existing-id?isTargetedActivity=true',
@@ -121,6 +129,33 @@ describe('ActivitySender', () => {
         'https://custom-service.botframework.com/v3/conversations/conv-456/activities',
         expect.any(Object)
       );
+    });
+
+    it('should throw when sending targeted message in personal chat', async () => {
+      const activity: ActivityParams = {
+        type: 'message',
+        text: 'hello',
+        recipient: { id: 'user-1', name: 'User', role: 'user', isTargeted: true },
+      };
+
+      await expect(sender.send(activity, ref)).rejects.toThrow(
+        'Targeted messages are not supported in 1:1 (personal) chats.'
+      );
+    });
+
+    it('should allow targeted message in group chat', async () => {
+      const groupRef = {
+        ...ref,
+        conversation: { id: 'conv-123', conversationType: 'groupChat' },
+      };
+      const activity: ActivityParams = {
+        type: 'message',
+        text: 'hello',
+        recipient: { id: 'user-1', name: 'User', role: 'user', isTargeted: true },
+      };
+
+      const result = await sender.send(activity, groupRef);
+      expect(result).toEqual(expect.objectContaining({ id: 'activity-1' }));
     });
   });
 

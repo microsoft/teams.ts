@@ -1,4 +1,4 @@
-import { Client } from '@microsoft/teams.common/http';
+import { Client } from '@microsoft/teams.common';
 
 import { ConversationMemberClient } from './member';
 

@@ -15,8 +15,7 @@ import {
   TokenPostResource,
   TypingActivity,
 } from '@microsoft/teams.api';
-import { ILogger } from '@microsoft/teams.common/logging';
-import { IStorage } from '@microsoft/teams.common/storage';
+import { ILogger, IStorage } from '@microsoft/teams.common';
 
 import { ApiClient, GraphClient } from '../api';
 import { IStreamer } from '../types';
@@ -248,6 +247,32 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     if (params.type === 'message' && params.recipient?.isTargeted && !params.id) {
       if (!params.recipient) {
         params.recipient = this.activity.from;
+      }
+    }
+
+    // Auto-populate targetedMessageInfo entity for prompt preview
+    // when replying to a targeted message in the reactive flow.
+    if (
+      params.type === 'message' &&
+      this.activity.recipient?.isTargeted === true
+    ) {
+      if (params.entities) {
+        params.entities = params.entities.filter((e) => e.type !== 'quotedReply');
+      }
+
+      if (params.text) {
+        params.text = params.text.replace(`<quoted messageId="${this.activity.id}"/>`, '').trim();
+      }
+
+      if (!params.entities?.some((e) => e.type === 'targetedMessageInfo')) {
+        if (!params.entities) {
+          params.entities = [];
+        }
+
+        params.entities.push({
+          type: 'targetedMessageInfo',
+          messageId: this.activity.id,
+        });
       }
     }
 
