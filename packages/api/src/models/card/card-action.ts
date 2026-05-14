@@ -10,6 +10,11 @@ export type CardActionType =
   | 'call'
   | 'invoke'
   /**
+   * Controls the cache policy for a link-unfurling response. Set the action value to
+   * `{"type":"no-cache"}` to prevent Teams from caching the response.
+   */
+  | 'setCachePolicy'
+  /**
    * Suggested action of type Action.Submit. The action's value is delivered to the bot
    * as a `suggestedActions/submit` invoke without sending a chat-visible message.
    *
@@ -21,7 +26,7 @@ export type CardAction = {
   /**
    * The type of action implemented by this button. Possible values include: 'openUrl', 'imBack',
    * 'postBack', 'playAudio', 'playVideo', 'showImage', 'downloadFile', 'signin', 'call',
-   * messageBack', 'openApp', 'invoke'
+   * 'invoke', 'setCachePolicy', 'Action.Submit'
    */
   type: CardActionType;
 
