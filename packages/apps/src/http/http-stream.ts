@@ -110,7 +110,7 @@ export class HttpStream implements IStreamer {
    * Waits for all queued activities to flush.
    */
   async close() {
-    const hasBufferedContent = this.text !== '' || !!this.attachments.length || !!this.entities.length;
+    const hasBufferedContent = this.text !== '' || this.attachments.length > 0 || this.entities.length > 0;
     if (
       !this.index
       && !this.queue.length
