@@ -177,10 +177,11 @@ describe('Activity', () => {
   });
 
   describe('addCitation', () => {
-    it('should add', () => {
+    it('should set encodingFormat when text is provided', () => {
       const activity = new Activity({ type: 'test' }).addCitation(0, {
         abstract: 'test',
         name: 'test',
+        text: 'adaptive card content',
       });
 
       expect(activity.type).toEqual('test');
@@ -194,23 +195,32 @@ describe('Activity', () => {
             expect.objectContaining({
               '@type': 'Claim',
               position: 0,
-              appearance: {
+              appearance: expect.objectContaining({
                 '@type': 'DigitalDocument',
                 abstract: 'test',
                 name: 'test',
                 encodingFormat: 'application/vnd.microsoft.card.adaptive',
-              },
+              }),
             }),
           ],
         },
       ]);
     });
 
-    it('should add with icon', () => {
+    it('should omit encodingFormat when text is not provided', () => {
+        const activity = new Activity({ type: 'test' }).addCitation(0, {
+          abstract: 'test',
+          name: 'test',
+        });
+        expect(activity.entities?.at(0)?.citation?.at(0)?.appearance.encodingFormat).toBeUndefined();
+    });
+
+    it('should include image when icon is provided', () => {
       const activity = new Activity({ type: 'test' }).addCitation(0, {
         abstract: 'test',
         name: 'test',
         icon: 'GIF',
+        text: 'adaptive card content',
       });
 
       expect(activity.type).toEqual('test');
@@ -224,7 +234,7 @@ describe('Activity', () => {
             expect.objectContaining({
               '@type': 'Claim',
               position: 0,
-              appearance: {
+              appearance: expect.objectContaining({
                 '@type': 'DigitalDocument',
                 abstract: 'test',
                 name: 'test',
@@ -233,7 +243,7 @@ describe('Activity', () => {
                   '@type': 'ImageObject',
                   name: 'GIF',
                 },
-              },
+              }),
             }),
           ],
         },
