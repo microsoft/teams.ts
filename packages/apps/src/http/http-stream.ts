@@ -148,11 +148,6 @@ export class HttpStream implements IStreamer {
       return;
     }
 
-    if (!this.id && !this.isGroupConversation) {
-      this._logger.warn('no stream id set, cannot close stream');
-      return;
-    }
-
     if (this.text === '' && !this.attachments.length) {
       this._logger.warn('no text or attachments to send, cannot close stream');
       return;
@@ -172,12 +167,13 @@ export class HttpStream implements IStreamer {
       .withChannelData(channelData);
 
     if (!this.isGroupConversation) {
-      if (!this.id) {
+      const streamId = this.id;
+      if (!streamId) {
         this._logger.warn('no stream id set, cannot close stream');
         return;
       }
       activity
-        .withId(this.id)
+        .withId(streamId)
         .addStreamFinal();
     }
 
