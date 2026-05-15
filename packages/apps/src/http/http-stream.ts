@@ -65,6 +65,10 @@ export class HttpStream implements IStreamer {
     this._logger = logger?.child('stream') || new ConsoleLogger('@teams/http-stream');
   }
 
+  protected get isGroupConversation(): boolean {
+    return this.ref.conversation.isGroup === true;
+  }
+
   /**
    * Emit a new activity or text to the stream.
    * @param activity Activity object or string message.
@@ -106,7 +110,13 @@ export class HttpStream implements IStreamer {
    * Waits for all queued activities to flush.
    */
   async close() {
-    if (!this.index && !this.queue.length && !this._flushing) {
+    const hasBufferedContent = this.text !== '' || !!this.attachments.length || !!this.entities.length;
+    if (
+      !this.index
+      && !this.queue.length
+      && !this._flushing
+      && (!hasBufferedContent || !this.isGroupConversation)
+    ) {
       this._logger.debug('closed with no content');
       return;
     }
@@ -124,7 +134,7 @@ export class HttpStream implements IStreamer {
     // Wait until all queued activities are flushed
     const start = Date.now();
 
-    while ((this.queue.length || !this.id || this._flushing) && !this._canceled) {
+    while ((this.queue.length || (!this.id && !this.isGroupConversation) || this._flushing) && !this._canceled) {
       if (Date.now() - start > this._totalTimeout) {
         this._logger.warn('Timeout while waiting for id and queue to flush');
         return;
@@ -138,7 +148,7 @@ export class HttpStream implements IStreamer {
       return;
     }
 
-    if (!this.id) {
+    if (!this.id && !this.isGroupConversation) {
       this._logger.warn('no stream id set, cannot close stream');
       return;
     }
@@ -148,13 +158,24 @@ export class HttpStream implements IStreamer {
       return;
     }
 
+    const channelData = this.isGroupConversation
+      ? { ...this.channelData }
+      : this.channelData;
+    if (this.isGroupConversation && 'streamType' in channelData) {
+      delete channelData.streamType;
+    }
+
     // Build final message activity
     const activity = new MessageActivity(this.text)
-      .withId(this.id)
       .addAttachments(...this.attachments)
       .addEntities(...this.entities)
-      .withChannelData(this.channelData)
-      .addStreamFinal();
+      .withChannelData(channelData);
+
+    if (!this.isGroupConversation) {
+      activity
+        .withId(this.id!)
+        .addStreamFinal();
+    }
 
     const res = await promises.retry(() => this.send(activity), {
       logger: this._logger
@@ -227,12 +248,14 @@ export class HttpStream implements IStreamer {
       if (startLength === 0) return;
 
       // Send informative updates immediately
-      for (const informativeUpdate of informativeUpdates) {
-        const activity = new TypingActivity().withText(informativeUpdate.text || '').withChannelData({ streamType: 'informative' });
-        await this.pushStreamChunk(activity);
+      if (!this.isGroupConversation) {
+        for (const informativeUpdate of informativeUpdates) {
+          const activity = new TypingActivity().withText(informativeUpdate.text || '').withChannelData({ streamType: 'informative' });
+          await this.pushStreamChunk(activity);
+        }
       }
 
-      if (this.text) {
+      if (this.text && !this.isGroupConversation) {
         const activity = new TypingActivity().withText(this.text);
         await this.pushStreamChunk(activity);
       }

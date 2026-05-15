@@ -264,6 +264,35 @@ describe('HttpStream', () => {
     );
   });
 
+  test('group-scope stream buffers and sends a single normal message on close', async () => {
+    const groupRef = {
+      ...ref,
+      conversation: { ...ref.conversation, isGroup: true },
+    };
+    const stream = new HttpStream(client, groupRef, logger);
+    mockCreate();
+
+    stream.update('Thinking...');
+    stream.emit('first message');
+    stream.emit('last message');
+    await jest.runAllTimersAsync();
+
+    expect(client.conversations.activities().create).toHaveBeenCalledTimes(0);
+
+    await stream.close();
+
+    expect(client.conversations.activities().create).toHaveBeenCalledTimes(1);
+    expect(client.conversations.activities().create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'message',
+        text: 'first messagelast message',
+      })
+    );
+
+    const sent = client.conversations.activities().create.mock.calls[0][0];
+    expect(sent.channelData?.streamType).toBeUndefined();
+  });
+
   test('close waits for flush to complete before sending final message', async () => {
     mockCreate();
 
