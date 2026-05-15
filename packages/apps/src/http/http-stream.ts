@@ -172,8 +172,12 @@ export class HttpStream implements IStreamer {
       .withChannelData(channelData);
 
     if (!this.isGroupConversation) {
+      if (!this.id) {
+        this._logger.warn('no stream id set, cannot close stream');
+        return;
+      }
       activity
-        .withId(this.id!)
+        .withId(this.id)
         .addStreamFinal();
     }
 
