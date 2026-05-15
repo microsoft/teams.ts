@@ -20,12 +20,20 @@ A demo of dialogs (task modules) in Teams.
 npm install
 ```
 
-To run on teams, run:
+## Teams CLI
+
+Use the official Teams CLI (`@microsoft/teams.cli`) to create and manage the Teams app for this sample:
 
 ```bash
-npx @microsoft/teams.cli config add atk.basic
+npm install -g @microsoft/teams.cli
+teams --version
+teams login
 ```
 
-This will add all the atk related configs.
+Expose this sample's local `/api/messages` endpoint with a tunnel, then create the Teams app:
 
-Then run the sample via atk.
+```bash
+teams app create --name "dialogs" --endpoint "https://<your-tunnel>/api/messages" --env .env --json
+```
+
+The CLI writes `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID` to your `.env` file and prints an install link for Teams.

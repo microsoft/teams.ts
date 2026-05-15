@@ -1,12 +1,22 @@
 # Auth test
 
-Run this first to get all the config files:
+## Teams CLI
 
-```
-teams config add atk.oauth
+Use the official Teams CLI (`@microsoft/teams.cli`) to create and manage the Teams app for this sample:
+
+```bash
+npm install -g @microsoft/teams.cli
+teams --version
+teams login
 ```
 
-Then run via ATK.
+Expose this sample's local `/api/messages` endpoint with a tunnel, then create the Teams app:
+
+```bash
+teams app create --name "graph" --endpoint "https://<your-tunnel>/api/messages" --env .env --json
+```
+
+The CLI writes `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID` to your `.env` file and prints an install link for Teams.
 
 ## Teams Toolkit Configuration: Oauth
 
