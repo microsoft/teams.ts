@@ -2,6 +2,7 @@ import { ActivityParams, ConversationReference } from '@microsoft/teams.api';
 import  {Client as HttpClient } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
+import { ApiClient } from './api';
 
 describe('ActivitySender', () => {
   let sender: ActivitySender;
@@ -22,7 +23,10 @@ describe('ActivitySender', () => {
       conversation: { id: 'conv-123', conversationType: 'personal' },
     };
 
-    sender = new ActivitySender(mockHttpClient, undefined as any);
+    sender = new ActivitySender(
+      (serviceUrl) => new ApiClient(serviceUrl, mockHttpClient),
+      undefined as any
+    );
   });
 
   describe('send', () => {

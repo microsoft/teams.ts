@@ -68,14 +68,13 @@ describe('App', () => {
     });
 
     it('should acquire bot token via TokenManager', async () => {
-      const mockAcquireToken = jest.fn().mockResolvedValue({
-        accessToken: mockBotToken,
+      await app.stop();
+      app = new TestApp({
+        httpServerAdapter: new TestAdapter(),
+        clientId: 'test-client-id',
+        tenantId: 'test-tenant-id',
+        token: jest.fn().mockResolvedValue(mockBotToken),
       });
-
-      // @ts-expect-error - accessing private method for testing
-      jest.spyOn(app.tokenManager, 'getConfidentialClient').mockReturnValue({
-        acquireTokenByClientCredential: mockAcquireToken,
-      } as any);
 
       const token = await app.testGetBotToken();
 
@@ -84,14 +83,13 @@ describe('App', () => {
     });
 
     it('should acquire graph token via TokenManager', async () => {
-      const mockAcquireToken = jest.fn().mockResolvedValue({
-        accessToken: mockGraphToken,
+      await app.stop();
+      app = new TestApp({
+        httpServerAdapter: new TestAdapter(),
+        clientId: 'test-client-id',
+        tenantId: 'test-tenant-id',
+        token: jest.fn().mockResolvedValue(mockGraphToken),
       });
-
-      // @ts-expect-error - accessing private method for testing
-      jest.spyOn(app.tokenManager, 'getConfidentialClient').mockReturnValue({
-        acquireTokenByClientCredential: mockAcquireToken,
-      } as any);
 
       const token = await app.testGetAppGraphToken();
 
@@ -112,16 +110,18 @@ describe('App', () => {
     });
 
     it('should not prefetch tokens on start', async () => {
-      const mockAcquireToken = jest.fn();
-
-      // @ts-expect-error - accessing private method for testing
-      jest.spyOn(app.tokenManager, 'getConfidentialClient').mockReturnValue({
-        acquireTokenByClientCredential: mockAcquireToken,
-      } as any);
+      await app.stop();
+      const token = jest.fn().mockResolvedValue(mockBotToken);
+      app = new TestApp({
+        httpServerAdapter: new TestAdapter(),
+        clientId: 'test-client-id',
+        tenantId: 'test-tenant-id',
+        token,
+      });
 
       await app.start();
 
-      expect(mockAcquireToken).not.toHaveBeenCalled();
+      expect(token).not.toHaveBeenCalled();
     });
   });
 

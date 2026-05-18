@@ -36,9 +36,7 @@ export async function onTokenExchange<TPlugin extends IPlugin>(
     });
 
     ctx.userGraph = new GraphClient(
-      this.client.clone({
-        token: token.token,
-      }),
+      this.client.clone({ token: token.token }),
       { baseUrlRoot: this.graphBaseUrl }
     );
 
@@ -86,9 +84,7 @@ export async function onVerifyState<TPlugin extends IPlugin>(
     });
 
     ctx.userGraph = new GraphClient(
-      this.client.clone({
-        token: token.token,
-      }),
+      this.client.clone({ token: token.token }),
       { baseUrlRoot: this.graphBaseUrl }
     );
 

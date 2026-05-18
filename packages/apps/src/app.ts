@@ -6,9 +6,7 @@ import {
   ChannelID,
   CloudEnvironment,
   ConversationReference,
-  cloudFromName,
   InvokeResponse,
-  PUBLIC,
   StripMentionsTextOptions,
   toActivityParams,
   TokenCredentials,
@@ -22,8 +20,6 @@ import {
   IStorage,
   LocalStorage
 } from '@microsoft/teams.common';
-
-import pkg from '../package.json';
 
 import { ActivitySender } from './activity-sender';
 import { ApiClient, GraphClient } from './api';
@@ -44,15 +40,16 @@ import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
 import { $process } from './app.process';
 import { message, on, use } from './app.routing';
 import { Container } from './container';
+import { Core } from './core';
 import { IActivityEvent } from './events';
-import { ExpressAdapter, IHttpServerAdapter } from './http';
+import { IHttpServerAdapter } from './http';
 import { HttpServer } from './http/http-server';
 import * as manifest from './manifest';
 import * as middleware from './middleware';
 import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
-import { TokenManager } from './token-manager';
+import { Authorize, TokenManager } from './token-manager';
 import { IPlugin, AppEvents } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { toThreadedConversationId } from './utils/thread';
@@ -94,6 +91,14 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * token - An override to perform token fetching.
    */
   readonly token?: TokenCredentials['token'];
+
+  /**
+   * authorize - A partial override for outbound bot/app token resolution.
+   * The request is a discriminated union by auth kind. Return a token string
+   * to handle the request, null to handle with no token, or undefined to use
+   * the default TokenManager behavior.
+   */
+  readonly authorize?: Authorize;
 
   /**
    * managed identity client id - A managed identity client id.
@@ -191,16 +196,35 @@ export type AppActivityOptions = {
  * The orchestrator for receiving/sending activities
  */
 export class App<TPlugin extends IPlugin = IPlugin> {
-  readonly api: ApiClient;
-  readonly cloud: CloudEnvironment;
-  readonly graph: GraphClient;
+  private readonly core: Core;
   readonly log: ILogger;
-  readonly server: HttpServer;
   readonly http?: HttpPlugin;
-  readonly client: HttpClient;
   readonly storage: IStorage;
   readonly entraTokenValidator?: middleware.JwtValidator;
-  readonly tokenManager: TokenManager;
+
+  get api(): ApiClient {
+    return this.core.api;
+  }
+
+  get graph(): GraphClient {
+    return this.core.graph;
+  }
+
+  get cloud(): CloudEnvironment {
+    return this.core.cloud;
+  }
+
+  get server(): HttpServer {
+    return this.core.server;
+  }
+
+  get client(): HttpClient {
+    return this.core.client;
+  }
+
+  get tokenManager(): TokenManager {
+    return this.core.tokenManager;
+  }
 
   /**
    * Graph API base URL derived from the configured cloud's `graphScope`.
@@ -208,13 +232,15 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * Shared across every `GraphClient` the app constructs (`app.graph`, `ctx.appGraph`, `ctx.userGraph`)
    * so sovereign customers get consistent routing.
    */
-  readonly graphBaseUrl?: string;
+  get graphBaseUrl(): string | undefined {
+    return this.core.graphBaseUrl;
+  }
 
   /**
    * the apps credentials
    */
   get credentials() {
-    return this.tokenManager.credentials;
+    return this.core.credentials;
   }
 
   /**
@@ -275,100 +301,17 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected port?: number | string;
   protected activitySender: ActivitySender;
 
-  private readonly _userAgent = `teams.ts[apps]/${pkg.version}`;
-
   constructor(readonly options: AppOptions<TPlugin> = {}) {
     this.log = this.options.logger || new ConsoleLogger('@teams/app');
     this.storage = this.options.storage || new LocalStorage();
     this._manifest = this.options.manifest || {};
 
-    // Resolve cloud environment from options or CLOUD env var
-    const cloudEnvName = typeof process !== 'undefined' ? process.env.CLOUD : undefined;
-    this.cloud = this.options.cloud ?? (cloudEnvName ? cloudFromName(cloudEnvName) : PUBLIC);
-
-    if (!options.client) {
-      this.client = new HttpClient({
-        headers: {
-          'User-Agent': this._userAgent,
-        },
-      });
-    } else if (typeof options.client === 'function') {
-      this.client = options.client().clone({
-        headers: {
-          'User-Agent': this._userAgent,
-        },
-      });
-    } else if ('request' in options.client) {
-      this.client = options.client.clone({
-        headers: {
-          'User-Agent': this._userAgent,
-        },
-      });
-    } else {
-      this.client = new HttpClient(options.client).clone({
-        headers: {
-          'User-Agent': this._userAgent,
-        },
-      });
-    }
-
-    const serviceUrl = (this.options.serviceUrl ?? process.env.SERVICE_URL ??
-      'https://smba.trafficmanager.net/teams').replace(/\/+$/, '');
-    this.api = new ApiClient(
-      serviceUrl,
-      this.client.clone({ token: () => this.getBotToken() }),
-      this.options.apiClientSettings,
-      this.cloud
-    );
-
-    // Derive Graph API base URL from the cloud's graphScope (e.g. "https://graph.microsoft.us/.default"
-    // -> "https://graph.microsoft.us"). Falls back to the public Graph endpoint inside GraphClient if
-    // the scope isn't a URL (custom delegated scope, empty, etc.).
-    const graphUrlMatch = /^(https?:\/\/[^/]+)/i.exec((this.cloud.graphScope ?? '').trim());
-    this.graphBaseUrl = graphUrlMatch?.[1];
-    if (!this.graphBaseUrl && this.cloud.graphScope) {
-      this.log.warn(
-        `graphScope "${this.cloud.graphScope}" is not a URL; Graph calls will route to the public cloud. ` +
-        'Set graphScope to an "https://<host>/.default" value to route to the correct Graph endpoint.'
-      );
-    }
-    this.graph = new GraphClient(
-      this.client.clone({ token: () => this.getAppGraphToken() }),
-      { baseUrlRoot: this.graphBaseUrl }
-    );
-
-    // initialize TokenManager with credentials
-    this.tokenManager = new TokenManager({
-      clientId: this.options.clientId,
-      clientSecret: this.options.clientSecret,
-      tenantId: this.options.tenantId,
-      token: this.options.token,
-      managedIdentityClientId: this.options.managedIdentityClientId,
-      cloud: this.cloud,
-    }, this.log);
-
-    // initialize ActivitySender for sending activities
-    this.activitySender = new ActivitySender(
-      this.client.clone({ token: () => this.getBotToken() }),
-      this.log
-    );
-
-    if (this.credentials?.clientId) {
-      this.entraTokenValidator = middleware.createEntraTokenValidator(
-        this.credentials.tenantId || 'common',
-        this.credentials.clientId,
-        { applicationIdUri: this.options.applicationIdUri, loginEndpoint: this.cloud.loginEndpoint, logger: this.log }
-      );
-    }
-
-    // Determine HTTP server
     const plugins: Array<TPlugin> = this.options.plugins || [];
     const httpPlugin = plugins.find((p) => {
       const meta = getMetadata(p);
       return meta.name === 'http';
     }) as HttpPlugin | undefined;
 
-    // Error if both httpServerAdapter and http plugin are provided
     if (this.options.httpServerAdapter && httpPlugin) {
       throw new Error(
         'Cannot provide both httpServerAdapter option and HttpPlugin in plugins array. ' +
@@ -378,34 +321,46 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       );
     }
 
-    let server: HttpServer;
+    let httpServer: HttpServer | undefined;
 
-    // HttpPlugin in plugins array (backwards compatibility)
     if (httpPlugin) {
       this.log.warn('[DEPRECATED] HttpPlugin in plugins array will be deprecated. Use httpServerAdapter option instead:\n' +
         '  new App({ httpServerAdapter: new ExpressAdapter() })');
       this.http = httpPlugin;
-      // Extract internal server and always set this.server
-      server = (httpPlugin as any).asServer?.();
-      if (!server) {
+      httpServer = (httpPlugin as any).asServer?.();
+      if (!httpServer) {
         throw new Error('HttpPlugin.asServer() returned undefined');
       }
-    } else {
-      server = new HttpServer(this.options.httpServerAdapter ?? new ExpressAdapter(undefined, {
-        logger: this.log,
-        onError: (err) => this.onError({ error: err })
-      }), {
-        skipAuth: this.options.skipAuth,
-        logger: this.log,
-        messagingEndpoint: this.options.messagingEndpoint ?? '/api/messages',
-      });
     }
 
-    // Always set this.server
-    this.server = server;
+    this.core = new Core({
+      clientId: this.options.clientId,
+      clientSecret: this.options.clientSecret,
+      applicationIdUri: this.options.applicationIdUri,
+      tenantId: this.options.tenantId,
+      token: this.options.token,
+      authorize: this.options.authorize,
+      managedIdentityClientId: this.options.managedIdentityClientId,
+      client: this.options.client,
+      logger: this.log,
+      httpServerAdapter: this.options.httpServerAdapter,
+      httpServer,
+      skipAuth: this.options.skipAuth,
+      messagingEndpoint: this.options.messagingEndpoint,
+      serviceUrl: this.options.serviceUrl,
+      apiClientSettings: this.options.apiClientSettings,
+      cloud: this.options.cloud,
+      onError: (err) => this.onError({ error: err }),
+    });
 
-    // Set callback for handling activities
-    server.onRequest = (event) => this.onActivity(event);
+    this.entraTokenValidator = this.core.createEntraTokenValidator();
+    this.core.setActivityHandler((event) => this.onActivity(event));
+
+    // initialize ActivitySender for sending activities
+    this.activitySender = new ActivitySender(
+      (serviceUrl) => this.core.getApiClient(serviceUrl),
+      this.log
+    );
 
     // add injectable items to container
     this.container.register('id', { useValue: this.id });
@@ -415,12 +370,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     this.container.register('botToken', { useValue: () => this.getBotToken() });
     this.container.register('ILogger', { useValue: this.log });
     this.container.register('IStorage', { useValue: this.storage });
-    this.container.register(this.client.constructor.name, {
-      useFactory: () => this.client,
-    });
-
-    // Register HTTP server for plugins that need HTTP capabilities
-    this.container.register('IHttpServer', { useValue: server });
+    this.container.register('IHttpServerAdapter', { useValue: this.core.server.adapter });
+    this.container.register('IHttpServer', { useValue: this.core.server });
 
     // Register all plugins (including HttpPlugin if using old way)
     for (const plugin of plugins) {
@@ -485,11 +436,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       }
     }
 
-    // initialize server
-    await this.server.initialize({
-      credentials: this.credentials,
-      cloud: this.cloud,
-    });
+    // initialize Core
+    await this.core.initialize();
 
     this.isInitialized = true;
   }
@@ -512,8 +460,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       }
       this.events.emit('start', this.log);
 
-      // Start HTTP server
-      await this.server.start(this.port);
+      // Start Core
+      await this.core.start(this.port);
     } catch (error: any) {
       await this.stop();
       this.onError({ error });
@@ -532,8 +480,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         }
       }
 
-      // Stop HTTP server
-      await this.server.stop();
+      // Stop Core
+      await this.core.stop();
     } catch (error: any) {
       this.onError({ error });
     }
@@ -702,25 +650,17 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   ///
 
   protected async getBotToken() {
-    if (!this.tokenManager) return;
-    return await this.tokenManager.getBotToken();
+    return (await this.core.getBotToken()) ?? null;
   }
 
   protected async getUserToken(
     channelId: ChannelID,
     userId: string
   ) {
-    const res = await this.api.users.token.get({
-      channelId,
-      userId,
-      connectionName: this.oauth.defaultConnectionName,
-    });
-
-    return res.token;
+    return await this.core.getUserToken(channelId, userId, this.oauth.defaultConnectionName);
   }
 
   protected async getAppGraphToken(tenantId?: string) {
-    if (!this.tokenManager) return;
-    return await this.tokenManager.getGraphToken(tenantId);
+    return (await this.core.getAppGraphToken(tenantId)) ?? null;
   }
 }

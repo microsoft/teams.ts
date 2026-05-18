@@ -37,6 +37,31 @@ function isFederatedIdentityCredentials(credentials: Credentials): credentials i
 }
 
 
+export type BotAuthorizationRequest = {
+  readonly kind: 'bot';
+  readonly scope: string;
+  /**
+   * Resolved tenant ID to use for token acquisition.
+   */
+  readonly tenantId: string;
+};
+
+export type AppGraphAuthorizationRequest = {
+  readonly kind: 'appGraph';
+  readonly scope: string;
+  /**
+   * Resolved tenant ID to use for token acquisition.
+   */
+  readonly tenantId: string;
+};
+
+export type AuthorizationKind = AuthorizationRequest['kind'];
+export type AuthorizationRequest = BotAuthorizationRequest | AppGraphAuthorizationRequest;
+
+export type Authorize = (
+  request: AuthorizationRequest
+) => string | null | undefined | Promise<string | null | undefined>;
+
 export type TokenManagerOptions = {
   readonly clientId?: string;
   readonly clientSecret?: string;
@@ -71,6 +96,11 @@ export class TokenManager {
 
   async getGraphToken(tenantId?: string): Promise<IToken | null> {
     return await this.getToken(this.cloud.graphScope, this.resolveTenantId(tenantId, DEFAULT_TENANT_FOR_GRAPH_TOKEN));
+  }
+
+  async authorize(request: AuthorizationRequest): Promise<string | null> {
+    const token = await this.getToken(request.scope, request.tenantId);
+    return token?.toString() ?? null;
   }
 
   private initializeCredentials(options: TokenManagerOptions): Credentials | undefined {

@@ -1,6 +1,7 @@
-import { ActivityParams, Client, ConversationReference, SentActivity } from '@microsoft/teams.api';
-import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
+import { ActivityParams, ConversationReference, SentActivity } from '@microsoft/teams.api';
+import { ILogger } from '@microsoft/teams.common';
 
+import { ApiClient } from './api';
 import { HttpStream } from './http/http-stream';
 import { IStreamer, IActivitySender } from './types';
 
@@ -10,13 +11,14 @@ import { IStreamer, IActivitySender } from './types';
  */
 export class ActivitySender implements IActivitySender {
   constructor(
-    private client: HttpClient,
+    // ApiClient is serviceUrl-bound, so send/stream need a per-conversation client.
+    private getApiClient: (serviceUrl: string) => ApiClient,
     private logger: ILogger
   ) { }
 
   async send(activity: ActivityParams, ref: ConversationReference): Promise<SentActivity> {
     // Create API client for this conversation's service URL
-    const api = new Client(ref.serviceUrl, this.client);
+    const api = this.getApiClient(ref.serviceUrl);
 
     // Merge activity with conversation reference
     activity = {
@@ -48,7 +50,7 @@ export class ActivitySender implements IActivitySender {
 
   createStream(ref: ConversationReference): IStreamer {
     // Create API client for this conversation's service URL
-    const api = new Client(ref.serviceUrl, this.client);
+    const api = this.getApiClient(ref.serviceUrl);
     return new HttpStream(api, ref, this.logger);
   }
 }
