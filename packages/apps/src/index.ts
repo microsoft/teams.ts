@@ -9,5 +9,8 @@ export * as manifest from './manifest';
 // HTTP infrastructure - public API
 export * from './http';
 
+// Socket Mode (APX → bot delivery over Azure SignalR)
+export * from './socket-mode';
+
 // Threading utilities
 export { toThreadedConversationId } from './utils/thread';
