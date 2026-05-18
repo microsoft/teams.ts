@@ -292,4 +292,74 @@ describe('HttpStream', () => {
     const createCalls = client.conversations.activities().create.mock.calls.length;
     expect(createCalls).toBe(1);
   });
+
+  test('clearText clears accumulated text and pending text deltas', async () => {
+    mockCreate();
+    const stream = new HttpStream(client, ref, logger);
+
+    // First emit's flush synchronously drains the queue (text='hello') before
+    // awaiting send. Subsequent sync emits queue while flush is awaiting.
+    stream.emit('hello');
+    stream.emit(' world');
+    stream.emit('!');
+
+    expect((stream as any).text).toBe('hello');
+    expect((stream as any).queue.length).toBe(2);
+
+    stream.clearText();
+
+    expect((stream as any).text).toBe('');
+    expect((stream as any).queue.length).toBe(0);
+
+    await jest.runAllTimersAsync();
+  });
+
+  test('clearText preserves queued non-message activities', async () => {
+    mockCreate();
+    const stream = new HttpStream(client, ref, logger);
+
+    stream.emit('hello');                // immediate flush starts; text='hello'
+    stream.update('Still thinking...');  // typing activity, queued while flushing
+    stream.emit(' world');               // message activity, queued while flushing
+
+    expect((stream as any).text).toBe('hello');
+    expect((stream as any).queue.length).toBe(2);
+
+    stream.clearText();
+
+    expect((stream as any).text).toBe('');
+    const remaining = (stream as any).queue as Array<{ type: string }>;
+    expect(remaining.length).toBe(1);
+    expect(remaining[0].type).toBe('typing');
+
+    await jest.runAllTimersAsync();
+  });
+
+  test('clearText then emit card sends card-only final activity', async () => {
+    mockCreate();
+    const stream = new HttpStream(client, ref, logger);
+
+    // Stream some text so id gets assigned by the typing chunk.
+    stream.emit('text we want to discard');
+    await jest.advanceTimersByTimeAsync(0);
+
+    stream.clearText();
+
+    const cardAttachment = {
+      contentType: 'application/vnd.microsoft.card.adaptive',
+      content: { type: 'AdaptiveCard' },
+    };
+    stream.emit({ type: 'message', attachments: [cardAttachment] } as any);
+
+    const closePromise = stream.close();
+    await jest.runAllTimersAsync();
+    await closePromise;
+
+    const createCalls = client.conversations.activities().create.mock.calls;
+    const finalCall = createCalls[createCalls.length - 1];
+    expect(finalCall[0].type).toBe('message');
+    expect(finalCall[0].text).toBe('');
+    expect(finalCall[0].attachments).toEqual([cardAttachment]);
+    expect(finalCall[0].channelData?.streamType).toBe('final');
+  });
 });
