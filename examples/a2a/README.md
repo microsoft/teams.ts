@@ -50,6 +50,10 @@ User-A    Alice (LLM)               Bob (A2A executor + LLM)
 3. Bob's `HandoffAgentExecutor` validates the payload, then constructs
    a `Client` from `@microsoft/teams.api` against the user's `serviceUrl`
    and calls `conversations.create({...})` to open a 1:1 with the user.
+   The member id is the user's **`aadObjectId`**, not the Teams MRI
+   (`29:...`) that other samples use — MRIs are bot-specific, so the
+   one Alice sees for the user isn't valid against Bob. `aadObjectId`
+   is the tenant-wide identity both bots share.
 4. Bob's agent runs the LLM with the handoff context as a synthetic
    user turn, producing a greeting that already answers the question.
    The turn is left in the per-conversation history, so when the user
@@ -60,7 +64,7 @@ The bots are symmetric — the same flow runs in reverse from Bob to Alice.
 
 ## Prerequisites
 
-- Node.js 20+
+- Node.js 24+
 - Two separate bot registrations in Azure (one for Alice, one for Bob),
   each installed for the user in the same tenant.
 - An Azure OpenAI resource with a chat deployment (e.g. `gpt-4o`).

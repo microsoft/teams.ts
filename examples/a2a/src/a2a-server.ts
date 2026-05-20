@@ -87,12 +87,7 @@ export class HandoffAgentExecutor implements AgentExecutor {
 
   /**
    * Creates a 1:1 with the user against THEIR serviceUrl (taken from the
-   * inbound activity the peer bot saw), matching the .NET sample.
-   *
-   * In the public cloud, the user's serviceUrl is the same global value as
-   * `app.api.serviceUrl`, so this is equivalent to calling
-   * `app.api.conversations.create(...)` directly. The explicit form is what
-   * makes the sample portable across clouds and tenants.
+   * inbound activity the peer bot saw).
    */
   private async _openDmWithUser(handoff: HandoffMessage): Promise<string> {
     const api = new TeamsApiClient(handoff.serviceUrl, this._app.api.http);

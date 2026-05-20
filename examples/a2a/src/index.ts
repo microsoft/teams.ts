@@ -9,9 +9,7 @@ import {
   jsonRpcHandler,
   UserBuilder,
 } from '@a2a-js/sdk/server/express';
-
 import express from 'express';
-
 import { AzureOpenAI } from 'openai';
 
 import { App, ExpressAdapter } from '@microsoft/teams.apps';
@@ -79,14 +77,26 @@ async function main(): Promise<void> {
   );
 
   app.on('message', async ({ activity, send }) => {
+    const { aadObjectId } = activity.from;
+    const { tenantId } = activity.conversation;
+    const { serviceUrl } = activity;
+
+    if (!aadObjectId || !tenantId || !serviceUrl) {
+      logger.warn(
+        'Skipping turn: activity missing identity required for handoff ' +
+        `(aadObjectId=${!!aadObjectId}, tenantId=${!!tenantId}, serviceUrl=${!!serviceUrl}).`
+      );
+      await send('I can\'t process this message — it\'s missing the identity context this sample needs for cross-bot handoff.');
+      return;
+    }
 
     const reply = await agent.run(
       activity.conversation.id,
       {
-        aadObjectId: activity.from.aadObjectId ?? '',
+        aadObjectId,
         userName: activity.from.name ?? 'User',
-        tenantId: activity.conversation.tenantId ?? '',
-        serviceUrl: activity.serviceUrl ?? '',
+        tenantId,
+        serviceUrl,
       },
       activity.stripMentionsText().text ?? ''
     );
