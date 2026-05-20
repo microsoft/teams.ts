@@ -44,6 +44,9 @@ export type DevtoolsPluginOptions = {
     '\n'
   ),
 })
+/**
+ * @deprecated DevTools is deprecated and will be removed in a later version. Use Microsoft 365 Agents Playground instead.
+ */
 export class DevtoolsPlugin {
   @Logger()
   readonly log!: ILogger;
@@ -106,6 +109,10 @@ export class DevtoolsPlugin {
           )
         )
         .toString()
+    );
+
+    this.log.warn(
+      'DevTools is deprecated and will be removed in a later version. Use Microsoft 365 Agents Playground instead.'
     );
   }
 

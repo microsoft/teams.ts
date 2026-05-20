@@ -1,5 +1,8 @@
 # Teams: Dev
 
+> ⚠️ **Deprecated.** This package is deprecated and will be removed in a later version. Use [Microsoft 365 Agents Playground](https://learn.microsoft.com/en-us/microsoft-365/agents-sdk/test-with-toolkit-project) instead for local testing of your agent.
+
+
 <p>
     <a href="https://www.npmjs.com/package/@microsoft/teams.dev" target="_blank">
         <img src="https://img.shields.io/npm/v/@microsoft/teams.dev/latest" />
