@@ -1,6 +1,6 @@
 {
-  "name": "@examples/a2a",
-  "version": "0.0.1",
+  "name": "@examples/ai-mcp",
+  "version": "0.0.6",
   "private": true,
   "license": "MIT",
   "main": "dist/index",
@@ -16,20 +16,20 @@
     "build": "npx tsc",
     "start": "node -r dotenv/config .",
     "dev": "tsx watch -r dotenv/config src/index.ts",
-    "dev:alice": "env-cmd --silent -f .env.alice tsx watch src/index.ts",
-    "dev:bob": "env-cmd --silent -f .env.bob tsx watch src/index.ts"
+    "dev:teamsfx": "npx env-cmd --silent -f .env npm run dev",
+    "dev:teamsfx:testtool": "npx env-cmd --silent -f .env npm run dev",
+    "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
   },
   "dependencies": {
-    "@a2a-js/sdk": "^0.3.13",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.apps": "*",
+    "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
-    "express": "^5.1.0",
-    "openai": "^6.37.0"
+    "@modelcontextprotocol/sdk": "^1.25.2",
+    "openai": "^4.104.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
-    "@types/express": "^5.0.0",
     "@types/node": "^22.5.4",
     "dotenv": "^16.4.5",
     "env-cmd": "latest",

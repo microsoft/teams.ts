@@ -8,118 +8,77 @@ const app = new App({
   plugins: [new DevtoolsPlugin()],
 });
 
-app.on('message', async ({ send, reply, activity, api }) => {
-  await reply({ type: 'typing' });
-  
+app.on('message', async ({ send, activity, api }) => {
   const text = activity.text?.toLowerCase() || '';
 
-  // ============================================
-  // Test targeted SEND (create)
-  // ============================================
-  if (text.includes('test send')) {
-    const targetedMessage = new MessageActivity(
-      '🔒 [SEND] Targeted message - only YOU can see this!'
-    ).withRecipient(activity.from, true);
-
-    const result = await send(targetedMessage);
-    console.log('Targeted SEND result:', result);
-    return;
-  }
-
-  // ============================================
-  // Test targeted REPLY
-  // ============================================
-  if (text.includes('test reply')) {
-    const targetedReply = new MessageActivity(
-      '🔒 [REPLY] Targeted reply - only YOU can see this!'
-    ).withRecipient(activity.from, true);
-
-    const result = await reply(targetedReply);
-    console.log('Targeted REPLY result:', result);
-    return;
-  }
-
-  // ============================================
-  // Test targeted UPDATE
-  // ============================================
   if (text.includes('test update')) {
-    // First send a targeted message
-    const targetedMessage = new MessageActivity(
-      '🔒 [UPDATE] Original targeted message...'
-    ).withRecipient(activity.from, true);
+    const conversationId = activity.conversation?.id ?? '';
+    const result = await send(
+      new MessageActivity('📝 This message will be **updated** in 3 seconds...')
+        .withRecipient(activity.from, true)
+    );
 
-    const result = await send(targetedMessage);
-    console.log('Initial targeted message ID:', result.id);
-
-    // Wait then update
     setTimeout(async () => {
       try {
         const updatedMessage = new MessageActivity(
-          '🔒 [UPDATE] ✅ UPDATED targeted message! (only you see this)'
+          `✏️ **Updated!** This message was modified at ${new Date().toISOString().slice(11, 19)}`
         );
-
         await api.conversations
-          .activities(activity.conversation.id)
+          .activities(conversationId)
           .updateTargeted(result.id, updatedMessage);
-        console.log('Targeted UPDATE completed');
       } catch (err: any) {
-        console.error('Targeted UPDATE error:', err?.response?.data || err?.message || err);
+        console.error('[UPDATE] Error:', err?.message || err);
       }
     }, 3000);
-    return;
-  }
+  } else if (text.includes('test delete')) {
+    const conversationId = activity.conversation?.id ?? '';
+    const result = await send(
+      new MessageActivity('🗑️ This message will be **deleted** in 3 seconds...')
+        .withRecipient(activity.from, true)
+    );
 
-  // ============================================
-  // Test targeted DELETE
-  // ============================================
-  if (text.includes('test delete')) {
-    // First send a targeted message
-    const targetedMessage = new MessageActivity(
-      '🔒 [DELETE] This targeted message will be DELETED in 5 seconds...'
-    ).withRecipient(activity.from, true);
-
-    const result = await send(targetedMessage);
-    console.log('Targeted message to delete, ID:', result.id);
-
-    // Wait then delete using the targeted API
     setTimeout(async () => {
       try {
         await api.conversations
-          .activities(activity.conversation.id)
+          .activities(conversationId)
           .deleteTargeted(result.id);
-        console.log('Targeted DELETE completed');
       } catch (err: any) {
-        console.error('Targeted DELETE error:', err?.response?.data || err?.message || err);
+        console.error('[DELETE] Error:', err?.message || err);
       }
-    }, 5000);
-    return;
-  }
-
-  // ============================================
-  // Help / Default
-  // ============================================
-  if (text.includes('help')) {
-    await reply(
-      '**Targeted Messages Test Bot**\n\n' +
-      '**Commands:**\n' +
-      '- `test send` - Send a targeted message\n' +
-      '- `test reply` - Reply with a targeted message\n' +
-      '- `test update` - Send then update a targeted message\n' +
-      '- `test delete` - Send then delete a targeted message\n\n' +
-      '💡 *Test in a group chat to verify others don\'t see targeted messages!*'
+    }, 3000);
+  } else if (text.includes('test public')) {
+    await send(
+      new MessageActivity('📋 Here is the public result — everyone can see this!')
     );
-    return;
+  } else if (text.includes('test send')) {
+    await send(
+      new MessageActivity('👋 This is a **targeted message** — only YOU can see this!')
+        .withRecipient(activity.from, true)
+    );
+  } else if (text.includes('test inbound')) {
+    // Detect whether the inbound message was itself targeted at the bot
+    // (i.e. delivered as a slash command). Slash commands arrive as message
+    // activities with `activity.recipient.isTargeted === true`.
+    const wasTargeted = activity.recipient?.isTargeted === true;
+    await send(
+      wasTargeted
+        ? '✅ Your message was delivered to me as a targeted message.'
+        : 'ℹ️ Your message was delivered to me as a regular (broadcast) message.'
+    );
+  } else if (text.includes('help')) {
+    await send(
+      '**🎯 Targeted Messages Demo**\n\n' +
+      '**Commands:**\n' +
+      '- `test send` - Send a targeted message (only visible to you)\n' +
+      '- `test update` - Send a targeted message, then update it after 3 seconds\n' +
+      '- `test delete` - Send a targeted message, then delete it after 3 seconds\n' +
+      '- `test public` - Send a public reply (visible to all)\n' +
+      '- `test inbound` - Show whether the inbound message was targeted at the bot\n\n' +
+      '_Targeted messages are only visible to you, even in group chats!_'
+    );
+  } else {
+    await send(`You said: '${activity.text}'\n\nType \`help\` to see available commands.`);
   }
-
-  // Default
-  await reply('Say "help" for available commands.');
-});
-
-app.on('install.add', async ({ send }) => {
-  await send(
-    '👋 Hi! I demonstrate targeted messages.\n\n' +
-    'Say **help** to see available commands.'
-  );
 });
 
 app.start().catch(console.error);

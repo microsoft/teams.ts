@@ -305,10 +305,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         },
       });
     } else {
-      this.client = new HttpClient({
-        ...options.client,
+      this.client = new HttpClient(options.client).clone({
         headers: {
-          ...options.client.headers,
           'User-Agent': this._userAgent,
         },
       });

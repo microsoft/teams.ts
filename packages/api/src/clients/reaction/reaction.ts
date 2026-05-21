@@ -9,9 +9,6 @@ import { ApiClientSettings, mergeApiClientSettings } from '../api-client-setting
 
 /**
  * Client for adding and removing emoji reactions on messages in a conversation.
- *
- * @experimental This API is in preview and may change in the future.
- * Diagnostic: ExperimentalTeamsReactions
  */
 export class ReactionClient {
   readonly serviceUrl: string;
@@ -41,9 +38,6 @@ export class ReactionClient {
 
   /**
    * Add a reaction to a message.
-   *
-   * @experimental This API is in preview and may change in the future.
-   * Diagnostic: ExperimentalTeamsReactions
    */
   async add(conversationId: string, activityId: string, reactionType: MessageReactionType) {
     const res = await this.http.put<void>(
@@ -54,9 +48,6 @@ export class ReactionClient {
 
   /**
    * Delete a reaction from a message.
-   *
-   * @experimental This API is in preview and may change in the future.
-   * Diagnostic: ExperimentalTeamsReactions
    */
   async delete(conversationId: string, activityId: string, reactionType: MessageReactionType) {
     const res = await this.http.delete<void>(

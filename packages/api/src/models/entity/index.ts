@@ -7,6 +7,7 @@ import { ProductInfoEntity } from './product-info-entity';
 import { QuotedReplyEntity } from './quoted-reply-entity';
 import { SensitiveUsageEntity } from './sensitive-usage-entity';
 import { StreamInfoEntity } from './stream-info-entity';
+import { TargetedMessageInfoEntity } from './targeted-message-info-entity';
 
 export type Entity =
   | ClientInfoEntity
@@ -17,7 +18,8 @@ export type Entity =
   | CitationEntity
   | SensitiveUsageEntity
   | ProductInfoEntity
-  | QuotedReplyEntity;
+  | QuotedReplyEntity
+  | TargetedMessageInfoEntity;
 
 export * from './client-info-entity';
 export * from './mention-entity';
@@ -28,3 +30,4 @@ export * from './citation-entity';
 export * from './sensitive-usage-entity';
 export * from './product-info-entity';
 export * from './quoted-reply-entity';
+export * from './targeted-message-info-entity';
