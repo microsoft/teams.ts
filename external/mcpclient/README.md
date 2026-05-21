@@ -1,4 +1,4 @@
-# Teams: mcpclientpluginplugin
+# Teams: MCP Client
 
 > ⚠️ **DEPRECATED** — `@microsoft/teams.mcpclient` is no longer recommended. Use [`@modelcontextprotocol/sdk`](https://www.npmjs.com/package/@modelcontextprotocol/sdk) directly with a dedicated AI framework like the [`openai`](https://www.npmjs.com/package/openai) SDK. See [`examples/ai-mcp`](../../examples/ai-mcp) for the new pattern.
 
