@@ -139,6 +139,50 @@ describe('Activity', () => {
     });
   });
 
+  describe('addEntity/addEntities', () => {
+    it('should merge multiple root message entities into one', () => {
+      const activity = new Activity({ type: 'test' })
+        .addEntity({
+          type: 'https://schema.org/Message',
+          '@type': 'Message',
+          '@context': 'https://schema.org',
+          '@id': '',
+          additionalType: ['AIGeneratedContent'],
+        })
+        .addEntities(
+          {
+            type: 'mention',
+            text: '<at>test-bot</at>',
+            mentioned: bot,
+          },
+          {
+            type: 'https://schema.org/Message',
+            '@type': 'Message',
+            '@context': 'https://schema.org',
+            '@id': '',
+            citation: [
+              {
+                '@type': 'Claim',
+                position: 0,
+                appearance: {
+                  '@type': 'DigitalDocument',
+                  name: 'doc',
+                  abstract: 'doc abstract',
+                },
+              },
+            ],
+          }
+        );
+
+      expect(activity.entities).toHaveLength(2);
+      const [messageEntity, mentionEntity] = activity.entities as any[];
+      expect(messageEntity.type).toBe('https://schema.org/Message');
+      expect(messageEntity.additionalType).toEqual(['AIGeneratedContent']);
+      expect(messageEntity.citation).toHaveLength(1);
+      expect(mentionEntity.type).toBe('mention');
+    });
+  });
+
   describe('withChannelData feedback normalization', () => {
     it('should upgrade legacy feedbackLoopEnabled:true to feedbackLoop default', () => {
       const activity = new Activity({ type: 'test' }).withChannelData({ feedbackLoopEnabled: true });

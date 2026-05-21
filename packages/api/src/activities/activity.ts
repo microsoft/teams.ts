@@ -335,6 +335,11 @@ export class Activity<T extends string = string> implements IActivity<T> {
    * Add an entity.
    */
   addEntity(value: Entity) {
+    if (this.isRootLevelMessageEntity(value)) {
+      this.mergeRootLevelMessageEntity(this.ensureSingleRootLevelMessageEntity(), value);
+      return this;
+    }
+
     if (!this.entities) {
       this.entities = [];
     }
@@ -347,11 +352,10 @@ export class Activity<T extends string = string> implements IActivity<T> {
    * Add multiple entities
    */
   addEntities(...value: Entity[]) {
-    if (!this.entities) {
-      this.entities = [];
+    for (const entity of value) {
+      this.addEntity(entity);
     }
 
-    this.entities.push(...value);
     return this;
   }
 
@@ -467,20 +471,47 @@ export class Activity<T extends string = string> implements IActivity<T> {
    * There should only be one root level message entity.
    */
   private ensureSingleRootLevelMessageEntity(): MessageEntity {
-    let mesageEntity = this.entities?.find(
-      (e) => e.type === 'https://schema.org/Message' && e['@type'] === 'Message'
+    let messageEntity = this.entities?.find(
+      (e) => this.isRootLevelMessageEntity(e)
     ) as MessageEntity | undefined;
 
-    if (!mesageEntity) {
-      mesageEntity = {
+    if (!messageEntity) {
+      messageEntity = {
         type: 'https://schema.org/Message',
         '@type': 'Message',
         '@context': 'https://schema.org',
         '@id': '',
       };
-      this.addEntity(mesageEntity);
+      if (!this.entities) {
+        this.entities = [];
+      }
+      this.entities.push(messageEntity);
     }
 
-    return mesageEntity;
+    return messageEntity;
+  }
+
+  private isRootLevelMessageEntity(entity: Entity): entity is MessageEntity {
+    return entity.type === 'https://schema.org/Message' && entity['@type'] === 'Message';
+  }
+
+  private mergeRootLevelMessageEntity(target: MessageEntity, source: MessageEntity): MessageEntity {
+    const merged: MessageEntity = {
+      ...target,
+      ...source,
+    };
+
+    if (target.additionalType || source.additionalType) {
+      merged.additionalType = [
+        ...new Set([...(target.additionalType || []), ...(source.additionalType || [])]),
+      ];
+    }
+
+    if (target.citation || source.citation) {
+      merged.citation = [...(target.citation || []), ...(source.citation || [])];
+    }
+
+    Object.assign(target, merged);
+    return target;
   }
 }
