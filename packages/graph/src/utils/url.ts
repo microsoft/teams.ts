@@ -2,13 +2,13 @@ import qs from 'qs';
 
 import { type RequestConfig } from '@microsoft/teams.common';
 
-import { ParamDefs } from '../types';
+import type { ParamDefs } from '../types';
 
 export function getInjectedUrl(
   url: string,
   params: ParamDefs,
   data: Record<string, any>,
-) {
+): string {
   const query: Record<string, any> = {};
 
   for (const param of params.query ?? []) {

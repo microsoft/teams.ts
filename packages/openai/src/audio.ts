@@ -1,9 +1,10 @@
 import OpenAI, { toFile } from 'openai';
 
-import { Fetch } from 'openai/core.mjs';
+import type { Fetch } from 'openai/core.mjs';
 
-import { IAudioModel, TextToAudioParams, AudioToTextParams } from '@microsoft/teams.ai';
-import { ILogger, ConsoleLogger } from '@microsoft/teams.common';
+import type { IAudioModel, TextToAudioParams, AudioToTextParams } from '@microsoft/teams.ai';
+import type { ILogger} from '@microsoft/teams.common';
+import { ConsoleLogger } from '@microsoft/teams.common';
 
 export type OpenAIAudioPluginOptions = {
   readonly model: string;
@@ -35,7 +36,7 @@ export class OpenAIAudioModel implements IAudioModel {
     });
   }
 
-  async audioToText(params: AudioToTextParams) {
+  async audioToText(params: AudioToTextParams) : Promise<string> {
     try {
       const res = await this._openai.audio.transcriptions.create({
         file: await toFile(params.data, `temp.${params.type}`, { type: params.type }),
@@ -51,7 +52,7 @@ export class OpenAIAudioModel implements IAudioModel {
     }
   }
 
-  async textToAudio(params: TextToAudioParams) {
+  async textToAudio(params: TextToAudioParams) : Promise<Buffer> {
     try {
       const res = await this._openai.audio.speech.create({
         response_format: params.type as any,

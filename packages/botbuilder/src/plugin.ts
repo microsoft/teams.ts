@@ -7,18 +7,18 @@ import {
 
 import express from 'express';
 
-import { Credentials, IToken } from '@microsoft/teams.api';
+import { type Credentials, IToken } from '@microsoft/teams.api';
 import {
   Dependency,
   ExpressAdapter,
   HttpServer,
-  IHttpServer,
+  type IHttpServer,
   IPlugin,
   Logger,
   Plugin,
   manifest,
 } from '@microsoft/teams.apps';
-import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
+import { Client as HttpClient, type ILogger } from '@microsoft/teams.common';
 
 import pkg from '../package.json';
 
@@ -61,7 +61,7 @@ export class BotBuilderPlugin implements IPlugin {
     this.handler = options?.handler;
   }
 
-  async onInit() {
+  async onInit(): Promise<void> {
     const adapter = this.httpServer.adapter;
     if (!(adapter instanceof ExpressAdapter)) {
       throw new Error(
@@ -106,7 +106,7 @@ export class BotBuilderPlugin implements IPlugin {
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
-  ) {
+  ): Promise<void> {
     if (!this.cloudAdapter) {
       throw new Error('plugin not registered');
     }

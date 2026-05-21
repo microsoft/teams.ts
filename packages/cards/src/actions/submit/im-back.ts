@@ -1,8 +1,11 @@
-import { ISubmitAction, SubmitAction, SubmitActionOptions } from '../../core';
+import type { ISubmitAction, SubmitActionOptions } from '../../core';
+import { SubmitAction } from '../../core';
 
-import { MSTeamsData } from './ms-teams-data';
+import type { MSTeamsData } from './ms-teams-data';
 
-export type IMBackActionOptions = SubmitActionOptions & { data: MSTeamsData<IIMBackData> };
+export type IMBackActionOptions = SubmitActionOptions & {
+  data: MSTeamsData<IIMBackData>;
+};
 
 /**
  * @deprecated This type is deprecated. Please use {@link IImBackSubmitActionData} instead. This will be removed in a future version of the SDK.
@@ -29,16 +32,16 @@ export class IMBackAction extends SubmitAction implements IIMBackAction {
     this.data = { msteams: new IMBackData(value) };
   }
 
-  static from(options: IMBackActionOptions) {
+  static from(options: IMBackActionOptions): IMBackAction {
     return new IMBackAction(options.data.msteams.value, options);
   }
 
-  withData(value: IIMBackData) {
+  withData(value: IIMBackData): this {
     super.withData({ msteams: value });
     return this;
   }
 
-  withValue(value: string) {
+  withValue(value: string): this {
     this.data.msteams.value = value;
     return this;
   }

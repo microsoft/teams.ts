@@ -1,6 +1,7 @@
-import { ISubmitAction, SubmitAction, SubmitActionOptions } from '../../core';
+import type { ISubmitAction, SubmitActionOptions } from '../../core';
+import { SubmitAction } from '../../core';
 
-import { MSTeamsData } from './ms-teams-data';
+import type { MSTeamsData } from './ms-teams-data';
 
 export type MessageBackActionOptions = SubmitActionOptions & {
   data: MSTeamsData<IMessageBackData>;
@@ -19,7 +20,10 @@ export interface IMessageBackAction extends ISubmitAction {
 /**
  * @deprecated This class is deprecated. Please use {@link MessageBackSubmitActionData} instead. This will be removed in a future version of the SDK.
  */
-export class MessageBackAction extends SubmitAction implements IMessageBackAction {
+export class MessageBackAction
+  extends SubmitAction
+  implements IMessageBackAction
+{
   /**
    * Initial data that input fields will be combined with. These are essentially ‘hidden’ properties.
    */
@@ -33,11 +37,11 @@ export class MessageBackAction extends SubmitAction implements IMessageBackActio
     };
   }
 
-  static from(options: MessageBackActionOptions) {
+  static from(options: MessageBackActionOptions): MessageBackAction {
     return new MessageBackAction(options.data.msteams, options);
   }
 
-  withData(value: IMessageBackData) {
+  withData(value: IMessageBackData): this {
     super.withData({ msteams: value });
     return this;
   }
@@ -97,7 +101,7 @@ export class MessageBackData implements IMessageBackData {
     this.displayText = displayText;
   }
 
-  withDisplayText(value: string) {
+  withDisplayText(value: string): MessageBackData {
     this.displayText = value;
     return this;
   }
