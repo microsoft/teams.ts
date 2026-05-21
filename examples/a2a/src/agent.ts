@@ -2,15 +2,17 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 
 import { AzureOpenAI } from 'openai';
 
+import type { RunnableToolFunction } from 'openai/lib/RunnableFunction';
+
+import type {
+  ChatCompletionMessageParam,
+} from 'openai/resources/chat/completions';
+
 import { ILogger } from '@microsoft/teams.common';
 
 import { A2APeerClient } from './a2a-client';
 import { Config, HandoffMessage, TurnIdentity } from './types';
 
-import type { RunnableToolFunction } from 'openai/lib/RunnableFunction';
-import type {
-  ChatCompletionMessageParam,
-} from 'openai/resources/chat/completions';
 
 export type AgentOptions = {
   client: AzureOpenAI;
