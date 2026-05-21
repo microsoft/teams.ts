@@ -66,7 +66,7 @@ type GraphOptions = {
  * Provides an entry point for invoking Microsoft Graph APIs.
  */
 export class Client {
-  protected baseUrlRoot?: string;
+  protected baseUrlRoot: string;
   protected _http: HttpClient;
   protected betaHttp?: HttpClient;
 

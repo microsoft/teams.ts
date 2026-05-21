@@ -11,143 +11,143 @@ export class String implements StringLike {
     this._value = value;
   }
 
-  clear(): String {
+  clear(): this {
     this._value = '';
     return this;
   }
 
-  append(...text: StringLike[]): String {
+  append(...text: StringLike[]): this {
     this._value += text.join('');
     return this;
   }
 
-  reset(): String {
+  reset(): this {
     this._value += ANSI.Reset;
     return this;
   }
 
-  bold(text: StringLike): String {
+  bold(text: StringLike): this {
     this._value += ANSI.Bold + text.toString() + ANSI.BoldReset;
     return this;
   }
 
-  italic(text: StringLike): String {
+  italic(text: StringLike): this {
     this._value += ANSI.Italic + text.toString() + ANSI.ItalicReset;
     return this;
   }
 
-  underline(text: StringLike): String {
+  underline(text: StringLike): this {
     this._value += ANSI.Underline + text.toString() + ANSI.UnderlineReset;
     return this;
   }
 
-  strike(text: StringLike): String {
+  strike(text: StringLike): this {
     this._value += ANSI.Strike + text.toString() + ANSI.StrikeReset;
     return this;
   }
 
-  black(text: StringLike): String {
+  black(text: StringLike): this {
     this._value +=
       ANSI.ForegroundBlack + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
-  bgBlack(text: StringLike): String {
+  bgBlack(text: StringLike): this {
     this._value +=
       ANSI.BackgroundBlack + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
-  red(text: StringLike): String {
+  red(text: StringLike): this {
     this._value += ANSI.ForegroundRed + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
-  bgRed(text: StringLike): String {
+  bgRed(text: StringLike): this {
     this._value += ANSI.BackgroundRed + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
-  green(text: StringLike): String {
+  green(text: StringLike): this {
     this._value +=
       ANSI.ForegroundGreen + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
-  bgGreen(text: StringLike): String {
+  bgGreen(text: StringLike): this {
     this._value +=
       ANSI.BackgroundGreen + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
-  yellow(text: StringLike): String {
+  yellow(text: StringLike): this {
     this._value +=
       ANSI.ForegroundYellow + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
-  bgYellow(text: StringLike): String {
+  bgYellow(text: StringLike): this {
     this._value +=
       ANSI.BackgroundYellow + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
-  blue(text: StringLike): String {
+  blue(text: StringLike): this {
     this._value += ANSI.ForegroundBlue + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
-  bgBlue(text: StringLike): String {
+  bgBlue(text: StringLike): this {
     this._value += ANSI.BackgroundBlue + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
-  magenta(text: StringLike): String {
+  magenta(text: StringLike): this {
     this._value +=
       ANSI.ForegroundMagenta + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
-  bgMagenta(text: StringLike): String {
+  bgMagenta(text: StringLike): this {
     this._value +=
       ANSI.BackgroundMagenta + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
-  cyan(text: StringLike): String {
+  cyan(text: StringLike): this {
     this._value += ANSI.ForegroundCyan + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
-  bgCyan(text: StringLike): String {
+  bgCyan(text: StringLike): this {
     this._value += ANSI.BackgroundCyan + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
-  white(text: StringLike): String {
+  white(text: StringLike): this {
     this._value +=
       ANSI.ForegroundWhite + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
-  bgWhite(text: StringLike): String {
+  bgWhite(text: StringLike): this {
     this._value +=
       ANSI.BackgroundWhite + text.toString() + ANSI.BackgroundReset;
     return this;
   }
 
-  gray(text: StringLike): String {
+  gray(text: StringLike): this {
     this._value += ANSI.ForegroundGray + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
-  default(text: StringLike): String {
+  default(text: StringLike): this {
     this._value +=
       ANSI.ForegroundDefault + text.toString() + ANSI.ForegroundReset;
     return this;
   }
 
-  bgDefault(text: StringLike): String {
+  bgDefault(text: StringLike): this {
     this._value +=
       ANSI.BackgroundDefault + text.toString() + ANSI.BackgroundReset;
     return this;

@@ -7,7 +7,7 @@ import {
 
 import express from 'express';
 
-import { type Credentials, IToken } from '@microsoft/teams.api';
+import type { Credentials, IToken } from '@microsoft/teams.api';
 import {
   Dependency,
   ExpressAdapter,
