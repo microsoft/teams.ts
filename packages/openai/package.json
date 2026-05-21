@@ -2,6 +2,7 @@
   "name": "@microsoft/teams.openai",
   "version": "0.0.0",
   "license": "MIT",
+  "deprecated": "@microsoft/teams.openai is deprecated. Use the `openai` SDK directly (the `AzureOpenAI` client with `chat.completions.runTools`). See examples/ai-mcp for the new pattern.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",

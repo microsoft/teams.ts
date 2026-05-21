@@ -2,6 +2,7 @@
   "name": "@microsoft/teams.ai",
   "version": "0.0.0",
   "license": "MIT",
+  "deprecated": "@microsoft/teams.ai is deprecated. Use a dedicated AI framework directly (e.g., the `openai` SDK with `chat.completions.runTools`). See examples/ai-mcp for the new pattern.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
