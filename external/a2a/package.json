@@ -2,7 +2,7 @@
   "name": "@microsoft/teams.a2a",
   "version": "0.0.0",
   "license": "MIT",
-  "deprecated": "@microsoft/teams.a2a is deprecated. Use `@a2a-js/sdk` directly with the `openai` SDK. See examples/a2a for the new pattern.",
+  "deprecated": "@microsoft/teams.a2a is deprecated. Use `@a2a-js/sdk` directly with a dedicated AI framework like the `openai` SDK. See examples/a2a for the new pattern.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",

@@ -1,6 +1,6 @@
 # Teams: a2a
 
-> ⚠️ **DEPRECATED** — `@microsoft/teams.a2a` is no longer recommended. Use [`@a2a-js/sdk`](https://www.npmjs.com/package/@a2a-js/sdk) directly with the [`openai`](https://www.npmjs.com/package/openai) SDK. See [`examples/a2a`](../../examples/a2a) for the new pattern.
+> ⚠️ **DEPRECATED** — `@microsoft/teams.a2a` is no longer recommended. Use [`@a2a-js/sdk`](https://www.npmjs.com/package/@a2a-js/sdk) directly with a dedicated AI framework like the [`openai`](https://www.npmjs.com/package/openai) SDK. See [`examples/a2a`](../../examples/a2a) for the new pattern.
 
 <p>
     <a href="https://www.npmjs.com/package/@microsoft/teams.a2a" target="_blank">

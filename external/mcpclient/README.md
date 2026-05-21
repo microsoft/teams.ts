@@ -1,6 +1,6 @@
 # Teams: mcpclientpluginplugin
 
-> ⚠️ **DEPRECATED** — `@microsoft/teams.mcpclient` is no longer recommended. Use [`@modelcontextprotocol/sdk`](https://www.npmjs.com/package/@modelcontextprotocol/sdk) directly with the [`openai`](https://www.npmjs.com/package/openai) SDK's `chat.completions.runTools`. See [`examples/ai-mcp`](../../examples/ai-mcp) for the new pattern.
+> ⚠️ **DEPRECATED** — `@microsoft/teams.mcpclient` is no longer recommended. Use [`@modelcontextprotocol/sdk`](https://www.npmjs.com/package/@modelcontextprotocol/sdk) directly with a dedicated AI framework like the [`openai`](https://www.npmjs.com/package/openai) SDK. See [`examples/ai-mcp`](../../examples/ai-mcp) for the new pattern.
 
 <p>
     <a href="https://www.npmjs.com/package/@microsoft/teams.mcpclient" target="_blank">
