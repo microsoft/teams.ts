@@ -8,7 +8,8 @@ export type CardActionType =
   | 'downloadFile'
   | 'signin'
   | 'call'
-  | 'invoke';
+  | 'invoke'
+  | 'Action.Submit';
 
 export type CardAction = {
   /**
