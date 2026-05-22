@@ -12,6 +12,7 @@ Targeted messages are messages that only a specific recipient can see - other pa
 | `test update` | Sends a targeted message, then updates it after 3 seconds |
 | `test delete` | Sends a targeted message, then deletes it after 3 seconds |
 | `test public` | Sends a public reply (visible to everyone) |
+| `send private` | Only sends a private message if the incoming message is targeted |
 | `test inbound` | Reads `activity.recipient.isTargeted` and reports whether the inbound message was targeted at the bot |
 | `help` | Shows available commands |
 
@@ -24,15 +25,33 @@ The `appPackage/manifest.json` uses `manifestVersion: "devPreview"` because the 
 
 Slash commands arrive at the bot as regular `MessageActivity` events with `activity.recipient.isTargeted === true`, which the `test inbound` handler in this sample demonstrates.
 
+The `send private` command is useful for verifying whether the inbound message was targeted. If it isn't, the bot says `Send it to me privately first!`.
+
 ## Testing in a Group Chat
 
 To properly test targeted messages:
 
 1. Add the bot to a **group chat** with 2+ people
-2. Send `test send`
+2. Pick the command from the `/` slash menu, or type `send private` as a slash command
 3. **Expected result**: 
-   - You (the sender) should see the "🔒 Targeted message"
+   - You (the sender) should see the targeted message
    - Other participants should **NOT** see it
+
+If you type `send private` as a normal message in 1:1 chat, it will not come through as a targeted message, so the private branch won’t fire.
+
+You can also try `send private` to verify the bot only sends a private response when the inbound message is targeted.
+
+## Making a command private
+
+To make a command behave like `send private`:
+
+1. In `appPackage/manifest.json`, keep `supportsTargetedMessages: true` on the bot.
+2. Add the command under a slash-triggered `commandLists` entry for `team` / `groupChat`.
+3. In your handler, check `activity.recipient?.isTargeted === true`.
+4. Only send the private response when that check passes.
+5. You do **not** need to manually set `withRecipient(activity.from, true)` in this example — `ActivityContext` will mark the response targeted automatically when the inbound message was targeted.
+
+That combo makes the bot treat the slash-command message as private and keeps the response private too. If the response still looks public, restart the example so it picks up the latest `ActivityContext` change.
 
 ## Run
 

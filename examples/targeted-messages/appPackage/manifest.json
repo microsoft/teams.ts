@@ -51,6 +51,7 @@
             { "title": "test update", "description": "Send a targeted message then update it after 3 seconds" },
             { "title": "test delete", "description": "Send a targeted message then delete it after 3 seconds" },
             { "title": "test public", "description": "Send a public message visible to everyone" },
+            { "title": "send private", "description": "Only send a private message if the inbound message is targeted" },
             { "title": "test inbound", "description": "Show whether the inbound message was targeted at the bot" }
           ]
         }
