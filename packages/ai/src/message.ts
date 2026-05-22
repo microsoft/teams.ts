@@ -1,5 +1,5 @@
-import { Citation } from './citation';
-import { FunctionCall } from './function';
+import type { Citation } from './citation';
+import type { FunctionCall } from './function';
 
 export type Message = UserMessage | ModelMessage | SystemMessage | FunctionMessage;
 

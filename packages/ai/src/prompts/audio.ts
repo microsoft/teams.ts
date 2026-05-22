@@ -1,4 +1,8 @@
-import { IAudioModel, AudioToTextParams, TextToAudioParams } from '../models';
+import type {
+  IAudioModel,
+  AudioToTextParams,
+  TextToAudioParams,
+} from '../models';
 
 export type AudioPromptOptions = {
   /**
@@ -48,12 +52,12 @@ export interface IAudioPrompt {
  * an audio model
  */
 export class AudioPrompt implements IAudioPrompt {
-  get name() {
+  get name(): string {
     return this._name;
   }
   protected readonly _name: string;
 
-  get description() {
+  get description(): string {
     return this._description;
   }
   protected readonly _description: string;
@@ -62,11 +66,12 @@ export class AudioPrompt implements IAudioPrompt {
 
   constructor(options: AudioPromptOptions) {
     this._name = options.name || 'audio';
-    this._description = options.description || 'an agent that can convert text to speech';
+    this._description =
+      options.description || 'an agent that can convert text to speech';
     this._model = options.model;
   }
 
-  audioToText(params: AudioToTextParams) {
+  audioToText(params: AudioToTextParams): Promise<string> {
     if (!this._model.audioToText) {
       throw new Error('cannot transcribe audio to text');
     }
@@ -74,7 +79,7 @@ export class AudioPrompt implements IAudioPrompt {
     return this._model.audioToText(params);
   }
 
-  textToAudio(params: TextToAudioParams) {
+  textToAudio(params: TextToAudioParams): Promise<Buffer> {
     if (!this._model.textToAudio) {
       throw new Error('cannot translate text to audio');
     }

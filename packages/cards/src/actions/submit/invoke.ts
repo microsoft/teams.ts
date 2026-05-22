@@ -1,8 +1,11 @@
-import { ISubmitAction, SubmitAction, SubmitActionOptions } from '../../core';
+import type { ISubmitAction, SubmitActionOptions } from '../../core';
+import { SubmitAction } from '../../core';
 
-import { MSTeamsData } from './ms-teams-data';
+import type { MSTeamsData } from './ms-teams-data';
 
-export type InvokeActionOptions = SubmitActionOptions & { data: MSTeamsData<IInvokeData> };
+export type InvokeActionOptions = SubmitActionOptions & {
+  data: MSTeamsData<IInvokeData>;
+};
 
 /**
  * @deprecated This type is deprecated. Please use {@link IInvokeSubmitActionData} instead. This will be removed in a future version of the SDK.
@@ -29,16 +32,16 @@ export class InvokeAction extends SubmitAction implements IInvokeAction {
     this.data = { msteams: new InvokeData(value) };
   }
 
-  static from(options: InvokeActionOptions) {
+  static from(options: InvokeActionOptions): InvokeAction {
     return new InvokeAction(options.data.msteams.value, options);
   }
 
-  withData(value: IInvokeData) {
+  withData(value: IInvokeData): this {
     super.withData({ msteams: value });
     return this;
   }
 
-  withValue(value: any) {
+  withValue(value: any): this {
     this.data.msteams.value = value;
     return this;
   }

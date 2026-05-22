@@ -1,9 +1,9 @@
-import { ContentPart, Message } from '../message';
-import { IChatModel } from '../models';
-import { Schema } from '../schema';
+import type { ContentPart, Message } from '../message';
+import type { IChatModel } from '../models';
+import type { Schema } from '../schema';
 
 import { ChatPrompt } from './chat';
-import { ChatPromptPlugin } from './chat-types';
+import type { ChatPromptPlugin } from './chat-types';
 
 // Mock implementations
 const mockChatModel: IChatModel<any> = {

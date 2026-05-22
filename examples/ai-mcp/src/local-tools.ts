@@ -1,3 +1,5 @@
+import type { RunnableToolFunction } from 'openai/lib/RunnableFunction';
+
 import {
   AdaptiveCard,
   ChoiceSetInput,
@@ -7,7 +9,6 @@ import {
 } from '@microsoft/teams.cards';
 import { ILogger } from '@microsoft/teams.common';
 
-import type { RunnableToolFunction } from 'openai/lib/RunnableFunction';
 
 export const CLARIFICATION_TOOL_NAME = 'request_clarification';
 export const CLARIFICATION_VERB = 'clarification';
