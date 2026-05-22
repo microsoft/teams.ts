@@ -254,26 +254,23 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   async send(activity: ActivityLike, conversationRef?: ConversationReference) {
     const params = toActivityParams(activity);
 
+    const isIncomingTargeted = this.activity.recipient?.isTargeted === true;
+
     // If the inbound message was targeted, default outgoing messages to targeted too.
     // Callers can still opt out by explicitly supplying a non-targeted recipient.
-    if (
-      params.type === 'message' &&
-      this.activity.recipient?.isTargeted === true &&
-      !params.id &&
-      !params.recipient
-    ) {
+    if (params.type === 'message' && isIncomingTargeted && !params.id && !params.recipient) {
       params.recipient = {
         ...this.activity.from,
         isTargeted: true,
       };
     }
 
+    const isOutgoingTargeted = params.type === 'message' && params.recipient?.isTargeted === true;
+
     // Auto-populate targetedMessageInfo entity for prompt preview
     // when replying to a targeted message in the reactive flow.
-    if (
-      params.type === 'message' &&
-      this.activity.recipient?.isTargeted === true
-    ) {
+    // Only do this for responses that are actually targeted.
+    if (params.type === 'message' && isIncomingTargeted && isOutgoingTargeted) {
       if (params.entities) {
         params.entities = params.entities.filter((e) => e.type !== 'quotedReply');
       }

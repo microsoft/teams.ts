@@ -321,14 +321,15 @@ describe('ActivityContext', () => {
         await context.send(new MessageActivity('Public message').withRecipient(activity.from));
 
         expect(mockSender.send).toHaveBeenCalledTimes(1);
-        expect(mockSender.send).toHaveBeenCalledWith(
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity).toEqual(
           expect.objectContaining({
             text: 'Public message',
             type: 'message',
             recipient: expect.objectContaining({ id: 'test-user', name: 'Test User', role: 'user' }),
-          }),
-          mockRef
+          })
         );
+        expect(sentActivity.entities).toBeUndefined();
       });
 
       it('sends targeted message with explicit recipient id', async () => {
