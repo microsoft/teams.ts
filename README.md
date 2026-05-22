@@ -66,7 +66,6 @@ $: npm run test
 > ℹ️ core packages used to build client/server apps for Teams.
 
 - [`@microsoft/teams.apps`](./packages/apps/README.md)
-- [`@microsoft/teams.ai`](./packages/ai/README.md)
 - [`@microsoft/teams.api`](./packages/api/README.md)
 - [`@microsoft/teams.botbuilder`](./packages/botbuilder/README.md)
 - [`@microsoft/teams.cards`](./packages/cards/README.md)
@@ -79,14 +78,16 @@ $: npm run test
 - [`@microsoft/teams.graph`](./packages/graph/README.md)
 - [`@microsoft/teams.graph-endpoints`](./packages/graph-endpoints/README.md)
 - [`@microsoft/teams.graph-endpoints-beta`](./packages/graph-endpoints-beta/README.md)
-- [`@microsoft/teams.openai`](./packages/openai/README.md)
 
-## External Packages
+## Deprecated Packages
 
-> ℹ️ external packages (typically plugins) used to integrate with other platforms.
+> ⚠️ these packages are deprecated. Use dedicated AI frameworks directly — see [`examples/ai-mcp`](./examples/ai-mcp) and [`examples/a2a`](./examples/a2a) for the new pattern.
 
-- [`@microsoft/teams.mcp`](./external/mcp/README.md)
-- [`@microsoft/teams.mcpclient`](./external/mcpclient/README.md)
+- [`@microsoft/teams.ai`](./packages/ai/README.md) — use the [`openai`](https://www.npmjs.com/package/openai) SDK directly
+- [`@microsoft/teams.openai`](./packages/openai/README.md) — use the [`openai`](https://www.npmjs.com/package/openai) SDK directly
+- [`@microsoft/teams.mcp`](./external/mcp/README.md) — use [`@modelcontextprotocol/sdk`](https://www.npmjs.com/package/@modelcontextprotocol/sdk) directly
+- [`@microsoft/teams.mcpclient`](./external/mcpclient/README.md) — use [`@modelcontextprotocol/sdk`](https://www.npmjs.com/package/@modelcontextprotocol/sdk) directly
+- [`@microsoft/teams.a2a`](./external/a2a/README.md) — use [`@a2a-js/sdk`](https://www.npmjs.com/package/@a2a-js/sdk) directly
 
 ## Example apps
 
@@ -101,7 +102,8 @@ $: npm run test
 - [`@examples/auth`](./examples/auth/README.md)
 - [`@examples/botbuilder`](./examples/botbuilder/README.md)
 - [`@examples/graph`](./examples/graph/README.md)
-- [`@examples/lights`](./examples/lights/README.md)
+- [`@examples/ai-mcp`](./examples/ai-mcp/README.md) — AI with the `openai` SDK + `@modelcontextprotocol/sdk`
+- [`@examples/a2a`](./examples/a2a/README.md) — agent-to-agent with `@a2a-js/sdk`
 - [`@examples/reactions`](./examples/reactions/README.md)
 - [`@examples/tab`](./examples/tab/README.md)
 - [`@examples/mcp-server`](./examples/mcp-server/README.md)

@@ -1,5 +1,7 @@
 # Teams: MCP (Model Context Protocol)
 
+> ⚠️ **DEPRECATED** — `@microsoft/teams.mcp` is no longer recommended. Use [`@modelcontextprotocol/sdk`](https://www.npmjs.com/package/@modelcontextprotocol/sdk) directly. See [`examples/ai-mcp`](../../examples/ai-mcp) and [`examples/mcp-server`](../../examples/mcp-server) for the new pattern.
+
 <p>
     <a href="https://www.npmjs.com/package/@microsoft/teams.mcp" target="_blank">
         <img src="https://img.shields.io/npm/v/@microsoft/teams.mcp/latest" />
