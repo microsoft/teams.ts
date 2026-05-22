@@ -55,6 +55,18 @@ app.on('message', async ({ send, activity, api }) => {
     await send(
       new MessageActivity('📋 Here is the public result — everyone can see this!')
     );
+  } else if (text.includes('send public')) {
+    const isTargeted = activity.recipient?.isTargeted === true;
+    console.log('[send public]', { isTargeted });
+
+    if (!isTargeted) {
+      await send('Send it to me privately first!');
+    } else {
+      await send(
+        new MessageActivity('🌍 This is a **public message** — everyone can see this!')
+          .withRecipient(activity.from)
+      );
+    }
   } else if (text.includes('test send')) {
     await send(
       new MessageActivity('👋 This is a **targeted message** — only YOU can see this!')
@@ -89,6 +101,7 @@ app.on('message', async ({ send, activity, api }) => {
       '- `test update` - Send a targeted message, then update it after 3 seconds\n' +
       '- `test delete` - Send a targeted message, then delete it after 3 seconds\n' +
       '- `test public` - Send a public reply (visible to all)\n' +
+      '- `send public` - Only send a public message if the incoming message is targeted\n' +
       '- `send private` - Only send a private message if the incoming message is targeted\n' +
       '- `test inbound` - Show whether the inbound message was targeted at the bot\n\n' +
       '_Targeted messages are only visible to you, even in group chats!_'

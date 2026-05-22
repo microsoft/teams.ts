@@ -12,6 +12,7 @@ Targeted messages are messages that only a specific recipient can see - other pa
 | `test update` | Sends a targeted message, then updates it after 3 seconds |
 | `test delete` | Sends a targeted message, then deletes it after 3 seconds |
 | `test public` | Sends a public reply (visible to everyone) |
+| `send public` | Only sends a public message if the incoming message is targeted |
 | `send private` | Only sends a private message if the incoming message is targeted |
 | `test inbound` | Reads `activity.recipient.isTargeted` and reports whether the inbound message was targeted at the bot |
 | `help` | Shows available commands |
@@ -25,7 +26,7 @@ The `appPackage/manifest.json` uses `manifestVersion: "devPreview"` because the 
 
 Slash commands arrive at the bot as regular `MessageActivity` events with `activity.recipient.isTargeted === true`, which the `test inbound` handler in this sample demonstrates.
 
-The `send private` command is useful for verifying whether the inbound message was targeted. If it isn't, the bot says `Send it to me privately first!`.
+The `send public` and `send private` commands are useful for verifying whether the inbound message was targeted. If it isn't, the bot says `Send it to me privately first!`.
 
 ## Testing in a Group Chat
 
@@ -39,11 +40,11 @@ To properly test targeted messages:
 
 If you type `send private` as a normal message in 1:1 chat, it will not come through as a targeted message, so the private branch won’t fire.
 
-You can also try `send private` to verify the bot only sends a private response when the inbound message is targeted.
+You can also try `send public` to verify the bot only sends a public response when the inbound message is targeted, or `send private` to verify the bot only sends a private response when the inbound message is targeted.
 
 ## Making a command private
 
-To make a command behave like `send private`:
+To make a command behave like `send private` or `send public`:
 
 1. In `appPackage/manifest.json`, keep `supportsTargetedMessages: true` on the bot.
 2. Add the command under a slash-triggered `commandLists` entry for `team` / `groupChat`.
@@ -51,7 +52,7 @@ To make a command behave like `send private`:
 4. Only send the private response when that check passes.
 5. You do **not** need to manually set `withRecipient(activity.from, true)` in this example — `ActivityContext` will mark the response targeted automatically when the inbound message was targeted.
 
-That combo makes the bot treat the slash-command message as private and keeps the response private too. If the response still looks public, restart the example so it picks up the latest `ActivityContext` change.
+That combo makes the bot treat the slash-command message as private and lets you choose whether the response should be private or public. If the response still looks wrong, restart the example so it picks up the latest `ActivityContext` change.
 
 ## Run
 
