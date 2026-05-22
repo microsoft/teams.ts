@@ -4,7 +4,6 @@ import { cardAttachment } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { IAdaptiveCard } from '@microsoft/teams.cards';
 import { ConsoleLogger } from '@microsoft/teams.common';
-import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 import {
   createCard,
@@ -16,7 +15,6 @@ import {
 
 const app = new App({
   logger: new ConsoleLogger('@tests/message-extensions', { level: 'debug' }),
-  plugins: [new DevtoolsPlugin()],
 });
 
 app.on('install.add', async ({ send }) => {

@@ -1,13 +1,11 @@
 import { MessageActivity } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
-import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 import { MockReminderService } from './mock-reminder-service';
 
 const app = new App({
   logger: new ConsoleLogger('@tests/echo', { level: 'debug' }),
-  plugins: [new DevtoolsPlugin()],
 });
 
 app.on('message', async ({ reply, activity }) => {
