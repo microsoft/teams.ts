@@ -8,9 +8,7 @@ import type {
   IChatModel,
   Message,
   ModelMessage} from '@microsoft/teams.ai';
-import {
-  LocalMemory
-} from '@microsoft/teams.ai';
+import { LocalMemory } from '@microsoft/teams.ai';
 import type { ILogger } from '@microsoft/teams.common';
 import { ConsoleLogger } from '@microsoft/teams.common';
 

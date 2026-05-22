@@ -8,11 +8,11 @@ import {
 import express from 'express';
 
 import type { Credentials, IToken } from '@microsoft/teams.api';
+import type { IHttpServer } from '@microsoft/teams.apps';
 import {
   Dependency,
   ExpressAdapter,
   HttpServer,
-  type IHttpServer,
   IPlugin,
   Logger,
   Plugin,
