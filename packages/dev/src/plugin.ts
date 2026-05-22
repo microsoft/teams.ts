@@ -37,6 +37,9 @@ export type DevtoolsPluginOptions = {
   readonly customPort?: number;
 };
 
+/**
+ * @deprecated DevTools is deprecated and will be removed in a later version. Use Microsoft 365 Agents Playground instead.
+ */
 @Plugin({
   name: 'devtools',
   version: pkg.version,
@@ -44,9 +47,6 @@ export type DevtoolsPluginOptions = {
     '\n'
   ),
 })
-/**
- * @deprecated DevTools is deprecated and will be removed in a later version. Use Microsoft 365 Agents Playground instead.
- */
 export class DevtoolsPlugin {
   @Logger()
   readonly log!: ILogger;
