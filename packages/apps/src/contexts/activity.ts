@@ -254,12 +254,18 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   async send(activity: ActivityLike, conversationRef?: ConversationReference) {
     const params = toActivityParams(activity);
 
-    // For targeted send, set the recipient if not already set.
-    // For targeted update (params.id exists), we don't update recipient since recipient cannot be changed.
-    if (params.type === 'message' && params.recipient?.isTargeted && !params.id) {
-      if (!params.recipient) {
-        params.recipient = this.activity.from;
-      }
+    // If the inbound message was targeted, default outgoing messages to targeted too.
+    // Callers can still opt out by explicitly supplying a non-targeted recipient.
+    if (
+      params.type === 'message' &&
+      this.activity.recipient?.isTargeted === true &&
+      !params.id &&
+      !params.recipient
+    ) {
+      params.recipient = {
+        ...this.activity.from,
+        isTargeted: true,
+      };
     }
 
     // Auto-populate targetedMessageInfo entity for prompt preview

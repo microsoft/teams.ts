@@ -230,6 +230,14 @@ describe('ActivityContext', () => {
       // Reply prepends blockquote, but send() auto-populates addTargetedMessageInfo
       // which strips quotedReply entities — the blockquote text remains since it's
       // the legacy format, not the <quoted .../> placeholder.
+      expect(sentActivity.recipient).toEqual(
+        expect.objectContaining({
+          id: 'test-user',
+          name: 'Test User',
+          role: 'user',
+          isTargeted: true,
+        })
+      );
       expect(sentActivity.entities).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -259,6 +267,28 @@ describe('ActivityContext', () => {
     });
 
     describe('targeted messages', () => {
+      it('defaults send to targeted when inbound message is targeted', async () => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+          .withId('test-activity-id');
+        context = buildActivityContext(activity);
+
+        await context.send('Secret message');
+
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+        expect(mockSender.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Secret message',
+            type: 'message',
+            recipient: expect.objectContaining({ id: 'test-user', name: 'Test User', role: 'user', isTargeted: true }),
+          }),
+          mockRef
+        );
+      });
+
       it('sends targeted message with recipient from incoming activity', async () => {
         const activity = buildIncomingMessageActivity('Hello world');
         context = buildActivityContext(activity);
@@ -274,6 +304,28 @@ describe('ActivityContext', () => {
             text: 'Secret message',
             type: 'message',
             recipient: expect.objectContaining({ id: 'test-user', name: 'Test User', role: 'user', isTargeted: true }),
+          }),
+          mockRef
+        );
+      });
+
+      it('allows explicitly public send from a targeted inbound message', async () => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+          .withId('test-activity-id');
+        context = buildActivityContext(activity);
+
+        await context.send(new MessageActivity('Public message').withRecipient(activity.from));
+
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+        expect(mockSender.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Public message',
+            type: 'message',
+            recipient: expect.objectContaining({ id: 'test-user', name: 'Test User', role: 'user' }),
           }),
           mockRef
         );
