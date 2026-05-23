@@ -52,7 +52,7 @@ To make a command behave like `send private` or `send public`:
 4. Only send the private response when that check passes.
 5. You do **not** need to manually set `withRecipient(activity.from, true)` in this example — `ActivityContext` will mark the response targeted automatically when the inbound message was targeted.
 
-That combo makes the bot treat the slash-command message as private and lets you choose whether the response should be private or public. If the response still looks wrong, restart the example so it picks up the latest `ActivityContext` change.
+That combo makes the bot treat the slash-command message as private and lets you choose whether the response should be private or public.
 
 ## Run
 

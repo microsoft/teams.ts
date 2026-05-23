@@ -10,11 +10,6 @@ const app = new App({
 
 app.on('message', async ({ send, activity, api }) => {
   const text = activity.text?.toLowerCase() || '';
-  console.log('[message received]', {
-    text: activity.text,
-    isTargeted: activity.recipient?.isTargeted === true,
-    from: activity.from?.id,
-  });
 
   if (text.includes('test update')) {
     const conversationId = activity.conversation?.id ?? '';
@@ -57,11 +52,11 @@ app.on('message', async ({ send, activity, api }) => {
     );
   } else if (text.includes('send public')) {
     const isTargeted = activity.recipient?.isTargeted === true;
-    console.log('[send public]', { isTargeted });
 
     if (!isTargeted) {
       await send('Send it to me privately first!');
     } else {
+      // Passing a recipient opts out of the auto-targeting default.
       await send(
         new MessageActivity('🌍 This is a **public message** — everyone can see this!')
           .withRecipient(activity.from)
@@ -74,7 +69,6 @@ app.on('message', async ({ send, activity, api }) => {
     );
   } else if (text.includes('send private')) {
     const isTargeted = activity.recipient?.isTargeted === true;
-    console.log('[send private]', { isTargeted });
 
     if (!isTargeted) {
       await send('Send it to me privately first!');
