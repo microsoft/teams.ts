@@ -275,66 +275,6 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     return await this.activitySender.send(params, conversationRef ?? this.ref);
   }
 
-  private isIncomingTargeted() {
-    return this.activity.recipient?.isTargeted === true;
-  }
-
-  private shouldOutboundBeAutoTargeted(params: ActivityParams, conversationRef?: ConversationReference) {
-    if (params.type !== 'message') {
-      return false;
-    }
-
-    if (!this.isIncomingTargeted()) {
-      return false;
-    }
-
-    if (!this.isSameConversation(conversationRef)) {
-      return false;
-    }
-
-    return !params.id && !params.recipient;
-  }
-
-  private isSameConversation(conversationRef?: ConversationReference) {
-    return !conversationRef || conversationRef.conversation?.id === this.ref.conversation?.id;
-  }
-
-  private applyTargetedRecipient(params: ActivityParams) {
-    params.recipient = {
-      ...this.activity.from,
-      isTargeted: true,
-    };
-  }
-
-  private isTargetedOutbound(params: ActivityParams): params is MessageActivityParams {
-    return params.type === 'message' && params.recipient?.isTargeted === true;
-  }
-
-  private stripQuotedReplyMetadata(params: MessageActivityParams) {
-    if (params.entities) {
-      params.entities = params.entities.filter((e) => e.type !== 'quotedReply');
-    }
-
-    if (params.text) {
-      params.text = params.text.replace(`<quoted messageId="${this.activity.id}"/>`, '').trim();
-    }
-  }
-
-  private addTargetedMessageInfo(params: MessageActivityParams) {
-    if (params.entities?.some((e) => e.type === 'targetedMessageInfo')) {
-      return;
-    }
-
-    if (!params.entities) {
-      params.entities = [];
-    }
-
-    params.entities.push({
-      type: 'targetedMessageInfo',
-      messageId: this.activity.id,
-    });
-  }
-
   /**
    * send an activity in the current conversation with a visual quote
    * of the inbound message.
@@ -482,6 +422,66 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       signin: this.signin.bind(this),
       signout: this.signout.bind(this),
     };
+  }
+
+  private isIncomingTargeted() {
+    return this.activity.recipient?.isTargeted === true;
+  }
+
+  private shouldOutboundBeAutoTargeted(params: ActivityParams, conversationRef?: ConversationReference) {
+    if (params.type !== 'message') {
+      return false;
+    }
+
+    if (!this.isIncomingTargeted()) {
+      return false;
+    }
+
+    if (!this.isSameConversation(conversationRef)) {
+      return false;
+    }
+
+    return !params.id && !params.recipient;
+  }
+
+  private isSameConversation(conversationRef?: ConversationReference) {
+    return !conversationRef || conversationRef.conversation?.id === this.ref.conversation?.id;
+  }
+
+  private applyTargetedRecipient(params: ActivityParams) {
+    params.recipient = {
+      ...this.activity.from,
+      isTargeted: true,
+    };
+  }
+
+  private isTargetedOutbound(params: ActivityParams): params is MessageActivityParams {
+    return params.type === 'message' && params.recipient?.isTargeted === true;
+  }
+
+  private stripQuotedReplyMetadata(params: MessageActivityParams) {
+    if (params.entities) {
+      params.entities = params.entities.filter((e) => e.type !== 'quotedReply');
+    }
+
+    if (params.text) {
+      params.text = params.text.replace(`<quoted messageId="${this.activity.id}"/>`, '').trim();
+    }
+  }
+
+  private addTargetedMessageInfo(params: MessageActivityParams) {
+    if (params.entities?.some((e) => e.type === 'targetedMessageInfo')) {
+      return;
+    }
+
+    if (!params.entities) {
+      params.entities = [];
+    }
+
+    params.entities.push({
+      type: 'targetedMessageInfo',
+      messageId: this.activity.id,
+    });
   }
 
 }
