@@ -1,6 +1,7 @@
 import {
   Activity,
   ActivityLike,
+  ActivityParams,
   cardAttachment,
   ConversationAccount,
   ConversationReference,
@@ -194,7 +195,7 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
 export type IActivityContext<T extends Activity = Activity, TExtraContext = unknown> =
   IBaseActivityContext<T> & (TExtraContext extends Record<string, any> ? TExtraContext : {});
 
-type MessageSendParams = ReturnType<typeof toActivityParams> & Partial<IMessageActivity>;
+type MessageActivityParams = ActivityParams & Partial<IMessageActivity> & { type: 'message' };
 
 export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {} = {}>
   implements IBaseActivityContext<T, TExtraCtx> {
@@ -254,7 +255,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * @param conversationRef optional conversation reference to send to a different conversation or thread
    */
   async send(activity: ActivityLike, conversationRef?: ConversationReference) {
-    const params = toActivityParams(activity) as MessageSendParams;
+    const params = toActivityParams(activity);
 
     if (this.shouldOutboundBeAutoTargeted(params, conversationRef)) {
       this.applyTargetedRecipient(params);
@@ -278,7 +279,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     return this.activity.recipient?.isTargeted === true;
   }
 
-  private shouldOutboundBeAutoTargeted(params: MessageSendParams, conversationRef?: ConversationReference) {
+  private shouldOutboundBeAutoTargeted(params: ActivityParams, conversationRef?: ConversationReference) {
     if (params.type !== 'message') {
       return false;
     }
@@ -298,18 +299,18 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     return !conversationRef || conversationRef.conversation?.id === this.ref.conversation?.id;
   }
 
-  private applyTargetedRecipient(params: MessageSendParams) {
+  private applyTargetedRecipient(params: ActivityParams) {
     params.recipient = {
       ...this.activity.from,
       isTargeted: true,
     };
   }
 
-  private isTargetedOutbound(params: MessageSendParams) {
+  private isTargetedOutbound(params: ActivityParams): params is MessageActivityParams {
     return params.type === 'message' && params.recipient?.isTargeted === true;
   }
 
-  private stripQuotedReplyMetadata(params: MessageSendParams) {
+  private stripQuotedReplyMetadata(params: MessageActivityParams) {
     if (params.entities) {
       params.entities = params.entities.filter((e) => e.type !== 'quotedReply');
     }
@@ -319,7 +320,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     }
   }
 
-  private addTargetedMessageInfo(params: MessageSendParams) {
+  private addTargetedMessageInfo(params: MessageActivityParams) {
     if (params.entities?.some((e) => e.type === 'targetedMessageInfo')) {
       return;
     }
