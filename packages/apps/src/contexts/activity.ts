@@ -262,7 +262,10 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
 
     if (this.isTargetedOutbound(params)) {
       this.stripQuotedReplyMetadata(params);
-      this.addTargetedMessageInfo(params);
+
+      if (this.isIncomingTargeted()) {
+        this.addTargetedMessageInfo(params);
+      }
     }
 
     return await this.activitySender.send(params, conversationRef ?? this.ref);

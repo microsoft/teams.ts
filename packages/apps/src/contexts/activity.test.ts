@@ -364,6 +364,8 @@ describe('ActivityContext', () => {
           }),
           mockRef
         );
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity.entities).toBeUndefined();
       });
 
       it('allows explicitly public send from a targeted inbound message', async () => {
