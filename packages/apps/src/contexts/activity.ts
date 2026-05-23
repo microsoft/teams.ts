@@ -263,6 +263,9 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     if (this.isTargetedOutbound(params)) {
       this.stripQuotedReplyMetadata(params);
 
+      // `targetedMessageInfo` points at the original targeted inbound message for prompt preview.
+      // Do not add it for generic targeted sends; Teams can reject it if the referenced activity
+      // was not itself delivered as a targeted message.
       if (this.isIncomingTargeted()) {
         this.addTargetedMessageInfo(params);
       }
