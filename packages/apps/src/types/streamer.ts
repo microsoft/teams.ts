@@ -52,6 +52,16 @@ export interface IStreamer {
   update(text: string): void;
 
   /**
+   * Discard accumulated streamed text and any pending text deltas, so the
+   * final message sent by `close()` doesn't include them. Useful when a
+   * mid-turn decision (e.g. a tool call producing a card) means the
+   * buffered text should not appear in the final activity. Typing chunks
+   * already shipped to Teams are not undone, but the final message updates
+   * the same activity to reflect the cleared state.
+   */
+  clearText(): void;
+
+  /**
    * close the stream
    */
   close(): SentActivity | undefined | Promise<SentActivity | undefined>;

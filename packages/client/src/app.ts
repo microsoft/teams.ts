@@ -6,8 +6,9 @@ import {
 } from '@azure/msal-browser';
 
 import { app } from '@microsoft/teams-js';
-import { ConsoleLogger, Client as HttpClient, ILogger } from '@microsoft/teams.common';
-import { Client as GraphClient } from '@microsoft/teams.graph';
+import type { ILogger } from '@microsoft/teams.common';
+import { ConsoleLogger, Client as HttpClient } from '@microsoft/teams.common';
+import type { Client as GraphClient } from '@microsoft/teams.graph';
 
 import { buildGraphClient } from './graph-utils';
 import {
@@ -120,7 +121,7 @@ export class App {
   /**
    * The apps logger
    */
-  get log() {
+  get log() : ILogger {
     return this._log;
   }
   protected _log: ILogger;
@@ -128,12 +129,12 @@ export class App {
   /**
    * The date/time when the app was successfully started.
    */
-  get startedAt() {
+  get startedAt() : Date | undefined {
     return this._state?.startedAt;
   }
 
   /** The msal instance used in this app. undefined until the app is started. */
-  get msalInstance() {
+  get msalInstance() : IPublicClientApplication | undefined {
     return this._state.msalInstance;
   }
 

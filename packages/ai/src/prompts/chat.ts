@@ -1,16 +1,17 @@
-import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
+import type { ILogger } from '@microsoft/teams.common';
+import { ConsoleLogger } from '@microsoft/teams.common';
 
-import { Function, FunctionHandler } from '../function';
+import type { Function, FunctionHandler } from '../function';
 import { LocalMemory } from '../local-memory';
-import { IMemory } from '../memory';
-import { ContentPart, SystemMessage, UserMessage } from '../message';
-import { IChatModel } from '../models';
-import { Schema } from '../schema';
-import { ITemplate } from '../template';
+import type { IMemory } from '../memory';
+import type { ContentPart, ModelMessage, SystemMessage, UserMessage } from '../message';
+import type { IChatModel } from '../models';
+import type { Schema } from '../schema';
+import type { ITemplate } from '../template';
 import { StringTemplate } from '../templates';
-import { WithRequired } from '../utils/types';
+import type { WithRequired } from '../utils/types';
 
-import { ChatPromptOptions, ChatPromptPlugin, ChatPromptSendOptions, IChatPrompt } from './chat-types';
+import type { ChatPromptOptions, ChatPromptPlugin, ChatPromptSendOptions, IChatPrompt } from './chat-types';
 
 /**
  * a prompt that can interface with a
@@ -21,27 +22,27 @@ export class ChatPrompt<
   TOptions extends Record<string, any> = Record<string, any>,
   TChatPromptPlugins extends readonly ChatPromptPlugin<string, any>[] = [],
 > implements IChatPrompt<TOptions, TChatPromptPlugins> {
-  get name() {
+  get name(): string {
     return this._name;
   }
   protected readonly _name: string;
 
-  get description() {
+  get description(): string {
     return this._description;
   }
   protected readonly _description: string;
 
-  get messages() {
+  get messages(): IMemory {
     return this._messages;
   }
   protected readonly _messages: IMemory;
 
-  get functions() {
+  get functions(): Function[] {
     return Object.values(this._functions);
   }
   protected readonly _functions: Record<string, Function> = {};
 
-  get plugins() {
+  get plugins(): TChatPromptPlugins {
     return this._plugins;
   }
   protected readonly _plugins: TChatPromptPlugins;
@@ -73,7 +74,7 @@ export class ChatPrompt<
 
   use(prompt: IChatPrompt): this;
   use(name: string, prompt: IChatPrompt): this;
-  use(...args: any[]) {
+  use(...args: any[]): this {
     const prompt: IChatPrompt = args.length === 1 ? args[0] : args[1];
     const name: string = args.length === 1 ? prompt.name : args[0];
     this._functions[name] = {
@@ -99,7 +100,7 @@ export class ChatPrompt<
 
   function(name: string, description: string, handler: FunctionHandler): this;
   function(name: string, description: string, parameters: Schema, handler: FunctionHandler): this;
-  function(...args: any[]) {
+  function(...args: any[]): this {
     const name: string = args[0];
     const description: string = args[1];
     const parameters: Schema | null = args.length === 3 ? null : args[2];
@@ -145,7 +146,10 @@ export class ChatPrompt<
     return this.executeFunction(name, fn, args);
   }
 
-  async send(input: string | ContentPart[], options: ChatPromptSendOptions<TOptions> = {}) {
+  async send(
+    input: string | ContentPart[],
+    options: ChatPromptSendOptions<TOptions> = {}
+  ): Promise<ModelMessage> {
     this._log.debug(`Processing plugins before send (${this.plugins.length} plugins found)`);
     for (const plugin of this.plugins) {
       if (plugin.onBeforeSend) {

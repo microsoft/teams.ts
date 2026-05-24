@@ -1,5 +1,7 @@
 # Teams: OpenAI
 
+> ⚠️ **DEPRECATED** — `@microsoft/teams.openai` is no longer recommended. Use the [`openai`](https://www.npmjs.com/package/openai) SDK directly (the `AzureOpenAI` client with `chat.completions.runTools`). See [`examples/ai-mcp`](../../examples/ai-mcp) for the new pattern.
+
 <p>
     <a href="https://www.npmjs.com/package/@microsoft/teams.openai" target="_blank">
         <img src="https://img.shields.io/npm/v/@microsoft/teams.openai/latest" />

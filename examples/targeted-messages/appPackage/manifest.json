@@ -1,7 +1,7 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.20/MicrosoftTeams.schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/vDevPreview/MicrosoftTeams.schema.json",
   "version": "1.0.0",
-  "manifestVersion": "1.20",
+  "manifestVersion": "devPreview",
   "id": "${{TEAMS_APP_ID}}",
   "name": {
     "short": "targeted-messages",
@@ -40,7 +40,21 @@
       "isNotificationOnly": false,
       "supportsCalling": false,
       "supportsVideo": false,
-      "supportsFiles": false
+      "supportsFiles": false,
+      "supportsTargetedMessages": true,
+      "commandLists": [
+        {
+          "scopes": ["team", "groupChat"],
+          "triggers": ["slash"],
+          "commands": [
+            { "title": "test send", "description": "Send a targeted message visible only to you" },
+            { "title": "test update", "description": "Send a targeted message then update it after 3 seconds" },
+            { "title": "test delete", "description": "Send a targeted message then delete it after 3 seconds" },
+            { "title": "test public", "description": "Send a public message visible to everyone" },
+            { "title": "test inbound", "description": "Show whether the inbound message was targeted at the bot" }
+          ]
+        }
+      ]
     }
   ],
   "validDomains": ["${{BOT_DOMAIN}}", "*.botframework.com"],

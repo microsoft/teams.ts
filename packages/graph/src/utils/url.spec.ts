@@ -1,4 +1,4 @@
-import { ParamDefs } from '../types';
+import type { ParamDefs } from '../types';
 
 import { getInjectedUrl, getInjectedRequestConfig } from './url';
 

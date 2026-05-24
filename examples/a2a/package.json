@@ -1,6 +1,6 @@
 {
   "name": "@examples/a2a",
-  "version": "0.0.6",
+  "version": "0.0.1",
   "private": true,
   "license": "MIT",
   "main": "dist/index",
@@ -15,21 +15,25 @@
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
     "start": "node -r dotenv/config .",
-    "server": "tsx watch -r dotenv/config src/server-example.ts",
-    "client": "tsx watch -r dotenv/config src/client-example.ts"
+    "dev": "tsx watch -r dotenv/config src/index.ts",
+    "dev:alice": "env-cmd --silent -f .env.alice tsx watch src/index.ts",
+    "dev:bob": "env-cmd --silent -f .env.bob tsx watch src/index.ts"
   },
   "dependencies": {
-    "@a2a-js/sdk": "^0.3.4",
-    "@microsoft/teams.a2a": "*",
-    "@microsoft/teams.ai": "*",
+    "@a2a-js/sdk": "^0.3.13",
+    "@microsoft/teams.api": "*",
     "@microsoft/teams.apps": "*",
-    "@microsoft/teams.dev": "*",
-    "@microsoft/teams.openai": "*"
+    "@microsoft/teams.common": "*",
+    "express": "^5.1.0",
+    "openai": "^6.37.0"
   },
   "devDependencies": {
-    "rimraf": "^6.0.1",
+    "@microsoft/teams.config": "*",
+    "@types/express": "^5.0.0",
     "@types/node": "^22.5.4",
     "dotenv": "^16.4.5",
+    "env-cmd": "latest",
+    "rimraf": "^6.0.1",
     "tsx": "^4.20.6",
     "typescript": "^5.4.5"
   }

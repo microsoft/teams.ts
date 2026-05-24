@@ -1,11 +1,16 @@
-import { CloudAdapter, TurnContext } from 'botbuilder';
-import e from 'express';
 
-import { IMessageActivity, MessageActivity } from '@microsoft/teams.api';
+import type { CloudAdapter, TurnContext } from 'botbuilder';
 
-import { App, IPluginStartEvent, ExpressAdapter } from '@microsoft/teams.apps';
+import type e from 'express';
+
+import type { IMessageActivity } from '@microsoft/teams.api';
+import { MessageActivity } from '@microsoft/teams.api';
+
+import type { IPluginStartEvent } from '@microsoft/teams.apps';
+import { App, ExpressAdapter } from '@microsoft/teams.apps';
 
 import { BotBuilderPlugin } from './plugin';
+
 
 // Mock adapter that extends ExpressAdapter to pass instanceof check
 // while avoiding real server operations in tests

@@ -9,10 +9,20 @@ Targeted messages are messages that only a specific recipient can see - other pa
 | Command | Behavior |
 |---------|----------|
 | `test send` | Sends a targeted message (only you see it) |
-| `test reply` | Replies with a targeted message |
 | `test update` | Sends a targeted message, then updates it after 3 seconds |
-| `test delete` | Sends a targeted message, then deletes it after 5 seconds |
+| `test delete` | Sends a targeted message, then deletes it after 3 seconds |
+| `test public` | Sends a public reply (visible to everyone) |
+| `test inbound` | Reads `activity.recipient.isTargeted` and reports whether the inbound message was targeted at the bot |
 | `help` | Shows available commands |
+
+## Manifest configuration
+
+The `appPackage/manifest.json` uses `manifestVersion: "devPreview"` because the slash-command opt-in fields are only defined in the devPreview schema:
+
+- `bots[].supportsTargetedMessages: true` — opts the bot into receiving slash-command-style targeted messages.
+- `bots[].commandLists[].triggers: ["slash"]` — declares the listed commands as slash commands. They appear in the Teams `/` picker for group chats and channels.
+
+Slash commands arrive at the bot as regular `MessageActivity` events with `activity.recipient.isTargeted === true`, which the `test inbound` handler in this sample demonstrates.
 
 ## Testing in a Group Chat
 
