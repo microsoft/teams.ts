@@ -4,7 +4,7 @@ import { AdaptiveCardActionMessageResponse } from '@microsoft/teams.api';
 import { App, ExpressAdapter } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
-import { state } from './state';
+import { state, PendingAsk, ApprovalStatus } from './state';
 
 // Own the Express app so we can mount /mcp alongside /api/messages
 // and manage the http.Server lifecycle in index.ts.
@@ -16,30 +16,18 @@ export const app = new App({
 });
 
 app.on('message', async ({ activity, send }) => {
-  const userId = activity.from.id;
+  const userId = activity.from.aadObjectId;
   const conversationId = activity.conversation.id;
 
-  if (activity.conversation.conversationType === 'personal') {
+  if (activity.conversation.conversationType === 'personal' && userId) {
     // cache the personal conversation_id so MCP tools can DM this user later.
     state.conversations.set(userId, conversationId);
   }
 
-  // If this user has a pending ask, treat their next message as the answer.
-  // Only one outstanding ask per user is supported (see README Limitations).
-  const requestId = state.userPendingAsk.get(userId);
-  if (requestId && state.pendingAsks.has(requestId)) {
-    const entry = state.pendingAsks.get(requestId)!;
-    entry.reply = activity.text ?? '';
-    entry.status = 'answered';
-    state.userPendingAsk.delete(userId);
-    await send('Got it, thank you!');
-    return;
-  }
-
   app.log.info(
-    `Received message from user ${userId} in conversation ${conversationId}, but no pending ask found.`
+    `Received message from user ${userId} in conversation ${conversationId}. Replies to asks now arrive via adaptive card actions.`
   );
-  await send('Hi! Will let you know if I need anything.');
+  await send('Hi! I\'ll let you know if I need anything.');
 });
 
 app.on('card.action.approval_response', async ({ activity }) => {
@@ -53,12 +41,55 @@ app.on('card.action.approval_response', async ({ activity }) => {
     state.approvals.has(approvalId) &&
     (decision === 'approved' || decision === 'rejected')
   ) {
-    state.approvals.set(approvalId, decision);
+    state.approvals.set(approvalId, decision as ApprovalStatus);
+    // Signal any wait_for_approval waiter.
+    const waiter = state.approvalWaiters.get(approvalId);
+    if (waiter) {
+      state.approvalWaiters.delete(approvalId);
+      waiter.resolve(decision as ApprovalStatus);
+    }
+    return {
+      statusCode: 200,
+      type: 'application/vnd.microsoft.activity.message',
+      value: 'Response recorded',
+    } satisfies AdaptiveCardActionMessageResponse;
   }
 
   return {
     statusCode: 200,
     type: 'application/vnd.microsoft.activity.message',
-    value: 'Response recorded',
+    value: 'Unable to record response. The approval request may be invalid or expired.',
+  } satisfies AdaptiveCardActionMessageResponse;
+});
+
+app.on('card.action.ask_reply', async ({ activity }) => {
+  const { request_id: requestId, reply } = activity.value.action.data as {
+    request_id?: string;
+    reply?: string;
+  };
+
+  if (requestId) {
+    const entry = state.pendingAsks.get(requestId);
+    if (entry?.status === 'pending') {
+      const answered: PendingAsk = { ...entry, status: 'answered', reply: reply ?? '' };
+      state.pendingAsks.set(requestId, answered);
+      // Signal any wait_for_reply waiter.
+      const waiter = state.replyWaiters.get(requestId);
+      if (waiter) {
+        state.replyWaiters.delete(requestId);
+        waiter.resolve(answered);
+      }
+      return {
+        statusCode: 200,
+        type: 'application/vnd.microsoft.activity.message',
+        value: 'Thanks for your reply!',
+      } satisfies AdaptiveCardActionMessageResponse;
+    }
+  }
+
+  return {
+    statusCode: 200,
+    type: 'application/vnd.microsoft.activity.message',
+    value: 'Unable to record reply. The ask may be invalid or expired.',
   } satisfies AdaptiveCardActionMessageResponse;
 });

@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "teams-mcp-server": {
+      "type": "http",
+      "url": "http://localhost:3978/mcp"
+    }
+  }
+}

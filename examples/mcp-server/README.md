@@ -6,21 +6,27 @@ Teams and wait for them to reply or approve.
 
 ## Tools
 
-| Tool              | Purpose                                                       |
-| ----------------- | ------------------------------------------------------------- |
-| `notify`          | Send a one-way message to a user. No response expected.       |
-| `ask`             | Ask a user a question. Returns a `requestId`.                 |
-| `getReply`        | Poll for the reply to an earlier `ask`.                       |
-| `requestApproval` | Send an Approve/Reject card to a user. Returns `approvalId`.  |
-| `getApproval`     | Poll for the decision on an earlier `requestApproval`.        |
+| Tool                | Purpose                                                                        | Parameters                        |
+| ------------------- | ------------------------------------------------------------------------------ | --------------------------------- |
+| `find_user`         | Search the tenant by partial name / email / UPN. Returns up to 5 AAD object ids. | `query`                         |
+| `notify`            | Send a one-way notification to a user. No response expected.                   | `userId`, `message`               |
+| `ask`               | Ask a user a question via an Adaptive Card with a reply box. Returns a `requestId`. Multiple asks per user can be in flight. | `userId`, `question` |
+| `wait_for_reply`    | Wait up to `timeoutSeconds` for the reply (default 30). Returns `pending` on timeout. | `requestId`, `timeoutSeconds` |
+| `get_reply`         | Snapshot the reply state without waiting. For manual polling.                  | `requestId`                       |
+| `request_approval`  | Send an Approve/Reject card to a user. Returns an `approvalId`.                | `userId`, `title`, `description`  |
+| `wait_for_approval` | Wait up to `timeoutSeconds` for the decision (default 30). Returns `pending` on timeout. | `approvalId`, `timeoutSeconds` |
+| `get_approval`      | Snapshot the approval status without waiting. For manual polling.              | `approvalId`                      |
+
+`userId` everywhere is the **AAD object id** of someone in the same tenant. Use `find_user` to resolve a name to an id.
 
 ## Layout
 
-- `src/state.ts` — in-memory maps for conversations, pending asks, approvals.
+- `src/state.ts` — in-memory maps for conversations, pending asks, approvals, and reply/approval waiters.
 - `src/app.ts` — the `App` instance and the Teams activity handlers
-  (`message`, `card.action`) that capture replies and approvals.
+  (`message`, `card.action.ask_reply`, `card.action.approval_response`) that capture replies and approvals.
 - `src/mcpTools.ts` — `McpServer` from `@modelcontextprotocol/sdk` plus the
-  five tool registrations that send to users and read/write shared state.
+  tool registrations that send to users and read/write shared state.
+- `src/graphClient.ts` — lightweight app-only Graph client for `find_user`.
 - `src/index.ts` — initializes the app, mounts a `StreamableHTTPServerTransport`
   at `/mcp` on the Express adapter, and starts the server.
 
@@ -34,14 +40,25 @@ CLIENT_SECRET=<your-azure-bot-app-secret>
 TENANT_ID=<your-tenant-id>
 ```
 
-`TENANT_ID` is required because the MCP tools
-open 1:1 conversations *proactively* via `app.api.conversations.create({
-tenantId })`. There's no inbound activity to read the tenant from.
+`TENANT_ID` is required because the MCP tools open 1:1 conversations
+*proactively* via `conversations.create({ tenantId })`. There's no inbound
+activity to read the tenant from.
 
-The `userId` argument passed to `notify`, `ask`, and `requestApproval` is the
-Teams AAD user id of someone in the same tenant. For the simplest setup,
-message the bot once with a real user, then read the user id off the first
-`message` activity in the server log and use that.
+The `userId` argument passed to `notify`, `ask`, and `request_approval` is the
+**AAD object id** of someone in the same tenant. Either call `find_user` to
+resolve a name, or DM the bot once and read the AAD object id off the first
+`message` activity in the server log.
+
+## Graph permissions
+
+`find_user` calls Microsoft Graph as the bot's app identity. In the bot's
+Azure AD app registration → **API permissions**, add
+**`User.ReadBasic.All`** (Microsoft Graph, **Application** permission) and
+grant admin consent for your tenant. Without this, `find_user` returns 403
+Forbidden.
+
+The Graph call reuses `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID` — no
+extra config keys.
 
 ## Run
 
@@ -70,22 +87,20 @@ transport and enter `http://localhost:3978/mcp` as the URL, then click
 
 ## Example agent flow
 
-1. Agent calls `requestApproval(userId, title, description)` → gets
+1. Agent calls `request_approval(userId, title, description)` → gets
    `approvalId`.
 2. The user sees an Approve/Reject card in Teams and clicks a button.
-3. The `card.action` handler records the decision.
-4. Agent polls `getApproval(approvalId)` until the status flips to
-   `approved` or `rejected`.
+3. The `card.action.approval_response` handler records the decision and
+   signals any in-flight `wait_for_approval` waiter.
+4. Agent calls `wait_for_approval(approvalId)` — returns within
+   milliseconds of the click. If the user doesn't click within 30 s, the
+   tool returns `pending` and the agent calls again. (The `get_approval`
+   variant exists for clients that prefer manual polling.)
 
 ## Limitations
 
 All state is in-memory. A server restart clears everything — pending asks
 and approvals in flight will be lost.
-
-**Only one outstanding `ask` per user.** The next message that user sends to
-the bot is treated as the answer to their open ask. Calling `ask` for the
-same user while a previous ask is still pending will overwrite the
-correlation, and the user's reply will resolve whichever ask is current.
 
 ## Security
 
