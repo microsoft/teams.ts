@@ -38,7 +38,7 @@
     "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
     "jwt-decode": "^4.0.0",
-    "qs": "^6.14.2"
+    "qs": "^6.15.2"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
