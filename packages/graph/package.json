@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@microsoft/teams.common": "*",
-    "qs": "^6.14.2"
+    "qs": "^6.15.2"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
