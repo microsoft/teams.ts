@@ -18,7 +18,7 @@ teams app create --name "graph" --endpoint "https://<your-tunnel>/api/messages" 
 
 The CLI writes `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID` to your `.env` file and prints an install link for Teams.
 
-## Teams Toolkit Configuration: Oauth
+## OAuth configuration
 
 Use this if you want to enable user authentication in your Teams application.
 

@@ -111,4 +111,4 @@ $: npm run test
 ## Links
 
 - [Teams Developer Portal: Apps](https://dev.teams.microsoft.com/apps)
-- [Teams Toolkit](https://www.npmjs.com/package/@microsoft/teamsapp-cli)
+- [Teams CLI](https://www.npmjs.com/package/@microsoft/teams.cli)
