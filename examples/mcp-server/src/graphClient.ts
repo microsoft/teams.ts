@@ -8,7 +8,7 @@ import * as endpoints from '@microsoft/teams.graph-endpoints';
 import { app } from './app';
 
 export type UserMatch = {
-  id: string |  null;
+  id: string;
   displayName: string | null;
   userPrincipalName: string | null;
 };
@@ -31,11 +31,14 @@ export const graphClient = {
       '$top': top,
     });
 
-    return (result.value ?? []).map((u) => ({
-      id: u.id ?? null,
-      displayName: u.displayName ?? null,
-      userPrincipalName: u.userPrincipalName ?? null,
-    }));
+    return (result.value ?? []).map((u) => {
+      if (!u.id) throw new Error(`Graph returned a user with no id: ${JSON.stringify(u)}`);
+      return {
+        id: u.id,
+        displayName: u.displayName ?? null,
+        userPrincipalName: u.userPrincipalName ?? null,
+      };
+    });
   },
 };
 
