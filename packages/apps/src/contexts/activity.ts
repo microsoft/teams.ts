@@ -1,6 +1,7 @@
 import {
   Activity,
   ActivityLike,
+  ActivityParams,
   cardAttachment,
   ConversationAccount,
   ConversationReference,
@@ -194,6 +195,8 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
 export type IActivityContext<T extends Activity = Activity, TExtraContext = unknown> =
   IBaseActivityContext<T> & (TExtraContext extends Record<string, any> ? TExtraContext : {});
 
+type MessageActivityParams = ActivityParams & Partial<IMessageActivity> & { type: 'message' };
+
 export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {} = {}>
   implements IBaseActivityContext<T, TExtraCtx> {
   appId!: string;
@@ -254,37 +257,18 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   async send(activity: ActivityLike, conversationRef?: ConversationReference) {
     const params = toActivityParams(activity);
 
-    // For targeted send, set the recipient if not already set.
-    // For targeted update (params.id exists), we don't update recipient since recipient cannot be changed.
-    if (params.type === 'message' && params.recipient?.isTargeted && !params.id) {
-      if (!params.recipient) {
-        params.recipient = this.activity.from;
-      }
+    if (this.shouldOutboundBeAutoTargeted(params, conversationRef)) {
+      this.applyTargetedRecipient(params);
     }
 
-    // Auto-populate targetedMessageInfo entity for prompt preview
-    // when replying to a targeted message in the reactive flow.
-    if (
-      params.type === 'message' &&
-      this.activity.recipient?.isTargeted === true
-    ) {
-      if (params.entities) {
-        params.entities = params.entities.filter((e) => e.type !== 'quotedReply');
-      }
+    if (this.isTargetedOutbound(params)) {
+      this.stripQuotedReplyMetadata(params);
 
-      if (params.text) {
-        params.text = params.text.replace(`<quoted messageId="${this.activity.id}"/>`, '').trim();
-      }
-
-      if (!params.entities?.some((e) => e.type === 'targetedMessageInfo')) {
-        if (!params.entities) {
-          params.entities = [];
-        }
-
-        params.entities.push({
-          type: 'targetedMessageInfo',
-          messageId: this.activity.id,
-        });
+      // `targetedMessageInfo` points at the original targeted inbound message for prompt preview.
+      // Do not add it for generic targeted sends; Teams can reject it if the referenced activity
+      // was not itself delivered as a targeted message.
+      if (this.isIncomingTargeted()) {
+        this.addTargetedMessageInfo(params);
       }
     }
 
@@ -438,6 +422,66 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       signin: this.signin.bind(this),
       signout: this.signout.bind(this),
     };
+  }
+
+  private isIncomingTargeted() {
+    return this.activity.recipient?.isTargeted === true;
+  }
+
+  private shouldOutboundBeAutoTargeted(params: ActivityParams, conversationRef?: ConversationReference) {
+    if (params.type !== 'message') {
+      return false;
+    }
+
+    if (!this.isIncomingTargeted()) {
+      return false;
+    }
+
+    if (!this.isSameConversation(conversationRef)) {
+      return false;
+    }
+
+    return !params.id && !params.recipient;
+  }
+
+  private isSameConversation(conversationRef?: ConversationReference) {
+    return !conversationRef || conversationRef.conversation?.id === this.ref.conversation?.id;
+  }
+
+  private applyTargetedRecipient(params: ActivityParams) {
+    params.recipient = {
+      ...this.activity.from,
+      isTargeted: true,
+    };
+  }
+
+  private isTargetedOutbound(params: ActivityParams): params is MessageActivityParams {
+    return params.type === 'message' && params.recipient?.isTargeted === true;
+  }
+
+  private stripQuotedReplyMetadata(params: MessageActivityParams) {
+    if (params.entities) {
+      params.entities = params.entities.filter((e) => e.type !== 'quotedReply');
+    }
+
+    if (params.text) {
+      params.text = params.text.replace(`<quoted messageId="${this.activity.id}"/>`, '').trim();
+    }
+  }
+
+  private addTargetedMessageInfo(params: MessageActivityParams) {
+    if (params.entities?.some((e) => e.type === 'targetedMessageInfo')) {
+      return;
+    }
+
+    if (!params.entities) {
+      params.entities = [];
+    }
+
+    params.entities.push({
+      type: 'targetedMessageInfo',
+      messageId: this.activity.id,
+    });
   }
 
 }
