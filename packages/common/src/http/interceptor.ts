@@ -1,6 +1,7 @@
-import { AxiosInterceptorOptions, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
+import type { AxiosInterceptorOptions, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 
-import { ILogger } from '../logging';
+import type { ILogger } from '../logging';
+
 
 export type Interceptor = {
   options?: AxiosInterceptorOptions;

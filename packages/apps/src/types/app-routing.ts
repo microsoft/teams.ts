@@ -1,8 +1,10 @@
+import type { App } from '../app';
+
+import type { IRoutes } from '../routes';
+
 import { IPlugin } from './plugin';
 import { UnionToIntersection } from './union-to-intersection';
 
-import type { App } from '../app';
-import type { IRoutes } from '../routes';
 
 /**
  * Extracts the events from a plugin if it extends PluginWithEvents

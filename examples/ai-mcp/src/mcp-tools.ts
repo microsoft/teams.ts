@@ -1,11 +1,12 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 
+import type { RunnableToolFunction } from 'openai/lib/RunnableFunction';
+
 import { ILogger } from '@microsoft/teams.common';
 
 import { CitationCollector } from './citation-collector';
 
-import type { RunnableToolFunction } from 'openai/lib/RunnableFunction';
 
 
 /**

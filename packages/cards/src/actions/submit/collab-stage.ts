@@ -1,14 +1,16 @@
-import {
-  CollabStageInvokeDataValue,
+import type {
   ICollabStageInvokeDataValue,
   IInvokeSubmitActionData,
-  InvokeSubmitActionData,
   ISubmitAction,
   ISubmitActionData,
   ITabInfo,
+  SubmitActionOptions,
+} from '../../core';
+import {
+  CollabStageInvokeDataValue,
+  InvokeSubmitActionData,
   SubmitAction,
   SubmitActionData,
-  SubmitActionOptions,
 } from '../../core';
 
 export type CollabStageActionOptions = SubmitActionOptions & {
@@ -28,7 +30,10 @@ export interface ICollabStageAction extends ISubmitAction {
 /**
  * Adaptive Card action that opens a collab stage popout window.
  */
-export class CollabStageAction extends SubmitAction implements ICollabStageAction {
+export class CollabStageAction
+  extends SubmitAction
+  implements ICollabStageAction
+{
   /**
    * Initial data that input fields will be combined with. These are essentially 'hidden' properties.
    */
@@ -39,25 +44,23 @@ export class CollabStageAction extends SubmitAction implements ICollabStageActio
     Object.assign(this, options);
     this.data = new SubmitActionData({
       msteams: new InvokeSubmitActionData(
-        tab
-          ? new CollabStageInvokeDataValue({ tabInfo: tab })
-          : undefined,
+        tab ? new CollabStageInvokeDataValue({ tabInfo: tab }) : undefined,
       ),
     });
   }
 
-  static from(options: CollabStageActionOptions) {
+  static from(options: CollabStageActionOptions): CollabStageAction {
     const msteams = options.data.msteams as IInvokeSubmitActionData | undefined;
     const value = msteams?.value as ICollabStageInvokeDataValue | undefined;
     return new CollabStageAction(value?.tabInfo, options);
   }
 
-  withData(value: IInvokeSubmitActionData) {
+  withData(value: IInvokeSubmitActionData): this {
     super.withData(new SubmitActionData({ msteams: value }));
     return this;
   }
 
-  withValue(value: ITabInfo) {
+  withValue(value: ITabInfo): this {
     const msteams = this.data.msteams as IInvokeSubmitActionData | undefined;
     if (msteams) {
       msteams.value = new CollabStageInvokeDataValue({ tabInfo: value });

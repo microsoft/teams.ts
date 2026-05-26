@@ -2,9 +2,10 @@ import { AxiosError } from 'axios';
 
 import { Client as HttpClient } from '@microsoft/teams.common';
 
+import type { EndpointRequest } from './types';
+
 import { Client, GraphError } from './index';
 
-import type { EndpointRequest } from './types';
 
 // Mock the http module
 jest.mock('@microsoft/teams.common', () => ({

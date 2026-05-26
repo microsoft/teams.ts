@@ -1,4 +1,4 @@
-import { IStorage } from './storage';
+import type { IStorage } from './storage';
 
 export type LocalStorageOptions = {
   /**
@@ -12,11 +12,11 @@ export class LocalStorage<T = any> implements IStorage<string, T> {
   protected readonly _keys: string[];
   protected readonly _options: LocalStorageOptions;
 
-  get keys() {
+  get keys(): string[] {
     return this._keys;
   }
 
-  get size() {
+  get size(): number {
     return this._store.size;
   }
 
@@ -26,12 +26,12 @@ export class LocalStorage<T = any> implements IStorage<string, T> {
     this._options = options;
   }
 
-  get(key: string) {
+  get(key: string): T | undefined {
     this._hit(key);
     return this._store.get(key);
   }
 
-  set(key: string, value: T) {
+  set(key: string, value: T): void {
     if (!this._hit(key)) {
       this._keys.push(key);
     }
@@ -49,7 +49,7 @@ export class LocalStorage<T = any> implements IStorage<string, T> {
     this._store.set(key, value);
   }
 
-  delete(key: string) {
+  delete(key: string): void {
     const i = this._keys.findIndex((k) => key === k);
 
     if (i > -1) {
@@ -59,18 +59,18 @@ export class LocalStorage<T = any> implements IStorage<string, T> {
     this._store.delete(key);
   }
 
-  toString() {
+  toString(): string {
     return JSON.stringify(
       Array.from(this._store.entries()).map(([key, value]) => ({
         key,
         value,
       })),
       null,
-      2
+      2,
     );
   }
 
-  protected _hit(key: string) {
+  protected _hit(key: string): boolean {
     if (!this._store.has(key)) return false;
     if (this._keys[this._keys.length - 1] === key) return true;
 
