@@ -2,6 +2,13 @@ import { randomUUID } from 'crypto';
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
+import type {
+  AnySchema,
+  SchemaOutput,
+  ShapeOutput,
+  ZodRawShapeCompat,
+} from '@modelcontextprotocol/sdk/server/zod-compat.js';
+import type { ToolAnnotations } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 
 import {
@@ -16,15 +23,6 @@ import { app } from './app';
 import { graphClient } from './graphClient';
 import { state } from './state';
 
-import type { AskStatus, ApprovalStatus, PendingAsk } from './state';
-
-import type {
-  AnySchema,
-  SchemaOutput,
-  ShapeOutput,
-  ZodRawShapeCompat,
-} from '@modelcontextprotocol/sdk/server/zod-compat.js';
-import type { ToolAnnotations } from '@modelcontextprotocol/sdk/types.js';
 
 export const mcpServer = new McpServer({ name: 'teams-bot', version: '0.0.0' });
 

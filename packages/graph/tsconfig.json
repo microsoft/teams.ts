@@ -3,7 +3,9 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "isolatedDeclarations": true,
+    "isolatedModules": true
   },
   "include": ["src/**/*.ts"]
 }

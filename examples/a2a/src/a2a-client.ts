@@ -1,10 +1,10 @@
+import type { AgentCard, MessageSendParams } from '@a2a-js/sdk';
 import { Client, ClientFactory, JsonRpcTransportFactory } from '@a2a-js/sdk/client';
 
 import { ILogger } from '@microsoft/teams.common';
 
 import { Config, HandoffMessage } from './types';
 
-import type { AgentCard, MessageSendParams } from '@a2a-js/sdk';
 
 /**
  * Outbound A2A. Resolves the peer's AgentCard once (so the agent can read its

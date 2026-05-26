@@ -43,6 +43,7 @@ type InvokeAliases = {
   'message/fetchTask': 'message.fetch-task';
   'message/submitAction': 'message.submit';
   'handoff/action': 'handoff.action';
+  'suggestedActions/submit': 'suggested-action.submit';
   'signin/tokenExchange': 'signin.token-exchange';
   'signin/verifyState': 'signin.verify-state';
   'signin/failure': 'signin.failure';
@@ -70,6 +71,7 @@ export const INVOKE_ALIASES: InvokeAliases = {
   'message/fetchTask': 'message.fetch-task',
   'message/submitAction': 'message.submit',
   'handoff/action': 'handoff.action',
+  'suggestedActions/submit': 'suggested-action.submit',
   'signin/tokenExchange': 'signin.token-exchange',
   'signin/verifyState': 'signin.verify-state',
   'signin/failure': 'signin.failure',

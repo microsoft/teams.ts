@@ -1,3 +1,9 @@
+import type {
+  AgentExecutor,
+  ExecutionEventBus,
+  RequestContext,
+} from '@a2a-js/sdk/server';
+
 import { Client as TeamsApiClient } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ILogger } from '@microsoft/teams.common';
@@ -5,11 +11,6 @@ import { ILogger } from '@microsoft/teams.common';
 import { Agent } from './agent';
 import { Config, HandoffMessage, isHandoffMessage } from './types';
 
-import type {
-  AgentExecutor,
-  ExecutionEventBus,
-  RequestContext,
-} from '@a2a-js/sdk/server';
 
 /**
  * Inbound A2A. Implements `AgentExecutor` from `@a2a-js/sdk` — the SDK calls

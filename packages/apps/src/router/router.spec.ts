@@ -201,6 +201,19 @@ describe('Router', () => {
       } as any)).toHaveLength(1);
     });
 
+    it('should select suggested-action.submit routes', () => {
+      const router = new Router();
+      const handler = jest.fn();
+
+      router.on('invoke', handler);
+      router.on('suggested-action.submit', handler);
+
+      expect(router.select({
+        type: 'invoke',
+        name: 'suggestedActions/submit'
+      } as any)).toHaveLength(2);
+    });
+
     it('should select file consent routes', () => {
       const router = new Router();
       const handler = jest.fn();

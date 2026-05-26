@@ -230,6 +230,14 @@ describe('ActivityContext', () => {
       // Reply prepends blockquote, but send() auto-populates addTargetedMessageInfo
       // which strips quotedReply entities — the blockquote text remains since it's
       // the legacy format, not the <quoted .../> placeholder.
+      expect(sentActivity.recipient).toEqual(
+        expect.objectContaining({
+          id: 'test-user',
+          name: 'Test User',
+          role: 'user',
+          isTargeted: true,
+        })
+      );
       expect(sentActivity.entities).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -259,6 +267,85 @@ describe('ActivityContext', () => {
     });
 
     describe('targeted messages', () => {
+      it('defaults send to targeted when inbound message is targeted', async () => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+          .withId('test-activity-id');
+        context = buildActivityContext(activity);
+
+        await context.send('Secret message');
+
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+        expect(mockSender.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Secret message',
+            type: 'message',
+            recipient: expect.objectContaining({ id: 'test-user', name: 'Test User', role: 'user', isTargeted: true }),
+          }),
+          mockRef
+        );
+      });
+
+      it('does not default send to targeted for a different conversation', async () => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+          .withId('test-activity-id');
+        context = buildActivityContext(activity);
+
+        const otherRef = {
+          ...mockRef,
+          conversation: {
+            ...mockRef.conversation,
+            id: 'other-conversation',
+          },
+        };
+
+        await context.send('Secret message', otherRef);
+
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+        expect(mockSender.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Secret message',
+            type: 'message',
+          }),
+          otherRef
+        );
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity.recipient).toBeUndefined();
+        expect(sentActivity.entities).toBeUndefined();
+      });
+
+      it('does not default send to targeted when an explicit different recipient is supplied', async () => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+          .withId('test-activity-id');
+        context = buildActivityContext(activity);
+
+        const otherRecipient = { id: 'other-user', name: 'Other User', role: 'user' as const };
+        await context.send(new MessageActivity('Public message').withRecipient(otherRecipient));
+
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity).toEqual(
+          expect.objectContaining({
+            text: 'Public message',
+            type: 'message',
+            recipient: expect.objectContaining(otherRecipient),
+          })
+        );
+        expect(sentActivity.recipient.isTargeted).toBeUndefined();
+        expect(sentActivity.entities).toBeUndefined();
+      });
+
       it('sends targeted message with recipient from incoming activity', async () => {
         const activity = buildIncomingMessageActivity('Hello world');
         context = buildActivityContext(activity);
@@ -277,6 +364,32 @@ describe('ActivityContext', () => {
           }),
           mockRef
         );
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity.entities).toBeUndefined();
+      });
+
+      it('allows explicitly public send from a targeted inbound message', async () => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+          .withId('test-activity-id');
+        context = buildActivityContext(activity);
+
+        await context.send(new MessageActivity('Public message').withRecipient(activity.from));
+
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity).toEqual(
+          expect.objectContaining({
+            text: 'Public message',
+            type: 'message',
+            recipient: expect.objectContaining({ id: 'test-user', name: 'Test User', role: 'user' }),
+          })
+        );
+        expect(sentActivity.recipient.isTargeted).toBeUndefined();
+        expect(sentActivity.entities).toBeUndefined();
       });
 
       it('sends targeted message with explicit recipient id', async () => {

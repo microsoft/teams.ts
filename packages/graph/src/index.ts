@@ -3,14 +3,14 @@ import {
   type ClientOptions as HttpClientOptions
 } from '@microsoft/teams.common';
 
+import type { CallOptions, EndpointRequest, SchemaVersion } from './types';
 import { getInjectedUrl, getInjectedRequestConfig } from './utils/url';
 
-import type { CallOptions, EndpointRequest, SchemaVersion } from './types';
 
 // Build-time constant injected by tsup
 declare const __PACKAGE_VERSION__: string;
 
-export { CallOptions, EndpointRequest, SchemaVersion } from './types';
+export type { CallOptions, EndpointRequest, SchemaVersion } from './types';
 
 /**
  * Error thrown when a Graph API request fails.
@@ -66,7 +66,7 @@ type GraphOptions = {
  * Provides an entry point for invoking Microsoft Graph APIs.
  */
 export class Client {
-  protected baseUrlRoot;
+  protected baseUrlRoot: string;
   protected _http: HttpClient;
   protected betaHttp?: HttpClient;
 
