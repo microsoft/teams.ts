@@ -19,17 +19,6 @@ Teams and wait for them to reply or approve.
 
 `userId` everywhere is the **AAD object id** of someone in the same tenant. Use `find_user` to resolve a name to an id.
 
-## Layout
-
-- `src/state.ts` — in-memory maps for conversations, pending asks, approvals, and reply/approval waiters.
-- `src/app.ts` — the `App` instance and the Teams activity handlers
-  (`message`, `card.action.ask_reply`, `card.action.approval_response`) that capture replies and approvals.
-- `src/mcpTools.ts` — `McpServer` from `@modelcontextprotocol/sdk` plus the
-  tool registrations that send to users and read/write shared state.
-- `src/graphClient.ts` — lightweight app-only Graph client for `find_user`.
-- `src/index.ts` — initializes the app, mounts a `StreamableHTTPServerTransport`
-  at `/mcp` on the Express adapter, and starts the server.
-
 ## Configure
 
 Create a `.env` file:
@@ -105,9 +94,7 @@ and approvals in flight will be lost.
 ## Security
 
 The `/mcp` endpoint is mounted **without authentication**. Anyone who can
-reach the port can call the tools — which means they can DM arbitrary users
-and mutate approval state on your behalf. This is fine for local dev (the
-MCP Inspector connects from the same machine), but **do not expose `/mcp`
+reach the port can call the tools — which means they can DM arbitrary users and search users in your tenant. This is fine for local dev, but **do not expose `/mcp`
 on the network as-is.**
 
 Before deploying or making the port reachable from anywhere but localhost,

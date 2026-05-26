@@ -2,6 +2,13 @@ import { randomUUID } from 'crypto';
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
+import type {
+  AnySchema,
+  SchemaOutput,
+  ShapeOutput,
+  ZodRawShapeCompat,
+} from '@modelcontextprotocol/sdk/server/zod-compat.js';
+import type { ToolAnnotations } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 
 import {
@@ -16,13 +23,7 @@ import { app } from './app';
 import { graphClient } from './graphClient';
 import { ApprovalStatus, AskStatus, PendingAsk, state } from './state';
 
-import type {
-  AnySchema,
-  SchemaOutput,
-  ShapeOutput,
-  ZodRawShapeCompat,
-} from '@modelcontextprotocol/sdk/server/zod-compat.js';
-import type { ToolAnnotations } from '@modelcontextprotocol/sdk/types.js';
+
 
 
 export const mcpServer = new McpServer({ name: 'teams-bot', version: '0.0.0' });
@@ -167,7 +168,8 @@ structuredTool(
     ]);
 
     if (result === null) {
-      // Timeout — return current snapshot.
+      // Timeout — clean up the waiter and return current snapshot.
+      state.replyWaiters.delete(requestId);
       const current = state.pendingAsks.get(requestId);
       return { status: current?.status ?? 'pending', reply: current?.reply ?? null };
     }
@@ -281,6 +283,8 @@ structuredTool(
     ]);
 
     if (result === null) {
+      // Timeout — clean up the waiter and return current snapshot.
+      state.approvalWaiters.delete(approvalId);
       const current = state.approvals.get(approvalId);
       return { approvalId, status: current ?? 'pending' };
     }
