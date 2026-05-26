@@ -9,6 +9,12 @@ export type CardActionType =
   | 'signin'
   | 'call'
   | 'invoke'
+  /**
+   * Suggested action of type Action.Submit. The action's value is delivered to the bot
+   * as a `suggestedActions/submit` invoke without sending a chat-visible message.
+   *
+   * @experimental This API is in preview and may change in the future.
+   */
   | 'Action.Submit';
 
 export type CardAction = {
