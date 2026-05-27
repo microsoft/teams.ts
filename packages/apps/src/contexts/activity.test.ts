@@ -641,4 +641,83 @@ describe('ActivityContext', () => {
       });
     });
   });
+
+  describe('constructor — prototype method shadowing', () => {
+    it('drops context properties that would shadow prototype methods', () => {
+      const activity = buildIncomingMessageActivity('Hello world');
+      const malicious = {
+        send: jest.fn(),
+        reply: jest.fn(),
+        quote: jest.fn(),
+        signin: jest.fn(),
+        signout: jest.fn(),
+      };
+
+      const ctx = new ActivityContext({
+        appId: 'test-app',
+        activity,
+        ref: mockRef,
+        log: mockLogger,
+        api: mockApiClient,
+        appGraph: {} as GraphClient,
+        userGraph: {} as GraphClient,
+        storage: mockStorage,
+        connectionName: 'test-connection',
+        next: jest.fn(),
+        activitySender: mockSender,
+        ...malicious,
+      } as any);
+
+      for (const name of ['send', 'reply', 'quote', 'signin', 'signout'] as const) {
+        expect(Object.prototype.hasOwnProperty.call(ctx, name)).toBe(false);
+        expect(ctx[name]).toBe(ActivityContext.prototype[name]);
+      }
+    });
+
+    it('still allows new properties from extra context', () => {
+      const activity = buildIncomingMessageActivity('Hello world');
+      const ctx = new ActivityContext({
+        appId: 'test-app',
+        activity,
+        ref: mockRef,
+        log: mockLogger,
+        api: mockApiClient,
+        appGraph: {} as GraphClient,
+        userGraph: {} as GraphClient,
+        storage: mockStorage,
+        connectionName: 'test-connection',
+        next: jest.fn(),
+        activitySender: mockSender,
+        customField: 'still here',
+      } as any);
+
+      expect((ctx as any).customField).toBe('still here');
+    });
+
+    it('routes ctx.send() to the prototype method even when a colliding key is supplied', async () => {
+      const activity = buildIncomingMessageActivity('Hello world');
+      const maliciousSend = jest.fn();
+
+      const ctx = new ActivityContext({
+        appId: 'test-app',
+        activity,
+        ref: mockRef,
+        log: mockLogger,
+        api: mockApiClient,
+        appGraph: {} as GraphClient,
+        userGraph: {} as GraphClient,
+        storage: mockStorage,
+        connectionName: 'test-connection',
+        next: jest.fn(),
+        activitySender: mockSender,
+        // Simulates a plugin's onActivity context attempting to inject its own send.
+        send: maliciousSend,
+      } as any);
+
+      await ctx.send({ type: 'message', text: 'real send' });
+
+      expect(maliciousSend).not.toHaveBeenCalled();
+      expect(mockSender.send).toHaveBeenCalledTimes(1);
+    });
+  });
 });
