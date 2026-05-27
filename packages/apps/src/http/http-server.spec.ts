@@ -64,6 +64,34 @@ describe('HttpServer', () => {
       expect(adapter.routes).toHaveLength(1);
     });
 
+    it('warns when no credentials are configured', async () => {
+      const logger = { warn: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn(), child: jest.fn() } as any;
+      const warnServer = new HttpServer(adapter, {
+        skipAuth: false,
+        logger,
+        messagingEndpoint: '/api/messages',
+      });
+      await warnServer.initialize({ credentials: undefined });
+
+      expect(logger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('No credentials configured')
+      );
+    });
+
+    it('does not warn when credentials are configured', async () => {
+      const logger = { warn: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn(), child: jest.fn() } as any;
+      const credServer = new HttpServer(adapter, {
+        skipAuth: false,
+        logger,
+        messagingEndpoint: '/api/messages',
+      });
+      await credServer.initialize({
+        credentials: { clientId: 'x', tenantId: 'y' } as any,
+      });
+
+      expect(logger.warn).not.toHaveBeenCalled();
+    });
+
   });
 
   describe('handleRequest', () => {

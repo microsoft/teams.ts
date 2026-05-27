@@ -3,7 +3,6 @@ import { TeamsActivityHandler } from 'botbuilder';
 import { App } from '@microsoft/teams.apps';
 import { BotBuilderPlugin } from '@microsoft/teams.botbuilder';
 import { ConsoleLogger } from '@microsoft/teams.common';
-import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 export class ActivityHandler extends TeamsActivityHandler {
   constructor() {
@@ -18,7 +17,7 @@ export class ActivityHandler extends TeamsActivityHandler {
 const handler = new ActivityHandler();
 const app = new App({
   logger: new ConsoleLogger('@tests/botbuilder', { level: 'debug' }),
-  plugins: [new BotBuilderPlugin({ handler }), new DevtoolsPlugin()],
+  plugins: [new BotBuilderPlugin({ handler })],
 });
 
 app.on('message', async ({ send }) => {

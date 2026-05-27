@@ -21,8 +21,7 @@
     "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
   },
   "dependencies": {
-    "@microsoft/teams.apps": "*",
-    "@microsoft/teams.dev": "*"
+    "@microsoft/teams.apps": "*"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",

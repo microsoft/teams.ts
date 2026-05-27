@@ -45,3 +45,6 @@ yarn-error.log*
 # Cursor
 .specstory
 .claude/settings.local.json
+
+# Microsoft 365 Agents Playground writes log files to a devTools/ dir wherever it's launched
+**/devTools/

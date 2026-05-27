@@ -21,8 +21,7 @@
     "@microsoft/teams.api": "*",
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.cards": "*",
-    "@microsoft/teams.common": "*",
-    "@microsoft/teams.dev": "*"
+    "@microsoft/teams.common": "*"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",

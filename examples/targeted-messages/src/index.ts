@@ -1,11 +1,9 @@
 import { MessageActivity } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
-import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 const app = new App({
   logger: new ConsoleLogger('@examples/targeted-messages', { level: 'debug' }),
-  plugins: [new DevtoolsPlugin()],
 });
 
 app.on('message', async ({ send, activity, api }) => {
