@@ -40,7 +40,6 @@ export function withJwtValidation(params: JwtValidationParams) {
     next: express.NextFunction
   ) => {
     if (!validator) {
-      logger.error('No credentials configured. Configure client authentication to securely receive messages, or explicitly set skipAuth: true for local development.');
       res.status(401).send('Authentication not configured');
       return;
     }

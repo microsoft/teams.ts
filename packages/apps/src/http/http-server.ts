@@ -223,7 +223,6 @@ export class HttpServer implements IHttpServer {
     }
 
     if (!this.credentials) {
-      this.logger.error('No credentials configured. Configure client authentication to securely receive messages, or explicitly set skipAuth: true to allow unauthenticated requests.');
       return { success: false, error: 'Authentication not configured' };
     }
 
