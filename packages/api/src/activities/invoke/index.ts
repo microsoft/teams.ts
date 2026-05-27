@@ -6,6 +6,7 @@ import { IHandoffActionInvokeActivity } from './handoff-action';
 import { MessageInvokeActivity } from './message';
 import { MessageExtensionInvokeActivity } from './message-extension';
 import { SignInInvokeActivity } from './sign-in';
+import { ISuggestedActionSubmitInvokeActivity } from './suggested-action-submit';
 import { TabInvokeActivity } from './tab';
 import { TaskInvokeActivity } from './task';
 
@@ -19,7 +20,8 @@ export type InvokeActivity =
   | MessageInvokeActivity
   | IHandoffActionInvokeActivity
   | SignInInvokeActivity
-  | AdaptiveCardInvokeActivity;
+  | AdaptiveCardInvokeActivity
+  | ISuggestedActionSubmitInvokeActivity;
 
 export * from './file-consent';
 export * from './execute-action';
@@ -30,4 +32,5 @@ export * from './task';
 export * from './message';
 export * from './handoff-action';
 export * from './sign-in';
+export * from './suggested-action-submit';
 export * from './adaptive-card';

@@ -1,16 +1,16 @@
 import '@azure/openai/types';
 import OpenAI, { AzureOpenAI } from 'openai';
-import { Fetch } from 'openai/core';
+import type { Fetch } from 'openai/core';
 import { Stream } from 'openai/streaming';
 
-import {
+import type {
   ChatSendOptions,
   IChatModel,
-  LocalMemory,
   Message,
-  ModelMessage,
-} from '@microsoft/teams.ai';
-import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
+  ModelMessage} from '@microsoft/teams.ai';
+import { LocalMemory } from '@microsoft/teams.ai';
+import type { ILogger } from '@microsoft/teams.common';
+import { ConsoleLogger } from '@microsoft/teams.common';
 
 export type ChatCompletionCreateParams = Omit<
   OpenAI.ChatCompletionCreateParams,

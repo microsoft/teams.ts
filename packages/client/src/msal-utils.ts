@@ -6,7 +6,7 @@ import {
   type SilentRequest,
 } from '@azure/msal-browser';
 
-import { ILogger } from '@microsoft/teams.common';
+import type { ILogger } from '@microsoft/teams.common';
 
 /**
  * Gets a silent request used to acquire an Entra access token for invoking remote functions on behalf of a user.

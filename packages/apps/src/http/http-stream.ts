@@ -1,10 +1,8 @@
 import {
   ActivityParams,
-  Attachment,
   ChannelData,
   Client,
   ConversationReference,
-  Entity,
   IMessageActivity,
   ITypingActivity,
   MessageActivity,
@@ -39,9 +37,8 @@ export class HttpStream implements IStreamer {
   protected index = 0;
   protected id?: string;
   protected text: string = '';
-  protected attachments: Attachment[] = [];
   protected channelData: ChannelData = {};
-  protected entities: Entity[] = [];
+  protected finalActivity?: Partial<IMessageActivity>;
   protected queue: Array<Partial<IMessageActivity | ITypingActivity>> = [];
 
   private _result?: SentActivity;
@@ -102,6 +99,20 @@ export class HttpStream implements IStreamer {
   }
 
   /**
+   * Discard accumulated streamed text and any pending text deltas. The
+   * final message sent by `close()` will not include them. Intermediate
+   * typing chunks already shipped to Teams are not undone, but the final
+   * message updates the same activity id, so the user sees the cleared
+   * state. Pending non-message activities (typing updates, structured
+   * message emits that follow) are not affected.
+   */
+  clearText() {
+    this.text = '';
+    // Drop queued text deltas so the next flush doesn't repopulate `text`.
+    this.queue = this.queue.filter((a) => a.type !== 'message');
+  }
+
+  /**
    * Close the stream by sending the final message.
    * Waits for all queued activities to flush.
    */
@@ -143,18 +154,27 @@ export class HttpStream implements IStreamer {
       return;
     }
 
-    if (this.text === '' && !this.attachments.length) {
-      this._logger.warn('no text or attachments to send, cannot close stream');
+    const finalAttachments = this.finalActivity?.attachments ?? [];
+    const finalEntities = this.finalActivity?.entities ?? [];
+    const finalSuggestedActions = this.finalActivity?.suggestedActions;
+
+    if (this.text === '' && !finalAttachments.length && !finalSuggestedActions) {
+      this._logger.warn('no text, attachments, or suggested actions to send, cannot close stream');
       return;
     }
 
-    // Build final message activity
+    // Build final message activity from the last-emitted MessageActivity (last wins),
+    // overlaying accumulated text, id, channelData, and the stream-final entity.
     const activity = new MessageActivity(this.text)
       .withId(this.id)
-      .addAttachments(...this.attachments)
-      .addEntities(...this.entities)
+      .addAttachments(...finalAttachments)
+      .addEntities(...finalEntities)
       .withChannelData(this.channelData)
       .addStreamFinal();
+
+    if (finalSuggestedActions) {
+      activity.withSuggestedActions(finalSuggestedActions);
+    }
 
     const res = await promises.retry(() => this.send(activity), {
       logger: this._logger
@@ -166,9 +186,8 @@ export class HttpStream implements IStreamer {
     this.index = 0;
     this.id = undefined;
     this.text = '';
-    this.attachments = [];
     this.channelData = {};
-    this.entities = [];
+    this.finalActivity = undefined;
     this._result = res;
     this._logger.debug(res);
     return res;
@@ -202,12 +221,9 @@ export class HttpStream implements IStreamer {
           if (activity.text) {
             this.text += activity.text;
           }
-          if (activity.attachments) {
-            this.attachments = [...(this.attachments || []), ...activity.attachments];
-          }
-          if (activity.entities) {
-            this.entities = [...(this.entities || []), ...activity.entities];
-          }
+          // Last emitted MessageActivity wins for attachments / entities / suggestedActions.
+          // Matches the Python streamer's `_final_activity` behavior.
+          this.finalActivity = activity;
         }
 
         if (activity.type === 'typing') {

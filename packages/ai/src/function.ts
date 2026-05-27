@@ -1,4 +1,4 @@
-import { Schema } from './schema';
+import type { Schema } from './schema';
 
 export type FunctionHandler<T = any> = (args: T) => any | Promise<any>;
 

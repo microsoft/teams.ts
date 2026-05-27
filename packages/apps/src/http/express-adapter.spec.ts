@@ -171,6 +171,30 @@ describe('ExpressAdapter', () => {
       }
     });
 
+    it('should not set Access-Control-Allow-Origin on served files', async () => {
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'express-static-test-'));
+      const testHtml = path.join(tmpDir, 'index.html');
+      fs.writeFileSync(testHtml, '<html><body>Test Page</body></html>');
+
+      try {
+        server = http.createServer();
+        adapter = new ExpressAdapter(server);
+
+        adapter.serveStatic('/tabs/test', tmpDir);
+
+        const response = await supertest(server)
+          .get('/tabs/test/index.html')
+          .expect(200);
+
+        expect(response.headers['access-control-allow-origin']).toBeUndefined();
+        expect(response.headers['access-control-allow-methods']).toBeUndefined();
+        expect(response.headers['access-control-allow-headers']).toBeUndefined();
+      } finally {
+        fs.unlinkSync(testHtml);
+        fs.rmdirSync(tmpDir);
+      }
+    });
+
     it('should serve index.html when accessing directory path with trailing slash', async () => {
       // Create a temporary directory with an index.html file
       const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'express-static-test-'));

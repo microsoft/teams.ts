@@ -43,6 +43,24 @@ Teams AAD user id of someone in the same tenant. For the simplest setup,
 message the bot once with a real user, then read the user id off the first
 `message` activity in the server log and use that.
 
+## Teams CLI
+
+Use the official Teams CLI (`@microsoft/teams.cli`) to create and manage the Teams app for this sample:
+
+```bash
+npm install -g @microsoft/teams.cli
+teams --version
+teams login
+```
+
+Expose this sample's local `/api/messages` endpoint with a tunnel, then create the Teams app:
+
+```bash
+teams app create --name "mcp-server" --endpoint "https://<your-tunnel>/api/messages" --env .env --json
+```
+
+The CLI writes `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID` to your `.env` file and prints an install link for Teams.
+
 ## Run
 
 ```bash

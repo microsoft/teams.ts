@@ -1,10 +1,12 @@
 import {
   Activity,
   ActivityLike,
+  ActivityParams,
   cardAttachment,
   ConversationAccount,
   ConversationReference,
   InvokeResponse,
+  IMessageActivity,
   MessageActivity,
   MessageDeleteActivity,
   MessageUpdateActivity,
@@ -162,10 +164,20 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   send: (activity: ActivityLike, conversationRef?: ConversationReference) => Promise<SentActivity>;
 
   /**
-   * reply to the inbound activity
+   * reply to the inbound activity, automatically quoting the inbound message
    * @param activity activity to send
    */
   reply: (activity: ActivityLike) => Promise<SentActivity>;
+
+  /**
+   * send a reply quoting a specific message by ID
+   * @param messageId the ID of the message to quote
+   * @param activity activity to send
+   *
+   * @experimental This API is coming soon and may change in the future.
+   * Diagnostic: ExperimentalTeamsQuotedReplies
+   */
+  quote: (messageId: string, activity: ActivityLike) => Promise<SentActivity>;
 
   /**
    * trigger user signin flow for the activity sender
@@ -182,6 +194,8 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
 
 export type IActivityContext<T extends Activity = Activity, TExtraContext = unknown> =
   IBaseActivityContext<T> & (TExtraContext extends Record<string, any> ? TExtraContext : {});
+
+type MessageActivityParams = ActivityParams & Partial<IMessageActivity> & { type: 'message' };
 
 export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {} = {}>
   implements IBaseActivityContext<T, TExtraCtx> {
@@ -206,27 +220,38 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   constructor(value: IBaseActivityContextOptions & IActivityContextConstructorArgs) {
     // Extract activitySender and next before Object.assign to avoid overwriting methods
     const { activitySender, next, ...rest } = value;
+
+    if (rest.activity.type === 'message') {
+      rest.activity = MessageActivity.from(rest.activity).toInterface();
+    }
+
+    if (rest.activity.type === 'messageUpdate') {
+      rest.activity = MessageUpdateActivity.from(rest.activity).toInterface();
+    }
+
+    if (rest.activity.type === 'messageDelete') {
+      rest.activity = MessageDeleteActivity.from(rest.activity).toInterface();
+    }
+
+    if (rest.activity.type === 'typing') {
+      rest.activity = TypingActivity.from(rest.activity).toInterface();
+    }
+
+    // SECURITY: drop any keys in `rest` that would shadow prototype methods.
+    // Plugin-supplied context can add new properties via the [key: string]: any
+    // index signature, but must not overwrite methods that callers rely on for
+    // trust (send, reply, quote, signin, signout).
+    for (const key of PROTECTED_METHOD_NAMES) {
+      if (key in rest) {
+        delete (rest as Record<string, unknown>)[key];
+      }
+    }
+
     Object.assign(this, rest);
     this.activitySender = activitySender;
     this.next = next;
     this.stream = activitySender.createStream(value.ref);
     this.connectionName = value.connectionName;
-
-    if (value.activity.type === 'message') {
-      value.activity = MessageActivity.from(value.activity).toInterface();
-    }
-
-    if (value.activity.type === 'messageUpdate') {
-      value.activity = MessageUpdateActivity.from(value.activity).toInterface();
-    }
-
-    if (value.activity.type === 'messageDelete') {
-      value.activity = MessageDeleteActivity.from(value.activity).toInterface();
-    }
-
-    if (value.activity.type === 'typing') {
-      value.activity = TypingActivity.from(value.activity).toInterface();
-    }
   }
 
   /**
@@ -242,37 +267,18 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   async send(activity: ActivityLike, conversationRef?: ConversationReference) {
     const params = toActivityParams(activity);
 
-    // For targeted send, set the recipient if not already set.
-    // For targeted update (params.id exists), we don't update recipient since recipient cannot be changed.
-    if (params.type === 'message' && params.recipient?.isTargeted && !params.id) {
-      if (!params.recipient) {
-        params.recipient = this.activity.from;
-      }
+    if (this.shouldOutboundBeAutoTargeted(params, conversationRef)) {
+      this.applyTargetedRecipient(params);
     }
 
-    // Auto-populate targetedMessageInfo entity for prompt preview
-    // when replying to a targeted message in the reactive flow.
-    if (
-      params.type === 'message' &&
-      this.activity.recipient?.isTargeted === true
-    ) {
-      if (params.entities) {
-        params.entities = params.entities.filter((e) => e.type !== 'quotedReply');
-      }
+    if (this.isTargetedOutbound(params)) {
+      this.stripQuotedReplyMetadata(params);
 
-      if (params.text) {
-        params.text = params.text.replace(`<quoted messageId="${this.activity.id}"/>`, '').trim();
-      }
-
-      if (!params.entities?.some((e) => e.type === 'targetedMessageInfo')) {
-        if (!params.entities) {
-          params.entities = [];
-        }
-
-        params.entities.push({
-          type: 'targetedMessageInfo',
-          messageId: this.activity.id,
-        });
+      // `targetedMessageInfo` points at the original targeted inbound message for prompt preview.
+      // Do not add it for generic targeted sends; Teams can reject it if the referenced activity
+      // was not itself delivered as a targeted message.
+      if (this.isIncomingTargeted()) {
+        this.addTargetedMessageInfo(params);
       }
     }
 
@@ -290,15 +296,28 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * @param activity the activity to send
    */
   async reply(activity: ActivityLike) {
+    if (this.activity.id) {
+      return this.quote(this.activity.id, activity);
+    }
+    return this.send(activity);
+  }
+
+  /**
+   * Send a message to the conversation with a quoted message reference prepended to the text.
+   * Teams renders the quoted message as a preview bubble above the response text.
+   * @param messageId - The ID of the message to quote
+   * @param activity - The activity to send — a quote placeholder for messageId will be prepended to its text
+   *
+   * @experimental This API is coming soon and may change in the future.
+   * Diagnostic: ExperimentalTeamsQuotedReplies
+   */
+  async quote(messageId: string, activity: ActivityLike) {
     activity = toActivityParams(activity);
-    activity.replyToId = this.activity.id;
 
-    if (activity.type === 'message' && activity.text) {
-      const blockQuote = this.buildBlockQuoteForActivity();
-
-      if (blockQuote) {
-        activity.text = `${blockQuote}\r\n${activity.text}`;
-      }
+    if (activity.type === 'message') {
+      const message = MessageActivity.from(activity as IMessageActivity);
+      message.prependQuote(messageId);
+      return this.send(message);
     }
 
     return this.send(activity);
@@ -408,28 +427,92 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       userToken: this.userToken,
       next: this.next.bind(this),
       reply: this.reply.bind(this),
+      quote: this.quote.bind(this),
       send: this.send.bind(this),
       signin: this.signin.bind(this),
       signout: this.signout.bind(this),
     };
   }
 
-  private buildBlockQuoteForActivity(): string | null {
-    if (this.activity.type === 'message' && this.activity.text) {
-      const maxLength = 120;
-      const truncatedText =
-        this.activity.text.length > maxLength
-          ? `${this.activity.text.substring(0, maxLength)}...`
-          : this.activity.text;
+  private isIncomingTargeted() {
+    return this.activity.recipient?.isTargeted === true;
+  }
 
-      return `<blockquote itemscope="" itemtype="http://schema.skype.com/Reply" itemid="${this.activity.id}">
-<strong itemprop="mri" itemid="${this.activity.from.id}">${this.activity.from.name}</strong><span itemprop="time" itemid="${this.activity.id}"></span>
-<p itemprop="preview">${truncatedText}</p>
-</blockquote>`;
-    } else {
-      this.log.debug('Skipping building blockquote for activity type:', this.activity.type);
+  private shouldOutboundBeAutoTargeted(params: ActivityParams, conversationRef?: ConversationReference) {
+    if (params.type !== 'message') {
+      return false;
     }
 
-    return null;
+    if (!this.isIncomingTargeted()) {
+      return false;
+    }
+
+    if (!this.isSameConversation(conversationRef)) {
+      return false;
+    }
+
+    return !params.id && !params.recipient;
   }
+
+  private isSameConversation(conversationRef?: ConversationReference) {
+    return !conversationRef || conversationRef.conversation?.id === this.ref.conversation?.id;
+  }
+
+  private applyTargetedRecipient(params: ActivityParams) {
+    params.recipient = {
+      ...this.activity.from,
+      isTargeted: true,
+    };
+  }
+
+  private isTargetedOutbound(params: ActivityParams): params is MessageActivityParams {
+    return params.type === 'message' && params.recipient?.isTargeted === true;
+  }
+
+  private stripQuotedReplyMetadata(params: MessageActivityParams) {
+    if (params.entities) {
+      params.entities = params.entities.filter((e) => e.type !== 'quotedReply');
+    }
+
+    if (params.text) {
+      params.text = params.text.replace(`<quoted messageId="${this.activity.id}"/>`, '').trim();
+    }
+  }
+
+  private addTargetedMessageInfo(params: MessageActivityParams) {
+    if (params.entities?.some((e) => e.type === 'targetedMessageInfo')) {
+      return;
+    }
+
+    if (!params.entities) {
+      params.entities = [];
+    }
+
+    params.entities.push({
+      type: 'targetedMessageInfo',
+      messageId: this.activity.id,
+    });
+  }
+
 }
+
+// Names of prototype methods (and getters) on ActivityContext that must not be
+// shadowed by instance properties from external context. Computed once from the
+// prototype chain at module load, so any method or accessor added to the class
+// in the future is protected automatically with no maintenance.
+const PROTECTED_METHOD_NAMES: ReadonlySet<string> = (() => {
+  const names = new Set<string>();
+  let proto: object | null = ActivityContext.prototype;
+  while (proto && proto !== Object.prototype) {
+    for (const name of Object.getOwnPropertyNames(proto)) {
+      if (name === 'constructor') continue;
+      const descriptor = Object.getOwnPropertyDescriptor(proto, name);
+      if (!descriptor) continue;
+      if (typeof descriptor.value === 'function' || typeof descriptor.get === 'function') {
+        names.add(name);
+      }
+    }
+    proto = Object.getPrototypeOf(proto);
+  }
+  return names;
+})();

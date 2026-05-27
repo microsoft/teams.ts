@@ -1,8 +1,11 @@
-import { ISubmitAction, SubmitAction, SubmitActionOptions } from '../../core';
+import type { ISubmitAction, SubmitActionOptions } from '../../core';
+import { SubmitAction } from '../../core';
 
-import { MSTeamsData } from './ms-teams-data';
+import type { MSTeamsData } from './ms-teams-data';
 
-export type SignInActionOptions = SubmitActionOptions & { data: MSTeamsData<ISignInData> };
+export type SignInActionOptions = SubmitActionOptions & {
+  data: MSTeamsData<ISignInData>;
+};
 
 /**
  * @deprecated This type is deprecated. Please use {@link ISigninSubmitActionData} instead. This will be removed in a future version of the SDK.
@@ -29,16 +32,16 @@ export class SignInAction extends SubmitAction implements ISignInAction {
     this.data = { msteams: new SignInData(value) };
   }
 
-  static from(options: SignInActionOptions) {
+  static from(options: SignInActionOptions): SignInAction {
     return new SignInAction(options.data.msteams.value, options);
   }
 
-  withData(value: ISignInData) {
+  withData(value: ISignInData): this {
     super.withData({ msteams: value });
     return this;
   }
 
-  withValue(value: string) {
+  withValue(value: string): this {
     this.data.msteams.value = value;
     return this;
   }

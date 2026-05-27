@@ -37,6 +37,9 @@ export type DevtoolsPluginOptions = {
   readonly customPort?: number;
 };
 
+/**
+ * @deprecated DevTools is deprecated and will be removed in a later version. Use Microsoft 365 Agents Playground instead.
+ */
 @Plugin({
   name: 'devtools',
   version: pkg.version,
@@ -71,7 +74,20 @@ export class DevtoolsPlugin {
     const dist = path.join(__dirname, 'devtools-web');
     this.express = express();
     this.http = http.createServer(this.express);
-    this.ws = new WebSocketServer({ server: this.http, path: '/devtools/sockets' });
+    this.ws = new WebSocketServer({
+      server: this.http,
+      path: '/devtools/sockets',
+
+      // Reject cross-origin WebSocket upgrades. The DevTools UI is always
+      // loaded same-origin, so Origin must equal the request Host; absent
+      // Origin is rejected.
+      verifyClient: (info: { origin: string; secure: boolean; req: http.IncomingMessage }) => {
+        const host = info.req.headers.host;
+        if (!host || !info.origin) return false;
+        const expected = `${info.secure ? 'https' : 'http'}://${host}`;
+        return info.origin.toLowerCase() === expected.toLowerCase();
+      },
+    });
     this.ws.on('connection', this.onSocketConnection.bind(this));
     this.express.use('/devtools', express.static(dist));
     // Catch-all route for SPA - must come after static middleware
@@ -106,6 +122,10 @@ export class DevtoolsPlugin {
           )
         )
         .toString()
+    );
+
+    this.log.warn(
+      'DevTools is deprecated and will be removed in a later version. Use Microsoft 365 Agents Playground instead.'
     );
   }
 
