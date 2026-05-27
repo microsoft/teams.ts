@@ -1,7 +1,8 @@
 import express from 'express';
 
-import { AdaptiveCardActionCardResponse } from '@microsoft/teams.api';
+import { AdaptiveCardActionCardResponse, AdaptiveCardActionMessageResponse } from '@microsoft/teams.api';
 import { App, ExpressAdapter } from '@microsoft/teams.apps';
+import { AdaptiveCard, TextBlock } from '@microsoft/teams.cards';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
 import { state, ApprovalStatus } from './state';
@@ -45,38 +46,22 @@ app.on('card.action.approval_response', async ({ activity }) => {
     approval.status = decision as ApprovalStatus;
     // Signal any wait_for_approval callers.
     approval.event.set();
+    const label = decision === 'approved' ? 'Approved ✅' : 'Rejected ❌';
+    const color = decision === 'approved' ? 'Good' : 'Attention';
     return {
       statusCode: 200,
       type: 'application/vnd.microsoft.card.adaptive',
-      value: {
-        type: 'AdaptiveCard',
-        version: '1.4',
-        body: [
-          {
-            type: 'TextBlock',
-            text: `Decision recorded: **${decision === 'approved' ? 'Approved ✅' : 'Rejected ❌'}**`,
-            wrap: true,
-          },
-        ],
-      },
+      value: new AdaptiveCard(
+        new TextBlock(label, { weight: 'Bolder', color }),
+      ),
     } satisfies AdaptiveCardActionCardResponse;
   }
 
   return {
     statusCode: 200,
-    type: 'application/vnd.microsoft.card.adaptive',
-    value: {
-      type: 'AdaptiveCard',
-      version: '1.4',
-      body: [
-        {
-          type: 'TextBlock',
-          text: 'Unable to record response. The approval request may be invalid or expired.',
-          wrap: true,
-        },
-      ],
-    },
-  } satisfies AdaptiveCardActionCardResponse;
+    type: 'application/vnd.microsoft.activity.message',
+    value: 'Unable to record response. The approval request may be invalid or expired.',
+  } satisfies AdaptiveCardActionMessageResponse;
 });
 
 app.on('card.action.ask_reply', async ({ activity }) => {
@@ -95,34 +80,17 @@ app.on('card.action.ask_reply', async ({ activity }) => {
       return {
         statusCode: 200,
         type: 'application/vnd.microsoft.card.adaptive',
-        value: {
-          type: 'AdaptiveCard',
-          version: '1.4',
-          body: [
-            {
-              type: 'TextBlock',
-              text: `Reply recorded: **${reply ?? ''}**`,
-              wrap: true,
-            },
-          ],
-        },
+        value: new AdaptiveCard(
+          new TextBlock('Reply recorded', { weight: 'Bolder', color: 'Good' }),
+          new TextBlock(reply ?? '', { wrap: true }),
+        ),
       } satisfies AdaptiveCardActionCardResponse;
     }
   }
 
   return {
     statusCode: 200,
-    type: 'application/vnd.microsoft.card.adaptive',
-    value: {
-      type: 'AdaptiveCard',
-      version: '1.4',
-      body: [
-        {
-          type: 'TextBlock',
-          text: 'Unable to record reply. The ask may be invalid or expired.',
-          wrap: true,
-        },
-      ],
-    },
-  } satisfies AdaptiveCardActionCardResponse;
+    type: 'application/vnd.microsoft.activity.message',
+    value: 'Unable to record reply. The ask may be invalid or expired.',
+  } satisfies AdaptiveCardActionMessageResponse;
 });
