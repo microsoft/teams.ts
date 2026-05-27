@@ -21,7 +21,7 @@ import {
 
 import { app } from './app';
 import { graphClient } from './graphClient';
-import { ApprovalStatus, AskStatus, PendingAsk, state } from './state';
+import { ApprovalStatus, AskStatus, PendingApproval, makeEvent, state } from './state';
 
 
 
@@ -112,7 +112,7 @@ structuredTool(
     );
 
     // Record the pending ask BEFORE sending, so a fast reply is never lost.
-    state.pendingAsks.set(requestId, { userId, status: 'pending' });
+    state.pendingAsks.set(requestId, { userId, status: 'pending', event: makeEvent() });
     try {
       await app.send(conversationId, card);
     } catch (err) {
@@ -147,54 +147,14 @@ structuredTool(
       return { status: entry.status, reply: entry.reply ?? null };
     }
 
-    // Get-or-create a waiter, then re-check state to avoid missing a signal
-    // that fired between the initial read and the waiter registration.
-    const waiter: PromiseWithResolvers<PendingAsk> =
-      state.replyWaiters.get(requestId) ?? (() => {
-        const w = Promise.withResolvers<PendingAsk>();
-        state.replyWaiters.set(requestId, w);
-        return w;
-      })();
-
-    const latest = state.pendingAsks.get(requestId);
-    if (latest && latest.status !== 'pending') {
-      return { status: latest.status, reply: latest.reply ?? null };
-    }
-
     const ms = (timeoutSeconds ?? 30) * 1000;
-    const result = await Promise.race([
-      waiter.promise,
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), ms)),
+    let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+    await Promise.race([
+      entry.event.promise,
+      new Promise<void>((resolve) => { timeoutHandle = setTimeout(resolve, ms); }),
     ]);
+    clearTimeout(timeoutHandle);
 
-    if (result === null) {
-      // Timeout — clean up the waiter and return current snapshot.
-      state.replyWaiters.delete(requestId);
-      const current = state.pendingAsks.get(requestId);
-      return { status: current?.status ?? 'pending', reply: current?.reply ?? null };
-    }
-    return { status: result.status, reply: result.reply ?? null };
-  }
-);
-
-structuredTool(
-  'get_reply',
-  {
-    description:
-      'Snapshot the current reply state for an ask. This exists for manual polling. ' +
-      'Returns status \'pending\' until the user responds.',
-    inputSchema: { requestId: z.string().describe('The requestId returned from ask.') },
-    outputSchema: z.object({
-      status: z.enum(['pending', 'answered']),
-      reply: z.string().nullable(),
-    }),
-    annotations: { readOnlyHint: true, idempotentHint: true },
-  },
-  async ({ requestId }) => {
-    const entry = state.pendingAsks.get(requestId);
-    if (!entry) {
-      throw new Error(`No ask found with requestId ${requestId}.`);
-    }
     return { status: entry.status, reply: entry.reply ?? null };
   }
 );
@@ -227,11 +187,12 @@ structuredTool(
       )
     );
     // Record state BEFORE sending so a fast click is never lost.
-    state.approvals.set(approvalId, 'pending');
+    const approval: PendingApproval = { userId, status: 'pending', event: makeEvent() };
+    state.pendingApprovals.set(approvalId, approval);
     try {
       await app.send(conversationId, card);
     } catch (err) {
-      state.approvals.delete(approvalId);
+      state.pendingApprovals.delete(approvalId);
       throw err;
     }
     return { approvalId };
@@ -254,63 +215,23 @@ structuredTool(
     }),
   },
   async ({ approvalId, timeoutSeconds }): Promise<{ approvalId: string; status: ApprovalStatus }> => {
-    const currentStatus = state.approvals.get(approvalId);
-    if (!currentStatus) {
+    const approval = state.pendingApprovals.get(approvalId);
+    if (!approval) {
       throw new Error(`No approval found with approvalId ${approvalId}.`);
     }
-    if (currentStatus !== 'pending') {
-      return { approvalId, status: currentStatus };
-    }
-
-    // Get-or-create a waiter, then re-check state to avoid missing a signal
-    // that fired between the initial read and the waiter registration.
-    const waiter: PromiseWithResolvers<ApprovalStatus> =
-      state.approvalWaiters.get(approvalId) ?? (() => {
-        const w = Promise.withResolvers<ApprovalStatus>();
-        state.approvalWaiters.set(approvalId, w);
-        return w;
-      })();
-
-    const latest = state.approvals.get(approvalId);
-    if (latest && latest !== 'pending') {
-      return { approvalId, status: latest };
+    if (approval.status !== 'pending') {
+      return { approvalId, status: approval.status };
     }
 
     const ms = (timeoutSeconds ?? 30) * 1000;
-    const result = await Promise.race([
-      waiter.promise,
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), ms)),
+    let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+    await Promise.race([
+      approval.event.promise,
+      new Promise<void>((resolve) => { timeoutHandle = setTimeout(resolve, ms); }),
     ]);
+    clearTimeout(timeoutHandle);
 
-    if (result === null) {
-      // Timeout — clean up the waiter and return current snapshot.
-      state.approvalWaiters.delete(approvalId);
-      const current = state.approvals.get(approvalId);
-      return { approvalId, status: current ?? 'pending' };
-    }
-    return { approvalId, status: result };
-  }
-);
-
-structuredTool(
-  'get_approval',
-  {
-    description:
-      'Snapshot the current status of an approval request. This exists for manual polling. ' +
-      'Returns \'pending\', \'approved\', or \'rejected\'.',
-    inputSchema: { approvalId: z.string().describe('The approvalId returned from request_approval.') },
-    outputSchema: z.object({
-      approvalId: z.string(),
-      status: z.enum(['pending', 'approved', 'rejected']),
-    }),
-    annotations: { readOnlyHint: true, idempotentHint: true },
-  },
-  async ({ approvalId }) => {
-    const status = state.approvals.get(approvalId);
-    if (!status) {
-      throw new Error(`No approval found with approvalId ${approvalId}.`);
-    }
-    return { approvalId, status };
+    return { approvalId, status: approval.status };
   }
 );
 

@@ -1,10 +1,28 @@
 export type AskStatus = 'pending' | 'answered';
 export type ApprovalStatus = 'pending' | 'approved' | 'rejected';
 
+/** Minimal asyncio.Event equivalent: a promise that is resolved exactly once. */
+export type TSEvent = { promise: Promise<void>; set: () => void };
+
+export function makeEvent(): TSEvent {
+  let resolve!: () => void;
+  const promise = new Promise<void>((res) => { resolve = res; });
+  return { promise, set: resolve };
+}
+
 export type PendingAsk = {
   userId: string;
   status: AskStatus;
   reply?: string;
+  /** Resolved when the user submits their reply. */
+  event: TSEvent;
+};
+
+export type PendingApproval = {
+  userId: string;
+  status: ApprovalStatus;
+  /** Resolved when the user clicks Approve or Reject. */
+  event: TSEvent;
 };
 
 export const state = {
@@ -12,20 +30,9 @@ export const state = {
   // incoming 1:1 message, or on first proactive send.
   conversations: new Map<string, string>(),
 
-  // requestId -> PendingAsk.
+  // requestId -> PendingAsk (carries its own event for signalling).
   pendingAsks: new Map<string, PendingAsk>(),
 
-  // approvalId -> approval status.
-  approvals: new Map<string, ApprovalStatus>(),
-
-  // requestId -> PromiseWithResolvers completed when the user replies.
-  // Lets wait_for_reply return sub-millisecond after the answer lands
-  // instead of polling.
-  replyWaiters: new Map<string, PromiseWithResolvers<PendingAsk>>(),
-
-  // approvalId -> PromiseWithResolvers completed with the final status
-  // when the user clicks Approve/Reject.
-  // Lets wait_for_approval return sub-millisecond after the decision lands
-  // instead of polling.
-  approvalWaiters: new Map<string, PromiseWithResolvers<ApprovalStatus>>(),
+  // approvalId -> PendingApproval (carries its own event for signalling).
+  pendingApprovals: new Map<string, PendingApproval>(),
 };

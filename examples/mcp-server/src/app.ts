@@ -4,7 +4,7 @@ import { AdaptiveCardActionCardResponse } from '@microsoft/teams.api';
 import { App, ExpressAdapter } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
-import { state, PendingAsk, ApprovalStatus } from './state';
+import { state, ApprovalStatus } from './state';
 
 // Own the Express app so we can mount /mcp alongside /api/messages
 // and manage the http.Server lifecycle in index.ts.
@@ -38,16 +38,13 @@ app.on('card.action.approval_response', async ({ activity }) => {
 
   if (
     approvalId &&
-    state.approvals.has(approvalId) &&
+    state.pendingApprovals.has(approvalId) &&
     (decision === 'approved' || decision === 'rejected')
   ) {
-    state.approvals.set(approvalId, decision as ApprovalStatus);
-    // Signal any wait_for_approval waiter.
-    const waiter = state.approvalWaiters.get(approvalId);
-    if (waiter) {
-      state.approvalWaiters.delete(approvalId);
-      waiter.resolve(decision as ApprovalStatus);
-    }
+    const approval = state.pendingApprovals.get(approvalId)!;
+    approval.status = decision as ApprovalStatus;
+    // Signal any wait_for_approval callers.
+    approval.event.set();
     return {
       statusCode: 200,
       type: 'application/vnd.microsoft.card.adaptive',
@@ -91,14 +88,10 @@ app.on('card.action.ask_reply', async ({ activity }) => {
   if (requestId) {
     const entry = state.pendingAsks.get(requestId);
     if (entry?.status === 'pending') {
-      const answered: PendingAsk = { ...entry, status: 'answered', reply: reply ?? '' };
-      state.pendingAsks.set(requestId, answered);
-      // Signal any wait_for_reply waiter.
-      const waiter = state.replyWaiters.get(requestId);
-      if (waiter) {
-        state.replyWaiters.delete(requestId);
-        waiter.resolve(answered);
-      }
+      entry.status = 'answered';
+      entry.reply = reply ?? '';
+      // Signal any wait_for_reply callers.
+      entry.event.set();
       return {
         statusCode: 200,
         type: 'application/vnd.microsoft.card.adaptive',
