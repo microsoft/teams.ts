@@ -14,6 +14,24 @@ A bot that demonstrates how to use the ReactionClient to add and remove reaction
 2. The bot will reply and add a reaction to your message
 3. Add or remove reactions on bot messages to see reaction events logged
 
+## Teams CLI
+
+Use the official Teams CLI (`@microsoft/teams.cli`) to create and manage the Teams app for this sample:
+
+```bash
+npm install -g @microsoft/teams.cli
+teams --version
+teams login
+```
+
+Expose this sample's local `/api/messages` endpoint with a tunnel, then create the Teams app:
+
+```bash
+teams app create --name "reactions" --endpoint "https://<your-tunnel>/api/messages" --env .env --json
+```
+
+The CLI writes `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID` to your `.env` file and prints an install link for Teams.
+
 ## Run
 
 ```bash

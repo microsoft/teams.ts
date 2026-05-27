@@ -22,9 +22,27 @@ This is the TypeScript counterpart to the .NET [`ExtAIBot`](https://github.com/m
 - An **Azure OpenAI resource** with a deployed model (e.g. `gpt-4o`) and an API key. No Foundry project required.
 - A Teams bot registration (App ID + secret).
 
+## Teams CLI
+
+Use the official Teams CLI (`@microsoft/teams.cli`) to create and manage the Teams app for this sample:
+
+```bash
+npm install -g @microsoft/teams.cli
+teams --version
+teams login
+```
+
+Expose this sample's local `/api/messages` endpoint with a tunnel, then create the Teams app:
+
+```bash
+teams app create --name "ai-mcp" --endpoint "https://<your-tunnel>/api/messages" --env .env --json
+```
+
+The CLI writes `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID` to your `.env` file and prints an install link for Teams.
+
 ## Setup
 
-Create a `.env` in this directory:
+Add the Azure OpenAI settings to the `.env` created by the CLI:
 
 ```env
 AZURE_OPENAI_ENDPOINT=https://<your-resource>.openai.azure.com
