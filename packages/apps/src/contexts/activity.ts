@@ -237,6 +237,16 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       rest.activity = TypingActivity.from(rest.activity).toInterface();
     }
 
+    // SECURITY: drop any keys in `rest` that would shadow prototype methods.
+    // Plugin-supplied context can add new properties via the [key: string]: any
+    // index signature, but must not overwrite methods that callers rely on for
+    // trust (send, reply, quote, signin, signout).
+    for (const key of PROTECTED_METHOD_NAMES) {
+      if (key in rest) {
+        delete (rest as Record<string, unknown>)[key];
+      }
+    }
+
     Object.assign(this, rest);
     this.activitySender = activitySender;
     this.next = next;
@@ -485,3 +495,24 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   }
 
 }
+
+// Names of prototype methods (and getters) on ActivityContext that must not be
+// shadowed by instance properties from external context. Computed once from the
+// prototype chain at module load, so any method or accessor added to the class
+// in the future is protected automatically with no maintenance.
+const PROTECTED_METHOD_NAMES: ReadonlySet<string> = (() => {
+  const names = new Set<string>();
+  let proto: object | null = ActivityContext.prototype;
+  while (proto && proto !== Object.prototype) {
+    for (const name of Object.getOwnPropertyNames(proto)) {
+      if (name === 'constructor') continue;
+      const descriptor = Object.getOwnPropertyDescriptor(proto, name);
+      if (!descriptor) continue;
+      if (typeof descriptor.value === 'function' || typeof descriptor.get === 'function') {
+        names.add(name);
+      }
+    }
+    proto = Object.getPrototypeOf(proto);
+  }
+  return names;
+})();

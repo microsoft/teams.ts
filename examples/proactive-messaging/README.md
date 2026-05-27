@@ -2,6 +2,24 @@
 
 Send proactive messages to Teams users without running a server.
 
+## Teams CLI
+
+Use the official Teams CLI (`@microsoft/teams.cli`) to create and manage the Teams app for this sample:
+
+```bash
+npm install -g @microsoft/teams.cli
+teams --version
+teams login
+```
+
+Expose this sample's local `/api/messages` endpoint with a tunnel, then create the Teams app:
+
+```bash
+teams app create --name "proactive-messaging" --endpoint "https://<your-tunnel>/api/messages" --env .env --json
+```
+
+The CLI writes `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID` to your `.env` file and prints an install link for Teams.
+
 ## Key Concepts
 
 **Without a server:**
@@ -25,8 +43,9 @@ await app.send(conversationId, 'Hello!');
 
 1. Set up `.env`:
    ```
-   BOT_ID=<your-bot-id>
-   BOT_PASSWORD=<your-bot-password>
+   CLIENT_ID=<your-azure-bot-app-id>
+   CLIENT_SECRET=<your-azure-bot-app-secret>
+   TENANT_ID=<your-tenant-id>
    ```
 
 2. Run:

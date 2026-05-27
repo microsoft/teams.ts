@@ -44,7 +44,7 @@
   "devDependencies": {
     "@turbo/gen": "^2.5.7",
     "nerdbank-gitversioning": "^3.9.50",
-    "turbo": "^2.4.0",
+    "turbo": "^2.9.14",
     "typescript": "^5.4.5"
   },
   "optionalDependencies": {
