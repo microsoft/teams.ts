@@ -23,7 +23,6 @@
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.client": "*",
     "@microsoft/teams.common": "*",
-    "@microsoft/teams.dev": "*",
     "@microsoft/teams.graph-endpoints": "*",
     "react": "^19.2.2",
     "react-dom": "^19.2.2"

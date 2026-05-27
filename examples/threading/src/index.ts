@@ -1,10 +1,8 @@
 import { App, toThreadedConversationId } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
-import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 const app = new App({
   logger: new ConsoleLogger('@examples/threading', { level: 'debug' }),
-  plugins: [new DevtoolsPlugin()],
 });
 
 app.on('message', async ({ reply, send, activity, ref }) => {

@@ -22,7 +22,6 @@
   },
   "dependencies": {
     "@microsoft/teams.apps": "*",
-    "@microsoft/teams.dev": "*",
     "@microsoft/teams.cards": "*"
   },
   "devDependencies": {

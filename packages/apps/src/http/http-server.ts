@@ -111,6 +111,11 @@ export class HttpServer implements IHttpServer {
         this.logger,
         deps.cloud
       );
+    } else if (!this.credentials) {
+      this.logger.warn(
+        'No credentials configured (CLIENT_ID / CLIENT_SECRET / TENANT_ID). ' +
+        `Bot will accept unauthenticated requests on ${this._messagingEndpoint}.`
+      );
     }
 
     // Register Teams bot endpoint (POST only)
