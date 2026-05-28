@@ -23,6 +23,20 @@ This project uses [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.Gi
    - Increment the patch version (e.g. `"2.0.7-preview.{height}"` → `"2.0.8-preview.{height}"`)
    - Commit and push (or PR)
 
+5. **Create the git tag and GitHub Release page** after packages land on npm:
+   ```bash
+   gh release create v<version> -R microsoft/teams.ts \
+     --target release --title "v<version>" --draft \
+     --generate-notes --notes-start-tag v<previous-version>
+   ```
+   The auto-generated notes walk back from `release`, which is squash-merged — so the list will only show the release PR. To get the real PR delta from `main`, query by date:
+   ```bash
+   gh api -X GET search/issues \
+     -f q='repo:microsoft/teams.ts is:pr is:merged base:main merged:>=<previous-release-publish-date>' \
+     --jq '.items[] | "* \(.title) by @\(.user.login) in \(.html_url)"' | tac > /tmp/notes.md
+   ```
+   Edit the draft (`gh release edit <id> --notes-file /tmp/notes.md`), then publish from the GitHub UI to create the tag.
+
 ## Hotfixes
 
 To fix a bug in a released version without including new preview changes:
