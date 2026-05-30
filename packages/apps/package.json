@@ -38,7 +38,7 @@
     "generate": "npx quicktype -s schema -l typescript ./manifest.schema.json -o ./src/manifest.ts --prefer-unions --prefer-types --just-types"
   },
   "dependencies": {
-    "@azure/msal-node": "^3.8.1",
+    "@azure/msal-node": "^5.2.2",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.common": "*",
     "@microsoft/teams.graph": "*",
