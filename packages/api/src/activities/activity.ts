@@ -508,7 +508,13 @@ export class Activity<T extends string = string> implements IActivity<T> {
     }
 
     if (target.citation || source.citation) {
-      merged.citation = [...(target.citation || []), ...(source.citation || [])];
+      const dedupedCitations = new Map<number, NonNullable<typeof target.citation>[number]>();
+
+      for (const citation of [...(target.citation || []), ...(source.citation || [])]) {
+        dedupedCitations.set(citation.position, citation);
+      }
+
+      merged.citation = Array.from(dedupedCitations.values());
     }
 
     Object.assign(target, merged);

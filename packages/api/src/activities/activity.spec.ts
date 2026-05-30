@@ -148,6 +148,17 @@ describe('Activity', () => {
           '@context': 'https://schema.org',
           '@id': '',
           additionalType: ['AIGeneratedContent'],
+          citation: [
+            {
+              '@type': 'Claim',
+              position: 0,
+              appearance: {
+                '@type': 'DigitalDocument',
+                name: 'old doc',
+                abstract: 'old abstract',
+              },
+            },
+          ],
         })
         .addEntities(
           {
@@ -179,6 +190,7 @@ describe('Activity', () => {
       expect(messageEntity.type).toBe('https://schema.org/Message');
       expect(messageEntity.additionalType).toEqual(['AIGeneratedContent']);
       expect(messageEntity.citation).toHaveLength(1);
+      expect(messageEntity.citation[0].appearance.abstract).toBe('doc abstract');
       expect(mentionEntity.type).toBe('mention');
     });
   });
