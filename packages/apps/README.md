@@ -32,45 +32,31 @@ $: npm install @microsoft/teams.apps
 
 ## What `@microsoft/teams.apps` is
 
-`@microsoft/teams.apps` is the main server-side package in this repo for building Teams apps that receive activities, route them to handlers, and send replies back to Teams.
+`@microsoft/teams.apps` is the main npm package for building Teams app backends with Node.js.
 
-If you are installing from npm, think of this package as the main entrypoint for your server-side Teams app.
+Use it when you want to:
 
-If you are browsing this repo, think of it as the package the app examples are built on top of.
+- receive activities from Teams
+- route events like `message`, `invoke`, and install events to handlers
+- send replies back to Teams from your own app server
+- add app surfaces such as bots and tabs from one package
 
-## npm package vs this repo
+## Requirements
 
-There are two different views of `@microsoft/teams.apps` in this repository:
+- Node.js 20 or later
+- A Teams app registration that points to your app endpoint
 
-- **On npm**: you install `@microsoft/teams.apps` into your own app and use it as a library
-- **In this repo**: you will also see sample apps, workspace packages, and repo-specific setup used to develop and test the SDK itself
-
-Most developers using `@microsoft/teams.apps` from npm only need the package install, a small app entrypoint, Teams app registration, and local environment variables.
-
-The examples in this repo are useful references, but they are part of the monorepo and include extra files and setup that are specific to working inside this repository.
-
-## When to use it
-
-Use `@microsoft/teams.apps` when you are:
-
-- building a bot or app endpoint for Teams
-- handling incoming activities such as messages, installs, and invoke events
-- starting from one of this repo's app examples
-
-Reach for lower-level packages only when you need to work directly with raw activity models or other platform-specific APIs.
-
-## How a `teams.apps` app is structured
+## Typical app flow
 
 Most apps built with `@microsoft/teams.apps` follow the same shape:
 
-1. Create an `App` instance
-2. Register handlers with `app.on(...)`
-3. Optionally register tabs or other app surfaces
-4. Start the local server with `app.start()`
+1. Install `@microsoft/teams.apps`
+2. Create an `App` instance
+3. Register handlers with `app.on(...)`
+4. Start the server with `app.start()`
+5. Point your Teams app at `/api/messages`
 
-The default Teams messaging endpoint is `/api/messages`.
-
-## Minimal getting-started flow
+## Getting started
 
 1. Install the package:
 
@@ -78,18 +64,10 @@ The default Teams messaging endpoint is `/api/messages`.
    npm install @microsoft/teams.apps
    ```
 
-2. Create an app entrypoint and initialize `App`
-3. Add one handler for a simple activity such as `message`
-4. Set the environment values used by the app, such as `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID`
+2. Create your app entrypoint
+3. Add at least one handler, such as `message`
+4. Configure the environment values your app needs, such as `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID`
 5. Start the app locally
-
-If you are using the npm package in your own project, you can stop after the basic app setup and Teams registration flow.
-
-If you want examples from this repo as reference implementations, begin with:
-
-- [`examples/echo`](../../examples/echo/README.md) for a minimal message flow
-- [`examples/message-extensions`](../../examples/message-extensions/README.md) for compose extensions and tabs
-- [`examples/tab`](../../examples/tab/README.md) for a tab-focused sample
 
 ## First working example
 
@@ -113,7 +91,7 @@ This gives you the basic flow:
 - `@microsoft/teams.apps` routes it to the matching handler
 - your handler sends a response back to Teams
 
-## Teams CLI flow
+## Connect your app to Teams
 
 Use the official Teams CLI to create and manage the Teams app that points to your local `@microsoft/teams.apps` server:
 
@@ -123,11 +101,18 @@ teams login
 teams app create --name "my-app" --endpoint "https://<your-tunnel>/api/messages" --env .env --json
 ```
 
-For most npm users, this is the important part: it connects your own local app to a Teams app registration.
+This is the core setup step for npm users: it connects your local app to a Teams app registration.
 
-In this repo's examples, the same flow writes values such as `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID` to `.env`, then prints an install link for Teams.
+## Learn more
 
-## What to ignore for a first pass
+Start with these resources:
+
+- [Getting started docs](https://microsoft.github.io/teams-sdk/typescript/getting-started)
+- [Echo example](https://github.com/microsoft/teams.ts/tree/main/examples/echo) for a minimal message flow
+- [Message extensions example](https://github.com/microsoft/teams.ts/tree/main/examples/message-extensions) for compose extensions and tabs
+- [Tab example](https://github.com/microsoft/teams.ts/tree/main/examples/tab) for a tab-focused sample
+
+## What to ignore at first
 
 If you are just getting started with `@microsoft/teams.apps`, you can ignore:
 
@@ -135,8 +120,6 @@ If you are just getting started with `@microsoft/teams.apps`, you can ignore:
 - Microsoft Graph integrations
 - production deployment and hardening details
 - lower-level packages unless your scenario needs them
-
-If you are reading this on npm, you can also ignore most repo-only details such as workspace layout, internal package relationships, and sample-specific files outside your own app.
 
 ## Dependencies
 
