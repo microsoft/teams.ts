@@ -34,7 +34,20 @@ $: npm install @microsoft/teams.apps
 
 `@microsoft/teams.apps` is the main server-side package in this repo for building Teams apps that receive activities, route them to handlers, and send replies back to Teams.
 
-Use it when you want one package that covers the app entrypoint, activity handling, app configuration, and the local HTTP endpoint used by Teams.
+If you are installing from npm, think of this package as the main entrypoint for your server-side Teams app.
+
+If you are browsing this repo, think of it as the package the app examples are built on top of.
+
+## npm package vs this repo
+
+There are two different views of `@microsoft/teams.apps` in this repository:
+
+- **On npm**: you install `@microsoft/teams.apps` into your own app and use it as a library
+- **In this repo**: you will also see sample apps, workspace packages, and repo-specific setup used to develop and test the SDK itself
+
+Most developers using `@microsoft/teams.apps` from npm only need the package install, a small app entrypoint, Teams app registration, and local environment variables.
+
+The examples in this repo are useful references, but they are part of the monorepo and include extra files and setup that are specific to working inside this repository.
 
 ## When to use it
 
@@ -70,7 +83,9 @@ The default Teams messaging endpoint is `/api/messages`.
 4. Set the environment values used by the app, such as `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID`
 5. Start the app locally
 
-If you want a repo-backed starting point, begin with:
+If you are using the npm package in your own project, you can stop after the basic app setup and Teams registration flow.
+
+If you want examples from this repo as reference implementations, begin with:
 
 - [`examples/echo`](../../examples/echo/README.md) for a minimal message flow
 - [`examples/message-extensions`](../../examples/message-extensions/README.md) for compose extensions and tabs
@@ -108,7 +123,9 @@ teams login
 teams app create --name "my-app" --endpoint "https://<your-tunnel>/api/messages" --env .env --json
 ```
 
-In the examples, this flow writes values such as `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID` to `.env`, then prints an install link for Teams.
+For most npm users, this is the important part: it connects your own local app to a Teams app registration.
+
+In this repo's examples, the same flow writes values such as `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID` to `.env`, then prints an install link for Teams.
 
 ## What to ignore for a first pass
 
@@ -118,6 +135,8 @@ If you are just getting started with `@microsoft/teams.apps`, you can ignore:
 - Microsoft Graph integrations
 - production deployment and hardening details
 - lower-level packages unless your scenario needs them
+
+If you are reading this on npm, you can also ignore most repo-only details such as workspace layout, internal package relationships, and sample-specific files outside your own app.
 
 ## Dependencies
 
