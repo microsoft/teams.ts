@@ -1,4 +1,4 @@
-# Teams: Apps
+# @microsoft/teams.apps
 
 <p>
     <a href="https://www.npmjs.com/package/@microsoft/teams.apps" target="_blank">
@@ -13,23 +13,69 @@
     <a href="https://www.npmjs.com/package/@microsoft/teams.apps" target="_blank">
         <img src="https://img.shields.io/npm/dw/@microsoft/teams.apps" />
     </a>
-    <a href="https://microsoft.github.io/teams-sdk" target="_blank">
+    <a href="https://aka.ms/teams-sdk-ts" target="_blank">
         <img src="https://img.shields.io/badge/📖 docs-open-blue" />
     </a>
 </p>
 
-A package used to create apps/bots that can send/receive activities.
+Build Microsoft Teams agents, tabs, message extensions, and proactive notification services in TypeScript.
 
-<a href="https://microsoft.github.io/teams-sdk" target="_blank">
-    <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
-</a>
+`@microsoft/teams.apps` handles Teams activity routing, request auth, replies, proactive sends, Graph access, OAuth sign-in, plugins, and HTTP hosting so you can focus on your app behavior.
+
+Read the full docs at [aka.ms/teams-sdk-ts](https://aka.ms/teams-sdk-ts).
 
 ## Install
 
 ```bash
-$: npm install @microsoft/teams.apps
+npm install @microsoft/teams.apps
 ```
 
-## Dependencies
+## Hello Teams agent
 
-- [`express`](https://www.npmjs.com/package/express)
+```ts
+import { App } from '@microsoft/teams.apps';
+
+const app = new App();
+
+app.on('message', async ({ activity, reply }) => {
+  await reply(`You said: ${activity.text}`);
+});
+
+app.start().catch(console.error);
+```
+
+By default, the app receives Teams activities at `/api/messages`.
+
+## Use your existing server
+
+`@microsoft/teams.apps` can start its own HTTP server, or plug into an existing server/framework with an HTTP adapter.
+
+```ts
+import express from 'express';
+import { App, ExpressAdapter } from '@microsoft/teams.apps';
+
+const server = express();
+
+server.get('/health', (_req, res) => {
+  res.json({ status: 'ok' });
+});
+
+const app = new App({
+  httpServerAdapter: new ExpressAdapter(server),
+});
+
+app.on('message', async ({ activity, reply }) => {
+  await reply(`You said: ${activity.text}`);
+});
+
+await app.initialize(); // registers /api/messages on your server
+
+server.listen(process.env.PORT || 3978);
+```
+
+See the [examples folder](https://github.com/microsoft/teams.ts/tree/main/examples) for HTTP adapters and framework integration samples.
+
+## Examples
+
+See the [examples folder](https://github.com/microsoft/teams.ts/tree/main/examples) for agents, tabs, message extensions, proactive messaging, Graph, AI/MCP, A2A, and more.
+
