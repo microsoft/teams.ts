@@ -3,7 +3,7 @@ const msalCreateNPCAppMock = jest.fn();
 const msalInitializeMock = jest.fn();
 const httpClientPostMock = jest.fn();
 
-import * as msal from '@azure/msal-browser';
+import type { IPublicClientApplication } from '@azure/msal-browser';
 
 import { App } from './app';
 import * as graphUtils from './graph-utils';
@@ -153,7 +153,7 @@ describe('App', () => {
     it('supports using a pre-configured MSAL instance', async () => {
       const mockMsalInstance = {
         initialize: jest.fn(),
-      } as unknown as msal.IPublicClientApplication;
+      } as unknown as IPublicClientApplication;
 
       const customOptions = {
         remoteApiOptions: {
@@ -239,7 +239,7 @@ describe('App', () => {
     it('uses a pre-configured MSAL instance without initializing it', async () => {
       const mockMsalInstance = {
         initialize: jest.fn(),
-      } as unknown as msal.IPublicClientApplication;
+      } as unknown as IPublicClientApplication;
 
       const customOptions = {
         remoteApiOptions: {

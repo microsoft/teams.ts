@@ -1,14 +1,14 @@
-import { ILogger } from '@microsoft/teams.common';
+import type { ILogger } from '@microsoft/teams.common';
 
-import { Function, FunctionHandler } from '../function';
-import { IMemory } from '../memory';
-import { ContentPart, Message, ModelMessage } from '../message';
-import { IChatModel, TextChunkHandler } from '../models';
-import { Schema } from '../schema';
-import { ITemplate } from '../template';
-import { PromiseOrValue } from '../utils/types';
+import type { Function, FunctionHandler } from '../function';
+import type { IMemory } from '../memory';
+import type { ContentPart, Message, ModelMessage } from '../message';
+import type { IChatModel, TextChunkHandler } from '../models';
+import type { Schema } from '../schema';
+import type { ITemplate } from '../template';
+import type { PromiseOrValue } from '../utils/types';
 
-import { IAiPlugin } from './plugin';
+import type { IAiPlugin } from './plugin';
 
 export type ChatPromptOptions<TOptions extends Record<string, any> = Record<string, any>> = {
     /**

@@ -1,14 +1,17 @@
-import axios, {
+import axios from 'axios';
+import type {
   AxiosInstance,
   AxiosResponse,
   AxiosRequestConfig,
   RawAxiosRequestHeaders,
 } from 'axios';
 
-import { ConsoleLogger, ILogger } from '../logging';
+import { ConsoleLogger } from '../logging';
+import type { ILogger } from '../logging';
 
-import { Interceptor } from './interceptor';
-import { Token } from './token';
+import type { Interceptor } from './interceptor';
+import type { Token } from './token';
+
 
 export type ClientOptions = {
   /**
@@ -88,39 +91,47 @@ export class Client {
     }
   }
 
-  async get<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: RequestConfig<D>) {
+  async get<T = any, R = AxiosResponse<T>, D = any>(
+    url: string,
+    config?: RequestConfig<D>,
+  ): Promise<R> {
     return this.http.get<T, R, D>(url, await this.withConfig(config));
   }
 
   async post<T = any, R = AxiosResponse<T>, D = any>(
     url: string,
     data?: D,
-    config?: RequestConfig<D>
-  ) {
+    config?: RequestConfig<D>,
+  ): Promise<R> {
     return this.http.post<T, R, D>(url, data, await this.withConfig(config));
   }
 
   async put<T = any, R = AxiosResponse<T>, D = any>(
     url: string,
     data?: D,
-    config?: RequestConfig<D>
-  ) {
+    config?: RequestConfig<D>,
+  ): Promise<R> {
     return this.http.put<T, R, D>(url, data, await this.withConfig(config));
   }
 
   async patch<T = any, R = AxiosResponse<T>, D = any>(
     url: string,
     data?: D,
-    config?: RequestConfig<D>
-  ) {
+    config?: RequestConfig<D>,
+  ): Promise<R> {
     return this.http.patch<T, R, D>(url, data, await this.withConfig(config));
   }
 
-  async delete<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: RequestConfig<D>) {
+  async delete<T = any, R = AxiosResponse<T>, D = any>(
+    url: string,
+    config?: RequestConfig<D>,
+  ): Promise<R> {
     return this.http.delete<T, R, D>(url, await this.withConfig(config));
   }
 
-  async request<T = any, R = AxiosResponse<T>, D = any>(config: RequestConfig<D>) {
+  async request<T = any, R = AxiosResponse<T>, D = any>(
+    config: RequestConfig<D>,
+  ): Promise<R> {
     return this.http.request<T, R, D>(await this.withConfig(config));
   }
 
@@ -128,7 +139,7 @@ export class Client {
    * Register an interceptor to use
    * as middleware for the request/response/error
    */
-  use(interceptor: Interceptor) {
+  use(interceptor: Interceptor): number {
     const id = ++this.seq;
     let requestId: number | undefined = undefined;
     let responseId: number | undefined = undefined;
@@ -143,7 +154,7 @@ export class Client {
         (error: any) => {
           if (!interceptor.error) return error;
           return interceptor.error({ error, log: this.log });
-        }
+        },
       );
     }
 
@@ -157,7 +168,7 @@ export class Client {
         (error: any) => {
           if (!interceptor.error) return error;
           return interceptor.error({ error, log: this.log });
-        }
+        },
       );
     }
 
@@ -173,7 +184,7 @@ export class Client {
   /**
    * Eject an interceptor
    */
-  eject(id: number) {
+  eject(id: number): void {
     const registry = this.interceptors.get(id);
 
     if (!registry) return;
@@ -192,7 +203,7 @@ export class Client {
   /**
    * Clear (Eject) all interceptors
    */
-  clear() {
+  clear(): void {
     for (const id of this.interceptors.keys()) {
       this.eject(id);
     }
@@ -201,8 +212,8 @@ export class Client {
   /**
    * Create a copy of the client
    */
-  clone(options?: ClientOptions) {
-    const findUA = (h?: RawAxiosRequestHeaders) => {
+  clone(options?: ClientOptions): Client {
+    const findUA = (h?: RawAxiosRequestHeaders): string | undefined => {
       if (!h) return undefined;
       const key = Object.keys(h).find((k) => k.toLowerCase() === 'user-agent');
       return key ? String(h[key]) : undefined;
@@ -211,7 +222,7 @@ export class Client {
     const parentUA = findUA(this.options.headers);
     const childUA = findUA(options?.headers);
     const mergedUA =
-      parentUA && childUA ? `${childUA} ${parentUA}` : (childUA || parentUA);
+      parentUA && childUA ? `${childUA} ${parentUA}` : childUA || parentUA;
 
     const headers = {
       ...this.options.headers,
@@ -232,11 +243,15 @@ export class Client {
       ...this.options,
       ...options,
       headers,
-      interceptors: [...Array.from(this.interceptors.values()).map((i) => i.interceptor)],
+      interceptors: [
+        ...Array.from(this.interceptors.values()).map((i) => i.interceptor),
+      ],
     });
   }
 
-  protected async withConfig(config: RequestConfig = {}) {
+  protected async withConfig(
+    config: RequestConfig = {},
+  ): Promise<RequestConfig> {
     let token = config.token || this.token;
 
     if (config.token) {

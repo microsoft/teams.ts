@@ -69,7 +69,6 @@ $: npm run test
 - [`@microsoft/teams.api`](./packages/api/README.md)
 - [`@microsoft/teams.botbuilder`](./packages/botbuilder/README.md)
 - [`@microsoft/teams.cards`](./packages/cards/README.md)
-- [`@microsoft/teams.cli`](./packages/cli/README.md)
 - [`@microsoft/teams.client`](./packages/client/README.md)
 - [`@microsoft/teams.common`](./packages/common/README.md)
 - [`@microsoft/teams.config`](./packages/config/README.md)
@@ -94,8 +93,8 @@ $: npm run test
 > ℹ️ used to test the SDK or as a visual sample of how certain features can be implemented.
 
 > ⚠️ **WARNING** these apps are changed often and are not intended to be used outside the
-> projects monorepo. To easily setup a new project please use the **templates** available via
-> the `@microsoft/teams.cli` and follow the
+> projects monorepo. To create and manage Teams apps for these samples, use the official
+> Teams CLI (`@microsoft/teams.cli`) and follow the
 > [Getting Started](https://microsoft.github.io/teams-sdk/typescript/getting-started) documentation!
 
 - [`@examples/echo`](./examples/echo/README.md)
@@ -112,4 +111,4 @@ $: npm run test
 ## Links
 
 - [Teams Developer Portal: Apps](https://dev.teams.microsoft.com/apps)
-- [Teams Toolkit](https://www.npmjs.com/package/@microsoft/teamsapp-cli)
+- [Teams CLI](https://www.npmjs.com/package/@microsoft/teams.cli)

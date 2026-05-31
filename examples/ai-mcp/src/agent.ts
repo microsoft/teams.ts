@@ -1,3 +1,7 @@
+import type { AzureOpenAI } from 'openai';
+
+import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
+
 import { IStreamer } from '@microsoft/teams.apps';
 import { AdaptiveCard } from '@microsoft/teams.cards';
 import { ILogger } from '@microsoft/teams.common';
@@ -7,8 +11,6 @@ import { CitationCollector } from './citation-collector';
 import { buildClarificationTool } from './local-tools';
 import { McpToolSet } from './mcp-tools';
 
-import type { AzureOpenAI } from 'openai';
-import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
 const SYSTEM_PROMPT = `\
 You are a Teams docs assistant that can search Microsoft Learn (Teams, .NET, TypeScript, Microsoft Graph, Azure)

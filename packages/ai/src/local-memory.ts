@@ -1,6 +1,6 @@
-import { IMemory } from './memory';
-import { Message } from './message';
-import { IChatModel } from './models';
+import type { IMemory } from './memory';
+import type { Message } from './message';
+import type { IChatModel } from './models';
 
 export type LocalMemoryOptions = {
   readonly max?: number;
@@ -20,22 +20,22 @@ export class LocalMemory implements IMemory {
     this.options = options || {};
   }
 
-  get(i: number) {
+  get(i: number): Message | undefined {
     if (i < 0 || i > this.messages.length - 1) return;
     return this.messages[i];
   }
 
-  set(i: number, message: Message) {
+  set(i: number, message: Message): void {
     if (i < 0 || i > this.messages.length - 1) return;
     this.messages[i] = message;
   }
 
-  delete(i: number) {
+  delete(i: number): void {
     if (i < 0 || i > this.messages.length - 1) return;
     this.messages.splice(i, 1);
   }
 
-  async push(message: Message) {
+  async push(message: Message): Promise<void> {
     this.messages.push(message);
     let len = this.length();
 
@@ -60,23 +60,23 @@ export class LocalMemory implements IMemory {
     }
   }
 
-  pop() {
+  pop(): Message | undefined {
     return this.messages.shift();
   }
 
-  values() {
+  values(): Message[] {
     return this.messages.slice();
   }
 
-  length() {
+  length(): number {
     return this.messages.length;
   }
 
-  where(predicate: (value: Message, index: number) => boolean) {
+  where(predicate: (value: Message, index: number) => boolean): Message[] {
     return this.messages.filter(predicate);
   }
 
-  async collapse() {
+  async collapse(): Promise<Message | undefined> {
     if (!this.options.collapse) return;
 
     const start = 0;

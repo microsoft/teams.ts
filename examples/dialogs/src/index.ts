@@ -13,7 +13,6 @@ import {
   TextInput,
 } from '@microsoft/teams.cards';
 import { ConsoleLogger } from '@microsoft/teams.common';
-import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 dotenv.config({
   path: path.join(__dirname, '..', 'env', '.env.local'),
@@ -33,7 +32,6 @@ function createTaskFetchSubmitAction(title: string, dialogId: string): SubmitAct
 
 const app = new App({
   logger,
-  plugins: [new DevtoolsPlugin()],
 });
 
 // Hosts a static webpage at /tabs/dialog-form

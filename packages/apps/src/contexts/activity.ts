@@ -1,6 +1,7 @@
 import {
   Activity,
   ActivityLike,
+  ActivityParams,
   cardAttachment,
   ConversationAccount,
   ConversationReference,
@@ -194,6 +195,8 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
 export type IActivityContext<T extends Activity = Activity, TExtraContext = unknown> =
   IBaseActivityContext<T> & (TExtraContext extends Record<string, any> ? TExtraContext : {});
 
+type MessageActivityParams = ActivityParams & Partial<IMessageActivity> & { type: 'message' };
+
 export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {} = {}>
   implements IBaseActivityContext<T, TExtraCtx> {
   appId!: string;
@@ -234,6 +237,16 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       rest.activity = TypingActivity.from(rest.activity).toInterface();
     }
 
+    // SECURITY: drop any keys in `rest` that would shadow prototype methods.
+    // Plugin-supplied context can add new properties via the [key: string]: any
+    // index signature, but must not overwrite methods that callers rely on for
+    // trust (send, reply, quote, signin, signout).
+    for (const key of PROTECTED_METHOD_NAMES) {
+      if (key in rest) {
+        delete (rest as Record<string, unknown>)[key];
+      }
+    }
+
     Object.assign(this, rest);
     this.activitySender = activitySender;
     this.next = next;
@@ -254,37 +267,18 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   async send(activity: ActivityLike, conversationRef?: ConversationReference) {
     const params = toActivityParams(activity);
 
-    // For targeted send, set the recipient if not already set.
-    // For targeted update (params.id exists), we don't update recipient since recipient cannot be changed.
-    if (params.type === 'message' && params.recipient?.isTargeted && !params.id) {
-      if (!params.recipient) {
-        params.recipient = this.activity.from;
-      }
+    if (this.shouldOutboundBeAutoTargeted(params, conversationRef)) {
+      this.applyTargetedRecipient(params);
     }
 
-    // Auto-populate targetedMessageInfo entity for prompt preview
-    // when replying to a targeted message in the reactive flow.
-    if (
-      params.type === 'message' &&
-      this.activity.recipient?.isTargeted === true
-    ) {
-      if (params.entities) {
-        params.entities = params.entities.filter((e) => e.type !== 'quotedReply');
-      }
+    if (this.isTargetedOutbound(params)) {
+      this.stripQuotedReplyMetadata(params);
 
-      if (params.text) {
-        params.text = params.text.replace(`<quoted messageId="${this.activity.id}"/>`, '').trim();
-      }
-
-      if (!params.entities?.some((e) => e.type === 'targetedMessageInfo')) {
-        if (!params.entities) {
-          params.entities = [];
-        }
-
-        params.entities.push({
-          type: 'targetedMessageInfo',
-          messageId: this.activity.id,
-        });
+      // `targetedMessageInfo` points at the original targeted inbound message for prompt preview.
+      // Do not add it for generic targeted sends; Teams can reject it if the referenced activity
+      // was not itself delivered as a targeted message.
+      if (this.isIncomingTargeted()) {
+        this.addTargetedMessageInfo(params);
       }
     }
 
@@ -440,4 +434,85 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     };
   }
 
+  private isIncomingTargeted() {
+    return this.activity.recipient?.isTargeted === true;
+  }
+
+  private shouldOutboundBeAutoTargeted(params: ActivityParams, conversationRef?: ConversationReference) {
+    if (params.type !== 'message') {
+      return false;
+    }
+
+    if (!this.isIncomingTargeted()) {
+      return false;
+    }
+
+    if (!this.isSameConversation(conversationRef)) {
+      return false;
+    }
+
+    return !params.id && !params.recipient;
+  }
+
+  private isSameConversation(conversationRef?: ConversationReference) {
+    return !conversationRef || conversationRef.conversation?.id === this.ref.conversation?.id;
+  }
+
+  private applyTargetedRecipient(params: ActivityParams) {
+    params.recipient = {
+      ...this.activity.from,
+      isTargeted: true,
+    };
+  }
+
+  private isTargetedOutbound(params: ActivityParams): params is MessageActivityParams {
+    return params.type === 'message' && params.recipient?.isTargeted === true;
+  }
+
+  private stripQuotedReplyMetadata(params: MessageActivityParams) {
+    if (params.entities) {
+      params.entities = params.entities.filter((e) => e.type !== 'quotedReply');
+    }
+
+    if (params.text) {
+      params.text = params.text.replace(`<quoted messageId="${this.activity.id}"/>`, '').trim();
+    }
+  }
+
+  private addTargetedMessageInfo(params: MessageActivityParams) {
+    if (params.entities?.some((e) => e.type === 'targetedMessageInfo')) {
+      return;
+    }
+
+    if (!params.entities) {
+      params.entities = [];
+    }
+
+    params.entities.push({
+      type: 'targetedMessageInfo',
+      messageId: this.activity.id,
+    });
+  }
+
 }
+
+// Names of prototype methods (and getters) on ActivityContext that must not be
+// shadowed by instance properties from external context. Computed once from the
+// prototype chain at module load, so any method or accessor added to the class
+// in the future is protected automatically with no maintenance.
+const PROTECTED_METHOD_NAMES: ReadonlySet<string> = (() => {
+  const names = new Set<string>();
+  let proto: object | null = ActivityContext.prototype;
+  while (proto && proto !== Object.prototype) {
+    for (const name of Object.getOwnPropertyNames(proto)) {
+      if (name === 'constructor') continue;
+      const descriptor = Object.getOwnPropertyDescriptor(proto, name);
+      if (!descriptor) continue;
+      if (typeof descriptor.value === 'function' || typeof descriptor.get === 'function') {
+        names.add(name);
+      }
+    }
+    proto = Object.getPrototypeOf(proto);
+  }
+  return names;
+})();

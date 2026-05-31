@@ -9,7 +9,7 @@ import { dirname } from "node:path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-/** @type {import("eslint").Linter.Config} */
+/** @type {import('eslint').Linter.Config} */
 export default tseslint.config(
   {
     ignores: [
@@ -50,7 +50,7 @@ export default tseslint.config(
         'error',
         {
           'newlines-between': 'always-and-inside-groups',
-          'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object', 'type'],
+          'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object'],
           'pathGroups': [
             {
               'pattern': '@microsoft/**',
@@ -60,8 +60,10 @@ export default tseslint.config(
           ],
           'alphabetize': {
             'order': 'asc',
-            'caseInsensitive': true
+            'caseInsensitive': true,
+            'orderImportKind': 'ignore',
           },
+          'sortTypesGroup': false,
           'pathGroupsExcludedImportTypes': []
         }
       ],

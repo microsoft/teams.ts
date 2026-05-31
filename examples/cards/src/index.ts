@@ -16,7 +16,6 @@ import {
   TextInput,
   ToggleInput,
 } from '@microsoft/teams.cards';
-import { DevtoolsPlugin } from '@microsoft/teams.dev';
 
 function createBasicCard() {
   const card = new AdaptiveCard(
@@ -211,7 +210,6 @@ function createProfileCardInputValidation() {
 }
 
 const app = new App({
-  plugins: [new DevtoolsPlugin()],
 });
 
 const cardGeneratorByName: Record<

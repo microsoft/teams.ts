@@ -73,6 +73,20 @@ export class JsonWebToken implements IToken {
   private readonly _value: string;
   private readonly _payload: JsonWebTokenPayload;
 
+  /**
+   * Typed accessor for an already-validated JWT payload. This constructor
+   * performs no signature verification, no issuer/audience checks, and no
+   * expiry enforcement. Constructing it from an untrusted token does NOT
+   * establish trust in the contained claims.
+   *
+   * Signature verification happens at the HTTP trust boundary via
+   * `JwtValidator.validateAccessToken` (packages/apps/src/middleware/auth/
+   * jwt-validator.ts). Internal callers may also construct from tokens
+   * sourced from trusted identity infrastructure (MSAL, Bot Framework API
+   * responses).
+   *
+   * Callers must not construct this class from raw network input.
+   */
   constructor(value: string) {
     this._value = value;
     this._payload = jwtDecode(value);

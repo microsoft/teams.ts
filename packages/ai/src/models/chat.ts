@@ -1,6 +1,6 @@
-import { Function } from '../function';
-import { IMemory } from '../memory';
-import { Message, ModelMessage, SystemMessage, UserMessage } from '../message';
+import type { Function } from '../function';
+import type { IMemory } from '../memory';
+import type { Message, ModelMessage, SystemMessage, UserMessage } from '../message';
 
 export type TextChunkHandler = (chunk: string) => void | Promise<void>;
 export type ChatSendOptions<TOptions = Record<string, any>> = {

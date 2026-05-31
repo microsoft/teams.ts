@@ -1,4 +1,4 @@
-import { IListStorage } from './storage';
+import type { IListStorage } from './storage';
 
 /**
  * An in-memory list storage.

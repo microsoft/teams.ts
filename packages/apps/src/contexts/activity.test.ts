@@ -230,6 +230,14 @@ describe('ActivityContext', () => {
       // Reply prepends blockquote, but send() auto-populates addTargetedMessageInfo
       // which strips quotedReply entities — the blockquote text remains since it's
       // the legacy format, not the <quoted .../> placeholder.
+      expect(sentActivity.recipient).toEqual(
+        expect.objectContaining({
+          id: 'test-user',
+          name: 'Test User',
+          role: 'user',
+          isTargeted: true,
+        })
+      );
       expect(sentActivity.entities).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -259,6 +267,85 @@ describe('ActivityContext', () => {
     });
 
     describe('targeted messages', () => {
+      it('defaults send to targeted when inbound message is targeted', async () => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+          .withId('test-activity-id');
+        context = buildActivityContext(activity);
+
+        await context.send('Secret message');
+
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+        expect(mockSender.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Secret message',
+            type: 'message',
+            recipient: expect.objectContaining({ id: 'test-user', name: 'Test User', role: 'user', isTargeted: true }),
+          }),
+          mockRef
+        );
+      });
+
+      it('does not default send to targeted for a different conversation', async () => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+          .withId('test-activity-id');
+        context = buildActivityContext(activity);
+
+        const otherRef = {
+          ...mockRef,
+          conversation: {
+            ...mockRef.conversation,
+            id: 'other-conversation',
+          },
+        };
+
+        await context.send('Secret message', otherRef);
+
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+        expect(mockSender.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Secret message',
+            type: 'message',
+          }),
+          otherRef
+        );
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity.recipient).toBeUndefined();
+        expect(sentActivity.entities).toBeUndefined();
+      });
+
+      it('does not default send to targeted when an explicit different recipient is supplied', async () => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+          .withId('test-activity-id');
+        context = buildActivityContext(activity);
+
+        const otherRecipient = { id: 'other-user', name: 'Other User', role: 'user' as const };
+        await context.send(new MessageActivity('Public message').withRecipient(otherRecipient));
+
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity).toEqual(
+          expect.objectContaining({
+            text: 'Public message',
+            type: 'message',
+            recipient: expect.objectContaining(otherRecipient),
+          })
+        );
+        expect(sentActivity.recipient.isTargeted).toBeUndefined();
+        expect(sentActivity.entities).toBeUndefined();
+      });
+
       it('sends targeted message with recipient from incoming activity', async () => {
         const activity = buildIncomingMessageActivity('Hello world');
         context = buildActivityContext(activity);
@@ -277,6 +364,32 @@ describe('ActivityContext', () => {
           }),
           mockRef
         );
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity.entities).toBeUndefined();
+      });
+
+      it('allows explicitly public send from a targeted inbound message', async () => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+          .withId('test-activity-id');
+        context = buildActivityContext(activity);
+
+        await context.send(new MessageActivity('Public message').withRecipient(activity.from));
+
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity).toEqual(
+          expect.objectContaining({
+            text: 'Public message',
+            type: 'message',
+            recipient: expect.objectContaining({ id: 'test-user', name: 'Test User', role: 'user' }),
+          })
+        );
+        expect(sentActivity.recipient.isTargeted).toBeUndefined();
+        expect(sentActivity.entities).toBeUndefined();
       });
 
       it('sends targeted message with explicit recipient id', async () => {
@@ -526,6 +639,85 @@ describe('ActivityContext', () => {
         userId: 'test-user',
         connectionName: 'test-connection',
       });
+    });
+  });
+
+  describe('constructor — prototype method shadowing', () => {
+    it('drops context properties that would shadow prototype methods', () => {
+      const activity = buildIncomingMessageActivity('Hello world');
+      const malicious = {
+        send: jest.fn(),
+        reply: jest.fn(),
+        quote: jest.fn(),
+        signin: jest.fn(),
+        signout: jest.fn(),
+      };
+
+      const ctx = new ActivityContext({
+        appId: 'test-app',
+        activity,
+        ref: mockRef,
+        log: mockLogger,
+        api: mockApiClient,
+        appGraph: {} as GraphClient,
+        userGraph: {} as GraphClient,
+        storage: mockStorage,
+        connectionName: 'test-connection',
+        next: jest.fn(),
+        activitySender: mockSender,
+        ...malicious,
+      } as any);
+
+      for (const name of ['send', 'reply', 'quote', 'signin', 'signout'] as const) {
+        expect(Object.prototype.hasOwnProperty.call(ctx, name)).toBe(false);
+        expect(ctx[name]).toBe(ActivityContext.prototype[name]);
+      }
+    });
+
+    it('still allows new properties from extra context', () => {
+      const activity = buildIncomingMessageActivity('Hello world');
+      const ctx = new ActivityContext({
+        appId: 'test-app',
+        activity,
+        ref: mockRef,
+        log: mockLogger,
+        api: mockApiClient,
+        appGraph: {} as GraphClient,
+        userGraph: {} as GraphClient,
+        storage: mockStorage,
+        connectionName: 'test-connection',
+        next: jest.fn(),
+        activitySender: mockSender,
+        customField: 'still here',
+      } as any);
+
+      expect((ctx as any).customField).toBe('still here');
+    });
+
+    it('routes ctx.send() to the prototype method even when a colliding key is supplied', async () => {
+      const activity = buildIncomingMessageActivity('Hello world');
+      const maliciousSend = jest.fn();
+
+      const ctx = new ActivityContext({
+        appId: 'test-app',
+        activity,
+        ref: mockRef,
+        log: mockLogger,
+        api: mockApiClient,
+        appGraph: {} as GraphClient,
+        userGraph: {} as GraphClient,
+        storage: mockStorage,
+        connectionName: 'test-connection',
+        next: jest.fn(),
+        activitySender: mockSender,
+        // Simulates a plugin's onActivity context attempting to inject its own send.
+        send: maliciousSend,
+      } as any);
+
+      await ctx.send({ type: 'message', text: 'real send' });
+
+      expect(maliciousSend).not.toHaveBeenCalled();
+      expect(mockSender.send).toHaveBeenCalledTimes(1);
     });
   });
 });
