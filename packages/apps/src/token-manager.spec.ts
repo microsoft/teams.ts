@@ -40,7 +40,7 @@ const createMockAuthResult = (accessToken: string): AuthenticationResult => ({
   cloudGraphHostName: '',
   msGraphHost: '',
   code: '',
-  fromNativeBroker: false
+  fromPlatformBroker: false
 });
 
 describe('TokenManager', () => {
