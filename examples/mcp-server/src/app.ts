@@ -20,13 +20,21 @@ app.on('message', async ({ activity, send }) => {
   const userId = activity.from.aadObjectId;
   const conversationId = activity.conversation.id;
 
-  if (activity.conversation.conversationType === 'personal' && userId) {
-    // cache the personal conversation_id so MCP tools can DM this user later.
-    state.conversations.set(userId, conversationId);
+  if (activity.conversation.conversationType === 'personal') {
+    if (userId) {
+      // cache the personal conversation_id so MCP tools can DM this user later.
+      state.conversations.set(userId, conversationId);
+    } else {
+      // No AAD object id on a personal message — MCP tools won't be able to
+      // reach this user by id later. Rare, but worth surfacing when it happens.
+      app.log.warn(
+        `Personal message in conversation ${conversationId} has no aadObjectId; cannot cache it for MCP tools.`
+      );
+    }
   }
 
   app.log.info(
-    `Received message from user ${userId} in conversation ${conversationId}. Replies to asks now arrive via adaptive card actions.`
+    `Received message from user ${userId} in conversation ${conversationId}.`
   );
   await send('Hi! I\'ll let you know if I need anything.');
 });
@@ -48,6 +56,7 @@ app.on('card.action.approval_response', async ({ activity }) => {
     approval.event.set();
     const label = decision === 'approved' ? 'Approved ✅' : 'Rejected ❌';
     const color = decision === 'approved' ? 'Good' : 'Attention';
+    // Return an adaptive card response to the user.
     return {
       statusCode: 200,
       type: 'application/vnd.microsoft.card.adaptive',
@@ -77,6 +86,7 @@ app.on('card.action.ask_reply', async ({ activity }) => {
       entry.reply = reply ?? '';
       // Signal any wait_for_reply callers.
       entry.event.set();
+      // Return an adaptive card response to the user.
       return {
         statusCode: 200,
         type: 'application/vnd.microsoft.card.adaptive',

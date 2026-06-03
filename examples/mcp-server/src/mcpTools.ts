@@ -24,31 +24,6 @@ import { graphClient } from './graphClient';
 import { ApprovalStatus, AskStatus, PendingApproval, makeEvent, state } from './state';
 
 
-
-
-export const mcpServer = new McpServer({ name: 'teams-bot', version: '0.0.0' });
-
-// Wrapper for tools whose return is a typed, structured payload.
-// The handler returns a plain value; we wrap it for MCP automatically.
-function structuredTool<In extends ZodRawShapeCompat, Out extends AnySchema>(
-  name: string,
-  config: {
-    description: string;
-    inputSchema: In;
-    outputSchema: Out;
-    annotations?: ToolAnnotations;
-  },
-  handler: (args: ShapeOutput<In>) => Promise<SchemaOutput<Out>>
-) {
-  mcpServer.registerTool(name, config, (async (args: ShapeOutput<In>) => {
-    const value = await handler(args);
-    return {
-      structuredContent: value as Record<string, unknown>,
-      content: [{ type: 'text' as const, text: JSON.stringify(value) }],
-    };
-  }) as any);
-}
-
 async function getOrCreateConversation(userId: string): Promise<string> {
   const existing = state.conversations.get(userId);
   if (existing) return existing;
@@ -62,7 +37,34 @@ async function getOrCreateConversation(userId: string): Promise<string> {
   return resource.id;
 }
 
-structuredTool(
+// Each client session gets its own McpServer instance (the SDK binds a server
+// to a single transport), so tools are registered via this factory rather than
+// on a shared singleton.
+export function createMcpServer(): McpServer {
+  const mcpServer = new McpServer({ name: 'teams-bot', version: '0.0.0' });
+
+  // Wrapper for tools whose return is a typed, structured payload.
+  // The handler returns a plain value; we wrap it for MCP automatically.
+  function structuredTool<In extends ZodRawShapeCompat, Out extends AnySchema>(
+    name: string,
+    config: {
+      description: string;
+      inputSchema: In;
+      outputSchema: Out;
+      annotations?: ToolAnnotations;
+    },
+    handler: (args: ShapeOutput<In>) => Promise<SchemaOutput<Out>>
+  ) {
+    mcpServer.registerTool(name, config, (async (args: ShapeOutput<In>) => {
+      const value = await handler(args);
+      return {
+        structuredContent: value as Record<string, unknown>,
+        content: [{ type: 'text' as const, text: JSON.stringify(value) }],
+      };
+    }) as any);
+  }
+
+  structuredTool(
   'notify',
   {
     description: 'Send a notification to a Teams user. No response expected.',
@@ -260,3 +262,6 @@ structuredTool(
     return { matches };
   }
 );
+
+  return mcpServer;
+}

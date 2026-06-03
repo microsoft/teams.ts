@@ -12,10 +12,8 @@ Teams and wait for them to reply or approve.
 | `notify`            | Send a one-way notification to a user. No response expected.                   | `userId`, `message`               |
 | `ask`               | Ask a user a question via an Adaptive Card with a reply box. Returns a `requestId`. Multiple asks per user can be in flight. | `userId`, `question` |
 | `wait_for_reply`    | Wait up to `timeoutSeconds` for the reply (default 30). Returns `pending` on timeout. | `requestId`, `timeoutSeconds` |
-| `get_reply`         | Snapshot the reply state without waiting. For manual polling.                  | `requestId`                       |
 | `request_approval`  | Send an Approve/Reject card to a user. Returns an `approvalId`.                | `userId`, `title`, `description`  |
 | `wait_for_approval` | Wait up to `timeoutSeconds` for the decision (default 30). Returns `pending` on timeout. | `approvalId`, `timeoutSeconds` |
-| `get_approval`      | Snapshot the approval status without waiting. For manual polling.              | `approvalId`                      |
 
 `userId` everywhere is the **AAD object id** of someone in the same tenant. Use `find_user` to resolve a name to an id.
 
