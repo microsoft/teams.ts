@@ -1,6 +1,5 @@
 import http from 'http';
 
-import cors from 'cors';
 import express from 'express';
 
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
@@ -118,10 +117,17 @@ export class ExpressAdapter implements IHttpServerAdapter {
   }
 
   /**
-   * Serve static files from a directory
+   * Serve static files from a directory.
+   *
+   * No CORS headers are set: Teams loads tab content inside an iframe (subject
+   * to the page's CSP `frame-ancestors` directive), not via cross-origin
+   * `fetch`/XHR, so a wildcard `Access-Control-Allow-Origin` was permissive
+   * without a corresponding use case. Callers that need cross-origin reads of
+   * the served assets should layer their own CORS middleware at the consuming
+   * route.
    */
   serveStatic(path: string, directory: string): void {
-    this.express.use(path, cors(), express.static(directory));
+    this.express.use(path, express.static(directory));
   }
 
   /**
