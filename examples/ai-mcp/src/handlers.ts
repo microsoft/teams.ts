@@ -93,7 +93,7 @@ function shipResult(
 ): void {
   if (result.pendingCard) {
     stream.clearText();
-    stream.emit(new MessageActivity().addCard('adaptive', result.pendingCard));
+    stream.emit(new MessageActivity().addCard('adaptive', result.pendingCard).addAiGenerated());
     return;
   }
 

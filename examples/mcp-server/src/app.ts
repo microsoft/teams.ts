@@ -1,10 +1,11 @@
 import express from 'express';
 
-import { AdaptiveCardActionMessageResponse } from '@microsoft/teams.api';
+import { AdaptiveCardActionCardResponse, AdaptiveCardActionMessageResponse } from '@microsoft/teams.api';
 import { App, ExpressAdapter } from '@microsoft/teams.apps';
+import { AdaptiveCard, TextBlock } from '@microsoft/teams.cards';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
-import { state } from './state';
+import { state, ApprovalStatus } from './state';
 
 // Own the Express app so we can mount /mcp alongside /api/messages
 // and manage the http.Server lifecycle in index.ts.
@@ -16,30 +17,26 @@ export const app = new App({
 });
 
 app.on('message', async ({ activity, send }) => {
-  const userId = activity.from.id;
+  const userId = activity.from.aadObjectId;
   const conversationId = activity.conversation.id;
 
   if (activity.conversation.conversationType === 'personal') {
-    // cache the personal conversation_id so MCP tools can DM this user later.
-    state.conversations.set(userId, conversationId);
-  }
-
-  // If this user has a pending ask, treat their next message as the answer.
-  // Only one outstanding ask per user is supported (see README Limitations).
-  const requestId = state.userPendingAsk.get(userId);
-  if (requestId && state.pendingAsks.has(requestId)) {
-    const entry = state.pendingAsks.get(requestId)!;
-    entry.reply = activity.text ?? '';
-    entry.status = 'answered';
-    state.userPendingAsk.delete(userId);
-    await send('Got it, thank you!');
-    return;
+    if (userId) {
+      // cache the personal conversation_id so MCP tools can DM this user later.
+      state.conversations.set(userId, conversationId);
+    } else {
+      // No AAD object id on a personal message — MCP tools won't be able to
+      // reach this user by id later. Rare, but worth surfacing when it happens.
+      app.log.warn(
+        `Personal message in conversation ${conversationId} has no aadObjectId; cannot cache it for MCP tools.`
+      );
+    }
   }
 
   app.log.info(
-    `Received message from user ${userId} in conversation ${conversationId}, but no pending ask found.`
+    `Received message from user ${userId} in conversation ${conversationId}.`
   );
-  await send('Hi! Will let you know if I need anything.');
+  await send('Hi! I\'ll let you know if I need anything.');
 });
 
 app.on('card.action.approval_response', async ({ activity }) => {
@@ -50,15 +47,60 @@ app.on('card.action.approval_response', async ({ activity }) => {
 
   if (
     approvalId &&
-    state.approvals.has(approvalId) &&
+    state.pendingApprovals.has(approvalId) &&
     (decision === 'approved' || decision === 'rejected')
   ) {
-    state.approvals.set(approvalId, decision);
+    const approval = state.pendingApprovals.get(approvalId)!;
+    approval.status = decision as ApprovalStatus;
+    // Signal any wait_for_approval callers.
+    approval.event.set();
+    const label = decision === 'approved' ? 'Approved ✅' : 'Rejected ❌';
+    const color = decision === 'approved' ? 'Good' : 'Attention';
+    // Return an adaptive card response to the user.
+    return {
+      statusCode: 200,
+      type: 'application/vnd.microsoft.card.adaptive',
+      value: new AdaptiveCard(
+        new TextBlock(label, { weight: 'Bolder', color }),
+      ),
+    } satisfies AdaptiveCardActionCardResponse;
   }
 
   return {
     statusCode: 200,
     type: 'application/vnd.microsoft.activity.message',
-    value: 'Response recorded',
+    value: 'Unable to record response. The approval request may be invalid or expired.',
+  } satisfies AdaptiveCardActionMessageResponse;
+});
+
+app.on('card.action.ask_reply', async ({ activity }) => {
+  const { request_id: requestId, reply } = activity.value.action.data as {
+    request_id?: string;
+    reply?: string;
+  };
+
+  if (requestId) {
+    const entry = state.pendingAsks.get(requestId);
+    if (entry?.status === 'pending') {
+      entry.status = 'answered';
+      entry.reply = reply ?? '';
+      // Signal any wait_for_reply callers.
+      entry.event.set();
+      // Return an adaptive card response to the user.
+      return {
+        statusCode: 200,
+        type: 'application/vnd.microsoft.card.adaptive',
+        value: new AdaptiveCard(
+          new TextBlock('Reply recorded', { weight: 'Bolder', color: 'Good' }),
+          new TextBlock(reply ?? '', { wrap: true }),
+        ),
+      } satisfies AdaptiveCardActionCardResponse;
+    }
+  }
+
+  return {
+    statusCode: 200,
+    type: 'application/vnd.microsoft.activity.message',
+    value: 'Unable to record reply. The ask may be invalid or expired.',
   } satisfies AdaptiveCardActionMessageResponse;
 });
