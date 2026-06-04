@@ -407,7 +407,7 @@ export class Activity<T extends string = string> implements IActivity<T> {
         '@type': 'DigitalDocument',
         abstract: appearance.abstract,
         name: appearance.name,
-        encodingFormat: 'application/vnd.microsoft.card.adaptive',
+        encodingFormat: appearance.text ? 'application/vnd.microsoft.card.adaptive' : undefined,
         image: appearance.icon
           ? {
               '@type': 'ImageObject',
