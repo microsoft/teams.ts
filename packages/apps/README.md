@@ -54,26 +54,30 @@ By default, the app receives Teams activities at `/api/messages`.
 import express from 'express';
 import { App, ExpressAdapter } from '@microsoft/teams.apps';
 
-const server = express();
+async function main() {
+  const server = express();
 
-server.get('/health', (_req, res) => {
-  res.json({ status: 'ok' });
-});
+  server.get('/health', (_req, res) => {
+    res.json({ status: 'ok' });
+  });
 
-const app = new App({
-  httpServerAdapter: new ExpressAdapter(server),
-});
+  const app = new App({
+    httpServerAdapter: new ExpressAdapter(server),
+  });
 
-app.on('message', async ({ activity, reply }) => {
-  await reply(`You said: ${activity.text}`);
-});
+  app.on('message', async ({ activity, reply }) => {
+    await reply(`You said: ${activity.text}`);
+  });
 
-await app.initialize(); // registers /api/messages on your server
+  await app.initialize(); // registers /api/messages on your server
 
-server.listen(process.env.PORT || 3978);
+  server.listen(process.env.PORT || 3978);
+}
+
+main().catch(console.error);
 ```
 
-See the [examples folder](https://github.com/microsoft/teams.ts/tree/main/examples) for HTTP adapters and framework integration samples.
+See the [HTTP adapter examples](https://github.com/microsoft/teams.ts/tree/main/examples/http-adapters) for framework integration samples.
 
 ## Examples
 
