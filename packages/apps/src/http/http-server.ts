@@ -115,10 +115,10 @@ export class HttpServer implements IHttpServer {
         this.logger,
         deps.cloud
       );
-    } else if (!this.credentials) {
+    } else if (!this.credentials && this.skipAuth) {
       this.logger.warn(
-        'No credentials configured (CLIENT_ID / CLIENT_SECRET / TENANT_ID). ' +
-        `Bot will accept unauthenticated requests on ${this._messagingEndpoint}.`
+        'No credentials configured (CLIENT_ID / CLIENT_SECRET / TENANT_ID), ' +
+        `but skipAuth is enabled. Bot will accept unauthenticated requests on ${this._messagingEndpoint}.`
       );
     }
 
