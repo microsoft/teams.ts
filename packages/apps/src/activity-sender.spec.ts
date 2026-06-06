@@ -1,5 +1,5 @@
 import { ActivityParams, ConversationReference } from '@microsoft/teams.api';
-import  {Client as HttpClient } from '@microsoft/teams.common';
+import { Client as HttpClient } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
 

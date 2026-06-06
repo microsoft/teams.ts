@@ -1,6 +1,5 @@
 import { Activity, ActivityLike, ConversationReference, InvokeResponse, isInvokeResponse } from '@microsoft/teams.api';
 
-import { ApiClient, GraphClient } from './api';
 import { App } from './app';
 import { ActivityContext, IActivityContext } from './contexts';
 import { IActivityEvent } from './events';
@@ -38,20 +37,13 @@ export async function $process<TPlugin extends IPlugin>(
 
   try {
     userToken = await this.getUserToken(activity.channelId, activity.from.id);
-  } catch (err) {
+  } catch {
     // noop
   }
 
-  const client = this.client.clone();
-  const apiClient = new ApiClient(serviceUrl, this.client.clone({ token: () => this.getBotToken() }), this.options.apiClientSettings);
-  const userGraph = new GraphClient(
-    client.clone({ token: () => userToken }),
-    { baseUrlRoot: this.graphBaseUrl }
-  );
-  const appGraph = new GraphClient(
-    client.clone({ token: () => this.getAppGraphToken(activity.conversation.tenantId ?? 'common') }),
-    { baseUrlRoot: this.graphBaseUrl }
-  );
+  const apiClient = this.createApiClient(serviceUrl);
+  const userGraph = this.createUserGraphClient(userToken);
+  const appGraph = this.createAppGraphClient(activity.conversation?.tenantId ?? 'common');
 
   const ref: ConversationReference = {
     serviceUrl,

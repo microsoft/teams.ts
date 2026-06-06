@@ -1,20 +1,11 @@
 import jwt from 'jsonwebtoken';
 
-import { CHINA, JsonWebToken, PUBLIC, US_GOV, US_GOV_DOD, withOverrides } from '@microsoft/teams.api';
+import { CHINA, PUBLIC, US_GOV, US_GOV_DOD, withOverrides } from '@microsoft/teams.api';
 
 import { App } from './app';
 import { TestAdapter } from './test-utils';
 
 class TestApp extends App {
-  // Expose protected members for testing
-  public async testGetBotToken() {
-    return this.getBotToken();
-  }
-
-  public async testGetAppGraphToken(tenantId?: string) {
-    return this.getAppGraphToken(tenantId);
-  }
-
   public async testSend(conversationId: string, activity: any) {
     return this.send(conversationId, activity);
   }
@@ -35,7 +26,7 @@ class TestApp extends App {
 }
 
 describe('App', () => {
-  describe('token acquisition', () => {
+  describe('auth options', () => {
     let app: TestApp;
     const mockBotToken = jwt.sign(
       {
@@ -45,15 +36,6 @@ describe('App', () => {
       },
       'test-secret'
     );
-    const mockGraphToken = jwt.sign(
-      {
-        exp: Math.floor((Date.now() + 3600000) / 1000),
-        aud: 'https://graph.microsoft.com',
-        iss: 'https://login.microsoftonline.com/test-tenant/v2.0',
-      },
-      'test-secret'
-    );
-
     beforeEach(() => {
       app = new TestApp({
         httpServerAdapter: new TestAdapter(),
@@ -67,61 +49,29 @@ describe('App', () => {
       await app.stop();
     });
 
-    it('should acquire bot token via TokenManager', async () => {
-      const mockAcquireToken = jest.fn().mockResolvedValue({
-        accessToken: mockBotToken,
-      });
-
-      // @ts-expect-error - accessing private method for testing
-      jest.spyOn(app.tokenManager, 'getConfidentialClient').mockReturnValue({
-        acquireTokenByClientCredential: mockAcquireToken,
-      } as any);
-
-      const token = await app.testGetBotToken();
-
-      expect(token).toBeInstanceOf(JsonWebToken);
-      expect(token?.toString()).toBe(mockBotToken);
-    });
-
-    it('should acquire graph token via TokenManager', async () => {
-      const mockAcquireToken = jest.fn().mockResolvedValue({
-        accessToken: mockGraphToken,
-      });
-
-      // @ts-expect-error - accessing private method for testing
-      jest.spyOn(app.tokenManager, 'getConfidentialClient').mockReturnValue({
-        acquireTokenByClientCredential: mockAcquireToken,
-      } as any);
-
-      const token = await app.testGetAppGraphToken();
-
-      expect(token).toBeInstanceOf(JsonWebToken);
-      expect(token?.toString()).toBe(mockGraphToken);
-    });
-
-    it('should return null when credentials are not provided', async () => {
-      const appWithoutCreds = new TestApp({
-        httpServerAdapter: new TestAdapter()
-      });
-
-      const botToken = await appWithoutCreds.testGetBotToken();
-      const graphToken = await appWithoutCreds.testGetAppGraphToken();
-
-      expect(botToken).toBeNull();
-      expect(graphToken).toBeNull();
+    it('throws when both token and authorize are provided', () => {
+      expect(() => new TestApp({
+        httpServerAdapter: new TestAdapter(),
+        clientId: 'test-client-id',
+        tenantId: 'test-tenant-id',
+        token: jest.fn().mockResolvedValue(mockBotToken),
+        authorize: jest.fn().mockResolvedValue(mockBotToken),
+      })).toThrow('Cannot provide both token and authorize');
     });
 
     it('should not prefetch tokens on start', async () => {
-      const mockAcquireToken = jest.fn();
-
-      // @ts-expect-error - accessing private method for testing
-      jest.spyOn(app.tokenManager, 'getConfidentialClient').mockReturnValue({
-        acquireTokenByClientCredential: mockAcquireToken,
-      } as any);
+      await app.stop();
+      const token = jest.fn().mockResolvedValue(mockBotToken);
+      app = new TestApp({
+        httpServerAdapter: new TestAdapter(),
+        clientId: 'test-client-id',
+        tenantId: 'test-tenant-id',
+        token,
+      });
 
       await app.start();
 
-      expect(mockAcquireToken).not.toHaveBeenCalled();
+      expect(token).not.toHaveBeenCalled();
     });
   });
 
@@ -268,9 +218,9 @@ describe('App', () => {
           },
         },
       });
-      const spy = jest.spyOn((app.client as any).http, 'get').mockResolvedValueOnce({});
+      const spy = jest.spyOn((app.api.http as any).http, 'get').mockResolvedValueOnce({});
 
-      await app.client.get('/test');
+      await app.api.http.get('/test');
 
       expect(spy).toHaveBeenCalledWith('/test', {
         headers: {

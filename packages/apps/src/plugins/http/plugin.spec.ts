@@ -70,19 +70,24 @@ describe('HttpPlugin', () => {
       });
 
       expect(app.http).toBe(plugin);
-      expect(app.server).toBeDefined();
-      expect(app.server).toBeInstanceOf(HttpServer);
     });
 
-    it('should pass skipAuth option through to server', () => {
+    it('should accept plugin adapter when passed in plugins array', () => {
       const plugin = new HttpPlugin(undefined, { skipAuth: true });
       const app = new App({
         plugins: [plugin],
       });
 
-      // Server should be configured with skipAuth
-      expect(app.server).toBeDefined();
-      expect((app.server as any).skipAuth).toBe(true);
+      expect(app.http).toBe(plugin);
+    });
+
+    it('should throw when HttpPlugin and App messaging endpoints differ', () => {
+      const plugin = new HttpPlugin(undefined, { messagingEndpoint: '/bot/messages' });
+
+      expect(() => new App({
+        plugins: [plugin],
+        messagingEndpoint: '/api/messages',
+      })).toThrow('HttpPlugin messagingEndpoint');
     });
 
     it('should pass custom http.Server through to adapter', () => {
@@ -92,8 +97,8 @@ describe('HttpPlugin', () => {
         plugins: [plugin],
       });
 
-      // Server adapter should be using the custom server
-      const adapter = app.server.adapter as ExpressAdapter;
+      expect(app.http).toBe(plugin);
+      const adapter = plugin.asServer().adapter as ExpressAdapter;
       expect((adapter as any).server).toBe(customServer);
     });
 
@@ -109,13 +114,8 @@ describe('HttpPlugin', () => {
         httpServerAdapter: new ExpressAdapter(),
       });
 
-      // Both should have server
-      expect(oldApp.server).toBeInstanceOf(HttpServer);
-      expect(newApp.server).toBeInstanceOf(HttpServer);
-
-      // Both should have adapter
-      expect(oldApp.server.adapter).toBeInstanceOf(ExpressAdapter);
-      expect(newApp.server.adapter).toBeInstanceOf(ExpressAdapter);
+      expect(oldApp.http).toBe(oldPlugin);
+      expect(newApp.http).toBeUndefined();
     });
 
     it('should expose deprecated app.http getter', () => {
@@ -127,8 +127,7 @@ describe('HttpPlugin', () => {
       // Deprecated getter should work
       expect(app.http).toBe(plugin);
 
-      // But should be same underlying server
-      expect(app.http!.asServer()).toBe(app.server);
+      expect(app.http!.asServer().adapter).toBeInstanceOf(ExpressAdapter);
     });
 
     it('should allow direct plugin usage for adding routes', () => {
@@ -152,13 +151,12 @@ describe('HttpPlugin', () => {
 
       // HttpPlugin should be registered
       expect(app.http).toBe(plugin);
-      expect(app.server).toBeDefined();
 
       // App should still be able to register routes
       const mockHandler = jest.fn(async () => ({ status: 200 }));
-      app.server.registerRoute('POST', '/test', mockHandler);
+      app.registerRoute('POST', '/test', mockHandler);
 
-      expect(app.server).toBeDefined();
+      expect(app.http).toBe(plugin);
     });
   });
 
