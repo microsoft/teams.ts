@@ -408,16 +408,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     server.onRequest = (event) => this.onActivity(event);
 
     // add injectable items to container
-    this.container.register('id', { useValue: this.id });
-    this.container.register('name', { useValue: this.name });
-    this.container.register('manifest', { useValue: this.manifest });
-    this.container.register('credentials', { useValue: this.credentials });
-    this.container.register('botToken', { useValue: () => this.getBotToken() });
     this.container.register('ILogger', { useValue: this.log });
     this.container.register('IStorage', { useValue: this.storage });
-    this.container.register(this.client.constructor.name, {
-      useFactory: () => this.client,
-    });
 
     // Register HTTP server for plugins that need HTTP capabilities
     this.container.register('IHttpServer', { useValue: server });
