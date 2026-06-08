@@ -132,7 +132,7 @@ describe('App', () => {
       await app.stop();
     });
 
-    it('should send message with app id as bot name', async () => {
+    it('should send message without bot name', async () => {
       app = new TestApp({
         httpServerAdapter: new TestAdapter(),
         clientId: 'test-client-id',
@@ -151,7 +151,7 @@ describe('App', () => {
       expect(mockSend).toHaveBeenCalled();
       const [, ref] = mockSend.mock.calls[0];
       expect(ref.bot.id).toBe('test-client-id');
-      expect(ref.bot.name).toBe('test-client-id');
+      expect(ref.bot.name).toBeUndefined();
     });
 
     it('should throw error when app is not started (no clientId)', async () => {

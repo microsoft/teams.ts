@@ -76,6 +76,7 @@ export type AppOptions<TPlugin extends IPlugin> = {
 
   /**
    * Application ID URI from the Azure portal. Used for user authentication.
+   * Matches webApplicationInfo.resource in the app manifest.
    */
   readonly applicationIdUri?: string;
 
@@ -518,7 +519,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       serviceUrl: this.api.serviceUrl,
       bot: {
         id: this.id,
-        name: this.id,
         role: 'bot',
       },
       conversation: {
