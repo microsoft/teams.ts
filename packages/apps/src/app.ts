@@ -28,7 +28,7 @@ import pkg from '../package.json';
 import { ActivitySender } from './activity-sender';
 import { ApiClient, GraphClient } from './api';
 
-import { configTab, func, tab } from './app.embed';
+import { func, tab } from './app.embed';
 import {
   event,
   onActivityResponse,
@@ -47,7 +47,6 @@ import { Container } from './container';
 import { IActivityEvent } from './events';
 import { ExpressAdapter, IHttpServerAdapter } from './http';
 import { HttpServer } from './http/http-server';
-import * as manifest from './manifest';
 import * as middleware from './middleware';
 import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
@@ -77,7 +76,6 @@ export type AppOptions<TPlugin extends IPlugin> = {
 
   /**
    * Application ID URI from the Azure portal. Used for user authentication.
-   * Matches webApplicationInfo.resource in the app manifest.
    */
   readonly applicationIdUri?: string;
 
@@ -134,11 +132,6 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * OAuth Settings
    */
   readonly oauth?: OAuthSettings;
-
-  /**
-   * The apps manifest
-   */
-  readonly manifest?: Partial<manifest.Manifest>;
 
   /**
    * Activity Options
@@ -224,47 +217,12 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     return this.credentials?.clientId;
   }
 
-  /**
-   * the apps name
-   * @deprecated Name will be removed in the near future. Please remove dependencies from it.
-   */
-  get name() {
-    return this._manifest.name?.full;
-  }
-
   get oauth() {
     return {
       ...DEFAULT_OAUTH_SETTINGS,
       ...this.options.oauth,
     };
   }
-
-  /**
-   * the apps manifest
-   */
-  get manifest(): Partial<manifest.Manifest> {
-    return {
-      id: this.id,
-      name: {
-        short: this._manifest.name?.short || '??',
-        full: this._manifest.name?.full || '??',
-      },
-      bots: [
-        {
-          botId: this.id || '??',
-          scopes: ['personal'],
-        },
-      ],
-      webApplicationInfo: {
-        id: this.credentials?.clientId || '??',
-        resource: `api://\${{BOT_DOMAIN}}/${this.credentials?.clientId || '??'
-          }`,
-        ...this._manifest.webApplicationInfo,
-      },
-      ...this._manifest,
-    };
-  }
-  protected readonly _manifest: Partial<manifest.Manifest>;
 
   protected container = new Container();
   protected plugins: Array<TPlugin> = [];
@@ -280,7 +238,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   constructor(readonly options: AppOptions<TPlugin> = {}) {
     this.log = this.options.logger || new ConsoleLogger('@teams/app');
     this.storage = this.options.storage || new LocalStorage();
-    this._manifest = this.options.manifest || {};
 
     // Resolve cloud environment from options or CLOUD env var
     const cloudEnvName = typeof process !== 'undefined' ? process.env.CLOUD : undefined;
@@ -561,7 +518,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       serviceUrl: this.api.serviceUrl,
       bot: {
         id: this.id,
-        name: this.name || this.id,
+        name: this.id,
         role: 'bot',
       },
       conversation: {
@@ -658,13 +615,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param path The path to the web `dist` folder.
    */
   tab = tab; // eslint-disable-line @typescript-eslint/member-ordering
-
-  /**
-   * add a configurable tab
-   * @remark scopes defaults to `team`
-   * @param url The url to use when configuring the tab.
-   */
-  configTab = configTab; // eslint-disable-line @typescript-eslint/member-ordering
 
   /**
    * activity handler called when an inbound activity is received
