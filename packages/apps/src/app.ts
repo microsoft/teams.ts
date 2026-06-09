@@ -367,8 +367,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     // add injectable items to container
     this.container.register('id', { useValue: this.id });
-    this.container.register('name', { useValue: this.name });
-    this.container.register('manifest', { useValue: this.manifest });
     this.container.register('credentials', { useValue: this.credentials });
     this.container.register('botToken', { useValue: () => this.getBotToken() });
     this.container.register('ILogger', { useValue: this.log });
