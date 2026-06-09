@@ -200,7 +200,7 @@ export class BotBuilderAdapter implements IHttpServerAdapter {
   ) {
     const response = await teamsHandler({
       body: req.body,
-      headers: req.headers as Record<string, string>,
+      headers: req.headers as Record<string, string | string[]>,
     });
 
     res.status(response.status || 200).send(response.body);
