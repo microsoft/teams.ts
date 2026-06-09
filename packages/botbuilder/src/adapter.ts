@@ -151,6 +151,12 @@ export class BotBuilderAdapter implements IHttpServerAdapter {
     }
 
     try {
+      const body: any = req.body;
+      if (!body || typeof body !== 'object' || typeof body.type !== 'string') {
+        await this.forwardToTeams(req, res, teamsHandler);
+        return;
+      }
+
       const invokeResponse = await this.processBotBuilder(req, async (context) => {
         if (!context.activity.id) return;
 
@@ -185,8 +191,9 @@ export class BotBuilderAdapter implements IHttpServerAdapter {
     req: express.Request,
     logic: (context: TurnContext) => Promise<void>
   ): Promise<InvokeResponse | undefined> {
-    const authHeader = String(req.headers.authorization ?? req.headers.Authorization ?? '');
-    return await (this.cloudAdapter as any).processActivity(
+    const rawAuth = req.headers.authorization ?? (req.headers as any).Authorization ?? '';
+    const authHeader = Array.isArray(rawAuth) ? rawAuth[0] : String(rawAuth);
+    return await this.cloudAdapter!.processActivity(
       authHeader,
       req.body as Activity,
       logic
