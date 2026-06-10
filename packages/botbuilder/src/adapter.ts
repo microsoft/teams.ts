@@ -17,6 +17,14 @@ import {
   type IHttpServerAdapter,
 } from '@microsoft/teams.apps';
 
+type ProcessActivityAdapter = CloudAdapter & {
+  processActivity(
+    authHeader: string,
+    activity: Activity,
+    logic: (context: TurnContext) => Promise<void>
+  ): Promise<InvokeResponse | undefined>;
+};
+
 export type BotBuilderAdapterOptions = {
   /**
    * BotBuilder CloudAdapter. If omitted, one is constructed from credentials.
@@ -193,7 +201,7 @@ export class BotBuilderAdapter implements IHttpServerAdapter {
   ): Promise<InvokeResponse | undefined> {
     const rawAuth = req.headers.authorization ?? (req.headers as any).Authorization ?? '';
     const authHeader = Array.isArray(rawAuth) ? rawAuth[0] : String(rawAuth);
-    return await this.cloudAdapter!.processActivity(
+    return await (this.cloudAdapter as ProcessActivityAdapter).processActivity(
       authHeader,
       req.body as Activity,
       logic
