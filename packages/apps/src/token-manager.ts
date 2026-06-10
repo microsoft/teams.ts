@@ -52,6 +52,7 @@ export class TokenManager {
   private _msalLogger: ILogger;
   private cloud: CloudEnvironment;
   private confidentialClientsByTenantId: Record<string, ConfidentialClientApplication> = {};
+  private federatedIdentityClientsByTenantId: Record<string, ConfidentialClientApplication> = {};
   private managedIdentityClient: ManagedIdentityApplication | null = null;
 
   constructor(options: TokenManagerOptions, logger: ILogger) {
@@ -155,18 +156,7 @@ export class TokenManager {
   }
 
   private async getTokenWithFederatedCredentials(credentials: FederatedIdentityCredentials, scope: string, tenantId: string) {
-    const managedIdentityClient = this.getManagedIdentityClient(credentials);
-    const managedIdentityTokenRes = await managedIdentityClient.acquireToken({ resource: 'api://AzureADTokenExchange' });
-    const confidentialClient = new ConfidentialClientApplication({
-      auth: {
-        clientId: credentials.clientId,
-        clientAssertion: managedIdentityTokenRes.accessToken,
-        authority: `${this.cloud.loginEndpoint}/${tenantId}`
-      },
-      system: {
-        loggerOptions: this.buildLoggerOptions()
-      }
-    });
+    const confidentialClient = this.getFederatedIdentityClient(credentials, tenantId);
     const result = await confidentialClient.acquireTokenByClientCredential({ scopes: [scope] });
     return this.handleTokenResponse(result);
   }
@@ -192,6 +182,32 @@ export class TokenManager {
       }
     });
     this.confidentialClientsByTenantId[tenantId] = client;
+    return client;
+  }
+
+  private getFederatedIdentityClient(credentials: FederatedIdentityCredentials, tenantId: string) {
+    const cachedClient = this.federatedIdentityClientsByTenantId[tenantId];
+    if (cachedClient) {
+      return cachedClient;
+    }
+
+    const client = new ConfidentialClientApplication({
+      auth: {
+        clientId: credentials.clientId,
+        clientAssertion: async () => {
+          const managedIdentityTokenRes = await this.getManagedIdentityClient(credentials).acquireToken({ resource: 'api://AzureADTokenExchange' });
+          if (!managedIdentityTokenRes) {
+            throw new Error('Failed to get token');
+          }
+          return managedIdentityTokenRes.accessToken;
+        },
+        authority: `${this.cloud.loginEndpoint}/${tenantId}`
+      },
+      system: {
+        loggerOptions: this.buildLoggerOptions()
+      }
+    });
+    this.federatedIdentityClientsByTenantId[tenantId] = client;
     return client;
   }
 
