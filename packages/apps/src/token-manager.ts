@@ -197,7 +197,7 @@ export class TokenManager {
         clientAssertion: async () => {
           const managedIdentityTokenRes = await this.getManagedIdentityClient(credentials).acquireToken({ resource: 'api://AzureADTokenExchange' });
           if (!managedIdentityTokenRes) {
-            throw new Error('Failed to get token');
+            throw new Error('Failed to acquire managed identity exchange token for federated identity credential');
           }
           return managedIdentityTokenRes.accessToken;
         },
