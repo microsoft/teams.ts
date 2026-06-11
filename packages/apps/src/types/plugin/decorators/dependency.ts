@@ -83,8 +83,6 @@ export function HttpServer() {
  */
 export type DependencyOptions =
   | IdDependencyOptions
-  | NameDependencyOptions
-  | ManifestDependencyOptions
   | CredentialsDependencyOptions
   | BotTokenDependencyOptions
   | GraphTokenDependencyOptions
@@ -104,32 +102,6 @@ export type IdDependencyOptions = {
    * if the dependency is not found
    */
   readonly optional: true;
-};
-
-export type NameDependencyOptions = {
-  /**
-   * the name used to resolve the dependency
-   */
-  readonly name: 'name';
-
-  /**
-   * if optional, the app will not throw
-   * if the dependency is not found
-   */
-  readonly optional: true;
-};
-
-export type ManifestDependencyOptions = {
-  /**
-   * the name used to resolve the dependency
-   */
-  readonly name: 'manifest';
-
-  /**
-   * if optional, the app will not throw
-   * if the dependency is not found
-   */
-  readonly optional?: false;
 };
 
 export type CredentialsDependencyOptions = {
@@ -216,7 +188,7 @@ export type PluginDependencyOptions = {
    */
   readonly name?: Omit<
     string,
-    'id' | 'name' | 'manifest' | 'credentials' | 'botToken' | 'graphToken' | 'ILogger' | 'IStorage' | 'IHttpServer'
+    'id' | 'credentials' | 'botToken' | 'graphToken' | 'ILogger' | 'IStorage' | 'IHttpServer'
   >;
 
   /**

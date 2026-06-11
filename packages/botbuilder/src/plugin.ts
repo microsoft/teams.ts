@@ -16,7 +16,6 @@ import {
   IPlugin,
   Logger,
   Plugin,
-  manifest,
 } from '@microsoft/teams.apps';
 import { Client as HttpClient, type ILogger } from '@microsoft/teams.common';
 
@@ -41,12 +40,6 @@ export class BotBuilderPlugin implements IPlugin {
   @HttpServer()
   declare readonly httpServer: IHttpServer;
 
-  @Dependency()
-  declare readonly manifest: Partial<manifest.Manifest>;
-
-  // Even though we don't use this in this plugin, the plugin chain
-  // has it, and the dependency injection system only looks at the surface
-  // level dependencies of the plugin.
   @Dependency({ optional: true })
   declare readonly credentials?: Credentials;
 
