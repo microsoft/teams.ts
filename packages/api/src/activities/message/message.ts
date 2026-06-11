@@ -42,7 +42,7 @@ export interface IMessageActivity extends IActivity<'message'> {
   summary?: string;
 
   /**
-   * Format of text fields Default:markdown. Possible values include: 'markdown', 'plain', 'xml'
+   * Format of text fields Default:markdown. Possible values include: 'markdown', 'plain', 'xml', 'extendedmarkdown'
    */
   textFormat?: TextFormat;
 
@@ -136,7 +136,7 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
   summary?: string;
 
   /**
-   * Format of text fields Default:markdown. Possible values include: 'markdown', 'plain', 'xml'
+   * Format of text fields Default:markdown. Possible values include: 'markdown', 'plain', 'xml', 'extendedmarkdown'
    */
   textFormat?: TextFormat;
 
@@ -258,7 +258,7 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
   }
 
   /**
-   * Format of text fields Default:markdown. Possible values include: 'markdown', 'plain', 'xml'
+   * Format of text fields Default:markdown. Possible values include: 'markdown', 'plain', 'xml', 'extendedmarkdown'
    */
   withTextFormat(value: TextFormat) {
     this.textFormat = value;

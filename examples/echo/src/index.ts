@@ -10,6 +10,27 @@ const app = new App({
 
 app.on('message', async ({ reply, activity }) => {
   await reply({ type: 'typing' });
+
+  if (activity.text.toLowerCase().includes('extended')) {
+    const richContent = [
+      '# Extended Markdown Demo',
+      '',
+      '## Table',
+      '| Feature | Status |',
+      '|---------|--------|',
+      '| Tables  | Supported |',
+      '| Math    | Supported |',
+      '',
+      '## Math',
+      '$$E = mc^2$$',
+    ].join('\n');
+
+    await reply(
+      new MessageActivity(richContent).withTextFormat('extendedmarkdown')
+    );
+    return;
+  }
+
   await reply(`you said "${activity.text}"`);
 });
 
