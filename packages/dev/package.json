@@ -1,7 +1,9 @@
 {
   "name": "@microsoft/teams.dev",
   "version": "0.0.0",
+  "private": true,
   "license": "MIT",
+  "deprecated": "@microsoft/teams.dev is deprecated. Use Microsoft 365 Agents Playground (https://learn.microsoft.com/en-us/microsoft-365/agents-sdk/test-with-toolkit-project) instead for local testing of your agent.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
