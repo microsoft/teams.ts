@@ -135,6 +135,39 @@ describe('BotBuilderAdapter', () => {
     expect(res.send).toHaveBeenCalledWith({ source: 'teams' });
   });
 
+  it('sends 500 when BotBuilder processing fails', async () => {
+    const logger = { error: jest.fn() };
+    await app.stop();
+    httpServerAdapter = new MockExpressAdapter();
+    adapter.processActivity.mockRejectedValueOnce(new Error('boom'));
+    app = new App({
+      httpServerAdapter: new BotBuilderAdapter({
+        cloudAdapter: adapter as unknown as CloudAdapter,
+        httpServerAdapter,
+        logger: logger as any,
+      }),
+      skipAuth: true,
+    });
+    await app.start();
+
+    const req = {
+      body: activity,
+      headers: {},
+    } as e.Request;
+    const res = {
+      send: jest.fn(),
+      status: jest.fn().mockReturnThis(),
+      headersSent: false
+    } as unknown as e.Response;
+
+    const routeHandler = httpServerAdapter.postMock.mock.calls[0][2];
+    await routeHandler(req, res, jest.fn());
+
+    expect(logger.error).toHaveBeenCalledWith(expect.any(Error), 'BotBuilderAdapter request failed');
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.send).toHaveBeenCalledWith('internal server error');
+  });
+
   it('constructs CloudAdapter from MicrosoftApp environment variables', () => {
     process.env.MicrosoftAppId = 'app-id';
     process.env.MicrosoftAppPassword = 'secret';
