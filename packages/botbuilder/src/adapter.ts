@@ -16,6 +16,7 @@ import {
   type HttpRouteHandler,
   type IHttpServerAdapter,
 } from '@microsoft/teams.apps';
+import { ConsoleLogger, type ILogger } from '@microsoft/teams.common';
 
 type ProcessActivityAdapter = CloudAdapter & {
   processActivity(
@@ -46,6 +47,11 @@ export type BotBuilderAdapterOptions = {
    */
   readonly credentials?: Credentials;
 
+  /**
+   * Logger used by the adapter.
+   */
+  readonly logger?: ILogger;
+
 };
 
 const NOT_IMPLEMENTED = 501;
@@ -53,12 +59,14 @@ const NOT_IMPLEMENTED = 501;
 export class BotBuilderAdapter implements IHttpServerAdapter {
   private readonly httpServerAdapter: IHttpServerAdapter;
   private readonly handler?: ActivityHandler;
+  private readonly logger: ILogger;
   private cloudAdapter?: CloudAdapter;
 
   constructor(options: BotBuilderAdapterOptions = {}) {
     this.httpServerAdapter = options.httpServerAdapter ?? new ExpressAdapter();
     this.cloudAdapter = options.cloudAdapter;
     this.handler = options.handler;
+    this.logger = options.logger ?? new ConsoleLogger('@teams/botbuilder');
 
     if (!this.cloudAdapter) {
       this.cloudAdapter = this.createCloudAdapter(options.credentials);
@@ -81,8 +89,8 @@ export class BotBuilderAdapter implements IHttpServerAdapter {
     this.httpServerAdapter.post(
       path,
       express.json(),
-      async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-        await this.onRequest(req, res, next, handler);
+      async (req: express.Request, res: express.Response) => {
+        await this.onRequest(req, res, handler);
       }
     );
   }
@@ -151,7 +159,6 @@ export class BotBuilderAdapter implements IHttpServerAdapter {
   private async onRequest(
     req: express.Request,
     res: express.Response,
-    next: express.NextFunction,
     teamsHandler: HttpRouteHandler
   ): Promise<void> {
     if (!this.cloudAdapter) {
@@ -183,12 +190,10 @@ export class BotBuilderAdapter implements IHttpServerAdapter {
         return;
       }
 
-      if (res.headersSent) {
-        return next();
-      }
-
       await this.forwardToTeams(req, res, teamsHandler);
     } catch (err) {
+      this.logger.error(err, 'BotBuilderAdapter request failed');
+
       if (!res.headersSent) {
         res.status(500).send('internal server error');
       }
