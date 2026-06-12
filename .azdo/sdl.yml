@@ -1,0 +1,45 @@
+# =============================================================================
+# Weekly SDL pipeline — ensures CodeQL and other SDL tools run on the default
+# branch at least once per week (SFI-PS2.1 Continuous SDL compliance).
+# The 1ES.Official template auto-injects CodeQL 3000 and CredScan.
+# Interpreted languages (JS/TS, Python) are scanned automatically in the
+# SDL Sources stage — no build step required.
+# =============================================================================
+
+trigger: none
+
+pr: none
+
+schedules:
+- cron: "0 8 * * 1"
+  displayName: Weekly SDL
+  branches:
+    include:
+      - main
+  always: true
+
+resources:
+  repositories:
+  - repository: 1esPipelines
+    type: git
+    name: 1ESPipelineTemplates/1ESPipelineTemplates
+    ref: refs/tags/release
+
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1esPipelines
+  parameters:
+    pool:
+      name: 1ES-Teams-Windows-2022-DomoreexpGithub
+      os: windows
+    stages:
+    - stage: SDL
+      displayName: SDL Analysis
+      jobs:
+      - job: sdl
+        displayName: SDL Scan
+        pool:
+          name: 1ES-Teams-Windows-2022-DomoreexpGithub
+          os: windows
+        steps:
+        - checkout: self
+          displayName: 'Checkout'

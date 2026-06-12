@@ -117,7 +117,7 @@ const useActivityGridColumns = ({
             );
           case 'from':
             return item.body.from ? (
-              <OverflowCell content={item.body.from.name} className={classes.cell} />
+              <OverflowCell content={item.body.from.name || 'App'} className={classes.cell} />
             ) : null;
           case 'timestamp':
             return (

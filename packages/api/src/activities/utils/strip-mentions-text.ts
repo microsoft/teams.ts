@@ -42,7 +42,7 @@ export function stripMentionsText<TActivity extends TextActivity>(
     if (mention.text) {
       const textWithoutTags = mention.text.replace('<at>', '').replace('</at>', '');
       text = text.replace(mention.text, !tagOnly ? '' : textWithoutTags);
-    } else {
+    } else if (mention.mentioned.name) {
       text = text.replace(
         `<at>${mention.mentioned.name}</at>`,
         !tagOnly ? '' : mention.mentioned.name
