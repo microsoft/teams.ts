@@ -16,12 +16,6 @@ export function buildGraphClient(
       // the same way as on Web. Use explicit Graph scopes when available.
       const providedScopes = getGraphScopes?.();
       const scopes = (providedScopes && providedScopes.length > 0) ? providedScopes : ['.default'];
-      if (scopes.length === 1 && scopes[0] === '.default') {
-        logger.warn(
-          'Graph client is using the \'.default\' scope. This does not work on Teams Desktop (NAA). ' +
-          'Set explicit scopes in msalOptions.prewarmScopes (e.g., [\'User.Read\']) for Desktop compatibility.'
-        );
-      }
 
       const accessToken = await acquireMsalAccessToken(
         msalInstance,

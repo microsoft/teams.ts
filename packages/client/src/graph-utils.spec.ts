@@ -58,9 +58,6 @@ describe('buildGraphClient', () => {
     expect(result).toEqual(mockContext.config);
     expect(setHeaderMock).toHaveBeenCalledWith('Authorization', 'Bearer mockAccessToken');
     expect(mockMsalInstance.acquireTokenSilent).toHaveBeenCalledWith({ scopes: ['.default'] });
-    expect(mockLogger.warn).toHaveBeenCalledWith(
-      expect.stringContaining('does not work on Teams Desktop')
-    );
   });
 
   it('uses explicit scopes when provided', async () => {

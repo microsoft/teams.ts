@@ -510,7 +510,7 @@ describe('App', () => {
       expect(buildGraphClientSpy).toHaveBeenCalledWith(
         expect.any(Function),
         app.log,
-        expect.any(Function)
+        undefined
       );
 
       expect(() => buildGraphClientSpy.mock.calls[0][0]()).toThrow(
@@ -524,7 +524,7 @@ describe('App', () => {
       expect(buildGraphClientSpy).toHaveBeenCalledWith(
         expect.any(Function),
         app.log,
-        expect.any(Function)
+        undefined
       );
       await app.start();
 

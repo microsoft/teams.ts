@@ -21,7 +21,7 @@ const shouldTryPopup = (ex: unknown): boolean => {
   }
 
   // On Desktop (NAA via OneAuth), "ApiContractViolation" with declined scopes
-  // indicates the broker couldn't silently satisfy the request — try interactive.
+  // indicates the broker couldn't silently satisfy the request -- try interactive.
   const errorCode = (ex as AuthError)?.errorCode ?? '';
   if (errorCode === 'ApiContractViolation') {
     return true;
@@ -116,7 +116,17 @@ export const acquireMsalAccessToken = async (
     const response = await msalInstance.acquireTokenPopup(request);
     return response.accessToken;
   } catch (ex) {
-    logger.error('acquireTokenPopup failed', ex);
+    const errorCode = (ex as AuthError)?.errorCode ?? '';
+    if (errorCode === 'ApiContractViolation') {
+      logger.error(
+        'acquireTokenPopup failed with ApiContractViolation. On Teams Desktop, the OneAuth broker ' +
+        'cannot resolve the \'.default\' scope. Set explicit scopes in msalOptions.prewarmScopes ' +
+        '(e.g., [\'User.Read\']) for Desktop compatibility.',
+        ex
+      );
+    } else {
+      logger.error('acquireTokenPopup failed', ex);
+    }
     throw ex;
   }
 };

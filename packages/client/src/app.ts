@@ -156,11 +156,9 @@ export class App {
     this.graph = buildGraphClient(
       () => this.appStateGuard(),
       this._log,
-      () => {
-        const scopes = this.options.msalOptions?.prewarmScopes;
-        // Use explicit Graph scopes if provided; fall back to '.default' for backward compat
-        return (scopes && scopes.length > 0) ? scopes : ['.default'];
-      }
+      this.options.msalOptions?.prewarmScopes
+        ? () => this.options.msalOptions!.prewarmScopes as string[]
+        : undefined
     );
   }
 
