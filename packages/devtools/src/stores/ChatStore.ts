@@ -62,7 +62,7 @@ const createMessageBase = (
       user: event.body.from
         ? {
             id: event.body.from.id,
-            displayName: event.body.from.name,
+            displayName: event.body.from.name || 'App',
           }
         : undefined,
     },

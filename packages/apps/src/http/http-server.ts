@@ -102,6 +102,10 @@ export class HttpServer implements IHttpServer {
     this.credentials = deps.credentials;
     this.cloud = deps.cloud;
 
+    if (!this.credentials && !this.skipAuth) {
+      this.logger.warn('No credentials configured and skipAuth is not enabled. All incoming requests will be rejected. Configure client authentication to securely receive messages, or set skipAuth: true for local development.');
+    }
+
     // Initialize service token validator if credentials provided and auth not skipped
     if (this.credentials && !this.skipAuth) {
       this.serviceTokenValidator = new ServiceTokenValidator(
@@ -111,10 +115,10 @@ export class HttpServer implements IHttpServer {
         this.logger,
         deps.cloud
       );
-    } else if (!this.credentials) {
+    } else if (!this.credentials && this.skipAuth) {
       this.logger.warn(
-        'No credentials configured (CLIENT_ID / CLIENT_SECRET / TENANT_ID). ' +
-        `Bot will accept unauthenticated requests on ${this._messagingEndpoint}.`
+        'No credentials configured (CLIENT_ID / CLIENT_SECRET / TENANT_ID), ' +
+        `but skipAuth is enabled. Bot will accept unauthenticated requests on ${this._messagingEndpoint}.`
       );
     }
 
@@ -203,7 +207,7 @@ export class HttpServer implements IHttpServer {
     headers: Record<string, string | string[]>,
     body: ICoreActivity
   ): Promise<AuthResult> {
-    if (this.skipAuth || !this.credentials) {
+    if (this.skipAuth) {
       const serviceUrl = body.serviceUrl || '';
 
       return {
@@ -216,6 +220,10 @@ export class HttpServer implements IHttpServer {
           isExpired: () => false,
         },
       };
+    }
+
+    if (!this.credentials) {
+      return { success: false, error: 'Authentication not configured' };
     }
 
     const raw = headers['authorization'];

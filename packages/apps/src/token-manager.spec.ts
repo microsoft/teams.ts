@@ -40,7 +40,7 @@ const createMockAuthResult = (accessToken: string): AuthenticationResult => ({
   cloudGraphHostName: '',
   msGraphHost: '',
   code: '',
-  fromNativeBroker: false
+  fromPlatformBroker: false
 });
 
 describe('TokenManager', () => {
@@ -386,6 +386,10 @@ describe('TokenManager', () => {
         const tokenManager = new TokenManager(mockSystemFICOptions, logger);
         const token = await tokenManager.getBotToken();
 
+        const clientAssertion = (ConfidentialClientApplication as jest.MockedClass<typeof ConfidentialClientApplication>).mock.calls[0][0].auth.clientAssertion;
+        expect(clientAssertion).toEqual(expect.any(Function));
+        await expect((clientAssertion as () => Promise<string>)()).resolves.toBe('mock-mi-token');
+
         expect(ManagedIdentityApplication).toHaveBeenCalledWith(
           expect.objectContaining({
             managedIdentityIdParams: undefined
@@ -400,7 +404,7 @@ describe('TokenManager', () => {
           expect.objectContaining({
             auth: expect.objectContaining({
               clientId: 'test-client-id',
-              clientAssertion: 'mock-mi-token',
+              clientAssertion: expect.any(Function),
               authority: 'https://login.microsoftonline.com/test-tenant-id'
             })
           })
@@ -429,6 +433,10 @@ describe('TokenManager', () => {
         const tokenManager = new TokenManager(mockUserFICOptions, logger);
         const token = await tokenManager.getBotToken();
 
+        const clientAssertion = (ConfidentialClientApplication as jest.MockedClass<typeof ConfidentialClientApplication>).mock.calls[0][0].auth.clientAssertion;
+        expect(clientAssertion).toEqual(expect.any(Function));
+        await expect((clientAssertion as () => Promise<string>)()).resolves.toBe('mock-umi-token');
+
         expect(ManagedIdentityApplication).toHaveBeenCalledWith(
           expect.objectContaining({
             managedIdentityIdParams: {
@@ -445,7 +453,7 @@ describe('TokenManager', () => {
           expect.objectContaining({
             auth: expect.objectContaining({
               clientId: 'test-client-id',
-              clientAssertion: 'mock-umi-token',
+              clientAssertion: expect.any(Function),
               authority: 'https://login.microsoftonline.com/test-tenant-id'
             })
           })
@@ -466,10 +474,27 @@ describe('TokenManager', () => {
         const tokenManager = new TokenManager(mockUserFICOptions, logger);
 
         await tokenManager.getBotToken();
+        const clientAssertion = (ConfidentialClientApplication as jest.MockedClass<typeof ConfidentialClientApplication>).mock.calls[0][0].auth.clientAssertion;
+        await (clientAssertion as () => Promise<string>)();
         expect(ManagedIdentityApplication).toHaveBeenCalledTimes(1);
 
-        await tokenManager.getGraphToken();
+        await (clientAssertion as () => Promise<string>)();
         expect(ManagedIdentityApplication).toHaveBeenCalledTimes(1);
+      });
+
+      it('should cache and reuse ConfidentialClientApplication per tenant', async () => {
+        mockConfidentialAcquireToken.mockResolvedValue(createMockAuthResult('mock-token'));
+
+        const tokenManager = new TokenManager(mockUserFICOptions, logger);
+
+        await tokenManager.getBotToken();
+        expect(ConfidentialClientApplication).toHaveBeenCalledTimes(1);
+
+        await tokenManager.getGraphToken();
+        expect(ConfidentialClientApplication).toHaveBeenCalledTimes(1);
+
+        await tokenManager.getGraphToken('other-tenant-id');
+        expect(ConfidentialClientApplication).toHaveBeenCalledTimes(2);
       });
     });
   });

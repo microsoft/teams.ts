@@ -1,4 +1,5 @@
 import {
+  type AuthError,
   type Configuration,
   type IPublicClientApplication,
   InteractionRequiredAuthError,
@@ -7,6 +8,27 @@ import {
 } from '@azure/msal-browser';
 
 import type { ILogger } from '@microsoft/teams.common';
+
+/**
+ * Checks if an error from the NAA bridge should be treated as requiring user interaction.
+ * On Teams Desktop, the OneAuth/WAM broker may return errors like `ApiContractViolation`
+ * (e.g., "declined scopes") that are not mapped to `InteractionRequiredAuthError` by MSAL,
+ * but should still trigger a popup-based consent attempt.
+ */
+const shouldTryPopup = (ex: unknown): boolean => {
+  if (ex instanceof InteractionRequiredAuthError) {
+    return true;
+  }
+
+  // On Desktop (NAA via OneAuth), "ApiContractViolation" with declined scopes
+  // indicates the broker couldn't silently satisfy the request -- try interactive.
+  const errorCode = (ex as AuthError)?.errorCode ?? '';
+  if (errorCode === 'ApiContractViolation') {
+    return true;
+  }
+
+  return false;
+};
 
 /**
  * Gets a silent request used to acquire an Entra access token for invoking remote functions on behalf of a user.
@@ -32,7 +54,7 @@ export const buildMsalConfig = (clientId: string, logger: ILogger): Configuratio
   return {
     auth: {
       clientId,
-      authority: '',
+      supportsNestedAppAuth: true,
       redirectUri: '/',
       postLogoutRedirectUri: '/',
     },
@@ -80,10 +102,10 @@ export const acquireMsalAccessToken = async (
     const response = await msalInstance.acquireTokenSilent(request);
     return response.accessToken;
   } catch (ex) {
-    // InteractionRequiredAuthError indicates that the user may not have consented to the requested
-    // scope yet -- for this, we can fall back on acquireTokenPopup instead.
-    const tryAcquireTokenPopup = ex instanceof InteractionRequiredAuthError;
-    if (!tryAcquireTokenPopup) {
+    // InteractionRequiredAuthError or broker-level errors (e.g., ApiContractViolation on
+    // Teams Desktop) indicate that the user may not have consented to the requested scope,
+    // or the broker couldn't satisfy it silently -- fall back on acquireTokenPopup.
+    if (!shouldTryPopup(ex)) {
       logger.error('acquireTokenSilent failed', ex);
       throw ex;
     }
@@ -94,7 +116,17 @@ export const acquireMsalAccessToken = async (
     const response = await msalInstance.acquireTokenPopup(request);
     return response.accessToken;
   } catch (ex) {
-    logger.error('acquireTokenPopup failed', ex);
+    const errorCode = (ex as AuthError)?.errorCode ?? '';
+    if (errorCode === 'ApiContractViolation') {
+      logger.error(
+        'acquireTokenPopup failed with ApiContractViolation. On Teams Desktop, the OneAuth broker ' +
+        'cannot resolve the \'.default\' scope. Set explicit scopes in msalOptions.prewarmScopes ' +
+        '(e.g., [\'User.Read\']) for Desktop compatibility.',
+        ex
+      );
+    } else {
+      logger.error('acquireTokenPopup failed', ex);
+    }
     throw ex;
   }
 };

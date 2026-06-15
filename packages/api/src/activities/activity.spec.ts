@@ -139,6 +139,62 @@ describe('Activity', () => {
     });
   });
 
+  describe('addEntity/addEntities', () => {
+    it('should merge multiple root message entities into one', () => {
+      const activity = new Activity({ type: 'test' })
+        .addEntity({
+          type: 'https://schema.org/Message',
+          '@type': 'Message',
+          '@context': 'https://schema.org',
+          '@id': '',
+          additionalType: ['AIGeneratedContent'],
+          citation: [
+            {
+              '@type': 'Claim',
+              position: 0,
+              appearance: {
+                '@type': 'DigitalDocument',
+                name: 'old doc',
+                abstract: 'old abstract',
+              },
+            },
+          ],
+        })
+        .addEntities(
+          {
+            type: 'mention',
+            text: '<at>test-bot</at>',
+            mentioned: bot,
+          },
+          {
+            type: 'https://schema.org/Message',
+            '@type': 'Message',
+            '@context': 'https://schema.org',
+            '@id': '',
+            citation: [
+              {
+                '@type': 'Claim',
+                position: 0,
+                appearance: {
+                  '@type': 'DigitalDocument',
+                  name: 'doc',
+                  abstract: 'doc abstract',
+                },
+              },
+            ],
+          }
+        );
+
+      expect(activity.entities).toHaveLength(2);
+      const [messageEntity, mentionEntity] = activity.entities as any[];
+      expect(messageEntity.type).toBe('https://schema.org/Message');
+      expect(messageEntity.additionalType).toEqual(['AIGeneratedContent']);
+      expect(messageEntity.citation).toHaveLength(1);
+      expect(messageEntity.citation[0].appearance.abstract).toBe('doc abstract');
+      expect(mentionEntity.type).toBe('mention');
+    });
+  });
+
   describe('withChannelData feedback normalization', () => {
     it('should upgrade legacy feedbackLoopEnabled:true to feedbackLoop default', () => {
       const activity = new Activity({ type: 'test' }).withChannelData({ feedbackLoopEnabled: true });
@@ -177,10 +233,11 @@ describe('Activity', () => {
   });
 
   describe('addCitation', () => {
-    it('should add', () => {
+    it('should set encodingFormat when text is provided', () => {
       const activity = new Activity({ type: 'test' }).addCitation(0, {
         abstract: 'test',
         name: 'test',
+        text: 'adaptive card content',
       });
 
       expect(activity.type).toEqual('test');
@@ -194,23 +251,32 @@ describe('Activity', () => {
             expect.objectContaining({
               '@type': 'Claim',
               position: 0,
-              appearance: {
+              appearance: expect.objectContaining({
                 '@type': 'DigitalDocument',
                 abstract: 'test',
                 name: 'test',
                 encodingFormat: 'application/vnd.microsoft.card.adaptive',
-              },
+              }),
             }),
           ],
         },
       ]);
     });
 
-    it('should add with icon', () => {
+    it('should omit encodingFormat when text is not provided', () => {
+        const activity = new Activity({ type: 'test' }).addCitation(0, {
+          abstract: 'test',
+          name: 'test',
+        });
+        expect(activity.entities?.at(0)?.citation?.at(0)?.appearance.encodingFormat).toBeUndefined();
+    });
+
+    it('should include image when icon is provided', () => {
       const activity = new Activity({ type: 'test' }).addCitation(0, {
         abstract: 'test',
         name: 'test',
         icon: 'GIF',
+        text: 'adaptive card content',
       });
 
       expect(activity.type).toEqual('test');
@@ -224,7 +290,7 @@ describe('Activity', () => {
             expect.objectContaining({
               '@type': 'Claim',
               position: 0,
-              appearance: {
+              appearance: expect.objectContaining({
                 '@type': 'DigitalDocument',
                 abstract: 'test',
                 name: 'test',
@@ -233,7 +299,7 @@ describe('Activity', () => {
                   '@type': 'ImageObject',
                   name: 'GIF',
                 },
-              },
+              }),
             }),
           ],
         },

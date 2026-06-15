@@ -28,7 +28,7 @@ resources:
     ref: refs/tags/release
 
 extends:
-  template: v1/1ES.Unofficial.PipelineTemplate.yml@1esPipelines
+  template: v1/1ES.Official.PipelineTemplate.yml@1esPipelines
   parameters:
     pool:
       name: 1ES-Teams-Windows-2022-DomoreexpGithub
@@ -152,6 +152,8 @@ extends:
                 $packageJson = Get-Content $packageJsonPath | ConvertFrom-Json
                 if ($packageJson.private -eq $true) {
                   Write-Host "Skipping $($_.Name) (marked as private)"
+                } elseif ($packageJson.deprecated) {
+                  Write-Host "Skipping $($_.Name) (marked as deprecated)"
                 } else {
                   Write-Host "Packing $($_.Name)..."
                   Set-Location $_.FullName

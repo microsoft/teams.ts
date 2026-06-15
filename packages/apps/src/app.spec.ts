@@ -132,7 +132,7 @@ describe('App', () => {
       await app.stop();
     });
 
-    it('should send message without manifest.name configured', async () => {
+    it('should send message without bot name', async () => {
       app = new TestApp({
         httpServerAdapter: new TestAdapter(),
         clientId: 'test-client-id',
@@ -151,32 +151,7 @@ describe('App', () => {
       expect(mockSend).toHaveBeenCalled();
       const [, ref] = mockSend.mock.calls[0];
       expect(ref.bot.id).toBe('test-client-id');
-      expect(ref.bot.name).toBe('test-client-id'); // Falls back to id when name is not provided
-    });
-
-    it('should send message with manifest.name configured', async () => {
-      app = new TestApp({
-        httpServerAdapter: new TestAdapter(),
-        clientId: 'test-client-id',
-        clientSecret: 'test-client-secret',
-        tenantId: 'test-tenant-id',
-        manifest: {
-          name: { short: 'TestBot', full: 'Test Bot Application' },
-        },
-      });
-
-      await app.start();
-
-      // Mock the activitySender.send method
-      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
-      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
-
-      await app.testSend('conversation-id', { text: 'Hello' });
-
-      expect(mockSend).toHaveBeenCalled();
-      const [, ref] = mockSend.mock.calls[0];
-      expect(ref.bot.id).toBe('test-client-id');
-      expect(ref.bot.name).toBe('Test Bot Application');
+      expect(ref.bot.name).toBeUndefined();
     });
 
     it('should throw error when app is not started (no clientId)', async () => {
