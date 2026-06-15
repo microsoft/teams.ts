@@ -175,6 +175,28 @@ describe('HttpServer', () => {
     });
   });
 
+  describe('handleRequest without credentials and without skipAuth', () => {
+    let noCredServer: HttpServer;
+
+    beforeEach(async () => {
+      noCredServer = new HttpServer(adapter, { ...defaultOptions, skipAuth: false });
+      await noCredServer.initialize({ credentials: undefined });
+    });
+
+    it('should return 401 when no credentials are configured', async () => {
+      noCredServer.onRequest = jest.fn().mockResolvedValue({ status: 200 });
+
+      const result = await adapter.simulateRequest('/api/messages', {
+        type: 'message',
+        serviceUrl: 'https://attacker.com',
+      });
+
+      expect(result.status).toBe(401);
+      expect(result.body).toEqual({ error: 'Authentication not configured' });
+      expect(noCredServer.onRequest).not.toHaveBeenCalled();
+    });
+  });
+
   describe('start', () => {
     it('should delegate to adapter.start()', async () => {
       await server.start(3978);

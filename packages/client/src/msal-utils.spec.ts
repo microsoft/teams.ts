@@ -1,4 +1,4 @@
-import { InteractionRequiredAuthError, LogLevel } from '@azure/msal-browser';
+import { AuthError, InteractionRequiredAuthError, LogLevel } from '@azure/msal-browser';
 
 import {
   acquireMsalAccessToken,
@@ -46,7 +46,7 @@ describe('msalUtils', () => {
       expect(config).toEqual({
         auth: {
           clientId: mockClientId,
-          authority: '',
+          supportsNestedAppAuth: true,
           redirectUri: '/',
           postLogoutRedirectUri: '/',
         },
@@ -130,6 +130,22 @@ describe('msalUtils', () => {
     it('should call acquireTokenPopup if acquireTokenSilent fails with InteractionRequiredAuthError', async () => {
       const interactionError = new InteractionRequiredAuthError('Interaction required');
       const acquireTokenSilent = jest.fn().mockRejectedValue(interactionError);
+      const acquireTokenPopup = jest.fn().mockResolvedValue({ accessToken });
+
+      const result = await acquireMsalAccessToken(
+        { acquireTokenSilent, acquireTokenPopup },
+        request,
+        mockLogger
+      );
+
+      expect(acquireTokenSilent).toHaveBeenCalledTimes(1);
+      expect(acquireTokenPopup).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(accessToken);
+    });
+
+    it('should call acquireTokenPopup if acquireTokenSilent fails with ApiContractViolation (Desktop NAA broker)', async () => {
+      const brokerError = new AuthError('ApiContractViolation', 'Token response failed because declined scopes are present');
+      const acquireTokenSilent = jest.fn().mockRejectedValue(brokerError);
       const acquireTokenPopup = jest.fn().mockResolvedValue({ accessToken });
 
       const result = await acquireMsalAccessToken(

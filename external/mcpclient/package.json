@@ -1,6 +1,7 @@
 {
   "name": "@microsoft/teams.mcpclient",
   "version": "0.0.0",
+  "private": true,
   "license": "MIT",
   "deprecated": "@microsoft/teams.mcpclient is deprecated. Use `@modelcontextprotocol/sdk` directly with a dedicated AI framework like the `openai` SDK. See examples/ai-mcp for the new pattern.",
   "main": "./dist/index.js",

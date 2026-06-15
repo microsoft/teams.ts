@@ -16,34 +16,13 @@ import {
   ExecuteAction,
   SubmitData,
   TextBlock,
+  TextInput,
 } from '@microsoft/teams.cards';
 
 import { app } from './app';
-import { state } from './state';
+import { graphClient } from './graphClient';
+import { ApprovalStatus, AskStatus, PendingApproval, makeEvent, state } from './state';
 
-
-export const mcpServer = new McpServer({ name: 'teams-bot', version: '0.0.0' });
-
-// Wrapper for tools whose return is a typed, structured payload.
-// The handler returns a plain value; we wrap it for MCP automatically.
-function structuredTool<In extends ZodRawShapeCompat, Out extends AnySchema>(
-  name: string,
-  config: {
-    description: string;
-    inputSchema: In;
-    outputSchema: Out;
-    annotations?: ToolAnnotations;
-  },
-  handler: (args: ShapeOutput<In>) => Promise<SchemaOutput<Out>>
-) {
-  mcpServer.registerTool(name, config, (async (args: ShapeOutput<In>) => {
-    const value = await handler(args);
-    return {
-      structuredContent: value as Record<string, unknown>,
-      content: [{ type: 'text' as const, text: JSON.stringify(value) }],
-    };
-  }) as any);
-}
 
 async function getOrCreateConversation(userId: string): Promise<string> {
   const existing = state.conversations.get(userId);
@@ -58,11 +37,41 @@ async function getOrCreateConversation(userId: string): Promise<string> {
   return resource.id;
 }
 
-structuredTool(
+// Each client session gets its own McpServer instance (the SDK binds a server
+// to a single transport), so tools are registered via this factory rather than
+// on a shared singleton.
+export function createMcpServer(): McpServer {
+  const mcpServer = new McpServer({ name: 'teams-bot', version: '0.0.0' });
+
+  // Wrapper for tools whose return is a typed, structured payload.
+  // The handler returns a plain value; we wrap it for MCP automatically.
+  function structuredTool<In extends ZodRawShapeCompat, Out extends AnySchema>(
+    name: string,
+    config: {
+      description: string;
+      inputSchema: In;
+      outputSchema: Out;
+      annotations?: ToolAnnotations;
+    },
+    handler: (args: ShapeOutput<In>) => Promise<SchemaOutput<Out>>
+  ) {
+    mcpServer.registerTool(name, config, (async (args: ShapeOutput<In>) => {
+      const value = await handler(args);
+      return {
+        structuredContent: value as Record<string, unknown>,
+        content: [{ type: 'text' as const, text: JSON.stringify(value) }],
+      };
+    }) as any);
+  }
+
+  structuredTool(
   'notify',
   {
-    description: 'Send a notification to a Teams user.',
-    inputSchema: { userId: z.string(), message: z.string() },
+    description: 'Send a notification to a Teams user. No response expected.',
+    inputSchema: {
+      userId: z.string().describe('The AAD object id of the Teams user to notify.'),
+      message: z.string().describe('The message text to send.'),
+    },
     outputSchema: z.object({ notified: z.boolean(), userId: z.string() }),
   },
   async ({ userId, message }) => {
@@ -76,64 +85,102 @@ structuredTool(
   'ask',
   {
     description:
-      'Ask a Teams user a question. Returns a requestId — use getReply for their response. ' +
-      'Only one outstanding ask per user is supported; their next message answers it.',
-    inputSchema: { userId: z.string(), question: z.string() },
+      'Ask a Teams user a question via an Adaptive Card with a reply box. Returns a requestId — ' +
+      'call wait_for_reply with it to get the answer. Multiple asks per user can be in flight.',
+    inputSchema: {
+      userId: z.string().describe('The AAD object id of the Teams user to ask.'),
+      question: z.string().describe('The question to ask.'),
+    },
     outputSchema: z.object({ requestId: z.string() }),
   },
   async ({ userId, question }) => {
     const conversationId = await getOrCreateConversation(userId);
     const requestId = randomUUID();
-    await app.send(conversationId, question);
-    // The user's next message looks up these entries and flips status to 'answered'.
-    state.pendingAsks.set(requestId, { userId, status: 'pending' });
-    state.userPendingAsk.set(userId, requestId);
+
+    // Build an Adaptive Card with a text-input reply box so multiple asks
+    // per user can be in flight simultaneously — each card carries its own
+    // requestId and the reply is routed back via the ask_reply card action.
+    const card = new AdaptiveCard(
+      new TextBlock(question, { weight: 'Bolder', size: 'Medium', wrap: true }),
+      new TextInput()
+        .withId('reply')
+        .withPlaceholder('Type your reply...')
+        .withIsMultiline(true)
+        .withIsRequired(true)
+    ).withActions(
+      new ExecuteAction({ title: 'Send' })
+        .withData(new SubmitData('ask_reply', { request_id: requestId }))
+        .withAssociatedInputs('auto')
+    );
+
+    // Record the pending ask BEFORE sending, so a fast reply is never lost.
+    state.pendingAsks.set(requestId, { userId, status: 'pending', event: makeEvent() });
+    try {
+      await app.send(conversationId, card);
+    } catch (err) {
+      state.pendingAsks.delete(requestId);
+      throw err;
+    }
     return { requestId };
   }
 );
 
 structuredTool(
-  'getReply',
+  'wait_for_reply',
   {
     description:
-      'Get the reply to a question sent with ask. Returns status \'pending\' until the user responds.',
-    inputSchema: { requestId: z.string() },
+      'Wait for the user\'s reply to an earlier ask. Blocks up to timeoutSeconds (default 30). ' +
+      'Returns the reply when it arrives, or status=\'pending\' if the timeout fires.',
+    inputSchema: {
+      requestId: z.string().describe('The requestId returned from ask.'),
+      timeoutSeconds: z.number().optional().default(30).describe('Max seconds to wait before returning (default 30).'),
+    },
     outputSchema: z.object({
       status: z.enum(['pending', 'answered']),
       reply: z.string().nullable(),
     }),
-    annotations: { readOnlyHint: true, idempotentHint: true },
   },
-  async ({ requestId }) => {
+  async ({ requestId, timeoutSeconds }): Promise<{ status: AskStatus; reply: string | null }> => {
     const entry = state.pendingAsks.get(requestId);
     if (!entry) {
       throw new Error(`No ask found with requestId ${requestId}.`);
     }
+    if (entry.status !== 'pending') {
+      return { status: entry.status, reply: entry.reply ?? null };
+    }
+
+    const ms = (timeoutSeconds ?? 30) * 1000;
+    let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+    await Promise.race([
+      entry.event.promise,
+      new Promise<void>((resolve) => { timeoutHandle = setTimeout(resolve, ms); }),
+    ]);
+    clearTimeout(timeoutHandle);
+
     return { status: entry.status, reply: entry.reply ?? null };
   }
 );
 
 structuredTool(
-  'requestApproval',
+  'request_approval',
   {
     description:
-      'Send an approval request to a Teams user. Returns an approvalId — use getApproval for the decision.',
+      'Send an approval request to a Teams user. Returns an approvalId — ' +
+      'call wait_for_approval with it to get the decision.',
     inputSchema: {
-      userId: z.string(),
-      title: z.string(),
-      description: z.string(),
+      userId: z.string().describe('The AAD object id of the Teams user to ask for approval.'),
+      title: z.string().describe('Title of the approval request.'),
+      description: z.string().describe('Description of what is being approved.'),
     },
     outputSchema: z.object({ approvalId: z.string() }),
   },
   async ({ userId, title, description }) => {
     const conversationId = await getOrCreateConversation(userId);
     const approvalId = randomUUID();
-    // Create adaptive card to send to the user asking for approval/confirmation.
     const card = new AdaptiveCard(
       new TextBlock(title, { weight: 'Bolder', size: 'Large', wrap: true }),
       new TextBlock(description, { wrap: true })
     ).withActions(
-      // 'approval_response' routes the click to the card.action.approval_response handler in app.ts.
       new ExecuteAction({ title: 'Approve' }).withData(
         new SubmitData('approval_response', { approval_id: approvalId, decision: 'approved' })
       ),
@@ -141,30 +188,80 @@ structuredTool(
         new SubmitData('approval_response', { approval_id: approvalId, decision: 'rejected' })
       )
     );
-    await app.send(conversationId, card);
-   // Update state with pending approval
-    state.approvals.set(approvalId, 'pending');
+    // Record state BEFORE sending so a fast click is never lost.
+    const approval: PendingApproval = { userId, status: 'pending', event: makeEvent() };
+    state.pendingApprovals.set(approvalId, approval);
+    try {
+      await app.send(conversationId, card);
+    } catch (err) {
+      state.pendingApprovals.delete(approvalId);
+      throw err;
+    }
     return { approvalId };
   }
 );
 
 structuredTool(
-  'getApproval',
+  'wait_for_approval',
   {
     description:
-      'Get the status of an approval request. Returns \'pending\', \'approved\', or \'rejected\'.',
-    inputSchema: { approvalId: z.string() },
+      'Wait for an approval decision. Blocks up to timeoutSeconds (default 30). ' +
+      'Returns \'approved\' or \'rejected\' when the user clicks, or \'pending\' if the timeout fires.',
+    inputSchema: {
+      approvalId: z.string().describe('The approvalId returned from request_approval.'),
+      timeoutSeconds: z.number().optional().default(30).describe('Max seconds to wait before returning (default 30).'),
+    },
     outputSchema: z.object({
       approvalId: z.string(),
       status: z.enum(['pending', 'approved', 'rejected']),
     }),
-    annotations: { readOnlyHint: true, idempotentHint: true },
   },
-  async ({ approvalId }) => {
-    const status = state.approvals.get(approvalId);
-    if (!status) {
+  async ({ approvalId, timeoutSeconds }): Promise<{ approvalId: string; status: ApprovalStatus }> => {
+    const approval = state.pendingApprovals.get(approvalId);
+    if (!approval) {
       throw new Error(`No approval found with approvalId ${approvalId}.`);
     }
-    return { approvalId, status };
+    if (approval.status !== 'pending') {
+      return { approvalId, status: approval.status };
+    }
+
+    const ms = (timeoutSeconds ?? 30) * 1000;
+    let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+    await Promise.race([
+      approval.event.promise,
+      new Promise<void>((resolve) => { timeoutHandle = setTimeout(resolve, ms); }),
+    ]);
+    clearTimeout(timeoutHandle);
+
+    return { approvalId, status: approval.status };
   }
 );
+
+structuredTool(
+  'find_user',
+  {
+    description:
+      'Find users in this tenant by partial name, email, or UPN. ' +
+      'Returns up to 5 matches with their AAD object ids — pass an id to ' +
+      'notify, ask, or request_approval.',
+    inputSchema: {
+      query: z.string().describe('Name, email, or UPN fragment to search for.'),
+    },
+    outputSchema: z.object({
+      matches: z.array(
+        z.object({
+          id: z.string(),
+          displayName: z.string().nullable(),
+          userPrincipalName: z.string().nullable(),
+        })
+      ),
+    }),
+  },
+  async ({ query }) => {
+    const matches = await graphClient.searchUsers(query, 5);
+    return { matches };
+  }
+);
+
+  return mcpServer;
+}

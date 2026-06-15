@@ -40,8 +40,7 @@ export function withJwtValidation(params: JwtValidationParams) {
     next: express.NextFunction
   ) => {
     if (!validator) {
-      logger.debug('No service token validator configured, skipping validation');
-      next();
+      res.status(401).send('Authentication not configured');
       return;
     }
 
