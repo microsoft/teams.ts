@@ -1,0 +1,23 @@
+{
+  "name": "@microsoft/teams.integration-tests",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Integration tests for Teams TypeScript SDK — runs against live Teams service endpoints",
+  "scripts": {
+    "test:integration": "jest --config jest.config.ts",
+    "test:botid-prod": "dotenv -e .env.botid-prod -- jest --config jest.config.ts",
+    "test:agenticid-prod": "dotenv -e .env.agenticid-prod -- jest --config jest.config.ts"
+  },
+  "devDependencies": {
+    "@azure/msal-node": "^2.16.0",
+    "@types/jest": "^29.5.0",
+    "dotenv-cli": "^7.4.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "~5.8.0"
+  },
+  "dependencies": {
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.common": "*"
+  }
+}
