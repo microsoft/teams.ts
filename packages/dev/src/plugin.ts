@@ -7,7 +7,7 @@ import * as uuid from 'uuid';
 
 import { WebSocket, WebSocketServer } from 'ws';
 
-import { InvokeResponse, IToken } from '@microsoft/teams.api';
+import { InvokeResponse } from '@microsoft/teams.api';
 import {
   Logger,
   IPluginActivityEvent,
@@ -15,7 +15,6 @@ import {
   IPluginActivitySentEvent,
   IPluginStartEvent,
   Plugin,
-  Dependency,
   Event,
   IErrorEvent,
   IActivityEvent,
@@ -50,12 +49,6 @@ export type DevtoolsPluginOptions = {
 export class DevtoolsPlugin {
   @Logger()
   readonly log!: ILogger;
-
-  @Dependency({ optional: true })
-  readonly id?: IToken;
-
-  @Dependency({ optional: true })
-  readonly name?: IToken;
 
   @Event('error')
   readonly $onError!: (event: IErrorEvent) => void;
@@ -204,7 +197,6 @@ export class DevtoolsPlugin {
         id: uuid.v4(),
         type: 'metadata',
         body: {
-          id: this.id?.toString(),
           pages: this.pages,
         },
         sentAt: new Date(),

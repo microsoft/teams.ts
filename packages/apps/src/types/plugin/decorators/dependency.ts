@@ -71,6 +71,7 @@ export function Storage() {
 
 /**
  * inject the `App` `IHttpServer` instance
+ * @deprecated Server injection is best-effort and may be unavailable for custom runtimes.
  */
 export function HttpServer() {
   return Dependency({ name: 'IHttpServer' });
@@ -82,66 +83,10 @@ export function HttpServer() {
  * by the `App`
  */
 export type DependencyOptions =
-  | IdDependencyOptions
-  | CredentialsDependencyOptions
-  | BotTokenDependencyOptions
-  | GraphTokenDependencyOptions
   | LoggerDependencyOptions
   | StorageDependencyOptions
   | HttpServerDependencyOptions
   | PluginDependencyOptions;
-
-export type IdDependencyOptions = {
-  /**
-   * the name used to resolve the dependency
-   */
-  readonly name: 'id';
-
-  /**
-   * if optional, the app will not throw
-   * if the dependency is not found
-   */
-  readonly optional: true;
-};
-
-export type CredentialsDependencyOptions = {
-  /**
-   * the name used to resolve the dependency
-   */
-  readonly name: 'credentials';
-
-  /**
-   * if optional, the app will not throw
-   * if the dependency is not found
-   */
-  readonly optional: true;
-};
-
-export type BotTokenDependencyOptions = {
-  /**
-   * the name used to resolve the dependency
-   */
-  readonly name: 'botToken';
-
-  /**
-   * if optional, the app will not throw
-   * if the dependency is not found
-   */
-  readonly optional: true;
-};
-
-export type GraphTokenDependencyOptions = {
-  /**
-   * the name used to resolve the dependency
-   */
-  readonly name: 'graphToken';
-
-  /**
-   * if optional, the app will not throw
-   * if the dependency is not found
-   */
-  readonly optional: true;
-};
 
 export type LoggerDependencyOptions = {
   /**
@@ -188,7 +133,7 @@ export type PluginDependencyOptions = {
    */
   readonly name?: Omit<
     string,
-    'id' | 'credentials' | 'botToken' | 'graphToken' | 'ILogger' | 'IStorage' | 'IHttpServer'
+    'ILogger' | 'IStorage' | 'IHttpServer'
   >;
 
   /**
