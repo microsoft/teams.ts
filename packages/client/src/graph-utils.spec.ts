@@ -58,5 +58,31 @@ describe('buildGraphClient', () => {
     expect(result).toEqual(mockContext.config);
     expect(setHeaderMock).toHaveBeenCalledWith('Authorization', 'Bearer mockAccessToken');
     expect(mockMsalInstance.acquireTokenSilent).toHaveBeenCalledWith({ scopes: ['.default'] });
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('does not work on Teams Desktop')
+    );
+  });
+
+  it('uses explicit scopes when provided', async () => {
+    const setHeaderMock = jest.fn();
+    const mockContext = {
+      config: {
+        headers: {
+          set: setHeaderMock,
+        },
+      },
+    };
+
+    buildGraphClient(
+      () => ({ msalInstance: mockMsalInstance }),
+      mockLogger,
+      () => ['User.Read', 'Mail.Read']
+    );
+
+    const requestInterceptor = httpClientMock.mock.calls[0][0].interceptors[0].request;
+    await requestInterceptor(mockContext);
+
+    expect(mockMsalInstance.acquireTokenSilent).toHaveBeenCalledWith({ scopes: ['User.Read', 'Mail.Read'] });
+    expect(mockLogger.warn).not.toHaveBeenCalled();
   });
 });

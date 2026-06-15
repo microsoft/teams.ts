@@ -184,8 +184,9 @@ describe('App', () => {
       expect(msalCreateNPCAppMock).toHaveBeenCalledTimes(1);
       expect(msalCreateNPCAppMock).toHaveBeenCalledWith({
         auth: {
-          authority: '',
+          authority: undefined,
           clientId: 'mock-client-id',
+          supportsNestedAppAuth: true,
           postLogoutRedirectUri: '/',
           redirectUri: '/',
         },
@@ -508,7 +509,8 @@ describe('App', () => {
       expect(buildGraphClientSpy).toHaveBeenCalledTimes(1);
       expect(buildGraphClientSpy).toHaveBeenCalledWith(
         expect.any(Function),
-        app.log
+        app.log,
+        expect.any(Function)
       );
 
       expect(() => buildGraphClientSpy.mock.calls[0][0]()).toThrow(
@@ -521,7 +523,8 @@ describe('App', () => {
       expect(buildGraphClientSpy).toHaveBeenCalledTimes(1);
       expect(buildGraphClientSpy).toHaveBeenCalledWith(
         expect.any(Function),
-        app.log
+        app.log,
+        expect.any(Function)
       );
       await app.start();
 
