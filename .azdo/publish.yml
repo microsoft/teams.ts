@@ -192,6 +192,14 @@ extends:
             artifact: npm-packages
             targetPath: $(Pipeline.Workspace)/npm-packages
         steps:
+        - task: NodeTool@0
+          displayName: 'Use Node 24.x'
+          inputs:
+            versionSpec: '24.x'
+            checkLatest: true
+          target:
+            container: host
+
         # Configure npm to use internal feed for publishing
         - task: CmdLine@2
           displayName: 'Configure npm registry'
