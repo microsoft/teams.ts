@@ -5,7 +5,7 @@ Outbound API integration tests that run against live Teams service endpoints.
 ## Prerequisites
 
 - Node.js >= 20
-- A configured bot app registration (see [Cross-SDK Runbook](https://github.com/microsoft/teams-sdk/blob/main/INTEGRATION-TESTS.md))
+- A configured bot app registration (see the [integration test runbook](https://dev.azure.com/DomoreexpGithub/Github_Pipelines/_wiki/wikis/Github%20Pipelines%20Wiki/1/Teams-SDK-Integration-Test-Runbook) (internal only))
 
 ## Setup
 
@@ -14,7 +14,7 @@ Outbound API integration tests that run against live Teams service endpoints.
    cp .env.example .env.botid-prod
    ```
 
-2. Populate with real values from your BAMI tenant (see runbook for details).
+2. Populate with real values from your BAMI tenant.
 
 3. Install dependencies:
    ```bash
@@ -53,4 +53,4 @@ npm run test:botid-prod
 
 For provisioning, secret rotation, and troubleshooting:
 
-👉 [INTEGRATION-TESTS.md](https://github.com/microsoft/teams-sdk/blob/main/INTEGRATION-TESTS.md)
+👉 [Integration Test Runbook](https://dev.azure.com/DomoreexpGithub/Github_Pipelines/_wiki/wikis/Github%20Pipelines%20Wiki/1/Teams-SDK-Integration-Test-Runbook) (internal only)
