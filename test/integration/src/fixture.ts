@@ -94,7 +94,14 @@ export async function getFixture(): Promise<TestFixture> {
   const api = new Client(config.serviceUrl, http);
 
   // Cache members (avoids throttling from repeated /members calls)
-  const members = await api.conversations.members(config.conversationId).get();
+  const allMembers = await api.conversations.members(config.conversationId).get();
+  // Filter out bot MRI and empty entries
+  const botPrefix = `28:${config.clientId}`;
+  const members = allMembers.filter((m) => m.id && !m.id.startsWith(botPrefix));
+
+  if (members.length === 0) {
+    throw new Error('No non-bot members found in conversation — tests require at least one human member');
+  }
 
   const isCanary = config.serviceUrl.includes('canary');
   const isAgentic = !!(config.agenticAppId && config.agenticUserId);
@@ -103,7 +110,7 @@ export async function getFixture(): Promise<TestFixture> {
     config,
     api,
     cachedMembers: members as Array<{ id: string; name?: string; aadObjectId?: string }>,
-    memberMri1: members[0]?.id ?? '',
+    memberMri1: members[0].id,
     memberMri2: members[1]?.id,
     isCanary,
     isAgentic,
