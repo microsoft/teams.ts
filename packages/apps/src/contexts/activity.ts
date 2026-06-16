@@ -173,9 +173,6 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * send a reply quoting a specific message by ID
    * @param messageId the ID of the message to quote
    * @param activity activity to send
-   *
-   * @experimental This API is coming soon and may change in the future.
-   * Diagnostic: ExperimentalTeamsQuotedReplies
    */
   quote: (messageId: string, activity: ActivityLike) => Promise<SentActivity>;
 
@@ -307,9 +304,6 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * Teams renders the quoted message as a preview bubble above the response text.
    * @param messageId - The ID of the message to quote
    * @param activity - The activity to send — a quote placeholder for messageId will be prepended to its text
-   *
-   * @experimental This API is coming soon and may change in the future.
-   * Diagnostic: ExperimentalTeamsQuotedReplies
    */
   async quote(messageId: string, activity: ActivityLike) {
     activity = toActivityParams(activity);
