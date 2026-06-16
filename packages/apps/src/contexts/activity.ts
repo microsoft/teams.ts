@@ -175,7 +175,6 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * @param activity activity to send
    *
    * @experimental This API is coming soon and may change in the future.
-   * Diagnostic: ExperimentalTeamsQuotedReplies
    */
   quote: (messageId: string, activity: ActivityLike) => Promise<SentActivity>;
 
@@ -309,7 +308,6 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * @param activity - The activity to send — a quote placeholder for messageId will be prepended to its text
    *
    * @experimental This API is coming soon and may change in the future.
-   * Diagnostic: ExperimentalTeamsQuotedReplies
    */
   async quote(messageId: string, activity: ActivityLike) {
     activity = toActivityParams(activity);
