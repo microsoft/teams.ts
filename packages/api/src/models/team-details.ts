@@ -17,7 +17,7 @@ export type TeamDetails = {
   /**
    * @member {string} [type] The type of the team. Valid values are standard, sharedChannel and privateChannel.
    */
-  type: 'standard' | 'sharedChannel' | 'privateChannel';
+  type?: 'standard' | 'sharedChannel' | 'privateChannel';
 
   /**
    * @member {string} [aadGroupId] Azure Active Directory (AAD) Group Id for
