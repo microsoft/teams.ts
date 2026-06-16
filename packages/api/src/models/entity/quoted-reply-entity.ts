@@ -1,7 +1,5 @@
 /**
  * Data for a quoted reply entity.
- *
- * @experimental This API is coming soon and may change in the future.
  */
 export type QuotedReplyData = {
   /**
@@ -43,8 +41,6 @@ export type QuotedReplyData = {
 
 /**
  * Entity containing quoted reply information.
- *
- * @experimental This API is coming soon and may change in the future.
  */
 export type QuotedReplyEntity = {
   readonly type: 'quotedReply';
