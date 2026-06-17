@@ -189,7 +189,7 @@ extends:
         templateContext:
           inputs:
           - input: pipelineArtifact
-            artifact: npm-packages
+            artifactName: npm-packages
             targetPath: $(Pipeline.Workspace)/npm-packages
         steps:
         - task: NodeTool@0
@@ -237,7 +237,7 @@ extends:
           isProduction: true
           inputs:
           - input: pipelineArtifact
-            artifact: npm-packages
+            artifactName: npm-packages
             targetPath: $(Pipeline.Workspace)/npm-packages
         steps:
         - task: EsrpRelease@10
