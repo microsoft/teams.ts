@@ -10,7 +10,7 @@ export type Account<P = any> = {
    * Primarily present on mention entities for non-person accounts. Absent for regular person accounts.
    */
   readonly type?: string;
-  readonly name: string;
+  readonly name?: string;
   readonly properties?: P;
   readonly membershipSources?: MembershipSource[];
 

@@ -34,8 +34,7 @@
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
-    "test": "npx jest",
-    "generate": "npx quicktype -s schema -l typescript ./manifest.schema.json -o ./src/manifest.ts --prefer-unions --prefer-types --just-types"
+    "test": "npx jest"
   },
   "dependencies": {
     "@azure/msal-node": "^5.2.2",

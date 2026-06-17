@@ -103,9 +103,6 @@ export interface IMessageActivity extends IActivity<'message'> {
 
   /**
    * get all quoted reply entities from this message
-   *
-   * @experimental This API is coming soon and may change in the future.
-   * Diagnostic: ExperimentalTeamsQuotedReplies
    */
   getQuotedMessages(): QuotedReplyEntity[];
 }
@@ -385,9 +382,6 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
 
   /**
    * get all quoted reply entities from this message
-   *
-   * @experimental This API is coming soon and may change in the future.
-   * Diagnostic: ExperimentalTeamsQuotedReplies
    */
   getQuotedMessages(): QuotedReplyEntity[] {
     return (this.entities ?? []).filter(
@@ -421,7 +415,6 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
    * @param isTargeted - If true, marks this as a targeted message visible only to the recipient
    * @returns this instance for chaining
    *
-   * @experimental This API is coming soon and may change in the future.
    * Diagnostic: ExperimentalTeamsTargeted
    */
   withRecipient(account: Account, isTargeted: boolean = false): this {
@@ -436,9 +429,6 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
    * @param messageId - The ID of the message to quote
    * @param text - Optional text, appended to the quoted message placeholder
    * @returns this instance for chaining
-   *
-   * @experimental This API is coming soon and may change in the future.
-   * Diagnostic: ExperimentalTeamsQuotedReplies
    */
   addQuote(messageId: string, text?: string): this {
     if (!this.entities) {
@@ -459,9 +449,6 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
    * Prepend a quotedReply entity and `<quoted messageId="..."/>` placeholder
    * before existing text. Used by reply()/quote() for quote-above-response.
    * @param messageId - The IC3 message ID of the message to quote
-   *
-   * @experimental This API is coming soon and may change in the future.
-   * Diagnostic: ExperimentalTeamsQuotedReplies
    */
   prependQuote(messageId: string): this {
     if (!this.entities) {

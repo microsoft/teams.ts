@@ -5,17 +5,21 @@ import { acquireMsalAccessToken } from './msal-utils';
 
 export function buildGraphClient(
   getMsalInstance: () => { msalInstance: Parameters<typeof acquireMsalAccessToken>[0] },
-  logger: ILogger
+  logger: ILogger,
+  getGraphScopes?: () => string[]
 ): GraphClient {
   {
     const graphRequestAccessTokenInterceptor = async (ctx: RequestContext) => {
       const { msalInstance } = getMsalInstance();
 
-      // The developer should already have made sure that the user has consented to the scope
-      // needed for the graph API they're calling, so requesting '.default' should be sufficient.
+      // On Teams Desktop (NAA via OneAuth broker), the '.default' scope is not resolved
+      // the same way as on Web. Use explicit Graph scopes when available.
+      const providedScopes = getGraphScopes?.();
+      const scopes = (providedScopes && providedScopes.length > 0) ? providedScopes : ['.default'];
+
       const accessToken = await acquireMsalAccessToken(
         msalInstance,
-        { scopes: ['.default'] },
+        { scopes },
         logger
       );
 

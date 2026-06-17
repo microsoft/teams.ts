@@ -13,6 +13,10 @@ examples/*/env
 .env.test.local
 .env.production.local
 
+# Integration test env files (contain secrets)
+test/integration/.env.*
+!test/integration/.env.example
+
 # Testing
 coverage
 

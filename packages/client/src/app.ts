@@ -44,6 +44,10 @@ export type MsalOptions = (
    * If no value is provided, the default scope (i.e. ".default") is pre-warmed. If a set of scopes is
    * provided, the specified scopes are pre-warmed. The scopes should be for a single resource, and they
    * should not mix the .default scope with named scopes.
+   *
+   * **Important:** On Teams Desktop (NAA via OneAuth broker), `.default` is not supported for Graph
+   * token requests. You must provide explicit Graph scopes (e.g., `['User.Read', 'Mail.Read']`) for
+   * your app to work on Desktop.
    */
   readonly prewarmScopes?: false | string[];
 };
@@ -149,7 +153,13 @@ export class App {
     this.http = new HttpClient({
       baseUrl: options?.remoteApiOptions?.baseUrl,
     });
-    this.graph = buildGraphClient(() => this.appStateGuard(), this._log);
+    this.graph = buildGraphClient(
+      () => this.appStateGuard(),
+      this._log,
+      this.options.msalOptions?.prewarmScopes
+        ? () => this.options.msalOptions!.prewarmScopes as string[]
+        : undefined
+    );
   }
 
   /**
