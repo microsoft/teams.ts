@@ -12,6 +12,7 @@ app.on('message', async ({ reply, activity }) => {
 
   if (text.includes('extended')) {
     const richContent = [
+      '\n',
       '# Extended Markdown Demo',
       '',
       '## Table',
@@ -29,6 +30,7 @@ app.on('message', async ({ reply, activity }) => {
     );
   } else if (text.includes('markdown')) {
     const markdownContent = [
+      '\n',
       '# Markdown Demo',
       '',
       '**Bold**, *italic*, and ~~strikethrough~~',
