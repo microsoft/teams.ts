@@ -1,0 +1,29 @@
+{
+  "name": "@examples/formatted-messaging",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "clean": "npx rimraf ./dist",
+    "build": "npx tsc",
+    "start": "node .",
+    "dev": "tsx watch -r dotenv/config src/index.ts"
+  },
+  "dependencies": {
+    "@microsoft/teams.apps": "*"
+  },
+  "devDependencies": {
+    "@microsoft/teams.config": "*",
+    "@types/node": "^22.5.4",
+    "dotenv": "^16.4.5",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.4.5"
+  }
+}
