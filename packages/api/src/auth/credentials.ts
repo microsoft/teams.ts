@@ -1,6 +1,8 @@
 /**
  * credentials for app authentication
  */
+import { AgenticIdentity } from '../models/agentic-identity';
+
 export type Credentials = ClientCredentials | TokenCredentials | UserManagedIdentityCredentials | FederatedIdentityCredentials;
 
 /**
@@ -13,6 +15,10 @@ export type ClientCredentials = {
   readonly tenantId?: string;
 };
 
+export type TokenRequestOptions = {
+  readonly agenticIdentity?: AgenticIdentity;
+};
+
 /**
  * credentials for authentication
  * of an app via any external auth method
@@ -20,7 +26,7 @@ export type ClientCredentials = {
 export type TokenCredentials = {
   readonly clientId: string;
   readonly tenantId?: string;
-  readonly token: (scope: string | string[], tenantId?: string) => string | Promise<string>;
+  readonly token: (scope: string | string[], tenantId?: string, options?: TokenRequestOptions) => string | Promise<string>;
 };
 
 /**
