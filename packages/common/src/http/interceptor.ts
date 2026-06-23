@@ -31,7 +31,7 @@ export type RequestContext<D = any> = {
   /**
    * The outgoing request config
    */
-  readonly config: InternalAxiosRequestConfig<D>;
+  readonly config: InternalAxiosRequestConfig<D> & { extensions?: Record<string, unknown> };
 
   /**
    * The clients logger instance

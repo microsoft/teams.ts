@@ -56,6 +56,11 @@ export type RequestConfig<D = any> = AxiosRequestConfig<D> & {
    * the default token provided in the `ClientOptions`
    */
   token?: Token;
+
+  /**
+   * SDK-local request metadata for interceptors. This is not sent over the wire.
+   */
+  extensions?: Record<string, unknown>;
 };
 
 type InterceptorRegistry = {
@@ -72,14 +77,14 @@ export class Client {
   protected log: ILogger;
   protected http: AxiosInstance;
   protected seq: number = 0;
-  protected interceptors: Map<number, InterceptorRegistry>;
+  protected _interceptors: Map<number, InterceptorRegistry>;
 
   constructor(options: ClientOptions = {}) {
     this.options = options;
     this.name = options.name || 'http';
     this.token = options.token;
     this.log = options.logger || new ConsoleLogger(this.name);
-    this.interceptors = new Map<number, InterceptorRegistry>();
+    this._interceptors = new Map<number, InterceptorRegistry>();
     this.http = axios.create({
       baseURL: options.baseUrl,
       timeout: options.timeout,
@@ -89,6 +94,10 @@ export class Client {
     for (const interceptor of options.interceptors || []) {
       this.use(interceptor);
     }
+  }
+
+  get interceptors(): readonly Interceptor[] {
+    return Array.from(this._interceptors.values()).map((i) => i.interceptor);
   }
 
   async get<T = any, R = AxiosResponse<T>, D = any>(
@@ -172,7 +181,7 @@ export class Client {
       );
     }
 
-    this.interceptors.set(id, {
+    this._interceptors.set(id, {
       requestId,
       responseId,
       interceptor,
@@ -185,7 +194,7 @@ export class Client {
    * Eject an interceptor
    */
   eject(id: number): void {
-    const registry = this.interceptors.get(id);
+    const registry = this._interceptors.get(id);
 
     if (!registry) return;
 
@@ -197,14 +206,14 @@ export class Client {
       this.http.interceptors.response.eject(registry.responseId);
     }
 
-    this.interceptors.delete(id);
+    this._interceptors.delete(id);
   }
 
   /**
    * Clear (Eject) all interceptors
    */
   clear(): void {
-    for (const id of this.interceptors.keys()) {
+    for (const id of this._interceptors.keys()) {
       this.eject(id);
     }
   }
@@ -244,7 +253,7 @@ export class Client {
       ...options,
       headers,
       interceptors: [
-        ...Array.from(this.interceptors.values()).map((i) => i.interceptor),
+        ...Array.from(this._interceptors.values()).map((i) => i.interceptor),
       ],
     });
   }

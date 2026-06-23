@@ -6,6 +6,8 @@ import {
 import { CloudEnvironment } from '../auth/cloud-environment';
 
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
+import { AuthProvider } from './auth';
+import { AuthProviderInterceptor } from './auth-provider-interceptor';
 import { BotClient } from './bot';
 import { ConversationClient } from './conversation';
 import { MeetingClient } from './meeting';
@@ -26,42 +28,67 @@ export class Client {
     return this._http;
   }
   set http(v) {
-    this.bots.http = v;
-    this.conversations.http = v;
-    this.users.http = v;
-    this.teams.http = v;
-    this.meetings.http = v;
-    this.reactions.http = v;
-    this._http = v;
+    const http = this.withAuthProvider(v);
+    this.bots.http = http;
+    this.conversations.http = http;
+    this.users.http = http;
+    this.teams.http = http;
+    this.meetings.http = http;
+    this.reactions.http = http;
+    this._http = http;
   }
   protected _http: HttpClient;
   protected _apiClientSettings: Partial<ApiClientSettings>;
+  protected _authProvider?: AuthProvider;
+  protected _cloud?: CloudEnvironment;
 
-  constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>, cloud?: CloudEnvironment) {
+  constructor(
+    serviceUrl: string,
+    options?: HttpClient | HttpClientOptions,
+    apiClientSettings?: Partial<ApiClientSettings>,
+    cloud?: CloudEnvironment,
+    authProvider?: AuthProvider
+  ) {
     this.serviceUrl = serviceUrl;
+    this._cloud = cloud;
+    this._authProvider = authProvider;
 
     if (!options) {
-      this._http = new HttpClient();
+      this._http = this.withAuthProvider(new HttpClient());
     } else if ('request' in options) {
-      this._http = options;
+      this._http = this.withAuthProvider(options);
     } else {
-      this._http = new HttpClient({
+      this._http = this.withAuthProvider(new HttpClient({
         ...options,
         headers: {
           ...options?.headers,
           'Content-Type': 'application/json',
         },
-      });
+      }));
     }
 
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings, cloud);
 
-    this.bots = new BotClient(this.http, this._apiClientSettings);
-    this.users = new UserClient(this.http, this._apiClientSettings);
+    this.bots = new BotClient(this.http, this._apiClientSettings, cloud);
+    this.users = new UserClient(this.http, this._apiClientSettings, cloud);
     this.conversations = new ConversationClient(serviceUrl, this.http, this._apiClientSettings);
     this.teams = new TeamClient(serviceUrl, this.http, this._apiClientSettings);
     this.meetings = new MeetingClient(serviceUrl, this.http, this._apiClientSettings);
     this.reactions = new ReactionClient(serviceUrl, this.http, this._apiClientSettings);
+  }
+
+  protected withAuthProvider(http: HttpClient): HttpClient {
+    if (!this._authProvider) {
+      return http;
+    }
+
+    const hasInterceptor = http.interceptors.some((interceptor) => interceptor instanceof AuthProviderInterceptor);
+    if (hasInterceptor) {
+      return http;
+    }
+
+    http.use(new AuthProviderInterceptor(this._authProvider, this._cloud));
+    return http;
   }
 }
 
@@ -72,3 +99,5 @@ export * from './meeting';
 export * from './reaction';
 export * from './team';
 export * from './api-client-settings';
+export * from './auth';
+export * from './auth-provider-interceptor';

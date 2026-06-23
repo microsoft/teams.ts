@@ -27,6 +27,7 @@ import {
 import pkg from '../package.json';
 
 import { ActivitySender } from './activity-sender';
+import { AppAuthProvider } from './auth-provider';
 import { ApiClient, GraphClient } from './api';
 
 import { EventManager } from './app.events';
@@ -187,6 +188,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   readonly client: HttpClient;
   readonly storage: IStorage;
   readonly entraTokenValidator?: middleware.JwtValidator;
+  readonly authProvider: AppAuthProvider;
 
   /**
    * Graph API base URL derived from the configured cloud's `graphScope`.
@@ -268,15 +270,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       });
     }
 
-    const serviceUrl = (this.options.serviceUrl ?? process.env.SERVICE_URL ??
-      'https://smba.trafficmanager.net/teams').replace(/\/+$/, '');
-    this.api = new ApiClient(
-      serviceUrl,
-      this.client.clone({ token: () => this.getBotToken() }),
-      this.options.apiClientSettings,
-      this.cloud
-    );
-
     // Derive Graph API base URL from the cloud's graphScope (e.g. "https://graph.microsoft.us/.default"
     // -> "https://graph.microsoft.us"). Falls back to the public Graph endpoint inside GraphClient if
     // the scope isn't a URL (custom delegated scope, empty, etc.).
@@ -302,6 +295,17 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       managedIdentityClientId: this.options.managedIdentityClientId,
       cloud: this.cloud,
     }, this.log);
+    this.authProvider = new AppAuthProvider(this.tokenManager);
+
+    const serviceUrl = (this.options.serviceUrl ?? process.env.SERVICE_URL ??
+      'https://smba.trafficmanager.net/teams').replace(/\/+$/, '');
+    this.api = new ApiClient(
+      serviceUrl,
+      this.client.clone(),
+      this.options.apiClientSettings,
+      this.cloud,
+      this.authProvider
+    );
 
     // initialize ActivitySender for sending activities
     this.activitySender = new ActivitySender(
