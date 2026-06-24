@@ -1,5 +1,7 @@
 import { Client } from '@microsoft/teams.common';
 
+import { AGENTIC_IDENTITY_EXTENSION } from '../auth-provider-interceptor';
+
 import { ConversationActivityClient } from './activity';
 
 describe('ConversationActivityClient', () => {
@@ -16,7 +18,7 @@ describe('ConversationActivityClient', () => {
     expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities', {
       type: 'message',
       text: 'hi',
-    });
+    }, {});
   });
 
   it('should use client options', async () => {
@@ -31,7 +33,7 @@ describe('ConversationActivityClient', () => {
     expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities', {
       type: 'message',
       text: 'hi',
-    });
+    }, {});
   });
 
   it('should create', async () => {
@@ -46,7 +48,24 @@ describe('ConversationActivityClient', () => {
     expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities', {
       type: 'message',
       text: 'hi',
+    }, {});
+  });
+
+  it('should pass serviceUrl and agentic identity options', async () => {
+    const client = new ConversationActivityClient('https://default.service');
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
+
+    await client.create('1', { type: 'message', text: 'hi' }, {
+      serviceUrl: 'https://override.service/',
+      agenticIdentity,
     });
+
+    expect(spy).toHaveBeenCalledWith(
+      'https://override.service/v3/conversations/1/activities',
+      { type: 'message', text: 'hi' },
+      { extensions: { [AGENTIC_IDENTITY_EXTENSION]: agenticIdentity } }
+    );
   });
 
   it('should update', async () => {
@@ -61,7 +80,7 @@ describe('ConversationActivityClient', () => {
     expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2', {
       type: 'message',
       text: 'hi',
-    });
+    }, {});
   });
 
   it('should reply', async () => {
@@ -77,21 +96,21 @@ describe('ConversationActivityClient', () => {
       type: 'message',
       text: 'hi',
       replyToId: '2',
-    });
+    }, {});
   });
 
   it('should delete', async () => {
     const client = new ConversationActivityClient('');
     const spy = jest.spyOn(client.http, 'delete').mockResolvedValueOnce({});
     await client.delete('1', '2');
-    expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2');
+    expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2', {});
   });
 
   it('should get members', async () => {
     const client = new ConversationActivityClient('');
     const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({ data: [] });
     await client.getMembers('1', '2');
-    expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2/members');
+    expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2/members', {});
   });
 
   it('should resolve objectId to aadObjectId in getMembers', async () => {

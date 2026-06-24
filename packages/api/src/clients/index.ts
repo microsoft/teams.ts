@@ -102,3 +102,4 @@ export * from './team';
 export * from './api-client-settings';
 export * from './auth';
 export * from './auth-provider-interceptor';
+export * from './request-options';

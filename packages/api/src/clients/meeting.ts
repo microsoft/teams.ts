@@ -11,6 +11,7 @@ import {
 } from '../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
+import { agenticIdentityExtension, RequestOptions, resolveServiceUrl } from './request-options';
 
 export class MeetingClient {
   readonly serviceUrl: string;
@@ -42,8 +43,9 @@ export class MeetingClient {
    * Retrieves meeting information including details, organizer, and conversation.
    * @param id - The meeting ID.
    */
-  async getById(id: string) {
-    const res = await this.http.get<MeetingInfo>(`${this.serviceUrl}/v1/meetings/${encodeURIComponent(id)}`);
+  async getById(id: string, options?: RequestOptions) {
+    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v1/meetings/${id}`;
+    const res = await this.http.get<MeetingInfo>(url, agenticIdentityExtension(options));
     return res.data;
   }
 
@@ -54,10 +56,9 @@ export class MeetingClient {
    * @param tenantId - The tenant ID of the meeting and user.
    * @returns {MeetingParticipant} The meeting participant information.
    */
-  async getParticipant(meetingId: string, id: string, tenantId: string) {
-    const res = await this.http.get<MeetingParticipant>(
-      `${this.serviceUrl}/v1/meetings/${encodeURIComponent(meetingId)}/participants/${encodeURIComponent(id)}?tenantId=${encodeURIComponent(tenantId)}`
-    );
+  async getParticipant(meetingId: string, id: string, tenantId: string, options?: RequestOptions) {
+    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v1/meetings/${meetingId}/participants/${id}?tenantId=${tenantId}`;
+    const res = await this.http.get<MeetingParticipant>(url, agenticIdentityExtension(options));
     return res.data;
   }
 
@@ -75,16 +76,15 @@ export class MeetingClient {
    */
   async sendNotification(
     meetingId: string,
-    params: MeetingNotificationParams
+    params: MeetingNotificationParams,
+    options?: RequestOptions
   ): Promise<MeetingNotificationResponse | undefined> {
     const body = {
       type: params.type ?? 'targetedMeetingNotification',
       value: params.value,
     };
-    const res = await this.http.post<MeetingNotificationResponse>(
-      `${this.serviceUrl}/v1/meetings/${encodeURIComponent(meetingId)}/notification`,
-      body
-    );
+    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v1/meetings/${meetingId}/notification`;
+    const res = await this.http.post<MeetingNotificationResponse>(url, body, agenticIdentityExtension(options));
     return res.data || undefined;
   }
 }

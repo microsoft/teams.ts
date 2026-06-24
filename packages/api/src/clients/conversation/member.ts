@@ -5,6 +5,7 @@ import {
 
 import { PagedMembersResult, resolveAadObjectId, TeamsChannelAccount } from '../../models';
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
+import { agenticIdentityExtension, RequestOptions, resolveServiceUrl } from '../request-options';
 
 export class ConversationMemberClient {
   readonly serviceUrl: string;
@@ -31,17 +32,15 @@ export class ConversationMemberClient {
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
   }
 
-  async get(conversationId: string): Promise<TeamsChannelAccount[]> {
-    const res = await this.http.get<TeamsChannelAccount[]>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/members`
-    );
+  async get(conversationId: string, options?: RequestOptions): Promise<TeamsChannelAccount[]> {
+    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v3/conversations/${conversationId}/members`;
+    const res = await this.http.get<TeamsChannelAccount[]>(url, agenticIdentityExtension(options));
     return res.data.map(resolveAadObjectId);
   }
 
-  async getById(conversationId: string, id: string): Promise<TeamsChannelAccount> {
-    const res = await this.http.get<TeamsChannelAccount>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/members/${id}`
-    );
+  async getById(conversationId: string, id: string, options?: RequestOptions): Promise<TeamsChannelAccount> {
+    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v3/conversations/${conversationId}/members/${id}`;
+    const res = await this.http.get<TeamsChannelAccount>(url, agenticIdentityExtension(options));
     return resolveAadObjectId(res.data);
   }
 
@@ -52,25 +51,22 @@ export class ConversationMemberClient {
    * @param continuationToken - Optional token from a previous call to fetch the next page.
    * @returns PagedMembersResult containing members and an optional continuation token.
    */
-  async getPaged(conversationId: string, pageSize?: number, continuationToken?: string): Promise<PagedMembersResult> {
+  async getPaged(conversationId: string, pageSize?: number, continuationToken?: string, options?: RequestOptions): Promise<PagedMembersResult> {
     const params: Record<string, string | number> = {};
     if (pageSize !== undefined) params['pageSize'] = pageSize;
     if (continuationToken !== undefined) params['continuationToken'] = continuationToken;
 
-    const res = await this.http.get<PagedMembersResult>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/pagedMembers`,
-      { params }
-    );
+    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v3/conversations/${conversationId}/pagedMembers`;
+    const res = await this.http.get<PagedMembersResult>(url, { params, ...agenticIdentityExtension(options) });
     return { ...res.data, members: res.data.members.map(resolveAadObjectId) };
   }
 
   /**
    * @deprecated This will be removed by end of summer 2026.
    */
-  async delete(conversationId: string, id: string) {
-    const res = await this.http.delete<void>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/members/${id}`
-    );
+  async delete(conversationId: string, id: string, options?: RequestOptions) {
+    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v3/conversations/${conversationId}/members/${id}`;
+    const res = await this.http.delete<void>(url, agenticIdentityExtension(options));
     return res.data;
   }
 }

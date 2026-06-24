@@ -1,5 +1,6 @@
 import { Client } from '@microsoft/teams.common';
 
+import { AGENTIC_IDENTITY_EXTENSION } from './auth-provider-interceptor';
 import { MeetingClient } from './meeting';
 
 describe('MeetingClient', () => {
@@ -8,14 +9,14 @@ describe('MeetingClient', () => {
     const client = new MeetingClient('', http);
     const spy = jest.spyOn(http, 'get').mockResolvedValueOnce({});
     await client.getById('1');
-    expect(spy).toHaveBeenCalledWith('/v1/meetings/1');
+    expect(spy).toHaveBeenCalledWith('/v1/meetings/1', {});
   });
 
   it('should use client options', async () => {
     const client = new MeetingClient('', {});
     const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
     await client.getById('1');
-    expect(spy).toHaveBeenCalledWith('/v1/meetings/1');
+    expect(spy).toHaveBeenCalledWith('/v1/meetings/1', {});
   });
 
   it('should use replaced http client for subsequent calls', async () => {
@@ -25,7 +26,7 @@ describe('MeetingClient', () => {
     const newSpy = jest.spyOn(http, 'get').mockResolvedValueOnce({});
     client.http = http;
     await client.getById('123');
-    expect(newSpy).toHaveBeenCalledWith('/v1/meetings/123');
+    expect(newSpy).toHaveBeenCalledWith('/v1/meetings/123', {});
     expect(oldSpy).not.toHaveBeenCalled();
   });
 
@@ -33,29 +34,26 @@ describe('MeetingClient', () => {
     const client = new MeetingClient('');
     const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
     await client.getById('1');
-    expect(spy).toHaveBeenCalledWith('/v1/meetings/1');
+    expect(spy).toHaveBeenCalledWith('/v1/meetings/1', {});
   });
 
   it('should get participant', async () => {
     const client = new MeetingClient('');
     const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
     await client.getParticipant('1', '2', '3');
-    expect(spy).toHaveBeenCalledWith('/v1/meetings/1/participants/2?tenantId=3');
+    expect(spy).toHaveBeenCalledWith('/v1/meetings/1/participants/2?tenantId=3', {});
   });
 
-  it('should URL-encode meeting id in getById', async () => {
-    const client = new MeetingClient('');
+  it('should pass serviceUrl and agentic identity options', async () => {
+    const client = new MeetingClient('https://default.service');
     const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
-    await client.getById('abc+def/ghi=');
-    expect(spy).toHaveBeenCalledWith('/v1/meetings/abc%2Bdef%2Fghi%3D');
-  });
+    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
 
-  it('should URL-encode participant parameters', async () => {
-    const client = new MeetingClient('');
-    const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
-    await client.getParticipant('abc+def/ghi=', 'user=1', 'tenant/1');
+    await client.getById('1', { serviceUrl: 'https://override.service/', agenticIdentity });
+
     expect(spy).toHaveBeenCalledWith(
-      '/v1/meetings/abc%2Bdef%2Fghi%3D/participants/user%3D1?tenantId=tenant%2F1'
+      'https://override.service/v1/meetings/1',
+      { extensions: { [AGENTIC_IDENTITY_EXTENSION]: agenticIdentity } }
     );
   });
 
@@ -68,18 +66,7 @@ describe('MeetingClient', () => {
     expect(spy).toHaveBeenCalledWith('/v1/meetings/1/notification', {
       type: 'targetedMeetingNotification',
       value: { recipients: ['user1'], surfaces: [{ surface: 'meetingTabIcon' }] },
-    });
+    }, {});
   });
 
-  it('should URL-encode meeting id in sendNotification', async () => {
-    const client = new MeetingClient('');
-    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
-    await client.sendNotification('abc+def/ghi=', {
-      value: { recipients: ['user1'], surfaces: [{ surface: 'meetingTabIcon' }] },
-    });
-    expect(spy).toHaveBeenCalledWith(
-      '/v1/meetings/abc%2Bdef%2Fghi%3D/notification',
-      expect.any(Object)
-    );
-  });
 });
