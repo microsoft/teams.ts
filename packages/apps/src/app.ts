@@ -27,13 +27,13 @@ import {
 import pkg from '../package.json';
 
 import { ActivitySender } from './activity-sender';
-import { AppAuthProvider } from './auth-provider';
 import { ApiClient, GraphClient } from './api';
 
 import { EventManager } from './app.events';
 import { OauthHandlers } from './app.oauth';
 import { PluginManager } from './app.plugins';
 import { ActivityProcessor } from './app.process';
+import { AppAuthProvider } from './auth-provider';
 import { Container } from './container';
 import { IActivityContext, FunctionContext, IFunctionContext } from './contexts';
 import { IActivityEvent } from './events';
@@ -152,9 +152,10 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly serviceUrl?: string;
 
   /**
-   * API client settings used for overriding.
+   * API client settings used for overriding (e.g. oauthUrl).
+   * Cloud, authProvider, and agenticIdentity are managed internally.
    */
-  readonly apiClientSettings?: ApiClientSettings;
+  readonly apiClientSettings?: Pick<ApiClientSettings, 'oauthUrl'>;
 
   /**
    * Cloud environment for sovereign cloud support.
@@ -295,16 +296,19 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       managedIdentityClientId: this.options.managedIdentityClientId,
       cloud: this.cloud,
     }, this.log);
-    this.authProvider = new AppAuthProvider(this.tokenManager);
+    this.authProvider = new AppAuthProvider(this.tokenManager, this.cloud);
 
     const serviceUrl = (this.options.serviceUrl ?? process.env.SERVICE_URL ??
       'https://smba.trafficmanager.net/teams').replace(/\/+$/, '');
+    const settings: Partial<ApiClientSettings> = {
+      ...this.options.apiClientSettings,
+      cloud: this.cloud,
+      authProvider: this.authProvider,
+    };
     this.api = new ApiClient(
       serviceUrl,
       this.client.clone(),
-      this.options.apiClientSettings,
-      this.cloud,
-      this.authProvider
+      settings
     );
 
     // initialize ActivitySender for sending activities

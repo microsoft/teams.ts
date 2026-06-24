@@ -1,10 +1,9 @@
 import { AxiosHeaders } from 'axios';
 
-import { AgenticIdentity } from '../models';
 
 import type { Interceptor } from '@microsoft/teams.common';
 
-import { PUBLIC, type CloudEnvironment } from '../auth';
+import { AgenticIdentity } from '../models';
 
 import type { AuthProvider } from './auth';
 
@@ -13,7 +12,7 @@ export const AGENTIC_IDENTITY_EXTENSION = 'microsoft.teams.agenticIdentity';
 export class AuthProviderInterceptor implements Interceptor {
   constructor(
     readonly authProvider: AuthProvider,
-    readonly cloud: CloudEnvironment = PUBLIC
+    readonly defaultAgenticIdentity?: AgenticIdentity
   ) { }
 
   request: Interceptor['request'] = async ({ config, log }) => {
@@ -21,11 +20,10 @@ export class AuthProviderInterceptor implements Interceptor {
       return config;
     }
 
-    const extensions = (config as typeof config & { extensions?: Record<string, unknown> }).extensions;
-    const agenticIdentity = extensions?.[AGENTIC_IDENTITY_EXTENSION] as AgenticIdentity | undefined;
-    const scope = agenticIdentity ? this.cloud.agenticBotScope : this.cloud.botScope;
-    const token = await this.authProvider.token({ scope, agenticIdentity });
-    const resolvedToken = token && typeof token === 'object' ? token.toString() : token;
+    const requestAgenticIdentity = config.extensions?.[AGENTIC_IDENTITY_EXTENSION] as AgenticIdentity | undefined;
+    const agenticIdentity = requestAgenticIdentity ?? this.defaultAgenticIdentity;
+    const token = await this.authProvider.token({ agenticIdentity });
+    const resolvedToken = token?.toString();
 
     if (!resolvedToken?.trim()) {
       if (resolvedToken != null) {

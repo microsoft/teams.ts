@@ -1,6 +1,6 @@
+import { AgenticIdentity } from './agentic-identity';
 import { MembershipSource } from './membership-source';
 import { Role } from './role';
-import { AgenticIdentity } from './agentic-identity';
 
 export type Account<P = any> = {
   readonly id: string;

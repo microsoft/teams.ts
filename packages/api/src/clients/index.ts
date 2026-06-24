@@ -4,6 +4,7 @@ import {
 } from '@microsoft/teams.common';
 
 import { CloudEnvironment } from '../auth/cloud-environment';
+import { AgenticIdentity } from '../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
 import { AuthProvider } from './auth';
@@ -41,36 +42,36 @@ export class Client {
   protected _apiClientSettings: Partial<ApiClientSettings>;
   protected _authProvider?: AuthProvider;
   protected _cloud?: CloudEnvironment;
+  protected _defaultAgenticIdentity?: AgenticIdentity;
 
   constructor(
     serviceUrl: string,
-    options?: HttpClient | HttpClientOptions,
+    httpOptions?: HttpClient | HttpClientOptions,
     apiClientSettings?: Partial<ApiClientSettings>,
-    cloud?: CloudEnvironment,
-    authProvider?: AuthProvider
   ) {
     this.serviceUrl = serviceUrl;
-    this._cloud = cloud;
-    this._authProvider = authProvider;
+    this._cloud = apiClientSettings?.cloud;
+    this._authProvider = apiClientSettings?.authProvider;
+    this._defaultAgenticIdentity = apiClientSettings?.agenticIdentity;
 
-    if (!options) {
+    if (!httpOptions) {
       this._http = this.withAuthProvider(new HttpClient());
-    } else if ('request' in options) {
-      this._http = this.withAuthProvider(options);
+    } else if ('request' in httpOptions) {
+      this._http = this.withAuthProvider(httpOptions);
     } else {
       this._http = this.withAuthProvider(new HttpClient({
-        ...options,
+        ...httpOptions,
         headers: {
-          ...options?.headers,
+          ...httpOptions?.headers,
           'Content-Type': 'application/json',
         },
       }));
     }
 
-    this._apiClientSettings = mergeApiClientSettings(apiClientSettings, cloud);
+    this._apiClientSettings = mergeApiClientSettings(apiClientSettings, this._cloud);
 
-    this.bots = new BotClient(this.http, this._apiClientSettings, cloud);
-    this.users = new UserClient(this.http, this._apiClientSettings, cloud);
+    this.bots = new BotClient(this.http, this._apiClientSettings, this._cloud);
+    this.users = new UserClient(this.http, this._apiClientSettings, this._cloud);
     this.conversations = new ConversationClient(serviceUrl, this.http, this._apiClientSettings);
     this.teams = new TeamClient(serviceUrl, this.http, this._apiClientSettings);
     this.meetings = new MeetingClient(serviceUrl, this.http, this._apiClientSettings);
@@ -87,7 +88,7 @@ export class Client {
       return http;
     }
 
-    http.use(new AuthProviderInterceptor(this._authProvider, this._cloud));
+    http.use(new AuthProviderInterceptor(this._authProvider, this._defaultAgenticIdentity));
     return http;
   }
 }
