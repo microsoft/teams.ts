@@ -16,6 +16,9 @@ export interface IMcpUiCallToolResultContent {
 /**
  * The result of a widget's `tools/call` request, returned by the bot
  * in response to an `htmlwidget/calltool` invoke activity.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
  */
 export interface IMcpUiCallToolResult {
   /**
@@ -38,6 +41,9 @@ export interface IMcpUiCallToolResult {
  * The wire-format response body for an `htmlwidget/calltool` invoke.
  * Teams expects this shape (with `responseType` discriminator) rather than
  * a bare {@link IMcpUiCallToolResult}.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
  */
 export interface IHtmlWidgetCallToolResponse {
   /**

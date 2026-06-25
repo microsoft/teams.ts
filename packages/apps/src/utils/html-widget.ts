@@ -9,6 +9,9 @@ const MCP_PROTOCOL_VERSION = '2026-01-26';
  * Validates an HTML widget payload, throwing if required fields are
  * missing or empty. This catches issues that would otherwise result
  * in a silent client-side render failure ("Couldn't load widget").
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
  */
 function validateHtmlWidgetPayload(payload: IHtmlWidgetPayload): void {
   if (!payload.name?.trim()) {
@@ -42,6 +45,9 @@ type WidgetNotification =
 
 /**
  * Options for building an HTML widget markdown string.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
  */
 export interface IHtmlWidgetMarkdownOptions {
   /**
@@ -57,6 +63,9 @@ export interface IHtmlWidgetMarkdownOptions {
 
 /**
  * Options for injecting the MCP Apps protocol into widget HTML.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
  */
 export interface IInjectWidgetProtocolOptions {
   /**
@@ -144,6 +153,9 @@ const NOTIFICATION_CALLBACKS: Record<string, string> = {
  * @param html - The raw HTML content for the widget.
  * @param options - Optional configuration for the protocol setup.
  * @returns The HTML with the protocol script injected.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
  */
 export function injectWidgetProtocol(
   html: string,
@@ -216,6 +228,9 @@ const DEFAULT_SECURITY_POLICY: Required<IHtmlWidgetPayload>['securityPolicy'] = 
  * @param payload - The widget payload to serialize.
  * @param options - Optional text to include before/after the widget block.
  * @returns The markdown string containing the widget code block.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
  */
 export function buildHtmlWidgetMarkdown(
   payload: IHtmlWidgetPayload,
@@ -250,6 +265,9 @@ export function buildHtmlWidgetMarkdown(
  * @param payload - The widget payload to include in the message.
  * @param options - Optional text to include before/after the widget block.
  * @returns An activity object with textFormat set to 'extendedmarkdown'.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
  */
 export function buildHtmlWidgetMessage(
   payload: IHtmlWidgetPayload,

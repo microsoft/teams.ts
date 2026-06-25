@@ -1,6 +1,9 @@
 /**
  * The security policy for an HTML widget, controlling allowed origins
  * for network requests, static resources, nested iframes, and base URIs.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
  */
 export interface IHtmlWidgetSecurityPolicy {
   /**
@@ -26,6 +29,9 @@ export interface IHtmlWidgetSecurityPolicy {
 
 /**
  * Permissions that the widget may request from the host.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
  */
 export interface IHtmlWidgetPermissions {
   /**
@@ -52,6 +58,9 @@ export interface IHtmlWidgetPermissions {
 /**
  * The JSON payload for an HTML widget, sent inside a ```html-widget code block
  * within a Markdown message.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
  */
 export interface IHtmlWidgetPayload {
   /**
