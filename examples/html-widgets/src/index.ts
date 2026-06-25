@@ -7,18 +7,18 @@
  *   - [EXAMPLE] Code patterns useful for customers building widget bots
  */
 
-import { App, buildHtmlWidgetMarkdown, buildHtmlWidgetMessage } from '@microsoft/teams.apps';
 import { IMcpUiCallToolResult } from '@microsoft/teams.api';
+import { App, buildHtmlWidgetMarkdown, buildHtmlWidgetMessage } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
-import { SIMPLE_WIDGET_HTML } from './widgets/simple';
 import { CALLTOOL_WIDGET_HTML } from './widgets/calltool';
-import { MESSAGEBACK_WIDGET_HTML } from './widgets/messageback';
 import { FULLSCREEN_WIDGET_HTML } from './widgets/fullscreen';
+import { HOST_CONTEXT_WIDGET_HTML } from './widgets/host-context';
+import { MESSAGEBACK_WIDGET_HTML } from './widgets/messageback';
 import { MULTI_WIDGET_HTML } from './widgets/multi-tool';
 import { OPEN_LINK_WIDGET_HTML } from './widgets/open-link';
+import { SIMPLE_WIDGET_HTML } from './widgets/simple';
 import { UPDATE_CONTEXT_WIDGET_HTML } from './widgets/update-context';
-import { HOST_CONTEXT_WIDGET_HTML } from './widgets/host-context';
 
 const app = new App({
   logger: new ConsoleLogger('@examples/html-widgets', { level: 'debug' }),
@@ -42,7 +42,7 @@ app.on('message', async ({ send, activity }) => {
         domain: 'https://teams.microsoft.com',
         securityPolicy: {
           connectDomains: [],
-          resourceDomains: ["'self'", 'data:'],
+          resourceDomains: ['\'self\'', 'data:'],
           frameDomains: [],
           baseUriDomains: [],
         },
@@ -68,7 +68,7 @@ app.on('message', async ({ send, activity }) => {
         domain: 'https://teams.microsoft.com',
         securityPolicy: {
           connectDomains: ['https://teams.microsoft.com', 'https://teams.cloud.microsoft.com'],
-          resourceDomains: ["'self'", 'data:'],
+          resourceDomains: ['\'self\'', 'data:'],
           frameDomains: [],
           baseUriDomains: [],
         },
@@ -100,7 +100,7 @@ app.on('message', async ({ send, activity }) => {
         domain: 'https://teams.microsoft.com',
         securityPolicy: {
           connectDomains: [],
-          resourceDomains: ["'self'", 'data:'],
+          resourceDomains: ['\'self\'', 'data:'],
           frameDomains: [],
           baseUriDomains: [],
         },
@@ -126,7 +126,7 @@ app.on('message', async ({ send, activity }) => {
         domain: 'https://teams.microsoft.com',
         securityPolicy: {
           connectDomains: [],
-          resourceDomains: ["'self'", 'data:'],
+          resourceDomains: ['\'self\'', 'data:'],
           frameDomains: [],
           baseUriDomains: [],
         },
@@ -152,7 +152,7 @@ app.on('message', async ({ send, activity }) => {
         domain: 'https://teams.microsoft.com',
         securityPolicy: {
           connectDomains: ['https://teams.microsoft.com'],
-          resourceDomains: ["'self'", 'data:'],
+          resourceDomains: ['\'self\'', 'data:'],
           frameDomains: [],
           baseUriDomains: [],
         },
@@ -203,7 +203,7 @@ app.on('message', async ({ send, activity }) => {
         domain: 'https://teams.microsoft.com',
         securityPolicy: {
           connectDomains: [],
-          resourceDomains: ["'self'"],
+          resourceDomains: ['\'self\''],
           frameDomains: [],
           baseUriDomains: [],
         },
@@ -348,7 +348,7 @@ app.on('widget.callTool', async ({ activity }) => {
       break;
   }
 
-  console.log(`[widget.callTool] result=`, JSON.stringify(callToolResult));
+  console.log('[widget.callTool] result=', JSON.stringify(callToolResult));
 
   return {
     responseType: 'htmlwidget/calltoolresult',
