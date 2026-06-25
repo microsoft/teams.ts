@@ -33,3 +33,20 @@ export interface IMcpUiCallToolResult {
    */
   isError?: boolean;
 }
+
+/**
+ * The wire-format response body for an `htmlwidget/calltool` invoke.
+ * Teams expects this shape (with `responseType` discriminator) rather than
+ * a bare {@link IMcpUiCallToolResult}.
+ */
+export interface IHtmlWidgetCallToolResponse {
+  /**
+   * Discriminator that tells Teams how to interpret the response.
+   */
+  responseType: 'htmlwidget/calltoolresult';
+
+  /**
+   * The tool call result payload.
+   */
+  callToolResult: IMcpUiCallToolResult;
+}

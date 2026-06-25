@@ -1,7 +1,7 @@
 import {
   AdaptiveCardActionResponse,
   ConfigResponse,
-  IMcpUiCallToolResult,
+  IHtmlWidgetCallToolResponse,
   MessagingExtensionActionResponse,
   MessagingExtensionResponse,
   SearchInvokeResponse,
@@ -66,5 +66,5 @@ type InvokeResponseBody = {
   'signin/failure': void;
   'adaptiveCard/action': AdaptiveCardActionResponse;
   'application/search': SearchInvokeResponse;
-  'htmlwidget/calltool': IMcpUiCallToolResult;
+  'htmlwidget/calltool': IHtmlWidgetCallToolResponse;
 };

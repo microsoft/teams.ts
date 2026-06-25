@@ -75,7 +75,10 @@ export interface IHtmlWidgetPayload {
   html: string;
 
   /**
-   * The domain associated with the widget.
+   * The domain associated with the widget, applied to sandbox metadata.
+   * Must be a valid domain URL (e.g. 'https://example.com'). The domain
+   * does not need to resolve or serve content, but must be non-empty.
+   * This value is available to the rendering MCP App as informational context.
    */
   domain: string;
 
