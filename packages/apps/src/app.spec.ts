@@ -146,7 +146,7 @@ describe('App', () => {
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
-      await app.testSend('conversation-id', { text: 'Hello' });
+      await app.testSend('conversation-id', { type: 'message', text: 'Hello' });
 
       expect(mockSend).toHaveBeenCalled();
       const [, ref] = mockSend.mock.calls[0];
@@ -162,7 +162,7 @@ describe('App', () => {
       await app.start();
 
       await expect(
-        app.testSend('conversation-id', { text: 'Hello' })
+        app.testSend('conversation-id', { type: 'message', text: 'Hello' })
       ).rejects.toThrow('App has no credentials set up');
     });
   });
@@ -352,7 +352,7 @@ describe('App', () => {
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
-      await app.testReply('19:abc@thread.skype', '1680000000000', { text: 'Hello thread' });
+      await app.testReply('19:abc@thread.skype', '1680000000000', { type: 'message', text: 'Hello thread' });
 
       expect(mockSend).toHaveBeenCalled();
       const [, ref] = mockSend.mock.calls[0];
@@ -363,7 +363,7 @@ describe('App', () => {
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
-      await app.testReply('19:abc@thread.skype', { text: 'Hello flat' });
+      await app.testReply('19:abc@thread.skype', { type: 'message', text: 'Hello flat' });
 
       expect(mockSend).toHaveBeenCalled();
       const [, ref] = mockSend.mock.calls[0];
@@ -374,7 +374,7 @@ describe('App', () => {
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
-      await app.testReply('19:abc@thread.skype;messageid=123', { text: 'Hello' });
+      await app.testReply('19:abc@thread.skype;messageid=123', { type: 'message', text: 'Hello' });
 
       expect(mockSend).toHaveBeenCalled();
       const [, ref] = mockSend.mock.calls[0];
@@ -385,7 +385,7 @@ describe('App', () => {
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
-      await app.testReply('19:meeting_abc@thread.v2', '123', { text: 'Hello' });
+      await app.testReply('19:meeting_abc@thread.v2', '123', { type: 'message', text: 'Hello' });
 
       expect(mockSend).toHaveBeenCalled();
       const [, ref] = mockSend.mock.calls[0];
@@ -394,7 +394,7 @@ describe('App', () => {
 
     it('should throw on invalid messageId in three-arg form', async () => {
       await expect(
-        app.testReply('19:abc@thread.skype', 'not-a-number', { text: 'Hello' })
+        app.testReply('19:abc@thread.skype', 'not-a-number', { type: 'message', text: 'Hello' })
       ).rejects.toThrow('Invalid messageId');
     });
 
@@ -404,7 +404,7 @@ describe('App', () => {
       });
 
       await expect(
-        unstartedApp.testReply('conv-id', { text: 'Hello' })
+        unstartedApp.testReply('conv-id', { type: 'message', text: 'Hello' })
       ).rejects.toThrow('App has no credentials set up');
     });
   });

@@ -3,12 +3,14 @@ import { AxiosError } from 'axios';
 import {
   Activity,
   ActivityLike,
+  AgenticIdentity,
   ApiClientSettings,
   CloudEnvironment,
   ConversationReference,
   cloudFromName,
   InvokeResponse,
   PUBLIC,
+  RequestOptions,
   StripMentionsTextOptions,
   toActivityParams,
   TokenCredentials,
@@ -49,6 +51,11 @@ import { TokenManager } from './token-manager';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { toThreadedConversationId } from './utils/thread';
+
+function isRequestOptions(value: ActivityLike | RequestOptions): value is RequestOptions {
+  if (typeof value === 'string') return false;
+  return !('type' in value);
+}
 
 /**
  * App initialization options
@@ -313,8 +320,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     // initialize ActivitySender for sending activities
     this.activitySender = new ActivitySender(
-      this.client.clone({ token: () => this.getBotToken() }),
-      this.log
+      this.api,
+      this.log,
     );
 
     // initialize the activity pipeline collaborators. App owns these and passes
@@ -350,6 +357,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       getConnectionName: () => this.oauth.defaultConnectionName,
       apiClientSettings: this.options.apiClientSettings,
       graphBaseUrl: this.graphBaseUrl,
+      authProvider: this.authProvider,
+      cloud: this.cloud,
     });
 
     if (this.credentials?.clientId) {
@@ -523,7 +532,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param conversationId the conversation to send to
    * @param activity the activity to send
    */
-  async send(conversationId: string, activity: ActivityLike) {
+  async send(conversationId: string, activity: ActivityLike, options?: RequestOptions) {
     if (!this.id) {
       throw new Error('App has no credentials set up');
     }
@@ -532,7 +541,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     const ref: ConversationReference = {
       channelId: 'msteams',
-      serviceUrl: this.api.serviceUrl,
+      serviceUrl: options?.serviceUrl ?? this.api.serviceUrl,
       bot: {
         id: this.id,
         role: 'bot',
@@ -542,7 +551,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       } as ConversationReference['conversation'],
     };
 
-    const res = await this.activitySender.send(params, ref);
+    const res = await this.activitySender.send(params, ref, options);
     return res;
   }
 
@@ -558,7 +567,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param messageId the thread root message ID
    * @param activity the activity to send
    */
-  async reply(conversationId: string, messageId: string, activity: ActivityLike): Promise<any>;
+  async reply(conversationId: string, messageId: string, activity: ActivityLike, options?: RequestOptions): Promise<any>;
   /**
    * send an activity proactively to a conversation.
    *
@@ -568,13 +577,35 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param conversationId the conversation to send to
    * @param activity the activity to send
    */
-  async reply(conversationId: string, activity: ActivityLike): Promise<any>;
-  async reply(conversationId: string, messageId: string | ActivityLike, activity?: ActivityLike) {
-    if (typeof messageId === 'string' && activity !== undefined) {
-      return this.send(toThreadedConversationId(conversationId, messageId), activity);
+  async reply(conversationId: string, activity: ActivityLike, options?: RequestOptions): Promise<any>;
+  async reply(conversationId: string, messageId: string | ActivityLike, activity?: ActivityLike | RequestOptions, options?: RequestOptions) {
+    if (typeof messageId === 'string' && activity !== undefined && !isRequestOptions(activity)) {
+      return this.send(toThreadedConversationId(conversationId, messageId), activity, options);
     }
 
-    return this.send(conversationId, messageId as ActivityLike);
+    const opts = activity && isRequestOptions(activity) ? activity : options;
+    return this.send(conversationId, messageId as ActivityLike, opts);
+  }
+
+  /**
+   * Create an AgenticIdentity for use with agentic send helpers.
+   *
+   * @param agenticAppId the agentic app's ID
+   * @param agenticUserId the agentic user's ID
+   * @param opts optional overrides (tenantId defaults to this app's configured tenant,
+   *   agenticAppBlueprintId defaults to this app's clientId)
+   */
+  getAgenticIdentity(agenticAppId: string, agenticUserId: string, opts?: { tenantId?: string; agenticAppBlueprintId?: string }): AgenticIdentity {
+    const tenantId = opts?.tenantId ?? this.options.tenantId;
+    if (!tenantId) {
+      throw new Error('tenantId is required to get an agentic identity');
+    }
+    return {
+      agenticAppId,
+      agenticUserId,
+      tenantId,
+      agenticAppBlueprintId: opts?.agenticAppBlueprintId ?? this.id,
+    };
   }
 
   /**
