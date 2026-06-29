@@ -404,18 +404,42 @@ export function validateSecurityPolicy(
 
   // resourceDomains: <script src>, <link href>, <img src>, <source src>,
   // <audio src>, <video src>, CSS url(), @import
-  const resourcePatterns: Array<{ regex: RegExp; source: string }> = [
-    { regex: /<script[^>]*?src=["']([^"']+)["']/gi, source: '<script src>' },
-    { regex: /<link[^>]*?href=["']([^"']+)["']/gi, source: '<link href>' },
-    { regex: /<img[^>]*?src=["']([^"']+)["']/gi, source: '<img src>' },
-    { regex: /<source[^>]*?src=["']([^"']+)["']/gi, source: '<source src>' },
-    { regex: /<audio[^>]*?src=["']([^"']+)["']/gi, source: '<audio src>' },
-    { regex: /<video[^>]*?src=["']([^"']+)["']/gi, source: '<video src>' },
+  // Two-step extraction avoids polynomial backtracking (CodeQL ReDoS):
+  // Step 1: find opening tags; Step 2: extract attribute from tag content.
+  const tagAttrPatterns: Array<{ tagRegex: RegExp; attrRegex: RegExp; source: string }> = [
+    { tagRegex: /<script\s[^>]*>/gi, attrRegex: /src=["']([^"']+)["']/i, source: '<script src>' },
+    { tagRegex: /<link\s[^>]*>/gi, attrRegex: /href=["']([^"']+)["']/i, source: '<link href>' },
+    { tagRegex: /<img\s[^>]*>/gi, attrRegex: /src=["']([^"']+)["']/i, source: '<img src>' },
+    { tagRegex: /<source\s[^>]*>/gi, attrRegex: /src=["']([^"']+)["']/i, source: '<source src>' },
+    { tagRegex: /<audio\s[^>]*>/gi, attrRegex: /src=["']([^"']+)["']/i, source: '<audio src>' },
+    { tagRegex: /<video\s[^>]*>/gi, attrRegex: /src=["']([^"']+)["']/i, source: '<video src>' },
+  ];
+
+  for (const { tagRegex, attrRegex, source } of tagAttrPatterns) {
+    let tagMatch;
+    while ((tagMatch = tagRegex.exec(html)) !== null) {
+      const attrMatch = tagMatch[0].match(attrRegex);
+      if (attrMatch) {
+        const origin = extractOrigin(attrMatch[1]);
+        if (origin && !isOriginAllowed(origin, policy.resourceDomains ?? [])) {
+          warnings.push({
+            url: attrMatch[1],
+            source,
+            policyField: 'resourceDomains',
+            message: `${source} references "${attrMatch[1]}" but origin "${origin}" is not in resourceDomains.`,
+          });
+        }
+      }
+    }
+  }
+
+  // CSS url() and @import (no tag-level backtracking risk)
+  const cssPatterns: Array<{ regex: RegExp; source: string }> = [
     { regex: /url\(\s*["']([^"')]+)["']\s*\)/gi, source: 'CSS url()' },
     { regex: /@import\s+["']([^"']+)["']/gi, source: 'CSS @import' },
   ];
 
-  for (const { regex, source } of resourcePatterns) {
+  for (const { regex, source } of cssPatterns) {
     let match;
     while ((match = regex.exec(html)) !== null) {
       const origin = extractOrigin(match[1]);
@@ -454,31 +478,39 @@ export function validateSecurityPolicy(
   }
 
   // frameDomains: <iframe src>
-  const iframeRegex = /<iframe[^>]*?src=["']([^"']+)["']/gi;
-  let match;
-  while ((match = iframeRegex.exec(html)) !== null) {
-    const origin = extractOrigin(match[1]);
-    if (origin && !isOriginAllowed(origin, policy.frameDomains ?? [])) {
-      warnings.push({
-        url: match[1],
-        source: '<iframe src>',
-        policyField: 'frameDomains',
-        message: `<iframe src> references "${match[1]}" but origin "${origin}" is not in frameDomains.`,
-      });
+  const iframeTagRegex = /<iframe\s[^>]*>/gi;
+  const iframeSrcRegex = /src=["']([^"']+)["']/i;
+  let tagMatch;
+  while ((tagMatch = iframeTagRegex.exec(html)) !== null) {
+    const attrMatch = tagMatch[0].match(iframeSrcRegex);
+    if (attrMatch) {
+      const origin = extractOrigin(attrMatch[1]);
+      if (origin && !isOriginAllowed(origin, policy.frameDomains ?? [])) {
+        warnings.push({
+          url: attrMatch[1],
+          source: '<iframe src>',
+          policyField: 'frameDomains',
+          message: `<iframe src> references "${attrMatch[1]}" but origin "${origin}" is not in frameDomains.`,
+        });
+      }
     }
   }
 
   // connectDomains: <form action> (form submissions can exfiltrate data)
-  const formRegex = /<form[^>]*?action=["']([^"']+)["']/gi;
-  while ((match = formRegex.exec(html)) !== null) {
-    const origin = extractOrigin(match[1]);
-    if (origin && !isOriginAllowed(origin, policy.connectDomains ?? [])) {
-      warnings.push({
-        url: match[1],
-        source: '<form action>',
-        policyField: 'connectDomains',
-        message: `<form action> references "${match[1]}" but origin "${origin}" is not in connectDomains.`,
-      });
+  const formTagRegex = /<form\s[^>]*>/gi;
+  const formActionRegex = /action=["']([^"']+)["']/i;
+  while ((tagMatch = formTagRegex.exec(html)) !== null) {
+    const attrMatch = tagMatch[0].match(formActionRegex);
+    if (attrMatch) {
+      const origin = extractOrigin(attrMatch[1]);
+      if (origin && !isOriginAllowed(origin, policy.connectDomains ?? [])) {
+        warnings.push({
+          url: attrMatch[1],
+          source: '<form action>',
+          policyField: 'connectDomains',
+          message: `<form action> references "${attrMatch[1]}" but origin "${origin}" is not in connectDomains.`,
+        });
+      }
     }
   }
 
