@@ -1,9 +1,9 @@
 import { AxiosError } from 'axios';
 
 import {
+  Activity,
   ActivityLike,
   ApiClientSettings,
-  ChannelID,
   CloudEnvironment,
   ConversationReference,
   cloudFromName,
@@ -18,6 +18,7 @@ import {
   type ClientOptions as HttpClientOptions,
   ConsoleLogger,
   EventEmitter,
+  EventHandler,
   ILogger,
   IStorage,
   LocalStorage
@@ -28,31 +29,23 @@ import pkg from '../package.json';
 import { ActivitySender } from './activity-sender';
 import { ApiClient, GraphClient } from './api';
 
-import { func, tab } from './app.embed';
-import {
-  event,
-  onActivityResponse,
-  onActivitySent,
-  onError,
-} from './app.events';
-import {
-  onSignInFailure,
-  onTokenExchange,
-  onVerifyState,
-} from './app.oauth';
-import { getMetadata, getPlugin, inject, plugin } from './app.plugins';
-import { $process } from './app.process';
-import { message, on, use } from './app.routing';
+import { EventManager } from './app.events';
+import { OauthHandlers } from './app.oauth';
+import { PluginManager } from './app.plugins';
+import { ActivityProcessor } from './app.process';
 import { Container } from './container';
+import { IActivityContext, FunctionContext, IFunctionContext } from './contexts';
 import { IActivityEvent } from './events';
 import { ExpressAdapter, IHttpServerAdapter } from './http';
 import { HttpServer } from './http/http-server';
 import * as middleware from './middleware';
+import { RemoteFunctionValidator } from './middleware/auth/remote-function-validator';
 import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
+import { IRoutes } from './routes';
 import { TokenManager } from './token-manager';
-import { IPlugin, AppEvents } from './types';
+import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { toThreadedConversationId } from './utils/thread';
 
@@ -194,7 +187,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   readonly client: HttpClient;
   readonly storage: IStorage;
   readonly entraTokenValidator?: middleware.JwtValidator;
-  readonly tokenManager: TokenManager;
 
   /**
    * Graph API base URL derived from the configured cloud's `graphScope`.
@@ -203,6 +195,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * so sovereign customers get consistent routing.
    */
   readonly graphBaseUrl?: string;
+
+  protected readonly tokenManager: TokenManager;
 
   /**
    * the apps credentials
@@ -226,13 +220,17 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   }
 
   protected container = new Container();
-  protected plugins: Array<TPlugin> = [];
+  protected pluginManager: PluginManager<TPlugin>;
   protected router = new Router<PluginAdditionalContext<TPlugin>>();
   protected tenantTokens = new LocalStorage<string>({}, { max: 20000 });
   protected events = new EventEmitter<AppEvents<TPlugin>>();
   protected isInitialized = false;
   protected port?: number | string;
   protected activitySender: ActivitySender;
+
+  private eventManager!: EventManager<TPlugin>;
+  private activityProcessor!: ActivityProcessor<TPlugin>;
+  private oauthHandlers!: OauthHandlers<TPlugin>;
 
   private readonly _userAgent = `teams.ts[apps]/${pkg.version}`;
 
@@ -311,6 +309,41 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       this.log
     );
 
+    // initialize the activity pipeline collaborators. App owns these and passes
+    // in what they need (rather than them reaching into App via `this`), which
+    // keeps the primitives above private.
+    this.pluginManager = new PluginManager<TPlugin>({
+      container: this.container,
+      log: this.log,
+      handlers: {
+        onError: (event) => this.eventManager.onError(event),
+        onActivity: (event) => this.onActivity(event),
+        emit: (name, event) => this.events.emit(name as any, event),
+      },
+    });
+    this.eventManager = new EventManager<TPlugin>(this.events, this.pluginManager.plugins);
+    this.oauthHandlers = new OauthHandlers<TPlugin>(
+      () => this.oauth.defaultConnectionName,
+      this.client,
+      this.events,
+      this.graphBaseUrl
+    );
+    this.activityProcessor = new ActivityProcessor<TPlugin>({
+      router: this.router,
+      plugins: this.pluginManager.plugins,
+      eventManager: this.eventManager,
+      tokenManager: this.tokenManager,
+      activitySender: this.activitySender,
+      api: this.api,
+      client: this.client,
+      storage: this.storage,
+      log: this.log,
+      getId: () => this.id,
+      getConnectionName: () => this.oauth.defaultConnectionName,
+      apiClientSettings: this.options.apiClientSettings,
+      graphBaseUrl: this.graphBaseUrl,
+    });
+
     if (this.credentials?.clientId) {
       this.entraTokenValidator = middleware.createEntraTokenValidator(
         this.credentials.tenantId || 'common',
@@ -321,10 +354,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     // Determine HTTP server
     const plugins: Array<TPlugin> = this.options.plugins || [];
-    const httpPlugin = plugins.find((p) => {
-      const meta = getMetadata(p);
-      return meta.name === 'http';
-    }) as HttpPlugin | undefined;
+    const httpPlugin = PluginManager.findHttpPlugin(plugins) as HttpPlugin | undefined;
 
     // Error if both httpServerAdapter and http plugin are provided
     if (this.options.httpServerAdapter && httpPlugin) {
@@ -351,7 +381,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     } else {
       server = new HttpServer(this.options.httpServerAdapter ?? new ExpressAdapter(undefined, {
         logger: this.log,
-        onError: (err) => this.onError({ error: err })
+        onError: (err) => this.eventManager.onError({ error: err })
       }), {
         skipAuth: this.options.skipAuth,
         logger: this.log,
@@ -391,21 +421,21 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       name: 'signin.token-exchange',
       type: 'system',
       select: activity => activity.type === 'invoke' && activity.name === 'signin/tokenExchange',
-      callback: ctx => this.onTokenExchange(ctx),
+      callback: ctx => this.oauthHandlers.onTokenExchange(ctx),
     });
 
     this.router.register({
       name: 'signin.verify-state',
       type: 'system',
       select: activity => activity.type === 'invoke' && activity.name === 'signin/verifyState',
-      callback: ctx => this.onVerifyState(ctx),
+      callback: ctx => this.oauthHandlers.onVerifyState(ctx),
     });
 
     this.router.register({
       name: 'signin.failure',
       type: 'system',
       select: activity => activity.type === 'invoke' && activity.name === 'signin/failure',
-      callback: ctx => this.onSignInFailure(ctx),
+      callback: ctx => this.oauthHandlers.onSignInFailure(ctx),
     });
 
     this.event('error', ({ error }) => {
@@ -427,13 +457,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     }
 
     // initialize plugins
-    for (const plugin of this.plugins) {
-      this.inject(plugin);
-
-      if (plugin.onInit) {
-        await plugin.onInit();
-      }
-    }
+    await this.pluginManager.init();
 
     // initialize server
     await this.server.initialize({
@@ -455,18 +479,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       await this.initialize();
 
       // Start plugins
-      for (const plugin of this.plugins) {
-        if (plugin.onStart) {
-          await plugin.onStart({ port: this.port });
-        }
-      }
+      await this.pluginManager.start({ port: this.port });
       this.events.emit('start', this.log);
 
       // Start HTTP server
       await this.server.start(this.port);
     } catch (error: any) {
       await this.stop();
-      this.onError({ error });
+      this.eventManager.onError({ error });
     }
   }
 
@@ -476,16 +496,12 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   async stop() {
     try {
       // Stop plugins
-      for (const plugin of this.plugins) {
-        if (plugin.onStop) {
-          await plugin.onStop();
-        }
-      }
+      await this.pluginManager.stop();
 
       // Stop HTTP server
       await this.server.stop();
     } catch (error: any) {
-      this.onError({ error });
+      this.eventManager.onError({ error });
     }
   }
 
@@ -558,45 +574,119 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param name event to subscribe to
    * @param cb callback to invoke
    */
-  on = on; // eslint-disable-line @typescript-eslint/member-ordering
+  on<Name extends keyof IRoutes>(
+    name: Name,
+    cb: Exclude<IRoutes<PluginAdditionalContext<TPlugin>>[Name], undefined>
+  ) {
+    this.router.on(name, cb);
+    return this;
+  }
 
   /**
    * subscribe to a message event for a specific pattern
    * @param pattern pattern to match against message text
    * @param cb callback to invoke
    */
-  message = message; // eslint-disable-line @typescript-eslint/member-ordering
+  message(
+    pattern: string | RegExp,
+    cb: Exclude<IRoutes<PluginAdditionalContext<TPlugin>>['message'], undefined>
+  ) {
+    this.router.register<'message'>({
+      type: 'user',
+      select: (activity) => {
+        if (activity.type !== 'message') {
+          return false;
+        }
+
+        return new RegExp(pattern).test(activity.text);
+      },
+      callback: cb,
+    });
+
+    return this;
+  }
 
   /**
    * register a middleware
    * @param cb callback to invoke
    */
-  use = use; // eslint-disable-line @typescript-eslint/member-ordering
+  use(
+    cb: RouteHandler<IActivityContext<Activity, PluginAdditionalContext<TPlugin>>, void | InvokeResponse>
+  ) {
+    this.router.use(cb);
+    return this;
+  }
 
   /**
    * subscribe to an event
    * @param name the event to subscribe to
    * @param cb the callback to invoke
    */
-  event = event; // eslint-disable-line @typescript-eslint/member-ordering
+  event<Name extends keyof AppEvents<TPlugin>>(name: Name, cb: EventHandler<AppEvents<TPlugin>[Name]>) {
+    this.events.on(name, cb);
+    return this;
+  }
 
   /**
    * add a plugin
    * @param plugin plugin to add
    */
-  plugin = plugin; // eslint-disable-line @typescript-eslint/member-ordering
+  plugin(plugin: TPlugin) {
+    this.pluginManager.add(plugin);
+    return this;
+  }
 
   /**
    * get a plugin
    */
-  getPlugin = getPlugin; // eslint-disable-line @typescript-eslint/member-ordering
+  getPlugin(name: PluginName): IPlugin | undefined {
+    return this.pluginManager.get(name);
+  }
 
   /**
    * add/update a function that can be called remotely
    * @param name The unique function name
    * @param cb The callback to handle the function
    */
-  function = func; // eslint-disable-line @typescript-eslint/member-ordering
+  function<TData>(
+    name: string,
+    cb: (context: IFunctionContext<TData>) => any | Promise<any>
+  ) {
+    const log = this.log.child('functions').child(name);
+
+    // Create the remote function validator once
+    const validator = this.entraTokenValidator
+      ? new RemoteFunctionValidator(this.entraTokenValidator, log)
+      : null;
+
+    this.server.registerRoute('POST', `/api/functions/${name}`, async ({ body, headers }) => {
+      // Validate JWT token and extract context
+      if (!validator) {
+        log.debug('unauthorized - no token validator configured');
+        return { status: 401, body: 'unauthorized' };
+      }
+
+      const context = await validator.check(headers);
+      if (!context) {
+        return { status: 401, body: 'unauthorized' };
+      }
+
+      const ctx = new FunctionContext<TData>({
+        ...context,
+        log,
+        api: this.api,
+        appGraph: this.graph,
+        data: body as TData,
+        activitySender: this.activitySender,
+        botId: this.id,
+      });
+
+      const data = await cb(ctx);
+      return { status: 200, body: data };
+    });
+
+    return this;
+  }
 
   /**
    * add/update a static tab.
@@ -606,36 +696,24 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param name A unique identifier for the entity which the tab displays.
    * @param path The path to the web `dist` folder.
    */
-  tab = tab; // eslint-disable-line @typescript-eslint/member-ordering
+  tab(name: string, path: string) {
+    this.server.serveStatic(`/tabs/${name}`, path);
+
+    return this;
+  }
 
   /**
    * activity handler called when an inbound activity is received
-   * @param sender the plugin to use for sending activities
    * @param event the received activity event
    */
-  process = $process; // eslint-disable-line @typescript-eslint/member-ordering
-
-  ///
-  /// OAuth
-  ///
-
-  protected onTokenExchange = onTokenExchange; // eslint-disable-line @typescript-eslint/member-ordering
-  protected onVerifyState = onVerifyState; // eslint-disable-line @typescript-eslint/member-ordering
-  protected onSignInFailure = onSignInFailure; // eslint-disable-line @typescript-eslint/member-ordering
-
-  ///
-  /// Events
-  ///
-
-  protected inject = inject; // eslint-disable-line @typescript-eslint/member-ordering
-  protected onError = onError; // eslint-disable-line @typescript-eslint/member-ordering
-  protected onActivitySent = onActivitySent; // eslint-disable-line @typescript-eslint/member-ordering
-  protected onActivityResponse = onActivityResponse; // eslint-disable-line @typescript-eslint/member-ordering
+  process(event: IActivityEvent): Promise<InvokeResponse> {
+    return this.activityProcessor.process(event);
+  }
 
   async onActivity(
     event: IActivityEvent
   ): Promise<InvokeResponse> {
-    this.events.emit('activity', event);
+    this.eventManager.onActivity(event);
     return await this.process(event);
   }
 
@@ -646,19 +724,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected async getBotToken() {
     if (!this.tokenManager) return;
     return await this.tokenManager.getBotToken();
-  }
-
-  protected async getUserToken(
-    channelId: ChannelID,
-    userId: string
-  ) {
-    const res = await this.api.users.token.get({
-      channelId,
-      userId,
-      connectionName: this.oauth.defaultConnectionName,
-    });
-
-    return res.token;
   }
 
   protected async getAppGraphToken(tenantId?: string) {

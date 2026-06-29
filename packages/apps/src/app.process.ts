@@ -1,192 +1,254 @@
-import { Activity, ActivityLike, ConversationReference, InvokeResponse, isInvokeResponse } from '@microsoft/teams.api';
+import {
+  Activity,
+  ActivityLike,
+  ApiClientSettings,
+  ChannelID,
+  ConversationReference,
+  InvokeResponse,
+  isInvokeResponse,
+} from '@microsoft/teams.api';
+import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
 
 import { ApiClient, GraphClient } from './api';
-import { App } from './app';
+import { EventManager } from './app.events';
 import { ActivityContext, IActivityContext } from './contexts';
 import { IActivityEvent } from './events';
-import { IPlugin, StreamCancelledError } from './types';
+import { Router } from './router';
+import { TokenManager } from './token-manager';
+import { IActivitySender, IPlugin, StreamCancelledError } from './types';
+import { PluginAdditionalContext } from './types/app-routing';
 
 /**
- * activity handler called when an inbound activity is received
- * @param event the received activity event
+ * Dependencies the {@link ActivityProcessor} needs to turn an inbound activity
+ * into a response. The owning {@link App} constructs the processor and passes
+ * these in, which is what lets `App` keep these primitives private instead of
+ * exposing them just so a free `this: App`-bound `$process` function could reach
+ * them.
  */
-export async function $process<TPlugin extends IPlugin>(
-  this: App<TPlugin>,
-  event: IActivityEvent
-): Promise<InvokeResponse> {
-  const { token, body } = event;
+export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
+  readonly router: Router<PluginAdditionalContext<TPlugin>>;
+  readonly plugins: ReadonlyArray<TPlugin>;
+  readonly eventManager: EventManager<TPlugin>;
+  readonly tokenManager: TokenManager;
+  readonly activitySender: IActivitySender;
+  readonly api: ApiClient;
+  readonly client: HttpClient;
+  readonly storage: IStorage;
+  readonly log: ILogger;
+  readonly getId: () => string | undefined;
+  readonly getConnectionName: () => string;
+  readonly apiClientSettings?: ApiClientSettings;
+  readonly graphBaseUrl?: string;
+}
 
-  if (!body) {
-    throw new Error('Activity body is required');
-  }
+/**
+ * Encapsulates inbound activity processing: building the activity context,
+ * running the middleware/route chain, wiring streaming + send events, and
+ * producing the {@link InvokeResponse}.
+ *
+ * This replaces the `this: App`-bound `$process` free function. All of its
+ * collaborators are supplied via the constructor so the processor can be
+ * reasoned about (and tested) without reaching into `App` internals.
+ */
+export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
+  constructor(private readonly options: IActivityProcessorOptions<TPlugin>) { }
 
-  // TODO: We currently simply cast the models to Activity,
-  // but we should probably be validating this conversion
-  const activity = body as Activity;
+  /**
+   * activity handler called when an inbound activity is received
+   * @param event the received activity event
+   */
+  async process(event: IActivityEvent): Promise<InvokeResponse> {
+    const { token, body } = event;
 
-  this.log.debug(
-    `activity/${activity.type}${activity.type === 'invoke' ? `/${activity.name}` : ''}`
-  );
+    if (!body) {
+      throw new Error('Activity body is required');
+    }
 
-  let serviceUrl = activity.serviceUrl || token.serviceUrl;
+    // TODO: We currently simply cast the models to Activity,
+    // but we should probably be validating this conversion
+    const activity = body as Activity;
 
-  if (serviceUrl.endsWith('/')) {
-    serviceUrl = serviceUrl.slice(0, serviceUrl.length - 1);
-  }
+    this.options.log.debug(
+      `activity/${activity.type}${activity.type === 'invoke' ? `/${activity.name}` : ''}`
+    );
 
-  let userToken: string | undefined;
+    let serviceUrl = activity.serviceUrl || token.serviceUrl;
 
-  try {
-    userToken = await this.getUserToken(activity.channelId, activity.from.id);
-  } catch (err) {
-    // noop
-  }
+    if (serviceUrl.endsWith('/')) {
+      serviceUrl = serviceUrl.slice(0, serviceUrl.length - 1);
+    }
 
-  const client = this.client.clone();
-  const apiClient = new ApiClient(serviceUrl, this.client.clone({ token: () => this.getBotToken() }), this.options.apiClientSettings);
-  const userGraph = new GraphClient(
-    client.clone({ token: () => userToken }),
-    { baseUrlRoot: this.graphBaseUrl }
-  );
-  const appGraph = new GraphClient(
-    client.clone({ token: () => this.getAppGraphToken(activity.conversation.tenantId ?? 'common') }),
-    { baseUrlRoot: this.graphBaseUrl }
-  );
+    let userToken: string | undefined;
 
-  const ref: ConversationReference = {
-    serviceUrl,
-    activityId: activity.id,
-    bot: activity.recipient,
-    channelId: activity.channelId,
-    conversation: activity.conversation,
-    locale: activity.locale,
-    user: activity.from,
-  };
+    try {
+      userToken = await this.getUserToken(activity.channelId, activity.from.id);
+    } catch (err) {
+      // noop
+    }
 
-  const routes = this.router.select(activity);
+    const client = this.options.client.clone();
+    const apiClient = new ApiClient(
+      serviceUrl,
+      this.options.client.clone({ token: () => this.options.tokenManager.getBotToken() }),
+      this.options.apiClientSettings
+    );
+    const userGraph = new GraphClient(
+      client.clone({ token: () => userToken }),
+      { baseUrlRoot: this.options.graphBaseUrl }
+    );
+    const appGraph = new GraphClient(
+      client.clone({ token: () => this.options.tokenManager.getGraphToken(activity.conversation.tenantId ?? 'common') }),
+      { baseUrlRoot: this.options.graphBaseUrl }
+    );
 
-  // Collect plugin contexts BEFORE creating the activity context
-  let pluginContexts: {} = {};
-  for (let i = this.plugins.length - 1; i > -1; i--) {
-    const plugin = this.plugins[i];
+    const ref: ConversationReference = {
+      serviceUrl,
+      activityId: activity.id,
+      bot: activity.recipient,
+      channelId: activity.channelId,
+      conversation: activity.conversation,
+      locale: activity.locale,
+      user: activity.from,
+    };
 
-    if (plugin.onActivity) {
-      const additionalPluginContext = await plugin.onActivity({
-        ...ref,
-        activity,
-        token,
-      });
+    const routes = this.options.router.select(activity);
 
-      if (additionalPluginContext) {
-        for (const key in additionalPluginContext) {
-          if (key in pluginContexts) {
-            this.log.warn(`Plugin context key "${key}" already exists. Overriding.`);
+    // Collect plugin contexts BEFORE creating the activity context
+    let pluginContexts: {} = {};
+    for (let i = this.options.plugins.length - 1; i > -1; i--) {
+      const plugin = this.options.plugins[i];
+
+      if (plugin.onActivity) {
+        const additionalPluginContext = await plugin.onActivity({
+          ...ref,
+          activity,
+          token,
+        });
+
+        if (additionalPluginContext) {
+          for (const key in additionalPluginContext) {
+            if (key in pluginContexts) {
+              this.options.log.warn(`Plugin context key "${key}" already exists. Overriding.`);
+            }
           }
+          pluginContexts = {
+            ...pluginContexts,
+            ...additionalPluginContext,
+          };
         }
-        pluginContexts = {
-          ...pluginContexts,
-          ...additionalPluginContext,
-        };
       }
     }
-  }
 
-  let i = -1;
-  let data: any = undefined;
+    let i = -1;
+    let data: any = undefined;
 
-  const next = async (ctx?: IActivityContext) => {
-    if (i === routes.length - 1) return data;
-    i++;
+    const next = async (ctx?: IActivityContext) => {
+      if (i === routes.length - 1) return data;
+      i++;
 
-    const mergedContext = ctx || {
-      ...context.toInterface(),
-      ...pluginContexts,
+      const mergedContext = ctx || {
+        ...context.toInterface(),
+        ...pluginContexts,
+      };
+      const res = await routes[i](mergedContext);
+
+      if (res) {
+        data = res;
+      }
+
+      return data;
     };
-    const res = await routes[i](mergedContext);
 
-    if (res) {
-      data = res;
-    }
-
-    return data;
-  };
-
-  const context = new ActivityContext({
-    activity,
-    next,
-    api: apiClient,
-    userGraph,
-    appGraph,
-    appId: this.id || '',
-    log: this.log,
-    userToken: userToken,
-    ref,
-    storage: this.storage,
-    isSignedIn: !!userToken,
-    connectionName: this.oauth.defaultConnectionName,
-    activitySender: this.activitySender,
-    ...pluginContexts
-  });
-
-  const send = context.send.bind(context);
-  context.send = async (activity: ActivityLike, conversationRef?: ConversationReference) => {
-    const res = await send(activity, conversationRef ?? ref);
-
-    this.onActivitySent({
-      ...(conversationRef ?? ref),
-      activity: res,
-    });
-
-    return res;
-  };
-
-  context.stream.events.on('chunk', (activity) => {
-    this.onActivitySent({
-      ...ref,
+    const context = new ActivityContext({
       activity,
+      next,
+      api: apiClient,
+      userGraph,
+      appGraph,
+      appId: this.options.getId() || '',
+      log: this.options.log,
+      userToken: userToken,
+      ref,
+      storage: this.options.storage,
+      isSignedIn: !!userToken,
+      connectionName: this.options.getConnectionName(),
+      activitySender: this.options.activitySender,
+      ...pluginContexts
     });
-  });
 
-  context.stream.events.once('close', (activity) => {
-    this.onActivitySent({
-      ...ref,
-      activity,
+    const send = context.send.bind(context);
+    context.send = async (activity: ActivityLike, conversationRef?: ConversationReference) => {
+      const res = await send(activity, conversationRef ?? ref);
+
+      this.options.eventManager.onActivitySent({
+        ...(conversationRef ?? ref),
+        activity: res,
+      });
+
+      return res;
+    };
+
+    context.stream.events.on('chunk', (activity) => {
+      this.options.eventManager.onActivitySent({
+        ...ref,
+        activity,
+      });
     });
-  });
 
-  let response: InvokeResponse;
-  try {
-    const res = await next();
-
-    await context.stream.close();
-
-    if (isInvokeResponse(res)) {
-      response = res;
-    } else {
-      response = { status: 200, body: res };
-    }
-
-    this.onActivityResponse({
-      ...ref,
-      activity,
-      response: res,
+    context.stream.events.once('close', (activity) => {
+      this.options.eventManager.onActivitySent({
+        ...ref,
+        activity,
+      });
     });
-  } catch (error: any) {
-    if (error instanceof StreamCancelledError || error?.name === 'StreamCancelledError') {
-      this.log.debug('stream canceled, returning 200');
+
+    let response: InvokeResponse;
+    try {
+      const res = await next();
+
       await context.stream.close();
-      response = { status: 200 };
-    } else {
-      response = { status: 500 };
-      this.onError({ error, activity });
+
+      if (isInvokeResponse(res)) {
+        response = res;
+      } else {
+        response = { status: 200, body: res };
+      }
+
+      this.options.eventManager.onActivityResponse({
+        ...ref,
+        activity,
+        response: res,
+      });
+    } catch (error: any) {
+      if (error instanceof StreamCancelledError || error?.name === 'StreamCancelledError') {
+        this.options.log.debug('stream canceled, returning 200');
+        await context.stream.close();
+        response = { status: 200 };
+      } else {
+        response = { status: 500 };
+        this.options.eventManager.onError({ error, activity });
+      }
+
+      this.options.eventManager.onActivityResponse({
+        ...ref,
+        activity,
+        response: response,
+      });
     }
 
-    this.onActivityResponse({
-      ...ref,
-      activity,
-      response: response,
-    });
+    return response;
   }
 
-  return response;
+  /**
+   * fetch the user's token for the given channel/user, if signed in
+   */
+  private async getUserToken(channelId: ChannelID, userId: string) {
+    const res = await this.options.api.users.token.get({
+      channelId,
+      userId,
+      connectionName: this.options.getConnectionName(),
+    });
+
+    return res.token;
+  }
 }

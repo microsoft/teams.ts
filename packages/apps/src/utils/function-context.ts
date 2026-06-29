@@ -1,11 +1,10 @@
 import { ILogger } from '@microsoft/teams.common';
 
-import { App } from '../app';
-import { IFunctionContext } from '../contexts';
-import { IPlugin } from '../types';
+import { ApiClient } from '../api';
+import type { IFunctionContext } from '../contexts/function';
 
-export function getConversationIdResolver<TPlugin extends IPlugin>(
-  app: App<TPlugin>,
+export function getConversationIdResolver(
+  api: ApiClient,
   log: ILogger,
   context: Pick<
     IFunctionContext,
@@ -28,7 +27,7 @@ export function getConversationIdResolver<TPlugin extends IPlugin>(
       // a conversation between the bot and the user. This will either create a new conversation or return
       // a pre-existing one.
       try {
-        const conversation = await app.api.conversations.create({
+        const conversation = await api.conversations.create({
           members: [{ id: userId, role: 'user', name: userName }],
           tenantId: tenantId,
         });
@@ -42,7 +41,7 @@ export function getConversationIdResolver<TPlugin extends IPlugin>(
     } else {
       // Validate that the bot and user are both members of the conversation.
       try {
-        const member = await app.api.conversations
+        const member = await api.conversations
           .members(conversationId)
           .getById(userId);
         state = { id: !member ? undefined : conversationId };
