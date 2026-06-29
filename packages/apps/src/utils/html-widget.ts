@@ -405,12 +405,12 @@ export function validateSecurityPolicy(
   // resourceDomains: <script src>, <link href>, <img src>, <source src>,
   // <audio src>, <video src>, CSS url(), @import
   const resourcePatterns: Array<{ regex: RegExp; source: string }> = [
-    { regex: /<script[^>]+src=["']([^"']+)["']/gi, source: '<script src>' },
-    { regex: /<link[^>]+href=["']([^"']+)["']/gi, source: '<link href>' },
-    { regex: /<img[^>]+src=["']([^"']+)["']/gi, source: '<img src>' },
-    { regex: /<source[^>]+src=["']([^"']+)["']/gi, source: '<source src>' },
-    { regex: /<audio[^>]+src=["']([^"']+)["']/gi, source: '<audio src>' },
-    { regex: /<video[^>]+src=["']([^"']+)["']/gi, source: '<video src>' },
+    { regex: /<script[^>]*?src=["']([^"']+)["']/gi, source: '<script src>' },
+    { regex: /<link[^>]*?href=["']([^"']+)["']/gi, source: '<link href>' },
+    { regex: /<img[^>]*?src=["']([^"']+)["']/gi, source: '<img src>' },
+    { regex: /<source[^>]*?src=["']([^"']+)["']/gi, source: '<source src>' },
+    { regex: /<audio[^>]*?src=["']([^"']+)["']/gi, source: '<audio src>' },
+    { regex: /<video[^>]*?src=["']([^"']+)["']/gi, source: '<video src>' },
     { regex: /url\(\s*["']([^"')]+)["']\s*\)/gi, source: 'CSS url()' },
     { regex: /@import\s+["']([^"']+)["']/gi, source: 'CSS @import' },
   ];
@@ -454,7 +454,7 @@ export function validateSecurityPolicy(
   }
 
   // frameDomains: <iframe src>
-  const iframeRegex = /<iframe[^>]+src=["']([^"']+)["']/gi;
+  const iframeRegex = /<iframe[^>]*?src=["']([^"']+)["']/gi;
   let match;
   while ((match = iframeRegex.exec(html)) !== null) {
     const origin = extractOrigin(match[1]);
@@ -469,7 +469,7 @@ export function validateSecurityPolicy(
   }
 
   // connectDomains: <form action> (form submissions can exfiltrate data)
-  const formRegex = /<form[^>]+action=["']([^"']+)["']/gi;
+  const formRegex = /<form[^>]*?action=["']([^"']+)["']/gi;
   while ((match = formRegex.exec(html)) !== null) {
     const origin = extractOrigin(match[1]);
     if (origin && !isOriginAllowed(origin, policy.connectDomains ?? [])) {
