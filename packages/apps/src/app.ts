@@ -651,6 +651,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   function<TData>(
     name: string,
     cb: (context: IFunctionContext<TData>) => any | Promise<any>
+  ): this;
+  function<TPluginOverride, TData>(
+    name: string,
+    cb: (context: IFunctionContext<TData>) => any | Promise<any>
+  ): this;
+  function<TData>(
+    name: string,
+    cb: (context: IFunctionContext<TData>) => any | Promise<any>
   ) {
     const log = this.log.child('functions').child(name);
 
