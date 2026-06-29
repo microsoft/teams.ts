@@ -1,14 +1,13 @@
 /**
  * HTML Widgets Example Bot
  *
- * This example demonstrates the full HTML widget contract for Teams bots.
- * Commands are annotated to distinguish between:
- *   - [CONTRACT TEST] Tests that verify the contract works end-to-end
- *   - [EXAMPLE] Code patterns useful for customers building widget bots
+ * This example demonstrates the full HTML widget capabilities for Teams bots.
+ * Each command shows a different widget feature that developers can use as
+ * a reference for building their own widget-enabled bots.
  */
 
 import { IMcpUiCallToolResult } from '@microsoft/teams.api';
-import { App, buildHtmlWidgetMarkdown, buildHtmlWidgetMessage } from '@microsoft/teams.apps';
+import { App, buildHtmlWidgetMarkdown, buildHtmlWidgetMessage, validateSecurityPolicy } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
 import { CALLTOOL_WIDGET_HTML } from './widgets/calltool';
@@ -17,6 +16,7 @@ import { HOST_CONTEXT_WIDGET_HTML } from './widgets/host-context';
 import { MESSAGEBACK_WIDGET_HTML } from './widgets/messageback';
 import { MULTI_WIDGET_HTML } from './widgets/multi-tool';
 import { OPEN_LINK_WIDGET_HTML } from './widgets/open-link';
+
 import { SIMPLE_WIDGET_HTML } from './widgets/simple';
 import { UPDATE_CONTEXT_WIDGET_HTML } from './widgets/update-context';
 
@@ -25,7 +25,7 @@ const app = new App({
 });
 
 // ---------------------------------------------------------------------------
-// [EXAMPLE] Simple static widget - no callbacks
+// Simple static widget - no callbacks
 // Shows the minimal code to send an HTML widget.
 // ---------------------------------------------------------------------------
 app.on('message', async ({ send, activity }) => {
@@ -48,16 +48,18 @@ app.on('message', async ({ send, activity }) => {
         },
         permissions: {},
       },
-      { before: 'Here is a simple static widget:' }
+      { before: 'Here is a simple static widget:', after: 'No callbacks needed for static content.' }
     );
     await send(message);
+
+    // Alternative: use buildHtmlWidgetMarkdown for more control over the activity
+    // const markdown = buildHtmlWidgetMarkdown(payload, { before: '...' });
+    // await send({ type: 'message', text: markdown, textFormat: 'extendedmarkdown' });
     return;
   }
 
-  // ---------------------------------------------------------------------------
-  // [EXAMPLE] Widget with onCallTool callback
+  // Widget with onCallTool callback
   // The widget calls tools on the bot and re-renders with the result.
-  // ---------------------------------------------------------------------------
   if (text === '/calltool') {
     const message = buildHtmlWidgetMessage(
       {
@@ -86,10 +88,8 @@ app.on('message', async ({ send, activity }) => {
     return;
   }
 
-  // ---------------------------------------------------------------------------
-  // [CONTRACT TEST] Widget with onMessage (messageBack) callback
+  // Widget with onMessage (messageBack) callback
   // Tests that the widget can send messageBack to the bot.
-  // ---------------------------------------------------------------------------
   if (text === '/messageback') {
     const message = buildHtmlWidgetMessage(
       {
@@ -112,10 +112,8 @@ app.on('message', async ({ send, activity }) => {
     return;
   }
 
-  // ---------------------------------------------------------------------------
-  // [CONTRACT TEST] Widget requesting fullscreen display mode
+  // Widget requesting fullscreen display mode
   // Tests onRequestDisplayMode with "fullscreen" value.
-  // ---------------------------------------------------------------------------
   if (text === '/fullscreen') {
     const message = buildHtmlWidgetMessage(
       {
@@ -138,10 +136,8 @@ app.on('message', async ({ send, activity }) => {
     return;
   }
 
-  // ---------------------------------------------------------------------------
-  // [CONTRACT TEST] Widget with multiple tools
+  // Widget with multiple tools
   // Tests that calltool dispatches correctly by tool name.
-  // ---------------------------------------------------------------------------
   if (text === '/multi') {
     const message = buildHtmlWidgetMessage(
       {
@@ -170,55 +166,7 @@ app.on('message', async ({ send, activity }) => {
     return;
   }
 
-  // ---------------------------------------------------------------------------
-  // [CONTRACT TEST] Raw markdown test - verifies extendedmarkdown format works
-  // Uses buildHtmlWidgetMarkdown directly for more control.
-  // ---------------------------------------------------------------------------
-  if (text === '/raw') {
-    const markdown = buildHtmlWidgetMarkdown(
-      {
-        type: 'widget/mcp-ui',
-        name: 'Raw Test',
-        description: 'Testing raw markdown assembly.',
-        html: SIMPLE_WIDGET_HTML,
-        domain: 'https://teams.microsoft.com',
-      },
-      { before: 'Text before widget.', after: 'Text after widget.' }
-    );
-    await send({ type: 'message', text: markdown, textFormat: 'extendedmarkdown' });
-    return;
-  }
-
-  // ---------------------------------------------------------------------------
-  // [CONTRACT TEST] Widget with permissions requested
-  // Tests that the permissions field is accepted by the host.
-  // ---------------------------------------------------------------------------
-  if (text === '/permissions') {
-    const message = buildHtmlWidgetMessage(
-      {
-        type: 'widget/mcp-ui',
-        name: 'Permissions Widget',
-        description: 'Widget requesting clipboard and geolocation.',
-        html: SIMPLE_WIDGET_HTML,
-        domain: 'https://teams.microsoft.com',
-        securityPolicy: {
-          connectDomains: [],
-          resourceDomains: ['\'self\''],
-          frameDomains: [],
-          baseUriDomains: [],
-        },
-        permissions: {
-          clipboardWrite: {},
-          geolocation: {},
-        },
-      },
-      { before: 'This widget requests permissions (clipboard + geolocation):' }
-    );
-    await send(message);
-    return;
-  }
-
-  // [CONTRACT TEST] ui/open-link method
+  // Widget using ui/open-link
   if (text === '/openlink') {
     const message = buildHtmlWidgetMessage(
       {
@@ -233,7 +181,7 @@ app.on('message', async ({ send, activity }) => {
     return;
   }
 
-  // [CONTRACT TEST] ui/update-model-context method
+  // Widget using ui/update-model-context
   if (text === '/context') {
     const message = buildHtmlWidgetMessage(
       {
@@ -248,7 +196,7 @@ app.on('message', async ({ send, activity }) => {
     return;
   }
 
-  // [CONTRACT TEST] Host context inspector - shows what hostContext is returned
+  // Host context inspector - shows hostContext from ui/initialize
   if (text === '/hostcontext') {
     const message = buildHtmlWidgetMessage(
       {
@@ -263,22 +211,73 @@ app.on('message', async ({ send, activity }) => {
     return;
   }
 
+  // Security policy validation
+  // Demonstrates validateSecurityPolicy catching mismatched references.
+  // This is a dev-time audit tool, not a security boundary - the browser's
+  // CSP enforcement is the real protection. Use debugCspViolations for runtime.
+  if (text === '/validate') {
+    const htmlWithExternalRefs = `
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto">
+      <div style="font-family: Roboto, sans-serif; padding: 16px;">
+        <h2>Validation Demo</h2>
+        <p>This widget was validated before sending.</p>
+      </div>`;
+
+    // Step 1: validate against a restrictive policy to catch issues
+    const strictPolicy = {
+      connectDomains: [],
+      resourceDomains: ['\'self\'', 'data:'],
+      frameDomains: [],
+      baseUriDomains: [],
+    };
+    const warnings = validateSecurityPolicy(htmlWithExternalRefs, strictPolicy);
+
+    // Step 2: fix the policy based on warnings, then build the widget
+    const correctedPolicy = {
+      ...strictPolicy,
+      resourceDomains: [...strictPolicy.resourceDomains, 'https://fonts.googleapis.com'],
+    };
+    const warningText = warnings
+      .map((w) => `- **${w.source}**: \`${w.url}\` not in \`${w.policyField}\``)
+      .join('\n');
+    const markdown = buildHtmlWidgetMarkdown(
+      {
+        type: 'widget/mcp-ui',
+        name: 'Validated Widget',
+        description: 'Widget built after security policy validation.',
+        html: htmlWithExternalRefs,
+        domain: 'https://teams.microsoft.com',
+        securityPolicy: correctedPolicy,
+      },
+      {
+        before:
+          `**Validation found ${warnings.length} warning(s):**\n\n` +
+          warningText + '\n\n' +
+          'Policy was corrected before sending:',
+      }
+    );
+    await send({ type: 'message', text: markdown, textFormat: 'extendedmarkdown' });
+    return;
+  }
+
   // Default: show help
   if (text === '/help' || text === 'help') {
-    await send(
-      '**HTML Widget Test Commands:**\n\n' +
-      '- `/simple` - Static widget (no callbacks)\n' +
-      '- `/calltool` - Widget with onCallTool\n' +
-      '- `/messageback` - Widget with onMessage\n' +
-      '- `/fullscreen` - Widget requesting fullscreen\n' +
-      '- `/multi` - Widget with multiple tools\n' +
-      '- `/raw` - Raw markdown with before/after text\n' +
-      '- `/permissions` - Widget requesting permissions\n' +
-      '- `/openlink` - Widget with ui/open-link\n' +
-      '- `/context` - Widget with ui/update-model-context\n' +
-      '- `/hostcontext` - Inspect hostContext from initialize\n' +
-      '- `/help` - This message'
-    );
+    await send({
+      type: 'message',
+      textFormat: 'markdown',
+      text:
+        '**HTML Widget Test Commands:**\n\n' +
+        '- `/simple` - Static widget (no callbacks)\n' +
+        '- `/calltool` - Widget with onCallTool\n' +
+        '- `/messageback` - Widget with onMessage\n' +
+        '- `/fullscreen` - Widget requesting fullscreen\n' +
+        '- `/multi` - Widget with multiple tools\n' +
+        '- `/openlink` - Widget with ui/open-link\n' +
+        '- `/context` - Widget with ui/update-model-context\n' +
+        '- `/hostcontext` - Inspect hostContext from initialize\n' +
+        '- `/validate` - Security policy validation demo\n' +
+        '- `/help` - This message',
+    });
     return;
   }
 
@@ -292,7 +291,7 @@ app.on('message', async ({ send, activity }) => {
 });
 
 // ---------------------------------------------------------------------------
-// [EXAMPLE] Handle htmlwidget/calltool invoke
+// Handle htmlwidget/calltool invoke
 // This is the typed handler for when a widget calls a tool on the bot.
 // ---------------------------------------------------------------------------
 app.on('widget.callTool', async ({ activity }) => {

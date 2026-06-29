@@ -1,6 +1,6 @@
-import { IHtmlWidgetPayload } from '@microsoft/teams.api';
+import { IHtmlWidgetPayload, IHtmlWidgetSecurityPolicy } from '@microsoft/teams.api';
 
-import { buildHtmlWidgetMarkdown, buildHtmlWidgetMessage, injectWidgetProtocol } from './html-widget';
+import { buildHtmlWidgetMarkdown, buildHtmlWidgetMessage, injectWidgetProtocol, validateSecurityPolicy } from './html-widget';
 
 const MINIMAL_PAYLOAD: IHtmlWidgetPayload = {
   type: 'widget/mcp-ui',
@@ -74,6 +74,41 @@ describe('buildHtmlWidgetMarkdown', () => {
     });
     expect(result.startsWith('Before\n\n```html-widget\n')).toBe(true);
     expect(result.endsWith('\n```\n\nAfter')).toBe(true);
+  });
+
+  it('should forward protocolOptions to injectWidgetProtocol', () => {
+    const result = buildHtmlWidgetMarkdown(MINIMAL_PAYLOAD, {
+      protocolOptions: {
+        notifications: ['tool-result'],
+      },
+    });
+    const jsonLine = result.split('\n').slice(1, -1).join('\n');
+    const parsed = JSON.parse(jsonLine);
+    expect(parsed.html).toContain('ui/notifications/tool-result');
+    expect(parsed.html).toContain('window.onToolResult');
+  });
+
+  it('should forward debugCspViolations through protocolOptions', () => {
+    const result = buildHtmlWidgetMarkdown(MINIMAL_PAYLOAD, {
+      protocolOptions: {
+        debugCspViolations: true,
+      },
+    });
+    const jsonLine = result.split('\n').slice(1, -1).join('\n');
+    const parsed = JSON.parse(jsonLine);
+    expect(parsed.html).toContain('securitypolicyviolation');
+  });
+
+  it('should use payload name even when protocolOptions is provided', () => {
+    const result = buildHtmlWidgetMarkdown(MINIMAL_PAYLOAD, {
+      protocolOptions: {
+        version: '2.0.0',
+      },
+    });
+    const jsonLine = result.split('\n').slice(1, -1).join('\n');
+    const parsed = JSON.parse(jsonLine);
+    expect(parsed.html).toContain('name:\'Test Widget\'');
+    expect(parsed.html).toContain('version:\'2.0.0\'');
   });
 
   it('should serialize a full payload with all fields', () => {
@@ -452,5 +487,237 @@ describe('payload validation', () => {
       domain: 'example.com',
     };
     expect(() => buildHtmlWidgetMarkdown(payload)).toThrow('https://');
+  });
+});
+
+describe('validateSecurityPolicy', () => {
+  const EMPTY_POLICY: IHtmlWidgetSecurityPolicy = {
+    connectDomains: [],
+    resourceDomains: [],
+    frameDomains: [],
+    baseUriDomains: [],
+  };
+
+  it('should return no warnings for HTML with no external references', () => {
+    const html = '<div><p>Hello world</p></div>';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toEqual([]);
+  });
+
+  it('should warn about <script src> not in resourceDomains', () => {
+    const html = '<script src="https://cdn.example.com/lib.js"></script>';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].policyField).toBe('resourceDomains');
+    expect(warnings[0].source).toBe('<script src>');
+    expect(warnings[0].url).toBe('https://cdn.example.com/lib.js');
+  });
+
+  it('should not warn when origin is in resourceDomains', () => {
+    const html = '<script src="https://cdn.example.com/lib.js"></script>';
+    const policy: IHtmlWidgetSecurityPolicy = {
+      ...EMPTY_POLICY,
+      resourceDomains: ['https://cdn.example.com'],
+    };
+    const warnings = validateSecurityPolicy(html, policy);
+    expect(warnings).toEqual([]);
+  });
+
+  it('should warn about <link href> not in resourceDomains', () => {
+    const html = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto">';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].policyField).toBe('resourceDomains');
+    expect(warnings[0].source).toBe('<link href>');
+  });
+
+  it('should warn about <img src> not in resourceDomains', () => {
+    const html = '<img src="https://images.example.com/photo.png">';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].policyField).toBe('resourceDomains');
+    expect(warnings[0].source).toBe('<img src>');
+  });
+
+  it('should warn about fetch() not in connectDomains', () => {
+    const html = '<script>fetch("https://api.example.com/data")</script>';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].policyField).toBe('connectDomains');
+    expect(warnings[0].source).toBe('fetch()');
+  });
+
+  it('should not warn when fetch origin is in connectDomains', () => {
+    const html = '<script>fetch("https://api.example.com/data")</script>';
+    const policy: IHtmlWidgetSecurityPolicy = {
+      ...EMPTY_POLICY,
+      connectDomains: ['https://api.example.com'],
+    };
+    const warnings = validateSecurityPolicy(html, policy);
+    expect(warnings).toEqual([]);
+  });
+
+  it('should warn about XMLHttpRequest.open() not in connectDomains', () => {
+    const html = '<script>xhr.open("GET", "https://api.example.com/data")</script>';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].policyField).toBe('connectDomains');
+    expect(warnings[0].source).toBe('XMLHttpRequest.open()');
+  });
+
+  it('should warn about new WebSocket() not in connectDomains', () => {
+    const html = '<script>new WebSocket("wss://ws.example.com/stream")</script>';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].policyField).toBe('connectDomains');
+  });
+
+  it('should warn about <iframe src> not in frameDomains', () => {
+    const html = '<iframe src="https://embed.youtube.com/video123"></iframe>';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].policyField).toBe('frameDomains');
+    expect(warnings[0].source).toBe('<iframe src>');
+  });
+
+  it('should not warn when iframe origin is in frameDomains', () => {
+    const html = '<iframe src="https://embed.youtube.com/video123"></iframe>';
+    const policy: IHtmlWidgetSecurityPolicy = {
+      ...EMPTY_POLICY,
+      frameDomains: ['https://embed.youtube.com'],
+    };
+    const warnings = validateSecurityPolicy(html, policy);
+    expect(warnings).toEqual([]);
+  });
+
+  it('should warn about CSS url() not in resourceDomains', () => {
+    const html = '<style>body { background-image: url("https://images.example.com/bg.png"); }</style>';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].policyField).toBe('resourceDomains');
+    expect(warnings[0].source).toBe('CSS url()');
+  });
+
+  it('should warn about CSS @import not in resourceDomains', () => {
+    const html = '<style>@import "https://fonts.googleapis.com/css2?family=Roboto";</style>';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].policyField).toBe('resourceDomains');
+    expect(warnings[0].source).toBe('CSS @import');
+  });
+
+  it('should warn about <form action> not in connectDomains', () => {
+    const html = '<form action="https://api.example.com/submit"><input type="text"></form>';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].policyField).toBe('connectDomains');
+    expect(warnings[0].source).toBe('<form action>');
+  });
+
+  it('should not warn when form action origin is in connectDomains', () => {
+    const html = '<form action="https://api.example.com/submit"><input type="text"></form>';
+    const policy: IHtmlWidgetSecurityPolicy = {
+      ...EMPTY_POLICY,
+      connectDomains: ['https://api.example.com'],
+    };
+    const warnings = validateSecurityPolicy(html, policy);
+    expect(warnings).toEqual([]);
+  });
+
+  it('should warn about new EventSource() not in connectDomains', () => {
+    const html = '<script>new EventSource("https://sse.example.com/events")</script>';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].policyField).toBe('connectDomains');
+    expect(warnings[0].source).toBe('new EventSource()');
+  });
+
+  it('should warn about <audio src> not in resourceDomains', () => {
+    const html = '<audio src="https://media.example.com/song.mp3"></audio>';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].policyField).toBe('resourceDomains');
+    expect(warnings[0].source).toBe('<audio src>');
+  });
+
+  it('should warn about <video src> not in resourceDomains', () => {
+    const html = '<video src="https://media.example.com/clip.mp4"></video>';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].policyField).toBe('resourceDomains');
+    expect(warnings[0].source).toBe('<video src>');
+  });
+
+  it('should ignore relative URLs', () => {
+    const html = '<img src="./logo.png"><script src="/app.js"></script>';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toEqual([]);
+  });
+
+  it('should ignore data: URIs', () => {
+    const html = '<img src="data:image/png;base64,abc123">';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toEqual([]);
+  });
+
+  it('should detect multiple violations across different policy fields', () => {
+    const html = [
+      '<script src="https://cdn.example.com/lib.js"></script>',
+      '<script>fetch("https://api.example.com/data")</script>',
+      '<iframe src="https://embed.example.com/widget"></iframe>',
+    ].join('');
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toHaveLength(3);
+    expect(warnings.map((w) => w.policyField).sort()).toEqual([
+      'connectDomains',
+      'frameDomains',
+      'resourceDomains',
+    ]);
+  });
+
+  it('should handle wildcard * in policy', () => {
+    const html = '<script src="https://any-cdn.com/lib.js"></script>';
+    const policy: IHtmlWidgetSecurityPolicy = {
+      ...EMPTY_POLICY,
+      resourceDomains: ['*'],
+    };
+    const warnings = validateSecurityPolicy(html, policy);
+    expect(warnings).toEqual([]);
+  });
+
+  it('should handle protocol-relative URLs', () => {
+    const html = '<script src="//cdn.example.com/lib.js"></script>';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].policyField).toBe('resourceDomains');
+  });
+
+  it('should handle undefined policy fields gracefully', () => {
+    const html = '<script src="https://cdn.example.com/lib.js"></script>';
+    const warnings = validateSecurityPolicy(html, {});
+    expect(warnings).toHaveLength(1);
+  });
+});
+
+describe('debugCspViolations', () => {
+  it('should inject CSP violation listener when enabled', () => {
+    const result = injectWidgetProtocol('<body><p>Hello</p></body>', {
+      debugCspViolations: true,
+    });
+    expect(result).toContain('securitypolicyviolation');
+    expect(result).toContain('blockedURI');
+    expect(result).toContain('violatedDirective');
+  });
+
+  it('should not inject CSP violation listener by default', () => {
+    const result = injectWidgetProtocol('<body><p>Hello</p></body>');
+    expect(result).not.toContain('securitypolicyviolation');
+  });
+
+  it('should not inject CSP violation listener when explicitly false', () => {
+    const result = injectWidgetProtocol('<body><p>Hello</p></body>', {
+      debugCspViolations: false,
+    });
+    expect(result).not.toContain('securitypolicyviolation');
   });
 });

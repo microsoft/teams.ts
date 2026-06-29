@@ -1,4 +1,4 @@
-import { IHtmlWidgetPayload } from '@microsoft/teams.api';
+import { IHtmlWidgetPayload, IHtmlWidgetSecurityPolicy } from '@microsoft/teams.api';
 
 /**
  * The MCP Apps protocol version used for the widget init handshake.
@@ -28,22 +28,6 @@ function validateHtmlWidgetPayload(payload: IHtmlWidgetPayload): void {
 }
 
 /**
- * Known host notification types from the MCP Apps spec (`ui/notifications/*`).
- * These are the suffix portion of the full method name, e.g. 'tool-result'
- * maps to the JSON-RPC method `ui/notifications/tool-result`.
- *
- * @see MCP Apps Protocol (SEP-1865) - Notifications section
- */
-type WidgetNotification =
-  | 'tool-result'
-  | 'tool-input'
-  | 'tool-input-partial'
-  | 'tool-cancelled'
-  | 'host-context-changed'
-  | 'resource-teardown'
-  | (string & {});
-
-/**
  * Options for building an HTML widget markdown string.
  *
  * @experimental This API is in preview and may change in the future.
@@ -59,7 +43,34 @@ export interface IHtmlWidgetMarkdownOptions {
    * Text to include after the widget code block.
    */
   after?: string;
+
+  /**
+   * Options forwarded to {@link injectWidgetProtocol} when the protocol
+   * is auto-injected into the widget HTML. Use this to configure
+   * notifications, display modes, or enable CSP violation debugging
+   * without calling `injectWidgetProtocol` manually.
+   *
+   * The `name` field is always set from the payload's `name` and cannot
+   * be overridden here.
+   */
+  protocolOptions?: Omit<IInjectWidgetProtocolOptions, 'name'>;
 }
+
+/**
+ * Known host notification types from the MCP Apps spec (`ui/notifications/*`).
+ * These are the suffix portion of the full method name, e.g. 'tool-result'
+ * maps to the JSON-RPC method `ui/notifications/tool-result`.
+ *
+ * @see MCP Apps Protocol (SEP-1865) - Notifications section
+ */
+type WidgetNotification =
+  | 'tool-result'
+  | 'tool-input'
+  | 'tool-input-partial'
+  | 'tool-cancelled'
+  | 'host-context-changed'
+  | 'resource-teardown'
+  | (string & {});
 
 /**
  * Options for injecting the MCP Apps protocol into widget HTML.
@@ -116,23 +127,38 @@ export interface IInjectWidgetProtocolOptions {
    * @default [] (no notification hooks injected)
    */
   notifications?: WidgetNotification[];
+
+  /**
+   * When true, injects a `securitypolicyviolation` event listener that logs CSP violations to the console. 
+   * This catches dynamically constructed URLs that static analysis ({@link validateSecurityPolicy}) cannot detect.
+   *
+   * Should only be enabled during development.
+   *
+   * @default false
+   */
+  debugCspViolations?: boolean;
 }
+
+// ---------------------------------------------------------------------------
+// Protocol injection
+// ---------------------------------------------------------------------------
 
 /**
  * Explicit mapping of notification names to their window callback names.
  * Only notifications in this map will have hooks injected.
  *
- * Confirmed in Teams spec: tool-result, tool-input
- * Not yet available in Teams: tool-input-partial, tool-cancelled,
- * host-context-changed, resource-teardown
+ * Supported in the Teams app bridge: tool-result, tool-input
+ * Not supported in the Teams app bridge: tool-input-partial, tool-cancelled
+ * Not yet available in Teams: host-context-changed, resource-teardown
  */
 const NOTIFICATION_CALLBACKS: Record<string, string> = {
-  // Confirmed in Teams
+  // Supported in the Teams app bridge
   'tool-result': 'onToolResult',
   'tool-input': 'onToolInput',
-  // MCP Apps spec (SEP-1865) - not yet available in Teams
+  // MCP Apps spec (SEP-1865) - not supported in the Teams app bridge
   'tool-input-partial': 'onToolInputPartial',
   'tool-cancelled': 'onToolCancelled',
+  // MCP Apps spec (SEP-1865) - not yet available in Teams
   'host-context-changed': 'onHostContextChanged',
   'resource-teardown': 'onResourceTeardown',
 };
@@ -183,7 +209,18 @@ export function injectWidgetProtocol(
       return `if(d.method==='${method}'&&window.${cb}){window.${cb}(d.params);}`;
     }).join('');
 
+  // CSP violation listener (dev-only, opt-in)
+  const cspDebug = options?.debugCspViolations
+    ? 'document.addEventListener(\'securitypolicyviolation\',function(e){'
+      + 'console.warn(\'[widget CSP violation]\',{'
+      + 'blockedURI:e.blockedURI,'
+      + 'violatedDirective:e.violatedDirective,'
+      + 'originalPolicy:e.originalPolicy'
+      + '});});'
+    : '';
+
   // Assemble the protocol script (minified for payload size):
+  // - (opt-in) Listen for CSP violations and log them
   // - Generate a unique request ID for the init handshake
   // - Define notifySize to report body height to the host
   // - Listen for messages: on init response, send initialized + size;
@@ -191,6 +228,7 @@ export function injectWidgetProtocol(
   // - Send ui/initialize request with app info and capabilities
   // - Report size on DOMContentLoaded
   const script = '<script>(function(){'
+    + cspDebug
     + 'var id=\'init-\'+Math.random().toString(36).slice(2);'
     + 'function notifySize(){window.parent.postMessage({jsonrpc:\'2.0\',method:\'ui/notifications/size-changed\',params:{height:document.body.scrollHeight}},\'*\');}'
     + 'window.addEventListener(\'message\',function(e){var d=e.data;if(!d||d.jsonrpc!==\'2.0\')return;'
@@ -240,7 +278,7 @@ export function buildHtmlWidgetMarkdown(
 
   const injectedPayload = {
     ...payload,
-    html: injectWidgetProtocol(payload.html, { name: payload.name }),
+    html: injectWidgetProtocol(payload.html, { name: payload.name, ...options?.protocolOptions }),
     securityPolicy: payload.securityPolicy ?? DEFAULT_SECURITY_POLICY,
   };
   const json = JSON.stringify(injectedPayload);
@@ -278,4 +316,171 @@ export function buildHtmlWidgetMessage(
     text: buildHtmlWidgetMarkdown(payload, options),
     textFormat: 'extendedmarkdown',
   };
+}
+
+/**
+ * A warning produced by {@link validateSecurityPolicy} when the widget HTML
+ * references an external origin that is not present in the declared security
+ * policy.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
+ */
+export interface ISecurityPolicyWarning {
+  /** The URL or origin found in the HTML. */
+  url: string;
+
+  /** The HTML element or API where the reference was found (e.g. `<script>`, `fetch`). */
+  source: string;
+
+  /** The securityPolicy field that should include this origin. */
+  policyField: keyof IHtmlWidgetSecurityPolicy;
+
+  /** A human-readable description of the issue. */
+  message: string;
+}
+
+/**
+ * Extracts the origin (scheme + host) from a URL string.
+ * Returns null if the URL is relative, a data URI, or unparseable.
+ */
+function extractOrigin(url: string): string | null {
+  const trimmed = url.trim();
+  if (!trimmed || trimmed.startsWith('data:') || trimmed.startsWith('#') || trimmed.startsWith('blob:')) {
+    return null;
+  }
+
+  // Relative URLs are fine (they resolve to the iframe origin)
+  if (!trimmed.includes('://') && !trimmed.startsWith('//')) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(trimmed.startsWith('//') ? `https:${trimmed}` : trimmed);
+    return `${parsed.protocol}//${parsed.host}`;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Checks whether an origin is covered by a list of allowed domains/origins.
+ * Handles special CSP values like `'self'` and `*`.
+ */
+function isOriginAllowed(origin: string, allowedDomains: string[]): boolean {
+  if (allowedDomains.includes('*')) return true;
+  return allowedDomains.some((domain) => {
+    const cleaned = domain.replace(/^['"]|['"]$/g, '');
+    if (cleaned === '*') return true;
+    return origin === cleaned || origin.endsWith(`.${cleaned.replace(/^https?:\/\//, '')}`);
+  });
+}
+
+/**
+ * Validates that external references in widget HTML are covered by the
+ * declared security policy. Returns an array of warnings for any
+ * references to origins not present in the appropriate policy field.
+ *
+ * This is a static analysis tool - it cannot catch dynamically constructed
+ * URLs (e.g. `fetch('https://' + domain)`). Use the `debugCspViolations`
+ * option on {@link injectWidgetProtocol} for runtime detection.
+ *
+ * Note: The CSP keyword `'self'` cannot be validated statically because it
+ * resolves to the iframe's parent origin at runtime. References that would
+ * be allowed by `'self'` may still produce warnings.
+ *
+ * @param html - The raw HTML content of the widget.
+ * @param policy - The security policy to validate against.
+ * @returns An array of warnings. Empty array means no issues found.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
+ */
+export function validateSecurityPolicy(
+  html: string,
+  policy: IHtmlWidgetSecurityPolicy
+): ISecurityPolicyWarning[] {
+  const warnings: ISecurityPolicyWarning[] = [];
+
+  // resourceDomains: <script src>, <link href>, <img src>, <source src>,
+  // <audio src>, <video src>, CSS url(), @import
+  const resourcePatterns: Array<{ regex: RegExp; source: string }> = [
+    { regex: /<script[^>]+src=["']([^"']+)["']/gi, source: '<script src>' },
+    { regex: /<link[^>]+href=["']([^"']+)["']/gi, source: '<link href>' },
+    { regex: /<img[^>]+src=["']([^"']+)["']/gi, source: '<img src>' },
+    { regex: /<source[^>]+src=["']([^"']+)["']/gi, source: '<source src>' },
+    { regex: /<audio[^>]+src=["']([^"']+)["']/gi, source: '<audio src>' },
+    { regex: /<video[^>]+src=["']([^"']+)["']/gi, source: '<video src>' },
+    { regex: /url\(\s*["']([^"')]+)["']\s*\)/gi, source: 'CSS url()' },
+    { regex: /@import\s+["']([^"']+)["']/gi, source: 'CSS @import' },
+  ];
+
+  for (const { regex, source } of resourcePatterns) {
+    let match;
+    while ((match = regex.exec(html)) !== null) {
+      const origin = extractOrigin(match[1]);
+      if (origin && !isOriginAllowed(origin, policy.resourceDomains ?? [])) {
+        warnings.push({
+          url: match[1],
+          source,
+          policyField: 'resourceDomains',
+          message: `${source} references "${match[1]}" but origin "${origin}" is not in resourceDomains.`,
+        });
+      }
+    }
+  }
+
+  // connectDomains: fetch(), XMLHttpRequest.open(), new WebSocket(), new EventSource()
+  const connectPatterns: Array<{ regex: RegExp; source: string }> = [
+    { regex: /fetch\(\s*["']([^"']+)["']/gi, source: 'fetch()' },
+    { regex: /\.open\(\s*["'][A-Z]+["']\s*,\s*["']([^"']+)["']/gi, source: 'XMLHttpRequest.open()' },
+    { regex: /new\s+WebSocket\(\s*["']([^"']+)["']/gi, source: 'new WebSocket()' },
+    { regex: /new\s+EventSource\(\s*["']([^"']+)["']/gi, source: 'new EventSource()' },
+  ];
+
+  for (const { regex, source } of connectPatterns) {
+    let match;
+    while ((match = regex.exec(html)) !== null) {
+      const origin = extractOrigin(match[1]);
+      if (origin && !isOriginAllowed(origin, policy.connectDomains ?? [])) {
+        warnings.push({
+          url: match[1],
+          source,
+          policyField: 'connectDomains',
+          message: `${source} references "${match[1]}" but origin "${origin}" is not in connectDomains.`,
+        });
+      }
+    }
+  }
+
+  // frameDomains: <iframe src>
+  const iframeRegex = /<iframe[^>]+src=["']([^"']+)["']/gi;
+  let match;
+  while ((match = iframeRegex.exec(html)) !== null) {
+    const origin = extractOrigin(match[1]);
+    if (origin && !isOriginAllowed(origin, policy.frameDomains ?? [])) {
+      warnings.push({
+        url: match[1],
+        source: '<iframe src>',
+        policyField: 'frameDomains',
+        message: `<iframe src> references "${match[1]}" but origin "${origin}" is not in frameDomains.`,
+      });
+    }
+  }
+
+  // connectDomains: <form action> (form submissions can exfiltrate data)
+  const formRegex = /<form[^>]+action=["']([^"']+)["']/gi;
+  while ((match = formRegex.exec(html)) !== null) {
+    const origin = extractOrigin(match[1]);
+    if (origin && !isOriginAllowed(origin, policy.connectDomains ?? [])) {
+      warnings.push({
+        url: match[1],
+        source: '<form action>',
+        policyField: 'connectDomains',
+        message: `<form action> references "${match[1]}" but origin "${origin}" is not in connectDomains.`,
+      });
+    }
+  }
+
+  return warnings;
 }
