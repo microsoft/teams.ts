@@ -776,7 +776,7 @@ describe('options immutability', () => {
 describe('protocol version', () => {
   it('should embed the correct MCP protocol version', () => {
     const result = injectWidgetProtocol('<body></body>');
-    expect(result).toContain("protocolVersion:'2026-01-26'");
+    expect(result).toContain('protocolVersion:\'2026-01-26\'');
   });
 });
 
@@ -804,6 +804,6 @@ describe('unicode in widget name', () => {
     const result = injectWidgetProtocol('<body></body>', {
       name: 'Widget \u2764\uFE0F',
     });
-    expect(result).toContain("name:'Widget \u2764\uFE0F'");
+    expect(result).toContain('name:\'Widget \u2764\uFE0F\'');
   });
 });
