@@ -1,6 +1,6 @@
 import { IHtmlWidgetPayload, IHtmlWidgetSecurityPolicy } from '@microsoft/teams.api';
 
-import { buildHtmlWidgetMarkdown, buildHtmlWidgetMessage, injectWidgetProtocol, validateSecurityPolicy } from './html-widget';
+import { buildHtmlWidgetMarkdown, buildHtmlWidgetMessage, injectWidgetProtocol, validateSecurityPolicy, IHtmlWidgetMarkdownOptions, IInjectWidgetProtocolOptions } from './html-widget';
 
 const MINIMAL_PAYLOAD: IHtmlWidgetPayload = {
   type: 'widget/mcp-ui',
@@ -751,5 +751,59 @@ describe('script injection prevention', () => {
     expect(scriptContent).not.toContain('\n');
     expect(scriptContent).toContain('\\n');
     expect(scriptContent).toContain('\\r');
+  });
+});
+
+describe('options immutability', () => {
+  it('should not mutate protocolOptions passed to buildHtmlWidgetMarkdown', () => {
+    const protocolOpts: IInjectWidgetProtocolOptions = {
+      version: '2.0.0',
+      notifications: ['tool-result'],
+    };
+    const options: IHtmlWidgetMarkdownOptions = { protocolOptions: protocolOpts };
+    const payload: IHtmlWidgetPayload = {
+      type: 'widget/mcp-ui',
+      name: 'MutationTest',
+      html: '<body>hi</body>',
+      domain: 'https://example.com',
+    };
+    buildHtmlWidgetMarkdown(payload, options);
+    // The original protocolOptions.name should remain unchanged
+    expect(protocolOpts.name).toBeUndefined();
+  });
+});
+
+describe('protocol version', () => {
+  it('should embed the correct MCP protocol version', () => {
+    const result = injectWidgetProtocol('<body></body>');
+    expect(result).toContain("protocolVersion:'2026-01-26'");
+  });
+});
+
+describe('subdomain matching in security policy', () => {
+  it('should allow subdomain when parent domain is in policy', () => {
+    const html = '<script src="https://cdn.example.com/lib.js"></script>';
+    const warnings = validateSecurityPolicy(html, {
+      resourceDomains: ['https://example.com'],
+    });
+    // cdn.example.com is a subdomain of example.com - should be allowed
+    expect(warnings.length).toBe(0);
+  });
+
+  it('should not allow unrelated domain that shares a suffix', () => {
+    const html = '<script src="https://notexample.com/lib.js"></script>';
+    const warnings = validateSecurityPolicy(html, {
+      resourceDomains: ['https://example.com'],
+    });
+    expect(warnings.length).toBe(1);
+  });
+});
+
+describe('unicode in widget name', () => {
+  it('should pass unicode characters through correctly', () => {
+    const result = injectWidgetProtocol('<body></body>', {
+      name: 'Widget \u2764\uFE0F',
+    });
+    expect(result).toContain("name:'Widget \u2764\uFE0F'");
   });
 });
