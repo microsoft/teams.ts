@@ -2,17 +2,19 @@
 
 This example bot demonstrates the HTML widget contract for Teams bots using the Teams SDK.
 
-## What it tests
+## What it shows
 
 | Command | Purpose | Widget callbacks |
 |---------|---------|-----------------|
-| `/simple` | Static widget rendering | None |
+| `/simple` | Static widget rendering (before + after markdown) | None |
 | `/calltool` | Widget calling bot tools | `htmlwidget/calltool` invoke |
 | `/messageback` | Widget sending messageBack | `onMessage` |
 | `/fullscreen` | Widget requesting display mode change | `onRequestDisplayMode` (client-side) |
 | `/multi` | Multiple tool dispatch | `htmlwidget/calltool` with different tool names |
-| `/raw` | Direct markdown helper usage | None |
-| `/permissions` | Widget requesting permissions | None (host-enforced) |
+| `/openlink` | Widget opening links via host | `ui/open-link` |
+| `/context` | Widget updating model context | `ui/update-model-context` |
+| `/hostcontext` | Inspecting host context from initialize | `ui/initialize` response |
+| `/validate` | Security policy validation demo | None |
 
 ## Architecture
 
@@ -23,13 +25,16 @@ Bot sends message:
 
 Teams client:
   McpWidgetRenderer loads widget HTML in sandboxed iframe
-  @modelcontextprotocol/ext-apps SDK provides callServerTool API
+  MCP Apps protocol provides tools/call via postMessage
 
 Widget calls tool:
-  ext-apps SDK -> postMessage -> McpWidgetRenderer -> htmlwidget/calltool invoke -> Bot
+  postMessage -> McpWidgetRenderer -> htmlwidget/calltool invoke -> Bot
 
-Bot returns:
-  { status: 200, body: { content: [...], structuredContent: {...}, isError: false } }
+Bot returns (invoke response body):
+  {
+    responseType: 'htmlwidget/calltoolresult',
+    callToolResult: { content: [...], structuredContent: {...}, isError: false }
+  }
 ```
 
 ## Running
@@ -59,4 +64,4 @@ The bot-side code (`widget.callTool` handler in `src/index.ts`) is the primary
 test target. It verifies that:
 - The SDK's invoke route alias correctly matches `htmlwidget/calltool`
 - The typed handler receives `{ name, arguments }` in `activity.value`
-- The response body format (`McpUiCallToolResult`) is accepted by the client
+- The response body uses the `IHtmlWidgetCallToolResponse` wrapper format (`{ responseType: 'htmlwidget/calltoolresult', callToolResult: {...} }`)

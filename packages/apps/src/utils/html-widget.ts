@@ -191,8 +191,8 @@ export function injectWidgetProtocol(
     return html;
   }
 
-  const name = options?.name ?? 'widget';
-  const version = options?.version ?? '1.0.0';
+  const name = (options?.name ?? 'widget').replace(/[\\']/g, '\\$&');
+  const version = (options?.version ?? '1.0.0').replace(/[\\']/g, '\\$&');
   const caps = options?.appCapabilities;
   const capsJson = caps?.availableDisplayModes
     ? `{availableDisplayModes:${JSON.stringify(caps.availableDisplayModes)}}`
@@ -402,23 +402,46 @@ export function validateSecurityPolicy(
 ): ISecurityPolicyWarning[] {
   const warnings: ISecurityPolicyWarning[] = [];
 
+  // Helper: find all opening tags by name using indexOf (O(n), no regex backtracking).
+  // Returns the substring of each tag (from '<tagName' to the next '>').
+  function findTags(tagName: string): string[] {
+    const tags: string[] = [];
+    const needle = '<' + tagName;
+    const lower = html.toLowerCase();
+    let pos = 0;
+    while (pos < lower.length) {
+      const start = lower.indexOf(needle, pos);
+      if (start === -1) break;
+      // Ensure tag name is followed by whitespace or '>' (not a prefix of another tag)
+      const afterTag = start + needle.length;
+      if (afterTag < lower.length && lower[afterTag] !== ' ' && lower[afterTag] !== '\t'
+          && lower[afterTag] !== '\n' && lower[afterTag] !== '\r' && lower[afterTag] !== '>'
+          && lower[afterTag] !== '/') {
+        pos = afterTag;
+        continue;
+      }
+      const end = html.indexOf('>', start);
+      if (end === -1) break;
+      tags.push(html.substring(start, end + 1));
+      pos = end + 1;
+    }
+    return tags;
+  }
+
   // resourceDomains: <script src>, <link href>, <img src>, <source src>,
   // <audio src>, <video src>, CSS url(), @import
-  // Two-step extraction avoids polynomial backtracking (CodeQL ReDoS):
-  // Step 1: find opening tags; Step 2: extract attribute from tag content.
-  const tagAttrPatterns: Array<{ tagRegex: RegExp; attrRegex: RegExp; source: string }> = [
-    { tagRegex: /<script\s[^>]*>/gi, attrRegex: /src=["']([^"']+)["']/i, source: '<script src>' },
-    { tagRegex: /<link\s[^>]*>/gi, attrRegex: /href=["']([^"']+)["']/i, source: '<link href>' },
-    { tagRegex: /<img\s[^>]*>/gi, attrRegex: /src=["']([^"']+)["']/i, source: '<img src>' },
-    { tagRegex: /<source\s[^>]*>/gi, attrRegex: /src=["']([^"']+)["']/i, source: '<source src>' },
-    { tagRegex: /<audio\s[^>]*>/gi, attrRegex: /src=["']([^"']+)["']/i, source: '<audio src>' },
-    { tagRegex: /<video\s[^>]*>/gi, attrRegex: /src=["']([^"']+)["']/i, source: '<video src>' },
+  const tagAttrChecks: Array<{ tag: string; attrRegex: RegExp; source: string }> = [
+    { tag: 'script', attrRegex: /src=["']([^"']+)["']/i, source: '<script src>' },
+    { tag: 'link', attrRegex: /href=["']([^"']+)["']/i, source: '<link href>' },
+    { tag: 'img', attrRegex: /src=["']([^"']+)["']/i, source: '<img src>' },
+    { tag: 'source', attrRegex: /src=["']([^"']+)["']/i, source: '<source src>' },
+    { tag: 'audio', attrRegex: /src=["']([^"']+)["']/i, source: '<audio src>' },
+    { tag: 'video', attrRegex: /src=["']([^"']+)["']/i, source: '<video src>' },
   ];
 
-  for (const { tagRegex, attrRegex, source } of tagAttrPatterns) {
-    let tagMatch;
-    while ((tagMatch = tagRegex.exec(html)) !== null) {
-      const attrMatch = tagMatch[0].match(attrRegex);
+  for (const { tag, attrRegex, source } of tagAttrChecks) {
+    for (const tagStr of findTags(tag)) {
+      const attrMatch = tagStr.match(attrRegex);
       if (attrMatch) {
         const origin = extractOrigin(attrMatch[1]);
         if (origin && !isOriginAllowed(origin, policy.resourceDomains ?? [])) {
@@ -433,7 +456,7 @@ export function validateSecurityPolicy(
     }
   }
 
-  // CSS url() and @import (no tag-level backtracking risk)
+  // CSS url() and @import (simple patterns, no tag-level backtracking risk)
   const cssPatterns: Array<{ regex: RegExp; source: string }> = [
     { regex: /url\(\s*["']([^"')]+)["']\s*\)/gi, source: 'CSS url()' },
     { regex: /@import\s+["']([^"']+)["']/gi, source: 'CSS @import' },
@@ -457,7 +480,7 @@ export function validateSecurityPolicy(
   // connectDomains: fetch(), XMLHttpRequest.open(), new WebSocket(), new EventSource()
   const connectPatterns: Array<{ regex: RegExp; source: string }> = [
     { regex: /fetch\(\s*["']([^"']+)["']/gi, source: 'fetch()' },
-    { regex: /\.open\(\s*["'][A-Z]+["']\s*,\s*["']([^"']+)["']/gi, source: 'XMLHttpRequest.open()' },
+    { regex: /\.open\(\s*["'][A-Za-z]+["']\s*,\s*["']([^"']+)["']/gi, source: 'XMLHttpRequest.open()' },
     { regex: /new\s+WebSocket\(\s*["']([^"']+)["']/gi, source: 'new WebSocket()' },
     { regex: /new\s+EventSource\(\s*["']([^"']+)["']/gi, source: 'new EventSource()' },
   ];
@@ -478,11 +501,8 @@ export function validateSecurityPolicy(
   }
 
   // frameDomains: <iframe src>
-  const iframeTagRegex = /<iframe\s[^>]*>/gi;
-  const iframeSrcRegex = /src=["']([^"']+)["']/i;
-  let tagMatch;
-  while ((tagMatch = iframeTagRegex.exec(html)) !== null) {
-    const attrMatch = tagMatch[0].match(iframeSrcRegex);
+  for (const tagStr of findTags('iframe')) {
+    const attrMatch = tagStr.match(/src=["']([^"']+)["']/i);
     if (attrMatch) {
       const origin = extractOrigin(attrMatch[1]);
       if (origin && !isOriginAllowed(origin, policy.frameDomains ?? [])) {
@@ -497,10 +517,8 @@ export function validateSecurityPolicy(
   }
 
   // connectDomains: <form action> (form submissions can exfiltrate data)
-  const formTagRegex = /<form\s[^>]*>/gi;
-  const formActionRegex = /action=["']([^"']+)["']/i;
-  while ((tagMatch = formTagRegex.exec(html)) !== null) {
-    const attrMatch = tagMatch[0].match(formActionRegex);
+  for (const tagStr of findTags('form')) {
+    const attrMatch = tagStr.match(/action=["']([^"']+)["']/i);
     if (attrMatch) {
       const origin = extractOrigin(attrMatch[1]);
       if (origin && !isOriginAllowed(origin, policy.connectDomains ?? [])) {
