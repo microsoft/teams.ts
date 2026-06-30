@@ -29,7 +29,7 @@ describe('getConversationIdResolver', () => {
       .mockResolvedValue({ id: 'user-id' });
     const context = { userId: 'user-id', channelId: 'conv-123' };
     const resolver = getConversationIdResolver(
-      app as any,
+      app.api as any,
       mockLog as any,
       context as any
     );
@@ -46,7 +46,7 @@ describe('getConversationIdResolver', () => {
       .mockRejectedValue(new Error('not found'));
     const context = { userId: 'user-id', channelId: 'conv-123' };
     const resolver = getConversationIdResolver(
-      app as any,
+      app.api as any,
       mockLog as any,
       context as any
     );
@@ -63,7 +63,7 @@ describe('getConversationIdResolver', () => {
     app.api.conversations.getById = jest.fn().mockReturnValue(null);
     const context = { userId: 'user-id', channelId: 'conv-123' };
     const resolver = getConversationIdResolver(
-      app as any,
+      app.api as any,
       mockLog as any,
       context as any
     );
@@ -86,7 +86,7 @@ describe('getConversationIdResolver', () => {
       tenantId: 'tenant-1',
     };
     const resolver = getConversationIdResolver(
-      app as any,
+      app.api as any,
       mockLog as any,
       context as any
     );
@@ -109,7 +109,7 @@ describe('getConversationIdResolver', () => {
       tenantId: 'tenant-1',
     };
     const resolver = getConversationIdResolver(
-      app as any,
+      app.api as any,
       mockLog as any,
       context as any
     );
@@ -128,7 +128,7 @@ describe('getConversationIdResolver', () => {
       .mockResolvedValue({ id: 'user-id' });
     const context = { userId: 'user-id', channelId: 'conv-123' };
     const resolver = getConversationIdResolver(
-      app as any,
+      app.api as any,
       mockLog as any,
       context as any
     );

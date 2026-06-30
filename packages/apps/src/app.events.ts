@@ -1,7 +1,7 @@
-import { EventHandler } from '@microsoft/teams.common';
+import { EventEmitter } from '@microsoft/teams.common';
 
-import { App } from './app';
 import {
+  IActivityEvent,
   IActivityResponseEvent,
   IActivitySentEvent,
   IErrorEvent,
@@ -9,53 +9,49 @@ import {
 import { AppEvents, IPlugin } from './types';
 
 /**
- * subscribe to an event
- * @param name the event to subscribe to
- * @param cb the callback to invoke
+ * Owns the app event emitter and fans inbound/outbound activity events out to
+ * plugins before re-emitting them on the app's public event emitter.
+ *
+ * This used to live as a set of `this: App`-bound free functions; it is now a
+ * collaborator the {@link App} constructs and owns.
  */
-export function event<
-  TPlugin extends IPlugin,
-  Name extends keyof AppEvents<TPlugin>
->(this: App<TPlugin>, name: Name, cb: EventHandler<AppEvents<TPlugin>[Name]>) {
-  this.events.on(name, cb);
-  return this;
-}
+export class EventManager<TPlugin extends IPlugin = IPlugin> {
+  constructor(
+    private readonly events: EventEmitter<AppEvents<TPlugin>>,
+    private readonly plugins: ReadonlyArray<TPlugin>
+  ) { }
 
-export async function onError<TPlugin extends IPlugin>(
-  this: App<TPlugin>,
-  event: IErrorEvent
-) {
-  for (const plugin of this.plugins) {
-    if (plugin.onError) {
-      await plugin.onError(event);
+  async onError(event: IErrorEvent) {
+    for (const plugin of this.plugins) {
+      if (plugin.onError) {
+        await plugin.onError(event);
+      }
     }
+
+    this.events.emit('error', event);
   }
 
-  this.events.emit('error', event);
-}
-
-export async function onActivitySent<TPlugin extends IPlugin>(
-  this: App<TPlugin>,
-  event: IActivitySentEvent
-) {
-  for (const plugin of this.plugins) {
-    if (plugin.onActivitySent) {
-      await plugin.onActivitySent(event);
-    }
+  onActivity(event: IActivityEvent) {
+    this.events.emit('activity', event);
   }
 
-  this.events.emit('activity.sent', event);
-}
-
-export async function onActivityResponse<TPlugin extends IPlugin>(
-  this: App<TPlugin>,
-  event: IActivityResponseEvent
-) {
-  for (const plugin of this.plugins) {
-    if (plugin.onActivityResponse) {
-      await plugin.onActivityResponse(event);
+  async onActivitySent(event: IActivitySentEvent) {
+    for (const plugin of this.plugins) {
+      if (plugin.onActivitySent) {
+        await plugin.onActivitySent(event);
+      }
     }
+
+    this.events.emit('activity.sent', event);
   }
 
-  this.events.emit('activity.response', event);
+  async onActivityResponse(event: IActivityResponseEvent) {
+    for (const plugin of this.plugins) {
+      if (plugin.onActivityResponse) {
+        await plugin.onActivityResponse(event);
+      }
+    }
+
+    this.events.emit('activity.response', event);
+  }
 }
