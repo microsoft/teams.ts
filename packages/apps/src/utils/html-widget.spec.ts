@@ -747,7 +747,7 @@ describe('script injection prevention', () => {
       name: 'line1\nline2\rline3',
     });
     // Should not contain raw newlines inside the script
-    const scriptContent = result.match(/<script>([\s\S]*?)<\/script>/)?.[1] ?? '';
+    const scriptContent = result.match(/<script>([\s\S]*?)<\/script>/i)?.[1] ?? '';
     expect(scriptContent).not.toContain('\n');
     expect(scriptContent).toContain('\\n');
     expect(scriptContent).toContain('\\r');
