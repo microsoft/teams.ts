@@ -144,6 +144,22 @@ export interface IInjectWidgetProtocolOptions {
 // ---------------------------------------------------------------------------
 
 /**
+ * Escapes a string for safe embedding in a single-quoted JS string literal
+ * inside an inline `<script>` tag. Handles:
+ * - Backslash and single-quote (JS string breakout)
+ * - `</` sequence (HTML `</script>` breakout)
+ * - Newlines (JS string literal breakout)
+ */
+function escapeForInlineScript(value: string): string {
+  return value
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/<\//g, '<\\/')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r');
+}
+
+/**
  * Explicit mapping of notification names to their window callback names.
  * Only notifications in this map will have hooks injected.
  *
@@ -191,8 +207,8 @@ export function injectWidgetProtocol(
     return html;
   }
 
-  const name = (options?.name ?? 'widget').replace(/[\\']/g, '\\$&');
-  const version = (options?.version ?? '1.0.0').replace(/[\\']/g, '\\$&');
+  const name = escapeForInlineScript(options?.name ?? 'widget');
+  const version = escapeForInlineScript(options?.version ?? '1.0.0');
   const caps = options?.appCapabilities;
   const capsJson = caps?.availableDisplayModes
     ? `{availableDisplayModes:${JSON.stringify(caps.availableDisplayModes)}}`

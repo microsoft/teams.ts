@@ -721,3 +721,35 @@ describe('debugCspViolations', () => {
     expect(result).not.toContain('securitypolicyviolation');
   });
 });
+
+describe('script injection prevention', () => {
+  it('should escape </script> in widget name to prevent HTML breakout', () => {
+    const result = injectWidgetProtocol('<body></body>', {
+      name: '</script><img src=x onerror=alert(1)>',
+    });
+    // Must not contain a literal </script> from the name
+    // The injected protocol adds one </script> at the end; the name must not add another
+    const scriptTags = result.match(/<\/script>/gi) || [];
+    expect(scriptTags.length).toBe(1); // only the closing tag of the injected script
+    expect(result).toContain('<\\/script>'); // escaped version
+  });
+
+  it('should escape </script> in widget version', () => {
+    const result = injectWidgetProtocol('<body></body>', {
+      version: '</script><svg onload=fetch("/steal")>',
+    });
+    const scriptTags = result.match(/<\/script>/gi) || [];
+    expect(scriptTags.length).toBe(1);
+  });
+
+  it('should escape newlines in name to prevent JS string breakout', () => {
+    const result = injectWidgetProtocol('<body></body>', {
+      name: 'line1\nline2\rline3',
+    });
+    // Should not contain raw newlines inside the script
+    const scriptContent = result.match(/<script>([\s\S]*?)<\/script>/)?.[1] ?? '';
+    expect(scriptContent).not.toContain('\n');
+    expect(scriptContent).toContain('\\n');
+    expect(scriptContent).toContain('\\r');
+  });
+});
