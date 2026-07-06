@@ -42,7 +42,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
     }
 
     try {
-      const token = await api.users.token.exchange({
+      const token = await api.users.exchangeToken({
         channelId: activity.channelId,
         userId: activity.from.id,
         connectionName: activity.value.connectionName,
@@ -95,7 +95,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
         return { status: 404 };
       }
 
-      const token = await api.users.token.get({
+      const token = await api.users.getToken({
         channelId: activity.channelId,
         userId: activity.from.id,
         connectionName: this.getConnectionName(),

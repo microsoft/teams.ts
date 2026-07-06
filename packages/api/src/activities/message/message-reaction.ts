@@ -62,7 +62,7 @@ export class MessageReactionActivity
 
   /**
    * Add a message reaction.
-   * @deprecated Use the api.reactions.add instead.
+   * @deprecated Use api.conversations.addReaction instead.
    */
   addReaction(reaction: MessageReaction) {
     if (!this.reactionsAdded) {
@@ -75,7 +75,7 @@ export class MessageReactionActivity
 
   /**
    * Remove a message reaction.
-   * @deprecated Use the api.reactions.delete instead.
+   * @deprecated Use api.conversations.deleteReaction instead.
    */
   removeReaction(reaction: MessageReaction) {
     if (!this.reactionsRemoved) {

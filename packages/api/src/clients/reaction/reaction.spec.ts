@@ -1,5 +1,7 @@
 import { Client } from '@microsoft/teams.common';
 
+import { Client as ApiClient } from '../index';
+
 import { ReactionClient } from './reaction';
 
 describe('ReactionClient', () => {
@@ -69,5 +71,24 @@ describe('ReactionClient', () => {
     const spy = jest.spyOn(client.http, 'delete').mockResolvedValueOnce({});
     await client.delete('conv+1/test=', 'act+1/test=', 'heart');
     expect(spy).toHaveBeenCalledWith('/v3/conversations/conv%2B1%2Ftest%3D/activities/act%2B1%2Ftest%3D/reactions/heart');
+  });
+});
+
+// The reaction verbs now live on `ConversationClient`; the deprecated top-level
+// `client.reactions` accessor (the old chained path) is still supported until
+// officially removed.
+describe('client.reactions (deprecated accessor)', () => {
+  it('add should PUT a reaction', async () => {
+    const client = new ApiClient('');
+    const spy = jest.spyOn(client.http, 'put').mockResolvedValueOnce({});
+    await client.reactions.add('conv1', 'act1', 'like');
+    expect(spy).toHaveBeenCalledWith('/v3/conversations/conv1/activities/act1/reactions/like');
+  });
+
+  it('delete should DELETE a reaction', async () => {
+    const client = new ApiClient('');
+    const spy = jest.spyOn(client.http, 'delete').mockResolvedValueOnce({});
+    await client.reactions.delete('conv1', 'act1', 'like');
+    expect(spy).toHaveBeenCalledWith('/v3/conversations/conv1/activities/act1/reactions/like');
   });
 });
