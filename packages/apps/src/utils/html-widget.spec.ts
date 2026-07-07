@@ -807,3 +807,19 @@ describe('unicode in widget name', () => {
     expect(result).toContain('name:\'Widget \u2764\uFE0F\'');
   });
 });
+describe('snapshot: full injected script', () => {
+  it('should match the expected protocol script output', () => {
+    const result = injectWidgetProtocol('<body><h1>Hello</h1></body>', {
+      name: 'My Widget',
+      version: '2.0.0',
+      appCapabilities: { availableDisplayModes: ['inline', 'fullscreen'] },
+      notifications: ['tool-result', 'tool-input'],
+      debugCspViolations: true,
+    });
+
+    // Extract just the injected <script> block
+    const scriptMatch = result.match(/<script>([\s\S]*?)<\/script>/);
+    expect(scriptMatch).not.toBeNull();
+    expect(scriptMatch![1]).toMatchSnapshot();
+  });
+});

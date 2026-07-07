@@ -14,15 +14,15 @@ const MCP_PROTOCOL_VERSION = '2026-01-26';
  * Diagnostic: ExperimentalTeamsHtmlWidget
  */
 function validateHtmlWidgetPayload(payload: IHtmlWidgetPayload): void {
-  if (!payload.name?.trim()) {
+  if (!payload.name.trim()) {
     throw new Error('HTML widget payload requires a non-empty "name" field.');
   }
 
-  if (!payload.html?.trim()) {
+  if (!payload.html.trim()) {
     throw new Error('HTML widget payload requires a non-empty "html" field.');
   }
 
-  if (!payload.domain?.trim() || !payload.domain.startsWith('https://')) {
+  if (!payload.domain.trim() || !payload.domain.startsWith('https://')) {
     throw new Error('HTML widget payload requires "domain" to be a valid URL starting with "https://".');
   }
 }

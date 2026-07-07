@@ -37,22 +37,22 @@ export interface IHtmlWidgetPermissions {
   /**
    * Request camera access.
    */
-  camera?: unknown;
+  camera?: Record<string, never>;
 
   /**
    * Request microphone access.
    */
-  microphone?: unknown;
+  microphone?: Record<string, never>;
 
   /**
    * Request geolocation access.
    */
-  geolocation?: unknown;
+  geolocation?: Record<string, never>;
 
   /**
    * Request clipboard write access.
    */
-  clipboardWrite?: unknown;
+  clipboardWrite?: Record<string, never>;
 }
 
 /**
@@ -88,6 +88,9 @@ export interface IHtmlWidgetPayload {
    * Must be a valid domain URL (e.g. 'https://example.com'). The domain
    * does not need to resolve or serve content, but must be non-empty.
    * This value is available to the rendering MCP App as informational context.
+   *
+   * Note: This is informational metadata, not a verified identity claim.
+   * The platform does not authenticate this value.
    */
   domain: string;
 
