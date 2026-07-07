@@ -230,7 +230,8 @@ describe('TokenManager', () => {
 
       expect(mockTokenProvider).toHaveBeenCalledWith(
         'https://api.botframework.com/.default',
-        'test-tenant-id'
+        'test-tenant-id',
+        undefined
       );
       expect(token).not.toBeNull();
       expect(token?.toString()).toBe('mock-provider-token');
@@ -250,7 +251,8 @@ describe('TokenManager', () => {
 
       expect(mockTokenProvider).toHaveBeenCalledWith(
         'https://graph.microsoft.com/.default',
-        'custom-tenant'
+        'custom-tenant',
+        undefined
       );
       expect(token).not.toBeNull();
       expect(token?.toString()).toBe('mock-graph-provider-token');
@@ -495,6 +497,165 @@ describe('TokenManager', () => {
 
         await tokenManager.getGraphToken('other-tenant-id');
         expect(ConfidentialClientApplication).toHaveBeenCalledTimes(2);
+      });
+    });
+  });
+
+  describe('getAgenticToken', () => {
+    const mockAgenticIdentity = {
+      agenticAppId: 'agentic-app-id',
+      agenticUserId: 'agentic-user-id',
+      tenantId: 'agentic-tenant-id',
+    };
+
+    it('should return null when no credentials are configured', async () => {
+      const tokenManager = new TokenManager({}, logger);
+      const token = await tokenManager.getAgenticToken('some-scope', mockAgenticIdentity);
+      expect(token).toBeNull();
+    });
+
+    it('should throw when tenantId cannot be resolved', async () => {
+      const tokenManager = new TokenManager({ clientId: 'id', clientSecret: 'secret' }, logger);
+      await expect(
+        tokenManager.getAgenticToken('scope', { agenticAppId: 'app', agenticUserId: 'user' })
+      ).rejects.toThrow('tenantId is required to get an agentic token');
+    });
+
+    it('should use token provider when TokenCredentials are configured', async () => {
+      const mockTokenProvider = jest.fn().mockResolvedValue('mock-agentic-provider-token');
+      const tokenManager = new TokenManager({
+        clientId: 'test-client-id',
+        token: mockTokenProvider,
+        tenantId: 'test-tenant-id'
+      }, logger);
+
+      const token = await tokenManager.getAgenticToken('target-scope', mockAgenticIdentity);
+
+      expect(mockTokenProvider).toHaveBeenCalledWith(
+        'target-scope',
+        'agentic-tenant-id',
+        { agenticIdentity: mockAgenticIdentity }
+      );
+      expect(token?.toString()).toBe('mock-agentic-provider-token');
+    });
+
+    it('should throw when credentials are not ClientCredentials or TokenCredentials', async () => {
+      const tokenManager = new TokenManager({
+        clientId: 'test-client-id',
+        tenantId: 'test-tenant-id',
+      }, logger);
+
+      await expect(
+        tokenManager.getAgenticToken('scope', mockAgenticIdentity)
+      ).rejects.toThrow('Agentic tokens require ClientCredentials');
+    });
+
+    describe('3-step token exchange with ClientCredentials', () => {
+      let mockAcquireByUserFederated: jest.Mock;
+
+      beforeEach(() => {
+        mockAcquireByUserFederated = jest.fn();
+        (ConfidentialClientApplication as jest.MockedClass<typeof ConfidentialClientApplication>).mockImplementation(() => ({
+          acquireTokenByClientCredential: mockAcquireTokenByClientCredential,
+          acquireTokenByUserFederatedIdentityCredential: mockAcquireByUserFederated,
+        } as unknown as ConfidentialClientApplication));
+      });
+
+      it('should perform 3-step exchange and return final token', async () => {
+        // Call order: step 2 (t2Client.acquireTokenByClientCredential), then t1ForStep3 (base client.acquireTokenByClientCredential)
+        mockAcquireTokenByClientCredential
+          .mockResolvedValueOnce(createMockAuthResult('t2-token'))  // step 2
+          .mockResolvedValueOnce(createMockAuthResult('t1-for-step3'));  // t1ForStep3
+
+        mockAcquireByUserFederated.mockResolvedValue(createMockAuthResult('t3-final-token'));
+
+        const tokenManager = new TokenManager(mockOptions, logger);
+        const token = await tokenManager.getAgenticToken('target-scope', mockAgenticIdentity);
+
+        expect(token?.toString()).toBe('t3-final-token');
+
+        // Verify step 3 call
+        expect(mockAcquireByUserFederated).toHaveBeenCalledWith({
+          scopes: ['target-scope'],
+          assertion: 't2-token',
+          userObjectId: 'agentic-user-id',
+          clientAssertion: 't1-for-step3',
+        });
+      });
+
+      it('should throw when step 1 returns null', async () => {
+        mockAcquireTokenByClientCredential.mockResolvedValue(null);
+
+        const tokenManager = new TokenManager(mockOptions, logger);
+
+        await expect(
+          tokenManager.getAgenticToken('scope', mockAgenticIdentity)
+        ).rejects.toThrow('Agent token exchange step');
+      });
+
+      it('should throw when step 2 returns null', async () => {
+        mockAcquireTokenByClientCredential.mockResolvedValueOnce(null);
+
+        const tokenManager = new TokenManager(mockOptions, logger);
+
+        await expect(
+          tokenManager.getAgenticToken('scope', mockAgenticIdentity)
+        ).rejects.toThrow('Agent token exchange step 2 failed');
+      });
+
+      it('should throw when step 3 returns null', async () => {
+        mockAcquireTokenByClientCredential
+          .mockResolvedValueOnce(createMockAuthResult('t2-token'))
+          .mockResolvedValueOnce(createMockAuthResult('t1-for-step3'));
+
+        mockAcquireByUserFederated.mockResolvedValue(null);
+
+        const tokenManager = new TokenManager(mockOptions, logger);
+
+        await expect(
+          tokenManager.getAgenticToken('scope', mockAgenticIdentity)
+        ).rejects.toThrow('Agent token exchange step 3 failed');
+      });
+
+      it('should use agenticIdentity.tenantId over credentials.tenantId', async () => {
+        mockAcquireTokenByClientCredential
+          .mockResolvedValueOnce(createMockAuthResult('t2'))
+          .mockResolvedValueOnce(createMockAuthResult('t1-step3'));
+        mockAcquireByUserFederated.mockResolvedValue(createMockAuthResult('t3'));
+
+        const tokenManager = new TokenManager(mockOptions, logger);
+        await tokenManager.getAgenticToken('scope', mockAgenticIdentity);
+
+        // The first ConfidentialClientApplication is the base client for T1 — uses agenticIdentity.tenantId
+        expect(ConfidentialClientApplication).toHaveBeenCalledWith(
+          expect.objectContaining({
+            auth: expect.objectContaining({
+              authority: 'https://login.microsoftonline.com/agentic-tenant-id'
+            })
+          })
+        );
+      });
+
+      it('should cache agent identity client and use fresh T1 assertion each call', async () => {
+        mockAcquireTokenByClientCredential
+          .mockResolvedValueOnce(createMockAuthResult('t2-first'))
+          .mockResolvedValueOnce(createMockAuthResult('t1-first-step3'))
+          .mockResolvedValueOnce(createMockAuthResult('t2-second'))
+          .mockResolvedValueOnce(createMockAuthResult('t1-second-step3'));
+        mockAcquireByUserFederated
+          .mockResolvedValueOnce(createMockAuthResult('t3-first'))
+          .mockResolvedValueOnce(createMockAuthResult('t3-second'));
+
+        const tokenManager = new TokenManager(mockOptions, logger);
+
+        await tokenManager.getAgenticToken('scope', mockAgenticIdentity);
+        const clientCountAfterFirst = (ConfidentialClientApplication as jest.Mock).mock.calls.length;
+
+        await tokenManager.getAgenticToken('scope', mockAgenticIdentity);
+        const clientCountAfterSecond = (ConfidentialClientApplication as jest.Mock).mock.calls.length;
+
+        // Agent identity client should be cached (same key) — only 1 new client for the second call (base client is also cached)
+        expect(clientCountAfterSecond).toBe(clientCountAfterFirst);
       });
     });
   });
