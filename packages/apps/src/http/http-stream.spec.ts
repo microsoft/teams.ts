@@ -35,13 +35,13 @@ describe('HttpStream', () => {
   function mockCreate(successAfter = 0) {
     let calls = 0;
     client.conversations.createActivity.mockImplementation(
-      async (_activity: any) => {
+      async (_conversationId: any, activity: any) => {
         calls++;
         if (calls <= successAfter) {
           throw new Error('timeout');
         }
 
-        return { _activity, id: `activity-${calls}` };
+        return { ...activity, id: `activity-${calls}` };
       }
     );
     return () => calls;
@@ -216,10 +216,10 @@ describe('HttpStream', () => {
       config: {} as any,
     });
 
-    client.conversations.createActivity.mockImplementation(async (_activity: any) => {
+    client.conversations.createActivity.mockImplementation(async (_conversationId: any, activity: any) => {
       callCount++;
       if (callCount === 1) {
-        return { _activity, id: 'activity-1' };
+        return { ...activity, id: 'activity-1' };
       }
       throw axiosError;
     });
