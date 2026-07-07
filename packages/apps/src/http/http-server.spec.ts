@@ -1,7 +1,7 @@
 import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from './adapter';
 import { HttpServer } from './http-server';
 
-jest.mock('../middleware/auth/service-token-validator');
+jest.mock('../middleware/auth/inbound-activity-token-validator');
 
 class MockAdapter implements IHttpServerAdapter {
   routes: Array<{ method: HttpMethod; path: string; handler: HttpRouteHandler }> = [];
