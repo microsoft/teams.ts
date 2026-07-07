@@ -1,7 +1,9 @@
 import {
   Activity,
   ActivityLike,
+  AgenticIdentity,
   ApiClientSettings,
+  Account,
   ChannelID,
   ConversationReference,
   InvokeResponse,
@@ -9,14 +11,28 @@ import {
 } from '@microsoft/teams.api';
 import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
 
+import { ActivitySender } from './activity-sender';
 import { ApiClient, GraphClient } from './api';
 import { EventManager } from './app.events';
+import { AppAuthProvider } from './auth-provider';
 import { ActivityContext, IActivityContext } from './contexts';
 import { IActivityEvent } from './events';
 import { Router } from './router';
 import { TokenManager } from './token-manager';
 import { IActivitySender, IPlugin, StreamCancelledError } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
+
+function getAgenticIdentity(account?: Account): AgenticIdentity | undefined {
+  if (!account?.agenticAppId || !account.agenticUserId) {
+    return undefined;
+  }
+  return {
+    agenticAppId: account.agenticAppId,
+    agenticUserId: account.agenticUserId,
+    tenantId: account.tenantId,
+    agenticAppBlueprintId: account.agenticAppBlueprintId,
+  };
+}
 
 /**
  * Dependencies the {@link ActivityProcessor} needs to turn an inbound activity
@@ -39,6 +55,8 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly getConnectionName: () => string;
   readonly apiClientSettings?: ApiClientSettings;
   readonly graphBaseUrl?: string;
+  readonly authProvider: AppAuthProvider;
+  readonly cloud: import('@microsoft/teams.api').CloudEnvironment;
 }
 
 /**
@@ -87,10 +105,16 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
     }
 
     const client = this.options.client.clone();
+    const agenticIdentity = getAgenticIdentity(activity.recipient);
     const apiClient = new ApiClient(
       serviceUrl,
-      this.options.client.clone({ token: () => this.options.tokenManager.getBotToken() }),
-      this.options.apiClientSettings
+      this.options.client.clone(),
+      {
+        ...this.options.apiClientSettings,
+        cloud: this.options.cloud,
+        authProvider: this.options.authProvider,
+        agenticIdentity,
+      } as Partial<ApiClientSettings>
     );
     const userGraph = new GraphClient(
       client.clone({ token: () => userToken }),
@@ -159,6 +183,8 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       return data;
     };
 
+    const activitySender = new ActivitySender(apiClient, this.options.log);
+
     const context = new ActivityContext({
       activity,
       next,
@@ -172,7 +198,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       storage: this.options.storage,
       isSignedIn: !!userToken,
       connectionName: this.options.getConnectionName(),
-      activitySender: this.options.activitySender,
+      activitySender,
       ...pluginContexts
     });
 

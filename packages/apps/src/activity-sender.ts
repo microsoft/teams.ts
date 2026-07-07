@@ -1,5 +1,11 @@
-import { ActivityParams, Client, ConversationReference, SentActivity } from '@microsoft/teams.api';
-import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
+import {
+  ActivityParams,
+  Client,
+  ConversationReference,
+  RequestOptions,
+  SentActivity,
+} from '@microsoft/teams.api';
+import { ILogger } from '@microsoft/teams.common';
 
 import { HttpStream } from './http/http-stream';
 import { IStreamer, IActivitySender } from './types';
@@ -10,14 +16,11 @@ import { IStreamer, IActivitySender } from './types';
  */
 export class ActivitySender implements IActivitySender {
   constructor(
-    private client: HttpClient,
-    private logger: ILogger
+    private api: Client,
+    private logger: ILogger,
   ) { }
 
-  async send(activity: ActivityParams, ref: ConversationReference): Promise<SentActivity> {
-    // Create API client for this conversation's service URL
-    const api = new Client(ref.serviceUrl, this.client);
-
+  async send(activity: ActivityParams, ref: ConversationReference, options?: RequestOptions): Promise<SentActivity> {
     // Merge activity with conversation reference
     activity = {
       ...activity,
@@ -32,23 +35,27 @@ export class ActivitySender implements IActivitySender {
       throw new Error('Targeted messages are not supported in 1:1 (personal) chats.');
     }
 
+    // Build options with ref's serviceUrl override
+    const reqOptions: RequestOptions = {
+      ...options,
+      serviceUrl: ref.serviceUrl,
+    };
+
     // Decide create vs update, with targeted variants
     if (activity.id) {
       const res = isTargeted
-        ? await api.conversations.activities(ref.conversation.id).updateTargeted(activity.id, activity)
-        : await api.conversations.activities(ref.conversation.id).update(activity.id, activity);
+        ? await this.api.conversations.activities(ref.conversation.id).updateTargeted(activity.id, activity, reqOptions)
+        : await this.api.conversations.activities(ref.conversation.id).update(activity.id, activity, reqOptions);
       return { ...activity, ...res };
     }
 
     const res = isTargeted
-      ? await api.conversations.activities(ref.conversation.id).createTargeted(activity)
-      : await api.conversations.activities(ref.conversation.id).create(activity);
+      ? await this.api.conversations.activities(ref.conversation.id).createTargeted(activity, reqOptions)
+      : await this.api.conversations.activities(ref.conversation.id).create(activity, reqOptions);
     return { ...activity, ...res };
   }
 
   createStream(ref: ConversationReference): IStreamer {
-    // Create API client for this conversation's service URL
-    const api = new Client(ref.serviceUrl, this.client);
-    return new HttpStream(api, ref, this.logger);
+    return new HttpStream(this.api, ref, this.logger);
   }
 }

@@ -279,7 +279,8 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       }
     }
 
-    return await this.activitySender.send(params, conversationRef ?? this.ref);
+    const ref = conversationRef ?? this.ref;
+    return this.activitySender.send(params, ref);
   }
 
   /**

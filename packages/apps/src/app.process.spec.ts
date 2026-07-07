@@ -1,5 +1,6 @@
 import { IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse } from '@microsoft/teams.api';
 
+import { ActivitySender } from './activity-sender';
 import { App } from './app';
 import { IActivityResponseEvent, IActivitySentEvent, IErrorEvent } from './events';
 import { IActivityEvent } from './events/activity';
@@ -24,6 +25,7 @@ describe('App', () => {
 
   afterEach(() => {
     app.stop();
+    jest.restoreAllMocks();
   });
 
   describe('process', () => {
@@ -153,10 +155,9 @@ describe('App', () => {
 
       // Track what serviceUrl is used when sending
       let capturedServiceUrl: string | undefined;
-      const originalSend = app['activitySender'].send.bind(app['activitySender']);
-      jest.spyOn(app['activitySender'], 'send').mockImplementation((activity, ref) => {
+      jest.spyOn(ActivitySender.prototype, 'send').mockImplementation(async (activity, ref) => {
         capturedServiceUrl = ref.serviceUrl;
-        return originalSend(activity, ref);
+        return { ...activity, id: 'sent-1' };
       });
 
       // Set up handler that replies
@@ -175,10 +176,9 @@ describe('App', () => {
       const serviceUrl2 = 'https://service-2.botframework.com';
 
       const capturedServiceUrls: string[] = [];
-      const originalSend = app['activitySender'].send.bind(app['activitySender']);
-      jest.spyOn(app['activitySender'], 'send').mockImplementation((activity, ref) => {
+      jest.spyOn(ActivitySender.prototype, 'send').mockImplementation(async (activity, ref) => {
         capturedServiceUrls.push(ref.serviceUrl);
-        return originalSend(activity, ref);
+        return { ...activity, id: 'sent-1' };
       });
 
       app.on('message', async ({ reply }) => {
@@ -308,7 +308,7 @@ describe('App', () => {
       });
 
       jest
-        .spyOn(app['activitySender'], 'send')
+        .spyOn(ActivitySender.prototype, 'send')
         .mockImplementation(async (activity) => ({ id: 'sent-1', ...activity }) as any);
 
       app.on('message', async ({ reply }) => {
