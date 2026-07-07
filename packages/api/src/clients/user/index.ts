@@ -18,9 +18,10 @@ export class UserClient {
   get http() {
     return this._http;
   }
-  set http(v) {
-    this._http = v;
-  }
+set http(v) {
+  this._token.http = v;
+  this._http = v;
+}
   /**
    * @deprecated Use the flattened methods on `UserClient` instead
    * (e.g. `users.getToken(...)`). This grouped accessor will be removed

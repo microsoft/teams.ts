@@ -60,14 +60,17 @@ export class ConversationClient {
   get http() {
     return this._http;
   }
-  set http(v) {
-    this._http = v;
-  }
-  private _http: HttpClient;
-  private _activities: ConversationActivityClient;
-  private _members: ConversationMemberClient;
-  private _reactions: ReactionClient;
-  private _apiClientSettings: Partial<ApiClientSettings>;
+set http(v) {
+  this._activities.http = v;
+  this._members.http = v;
+  this._reactions.http = v;
+  this._http = v;
+}
+protected _http: HttpClient;
+protected _activities: ConversationActivityClient;
+protected _members: ConversationMemberClient;
+protected _reactions: ReactionClient;
+protected _apiClientSettings: Partial<ApiClientSettings>;
 
   constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
     this.serviceUrl = serviceUrl;
