@@ -63,11 +63,11 @@ export class ConversationClient {
   set http(v) {
     this._http = v;
   }
-  protected _http: HttpClient;
-  protected _activities: ConversationActivityClient;
-  protected _members: ConversationMemberClient;
-  protected _reactions: ReactionClient;
-  protected _apiClientSettings: Partial<ApiClientSettings>;
+  private _http: HttpClient;
+  private _activities: ConversationActivityClient;
+  private _members: ConversationMemberClient;
+  private _reactions: ReactionClient;
+  private _apiClientSettings: Partial<ApiClientSettings>;
 
   constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
     this.serviceUrl = serviceUrl;
@@ -200,13 +200,6 @@ export class ConversationClient {
    */
   getPagedMembers(conversationId: string, pageSize?: number, continuationToken?: string) {
     return this._members.getPaged(conversationId, pageSize, continuationToken);
-  }
-
-  /**
-   * @deprecated This will be removed in a future release.
-   */
-  deleteMember(conversationId: string, id: string) {
-    return this._members.delete(conversationId, id);
   }
 
   /**

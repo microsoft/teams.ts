@@ -35,6 +35,10 @@ export class ConversationActivityClient {
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
   }
 
+  /**
+   * @deprecated Use `conversations.createActivity(...)` instead. This will be
+   * removed in a future release.
+   */
   async create(conversationId: string, params: ActivityParams) {
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
@@ -43,6 +47,10 @@ export class ConversationActivityClient {
     return res.data;
   }
 
+  /**
+   * @deprecated Use `conversations.updateActivity(...)` instead. This will be
+   * removed in a future release.
+   */
   async update(conversationId: string, id: string, params: ActivityParams) {
     const res = await this.http.put<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
@@ -51,6 +59,10 @@ export class ConversationActivityClient {
     return res.data;
   }
 
+  /**
+   * @deprecated Use `conversations.replyToActivity(...)` instead. This will be
+   * removed in a future release.
+   */
   async reply(conversationId: string, id: string, params: ActivityParams) {
     params.replyToId = id;
     const res = await this.http.post<Resource>(
@@ -60,6 +72,10 @@ export class ConversationActivityClient {
     return res.data;
   }
 
+  /**
+   * @deprecated Use `conversations.deleteActivity(...)` instead. This will be
+   * removed in a future release.
+   */
   async delete(conversationId: string, id: string) {
     const res = await this.http.delete<void>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`
@@ -67,6 +83,10 @@ export class ConversationActivityClient {
     return res.data;
   }
 
+  /**
+   * @deprecated Use `conversations.getActivityMembers(...)` instead. This will
+   * be removed in a future release.
+   */
   async getMembers(conversationId: string, id: string): Promise<TeamsChannelAccount[]> {
     const res = await this.http.get<TeamsChannelAccount[]>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}/members`
@@ -74,6 +94,10 @@ export class ConversationActivityClient {
     return (res.data ?? []).map(resolveAadObjectId);
   }
 
+  /**
+   * @deprecated Use `conversations.createTargetedActivity(...)` instead. This
+   * will be removed in a future release.
+   */
   async createTargeted(conversationId: string, params: ActivityParams) {
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities?isTargetedActivity=true`,
@@ -82,6 +106,10 @@ export class ConversationActivityClient {
     return res.data;
   }
 
+  /**
+   * @deprecated Use `conversations.updateTargetedActivity(...)` instead. This
+   * will be removed in a future release.
+   */
   async updateTargeted(conversationId: string, id: string, params: ActivityParams) {
     const res = await this.http.put<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`,
@@ -90,6 +118,10 @@ export class ConversationActivityClient {
     return res.data;
   }
 
+  /**
+   * @deprecated Use `conversations.deleteTargetedActivity(...)` instead. This
+   * will be removed in a future release.
+   */
   async deleteTargeted(conversationId: string, id: string) {
     const res = await this.http.delete<void>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`

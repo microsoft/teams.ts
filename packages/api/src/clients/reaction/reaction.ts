@@ -38,6 +38,8 @@ export class ReactionClient {
 
   /**
    * Add a reaction to a message.
+   * @deprecated Use `conversations.addReaction(...)` instead. This will be
+   * removed in a future release.
    */
   async add(conversationId: string, activityId: string, reactionType: MessageReactionType) {
     const res = await this.http.put<void>(
@@ -48,6 +50,8 @@ export class ReactionClient {
 
   /**
    * Delete a reaction from a message.
+   * @deprecated Use `conversations.deleteReaction(...)` instead. This will be
+   * removed in a future release.
    */
   async delete(conversationId: string, activityId: string, reactionType: MessageReactionType) {
     const res = await this.http.delete<void>(

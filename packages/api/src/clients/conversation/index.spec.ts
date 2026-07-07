@@ -124,15 +124,6 @@ describe('ConversationClient', () => {
         params: { pageSize: 50, continuationToken: 'some-token' },
       });
     });
-
-    it('deleteMember should DELETE a member', async () => {
-      const client = new ConversationClient('');
-      const spy = jest.spyOn(client.http, 'delete').mockResolvedValueOnce({});
-
-      await client.deleteMember('1', '2');
-
-      expect(spy).toHaveBeenCalledWith('/v3/conversations/1/members/2');
-    });
   });
 
   describe('reactions', () => {
