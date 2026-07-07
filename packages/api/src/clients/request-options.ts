@@ -15,5 +15,6 @@ export function agenticIdentityExtension(options?: RequestOptions): Record<strin
 }
 
 export function resolveServiceUrl(defaultServiceUrl: string, options?: { serviceUrl?: string }): string {
-  return (options?.serviceUrl ?? defaultServiceUrl).replace(/\/+$/, '');
+  const url = options?.serviceUrl ?? defaultServiceUrl;
+  return url.endsWith('/') ? url.slice(0, -1) : url;
 }
