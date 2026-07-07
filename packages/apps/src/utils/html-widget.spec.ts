@@ -818,7 +818,7 @@ describe('snapshot: full injected script', () => {
     });
 
     // Extract just the injected <script> block
-    const scriptMatch = result.match(/<script>([\s\S]*?)<\/script>/);
+    const scriptMatch = result.match(/<script>([\s\S]*?)<\/script>/i);
     expect(scriptMatch).not.toBeNull();
     expect(scriptMatch![1]).toMatchSnapshot();
   });
