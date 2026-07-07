@@ -5,6 +5,7 @@ import {
   type ClientOptions as HttpClientOptions
 } from '@microsoft/teams.common';
 
+import { CloudEnvironment } from '../../auth';
 import { SignInUrlResponse } from '../../models';
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 
@@ -37,7 +38,7 @@ export class BotSignInClient {
   protected _http: HttpClient;
   protected _apiClientSettings: Partial<ApiClientSettings>;
 
-  constructor(options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
+  constructor(options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>, cloud?: CloudEnvironment) {
     if (!options) {
       this._http = new HttpClient();
     } else if ('request' in options) {
@@ -45,7 +46,7 @@ export class BotSignInClient {
     } else {
       this._http = new HttpClient(options);
     }
-    this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
+    this._apiClientSettings = mergeApiClientSettings(apiClientSettings, cloud);
   }
 
   async getUrl(params: GetBotSignInUrlParams) {

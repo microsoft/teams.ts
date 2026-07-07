@@ -33,6 +33,7 @@ import { EventManager } from './app.events';
 import { OauthHandlers } from './app.oauth';
 import { PluginManager } from './app.plugins';
 import { ActivityProcessor } from './app.process';
+import { AppAuthProvider } from './auth-provider';
 import { Container } from './container';
 import { IActivityContext, FunctionContext, IFunctionContext } from './contexts';
 import { IActivityEvent } from './events';
@@ -151,9 +152,10 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly serviceUrl?: string;
 
   /**
-   * API client settings used for overriding.
+   * API client settings used for overriding (e.g. oauthUrl).
+   * Cloud, authProvider, and agenticIdentity are managed internally.
    */
-  readonly apiClientSettings?: ApiClientSettings;
+  readonly apiClientSettings?: Pick<ApiClientSettings, 'oauthUrl'>;
 
   /**
    * Cloud environment for sovereign cloud support.
@@ -187,6 +189,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   readonly client: HttpClient;
   readonly storage: IStorage;
   readonly entraTokenValidator?: middleware.JwtValidator;
+  readonly authProvider: AppAuthProvider;
 
   /**
    * Graph API base URL derived from the configured cloud's `graphScope`.
@@ -268,15 +271,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       });
     }
 
-    const serviceUrl = (this.options.serviceUrl ?? process.env.SERVICE_URL ??
-      'https://smba.trafficmanager.net/teams').replace(/\/+$/, '');
-    this.api = new ApiClient(
-      serviceUrl,
-      this.client.clone({ token: () => this.getBotToken() }),
-      this.options.apiClientSettings,
-      this.cloud
-    );
-
     // Derive Graph API base URL from the cloud's graphScope (e.g. "https://graph.microsoft.us/.default"
     // -> "https://graph.microsoft.us"). Falls back to the public Graph endpoint inside GraphClient if
     // the scope isn't a URL (custom delegated scope, empty, etc.).
@@ -302,6 +296,20 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       managedIdentityClientId: this.options.managedIdentityClientId,
       cloud: this.cloud,
     }, this.log);
+    this.authProvider = new AppAuthProvider(this.tokenManager, this.cloud);
+
+    const serviceUrl = (this.options.serviceUrl ?? process.env.SERVICE_URL ??
+      'https://smba.trafficmanager.net/teams').replace(/\/+$/, '');
+    const settings: Partial<ApiClientSettings> = {
+      ...this.options.apiClientSettings,
+      cloud: this.cloud,
+      authProvider: this.authProvider,
+    };
+    this.api = new ApiClient(
+      serviceUrl,
+      this.client.clone(),
+      settings
+    );
 
     // initialize ActivitySender for sending activities
     this.activitySender = new ActivitySender(

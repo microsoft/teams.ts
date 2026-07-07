@@ -38,7 +38,8 @@ describe('ActivitySender', () => {
           text: 'hello',
           from: ref.bot,
           conversation: ref.conversation,
-        })
+        }),
+        {}
       );
       expect(result).toEqual(expect.objectContaining({ id: 'activity-1' }));
     });
@@ -54,7 +55,8 @@ describe('ActivitySender', () => {
 
       expect(mockHttpClient.put).toHaveBeenCalledWith(
         'https://smba.trafficmanager.net/teams/v3/conversations/conv-123/activities/existing-id',
-        expect.objectContaining({ type: 'message', text: 'updated' })
+        expect.objectContaining({ type: 'message', text: 'updated' }),
+        {}
       );
       expect(mockHttpClient.post).not.toHaveBeenCalled();
     });
@@ -112,7 +114,8 @@ describe('ActivitySender', () => {
         expect.objectContaining({
           from: { id: 'bot-id', name: 'Bot', role: 'bot' },
           conversation: { id: 'conv-123', conversationType: 'personal' },
-        })
+        }),
+        {}
       );
     });
 
@@ -127,7 +130,8 @@ describe('ActivitySender', () => {
 
       expect(mockHttpClient.post).toHaveBeenCalledWith(
         'https://custom-service.botframework.com/v3/conversations/conv-456/activities',
-        expect.any(Object)
+        expect.any(Object),
+        {}
       );
     });
 

@@ -8,7 +8,7 @@ import {
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
 import { IActivityEvent, ICoreActivity } from '../events';
-import { ServiceTokenValidator } from '../middleware/auth/service-token-validator';
+import { InboundActivityTokenValidator } from '../middleware/auth/inbound-activity-token-validator';
 
 import { HttpMethod, IHttpServerAdapter, IHttpServerRequest, IHttpServerResponse, HttpRouteHandler } from './adapter';
 
@@ -58,7 +58,7 @@ export class HttpServer implements IHttpServer {
   protected skipAuth: boolean;
   protected cloud?: CloudEnvironment;
   protected initialized: boolean = false;
-  protected serviceTokenValidator?: ServiceTokenValidator;
+  protected serviceTokenValidator?: InboundActivityTokenValidator;
 
   private _adapter: IHttpServerAdapter;
   private _messagingEndpoint: string;
@@ -108,7 +108,7 @@ export class HttpServer implements IHttpServer {
 
     // Initialize service token validator if credentials provided and auth not skipped
     if (this.credentials && !this.skipAuth) {
-      this.serviceTokenValidator = new ServiceTokenValidator(
+      this.serviceTokenValidator = new InboundActivityTokenValidator(
         this.credentials.clientId,
         this.credentials.tenantId,
         undefined, // serviceUrl will be validated from activity body

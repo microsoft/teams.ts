@@ -9,6 +9,15 @@ const DEFAULTS = {
   clockTolerance: 300 // 5 minutes
 };
 
+export function decodeJwtPayload(rawToken: string): JwtPayload | null {
+  const payload = jwt.decode(rawToken);
+  if (!payload || typeof payload !== 'object') {
+    return null;
+  }
+
+  return payload;
+}
+
 export interface IJwtValidationOptions {
   /** Required: Application/Client ID for audience validation */
   clientId: string;
@@ -296,4 +305,3 @@ export const createEntraTokenValidator = (
     },
   }, options?.logger);
 };
-

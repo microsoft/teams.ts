@@ -238,7 +238,8 @@ describe('Client', () => {
         ],
       });
 
-      expect((client as any).interceptors.size).toEqual(1);
+      expect((client as any)._interceptors.size).toEqual(1);
+      expect(client.interceptors).toHaveLength(1);
     });
 
     it('should add/remove interceptor', () => {
@@ -248,9 +249,9 @@ describe('Client', () => {
         response: ({ res }) => res,
       });
 
-      expect((client as any).interceptors.size).toEqual(1);
+      expect((client as any)._interceptors.size).toEqual(1);
       client.eject(id);
-      expect((client as any).interceptors.size).toEqual(0);
+      expect((client as any)._interceptors.size).toEqual(0);
     });
 
     it('should do nothing when interceptor not found', () => {
@@ -260,9 +261,9 @@ describe('Client', () => {
         response: ({ res }) => res,
       });
 
-      expect((client as any).interceptors.size).toEqual(1);
+      expect((client as any)._interceptors.size).toEqual(1);
       client.eject(1000);
-      expect((client as any).interceptors.size).toEqual(1);
+      expect((client as any)._interceptors.size).toEqual(1);
     });
 
     it('should clear', () => {
@@ -277,9 +278,38 @@ describe('Client', () => {
         response: ({ res }) => res,
       });
 
-      expect((client as any).interceptors.size).toEqual(2);
+      expect((client as any)._interceptors.size).toEqual(2);
       client.clear();
-      expect((client as any).interceptors.size).toEqual(0);
+      expect((client as any)._interceptors.size).toEqual(0);
+    });
+
+    it('should preserve request extensions for interceptors', async () => {
+      const client = new HttpClient();
+      const seen: unknown[] = [];
+      let adapterExtensions: unknown;
+      client.use({
+        request: ({ config }) => {
+          seen.push(config.extensions);
+          return config;
+        }
+      });
+      client.instance.defaults.adapter = async (config) => {
+        adapterExtensions = (config as any).extensions;
+        return { data: {}, status: 200, statusText: 'OK', headers: {}, config };
+      };
+
+      await client.post('/test', {}, {
+        extensions: {
+          agenticIdentity: { agenticAppId: 'agent-app', agenticUserId: 'agent-user' }
+        }
+      });
+
+      expect(seen).toEqual([
+        { agenticIdentity: { agenticAppId: 'agent-app', agenticUserId: 'agent-user' } }
+      ]);
+      expect(adapterExtensions).toEqual({
+        agenticIdentity: { agenticAppId: 'agent-app', agenticUserId: 'agent-user' }
+      });
     });
   });
 });
