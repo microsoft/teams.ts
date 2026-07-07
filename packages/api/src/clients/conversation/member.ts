@@ -31,10 +31,6 @@ export class ConversationMemberClient {
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
   }
 
-  /**
-   * @deprecated Use `conversations.getMembers(...)` instead. This will be
-   * removed in a future release.
-   */
   async get(conversationId: string): Promise<TeamsChannelAccount[]> {
     const res = await this.http.get<TeamsChannelAccount[]>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/members`
@@ -42,10 +38,6 @@ export class ConversationMemberClient {
     return res.data.map(resolveAadObjectId);
   }
 
-  /**
-   * @deprecated Use `conversations.getMemberById(...)` instead. This will be
-   * removed in a future release.
-   */
   async getById(conversationId: string, id: string): Promise<TeamsChannelAccount> {
     const res = await this.http.get<TeamsChannelAccount>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/members/${id}`
@@ -55,8 +47,6 @@ export class ConversationMemberClient {
 
   /**
    * Get paged members in a conversation.
-   * @deprecated Use `conversations.getPagedMembers(...)` instead. This will be
-   * removed in a future release.
    * @param conversationId - The ID of the conversation.
    * @param pageSize - Optional maximum number of members per page (min 50, default 200, max 500).
    * @param continuationToken - Optional token from a previous call to fetch the next page.
