@@ -1,3 +1,4 @@
+import { AgenticIdentity } from './agentic-identity';
 import { MembershipSource } from './membership-source';
 import { Role } from './role';
 
@@ -28,6 +29,19 @@ export type Account<P = any> = {
   readonly callbackUri?: string;
   readonly tenantId?: string;
 };
+
+export function getAgenticIdentity(account?: Account): AgenticIdentity | undefined {
+  if (!account?.agenticAppId || !account.agenticUserId) {
+    return undefined;
+  }
+
+  return {
+    agenticAppId: account.agenticAppId,
+    agenticUserId: account.agenticUserId,
+    tenantId: account.tenantId,
+    agenticAppBlueprintId: account.agenticAppBlueprintId,
+  };
+}
 
 /**
  * Represents a Teams channel account, extending the basic channel account with Teams-specific properties.

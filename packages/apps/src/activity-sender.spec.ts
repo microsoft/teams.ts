@@ -1,31 +1,18 @@
-import { ActivityParams, Client, ConversationReference } from '@microsoft/teams.api';
+import { ActivityParams, ConversationReference } from '@microsoft/teams.api';
+import  {Client as HttpClient } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
 
 describe('ActivitySender', () => {
   let sender: ActivitySender;
-  let mockCreate: jest.Mock;
-  let mockUpdate: jest.Mock;
-  let mockCreateTargeted: jest.Mock;
-  let mockUpdateTargeted: jest.Mock;
-  let mockApi: Client;
+  let mockHttpClient: HttpClient;
   let ref: ConversationReference;
 
   beforeEach(() => {
-    mockCreate = jest.fn().mockResolvedValue({ id: 'activity-1' });
-    mockUpdate = jest.fn().mockResolvedValue({ id: 'activity-1' });
-    mockCreateTargeted = jest.fn().mockResolvedValue({ id: 'activity-1' });
-    mockUpdateTargeted = jest.fn().mockResolvedValue({ id: 'activity-1' });
-
-    mockApi = {
-      conversations: {
-        activities: () => ({
-          create: mockCreate,
-          update: mockUpdate,
-          createTargeted: mockCreateTargeted,
-          updateTargeted: mockUpdateTargeted,
-        }),
-      },
+    mockHttpClient = {
+      post: jest.fn().mockResolvedValue({ data: { id: 'activity-1' } }),
+      put: jest.fn().mockResolvedValue({ data: { id: 'activity-1' } }),
+      request: jest.fn(),
     } as any;
 
     ref = {
@@ -35,28 +22,29 @@ describe('ActivitySender', () => {
       conversation: { id: 'conv-123', conversationType: 'personal' },
     };
 
-    sender = new ActivitySender(mockApi, undefined as any);
+    sender = new ActivitySender(mockHttpClient, undefined as any);
   });
 
   describe('send', () => {
-    it('should call create for a new activity', async () => {
+    it('should POST to create a new activity', async () => {
       const activity: ActivityParams = { type: 'message', text: 'hello' };
 
       const result = await sender.send(activity, ref);
 
-      expect(mockCreate).toHaveBeenCalledWith(
+      expect(mockHttpClient.post).toHaveBeenCalledWith(
+        'https://smba.trafficmanager.net/teams/v3/conversations/conv-123/activities',
         expect.objectContaining({
           type: 'message',
           text: 'hello',
           from: ref.bot,
           conversation: ref.conversation,
         }),
-        { serviceUrl: ref.serviceUrl },
+        {}
       );
       expect(result).toEqual(expect.objectContaining({ id: 'activity-1' }));
     });
 
-    it('should call update for an existing activity', async () => {
+    it('should PUT to update an existing activity', async () => {
       const activity: ActivityParams = {
         type: 'message',
         text: 'updated',
@@ -65,15 +53,15 @@ describe('ActivitySender', () => {
 
       await sender.send(activity, ref);
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        'existing-id',
+      expect(mockHttpClient.put).toHaveBeenCalledWith(
+        'https://smba.trafficmanager.net/teams/v3/conversations/conv-123/activities/existing-id',
         expect.objectContaining({ type: 'message', text: 'updated' }),
-        { serviceUrl: ref.serviceUrl },
+        {}
       );
-      expect(mockCreate).not.toHaveBeenCalled();
+      expect(mockHttpClient.post).not.toHaveBeenCalled();
     });
 
-    it('should call createTargeted for targeted messages', async () => {
+    it('should POST with isTargetedActivity query param for targeted messages', async () => {
       const groupRef = {
         ...ref,
         conversation: { id: 'conv-123', conversationType: 'groupChat' },
@@ -86,13 +74,13 @@ describe('ActivitySender', () => {
 
       await sender.send(activity, groupRef);
 
-      expect(mockCreateTargeted).toHaveBeenCalledWith(
-        expect.objectContaining({ type: 'message', text: 'targeted' }),
-        { serviceUrl: groupRef.serviceUrl },
+      expect(mockHttpClient.post).toHaveBeenCalledWith(
+        'https://smba.trafficmanager.net/teams/v3/conversations/conv-123/activities?isTargetedActivity=true',
+        expect.objectContaining({ type: 'message', text: 'targeted' })
       );
     });
 
-    it('should call updateTargeted for targeted updates', async () => {
+    it('should PUT with isTargetedActivity query param for targeted updates', async () => {
       const groupRef = {
         ...ref,
         conversation: { id: 'conv-123', conversationType: 'groupChat' },
@@ -106,15 +94,14 @@ describe('ActivitySender', () => {
 
       await sender.send(activity, groupRef);
 
-      expect(mockUpdateTargeted).toHaveBeenCalledWith(
-        'existing-id',
+      expect(mockHttpClient.put).toHaveBeenCalledWith(
+        'https://smba.trafficmanager.net/teams/v3/conversations/conv-123/activities/existing-id?isTargetedActivity=true',
         expect.objectContaining({
           recipient: expect.objectContaining({ isTargeted: true }),
-        }),
-        { serviceUrl: groupRef.serviceUrl },
+        })
       );
-      expect(mockUpdateTargeted).toHaveBeenCalledTimes(1);
-      expect(mockCreate).not.toHaveBeenCalled();
+      expect(mockHttpClient.put).toHaveBeenCalledTimes(1);
+      expect(mockHttpClient.post).not.toHaveBeenCalled();
     });
 
     it('should merge bot and conversation from ref into activity', async () => {
@@ -122,12 +109,29 @@ describe('ActivitySender', () => {
 
       await sender.send(activity, ref);
 
-      expect(mockCreate).toHaveBeenCalledWith(
+      expect(mockHttpClient.post).toHaveBeenCalledWith(
+        expect.any(String),
         expect.objectContaining({
           from: { id: 'bot-id', name: 'Bot', role: 'bot' },
           conversation: { id: 'conv-123', conversationType: 'personal' },
         }),
-        { serviceUrl: ref.serviceUrl },
+        {}
+      );
+    });
+
+    it('should use the serviceUrl from the conversation reference in the endpoint', async () => {
+      const customRef = {
+        ...ref,
+        serviceUrl: 'https://custom-service.botframework.com',
+        conversation: { id: 'conv-456', conversationType: 'personal' },
+      };
+
+      await sender.send({ type: 'message', text: 'hi' }, customRef);
+
+      expect(mockHttpClient.post).toHaveBeenCalledWith(
+        'https://custom-service.botframework.com/v3/conversations/conv-456/activities',
+        expect.any(Object),
+        {}
       );
     });
 
