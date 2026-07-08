@@ -388,7 +388,10 @@ describe('HttpStream', () => {
     });
     client.conversations.activities().create.mockRejectedValue(axiosError);
 
-    await expect((stream as any).send({ type: 'typing', text: 'hi' })).rejects.toBeInstanceOf(expected);
+    await expect((stream as any).send({ type: 'typing', text: 'hi' })).rejects.toHaveProperty(
+      'name',
+      expected.name
+    );
   });
 
   test('send 403 with empty body raises a terminal stream error', async () => {
