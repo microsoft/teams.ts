@@ -445,7 +445,7 @@ export class HttpStream implements IStreamer {
           this._canceled = true;
           this._logger.warn('The streaming was stopped by the user.');
           throw new StreamCancelledError(message);
-        } else if (normalized.includes('not allowed')) {
+        } else if (normalized.includes('not allowed') && !normalized.includes('completed streamed message')) {
           this._logger.warn('The streaming API isn\'t allowed for the user or bot.');
           throw new StreamNotAllowedError(message);
         }
