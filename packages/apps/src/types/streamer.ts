@@ -12,6 +12,36 @@ export class StreamCancelledError extends Error {
 }
 
 /**
+ * Base class for terminal streaming errors (HTTP 403) that should not be retried.
+ */
+export class TerminalStreamError extends Error {
+  constructor(message?: string) {
+    super(message ?? 'terminal stream error');
+    this.name = 'TerminalStreamError';
+  }
+}
+
+/**
+ * Raised when the bot failed to complete streaming within the two-minute limit.
+ */
+export class StreamTimedOutError extends TerminalStreamError {
+  constructor(message?: string) {
+    super(message ?? 'stream timed out');
+    this.name = 'StreamTimedOutError';
+  }
+}
+
+/**
+ * Raised when streaming is not allowed for this user or bot.
+ */
+export class StreamNotAllowedError extends TerminalStreamError {
+  constructor(message?: string) {
+    super(message ?? 'stream not allowed');
+    this.name = 'StreamNotAllowedError';
+  }
+}
+
+/**
  * the minimum events a streamer
  * should support
  */
@@ -35,9 +65,18 @@ export interface IStreamer {
 
   /**
    * whether the stream has been canceled.
-   * For example when the user pressed the Stop button or the 2-minute timeout has exceeded.
+   * For example when the user pressed the Stop button.
    */
   readonly canceled: boolean;
+
+  /**
+   * whether the current streamed message has been finalized.
+   *
+   * Closing is idempotent until the next emit or update. Emitting or
+   * updating after close starts a new streamed message using the same
+   * stream instance.
+   */
+  readonly closed: boolean;
 
   /**
    * emit an activity chunk
@@ -62,7 +101,11 @@ export interface IStreamer {
   clearText(): void;
 
   /**
-   * close the stream
+   * Finalize the current streamed message.
+   *
+   * Closing is idempotent until the next emit or update. Emitting or
+   * updating after close starts a new streamed message using the same
+   * stream instance.
    */
   close(): SentActivity | undefined | Promise<SentActivity | undefined>;
 }

@@ -195,7 +195,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       });
     });
 
-    context.stream.events.once('close', (activity) => {
+    context.stream.events.on('close', (activity) => {
       this.options.eventManager.onActivitySent({
         ...ref,
         activity,

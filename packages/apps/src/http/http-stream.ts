@@ -11,7 +11,14 @@ import {
 } from '@microsoft/teams.api';
 import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/teams.common';
 
-import { IStreamer, IStreamerEvents, StreamCancelledError } from '../types';
+import {
+  IStreamer,
+  IStreamerEvents,
+  StreamCancelledError,
+  StreamNotAllowedError,
+  StreamTimedOutError,
+  TerminalStreamError,
+} from '../types';
 import { promises } from '../utils';
 
 /**
@@ -46,14 +53,32 @@ export class HttpStream implements IStreamer {
   private _logger: ILogger;
   private _flushing: boolean = false;
   private _canceled: boolean = false;
+  private _timedOut: boolean = false;
   private readonly _totalTimeout = 30000; // 30 seconds
 
   /**
    * Whether the stream has been canceled.
-   * For example when the user pressed the Stop button or the 2-minute timeout has exceeded.
+   * For example when the user pressed the Stop button.
    */
   get canceled(): boolean {
     return this._canceled;
+  }
+
+  /**
+   * Whether the stream has timed out.
+   * For example when the streaming has exceeded two minutes.
+   */
+  get timedOut(): boolean {
+    return this._timedOut;
+  }
+
+  /**
+   * Whether the current streamed message has been finalized.
+   *
+   * Closing is idempotent until the next emit or update reopens the stream.
+   */
+  get closed(): boolean {
+    return this._result !== undefined;
   }
 
   constructor(client: Client, ref: ConversationReference, logger?: ILogger) {
@@ -69,6 +94,13 @@ export class HttpStream implements IStreamer {
   emit(activity: Partial<IMessageActivity | ITypingActivity> | string) {
     if (this._canceled) {
       throw new StreamCancelledError();
+    }
+
+    // Emitting after close reopens the stream: start a new streamed message
+    // on the same instance.
+    if (this.closed) {
+      this._logger.debug('starting a new streamed message after close');
+      this.resetForNextStream();
     }
 
     if (typeof activity === 'string') {
@@ -117,14 +149,15 @@ export class HttpStream implements IStreamer {
    * Waits for all queued activities to flush.
    */
   async close() {
+    // Closing is idempotent until the next emit/update reopens the stream.
+    if (this.closed) {
+      this._logger.debug('already closed');
+      return this._result;
+    }
+
     if (!this.index && !this.queue.length && !this._flushing) {
       this._logger.debug('closed with no content');
       return;
-    }
-
-    if (this._result) {
-      this._logger.debug('already closed');
-      return this._result;
     }
 
     if (this._canceled) {
@@ -163,26 +196,43 @@ export class HttpStream implements IStreamer {
       return;
     }
 
-    // Build final message activity from the last-emitted MessageActivity (last wins),
-    // overlaying accumulated text, id, channelData, and the stream-final entity.
-    const activity = new MessageActivity(this.text)
-      .withId(this.id)
-      .addAttachments(...finalAttachments)
-      .addEntities(...finalEntities)
-      .withChannelData(this.channelData)
-      .addStreamFinal();
+    let res: SentActivity;
 
-    if (finalSuggestedActions) {
-      activity.withSuggestedActions(finalSuggestedActions);
+    if (this._timedOut) {
+      // Streaming already tripped the 2-minute limit; update the original message in place.
+      res = await this.sendFinal();
+    } else {
+      // Build final message activity from the last-emitted MessageActivity (last wins),
+      // overlaying accumulated text, id, channelData, and the stream-final entity.
+      const activity = new MessageActivity(this.text)
+        .withId(this.id)
+        .addAttachments(...finalAttachments)
+        .addEntities(...finalEntities)
+        .withChannelData(this.channelData)
+        .addStreamFinal();
+
+      if (finalSuggestedActions) {
+        activity.withSuggestedActions(finalSuggestedActions);
+      }
+
+      try {
+        res = await this.sendWithRetry(activity);
+      } catch (err) {
+        if (err instanceof StreamTimedOutError) {
+          // The final streamed send tripped the 2-minute limit. Update the original
+          // message in place with the buffered content: reuse the id and drop the
+          // streamInfo entity + stream channel data so this routes to update, not create.
+          res = await this.sendFinal();
+        } else {
+          throw err;
+        }
+      }
     }
-
-    const res = await promises.retry(() => this.send(activity), {
-      logger: this._logger
-    });
 
     this.events.emit('close', res);
 
-    // Reset internal state
+    // Reset buffered message state; keep terminal status and the close result so
+    // repeated close() calls stay idempotent until the next emit/update.
     this.index = 0;
     this.id = undefined;
     this.text = '';
@@ -191,6 +241,58 @@ export class HttpStream implements IStreamer {
     this._result = res;
     this._logger.debug(res);
     return res;
+  }
+
+  /**
+   * Send an activity through retry, treating terminal stream errors as non-retryable.
+   * @param activity ActivityParams to send.
+   */
+  protected async sendWithRetry(activity: ActivityParams) {
+    return promises.retry(() => this.send(activity), {
+      logger: this._logger,
+      nonRetryable: [TerminalStreamError],
+    });
+  }
+
+  /**
+   * Send the buffered content as a plain final message.
+   *
+   * Drops the `streaminfo` entity (added by `addStreamFinal()` on the normal
+   * close path) and the stream channel data so `id` is kept and the send routes
+   * through the update path instead of creating a duplicate message.
+   */
+  protected async sendFinal() {
+    const finalAttachments = this.finalActivity?.attachments ?? [];
+    const finalEntities = (this.finalActivity?.entities ?? []).filter((e) => e.type !== 'streaminfo');
+    const finalSuggestedActions = this.finalActivity?.suggestedActions;
+
+    const activity = new MessageActivity(this.text)
+      .addAttachments(...finalAttachments)
+      .addEntities(...finalEntities);
+
+    if (this.id) {
+      activity.withId(this.id);
+    }
+
+    if (finalSuggestedActions) {
+      activity.withSuggestedActions(finalSuggestedActions);
+    }
+
+    return this.sendWithRetry(activity);
+  }
+
+  /**
+   * Prepare the stream instance to start a new stream cycle after close().
+   */
+  protected resetForNextStream() {
+    this.index = 0;
+    this.id = undefined;
+    this.text = '';
+    this.channelData = {};
+    this.finalActivity = undefined;
+    this.queue = [];
+    this._result = undefined;
+    this._timedOut = false;
   }
 
   /**
@@ -242,6 +344,9 @@ export class HttpStream implements IStreamer {
 
       if (startLength === 0) return;
 
+      // Once the stream has timed out, stop sending chunks for this cycle.
+      if (this._timedOut) return;
+
       // Send informative updates immediately
       for (const informativeUpdate of informativeUpdates) {
         const activity = new TypingActivity().withText(informativeUpdate.text || '').withChannelData({ streamType: 'informative' });
@@ -276,9 +381,17 @@ export class HttpStream implements IStreamer {
     }
     activity.addStreamUpdate(this.index + 1);
 
-    const res = await promises.retry(() => this.send(activity as ActivityParams), {
-      logger: this._logger
-    });
+    let res: SentActivity;
+    try {
+      res = await this.sendWithRetry(activity as ActivityParams);
+    } catch (err) {
+      // A timed-out chunk is swallowed here; close() sends the buffered content as a
+      // plain message once the stream has been marked timed out.
+      if (err instanceof StreamTimedOutError) {
+        return;
+      }
+      throw err;
+    }
     this.events.emit('chunk', res);
     this.index++;
     if (!this.id) {
@@ -316,10 +429,29 @@ export class HttpStream implements IStreamer {
 
       return { ...activity, ...res };
     } catch (err: any) {
+      // Various error codes are used for streaming.
+      // https://learn.microsoft.com/en-us/microsoftteams/platform/bots/streaming-ux?tabs=csharp#error-codes
       if (err?.response?.status === 403) {
-        this._canceled = true;
-        this._logger.debug('stream canceled by Teams (403)');
-        throw new StreamCancelledError();
+        const message: string = err?.response?.data?.error?.message ?? '';
+        const normalized = message.toLowerCase();
+
+        if (normalized.includes('exceeded streaming time')) {
+          this._timedOut = true;
+          this._logger.warn(
+            'The bot failed to complete the streaming process within the strict time limit of two minutes.'
+          );
+          throw new StreamTimedOutError(message);
+        } else if (normalized.includes('cancel')) {
+          this._canceled = true;
+          this._logger.warn('The streaming was stopped by the user.');
+          throw new StreamCancelledError(message);
+        } else if (normalized.includes('not allowed')) {
+          this._logger.warn('The streaming API isn\'t allowed for the user or bot.');
+          throw new StreamNotAllowedError(message);
+        }
+
+        this._logger.warn(`Teams returned a streaming error: ${message}`);
+        throw new TerminalStreamError(message);
       }
       throw err;
     }
