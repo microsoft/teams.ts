@@ -15,26 +15,41 @@ import { UserClient } from './user';
 
 export class Client {
   readonly serviceUrl: string;
-  readonly bots: BotClient;
   readonly users: UserClient;
   readonly conversations: ConversationClient;
   readonly teams: TeamClient;
   readonly meetings: MeetingClient;
-  readonly reactions: ReactionClient;
 
   get http() {
     return this._http;
   }
   set http(v) {
-    this.bots.http = v;
+    this._bots.http = v;
     this.conversations.http = v;
     this.users.http = v;
     this.teams.http = v;
     this.meetings.http = v;
-    this.reactions.http = v;
+    this._reactions.http = v;
     this._http = v;
   }
+  /**
+   * @deprecated The bot client is no longer used and will be removed in a
+   * future release.
+   */
+  get bots() {
+    return this._bots;
+  }
+  /**
+   * @deprecated Use `conversations.addReaction(...)` and
+   * `conversations.deleteReaction(...)` instead. This will be removed in a
+   * future release.
+   */
+  get reactions() {
+    return this._reactions;
+  }
   protected _http: HttpClient;
+  protected _bots: BotClient;
+  protected _reactions: ReactionClient;
   protected _apiClientSettings: Partial<ApiClientSettings>;
 
   constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>, cloud?: CloudEnvironment) {
@@ -56,12 +71,12 @@ export class Client {
 
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings, cloud);
 
-    this.bots = new BotClient(this.http, this._apiClientSettings);
+    this._bots = new BotClient(this.http, this._apiClientSettings);
     this.users = new UserClient(this.http, this._apiClientSettings);
     this.conversations = new ConversationClient(serviceUrl, this.http, this._apiClientSettings);
     this.teams = new TeamClient(serviceUrl, this.http, this._apiClientSettings);
     this.meetings = new MeetingClient(serviceUrl, this.http, this._apiClientSettings);
-    this.reactions = new ReactionClient(serviceUrl, this.http, this._apiClientSettings);
+    this._reactions = new ReactionClient(serviceUrl, this.http, this._apiClientSettings);
   }
 }
 

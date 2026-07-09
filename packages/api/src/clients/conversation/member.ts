@@ -32,6 +32,7 @@ export class ConversationMemberClient {
   }
 
   async get(conversationId: string): Promise<TeamsChannelAccount[]> {
+    // TODO: Will be deprecated alongside accessor in ConversationClient
     const res = await this.http.get<TeamsChannelAccount[]>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/members`
     );
@@ -39,6 +40,7 @@ export class ConversationMemberClient {
   }
 
   async getById(conversationId: string, id: string): Promise<TeamsChannelAccount> {
+    // TODO: Will be deprecated alongside accessor in ConversationClient
     const res = await this.http.get<TeamsChannelAccount>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/members/${id}`
     );
@@ -53,6 +55,7 @@ export class ConversationMemberClient {
    * @returns PagedMembersResult containing members and an optional continuation token.
    */
   async getPaged(conversationId: string, pageSize?: number, continuationToken?: string): Promise<PagedMembersResult> {
+    // TODO: Will be deprecated alongside accessor in ConversationClient
     const params: Record<string, string | number> = {};
     if (pageSize !== undefined) params['pageSize'] = pageSize;
     if (continuationToken !== undefined) params['continuationToken'] = continuationToken;

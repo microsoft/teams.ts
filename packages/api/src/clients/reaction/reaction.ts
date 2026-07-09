@@ -40,6 +40,7 @@ export class ReactionClient {
    * Add a reaction to a message.
    */
   async add(conversationId: string, activityId: string, reactionType: MessageReactionType) {
+    // TODO: Will be deprecated alongside accessor in ConversationClient
     const res = await this.http.put<void>(
       `${this.serviceUrl}/v3/conversations/${encodeURIComponent(conversationId)}/activities/${encodeURIComponent(activityId)}/reactions/${encodeURIComponent(reactionType)}`
     );
@@ -50,6 +51,7 @@ export class ReactionClient {
    * Delete a reaction from a message.
    */
   async delete(conversationId: string, activityId: string, reactionType: MessageReactionType) {
+    // TODO: Will be deprecated alongside accessor in ConversationClient
     const res = await this.http.delete<void>(
       `${this.serviceUrl}/v3/conversations/${encodeURIComponent(conversationId)}/activities/${encodeURIComponent(activityId)}/reactions/${encodeURIComponent(reactionType)}`
     );
