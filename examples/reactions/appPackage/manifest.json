@@ -15,8 +15,8 @@
     "termsOfUseUrl": "https://www.microsoft.com/legal/terms-of-use"
   },
   "description": {
-    "short": "Demo bot showing how to use ReactionClient",
-    "full": "Sample bot that demonstrates how to use the ReactionClient API to add, remove, and respond to message reactions"
+    "short": "Demo bot showing how to use the reaction API",
+    "full": "Sample bot that demonstrates how to use the conversation reaction API to add, remove, and respond to message reactions"
   },
   "icons": {
     "outline": "outline.png",

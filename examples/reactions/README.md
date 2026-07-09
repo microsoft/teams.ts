@@ -1,12 +1,12 @@
 # Example: Reactions
 
-A bot that demonstrates how to use the ReactionClient to add and remove reactions on messages.
+A bot that demonstrates how to use the conversation reaction methods to add and remove reactions on messages.
 
 ## Features
 
 - Responds to user messages and adds reactions
 - Handles `messageReaction` activities to detect when users add/remove reactions
-- Demonstrates using the `ReactionClient` API to programmatically manage reactions
+- Demonstrates using the `conversations.addReaction` / `deleteReaction` API to programmatically manage reactions
 
 ## Usage
 
@@ -38,7 +38,7 @@ The CLI writes `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID` to your `.env` file
 $: npm run dev
 ```
 
-## ReactionClient API
+## Reaction API
 
 ```typescript
 import { Client } from '@microsoft/teams.api';
@@ -46,10 +46,10 @@ import { Client } from '@microsoft/teams.api';
 const client = new Client(serviceUrl);
 
 // Add a reaction
-await client.reactions.add(conversationId, activityId, 'like');
+await client.conversations.addReaction(conversationId, activityId, 'like');
 
 // Delete a reaction
-await client.reactions.delete(conversationId, activityId, 'like');
+await client.conversations.deleteReaction(conversationId, activityId, 'like');
 ```
 
 ## Supported Reaction Types
