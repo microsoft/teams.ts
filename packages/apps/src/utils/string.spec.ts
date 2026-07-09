@@ -1,17 +1,17 @@
-import { isTruthyEnvValue } from './env';
+import { isTruthyStringValue } from './string';
 
-describe('isTruthyEnvValue', () => {
+describe('isTruthyStringValue', () => {
   it.each(['1', 'true', 'TRUE', 't', 'yes', 'Y', 'on', ' ON '])(
     'should treat %s as truthy',
     (value) => {
-      expect(isTruthyEnvValue(value)).toBe(true);
+      expect(isTruthyStringValue(value)).toBe(true);
     }
   );
 
   it.each([undefined, '', '0', 'false', 'no', 'off', 'anything'])(
     'should treat %s as false',
     (value) => {
-      expect(isTruthyEnvValue(value)).toBe(false);
+      expect(isTruthyStringValue(value)).toBe(false);
     }
   );
 });

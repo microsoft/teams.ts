@@ -47,7 +47,7 @@ import { IRoutes } from './routes';
 import { TokenManager } from './token-manager';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
-import { isTruthyEnvValue } from './utils/env';
+import { isTruthyStringValue } from './utils/string';
 import { toThreadedConversationId } from './utils/thread';
 
 /**
@@ -377,7 +377,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     const env = typeof process === 'undefined' ? undefined : process.env;
     const dangerouslyAllowUnauthenticatedRequests = this.options.dangerouslyAllowUnauthenticatedRequests
       ?? this.options.skipAuth
-      ?? isTruthyEnvValue(env?.DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS);
+      ?? isTruthyStringValue(env?.DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS);
 
     // HttpPlugin in plugins array (backwards compatibility)
     if (httpPlugin) {
