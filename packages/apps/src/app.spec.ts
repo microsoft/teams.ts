@@ -331,6 +331,71 @@ describe('App', () => {
     });
   });
 
+  describe('unauthenticated request configuration', () => {
+    const unauthenticatedRequestsEnv = 'DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS';
+    const originalUnauthenticatedRequestsEnv = process.env[unauthenticatedRequestsEnv];
+
+    beforeEach(() => {
+      delete process.env[unauthenticatedRequestsEnv];
+    });
+
+    afterAll(() => {
+      if (originalUnauthenticatedRequestsEnv === undefined) {
+        delete process.env[unauthenticatedRequestsEnv];
+      } else {
+        process.env[unauthenticatedRequestsEnv] = originalUnauthenticatedRequestsEnv;
+      }
+    });
+
+    it('should use dangerouslyAllowUnauthenticatedRequests option', () => {
+      const app = new App({
+        dangerouslyAllowUnauthenticatedRequests: true,
+        httpServerAdapter: new TestAdapter(),
+      });
+
+      expect((app.server as any).dangerouslyAllowUnauthenticatedRequests).toBe(true);
+    });
+
+    it('should support deprecated skipAuth option', () => {
+      const app = new App({
+        skipAuth: true,
+        httpServerAdapter: new TestAdapter(),
+      });
+      expect((app.server as any).dangerouslyAllowUnauthenticatedRequests).toBe(true);
+    });
+
+    it('should use environment variable when no option is provided', () => {
+      process.env[unauthenticatedRequestsEnv] = 'true';
+
+      const app = new App({
+        httpServerAdapter: new TestAdapter(),
+      });
+
+      expect((app.server as any).dangerouslyAllowUnauthenticatedRequests).toBe(true);
+    });
+
+    it('should ignore false-like environment variable values', () => {
+      process.env[unauthenticatedRequestsEnv] = 'false';
+
+      const app = new App({
+        httpServerAdapter: new TestAdapter(),
+      });
+
+      expect((app.server as any).dangerouslyAllowUnauthenticatedRequests).toBe(false);
+    });
+
+    it('should let explicit option override environment variable', () => {
+      process.env[unauthenticatedRequestsEnv] = 'true';
+
+      const app = new App({
+        dangerouslyAllowUnauthenticatedRequests: false,
+        httpServerAdapter: new TestAdapter(),
+      });
+
+      expect((app.server as any).dangerouslyAllowUnauthenticatedRequests).toBe(false);
+    });
+  });
+
   describe('reply', () => {
     let app: TestApp;
 

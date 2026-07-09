@@ -26,7 +26,10 @@ function safeLogField(v: unknown): string {
 }
 
 export type HttpServerOptions = {
-  readonly skipAuth?: boolean;
+  /**
+   * Dangerously allow incoming HTTP requests without Teams service token validation.
+   */
+  readonly dangerouslyAllowUnauthenticatedRequests?: boolean;
   readonly logger?: ILogger;
   /**
    * URL path for the Teams messaging endpoint
@@ -55,11 +58,11 @@ export class HttpServer implements IHttpServer {
 
   protected logger: ILogger;
   protected credentials?: Credentials;
-  protected skipAuth: boolean;
   protected cloud?: CloudEnvironment;
   protected initialized: boolean = false;
   protected serviceTokenValidator?: ServiceTokenValidator;
 
+  private dangerouslyAllowUnauthenticatedRequests: boolean;
   private _adapter: IHttpServerAdapter;
   private _messagingEndpoint: string;
 
@@ -80,9 +83,10 @@ export class HttpServer implements IHttpServer {
 
   constructor(adapter: IHttpServerAdapter, options: HttpServerOptions) {
     this._adapter = adapter;
-    this.skipAuth = options.skipAuth ?? false;
     this.logger = options.logger ?? new ConsoleLogger('HttpServer');
     this._messagingEndpoint = options.messagingEndpoint;
+    this.dangerouslyAllowUnauthenticatedRequests = options.dangerouslyAllowUnauthenticatedRequests
+      ?? false;
   }
 
   /**
@@ -102,12 +106,16 @@ export class HttpServer implements IHttpServer {
     this.credentials = deps.credentials;
     this.cloud = deps.cloud;
 
-    if (!this.credentials && !this.skipAuth) {
-      this.logger.warn('No credentials configured and skipAuth is not enabled. All incoming requests will be rejected. Configure client authentication to securely receive messages, or set skipAuth: true for local development.');
+    if (!this.credentials && !this.dangerouslyAllowUnauthenticatedRequests) {
+      this.logger.warn(
+        'No credentials configured and dangerouslyAllowUnauthenticatedRequests is not enabled. ' +
+        'All incoming requests will be rejected. Configure client authentication to securely receive messages, ' +
+        'or set dangerouslyAllowUnauthenticatedRequests: true for local development.'
+      );
     }
 
-    // Initialize service token validator if credentials provided and auth not skipped
-    if (this.credentials && !this.skipAuth) {
+    // Initialize service token validator if credentials provided and auth validation is enabled
+    if (this.credentials && !this.dangerouslyAllowUnauthenticatedRequests) {
       this.serviceTokenValidator = new ServiceTokenValidator(
         this.credentials.clientId,
         this.credentials.tenantId,
@@ -115,10 +123,11 @@ export class HttpServer implements IHttpServer {
         this.logger,
         deps.cloud
       );
-    } else if (!this.credentials && this.skipAuth) {
+    } else if (!this.credentials && this.dangerouslyAllowUnauthenticatedRequests) {
       this.logger.warn(
         'No credentials configured (CLIENT_ID / CLIENT_SECRET / TENANT_ID), ' +
-        `but skipAuth is enabled. Bot will accept unauthenticated requests on ${this._messagingEndpoint}.`
+        'but dangerouslyAllowUnauthenticatedRequests is enabled. ' +
+        `Bot will accept unauthenticated requests on ${this._messagingEndpoint}.`
       );
     }
 
@@ -207,7 +216,7 @@ export class HttpServer implements IHttpServer {
     headers: Record<string, string | string[]>,
     body: ICoreActivity
   ): Promise<AuthResult> {
-    if (this.skipAuth) {
+    if (this.dangerouslyAllowUnauthenticatedRequests) {
       const serviceUrl = body.serviceUrl || '';
 
       return {

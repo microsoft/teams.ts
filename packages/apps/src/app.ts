@@ -47,6 +47,7 @@ import { IRoutes } from './routes';
 import { TokenManager } from './token-manager';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
+import { isTruthyEnvValue } from './utils/env';
 import { toThreadedConversationId } from './utils/thread';
 
 /**
@@ -133,7 +134,13 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly activity?: AppActivityOptions;
 
   /**
-   * Skip authentication for HTTP requests
+   * Dangerously allow incoming HTTP requests without Teams service token validation.
+   * Uses environment variable DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS if not explicitly provided.
+   */
+  readonly dangerouslyAllowUnauthenticatedRequests?: boolean;
+
+  /**
+   * @deprecated Use dangerouslyAllowUnauthenticatedRequests instead.
    */
   readonly skipAuth?: boolean;
 
@@ -367,6 +374,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     }
 
     let server: HttpServer;
+    const env = typeof process === 'undefined' ? undefined : process.env;
+    const dangerouslyAllowUnauthenticatedRequests = this.options.dangerouslyAllowUnauthenticatedRequests
+      ?? this.options.skipAuth
+      ?? isTruthyEnvValue(env?.DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS);
 
     // HttpPlugin in plugins array (backwards compatibility)
     if (httpPlugin) {
@@ -383,7 +394,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         logger: this.log,
         onError: (err) => this.eventManager.onError({ error: err })
       }), {
-        skipAuth: this.options.skipAuth,
+        dangerouslyAllowUnauthenticatedRequests,
         logger: this.log,
         messagingEndpoint: this.options.messagingEndpoint ?? '/api/messages',
       });
