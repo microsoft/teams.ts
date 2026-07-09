@@ -385,7 +385,7 @@ describe('HttpStream', () => {
       statusText: 'Forbidden',
       config: {} as any,
     });
-    client.conversations.activities().create.mockRejectedValue(axiosError);
+    client.conversations.createActivity.mockRejectedValue(axiosError);
 
     await expect((stream as any).send({ type: 'typing', text: 'hi' })).rejects.toHaveProperty(
       'name',
@@ -402,7 +402,7 @@ describe('HttpStream', () => {
       statusText: 'Forbidden',
       config: {} as any,
     });
-    client.conversations.activities().create.mockRejectedValue(axiosError);
+    client.conversations.createActivity.mockRejectedValue(axiosError);
 
     await expect((stream as any).send({ type: 'typing', text: 'hi' })).rejects.toBeInstanceOf(
       TerminalStreamError
@@ -422,23 +422,27 @@ describe('HttpStream', () => {
       config: {} as any,
     });
 
-    client.conversations.activities().create.mockImplementation(async (activity: any) => {
-      createCalls++;
-      // The final streamed send (create #2, carries streamInfo) is the first to time out.
-      if (createCalls === 2) {
-        throw timeoutError;
+    client.conversations.createActivity.mockImplementation(
+      async (_conversationId: any, activity: any) => {
+        createCalls++;
+        // The final streamed send (create #2, carries streamInfo) is the first to time out.
+        if (createCalls === 2) {
+          throw timeoutError;
+        }
+        return { ...activity, id: 'stream-1' };
       }
-      return { ...activity, id: 'stream-1' };
-    });
-    client.conversations.activities().update.mockImplementation(async (id: any, activity: any) => {
-      updates.push({
-        id,
-        text: activity.text,
-        hasStreamInfo: (activity.entities ?? []).some((e: any) => e.type === 'streaminfo'),
-        streamType: activity.channelData?.streamType,
-      });
-      return { ...activity, id };
-    });
+    );
+    client.conversations.updateActivity.mockImplementation(
+      async (_conversationId: any, id: any, activity: any) => {
+        updates.push({
+          id,
+          text: activity.text,
+          hasStreamInfo: (activity.entities ?? []).some((e: any) => e.type === 'streaminfo'),
+          streamType: activity.channelData?.streamType,
+        });
+        return { ...activity, id };
+      }
+    );
 
     stream.emit('Final answer');
     const closePromise = stream.close();
@@ -469,22 +473,26 @@ describe('HttpStream', () => {
       config: {} as any,
     });
 
-    client.conversations.activities().create.mockImplementation(async (activity: any) => {
-      createCalls++;
-      // First chunk streams fine; the second chunk send trips the 2-minute limit.
-      if (createCalls === 2) {
-        throw timeoutError;
+    client.conversations.createActivity.mockImplementation(
+      async (_conversationId: any, activity: any) => {
+        createCalls++;
+        // First chunk streams fine; the second chunk send trips the 2-minute limit.
+        if (createCalls === 2) {
+          throw timeoutError;
+        }
+        return { ...activity, id: 'stream-1' };
       }
-      return { ...activity, id: 'stream-1' };
-    });
-    client.conversations.activities().update.mockImplementation(async (id: any, activity: any) => {
-      updates.push({
-        id,
-        text: activity.text,
-        hasStreamInfo: (activity.entities ?? []).some((e: any) => e.type === 'streaminfo'),
-      });
-      return { ...activity, id };
-    });
+    );
+    client.conversations.updateActivity.mockImplementation(
+      async (_conversationId: any, id: any, activity: any) => {
+        updates.push({
+          id,
+          text: activity.text,
+          hasStreamInfo: (activity.entities ?? []).some((e: any) => e.type === 'streaminfo'),
+        });
+        return { ...activity, id };
+      }
+    );
 
     stream.emit('chunk 1 ');
     await jest.runAllTimersAsync();
