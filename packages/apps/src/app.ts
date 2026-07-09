@@ -372,12 +372,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         '  - new App({ plugins: [new HttpPlugin()] }) (deprecated)'
       );
     }
-
     let server: HttpServer;
-    const env = typeof process === 'undefined' ? undefined : process.env;
     const dangerouslyAllowUnauthenticatedRequests = this.options.dangerouslyAllowUnauthenticatedRequests
       ?? this.options.skipAuth
-      ?? isTruthyStringValue(env?.DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS);
+      ?? isTruthyStringValue(process.env.DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS);
 
     // HttpPlugin in plugins array (backwards compatibility)
     if (httpPlugin) {
