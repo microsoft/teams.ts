@@ -303,16 +303,19 @@ export class HttpStream implements IStreamer {
 
     try {
       if (activity.id && !(activity.entities?.some((e) => e.type === 'streaminfo') || false)) {
-        const res = await this.client.conversations
-          .activities(this.ref.conversation.id)
-          .update(activity.id, activity);
+        const res = await this.client.conversations.updateActivity(
+          this.ref.conversation.id,
+          activity.id,
+          activity
+        );
 
         return { ...activity, ...res };
       }
 
-      const res = await this.client.conversations
-        .activities(this.ref.conversation.id)
-        .create(activity);
+      const res = await this.client.conversations.createActivity(
+        this.ref.conversation.id,
+        activity
+      );
 
       return { ...activity, ...res };
     } catch (err: any) {

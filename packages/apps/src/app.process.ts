@@ -243,7 +243,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
    * fetch the user's token for the given channel/user, if signed in
    */
   private async getUserToken(channelId: ChannelID, userId: string) {
-    const res = await this.options.api.users.token.get({
+    const res = await this.options.api.users.getToken({
       channelId,
       userId,
       connectionName: this.options.getConnectionName(),

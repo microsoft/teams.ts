@@ -5,9 +5,10 @@ import {
   type ClientOptions as HttpClientOptions
 } from '@microsoft/teams.common';
 
-import { Account, Conversation, ConversationResource } from '../../models';
+import { Account, Conversation, ConversationResource, MessageReactionType } from '../../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
+import { ReactionClient } from '../reaction';
 
 import { ActivityParams, ConversationActivityClient } from './activity';
 import { ConversationMemberClient } from './member';
@@ -59,13 +60,17 @@ export class ConversationClient {
   get http() {
     return this._http;
   }
-  set http(v) {
-    this._http = v;
-  }
-  protected _http: HttpClient;
-  protected _activities: ConversationActivityClient;
-  protected _members: ConversationMemberClient;
-  protected _apiClientSettings: Partial<ApiClientSettings>;
+set http(v) {
+  this._activities.http = v;
+  this._members.http = v;
+  this._reactions.http = v;
+  this._http = v;
+}
+protected _http: HttpClient;
+protected _activities: ConversationActivityClient;
+protected _members: ConversationMemberClient;
+protected _reactions: ReactionClient;
+protected _apiClientSettings: Partial<ApiClientSettings>;
 
   constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
     this.serviceUrl = serviceUrl;
@@ -81,8 +86,14 @@ export class ConversationClient {
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
     this._activities = new ConversationActivityClient(serviceUrl, this.http, this._apiClientSettings);
     this._members = new ConversationMemberClient(serviceUrl, this.http, this._apiClientSettings);
+    this._reactions = new ReactionClient(serviceUrl, this.http, this._apiClientSettings);
   }
 
+  /**
+   * @deprecated Use the flattened activity methods on `ConversationClient`
+   * instead (e.g. `conversations.createActivity(conversationId, ...)`). This
+   * grouped accessor will be removed in a future release.
+   */
   activities(conversationId: string) {
     return {
       create: (params: ActivityParams) => this._activities.create(conversationId, params),
@@ -99,6 +110,11 @@ export class ConversationClient {
     };
   }
 
+  /**
+   * @deprecated Use the flattened member methods on `ConversationClient`
+   * instead (e.g. `conversations.getMembers(conversationId)`). This grouped
+   * accessor will be removed in a future release.
+   */
   members(conversationId: string) {
     return {
       get: () => this._members.get(conversationId),
@@ -110,6 +126,97 @@ export class ConversationClient {
        */
       delete: (id: string) => this._members.delete(conversationId, id),
     };
+  }
+
+  /**
+   * Create an activity in a conversation.
+   */
+  createActivity(conversationId: string, params: ActivityParams) {
+    return this._activities.create(conversationId, params);
+  }
+
+  /**
+   * Update an activity in a conversation.
+   */
+  updateActivity(conversationId: string, id: string, params: ActivityParams) {
+    return this._activities.update(conversationId, id, params);
+  }
+
+  /**
+   * Reply to an activity in a conversation.
+   */
+  replyToActivity(conversationId: string, id: string, params: ActivityParams) {
+    return this._activities.reply(conversationId, id, params);
+  }
+
+  /**
+   * Delete an activity in a conversation.
+   */
+  deleteActivity(conversationId: string, id: string) {
+    return this._activities.delete(conversationId, id);
+  }
+
+  /**
+   * Get the members of an activity in a conversation.
+   */
+  getActivityMembers(conversationId: string, id: string) {
+    return this._activities.getMembers(conversationId, id);
+  }
+
+  /**
+   * Create a targeted activity in a conversation.
+   */
+  createTargetedActivity(conversationId: string, params: ActivityParams) {
+    return this._activities.createTargeted(conversationId, params);
+  }
+
+  /**
+   * Update a targeted activity in a conversation.
+   */
+  updateTargetedActivity(conversationId: string, id: string, params: ActivityParams) {
+    return this._activities.updateTargeted(conversationId, id, params);
+  }
+
+  /**
+   * Delete a targeted activity in a conversation.
+   */
+  deleteTargetedActivity(conversationId: string, id: string) {
+    return this._activities.deleteTargeted(conversationId, id);
+  }
+
+  /**
+   * Get the members of a conversation.
+   */
+  getMembers(conversationId: string) {
+    return this._members.get(conversationId);
+  }
+
+  /**
+   * Get a member of a conversation by id.
+   */
+  getMemberById(conversationId: string, id: string) {
+    return this._members.getById(conversationId, id);
+  }
+
+  /**
+   * Get paged members of a conversation.
+   */
+  getPagedMembers(conversationId: string, pageSize?: number, continuationToken?: string) {
+    return this._members.getPaged(conversationId, pageSize, continuationToken);
+  }
+
+  /**
+   * Add a reaction to an activity in a conversation.
+   */
+  addReaction(conversationId: string, activityId: string, reactionType: MessageReactionType) {
+    return this._reactions.add(conversationId, activityId, reactionType);
+  }
+
+  /**
+   * Delete a reaction from an activity in a conversation.
+   */
+  deleteReaction(conversationId: string, activityId: string, reactionType: MessageReactionType) {
+    return this._reactions.delete(conversationId, activityId, reactionType);
   }
 
   /**

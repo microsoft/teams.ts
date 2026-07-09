@@ -12,10 +12,8 @@ describe('HttpStream', () => {
   beforeEach(() => {
     client = {
       conversations: {
-        activities: jest.fn().mockReturnValue({
-          create: jest.fn(),
-          update: jest.fn(),
-        }),
+        createActivity: jest.fn(),
+        updateActivity: jest.fn(),
       },
     };
 
@@ -36,14 +34,14 @@ describe('HttpStream', () => {
 
   function mockCreate(successAfter = 0) {
     let calls = 0;
-    client.conversations.activities().create.mockImplementation(
-      async (_activity: any) => {
+    client.conversations.createActivity.mockImplementation(
+      async (_conversationId: any, activity: any) => {
         calls++;
         if (calls <= successAfter) {
           throw new Error('timeout');
         }
 
-        return { _activity, id: `activity-${calls}` };
+        return { ...activity, id: `activity-${calls}` };
       }
     );
     return () => calls;
@@ -58,26 +56,26 @@ describe('HttpStream', () => {
     }
 
     // Initial emit triggers immediate flush
-    expect(client.conversations.activities().create).toHaveBeenCalledTimes(1);
+    expect(client.conversations.createActivity).toHaveBeenCalledTimes(1);
 
     await jest.advanceTimersByTimeAsync(200);
     // next flush will be after 500ms, so no new calls yet
-    expect(client.conversations.activities().create).toHaveBeenCalledTimes(1);
+    expect(client.conversations.createActivity).toHaveBeenCalledTimes(1);
     stream.emit('Message 13');
 
     await jest.advanceTimersByTimeAsync(300);
     // 500ms passed since first emit, second flush drains entire queue
-    expect(client.conversations.activities().create).toHaveBeenCalledTimes(2);
+    expect(client.conversations.createActivity).toHaveBeenCalledTimes(2);
     stream.emit('Message 14');
 
     await jest.advanceTimersByTimeAsync(500);
     // another 500ms passed, third flush picks up Message 14
-    expect(client.conversations.activities().create).toHaveBeenCalledTimes(3);
+    expect(client.conversations.createActivity).toHaveBeenCalledTimes(3);
 
-    const calls = client.conversations.activities().create.mock.calls;
-    expect(calls[0][0].text).toBe('Message 1');
-    expect(calls[1][0].text).toBe('Message 1Message 2Message 3Message 4Message 5Message 6Message 7Message 8Message 9Message 10Message 11Message 12Message 13');
-    expect(calls[2][0].text).toBe('Message 1Message 2Message 3Message 4Message 5Message 6Message 7Message 8Message 9Message 10Message 11Message 12Message 13Message 14');
+    const calls = client.conversations.createActivity.mock.calls;
+    expect(calls[0][1].text).toBe('Message 1');
+    expect(calls[1][1].text).toBe('Message 1Message 2Message 3Message 4Message 5Message 6Message 7Message 8Message 9Message 10Message 11Message 12Message 13');
+    expect(calls[2][1].text).toBe('Message 1Message 2Message 3Message 4Message 5Message 6Message 7Message 8Message 9Message 10Message 11Message 12Message 13Message 14');
   });
 
 
@@ -86,15 +84,15 @@ describe('HttpStream', () => {
     const stream = new HttpStream(client, ref, logger);
 
     stream.emit('Test message');
-    expect(client.conversations.activities().create).toHaveBeenCalledTimes(1);
+    expect(client.conversations.createActivity).toHaveBeenCalledTimes(1);
 
     // retry after 500ms
     await jest.advanceTimersByTimeAsync(500);
 
-    expect(client.conversations.activities().create).toHaveBeenCalledTimes(2);
-    const calls = client.conversations.activities().create.mock.calls;
-    expect(calls[0][0].text).toBe('Test message');
-    expect(calls[1][0].text).toBe('Test message');
+    expect(client.conversations.createActivity).toHaveBeenCalledTimes(2);
+    const calls = client.conversations.createActivity.mock.calls;
+    expect(calls[0][1].text).toBe('Test message');
+    expect(calls[1][1].text).toBe('Test message');
     const res = await stream.close();
     expect(res).toBeDefined();
   });
@@ -108,10 +106,10 @@ describe('HttpStream', () => {
     // resolve promise microtask queue
     await jest.runAllTicks();
 
-    const calls = client.conversations.activities().create.mock.calls;
-    expect(calls[0][0].type).toBe('typing');
-    expect(calls[0][0].text).toBe('Thinking...');
-    expect(calls[0][0].channelData?.streamType).toBe('informative');
+    const calls = client.conversations.createActivity.mock.calls;
+    expect(calls[0][1].type).toBe('typing');
+    expect(calls[0][1].text).toBe('Thinking...');
+    expect(calls[0][1].channelData?.streamType).toBe('informative');
     expect(stream['index']).toBe(0);
   });
 
@@ -139,10 +137,10 @@ describe('HttpStream', () => {
 
     await jest.advanceTimersByTimeAsync(500);
 
-    const calls = client.conversations.activities().create.mock.calls;
+    const calls = client.conversations.createActivity.mock.calls;
     expect(calls.length).toBe(2);
-    expect(calls[0][0].type).toBe('typing');
-    expect(calls[1][0].text).toContain('Final message');
+    expect(calls[0][1].type).toBe('typing');
+    expect(calls[1][1].text).toContain('Final message');
 
   });
 
@@ -172,7 +170,7 @@ describe('HttpStream', () => {
       statusText: 'Forbidden',
       config: {} as any,
     });
-    client.conversations.activities().create.mockRejectedValue(axiosError);
+    client.conversations.createActivity.mockRejectedValue(axiosError);
 
     stream.emit('Test message');
     await jest.runAllTimersAsync();
@@ -218,10 +216,10 @@ describe('HttpStream', () => {
       config: {} as any,
     });
 
-    client.conversations.activities().create.mockImplementation(async (_activity: any) => {
+    client.conversations.createActivity.mockImplementation(async (_conversationId: any, activity: any) => {
       callCount++;
       if (callCount === 1) {
-        return { _activity, id: 'activity-1' };
+        return { ...activity, id: 'activity-1' };
       }
       throw axiosError;
     });
@@ -253,7 +251,8 @@ describe('HttpStream', () => {
     await jest.runAllTimersAsync();
     await closePromise;
 
-    expect(client.conversations.activities().create).toHaveBeenLastCalledWith(
+    expect(client.conversations.createActivity).toHaveBeenLastCalledWith(
+      expect.any(String),
       expect.objectContaining({
         type: 'message',
         text: 'first messagelast message',
@@ -279,7 +278,7 @@ describe('HttpStream', () => {
     await jest.advanceTimersByTimeAsync(100);
 
     // Verify close() is still waiting
-    const callsBeforeFlush = client.conversations.activities().create.mock.calls.length;
+    const callsBeforeFlush = client.conversations.createActivity.mock.calls.length;
     expect(callsBeforeFlush).toBe(0);
 
     // Simulate flush completing
@@ -289,7 +288,7 @@ describe('HttpStream', () => {
     await closePromise;
 
     // Now create() should have been called
-    const createCalls = client.conversations.activities().create.mock.calls.length;
+    const createCalls = client.conversations.createActivity.mock.calls.length;
     expect(createCalls).toBe(1);
   });
 
@@ -355,11 +354,11 @@ describe('HttpStream', () => {
     await jest.runAllTimersAsync();
     await closePromise;
 
-    const createCalls = client.conversations.activities().create.mock.calls;
+    const createCalls = client.conversations.createActivity.mock.calls;
     const finalCall = createCalls[createCalls.length - 1];
-    expect(finalCall[0].type).toBe('message');
-    expect(finalCall[0].text).toBe('');
-    expect(finalCall[0].attachments).toEqual([cardAttachment]);
-    expect(finalCall[0].channelData?.streamType).toBe('final');
+    expect(finalCall[1].type).toBe('message');
+    expect(finalCall[1].text).toBe('');
+    expect(finalCall[1].attachments).toEqual([cardAttachment]);
+    expect(finalCall[1].channelData?.streamType).toBe('final');
   });
 });

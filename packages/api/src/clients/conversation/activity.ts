@@ -36,6 +36,7 @@ export class ConversationActivityClient {
   }
 
   async create(conversationId: string, params: ActivityParams) {
+    // TODO: Will be deprecated alongside accessor in ConversationClient
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
       params
@@ -44,6 +45,7 @@ export class ConversationActivityClient {
   }
 
   async update(conversationId: string, id: string, params: ActivityParams) {
+    // TODO: Will be deprecated alongside accessor in ConversationClient
     const res = await this.http.put<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
       params
@@ -52,6 +54,7 @@ export class ConversationActivityClient {
   }
 
   async reply(conversationId: string, id: string, params: ActivityParams) {
+    // TODO: Will be deprecated alongside accessor in ConversationClient
     params.replyToId = id;
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
@@ -61,6 +64,7 @@ export class ConversationActivityClient {
   }
 
   async delete(conversationId: string, id: string) {
+    // TODO: Will be deprecated alongside accessor in ConversationClient
     const res = await this.http.delete<void>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`
     );
@@ -68,6 +72,7 @@ export class ConversationActivityClient {
   }
 
   async getMembers(conversationId: string, id: string): Promise<TeamsChannelAccount[]> {
+    // TODO: Will be deprecated alongside accessor in ConversationClient
     const res = await this.http.get<TeamsChannelAccount[]>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}/members`
     );
@@ -75,6 +80,7 @@ export class ConversationActivityClient {
   }
 
   async createTargeted(conversationId: string, params: ActivityParams) {
+    // TODO: Will be deprecated alongside accessor in ConversationClient
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities?isTargetedActivity=true`,
       params
@@ -83,6 +89,7 @@ export class ConversationActivityClient {
   }
 
   async updateTargeted(conversationId: string, id: string, params: ActivityParams) {
+    // TODO: Will be deprecated alongside accessor in ConversationClient
     const res = await this.http.put<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`,
       params
@@ -91,6 +98,7 @@ export class ConversationActivityClient {
   }
 
   async deleteTargeted(conversationId: string, id: string) {
+    // TODO: Will be deprecated alongside accessor in ConversationClient
     const res = await this.http.delete<void>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`
     );

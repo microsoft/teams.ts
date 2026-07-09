@@ -333,7 +333,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     const convo = { ...this.ref };
 
     try {
-      const res = await this.api.users.token.get({
+      const res = await this.api.users.getToken({
         channelId: this.activity.channelId,
         userId: this.activity.from.id,
         connectionName: connectionName || this.connectionName,
@@ -398,7 +398,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   }
 
   async signout(connectionName?: string) {
-    await this.api.users.token.signOut({
+    await this.api.users.signOut({
       channelId: this.activity.channelId,
       userId: this.activity.from.id,
       connectionName: connectionName || this.connectionName,
