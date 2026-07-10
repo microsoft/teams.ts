@@ -41,9 +41,7 @@ export function getConversationIdResolver(
     } else {
       // Validate that the bot and user are both members of the conversation.
       try {
-        const member = await api.conversations
-          .members(conversationId)
-          .getById(userId);
+        const member = await api.conversations.getMemberById(conversationId, userId);
         state = { id: !member ? undefined : conversationId };
       } catch {
         state = { id: undefined };

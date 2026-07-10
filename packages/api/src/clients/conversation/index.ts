@@ -129,6 +129,18 @@ export class ConversationClient {
     return res.data;
   }
 
+  createActivity(conversationId: string, params: ActivityParams, options?: RequestOptions) {
+    return this._activities.create(conversationId, params, options);
+  }
+
+  updateActivity(conversationId: string, id: string, params: ActivityParams, options?: RequestOptions) {
+    return this._activities.update(conversationId, id, params, options);
+  }
+
+  getMemberById(conversationId: string, id: string, options?: RequestOptions) {
+    return this._members.getById(conversationId, id, options);
+  }
+
   async create(params: CreateConversationParams, options?: RequestOptions) {
     const url = `${resolveServiceUrl(this.serviceUrl, options)}/v3/conversations`;
     const res = await this.http.post<ConversationResource>(url, params, agenticIdentityExtension(options));
