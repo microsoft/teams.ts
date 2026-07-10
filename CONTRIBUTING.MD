@@ -34,4 +34,4 @@ If a tool fails or warns that it can't reach npm, follow the per-protocol setup 
 
 > This is the device-level reroute that lets contributors install packages. Repo-level CFS onboarding (making the build itself consume through Azure Artifacts) is handled in the build pipeline, not configured here.
 
-> Newly published package versions are held in CFS for ~7 days. If a dependency bump can't be installed on a managed device, this quarantine hold is the likely cause.
+> Newly published package versions are held in CFS for a short quarantine period before they become installable. If a recent dependency bump can't be installed on a managed device, this quarantine hold is the likely cause.
