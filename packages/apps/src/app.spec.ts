@@ -384,6 +384,16 @@ describe('App', () => {
       expect((app.server as any).dangerouslyAllowUnauthenticatedRequests).toBe(false);
     });
 
+    it('should throw for invalid environment variable values', () => {
+      process.env[unauthenticatedRequestsEnv] = 'maybe';
+
+      expect(() => new App({
+        httpServerAdapter: new TestAdapter(),
+      })).toThrow(
+        'DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS must be a boolean value: true/false, 1/0, yes/no, or on/off.'
+      );
+    });
+
     it('should let explicit option override environment variable', () => {
       process.env[unauthenticatedRequestsEnv] = 'true';
 
