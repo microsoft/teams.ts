@@ -112,7 +112,7 @@ export interface IMessageActivity extends IActivity<'message'> {
  *
  * All server-populated base fields optional (via {@link IActivityInput}) and the
  * message-specific fields optional too, so both a plain `{ type: 'message', text }`
- * literal and a {@link MessageActivity} builder instance are assignable. The message
+ * literal and a {@link MessageActivityInput} builder instance are assignable. The message
  * fields are copied here instead of derived from {@link IMessageActivity}, keeping the
  * outbound input shape independent from the inbound activity interface.
  */
@@ -140,6 +140,26 @@ export class MessageActivityInput extends ActivityInput<'message'> implements IM
   constructor(text: string = '', value: Omit<Partial<IMessageActivityInput>, 'type'> = {}) {
     super('message', value);
     Object.assign(this, { text, ...value });
+  }
+
+  /**
+   * copy the outbound-safe fields from a message-like activity input
+   */
+  static from(activity: IMessageActivityInput) {
+    return new MessageActivityInput(activity.text, {
+      id: activity.id,
+      recipient: activity.recipient,
+      replyToId: activity.replyToId,
+      entities: activity.entities,
+      channelData: activity.channelData,
+      summary: activity.summary,
+      textFormat: activity.textFormat,
+      attachmentLayout: activity.attachmentLayout,
+      attachments: activity.attachments,
+      suggestedActions: activity.suggestedActions,
+      deliveryMode: activity.deliveryMode,
+      value: activity.value,
+    });
   }
 
   withText(value: string) {
@@ -224,8 +244,8 @@ export class MessageActivityInput extends ActivityInput<'message'> implements IM
   }
 }
 
-// Extends the full inbound Activity shape for backcompat while callers migrate to MessageActivityInput.
-export class MessageActivity extends Activity<'message'> implements IMessageActivity, IMessageActivityInput {
+// Extends the full inbound Activity shape for backcompat; send() converts instances to MessageActivityInput.
+export class MessageActivity extends Activity<'message'> implements IMessageActivity {
   /**
    * The text content of the message.
    */

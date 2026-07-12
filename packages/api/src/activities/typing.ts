@@ -12,7 +12,7 @@ export interface ITypingActivity extends IActivity<'typing'> {
  *
  * All server-populated base fields optional (via {@link IActivityInput}) and the
  * typing-specific fields optional too, so both a plain `{ type: 'typing' }` literal
- * and a {@link TypingActivity} builder instance are assignable. The typing fields are
+ * and a {@link TypingActivityInput} builder instance are assignable. The typing fields are
  * copied here instead of derived from {@link ITypingActivity}, keeping the outbound input
  * shape independent from the inbound activity interface.
  */
@@ -29,6 +29,20 @@ export class TypingActivityInput extends ActivityInput<'typing'> implements ITyp
   constructor(value: Omit<Partial<ITypingActivityInput>, 'type'> = {}) {
     super('typing', value);
     Object.assign(this, value);
+  }
+
+  /**
+   * copy the outbound-safe fields from a typing-like activity input
+   */
+  static from(activity: ITypingActivityInput) {
+    return new TypingActivityInput({
+      id: activity.id,
+      recipient: activity.recipient,
+      replyToId: activity.replyToId,
+      entities: activity.entities,
+      channelData: activity.channelData,
+      text: activity.text,
+    });
   }
 
   /**
@@ -81,7 +95,7 @@ export class TypingActivityInput extends ActivityInput<'typing'> implements ITyp
   }
 }
 
-export class TypingActivity extends Activity<'typing'> implements ITypingActivity, ITypingActivityInput {
+export class TypingActivity extends Activity<'typing'> implements ITypingActivity {
   /**
    * The text content of the message.
    */

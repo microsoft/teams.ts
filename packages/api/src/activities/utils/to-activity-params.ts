@@ -2,7 +2,8 @@ import { isAdaptiveCard } from '@microsoft/teams.cards';
 
 import type { ActivityParams } from '../../clients';
 import type { ActivityLike } from '../../models';
-import { MessageActivity } from '../message';
+import { MessageActivity, MessageActivityInput } from '../message';
+import { TypingActivity, TypingActivityInput } from '../typing';
 
 /**
  * @hidden
@@ -17,7 +18,11 @@ export function toActivityParams(activity: ActivityLike): ActivityParams {
       text: activity,
     };
   } else if (isAdaptiveCard(activity)) {
-    activity = new MessageActivity().addCard('adaptive', activity);
+    activity = new MessageActivityInput().addCard('adaptive', activity);
+  } else if (activity instanceof MessageActivity) {
+    activity = MessageActivityInput.from(activity);
+  } else if (activity instanceof TypingActivity) {
+    activity = TypingActivityInput.from(activity);
   }
 
   return activity;
