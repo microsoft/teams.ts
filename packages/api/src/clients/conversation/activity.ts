@@ -3,8 +3,15 @@ import {
   type ClientOptions as HttpClientOptions
 } from '@microsoft/teams.common';
 
-import type { IMessageActivityInput, ITypingActivityInput } from '../../activities';
-import { resolveAadObjectId, Resource, TeamsChannelAccount } from '../../models';
+import {
+  MessageActivity,
+  toActivityParams,
+  TypingActivity,
+  type Activity,
+  type IMessageActivityInput,
+  type ITypingActivityInput
+} from '../../activities';
+import { resolveAadObjectId, Resource, TeamsChannelAccount, type DeprecatedInputActivity } from '../../models';
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 
 /**
@@ -14,6 +21,16 @@ import { ApiClientSettings, mergeApiClientSettings } from '../api-client-setting
  * Kept as a named export for backwards compatibility.
  */
 export type ActivityParams = IMessageActivityInput | ITypingActivityInput;
+export type RawActivityParams = Pick<Activity, 'type'> & Partial<Activity>;
+type ActivityParamsLike = ActivityParams | DeprecatedInputActivity | RawActivityParams;
+
+function toConversationActivityParams(params: ActivityParamsLike): ActivityParams | RawActivityParams {
+  if (params instanceof MessageActivity || params instanceof TypingActivity) {
+    return toActivityParams(params);
+  }
+
+  return params;
+}
 
 export class ConversationActivityClient {
   readonly serviceUrl: string;
@@ -41,30 +58,51 @@ export class ConversationActivityClient {
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
   }
 
-  async create(conversationId: string, params: ActivityParams) {
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async create(conversationId: string, params: DeprecatedInputActivity): Promise<Resource>;
+  async create(conversationId: string, params: ActivityParams): Promise<Resource>;
+  async create(conversationId: string, params: RawActivityParams): Promise<Resource>;
+  async create(conversationId: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
+    const activity = toConversationActivityParams(params);
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
-      params
+      activity
     );
     return res.data;
   }
 
-  async update(conversationId: string, id: string, params: ActivityParams) {
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async update(conversationId: string, id: string, params: DeprecatedInputActivity): Promise<Resource>;
+  async update(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
+  async update(conversationId: string, id: string, params: RawActivityParams): Promise<Resource>;
+  async update(conversationId: string, id: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
+    const activity = toConversationActivityParams(params);
     const res = await this.http.put<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
-      params
+      activity
     );
     return res.data;
   }
 
-  async reply(conversationId: string, id: string, params: ActivityParams) {
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async reply(conversationId: string, id: string, params: DeprecatedInputActivity): Promise<Resource>;
+  async reply(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
+  async reply(conversationId: string, id: string, params: RawActivityParams): Promise<Resource>;
+  async reply(conversationId: string, id: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
-    params.replyToId = id;
+    const activity = toConversationActivityParams(params);
+    activity.replyToId = id;
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
-      params
+      activity
     );
     return res.data;
   }
@@ -85,20 +123,34 @@ export class ConversationActivityClient {
     return (res.data ?? []).map(resolveAadObjectId);
   }
 
-  async createTargeted(conversationId: string, params: ActivityParams) {
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async createTargeted(conversationId: string, params: DeprecatedInputActivity): Promise<Resource>;
+  async createTargeted(conversationId: string, params: ActivityParams): Promise<Resource>;
+  async createTargeted(conversationId: string, params: RawActivityParams): Promise<Resource>;
+  async createTargeted(conversationId: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
+    const activity = toConversationActivityParams(params);
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities?isTargetedActivity=true`,
-      params
+      activity
     );
     return res.data;
   }
 
-  async updateTargeted(conversationId: string, id: string, params: ActivityParams) {
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async updateTargeted(conversationId: string, id: string, params: DeprecatedInputActivity): Promise<Resource>;
+  async updateTargeted(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
+  async updateTargeted(conversationId: string, id: string, params: RawActivityParams): Promise<Resource>;
+  async updateTargeted(conversationId: string, id: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
+    const activity = toConversationActivityParams(params);
     const res = await this.http.put<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`,
-      params
+      activity
     );
     return res.data;
   }

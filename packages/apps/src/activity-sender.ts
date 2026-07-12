@@ -1,4 +1,11 @@
-import { ActivityParams, Client, ConversationReference, SentActivity } from '@microsoft/teams.api';
+import {
+  ActivityParams,
+  Client,
+  ConversationReference,
+  DeprecatedInputActivity,
+  SentActivity,
+  toActivityParams
+} from '@microsoft/teams.api';
 import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
 
 import { HttpStream } from './http/http-stream';
@@ -14,13 +21,19 @@ export class ActivitySender implements IActivitySender {
     private logger: ILogger
   ) { }
 
-  async send(activity: ActivityParams, ref: ConversationReference): Promise<SentActivity> {
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async send(activity: DeprecatedInputActivity, ref: ConversationReference): Promise<SentActivity>;
+  async send(activity: ActivityParams, ref: ConversationReference): Promise<SentActivity>;
+  async send(activity: ActivityParams | DeprecatedInputActivity, ref: ConversationReference): Promise<SentActivity> {
     // Create API client for this conversation's service URL
     const api = new Client(ref.serviceUrl, this.client);
+    const params = toActivityParams(activity);
 
     // Merge activity with conversation reference for the wire payload.
     const payload = {
-      ...activity,
+      ...params,
       from: ref.bot,
       conversation: ref.conversation,
     };

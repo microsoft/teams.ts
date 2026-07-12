@@ -1,4 +1,4 @@
-import { MessageActivity } from '@microsoft/teams.api';
+import { MessageActivityInput } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
@@ -26,7 +26,7 @@ app.on('message', async ({ reply, activity }) => {
     ].join('\n');
 
     await reply(
-      new MessageActivity(richContent).withTextFormat('extendedmarkdown')
+      new MessageActivityInput(richContent).withTextFormat('extendedmarkdown')
     );
   } else if (text.includes('markdown')) {
     const markdownContent = [
@@ -45,7 +45,7 @@ app.on('message', async ({ reply, activity }) => {
     ].join('\n');
 
     await reply(
-      new MessageActivity(markdownContent).withTextFormat('markdown')
+      new MessageActivityInput(markdownContent).withTextFormat('markdown')
     );
   } else if (text.includes('xml')) {
     const xmlContent =
@@ -53,11 +53,11 @@ app.on('message', async ({ reply, activity }) => {
       '<ul><li>Item one</li><li>Item two</li><li>Item three</li></ul>';
 
     await reply(
-      new MessageActivity(xmlContent).withTextFormat('xml')
+      new MessageActivityInput(xmlContent).withTextFormat('xml')
     );
   } else if (text.includes('plain')) {
     await reply(
-      new MessageActivity('This is plain text with no formatting applied.').withTextFormat('plain')
+      new MessageActivityInput('This is plain text with no formatting applied.').withTextFormat('plain')
     );
   } else {
     await reply(

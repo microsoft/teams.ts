@@ -7,6 +7,7 @@ import {
   ITypingActivity,
   MessageActivity,
   SentActivity,
+  toActivityParams,
   TypingActivity,
 } from '@microsoft/teams.api';
 import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/teams.common';
@@ -408,8 +409,9 @@ export class HttpStream implements IStreamer {
       throw new StreamCancelledError();
     }
 
+    const params = toActivityParams(activity);
     const payload = {
-      ...activity,
+      ...params,
       from: this.ref.bot,
       conversation: this.ref.conversation,
     };

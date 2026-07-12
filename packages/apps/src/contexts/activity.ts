@@ -5,6 +5,7 @@ import {
   cardAttachment,
   ConversationAccount,
   ConversationReference,
+  DeprecatedInputActivity,
   InvokeResponse,
   IMessageActivity,
   MessageActivity,
@@ -161,20 +162,32 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * @param activity activity to send
    * @param conversationRef optional conversation reference to send the activity to. By default, it will use the activity's conversation reference.
    */
-  send: (activity: ActivityLike, conversationRef?: ConversationReference) => Promise<SentActivity>;
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  send(activity: DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
+  send(activity: ActivityLike, conversationRef?: ConversationReference): Promise<SentActivity>;
 
   /**
    * reply to the inbound activity, automatically quoting the inbound message
    * @param activity activity to send
    */
-  reply: (activity: ActivityLike) => Promise<SentActivity>;
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  reply(activity: DeprecatedInputActivity): Promise<SentActivity>;
+  reply(activity: ActivityLike): Promise<SentActivity>;
 
   /**
    * send a reply quoting a specific message by ID
    * @param messageId the ID of the message to quote
    * @param activity activity to send
    */
-  quote: (messageId: string, activity: ActivityLike) => Promise<SentActivity>;
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  quote(messageId: string, activity: DeprecatedInputActivity): Promise<SentActivity>;
+  quote(messageId: string, activity: ActivityLike): Promise<SentActivity>;
 
   /**
    * trigger user signin flow for the activity sender
@@ -261,7 +274,12 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * @param activity the activity to send
    * @param conversationRef optional conversation reference to send to a different conversation or thread
    */
-  async send(activity: ActivityLike, conversationRef?: ConversationReference) {
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async send(activity: DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
+  async send(activity: ActivityLike, conversationRef?: ConversationReference): Promise<SentActivity>;
+  async send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) {
     const params = toActivityParams(activity);
 
     if (this.shouldOutboundBeAutoTargeted(params, conversationRef)) {
@@ -292,7 +310,12 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    *
    * @param activity the activity to send
    */
-  async reply(activity: ActivityLike) {
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async reply(activity: DeprecatedInputActivity): Promise<SentActivity>;
+  async reply(activity: ActivityLike): Promise<SentActivity>;
+  async reply(activity: ActivityLike | DeprecatedInputActivity) {
     if (this.activity.id) {
       return this.quote(this.activity.id, activity);
     }
@@ -305,7 +328,12 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * @param messageId - The ID of the message to quote
    * @param activity - The activity to send — a quote placeholder for messageId will be prepended to its text
    */
-  async quote(messageId: string, activity: ActivityLike) {
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async quote(messageId: string, activity: DeprecatedInputActivity): Promise<SentActivity>;
+  async quote(messageId: string, activity: ActivityLike): Promise<SentActivity>;
+  async quote(messageId: string, activity: ActivityLike | DeprecatedInputActivity) {
     activity = toActivityParams(activity);
 
     if (activity.type === 'message') {

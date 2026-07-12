@@ -1,5 +1,7 @@
 import { Client } from '@microsoft/teams.common';
 
+import { MessageActivity, TypingActivity } from '../../activities';
+
 import { ConversationActivityClient } from './activity';
 
 describe('ConversationActivityClient', () => {
@@ -47,6 +49,61 @@ describe('ConversationActivityClient', () => {
       type: 'message',
       text: 'hi',
     });
+  });
+
+  it('should convert legacy message activity builders before create', async () => {
+    const client = new ConversationActivityClient('');
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+
+    await client.create(
+      '1',
+      new MessageActivity('hi')
+        .withId('activity-id')
+        .withFrom({ id: 'bot-id', name: 'Bot', role: 'bot' })
+        .withRecipient({ id: 'user-id', name: 'User', role: 'user' })
+        .withConversation({ id: 'conversation-id', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url')
+    );
+
+    const body = spy.mock.calls[0][1] as Record<string, unknown>;
+    expect(body).toEqual(expect.objectContaining({
+      type: 'message',
+      text: 'hi',
+      id: 'activity-id',
+      recipient: { id: 'user-id', name: 'User', role: 'user', isTargeted: undefined },
+    }));
+    expect(body).not.toHaveProperty('from');
+    expect(body).not.toHaveProperty('conversation');
+    expect(body).not.toHaveProperty('channelId');
+    expect(body).not.toHaveProperty('serviceUrl');
+  });
+
+  it('should convert legacy typing activity builders before create', async () => {
+    const client = new ConversationActivityClient('');
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+
+    await client.create(
+      '1',
+      new TypingActivity()
+        .withId('activity-id')
+        .withFrom({ id: 'bot-id', name: 'Bot', role: 'bot' })
+        .withRecipient({ id: 'user-id', name: 'User', role: 'user' })
+        .withConversation({ id: 'conversation-id', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url')
+    );
+
+    const body = spy.mock.calls[0][1] as Record<string, unknown>;
+    expect(body).toEqual(expect.objectContaining({
+      type: 'typing',
+      id: 'activity-id',
+      recipient: { id: 'user-id', name: 'User', role: 'user', isTargeted: undefined },
+    }));
+    expect(body).not.toHaveProperty('from');
+    expect(body).not.toHaveProperty('conversation');
+    expect(body).not.toHaveProperty('channelId');
+    expect(body).not.toHaveProperty('serviceUrl');
   });
 
   it('should update', async () => {

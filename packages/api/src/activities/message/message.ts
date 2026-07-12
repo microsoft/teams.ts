@@ -211,9 +211,8 @@ export class MessageActivityInput extends ActivityInput<'message'> implements IM
     return this;
   }
 
-  addCard(type: CardAttachmentType, content: any) {
-    this.addAttachments(cardAttachment(type, content));
-    return this;
+  addCard<T extends CardAttachmentType>(type: T, content: CardAttachmentTypes[T]['content']) {
+    return this.addAttachments(cardAttachment(type, content));
   }
 
   addMention(account: Account, options: AddMentionOptions = {}) {
@@ -240,6 +239,48 @@ export class MessageActivityInput extends ActivityInput<'message'> implements IM
       streamSequence: this.channelData?.streamSequence || 1,
     });
 
+    return this;
+  }
+
+  /**
+   * Add a quoted message reference and append a `<quoted messageId="..."/>` placeholder to text.
+   * Teams renders the quoted message as a preview bubble above the response text.
+   * If text is provided, it is appended to the quoted message placeholder.
+   * @param messageId - The ID of the message to quote
+   * @param text - Optional text, appended to the quoted message placeholder
+   * @returns this instance for chaining
+   */
+  addQuote(messageId: string, text?: string): this {
+    if (!this.entities) {
+      this.entities = [];
+    }
+    this.entities.push({
+      type: 'quotedReply',
+      quotedReply: { messageId },
+    });
+    this.addText(`<quoted messageId="${messageId}"/>`);
+    if (text) {
+      this.addText(` ${text}`);
+    }
+    return this;
+  }
+
+  /**
+   * Prepend a quotedReply entity and `<quoted messageId="..."/>` placeholder
+   * before existing text. Used by reply()/quote() for quote-above-response.
+   * @param messageId - The IC3 message ID of the message to quote
+   */
+  prependQuote(messageId: string): this {
+    if (!this.entities) {
+      this.entities = [];
+    }
+    this.entities.push({
+      type: 'quotedReply',
+      quotedReply: { messageId },
+    });
+    const placeholder = `<quoted messageId="${messageId}"/>`;
+    const hasText = !!this.text?.trim();
+    this.text = hasText ? `${placeholder} ${this.text}` : placeholder;
     return this;
   }
 }

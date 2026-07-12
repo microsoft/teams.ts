@@ -1,4 +1,4 @@
-import { MessageActivity } from '@microsoft/teams.api';
+import { MessageActivityInput } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common/logging';
 
@@ -50,7 +50,7 @@ app.on('message', async ({ send, reply, quote, activity }) => {
   // ============================================
   if (text.includes('test add')) {
     const sent = await send('Please review the latest PR before end of day.');
-    const msg = new MessageActivity()
+    const msg = new MessageActivityInput()
       .addQuote(sent.id, 'Done! Left my comments on the PR.');
     await send(msg);
     return;
@@ -63,7 +63,7 @@ app.on('message', async ({ send, reply, quote, activity }) => {
     const sentA = await send('We need to update the API docs before launch.');
     const sentB = await send('The design mockups are ready for review.');
     const sentC = await send('CI pipeline is green on main.');
-    const msg = new MessageActivity()
+    const msg = new MessageActivityInput()
       .addQuote(sentA.id, 'I can take the docs — will have a draft by Thursday.')
       .addQuote(sentB.id, 'Looks great, approved!')
       .addQuote(sentC.id);
@@ -76,7 +76,7 @@ app.on('message', async ({ send, reply, quote, activity }) => {
   // ============================================
   if (text.includes('test manual')) {
     const sent = await send('Deployment to staging is complete.');
-    const msg = new MessageActivity()
+    const msg = new MessageActivityInput()
       .addQuote(sent.id)
       .addText(' Verified — all smoke tests passing.');
     await send(msg);

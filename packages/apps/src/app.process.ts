@@ -4,6 +4,7 @@ import {
   ApiClientSettings,
   ChannelID,
   ConversationReference,
+  DeprecatedInputActivity,
   InvokeResponse,
   isInvokeResponse,
 } from '@microsoft/teams.api';
@@ -177,7 +178,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
     });
 
     const send = context.send.bind(context);
-    context.send = async (activity: ActivityLike, conversationRef?: ConversationReference) => {
+    context.send = async (activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) => {
       const res = await send(activity, conversationRef ?? ref);
 
       this.options.eventManager.onActivitySent({

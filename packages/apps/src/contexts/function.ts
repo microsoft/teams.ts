@@ -1,6 +1,7 @@
 import {
   ActivityLike,
   ConversationReference,
+  DeprecatedInputActivity,
   SentActivity,
   toActivityParams,
 } from '@microsoft/teams.api';
@@ -47,7 +48,11 @@ export interface IFunctionContext<T = any> extends IClientContext {
    * Returns null if the conversation ID cannot be determined or is invalid.
    * @param activity activity to send
    */
-  send: (activity: ActivityLike) => Promise<SentActivity | null>;
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  send(activity: DeprecatedInputActivity): Promise<SentActivity | null>;
+  send(activity: ActivityLike): Promise<SentActivity | null>;
 }
 
 /**
@@ -117,7 +122,12 @@ export class FunctionContext<T = any> implements IFunctionContext<T> {
    * Returns null if the conversation ID cannot be determined or is invalid.
    * @param activity activity to send
    */
-  async send(activity: ActivityLike): Promise<SentActivity | null> {
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async send(activity: DeprecatedInputActivity): Promise<SentActivity | null>;
+  async send(activity: ActivityLike): Promise<SentActivity | null>;
+  async send(activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity | null> {
     const conversationId = await this.getCurrentConversationId();
 
     if (!conversationId) {

@@ -1,7 +1,7 @@
 import {
   AdaptiveCardActionMessageResponse,
   cardAttachment,
-  MessageActivity,
+  MessageActivityInput,
 } from '@microsoft/teams.api';
 import { App, IStreamer } from '@microsoft/teams.apps';
 import {
@@ -93,7 +93,7 @@ function shipResult(
 ): void {
   if (result.pendingCard) {
     stream.clearText();
-    stream.emit(new MessageActivity().addCard('adaptive', result.pendingCard).addAiGenerated());
+    stream.emit(new MessageActivityInput().addCard('adaptive', result.pendingCard).addAiGenerated());
     return;
   }
 
@@ -105,7 +105,7 @@ function finalizeStreamedMessage(
   result: AgentRunResult,
   recipientId: string
 ): void {
-  const finalMarker = new MessageActivity().addAiGenerated().addFeedback('custom');
+  const finalMarker = new MessageActivityInput().addAiGenerated().addFeedback('custom');
   result.citations.attachCitations(finalMarker, result.fullText);
 
   if (result.followUps.length > 0) {

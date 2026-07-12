@@ -1,4 +1,4 @@
-import { ActivityParams, ConversationReference, SentActivity } from '@microsoft/teams.api';
+import { ActivityParams, ConversationReference, DeprecatedInputActivity, SentActivity } from '@microsoft/teams.api';
 
 import { IActivityEvent, IErrorEvent } from '../../events';
 import { IStreamer } from '../streamer';
@@ -82,7 +82,13 @@ export interface IPlugin<TActivityContext extends {} = {}, TEvents extends {} = 
    * called by the `App`
    * to send an activity
    */
-  send?(activity: ActivityParams, ref: ConversationReference): Promise<SentActivity>;
+  send?: {
+    /**
+     * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+     */
+    (activity: DeprecatedInputActivity, ref: ConversationReference): Promise<SentActivity>;
+    (activity: ActivityParams, ref: ConversationReference): Promise<SentActivity>;
+  };
 
   /**
    * called by the `App`
