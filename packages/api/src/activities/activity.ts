@@ -119,6 +119,86 @@ export interface IActivity<T extends string = string> {
   isStreaming(): boolean;
 }
 
+/**
+ * Base shape for an OUTBOUND activity the app constructs and sends.
+ *
+ * This is intentionally not derived from all of {@link IActivity}: inbound/server-filled
+ * fields such as `from`, `conversation`, `channelId`, `serviceUrl`, and timestamps are
+ * filled by the sender or service, not by callers constructing outbound input.
+ */
+export interface IActivityInput<T extends string = string> {
+  readonly type: T;
+  id?: string;
+  recipient?: Account;
+  replyToId?: string;
+  entities?: Entity[];
+  channelData?: ChannelData;
+}
+
+export class ActivityInput<T extends string = string> implements IActivityInput<T> {
+  readonly type: T;
+  id?: string;
+  recipient?: Account;
+  replyToId?: string;
+  entities?: Entity[];
+  channelData?: ChannelData;
+
+  constructor(type: T, value: Omit<Partial<IActivityInput<T>>, 'type'> = {}) {
+    Object.assign(this, value);
+    this.type = type;
+  }
+
+  withId(value: string) {
+    this.id = value;
+    return this;
+  }
+
+  withRecipient(value: Account, isTargeted: boolean = false) {
+    this.recipient = { ...value, isTargeted: isTargeted ? true : undefined };
+    return this;
+  }
+
+  withReplyToId(value: string) {
+    this.replyToId = value;
+    return this;
+  }
+
+  withChannelData(value: ChannelData) {
+    const merged: ChannelData = { ...this.channelData, ...value };
+
+    if (merged.feedbackLoop !== undefined) {
+      merged.feedbackLoopEnabled = undefined;
+    } else if (merged.feedbackLoopEnabled === true) {
+      merged.feedbackLoop = { type: 'default' };
+      merged.feedbackLoopEnabled = undefined;
+    }
+
+    this.channelData = merged;
+    return this;
+  }
+
+  addEntity(value: Entity) {
+    if (!this.entities) {
+      this.entities = [];
+    }
+
+    this.entities.push(value);
+    return this;
+  }
+
+  addEntities(...value: Entity[]) {
+    for (const entity of value) {
+      this.addEntity(entity);
+    }
+
+    return this;
+  }
+
+  isStreaming() {
+    return this.entities?.some((e) => e.type === 'streaminfo') || false;
+  }
+}
+
 export class Activity<T extends string = string> implements IActivity<T> {
   /**
    * Contains the type of the activity.

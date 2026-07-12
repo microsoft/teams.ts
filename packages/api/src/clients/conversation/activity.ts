@@ -3,11 +3,17 @@ import {
   type ClientOptions as HttpClientOptions
 } from '@microsoft/teams.common';
 
-import { Activity } from '../../activities';
+import type { IMessageActivityInput, ITypingActivityInput } from '../../activities';
 import { resolveAadObjectId, Resource, TeamsChannelAccount } from '../../models';
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 
-export type ActivityParams = Pick<Activity, 'type'> & Partial<Activity>;
+/**
+ * Payload accepted by the low-level conversation activity client.
+ *
+ * The OUTBOUND activity union: an app only sends message or typing activity inputs.
+ * Kept as a named export for backwards compatibility.
+ */
+export type ActivityParams = IMessageActivityInput | ITypingActivityInput;
 
 export class ConversationActivityClient {
   readonly serviceUrl: string;

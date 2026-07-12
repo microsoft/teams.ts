@@ -1,14 +1,14 @@
 import { isAdaptiveCard } from '@microsoft/teams.cards';
 
-import { ActivityParams } from '../../clients';
-import { ActivityLike } from '../../models';
+import type { ActivityParams } from '../../clients';
+import type { ActivityLike } from '../../models';
 import { MessageActivity } from '../message';
 
 /**
  * @hidden
  * @internal
  *
- * Transforms supported send types into a valid `ActivityParams` object
+ * Transforms supported send types into a normalized OUTBOUND message/typing input.
  */
 export function toActivityParams(activity: ActivityLike): ActivityParams {
   if (typeof activity === 'string') {

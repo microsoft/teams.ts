@@ -13,7 +13,7 @@ import {
   SuggestedActions,
   TextFormat,
 } from '../../models';
-import { Activity, IActivity } from '../activity';
+import { Activity, ActivityInput, IActivity, IActivityInput } from '../activity';
 import { stripMentionsText, StripMentionsTextOptions } from '../utils';
 
 export interface IMessageActivity extends IActivity<'message'> {
@@ -107,7 +107,125 @@ export interface IMessageActivity extends IActivity<'message'> {
   getQuotedMessages(): QuotedReplyEntity[];
 }
 
-export class MessageActivity extends Activity<'message'> implements IMessageActivity {
+/**
+ * OUTBOUND message activity — what the app SENDS.
+ *
+ * All server-populated base fields optional (via {@link IActivityInput}) and the
+ * message-specific fields optional too, so both a plain `{ type: 'message', text }`
+ * literal and a {@link MessageActivity} builder instance are assignable. The message
+ * fields are copied here instead of derived from {@link IMessageActivity}, keeping the
+ * outbound input shape independent from the inbound activity interface.
+ */
+export interface IMessageActivityInput extends IActivityInput<'message'> {
+  text?: string;
+  summary?: string;
+  textFormat?: TextFormat;
+  attachmentLayout?: AttachmentLayout;
+  attachments?: Attachment[];
+  suggestedActions?: SuggestedActions;
+  deliveryMode?: DeliveryMode;
+  value?: any;
+}
+
+export class MessageActivityInput extends ActivityInput<'message'> implements IMessageActivityInput {
+  text?: string;
+  summary?: string;
+  textFormat?: TextFormat;
+  attachmentLayout?: AttachmentLayout;
+  attachments?: Attachment[];
+  suggestedActions?: SuggestedActions;
+  deliveryMode?: DeliveryMode;
+  value?: any;
+
+  constructor(text: string = '', value: Omit<Partial<IMessageActivityInput>, 'type'> = {}) {
+    super('message', value);
+    Object.assign(this, { text, ...value });
+  }
+
+  withText(value: string) {
+    this.text = value;
+    return this;
+  }
+
+  addText(value: string) {
+    this.text = `${this.text || ''}${value}`;
+    return this;
+  }
+
+  withSummary(value: string) {
+    this.summary = value;
+    return this;
+  }
+
+  withTextFormat(value: TextFormat) {
+    this.textFormat = value;
+    return this;
+  }
+
+  withAttachmentLayout(value: AttachmentLayout) {
+    this.attachmentLayout = value;
+    return this;
+  }
+
+  withSuggestedActions(value: SuggestedActions) {
+    this.suggestedActions = value;
+    return this;
+  }
+
+  withDeliveryMode(value: DeliveryMode) {
+    this.deliveryMode = value;
+    return this;
+  }
+
+  withValue(value: any) {
+    this.value = value;
+    return this;
+  }
+
+  addAttachments(...value: Attachment[]) {
+    if (!this.attachments) {
+      this.attachments = [];
+    }
+
+    this.attachments.push(...value);
+    return this;
+  }
+
+  addCard(type: CardAttachmentType, content: any) {
+    this.addAttachments(cardAttachment(type, content));
+    return this;
+  }
+
+  addMention(account: Account, options: AddMentionOptions = {}) {
+    const text = options.text || account.name;
+
+    if (options.addText !== false) {
+      this.addText(`<at>${text}</at>`);
+    }
+
+    return this.addEntity({
+      type: 'mention',
+      mentioned: account,
+      text: `<at>${text}</at>`,
+    });
+  }
+
+  addStreamFinal() {
+    const { streamId } = this.channelData || {};
+
+    this.addEntity({
+      type: 'streaminfo',
+      streamId: streamId || this.id || '',
+      streamType: 'final',
+      streamSequence: this.channelData?.streamSequence || 1,
+    });
+
+    return this;
+  }
+}
+
+// Extends the full inbound Activity shape for backcompat while callers migrate to MessageActivityInput.
+export class MessageActivity extends Activity<'message'> implements IMessageActivity, IMessageActivityInput {
   /**
    * The text content of the message.
    */

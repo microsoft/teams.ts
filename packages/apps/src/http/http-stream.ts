@@ -408,29 +408,29 @@ export class HttpStream implements IStreamer {
       throw new StreamCancelledError();
     }
 
-    activity = {
+    const payload = {
       ...activity,
       from: this.ref.bot,
       conversation: this.ref.conversation,
     };
 
     try {
-      if (activity.id && !(activity.entities?.some((e) => e.type === 'streaminfo') || false)) {
+      if (payload.id && !(payload.entities?.some((e) => e.type === 'streaminfo') || false)) {
         const res = await this.client.conversations.updateActivity(
           this.ref.conversation.id,
-          activity.id,
-          activity
+          payload.id,
+          payload
         );
 
-        return { ...activity, ...res };
+        return { ...payload, ...res };
       }
 
       const res = await this.client.conversations.createActivity(
         this.ref.conversation.id,
-        activity
+        payload
       );
 
-      return { ...activity, ...res };
+      return { ...payload, ...res };
     } catch (err: any) {
       // Various error codes are used for streaming.
       // https://learn.microsoft.com/en-us/microsoftteams/platform/bots/streaming-ux?tabs=csharp#error-codes
