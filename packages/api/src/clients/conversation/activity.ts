@@ -4,10 +4,7 @@ import {
 } from '@microsoft/teams.common';
 
 import {
-  MessageActivity,
   toActivityParams,
-  TypingActivity,
-  type Activity,
   type IMessageActivityInput,
   type ITypingActivityInput
 } from '../../activities';
@@ -21,16 +18,7 @@ import { ApiClientSettings, mergeApiClientSettings } from '../api-client-setting
  * Kept as a named export for backwards compatibility.
  */
 export type ActivityParams = IMessageActivityInput | ITypingActivityInput;
-export type RawActivityParams = Pick<Activity, 'type'> & Partial<Activity>;
-type ActivityParamsLike = ActivityParams | DeprecatedInputActivity | RawActivityParams;
-
-function toConversationActivityParams(params: ActivityParamsLike): ActivityParams | RawActivityParams {
-  if (params instanceof MessageActivity || params instanceof TypingActivity) {
-    return toActivityParams(params);
-  }
-
-  return params;
-}
+type ActivityParamsLike = ActivityParams | DeprecatedInputActivity;
 
 export class ConversationActivityClient {
   readonly serviceUrl: string;
@@ -63,10 +51,9 @@ export class ConversationActivityClient {
    */
   async create(conversationId: string, params: DeprecatedInputActivity): Promise<Resource>;
   async create(conversationId: string, params: ActivityParams): Promise<Resource>;
-  async create(conversationId: string, params: RawActivityParams): Promise<Resource>;
   async create(conversationId: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
-    const activity = toConversationActivityParams(params);
+    const activity = toActivityParams(params);
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
       activity
@@ -79,10 +66,9 @@ export class ConversationActivityClient {
    */
   async update(conversationId: string, id: string, params: DeprecatedInputActivity): Promise<Resource>;
   async update(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
-  async update(conversationId: string, id: string, params: RawActivityParams): Promise<Resource>;
   async update(conversationId: string, id: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
-    const activity = toConversationActivityParams(params);
+    const activity = toActivityParams(params);
     const res = await this.http.put<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
       activity
@@ -95,10 +81,9 @@ export class ConversationActivityClient {
    */
   async reply(conversationId: string, id: string, params: DeprecatedInputActivity): Promise<Resource>;
   async reply(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
-  async reply(conversationId: string, id: string, params: RawActivityParams): Promise<Resource>;
   async reply(conversationId: string, id: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
-    const activity = toConversationActivityParams(params);
+    const activity = toActivityParams(params);
     activity.replyToId = id;
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
@@ -128,10 +113,9 @@ export class ConversationActivityClient {
    */
   async createTargeted(conversationId: string, params: DeprecatedInputActivity): Promise<Resource>;
   async createTargeted(conversationId: string, params: ActivityParams): Promise<Resource>;
-  async createTargeted(conversationId: string, params: RawActivityParams): Promise<Resource>;
   async createTargeted(conversationId: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
-    const activity = toConversationActivityParams(params);
+    const activity = toActivityParams(params);
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities?isTargetedActivity=true`,
       activity
@@ -144,10 +128,9 @@ export class ConversationActivityClient {
    */
   async updateTargeted(conversationId: string, id: string, params: DeprecatedInputActivity): Promise<Resource>;
   async updateTargeted(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
-  async updateTargeted(conversationId: string, id: string, params: RawActivityParams): Promise<Resource>;
   async updateTargeted(conversationId: string, id: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
-    const activity = toConversationActivityParams(params);
+    const activity = toActivityParams(params);
     const res = await this.http.put<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`,
       activity
