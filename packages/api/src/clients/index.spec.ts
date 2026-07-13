@@ -16,16 +16,11 @@ describe('Api Client auth provider', () => {
     expect(http.interceptors.filter((interceptor) => interceptor instanceof AuthProviderInterceptor)).toHaveLength(1);
   });
 
-  it('reapplies auth provider when http client is replaced', () => {
-    const authProvider: AuthProvider = { token: async () => 'token' };
-    const api = new Client('https://service.example.com', undefined, { authProvider });
-    const replacement = new HttpClient();
+  it('does not expose a settable http client', () => {
+    const descriptor = Object.getOwnPropertyDescriptor(Client.prototype, 'http');
 
-    api.http = replacement;
-
-    expect(replacement.interceptors.filter((interceptor) => interceptor instanceof AuthProviderInterceptor)).toHaveLength(1);
-    expect(api.conversations.http).toBe(replacement);
-    expect(api.users.http).toBe(replacement);
+    expect(descriptor?.get).toBeDefined();
+    expect(descriptor?.set).toBeUndefined();
   });
 
   it('creates an agentic identity scoped clone', () => {

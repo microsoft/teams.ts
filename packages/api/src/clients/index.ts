@@ -41,16 +41,6 @@ export class Client {
   get http() {
     return this._http;
   }
-  set http(v) {
-    const http = this.withAuthProvider(v);
-    this.bots.http = http;
-    this.conversations.http = http;
-    this.users.http = http;
-    this.teams.http = http;
-    this.meetings.http = http;
-    this.reactions.http = http;
-    this._http = http;
-  }
   protected _http: HttpClient;
   protected _baseHttp!: HttpClient;
   protected _apiClientSettings: Partial<ApiClientSettings>;
