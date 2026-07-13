@@ -373,10 +373,24 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       );
     }
     let server: HttpServer;
-    const dangerouslyAllowUnauthenticatedRequests = this.options.dangerouslyAllowUnauthenticatedRequests
-      ?? this.options.skipAuth
-      ?? isTruthyEnvValue('DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS')
-      ?? false;
+    let dangerouslyAllowUnauthenticatedRequests = this.options.dangerouslyAllowUnauthenticatedRequests;
+    if (dangerouslyAllowUnauthenticatedRequests === undefined && this.options.skipAuth !== undefined) {
+      this.log.warn(
+        '[DEPRECATED] skipAuth is deprecated. Use dangerouslyAllowUnauthenticatedRequests instead.'
+      );
+      dangerouslyAllowUnauthenticatedRequests = this.options.skipAuth;
+    }
+    dangerouslyAllowUnauthenticatedRequests ??= isTruthyEnvValue('DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS');
+    if (dangerouslyAllowUnauthenticatedRequests === undefined) {
+      const skipAuthEnvValue = isTruthyEnvValue('SKIP_AUTH');
+      if (skipAuthEnvValue !== undefined) {
+        this.log.warn(
+          '[DEPRECATED] SKIP_AUTH is deprecated. Use DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS instead.'
+        );
+        dangerouslyAllowUnauthenticatedRequests = skipAuthEnvValue;
+      }
+    }
+    dangerouslyAllowUnauthenticatedRequests ??= false;
 
     // HttpPlugin in plugins array (backwards compatibility)
     if (httpPlugin) {
