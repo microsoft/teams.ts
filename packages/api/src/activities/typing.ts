@@ -17,12 +17,15 @@ export interface ITypingActivity extends IActivity<'typing'> {
  * shape independent from the inbound activity interface.
  */
 export interface ITypingActivityInput extends IActivityInput<'typing'> {
+  /**
+   * Text used by streaming updates. Ordinary typing indicators can omit this.
+   */
   text?: string;
 }
 
 export class TypingActivityInput extends ActivityInput<'typing'> implements ITypingActivityInput {
   /**
-   * The text content of the message.
+   * Text used by streaming updates. Ordinary typing indicators can omit this.
    */
   text?: string;
 
@@ -46,7 +49,7 @@ export class TypingActivityInput extends ActivityInput<'typing'> implements ITyp
   }
 
   /**
-   * The text content of the message.
+   * Set the streaming update text.
    */
   withText(value: string) {
     this.text = value;
@@ -54,7 +57,7 @@ export class TypingActivityInput extends ActivityInput<'typing'> implements ITyp
   }
 
   /**
-   * Append text
+   * Append streaming update text.
    */
   addText(text: string) {
     if (!this.text) {
