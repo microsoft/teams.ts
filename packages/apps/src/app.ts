@@ -380,14 +380,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       );
       dangerouslyAllowUnauthenticatedRequests = this.options.skipAuth;
     }
-    dangerouslyAllowUnauthenticatedRequests ??= isTruthyEnvValue('DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS');
     if (dangerouslyAllowUnauthenticatedRequests === undefined) {
-      const skipAuthEnvValue = isTruthyEnvValue('SKIP_AUTH');
-      if (skipAuthEnvValue !== undefined) {
+      const unauthenticatedRequestsEnvValue = isTruthyEnvValue('DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS');
+      if (unauthenticatedRequestsEnvValue !== undefined) {
         this.log.warn(
-          '[DEPRECATED] SKIP_AUTH is deprecated. Use DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS instead.'
+          'DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS is set. ' +
+          'Unauthenticated request behavior is configured by the environment.'
         );
-        dangerouslyAllowUnauthenticatedRequests = skipAuthEnvValue;
+        dangerouslyAllowUnauthenticatedRequests = unauthenticatedRequestsEnvValue;
       }
     }
     dangerouslyAllowUnauthenticatedRequests ??= false;

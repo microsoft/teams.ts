@@ -333,9 +333,8 @@ describe('App', () => {
 
   describe('unauthenticated request configuration', () => {
     const unauthenticatedRequestsEnv = 'DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS';
-    const skipAuthEnv = 'SKIP_AUTH';
     const originalUnauthenticatedRequestsEnv = process.env[unauthenticatedRequestsEnv];
-    const originalSkipAuthEnv = process.env[skipAuthEnv];
+    const originalSkipAuthEnv = process.env.SKIP_AUTH;
     const createLogger = () => {
       const logger = {
         debug: jest.fn(),
@@ -350,7 +349,7 @@ describe('App', () => {
 
     beforeEach(() => {
       delete process.env[unauthenticatedRequestsEnv];
-      delete process.env[skipAuthEnv];
+      delete process.env.SKIP_AUTH;
     });
 
     afterAll(() => {
@@ -360,9 +359,9 @@ describe('App', () => {
         process.env[unauthenticatedRequestsEnv] = originalUnauthenticatedRequestsEnv;
       }
       if (originalSkipAuthEnv === undefined) {
-        delete process.env[skipAuthEnv];
+        delete process.env.SKIP_AUTH;
       } else {
-        process.env[skipAuthEnv] = originalSkipAuthEnv;
+        process.env.SKIP_AUTH = originalSkipAuthEnv;
       }
     });
 
@@ -389,18 +388,8 @@ describe('App', () => {
     });
 
     it('should use environment variable when no option is provided', () => {
-      process.env[unauthenticatedRequestsEnv] = 'true';
-
-      const app = new App({
-        httpServerAdapter: new TestAdapter(),
-      });
-
-      expect((app.server as any).dangerouslyAllowUnauthenticatedRequests).toBe(true);
-    });
-
-    it('should support deprecated SKIP_AUTH environment variable', () => {
       const logger = createLogger();
-      process.env[skipAuthEnv] = 'true';
+      process.env[unauthenticatedRequestsEnv] = 'true';
 
       const app = new App({
         httpServerAdapter: new TestAdapter(),
@@ -409,8 +398,19 @@ describe('App', () => {
 
       expect((app.server as any).dangerouslyAllowUnauthenticatedRequests).toBe(true);
       expect(logger.warn).toHaveBeenCalledWith(
-        '[DEPRECATED] SKIP_AUTH is deprecated. Use DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS instead.'
+        'DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS is set. ' +
+        'Unauthenticated request behavior is configured by the environment.'
       );
+    });
+
+    it('should not support SKIP_AUTH environment variable', () => {
+      process.env.SKIP_AUTH = 'true';
+
+      const app = new App({
+        httpServerAdapter: new TestAdapter(),
+      });
+
+      expect((app.server as any).dangerouslyAllowUnauthenticatedRequests).toBe(false);
     });
 
     it('should ignore false-like environment variable values', () => {
