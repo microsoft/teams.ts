@@ -324,7 +324,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     // initialize ActivitySender for sending activities
     this.activitySender = new ActivitySender(
-      this.api,
       this.log,
       (senderServiceUrl, agenticIdentity) => this.api.clone({
         serviceUrl: senderServiceUrl,

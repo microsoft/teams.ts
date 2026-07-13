@@ -18,9 +18,8 @@ export type ActivitySenderClientFactory = (serviceUrl: string, agenticIdentity?:
  */
 export class ActivitySender implements IActivitySender {
   constructor(
-    api: Client,
     private logger: ILogger,
-    private createClient: ActivitySenderClientFactory = () => api,
+    private createClient: ActivitySenderClientFactory,
   ) { }
 
   async send(activity: ActivityParams, ref: ConversationReference, options?: ActivitySenderOptions): Promise<SentActivity> {

@@ -176,7 +176,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       return data;
     };
 
-    const activitySender = new ActivitySender(apiClient, this.options.log, apiClientFactory);
+    const activitySender = new ActivitySender(this.options.log, apiClientFactory);
 
     const context = new ActivityContext({
       activity,

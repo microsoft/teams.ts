@@ -30,7 +30,7 @@ describe('ActivitySender', () => {
     };
 
     createClient = jest.fn().mockReturnValue(mockClient);
-    sender = new ActivitySender(mockClient, undefined as any, createClient);
+    sender = new ActivitySender(undefined as any, createClient);
   });
 
   describe('send', () => {
