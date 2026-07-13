@@ -2,7 +2,6 @@ import {
   Activity,
   ActivityLike,
   AgenticIdentity,
-  ApiClientSettings,
   Account,
   ChannelID,
   ConversationReference,
@@ -12,9 +11,8 @@ import {
 import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
-import { ApiClient, GraphClient } from './api';
+import { type ApiClient, GraphClient } from './api';
 import { EventManager } from './app.events';
-import { AppAuthProvider } from './auth-provider';
 import { ActivityContext, IActivityContext } from './contexts';
 import { IActivityEvent } from './events';
 import { Router } from './router';
@@ -53,10 +51,7 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly log: ILogger;
   readonly getId: () => string | undefined;
   readonly getConnectionName: () => string;
-  readonly apiClientSettings?: ApiClientSettings;
   readonly graphBaseUrl?: string;
-  readonly authProvider: AppAuthProvider;
-  readonly cloud: import('@microsoft/teams.api').CloudEnvironment;
 }
 
 /**
@@ -106,16 +101,14 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
 
     const client = this.options.client.clone();
     const agenticIdentity = getAgenticIdentity(activity.recipient);
-    const apiClient = new ApiClient(
+    const apiClient = this.options.api.clone({
       serviceUrl,
-      this.options.client.clone(),
-      {
-        ...this.options.apiClientSettings,
-        cloud: this.options.cloud,
-        authProvider: this.options.authProvider,
-        agenticIdentity,
-      } as Partial<ApiClientSettings>
-    );
+      agenticIdentity,
+    });
+    const apiClientFactory = (senderServiceUrl: string, senderAgenticIdentity?: AgenticIdentity) => apiClient.clone({
+      serviceUrl: senderServiceUrl,
+      agenticIdentity: senderAgenticIdentity ?? agenticIdentity,
+    });
     const userGraph = new GraphClient(
       client.clone({ token: () => userToken }),
       { baseUrlRoot: this.options.graphBaseUrl }
@@ -183,7 +176,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       return data;
     };
 
-    const activitySender = new ActivitySender(apiClient, this.options.log);
+    const activitySender = new ActivitySender(apiClient, this.options.log, apiClientFactory);
 
     const context = new ActivityContext({
       activity,

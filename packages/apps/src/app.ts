@@ -10,7 +10,6 @@ import {
   cloudFromName,
   InvokeResponse,
   PUBLIC,
-  RequestOptions,
   StripMentionsTextOptions,
   toActivityParams,
   TokenCredentials,
@@ -52,10 +51,15 @@ import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { toThreadedConversationId } from './utils/thread';
 
-function isRequestOptions(value: ActivityLike | RequestOptions): value is RequestOptions {
+function isAppSendOptions(value: ActivityLike | AppSendOptions): value is AppSendOptions {
   if (typeof value === 'string') return false;
   return !('type' in value);
 }
+
+export type AppSendOptions = {
+  readonly serviceUrl?: string;
+  readonly agenticIdentity?: AgenticIdentity;
+};
 
 /**
  * App initialization options
@@ -322,6 +326,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     this.activitySender = new ActivitySender(
       this.api,
       this.log,
+      (senderServiceUrl, agenticIdentity) => this.api.clone({
+        serviceUrl: senderServiceUrl,
+        agenticIdentity,
+      }),
     );
 
     // initialize the activity pipeline collaborators. App owns these and passes
@@ -355,10 +363,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       log: this.log,
       getId: () => this.id,
       getConnectionName: () => this.oauth.defaultConnectionName,
-      apiClientSettings: this.options.apiClientSettings,
       graphBaseUrl: this.graphBaseUrl,
-      authProvider: this.authProvider,
-      cloud: this.cloud,
     });
 
     if (this.credentials?.clientId) {
@@ -532,7 +537,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param conversationId the conversation to send to
    * @param activity the activity to send
    */
-  async send(conversationId: string, activity: ActivityLike, options?: RequestOptions) {
+  async send(conversationId: string, activity: ActivityLike, options?: AppSendOptions) {
     if (!this.id) {
       throw new Error('App has no credentials set up');
     }
@@ -551,7 +556,11 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       } as ConversationReference['conversation'],
     };
 
-    const res = await this.activitySender.send(params, ref, options);
+    const res = await this.activitySender.send(
+      params,
+      ref,
+      options?.agenticIdentity ? { agenticIdentity: options.agenticIdentity } : undefined,
+    );
     return res;
   }
 
@@ -567,7 +576,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param messageId the thread root message ID
    * @param activity the activity to send
    */
-  async reply(conversationId: string, messageId: string, activity: ActivityLike, options?: RequestOptions): Promise<any>;
+  async reply(conversationId: string, messageId: string, activity: ActivityLike, options?: AppSendOptions): Promise<any>;
   /**
    * send an activity proactively to a conversation.
    *
@@ -577,13 +586,13 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param conversationId the conversation to send to
    * @param activity the activity to send
    */
-  async reply(conversationId: string, activity: ActivityLike, options?: RequestOptions): Promise<any>;
-  async reply(conversationId: string, messageId: string | ActivityLike, activity?: ActivityLike | RequestOptions, options?: RequestOptions) {
-    if (typeof messageId === 'string' && activity !== undefined && !isRequestOptions(activity)) {
+  async reply(conversationId: string, activity: ActivityLike, options?: AppSendOptions): Promise<any>;
+  async reply(conversationId: string, messageId: string | ActivityLike, activity?: ActivityLike | AppSendOptions, options?: AppSendOptions) {
+    if (typeof messageId === 'string' && activity !== undefined && !isAppSendOptions(activity)) {
       return this.send(toThreadedConversationId(conversationId, messageId), activity, options);
     }
 
-    const opts = activity && isRequestOptions(activity) ? activity : options;
+    const opts = activity && isAppSendOptions(activity) ? activity : options;
     return this.send(conversationId, messageId as ActivityLike, opts);
   }
 

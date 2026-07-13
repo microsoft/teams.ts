@@ -1,6 +1,10 @@
-import { ActivityParams, ConversationReference, RequestOptions, SentActivity } from '@microsoft/teams.api';
+import { ActivityParams, AgenticIdentity, ConversationReference, SentActivity } from '@microsoft/teams.api';
 
 import { IStreamer } from '../streamer';
+
+export type ActivitySenderOptions = {
+  readonly agenticIdentity?: AgenticIdentity;
+};
 
 /**
  * Interface for activity sending (NOT a plugin)
@@ -10,7 +14,7 @@ export interface IActivitySender {
   /**
    * Send an activity
    */
-  send(activity: ActivityParams, ref: ConversationReference, options?: RequestOptions): Promise<SentActivity>;
+  send(activity: ActivityParams, ref: ConversationReference, options?: ActivitySenderOptions): Promise<SentActivity>;
 
   /**
    * Create a new activity stream

@@ -13,8 +13,21 @@ import { BotClient } from './bot';
 import { ConversationClient } from './conversation';
 import { MeetingClient } from './meeting';
 import { ReactionClient } from './reaction';
+import { normalizeServiceUrl } from './service-url';
 import { TeamClient } from './team';
 import { UserClient } from './user';
+
+export type ApiClientCloneOptions = Partial<ApiClientSettings> & {
+  readonly serviceUrl?: string;
+};
+
+export type ApiClientFromServiceUrlOptions = {
+  readonly serviceUrl: string;
+};
+
+export type ApiClientFromAgenticIdentityOptions = {
+  readonly agenticIdentity: AgenticIdentity;
+};
 
 export class Client {
   readonly serviceUrl: string;
@@ -39,6 +52,7 @@ export class Client {
     this._http = http;
   }
   protected _http: HttpClient;
+  protected _baseHttp!: HttpClient;
   protected _apiClientSettings: Partial<ApiClientSettings>;
   protected _authProvider?: AuthProvider;
   protected _cloud?: CloudEnvironment;
@@ -49,17 +63,17 @@ export class Client {
     httpOptions?: HttpClient | HttpClientOptions,
     apiClientSettings?: Partial<ApiClientSettings>,
   ) {
-    this.serviceUrl = serviceUrl;
+    this.serviceUrl = normalizeServiceUrl(serviceUrl);
     this._cloud = apiClientSettings?.cloud;
     this._authProvider = apiClientSettings?.authProvider;
     this._defaultAgenticIdentity = apiClientSettings?.agenticIdentity;
 
     if (!httpOptions) {
-      this._http = this.withAuthProvider(new HttpClient());
+      this._http = this.prepareHttpClient(new HttpClient());
     } else if ('request' in httpOptions) {
-      this._http = this.withAuthProvider(httpOptions);
+      this._http = this.prepareHttpClient(httpOptions);
     } else {
-      this._http = this.withAuthProvider(new HttpClient({
+      this._http = this.prepareHttpClient(new HttpClient({
         ...httpOptions,
         headers: {
           ...httpOptions?.headers,
@@ -72,13 +86,47 @@ export class Client {
 
     this.bots = new BotClient(this.http, this._apiClientSettings, this._cloud);
     this.users = new UserClient(this.http, this._apiClientSettings, this._cloud);
-    this.conversations = new ConversationClient(serviceUrl, this.http, this._apiClientSettings);
-    this.teams = new TeamClient(serviceUrl, this.http, this._apiClientSettings);
-    this.meetings = new MeetingClient(serviceUrl, this.http, this._apiClientSettings);
-    this.reactions = new ReactionClient(serviceUrl, this.http, this._apiClientSettings);
+    this.conversations = new ConversationClient(this.serviceUrl, this.http, this._apiClientSettings);
+    this.teams = new TeamClient(this.serviceUrl, this.http, this._apiClientSettings);
+    this.meetings = new MeetingClient(this.serviceUrl, this.http, this._apiClientSettings);
+    this.reactions = new ReactionClient(this.serviceUrl, this.http, this._apiClientSettings);
   }
 
-  protected withAuthProvider(http: HttpClient): HttpClient {
+  clone(options: ApiClientCloneOptions = {}): Client {
+    const { serviceUrl, ...apiClientSettings } = options;
+    return new Client(
+      serviceUrl ?? this.serviceUrl,
+      this._baseHttp.clone(),
+      {
+        ...this._apiClientSettings,
+        ...apiClientSettings,
+      }
+    );
+  }
+
+  forAgenticIdentity(agenticIdentity: AgenticIdentity): Client {
+    return this.fromAgenticIdentity({ agenticIdentity });
+  }
+
+  fromAgenticIdentity(options: ApiClientFromAgenticIdentityOptions): Client {
+    return this.clone(options);
+  }
+
+  fromServiceUrl(options: ApiClientFromServiceUrlOptions): Client {
+    return this.clone(options);
+  }
+
+  private prepareHttpClient(http: HttpClient): HttpClient {
+    const authProviderInterceptors = this.authProviderInterceptors(http);
+    const authenticatedHttp = authProviderInterceptors.every((interceptor) => this.isMatchingAuthProviderInterceptor(interceptor))
+      ? http
+      : this.cloneWithoutAuthProvider(http);
+
+    this._baseHttp = this.cloneWithoutAuthProvider(authenticatedHttp);
+    return this.withAuthProvider(authenticatedHttp);
+  }
+
+  private withAuthProvider(http: HttpClient): HttpClient {
     if (!this._authProvider) {
       return http;
     }
@@ -91,6 +139,31 @@ export class Client {
     http.use(new AuthProviderInterceptor(this._authProvider, this._defaultAgenticIdentity));
     return http;
   }
+
+  private authProviderInterceptors(http: HttpClient): AuthProviderInterceptor[] {
+    return http.interceptors.filter((interceptor) => interceptor instanceof AuthProviderInterceptor);
+  }
+
+  private isMatchingAuthProviderInterceptor(interceptor: AuthProviderInterceptor): boolean {
+    return interceptor.authProvider === this._authProvider &&
+      interceptor.defaultAgenticIdentity === this._defaultAgenticIdentity;
+  }
+
+  private cloneWithoutAuthProvider(http: HttpClient): HttpClient {
+    const clone = http.clone();
+    const interceptors = clone.interceptors.filter((interceptor) => !(interceptor instanceof AuthProviderInterceptor));
+
+    if (interceptors.length === clone.interceptors.length) {
+      return clone;
+    }
+
+    clone.clear();
+    for (const interceptor of interceptors) {
+      clone.use(interceptor);
+    }
+    return clone;
+  }
+
 }
 
 export * from './user';
@@ -102,4 +175,3 @@ export * from './team';
 export * from './api-client-settings';
 export * from './auth';
 export * from './auth-provider-interceptor';
-export * from './request-options';

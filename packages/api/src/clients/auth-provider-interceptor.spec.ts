@@ -3,7 +3,7 @@ import { Client } from '@microsoft/teams.common';
 import { AgenticIdentity } from '../models';
 
 import { AuthProvider } from './auth';
-import { AGENTIC_IDENTITY_EXTENSION, AuthProviderInterceptor } from './auth-provider-interceptor';
+import { AuthProviderInterceptor } from './auth-provider-interceptor';
 
 class HttpClient extends Client {
   get instance() {
@@ -49,7 +49,7 @@ describe('AuthProviderInterceptor', () => {
     expect(requests[0].headers.Authorization).toBe('Bearer explicit-token');
   });
 
-  it('forwards agentic identity to auth provider and sets token', async () => {
+  it('forwards default agentic identity to auth provider and sets token', async () => {
     const identity: AgenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user', tenantId: 'tenant-id' };
     const calls: unknown[] = [];
     const authProvider: AuthProvider = {
@@ -58,15 +58,12 @@ describe('AuthProviderInterceptor', () => {
         return 'agentic-token';
       }
     };
-    const client = new HttpClient({ interceptors: [new AuthProviderInterceptor(authProvider)] });
+    const client = new HttpClient({ interceptors: [new AuthProviderInterceptor(authProvider, identity)] });
     const requests = mockAdapter(client);
 
-    await client.post('/test', {}, {
-      extensions: { [AGENTIC_IDENTITY_EXTENSION]: identity }
-    });
+    await client.post('/test', {});
 
     expect(calls).toEqual([{ agenticIdentity: identity }]);
-    expect(requests[0].extensions).toEqual({ [AGENTIC_IDENTITY_EXTENSION]: identity });
     expect(requests[0].headers.Authorization).toBe('Bearer agentic-token');
   });
 
@@ -105,7 +102,7 @@ describe('AuthProviderInterceptor', () => {
     expect(requests[0].headers.Authorization).toBe('Bearer default-agentic-token');
   });
 
-  it('per-request agentic identity overrides default', async () => {
+  it('does not use request extensions to override default agentic identity', async () => {
     const defaultIdentity: AgenticIdentity = { agenticAppId: 'default-app', agenticUserId: 'default-user', tenantId: 'tenant-id' };
     const requestIdentity: AgenticIdentity = { agenticAppId: 'req-app', agenticUserId: 'req-user', tenantId: 'tenant-id' };
     const calls: unknown[] = [];
@@ -121,10 +118,10 @@ describe('AuthProviderInterceptor', () => {
     const requests = mockAdapter(client);
 
     await client.post('/test', {}, {
-      extensions: { [AGENTIC_IDENTITY_EXTENSION]: requestIdentity }
+      extensions: { agenticIdentity: requestIdentity }
     });
 
-    expect(calls).toEqual([{ agenticIdentity: requestIdentity }]);
+    expect(calls).toEqual([{ agenticIdentity: defaultIdentity }]);
     expect(requests[0].headers.Authorization).toBe('Bearer request-agentic-token');
   });
 });
