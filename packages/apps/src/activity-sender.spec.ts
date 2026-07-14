@@ -6,6 +6,7 @@ describe('ActivitySender', () => {
   let sender: ActivitySender;
   let mockClient: Client;
   let ref: ConversationReference;
+  let createClient: jest.Mock;
 
   beforeEach(() => {
     const mockActivitiesResult = {
@@ -28,7 +29,8 @@ describe('ActivitySender', () => {
       conversation: { id: 'conv-123', conversationType: 'personal' },
     };
 
-    sender = new ActivitySender(mockClient, undefined as any);
+    createClient = jest.fn().mockReturnValue(mockClient);
+    sender = new ActivitySender(undefined as any, createClient);
   });
 
   describe('send', () => {
@@ -45,9 +47,9 @@ describe('ActivitySender', () => {
           text: 'hello',
           from: ref.bot,
           conversation: ref.conversation,
-        }),
-        { serviceUrl: ref.serviceUrl },
+        })
       );
+      expect(createClient).toHaveBeenCalledWith(ref.serviceUrl, undefined);
       expect(result).toEqual(expect.objectContaining({ id: 'activity-1' }));
     });
 
@@ -63,8 +65,7 @@ describe('ActivitySender', () => {
       const activities = (mockClient as any).conversations.activities;
       expect(activities('conv-123').update).toHaveBeenCalledWith(
         'existing-id',
-        expect.objectContaining({ type: 'message', text: 'updated' }),
-        { serviceUrl: ref.serviceUrl },
+        expect.objectContaining({ type: 'message', text: 'updated' })
       );
       expect(activities('conv-123').create).not.toHaveBeenCalled();
     });
@@ -84,8 +85,7 @@ describe('ActivitySender', () => {
 
       const activities = (mockClient as any).conversations.activities;
       expect(activities('conv-123').createTargeted).toHaveBeenCalledWith(
-        expect.objectContaining({ type: 'message', text: 'targeted' }),
-        { serviceUrl: ref.serviceUrl },
+        expect.objectContaining({ type: 'message', text: 'targeted' })
       );
     });
 
@@ -106,8 +106,7 @@ describe('ActivitySender', () => {
       const activities = (mockClient as any).conversations.activities;
       expect(activities('conv-123').updateTargeted).toHaveBeenCalledWith(
         'existing-id',
-        expect.objectContaining({ recipient: expect.objectContaining({ isTargeted: true }) }),
-        { serviceUrl: ref.serviceUrl },
+        expect.objectContaining({ recipient: expect.objectContaining({ isTargeted: true }) })
       );
       expect(activities('conv-123').create).not.toHaveBeenCalled();
     });
@@ -122,12 +121,11 @@ describe('ActivitySender', () => {
         expect.objectContaining({
           from: { id: 'bot-id', name: 'Bot', role: 'bot' },
           conversation: { id: 'conv-123', conversationType: 'personal' },
-        }),
-        { serviceUrl: ref.serviceUrl },
+        })
       );
     });
 
-    it('should pass custom serviceUrl from ref as option', async () => {
+    it('should use custom serviceUrl from ref for the API client', async () => {
       const customRef = {
         ...ref,
         serviceUrl: 'https://custom-service.botframework.com',
@@ -138,9 +136,32 @@ describe('ActivitySender', () => {
 
       const activities = (mockClient as any).conversations.activities;
       expect(activities('conv-456').create).toHaveBeenCalledWith(
-        expect.any(Object),
-        { serviceUrl: 'https://custom-service.botframework.com' },
+        expect.any(Object)
       );
+      expect(createClient).toHaveBeenCalledWith('https://custom-service.botframework.com', undefined);
+    });
+
+    it('should ignore sender option shapes that contain a serviceUrl and use the ref serviceUrl', async () => {
+      const options = {
+        agenticIdentity: undefined,
+        serviceUrl: 'https://ignored-service.botframework.com',
+      };
+
+      await sender.send(
+        { type: 'message', text: 'hi' },
+        ref,
+        options,
+      );
+
+      expect(createClient).toHaveBeenCalledWith(ref.serviceUrl, undefined);
+    });
+
+    it('should use agentic identity option for the API client', async () => {
+      const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
+
+      await sender.send({ type: 'message', text: 'hi' }, ref, { agenticIdentity });
+
+      expect(createClient).toHaveBeenCalledWith(ref.serviceUrl, agenticIdentity);
     });
 
     it('should throw when sending targeted message in personal chat', async () => {
@@ -177,6 +198,7 @@ describe('ActivitySender', () => {
       expect(stream).toBeDefined();
       expect(stream.emit).toBeDefined();
       expect(stream.close).toBeDefined();
+      expect(createClient).toHaveBeenCalledWith(ref.serviceUrl);
     });
   });
 });

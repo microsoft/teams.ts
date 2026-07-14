@@ -1,7 +1,5 @@
 import { Client } from '@microsoft/teams.common';
 
-import { AGENTIC_IDENTITY_EXTENSION } from '../auth-provider-interceptor';
-
 import { ReactionClient } from './reaction';
 
 describe('ReactionClient', () => {
@@ -10,14 +8,14 @@ describe('ReactionClient', () => {
     const client = new ReactionClient('', http);
     const spy = jest.spyOn(http, 'put').mockResolvedValueOnce({});
     await client.add('conv1', 'act1', 'like');
-    expect(spy).toHaveBeenCalledWith('/v3/conversations/conv1/activities/act1/reactions/like', undefined, {});
+    expect(spy).toHaveBeenCalledWith('/v3/conversations/conv1/activities/act1/reactions/like');
   });
 
   it('should use client options', async () => {
     const client = new ReactionClient('', {});
     const spy = jest.spyOn(client.http, 'put').mockResolvedValueOnce({});
     await client.add('conv1', 'act1', 'like');
-    expect(spy).toHaveBeenCalledWith('/v3/conversations/conv1/activities/act1/reactions/like', undefined, {});
+    expect(spy).toHaveBeenCalledWith('/v3/conversations/conv1/activities/act1/reactions/like');
   });
 
   it('should use replaced http client for subsequent calls', async () => {
@@ -27,7 +25,7 @@ describe('ReactionClient', () => {
     const newSpy = jest.spyOn(http, 'put').mockResolvedValueOnce({});
     client.http = http;
     await client.add('conv1', 'act1', 'like');
-    expect(newSpy).toHaveBeenCalledWith('/v3/conversations/conv1/activities/act1/reactions/like', undefined, {});
+    expect(newSpy).toHaveBeenCalledWith('/v3/conversations/conv1/activities/act1/reactions/like');
     expect(oldSpy).not.toHaveBeenCalled();
   });
 
@@ -35,23 +33,17 @@ describe('ReactionClient', () => {
     const client = new ReactionClient('');
     const spy = jest.spyOn(client.http, 'put').mockResolvedValueOnce({});
     await client.add('conv1', 'act1', 'like');
-    expect(spy).toHaveBeenCalledWith('/v3/conversations/conv1/activities/act1/reactions/like', undefined, {});
+    expect(spy).toHaveBeenCalledWith('/v3/conversations/conv1/activities/act1/reactions/like');
   });
 
-  it('should pass serviceUrl and agentic identity options', async () => {
-    const client = new ReactionClient('https://default.service');
+  it('should use normalized constructor serviceUrl', async () => {
+    const client = new ReactionClient('https://default.service/');
     const spy = jest.spyOn(client.http, 'put').mockResolvedValueOnce({});
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
 
-    await client.add('conv1', 'act1', 'like', {
-      serviceUrl: 'https://override.service/',
-      agenticIdentity,
-    });
+    await client.add('conv1', 'act1', 'like');
 
     expect(spy).toHaveBeenCalledWith(
-      'https://override.service/v3/conversations/conv1/activities/act1/reactions/like',
-      undefined,
-      { extensions: { [AGENTIC_IDENTITY_EXTENSION]: agenticIdentity } }
+      'https://default.service/v3/conversations/conv1/activities/act1/reactions/like'
     );
   });
 
@@ -59,7 +51,7 @@ describe('ReactionClient', () => {
     const client = new ReactionClient('');
     const spy = jest.spyOn(client.http, 'delete').mockResolvedValueOnce({});
     await client.delete('conv1', 'act1', 'like');
-    expect(spy).toHaveBeenCalledWith('/v3/conversations/conv1/activities/act1/reactions/like', {});
+    expect(spy).toHaveBeenCalledWith('/v3/conversations/conv1/activities/act1/reactions/like');
   });
 
 });

@@ -6,7 +6,7 @@ import {
 import { Activity } from '../../activities';
 import { resolveAadObjectId, Resource, TeamsChannelAccount } from '../../models';
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
-import { agenticIdentityExtension, RequestOptions, resolveServiceUrl } from '../request-options';
+import { normalizeServiceUrl } from '../service-url';
 
 export type ActivityParams = Pick<Activity, 'type'> & Partial<Activity>;
 
@@ -23,7 +23,7 @@ export class ConversationActivityClient {
   protected _apiClientSettings: Partial<ApiClientSettings>;
 
   constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
-    this.serviceUrl = serviceUrl;
+    this.serviceUrl = normalizeServiceUrl(serviceUrl);
 
     if (!options) {
       this._http = new HttpClient();
@@ -36,51 +36,51 @@ export class ConversationActivityClient {
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
   }
 
-  async create(conversationId: string, params: ActivityParams, options?: RequestOptions) {
-    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v3/conversations/${conversationId}/activities`;
-    const res = await this.http.post<Resource>(url, params, agenticIdentityExtension(options));
-    return res.data;
-  }
-
-  async update(conversationId: string, id: string, params: ActivityParams, options?: RequestOptions) {
-    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v3/conversations/${conversationId}/activities/${id}`;
-    const res = await this.http.put<Resource>(url, params, agenticIdentityExtension(options));
-    return res.data;
-  }
-
-  async reply(conversationId: string, id: string, params: ActivityParams, options?: RequestOptions) {
-    params.replyToId = id;
-    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v3/conversations/${conversationId}/activities/${id}`;
-    const res = await this.http.post<Resource>(url, params, agenticIdentityExtension(options));
-    return res.data;
-  }
-
-  async delete(conversationId: string, id: string, options?: RequestOptions) {
-    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v3/conversations/${conversationId}/activities/${id}`;
-    const res = await this.http.delete<void>(url, agenticIdentityExtension(options));
-    return res.data;
-  }
-
-  async getMembers(conversationId: string, id: string, options?: RequestOptions): Promise<TeamsChannelAccount[]> {
-    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v3/conversations/${conversationId}/activities/${id}/members`;
-    const res = await this.http.get<TeamsChannelAccount[]>(url, agenticIdentityExtension(options));
-    return (res.data ?? []).map(resolveAadObjectId);
-  }
-
-  async createTargeted(conversationId: string, params: ActivityParams, options?: RequestOptions<'serviceUrl'>) {
-    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v3/conversations/${conversationId}/activities?isTargetedActivity=true`;
+  async create(conversationId: string, params: ActivityParams) {
+    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities`;
     const res = await this.http.post<Resource>(url, params);
     return res.data;
   }
 
-  async updateTargeted(conversationId: string, id: string, params: ActivityParams, options?: RequestOptions<'serviceUrl'>) {
-    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`;
+  async update(conversationId: string, id: string, params: ActivityParams) {
+    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`;
     const res = await this.http.put<Resource>(url, params);
     return res.data;
   }
 
-  async deleteTargeted(conversationId: string, id: string, options?: RequestOptions<'serviceUrl'>) {
-    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`;
+  async reply(conversationId: string, id: string, params: ActivityParams) {
+    params.replyToId = id;
+    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`;
+    const res = await this.http.post<Resource>(url, params);
+    return res.data;
+  }
+
+  async delete(conversationId: string, id: string) {
+    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`;
+    const res = await this.http.delete<void>(url);
+    return res.data;
+  }
+
+  async getMembers(conversationId: string, id: string): Promise<TeamsChannelAccount[]> {
+    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}/members`;
+    const res = await this.http.get<TeamsChannelAccount[]>(url);
+    return (res.data ?? []).map(resolveAadObjectId);
+  }
+
+  async createTargeted(conversationId: string, params: ActivityParams) {
+    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities?isTargetedActivity=true`;
+    const res = await this.http.post<Resource>(url, params);
+    return res.data;
+  }
+
+  async updateTargeted(conversationId: string, id: string, params: ActivityParams) {
+    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`;
+    const res = await this.http.put<Resource>(url, params);
+    return res.data;
+  }
+
+  async deleteTargeted(conversationId: string, id: string) {
+    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`;
     const res = await this.http.delete<void>(url);
     return res.data;
   }

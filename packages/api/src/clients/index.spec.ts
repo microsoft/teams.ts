@@ -16,15 +16,98 @@ describe('Api Client auth provider', () => {
     expect(http.interceptors.filter((interceptor) => interceptor instanceof AuthProviderInterceptor)).toHaveLength(1);
   });
 
-  it('reapplies auth provider when http client is replaced', () => {
+  it('does not expose a settable http client', () => {
+    const descriptor = Object.getOwnPropertyDescriptor(Client.prototype, 'http');
+
+    expect(descriptor?.get).toBeDefined();
+    expect(descriptor?.set).toBeUndefined();
+  });
+
+  it('creates an agentic identity scoped clone', () => {
     const authProvider: AuthProvider = { token: async () => 'token' };
+    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
     const api = new Client('https://service.example.com', undefined, { authProvider });
-    const replacement = new HttpClient();
 
-    api.http = replacement;
+    const scoped = api.fromAgenticIdentity({ agenticIdentity });
 
-    expect(replacement.interceptors.filter((interceptor) => interceptor instanceof AuthProviderInterceptor)).toHaveLength(1);
-    expect(api.conversations.http).toBe(replacement);
-    expect(api.users.http).toBe(replacement);
+    const scopedInterceptors = scoped.http.interceptors.filter((interceptor) => interceptor instanceof AuthProviderInterceptor);
+    expect(scoped.serviceUrl).toBe(api.serviceUrl);
+    expect(scopedInterceptors).toHaveLength(1);
+    expect(scopedInterceptors[0].defaultAgenticIdentity).toBe(agenticIdentity);
+  });
+
+  it('keeps forAgenticIdentity as an agentic identity convenience alias', () => {
+    const authProvider: AuthProvider = { token: async () => 'token' };
+    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
+    const api = new Client('https://service.example.com', undefined, { authProvider });
+
+    const scoped = api.forAgenticIdentity(agenticIdentity);
+
+    const scopedInterceptors = scoped.http.interceptors.filter((interceptor) => interceptor instanceof AuthProviderInterceptor);
+    expect(scopedInterceptors).toHaveLength(1);
+    expect(scopedInterceptors[0].defaultAgenticIdentity).toBe(agenticIdentity);
+  });
+
+  it('creates a service url scoped clone', () => {
+    const authProvider: AuthProvider = { token: async () => 'token' };
+    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
+    const api = new Client('https://service.example.com', undefined, { authProvider, agenticIdentity });
+
+    const scoped = api.fromServiceUrl({ serviceUrl: 'https://another.service.example.com/' });
+
+    const scopedInterceptors = scoped.http.interceptors.filter((interceptor) => interceptor instanceof AuthProviderInterceptor);
+    expect(scoped.serviceUrl).toBe('https://another.service.example.com');
+    expect(scoped.conversations.serviceUrl).toBe('https://another.service.example.com');
+    expect(scopedInterceptors).toHaveLength(1);
+    expect(scopedInterceptors[0].defaultAgenticIdentity).toBe(agenticIdentity);
+  });
+
+  it('creates a clone scoped to service url and agentic identity', () => {
+    const authProvider: AuthProvider = { token: async () => 'token' };
+    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
+    const api = new Client('https://service.example.com', undefined, { authProvider });
+
+    const scoped = api.clone({
+      serviceUrl: 'https://another.service.example.com/',
+      agenticIdentity,
+    });
+
+    const scopedInterceptors = scoped.http.interceptors.filter((interceptor) => interceptor instanceof AuthProviderInterceptor);
+    expect(scoped.serviceUrl).toBe('https://another.service.example.com');
+    expect(scoped.conversations.serviceUrl).toBe('https://another.service.example.com');
+    expect(scopedInterceptors).toHaveLength(1);
+    expect(scopedInterceptors[0].defaultAgenticIdentity).toBe(agenticIdentity);
+  });
+
+  it('preserves the default agentic identity when clone receives an undefined identity', () => {
+    const authProvider: AuthProvider = { token: async () => 'token' };
+    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
+    const api = new Client('https://service.example.com', undefined, { authProvider, agenticIdentity });
+
+    const scoped = api.clone({
+      serviceUrl: 'https://another.service.example.com/',
+      agenticIdentity: undefined,
+    });
+
+    const scopedInterceptors = scoped.http.interceptors.filter((interceptor) => interceptor instanceof AuthProviderInterceptor);
+    expect(scoped.serviceUrl).toBe('https://another.service.example.com');
+    expect(scopedInterceptors).toHaveLength(1);
+    expect(scopedInterceptors[0].defaultAgenticIdentity).toBe(agenticIdentity);
+  });
+
+  it('clears the default agentic identity when clone receives a null identity', () => {
+    const authProvider: AuthProvider = { token: async () => 'token' };
+    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
+    const api = new Client('https://service.example.com', undefined, { authProvider, agenticIdentity });
+
+    const scoped = api.clone({
+      serviceUrl: 'https://another.service.example.com/',
+      agenticIdentity: null,
+    });
+
+    const scopedInterceptors = scoped.http.interceptors.filter((interceptor) => interceptor instanceof AuthProviderInterceptor);
+    expect(scoped.serviceUrl).toBe('https://another.service.example.com');
+    expect(scopedInterceptors).toHaveLength(1);
+    expect(scopedInterceptors[0].defaultAgenticIdentity).toBeUndefined();
   });
 });

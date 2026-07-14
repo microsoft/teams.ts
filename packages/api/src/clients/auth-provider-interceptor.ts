@@ -7,8 +7,6 @@ import { AgenticIdentity } from '../models';
 
 import type { AuthProvider } from './auth';
 
-export const AGENTIC_IDENTITY_EXTENSION = 'microsoft.teams.agenticIdentity';
-
 export class AuthProviderInterceptor implements Interceptor {
   constructor(
     readonly authProvider: AuthProvider,
@@ -20,9 +18,7 @@ export class AuthProviderInterceptor implements Interceptor {
       return config;
     }
 
-    const requestAgenticIdentity = config.extensions?.[AGENTIC_IDENTITY_EXTENSION] as AgenticIdentity | undefined;
-    const agenticIdentity = requestAgenticIdentity ?? this.defaultAgenticIdentity;
-    const token = await this.authProvider.token({ agenticIdentity });
+    const token = await this.authProvider.token({ agenticIdentity: this.defaultAgenticIdentity });
     const resolvedToken = token?.toString();
 
     if (!resolvedToken?.trim()) {
