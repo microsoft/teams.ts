@@ -117,33 +117,104 @@ export interface IMessageActivity extends IActivity<'message'> {
  * outbound input shape independent from the inbound activity interface.
  */
 export interface IMessageActivityInput extends IActivityInput<'message'> {
+  /**
+   * Message text.
+   */
   text?: string;
+
+  /**
+   * Summary text displayed when the channel cannot render the full activity.
+   */
   summary?: string;
+
+  /**
+   * Format of the message text.
+   */
   textFormat?: TextFormat;
+
+  /**
+   * Layout hint for multiple attachments.
+   */
   attachmentLayout?: AttachmentLayout;
+
+  /**
+   * Attachments sent with the message.
+   */
   attachments?: Attachment[];
+
+  /**
+   * Suggested actions presented with the message.
+   */
   suggestedActions?: SuggestedActions;
+
+  /**
+   * Delivery hint for the message.
+   */
   deliveryMode?: DeliveryMode;
+
+  /**
+   * Channel-specific or caller-defined value associated with the message.
+   */
   value?: any;
 }
 
+/**
+ * Builder for outbound message activities.
+ */
 export class MessageActivityInput extends ActivityInput<'message'> implements IMessageActivityInput {
+  /**
+   * Message text.
+   */
   text?: string;
+
+  /**
+   * Summary text displayed when the channel cannot render the full activity.
+   */
   summary?: string;
+
+  /**
+   * Format of the message text.
+   */
   textFormat?: TextFormat;
+
+  /**
+   * Layout hint for multiple attachments.
+   */
   attachmentLayout?: AttachmentLayout;
+
+  /**
+   * Attachments sent with the message.
+   */
   attachments?: Attachment[];
+
+  /**
+   * Suggested actions presented with the message.
+   */
   suggestedActions?: SuggestedActions;
+
+  /**
+   * Delivery hint for the message.
+   */
   deliveryMode?: DeliveryMode;
+
+  /**
+   * Channel-specific or caller-defined value associated with the message.
+   */
   value?: any;
 
+  /**
+   * Create an outbound message activity input.
+   * @param text - Initial message text.
+   * @param value - Initial message input fields.
+   */
   constructor(text: string = '', value: Omit<Partial<IMessageActivityInput>, 'type'> = {}) {
     super('message', value);
     Object.assign(this, { text, ...value });
   }
 
   /**
-   * copy the outbound-safe fields from a message-like activity input
+   * Copy outbound-safe fields from a message-like activity input.
+   * @param activity - Message input to copy.
    */
   static from(activity: IMessageActivityInput) {
     return new MessageActivityInput(activity.text, {
@@ -162,46 +233,82 @@ export class MessageActivityInput extends ActivityInput<'message'> implements IM
     });
   }
 
+  /**
+   * Set the message text.
+   * @param value - Message text.
+   */
   withText(value: string) {
     this.text = value;
     return this;
   }
 
+  /**
+   * Append text to the message.
+   * @param value - Text to append.
+   */
   addText(value: string) {
     this.text = `${this.text || ''}${value}`;
     return this;
   }
 
+  /**
+   * Set the fallback summary text.
+   * @param value - Summary text.
+   */
   withSummary(value: string) {
     this.summary = value;
     return this;
   }
 
+  /**
+   * Set the message text format.
+   * @param value - Text format.
+   */
   withTextFormat(value: TextFormat) {
     this.textFormat = value;
     return this;
   }
 
+  /**
+   * Set the attachment layout.
+   * @param value - Attachment layout.
+   */
   withAttachmentLayout(value: AttachmentLayout) {
     this.attachmentLayout = value;
     return this;
   }
 
+  /**
+   * Set suggested actions for the message.
+   * @param value - Suggested actions.
+   */
   withSuggestedActions(value: SuggestedActions) {
     this.suggestedActions = value;
     return this;
   }
 
+  /**
+   * Set the delivery mode.
+   * @param value - Delivery mode.
+   */
   withDeliveryMode(value: DeliveryMode) {
     this.deliveryMode = value;
     return this;
   }
 
+  /**
+   * Set the message value.
+   * @param value - Value associated with the message.
+   */
   withValue(value: any) {
     this.value = value;
     return this;
   }
 
+  /**
+   * Add attachments to the message.
+   * @param value - Attachments to add.
+   */
   addAttachments(...value: Attachment[]) {
     if (!this.attachments) {
       this.attachments = [];
@@ -211,10 +318,20 @@ export class MessageActivityInput extends ActivityInput<'message'> implements IM
     return this;
   }
 
+  /**
+   * Add a card attachment to the message.
+   * @param type - Card attachment type.
+   * @param content - Card content.
+   */
   addCard<T extends CardAttachmentType>(type: T, content: CardAttachmentTypes[T]['content']) {
     return this.addAttachments(cardAttachment(type, content));
   }
 
+  /**
+   * Add a mention entity and optionally append mention text.
+   * @param account - Account being mentioned.
+   * @param options - Mention options.
+   */
   addMention(account: Account, options: AddMentionOptions = {}) {
     const text = options.text || account.name;
 
@@ -229,6 +346,9 @@ export class MessageActivityInput extends ActivityInput<'message'> implements IM
     });
   }
 
+  /**
+   * Mark the message as the final activity in a stream.
+   */
   addStreamFinal() {
     const { streamId } = this.channelData || {};
 

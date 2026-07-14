@@ -23,19 +23,27 @@ export interface ITypingActivityInput extends IActivityInput<'typing'> {
   text?: string;
 }
 
+/**
+ * Builder for outbound typing activities.
+ */
 export class TypingActivityInput extends ActivityInput<'typing'> implements ITypingActivityInput {
   /**
    * Text used by streaming updates. Ordinary typing indicators can omit this.
    */
   text?: string;
 
+  /**
+   * Create an outbound typing activity input.
+   * @param value - Initial typing input fields.
+   */
   constructor(value: Omit<Partial<ITypingActivityInput>, 'type'> = {}) {
     super('typing', value);
     Object.assign(this, value);
   }
 
   /**
-   * copy the outbound-safe fields from a typing-like activity input
+   * Copy outbound-safe fields from a typing-like activity input.
+   * @param activity - Typing input to copy.
    */
   static from(activity: ITypingActivityInput) {
     return new TypingActivityInput({
@@ -50,6 +58,7 @@ export class TypingActivityInput extends ActivityInput<'typing'> implements ITyp
 
   /**
    * Set the streaming update text.
+   * @param value - Streaming update text.
    */
   withText(value: string) {
     this.text = value;
@@ -58,6 +67,7 @@ export class TypingActivityInput extends ActivityInput<'typing'> implements ITyp
 
   /**
    * Append streaming update text.
+   * @param text - Streaming update text to append.
    */
   addText(text: string) {
     if (!this.text) {
@@ -69,9 +79,8 @@ export class TypingActivityInput extends ActivityInput<'typing'> implements ITyp
   }
 
   /**
-   * Add stream informative update
-   * @param id the stream id
-   * @param sequence the sequence number (index) of the chunk
+   * Add stream metadata to this typing update.
+   * @param sequence - Sequence number of the stream chunk.
    */
   addStreamUpdate(sequence: number = 0) {
     if (!this.channelData) {

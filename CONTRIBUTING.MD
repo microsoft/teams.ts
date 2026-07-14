@@ -4,6 +4,10 @@ Please refer to this sub-module's root repo Contributing guide at [Teams SDK Con
 
 The Teams SDK is maintained across three languages: **Python**, **TypeScript**, and **.NET**. When proposing new features, please discuss them in a language-agnostic way in [GitHub Discussions](https://github.com/microsoft/teams-sdk/discussions). This ensures that features can be implemented consistently across all three SDKs and benefits the entire Teams developer community.
 
+## Public API Documentation
+
+Add JSDoc for every new public-facing field, function, interface, class, and type. Public API documentation should explain what callers can set or call, when it is used, and any important constraints or migration guidance.
+
 ## Integration Tests
 
 Add an integration test when your change affects **what goes on the wire** — URLs, headers, request bodies, auth tokens, or response parsing.

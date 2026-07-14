@@ -127,42 +127,114 @@ export interface IActivity<T extends string = string> {
  * filled by the sender or service, not by callers constructing outbound input.
  */
 export interface IActivityInput<T extends string = string> {
+  /**
+   * Activity type discriminator.
+   */
   readonly type: T;
+
+  /**
+   * Optional activity ID used when updating an existing sent activity.
+   */
   id?: string;
+
+  /**
+   * Optional recipient account. Set `isTargeted` through {@link ActivityInput.withRecipient}
+   * when sending a targeted message.
+   */
   recipient?: Account;
+
+  /**
+   * ID of the activity this outbound activity replies to.
+   */
   replyToId?: string;
+
+  /**
+   * Entities attached to the outbound activity.
+   */
   entities?: Entity[];
+
+  /**
+   * Channel-specific metadata for the outbound activity.
+   */
   channelData?: ChannelData;
 }
 
+/**
+ * Base builder for outbound activity inputs.
+ */
 export class ActivityInput<T extends string = string> implements IActivityInput<T> {
+  /**
+   * Activity type discriminator.
+   */
   readonly type: T;
+
+  /**
+   * Optional activity ID used when updating an existing sent activity.
+   */
   id?: string;
+
+  /**
+   * Optional recipient account.
+   */
   recipient?: Account;
+
+  /**
+   * ID of the activity this outbound activity replies to.
+   */
   replyToId?: string;
+
+  /**
+   * Entities attached to the outbound activity.
+   */
   entities?: Entity[];
+
+  /**
+   * Channel-specific metadata for the outbound activity.
+   */
   channelData?: ChannelData;
 
+  /**
+   * Create an outbound activity input.
+   * @param type - Activity type discriminator.
+   * @param value - Initial outbound activity fields.
+   */
   constructor(type: T, value: Omit<Partial<IActivityInput<T>>, 'type'> = {}) {
     Object.assign(this, value);
     this.type = type;
   }
 
+  /**
+   * Set the activity ID for update scenarios.
+   * @param value - Activity ID.
+   */
   withId(value: string) {
     this.id = value;
     return this;
   }
 
+  /**
+   * Set the activity recipient.
+   * @param value - Recipient account.
+   * @param isTargeted - Whether the activity is targeted only to this recipient.
+   */
   withRecipient(value: Account, isTargeted: boolean = false) {
     this.recipient = { ...value, isTargeted: isTargeted ? true : undefined };
     return this;
   }
 
+  /**
+   * Set the activity ID this outbound activity replies to.
+   * @param value - Activity ID being replied to.
+   */
   withReplyToId(value: string) {
     this.replyToId = value;
     return this;
   }
 
+  /**
+   * Merge channel-specific metadata into the outbound activity.
+   * @param value - Channel metadata to merge.
+   */
   withChannelData(value: ChannelData) {
     const merged: ChannelData = { ...this.channelData, ...value };
 
@@ -177,6 +249,10 @@ export class ActivityInput<T extends string = string> implements IActivityInput<
     return this;
   }
 
+  /**
+   * Add an entity to the outbound activity.
+   * @param value - Entity to add.
+   */
   addEntity(value: Entity) {
     if (this.isRootLevelMessageEntity(value)) {
       this.mergeRootLevelMessageEntity(this.ensureSingleRootLevelMessageEntity(), value);
@@ -191,6 +267,10 @@ export class ActivityInput<T extends string = string> implements IActivityInput<
     return this;
   }
 
+  /**
+   * Add multiple entities to the outbound activity.
+   * @param value - Entities to add.
+   */
   addEntities(...value: Entity[]) {
     for (const entity of value) {
       this.addEntity(entity);
@@ -233,6 +313,8 @@ export class ActivityInput<T extends string = string> implements IActivityInput<
 
   /**
    * Add citations
+   * @param position - Citation position in the message text.
+   * @param appearance - Citation appearance metadata.
    */
   addCitation(position: number, appearance: CitationAppearance) {
     const messageEntity: CitationEntity = this.ensureSingleRootLevelMessageEntity();
@@ -296,6 +378,9 @@ export class ActivityInput<T extends string = string> implements IActivityInput<
     });
   }
 
+  /**
+   * Determine whether the activity contains stream metadata.
+   */
   isStreaming() {
     return this.entities?.some((e) => e.type === 'streaminfo') || false;
   }
