@@ -56,8 +56,18 @@ function isAppSendOptions(value: ActivityLike | AppSendOptions): value is AppSen
   return !('type' in value);
 }
 
+/**
+ * Options for proactive app sends and replies.
+ */
 export type AppSendOptions = {
+  /**
+   * Service URL to use for this send. Defaults to the app's configured API service URL.
+   */
   readonly serviceUrl?: string;
+
+  /**
+   * Agentic identity to use when acquiring tokens for this send.
+   */
   readonly agenticIdentity?: AgenticIdentity;
 };
 

@@ -17,15 +17,38 @@ import { normalizeServiceUrl } from './service-url';
 import { TeamClient } from './team';
 import { UserClient } from './user';
 
-export type ApiClientCloneOptions = Partial<ApiClientSettings> & {
+/**
+ * Options for creating a scoped API client from an existing client.
+ */
+export type ApiClientCloneOptions = Omit<Partial<ApiClientSettings>, 'agenticIdentity'> & {
+  /**
+   * Service URL for the scoped client. Defaults to the current client's service URL.
+   */
   readonly serviceUrl?: string;
+
+  /**
+   * `undefined` preserves the current client default; `null` clears it.
+   */
+  readonly agenticIdentity?: AgenticIdentity | null;
 };
 
+/**
+ * Options for creating a scoped API client for a specific Bot Framework service URL.
+ */
 export type ApiClientFromServiceUrlOptions = {
+  /**
+   * Service URL for the scoped client.
+   */
   readonly serviceUrl: string;
 };
 
+/**
+ * Options for creating a scoped API client for a specific agentic identity.
+ */
 export type ApiClientFromAgenticIdentityOptions = {
+  /**
+   * Agentic identity used by the scoped client when acquiring auth tokens.
+   */
   readonly agenticIdentity: AgenticIdentity;
 };
 
@@ -82,26 +105,39 @@ export class Client {
     this.reactions = new ReactionClient(this.serviceUrl, this.http, this._apiClientSettings);
   }
 
+  /**
+   * Create a scoped API client that reuses this client's HTTP configuration and auth provider.
+   */
   clone(options: ApiClientCloneOptions = {}): Client {
-    const { serviceUrl, ...apiClientSettings } = options;
+    const { serviceUrl, agenticIdentity, ...apiClientSettings } = options;
     return new Client(
       serviceUrl ?? this.serviceUrl,
       this._baseHttp.clone(),
       {
         ...this._apiClientSettings,
         ...apiClientSettings,
+        ...(agenticIdentity === undefined ? {} : { agenticIdentity: agenticIdentity ?? undefined }),
       }
     );
   }
 
+  /**
+   * Create a scoped API client for the provided agentic identity.
+   */
   forAgenticIdentity(agenticIdentity: AgenticIdentity): Client {
     return this.fromAgenticIdentity({ agenticIdentity });
   }
 
+  /**
+   * Create a scoped API client for the provided agentic identity.
+   */
   fromAgenticIdentity(options: ApiClientFromAgenticIdentityOptions): Client {
     return this.clone(options);
   }
 
+  /**
+   * Create a scoped API client for the provided Bot Framework service URL.
+   */
   fromServiceUrl(options: ApiClientFromServiceUrlOptions): Client {
     return this.clone(options);
   }

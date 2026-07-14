@@ -2,7 +2,13 @@ import { ActivityParams, AgenticIdentity, ConversationReference, SentActivity } 
 
 import { IStreamer } from '../streamer';
 
+/**
+ * Options for low-level activity sender operations.
+ */
 export type ActivitySenderOptions = {
+  /**
+   * Agentic identity to use when acquiring tokens for this send.
+   */
   readonly agenticIdentity?: AgenticIdentity;
 };
 
