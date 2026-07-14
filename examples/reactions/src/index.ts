@@ -1,4 +1,4 @@
-import { Client, MessageReactionActivity } from '@microsoft/teams.api';
+import type { MessageReactionActivity, MessageReactionType } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
@@ -6,9 +6,7 @@ const app = new App({
   logger: new ConsoleLogger('@examples/reactions', { level: 'debug' })
 });
 
-// Reaction verbs live on the conversation client: conversations.addReaction / deleteReaction
-
-type ReactionParameter = Parameters<Client['conversations']['addReaction']>[2];
+// Reaction verbs live on the top-level reactions client: reactions.add / delete
 
 // Handle incoming messages
 app.on('message', async ({ reply, activity, log, api }) => {
@@ -32,9 +30,9 @@ app.on('message', async ({ reply, activity, log, api }) => {
   // Handle commands to add reactions
   const addMatch = userMessage.match(/add\s+(\S+)/);
   if (addMatch && api) {
-    const reactionType = addMatch[1] as ReactionParameter;
+    const reactionType = addMatch[1] as MessageReactionType;
     try {
-      await api.conversations.addReaction(
+      await api.reactions.add(
         activity.conversation.id,
         activity.id,
         reactionType
@@ -53,16 +51,16 @@ app.on('message', async ({ reply, activity, log, api }) => {
   // first, then delete it after a short delay so the user sees the cycle.
   const removeMatch = userMessage.match(/remove\s+(\S+)/);
   if (removeMatch && api) {
-    const reactionType = removeMatch[1] as ReactionParameter;
+    const reactionType = removeMatch[1] as MessageReactionType;
     try {
-      await api.conversations.addReaction(
+      await api.reactions.add(
         activity.conversation.id,
         activity.id,
         reactionType
       );
       await reply(`Added a ${reactionType} reaction, removing in 2s...`);
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      await api.conversations.deleteReaction(
+      await api.reactions.delete(
         activity.conversation.id,
         activity.id,
         reactionType

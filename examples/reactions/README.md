@@ -1,12 +1,12 @@
 # Example: Reactions
 
-A bot that demonstrates how to use the conversation reaction methods to add and remove reactions on messages.
+A bot that demonstrates how to use the reaction client to add and remove reactions on messages.
 
 ## Features
 
 - Responds to user messages and adds reactions
 - Handles `messageReaction` activities to detect when users add/remove reactions
-- Demonstrates using the `conversations.addReaction` / `deleteReaction` API to programmatically manage reactions
+- Demonstrates using the `reactions.add` / `delete` API to programmatically manage reactions
 
 ## Usage
 
@@ -46,10 +46,10 @@ import { Client } from '@microsoft/teams.api';
 const client = new Client(serviceUrl);
 
 // Add a reaction
-await client.conversations.addReaction(conversationId, activityId, 'like');
+await client.reactions.add(conversationId, activityId, 'like');
 
 // Delete a reaction
-await client.conversations.deleteReaction(conversationId, activityId, 'like');
+await client.reactions.delete(conversationId, activityId, 'like');
 ```
 
 ## Supported Reaction Types
