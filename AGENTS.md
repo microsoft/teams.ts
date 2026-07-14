@@ -1,4 +1,4 @@
-# Copilot instructions
+# Agent instructions
 
 ## Public API documentation
 
