@@ -19,7 +19,9 @@
     "dev:proactive": "tsx -r dotenv/config src/proactive.ts"
   },
   "dependencies": {
-    "@microsoft/teams.apps": "*"
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.apps": "*",
+    "@microsoft/teams.common": "*"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",

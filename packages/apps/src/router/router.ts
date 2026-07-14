@@ -1,7 +1,7 @@
 import { Activity, InvokeResponse } from '@microsoft/teams.api';
 
 import { IActivityContext } from '../contexts';
-import { EVENT_ALIASES, INVOKE_ALIASES, IRoutes } from '../routes';
+import { AGENT_LIFECYCLE_ALIASES, EVENT_ALIASES, INVOKE_ALIASES, IRoutes } from '../routes';
 import { RouteHandler } from '../types';
 
 import { Route, RouteType } from './route';
@@ -87,6 +87,15 @@ export class Router<TExtraCtx extends Record<string, any> = Record<string, any>>
         }
 
         if (activity.type === 'event') {
+          if (
+            activity.name === 'agentLifecycle' &&
+            event === AGENT_LIFECYCLE_ALIASES[
+              activity.valueType as keyof typeof AGENT_LIFECYCLE_ALIASES
+            ]
+          ) {
+            return true;
+          }
+
           return event === EVENT_ALIASES[activity.name];
         }
 

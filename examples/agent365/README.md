@@ -6,6 +6,8 @@ Demonstrates passing `AgenticIdentity` directly to Teams API surfaces.
 
 `src/main.ts` mimics the echo example. Incoming messages are handled normally; the inbound service URL and agentic identity are carried by the context/API layer.
 
+It also logs Agent 365 `agentLifecycle` events through one general handler plus typed handlers for each observed `AgenticUser*` lifecycle variant. The general handler calls `ctx.next()` so the matching variant-specific handler can run afterward.
+
 ```bash
 export CLIENT_ID=<agent-identity-blueprint-app-id>
 export CLIENT_SECRET=<agent-identity-blueprint-secret>
