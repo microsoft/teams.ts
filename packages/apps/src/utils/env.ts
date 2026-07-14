@@ -1,7 +1,7 @@
 const TRUTHY_ENV_VALUES = new Set(['1', 'true', 'yes', 'on']);
 const FALSY_ENV_VALUES = new Set(['0', 'false', 'no', 'off']);
 
-export function isTruthyEnvValue(name: string): boolean | undefined {
+export function getBooleanEnvValue(name: string): boolean | undefined {
   const value = process.env[name];
   if (value === undefined) {
     return undefined;

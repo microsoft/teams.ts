@@ -413,7 +413,7 @@ describe('App', () => {
       expect((app.server as any).dangerouslyAllowUnauthenticatedRequests).toBe(false);
     });
 
-    it('should ignore false-like environment variable values', () => {
+    it('should parse false-like environment variable values as false', () => {
       process.env[unauthenticatedRequestsEnv] = 'false';
 
       const app = new App({

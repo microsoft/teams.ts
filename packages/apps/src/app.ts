@@ -47,7 +47,7 @@ import { IRoutes } from './routes';
 import { TokenManager } from './token-manager';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
-import { isTruthyEnvValue } from './utils/env';
+import { getBooleanEnvValue } from './utils/env';
 import { toThreadedConversationId } from './utils/thread';
 
 /**
@@ -381,7 +381,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       dangerouslyAllowUnauthenticatedRequests = this.options.skipAuth;
     }
     if (dangerouslyAllowUnauthenticatedRequests === undefined) {
-      const unauthenticatedRequestsEnvValue = isTruthyEnvValue('DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS');
+      const unauthenticatedRequestsEnvValue = getBooleanEnvValue('DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS');
       if (unauthenticatedRequestsEnvValue !== undefined) {
         this.log.warn(
           'DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS is set. ' +

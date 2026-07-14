@@ -95,6 +95,22 @@ describe('HttpServer', () => {
       expect(logger.warn).not.toHaveBeenCalled();
     });
 
+    it('warns when credentials are configured and unauthenticated requests are enabled', async () => {
+      const logger = { warn: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn(), child: jest.fn() } as any;
+      const warnServer = new HttpServer(adapter, {
+        dangerouslyAllowUnauthenticatedRequests: true,
+        logger,
+        messagingEndpoint: '/api/messages',
+      });
+      await warnServer.initialize({
+        credentials: { clientId: 'x', tenantId: 'y' } as any,
+      });
+
+      expect(logger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('Credentials are configured, but dangerouslyAllowUnauthenticatedRequests is enabled')
+      );
+    });
+
   });
 
   describe('unauthenticated request configuration', () => {

@@ -1,6 +1,6 @@
-import { isTruthyEnvValue } from './env';
+import { getBooleanEnvValue } from './env';
 
-describe('isTruthyEnvValue', () => {
+describe('getBooleanEnvValue', () => {
   const name = 'TEST_BOOLEAN_ENV_VALUE';
   const originalValue = process.env[name];
 
@@ -17,7 +17,7 @@ describe('isTruthyEnvValue', () => {
     (value) => {
       process.env[name] = value;
 
-      expect(isTruthyEnvValue(name)).toBe(true);
+      expect(getBooleanEnvValue(name)).toBe(true);
     }
   );
 
@@ -30,7 +30,7 @@ describe('isTruthyEnvValue', () => {
         process.env[name] = value;
       }
 
-      expect(isTruthyEnvValue(name)).toBeUndefined();
+      expect(getBooleanEnvValue(name)).toBeUndefined();
     }
   );
 
@@ -39,14 +39,14 @@ describe('isTruthyEnvValue', () => {
     (value) => {
       process.env[name] = value;
 
-      expect(isTruthyEnvValue(name)).toBe(false);
+      expect(getBooleanEnvValue(name)).toBe(false);
     }
   );
 
   it('should throw for invalid values', () => {
     process.env[name] = 'anything';
 
-    expect(() => isTruthyEnvValue(name)).toThrow(
+    expect(() => getBooleanEnvValue(name)).toThrow(
       'TEST_BOOLEAN_ENV_VALUE must be a boolean value: true/false, 1/0, yes/no, or on/off.'
     );
   });

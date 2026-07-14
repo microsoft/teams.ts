@@ -129,6 +129,11 @@ export class HttpServer implements IHttpServer {
         'but dangerouslyAllowUnauthenticatedRequests is enabled. ' +
         `Bot will accept unauthenticated requests on ${this._messagingEndpoint}.`
       );
+    } else if (this.credentials && this.dangerouslyAllowUnauthenticatedRequests) {
+      this.logger.warn(
+        'Credentials are configured, but dangerouslyAllowUnauthenticatedRequests is enabled. ' +
+        `Bot will bypass Teams service token validation on ${this._messagingEndpoint}.`
+      );
     }
 
     // Register Teams bot endpoint (POST only)
