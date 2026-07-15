@@ -4,9 +4,10 @@
  *
  * Proactive messaging with Agent 365 agentic identity.
  *
- * Demonstrates both `app.send(..., { agenticIdentity })` and the
- * lower-level conversation activity API. In both cases the API layer
- * asks the auth provider for the right Agent ID token.
+ * Demonstrates both `app.send(..., { agenticIdentity })` and a
+ * lower-level conversation activity API client configured with an
+ * agentic identity. In both cases the API layer asks the auth provider
+ * for the right Agent ID token.
  *
  * Usage:
  *   npx tsx -r dotenv/config src/proactive.ts <conversation-id> <agentic-app-id> <agentic-user-id>
@@ -43,9 +44,9 @@ async function main() {
   console.log(`Sent activity through app.send. Activity ID: ${sent.id}`);
 
   // 2. Lower-level conversation activity API with agentic identity
-  const apiSent = await app.api.conversations.activities(conversationId).create(
+  const agenticApi = app.api.fromAgenticIdentity({ agenticIdentity });
+  const apiSent = await agenticApi.conversations.activities(conversationId).create(
     { type: 'message', text: 'Hello from the conversation activity API with an AgenticIdentity.' },
-    { agenticIdentity },
   );
   console.log(`Sent activity through app.api. Activity ID: ${apiSent.id}`);
 }

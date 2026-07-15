@@ -25,7 +25,7 @@ app.on('message', async ({ send, reply, activity, api, log }) => {
   const text = activity.text?.toLowerCase() ?? '';
 
   if (text.includes('react')) {
-    await api.reactions.add(
+    await api.conversations.addReaction(
       activity.conversation.id,
       activity.id,
       'like'

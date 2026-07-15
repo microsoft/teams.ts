@@ -171,6 +171,41 @@ describe('App', () => {
       expect(capturedServiceUrl).toBe(incomingServiceUrl);
     });
 
+    it('should scope the app API from the incoming activity using clone', async () => {
+      const incomingServiceUrl = 'https://incoming-service.botframework.com';
+      const incomingActivity: IMessageActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({
+          id: 'bot-1',
+          name: 'Test Bot',
+          role: 'bot',
+          agenticAppId: 'agent-app',
+          agenticUserId: 'agent-user',
+        })
+        .withConversation({ id: 'conv-123', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl(incomingServiceUrl)
+        .toInterface();
+      const clone = jest.spyOn(app.api, 'clone');
+
+      app.on('message', async ({ api }) => {
+        expect(api.serviceUrl).toBe(incomingServiceUrl);
+      });
+
+      await app.process({
+        token: { ...token, serviceUrl: incomingServiceUrl },
+        body: incomingActivity,
+      });
+
+      expect(clone).toHaveBeenCalledWith({
+        serviceUrl: incomingServiceUrl,
+        agenticIdentity: expect.objectContaining({
+          agenticAppId: 'agent-app',
+          agenticUserId: 'agent-user',
+        }),
+      });
+    });
+
     it('should use different serviceUrls for different incoming activities', async () => {
       const serviceUrl1 = 'https://service-1.botframework.com';
       const serviceUrl2 = 'https://service-2.botframework.com';
