@@ -412,6 +412,7 @@ export class HttpStream implements IStreamer {
       ...activity,
       from: this.ref.bot,
       conversation: this.ref.conversation,
+      replyToId: this.ref.activityId,
     };
 
     try {

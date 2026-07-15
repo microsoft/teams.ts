@@ -551,4 +551,37 @@ describe('HttpStream', () => {
     expect(firstResult!.id).not.toBe(secondResult!.id);
     expect(closeResults.map((r) => r.id)).toEqual([firstResult!.id, secondResult!.id]);
   });
+
+  describe('replyToId threading', () => {
+    test('threads every streamed activity under the inbound message when ref.activityId is set', async () => {
+      const threadedRef = { ...ref, activityId: 'inbound-activity-id' };
+      const stream = new HttpStream(client, threadedRef, logger);
+      mockCreate();
+
+      stream.update('Thinking...'); // informative update
+      stream.emit('hello '); // streaming chunk
+      stream.emit('world');
+      const closePromise = stream.close(); // final message
+      await jest.runAllTimersAsync();
+      await closePromise;
+
+      const calls = client.conversations.createActivity.mock.calls;
+      expect(calls.length).toBeGreaterThan(0);
+
+      // informative, streaming, and final sends are all threaded to the inbound message
+      for (const call of calls) {
+        expect(call[1].replyToId).toBe('inbound-activity-id');
+      }
+
+      // and specifically the final message
+      expect(client.conversations.createActivity).toHaveBeenLastCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          type: 'message',
+          channelData: expect.objectContaining({ streamType: 'final' }),
+          replyToId: 'inbound-activity-id',
+        })
+      );
+    });
+  });
 });
