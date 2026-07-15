@@ -5,10 +5,11 @@ import {
   type ClientOptions as HttpClientOptions
 } from '@microsoft/teams.common';
 
-import { Account, Conversation, ConversationResource } from '../../models';
+import { Account, Conversation, ConversationResource, MessageReactionType } from '../../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
-import { agenticIdentityExtension, RequestOptions, resolveServiceUrl } from '../request-options';
+import { ReactionClient } from '../reaction';
+import { normalizeServiceUrl } from '../service-url';
 
 import { ActivityParams, ConversationActivityClient } from './activity';
 import { ConversationMemberClient } from './member';
@@ -62,14 +63,18 @@ export class ConversationClient {
   }
   set http(v) {
     this._http = v;
+    this._activities.http = v;
+    this._members.http = v;
+    this._reactions.http = v;
   }
   protected _http: HttpClient;
   protected _activities: ConversationActivityClient;
   protected _members: ConversationMemberClient;
+  protected _reactions: ReactionClient;
   protected _apiClientSettings: Partial<ApiClientSettings>;
 
   constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
-    this.serviceUrl = serviceUrl;
+    this.serviceUrl = normalizeServiceUrl(serviceUrl);
 
     if (!options) {
       this._http = new HttpClient();
@@ -80,41 +85,42 @@ export class ConversationClient {
     }
 
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
-    this._activities = new ConversationActivityClient(serviceUrl, this.http, this._apiClientSettings);
-    this._members = new ConversationMemberClient(serviceUrl, this.http, this._apiClientSettings);
+    this._activities = new ConversationActivityClient(this.serviceUrl, this.http, this._apiClientSettings);
+    this._members = new ConversationMemberClient(this.serviceUrl, this.http, this._apiClientSettings);
+    this._reactions = new ReactionClient(this.serviceUrl, this.http, this._apiClientSettings);
   }
 
   activities(conversationId: string) {
     return {
-      create: (params: ActivityParams, options?: RequestOptions) =>
-        this._activities.create(conversationId, params, options),
-      update: (id: string, params: ActivityParams, options?: RequestOptions) =>
-        this._activities.update(conversationId, id, params, options),
-      reply: (id: string, params: ActivityParams, options?: RequestOptions) =>
-        this._activities.reply(conversationId, id, params, options),
-      delete: (id: string, options?: RequestOptions) =>
-        this._activities.delete(conversationId, id, options),
-      members: (activityId: string, options?: RequestOptions) =>
-        this._activities.getMembers(conversationId, activityId, options),
-      createTargeted: (params: ActivityParams, options?: RequestOptions<'serviceUrl'>) =>
-        this._activities.createTargeted(conversationId, params, options),
-      updateTargeted: (id: string, params: ActivityParams, options?: RequestOptions<'serviceUrl'>) =>
-        this._activities.updateTargeted(conversationId, id, params, options),
-      deleteTargeted: (id: string, options?: RequestOptions<'serviceUrl'>) =>
-        this._activities.deleteTargeted(conversationId, id, options),
+      create: (params: ActivityParams) =>
+        this._activities.create(conversationId, params),
+      update: (id: string, params: ActivityParams) =>
+        this._activities.update(conversationId, id, params),
+      reply: (id: string, params: ActivityParams) =>
+        this._activities.reply(conversationId, id, params),
+      delete: (id: string) =>
+        this._activities.delete(conversationId, id),
+      members: (activityId: string) =>
+        this._activities.getMembers(conversationId, activityId),
+      createTargeted: (params: ActivityParams) =>
+        this._activities.createTargeted(conversationId, params),
+      updateTargeted: (id: string, params: ActivityParams) =>
+        this._activities.updateTargeted(conversationId, id, params),
+      deleteTargeted: (id: string) =>
+        this._activities.deleteTargeted(conversationId, id),
     };
   }
 
   members(conversationId: string) {
     return {
-      get: (options?: RequestOptions) => this._members.get(conversationId, options),
-      getById: (id: string, options?: RequestOptions) => this._members.getById(conversationId, id, options),
-      getPaged: (pageSize?: number, continuationToken?: string, options?: RequestOptions) =>
-        this._members.getPaged(conversationId, pageSize, continuationToken, options),
+      get: () => this._members.get(conversationId),
+      getById: (id: string) => this._members.getById(conversationId, id),
+      getPaged: (pageSize?: number, continuationToken?: string) =>
+        this._members.getPaged(conversationId, pageSize, continuationToken),
       /**
        * @deprecated This will be removed by end of summer 2026.
        */
-      delete: (id: string, options?: RequestOptions) => this._members.delete(conversationId, id, options),
+      delete: (id: string) => this._members.delete(conversationId, id),
     };
   }
 
@@ -129,21 +135,61 @@ export class ConversationClient {
     return res.data;
   }
 
-  createActivity(conversationId: string, params: ActivityParams, options?: RequestOptions) {
-    return this._activities.create(conversationId, params, options);
+  createActivity(conversationId: string, params: ActivityParams) {
+    return this._activities.create(conversationId, params);
   }
 
-  updateActivity(conversationId: string, id: string, params: ActivityParams, options?: RequestOptions) {
-    return this._activities.update(conversationId, id, params, options);
+  updateActivity(conversationId: string, id: string, params: ActivityParams) {
+    return this._activities.update(conversationId, id, params);
   }
 
-  getMemberById(conversationId: string, id: string, options?: RequestOptions) {
-    return this._members.getById(conversationId, id, options);
+  replyToActivity(conversationId: string, id: string, params: ActivityParams) {
+    return this._activities.reply(conversationId, id, params);
   }
 
-  async create(params: CreateConversationParams, options?: RequestOptions) {
-    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v3/conversations`;
-    const res = await this.http.post<ConversationResource>(url, params, agenticIdentityExtension(options));
+  deleteActivity(conversationId: string, id: string) {
+    return this._activities.delete(conversationId, id);
+  }
+
+  getActivityMembers(conversationId: string, id: string) {
+    return this._activities.getMembers(conversationId, id);
+  }
+
+  createTargetedActivity(conversationId: string, params: ActivityParams) {
+    return this._activities.createTargeted(conversationId, params);
+  }
+
+  updateTargetedActivity(conversationId: string, id: string, params: ActivityParams) {
+    return this._activities.updateTargeted(conversationId, id, params);
+  }
+
+  deleteTargetedActivity(conversationId: string, id: string) {
+    return this._activities.deleteTargeted(conversationId, id);
+  }
+
+  getMembers(conversationId: string) {
+    return this._members.get(conversationId);
+  }
+
+  getMemberById(conversationId: string, id: string) {
+    return this._members.getById(conversationId, id);
+  }
+
+  getPagedMembers(conversationId: string, pageSize?: number, continuationToken?: string) {
+    return this._members.getPaged(conversationId, pageSize, continuationToken);
+  }
+
+  addReaction(conversationId: string, activityId: string, reactionType: MessageReactionType) {
+    return this._reactions.add(conversationId, activityId, reactionType);
+  }
+
+  deleteReaction(conversationId: string, activityId: string, reactionType: MessageReactionType) {
+    return this._reactions.delete(conversationId, activityId, reactionType);
+  }
+
+  async create(params: CreateConversationParams) {
+    const url = `${this.serviceUrl}/v3/conversations`;
+    const res = await this.http.post<ConversationResource>(url, params);
     return res.data;
   }
 }

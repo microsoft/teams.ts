@@ -13,8 +13,44 @@ import { BotClient } from './bot';
 import { ConversationClient } from './conversation';
 import { MeetingClient } from './meeting';
 import { ReactionClient } from './reaction';
+import { normalizeServiceUrl } from './service-url';
 import { TeamClient } from './team';
 import { UserClient } from './user';
+
+/**
+ * Options for creating a scoped API client from an existing client.
+ */
+export type ApiClientCloneOptions = Omit<Partial<ApiClientSettings>, 'agenticIdentity'> & {
+  /**
+   * Service URL for the scoped client. Defaults to the current client's service URL.
+   */
+  readonly serviceUrl?: string;
+
+  /**
+   * `undefined` preserves the current client default; `null` clears it.
+   */
+  readonly agenticIdentity?: AgenticIdentity | null;
+};
+
+/**
+ * Options for creating a scoped API client for a specific Bot Framework service URL.
+ */
+export type ApiClientFromServiceUrlOptions = {
+  /**
+   * Service URL for the scoped client.
+   */
+  readonly serviceUrl: string;
+};
+
+/**
+ * Options for creating a scoped API client for a specific agentic identity.
+ */
+export type ApiClientFromAgenticIdentityOptions = {
+  /**
+   * Agentic identity used by the scoped client when acquiring auth tokens.
+   */
+  readonly agenticIdentity: AgenticIdentity;
+};
 
 export class Client {
   readonly serviceUrl: string;
@@ -28,17 +64,8 @@ export class Client {
   get http() {
     return this._http;
   }
-  set http(v) {
-    const http = this.withAuthProvider(v);
-    this.bots.http = http;
-    this.conversations.http = http;
-    this.users.http = http;
-    this.teams.http = http;
-    this.meetings.http = http;
-    this.reactions.http = http;
-    this._http = http;
-  }
   protected _http: HttpClient;
+  protected _baseHttp!: HttpClient;
   protected _apiClientSettings: Partial<ApiClientSettings>;
   protected _authProvider?: AuthProvider;
   protected _cloud?: CloudEnvironment;
@@ -49,17 +76,17 @@ export class Client {
     httpOptions?: HttpClient | HttpClientOptions,
     apiClientSettings?: Partial<ApiClientSettings>,
   ) {
-    this.serviceUrl = serviceUrl;
+    this.serviceUrl = normalizeServiceUrl(serviceUrl);
     this._cloud = apiClientSettings?.cloud;
     this._authProvider = apiClientSettings?.authProvider;
     this._defaultAgenticIdentity = apiClientSettings?.agenticIdentity;
 
     if (!httpOptions) {
-      this._http = this.withAuthProvider(new HttpClient());
+      this._http = this.prepareHttpClient(new HttpClient());
     } else if ('request' in httpOptions) {
-      this._http = this.withAuthProvider(httpOptions);
+      this._http = this.prepareHttpClient(httpOptions);
     } else {
-      this._http = this.withAuthProvider(new HttpClient({
+      this._http = this.prepareHttpClient(new HttpClient({
         ...httpOptions,
         headers: {
           ...httpOptions?.headers,
@@ -72,13 +99,60 @@ export class Client {
 
     this.bots = new BotClient(this.http, this._apiClientSettings, this._cloud);
     this.users = new UserClient(this.http, this._apiClientSettings, this._cloud);
-    this.conversations = new ConversationClient(serviceUrl, this.http, this._apiClientSettings);
-    this.teams = new TeamClient(serviceUrl, this.http, this._apiClientSettings);
-    this.meetings = new MeetingClient(serviceUrl, this.http, this._apiClientSettings);
-    this.reactions = new ReactionClient(serviceUrl, this.http, this._apiClientSettings);
+    this.conversations = new ConversationClient(this.serviceUrl, this.http, this._apiClientSettings);
+    this.teams = new TeamClient(this.serviceUrl, this.http, this._apiClientSettings);
+    this.meetings = new MeetingClient(this.serviceUrl, this.http, this._apiClientSettings);
+    this.reactions = new ReactionClient(this.serviceUrl, this.http, this._apiClientSettings);
   }
 
-  protected withAuthProvider(http: HttpClient): HttpClient {
+  /**
+   * Create a scoped API client that reuses this client's HTTP configuration and auth provider.
+   */
+  clone(options: ApiClientCloneOptions = {}): Client {
+    const { serviceUrl, agenticIdentity, ...apiClientSettings } = options;
+    return new Client(
+      serviceUrl ?? this.serviceUrl,
+      this._baseHttp.clone(),
+      {
+        ...this._apiClientSettings,
+        ...apiClientSettings,
+        ...(agenticIdentity === undefined ? {} : { agenticIdentity: agenticIdentity ?? undefined }),
+      }
+    );
+  }
+
+  /**
+   * Create a scoped API client for the provided agentic identity.
+   */
+  forAgenticIdentity(agenticIdentity: AgenticIdentity): Client {
+    return this.fromAgenticIdentity({ agenticIdentity });
+  }
+
+  /**
+   * Create a scoped API client for the provided agentic identity.
+   */
+  fromAgenticIdentity(options: ApiClientFromAgenticIdentityOptions): Client {
+    return this.clone(options);
+  }
+
+  /**
+   * Create a scoped API client for the provided Bot Framework service URL.
+   */
+  fromServiceUrl(options: ApiClientFromServiceUrlOptions): Client {
+    return this.clone(options);
+  }
+
+  private prepareHttpClient(http: HttpClient): HttpClient {
+    const authProviderInterceptors = this.authProviderInterceptors(http);
+    const authenticatedHttp = authProviderInterceptors.every((interceptor) => this.isMatchingAuthProviderInterceptor(interceptor))
+      ? http
+      : this.cloneWithoutAuthProvider(http);
+
+    this._baseHttp = this.cloneWithoutAuthProvider(authenticatedHttp);
+    return this.withAuthProvider(authenticatedHttp);
+  }
+
+  private withAuthProvider(http: HttpClient): HttpClient {
     if (!this._authProvider) {
       return http;
     }
@@ -91,6 +165,31 @@ export class Client {
     http.use(new AuthProviderInterceptor(this._authProvider, this._defaultAgenticIdentity));
     return http;
   }
+
+  private authProviderInterceptors(http: HttpClient): AuthProviderInterceptor[] {
+    return http.interceptors.filter((interceptor) => interceptor instanceof AuthProviderInterceptor);
+  }
+
+  private isMatchingAuthProviderInterceptor(interceptor: AuthProviderInterceptor): boolean {
+    return interceptor.authProvider === this._authProvider &&
+      interceptor.defaultAgenticIdentity === this._defaultAgenticIdentity;
+  }
+
+  private cloneWithoutAuthProvider(http: HttpClient): HttpClient {
+    const clone = http.clone();
+    const interceptors = clone.interceptors.filter((interceptor) => !(interceptor instanceof AuthProviderInterceptor));
+
+    if (interceptors.length === clone.interceptors.length) {
+      return clone;
+    }
+
+    clone.clear();
+    for (const interceptor of interceptors) {
+      clone.use(interceptor);
+    }
+    return clone;
+  }
+
 }
 
 export * from './user';
@@ -102,4 +201,3 @@ export * from './team';
 export * from './api-client-settings';
 export * from './auth';
 export * from './auth-provider-interceptor';
-export * from './request-options';
