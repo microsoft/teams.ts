@@ -74,7 +74,7 @@ app.on('message', async ({ send, activity }) => {
           frameDomains: [],
           baseUriDomains: [],
         },
-        toolInput: { demo: true },
+        toolInput: { demo: true }, // Passed to the widget as initial context (available via toolInput in ui/initialize)
         toolOutput: {
           content: [{ type: 'text', text: 'Initial data loaded.' }],
           structuredContent: { counter: 0, lastAction: 'init' },
@@ -152,7 +152,7 @@ app.on('message', async ({ send, activity }) => {
           frameDomains: [],
           baseUriDomains: [],
         },
-        toolInput: {},
+        toolInput: {}, // Passed to the widget as initial context (available via toolInput in ui/initialize)
         toolOutput: {
           content: [{ type: 'text', text: 'Ready.' }],
           structuredContent: { tools: ['getTime', 'roll', 'echo'] },
