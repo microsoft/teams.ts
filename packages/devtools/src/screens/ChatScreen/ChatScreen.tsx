@@ -1,11 +1,6 @@
 import { FC, useCallback, useEffect, useState } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
-import {
-  Message,
-  MessageUpdateActivity,
-  MessageDeleteActivity,
-  MessageReaction,
-} from '@microsoft/teams.api';
+import { Message, MessageActivityInput } from '@microsoft/teams.api';
 
 import ChatMessageEdit from '../../components/ChatMessage/MessageUpdate/ChatMessageEdit';
 import Chat from '../../components/Chat/Chat';
@@ -62,11 +57,6 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
       }
 
       try {
-        let messageBody;
-        let updateActivity;
-        let deleteActivity;
-        const added: Array<MessageReaction> = [];
-        const removed: Array<MessageReaction> = [];
         const { reactions = [] } = originalMessage;
         const existingReaction =
           action.type === 'messageReaction' && action.reactionType
@@ -76,7 +66,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
         switch (action.type) {
           case 'messageUpdate':
             if (action.eventType === 'undeleteMessage') {
-              messageBody = {
+              const messageBody = {
                 body: {
                   content: originalMessage.body?.content || '',
                   contentType: 'text',
@@ -84,22 +74,14 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
                 attachments: originalMessage.attachments || [],
               };
 
-              updateActivity = new MessageUpdateActivity('undeleteMessage', {
-                id: action.id,
-                text: originalMessage.body?.content || '',
-                value: messageBody,
-                channelData: {
-                  eventType: 'undeleteMessage',
-                },
-                from: originalMessage.from?.user
-                  ? {
-                      id: originalMessage.from.user.id,
-                      name: originalMessage.from.user.displayName || '',
-                      role: 'user',
-                    }
-                  : undefined,
-              });
-              await teamsApi.conversations.activities(chat.id).create(updateActivity);
+              await teamsApi.conversations.updateActivity(
+                chat.id,
+                action.id,
+                new MessageActivityInput(originalMessage.body?.content || '', {
+                  attachments: originalMessage.attachments || [],
+                  value: messageBody,
+                })
+              );
               removeDeletedMessage(chat.id, action.id);
             } else if (!action.eventType) {
               // Regular edit
@@ -108,11 +90,7 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
             break;
 
           case 'messageDelete':
-            deleteActivity = new MessageDeleteActivity({
-              id: action.id,
-              channelData: { eventType: 'softDeleteMessage' },
-            });
-            await teamsApi.conversations.activities(chat.id).create(deleteActivity);
+            await teamsApi.conversations.deleteActivity(chat.id, action.id);
             addDeletedMessage(chat.id, originalMessage);
             break;
 
@@ -120,21 +98,10 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
             if (!action.reactionType) return;
 
             if (existingReaction) {
-              removed.push(existingReaction);
+              await teamsApi.conversations.deleteReaction(chat.id, action.id, action.reactionType);
             } else {
-              added.push({
-                type: action.reactionType,
-                createdDateTime: new Date().toUTCString(),
-                user: action.user,
-              });
+              await teamsApi.conversations.addReaction(chat.id, action.id, action.reactionType);
             }
-
-            await teamsApi.conversations.activities(chat.id).create({
-              id: action.id,
-              type: 'messageReaction',
-              reactionsAdded: added,
-              reactionsRemoved: removed,
-            });
             break;
         }
       } catch (err) {
@@ -169,13 +136,14 @@ const ChatScreen: FC<ChatScreenProps> = ({ isConnected }) => {
           attachments: updatedMessage.attachments || [],
         };
 
-        const updateActivity = new MessageUpdateActivity('editMessage', {
-          id: messageId,
-          text: updatedMessage.body?.content || '',
-          value: messageBody,
-        });
-
-        await teamsApi.conversations.activities(chat.id).create(updateActivity);
+        await teamsApi.conversations.updateActivity(
+          chat.id,
+          messageId,
+          new MessageActivityInput(updatedMessage.body?.content || '', {
+            attachments: updatedMessage.attachments || [],
+            value: messageBody,
+          })
+        );
         setCurrentlyEditingMessageId(null);
         setEditingMessageId(null);
       } catch (err) {

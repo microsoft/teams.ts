@@ -6,9 +6,11 @@ import {
   ApiClientSettings,
   CloudEnvironment,
   ConversationReference,
+  DeprecatedInputActivity,
   cloudFromName,
   InvokeResponse,
   PUBLIC,
+  SentActivity,
   StripMentionsTextOptions,
   toActivityParams,
   TokenCredentials,
@@ -515,7 +517,13 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param conversationId the conversation to send to
    * @param activity the activity to send
    */
-  async send(conversationId: string, activity: ActivityLike) {
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async send(conversationId: string, activity: DeprecatedInputActivity): Promise<SentActivity>;
+  async send(conversationId: string, activity: ActivityLike): Promise<SentActivity>;
+  async send(conversationId: string, activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
+  async send(conversationId: string, activity: ActivityLike | DeprecatedInputActivity) {
     if (!this.id) {
       throw new Error('App has no credentials set up');
     }
@@ -550,7 +558,16 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param messageId the thread root message ID
    * @param activity the activity to send
    */
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async reply(conversationId: string, messageId: string, activity: DeprecatedInputActivity): Promise<any>;
   async reply(conversationId: string, messageId: string, activity: ActivityLike): Promise<any>;
+  async reply(
+    conversationId: string,
+    messageId: string,
+    activity: ActivityLike | DeprecatedInputActivity
+  ): Promise<any>;
   /**
    * send an activity proactively to a conversation.
    *
@@ -560,13 +577,22 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param conversationId the conversation to send to
    * @param activity the activity to send
    */
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async reply(conversationId: string, activity: DeprecatedInputActivity): Promise<any>;
   async reply(conversationId: string, activity: ActivityLike): Promise<any>;
-  async reply(conversationId: string, messageId: string | ActivityLike, activity?: ActivityLike) {
+  async reply(conversationId: string, activity: ActivityLike | DeprecatedInputActivity): Promise<any>;
+  async reply(
+    conversationId: string,
+    messageId: string | ActivityLike | DeprecatedInputActivity,
+    activity?: ActivityLike | DeprecatedInputActivity
+  ) {
     if (typeof messageId === 'string' && activity !== undefined) {
       return this.send(toThreadedConversationId(conversationId, messageId), activity);
     }
 
-    return this.send(conversationId, messageId as ActivityLike);
+    return this.send(conversationId, messageId);
   }
 
   /**

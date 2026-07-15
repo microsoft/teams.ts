@@ -584,7 +584,6 @@ describe('ActivityContext', () => {
               contentType: 'application/vnd.microsoft.card.oauth',
             },
           ],
-          inputHint: 'acceptingInput',
           recipient: { id: 'test-user', name: 'Test User', role: 'user' },
         }),
         mockRef

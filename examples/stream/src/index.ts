@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { MessageActivity } from '@microsoft/teams.api';
+import { MessageActivityInput } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { AdaptiveCard, TextBlock } from '@microsoft/teams.cards';
 import { ConsoleLogger } from '@microsoft/teams.common';
@@ -65,7 +65,7 @@ app.on('message', async ({ activity, stream, send, log }) => {
   // Send a minimal Adaptive Card outside the streaming flow.
   if (shouldSendSimpleCard(activity.text)) {
     const sentCard = await send(
-      new MessageActivity('Sending a simple Adaptive Card.').addCard('adaptive', createSimpleCard())
+      new MessageActivityInput('Sending a simple Adaptive Card.').addCard('adaptive', createSimpleCard())
     );
     log.info(`Sent simple adaptive card: ${sentCard.id}`);
     return;
@@ -83,7 +83,7 @@ app.on('message', async ({ activity, stream, send, log }) => {
     }
 
     stream.emit(
-      new MessageActivity('Adaptive Card emitted as part of stream 1.').addCard(
+      new MessageActivityInput('Adaptive Card emitted as part of stream 1.').addCard(
         'adaptive',
         createSimpleCard()
       )
@@ -114,7 +114,7 @@ app.on('message', async ({ activity, stream, send, log }) => {
   }
 
   stream.emit(
-    new MessageActivity().withSuggestedActions({
+    new MessageActivityInput().withSuggestedActions({
       to: [activity.from.id],
       actions: [
         { type: 'imBack', title: 'Run again', value: 'Run again' },
