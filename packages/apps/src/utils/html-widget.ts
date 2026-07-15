@@ -306,7 +306,7 @@ export function buildHtmlWidgetMarkdown(
 
   const injectedPayload = {
     ...resolved,
-    html: injectWidgetProtocol(resolved.html, { name: resolved.name, ...options?.protocolOptions }),
+    html: injectWidgetProtocol(resolved.html, { ...options?.protocolOptions, name: resolved.name }),
     securityPolicy: resolved.securityPolicy ?? DEFAULT_SECURITY_POLICY,
   };
   const json = JSON.stringify(injectedPayload);
