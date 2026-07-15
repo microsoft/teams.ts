@@ -2,6 +2,12 @@
  * Host Context widget - displays the hostContext received during ui/initialize.
  * Shows theme, display mode, container dimensions, locale, etc.
  * Also listens for ui/notifications/host-context-changed.
+ *
+ * Protocol flow:
+ *   1. SDK-injected protocol sends ui/initialize to the host
+ *   2. Host responds with hostContext (theme, dimensions, locale) and hostCapabilities
+ *   3. Widget displays the received context
+ *   4. Widget listens for ui/notifications/host-context-changed for live updates
  */
 export const HOST_CONTEXT_WIDGET_HTML = `<!DOCTYPE html>
 <html><head><meta charset="utf-8">

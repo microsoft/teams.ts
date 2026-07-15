@@ -1,6 +1,12 @@
 /**
  * Open Link widget - tests ui/open-link method.
  * Clicking a button asks the host to open a URL in the user's browser.
+ *
+ * Protocol flow:
+ *   1. User clicks a button with a URL
+ *   2. Widget sends JSON-RPC request: { method: "ui/open-link", params: { url } }
+ *   3. Teams host opens the URL in the user's default browser
+ *   4. Host responds with success/error
  */
 export const OPEN_LINK_WIDGET_HTML = `<!DOCTYPE html>
 <html><head><meta charset="utf-8">
