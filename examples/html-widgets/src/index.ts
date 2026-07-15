@@ -35,18 +35,9 @@ app.on('message', async ({ send, activity }) => {
   if (text === '/simple') {
     const message = buildHtmlWidgetMessage(
       {
-        type: 'widget/mcp-ui',
         name: 'Simple Widget',
-        description: 'A static HTML widget with no callbacks.',
         html: SIMPLE_WIDGET_HTML,
         domain: 'https://teams.microsoft.com',
-        securityPolicy: {
-          connectDomains: [],
-          resourceDomains: ['\'self\'', 'data:'],
-          frameDomains: [],
-          baseUriDomains: [],
-        },
-        permissions: {},
       },
       { before: 'Here is a simple static widget:', after: 'No callbacks needed for static content.' }
     );
@@ -63,16 +54,12 @@ app.on('message', async ({ send, activity }) => {
   if (text === '/calltool') {
     const message = buildHtmlWidgetMessage(
       {
-        type: 'widget/mcp-ui',
         name: 'CallTool Widget',
         description: 'Widget that calls tools on the bot.',
         html: CALLTOOL_WIDGET_HTML,
         domain: 'https://teams.microsoft.com',
         securityPolicy: {
           connectDomains: ['https://teams.microsoft.com', 'https://teams.cloud.microsoft.com'],
-          resourceDomains: ['\'self\'', 'data:'],
-          frameDomains: [],
-          baseUriDomains: [],
         },
         toolInput: { demo: true }, // Passed to the widget as initial context (available via toolInput in ui/initialize)
         toolOutput: {
@@ -80,7 +67,6 @@ app.on('message', async ({ send, activity }) => {
           structuredContent: { counter: 0, lastAction: 'init' },
           isError: false,
         },
-        permissions: {},
       },
       { before: 'Here is a widget with callTool support (click Refresh):' }
     );
@@ -93,18 +79,10 @@ app.on('message', async ({ send, activity }) => {
   if (text === '/messageback') {
     const message = buildHtmlWidgetMessage(
       {
-        type: 'widget/mcp-ui',
         name: 'MessageBack Widget',
         description: 'Widget that sends messageBack to the bot.',
         html: MESSAGEBACK_WIDGET_HTML,
         domain: 'https://teams.microsoft.com',
-        securityPolicy: {
-          connectDomains: [],
-          resourceDomains: ['\'self\'', 'data:'],
-          frameDomains: [],
-          baseUriDomains: [],
-        },
-        permissions: {},
       },
       { before: 'This widget tests the onMessage (messageBack) callback:' }
     );
@@ -117,18 +95,10 @@ app.on('message', async ({ send, activity }) => {
   if (text === '/fullscreen') {
     const message = buildHtmlWidgetMessage(
       {
-        type: 'widget/mcp-ui',
         name: 'Fullscreen Widget',
         description: 'Widget that requests fullscreen mode.',
         html: FULLSCREEN_WIDGET_HTML,
         domain: 'https://teams.microsoft.com',
-        securityPolicy: {
-          connectDomains: [],
-          resourceDomains: ['\'self\'', 'data:'],
-          frameDomains: [],
-          baseUriDomains: [],
-        },
-        permissions: {},
       },
       { before: 'This widget will request fullscreen mode:' }
     );
@@ -141,16 +111,12 @@ app.on('message', async ({ send, activity }) => {
   if (text === '/multi') {
     const message = buildHtmlWidgetMessage(
       {
-        type: 'widget/mcp-ui',
         name: 'Multi-Tool Widget',
         description: 'Widget that calls multiple different tools.',
         html: MULTI_WIDGET_HTML,
         domain: 'https://teams.microsoft.com',
         securityPolicy: {
           connectDomains: ['https://teams.microsoft.com'],
-          resourceDomains: ['\'self\'', 'data:'],
-          frameDomains: [],
-          baseUriDomains: [],
         },
         toolInput: {}, // Passed to the widget as initial context (available via toolInput in ui/initialize)
         toolOutput: {
@@ -158,7 +124,6 @@ app.on('message', async ({ send, activity }) => {
           structuredContent: { tools: ['getTime', 'roll', 'echo'] },
           isError: false,
         },
-        permissions: {},
       },
       { before: 'This widget has multiple tools to test dispatch:' }
     );
@@ -170,7 +135,6 @@ app.on('message', async ({ send, activity }) => {
   if (text === '/openlink') {
     const message = buildHtmlWidgetMessage(
       {
-        type: 'widget/mcp-ui',
         name: 'open-link-test',
         html: OPEN_LINK_WIDGET_HTML,
         domain: 'https://teams.microsoft.com',
@@ -185,7 +149,6 @@ app.on('message', async ({ send, activity }) => {
   if (text === '/context') {
     const message = buildHtmlWidgetMessage(
       {
-        type: 'widget/mcp-ui',
         name: 'update-context-test',
         html: UPDATE_CONTEXT_WIDGET_HTML,
         domain: 'https://teams.microsoft.com',
@@ -200,7 +163,6 @@ app.on('message', async ({ send, activity }) => {
   if (text === '/hostcontext') {
     const message = buildHtmlWidgetMessage(
       {
-        type: 'widget/mcp-ui',
         name: 'host-context-inspector',
         html: HOST_CONTEXT_WIDGET_HTML,
         domain: 'https://teams.microsoft.com',
@@ -242,7 +204,6 @@ app.on('message', async ({ send, activity }) => {
       .join('\n');
     const markdown = buildHtmlWidgetMarkdown(
       {
-        type: 'widget/mcp-ui',
         name: 'Validated Widget',
         description: 'Widget built after security policy validation.',
         html: htmlWithExternalRefs,
