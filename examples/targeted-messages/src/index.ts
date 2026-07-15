@@ -21,11 +21,7 @@ app.on('message', async ({ send, activity, api }) => {
         const updatedMessage = new MessageActivity(
           `✏️ **Updated!** This message was modified at ${new Date().toISOString().slice(11, 19)}`
         );
-        await api.conversations.updateTargetedActivity(
-          conversationId,
-          result.id,
-          updatedMessage
-        );
+        await api.conversations.activities(conversationId).updateTargeted(result.id, updatedMessage);
       } catch (err: any) {
         console.error('[UPDATE] Error:', err?.message || err);
       }
@@ -39,7 +35,7 @@ app.on('message', async ({ send, activity, api }) => {
 
     setTimeout(async () => {
       try {
-        await api.conversations.deleteTargetedActivity(conversationId, result.id);
+        await api.conversations.activities(conversationId).deleteTargeted(result.id);
       } catch (err: any) {
         console.error('[DELETE] Error:', err?.message || err);
       }
