@@ -61,11 +61,6 @@ function isAppSendOptions(value: ActivityLike | AppSendOptions): value is AppSen
  */
 export type AppSendOptions = {
   /**
-   * Service URL to use for this send. Defaults to the app's configured API service URL.
-   */
-  readonly serviceUrl?: string;
-
-  /**
    * Agentic identity to use when acquiring tokens for this send.
    */
   readonly agenticIdentity?: AgenticIdentity;
@@ -555,7 +550,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     const ref: ConversationReference = {
       channelId: 'msteams',
-      serviceUrl: options?.serviceUrl ?? this.api.serviceUrl,
+      serviceUrl: this.api.serviceUrl,
       bot: {
         id: this.id,
         role: 'bot',
