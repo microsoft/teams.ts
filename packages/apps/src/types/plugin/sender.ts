@@ -16,6 +16,7 @@ export interface IActivitySender {
    * Send an activity
    */
   send(activity: ActivityParams, ref: ConversationReference): Promise<SentActivity>;
+  send(activity: ActivityParams | DeprecatedInputActivity, ref: ConversationReference): Promise<SentActivity>;
 
   /**
    * Create a new activity stream

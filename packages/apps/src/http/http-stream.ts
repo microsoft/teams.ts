@@ -4,11 +4,13 @@ import {
   Client,
   ConversationReference,
   IMessageActivity,
+  IMessageActivityInput,
   ITypingActivity,
-  MessageActivity,
+  ITypingActivityInput,
+  MessageActivityInput,
   SentActivity,
   toActivityParams,
-  TypingActivity,
+  TypingActivityInput,
 } from '@microsoft/teams.api';
 import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/teams.common';
 
@@ -46,8 +48,8 @@ export class HttpStream implements IStreamer {
   protected id?: string;
   protected text: string = '';
   protected channelData: ChannelData = {};
-  protected finalActivity?: Partial<IMessageActivity>;
-  protected queue: Array<Partial<IMessageActivity | ITypingActivity>> = [];
+  protected finalActivity?: IMessageActivityInput;
+  protected queue: Array<IMessageActivityInput | ITypingActivityInput> = [];
 
   private _result?: SentActivity;
   private _timeout?: NodeJS.Timeout;
@@ -92,7 +94,19 @@ export class HttpStream implements IStreamer {
    * Emit a new activity or text to the stream.
    * @param activity Activity object or string message.
    */
-  emit(activity: Partial<IMessageActivity | ITypingActivity> | string) {
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  emit(activity: IMessageActivity | ITypingActivity): void;
+  emit(activity: IMessageActivityInput | ITypingActivityInput | string): void;
+  emit(
+    activity:
+      | IMessageActivity
+      | ITypingActivity
+      | IMessageActivityInput
+      | ITypingActivityInput
+      | string
+  ) {
     if (this._canceled) {
       throw new StreamCancelledError();
     }
@@ -109,6 +123,10 @@ export class HttpStream implements IStreamer {
         type: 'message',
         text: activity,
       };
+    } else if (activity.type === 'message') {
+      activity = MessageActivityInput.from(activity);
+    } else {
+      activity = TypingActivityInput.from(activity);
     }
 
     this.queue.push(activity);
@@ -203,9 +221,9 @@ export class HttpStream implements IStreamer {
       // Streaming already tripped the 2-minute limit; update the original message in place.
       res = await this.sendFinal();
     } else {
-      // Build final message activity from the last-emitted MessageActivity (last wins),
+      // Build final message activity from the last-emitted message input (last wins),
       // overlaying accumulated text, id, channelData, and the stream-final entity.
-      const activity = new MessageActivity(this.text)
+      const activity = new MessageActivityInput(this.text)
         .withId(this.id)
         .addAttachments(...finalAttachments)
         .addEntities(...finalEntities)
@@ -267,16 +285,19 @@ export class HttpStream implements IStreamer {
     const finalEntities = (this.finalActivity?.entities ?? []).filter((e) => e.type !== 'streaminfo');
     const finalSuggestedActions = this.finalActivity?.suggestedActions;
 
-    const activity = new MessageActivity(this.text)
-      .addAttachments(...finalAttachments)
-      .addEntities(...finalEntities);
+    const activity: IMessageActivityInput = {
+      type: 'message',
+      text: this.text,
+      attachments: finalAttachments,
+      entities: finalEntities,
+    };
 
     if (this.id) {
-      activity.withId(this.id);
+      activity.id = this.id;
     }
 
     if (finalSuggestedActions) {
-      activity.withSuggestedActions(finalSuggestedActions);
+      activity.suggestedActions = finalSuggestedActions;
     }
 
     return this.sendWithRetry(activity);
@@ -312,7 +333,7 @@ export class HttpStream implements IStreamer {
         this._timeout = undefined;
       }
 
-      const informativeUpdates: Partial<ITypingActivity>[] = [];
+      const informativeUpdates: ITypingActivityInput[] = [];
       const startLength = this.queue.length;
 
       while (this.queue.length) {
@@ -324,7 +345,7 @@ export class HttpStream implements IStreamer {
           if (activity.text) {
             this.text += activity.text;
           }
-          // Last emitted MessageActivity wins for attachments / entities / suggestedActions.
+          // Last emitted message wins for attachments / entities / suggestedActions.
           // Matches the Python streamer's `_final_activity` behavior.
           this.finalActivity = activity;
         }
@@ -350,12 +371,12 @@ export class HttpStream implements IStreamer {
 
       // Send informative updates immediately
       for (const informativeUpdate of informativeUpdates) {
-        const activity = new TypingActivity().withText(informativeUpdate.text || '').withChannelData({ streamType: 'informative' });
+        const activity = new TypingActivityInput().withText(informativeUpdate.text || '').withChannelData({ streamType: 'informative' });
         await this.pushStreamChunk(activity);
       }
 
       if (this.text) {
-        const activity = new TypingActivity().withText(this.text);
+        const activity = new TypingActivityInput().withText(this.text);
         await this.pushStreamChunk(activity);
       }
 
@@ -374,17 +395,41 @@ export class HttpStream implements IStreamer {
 
   /**
    * Push a new chunk to the stream.
-   * @param activity TypingActivity to send.
+   * @param activity Typing activity input to send.
    */
-  protected async pushStreamChunk(activity: TypingActivity) {
+  protected async pushStreamChunk(activity: ITypingActivityInput) {
     if (this.id) {
       activity.id = this.id;
     }
-    activity.addStreamUpdate(this.index + 1);
+
+    if (!activity.channelData) {
+      activity.channelData = {};
+    }
+
+    if (!activity.channelData.streamId) {
+      activity.channelData.streamId = activity.id;
+    }
+
+    if (!activity.channelData.streamType) {
+      activity.channelData.streamType = 'streaming';
+    }
+
+    activity.channelData.streamSequence = this.index + 1;
+
+    if (!activity.entities) {
+      activity.entities = [];
+    }
+
+    activity.entities.push({
+      type: 'streaminfo',
+      streamId: activity.id,
+      streamType: activity.channelData.streamType,
+      streamSequence: activity.channelData.streamSequence,
+    });
 
     let res: SentActivity;
     try {
-      res = await this.sendWithRetry(activity as ActivityParams);
+      res = await this.sendWithRetry(activity);
     } catch (err) {
       // A timed-out chunk is swallowed here; close() sends the buffered content as a
       // plain message once the stream has been marked timed out.

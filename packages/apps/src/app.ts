@@ -522,6 +522,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    */
   async send(conversationId: string, activity: DeprecatedInputActivity): Promise<SentActivity>;
   async send(conversationId: string, activity: ActivityLike): Promise<SentActivity>;
+  async send(conversationId: string, activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
   async send(conversationId: string, activity: ActivityLike | DeprecatedInputActivity) {
     if (!this.id) {
       throw new Error('App has no credentials set up');
@@ -562,6 +563,11 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    */
   async reply(conversationId: string, messageId: string, activity: DeprecatedInputActivity): Promise<any>;
   async reply(conversationId: string, messageId: string, activity: ActivityLike): Promise<any>;
+  async reply(
+    conversationId: string,
+    messageId: string,
+    activity: ActivityLike | DeprecatedInputActivity
+  ): Promise<any>;
   /**
    * send an activity proactively to a conversation.
    *
@@ -576,6 +582,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    */
   async reply(conversationId: string, activity: DeprecatedInputActivity): Promise<any>;
   async reply(conversationId: string, activity: ActivityLike): Promise<any>;
+  async reply(conversationId: string, activity: ActivityLike | DeprecatedInputActivity): Promise<any>;
   async reply(
     conversationId: string,
     messageId: string | ActivityLike | DeprecatedInputActivity,
@@ -585,7 +592,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       return this.send(toThreadedConversationId(conversationId, messageId), activity);
     }
 
-    return this.send(conversationId, messageId as ActivityLike);
+    return this.send(conversationId, messageId);
   }
 
   /**

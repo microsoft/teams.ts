@@ -26,6 +26,7 @@ export class ActivitySender implements IActivitySender {
    */
   async send(activity: DeprecatedInputActivity, ref: ConversationReference): Promise<SentActivity>;
   async send(activity: ActivityParams, ref: ConversationReference): Promise<SentActivity>;
+  async send(activity: ActivityParams | DeprecatedInputActivity, ref: ConversationReference): Promise<SentActivity>;
   async send(activity: ActivityParams | DeprecatedInputActivity, ref: ConversationReference): Promise<SentActivity> {
     // Create API client for this conversation's service URL
     const api = new Client(ref.serviceUrl, this.client);

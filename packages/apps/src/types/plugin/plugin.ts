@@ -88,6 +88,7 @@ export interface IPlugin<TActivityContext extends {} = {}, TEvents extends {} = 
      */
     (activity: DeprecatedInputActivity, ref: ConversationReference): Promise<SentActivity>;
     (activity: ActivityParams, ref: ConversationReference): Promise<SentActivity>;
+    (activity: ActivityParams | DeprecatedInputActivity, ref: ConversationReference): Promise<SentActivity>;
   };
 
   /**

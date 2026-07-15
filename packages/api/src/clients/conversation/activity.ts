@@ -51,6 +51,7 @@ export class ConversationActivityClient {
    */
   async create(conversationId: string, params: DeprecatedInputActivity): Promise<Resource>;
   async create(conversationId: string, params: ActivityParams): Promise<Resource>;
+  async create(conversationId: string, params: ActivityParamsLike): Promise<Resource>;
   async create(conversationId: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
     const activity = toActivityParams(params);
@@ -66,6 +67,7 @@ export class ConversationActivityClient {
    */
   async update(conversationId: string, id: string, params: DeprecatedInputActivity): Promise<Resource>;
   async update(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
+  async update(conversationId: string, id: string, params: ActivityParamsLike): Promise<Resource>;
   async update(conversationId: string, id: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
     const activity = toActivityParams(params);
@@ -81,6 +83,7 @@ export class ConversationActivityClient {
    */
   async reply(conversationId: string, id: string, params: DeprecatedInputActivity): Promise<Resource>;
   async reply(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
+  async reply(conversationId: string, id: string, params: ActivityParamsLike): Promise<Resource>;
   async reply(conversationId: string, id: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
     const activity = toActivityParams(params);
@@ -113,6 +116,7 @@ export class ConversationActivityClient {
    */
   async createTargeted(conversationId: string, params: DeprecatedInputActivity): Promise<Resource>;
   async createTargeted(conversationId: string, params: ActivityParams): Promise<Resource>;
+  async createTargeted(conversationId: string, params: ActivityParamsLike): Promise<Resource>;
   async createTargeted(conversationId: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
     const activity = toActivityParams(params);
@@ -128,6 +132,7 @@ export class ConversationActivityClient {
    */
   async updateTargeted(conversationId: string, id: string, params: DeprecatedInputActivity): Promise<Resource>;
   async updateTargeted(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
+  async updateTargeted(conversationId: string, id: string, params: ActivityParamsLike): Promise<Resource>;
   async updateTargeted(conversationId: string, id: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
     const activity = toActivityParams(params);

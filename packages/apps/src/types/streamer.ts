@@ -1,4 +1,10 @@
-import { IMessageActivity, ITypingActivity, SentActivity } from '@microsoft/teams.api';
+import {
+  IMessageActivity,
+  IMessageActivityInput,
+  ITypingActivity,
+  ITypingActivityInput,
+  SentActivity
+} from '@microsoft/teams.api';
 import { IEventEmitter } from '@microsoft/teams.common';
 
 /**
@@ -82,7 +88,11 @@ export interface IStreamer {
    * emit an activity chunk
    * @param activity the activity to send
    */
-  emit(activity: Partial<IMessageActivity | ITypingActivity> | string): void;
+  /**
+   * @deprecated Use {@link IMessageActivityInput} or {@link ITypingActivityInput} instead.
+   */
+  emit(activity: IMessageActivity | ITypingActivity): void;
+  emit(activity: IMessageActivityInput | ITypingActivityInput | string): void;
 
   /**
    * send status updates before emitting (ex. "Thinking...")

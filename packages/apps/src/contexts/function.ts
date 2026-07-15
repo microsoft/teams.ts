@@ -53,6 +53,7 @@ export interface IFunctionContext<T = any> extends IClientContext {
    */
   send(activity: DeprecatedInputActivity): Promise<SentActivity | null>;
   send(activity: ActivityLike): Promise<SentActivity | null>;
+  send(activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity | null>;
 }
 
 /**
@@ -127,6 +128,7 @@ export class FunctionContext<T = any> implements IFunctionContext<T> {
    */
   async send(activity: DeprecatedInputActivity): Promise<SentActivity | null>;
   async send(activity: ActivityLike): Promise<SentActivity | null>;
+  async send(activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity | null>;
   async send(activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity | null> {
     const conversationId = await this.getCurrentConversationId();
 

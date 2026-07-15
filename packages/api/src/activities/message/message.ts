@@ -114,18 +114,15 @@ export interface IMessageActivity extends IActivity<'message'> {
  * message-specific fields optional too, so both a plain `{ type: 'message', text }`
  * literal and a {@link MessageActivityInput} builder instance are assignable. The message
  * fields are copied here instead of derived from {@link IMessageActivity}, keeping the
- * outbound input shape independent from the inbound activity interface.
+ * outbound input shape independent from the inbound activity interface. Use
+ * {@link MessageActivityInputOptions} to include unmodeled extension fields when constructing
+ * a {@link MessageActivityInput}.
  */
 export interface IMessageActivityInput extends IActivityInput<'message'> {
   /**
    * Message text.
    */
   text?: string;
-
-  /**
-   * Summary text displayed when the channel cannot render the full activity.
-   */
-  summary?: string;
 
   /**
    * Format of the message text.
@@ -146,17 +143,18 @@ export interface IMessageActivityInput extends IActivityInput<'message'> {
    * Suggested actions presented with the message.
    */
   suggestedActions?: SuggestedActions;
-
-  /**
-   * Delivery hint for the message.
-   */
-  deliveryMode?: DeliveryMode;
-
-  /**
-   * Channel-specific or caller-defined value associated with the message.
-   */
-  value?: any;
 }
+
+/**
+ * Constructor fields for {@link MessageActivityInput}.
+ *
+ * This accepts modeled outbound message fields plus channel/service extension fields that
+ * should serialize at the top level of the outbound activity payload. The constructor owns
+ * the `type` discriminator and message `text`; pass text as the first constructor argument
+ * or set it with {@link MessageActivityInput.withText}.
+ */
+export type MessageActivityInputOptions = Omit<Partial<IMessageActivityInput>, 'type' | 'text'> &
+  Record<string, unknown>;
 
 /**
  * Builder for outbound message activities.
@@ -168,11 +166,6 @@ export class MessageActivityInput extends ActivityInput<'message'> implements IM
   text?: string;
 
   /**
-   * Summary text displayed when the channel cannot render the full activity.
-   */
-  summary?: string;
-
-  /**
    * Format of the message text.
    */
   textFormat?: TextFormat;
@@ -193,44 +186,45 @@ export class MessageActivityInput extends ActivityInput<'message'> implements IM
   suggestedActions?: SuggestedActions;
 
   /**
-   * Delivery hint for the message.
-   */
-  deliveryMode?: DeliveryMode;
-
-  /**
-   * Channel-specific or caller-defined value associated with the message.
-   */
-  value?: any;
-
-  /**
    * Create an outbound message activity input.
    * @param text - Initial message text.
-   * @param value - Initial message input fields.
+   * @param value - Initial modeled input fields and unmodeled extension fields to serialize.
    */
-  constructor(text: string = '', value: Omit<Partial<IMessageActivityInput>, 'type'> = {}) {
-    super('message', value);
-    Object.assign(this, { text, ...value });
+  constructor(text: string = '', value: MessageActivityInputOptions = {}) {
+    super('message');
+
+    const { type: _type, text: _text, ...fields } = value;
+
+    Object.assign(this, fields, { text });
   }
 
   /**
    * Copy outbound-safe fields from a message-like activity input.
    * @param activity - Message input to copy.
    */
-  static from(activity: IMessageActivityInput) {
-    return new MessageActivityInput(activity.text, {
-      id: activity.id,
-      recipient: activity.recipient,
-      replyToId: activity.replyToId,
-      entities: activity.entities,
-      channelData: activity.channelData,
-      summary: activity.summary,
-      textFormat: activity.textFormat,
-      attachmentLayout: activity.attachmentLayout,
-      attachments: activity.attachments,
-      suggestedActions: activity.suggestedActions,
-      deliveryMode: activity.deliveryMode,
-      value: activity.value,
-    });
+  static from(activity: IMessageActivity): MessageActivityInput;
+  static from(activity: IMessageActivityInput): MessageActivityInput;
+  static from(activity: IMessageActivity | IMessageActivityInput): MessageActivityInput;
+  static from(activity: IMessageActivity | IMessageActivityInput) {
+    const text = activity.text ?? '';
+    const {
+      type: _type,
+      text: _text,
+      from: _from,
+      conversation: _conversation,
+      channelId: _channelId,
+      serviceUrl: _serviceUrl,
+      timestamp: _timestamp,
+      localTimestamp: _localTimestamp,
+      relatesTo: _relatesTo,
+      stripMentionsText: _stripMentionsText,
+      isRecipientMentioned: _isRecipientMentioned,
+      getAccountMention: _getAccountMention,
+      getQuotedMessages: _getQuotedMessages,
+      ...value
+    } = activity as Partial<IMessageActivity> & Record<string, unknown>;
+
+    return new MessageActivityInput(text, value);
   }
 
   /**
@@ -248,15 +242,6 @@ export class MessageActivityInput extends ActivityInput<'message'> implements IM
    */
   addText(value: string) {
     this.text = `${this.text || ''}${value}`;
-    return this;
-  }
-
-  /**
-   * Set the fallback summary text.
-   * @param value - Summary text.
-   */
-  withSummary(value: string) {
-    this.summary = value;
     return this;
   }
 
@@ -284,24 +269,6 @@ export class MessageActivityInput extends ActivityInput<'message'> implements IM
    */
   withSuggestedActions(value: SuggestedActions) {
     this.suggestedActions = value;
-    return this;
-  }
-
-  /**
-   * Set the delivery mode.
-   * @param value - Delivery mode.
-   */
-  withDeliveryMode(value: DeliveryMode) {
-    this.deliveryMode = value;
-    return this;
-  }
-
-  /**
-   * Set the message value.
-   * @param value - Value associated with the message.
-   */
-  withValue(value: any) {
-    this.value = value;
     return this;
   }
 
@@ -350,13 +317,22 @@ export class MessageActivityInput extends ActivityInput<'message'> implements IM
    * Mark the message as the final activity in a stream.
    */
   addStreamFinal() {
-    const { streamId } = this.channelData || {};
+    if (!this.channelData) {
+      this.channelData = {};
+    }
+
+    const streamId = this.channelData.streamId || this.id || '';
+    const streamSequence = this.channelData.streamSequence ?? 1;
+
+    this.channelData.streamId = streamId;
+    this.channelData.streamType = 'final';
+    this.channelData.streamSequence = streamSequence;
 
     this.addEntity({
       type: 'streaminfo',
-      streamId: streamId || this.id || '',
+      streamId,
       streamType: 'final',
-      streamSequence: this.channelData?.streamSequence || 1,
+      streamSequence,
     });
 
     return this;

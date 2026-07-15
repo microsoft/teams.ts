@@ -9,6 +9,7 @@ import {
   InvokeResponse,
   IMessageActivity,
   MessageActivity,
+  MessageActivityInput,
   MessageDeleteActivity,
   MessageUpdateActivity,
   SentActivity,
@@ -167,6 +168,7 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    */
   send(activity: DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
   send(activity: ActivityLike, conversationRef?: ConversationReference): Promise<SentActivity>;
+  send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
 
   /**
    * reply to the inbound activity, automatically quoting the inbound message
@@ -177,6 +179,7 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    */
   reply(activity: DeprecatedInputActivity): Promise<SentActivity>;
   reply(activity: ActivityLike): Promise<SentActivity>;
+  reply(activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
 
   /**
    * send a reply quoting a specific message by ID
@@ -188,6 +191,7 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    */
   quote(messageId: string, activity: DeprecatedInputActivity): Promise<SentActivity>;
   quote(messageId: string, activity: ActivityLike): Promise<SentActivity>;
+  quote(messageId: string, activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
 
   /**
    * trigger user signin flow for the activity sender
@@ -279,6 +283,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    */
   async send(activity: DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
   async send(activity: ActivityLike, conversationRef?: ConversationReference): Promise<SentActivity>;
+  async send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
   async send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) {
     const params = toActivityParams(activity);
 
@@ -315,6 +320,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    */
   async reply(activity: DeprecatedInputActivity): Promise<SentActivity>;
   async reply(activity: ActivityLike): Promise<SentActivity>;
+  async reply(activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
   async reply(activity: ActivityLike | DeprecatedInputActivity) {
     if (this.activity.id) {
       return this.quote(this.activity.id, activity);
@@ -333,11 +339,12 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    */
   async quote(messageId: string, activity: DeprecatedInputActivity): Promise<SentActivity>;
   async quote(messageId: string, activity: ActivityLike): Promise<SentActivity>;
+  async quote(messageId: string, activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
   async quote(messageId: string, activity: ActivityLike | DeprecatedInputActivity) {
     activity = toActivityParams(activity);
 
     if (activity.type === 'message') {
-      const message = MessageActivity.from(activity as IMessageActivity);
+      const message = MessageActivityInput.from(activity);
       message.prependQuote(messageId);
       return this.send(message);
     }

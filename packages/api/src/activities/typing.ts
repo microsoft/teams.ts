@@ -14,7 +14,8 @@ export interface ITypingActivity extends IActivity<'typing'> {
  * typing-specific fields optional too, so both a plain `{ type: 'typing' }` literal
  * and a {@link TypingActivityInput} builder instance are assignable. The typing fields are
  * copied here instead of derived from {@link ITypingActivity}, keeping the outbound input
- * shape independent from the inbound activity interface.
+ * shape independent from the inbound activity interface. Use {@link TypingActivityInputOptions}
+ * to include unmodeled extension fields when constructing a {@link TypingActivityInput}.
  */
 export interface ITypingActivityInput extends IActivityInput<'typing'> {
   /**
@@ -22,6 +23,17 @@ export interface ITypingActivityInput extends IActivityInput<'typing'> {
    */
   text?: string;
 }
+
+/**
+ * Constructor fields for {@link TypingActivityInput}.
+ *
+ * This accepts modeled outbound typing fields plus channel/service extension fields that
+ * should serialize at the top level of the outbound activity payload. The constructor owns
+ * the `type` discriminator; set typing text with the `text` field or
+ * {@link TypingActivityInput.withText}.
+ */
+export type TypingActivityInputOptions = Omit<Partial<ITypingActivityInput>, 'type'> &
+  Record<string, unknown>;
 
 /**
  * Builder for outbound typing activities.
@@ -34,26 +46,37 @@ export class TypingActivityInput extends ActivityInput<'typing'> implements ITyp
 
   /**
    * Create an outbound typing activity input.
-   * @param value - Initial typing input fields.
+   * @param value - Initial modeled input fields and unmodeled extension fields to serialize.
    */
-  constructor(value: Omit<Partial<ITypingActivityInput>, 'type'> = {}) {
-    super('typing', value);
-    Object.assign(this, value);
+  constructor(value: TypingActivityInputOptions = {}) {
+    super('typing');
+
+    const { type: _type, ...fields } = value;
+
+    Object.assign(this, fields);
   }
 
   /**
    * Copy outbound-safe fields from a typing-like activity input.
    * @param activity - Typing input to copy.
    */
-  static from(activity: ITypingActivityInput) {
-    return new TypingActivityInput({
-      id: activity.id,
-      recipient: activity.recipient,
-      replyToId: activity.replyToId,
-      entities: activity.entities,
-      channelData: activity.channelData,
-      text: activity.text,
-    });
+  static from(activity: ITypingActivity): TypingActivityInput;
+  static from(activity: ITypingActivityInput): TypingActivityInput;
+  static from(activity: ITypingActivity | ITypingActivityInput): TypingActivityInput;
+  static from(activity: ITypingActivity | ITypingActivityInput) {
+    const {
+      type: _type,
+      from: _from,
+      conversation: _conversation,
+      channelId: _channelId,
+      serviceUrl: _serviceUrl,
+      timestamp: _timestamp,
+      localTimestamp: _localTimestamp,
+      relatesTo: _relatesTo,
+      ...value
+    } = activity as Partial<ITypingActivity> & Record<string, unknown>;
+
+    return new TypingActivityInput(value);
   }
 
   /**
