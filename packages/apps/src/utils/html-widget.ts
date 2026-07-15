@@ -1,6 +1,17 @@
 import { IHtmlWidgetPayload, IHtmlWidgetSecurityPolicy } from '@microsoft/teams.api';
 
 /**
+ * Input type for the widget builder functions. Identical to {@link IHtmlWidgetPayload}
+ * but `type` is optional and defaults to `'widget/mcp-ui'`.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
+ */
+export type IHtmlWidgetPayloadInput = Omit<IHtmlWidgetPayload, 'type'> & {
+  type?: IHtmlWidgetPayload['type'];
+};
+
+/**
  * The MCP Apps protocol version used for the widget init handshake.
  */
 const MCP_PROTOCOL_VERSION = '2026-01-26';
@@ -287,15 +298,16 @@ const DEFAULT_SECURITY_POLICY: Required<IHtmlWidgetPayload>['securityPolicy'] = 
  * Diagnostic: ExperimentalTeamsHtmlWidget
  */
 export function buildHtmlWidgetMarkdown(
-  payload: IHtmlWidgetPayload,
+  payload: IHtmlWidgetPayloadInput,
   options?: IHtmlWidgetMarkdownOptions
 ): string {
-  validateHtmlWidgetPayload(payload);
+  const resolved: IHtmlWidgetPayload = { type: 'widget/mcp-ui', ...payload };
+  validateHtmlWidgetPayload(resolved);
 
   const injectedPayload = {
-    ...payload,
-    html: injectWidgetProtocol(payload.html, { name: payload.name, ...options?.protocolOptions }),
-    securityPolicy: payload.securityPolicy ?? DEFAULT_SECURITY_POLICY,
+    ...resolved,
+    html: injectWidgetProtocol(resolved.html, { name: resolved.name, ...options?.protocolOptions }),
+    securityPolicy: resolved.securityPolicy ?? DEFAULT_SECURITY_POLICY,
   };
   const json = JSON.stringify(injectedPayload);
   const parts: string[] = [];
@@ -324,7 +336,7 @@ export function buildHtmlWidgetMarkdown(
  * Diagnostic: ExperimentalTeamsHtmlWidget
  */
 export function buildHtmlWidgetMessage(
-  payload: IHtmlWidgetPayload,
+  payload: IHtmlWidgetPayloadInput,
   options?: IHtmlWidgetMarkdownOptions
 ): { type: 'message'; text: string; textFormat: 'extendedmarkdown' } {
   return {
