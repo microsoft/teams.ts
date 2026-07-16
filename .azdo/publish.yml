@@ -74,10 +74,12 @@ extends:
             version: '8.x'
           target:
             container: host
+        - task: NuGetAuthenticate@1
+          displayName: 'Authenticate to Azure Artifacts'
 
         - powershell: |
             # Install nbgv
-            dotnet tool install -g nbgv
+            dotnet tool install -g nbgv --configfile ./NuGet.config
             Write-Host "##vso[task.prependpath]$env:USERPROFILE\.dotnet\tools"
             nbgv --version
 
