@@ -80,6 +80,8 @@ extends:
         - powershell: |
             # Install nbgv
             dotnet tool install -g nbgv --add-source "https://pkgs.dev.azure.com/DomoreexpGithub/Github_Pipelines/_packaging/TeamsSDKPreviews/nuget/v3/index.json"
+            $toolsPath = Join-Path $env:USERPROFILE ".dotnet\tools"
+            $env:PATH = "$toolsPath;$env:PATH"
             Write-Host "##vso[task.prependpath]$env:USERPROFILE\.dotnet\tools"
             nbgv --version
 
