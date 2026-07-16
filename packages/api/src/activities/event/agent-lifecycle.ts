@@ -58,12 +58,12 @@ export type AgentLifecycleUpdatedProperty = {
 
 export type AgentLifecycleValueBase = {
   /**
-   * The tenant the agentic user belongs to.
+   * The tenant the Agentic User belongs to.
    */
   tenantId?: string;
 
   /**
-   * The Agent ID user-shaped identity object ID.
+   * The Agentic User object ID.
    */
   agenticUserId?: string;
 
@@ -73,12 +73,12 @@ export type AgentLifecycleValueBase = {
   agenticAppInstanceId?: string;
 
   /**
-   * The agent identity blueprint app ID.
+   * The Agent Blueprint app ID.
    */
   agentIdentityBlueprintId?: string;
 
   /**
-   * Monotonic version of the agentic user state, when provided by the service.
+   * Monotonic version of the Agentic User state, when provided by the service.
    */
   version?: number;
 };
@@ -132,7 +132,7 @@ export interface IAgentLifecycleEventActivityBase<
   TValue extends AgentLifecycleValueBase = AgentLifecycleValueBase
 > extends IActivity<'event'> {
   /**
-   * Agent 365 lifecycle activities arrive as event activities named "agentLifecycle".
+   * Agentic User lifecycle activities arrive as event activities named "agentLifecycle".
    */
   name: 'agentLifecycle';
 

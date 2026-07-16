@@ -43,11 +43,11 @@ export type ApiClientFromServiceUrlOptions = {
 };
 
 /**
- * Options for creating a scoped API client for a specific agentic identity.
+ * Options for creating a scoped API client for a specific Agentic User.
  */
 export type ApiClientFromAgenticIdentityOptions = {
   /**
-   * Agentic identity used by the scoped client when acquiring auth tokens.
+   * Agentic User identity used by the scoped client when acquiring auth tokens.
    */
   readonly agenticIdentity: AgenticIdentity;
 };
@@ -122,14 +122,14 @@ export class Client {
   }
 
   /**
-   * Create a scoped API client for the provided agentic identity.
+   * Create a scoped API client for the provided Agentic User identity.
    */
   forAgenticIdentity(agenticIdentity: AgenticIdentity): Client {
     return this.fromAgenticIdentity({ agenticIdentity });
   }
 
   /**
-   * Create a scoped API client for the provided agentic identity.
+   * Create a scoped API client for the provided Agentic User identity.
    */
   fromAgenticIdentity(options: ApiClientFromAgenticIdentityOptions): Client {
     return this.clone(options);
