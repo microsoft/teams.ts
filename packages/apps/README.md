@@ -46,6 +46,9 @@ app.start().catch(console.error);
 
 By default, the app receives Teams activities at `/api/messages`.
 
+For local-only testing without Teams service token validation, set `dangerouslyAllowUnauthenticatedRequests: true` or
+`DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS=true`.
+
 ## Use your existing server
 
 `@microsoft/teams.apps` can start its own HTTP server, or plug into an existing server/framework with an HTTP adapter.
@@ -82,4 +85,3 @@ See the [HTTP adapter examples](https://github.com/microsoft/teams.ts/tree/main/
 ## Examples
 
 See the [examples folder](https://github.com/microsoft/teams.ts/tree/main/examples) for agents, tabs, message extensions, proactive messaging, Graph, AI/MCP, A2A, and more.
-

@@ -22,10 +22,11 @@ describe('HttpPlugin', () => {
       expect(plugin).toBeDefined();
     });
 
-    it('should create with skipAuth option', () => {
-      const plugin = new HttpPlugin(undefined, { skipAuth: true });
+    it('should create with dangerouslyAllowUnauthenticatedRequests option', () => {
+      const plugin = new HttpPlugin(undefined, { dangerouslyAllowUnauthenticatedRequests: true });
       expect(plugin).toBeDefined();
     });
+
   });
 
   describe('asServer', () => {
@@ -74,16 +75,16 @@ describe('HttpPlugin', () => {
       expect(app.server).toBeInstanceOf(HttpServer);
     });
 
-    it('should pass skipAuth option through to server', () => {
-      const plugin = new HttpPlugin(undefined, { skipAuth: true });
+    it('should pass dangerouslyAllowUnauthenticatedRequests option through to server', () => {
+      const plugin = new HttpPlugin(undefined, { dangerouslyAllowUnauthenticatedRequests: true });
       const app = new App({
         plugins: [plugin],
       });
 
-      // Server should be configured with skipAuth
       expect(app.server).toBeDefined();
-      expect((app.server as any).skipAuth).toBe(true);
+      expect((app.server as any).dangerouslyAllowUnauthenticatedRequests).toBe(true);
     });
+
 
     it('should pass custom http.Server through to adapter', () => {
       const customServer = http.createServer();

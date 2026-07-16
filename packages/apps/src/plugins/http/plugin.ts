@@ -8,6 +8,14 @@ import { ExpressAdapter } from '../../http';
 import { HttpServer } from '../../http/http-server';
 import { Plugin } from '../../types';
 
+export type HttpPluginOptions = {
+  /**
+   * Dangerously allow incoming HTTP requests without Teams service token validation.
+   */
+  readonly dangerouslyAllowUnauthenticatedRequests?: boolean;
+  readonly messagingEndpoint?: `/${string}`;
+};
+
 /**
  * @deprecated Use the httpServerAdapter option instead:
  *   new App({ httpServerAdapter: new ExpressAdapter() })
@@ -35,7 +43,7 @@ export class HttpPlugin {
   protected expressAdapter: ExpressAdapter;
   protected server: HttpServer;
 
-  constructor(server?: http.Server, options?: { skipAuth?: boolean; messagingEndpoint?: `/${string}` }) {
+  constructor(server?: http.Server, options?: HttpPluginOptions) {
     this.expressAdapter = new ExpressAdapter(server);
     this.server = new HttpServer(this.expressAdapter, {
       ...options,
