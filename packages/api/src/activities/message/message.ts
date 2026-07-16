@@ -13,7 +13,7 @@ import {
   SuggestedActions,
   TextFormat,
 } from '../../models';
-import { Activity, IActivity } from '../activity';
+import { Activity, ActivityInput, IActivity, IActivityInput } from '../activity';
 import { stripMentionsText, StripMentionsTextOptions } from '../utils';
 
 export interface IMessageActivity extends IActivity<'message'> {
@@ -42,7 +42,7 @@ export interface IMessageActivity extends IActivity<'message'> {
   summary?: string;
 
   /**
-   * Format of text fields Default:markdown. Possible values include: 'markdown', 'plain', 'xml'
+   * Format of text fields Default:markdown. Possible values include: 'markdown', 'plain', 'xml', 'extendedmarkdown'. See {@link TextFormat} for all values
    */
   textFormat?: TextFormat;
 
@@ -103,13 +103,285 @@ export interface IMessageActivity extends IActivity<'message'> {
 
   /**
    * get all quoted reply entities from this message
-   *
-   * @experimental This API is coming soon and may change in the future.
-   * Diagnostic: ExperimentalTeamsQuotedReplies
    */
   getQuotedMessages(): QuotedReplyEntity[];
 }
 
+/**
+ * OUTBOUND message activity — what the app SENDS.
+ *
+ * All server-populated base fields optional (via {@link IActivityInput}) and the
+ * message-specific fields optional too, so both a plain `{ type: 'message', text }`
+ * literal and a {@link MessageActivityInput} builder instance are assignable. The message
+ * fields are copied here instead of derived from {@link IMessageActivity}, keeping the
+ * outbound input shape independent from the inbound activity interface. Use
+ * {@link MessageActivityInputOptions} to include unmodeled extension fields when constructing
+ * a {@link MessageActivityInput}.
+ */
+export interface IMessageActivityInput extends IActivityInput<'message'> {
+  /**
+   * Message text.
+   */
+  text?: string;
+
+  /**
+   * Format of the message text.
+   */
+  textFormat?: TextFormat;
+
+  /**
+   * Layout hint for multiple attachments.
+   */
+  attachmentLayout?: AttachmentLayout;
+
+  /**
+   * Attachments sent with the message.
+   */
+  attachments?: Attachment[];
+
+  /**
+   * Suggested actions presented with the message.
+   */
+  suggestedActions?: SuggestedActions;
+}
+
+/**
+ * Constructor fields for {@link MessageActivityInput}.
+ *
+ * This accepts modeled outbound message fields plus channel/service extension fields that
+ * should serialize at the top level of the outbound activity payload. The constructor owns
+ * the `type` discriminator and message `text`; pass text as the first constructor argument
+ * or set it with {@link MessageActivityInput.withText}.
+ */
+export type MessageActivityInputOptions = Omit<Partial<IMessageActivityInput>, 'type' | 'text'> &
+  Record<string, unknown>;
+
+/**
+ * Builder for outbound message activities.
+ */
+export class MessageActivityInput extends ActivityInput<'message'> implements IMessageActivityInput {
+  /**
+   * Message text.
+   */
+  text?: string;
+
+  /**
+   * Format of the message text.
+   */
+  textFormat?: TextFormat;
+
+  /**
+   * Layout hint for multiple attachments.
+   */
+  attachmentLayout?: AttachmentLayout;
+
+  /**
+   * Attachments sent with the message.
+   */
+  attachments?: Attachment[];
+
+  /**
+   * Suggested actions presented with the message.
+   */
+  suggestedActions?: SuggestedActions;
+
+  /**
+   * Create an outbound message activity input.
+   * @param text - Initial message text.
+   * @param value - Initial modeled input fields and unmodeled extension fields to serialize.
+   */
+  constructor(text: string = '', value: MessageActivityInputOptions = {}) {
+    super('message');
+
+    const { type: _type, text: _text, ...fields } = value;
+
+    Object.assign(this, fields, { text });
+  }
+
+  /**
+   * Copy outbound-safe fields from a message-like activity input.
+   * @param activity - Message input to copy.
+   */
+  static from(activity: IMessageActivity): MessageActivityInput;
+  static from(activity: IMessageActivityInput): MessageActivityInput;
+  static from(activity: IMessageActivity | IMessageActivityInput): MessageActivityInput;
+  static from(activity: IMessageActivity | IMessageActivityInput) {
+    const text = activity.text ?? '';
+    const {
+      type: _type,
+      text: _text,
+      from: _from,
+      conversation: _conversation,
+      channelId: _channelId,
+      serviceUrl: _serviceUrl,
+      timestamp: _timestamp,
+      localTimestamp: _localTimestamp,
+      relatesTo: _relatesTo,
+      stripMentionsText: _stripMentionsText,
+      isRecipientMentioned: _isRecipientMentioned,
+      getAccountMention: _getAccountMention,
+      getQuotedMessages: _getQuotedMessages,
+      ...value
+    } = activity as Partial<IMessageActivity> & Record<string, unknown>;
+
+    return new MessageActivityInput(text, value);
+  }
+
+  /**
+   * Set the message text.
+   * @param value - Message text.
+   */
+  withText(value: string) {
+    this.text = value;
+    return this;
+  }
+
+  /**
+   * Append text to the message.
+   * @param value - Text to append.
+   */
+  addText(value: string) {
+    this.text = `${this.text || ''}${value}`;
+    return this;
+  }
+
+  /**
+   * Set the message text format.
+   * @param value - Text format.
+   */
+  withTextFormat(value: TextFormat) {
+    this.textFormat = value;
+    return this;
+  }
+
+  /**
+   * Set the attachment layout.
+   * @param value - Attachment layout.
+   */
+  withAttachmentLayout(value: AttachmentLayout) {
+    this.attachmentLayout = value;
+    return this;
+  }
+
+  /**
+   * Set suggested actions for the message.
+   * @param value - Suggested actions.
+   */
+  withSuggestedActions(value: SuggestedActions) {
+    this.suggestedActions = value;
+    return this;
+  }
+
+  /**
+   * Add attachments to the message.
+   * @param value - Attachments to add.
+   */
+  addAttachments(...value: Attachment[]) {
+    if (!this.attachments) {
+      this.attachments = [];
+    }
+
+    this.attachments.push(...value);
+    return this;
+  }
+
+  /**
+   * Add a card attachment to the message.
+   * @param type - Card attachment type.
+   * @param content - Card content.
+   */
+  addCard<T extends CardAttachmentType>(type: T, content: CardAttachmentTypes[T]['content']) {
+    return this.addAttachments(cardAttachment(type, content));
+  }
+
+  /**
+   * Add a mention entity and optionally append mention text.
+   * @param account - Account being mentioned.
+   * @param options - Mention options.
+   */
+  addMention(account: Account, options: AddMentionOptions = {}) {
+    const text = options.text || account.name;
+
+    if (options.addText !== false) {
+      this.addText(`<at>${text}</at>`);
+    }
+
+    return this.addEntity({
+      type: 'mention',
+      mentioned: account,
+      text: `<at>${text}</at>`,
+    });
+  }
+
+  /**
+   * Mark the message as the final activity in a stream.
+   */
+  addStreamFinal() {
+    if (!this.channelData) {
+      this.channelData = {};
+    }
+
+    const streamId = this.channelData.streamId || this.id || '';
+    const streamSequence = this.channelData.streamSequence ?? 1;
+
+    this.channelData.streamId = streamId;
+    this.channelData.streamType = 'final';
+    this.channelData.streamSequence = streamSequence;
+
+    this.addEntity({
+      type: 'streaminfo',
+      streamId,
+      streamType: 'final',
+      streamSequence,
+    });
+
+    return this;
+  }
+
+  /**
+   * Add a quoted message reference and append a `<quoted messageId="..."/>` placeholder to text.
+   * Teams renders the quoted message as a preview bubble above the response text.
+   * If text is provided, it is appended to the quoted message placeholder.
+   * @param messageId - The ID of the message to quote
+   * @param text - Optional text, appended to the quoted message placeholder
+   * @returns this instance for chaining
+   */
+  addQuote(messageId: string, text?: string): this {
+    if (!this.entities) {
+      this.entities = [];
+    }
+    this.entities.push({
+      type: 'quotedReply',
+      quotedReply: { messageId },
+    });
+    this.addText(`<quoted messageId="${messageId}"/>`);
+    if (text) {
+      this.addText(` ${text}`);
+    }
+    return this;
+  }
+
+  /**
+   * Prepend a quotedReply entity and `<quoted messageId="..."/>` placeholder
+   * before existing text. Used by reply()/quote() for quote-above-response.
+   * @param messageId - The IC3 message ID of the message to quote
+   */
+  prependQuote(messageId: string): this {
+    if (!this.entities) {
+      this.entities = [];
+    }
+    this.entities.push({
+      type: 'quotedReply',
+      quotedReply: { messageId },
+    });
+    const placeholder = `<quoted messageId="${messageId}"/>`;
+    const hasText = !!this.text?.trim();
+    this.text = hasText ? `${placeholder} ${this.text}` : placeholder;
+    return this;
+  }
+}
+
+// Extends the full inbound Activity shape for backcompat; send() converts instances to MessageActivityInput.
 export class MessageActivity extends Activity<'message'> implements IMessageActivity {
   /**
    * The text content of the message.
@@ -136,7 +408,7 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
   summary?: string;
 
   /**
-   * Format of text fields Default:markdown. Possible values include: 'markdown', 'plain', 'xml'
+   * Format of text fields Default:markdown. Possible values include: 'markdown', 'plain', 'xml', 'extendedmarkdown'. See {@link TextFormat} for all values
    */
   textFormat?: TextFormat;
 
@@ -258,7 +530,7 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
   }
 
   /**
-   * Format of text fields Default:markdown. Possible values include: 'markdown', 'plain', 'xml'
+   * Format of text fields Default:markdown. Possible values include: 'markdown', 'plain', 'xml', 'extendedmarkdown'. See {@link TextFormat} for all values
    */
   withTextFormat(value: TextFormat) {
     this.textFormat = value;
@@ -385,9 +657,6 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
 
   /**
    * get all quoted reply entities from this message
-   *
-   * @experimental This API is coming soon and may change in the future.
-   * Diagnostic: ExperimentalTeamsQuotedReplies
    */
   getQuotedMessages(): QuotedReplyEntity[] {
     return (this.entities ?? []).filter(
@@ -421,7 +690,6 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
    * @param isTargeted - If true, marks this as a targeted message visible only to the recipient
    * @returns this instance for chaining
    *
-   * @experimental This API is coming soon and may change in the future.
    * Diagnostic: ExperimentalTeamsTargeted
    */
   withRecipient(account: Account, isTargeted: boolean = false): this {
@@ -436,9 +704,6 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
    * @param messageId - The ID of the message to quote
    * @param text - Optional text, appended to the quoted message placeholder
    * @returns this instance for chaining
-   *
-   * @experimental This API is coming soon and may change in the future.
-   * Diagnostic: ExperimentalTeamsQuotedReplies
    */
   addQuote(messageId: string, text?: string): this {
     if (!this.entities) {
@@ -459,9 +724,6 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
    * Prepend a quotedReply entity and `<quoted messageId="..."/>` placeholder
    * before existing text. Used by reply()/quote() for quote-above-response.
    * @param messageId - The IC3 message ID of the message to quote
-   *
-   * @experimental This API is coming soon and may change in the future.
-   * Diagnostic: ExperimentalTeamsQuotedReplies
    */
   prependQuote(messageId: string): this {
     if (!this.entities) {

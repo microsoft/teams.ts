@@ -26,9 +26,7 @@ import {
 import type { Message } from '@microsoft/teams.api';
 
 import useTeamsApi from '../../hooks/useTeamsApi';
-import { useActivityStore } from '../../stores/ActivityStore';
 import { useChatStore } from '../../stores/ChatStore';
-import { createFeedbackActivity } from '../../utils/create-feedback';
 import { isMacOS } from '../../utils/get-os';
 import Logger from '../Logger/Logger';
 
@@ -79,13 +77,11 @@ const Feedback: FC<FeedbackProps> = ({
   isFeedbackDialogOpen,
   value,
   feedbackType = 'default',
-  streaming = false,
 }) => {
   const classes = useMessageClasses();
   const [isLike, setIsLike] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
   const [showFeedbackSent, setShowFeedbackSent] = useState(false);
-  const { findByMessageId } = useActivityStore();
   const navigationAttributes = useArrowNavigationGroup({ circular: true });
   const { modalAttributes } = useModalAttributes();
   const teamsApi = useTeamsApi();
@@ -111,26 +107,8 @@ const Feedback: FC<FeedbackProps> = ({
         childLog.error('Missing message id');
         return;
       }
-      const originalActivity = findByMessageId(value.id);
-      if (!originalActivity?.body) {
-        childLog.error('Missing activity data');
-        return;
-      }
 
-      const activityBody = originalActivity.body;
-      const activity = createFeedbackActivity({
-        channelId: activityBody.channelId,
-        // Flipping from and recipient since we are using the original message as the baseline for the data
-        from: activityBody.recipient,
-        recipient: activityBody.from,
-        conversation: activityBody.conversation,
-        locale: navigator.language,
-        reaction: isLike ? 'like' : 'dislike',
-        feedback: feedbackText,
-        isStreaming: streaming,
-      });
-
-      await teamsApi.conversations.activities(chat.id).create(activity);
+      await teamsApi.conversations.addReaction(chat.id, value.id, isLike ? 'like' : 'dislike');
       setShowFeedbackSent(true);
       handleDialogClose();
     } catch (error) {

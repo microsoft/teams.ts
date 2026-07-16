@@ -1,4 +1,4 @@
-import { MessageActivity, SuggestedActions } from '@microsoft/teams.api';
+import { MessageActivityInput, SuggestedActions } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
@@ -8,7 +8,7 @@ const app = new App({
 
 // Reply to any user message with two Action.Submit suggested-action chips.
 app.on('message', async ({ send }) => {
-  const reply = new MessageActivity('Approve or reject the request:');
+  const reply = new MessageActivityInput('Approve or reject the request:');
   reply.suggestedActions = {
     to: [],
     actions: [

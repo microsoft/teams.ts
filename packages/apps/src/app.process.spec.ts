@@ -1,6 +1,7 @@
 import { IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse } from '@microsoft/teams.api';
 
 import { App } from './app';
+import { IActivityResponseEvent, IActivitySentEvent, IErrorEvent } from './events';
 import { IActivityEvent } from './events/activity';
 import { createTestApp } from './test-utils';
 
@@ -245,6 +246,107 @@ describe('App', () => {
       expect(capturedActivity).toBeDefined();
       expect(typeof capturedActivity!.getQuotedMessages).toBe('function');
       expect(capturedActivity!.getQuotedMessages()).toEqual([]);
+    });
+  });
+
+  describe('lifecycle events', () => {
+    const messageActivity: IMessageActivity = new MessageActivity('hello')
+      .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+      .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot' })
+      .withConversation({ id: 'conv-1', conversationType: 'personal' })
+      .withChannelId('msteams')
+      .withServiceUrl('https://service.url')
+      .toInterface();
+
+    it('should emit the "activity" event when an activity is received via onActivity', async () => {
+      const received: IActivityEvent[] = [];
+      app.event('activity', (event) => {
+        received.push(event);
+      });
+
+      const event: IActivityEvent = {
+        token: token,
+        body: messageActivity,
+      };
+
+      await app.onActivity(event);
+
+      expect(received).toHaveLength(1);
+      expect(received[0]).toBe(event);
+    });
+
+    it('should emit the "activity.response" event after processing', async () => {
+      const responses: IActivityResponseEvent[] = [];
+      app.event('activity.response', (event) => {
+        responses.push(event);
+      });
+
+      app.use(() => {
+        const response: InvokeResponse = {
+          status: 413,
+          body: { result: 'success' },
+        };
+        return response;
+      });
+
+      const event: IActivityEvent = {
+        token: token,
+        body: messageActivity,
+      };
+
+      await app.process(event);
+
+      expect(responses).toHaveLength(1);
+      expect(responses[0].response).toEqual({ status: 413, body: { result: 'success' } });
+      expect(responses[0].activity).toBeDefined();
+    });
+
+    it('should emit the "activity.sent" event when a reply is sent', async () => {
+      const sent: IActivitySentEvent[] = [];
+      app.event('activity.sent', (event) => {
+        sent.push(event);
+      });
+
+      jest
+        .spyOn(app['activitySender'], 'send')
+        .mockImplementation(async (activity) => ({ id: 'sent-1', ...activity }) as any);
+
+      app.on('message', async ({ reply }) => {
+        await reply('response');
+      });
+
+      const event: IActivityEvent = {
+        token: token,
+        body: messageActivity,
+      };
+
+      await app.process(event);
+
+      expect(sent.length).toBeGreaterThanOrEqual(1);
+      expect(sent.some((e) => e.activity !== undefined)).toBe(true);
+    });
+
+    it('should emit the "error" event when a route throws', async () => {
+      const errors: IErrorEvent[] = [];
+      app.event('error', (event) => {
+        errors.push(event);
+      });
+
+      app.use(() => {
+        throw new Error('Test error');
+      });
+
+      const event: IActivityEvent = {
+        token: token,
+        body: messageActivity,
+      };
+
+      const response = await app.process(event);
+
+      expect(response.status).toBe(500);
+      expect(errors).toHaveLength(1);
+      expect(errors[0].error.message).toBe('Test error');
+      expect(errors[0].activity).toBeDefined();
     });
   });
 });

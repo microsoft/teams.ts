@@ -134,6 +134,13 @@ describe('MessageActivity', () => {
     ]);
   });
 
+  it('should set extendedmarkdown text format', () => {
+    const activity = new MessageActivity('test')
+      .withTextFormat('extendedmarkdown');
+
+    expect(activity.textFormat).toEqual('extendedmarkdown');
+  });
+
   describe('removeMentionsText', () => {
     it('should remove', () => {
       const activity = new MessageActivity('hi ')

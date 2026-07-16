@@ -6,9 +6,9 @@ const app = new App({
   logger: new ConsoleLogger('@examples/reactions', { level: 'debug' })
 });
 
-// Store the service URL and conversation reference to use with ReactionClient
+// Reaction verbs live on the conversation client: conversations.addReaction / deleteReaction
 
-type ReactionParameter = Parameters<Client['reactions']['add']>[2];
+type ReactionParameter = Parameters<Client['conversations']['addReaction']>[2];
 
 // Handle incoming messages
 app.on('message', async ({ reply, activity, log, api }) => {
@@ -20,7 +20,7 @@ app.on('message', async ({ reply, activity, log, api }) => {
     await reply({
       type: 'message',
       text: '**Reactions Bot Help**\n\n' +
-        'I demonstrate how to use the ReactionClient API!\n\n' +
+        'I demonstrate how to use the reaction API!\n\n' +
         '**Commands:**\n' +
         '- Type "add [reaction]" - I\'ll add that reaction to your message\n' +
         '- Type "remove [reaction]" - I\'ll add that reaction and then remove it 2s later\n' +
@@ -34,7 +34,7 @@ app.on('message', async ({ reply, activity, log, api }) => {
   if (addMatch && api) {
     const reactionType = addMatch[1] as ReactionParameter;
     try {
-      await api.reactions.add(
+      await api.conversations.addReaction(
         activity.conversation.id,
         activity.id,
         reactionType
@@ -55,14 +55,14 @@ app.on('message', async ({ reply, activity, log, api }) => {
   if (removeMatch && api) {
     const reactionType = removeMatch[1] as ReactionParameter;
     try {
-      await api.reactions.add(
+      await api.conversations.addReaction(
         activity.conversation.id,
         activity.id,
         reactionType
       );
       await reply(`Added a ${reactionType} reaction, removing in 2s...`);
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      await api.reactions.delete(
+      await api.conversations.deleteReaction(
         activity.conversation.id,
         activity.id,
         reactionType
@@ -115,7 +115,7 @@ app.on('install.add', async ({ send }) => {
   await send({
     type: 'message',
     text: '👋 **Welcome to the Reactions Bot!**\n\n' +
-      'I demonstrate how to use the ReactionClient to manage message reactions.\n\n' +
+      'I demonstrate how to use the reaction API to manage message reactions.\n\n' +
       'Type "help" to see what I can do!',
   });
 });

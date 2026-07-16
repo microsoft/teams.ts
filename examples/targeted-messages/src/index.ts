@@ -1,4 +1,4 @@
-import { MessageActivity } from '@microsoft/teams.api';
+import { MessageActivityInput } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
@@ -12,18 +12,20 @@ app.on('message', async ({ send, activity, api }) => {
   if (text.includes('test update')) {
     const conversationId = activity.conversation?.id ?? '';
     const result = await send(
-      new MessageActivity('📝 This message will be **updated** in 3 seconds...')
+      new MessageActivityInput('📝 This message will be **updated** in 3 seconds...')
         .withRecipient(activity.from, true)
     );
 
     setTimeout(async () => {
       try {
-        const updatedMessage = new MessageActivity(
+        const updatedMessage = new MessageActivityInput(
           `✏️ **Updated!** This message was modified at ${new Date().toISOString().slice(11, 19)}`
         );
-        await api.conversations
-          .activities(conversationId)
-          .updateTargeted(result.id, updatedMessage);
+        await api.conversations.updateTargetedActivity(
+          conversationId,
+          result.id,
+          updatedMessage
+        );
       } catch (err: any) {
         console.error('[UPDATE] Error:', err?.message || err);
       }
@@ -31,22 +33,20 @@ app.on('message', async ({ send, activity, api }) => {
   } else if (text.includes('test delete')) {
     const conversationId = activity.conversation?.id ?? '';
     const result = await send(
-      new MessageActivity('🗑️ This message will be **deleted** in 3 seconds...')
+      new MessageActivityInput('🗑️ This message will be **deleted** in 3 seconds...')
         .withRecipient(activity.from, true)
     );
 
     setTimeout(async () => {
       try {
-        await api.conversations
-          .activities(conversationId)
-          .deleteTargeted(result.id);
+        await api.conversations.deleteTargetedActivity(conversationId, result.id);
       } catch (err: any) {
         console.error('[DELETE] Error:', err?.message || err);
       }
     }, 3000);
   } else if (text.includes('test public')) {
     await send(
-      new MessageActivity('📋 Here is the public result — everyone can see this!')
+      new MessageActivityInput('📋 Here is the public result — everyone can see this!')
     );
   } else if (text.includes('send public')) {
     const isTargeted = activity.recipient?.isTargeted === true;
@@ -56,13 +56,13 @@ app.on('message', async ({ send, activity, api }) => {
     } else {
       // Passing a recipient opts out of the auto-targeting default.
       await send(
-        new MessageActivity('🌍 This is a **public message** — everyone can see this!')
+        new MessageActivityInput('🌍 This is a **public message** — everyone can see this!')
           .withRecipient(activity.from)
       );
     }
   } else if (text.includes('test send')) {
     await send(
-      new MessageActivity('👋 This is a **targeted message** — only YOU can see this!')
+      new MessageActivityInput('👋 This is a **targeted message** — only YOU can see this!')
         .withRecipient(activity.from, true)
     );
   } else if (text.includes('send private')) {
@@ -72,7 +72,7 @@ app.on('message', async ({ send, activity, api }) => {
       await send('Send it to me privately first!');
     } else {
       await send(
-        new MessageActivity('🔒 This is a **private message** — only YOU can see this!')
+        new MessageActivityInput('🔒 This is a **private message** — only YOU can see this!')
       );
     }
   } else if (text.includes('test inbound')) {
