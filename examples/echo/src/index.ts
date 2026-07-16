@@ -1,4 +1,4 @@
-import { MessageActivity } from '@microsoft/teams.api';
+import { MessageActivityInput } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
@@ -35,7 +35,7 @@ const sendProactiveNotification = async (userId: string) => {
   if (!conversationId) {
     return;
   }
-  const activity = new MessageActivity('Hey! It\'s been a while. How are you?');
+  const activity = new MessageActivityInput('Hey! It\'s been a while. How are you?');
   await app.send(conversationId, activity);
 };
 

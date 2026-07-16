@@ -30,10 +30,8 @@ describe('ActivityContext', () => {
 
     mockApiClient = {
       users: {
-        token: {
-          get: jest.fn(),
-          signOut: jest.fn(),
-        },
+        getToken: jest.fn(),
+        signOut: jest.fn(),
       },
       conversations: {
         create: jest.fn(),
@@ -529,7 +527,7 @@ describe('ActivityContext', () => {
 
     it('returns existing token if available', async () => {
       const expectedToken = 'test-token';
-      mockApiClient.users.token.get.mockResolvedValueOnce({
+      mockApiClient.users.getToken.mockResolvedValueOnce({
         token: expectedToken,
         connectionName: 'test-connection',
         channelId: 'test-channel',
@@ -539,7 +537,7 @@ describe('ActivityContext', () => {
       const result = await context.signin();
 
       expect(result).toBe(expectedToken);
-      expect(mockApiClient.users.token.get).toHaveBeenCalledWith({
+      expect(mockApiClient.users.getToken).toHaveBeenCalledWith({
         channelId: 'test-channel',
         userId: 'test-user',
         connectionName: 'test-connection',
@@ -547,7 +545,7 @@ describe('ActivityContext', () => {
     });
 
     it('creates oauth card for new signin in 1:1 chat', async () => {
-      mockApiClient.users.token.get.mockRejectedValueOnce(
+      mockApiClient.users.getToken.mockRejectedValueOnce(
         new Error('No token')
       );
       const mockResource = {
@@ -586,7 +584,6 @@ describe('ActivityContext', () => {
               contentType: 'application/vnd.microsoft.card.oauth',
             },
           ],
-          inputHint: 'acceptingInput',
           recipient: { id: 'test-user', name: 'Test User', role: 'user' },
         }),
         mockRef
@@ -607,7 +604,7 @@ describe('ActivityContext', () => {
         activitySender: mockSender,
       });
 
-      mockApiClient.users.token.get.mockRejectedValueOnce(
+      mockApiClient.users.getToken.mockRejectedValueOnce(
         new Error('No token')
       );
       mockApiClient.conversations.create.mockResolvedValueOnce({
@@ -634,7 +631,7 @@ describe('ActivityContext', () => {
     it('forwards signout request to api client', async () => {
       await context.signout();
 
-      expect(mockApiClient.users.token.signOut).toHaveBeenCalledWith({
+      expect(mockApiClient.users.signOut).toHaveBeenCalledWith({
         channelId: 'test-channel',
         userId: 'test-user',
         connectionName: 'test-connection',

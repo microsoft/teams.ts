@@ -9,8 +9,7 @@ const mockApp = (overrides: any = {}) => ({
   id: 'bot-id',
   api: {
     conversations: {
-      members: jest.fn().mockReturnThis(),
-      getById: jest.fn(),
+      getMemberById: jest.fn(),
       create: jest.fn(),
     },
   },
@@ -24,29 +23,28 @@ describe('getConversationIdResolver', () => {
 
   it('returns conversationId if user is a member', async () => {
     const app = mockApp();
-    app.api.conversations.getById = jest
+    app.api.conversations.getMemberById = jest
       .fn()
       .mockResolvedValue({ id: 'user-id' });
     const context = { userId: 'user-id', channelId: 'conv-123' };
     const resolver = getConversationIdResolver(
-      app as any,
+      app.api as any,
       mockLog as any,
       context as any
     );
     const id = await resolver();
     expect(id).toBe('conv-123');
-    expect(app.api.conversations.members).toHaveBeenCalledWith('conv-123');
-    expect(app.api.conversations.getById).toHaveBeenCalledWith('user-id');
+    expect(app.api.conversations.getMemberById).toHaveBeenCalledWith('conv-123', 'user-id');
   });
 
   it('returns undefined if member lookup fails', async () => {
     const app = mockApp();
-    app.api.conversations.getById = jest
+    app.api.conversations.getMemberById = jest
       .fn()
       .mockRejectedValue(new Error('not found'));
     const context = { userId: 'user-id', channelId: 'conv-123' };
     const resolver = getConversationIdResolver(
-      app as any,
+      app.api as any,
       mockLog as any,
       context as any
     );
@@ -60,10 +58,10 @@ describe('getConversationIdResolver', () => {
 
   it('returns undefined if user is not a member', async () => {
     const app = mockApp();
-    app.api.conversations.getById = jest.fn().mockReturnValue(null);
+    app.api.conversations.getMemberById = jest.fn().mockReturnValue(null);
     const context = { userId: 'user-id', channelId: 'conv-123' };
     const resolver = getConversationIdResolver(
-      app as any,
+      app.api as any,
       mockLog as any,
       context as any
     );
@@ -86,7 +84,7 @@ describe('getConversationIdResolver', () => {
       tenantId: 'tenant-1',
     };
     const resolver = getConversationIdResolver(
-      app as any,
+      app.api as any,
       mockLog as any,
       context as any
     );
@@ -109,7 +107,7 @@ describe('getConversationIdResolver', () => {
       tenantId: 'tenant-1',
     };
     const resolver = getConversationIdResolver(
-      app as any,
+      app.api as any,
       mockLog as any,
       context as any
     );
@@ -123,12 +121,12 @@ describe('getConversationIdResolver', () => {
 
   it('caches the resolved conversation id', async () => {
     const app = mockApp();
-    app.api.conversations.getById = jest
+    app.api.conversations.getMemberById = jest
       .fn()
       .mockResolvedValue({ id: 'user-id' });
     const context = { userId: 'user-id', channelId: 'conv-123' };
     const resolver = getConversationIdResolver(
-      app as any,
+      app.api as any,
       mockLog as any,
       context as any
     );
@@ -136,6 +134,6 @@ describe('getConversationIdResolver', () => {
     const id2 = await resolver();
     expect(id1).toBe('conv-123');
     expect(id2).toBe('conv-123');
-    expect(app.api.conversations.getById).toHaveBeenCalledTimes(1);
+    expect(app.api.conversations.getMemberById).toHaveBeenCalledTimes(1);
   });
 });

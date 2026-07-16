@@ -7,6 +7,9 @@ import { ApiClientSettings, mergeApiClientSettings } from '../api-client-setting
 
 import { BotSignInClient } from './sign-in';
 
+/**
+ * @deprecated The bot client is deprecated and will be removed in a future release.
+ */
 export class BotClient {
   readonly signIn: BotSignInClient;
 

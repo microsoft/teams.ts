@@ -1,4 +1,4 @@
-import { MessageActivity } from '@microsoft/teams.api';
+import { MessageActivityInput } from '@microsoft/teams.api';
 
 /**
  * Parses MCP search results as they are returned by tools and accumulates
@@ -61,7 +61,7 @@ export class CitationCollector {
    * `activity` for each one we have data for. Returns the count of
    * citations actually added.
    */
-  attachCitations(activity: MessageActivity, fullText: string): number {
+  attachCitations(activity: MessageActivityInput, fullText: string): number {
     const used = new Set<number>();
     for (const match of fullText.matchAll(/\[(\d+)\]/g)) {
       used.add(Number(match[1]));

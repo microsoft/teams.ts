@@ -1,4 +1,4 @@
-import { ActivityParams, ConversationReference } from '@microsoft/teams.api';
+import { ActivityParams, ConversationReference, MessageActivity } from '@microsoft/teams.api';
 import  {Client as HttpClient } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
@@ -114,6 +114,26 @@ describe('ActivitySender', () => {
           conversation: { id: 'conv-123', conversationType: 'personal' },
         })
       );
+    });
+
+    it('should convert legacy message builders before merging conversation reference fields', async () => {
+      const activity = new MessageActivity('hello')
+        .withFrom({ id: 'legacy-bot-id', name: 'Legacy Bot', role: 'bot' })
+        .withConversation({ id: 'legacy-conversation-id', conversationType: 'personal' })
+        .withChannelId('legacy-channel')
+        .withServiceUrl('https://legacy.service.url');
+
+      await sender.send(activity, ref);
+
+      const body = (mockHttpClient.post as jest.Mock).mock.calls[0][1];
+      expect(body).toEqual(expect.objectContaining({
+        type: 'message',
+        text: 'hello',
+        from: ref.bot,
+        conversation: ref.conversation,
+      }));
+      expect(body).not.toHaveProperty('channelId');
+      expect(body).not.toHaveProperty('serviceUrl');
     });
 
     it('should use the serviceUrl from the conversation reference in the endpoint', async () => {

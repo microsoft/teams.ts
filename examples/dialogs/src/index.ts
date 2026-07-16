@@ -2,7 +2,7 @@ import path from 'path';
 
 import dotenv from 'dotenv';
 
-import { cardAttachment, MessageActivity } from '@microsoft/teams.api';
+import { cardAttachment, MessageActivityInput } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import {
   AdaptiveCard,
@@ -54,7 +54,7 @@ app.on('message', async ({ send }) => {
   );
 
   // Send the card as an attachment
-  await send(new MessageActivity('Enter this form').addCard('adaptive', card));
+  await send(new MessageActivityInput('Enter this form').addCard('adaptive', card));
 });
 
 app.event('error', ({ error }) => {

@@ -29,5 +29,5 @@ export * from './conversation';
 export * from './command';
 export * from './install-update';
 export * from './utils';
-export { Activity as $Activity } from './activity';
-export type { IActivity } from './activity';
+export { Activity as $Activity, ActivityInput } from './activity';
+export type { IActivity, IActivityInput } from './activity';

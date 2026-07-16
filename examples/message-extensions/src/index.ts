@@ -81,7 +81,7 @@ app.on('message.ext.submit', async ({ activity }) => {
 
 app.on('message.ext.open', async ({ activity, api }) => {
   const conversationId = activity.conversation.id;
-  const members = await api.conversations.members(conversationId).get();
+  const members = await api.conversations.getMembers(conversationId);
   const card = createConversationMembersCard(members);
 
   return {

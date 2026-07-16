@@ -1,5 +1,7 @@
 import { Client } from '@microsoft/teams.common';
 
+import { MessageActivity, MessageActivityInput, TypingActivity, TypingActivityInput } from '../../activities';
+
 import { ConversationActivityClient } from './activity';
 
 describe('ConversationActivityClient', () => {
@@ -47,6 +49,160 @@ describe('ConversationActivityClient', () => {
       type: 'message',
       text: 'hi',
     });
+  });
+
+  it('should convert legacy message activity builders before create', async () => {
+    const client = new ConversationActivityClient('');
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+
+    await client.create(
+      '1',
+      new MessageActivity('hi')
+        .withId('activity-id')
+        .withFrom({ id: 'bot-id', name: 'Bot', role: 'bot' })
+        .withRecipient({ id: 'user-id', name: 'User', role: 'user' })
+        .withConversation({ id: 'conversation-id', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url')
+    );
+
+    const body = spy.mock.calls[0][1] as Record<string, unknown>;
+    expect(body).toEqual(expect.objectContaining({
+      type: 'message',
+      text: 'hi',
+      id: 'activity-id',
+      recipient: { id: 'user-id', name: 'User', role: 'user', isTargeted: undefined },
+    }));
+    expect(body).not.toHaveProperty('from');
+    expect(body).not.toHaveProperty('conversation');
+    expect(body).not.toHaveProperty('channelId');
+    expect(body).not.toHaveProperty('serviceUrl');
+  });
+
+  it('should serialize message input extension fields', async () => {
+    const client = new ConversationActivityClient('');
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+
+    await client.create(
+      '1',
+      new MessageActivityInput('hi', {
+        summary: 'fallback text',
+        deliveryMode: 'ephemeral',
+        value: { scenario: 'dynamics' },
+      })
+    );
+
+    expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities', {
+      type: 'message',
+      text: 'hi',
+      summary: 'fallback text',
+      deliveryMode: 'ephemeral',
+      value: { scenario: 'dynamics' },
+    });
+  });
+
+  it('should preserve extension fields when converting legacy message activity builders', async () => {
+    const client = new ConversationActivityClient('');
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+
+    await client.create(
+      '1',
+      new MessageActivity('hi', {
+        summary: 'fallback text',
+        deliveryMode: 'ephemeral',
+        value: { scenario: 'dynamics' },
+      })
+        .withFrom({ id: 'bot-id', name: 'Bot', role: 'bot' })
+        .withConversation({ id: 'conversation-id', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url')
+    );
+
+    const body = spy.mock.calls[0][1] as Record<string, unknown>;
+    expect(body).toEqual(expect.objectContaining({
+      type: 'message',
+      text: 'hi',
+      summary: 'fallback text',
+      deliveryMode: 'ephemeral',
+      value: { scenario: 'dynamics' },
+    }));
+    expect(body).not.toHaveProperty('from');
+    expect(body).not.toHaveProperty('conversation');
+    expect(body).not.toHaveProperty('channelId');
+    expect(body).not.toHaveProperty('serviceUrl');
+  });
+
+  it('should convert legacy typing activity builders before create', async () => {
+    const client = new ConversationActivityClient('');
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+
+    await client.create(
+      '1',
+      new TypingActivity()
+        .withId('activity-id')
+        .withFrom({ id: 'bot-id', name: 'Bot', role: 'bot' })
+        .withRecipient({ id: 'user-id', name: 'User', role: 'user' })
+        .withConversation({ id: 'conversation-id', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url')
+    );
+
+    const body = spy.mock.calls[0][1] as Record<string, unknown>;
+    expect(body).toEqual(expect.objectContaining({
+      type: 'typing',
+      id: 'activity-id',
+      recipient: { id: 'user-id', name: 'User', role: 'user', isTargeted: undefined },
+    }));
+    expect(body).not.toHaveProperty('from');
+    expect(body).not.toHaveProperty('conversation');
+    expect(body).not.toHaveProperty('channelId');
+    expect(body).not.toHaveProperty('serviceUrl');
+  });
+
+  it('should serialize typing input extension fields', async () => {
+    const client = new ConversationActivityClient('');
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+
+    await client.create(
+      '1',
+      new TypingActivityInput({
+        text: 'stream chunk',
+        value: { scenario: 'streaming' },
+      })
+    );
+
+    expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities', {
+      type: 'typing',
+      text: 'stream chunk',
+      value: { scenario: 'streaming' },
+    });
+  });
+
+  it('should preserve extension fields when converting legacy typing activity builders', async () => {
+    const client = new ConversationActivityClient('');
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+
+    await client.create(
+      '1',
+      Object.assign(new TypingActivity({ text: 'stream chunk' }), {
+        value: { scenario: 'streaming' },
+      })
+        .withFrom({ id: 'bot-id', name: 'Bot', role: 'bot' })
+        .withConversation({ id: 'conversation-id', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url')
+    );
+
+    const body = spy.mock.calls[0][1] as Record<string, unknown>;
+    expect(body).toEqual(expect.objectContaining({
+      type: 'typing',
+      text: 'stream chunk',
+      value: { scenario: 'streaming' },
+    }));
+    expect(body).not.toHaveProperty('from');
+    expect(body).not.toHaveProperty('conversation');
+    expect(body).not.toHaveProperty('channelId');
+    expect(body).not.toHaveProperty('serviceUrl');
   });
 
   it('should update', async () => {

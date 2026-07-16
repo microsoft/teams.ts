@@ -19,17 +19,28 @@ export type RetryOptions = {
    * the logger to use
    */
   readonly logger?: ILogger;
+
+  /**
+   * errors that should not be retried
+   */
+  readonly nonRetryable?: ReadonlyArray<new (...args: any[]) => Error>;
 };
 
 export async function retry<T = any>(factory: () => Promise<T>, options?: RetryOptions) {
   const max = options?.max ?? 5;
   const delay = options?.delay ?? 500;
   const log = options?.logger?.child('retry');
+  const nonRetryable = options?.nonRetryable ?? [];
 
   try {
     return await factory();
   } catch (err) {
     if (err instanceof StreamCancelledError || (err instanceof Error && err.name === 'StreamCancelledError')) {
+      throw err;
+    }
+
+    if (nonRetryable.some((type) => err instanceof type)) {
+      log?.debug('non-retryable error, not retrying');
       throw err;
     }
 
@@ -41,6 +52,7 @@ export async function retry<T = any>(factory: () => Promise<T>, options?: RetryO
         max: max - 1,
         delay: delay * 2,
         logger: options?.logger,
+        nonRetryable,
       });
     }
 

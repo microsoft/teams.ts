@@ -15,7 +15,8 @@
   "workspaces": [
     "packages/*",
     "external/*",
-    "examples/*"
+    "examples/*",
+    "test/integration"
   ],
   "keywords": [
     "microsoft",
