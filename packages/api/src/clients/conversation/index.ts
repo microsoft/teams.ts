@@ -5,7 +5,7 @@ import {
   type ClientOptions as HttpClientOptions
 } from '@microsoft/teams.common';
 
-import { Account, Conversation, ConversationResource, MessageReactionType } from '../../models';
+import { Account, Conversation, ConversationResource, MessageReactionType, type DeprecatedInputActivity } from '../../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 import { ReactionClient } from '../reaction';
@@ -39,6 +39,39 @@ export type CreateConversationParams = {
   readonly activity?: ActivityParams;
   readonly channelData?: Record<string, any>;
 };
+
+type ActivityParamsLike = ActivityParams | DeprecatedInputActivity;
+
+export interface IConversationActivityOperations {
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  create(params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['create']>;
+  create(params: ActivityParams): ReturnType<ConversationActivityClient['create']>;
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  update(id: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['update']>;
+  update(id: string, params: ActivityParams): ReturnType<ConversationActivityClient['update']>;
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  reply(id: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['reply']>;
+  reply(id: string, params: ActivityParams): ReturnType<ConversationActivityClient['reply']>;
+  delete(id: string): ReturnType<ConversationActivityClient['delete']>;
+  members(activityId: string): ReturnType<ConversationActivityClient['getMembers']>;
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  createTargeted(params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['createTargeted']>;
+  createTargeted(params: ActivityParams): ReturnType<ConversationActivityClient['createTargeted']>;
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  updateTargeted(id: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['updateTargeted']>;
+  updateTargeted(id: string, params: ActivityParams): ReturnType<ConversationActivityClient['updateTargeted']>;
+  deleteTargeted(id: string): ReturnType<ConversationActivityClient['deleteTargeted']>;
+}
 
 /**
  * @deprecated This will be removed by end of summer 2026.
@@ -90,27 +123,33 @@ export class ConversationClient {
     this._reactions = new ReactionClient(this.serviceUrl, this.http, this._apiClientSettings);
   }
 
-  activities(conversationId: string) {
+  /**
+   * @deprecated Use the flattened activity methods on `ConversationClient`
+   * instead (e.g. `conversations.createActivity(conversationId, ...)`). This
+   * grouped accessor will be removed in a future release.
+   */
+  activities(conversationId: string): IConversationActivityOperations {
     return {
-      create: (params: ActivityParams) =>
-        this._activities.create(conversationId, params),
-      update: (id: string, params: ActivityParams) =>
+      create: (params: ActivityParamsLike) => this._activities.create(conversationId, params),
+      update: (id: string, params: ActivityParamsLike) =>
         this._activities.update(conversationId, id, params),
-      reply: (id: string, params: ActivityParams) =>
+      reply: (id: string, params: ActivityParamsLike) =>
         this._activities.reply(conversationId, id, params),
-      delete: (id: string) =>
-        this._activities.delete(conversationId, id),
-      members: (activityId: string) =>
-        this._activities.getMembers(conversationId, activityId),
-      createTargeted: (params: ActivityParams) =>
-        this._activities.createTargeted(conversationId, params),
-      updateTargeted: (id: string, params: ActivityParams) =>
+      delete: (id: string) => this._activities.delete(conversationId, id),
+      members: (activityId: string) => this._activities.getMembers(conversationId, activityId),
+      createTargeted: (params: ActivityParamsLike) => this._activities.createTargeted(conversationId, params),
+      updateTargeted: (id: string, params: ActivityParamsLike) =>
         this._activities.updateTargeted(conversationId, id, params),
       deleteTargeted: (id: string) =>
         this._activities.deleteTargeted(conversationId, id),
     };
   }
 
+  /**
+   * @deprecated Use the flattened member methods on `ConversationClient`
+   * instead (e.g. `conversations.getMembers(conversationId)`). This grouped
+   * accessor will be removed in a future release.
+   */
   members(conversationId: string) {
     return {
       get: () => this._members.get(conversationId),
@@ -125,6 +164,117 @@ export class ConversationClient {
   }
 
   /**
+   * Create an activity in a conversation.
+   *
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  createActivity(conversationId: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['create']>;
+  createActivity(conversationId: string, params: ActivityParams): ReturnType<ConversationActivityClient['create']>;
+  createActivity(conversationId: string, params: ActivityParamsLike) {
+    return this._activities.create(conversationId, params);
+  }
+
+  /**
+   * Update an activity in a conversation.
+   *
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  updateActivity(conversationId: string, id: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['update']>;
+  updateActivity(conversationId: string, id: string, params: ActivityParams): ReturnType<ConversationActivityClient['update']>;
+  updateActivity(conversationId: string, id: string, params: ActivityParamsLike) {
+    return this._activities.update(conversationId, id, params);
+  }
+
+  /**
+   * Reply to an activity in a conversation.
+   *
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  replyToActivity(conversationId: string, id: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['reply']>;
+  replyToActivity(conversationId: string, id: string, params: ActivityParams): ReturnType<ConversationActivityClient['reply']>;
+  replyToActivity(conversationId: string, id: string, params: ActivityParamsLike) {
+    return this._activities.reply(conversationId, id, params);
+  }
+
+  /**
+   * Delete an activity in a conversation.
+   */
+  deleteActivity(conversationId: string, id: string) {
+    return this._activities.delete(conversationId, id);
+  }
+
+  /**
+   * Get the members of an activity in a conversation.
+   */
+  getActivityMembers(conversationId: string, id: string) {
+    return this._activities.getMembers(conversationId, id);
+  }
+
+  /**
+   * Create a targeted activity in a conversation.
+   *
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  createTargetedActivity(conversationId: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['createTargeted']>;
+  createTargetedActivity(conversationId: string, params: ActivityParams): ReturnType<ConversationActivityClient['createTargeted']>;
+  createTargetedActivity(conversationId: string, params: ActivityParamsLike) {
+    return this._activities.createTargeted(conversationId, params);
+  }
+
+  /**
+   * Update a targeted activity in a conversation.
+   *
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  updateTargetedActivity(conversationId: string, id: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['updateTargeted']>;
+  updateTargetedActivity(conversationId: string, id: string, params: ActivityParams): ReturnType<ConversationActivityClient['updateTargeted']>;
+  updateTargetedActivity(conversationId: string, id: string, params: ActivityParamsLike) {
+    return this._activities.updateTargeted(conversationId, id, params);
+  }
+
+  /**
+   * Delete a targeted activity in a conversation.
+   */
+  deleteTargetedActivity(conversationId: string, id: string) {
+    return this._activities.deleteTargeted(conversationId, id);
+  }
+
+  /**
+   * Get the members of a conversation.
+   */
+  getMembers(conversationId: string) {
+    return this._members.get(conversationId);
+  }
+
+  /**
+   * Get a member of a conversation by id.
+   */
+  getMemberById(conversationId: string, id: string) {
+    return this._members.getById(conversationId, id);
+  }
+
+  /**
+   * Get paged members of a conversation.
+   */
+  getPagedMembers(conversationId: string, pageSize?: number, continuationToken?: string) {
+    return this._members.getPaged(conversationId, pageSize, continuationToken);
+  }
+
+  /**
+   * Add a reaction to an activity in a conversation.
+   */
+  addReaction(conversationId: string, activityId: string, reactionType: MessageReactionType) {
+    return this._reactions.add(conversationId, activityId, reactionType);
+  }
+
+  /**
+   * Delete a reaction from an activity in a conversation.
+   */
+  deleteReaction(conversationId: string, activityId: string, reactionType: MessageReactionType) {
+    return this._reactions.delete(conversationId, activityId, reactionType);
+  }
+
+  /**
    * @deprecated This will be removed by end of summer 2026.
    */
   async get(params: GetConversationsParams) {
@@ -133,58 +283,6 @@ export class ConversationClient {
       `${this.serviceUrl}/v3/conversations${q}`
     );
     return res.data;
-  }
-
-  createActivity(conversationId: string, params: ActivityParams) {
-    return this._activities.create(conversationId, params);
-  }
-
-  updateActivity(conversationId: string, id: string, params: ActivityParams) {
-    return this._activities.update(conversationId, id, params);
-  }
-
-  replyToActivity(conversationId: string, id: string, params: ActivityParams) {
-    return this._activities.reply(conversationId, id, params);
-  }
-
-  deleteActivity(conversationId: string, id: string) {
-    return this._activities.delete(conversationId, id);
-  }
-
-  getActivityMembers(conversationId: string, id: string) {
-    return this._activities.getMembers(conversationId, id);
-  }
-
-  createTargetedActivity(conversationId: string, params: ActivityParams) {
-    return this._activities.createTargeted(conversationId, params);
-  }
-
-  updateTargetedActivity(conversationId: string, id: string, params: ActivityParams) {
-    return this._activities.updateTargeted(conversationId, id, params);
-  }
-
-  deleteTargetedActivity(conversationId: string, id: string) {
-    return this._activities.deleteTargeted(conversationId, id);
-  }
-
-  getMembers(conversationId: string) {
-    return this._members.get(conversationId);
-  }
-
-  getMemberById(conversationId: string, id: string) {
-    return this._members.getById(conversationId, id);
-  }
-
-  getPagedMembers(conversationId: string, pageSize?: number, continuationToken?: string) {
-    return this._members.getPaged(conversationId, pageSize, continuationToken);
-  }
-
-  addReaction(conversationId: string, activityId: string, reactionType: MessageReactionType) {
-    return this._reactions.add(conversationId, activityId, reactionType);
-  }
-
-  deleteReaction(conversationId: string, activityId: string, reactionType: MessageReactionType) {
-    return this._reactions.delete(conversationId, activityId, reactionType);
   }
 
   async create(params: CreateConversationParams) {

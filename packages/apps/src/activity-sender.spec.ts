@@ -1,4 +1,4 @@
-import { ActivityParams, Client, ConversationReference } from '@microsoft/teams.api';
+import { ActivityParams, Client, ConversationReference, MessageActivity } from '@microsoft/teams.api';
 
 import { ActivitySender } from './activity-sender';
 
@@ -9,16 +9,12 @@ describe('ActivitySender', () => {
   let createClient: jest.Mock;
 
   beforeEach(() => {
-    const mockActivitiesResult = {
-      create: jest.fn().mockResolvedValue({ id: 'activity-1' }),
-      update: jest.fn().mockResolvedValue({ id: 'activity-1' }),
-      createTargeted: jest.fn().mockResolvedValue({ id: 'activity-1' }),
-      updateTargeted: jest.fn().mockResolvedValue({ id: 'activity-1' }),
-    };
-
     mockClient = {
       conversations: {
-        activities: jest.fn().mockReturnValue(mockActivitiesResult),
+        createActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
+        updateActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
+        createTargetedActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
+        updateTargetedActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
       },
     } as any;
 
@@ -39,9 +35,9 @@ describe('ActivitySender', () => {
 
       const result = await sender.send(activity, ref);
 
-      const activities = (mockClient as any).conversations.activities;
-      expect(activities).toHaveBeenCalledWith('conv-123');
-      expect(activities('conv-123').create).toHaveBeenCalledWith(
+      const conversations = (mockClient as any).conversations;
+      expect(conversations.createActivity).toHaveBeenCalledWith(
+        'conv-123',
         expect.objectContaining({
           type: 'message',
           text: 'hello',
@@ -62,12 +58,13 @@ describe('ActivitySender', () => {
 
       await sender.send(activity, ref);
 
-      const activities = (mockClient as any).conversations.activities;
-      expect(activities('conv-123').update).toHaveBeenCalledWith(
+      const conversations = (mockClient as any).conversations;
+      expect(conversations.updateActivity).toHaveBeenCalledWith(
+        'conv-123',
         'existing-id',
         expect.objectContaining({ type: 'message', text: 'updated' })
       );
-      expect(activities('conv-123').create).not.toHaveBeenCalled();
+      expect(conversations.createActivity).not.toHaveBeenCalled();
     });
 
     it('should call createTargeted for targeted messages in group chat', async () => {
@@ -83,8 +80,9 @@ describe('ActivitySender', () => {
 
       await sender.send(activity, groupRef);
 
-      const activities = (mockClient as any).conversations.activities;
-      expect(activities('conv-123').createTargeted).toHaveBeenCalledWith(
+      const conversations = (mockClient as any).conversations;
+      expect(conversations.createTargetedActivity).toHaveBeenCalledWith(
+        'conv-123',
         expect.objectContaining({ type: 'message', text: 'targeted' })
       );
     });
@@ -103,12 +101,13 @@ describe('ActivitySender', () => {
 
       await sender.send(activity, groupRef);
 
-      const activities = (mockClient as any).conversations.activities;
-      expect(activities('conv-123').updateTargeted).toHaveBeenCalledWith(
+      const conversations = (mockClient as any).conversations;
+      expect(conversations.updateTargetedActivity).toHaveBeenCalledWith(
+        'conv-123',
         'existing-id',
         expect.objectContaining({ recipient: expect.objectContaining({ isTargeted: true }) })
       );
-      expect(activities('conv-123').create).not.toHaveBeenCalled();
+      expect(conversations.createActivity).not.toHaveBeenCalled();
     });
 
     it('should merge bot and conversation from ref into activity', async () => {
@@ -116,8 +115,9 @@ describe('ActivitySender', () => {
 
       await sender.send(activity, ref);
 
-      const activities = (mockClient as any).conversations.activities;
-      expect(activities('conv-123').create).toHaveBeenCalledWith(
+      const conversations = (mockClient as any).conversations;
+      expect(conversations.createActivity).toHaveBeenCalledWith(
+        'conv-123',
         expect.objectContaining({
           from: { id: 'bot-id', name: 'Bot', role: 'bot' },
           conversation: { id: 'conv-123', conversationType: 'personal' },
@@ -134,11 +134,33 @@ describe('ActivitySender', () => {
 
       await sender.send({ type: 'message', text: 'hi' }, customRef);
 
-      const activities = (mockClient as any).conversations.activities;
-      expect(activities('conv-456').create).toHaveBeenCalledWith(
+      const conversations = (mockClient as any).conversations;
+      expect(conversations.createActivity).toHaveBeenCalledWith(
+        'conv-456',
         expect.any(Object)
       );
       expect(createClient).toHaveBeenCalledWith('https://custom-service.botframework.com', undefined);
+    });
+
+    it('should convert legacy message builders before merging conversation reference fields', async () => {
+      const activity = new MessageActivity('hello')
+        .withFrom({ id: 'legacy-bot-id', name: 'Legacy Bot', role: 'bot' })
+        .withConversation({ id: 'legacy-conversation-id', conversationType: 'personal' })
+        .withChannelId('legacy-channel')
+        .withServiceUrl('https://legacy.service.url');
+
+      await sender.send(activity, ref);
+
+      const conversations = (mockClient as any).conversations;
+      const body = conversations.createActivity.mock.calls[0][1];
+      expect(body).toEqual(expect.objectContaining({
+        type: 'message',
+        text: 'hello',
+        from: ref.bot,
+        conversation: ref.conversation,
+      }));
+      expect(body).not.toHaveProperty('channelId');
+      expect(body).not.toHaveProperty('serviceUrl');
     });
 
     it('should ignore sender option shapes that contain a serviceUrl and use the ref serviceUrl', async () => {

@@ -3,7 +3,9 @@ import {
   AgenticIdentity,
   Client,
   ConversationReference,
+  DeprecatedInputActivity,
   SentActivity,
+  toActivityParams
 } from '@microsoft/teams.api';
 import { ILogger } from '@microsoft/teams.common';
 
@@ -22,16 +24,32 @@ export class ActivitySender implements IActivitySender {
     private createClient: ActivitySenderClientFactory,
   ) { }
 
-  async send(activity: ActivityParams, ref: ConversationReference, options?: ActivitySenderOptions): Promise<SentActivity> {
-    // Merge activity with conversation reference
-    activity = {
-      ...activity,
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async send(activity: DeprecatedInputActivity, ref: ConversationReference, options?: ActivitySenderOptions): Promise<SentActivity>;
+  async send(activity: ActivityParams, ref: ConversationReference, options?: ActivitySenderOptions): Promise<SentActivity>;
+  async send(
+    activity: ActivityParams | DeprecatedInputActivity,
+    ref: ConversationReference,
+    options?: ActivitySenderOptions
+  ): Promise<SentActivity>;
+  async send(
+    activity: ActivityParams | DeprecatedInputActivity,
+    ref: ConversationReference,
+    options?: ActivitySenderOptions
+  ): Promise<SentActivity> {
+    const params = toActivityParams(activity);
+
+    // Merge activity with conversation reference for the wire payload.
+    const payload = {
+      ...params,
       from: ref.bot,
       conversation: ref.conversation,
     };
 
     // Check if this is a targeted message
-    const isTargeted = activity.recipient?.isTargeted === true;
+    const isTargeted = payload.recipient?.isTargeted === true;
 
     if (isTargeted && ref.conversation.conversationType === 'personal') {
       throw new Error('Targeted messages are not supported in 1:1 (personal) chats.');
@@ -40,17 +58,17 @@ export class ActivitySender implements IActivitySender {
     const api = this.createClient(ref.serviceUrl, options?.agenticIdentity);
 
     // Decide create vs update, with targeted variants
-    if (activity.id) {
+    if (payload.id) {
       const res = isTargeted
-        ? await api.conversations.activities(ref.conversation.id).updateTargeted(activity.id, activity)
-        : await api.conversations.activities(ref.conversation.id).update(activity.id, activity);
-      return { ...activity, ...res };
+        ? await api.conversations.updateTargetedActivity(ref.conversation.id, payload.id, payload)
+        : await api.conversations.updateActivity(ref.conversation.id, payload.id, payload);
+      return { ...payload, ...res };
     }
 
     const res = isTargeted
-      ? await api.conversations.activities(ref.conversation.id).createTargeted(activity)
-      : await api.conversations.activities(ref.conversation.id).create(activity);
-    return { ...activity, ...res };
+      ? await api.conversations.createTargetedActivity(ref.conversation.id, payload)
+      : await api.conversations.createActivity(ref.conversation.id, payload);
+    return { ...payload, ...res };
   }
 
   createStream(ref: ConversationReference): IStreamer {

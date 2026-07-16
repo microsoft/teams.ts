@@ -7,9 +7,11 @@ import {
   ApiClientSettings,
   CloudEnvironment,
   ConversationReference,
+  DeprecatedInputActivity,
   cloudFromName,
   InvokeResponse,
   PUBLIC,
+  SentActivity,
   StripMentionsTextOptions,
   toActivityParams,
   TokenCredentials,
@@ -49,9 +51,10 @@ import { IRoutes } from './routes';
 import { TokenManager } from './token-manager';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
+import { getBooleanEnvValue } from './utils/env';
 import { toThreadedConversationId } from './utils/thread';
 
-function isAppSendOptions(value: ActivityLike | AppSendOptions): value is AppSendOptions {
+function isAppSendOptions(value: ActivityLike | DeprecatedInputActivity | AppSendOptions): value is AppSendOptions {
   if (typeof value === 'string') return false;
   return !('type' in value);
 }
@@ -150,7 +153,13 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly activity?: AppActivityOptions;
 
   /**
-   * Skip authentication for HTTP requests
+   * Dangerously allow incoming HTTP requests without Teams service token validation.
+   * Uses environment variable DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS if not explicitly provided.
+   */
+  readonly dangerouslyAllowUnauthenticatedRequests?: boolean;
+
+  /**
+   * @deprecated Use dangerouslyAllowUnauthenticatedRequests instead.
    */
   readonly skipAuth?: boolean;
 
@@ -391,8 +400,25 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         '  - new App({ plugins: [new HttpPlugin()] }) (deprecated)'
       );
     }
-
     let server: HttpServer;
+    let dangerouslyAllowUnauthenticatedRequests = this.options.dangerouslyAllowUnauthenticatedRequests;
+    if (dangerouslyAllowUnauthenticatedRequests === undefined && this.options.skipAuth !== undefined) {
+      this.log.warn(
+        '[DEPRECATED] skipAuth is deprecated. Use dangerouslyAllowUnauthenticatedRequests instead.'
+      );
+      dangerouslyAllowUnauthenticatedRequests = this.options.skipAuth;
+    }
+    if (dangerouslyAllowUnauthenticatedRequests === undefined) {
+      const unauthenticatedRequestsEnvValue = getBooleanEnvValue('DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS');
+      if (unauthenticatedRequestsEnvValue !== undefined) {
+        this.log.warn(
+          'DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS is set. ' +
+          'Unauthenticated request behavior is configured by the environment.'
+        );
+        dangerouslyAllowUnauthenticatedRequests = unauthenticatedRequestsEnvValue;
+      }
+    }
+    dangerouslyAllowUnauthenticatedRequests ??= false;
 
     // HttpPlugin in plugins array (backwards compatibility)
     if (httpPlugin) {
@@ -409,7 +435,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         logger: this.log,
         onError: (err) => this.eventManager.onError({ error: err })
       }), {
-        skipAuth: this.options.skipAuth,
+        dangerouslyAllowUnauthenticatedRequests,
         logger: this.log,
         messagingEndpoint: this.options.messagingEndpoint ?? '/api/messages',
       });
@@ -541,7 +567,21 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param conversationId the conversation to send to
    * @param activity the activity to send
    */
-  async send(conversationId: string, activity: ActivityLike, options?: AppSendOptions) {
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async send(conversationId: string, activity: DeprecatedInputActivity, options?: AppSendOptions): Promise<SentActivity>;
+  async send(conversationId: string, activity: ActivityLike, options?: AppSendOptions): Promise<SentActivity>;
+  async send(
+    conversationId: string,
+    activity: ActivityLike | DeprecatedInputActivity,
+    options?: AppSendOptions
+  ): Promise<SentActivity>;
+  async send(
+    conversationId: string,
+    activity: ActivityLike | DeprecatedInputActivity,
+    options?: AppSendOptions
+  ) {
     if (!this.id) {
       throw new Error('App has no credentials set up');
     }
@@ -580,7 +620,17 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param messageId the thread root message ID
    * @param activity the activity to send
    */
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async reply(conversationId: string, messageId: string, activity: DeprecatedInputActivity, options?: AppSendOptions): Promise<any>;
   async reply(conversationId: string, messageId: string, activity: ActivityLike, options?: AppSendOptions): Promise<any>;
+  async reply(
+    conversationId: string,
+    messageId: string,
+    activity: ActivityLike | DeprecatedInputActivity,
+    options?: AppSendOptions
+  ): Promise<any>;
   /**
    * send an activity proactively to a conversation.
    *
@@ -590,14 +640,24 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param conversationId the conversation to send to
    * @param activity the activity to send
    */
+  /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async reply(conversationId: string, activity: DeprecatedInputActivity, options?: AppSendOptions): Promise<any>;
   async reply(conversationId: string, activity: ActivityLike, options?: AppSendOptions): Promise<any>;
-  async reply(conversationId: string, messageId: string | ActivityLike, activity?: ActivityLike | AppSendOptions, options?: AppSendOptions) {
+  async reply(conversationId: string, activity: ActivityLike | DeprecatedInputActivity, options?: AppSendOptions): Promise<any>;
+  async reply(
+    conversationId: string,
+    messageId: string | ActivityLike | DeprecatedInputActivity,
+    activity?: ActivityLike | DeprecatedInputActivity | AppSendOptions,
+    options?: AppSendOptions
+  ) {
     if (typeof messageId === 'string' && activity !== undefined && !isAppSendOptions(activity)) {
       return this.send(toThreadedConversationId(conversationId, messageId), activity, options);
     }
 
     const opts = activity && isAppSendOptions(activity) ? activity : options;
-    return this.send(conversationId, messageId as ActivityLike, opts);
+    return this.send(conversationId, messageId as ActivityLike | DeprecatedInputActivity, opts);
   }
 
   /**
