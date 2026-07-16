@@ -79,7 +79,7 @@ extends:
 
         - powershell: |
             # Install nbgv
-            dotnet tool install -g nbgv --configfile ./NuGet.config
+            dotnet tool install -g nbgv --add-source "https://pkgs.dev.azure.com/DomoreexpGithub/Github_Pipelines/_packaging/TeamsSDKPreviews/nuget/v3/index.json"
             Write-Host "##vso[task.prependpath]$env:USERPROFILE\.dotnet\tools"
             nbgv --version
 
