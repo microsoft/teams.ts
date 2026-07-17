@@ -111,6 +111,49 @@ describe('ActivityContext', () => {
     });
   };
 
+  describe('activity channelData accessors', () => {
+    // Inbound activities arrive as plain JSON objects off the wire, so the
+    // computed `channelData` getters (channel/team/meeting/notification/tenant)
+    // are not present on them. The ActivityContext must rehydrate the payload
+    // into an activity instance so those accessors resolve. A regression where
+    // the payload was flattened via `toInterface()` silently dropped these
+    // prototype getters, making them return `undefined`.
+    const buildInboundPayload = (): Activity => {
+      return {
+        type: 'message',
+        id: 'test-activity-id',
+        channelId: 'test-channel',
+        from: { id: 'test-user', name: 'Test User', role: 'user' },
+        recipient: { id: 'bot-id', name: 'Bot', role: 'bot' },
+        conversation: {
+          id: 'test-conversation',
+          conversationType: 'channel',
+          isGroup: false,
+        },
+        text: 'Hello world',
+        channelData: {
+          tenant: { id: 'tenant-id' },
+          channel: { id: 'channel-id' },
+          team: { id: 'team-id' },
+          meeting: { id: 'meeting-id' },
+          notification: { alert: true },
+        },
+      } as unknown as Activity;
+    };
+
+    it('resolves computed channelData accessors on a flattened inbound payload', () => {
+      const ctx = buildActivityContext(buildInboundPayload());
+
+      expect(ctx.activity.channel?.id).toEqual('channel-id');
+      expect(ctx.activity.team?.id).toEqual('team-id');
+      expect(ctx.activity.meeting?.id).toEqual('meeting-id');
+      expect(ctx.activity.notification?.alert).toEqual(true);
+      // `tenant` is a class-only getter (not declared on the public interface),
+      // so read it through the concrete instance shape.
+      expect((ctx.activity as { tenant?: { id: string } }).tenant?.id).toEqual('tenant-id');
+    });
+  });
+
   describe('reply', () => {
     it('stamps quotedReply entity with activity id', async () => {
       const activity = buildIncomingMessageActivity('Hello world');
