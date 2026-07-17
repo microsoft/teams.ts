@@ -23,7 +23,7 @@ export type ApiClientSettings = {
   readonly authProvider?: AuthProvider;
 
   /**
-   * Default agentic identity for this client instance.
+   * Default Agentic User identity for this client instance.
    */
   readonly agenticIdentity?: AgenticIdentity;
 };

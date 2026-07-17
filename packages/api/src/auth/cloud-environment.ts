@@ -18,7 +18,7 @@ export type CloudEnvironment = {
   readonly tokenIssuer: string;
   /** The Microsoft Graph token scope (e.g. "https://graph.microsoft.com/.default") */
   readonly graphScope: string;
-  /** The Agent 365 Bot API token scope. */
+  /** The Agentic Id Bot API token scope. */
   readonly agenticBotScope: string;
 };
 
@@ -43,7 +43,7 @@ export const US_GOV: CloudEnvironment = Object.freeze({
   openIdMetadataUrl: 'https://login.botframework.azure.us/v1/.well-known/openidconfiguration',
   tokenIssuer: 'https://api.botframework.us',
   graphScope: 'https://graph.microsoft.us/.default',
-  // TODO: Use the sovereign Agent 365 Bot API scope when one is available.
+  // TODO: Use the sovereign Agentic Id Bot API scope when one is available.
   agenticBotScope: 'https://botapi.skype.com/.default',
 });
 
@@ -56,7 +56,7 @@ export const US_GOV_DOD: CloudEnvironment = Object.freeze({
   openIdMetadataUrl: 'https://login.botframework.azure.us/v1/.well-known/openidconfiguration',
   tokenIssuer: 'https://api.botframework.us',
   graphScope: 'https://dod-graph.microsoft.us/.default',
-  // TODO: Use the sovereign Agent 365 Bot API scope when one is available.
+  // TODO: Use the sovereign Agentic Id Bot API scope when one is available.
   agenticBotScope: 'https://botapi.skype.com/.default',
 });
 
@@ -69,7 +69,7 @@ export const CHINA: CloudEnvironment = Object.freeze({
   openIdMetadataUrl: 'https://login.botframework.azure.cn/v1/.well-known/openidconfiguration',
   tokenIssuer: 'https://api.botframework.azure.cn',
   graphScope: 'https://microsoftgraph.chinacloudapi.cn/.default',
-  // TODO: Use the China cloud Agent 365 Bot API scope when one is available.
+  // TODO: Use the China cloud Agentic Id Bot API scope when one is available.
   agenticBotScope: 'https://botapi.skype.com/.default',
 });
 

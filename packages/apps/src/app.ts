@@ -661,17 +661,17 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   }
 
   /**
-   * Create an AgenticIdentity for use with agentic send helpers.
+   * Create an AgenticIdentity for use with Agentic User send helpers.
    *
-   * @param agenticAppId the agentic app's ID
-   * @param agenticUserId the agentic user's ID
+   * @param agenticAppId the Agentic User app instance ID
+   * @param agenticUserId the Agentic User ID
    * @param opts optional overrides (tenantId defaults to this app's configured tenant,
-   *   agenticAppBlueprintId defaults to this app's clientId)
+   *   agenticAppBlueprintId defaults to this Agent Blueprint app's clientId)
    */
   getAgenticIdentity(agenticAppId: string, agenticUserId: string, opts?: { tenantId?: string; agenticAppBlueprintId?: string }): AgenticIdentity {
     const tenantId = opts?.tenantId ?? this.options.tenantId;
     if (!tenantId) {
-      throw new Error('tenantId is required to get an agentic identity');
+      throw new Error('tenantId is required to get an Agentic User identity');
     }
     return {
       agenticAppId,

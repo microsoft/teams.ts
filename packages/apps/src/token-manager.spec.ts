@@ -518,7 +518,7 @@ describe('TokenManager', () => {
       const tokenManager = new TokenManager({ clientId: 'id', clientSecret: 'secret' }, logger);
       await expect(
         tokenManager.getAgenticToken('scope', { agenticAppId: 'app', agenticUserId: 'user' })
-      ).rejects.toThrow('tenantId is required to get an agentic token');
+      ).rejects.toThrow('tenantId is required to get an Agentic Id token');
     });
 
     it('should use token provider when TokenCredentials are configured', async () => {

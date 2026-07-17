@@ -90,7 +90,7 @@ export class TokenManager {
 
     const tenantId = agenticIdentity.tenantId ?? this.credentials.tenantId;
     if (!tenantId) {
-      throw new Error('tenantId is required to get an agentic token');
+      throw new Error('tenantId is required to get an Agentic Id token');
     }
 
     if (isTokenCredentials(this.credentials)) {

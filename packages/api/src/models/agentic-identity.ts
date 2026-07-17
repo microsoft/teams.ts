@@ -1,5 +1,5 @@
 /**
- * Identifies an Agent ID user-shaped identity and its backing agent app.
+ * Identifies an Agentic User and its backing Agent Blueprint app.
  */
 export type AgenticIdentity = {
   readonly agenticAppId: string;

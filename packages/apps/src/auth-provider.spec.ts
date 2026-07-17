@@ -18,7 +18,7 @@ describe('AppAuthProvider', () => {
     expect(tokenManager.getAgenticToken).not.toHaveBeenCalled();
   });
 
-  it('uses agentic token when agentic identity is present', async () => {
+  it('uses an Agentic Id token when Agentic User identity is present', async () => {
     const tokenManager = {
       getAppToken: jest.fn(),
       getAgenticToken: jest.fn(async () => 'agentic-token'),
