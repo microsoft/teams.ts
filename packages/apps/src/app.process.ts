@@ -38,6 +38,11 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly log: ILogger;
   readonly getId: () => string | undefined;
   readonly getConnectionName: () => string;
+  /**
+   * whether to eagerly fetch the user's OAuth token on the inbound activity to
+   * populate `ctx.isSignedIn` / `ctx.userToken` / `ctx.userGraph`.
+   */
+  readonly shouldFetchUserToken: () => boolean;
   readonly apiClientSettings?: ApiClientSettings;
   readonly graphBaseUrl?: string;
 }
@@ -81,10 +86,14 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
 
     let userToken: string | undefined;
 
-    try {
-      userToken = await this.getUserToken(activity.channelId, activity.from.id);
-    } catch (err) {
-      // noop
+    // Skipped unless configured (see OAuthSettings.fetchUserToken / auto-detection) to avoid
+    // a wasted user-token request on every activity when the app never reads ctx.userGraph.
+    if (this.options.shouldFetchUserToken()) {
+      try {
+        userToken = await this.getUserToken(activity.channelId, activity.from.id);
+      } catch (err) {
+        // noop
+      }
     }
 
     const client = this.options.client.clone();
