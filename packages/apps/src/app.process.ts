@@ -39,8 +39,9 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly getId: () => string | undefined;
   readonly getConnectionName: () => string;
   /**
-   * whether to eagerly fetch the user's OAuth token on the inbound activity to
-   * populate `ctx.isSignedIn` / `ctx.userToken` / `ctx.userGraph`.
+   * whether to eagerly look up the user's OAuth token on the inbound activity.
+   * the token is used to compute `ctx.isSignedIn` and `ctx.userToken`, and to authenticate
+   * `ctx.userGraph` (which is always constructed regardless of this setting).
    */
   readonly shouldFetchUserToken: () => boolean;
   readonly apiClientSettings?: ApiClientSettings;
