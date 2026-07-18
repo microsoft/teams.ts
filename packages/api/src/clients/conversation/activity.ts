@@ -2,13 +2,27 @@ import {
   Client as HttpClient,
   type ClientOptions as HttpClientOptions
 } from '@microsoft/teams.common';
+import { SpanKind } from '@opentelemetry/api';
+import type { Span, SpanAttributes } from '@opentelemetry/api';
 
 import {
   toActivityParams,
   type IMessageActivityInput,
   type ITypingActivityInput
 } from '../../activities';
-import { resolveAadObjectId, Resource, TeamsChannelAccount, type DeprecatedInputActivity } from '../../models';
+import {
+  getTeamsApiTracer,
+  recordTeamsApiException,
+  recordTeamsApiOutboundCall,
+  recordTeamsApiOutboundError
+} from '../../diagnostics/helpers';
+import {
+  API_ATTRIBUTE_NAMES,
+  API_SPAN_NAMES,
+  OUTBOUND_OPERATIONS,
+  type ConversationActivityOperation
+} from '../../diagnostics/constants';
+import { resolveAadObjectId, type DeprecatedInputActivity, type Resource, type TeamsChannelAccount } from '../../models';
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 import { normalizeServiceUrl } from '../service-url';
 
@@ -20,6 +34,45 @@ import { normalizeServiceUrl } from '../service-url';
  */
 export type ActivityParams = IMessageActivityInput | ITypingActivityInput;
 type ActivityParamsLike = ActivityParams | DeprecatedInputActivity;
+
+async function traceConversationActivity<T>(
+  operation: ConversationActivityOperation,
+  serviceUrl: string,
+  conversationId: string,
+  execute: (span: Span) => Promise<T>
+): Promise<T> {
+  const attributes: SpanAttributes = {
+    [API_ATTRIBUTE_NAMES.operation]: operation,
+    [API_ATTRIBUTE_NAMES.serviceUrl]: serviceUrl,
+    [API_ATTRIBUTE_NAMES.conversationId]: conversationId,
+  };
+
+  return getTeamsApiTracer().startActiveSpan(
+    API_SPAN_NAMES.conversationClient,
+    { kind: SpanKind.CLIENT, attributes },
+    async (span) => {
+      try {
+        return await execute(span);
+      } catch (error) {
+        recordTeamsApiOutboundError(operation);
+        recordTeamsApiException(span, error);
+        throw error;
+      } finally {
+        span.end();
+      }
+    }
+  );
+}
+
+function setActivityType(span: Span, activity: ActivityParams): void {
+  span.setAttribute(API_ATTRIBUTE_NAMES.activityType, activity.type);
+}
+
+function setActivityId(span: Span, id: string | undefined): void {
+  if (id) {
+    span.setAttribute(API_ATTRIBUTE_NAMES.activityId, id);
+  }
+}
 
 export class ConversationActivityClient {
   readonly serviceUrl: string;
@@ -54,13 +107,18 @@ export class ConversationActivityClient {
   async create(conversationId: string, params: ActivityParams): Promise<Resource>;
   async create(conversationId: string, params: ActivityParamsLike): Promise<Resource>;
   async create(conversationId: string, params: ActivityParamsLike) {
-    // TODO: Will be deprecated alongside accessor in ConversationClient
-    const activity = toActivityParams(params);
-    const res = await this.http.post<Resource>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
-      activity
-    );
-    return res.data;
+    return traceConversationActivity(OUTBOUND_OPERATIONS.create, this.serviceUrl, conversationId, async (span) => {
+      // TODO: Will be deprecated alongside accessor in ConversationClient
+      const activity = toActivityParams(params);
+      setActivityType(span, activity);
+      recordTeamsApiOutboundCall(OUTBOUND_OPERATIONS.create);
+      const res = await this.http.post<Resource>(
+        `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
+        activity
+      );
+      setActivityId(span, res.data?.id);
+      return res.data;
+    });
   }
 
   /**
@@ -70,13 +128,19 @@ export class ConversationActivityClient {
   async update(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
   async update(conversationId: string, id: string, params: ActivityParamsLike): Promise<Resource>;
   async update(conversationId: string, id: string, params: ActivityParamsLike) {
-    // TODO: Will be deprecated alongside accessor in ConversationClient
-    const activity = toActivityParams(params);
-    const res = await this.http.put<Resource>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
-      activity
-    );
-    return res.data;
+    return traceConversationActivity(OUTBOUND_OPERATIONS.update, this.serviceUrl, conversationId, async (span) => {
+      setActivityId(span, id);
+      // TODO: Will be deprecated alongside accessor in ConversationClient
+      const activity = toActivityParams(params);
+      setActivityType(span, activity);
+      recordTeamsApiOutboundCall(OUTBOUND_OPERATIONS.update);
+      const res = await this.http.put<Resource>(
+        `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
+        activity
+      );
+      setActivityId(span, res.data?.id);
+      return res.data;
+    });
   }
 
   /**
@@ -86,20 +150,29 @@ export class ConversationActivityClient {
   async reply(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
   async reply(conversationId: string, id: string, params: ActivityParamsLike): Promise<Resource>;
   async reply(conversationId: string, id: string, params: ActivityParamsLike) {
-    // TODO: Will be deprecated alongside accessor in ConversationClient
-    const activity = toActivityParams(params);
-    activity.replyToId = id;
-    const res = await this.http.post<Resource>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
-      activity
-    );
-    return res.data;
+    return traceConversationActivity(OUTBOUND_OPERATIONS.reply, this.serviceUrl, conversationId, async (span) => {
+      // TODO: Will be deprecated alongside accessor in ConversationClient
+      const activity = toActivityParams(params);
+      activity.replyToId = id;
+      setActivityType(span, activity);
+      recordTeamsApiOutboundCall(OUTBOUND_OPERATIONS.reply);
+      const res = await this.http.post<Resource>(
+        `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
+        activity
+      );
+      setActivityId(span, res.data?.id);
+      return res.data;
+    });
   }
 
   async delete(conversationId: string, id: string) {
-    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`;
-    const res = await this.http.delete<void>(url);
-    return res.data;
+    return traceConversationActivity(OUTBOUND_OPERATIONS.delete, this.serviceUrl, conversationId, async (span) => {
+      setActivityId(span, id);
+      const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`;
+      recordTeamsApiOutboundCall(OUTBOUND_OPERATIONS.delete);
+      const res = await this.http.delete<void>(url);
+      return res.data;
+    });
   }
 
   async getMembers(conversationId: string, id: string): Promise<TeamsChannelAccount[]> {
@@ -115,13 +188,18 @@ export class ConversationActivityClient {
   async createTargeted(conversationId: string, params: ActivityParams): Promise<Resource>;
   async createTargeted(conversationId: string, params: ActivityParamsLike): Promise<Resource>;
   async createTargeted(conversationId: string, params: ActivityParamsLike) {
-    // TODO: Will be deprecated alongside accessor in ConversationClient
-    const activity = toActivityParams(params);
-    const res = await this.http.post<Resource>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/activities?isTargetedActivity=true`,
-      activity
-    );
-    return res.data;
+    return traceConversationActivity(OUTBOUND_OPERATIONS.createTargeted, this.serviceUrl, conversationId, async (span) => {
+      // TODO: Will be deprecated alongside accessor in ConversationClient
+      const activity = toActivityParams(params);
+      setActivityType(span, activity);
+      recordTeamsApiOutboundCall(OUTBOUND_OPERATIONS.createTargeted);
+      const res = await this.http.post<Resource>(
+        `${this.serviceUrl}/v3/conversations/${conversationId}/activities?isTargetedActivity=true`,
+        activity
+      );
+      setActivityId(span, res.data?.id);
+      return res.data;
+    });
   }
 
   /**
@@ -131,18 +209,28 @@ export class ConversationActivityClient {
   async updateTargeted(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
   async updateTargeted(conversationId: string, id: string, params: ActivityParamsLike): Promise<Resource>;
   async updateTargeted(conversationId: string, id: string, params: ActivityParamsLike) {
-    // TODO: Will be deprecated alongside accessor in ConversationClient
-    const activity = toActivityParams(params);
-    const res = await this.http.put<Resource>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`,
-      activity
-    );
-    return res.data;
+    return traceConversationActivity(OUTBOUND_OPERATIONS.updateTargeted, this.serviceUrl, conversationId, async (span) => {
+      setActivityId(span, id);
+      // TODO: Will be deprecated alongside accessor in ConversationClient
+      const activity = toActivityParams(params);
+      setActivityType(span, activity);
+      recordTeamsApiOutboundCall(OUTBOUND_OPERATIONS.updateTargeted);
+      const res = await this.http.put<Resource>(
+        `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`,
+        activity
+      );
+      setActivityId(span, res.data?.id);
+      return res.data;
+    });
   }
 
   async deleteTargeted(conversationId: string, id: string) {
-    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`;
-    const res = await this.http.delete<void>(url);
-    return res.data;
+    return traceConversationActivity(OUTBOUND_OPERATIONS.deleteTargeted, this.serviceUrl, conversationId, async (span) => {
+      setActivityId(span, id);
+      const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`;
+      recordTeamsApiOutboundCall(OUTBOUND_OPERATIONS.deleteTargeted);
+      const res = await this.http.delete<void>(url);
+      return res.data;
+    });
   }
 }

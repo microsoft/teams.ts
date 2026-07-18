@@ -1,10 +1,42 @@
 import { Client } from '@microsoft/teams.common';
+import { SpanKind } from '@opentelemetry/api';
+import type { Span, Tracer } from '@opentelemetry/api';
 
 import { MessageActivity, MessageActivityInput, TypingActivity, TypingActivityInput } from '../../activities';
+import {
+  getTeamsApiTracer,
+  recordTeamsApiException,
+  recordTeamsApiOutboundCall,
+  recordTeamsApiOutboundError
+} from '../../diagnostics/helpers';
 
 import { ConversationActivityClient } from './activity';
 
+jest.mock('../../diagnostics/helpers', () => ({
+  getTeamsApiTracer: jest.fn(),
+  recordTeamsApiException: jest.fn(),
+  recordTeamsApiOutboundCall: jest.fn(),
+  recordTeamsApiOutboundError: jest.fn(),
+}));
+
 describe('ConversationActivityClient', () => {
+  const span = {
+    setAttribute: jest.fn(),
+    recordException: jest.fn(),
+    setStatus: jest.fn(),
+    end: jest.fn(),
+  } as unknown as Span;
+  const startActiveSpan = jest.fn();
+  const tracer = { startActiveSpan } as unknown as Tracer;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.mocked(getTeamsApiTracer).mockReturnValue(tracer);
+    startActiveSpan.mockImplementation((_name: string, _options: unknown, callback: (span: Span) => unknown) =>
+      callback(span)
+    );
+  });
+
   it('should use existing client', async () => {
     const http = new Client();
     const client = new ConversationActivityClient('', http);
@@ -318,5 +350,119 @@ describe('ConversationActivityClient', () => {
         '/v3/conversations/1/activities/2?isTargetedActivity=true'
       );
     });
+  });
+
+  it('emits telemetry for created outbound activities without recording payload content', async () => {
+    const client = new ConversationActivityClient('https://service.example.com/');
+    jest.spyOn(client.http, 'post').mockResolvedValueOnce({ data: { id: 'activity-id' } });
+
+    await client.create('conversation-id', {
+      type: 'message',
+      text: 'do not tag this text',
+    });
+
+    expect(startActiveSpan).toHaveBeenCalledWith(
+      'conversation_client',
+      {
+        kind: SpanKind.CLIENT,
+        attributes: {
+          operation: 'create',
+          'service.url': 'https://service.example.com',
+          'conversation.id': 'conversation-id',
+        },
+      },
+      expect.any(Function)
+    );
+    expect(recordTeamsApiOutboundCall).toHaveBeenCalledWith('create');
+    expect(span.setAttribute).toHaveBeenCalledWith('activity.type', 'message');
+    expect(span.setAttribute).toHaveBeenCalledWith('activity.id', 'activity-id');
+    expect(span.end).toHaveBeenCalled();
+    expect(startActiveSpan.mock.calls[0][1].attributes).not.toHaveProperty('text');
+  });
+
+  it.each([
+    [
+      'update',
+      'update',
+      async (client: ConversationActivityClient) => {
+        jest.spyOn(client.http, 'put').mockResolvedValueOnce({ data: { id: 'updated-id' } });
+        await client.update('conversation-id', 'activity-id', { type: 'message', text: 'hi' });
+      },
+    ],
+    [
+      'reply',
+      'reply',
+      async (client: ConversationActivityClient) => {
+        jest.spyOn(client.http, 'post').mockResolvedValueOnce({ data: { id: 'reply-id' } });
+        await client.reply('conversation-id', 'activity-id', { type: 'message', text: 'hi' });
+      },
+    ],
+    [
+      'delete',
+      'delete',
+      async (client: ConversationActivityClient) => {
+        jest.spyOn(client.http, 'delete').mockResolvedValueOnce({ data: undefined });
+        await client.delete('conversation-id', 'activity-id');
+      },
+    ],
+    [
+      'createTargeted',
+      'create_targeted',
+      async (client: ConversationActivityClient) => {
+        jest.spyOn(client.http, 'post').mockResolvedValueOnce({ data: { id: 'targeted-id' } });
+        await client.createTargeted('conversation-id', { type: 'message', text: 'hi' });
+      },
+    ],
+    [
+      'updateTargeted',
+      'update_targeted',
+      async (client: ConversationActivityClient) => {
+        jest.spyOn(client.http, 'put').mockResolvedValueOnce({ data: { id: 'targeted-id' } });
+        await client.updateTargeted('conversation-id', 'activity-id', { type: 'message', text: 'hi' });
+      },
+    ],
+    [
+      'deleteTargeted',
+      'delete_targeted',
+      async (client: ConversationActivityClient) => {
+        jest.spyOn(client.http, 'delete').mockResolvedValueOnce({ data: undefined });
+        await client.deleteTargeted('conversation-id', 'activity-id');
+      },
+    ],
+  ])('emits telemetry for %s outbound activities', async (
+    _name: string,
+    operation: string,
+    act: (client: ConversationActivityClient) => Promise<void>
+  ) => {
+    const client = new ConversationActivityClient('https://service.example.com/');
+
+    await act(client);
+
+    expect(startActiveSpan).toHaveBeenCalledWith(
+      'conversation_client',
+      expect.objectContaining({
+        attributes: expect.objectContaining({
+          operation,
+          'service.url': 'https://service.example.com',
+          'conversation.id': 'conversation-id',
+        }),
+      }),
+      expect.any(Function)
+    );
+    expect(recordTeamsApiOutboundCall).toHaveBeenCalledWith(operation);
+    expect(span.end).toHaveBeenCalled();
+  });
+
+  it('records outbound errors and preserves the thrown error', async () => {
+    const client = new ConversationActivityClient('https://service.example.com/');
+    const error = new Error('failed');
+    jest.spyOn(client.http, 'post').mockRejectedValueOnce(error);
+
+    await expect(client.create('conversation-id', { type: 'message', text: 'hi' })).rejects.toThrow(error);
+
+    expect(recordTeamsApiOutboundCall).toHaveBeenCalledWith('create');
+    expect(recordTeamsApiOutboundError).toHaveBeenCalledWith('create');
+    expect(recordTeamsApiException).toHaveBeenCalledWith(span, error);
+    expect(span.end).toHaveBeenCalled();
   });
 });
