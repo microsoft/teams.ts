@@ -116,7 +116,7 @@ describe('OauthHandlers diagnostics', () => {
     expect(emitted).not.toContain('user-id');
   });
 
-  it('records expected token exchange fallbacks as precondition failures without OAuth errors', async () => {
+  it('records expected token exchange fallbacks as failures without OAuth errors', async () => {
     const ctx = createTokenExchangeContext({
       api: {
         users: {
@@ -137,19 +137,19 @@ describe('OauthHandlers diagnostics', () => {
       },
     });
     expect(span.attributes).toEqual(expect.objectContaining({
-      'oauth.result': APP_OAUTH_RESULT.preconditionFailed,
+      'oauth.result': APP_OAUTH_RESULT.failure,
       'invoke.response.status': 412,
     }));
     expect(recordTeamsBotOAuthOperation).toHaveBeenCalledWith(
       'activity-connection',
       APP_OAUTH_OPERATION.tokenExchange,
-      APP_OAUTH_RESULT.preconditionFailed
+      APP_OAUTH_RESULT.failure
     );
     expect(recordTeamsBotOAuthError).not.toHaveBeenCalled();
     expect(recordTeamsBotApplicationException).not.toHaveBeenCalled();
   });
 
-  it('records unexpected non-HTTP token exchange fallbacks as precondition failures with OAuth errors', async () => {
+  it('records unexpected non-HTTP token exchange fallbacks as failures with OAuth errors', async () => {
     const error = new Error('invalid operation');
     const ctx = createTokenExchangeContext({
       api: {
@@ -171,7 +171,7 @@ describe('OauthHandlers diagnostics', () => {
       },
     });
     expect(span.attributes).toEqual(expect.objectContaining({
-      'oauth.result': APP_OAUTH_RESULT.preconditionFailed,
+      'oauth.result': APP_OAUTH_RESULT.failure,
       'invoke.response.status': 412,
       'oauth.error.type': APP_OAUTH_ERROR_TYPE.exception,
     }));
@@ -211,7 +211,7 @@ describe('OauthHandlers diagnostics', () => {
     );
   });
 
-  it('emits verify state precondition-failed telemetry for expected token service fallbacks', async () => {
+  it('emits verify state failure telemetry for expected token service fallbacks', async () => {
     const ctx = createVerifyStateContext({
       api: {
         users: {
@@ -231,13 +231,13 @@ describe('OauthHandlers diagnostics', () => {
       'oauth.operation': APP_OAUTH_OPERATION.verifyState,
     });
     expect(span.attributes).toEqual(expect.objectContaining({
-      'oauth.result': APP_OAUTH_RESULT.preconditionFailed,
+      'oauth.result': APP_OAUTH_RESULT.failure,
       'invoke.response.status': 412,
     }));
     expect(recordTeamsBotOAuthOperation).toHaveBeenCalledWith(
       'default-connection',
       APP_OAUTH_OPERATION.verifyState,
-      APP_OAUTH_RESULT.preconditionFailed
+      APP_OAUTH_RESULT.failure
     );
     expect(recordTeamsBotOAuthError).not.toHaveBeenCalled();
     expect(recordTeamsBotApplicationException).not.toHaveBeenCalled();
@@ -265,7 +265,7 @@ describe('OauthHandlers diagnostics', () => {
     expect(recordTeamsBotApplicationException).not.toHaveBeenCalled();
   });
 
-  it('records unexpected non-HTTP verify state fallbacks as precondition failures with OAuth errors', async () => {
+  it('records unexpected non-HTTP verify state fallbacks as failures with OAuth errors', async () => {
     const error = new Error('verify exception');
     const ctx = createVerifyStateContext({
       api: {
@@ -280,7 +280,7 @@ describe('OauthHandlers diagnostics', () => {
 
     expect(response).toEqual({ status: 412 });
     expect(span.attributes).toEqual(expect.objectContaining({
-      'oauth.result': APP_OAUTH_RESULT.preconditionFailed,
+      'oauth.result': APP_OAUTH_RESULT.failure,
       'invoke.response.status': 412,
       'oauth.error.type': APP_OAUTH_ERROR_TYPE.exception,
     }));

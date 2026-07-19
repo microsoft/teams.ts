@@ -64,7 +64,7 @@ describe('AuthProviderInterceptor', () => {
 
     expect(calls).toEqual([{ agenticIdentity: undefined }]);
     expect(startActiveSpan).toHaveBeenCalledWith(
-      'auth.outbound',
+      'microsoft.teams.auth.outbound',
       {
         kind: SpanKind.CLIENT,
         attributes: { 'auth.flow': 'app_only' },
@@ -103,7 +103,7 @@ describe('AuthProviderInterceptor', () => {
 
     expect(calls).toEqual([{ agenticIdentity: identity }]);
     expect(startActiveSpan).toHaveBeenCalledWith(
-      'auth.outbound',
+      'microsoft.teams.auth.outbound',
       {
         kind: SpanKind.CLIENT,
         attributes: { 'auth.flow': 'agentic' },
@@ -184,7 +184,7 @@ describe('AuthProviderInterceptor', () => {
     await expect(client.get('/test')).rejects.toThrow(error);
 
     expect(startActiveSpan).toHaveBeenCalledWith(
-      'auth.outbound',
+      'microsoft.teams.auth.outbound',
       {
         kind: SpanKind.CLIENT,
         attributes: { 'auth.flow': 'app_only' },

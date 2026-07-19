@@ -5,7 +5,7 @@ import { APP_ATTRIBUTE_NAMES, APP_METRIC_NAMES } from './constants';
 import { TeamsBotApplicationTelemetry } from './telemetry';
 
 let activitiesReceivedCounter: Counter<MetricAttributes> | undefined;
-let turnDurationHistogram: Histogram<MetricAttributes> | undefined;
+let activityProcessDurationHistogram: Histogram<MetricAttributes> | undefined;
 let handlerDispatchedCounter: Counter<MetricAttributes> | undefined;
 let handlerDurationHistogram: Histogram<MetricAttributes> | undefined;
 let handlerFailuresCounter: Counter<MetricAttributes> | undefined;
@@ -43,14 +43,14 @@ export function recordTeamsBotActivityReceived(activityType: string): void {
 
 /**
  * @internal
- * Records turn processing duration in milliseconds.
+ * Records activity processing duration in milliseconds.
  */
-export function recordTeamsBotTurnDuration(activityType: string, durationMs: number): void {
-  turnDurationHistogram ??= getTeamsBotApplicationMeter().createHistogram(APP_METRIC_NAMES.turnDuration, {
-    description: 'Duration of Teams app turn processing.',
+export function recordTeamsBotActivityProcessDuration(activityType: string, durationMs: number): void {
+  activityProcessDurationHistogram ??= getTeamsBotApplicationMeter().createHistogram(APP_METRIC_NAMES.activityProcessDuration, {
+    description: 'Duration of Teams app activity processing.',
     unit: 'ms',
   });
-  turnDurationHistogram.record(durationMs, { [APP_ATTRIBUTE_NAMES.activityType]: activityType });
+  activityProcessDurationHistogram.record(durationMs, { [APP_ATTRIBUTE_NAMES.activityType]: activityType });
 }
 
 /**

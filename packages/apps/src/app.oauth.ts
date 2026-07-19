@@ -114,7 +114,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
             failureDetail: 'unable to exchange token...',
           };
 
-          telemetry.result = APP_OAUTH_RESULT.preconditionFailed;
+          telemetry.result = APP_OAUTH_RESULT.failure;
           telemetry.responseStatus = 412;
           return {
             status: 412,
@@ -179,7 +179,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
             recordUnexpectedOAuthError(span, telemetry, error, APP_OAUTH_ERROR_TYPE.exception);
           }
 
-          telemetry.result = APP_OAUTH_RESULT.preconditionFailed;
+          telemetry.result = APP_OAUTH_RESULT.failure;
           telemetry.responseStatus = 412;
           return { status: 412 };
         }

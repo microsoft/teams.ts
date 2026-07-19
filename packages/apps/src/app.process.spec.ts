@@ -14,7 +14,7 @@ import {
   recordTeamsBotHandlerDuration,
   recordTeamsBotHandlerFailure,
   recordTeamsBotHandlerUnmatched,
-  recordTeamsBotTurnDuration
+  recordTeamsBotActivityProcessDuration
 } from './diagnostics/helpers';
 import { IActivityResponseEvent, IActivitySentEvent, IErrorEvent } from './events';
 import { IActivityEvent } from './events/activity';
@@ -31,7 +31,7 @@ jest.mock('./diagnostics/helpers', () => ({
   recordTeamsBotOAuthError: jest.fn(),
   recordTeamsBotOAuthOperation: jest.fn(),
   recordTeamsBotOAuthOperationDuration: jest.fn(),
-  recordTeamsBotTurnDuration: jest.fn(),
+  recordTeamsBotActivityProcessDuration: jest.fn(),
 }));
 
 type SpanRecord = {
@@ -144,7 +144,7 @@ describe('App', () => {
       expect(response.body).toBeUndefined();
     });
 
-    it('emits turn telemetry and unmatched metrics without recording payload text', async () => {
+    it('emits activity process telemetry and unmatched metrics without recording payload text', async () => {
       const incomingActivity: IMessageActivity = new MessageActivity('do not record this')
         .withId('activity-id')
         .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
@@ -159,12 +159,12 @@ describe('App', () => {
         body: incomingActivity,
       });
 
-      const turnSpan = spans.find((span) => span.name === 'turn');
+      const activityProcessSpan = spans.find((span) => span.name === 'microsoft.teams.activity.process');
       expect(response.status).toBe(200);
       expect(recordTeamsBotActivityReceived).toHaveBeenCalledWith('message');
       expect(recordTeamsBotHandlerUnmatched).toHaveBeenCalledWith('message', undefined);
-      expect(recordTeamsBotTurnDuration).toHaveBeenCalledWith('message', expect.any(Number));
-      expect(turnSpan?.options.attributes).toEqual(expect.objectContaining({
+      expect(recordTeamsBotActivityProcessDuration).toHaveBeenCalledWith('message', expect.any(Number));
+      expect(activityProcessSpan?.options.attributes).toEqual(expect.objectContaining({
         'activity.type': 'message',
         'activity.id': 'activity-id',
         'conversation.id': 'conv-1',
@@ -172,8 +172,8 @@ describe('App', () => {
         'bot.id': 'bot-1',
         'service.url': 'https://service.url',
       }));
-      expect(turnSpan?.options.attributes).not.toHaveProperty('text');
-      expect(turnSpan?.span.end).toHaveBeenCalled();
+      expect(activityProcessSpan?.options.attributes).not.toHaveProperty('text');
+      expect(activityProcessSpan?.span.end).toHaveBeenCalled();
     });
 
     it('emits unmatched invoke metrics with invoke name only', async () => {
@@ -202,7 +202,7 @@ describe('App', () => {
         body: new MessageActivity('hello').toInterface(),
       });
 
-      const handlerSpan = spans.find((span) => span.name === 'handler');
+      const handlerSpan = spans.find((span) => span.name === 'microsoft.teams.handler');
       expect(response.status).toBe(200);
       expect(recordTeamsBotHandlerDispatched).toHaveBeenCalledWith('message', 'type');
       expect(recordTeamsBotHandlerDuration).toHaveBeenCalledWith('message', 'type', expect.any(Number));
@@ -213,7 +213,7 @@ describe('App', () => {
       expect(handlerSpan?.span.end).toHaveBeenCalled();
     });
 
-    it('records handler and turn exceptions while preserving error responses', async () => {
+    it('records handler and activity process exceptions while preserving error responses', async () => {
       const error = new Error('Test error');
       app.use(() => {
         throw error;
@@ -224,16 +224,56 @@ describe('App', () => {
         body: new MessageActivity('hello').toInterface(),
       });
 
-      const turnSpan = spans.find((span) => span.name === 'turn');
-      const handlerSpan = spans.find((span) => span.name === 'handler');
+      const activityProcessSpan = spans.find((span) => span.name === 'microsoft.teams.activity.process');
+      const handlerSpan = spans.find((span) => span.name === 'microsoft.teams.handler');
       expect(response.status).toBe(500);
-      expect(recordTeamsBotHandlerFailure).toHaveBeenCalledWith('message', 'middleware');
+      expect(recordTeamsBotHandlerFailure).toHaveBeenCalledWith('message', 'catchall');
       expect(recordTeamsBotApplicationException).toHaveBeenCalledWith(handlerSpan?.span, error);
-      expect(recordTeamsBotApplicationException).toHaveBeenCalledWith(turnSpan?.span, error);
-      expect(recordTeamsBotHandlerDuration).toHaveBeenCalledWith('message', 'middleware', expect.any(Number));
+      expect(recordTeamsBotApplicationException).toHaveBeenCalledWith(activityProcessSpan?.span, error);
+      expect(recordTeamsBotHandlerDuration).toHaveBeenCalledWith('message', 'catchall', expect.any(Number));
     });
 
-    it('applies activity-derived baggage while processing the turn', async () => {
+    it('uses catchall dispatch for middleware and activity catchall handlers', async () => {
+      app.use((ctx) => ctx.next());
+      app.on('activity', () => undefined);
+
+      const response = await app.process({
+        token,
+        body: new MessageActivity('hello').toInterface(),
+      });
+
+      expect(response.status).toBe(200);
+      expect(recordTeamsBotHandlerDispatched).toHaveBeenNthCalledWith(1, 'message', 'catchall');
+      expect(recordTeamsBotHandlerDispatched).toHaveBeenNthCalledWith(2, 'message', 'catchall');
+    });
+
+    it('uses invoke dispatch for invoke-specific handlers', async () => {
+      app.on('dialog.open', () => ({
+        task: {
+          type: 'message',
+          value: 'opened',
+        },
+      }));
+
+      const response = await app.process({
+        token,
+        body: {
+          type: 'invoke',
+          name: 'task/fetch',
+          channelId: 'msteams',
+          from: { id: 'user-1' },
+          recipient: { id: 'bot-1' },
+          conversation: { id: 'conv-1' },
+          serviceUrl: 'https://service.url',
+          value: {},
+        } as ITaskFetchInvokeActivity,
+      });
+
+      expect(response.status).toBe(200);
+      expect(recordTeamsBotHandlerDispatched).toHaveBeenCalledWith('task/fetch', 'invoke');
+    });
+
+    it('applies activity-derived baggage while processing the activity', async () => {
       let activeConversationId: string | undefined;
       let activeTenantId: string | undefined;
       const incomingActivity: IMessageActivity = new MessageActivity('hello')

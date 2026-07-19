@@ -362,7 +362,7 @@ describe('ConversationActivityClient', () => {
     });
 
     expect(startActiveSpan).toHaveBeenCalledWith(
-      'conversation_client',
+      'microsoft.teams.conversation.client',
       {
         kind: SpanKind.CLIENT,
         attributes: {
@@ -439,7 +439,7 @@ describe('ConversationActivityClient', () => {
     await act(client);
 
     expect(startActiveSpan).toHaveBeenCalledWith(
-      'conversation_client',
+      'microsoft.teams.conversation.client',
       expect.objectContaining({
         attributes: expect.objectContaining({
           operation,

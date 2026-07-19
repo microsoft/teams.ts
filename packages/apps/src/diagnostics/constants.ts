@@ -3,11 +3,11 @@
  * Private span names used by Teams apps diagnostics instrumentation.
  */
 export const APP_SPAN_NAMES = {
-  turn: 'turn',
-  handler: 'handler',
-  oauthTokenExchange: 'oauth.token_exchange',
-  oauthVerifyState: 'oauth.verify_state',
-  oauthSigninFailure: 'oauth.signin_failure',
+  activityProcess: 'microsoft.teams.activity.process',
+  handler: 'microsoft.teams.handler',
+  oauthTokenExchange: 'microsoft.teams.oauth.token_exchange',
+  oauthVerifyState: 'microsoft.teams.oauth.verify_state',
+  oauthSigninFailure: 'microsoft.teams.oauth.signin_failure',
 } as const;
 
 /**
@@ -15,15 +15,15 @@ export const APP_SPAN_NAMES = {
  * Private metric names used by Teams apps diagnostics instrumentation.
  */
 export const APP_METRIC_NAMES = {
-  activitiesReceived: 'teams.activities.received',
-  turnDuration: 'teams.turn.duration',
-  handlerDispatched: 'teams.handler.dispatched',
-  handlerDuration: 'teams.handler.duration',
-  handlerFailures: 'teams.handler.failures',
-  handlerUnmatched: 'teams.handler.unmatched',
-  oauthOperations: 'teams.oauth.operations',
-  oauthOperationDuration: 'teams.oauth.operation.duration',
-  oauthErrors: 'teams.oauth.errors',
+  activitiesReceived: 'microsoft.teams.activities.received',
+  activityProcessDuration: 'microsoft.teams.activity.process.duration',
+  handlerDispatched: 'microsoft.teams.handler.dispatched',
+  handlerDuration: 'microsoft.teams.handler.duration',
+  handlerFailures: 'microsoft.teams.handler.failures',
+  handlerUnmatched: 'microsoft.teams.handler.unmatched',
+  oauthOperations: 'microsoft.teams.oauth.operations',
+  oauthOperationDuration: 'microsoft.teams.oauth.operation.duration',
+  oauthErrors: 'microsoft.teams.oauth.errors',
 } as const;
 
 /**
@@ -54,11 +54,9 @@ export const APP_ATTRIBUTE_NAMES = {
  * Private handler dispatch category values used by Teams apps diagnostics instrumentation.
  */
 export const APP_HANDLER_DISPATCH = {
-  middleware: 'middleware',
-  activity: 'activity',
   type: 'type',
   invoke: 'invoke',
-  route: 'route',
+  catchall: 'catchall',
 } as const;
 
 /**
@@ -102,7 +100,6 @@ export const APP_OAUTH_OPERATION = {
 export const APP_OAUTH_RESULT = {
   success: 'success',
   failure: 'failure',
-  preconditionFailed: 'precondition_failed',
   noToken: 'no_token',
   notified: 'notified',
 } as const;

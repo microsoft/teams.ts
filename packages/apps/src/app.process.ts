@@ -27,7 +27,7 @@ import {
   recordTeamsBotHandlerDuration,
   recordTeamsBotHandlerFailure,
   recordTeamsBotHandlerUnmatched,
-  recordTeamsBotTurnDuration
+  recordTeamsBotActivityProcessDuration
 } from './diagnostics/helpers';
 import { IActivityEvent } from './events';
 import { Router } from './router';
@@ -50,7 +50,7 @@ function getAgenticIdentity(account?: Account): AgenticIdentity | undefined {
 }
 
 /**
- * Dependencies the {@link ActivityProcessor} needs to turn an inbound activity
+ * Dependencies the {@link ActivityProcessor} needs to process an inbound activity
  * into a response. The owning {@link App} constructs the processor and passes
  * these in, which is what lets `App` keep these primitives private instead of
  * exposing them just so a free `this: App`-bound `$process` function could reach
@@ -108,7 +108,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       serviceUrl = serviceUrl.slice(0, serviceUrl.length - 1);
     }
 
-    return withTeamsBaggage(activity, () => traceTurn(activity, serviceUrl, async (turnSpan) => {
+    return withTeamsBaggage(activity, () => traceActivityProcess(activity, serviceUrl, async (activityProcessSpan) => {
       let userToken: string | undefined;
 
       try {
@@ -268,7 +268,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
           response = { status: 200 };
         } else {
           response = { status: 500 };
-          recordTeamsBotApplicationException(turnSpan, error);
+          recordTeamsBotApplicationException(activityProcessSpan, error);
           this.options.eventManager.onError({ error, activity });
         }
 
@@ -310,11 +310,11 @@ function getHandlerDispatch<TPlugin extends IPlugin>(
   route: Route<keyof IRoutes, PluginAdditionalContext<TPlugin>>
 ): string {
   if (!route.name) {
-    return APP_HANDLER_DISPATCH.middleware;
+    return APP_HANDLER_DISPATCH.catchall;
   }
 
   if (route.name === 'activity') {
-    return APP_HANDLER_DISPATCH.activity;
+    return APP_HANDLER_DISPATCH.catchall;
   }
 
   if (route.name === activity.type) {
@@ -325,10 +325,10 @@ function getHandlerDispatch<TPlugin extends IPlugin>(
     return APP_HANDLER_DISPATCH.invoke;
   }
 
-  return APP_HANDLER_DISPATCH.route;
+  return APP_HANDLER_DISPATCH.catchall;
 }
 
-function getTurnAttributes(activity: Activity, serviceUrl: string): SpanAttributes {
+function getActivityProcessAttributes(activity: Activity, serviceUrl: string): SpanAttributes {
   const attributes: SpanAttributes = {
     [APP_ATTRIBUTE_NAMES.activityType]: activity.type,
   };
@@ -360,14 +360,14 @@ function isStreamCancelledError(error: any): boolean {
   return error instanceof StreamCancelledError || error?.name === 'StreamCancelledError';
 }
 
-async function traceTurn<T>(activity: Activity, serviceUrl: string, execute: (span: Span) => Promise<T>): Promise<T> {
+async function traceActivityProcess<T>(activity: Activity, serviceUrl: string, execute: (span: Span) => Promise<T>): Promise<T> {
   const activityType = activity.type;
   const startedAt = Date.now();
   recordTeamsBotActivityReceived(activityType);
 
   return getTeamsBotApplicationTracer().startActiveSpan(
-    APP_SPAN_NAMES.turn,
-    { attributes: getTurnAttributes(activity, serviceUrl) },
+    APP_SPAN_NAMES.activityProcess,
+    { attributes: getActivityProcessAttributes(activity, serviceUrl) },
     async (span) => {
       try {
         return await execute(span);
@@ -375,7 +375,7 @@ async function traceTurn<T>(activity: Activity, serviceUrl: string, execute: (sp
         recordTeamsBotApplicationException(span, error);
         throw error;
       } finally {
-        recordTeamsBotTurnDuration(activityType, Date.now() - startedAt);
+        recordTeamsBotActivityProcessDuration(activityType, Date.now() - startedAt);
         span.end();
       }
     }

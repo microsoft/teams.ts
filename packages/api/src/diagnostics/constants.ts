@@ -3,8 +3,8 @@
  * Private span names used by API diagnostics instrumentation.
  */
 export const API_SPAN_NAMES = {
-  conversationClient: 'conversation_client',
-  authOutbound: 'auth.outbound',
+  conversationClient: 'microsoft.teams.conversation.client',
+  authOutbound: 'microsoft.teams.auth.outbound',
 } as const;
 
 /**
@@ -12,8 +12,8 @@ export const API_SPAN_NAMES = {
  * Private metric names used by API diagnostics instrumentation.
  */
 export const API_METRIC_NAMES = {
-  outboundCalls: 'teams.outbound.calls',
-  outboundErrors: 'teams.outbound.errors',
+  outboundCalls: 'microsoft.teams.outbound.calls',
+  outboundErrors: 'microsoft.teams.outbound.errors',
 } as const;
 
 /**
