@@ -10,6 +10,9 @@ let handlerDispatchedCounter: Counter<MetricAttributes> | undefined;
 let handlerDurationHistogram: Histogram<MetricAttributes> | undefined;
 let handlerFailuresCounter: Counter<MetricAttributes> | undefined;
 let handlerUnmatchedCounter: Counter<MetricAttributes> | undefined;
+let oauthOperationsCounter: Counter<MetricAttributes> | undefined;
+let oauthOperationDurationHistogram: Histogram<MetricAttributes> | undefined;
+let oauthErrorsCounter: Counter<MetricAttributes> | undefined;
 
 /**
  * @internal
@@ -106,6 +109,60 @@ export function recordTeamsBotHandlerUnmatched(activityType: string, invokeName?
     attributes[APP_ATTRIBUTE_NAMES.invokeName] = invokeName;
   }
   handlerUnmatchedCounter.add(1, attributes);
+}
+
+/**
+ * @internal
+ * Records a completed Teams app OAuth operation.
+ */
+export function recordTeamsBotOAuthOperation(connectionName: string, operation: string, result: string): void {
+  oauthOperationsCounter ??= getTeamsBotApplicationMeter().createCounter(APP_METRIC_NAMES.oauthOperations, {
+    description: 'Number of Teams app OAuth operations.',
+  });
+  oauthOperationsCounter.add(1, {
+    [APP_ATTRIBUTE_NAMES.oauthConnection]: connectionName,
+    [APP_ATTRIBUTE_NAMES.oauthOperation]: operation,
+    [APP_ATTRIBUTE_NAMES.oauthResult]: result,
+  });
+}
+
+/**
+ * @internal
+ * Records Teams app OAuth operation duration in milliseconds.
+ */
+export function recordTeamsBotOAuthOperationDuration(
+  connectionName: string,
+  operation: string,
+  result: string,
+  durationMs: number
+): void {
+  oauthOperationDurationHistogram ??= getTeamsBotApplicationMeter().createHistogram(
+    APP_METRIC_NAMES.oauthOperationDuration,
+    {
+      description: 'Duration of Teams app OAuth operations.',
+      unit: 'ms',
+    }
+  );
+  oauthOperationDurationHistogram.record(durationMs, {
+    [APP_ATTRIBUTE_NAMES.oauthConnection]: connectionName,
+    [APP_ATTRIBUTE_NAMES.oauthOperation]: operation,
+    [APP_ATTRIBUTE_NAMES.oauthResult]: result,
+  });
+}
+
+/**
+ * @internal
+ * Records an unexpected Teams app OAuth error.
+ */
+export function recordTeamsBotOAuthError(connectionName: string, operation: string, errorType: string): void {
+  oauthErrorsCounter ??= getTeamsBotApplicationMeter().createCounter(APP_METRIC_NAMES.oauthErrors, {
+    description: 'Number of unexpected Teams app OAuth errors.',
+  });
+  oauthErrorsCounter.add(1, {
+    [APP_ATTRIBUTE_NAMES.oauthConnection]: connectionName,
+    [APP_ATTRIBUTE_NAMES.oauthOperation]: operation,
+    [APP_ATTRIBUTE_NAMES.oauthErrorType]: errorType,
+  });
 }
 
 /**

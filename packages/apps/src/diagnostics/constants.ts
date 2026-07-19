@@ -5,6 +5,9 @@
 export const APP_SPAN_NAMES = {
   turn: 'turn',
   handler: 'handler',
+  oauthTokenExchange: 'oauth.token_exchange',
+  oauthVerifyState: 'oauth.verify_state',
+  oauthSigninFailure: 'oauth.signin_failure',
 } as const;
 
 /**
@@ -18,6 +21,9 @@ export const APP_METRIC_NAMES = {
   handlerDuration: 'teams.handler.duration',
   handlerFailures: 'teams.handler.failures',
   handlerUnmatched: 'teams.handler.unmatched',
+  oauthOperations: 'teams.oauth.operations',
+  oauthOperationDuration: 'teams.oauth.operation.duration',
+  oauthErrors: 'teams.oauth.errors',
 } as const;
 
 /**
@@ -34,6 +40,13 @@ export const APP_ATTRIBUTE_NAMES = {
   handlerType: 'handler.type',
   handlerDispatch: 'handler.dispatch',
   invokeName: 'invoke.name',
+  oauthConnection: 'oauth.connection',
+  oauthOperation: 'oauth.operation',
+  oauthResult: 'oauth.result',
+  invokeResponseStatus: 'invoke.response.status',
+  oauthCallbackInvoked: 'oauth.callback.invoked',
+  oauthErrorType: 'oauth.error.type',
+  oauthFailureCode: 'oauth.failure.code',
 } as const;
 
 /**
@@ -70,4 +83,35 @@ export const APP_BAGGAGE_KEYS = {
   userEmail: 'user.email',
   agentDescription: 'gen_ai.agent.description',
   agenticUserEmail: 'microsoft.agent.user.email',
+} as const;
+
+/**
+ * @internal
+ * Private OAuth operation values used by Teams apps diagnostics instrumentation.
+ */
+export const APP_OAUTH_OPERATION = {
+  tokenExchange: 'token_exchange',
+  verifyState: 'verify_state',
+  signinFailure: 'signin_failure',
+} as const;
+
+/**
+ * @internal
+ * Private OAuth result values used by Teams apps diagnostics instrumentation.
+ */
+export const APP_OAUTH_RESULT = {
+  success: 'success',
+  failure: 'failure',
+  preconditionFailed: 'precondition_failed',
+  noToken: 'no_token',
+  notified: 'notified',
+} as const;
+
+/**
+ * @internal
+ * Private OAuth error type values used by Teams apps diagnostics instrumentation.
+ */
+export const APP_OAUTH_ERROR_TYPE = {
+  httpError: 'http_error',
+  exception: 'exception',
 } as const;

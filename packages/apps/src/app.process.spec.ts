@@ -28,6 +28,9 @@ jest.mock('./diagnostics/helpers', () => ({
   recordTeamsBotHandlerDuration: jest.fn(),
   recordTeamsBotHandlerFailure: jest.fn(),
   recordTeamsBotHandlerUnmatched: jest.fn(),
+  recordTeamsBotOAuthError: jest.fn(),
+  recordTeamsBotOAuthOperation: jest.fn(),
+  recordTeamsBotOAuthOperationDuration: jest.fn(),
   recordTeamsBotTurnDuration: jest.fn(),
 }));
 
