@@ -12,6 +12,17 @@ export type Account<P = any> = {
    */
   readonly type?: string;
   readonly name?: string;
+  /**
+   * Email address for the account when the channel includes it. This is optional
+   * because many inbound activities omit email addresses.
+   */
+  readonly email?: string;
+  /**
+   * User role metadata for the account when the channel includes it. This is
+   * optional and should not be used for authorization decisions unless the
+   * channel explicitly documents the value.
+   */
+  readonly userRole?: string;
   readonly properties?: P;
   readonly membershipSources?: MembershipSource[];
 

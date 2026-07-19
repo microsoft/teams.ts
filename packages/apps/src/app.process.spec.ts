@@ -1,9 +1,11 @@
-import type { Span, Tracer } from '@opentelemetry/api';
+import { context, propagation, ROOT_CONTEXT } from '@opentelemetry/api';
+import type { Context, ContextManager, Span, Tracer } from '@opentelemetry/api';
 
 import { IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse } from '@microsoft/teams.api';
 
 import { ActivitySender } from './activity-sender';
 import { App } from './app';
+import { APP_BAGGAGE_KEYS } from './diagnostics/constants';
 import {
   getTeamsBotApplicationTracer,
   recordTeamsBotActivityReceived,
@@ -35,6 +37,57 @@ type SpanRecord = {
   readonly span: Span;
 };
 
+class TestContextManager implements ContextManager {
+  private current = ROOT_CONTEXT;
+
+  active(): Context {
+    return this.current;
+  }
+
+  with<A extends unknown[], F extends (...args: A) => ReturnType<F>>(
+    scopedContext: Context,
+    fn: F,
+    thisArg?: ThisParameterType<F>,
+    ...args: A
+  ): ReturnType<F> {
+    const previous = this.current;
+    this.current = scopedContext;
+
+    try {
+      const result = fn.apply(thisArg, args);
+
+      if (isPromiseLike(result)) {
+        return result.finally(() => {
+          this.current = previous;
+        }) as ReturnType<F>;
+      }
+
+      this.current = previous;
+      return result;
+    } catch (error) {
+      this.current = previous;
+      throw error;
+    }
+  }
+
+  bind<T>(_context: Context, target: T): T {
+    return target;
+  }
+
+  enable(): this {
+    return this;
+  }
+
+  disable(): this {
+    this.current = ROOT_CONTEXT;
+    return this;
+  }
+}
+
+function isPromiseLike(value: unknown): value is Promise<unknown> {
+  return !!value && typeof value === 'object' && 'finally' in value && typeof value.finally === 'function';
+}
+
 describe('App', () => {
   let app: App;
   let spans: SpanRecord[];
@@ -53,6 +106,8 @@ describe('App', () => {
   beforeEach(() => {
     spans = [];
     jest.clearAllMocks();
+    context.disable();
+    context.setGlobalContextManager(new TestContextManager());
     jest.mocked(getTeamsBotApplicationTracer).mockReturnValue(tracer);
     startActiveSpan.mockImplementation((name: string, options: unknown, callback: (span: Span) => unknown) => {
       const span = {
@@ -71,6 +126,7 @@ describe('App', () => {
   afterEach(() => {
     app.stop();
     jest.restoreAllMocks();
+    context.disable();
   });
 
   describe('process', () => {
@@ -172,6 +228,34 @@ describe('App', () => {
       expect(recordTeamsBotApplicationException).toHaveBeenCalledWith(handlerSpan?.span, error);
       expect(recordTeamsBotApplicationException).toHaveBeenCalledWith(turnSpan?.span, error);
       expect(recordTeamsBotHandlerDuration).toHaveBeenCalledWith('message', 'middleware', expect.any(Number));
+    });
+
+    it('applies activity-derived baggage while processing the turn', async () => {
+      let activeConversationId: string | undefined;
+      let activeTenantId: string | undefined;
+      const incomingActivity: IMessageActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot', tenantId: 'tenant-id' })
+        .withConversation({ id: 'conv-1', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url')
+        .toInterface();
+
+      app.on('message', () => {
+        const baggage = propagation.getActiveBaggage();
+        activeConversationId = baggage?.getEntry(APP_BAGGAGE_KEYS.conversationId)?.value;
+        activeTenantId = baggage?.getEntry(APP_BAGGAGE_KEYS.tenantId)?.value;
+      });
+
+      const response = await app.process({
+        token,
+        body: incomingActivity,
+      });
+
+      expect(response.status).toBe(200);
+      expect(activeConversationId).toBe('conv-1');
+      expect(activeTenantId).toBe('tenant-id');
+      expect(propagation.getActiveBaggage()?.getEntry(APP_BAGGAGE_KEYS.conversationId)).toBeUndefined();
     });
 
     it('should return an invoke response', async () => {
