@@ -14,9 +14,17 @@ export class Router<TExtraCtx extends Record<string, any> = Record<string, any>>
    * @param activity the inbound activity
    */
   select(activity: Activity) {
-    return this.routes
-      .filter((r) => r.select(activity))
+    return this.selectRoutes(activity)
       .map((r) => r.callback as RouteHandler<IActivityContext, any>);
+  }
+
+  /**
+   * @internal
+   * Select route entries that match the inbound activity while preserving route metadata.
+   * Runtime instrumentation uses this so public route callbacks keep their existing shape.
+   */
+  selectRoutes(activity: Activity) {
+    return this.routes.filter((r) => r.select(activity));
   }
 
   /**

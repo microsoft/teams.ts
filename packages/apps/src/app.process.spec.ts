@@ -1,13 +1,45 @@
+import type { Span, Tracer } from '@opentelemetry/api';
+
 import { IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse } from '@microsoft/teams.api';
 
 import { ActivitySender } from './activity-sender';
 import { App } from './app';
+import {
+  getTeamsBotApplicationTracer,
+  recordTeamsBotActivityReceived,
+  recordTeamsBotApplicationException,
+  recordTeamsBotHandlerDispatched,
+  recordTeamsBotHandlerDuration,
+  recordTeamsBotHandlerFailure,
+  recordTeamsBotHandlerUnmatched,
+  recordTeamsBotTurnDuration
+} from './diagnostics/helpers';
 import { IActivityResponseEvent, IActivitySentEvent, IErrorEvent } from './events';
 import { IActivityEvent } from './events/activity';
 import { createTestApp } from './test-utils';
 
+jest.mock('./diagnostics/helpers', () => ({
+  getTeamsBotApplicationTracer: jest.fn(),
+  recordTeamsBotActivityReceived: jest.fn(),
+  recordTeamsBotApplicationException: jest.fn(),
+  recordTeamsBotHandlerDispatched: jest.fn(),
+  recordTeamsBotHandlerDuration: jest.fn(),
+  recordTeamsBotHandlerFailure: jest.fn(),
+  recordTeamsBotHandlerUnmatched: jest.fn(),
+  recordTeamsBotTurnDuration: jest.fn(),
+}));
+
+type SpanRecord = {
+  readonly name: string;
+  readonly options: any;
+  readonly span: Span;
+};
+
 describe('App', () => {
   let app: App;
+  let spans: SpanRecord[];
+  const startActiveSpan = jest.fn();
+  const tracer = { startActiveSpan } as unknown as Tracer;
   const token: IToken = {
     appId: 'app-id',
     serviceUrl: 'https://service.url',
@@ -19,6 +51,19 @@ describe('App', () => {
   const activity: IMessageActivity = new MessageActivity();
 
   beforeEach(() => {
+    spans = [];
+    jest.clearAllMocks();
+    jest.mocked(getTeamsBotApplicationTracer).mockReturnValue(tracer);
+    startActiveSpan.mockImplementation((name: string, options: unknown, callback: (span: Span) => unknown) => {
+      const span = {
+        setAttribute: jest.fn(),
+        recordException: jest.fn(),
+        setStatus: jest.fn(),
+        end: jest.fn(),
+      } as unknown as Span;
+      spans.push({ name, options, span });
+      return callback(span);
+    });
     app = createTestApp();
     app.start();
   });
@@ -38,6 +83,95 @@ describe('App', () => {
       const response = await app.process(event);
       expect(response.status).toBe(200);
       expect(response.body).toBeUndefined();
+    });
+
+    it('emits turn telemetry and unmatched metrics without recording payload text', async () => {
+      const incomingActivity: IMessageActivity = new MessageActivity('do not record this')
+        .withId('activity-id')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot' })
+        .withConversation({ id: 'conv-1', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url/')
+        .toInterface();
+
+      const response = await app.process({
+        token,
+        body: incomingActivity,
+      });
+
+      const turnSpan = spans.find((span) => span.name === 'turn');
+      expect(response.status).toBe(200);
+      expect(recordTeamsBotActivityReceived).toHaveBeenCalledWith('message');
+      expect(recordTeamsBotHandlerUnmatched).toHaveBeenCalledWith('message', undefined);
+      expect(recordTeamsBotTurnDuration).toHaveBeenCalledWith('message', expect.any(Number));
+      expect(turnSpan?.options.attributes).toEqual(expect.objectContaining({
+        'activity.type': 'message',
+        'activity.id': 'activity-id',
+        'conversation.id': 'conv-1',
+        'channel.id': 'msteams',
+        'bot.id': 'bot-1',
+        'service.url': 'https://service.url',
+      }));
+      expect(turnSpan?.options.attributes).not.toHaveProperty('text');
+      expect(turnSpan?.span.end).toHaveBeenCalled();
+    });
+
+    it('emits unmatched invoke metrics with invoke name only', async () => {
+      await app.process({
+        token,
+        body: {
+          type: 'invoke',
+          name: 'task/fetch',
+          channelId: 'msteams',
+          from: { id: 'user-1' },
+          recipient: { id: 'bot-1' },
+          conversation: { id: 'conv-1' },
+          serviceUrl: 'https://service.url',
+          value: { data: { dialog_id: 'not-recorded' } },
+        } as any,
+      });
+
+      expect(recordTeamsBotHandlerUnmatched).toHaveBeenCalledWith('invoke', 'task/fetch');
+    });
+
+    it('emits handler telemetry for selected route handlers', async () => {
+      app.on('message', () => undefined);
+
+      const response = await app.process({
+        token,
+        body: new MessageActivity('hello').toInterface(),
+      });
+
+      const handlerSpan = spans.find((span) => span.name === 'handler');
+      expect(response.status).toBe(200);
+      expect(recordTeamsBotHandlerDispatched).toHaveBeenCalledWith('message', 'type');
+      expect(recordTeamsBotHandlerDuration).toHaveBeenCalledWith('message', 'type', expect.any(Number));
+      expect(handlerSpan?.options.attributes).toEqual({
+        'handler.type': 'message',
+        'handler.dispatch': 'type',
+      });
+      expect(handlerSpan?.span.end).toHaveBeenCalled();
+    });
+
+    it('records handler and turn exceptions while preserving error responses', async () => {
+      const error = new Error('Test error');
+      app.use(() => {
+        throw error;
+      });
+
+      const response = await app.process({
+        token,
+        body: new MessageActivity('hello').toInterface(),
+      });
+
+      const turnSpan = spans.find((span) => span.name === 'turn');
+      const handlerSpan = spans.find((span) => span.name === 'handler');
+      expect(response.status).toBe(500);
+      expect(recordTeamsBotHandlerFailure).toHaveBeenCalledWith('message', 'middleware');
+      expect(recordTeamsBotApplicationException).toHaveBeenCalledWith(handlerSpan?.span, error);
+      expect(recordTeamsBotApplicationException).toHaveBeenCalledWith(turnSpan?.span, error);
+      expect(recordTeamsBotHandlerDuration).toHaveBeenCalledWith('message', 'middleware', expect.any(Number));
     });
 
     it('should return an invoke response', async () => {

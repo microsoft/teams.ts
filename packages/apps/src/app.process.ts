@@ -1,3 +1,5 @@
+import type { Span, SpanAttributes } from '@opentelemetry/api';
+
 import {
   Activity,
   ActivityLike,
@@ -15,10 +17,23 @@ import { ActivitySender } from './activity-sender';
 import { type ApiClient, GraphClient } from './api';
 import { EventManager } from './app.events';
 import { ActivityContext, IActivityContext } from './contexts';
+import { APP_ATTRIBUTE_NAMES, APP_HANDLER_DISPATCH, APP_SPAN_NAMES } from './diagnostics/constants';
+import {
+  getTeamsBotApplicationTracer,
+  recordTeamsBotActivityReceived,
+  recordTeamsBotApplicationException,
+  recordTeamsBotHandlerDispatched,
+  recordTeamsBotHandlerDuration,
+  recordTeamsBotHandlerFailure,
+  recordTeamsBotHandlerUnmatched,
+  recordTeamsBotTurnDuration
+} from './diagnostics/helpers';
 import { IActivityEvent } from './events';
 import { Router } from './router';
+import type { Route } from './router/route';
+import { IRoutes } from './routes';
 import { TokenManager } from './token-manager';
-import { IActivitySender, IPlugin, StreamCancelledError } from './types';
+import { IActivitySender, IPlugin, RouteHandler, StreamCancelledError } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 
 function getAgenticIdentity(account?: Account): AgenticIdentity | undefined {
@@ -92,171 +107,179 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       serviceUrl = serviceUrl.slice(0, serviceUrl.length - 1);
     }
 
-    let userToken: string | undefined;
+    return traceTurn(activity, serviceUrl, async (turnSpan) => {
+      let userToken: string | undefined;
 
-    try {
-      userToken = await this.getUserToken(activity.channelId, activity.from.id);
-    } catch (err) {
-      // noop
-    }
+      try {
+        userToken = await this.getUserToken(activity.channelId, activity.from.id);
+      } catch (err) {
+        // noop
+      }
 
-    const client = this.options.client.clone();
-    const agenticIdentity = getAgenticIdentity(activity.recipient);
-    const apiClient = this.options.api.clone({
-      serviceUrl,
-      agenticIdentity,
-    });
-    const apiClientFactory = (senderServiceUrl: string, senderAgenticIdentity?: AgenticIdentity) => apiClient.clone({
-      serviceUrl: senderServiceUrl,
-      agenticIdentity: senderAgenticIdentity ?? agenticIdentity,
-    });
-    const userGraph = new GraphClient(
-      client.clone({ token: () => userToken }),
-      { baseUrlRoot: this.options.graphBaseUrl }
-    );
-    const appGraph = new GraphClient(
-      client.clone({ token: () => this.options.tokenManager.getGraphToken(activity.conversation.tenantId ?? 'common') }),
-      { baseUrlRoot: this.options.graphBaseUrl }
-    );
+      const client = this.options.client.clone();
+      const agenticIdentity = getAgenticIdentity(activity.recipient);
+      const apiClient = this.options.api.clone({
+        serviceUrl,
+        agenticIdentity,
+      });
+      const apiClientFactory = (senderServiceUrl: string, senderAgenticIdentity?: AgenticIdentity) => apiClient.clone({
+        serviceUrl: senderServiceUrl,
+        agenticIdentity: senderAgenticIdentity ?? agenticIdentity,
+      });
+      const userGraph = new GraphClient(
+        client.clone({ token: () => userToken }),
+        { baseUrlRoot: this.options.graphBaseUrl }
+      );
+      const appGraph = new GraphClient(
+        client.clone({ token: () => this.options.tokenManager.getGraphToken(activity.conversation.tenantId ?? 'common') }),
+        { baseUrlRoot: this.options.graphBaseUrl }
+      );
 
-    const ref: ConversationReference = {
-      serviceUrl,
-      activityId: activity.id,
-      bot: activity.recipient,
-      channelId: activity.channelId,
-      conversation: activity.conversation,
-      locale: activity.locale,
-      user: activity.from,
-    };
+      const ref: ConversationReference = {
+        serviceUrl,
+        activityId: activity.id,
+        bot: activity.recipient,
+        channelId: activity.channelId,
+        conversation: activity.conversation,
+        locale: activity.locale,
+        user: activity.from,
+      };
 
-    const routes = this.options.router.select(activity);
+      const routes = this.options.router.selectRoutes(activity);
+      if (routes.length === 0) {
+        recordTeamsBotHandlerUnmatched(activity.type, getInvokeName(activity));
+      }
 
-    // Collect plugin contexts BEFORE creating the activity context
-    let pluginContexts: {} = {};
-    for (let i = this.options.plugins.length - 1; i > -1; i--) {
-      const plugin = this.options.plugins[i];
+      // Collect plugin contexts BEFORE creating the activity context
+      let pluginContexts: {} = {};
+      for (let i = this.options.plugins.length - 1; i > -1; i--) {
+        const plugin = this.options.plugins[i];
 
-      if (plugin.onActivity) {
-        const additionalPluginContext = await plugin.onActivity({
-          ...ref,
-          activity,
-          token,
-        });
+        if (plugin.onActivity) {
+          const additionalPluginContext = await plugin.onActivity({
+            ...ref,
+            activity,
+            token,
+          });
 
-        if (additionalPluginContext) {
-          for (const key in additionalPluginContext) {
-            if (key in pluginContexts) {
-              this.options.log.warn(`Plugin context key "${key}" already exists. Overriding.`);
+          if (additionalPluginContext) {
+            for (const key in additionalPluginContext) {
+              if (key in pluginContexts) {
+                this.options.log.warn(`Plugin context key "${key}" already exists. Overriding.`);
+              }
             }
+            pluginContexts = {
+              ...pluginContexts,
+              ...additionalPluginContext,
+            };
           }
-          pluginContexts = {
-            ...pluginContexts,
-            ...additionalPluginContext,
-          };
         }
       }
-    }
 
-    let i = -1;
-    let data: any = undefined;
+      let i = -1;
+      let data: any = undefined;
 
-    const next = async (ctx?: IActivityContext) => {
-      if (i === routes.length - 1) return data;
-      i++;
+      const next = async (ctx?: IActivityContext) => {
+        if (i === routes.length - 1) return data;
+        i++;
 
-      const mergedContext = ctx || {
-        ...context.toInterface(),
-        ...pluginContexts,
+        const mergedContext = ctx || {
+          ...context.toInterface(),
+          ...pluginContexts,
+        };
+        const route = routes[i];
+        const handler = route.callback as RouteHandler<IActivityContext, any>;
+        const res = await traceHandler(activity, route, async () => handler(mergedContext));
+
+        if (res) {
+          data = res;
+        }
+
+        return data;
       };
-      const res = await routes[i](mergedContext);
 
-      if (res) {
-        data = res;
-      }
+      const activitySender = new ActivitySender(this.options.log, apiClientFactory);
 
-      return data;
-    };
-
-    const activitySender = new ActivitySender(this.options.log, apiClientFactory);
-
-    const context = new ActivityContext({
-      activity,
-      next,
-      api: apiClient,
-      userGraph,
-      appGraph,
-      appId: this.options.getId() || '',
-      log: this.options.log,
-      userToken: userToken,
-      ref,
-      storage: this.options.storage,
-      isSignedIn: !!userToken,
-      connectionName: this.options.getConnectionName(),
-      activitySender,
-      ...pluginContexts
-    });
-
-    const send = context.send.bind(context);
-    context.send = async (activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) => {
-      const res = await send(activity, conversationRef ?? ref);
-
-      this.options.eventManager.onActivitySent({
-        ...(conversationRef ?? ref),
-        activity: res,
-      });
-
-      return res;
-    };
-
-    context.stream.events.on('chunk', (activity) => {
-      this.options.eventManager.onActivitySent({
-        ...ref,
+      const context = new ActivityContext({
         activity,
+        next,
+        api: apiClient,
+        userGraph,
+        appGraph,
+        appId: this.options.getId() || '',
+        log: this.options.log,
+        userToken: userToken,
+        ref,
+        storage: this.options.storage,
+        isSignedIn: !!userToken,
+        connectionName: this.options.getConnectionName(),
+        activitySender,
+        ...pluginContexts
       });
-    });
 
-    context.stream.events.on('close', (activity) => {
-      this.options.eventManager.onActivitySent({
-        ...ref,
-        activity,
+      const send = context.send.bind(context);
+      context.send = async (activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) => {
+        const res = await send(activity, conversationRef ?? ref);
+
+        this.options.eventManager.onActivitySent({
+          ...(conversationRef ?? ref),
+          activity: res,
+        });
+
+        return res;
+      };
+
+      context.stream.events.on('chunk', (activity) => {
+        this.options.eventManager.onActivitySent({
+          ...ref,
+          activity,
+        });
       });
-    });
 
-    let response: InvokeResponse;
-    try {
-      const res = await next();
-
-      await context.stream.close();
-
-      if (isInvokeResponse(res)) {
-        response = res;
-      } else {
-        response = { status: 200, body: res };
-      }
-
-      this.options.eventManager.onActivityResponse({
-        ...ref,
-        activity,
-        response: res,
+      context.stream.events.on('close', (activity) => {
+        this.options.eventManager.onActivitySent({
+          ...ref,
+          activity,
+        });
       });
-    } catch (error: any) {
-      if (error instanceof StreamCancelledError || error?.name === 'StreamCancelledError') {
-        this.options.log.debug('stream canceled, returning 200');
+
+      let response: InvokeResponse;
+      try {
+        const res = await next();
+
         await context.stream.close();
-        response = { status: 200 };
-      } else {
-        response = { status: 500 };
-        this.options.eventManager.onError({ error, activity });
+
+        if (isInvokeResponse(res)) {
+          response = res;
+        } else {
+          response = { status: 200, body: res };
+        }
+
+        this.options.eventManager.onActivityResponse({
+          ...ref,
+          activity,
+          response: res,
+        });
+      } catch (error: any) {
+        if (isStreamCancelledError(error)) {
+          this.options.log.debug('stream canceled, returning 200');
+          await context.stream.close();
+          response = { status: 200 };
+        } else {
+          response = { status: 500 };
+          recordTeamsBotApplicationException(turnSpan, error);
+          this.options.eventManager.onError({ error, activity });
+        }
+
+        this.options.eventManager.onActivityResponse({
+          ...ref,
+          activity,
+          response: response,
+        });
       }
 
-      this.options.eventManager.onActivityResponse({
-        ...ref,
-        activity,
-        response: response,
-      });
-    }
-
-    return response;
+      return response;
+    });
   }
 
   /**
@@ -271,4 +294,128 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
 
     return res.token;
   }
+}
+
+function getInvokeName(activity: Activity): string | undefined {
+  return activity.type === 'invoke' ? activity.name : undefined;
+}
+
+function getHandlerType(activity: Activity): string {
+  return getInvokeName(activity) ?? activity.type;
+}
+
+function getHandlerDispatch<TPlugin extends IPlugin>(
+  activity: Activity,
+  route: Route<keyof IRoutes, PluginAdditionalContext<TPlugin>>
+): string {
+  if (!route.name) {
+    return APP_HANDLER_DISPATCH.middleware;
+  }
+
+  if (route.name === 'activity') {
+    return APP_HANDLER_DISPATCH.activity;
+  }
+
+  if (route.name === activity.type) {
+    return APP_HANDLER_DISPATCH.type;
+  }
+
+  if (activity.type === 'invoke') {
+    return APP_HANDLER_DISPATCH.invoke;
+  }
+
+  return APP_HANDLER_DISPATCH.route;
+}
+
+function getTurnAttributes(activity: Activity, serviceUrl: string): SpanAttributes {
+  const attributes: SpanAttributes = {
+    [APP_ATTRIBUTE_NAMES.activityType]: activity.type,
+  };
+
+  if (activity.id) {
+    attributes[APP_ATTRIBUTE_NAMES.activityId] = activity.id;
+  }
+
+  if (activity.conversation?.id) {
+    attributes[APP_ATTRIBUTE_NAMES.conversationId] = activity.conversation.id;
+  }
+
+  if (activity.channelId) {
+    attributes[APP_ATTRIBUTE_NAMES.channelId] = activity.channelId;
+  }
+
+  if (activity.recipient?.id) {
+    attributes[APP_ATTRIBUTE_NAMES.botId] = activity.recipient.id;
+  }
+
+  if (serviceUrl) {
+    attributes[APP_ATTRIBUTE_NAMES.serviceUrl] = serviceUrl;
+  }
+
+  return attributes;
+}
+
+function isStreamCancelledError(error: any): boolean {
+  return error instanceof StreamCancelledError || error?.name === 'StreamCancelledError';
+}
+
+async function traceTurn<T>(activity: Activity, serviceUrl: string, execute: (span: Span) => Promise<T>): Promise<T> {
+  const activityType = activity.type;
+  const startedAt = Date.now();
+  recordTeamsBotActivityReceived(activityType);
+
+  return getTeamsBotApplicationTracer().startActiveSpan(
+    APP_SPAN_NAMES.turn,
+    { attributes: getTurnAttributes(activity, serviceUrl) },
+    async (span) => {
+      try {
+        return await execute(span);
+      } catch (error) {
+        recordTeamsBotApplicationException(span, error);
+        throw error;
+      } finally {
+        recordTeamsBotTurnDuration(activityType, Date.now() - startedAt);
+        span.end();
+      }
+    }
+  );
+}
+
+async function traceHandler<TPlugin extends IPlugin, T>(
+  activity: Activity,
+  route: Route<keyof IRoutes, PluginAdditionalContext<TPlugin>>,
+  execute: () => Promise<T>
+): Promise<T> {
+  if (route.type === 'system') {
+    return execute();
+  }
+
+  const handlerType = getHandlerType(activity);
+  const handlerDispatch = getHandlerDispatch(activity, route);
+  const startedAt = Date.now();
+  recordTeamsBotHandlerDispatched(handlerType, handlerDispatch);
+
+  return getTeamsBotApplicationTracer().startActiveSpan(
+    APP_SPAN_NAMES.handler,
+    {
+      attributes: {
+        [APP_ATTRIBUTE_NAMES.handlerType]: handlerType,
+        [APP_ATTRIBUTE_NAMES.handlerDispatch]: handlerDispatch,
+      },
+    },
+    async (span) => {
+      try {
+        return await execute();
+      } catch (error) {
+        if (!isStreamCancelledError(error)) {
+          recordTeamsBotHandlerFailure(handlerType, handlerDispatch);
+          recordTeamsBotApplicationException(span, error);
+        }
+        throw error;
+      } finally {
+        recordTeamsBotHandlerDuration(handlerType, handlerDispatch, Date.now() - startedAt);
+        span.end();
+      }
+    }
+  );
 }
