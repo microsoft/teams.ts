@@ -11,7 +11,6 @@ import {
   cloudFromName,
   InvokeResponse,
   PUBLIC,
-  RequestOptions,
   SentActivity,
   StripMentionsTextOptions,
   toActivityParams,
@@ -62,12 +61,13 @@ function isAppSendOptions(value: ActivityLike | DeprecatedInputActivity | AppSen
 
 /**
  * Options for proactive app sends and replies.
- *
- * @deprecated Prefer `RequestOptions` directly. This alias remains for callers
- * that adopted `AppSendOptions` while proactive send options were being split
- * from the API package.
  */
-export type AppSendOptions = RequestOptions;
+export type AppSendOptions = {
+  /**
+   * Agentic identity to use when acquiring tokens for this send.
+   */
+  readonly agenticIdentity?: AgenticIdentity;
+};
 
 /**
  * App initialization options
@@ -590,7 +590,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     const ref: ConversationReference = {
       channelId: 'msteams',
-      serviceUrl: options?.serviceUrl ?? this.api.serviceUrl,
+      serviceUrl: this.api.serviceUrl,
       bot: {
         id: this.id,
         role: 'bot',
@@ -603,7 +603,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     const res = await this.activitySender.send(
       params,
       ref,
-      options,
+      options?.agenticIdentity ? { agenticIdentity: options.agenticIdentity } : undefined,
     );
     return res;
   }

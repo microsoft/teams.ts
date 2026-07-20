@@ -154,7 +154,7 @@ describe('App', () => {
       expect(ref.bot.name).toBeUndefined();
     });
 
-    it('should forward legacy send serviceUrl and agentic identity options', async () => {
+    it('should forward send agentic identity options', async () => {
       app = new TestApp({
         httpServerAdapter: new TestAdapter(),
         clientId: 'test-client-id',
@@ -171,12 +171,12 @@ describe('App', () => {
       await app.testSend(
         'conversation-id',
         { type: 'message', text: 'Hello' },
-        { serviceUrl: 'https://override.service.example.com/', agenticIdentity }
+        { agenticIdentity }
       );
 
       const [, ref, options] = mockSend.mock.calls[0];
-      expect(ref.serviceUrl).toBe('https://override.service.example.com/');
-      expect(options).toEqual({ serviceUrl: 'https://override.service.example.com/', agenticIdentity });
+      expect(ref.serviceUrl).toBe(app.api.serviceUrl);
+      expect(options).toEqual({ agenticIdentity });
     });
 
     it('should throw error when app is not started (no clientId)', async () => {
