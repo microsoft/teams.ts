@@ -11,7 +11,7 @@ export interface TestConfig {
   userId: string;
   teamId: string;
   channelId: string;
-  meetingId: string;
+  meetingId?: string;
   userId2?: string;
   agenticAppId?: string;
   agenticUserId?: string;
@@ -41,12 +41,12 @@ function loadConfig(): TestConfig {
     tenantId: env('AZURE_TENANT_ID'),
     clientId: env('AZURE_CLIENT_ID'),
     clientSecret: env('AZURE_CLIENT_SECRET'),
-    serviceUrl: env('TEST_SERVICE_URL'),
-    conversationId: env('TEST_CONVERSATION_ID'),
+    serviceUrl: env('TEST_SERVICEURL'),
+    conversationId: env('TEST_CONVERSATIONID'),
     userId: env('TEST_USER_ID'),
-    teamId: env('TEST_TEAM_ID'),
-    channelId: env('TEST_CHANNEL_ID'),
-    meetingId: env('TEST_MEETING_ID'),
+    teamId: env('TEST_TEAMID'),
+    channelId: env('TEST_CHANNELID'),
+    meetingId: process.env['TEST_MEETINGID'],
     userId2: process.env['TEST_USER_ID_2'],
     agenticAppId: process.env['TEST_AGENTIC_APP_ID'],
     agenticUserId: process.env['TEST_AGENTIC_USER_ID'],
