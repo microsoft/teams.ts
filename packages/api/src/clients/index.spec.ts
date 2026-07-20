@@ -195,7 +195,7 @@ describe('Api Client auth provider', () => {
     expect(calls).toEqual([{ agenticIdentity }]);
   });
 
-  it('honors legacy RequestOptions for serviceUrl and agentic identity', async () => {
+  it('uses a scoped clone for serviceUrl and agentic identity', async () => {
     const calls: unknown[] = [];
     const authProvider: AuthProvider = {
       token: async (options) => {
@@ -207,11 +207,14 @@ describe('Api Client auth provider', () => {
     const requests = mockAdapter(http);
     const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
     const api = new Client('https://service.example.com', http, { authProvider });
+    const scoped = api.clone({
+      serviceUrl: 'https://override.service.example.com/',
+      agenticIdentity,
+    });
 
-    await api.conversations.createActivity(
+    await scoped.conversations.createActivity(
       'conversation-id',
-      { type: 'message', text: 'hi' },
-      { serviceUrl: 'https://override.service.example.com/', agenticIdentity }
+      { type: 'message', text: 'hi' }
     );
 
     expect(requests[0].url).toBe('https://override.service.example.com/v3/conversations/conversation-id/activities');

@@ -7,16 +7,11 @@ import {
   MeetingInfo,
   MeetingNotificationParams,
   MeetingNotificationResponse,
-  MeetingParticipant,
+  MeetingParticipant
 } from '../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
-import { agenticIdentityExtension, RequestOptions, resolveServiceUrl } from './request-options';
-
-function requestConfig(options?: RequestOptions): Record<string, unknown> | undefined {
-  const config = agenticIdentityExtension(options);
-  return Object.keys(config).length > 0 ? config : undefined;
-}
+import { normalizeServiceUrl } from './service-url';
 
 export class MeetingClient {
   readonly serviceUrl: string;
@@ -31,7 +26,7 @@ export class MeetingClient {
   protected _apiClientSettings: Partial<ApiClientSettings>;
 
   constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
-    this.serviceUrl = resolveServiceUrl(serviceUrl);
+    this.serviceUrl = normalizeServiceUrl(serviceUrl);
 
     if (!options) {
       this._http = new HttpClient();
@@ -48,12 +43,9 @@ export class MeetingClient {
    * Retrieves meeting information including details, organizer, and conversation.
    * @param id - The meeting ID.
    */
-  async getById(id: string, options?: RequestOptions) {
-    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v1/meetings/${id}`;
-    const config = requestConfig(options);
-    const res = config
-      ? await this.http.get<MeetingInfo>(url, config)
-      : await this.http.get<MeetingInfo>(url);
+  async getById(id: string) {
+    const url = `${this.serviceUrl}/v1/meetings/${id}`;
+    const res = await this.http.get<MeetingInfo>(url);
     return res.data;
   }
 
@@ -64,12 +56,9 @@ export class MeetingClient {
    * @param tenantId - The tenant ID of the meeting and user.
    * @returns {MeetingParticipant} The meeting participant information.
    */
-  async getParticipant(meetingId: string, id: string, tenantId: string, options?: RequestOptions) {
-    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v1/meetings/${meetingId}/participants/${id}?tenantId=${tenantId}`;
-    const config = requestConfig(options);
-    const res = config
-      ? await this.http.get<MeetingParticipant>(url, config)
-      : await this.http.get<MeetingParticipant>(url);
+  async getParticipant(meetingId: string, id: string, tenantId: string) {
+    const url = `${this.serviceUrl}/v1/meetings/${meetingId}/participants/${id}?tenantId=${tenantId}`;
+    const res = await this.http.get<MeetingParticipant>(url);
     return res.data;
   }
 
@@ -87,18 +76,14 @@ export class MeetingClient {
    */
   async sendNotification(
     meetingId: string,
-    params: MeetingNotificationParams,
-    options?: RequestOptions
+    params: MeetingNotificationParams
   ): Promise<MeetingNotificationResponse | undefined> {
     const body = {
       type: params.type ?? 'targetedMeetingNotification',
       value: params.value,
     };
-    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v1/meetings/${meetingId}/notification`;
-    const config = requestConfig(options);
-    const res = config
-      ? await this.http.post<MeetingNotificationResponse>(url, body, config)
-      : await this.http.post<MeetingNotificationResponse>(url, body);
+    const url = `${this.serviceUrl}/v1/meetings/${meetingId}/notification`;
+    const res = await this.http.post<MeetingNotificationResponse>(url, body);
     return res.data || undefined;
   }
 }
