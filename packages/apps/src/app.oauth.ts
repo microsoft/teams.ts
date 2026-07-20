@@ -1,4 +1,5 @@
 import { AxiosError } from 'axios';
+import type { Span } from '@opentelemetry/api';
 
 import {
   ISignInFailureInvokeActivity,
@@ -10,8 +11,32 @@ import { Client as HttpClient, EventEmitter } from '@microsoft/teams.common';
 import { Client as GraphClient } from '@microsoft/teams.graph';
 
 import * as contexts from './contexts';
+import {
+  APP_ATTRIBUTE_NAMES,
+  APP_OAUTH_ERROR_TYPE,
+  APP_OAUTH_OPERATION,
+  APP_OAUTH_RESULT,
+  APP_SPAN_NAMES,
+} from './diagnostics/constants';
+import {
+  getTeamsBotApplicationTracer,
+  recordTeamsBotApplicationException,
+  recordTeamsBotOAuthError,
+  recordTeamsBotOAuthOperation,
+  recordTeamsBotOAuthOperationDuration,
+} from './diagnostics/helpers';
 import { AppEvents, IPlugin } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
+
+type OAuthTelemetryState = {
+  result?: string;
+  responseStatus?: number;
+  callbackInvoked?: boolean;
+  failureCode?: string;
+  errorType?: string;
+};
+
+const EXPECTED_OAUTH_HTTP_STATUSES = new Set([400, 404, 412]);
 
 /**
  * Default handlers for the SSO sign-in invoke activities
@@ -34,94 +59,132 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
   ) => {
     const { api, activity, log, next } = ctx;
     const connectionName = this.getConnectionName();
+    const activityConnectionName = activity.value.connectionName;
 
-    if (connectionName !== activity.value.connectionName) {
-      log.warn(
-        `default connection name "${connectionName}" does not match activity connection name "${activity.value.connectionName}"`
-      );
-    }
+    return traceOAuthOperation(
+      APP_SPAN_NAMES.oauthTokenExchange,
+      activityConnectionName,
+      APP_OAUTH_OPERATION.tokenExchange,
+      async (span, telemetry) => {
+        if (connectionName !== activityConnectionName) {
+          log.warn(
+            `default connection name "${connectionName}" does not match activity connection name "${activityConnectionName}"`
+          );
+        }
 
-    try {
-      const token = await api.users.exchangeToken({
-        channelId: activity.channelId,
-        userId: activity.from.id,
-        connectionName: activity.value.connectionName,
-        exchangeRequest: {
-          token: activity.value.token,
-        },
-      });
+        try {
+          const token = await api.users.exchangeToken({
+            channelId: activity.channelId,
+            userId: activity.from.id,
+            connectionName: activityConnectionName,
+            exchangeRequest: {
+              token: activity.value.token,
+            },
+          });
 
-      ctx.userGraph = new GraphClient(
-        this.client.clone({
-          token: token.token,
-        }),
-        { baseUrlRoot: this.graphBaseUrl }
-      );
+          ctx.userGraph = new GraphClient(
+            this.client.clone({
+              token: token.token,
+            }),
+            { baseUrlRoot: this.graphBaseUrl }
+          );
 
-      this.events.emit('signin', { ...ctx, token, isSignedIn: true });
-      next(ctx);
-      return { status: 200 };
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        if (error.status !== 404 && error.status !== 400 && error.status !== 412) {
-          this.events.emit('error', { error, activity });
-          return { status: error.status || 500 };
+          this.events.emit('signin', { ...ctx, token, isSignedIn: true });
+          telemetry.callbackInvoked = true;
+          next(ctx);
+          telemetry.result = APP_OAUTH_RESULT.success;
+          telemetry.responseStatus = 200;
+          return { status: 200 };
+        } catch (error) {
+          if (error instanceof AxiosError) {
+            if (!isExpectedOAuthHttpStatus(error)) {
+              telemetry.result = APP_OAUTH_RESULT.failure;
+              telemetry.responseStatus = error.status || 500;
+              recordUnexpectedOAuthError(span, telemetry, error, APP_OAUTH_ERROR_TYPE.httpError);
+              this.events.emit('error', { error, activity });
+              return { status: error.status || 500 };
+            }
+          } else {
+            recordUnexpectedOAuthError(span, telemetry, error, APP_OAUTH_ERROR_TYPE.exception);
+          }
+
+          const body: TokenExchangeInvokeResponse = {
+            id: activity.value.id,
+            connectionName: activityConnectionName,
+            failureDetail: 'unable to exchange token...',
+          };
+
+          telemetry.result = APP_OAUTH_RESULT.failure;
+          telemetry.responseStatus = 412;
+          return {
+            status: 412,
+            body,
+          };
         }
       }
-
-      const body: TokenExchangeInvokeResponse = {
-        id: activity.value.id,
-        connectionName: activity.value.connectionName,
-        failureDetail: 'unable to exchange token...',
-      };
-
-      return {
-        status: 412,
-        body,
-      };
-    }
+    );
   };
 
   onVerifyState = async (
     ctx: contexts.IActivityContext<ISignInVerifyStateInvokeActivity, PluginAdditionalContext<TPlugin>>
   ) => {
     const { log, api, activity, next } = ctx;
+    const connectionName = this.getConnectionName();
 
-    try {
-      if (!activity.value.state) {
-        log.warn(
-          `auth state not found for conversation "${activity.conversation.id}" and user "${activity.from.id}"`
-        );
-        return { status: 404 };
-      }
+    return traceOAuthOperation(
+      APP_SPAN_NAMES.oauthVerifyState,
+      connectionName,
+      APP_OAUTH_OPERATION.verifyState,
+      async (span, telemetry) => {
+        try {
+          if (!activity.value.state) {
+            log.warn(
+              `auth state not found for conversation "${activity.conversation.id}" and user "${activity.from.id}"`
+            );
+            telemetry.result = APP_OAUTH_RESULT.noToken;
+            telemetry.responseStatus = 404;
+            return { status: 404 };
+          }
 
-      const token = await api.users.getToken({
-        channelId: activity.channelId,
-        userId: activity.from.id,
-        connectionName: this.getConnectionName(),
-        code: activity.value.state,
-      });
+          const token = await api.users.getToken({
+            channelId: activity.channelId,
+            userId: activity.from.id,
+            connectionName,
+            code: activity.value.state,
+          });
 
-      ctx.userGraph = new GraphClient(
-        this.client.clone({
-          token: token.token,
-        }),
-        { baseUrlRoot: this.graphBaseUrl }
-      );
+          ctx.userGraph = new GraphClient(
+            this.client.clone({
+              token: token.token,
+            }),
+            { baseUrlRoot: this.graphBaseUrl }
+          );
 
-      this.events.emit('signin', { ...ctx, token, isSignedIn: true });
-      next(ctx);
-      return { status: 200 };
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        if (error.status !== 404 && error.status !== 400 && error.status !== 412) {
-          this.events.emit('error', { error, activity });
-          return { status: error.status || 500 };
+          this.events.emit('signin', { ...ctx, token, isSignedIn: true });
+          telemetry.callbackInvoked = true;
+          next(ctx);
+          telemetry.result = APP_OAUTH_RESULT.success;
+          telemetry.responseStatus = 200;
+          return { status: 200 };
+        } catch (error) {
+          if (error instanceof AxiosError) {
+            if (!isExpectedOAuthHttpStatus(error)) {
+              telemetry.result = APP_OAUTH_RESULT.failure;
+              telemetry.responseStatus = error.status || 500;
+              recordUnexpectedOAuthError(span, telemetry, error, APP_OAUTH_ERROR_TYPE.httpError);
+              this.events.emit('error', { error, activity });
+              return { status: error.status || 500 };
+            }
+          } else {
+            recordUnexpectedOAuthError(span, telemetry, error, APP_OAUTH_ERROR_TYPE.exception);
+          }
+
+          telemetry.result = APP_OAUTH_RESULT.failure;
+          telemetry.responseStatus = 412;
+          return { status: 412 };
         }
       }
-
-      return { status: 412 };
-    }
+    );
   };
 
   /**
@@ -151,19 +214,103 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
   ) => {
     const { log, activity, next } = ctx;
     const { code, message } = activity.value;
+    const connectionName = this.getConnectionName();
 
-    log.warn(
-      `sign-in failed for user "${activity.from.id}" in conversation "${activity.conversation.id}": ${code} — ${message}. ` +
-      'If the code is \'resourcematchfailed\', verify that your Entra app registration has \'Expose an API\' configured ' +
-      'with the correct Application ID URI matching your OAuth connection\'s Token Exchange URL.'
+    return traceOAuthOperation(
+      APP_SPAN_NAMES.oauthSigninFailure,
+      connectionName,
+      APP_OAUTH_OPERATION.signinFailure,
+      async (_span, telemetry) => {
+        telemetry.failureCode = code;
+
+        log.warn(
+          `sign-in failed for user "${activity.from.id}" in conversation "${activity.conversation.id}": ${code} — ${message}. ` +
+          'If the code is \'resourcematchfailed\', verify that your Entra app registration has \'Expose an API\' configured ' +
+          'with the correct Application ID URI matching your OAuth connection\'s Token Exchange URL.'
+        );
+
+        this.events.emit('error', {
+          error: new Error(`Sign-in failure: ${code} — ${message}`),
+          activity,
+        });
+
+        next(ctx);
+        telemetry.result = APP_OAUTH_RESULT.notified;
+        telemetry.responseStatus = 200;
+        return { status: 200 };
+      }
     );
-
-    this.events.emit('error', {
-      error: new Error(`Sign-in failure: ${code} — ${message}`),
-      activity,
-    });
-
-    next(ctx);
-    return { status: 200 };
   };
+}
+
+function traceOAuthOperation<T>(
+  spanName: string,
+  connectionName: string,
+  operation: string,
+  execute: (span: Span, telemetry: OAuthTelemetryState) => Promise<T>
+): Promise<T> {
+  const startedAt = Date.now();
+
+  return getTeamsBotApplicationTracer().startActiveSpan(
+    spanName,
+    {
+      attributes: {
+        [APP_ATTRIBUTE_NAMES.oauthConnection]: connectionName,
+        [APP_ATTRIBUTE_NAMES.oauthOperation]: operation,
+      },
+    },
+    async (span) => {
+      const telemetry: OAuthTelemetryState = {};
+
+      try {
+        return await execute(span, telemetry);
+      } catch (error) {
+        telemetry.result ??= APP_OAUTH_RESULT.failure;
+        recordUnexpectedOAuthError(span, telemetry, error, APP_OAUTH_ERROR_TYPE.exception);
+        throw error;
+      } finally {
+        const result = telemetry.result ?? APP_OAUTH_RESULT.failure;
+
+        span.setAttribute(APP_ATTRIBUTE_NAMES.oauthResult, result);
+        if (telemetry.responseStatus !== undefined) {
+          span.setAttribute(APP_ATTRIBUTE_NAMES.invokeResponseStatus, telemetry.responseStatus);
+        }
+        if (telemetry.callbackInvoked) {
+          span.setAttribute(APP_ATTRIBUTE_NAMES.oauthCallbackInvoked, true);
+        }
+        if (telemetry.errorType) {
+          span.setAttribute(APP_ATTRIBUTE_NAMES.oauthErrorType, telemetry.errorType);
+        }
+        if (telemetry.failureCode) {
+          span.setAttribute(APP_ATTRIBUTE_NAMES.oauthFailureCode, telemetry.failureCode);
+        }
+
+        recordTeamsBotOAuthOperation(connectionName, operation, result);
+        recordTeamsBotOAuthOperationDuration(connectionName, operation, result, Date.now() - startedAt);
+        if (telemetry.errorType) {
+          recordTeamsBotOAuthError(connectionName, operation, telemetry.errorType);
+        }
+
+        span.end();
+      }
+    }
+  );
+}
+
+function recordUnexpectedOAuthError(
+  span: Span,
+  telemetry: OAuthTelemetryState,
+  error: unknown,
+  errorType: string
+): void {
+  if (telemetry.errorType) {
+    return;
+  }
+
+  telemetry.errorType = errorType;
+  recordTeamsBotApplicationException(span, error);
+}
+
+function isExpectedOAuthHttpStatus(error: AxiosError): boolean {
+  return error.status !== undefined && EXPECTED_OAUTH_HTTP_STATUSES.has(error.status);
 }

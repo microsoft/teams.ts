@@ -1,16 +1,15 @@
-import { ActivityParams, AgenticIdentity, ConversationReference, DeprecatedInputActivity, SentActivity } from '@microsoft/teams.api';
+import { ActivityParams, ConversationReference, DeprecatedInputActivity, RequestOptions, SentActivity } from '@microsoft/teams.api';
 
 import { IStreamer } from '../streamer';
 
 /**
  * Options for low-level activity sender operations.
+ *
+ * The sender always uses the service URL from the conversation reference. The
+ * `serviceUrl` field is accepted for `RequestOptions` compatibility but is not
+ * used by this low-level interface.
  */
-export type ActivitySenderOptions = {
-  /**
-   * Agentic identity to use when acquiring tokens for this send.
-   */
-  readonly agenticIdentity?: AgenticIdentity;
-};
+export type ActivitySenderOptions = RequestOptions;
 
 /**
  * Interface for activity sending (NOT a plugin)
