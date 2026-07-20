@@ -1,5 +1,5 @@
-import { AxiosError } from 'axios';
 import type { Span, Tracer } from '@opentelemetry/api';
+import { AxiosError } from 'axios';
 
 import type {
   ISignInFailureInvokeActivity,

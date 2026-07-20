@@ -3,8 +3,8 @@ import type { Context, ContextManager } from '@opentelemetry/api';
 
 import type { Activity } from '@microsoft/teams.api';
 
-import { APP_BAGGAGE_KEYS } from './constants';
 import { TeamsBaggageBuilder, withTeamsBaggage } from './baggage';
+import { APP_BAGGAGE_KEYS } from './constants';
 
 class TestContextManager implements ContextManager {
   private current = ROOT_CONTEXT;
