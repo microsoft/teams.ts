@@ -176,7 +176,13 @@ export class Client {
     url: string,
     config?: RequestConfig<D>,
   ): Promise<R> {
-    return this.request<T, R, D>({ ...config, method: 'get', url });
+    return this.invokeMiddleware<T, R, D>({
+      method: 'get',
+      url,
+      config: { ...config, method: 'get', url },
+      extensions: config?.extensions,
+      log: this.log,
+    }, 0, 'method');
   }
 
   async post<T = any, R = AxiosResponse<T>, D = any>(
@@ -184,7 +190,13 @@ export class Client {
     data?: D,
     config?: RequestConfig<D>,
   ): Promise<R> {
-    return this.request<T, R, D>({ ...config, method: 'post', url, data });
+    return this.invokeMiddleware<T, R, D>({
+      method: 'post',
+      url,
+      config: { ...config, method: 'post', url, data },
+      extensions: config?.extensions,
+      log: this.log,
+    }, 0, 'method');
   }
 
   async put<T = any, R = AxiosResponse<T>, D = any>(
@@ -192,7 +204,13 @@ export class Client {
     data?: D,
     config?: RequestConfig<D>,
   ): Promise<R> {
-    return this.request<T, R, D>({ ...config, method: 'put', url, data });
+    return this.invokeMiddleware<T, R, D>({
+      method: 'put',
+      url,
+      config: { ...config, method: 'put', url, data },
+      extensions: config?.extensions,
+      log: this.log,
+    }, 0, 'method');
   }
 
   async patch<T = any, R = AxiosResponse<T>, D = any>(
@@ -200,14 +218,26 @@ export class Client {
     data?: D,
     config?: RequestConfig<D>,
   ): Promise<R> {
-    return this.request<T, R, D>({ ...config, method: 'patch', url, data });
+    return this.invokeMiddleware<T, R, D>({
+      method: 'patch',
+      url,
+      config: { ...config, method: 'patch', url, data },
+      extensions: config?.extensions,
+      log: this.log,
+    }, 0, 'method');
   }
 
   async delete<T = any, R = AxiosResponse<T>, D = any>(
     url: string,
     config?: RequestConfig<D>,
   ): Promise<R> {
-    return this.request<T, R, D>({ ...config, method: 'delete', url });
+    return this.invokeMiddleware<T, R, D>({
+      method: 'delete',
+      url,
+      config: { ...config, method: 'delete', url },
+      extensions: config?.extensions,
+      log: this.log,
+    }, 0, 'method');
   }
 
   async request<T = any, R = AxiosResponse<T>, D = any>(
@@ -219,7 +249,7 @@ export class Client {
       config,
       extensions: config.extensions,
       log: this.log,
-    }, 0);
+    }, 0, 'request');
   }
 
   /**
@@ -362,6 +392,42 @@ export class Client {
     return id;
   }
 
+  private async send<T, R, D>(
+    config: RequestConfig<D>,
+    dispatch: 'method' | 'request',
+  ): Promise<R> {
+    const resolvedConfig = await this.withConfig(config);
+    if (dispatch === 'request') {
+      return this.http.request<T, R, D>(resolvedConfig);
+    }
+
+    const method = resolvedConfig.method?.toLowerCase();
+    const url = resolvedConfig.url;
+    if (url === undefined) {
+      return this.http.request<T, R, D>(resolvedConfig);
+    }
+
+    const transportConfig: RequestConfig<D> = { ...resolvedConfig };
+    delete transportConfig.method;
+    delete transportConfig.url;
+    delete transportConfig.data;
+
+    switch (method) {
+      case 'get':
+        return this.http.get<T, R, D>(url, transportConfig);
+      case 'post':
+        return this.http.post<T, R, D>(url, resolvedConfig.data, transportConfig);
+      case 'put':
+        return this.http.put<T, R, D>(url, resolvedConfig.data, transportConfig);
+      case 'patch':
+        return this.http.patch<T, R, D>(url, resolvedConfig.data, transportConfig);
+      case 'delete':
+        return this.http.delete<T, R, D>(url, transportConfig);
+      default:
+        return this.http.request<T, R, D>(resolvedConfig);
+    }
+  }
+
   private useInterceptor(interceptor: Interceptor): number {
     const id = ++this.seq;
     let requestId: number | undefined = undefined;
@@ -406,16 +472,17 @@ export class Client {
 
   private async invokeMiddleware<T, R, D>(
     context: MiddlewareContext<D>,
-    index: number
+    index: number,
+    dispatch: 'method' | 'request',
   ): Promise<R> {
     const middleware = this.middlewares.at(index);
     if (!middleware) {
-      return this.http.request<T, R, D>(await this.withConfig(context.config));
+      return this.send<T, R, D>(context.config, dispatch);
     }
 
     return middleware.invoke<R, D>(
       context,
-      () => this.invokeMiddleware<T, R, D>(context, index + 1)
+      () => this.invokeMiddleware<T, R, D>(context, index + 1, dispatch)
     );
   }
 }

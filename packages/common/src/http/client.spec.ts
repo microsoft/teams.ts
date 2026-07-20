@@ -9,42 +9,42 @@ class HttpClient extends Client {
 describe('Client', () => {
   it('should get', async () => {
     const client = new HttpClient();
-    const spy = jest.spyOn(client.instance, 'request').mockResolvedValueOnce({});
+    const spy = jest.spyOn(client.instance, 'get').mockResolvedValueOnce({});
 
     await client.get('/test');
-    expect(spy).toHaveBeenCalledWith({ method: 'get', url: '/test' });
+    expect(spy).toHaveBeenCalledWith('/test', {});
   });
 
   it('should post', async () => {
     const client = new HttpClient();
-    const spy = jest.spyOn(client.instance, 'request').mockResolvedValueOnce({});
+    const spy = jest.spyOn(client.instance, 'post').mockResolvedValueOnce({});
 
     await client.post('/test', {});
-    expect(spy).toHaveBeenCalledWith({ method: 'post', url: '/test', data: {} });
+    expect(spy).toHaveBeenCalledWith('/test', {}, {});
   });
 
   it('should put', async () => {
     const client = new HttpClient();
-    const spy = jest.spyOn(client.instance, 'request').mockResolvedValueOnce({});
+    const spy = jest.spyOn(client.instance, 'put').mockResolvedValueOnce({});
 
     await client.put('/test', {});
-    expect(spy).toHaveBeenCalledWith({ method: 'put', url: '/test', data: {} });
+    expect(spy).toHaveBeenCalledWith('/test', {}, {});
   });
 
   it('should patch', async () => {
     const client = new HttpClient();
-    const spy = jest.spyOn(client.instance, 'request').mockResolvedValueOnce({});
+    const spy = jest.spyOn(client.instance, 'patch').mockResolvedValueOnce({});
 
     await client.patch('/test', {});
-    expect(spy).toHaveBeenCalledWith({ method: 'patch', url: '/test', data: {} });
+    expect(spy).toHaveBeenCalledWith('/test', {}, {});
   });
 
   it('should delete', async () => {
     const client = new HttpClient();
-    const spy = jest.spyOn(client.instance, 'request').mockResolvedValueOnce({});
+    const spy = jest.spyOn(client.instance, 'delete').mockResolvedValueOnce({});
 
     await client.delete('/test');
-    expect(spy).toHaveBeenCalledWith({ method: 'delete', url: '/test' });
+    expect(spy).toHaveBeenCalledWith('/test', {});
   });
 
   it('should make request', async () => {
@@ -58,12 +58,10 @@ describe('Client', () => {
   it('should clone', async () => {
     const a = new HttpClient({ headers: { 'X-Test-A': 'a' } });
     const b = a.clone({ headers: { 'X-Test-B': 'b' } });
-    const spy = jest.spyOn((b as any).http, 'request').mockResolvedValueOnce({});
+    const spy = jest.spyOn((b as any).http, 'get').mockResolvedValueOnce({});
 
     await b.get('/test', { headers: { 'X-Test-B': 'b' } });
-    expect(spy).toHaveBeenCalledWith({
-      method: 'get',
-      url: '/test',
+    expect(spy).toHaveBeenCalledWith('/test', {
       headers: {
         'X-Test-A': 'a',
         'X-Test-B': 'b',
@@ -74,12 +72,10 @@ describe('Client', () => {
   it('should merge User-Agent headers when cloning', async () => {
     const a = new HttpClient({ headers: { 'User-Agent': 'parent/1.0' } });
     const b = a.clone({ headers: { 'User-Agent': 'child/1.0' } });
-    const spy = jest.spyOn((b as any).http, 'request').mockResolvedValueOnce({});
+    const spy = jest.spyOn((b as any).http, 'get').mockResolvedValueOnce({});
 
     await b.get('/test');
-    expect(spy).toHaveBeenCalledWith({
-      method: 'get',
-      url: '/test',
+    expect(spy).toHaveBeenCalledWith('/test', {
       headers: {
         'User-Agent': 'child/1.0 parent/1.0',
       },
@@ -89,12 +85,10 @@ describe('Client', () => {
   it('should preserve parent User-Agent when clone has none', async () => {
     const a = new HttpClient({ headers: { 'User-Agent': 'parent/1.0' } });
     const b = a.clone();
-    const spy = jest.spyOn((b as any).http, 'request').mockResolvedValueOnce({});
+    const spy = jest.spyOn((b as any).http, 'get').mockResolvedValueOnce({});
 
     await b.get('/test');
-    expect(spy).toHaveBeenCalledWith({
-      method: 'get',
-      url: '/test',
+    expect(spy).toHaveBeenCalledWith('/test', {
       headers: {
         'User-Agent': 'parent/1.0',
       },
@@ -104,12 +98,10 @@ describe('Client', () => {
   it('should use child User-Agent when parent has none', async () => {
     const a = new HttpClient();
     const b = a.clone({ headers: { 'User-Agent': 'child/1.0' } });
-    const spy = jest.spyOn((b as any).http, 'request').mockResolvedValueOnce({});
+    const spy = jest.spyOn((b as any).http, 'get').mockResolvedValueOnce({});
 
     await b.get('/test');
-    expect(spy).toHaveBeenCalledWith({
-      method: 'get',
-      url: '/test',
+    expect(spy).toHaveBeenCalledWith('/test', {
       headers: {
         'User-Agent': 'child/1.0',
       },
@@ -119,12 +111,10 @@ describe('Client', () => {
   it('should merge User-Agent headers case-insensitively', async () => {
     const a = new HttpClient({ headers: { 'user-agent': 'parent/1.0' } });
     const b = a.clone({ headers: { 'User-Agent': 'child/1.0' } });
-    const spy = jest.spyOn((b as any).http, 'request').mockResolvedValueOnce({});
+    const spy = jest.spyOn((b as any).http, 'get').mockResolvedValueOnce({});
 
     await b.get('/test');
-    expect(spy).toHaveBeenCalledWith({
-      method: 'get',
-      url: '/test',
+    expect(spy).toHaveBeenCalledWith('/test', {
       headers: {
         'User-Agent': 'child/1.0 parent/1.0',
       },
@@ -135,12 +125,10 @@ describe('Client', () => {
     const a = new HttpClient({ headers: { 'User-Agent': 'grandparent/1.0' } });
     const b = a.clone({ headers: { 'User-Agent': 'parent/1.0' } });
     const c = b.clone({ headers: { 'User-Agent': 'child/1.0' } });
-    const spy = jest.spyOn((c as any).http, 'request').mockResolvedValueOnce({});
+    const spy = jest.spyOn((c as any).http, 'get').mockResolvedValueOnce({});
 
     await c.get('/test');
-    expect(spy).toHaveBeenCalledWith({
-      method: 'get',
-      url: '/test',
+    expect(spy).toHaveBeenCalledWith('/test', {
       headers: {
         'User-Agent': 'child/1.0 parent/1.0 grandparent/1.0',
       },
@@ -150,28 +138,26 @@ describe('Client', () => {
   describe('headers', () => {
     it('should add custom request headers', async () => {
       const client = new HttpClient();
-      const spy = jest.spyOn(client.instance, 'request').mockResolvedValueOnce({});
+      const spy = jest.spyOn(client.instance, 'get').mockResolvedValueOnce({});
 
       await client.get('/test', { headers: { 'X-Test': 'a test' } });
-      expect(spy).toHaveBeenCalledWith({ method: 'get', url: '/test', headers: { 'X-Test': 'a test' } });
+      expect(spy).toHaveBeenCalledWith('/test', { headers: { 'X-Test': 'a test' } });
     });
 
     it('should add default headers', async () => {
       const client = new HttpClient({ headers: { 'X-Test': 'a test' } });
-      const spy = jest.spyOn(client.instance, 'request').mockResolvedValueOnce({});
+      const spy = jest.spyOn(client.instance, 'get').mockResolvedValueOnce({});
 
       await client.get('/test');
-      expect(spy).toHaveBeenCalledWith({ method: 'get', url: '/test', headers: { 'X-Test': 'a test' } });
+      expect(spy).toHaveBeenCalledWith('/test', { headers: { 'X-Test': 'a test' } });
     });
 
     it('should add custom request headers and default headers', async () => {
       const client = new HttpClient({ headers: { 'X-Test-A': 'a' } });
-      const spy = jest.spyOn(client.instance, 'request').mockResolvedValueOnce({});
+      const spy = jest.spyOn(client.instance, 'get').mockResolvedValueOnce({});
 
       await client.get('/test', { headers: { 'X-Test-B': 'b' } });
-      expect(spy).toHaveBeenCalledWith({
-        method: 'get',
-        url: '/test',
+      expect(spy).toHaveBeenCalledWith('/test', {
         headers: {
           'X-Test-A': 'a',
           'X-Test-B': 'b',
@@ -181,13 +167,11 @@ describe('Client', () => {
 
     it('should let custom request headers override default headers', async () => {
       const client = new HttpClient({ headers: { 'X-Test': 'default' } });
-      const spy = jest.spyOn(client.instance, 'request').mockResolvedValueOnce({});
+      const spy = jest.spyOn(client.instance, 'get').mockResolvedValueOnce({});
 
       await client.get('/test', { headers: { 'X-Test': 'request' } });
 
-      expect(spy).toHaveBeenCalledWith({
-        method: 'get',
-        url: '/test',
+      expect(spy).toHaveBeenCalledWith('/test', {
         headers: { 'X-Test': 'request' },
       });
     });
@@ -203,60 +187,50 @@ describe('Client', () => {
 
       it('should add default token', async () => {
         const client = new HttpClient({ token: 'test' });
-        const spy = jest.spyOn(client.instance, 'request').mockResolvedValueOnce({});
+        const spy = jest.spyOn(client.instance, 'get').mockResolvedValueOnce({});
 
         await client.get('/test');
-        expect(spy).toHaveBeenCalledWith({
-          method: 'get',
-          url: '/test',
+        expect(spy).toHaveBeenCalledWith('/test', {
           headers: { Authorization: 'Bearer test' },
         });
       });
 
       it('should add custom request token', async () => {
         const client = new HttpClient();
-        const spy = jest.spyOn(client.instance, 'request').mockResolvedValueOnce({});
+        const spy = jest.spyOn(client.instance, 'get').mockResolvedValueOnce({});
 
         await client.get('/test', { token: 'test' });
-        expect(spy).toHaveBeenCalledWith({
-          method: 'get',
-          url: '/test',
+        expect(spy).toHaveBeenCalledWith('/test', {
           headers: { Authorization: 'Bearer test' },
         });
       });
 
       it('should add custom request token overriding default token', async () => {
         const client = new HttpClient({ token: 'a' });
-        const spy = jest.spyOn(client.instance, 'request').mockResolvedValueOnce({});
+        const spy = jest.spyOn(client.instance, 'get').mockResolvedValueOnce({});
 
         await client.get('/test', { token: 'b' });
-        expect(spy).toHaveBeenCalledWith({
-          method: 'get',
-          url: '/test',
+        expect(spy).toHaveBeenCalledWith('/test', {
           headers: { Authorization: 'Bearer b' },
         });
       });
 
       it('should add functional token', async () => {
         const client = new HttpClient();
-        const spy = jest.spyOn(client.instance, 'request').mockResolvedValueOnce({});
+        const spy = jest.spyOn(client.instance, 'get').mockResolvedValueOnce({});
 
         await client.get('/test', { token: () => 'test' });
-        expect(spy).toHaveBeenCalledWith({
-          method: 'get',
-          url: '/test',
+        expect(spy).toHaveBeenCalledWith('/test', {
           headers: { Authorization: 'Bearer test' },
         });
       });
 
       it('should add object token', async () => {
         const client = new HttpClient();
-        const spy = jest.spyOn(client.instance, 'request').mockResolvedValueOnce({});
+        const spy = jest.spyOn(client.instance, 'get').mockResolvedValueOnce({});
 
         await client.get('/test', { token: new Token('test') });
-        expect(spy).toHaveBeenCalledWith({
-          method: 'get',
-          url: '/test',
+        expect(spy).toHaveBeenCalledWith('/test', {
           headers: { Authorization: 'Bearer test' },
         });
       });
