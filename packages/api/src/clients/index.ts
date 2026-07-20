@@ -7,11 +7,11 @@ import { CloudEnvironment } from '../auth/cloud-environment';
 import { AgenticIdentity } from '../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
-import { AuthProvider } from './auth';
-import { createAuthProviderTokenFactory } from './auth-provider-token';
 import {
   ensureApiOutboundTelemetryMiddleware
 } from './api-outbound-middleware';
+import { AuthProvider } from './auth';
+import { createAuthProviderTokenFactory } from './auth-provider-token';
 import { BotClient } from './bot';
 import { ConversationClient } from './conversation';
 import { MeetingClient } from './meeting';

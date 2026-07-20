@@ -7,10 +7,10 @@ import {
 
 import { Account, Conversation, ConversationResource, MessageReactionType, type DeprecatedInputActivity } from '../../models';
 
-import { ensureApiOutboundTelemetryMiddleware } from '../api-outbound-middleware';
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
-import { agenticIdentityExtension, RequestOptions, resolveServiceUrl } from '../request-options';
+import { ensureApiOutboundTelemetryMiddleware } from '../api-outbound-middleware';
 import { ReactionClient } from '../reaction';
+import { agenticIdentityExtension, RequestOptions, resolveServiceUrl } from '../request-options';
 import { normalizeServiceUrl } from '../service-url';
 
 import { ActivityParams, ConversationActivityClient } from './activity';

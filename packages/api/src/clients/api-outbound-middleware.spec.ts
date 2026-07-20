@@ -1,6 +1,7 @@
-import { Client } from '@microsoft/teams.common';
 import { SpanKind } from '@opentelemetry/api';
 import type { Span, Tracer } from '@opentelemetry/api';
+
+import { Client } from '@microsoft/teams.common';
 
 import { OUTBOUND_OPERATIONS } from '../diagnostics/constants';
 import {

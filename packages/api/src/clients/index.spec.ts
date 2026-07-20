@@ -3,8 +3,8 @@ import {
   type ClientOptions as HttpClientOptions
 } from '@microsoft/teams.common';
 
-import { AuthProvider } from './auth';
 import { ApiOutboundTelemetryMiddleware } from './api-outbound-middleware';
+import { AuthProvider } from './auth';
 
 import { Client } from './index';
 

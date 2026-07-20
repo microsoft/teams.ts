@@ -1,9 +1,10 @@
+import type { Span } from '@opentelemetry/api';
+import type { AxiosResponse } from 'axios';
+
 import {
   Client as HttpClient,
   type ClientOptions as HttpClientOptions
 } from '@microsoft/teams.common';
-import type { Span } from '@opentelemetry/api';
-import type { AxiosResponse } from 'axios';
 
 import {
   toActivityParams,
@@ -16,11 +17,11 @@ import {
   type ConversationActivityOperation
 } from '../../diagnostics/constants';
 import { resolveAadObjectId, type DeprecatedInputActivity, type Resource, type TeamsChannelAccount } from '../../models';
+import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 import {
   ensureApiOutboundTelemetryMiddleware,
   withApiOutboundTelemetry
 } from '../api-outbound-middleware';
-import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 import { agenticIdentityExtension, RequestOptions, resolveServiceUrl } from '../request-options';
 
 function requestConfig(options?: RequestOptions): Record<string, unknown> | undefined {

@@ -1,4 +1,5 @@
 import { SpanKind } from '@opentelemetry/api';
+
 import type { Token } from '@microsoft/teams.common';
 
 import {

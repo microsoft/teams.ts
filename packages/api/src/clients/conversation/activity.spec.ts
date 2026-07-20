@@ -1,6 +1,7 @@
-import { Client } from '@microsoft/teams.common';
 import { SpanKind } from '@opentelemetry/api';
 import type { Span, Tracer } from '@opentelemetry/api';
+
+import { Client } from '@microsoft/teams.common';
 
 import { MessageActivity, MessageActivityInput, TypingActivity, TypingActivityInput } from '../../activities';
 import {
@@ -11,6 +12,7 @@ import {
 } from '../../diagnostics/helpers';
 
 import { AGENTIC_IDENTITY_EXTENSION } from '../auth-provider-interceptor';
+
 import { ConversationActivityClient } from './activity';
 
 class TestHttpClient extends Client {
