@@ -102,12 +102,12 @@ export type MiddlewareNext<R = AxiosResponse> = () => Promise<R>;
  * Middleware is registered with `client.use(...)` and runs in insertion order:
  * the first registered middleware is the outermost wrapper.
  */
-export interface Middleware {
+export type Middleware = {
   invoke<R = AxiosResponse, D = any>(
     context: MiddlewareContext<D>,
     next: MiddlewareNext<R>
   ): Promise<R>;
-}
+};
 
 export type RequestConfig<D = any> = AxiosRequestConfig<D> & {
   /**
@@ -240,54 +240,6 @@ export class Client {
     return this.useInterceptor(handler);
   }
 
-  private useMiddleware(middleware: Middleware): number {
-    const id = ++this.seq;
-    this._middlewares.set(id, middleware);
-    return id;
-  }
-
-  private useInterceptor(interceptor: Interceptor): number {
-    const id = ++this.seq;
-    let requestId: number | undefined = undefined;
-    let responseId: number | undefined = undefined;
-
-    if (interceptor.request) {
-      requestId = this.http.interceptors.request.use(
-        /* istanbul ignore next */
-        (config) => {
-          return interceptor.request!({ config, log: this.log });
-        },
-        /* istanbul ignore next */
-        (error: any) => {
-          if (!interceptor.error) return error;
-          return interceptor.error({ error, log: this.log });
-        },
-      );
-    }
-
-    if (interceptor.response) {
-      responseId = this.http.interceptors.response.use(
-        /* istanbul ignore next */
-        (res) => {
-          return interceptor.response!({ res, log: this.log });
-        },
-        /* istanbul ignore next */
-        (error: any) => {
-          if (!interceptor.error) return error;
-          return interceptor.error({ error, log: this.log });
-        },
-      );
-    }
-
-    this._interceptors.set(id, {
-      requestId,
-      responseId,
-      interceptor,
-    });
-
-    return id;
-  }
-
   /**
    * Eject an interceptor
    */
@@ -364,21 +316,6 @@ export class Client {
     });
   }
 
-  private async invokeMiddleware<T, R, D>(
-    context: MiddlewareContext<D>,
-    index: number
-  ): Promise<R> {
-    const middleware = this.middlewares.at(index);
-    if (!middleware) {
-      return this.http.request<T, R, D>(await this.withConfig(context.config));
-    }
-
-    return middleware.invoke<R, D>(
-      context,
-      () => this.invokeMiddleware<T, R, D>(context, index + 1)
-    );
-  }
-
   protected async withConfig(
     config: RequestConfig = {},
   ): Promise<RequestConfig> {
@@ -417,6 +354,69 @@ export class Client {
     }
 
     return config;
+  }
+
+  private useMiddleware(middleware: Middleware): number {
+    const id = ++this.seq;
+    this._middlewares.set(id, middleware);
+    return id;
+  }
+
+  private useInterceptor(interceptor: Interceptor): number {
+    const id = ++this.seq;
+    let requestId: number | undefined = undefined;
+    let responseId: number | undefined = undefined;
+
+    if (interceptor.request) {
+      requestId = this.http.interceptors.request.use(
+        /* istanbul ignore next */
+        (config) => {
+          return interceptor.request!({ config, log: this.log });
+        },
+        /* istanbul ignore next */
+        (error: any) => {
+          if (!interceptor.error) return error;
+          return interceptor.error({ error, log: this.log });
+        },
+      );
+    }
+
+    if (interceptor.response) {
+      responseId = this.http.interceptors.response.use(
+        /* istanbul ignore next */
+        (res) => {
+          return interceptor.response!({ res, log: this.log });
+        },
+        /* istanbul ignore next */
+        (error: any) => {
+          if (!interceptor.error) return error;
+          return interceptor.error({ error, log: this.log });
+        },
+      );
+    }
+
+    this._interceptors.set(id, {
+      requestId,
+      responseId,
+      interceptor,
+    });
+
+    return id;
+  }
+
+  private async invokeMiddleware<T, R, D>(
+    context: MiddlewareContext<D>,
+    index: number
+  ): Promise<R> {
+    const middleware = this.middlewares.at(index);
+    if (!middleware) {
+      return this.http.request<T, R, D>(await this.withConfig(context.config));
+    }
+
+    return middleware.invoke<R, D>(
+      context,
+      () => this.invokeMiddleware<T, R, D>(context, index + 1)
+    );
   }
 }
 
