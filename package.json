@@ -52,6 +52,7 @@
     "@rollup/rollup-linux-x64-gnu": "4.40.1"
   },
   "overrides": {
+    "@azure/msal-node": "^5.4.0",
     "restify": {
       "send": "^1.2.0",
       "find-my-way": "^9.0.0"
@@ -59,6 +60,10 @@
     "follow-redirects": "^1.16.0",
     "router": {
       "path-to-regexp": "^8.4.0"
-    }
+    },
+    "tsup": {
+      "esbuild": "^0.28.1"
+    },
+    "uuid": "^11.1.1"
   }
 }
