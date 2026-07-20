@@ -82,7 +82,7 @@ const sdk = new NodeSDK({
 sdk.start();
 ```
 
-Signals emitted by the SDK use lowercase dotted names under those sources, such as `microsoft.teams.activity.process`, `microsoft.teams.handler`, `microsoft.teams.conversation.client`, `microsoft.teams.auth.outbound`, and metrics like `microsoft.teams.activity.process.duration`.
+Signals emitted by the SDK use lowercase dotted names under those sources, such as `microsoft.teams.activity.process`, `microsoft.teams.handler`, `microsoft.teams.api.client`, `microsoft.teams.auth.outbound`, and metrics like `microsoft.teams.activity.process.duration`.
 
 Then import the setup before creating or starting the app:
 

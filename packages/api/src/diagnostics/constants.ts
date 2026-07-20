@@ -3,7 +3,7 @@
  * Private span names used by API diagnostics instrumentation.
  */
 export const API_SPAN_NAMES = {
-  conversationClient: 'microsoft.teams.conversation.client',
+  apiClient: 'microsoft.teams.api.client',
   authOutbound: 'microsoft.teams.auth.outbound',
 } as const;
 

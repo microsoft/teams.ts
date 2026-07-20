@@ -8,7 +8,10 @@ import { AgenticIdentity } from '../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
 import { AuthProvider } from './auth';
-import { AuthProviderInterceptor } from './auth-provider-interceptor';
+import { createAuthProviderTokenFactory } from './auth-provider-token';
+import {
+  ensureApiOutboundTelemetryMiddleware
+} from './api-outbound-middleware';
 import { BotClient } from './bot';
 import { ConversationClient } from './conversation';
 import { MeetingClient } from './meeting';
@@ -110,9 +113,14 @@ export class Client {
    */
   clone(options: ApiClientCloneOptions = {}): Client {
     const { serviceUrl, agenticIdentity, ...apiClientSettings } = options;
+    const http = this._baseHttp.clone();
+    if (this._authProvider) {
+      http.token = undefined;
+    }
+
     return new Client(
       serviceUrl ?? this.serviceUrl,
-      this._baseHttp.clone(),
+      http,
       {
         ...this._apiClientSettings,
         ...apiClientSettings,
@@ -143,51 +151,17 @@ export class Client {
   }
 
   private prepareHttpClient(http: HttpClient): HttpClient {
-    const authProviderInterceptors = this.authProviderInterceptors(http);
-    const authenticatedHttp = authProviderInterceptors.every((interceptor) => this.isMatchingAuthProviderInterceptor(interceptor))
-      ? http
-      : this.cloneWithoutAuthProvider(http);
-
-    this._baseHttp = this.cloneWithoutAuthProvider(authenticatedHttp);
-    return this.withAuthProvider(authenticatedHttp);
-  }
-
-  private withAuthProvider(http: HttpClient): HttpClient {
-    if (!this._authProvider) {
-      return http;
+    if (this._authProvider && http.token !== undefined) {
+      throw new Error('Cannot use both an auth provider and an HTTP client token.');
     }
 
-    const hasInterceptor = http.interceptors.some((interceptor) => interceptor instanceof AuthProviderInterceptor);
-    if (hasInterceptor) {
-      return http;
+    ensureApiOutboundTelemetryMiddleware(http);
+    if (this._authProvider) {
+      http.token = createAuthProviderTokenFactory(this._authProvider, this._defaultAgenticIdentity);
     }
 
-    http.use(new AuthProviderInterceptor(this._authProvider, this._defaultAgenticIdentity));
+    this._baseHttp = http;
     return http;
-  }
-
-  private authProviderInterceptors(http: HttpClient): AuthProviderInterceptor[] {
-    return http.interceptors.filter((interceptor) => interceptor instanceof AuthProviderInterceptor);
-  }
-
-  private isMatchingAuthProviderInterceptor(interceptor: AuthProviderInterceptor): boolean {
-    return interceptor.authProvider === this._authProvider &&
-      interceptor.defaultAgenticIdentity === this._defaultAgenticIdentity;
-  }
-
-  private cloneWithoutAuthProvider(http: HttpClient): HttpClient {
-    const clone = http.clone();
-    const interceptors = clone.interceptors.filter((interceptor) => !(interceptor instanceof AuthProviderInterceptor));
-
-    if (interceptors.length === clone.interceptors.length) {
-      return clone;
-    }
-
-    clone.clear();
-    for (const interceptor of interceptors) {
-      clone.use(interceptor);
-    }
-    return clone;
   }
 
 }
@@ -200,4 +174,3 @@ export * from './reaction';
 export * from './team';
 export * from './api-client-settings';
 export * from './auth';
-export * from './auth-provider-interceptor';

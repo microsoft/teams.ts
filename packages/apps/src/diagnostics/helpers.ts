@@ -1,6 +1,8 @@
 import { metrics, SpanStatusCode, trace } from '@opentelemetry/api';
 import type { Counter, Histogram, Meter, MetricAttributes, Span, Tracer } from '@opentelemetry/api';
 
+import pkg from '../../package.json';
+
 import { APP_ATTRIBUTE_NAMES, APP_METRIC_NAMES } from './constants';
 import { TeamsBotApplicationTelemetry } from './telemetry';
 
@@ -19,7 +21,7 @@ let oauthErrorsCounter: Counter<MetricAttributes> | undefined;
  * Gets the OpenTelemetry tracer used by future Teams apps package instrumentation.
  */
 export function getTeamsBotApplicationTracer(): Tracer {
-  return trace.getTracer(TeamsBotApplicationTelemetry.tracerName);
+  return trace.getTracer(TeamsBotApplicationTelemetry.tracerName, pkg.version);
 }
 
 /**
@@ -27,7 +29,7 @@ export function getTeamsBotApplicationTracer(): Tracer {
  * Gets the OpenTelemetry meter used by future Teams apps package instrumentation.
  */
 export function getTeamsBotApplicationMeter(): Meter {
-  return metrics.getMeter(TeamsBotApplicationTelemetry.meterName);
+  return metrics.getMeter(TeamsBotApplicationTelemetry.meterName, pkg.version);
 }
 
 /**

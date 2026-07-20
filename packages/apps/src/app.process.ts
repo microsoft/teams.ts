@@ -109,20 +109,20 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
     }
 
     return withTeamsBaggage(activity, () => traceActivityProcess(activity, serviceUrl, async (activityProcessSpan) => {
-      let userToken: string | undefined;
-
-      try {
-        userToken = await this.getUserToken(activity.channelId, activity.from.id);
-      } catch (err) {
-        // noop
-      }
-
-      const client = this.options.client.clone();
       const agenticIdentity = getAgenticIdentity(activity.recipient);
       const apiClient = this.options.api.clone({
         serviceUrl,
         agenticIdentity,
       });
+
+      let userToken: string | undefined;
+      try {
+        userToken = await this.getUserToken(apiClient, activity.channelId, activity.from.id);
+      } catch (err) {
+        // noop
+      }
+
+      const client = this.options.client.clone();
       const apiClientFactory = (senderServiceUrl: string, senderAgenticIdentity?: AgenticIdentity) => apiClient.clone({
         serviceUrl: senderServiceUrl,
         agenticIdentity: senderAgenticIdentity ?? agenticIdentity,
@@ -286,8 +286,8 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
   /**
    * fetch the user's token for the given channel/user, if signed in
    */
-  private async getUserToken(channelId: ChannelID, userId: string) {
-    const res = await this.options.api.users.getToken({
+  private async getUserToken(apiClient: ApiClient, channelId: ChannelID, userId: string) {
+    const res = await apiClient.users.getToken({
       channelId,
       userId,
       connectionName: this.options.getConnectionName(),

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosHeaders } from 'axios';
 import type {
   AxiosInstance,
   AxiosResponse,
@@ -48,7 +48,66 @@ export type ClientOptions = {
    * Default interceptors to register
    */
   readonly interceptors?: Array<Interceptor>;
+
+  /**
+   * Default middleware to register. Middleware runs in insertion order around
+   * token resolution, existing interceptors, and the terminal HTTP transport.
+   */
+  readonly middlewares?: Array<Middleware>;
 };
+
+/**
+ * Context for a single HTTP middleware invocation.
+ *
+ * Middleware can inspect the requested method and URL, read or mutate
+ * `config`, and use `log` for diagnostics. `extensions` is SDK-local metadata
+ * from `config.extensions`; it is never copied into headers, query params, or
+ * the request body by the common client.
+ */
+export type MiddlewareContext<D = any> = {
+  /**
+   * HTTP method for the request, when provided.
+   */
+  readonly method?: string;
+
+  /**
+   * URL for the request, when provided.
+   */
+  readonly url?: string;
+
+  /**
+   * Mutable request config for this outbound call.
+   */
+  config: RequestConfig<D>;
+
+  /**
+   * SDK-local request metadata.
+   */
+  readonly extensions?: Record<string, unknown>;
+
+  /**
+   * Client logger.
+   */
+  readonly log: ILogger;
+};
+
+/**
+ * Calls the next middleware in the chain, or the terminal HTTP transport.
+ */
+export type MiddlewareNext<R = AxiosResponse> = () => Promise<R>;
+
+/**
+ * HTTP middleware that wraps one outbound request.
+ *
+ * Middleware is registered with `client.use(...)` and runs in insertion order:
+ * the first registered middleware is the outermost wrapper.
+ */
+export interface Middleware {
+  invoke<R = AxiosResponse, D = any>(
+    context: MiddlewareContext<D>,
+    next: MiddlewareNext<R>
+  ): Promise<R>;
+}
 
 export type RequestConfig<D = any> = AxiosRequestConfig<D> & {
   /**
@@ -78,6 +137,7 @@ export class Client {
   protected http: AxiosInstance;
   protected seq: number = 0;
   protected _interceptors: Map<number, InterceptorRegistry>;
+  protected _middlewares: Map<number, Middleware>;
 
   constructor(options: ClientOptions = {}) {
     this.options = options;
@@ -85,6 +145,7 @@ export class Client {
     this.token = options.token;
     this.log = options.logger || new ConsoleLogger(this.name);
     this._interceptors = new Map<number, InterceptorRegistry>();
+    this._middlewares = new Map<number, Middleware>();
     this.http = axios.create({
       baseURL: options.baseUrl,
       timeout: options.timeout,
@@ -94,17 +155,28 @@ export class Client {
     for (const interceptor of options.interceptors || []) {
       this.use(interceptor);
     }
+
+    for (const middleware of options.middlewares || []) {
+      this.use(middleware);
+    }
   }
 
   get interceptors(): readonly Interceptor[] {
     return Array.from(this._interceptors.values()).map((i) => i.interceptor);
   }
 
+  /**
+   * Registered HTTP middleware in execution order.
+   */
+  get middlewares(): readonly Middleware[] {
+    return Array.from(this._middlewares.values());
+  }
+
   async get<T = any, R = AxiosResponse<T>, D = any>(
     url: string,
     config?: RequestConfig<D>,
   ): Promise<R> {
-    return this.http.get<T, R, D>(url, await this.withConfig(config));
+    return this.request<T, R, D>({ ...config, method: 'get', url });
   }
 
   async post<T = any, R = AxiosResponse<T>, D = any>(
@@ -112,7 +184,7 @@ export class Client {
     data?: D,
     config?: RequestConfig<D>,
   ): Promise<R> {
-    return this.http.post<T, R, D>(url, data, await this.withConfig(config));
+    return this.request<T, R, D>({ ...config, method: 'post', url, data });
   }
 
   async put<T = any, R = AxiosResponse<T>, D = any>(
@@ -120,7 +192,7 @@ export class Client {
     data?: D,
     config?: RequestConfig<D>,
   ): Promise<R> {
-    return this.http.put<T, R, D>(url, data, await this.withConfig(config));
+    return this.request<T, R, D>({ ...config, method: 'put', url, data });
   }
 
   async patch<T = any, R = AxiosResponse<T>, D = any>(
@@ -128,27 +200,53 @@ export class Client {
     data?: D,
     config?: RequestConfig<D>,
   ): Promise<R> {
-    return this.http.patch<T, R, D>(url, data, await this.withConfig(config));
+    return this.request<T, R, D>({ ...config, method: 'patch', url, data });
   }
 
   async delete<T = any, R = AxiosResponse<T>, D = any>(
     url: string,
     config?: RequestConfig<D>,
   ): Promise<R> {
-    return this.http.delete<T, R, D>(url, await this.withConfig(config));
+    return this.request<T, R, D>({ ...config, method: 'delete', url });
   }
 
   async request<T = any, R = AxiosResponse<T>, D = any>(
     config: RequestConfig<D>,
   ): Promise<R> {
-    return this.http.request<T, R, D>(await this.withConfig(config));
+    return this.invokeMiddleware<T, R, D>({
+      method: config.method,
+      url: config.url,
+      config,
+      extensions: config.extensions,
+      log: this.log,
+    }, 0);
   }
 
   /**
-   * Register an interceptor to use
-   * as middleware for the request/response/error
+   * Register HTTP middleware.
    */
-  use(interceptor: Interceptor): number {
+  use(middleware: Middleware): number;
+
+  /**
+   * Register an interceptor for request/response/error compatibility.
+   */
+  use(interceptor: Interceptor): number;
+
+  use(handler: Interceptor | Middleware): number {
+    if (isMiddleware(handler)) {
+      return this.useMiddleware(handler);
+    }
+
+    return this.useInterceptor(handler);
+  }
+
+  private useMiddleware(middleware: Middleware): number {
+    const id = ++this.seq;
+    this._middlewares.set(id, middleware);
+    return id;
+  }
+
+  private useInterceptor(interceptor: Interceptor): number {
     const id = ++this.seq;
     let requestId: number | undefined = undefined;
     let responseId: number | undefined = undefined;
@@ -196,13 +294,16 @@ export class Client {
   eject(id: number): void {
     const registry = this._interceptors.get(id);
 
-    if (!registry) return;
+    if (!registry) {
+      this._middlewares.delete(id);
+      return;
+    }
 
-    if (registry.requestId) {
+    if (registry.requestId !== undefined) {
       this.http.interceptors.request.eject(registry.requestId);
     }
 
-    if (registry.responseId) {
+    if (registry.responseId !== undefined) {
       this.http.interceptors.response.eject(registry.responseId);
     }
 
@@ -216,6 +317,8 @@ export class Client {
     for (const id of this._interceptors.keys()) {
       this.eject(id);
     }
+
+    this._middlewares.clear();
   }
 
   /**
@@ -255,29 +358,45 @@ export class Client {
       interceptors: [
         ...Array.from(this._interceptors.values()).map((i) => i.interceptor),
       ],
+      middlewares: [
+        ...this.middlewares,
+      ],
     });
+  }
+
+  private async invokeMiddleware<T, R, D>(
+    context: MiddlewareContext<D>,
+    index: number
+  ): Promise<R> {
+    const middleware = this.middlewares.at(index);
+    if (!middleware) {
+      return this.http.request<T, R, D>(await this.withConfig(context.config));
+    }
+
+    return middleware.invoke<R, D>(
+      context,
+      () => this.invokeMiddleware<T, R, D>(context, index + 1)
+    );
   }
 
   protected async withConfig(
     config: RequestConfig = {},
   ): Promise<RequestConfig> {
     let token = config.token || this.token;
+    const requestHasAuthorization = hasAuthorizationHeader(config.headers);
 
     if (config.token) {
       delete config.token;
     }
 
     if (this.options.headers) {
-      if (!config.headers) {
-        config.headers = {};
-      }
-
-      for (const key in this.options.headers) {
-        config.headers[key] = this.options.headers[key];
-      }
+      config.headers = {
+        ...this.options.headers,
+        ...headersToObject(config.headers),
+      };
     }
 
-    if (token) {
+    if (token && !requestHasAuthorization && !hasAuthorizationHeader(config.headers)) {
       if (!config.headers) {
         config.headers = {};
       }
@@ -290,9 +409,41 @@ export class Client {
         token = token.toString();
       }
 
+      if (!token?.toString().trim()) {
+        return config;
+      }
+
       config.headers['Authorization'] = `Bearer ${token}`;
     }
 
     return config;
   }
+}
+
+function isMiddleware(handler: Interceptor | Middleware): handler is Middleware {
+  return typeof (handler as Middleware).invoke === 'function';
+}
+
+function hasAuthorizationHeader(headers: RequestConfig['headers']): boolean {
+  if (!headers) {
+    return false;
+  }
+
+  if (headers instanceof AxiosHeaders) {
+    return !!headers.get('Authorization') || !!headers.get('authorization');
+  }
+
+  return Object.keys(headers).some((key) => key.toLowerCase() === 'authorization');
+}
+
+function headersToObject(headers: RequestConfig['headers']): RawAxiosRequestHeaders | undefined {
+  if (!headers) {
+    return undefined;
+  }
+
+  if (headers instanceof AxiosHeaders) {
+    return headers.toJSON() as RawAxiosRequestHeaders;
+  }
+
+  return headers as RawAxiosRequestHeaders;
 }

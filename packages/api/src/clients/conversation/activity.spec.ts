@@ -12,6 +12,30 @@ import {
 
 import { ConversationActivityClient } from './activity';
 
+class TestHttpClient extends Client {
+  get instance() {
+    return this.http;
+  }
+}
+
+function expectTelemetryConfig() {
+  return expect.objectContaining({ extensions: expect.any(Object) });
+}
+
+function mockAdapter(client: TestHttpClient, data?: unknown, error?: Error) {
+  const requests: any[] = [];
+  client.instance.defaults.adapter = async (config) => {
+    requests.push(config);
+    if (error) {
+      Object.assign(error, { config });
+      throw error;
+    }
+
+    return { data, status: 200, statusText: 'OK', headers: {}, config };
+  };
+  return requests;
+}
+
 jest.mock('../../diagnostics/helpers', () => ({
   getTeamsApiTracer: jest.fn(),
   recordTeamsApiException: jest.fn(),
@@ -40,17 +64,21 @@ describe('ConversationActivityClient', () => {
   it('should use existing client', async () => {
     const http = new Client();
     const client = new ConversationActivityClient('', http);
-    const spy = jest.spyOn(http, 'post').mockResolvedValueOnce({});
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
 
     await client.create('1', {
       type: 'message',
       text: 'hi',
     });
 
-    expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities', {
-      type: 'message',
-      text: 'hi',
-    });
+    expect(spy).toHaveBeenCalledWith(
+      '/v3/conversations/1/activities',
+      {
+        type: 'message',
+        text: 'hi',
+      },
+      expectTelemetryConfig()
+    );
   });
 
   it('should use client options', async () => {
@@ -62,10 +90,14 @@ describe('ConversationActivityClient', () => {
       text: 'hi',
     });
 
-    expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities', {
-      type: 'message',
-      text: 'hi',
-    });
+    expect(spy).toHaveBeenCalledWith(
+      '/v3/conversations/1/activities',
+      {
+        type: 'message',
+        text: 'hi',
+      },
+      expectTelemetryConfig()
+    );
   });
 
   it('should create', async () => {
@@ -77,10 +109,14 @@ describe('ConversationActivityClient', () => {
       text: 'hi',
     });
 
-    expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities', {
-      type: 'message',
-      text: 'hi',
-    });
+    expect(spy).toHaveBeenCalledWith(
+      '/v3/conversations/1/activities',
+      {
+        type: 'message',
+        text: 'hi',
+      },
+      expectTelemetryConfig()
+    );
   });
 
   it('should use normalized constructor serviceUrl', async () => {
@@ -91,7 +127,8 @@ describe('ConversationActivityClient', () => {
 
     expect(spy).toHaveBeenCalledWith(
       'https://default.service/v3/conversations/1/activities',
-      { type: 'message', text: 'hi' }
+      { type: 'message', text: 'hi' },
+      expectTelemetryConfig()
     );
   });
 
@@ -136,13 +173,17 @@ describe('ConversationActivityClient', () => {
       })
     );
 
-    expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities', {
-      type: 'message',
-      text: 'hi',
-      summary: 'fallback text',
-      deliveryMode: 'ephemeral',
-      value: { scenario: 'dynamics' },
-    });
+    expect(spy).toHaveBeenCalledWith(
+      '/v3/conversations/1/activities',
+      {
+        type: 'message',
+        text: 'hi',
+        summary: 'fallback text',
+        deliveryMode: 'ephemeral',
+        value: { scenario: 'dynamics' },
+      },
+      expectTelemetryConfig()
+    );
   });
 
   it('should preserve extension fields when converting legacy message activity builders', async () => {
@@ -215,11 +256,15 @@ describe('ConversationActivityClient', () => {
       })
     );
 
-    expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities', {
-      type: 'typing',
-      text: 'stream chunk',
-      value: { scenario: 'streaming' },
-    });
+    expect(spy).toHaveBeenCalledWith(
+      '/v3/conversations/1/activities',
+      {
+        type: 'typing',
+        text: 'stream chunk',
+        value: { scenario: 'streaming' },
+      },
+      expectTelemetryConfig()
+    );
   });
 
   it('should preserve extension fields when converting legacy typing activity builders', async () => {
@@ -258,10 +303,14 @@ describe('ConversationActivityClient', () => {
       text: 'hi',
     });
 
-    expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2', {
-      type: 'message',
-      text: 'hi',
-    });
+    expect(spy).toHaveBeenCalledWith(
+      '/v3/conversations/1/activities/2',
+      {
+        type: 'message',
+        text: 'hi',
+      },
+      expectTelemetryConfig()
+    );
   });
 
   it('should reply', async () => {
@@ -273,18 +322,22 @@ describe('ConversationActivityClient', () => {
       text: 'hi',
     });
 
-    expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2', {
-      type: 'message',
-      text: 'hi',
-      replyToId: '2',
-    });
+    expect(spy).toHaveBeenCalledWith(
+      '/v3/conversations/1/activities/2',
+      {
+        type: 'message',
+        text: 'hi',
+        replyToId: '2',
+      },
+      expectTelemetryConfig()
+    );
   });
 
   it('should delete', async () => {
     const client = new ConversationActivityClient('');
     const spy = jest.spyOn(client.http, 'delete').mockResolvedValueOnce({});
     await client.delete('1', '2');
-    expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2');
+    expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2', expectTelemetryConfig());
   });
 
   it('should get members', async () => {
@@ -318,7 +371,8 @@ describe('ConversationActivityClient', () => {
         {
           type: 'message',
           text: 'hi',
-        }
+        },
+        expectTelemetryConfig()
       );
     });
 
@@ -336,7 +390,8 @@ describe('ConversationActivityClient', () => {
         {
           type: 'message',
           text: 'hi updated',
-        }
+        },
+        expectTelemetryConfig()
       );
     });
 
@@ -347,14 +402,16 @@ describe('ConversationActivityClient', () => {
       await client.deleteTargeted('1', '2');
 
       expect(spy).toHaveBeenCalledWith(
-        '/v3/conversations/1/activities/2?isTargetedActivity=true'
+        '/v3/conversations/1/activities/2?isTargetedActivity=true',
+        expectTelemetryConfig()
       );
     });
   });
 
   it('emits telemetry for created outbound activities without recording payload content', async () => {
-    const client = new ConversationActivityClient('https://service.example.com/');
-    jest.spyOn(client.http, 'post').mockResolvedValueOnce({ data: { id: 'activity-id' } });
+    const http = new TestHttpClient();
+    const client = new ConversationActivityClient('https://service.example.com/', http);
+    mockAdapter(http, { id: 'activity-id' });
 
     await client.create('conversation-id', {
       type: 'message',
@@ -362,19 +419,19 @@ describe('ConversationActivityClient', () => {
     });
 
     expect(startActiveSpan).toHaveBeenCalledWith(
-      'microsoft.teams.conversation.client',
+      'microsoft.teams.api.client',
       {
         kind: SpanKind.CLIENT,
         attributes: {
           operation: 'create',
           'service.url': 'https://service.example.com',
           'conversation.id': 'conversation-id',
+          'activity.type': 'message',
         },
       },
       expect.any(Function)
     );
     expect(recordTeamsApiOutboundCall).toHaveBeenCalledWith('create');
-    expect(span.setAttribute).toHaveBeenCalledWith('activity.type', 'message');
     expect(span.setAttribute).toHaveBeenCalledWith('activity.id', 'activity-id');
     expect(span.end).toHaveBeenCalled();
     expect(startActiveSpan.mock.calls[0][1].attributes).not.toHaveProperty('text');
@@ -384,62 +441,63 @@ describe('ConversationActivityClient', () => {
     [
       'update',
       'update',
-      async (client: ConversationActivityClient) => {
-        jest.spyOn(client.http, 'put').mockResolvedValueOnce({ data: { id: 'updated-id' } });
+      async (client: ConversationActivityClient, http: TestHttpClient) => {
+        mockAdapter(http, { id: 'updated-id' });
         await client.update('conversation-id', 'activity-id', { type: 'message', text: 'hi' });
       },
     ],
     [
       'reply',
       'reply',
-      async (client: ConversationActivityClient) => {
-        jest.spyOn(client.http, 'post').mockResolvedValueOnce({ data: { id: 'reply-id' } });
+      async (client: ConversationActivityClient, http: TestHttpClient) => {
+        mockAdapter(http, { id: 'reply-id' });
         await client.reply('conversation-id', 'activity-id', { type: 'message', text: 'hi' });
       },
     ],
     [
       'delete',
       'delete',
-      async (client: ConversationActivityClient) => {
-        jest.spyOn(client.http, 'delete').mockResolvedValueOnce({ data: undefined });
+      async (client: ConversationActivityClient, http: TestHttpClient) => {
+        mockAdapter(http, undefined);
         await client.delete('conversation-id', 'activity-id');
       },
     ],
     [
       'createTargeted',
       'create_targeted',
-      async (client: ConversationActivityClient) => {
-        jest.spyOn(client.http, 'post').mockResolvedValueOnce({ data: { id: 'targeted-id' } });
+      async (client: ConversationActivityClient, http: TestHttpClient) => {
+        mockAdapter(http, { id: 'targeted-id' });
         await client.createTargeted('conversation-id', { type: 'message', text: 'hi' });
       },
     ],
     [
       'updateTargeted',
       'update_targeted',
-      async (client: ConversationActivityClient) => {
-        jest.spyOn(client.http, 'put').mockResolvedValueOnce({ data: { id: 'targeted-id' } });
+      async (client: ConversationActivityClient, http: TestHttpClient) => {
+        mockAdapter(http, { id: 'targeted-id' });
         await client.updateTargeted('conversation-id', 'activity-id', { type: 'message', text: 'hi' });
       },
     ],
     [
       'deleteTargeted',
       'delete_targeted',
-      async (client: ConversationActivityClient) => {
-        jest.spyOn(client.http, 'delete').mockResolvedValueOnce({ data: undefined });
+      async (client: ConversationActivityClient, http: TestHttpClient) => {
+        mockAdapter(http, undefined);
         await client.deleteTargeted('conversation-id', 'activity-id');
       },
     ],
   ])('emits telemetry for %s outbound activities', async (
     _name: string,
     operation: string,
-    act: (client: ConversationActivityClient) => Promise<void>
+    act: (client: ConversationActivityClient, http: TestHttpClient) => Promise<void>
   ) => {
-    const client = new ConversationActivityClient('https://service.example.com/');
+    const http = new TestHttpClient();
+    const client = new ConversationActivityClient('https://service.example.com/', http);
 
-    await act(client);
+    await act(client, http);
 
     expect(startActiveSpan).toHaveBeenCalledWith(
-      'microsoft.teams.conversation.client',
+      'microsoft.teams.api.client',
       expect.objectContaining({
         attributes: expect.objectContaining({
           operation,
@@ -454,9 +512,10 @@ describe('ConversationActivityClient', () => {
   });
 
   it('records outbound errors and preserves the thrown error', async () => {
-    const client = new ConversationActivityClient('https://service.example.com/');
+    const http = new TestHttpClient();
+    const client = new ConversationActivityClient('https://service.example.com/', http);
     const error = new Error('failed');
-    jest.spyOn(client.http, 'post').mockRejectedValueOnce(error);
+    mockAdapter(http, undefined, error);
 
     await expect(client.create('conversation-id', { type: 'message', text: 'hi' })).rejects.toThrow(error);
 

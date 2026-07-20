@@ -467,6 +467,85 @@ describe('App', () => {
       });
     });
 
+    it('uses the inbound agentic-scoped API client for the user-token precheck', async () => {
+      const incomingServiceUrl = 'https://incoming-service.botframework.com';
+      const agenticIdentity = {
+        agenticAppId: 'agent-app',
+        agenticUserId: 'agent-user',
+        tenantId: 'tenant-id',
+        agenticAppBlueprintId: 'blueprint-id',
+      };
+      const incomingActivity: IMessageActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({
+          id: 'bot-1',
+          name: 'Test Bot',
+          role: 'bot',
+          ...agenticIdentity,
+        })
+        .withConversation({ id: 'conv-123', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl(incomingServiceUrl)
+        .toInterface();
+      const scopedApi = app.api.clone({
+        serviceUrl: incomingServiceUrl,
+        agenticIdentity,
+      });
+      const clone = jest.spyOn(app.api, 'clone').mockReturnValue(scopedApi);
+      const rootGetToken = jest.spyOn(app.api.users, 'getToken').mockResolvedValue({ token: 'root-token' } as any);
+      const scopedGetToken = jest.spyOn(scopedApi.users, 'getToken').mockResolvedValue({ token: 'agentic-user-token' } as any);
+
+      await app.process({
+        token: { ...token, serviceUrl: incomingServiceUrl },
+        body: incomingActivity,
+      });
+
+      expect(clone).toHaveBeenCalledWith({
+        serviceUrl: incomingServiceUrl,
+        agenticIdentity,
+      });
+      expect(rootGetToken).not.toHaveBeenCalled();
+      expect(scopedGetToken).toHaveBeenCalledWith({
+        channelId: 'msteams',
+        userId: 'user-1',
+        connectionName: 'graph',
+      });
+    });
+
+    it('keeps the user-token precheck app-only when the inbound activity has no agentic identity', async () => {
+      const incomingServiceUrl = 'https://incoming-service.botframework.com';
+      const incomingActivity: IMessageActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot' })
+        .withConversation({ id: 'conv-123', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl(incomingServiceUrl)
+        .toInterface();
+      const scopedApi = app.api.clone({
+        serviceUrl: incomingServiceUrl,
+        agenticIdentity: undefined,
+      });
+      const clone = jest.spyOn(app.api, 'clone').mockReturnValue(scopedApi);
+      const rootGetToken = jest.spyOn(app.api.users, 'getToken').mockResolvedValue({ token: 'root-token' } as any);
+      const scopedGetToken = jest.spyOn(scopedApi.users, 'getToken').mockResolvedValue({ token: 'app-token' } as any);
+
+      await app.process({
+        token: { ...token, serviceUrl: incomingServiceUrl },
+        body: incomingActivity,
+      });
+
+      expect(clone).toHaveBeenCalledWith({
+        serviceUrl: incomingServiceUrl,
+        agenticIdentity: undefined,
+      });
+      expect(rootGetToken).not.toHaveBeenCalled();
+      expect(scopedGetToken).toHaveBeenCalledWith({
+        channelId: 'msteams',
+        userId: 'user-1',
+        connectionName: 'graph',
+      });
+    });
+
     it('should use different serviceUrls for different incoming activities', async () => {
       const serviceUrl1 = 'https://service-1.botframework.com';
       const serviceUrl2 = 'https://service-2.botframework.com';

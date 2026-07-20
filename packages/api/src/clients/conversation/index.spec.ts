@@ -1,5 +1,9 @@
 import { ConversationClient } from './index';
 
+function expectTelemetryConfig() {
+  return expect.objectContaining({ extensions: expect.any(Object) });
+}
+
 describe('ConversationClient', () => {
   describe('activities', () => {
     it('createActivity should POST an activity', async () => {
@@ -8,10 +12,14 @@ describe('ConversationClient', () => {
 
       await client.createActivity('1', { type: 'message', text: 'hi' });
 
-      expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities', {
-        type: 'message',
-        text: 'hi',
-      });
+      expect(spy).toHaveBeenCalledWith(
+        '/v3/conversations/1/activities',
+        {
+          type: 'message',
+          text: 'hi',
+        },
+        expectTelemetryConfig()
+      );
     });
 
     it('updateActivity should PUT an activity', async () => {
@@ -20,10 +28,14 @@ describe('ConversationClient', () => {
 
       await client.updateActivity('1', '2', { type: 'message', text: 'hi' });
 
-      expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2', {
-        type: 'message',
-        text: 'hi',
-      });
+      expect(spy).toHaveBeenCalledWith(
+        '/v3/conversations/1/activities/2',
+        {
+          type: 'message',
+          text: 'hi',
+        },
+        expectTelemetryConfig()
+      );
     });
 
     it('replyToActivity should POST a reply', async () => {
@@ -32,11 +44,15 @@ describe('ConversationClient', () => {
 
       await client.replyToActivity('1', '2', { type: 'message', text: 'hi' });
 
-      expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2', {
-        type: 'message',
-        text: 'hi',
-        replyToId: '2',
-      });
+      expect(spy).toHaveBeenCalledWith(
+        '/v3/conversations/1/activities/2',
+        {
+          type: 'message',
+          text: 'hi',
+          replyToId: '2',
+        },
+        expectTelemetryConfig()
+      );
     });
 
     it('deleteActivity should DELETE an activity', async () => {
@@ -45,7 +61,7 @@ describe('ConversationClient', () => {
 
       await client.deleteActivity('1', '2');
 
-      expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2');
+      expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2', expectTelemetryConfig());
     });
 
     it('getActivityMembers should GET activity members', async () => {
@@ -65,7 +81,8 @@ describe('ConversationClient', () => {
 
       expect(spy).toHaveBeenCalledWith(
         '/v3/conversations/1/activities?isTargetedActivity=true',
-        { type: 'message', text: 'hi' }
+        { type: 'message', text: 'hi' },
+        expectTelemetryConfig()
       );
     });
 
@@ -77,7 +94,8 @@ describe('ConversationClient', () => {
 
       expect(spy).toHaveBeenCalledWith(
         '/v3/conversations/1/activities/2?isTargetedActivity=true',
-        { type: 'message', text: 'hi' }
+        { type: 'message', text: 'hi' },
+        expectTelemetryConfig()
       );
     });
 
@@ -88,7 +106,8 @@ describe('ConversationClient', () => {
       await client.deleteTargetedActivity('1', '2');
 
       expect(spy).toHaveBeenCalledWith(
-        '/v3/conversations/1/activities/2?isTargetedActivity=true'
+        '/v3/conversations/1/activities/2?isTargetedActivity=true',
+        expectTelemetryConfig()
       );
     });
   });
@@ -161,10 +180,14 @@ describe('ConversationClient', () => {
 
         await client.activities('1').create({ type: 'message', text: 'hi' });
 
-        expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities', {
-          type: 'message',
-          text: 'hi',
-        });
+        expect(spy).toHaveBeenCalledWith(
+          '/v3/conversations/1/activities',
+          {
+            type: 'message',
+            text: 'hi',
+          },
+          expectTelemetryConfig()
+        );
       });
 
       it('update should PUT an activity', async () => {
@@ -173,10 +196,14 @@ describe('ConversationClient', () => {
 
         await client.activities('1').update('2', { type: 'message', text: 'hi' });
 
-        expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2', {
-          type: 'message',
-          text: 'hi',
-        });
+        expect(spy).toHaveBeenCalledWith(
+          '/v3/conversations/1/activities/2',
+          {
+            type: 'message',
+            text: 'hi',
+          },
+          expectTelemetryConfig()
+        );
       });
 
       it('reply should POST a reply', async () => {
@@ -185,11 +212,15 @@ describe('ConversationClient', () => {
 
         await client.activities('1').reply('2', { type: 'message', text: 'hi' });
 
-        expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2', {
-          type: 'message',
-          text: 'hi',
-          replyToId: '2',
-        });
+        expect(spy).toHaveBeenCalledWith(
+          '/v3/conversations/1/activities/2',
+          {
+            type: 'message',
+            text: 'hi',
+            replyToId: '2',
+          },
+          expectTelemetryConfig()
+        );
       });
 
       it('delete should DELETE an activity', async () => {
@@ -198,7 +229,7 @@ describe('ConversationClient', () => {
 
         await client.activities('1').delete('2');
 
-        expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2');
+        expect(spy).toHaveBeenCalledWith('/v3/conversations/1/activities/2', expectTelemetryConfig());
       });
 
       it('members should GET activity members', async () => {
@@ -218,7 +249,8 @@ describe('ConversationClient', () => {
 
         expect(spy).toHaveBeenCalledWith(
           '/v3/conversations/1/activities?isTargetedActivity=true',
-          { type: 'message', text: 'hi' }
+          { type: 'message', text: 'hi' },
+          expectTelemetryConfig()
         );
       });
 
@@ -230,7 +262,8 @@ describe('ConversationClient', () => {
 
         expect(spy).toHaveBeenCalledWith(
           '/v3/conversations/1/activities/2?isTargetedActivity=true',
-          { type: 'message', text: 'hi' }
+          { type: 'message', text: 'hi' },
+          expectTelemetryConfig()
         );
       });
 
@@ -241,7 +274,8 @@ describe('ConversationClient', () => {
         await client.activities('1').deleteTargeted('2');
 
         expect(spy).toHaveBeenCalledWith(
-          '/v3/conversations/1/activities/2?isTargetedActivity=true'
+          '/v3/conversations/1/activities/2?isTargetedActivity=true',
+          expectTelemetryConfig()
         );
       });
     });
