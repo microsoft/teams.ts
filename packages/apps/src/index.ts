@@ -12,6 +12,6 @@ export * from './http';
 export { toThreadedConversationId } from './utils/thread';
 
 // HTML Widget utilities
-export { buildHtmlWidgetMarkdown, buildHtmlWidgetMessage, injectWidgetProtocol, validateSecurityPolicy } from './utils/html-widget';
+export { buildHtmlWidgetMarkdown, buildHtmlWidgetMessage, injectWidgetProtocol, validateSecurityPolicy, tryGetWidgetModelContext } from './utils/html-widget';
 export type { IHtmlWidgetPayloadInput } from './utils/html-widget';
 export type { IHtmlWidgetMarkdownOptions, IInjectWidgetProtocolOptions, ISecurityPolicyWarning } from './utils/html-widget';

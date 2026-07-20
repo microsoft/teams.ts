@@ -1,6 +1,6 @@
 import { IHtmlWidgetPayload, IHtmlWidgetSecurityPolicy } from '@microsoft/teams.api';
 
-import { buildHtmlWidgetMarkdown, buildHtmlWidgetMessage, injectWidgetProtocol, validateSecurityPolicy, IHtmlWidgetMarkdownOptions, IInjectWidgetProtocolOptions } from './html-widget';
+import { buildHtmlWidgetMarkdown, buildHtmlWidgetMessage, injectWidgetProtocol, validateSecurityPolicy, tryGetWidgetModelContext, IHtmlWidgetMarkdownOptions, IInjectWidgetProtocolOptions } from './html-widget';
 
 const MINIMAL_PAYLOAD: IHtmlWidgetPayload = {
   type: 'widget/mcp-ui',
@@ -821,5 +821,76 @@ describe('snapshot: full injected script', () => {
     const scriptMatch = result.match(/<script>([\s\S]*?)<\/script>/i);
     expect(scriptMatch).not.toBeNull();
     expect(scriptMatch![1]).toMatchSnapshot();
+  });
+});
+
+describe('tryGetWidgetModelContext', () => {
+  it('should parse a raw update-model-context request', () => {
+    const activity = {
+      value: {
+        method: 'ui/update-model-context',
+        params: { content: [{ type: 'text', text: 'hello' }] },
+      },
+    };
+    const result = tryGetWidgetModelContext(activity);
+    expect(result).toBeDefined();
+    expect(result!.method).toBe('ui/update-model-context');
+    expect(result!.params.content).toEqual([{ type: 'text', text: 'hello' }]);
+  });
+
+  it('should parse a structuredContent-only request', () => {
+    const activity = {
+      value: {
+        method: 'ui/update-model-context',
+        params: { structuredContent: { count: 5 } },
+      },
+    };
+    const result = tryGetWidgetModelContext(activity);
+    expect(result?.params.structuredContent).toEqual({ count: 5 });
+  });
+
+  it('should unwrap a widgetModelContext envelope', () => {
+    const activity = {
+      value: {
+        type: 'widgetModelContext',
+        data: {
+          method: 'ui/update-model-context',
+          params: { content: [{ type: 'text', text: 'wrapped' }] },
+        },
+      },
+    };
+    const result = tryGetWidgetModelContext(activity);
+    expect(result?.params.content).toEqual([{ type: 'text', text: 'wrapped' }]);
+  });
+
+  it('should return undefined when value is missing', () => {
+    expect(tryGetWidgetModelContext({})).toBeUndefined();
+    expect(tryGetWidgetModelContext(undefined)).toBeUndefined();
+    expect(tryGetWidgetModelContext(null)).toBeUndefined();
+  });
+
+  it('should return undefined when value is not an object', () => {
+    expect(tryGetWidgetModelContext({ value: 'hello' })).toBeUndefined();
+    expect(tryGetWidgetModelContext({ value: 42 })).toBeUndefined();
+  });
+
+  it('should return undefined for a non-matching method', () => {
+    expect(
+      tryGetWidgetModelContext({ value: { method: 'something/else', params: {} } })
+    ).toBeUndefined();
+  });
+
+  it('should return undefined when params are missing', () => {
+    expect(
+      tryGetWidgetModelContext({ value: { method: 'ui/update-model-context' } })
+    ).toBeUndefined();
+  });
+
+  it('should return undefined for an envelope with the wrong type', () => {
+    expect(
+      tryGetWidgetModelContext({
+        value: { type: 'other', data: { method: 'ui/update-model-context', params: {} } },
+      })
+    ).toBeUndefined();
   });
 });

@@ -1,4 +1,8 @@
-import { IHtmlWidgetPayload, IHtmlWidgetSecurityPolicy } from '@microsoft/teams.api';
+import {
+  IHtmlWidgetPayload,
+  IHtmlWidgetSecurityPolicy,
+  IMcpUiUpdateModelContextRequest,
+} from '@microsoft/teams.api';
 
 /**
  * Input type for the widget builder functions. Identical to {@link IHtmlWidgetPayload}
@@ -561,4 +565,46 @@ export function validateSecurityPolicy(
   }
 
   return warnings;
+}
+
+/**
+ * Attempts to extract an MCP UI update-model-context request from a message
+ * activity's `value`. A widget can request that content be added to the model
+ * context by reusing the messageBack mechanism (like `Action.Submit` for
+ * adaptive cards). Such a request arrives as a normal message activity whose
+ * `value` carries the {@link IMcpUiUpdateModelContextRequest} payload. This is
+ * fire-and-forget: the bot does not respond.
+ *
+ * This helper is tolerant of two wire shapes:
+ *   1. The raw request object (`{ method: 'ui/update-model-context', params }`).
+ *   2. An envelope of the form `{ type: 'widgetModelContext', data: <request> }`.
+ *
+ * @param activity - A message activity (or any object with a `value` field).
+ * @returns The parsed request, or `undefined` if `value` is not a valid
+ *   update-model-context request.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
+ */
+export function tryGetWidgetModelContext(
+  activity: { value?: any } | undefined | null
+): IMcpUiUpdateModelContextRequest | undefined {
+  const value = activity?.value;
+  if (!value || typeof value !== 'object') {
+    return undefined;
+  }
+
+  // Unwrap the `{ type: 'widgetModelContext', data }` envelope if present.
+  const candidate =
+    value.type === 'widgetModelContext' && value.data && typeof value.data === 'object' ? value.data : value;
+
+  if (candidate.method !== 'ui/update-model-context') {
+    return undefined;
+  }
+
+  if (!candidate.params || typeof candidate.params !== 'object') {
+    return undefined;
+  }
+
+  return candidate as IMcpUiUpdateModelContextRequest;
 }

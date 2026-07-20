@@ -7,7 +7,7 @@
  */
 
 import { IMcpUiCallToolResult } from '@microsoft/teams.api';
-import { App, buildHtmlWidgetMarkdown, buildHtmlWidgetMessage, validateSecurityPolicy } from '@microsoft/teams.apps';
+import { App, buildHtmlWidgetMarkdown, buildHtmlWidgetMessage, tryGetWidgetModelContext, validateSecurityPolicy } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
 import { CALLTOOL_WIDGET_HTML } from './widgets/calltool';
@@ -37,6 +37,9 @@ app.on('message', async ({ send, activity }) => {
       {
         name: 'Simple Widget',
         html: SIMPLE_WIDGET_HTML,
+        // `domain` is the widget's own origin. Teams uses it to sandbox the widget
+        // iframe. Any valid origin works; this value is the example from the widget
+        // design spec.
         domain: 'https://teams.microsoft.com',
       },
       { before: 'Here is a simple static widget:', after: 'No callbacks needed for static content.' }
@@ -239,6 +242,15 @@ app.on('message', async ({ send, activity }) => {
         '- `/validate` - Security policy validation demo\n' +
         '- `/help` - This message',
     });
+    return;
+  }
+
+  // Handle ui/update-model-context requests from the update-context widget.
+  // These arrive as a normal message activity (fire-and-forget); the SDK helper
+  // parses the typed request off activity.value.
+  const modelContext = tryGetWidgetModelContext(activity);
+  if (modelContext) {
+    await send(`Received model context update: ${JSON.stringify(modelContext.params)}`);
     return;
   }
 
