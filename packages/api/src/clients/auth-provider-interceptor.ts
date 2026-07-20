@@ -5,9 +5,6 @@ import type { Interceptor } from '@microsoft/teams.common';
 import type { AgenticIdentity } from '../models';
 
 import type { AuthProvider } from './auth';
-import { AGENTIC_IDENTITY_EXTENSION } from './auth-provider-extension';
-
-export { AGENTIC_IDENTITY_EXTENSION } from './auth-provider-extension';
 
 /**
  * Legacy HTTP interceptor that adds Bot Framework Authorization headers from an
@@ -25,8 +22,7 @@ export class AuthProviderInterceptor implements Interceptor {
      */
     readonly authProvider: AuthProvider,
     /**
-     * Default Agentic User identity used when a request does not provide one via
-     * `AGENTIC_IDENTITY_EXTENSION`.
+     * Default Agentic User identity used when acquiring outbound auth tokens.
      */
     readonly defaultAgenticIdentity?: AgenticIdentity
   ) { }
@@ -41,9 +37,7 @@ export class AuthProviderInterceptor implements Interceptor {
       return config;
     }
 
-    const requestAgenticIdentity = config.extensions?.[AGENTIC_IDENTITY_EXTENSION] as AgenticIdentity | undefined;
-    const agenticIdentity = requestAgenticIdentity ?? this.defaultAgenticIdentity;
-    const token = await this.authProvider.token({ agenticIdentity });
+    const token = await this.authProvider.token({ agenticIdentity: this.defaultAgenticIdentity });
     const resolvedToken = token?.toString();
 
     if (!resolvedToken?.trim()) {
