@@ -21,7 +21,12 @@ import {
   withApiOutboundTelemetry
 } from '../api-outbound-middleware';
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
-import { normalizeServiceUrl } from '../service-url';
+import { agenticIdentityExtension, RequestOptions, resolveServiceUrl } from '../request-options';
+
+function requestConfig(options?: RequestOptions): Record<string, unknown> | undefined {
+  const config = agenticIdentityExtension(options);
+  return Object.keys(config).length > 0 ? config : undefined;
+}
 
 /**
  * Payload accepted by the low-level conversation activity client.
@@ -37,11 +42,14 @@ function apiOutboundTelemetryConfig(
   serviceUrl: string,
   conversationId: string,
   activity: ActivityParams | undefined,
+  requestOptions?: RequestOptions,
   options?: {
     readonly activityId?: string;
     readonly captureResponseActivityId?: boolean;
   }
 ) {
+  const requestConfig = agenticIdentityExtension(requestOptions) as { extensions?: Record<string, unknown> };
+
   return {
     extensions: withApiOutboundTelemetry({
       operation,
@@ -53,7 +61,7 @@ function apiOutboundTelemetryConfig(
         ...(options?.activityId !== undefined ? { [API_ATTRIBUTE_NAMES.activityId]: options.activityId } : {}),
       },
       ...(options?.captureResponseActivityId ? { onResponse: setResponseActivityId } : {}),
-    }),
+    }, requestConfig.extensions),
   };
 }
 
@@ -87,7 +95,7 @@ export class ConversationActivityClient {
   protected _apiClientSettings: Partial<ApiClientSettings>;
 
   constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
-    this.serviceUrl = normalizeServiceUrl(serviceUrl);
+    this.serviceUrl = resolveServiceUrl(serviceUrl);
 
     if (!options) {
       this._http = new HttpClient();
@@ -104,16 +112,17 @@ export class ConversationActivityClient {
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
-  async create(conversationId: string, params: DeprecatedInputActivity): Promise<Resource>;
-  async create(conversationId: string, params: ActivityParams): Promise<Resource>;
-  async create(conversationId: string, params: ActivityParamsLike): Promise<Resource>;
-  async create(conversationId: string, params: ActivityParamsLike) {
+  async create(conversationId: string, params: DeprecatedInputActivity, options?: RequestOptions): Promise<Resource>;
+  async create(conversationId: string, params: ActivityParams, options?: RequestOptions): Promise<Resource>;
+  async create(conversationId: string, params: ActivityParamsLike, options?: RequestOptions): Promise<Resource>;
+  async create(conversationId: string, params: ActivityParamsLike, options?: RequestOptions) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
     const activity = toActivityParams(params);
+    const serviceUrl = resolveServiceUrl(this.serviceUrl, options);
     const res = await this.http.post<Resource>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
+      `${serviceUrl}/v3/conversations/${conversationId}/activities`,
       activity,
-      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.create, this.serviceUrl, conversationId, activity, {
+      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.create, serviceUrl, conversationId, activity, options, {
         captureResponseActivityId: true,
       })
     );
@@ -123,16 +132,17 @@ export class ConversationActivityClient {
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
-  async update(conversationId: string, id: string, params: DeprecatedInputActivity): Promise<Resource>;
-  async update(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
-  async update(conversationId: string, id: string, params: ActivityParamsLike): Promise<Resource>;
-  async update(conversationId: string, id: string, params: ActivityParamsLike) {
+  async update(conversationId: string, id: string, params: DeprecatedInputActivity, options?: RequestOptions): Promise<Resource>;
+  async update(conversationId: string, id: string, params: ActivityParams, options?: RequestOptions): Promise<Resource>;
+  async update(conversationId: string, id: string, params: ActivityParamsLike, options?: RequestOptions): Promise<Resource>;
+  async update(conversationId: string, id: string, params: ActivityParamsLike, options?: RequestOptions) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
     const activity = toActivityParams(params);
+    const serviceUrl = resolveServiceUrl(this.serviceUrl, options);
     const res = await this.http.put<Resource>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
+      `${serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
       activity,
-      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.update, this.serviceUrl, conversationId, activity, {
+      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.update, serviceUrl, conversationId, activity, options, {
         activityId: id,
         captureResponseActivityId: true,
       })
@@ -143,57 +153,64 @@ export class ConversationActivityClient {
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
-  async reply(conversationId: string, id: string, params: DeprecatedInputActivity): Promise<Resource>;
-  async reply(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
-  async reply(conversationId: string, id: string, params: ActivityParamsLike): Promise<Resource>;
-  async reply(conversationId: string, id: string, params: ActivityParamsLike) {
+  async reply(conversationId: string, id: string, params: DeprecatedInputActivity, options?: RequestOptions): Promise<Resource>;
+  async reply(conversationId: string, id: string, params: ActivityParams, options?: RequestOptions): Promise<Resource>;
+  async reply(conversationId: string, id: string, params: ActivityParamsLike, options?: RequestOptions): Promise<Resource>;
+  async reply(conversationId: string, id: string, params: ActivityParamsLike, options?: RequestOptions) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
     const activity = toActivityParams(params);
     activity.replyToId = id;
+    const serviceUrl = resolveServiceUrl(this.serviceUrl, options);
     const res = await this.http.post<Resource>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
+      `${serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
       activity,
-      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.reply, this.serviceUrl, conversationId, activity, {
+      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.reply, serviceUrl, conversationId, activity, options, {
         captureResponseActivityId: true,
       })
     );
     return res.data;
   }
 
-  async delete(conversationId: string, id: string) {
-    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`;
+  async delete(conversationId: string, id: string, options?: RequestOptions) {
+    const serviceUrl = resolveServiceUrl(this.serviceUrl, options);
+    const url = `${serviceUrl}/v3/conversations/${conversationId}/activities/${id}`;
     const res = await this.http.delete<void>(
       url,
       apiOutboundTelemetryConfig(
         OUTBOUND_OPERATIONS.delete,
-        this.serviceUrl,
+        serviceUrl,
         conversationId,
         undefined,
+        options,
         { activityId: id }
       )
     );
     return res.data;
   }
 
-  async getMembers(conversationId: string, id: string): Promise<TeamsChannelAccount[]> {
-    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}/members`;
-    const res = await this.http.get<TeamsChannelAccount[]>(url);
+  async getMembers(conversationId: string, id: string, options?: RequestOptions): Promise<TeamsChannelAccount[]> {
+    const url = `${resolveServiceUrl(this.serviceUrl, options)}/v3/conversations/${conversationId}/activities/${id}/members`;
+    const config = requestConfig(options);
+    const res = config
+      ? await this.http.get<TeamsChannelAccount[]>(url, config)
+      : await this.http.get<TeamsChannelAccount[]>(url);
     return (res.data ?? []).map(resolveAadObjectId);
   }
 
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
-  async createTargeted(conversationId: string, params: DeprecatedInputActivity): Promise<Resource>;
-  async createTargeted(conversationId: string, params: ActivityParams): Promise<Resource>;
-  async createTargeted(conversationId: string, params: ActivityParamsLike): Promise<Resource>;
-  async createTargeted(conversationId: string, params: ActivityParamsLike) {
+  async createTargeted(conversationId: string, params: DeprecatedInputActivity, options?: RequestOptions): Promise<Resource>;
+  async createTargeted(conversationId: string, params: ActivityParams, options?: RequestOptions): Promise<Resource>;
+  async createTargeted(conversationId: string, params: ActivityParamsLike, options?: RequestOptions): Promise<Resource>;
+  async createTargeted(conversationId: string, params: ActivityParamsLike, options?: RequestOptions) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
     const activity = toActivityParams(params);
+    const serviceUrl = resolveServiceUrl(this.serviceUrl, options);
     const res = await this.http.post<Resource>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/activities?isTargetedActivity=true`,
+      `${serviceUrl}/v3/conversations/${conversationId}/activities?isTargetedActivity=true`,
       activity,
-      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.createTargeted, this.serviceUrl, conversationId, activity, {
+      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.createTargeted, serviceUrl, conversationId, activity, options, {
         captureResponseActivityId: true,
       })
     );
@@ -203,16 +220,17 @@ export class ConversationActivityClient {
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
-  async updateTargeted(conversationId: string, id: string, params: DeprecatedInputActivity): Promise<Resource>;
-  async updateTargeted(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
-  async updateTargeted(conversationId: string, id: string, params: ActivityParamsLike): Promise<Resource>;
-  async updateTargeted(conversationId: string, id: string, params: ActivityParamsLike) {
+  async updateTargeted(conversationId: string, id: string, params: DeprecatedInputActivity, options?: RequestOptions): Promise<Resource>;
+  async updateTargeted(conversationId: string, id: string, params: ActivityParams, options?: RequestOptions): Promise<Resource>;
+  async updateTargeted(conversationId: string, id: string, params: ActivityParamsLike, options?: RequestOptions): Promise<Resource>;
+  async updateTargeted(conversationId: string, id: string, params: ActivityParamsLike, options?: RequestOptions) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
     const activity = toActivityParams(params);
+    const serviceUrl = resolveServiceUrl(this.serviceUrl, options);
     const res = await this.http.put<Resource>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`,
+      `${serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`,
       activity,
-      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.updateTargeted, this.serviceUrl, conversationId, activity, {
+      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.updateTargeted, serviceUrl, conversationId, activity, options, {
         activityId: id,
         captureResponseActivityId: true,
       })
@@ -220,15 +238,17 @@ export class ConversationActivityClient {
     return res.data;
   }
 
-  async deleteTargeted(conversationId: string, id: string) {
-    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`;
+  async deleteTargeted(conversationId: string, id: string, options?: RequestOptions) {
+    const serviceUrl = resolveServiceUrl(this.serviceUrl, options);
+    const url = `${serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`;
     const res = await this.http.delete<void>(
       url,
       apiOutboundTelemetryConfig(
         OUTBOUND_OPERATIONS.deleteTargeted,
-        this.serviceUrl,
+        serviceUrl,
         conversationId,
         undefined,
+        options,
         { activityId: id }
       )
     );

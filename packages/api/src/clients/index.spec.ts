@@ -21,7 +21,12 @@ class TestHttpClient extends HttpClient {
 }
 
 function mockAdapter(client: TestHttpClient) {
-  client.instance.defaults.adapter = async (config) => ({ data: {}, status: 200, statusText: 'OK', headers: {}, config });
+  const requests: any[] = [];
+  client.instance.defaults.adapter = async (config) => {
+    requests.push(config);
+    return { data: {}, status: 200, statusText: 'OK', headers: {}, config };
+  };
+  return requests;
 }
 
 describe('Api Client auth provider', () => {
@@ -46,11 +51,35 @@ describe('Api Client auth provider', () => {
     expect(http.middlewares.filter((middleware) => middleware instanceof ApiOutboundTelemetryMiddleware)).toHaveLength(1);
   });
 
-  it('does not expose a settable http client', () => {
+  it('exposes a settable http client and prepares it for auth and telemetry', async () => {
+    const calls: unknown[] = [];
+    const authProvider: AuthProvider = {
+      token: async (options) => {
+        calls.push(options);
+        return 'token';
+      },
+    };
+    const api = new Client('https://service.example.com', undefined, { authProvider });
+    const http = new TestHttpClient();
+    mockAdapter(http);
+
     const descriptor = Object.getOwnPropertyDescriptor(Client.prototype, 'http');
 
     expect(descriptor?.get).toBeDefined();
-    expect(descriptor?.set).toBeUndefined();
+    expect(descriptor?.set).toBeDefined();
+
+    api.http = http;
+    await api.http.get('/test');
+
+    expect(api.http).toBe(http);
+    expect(api.bots.http).toBe(http);
+    expect(api.users.http).toBe(http);
+    expect(api.conversations.http).toBe(http);
+    expect(api.teams.http).toBe(http);
+    expect(api.meetings.http).toBe(http);
+    expect(api.reactions.http).toBe(http);
+    expect(http.middlewares.filter((middleware) => middleware instanceof ApiOutboundTelemetryMiddleware)).toHaveLength(1);
+    expect(calls).toEqual([{ agenticIdentity: undefined }]);
   });
 
   it('rejects an auth provider with an HTTP client token', () => {
@@ -163,6 +192,29 @@ describe('Api Client auth provider', () => {
     const scoped = api.fromAgenticIdentity({ agenticIdentity });
     await scoped.http.get('/test');
 
+    expect(calls).toEqual([{ agenticIdentity }]);
+  });
+
+  it('honors legacy RequestOptions for serviceUrl and agentic identity', async () => {
+    const calls: unknown[] = [];
+    const authProvider: AuthProvider = {
+      token: async (options) => {
+        calls.push(options);
+        return 'token';
+      },
+    };
+    const http = new TestHttpClient();
+    const requests = mockAdapter(http);
+    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
+    const api = new Client('https://service.example.com', http, { authProvider });
+
+    await api.conversations.createActivity(
+      'conversation-id',
+      { type: 'message', text: 'hi' },
+      { serviceUrl: 'https://override.service.example.com/', agenticIdentity }
+    );
+
+    expect(requests[0].url).toBe('https://override.service.example.com/v3/conversations/conversation-id/activities');
     expect(calls).toEqual([{ agenticIdentity }]);
   });
 

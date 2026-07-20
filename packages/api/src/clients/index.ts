@@ -67,6 +67,16 @@ export class Client {
   get http() {
     return this._http;
   }
+  set http(v) {
+    const http = this.prepareHttpClient(v);
+    this.bots.http = http;
+    this.users.http = http;
+    this.conversations.http = http;
+    this.teams.http = http;
+    this.meetings.http = http;
+    this.reactions.http = http;
+    this._http = http;
+  }
   protected _http: HttpClient;
   protected _baseHttp!: HttpClient;
   protected _apiClientSettings: Partial<ApiClientSettings>;
@@ -174,3 +184,5 @@ export * from './reaction';
 export * from './team';
 export * from './api-client-settings';
 export * from './auth';
+export * from './auth-provider-interceptor';
+export * from './request-options';

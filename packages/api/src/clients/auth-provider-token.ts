@@ -14,6 +14,7 @@ import {
 import type { AgenticIdentity } from '../models';
 
 import type { AuthProvider } from './auth';
+import { AGENTIC_IDENTITY_EXTENSION } from './auth-provider-extension';
 
 /**
  * @internal
@@ -27,10 +28,21 @@ export function createAuthProviderTokenFactory(
   authProvider: AuthProvider,
   defaultAgenticIdentity?: AgenticIdentity
 ): Token {
-  return () => traceAuthTokenAcquisition(
-    getAuthFlow(defaultAgenticIdentity),
-    async () => authProvider.token({ agenticIdentity: defaultAgenticIdentity })
-  );
+  return (config) => {
+    const extensions = (config as { extensions?: Record<string, unknown> }).extensions;
+    const agenticIdentity = getAgenticIdentity(extensions, defaultAgenticIdentity);
+    return traceAuthTokenAcquisition(
+      getAuthFlow(agenticIdentity),
+      async () => authProvider.token({ agenticIdentity })
+    );
+  };
+}
+
+function getAgenticIdentity(
+  extensions: Record<string, unknown> | undefined,
+  defaultAgenticIdentity: AgenticIdentity | undefined
+): AgenticIdentity | undefined {
+  return extensions?.[AGENTIC_IDENTITY_EXTENSION] as AgenticIdentity | undefined ?? defaultAgenticIdentity;
 }
 
 function getAuthFlow(agenticIdentity: AgenticIdentity | undefined): AuthFlow {

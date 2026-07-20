@@ -10,6 +10,7 @@ import {
   recordTeamsApiOutboundError
 } from '../../diagnostics/helpers';
 
+import { AGENTIC_IDENTITY_EXTENSION } from '../auth-provider-interceptor';
 import { ConversationActivityClient } from './activity';
 
 class TestHttpClient extends Client {
@@ -129,6 +130,28 @@ describe('ConversationActivityClient', () => {
       'https://default.service/v3/conversations/1/activities',
       { type: 'message', text: 'hi' },
       expectTelemetryConfig()
+    );
+  });
+
+  it('should use legacy request options for serviceUrl and agentic identity', async () => {
+    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
+    const client = new ConversationActivityClient('https://default.service/');
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+
+    await client.create(
+      '1',
+      { type: 'message', text: 'hi' },
+      { serviceUrl: 'https://override.service/', agenticIdentity }
+    );
+
+    expect(spy).toHaveBeenCalledWith(
+      'https://override.service/v3/conversations/1/activities',
+      { type: 'message', text: 'hi' },
+      expect.objectContaining({
+        extensions: expect.objectContaining({
+          [AGENTIC_IDENTITY_EXTENSION]: agenticIdentity,
+        }),
+      })
     );
   });
 
