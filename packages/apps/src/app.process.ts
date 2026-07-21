@@ -17,7 +17,6 @@ import { ActivitySender } from './activity-sender';
 import { type ApiClient, GraphClient } from './api';
 import { EventManager } from './app.events';
 import { ActivityContext, IActivityContext } from './contexts';
-import { withTeamsBaggage } from './diagnostics/baggage';
 import { APP_ATTRIBUTE_NAMES, APP_HANDLER_DISPATCH, APP_SPAN_NAMES } from './diagnostics/constants';
 import {
   getTeamsBotApplicationTracer,
@@ -108,7 +107,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       serviceUrl = serviceUrl.slice(0, serviceUrl.length - 1);
     }
 
-    return withTeamsBaggage(activity, () => traceActivityProcess(activity, serviceUrl, async (activityProcessSpan) => {
+    return traceActivityProcess(activity, serviceUrl, async (activityProcessSpan) => {
       const agenticIdentity = getAgenticIdentity(activity.recipient);
       const apiClient = this.options.api.clone({
         serviceUrl,
@@ -280,7 +279,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       }
 
       return response;
-    }));
+    });
   }
 
   /**

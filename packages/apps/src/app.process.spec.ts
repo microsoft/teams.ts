@@ -5,7 +5,6 @@ import { IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFe
 
 import { ActivitySender } from './activity-sender';
 import { App } from './app';
-import { APP_BAGGAGE_KEYS } from './diagnostics/constants';
 import {
   getTeamsBotApplicationTracer,
   recordTeamsBotActivityReceived,
@@ -273,7 +272,7 @@ describe('App', () => {
       expect(recordTeamsBotHandlerDispatched).toHaveBeenCalledWith('task/fetch', 'invoke');
     });
 
-    it('applies activity-derived baggage while processing the activity', async () => {
+    it('does not apply activity-derived baggage while processing the activity', async () => {
       let activeConversationId: string | undefined;
       let activeTenantId: string | undefined;
       const incomingActivity: IMessageActivity = new MessageActivity('hello')
@@ -286,8 +285,8 @@ describe('App', () => {
 
       app.on('message', () => {
         const baggage = propagation.getActiveBaggage();
-        activeConversationId = baggage?.getEntry(APP_BAGGAGE_KEYS.conversationId)?.value;
-        activeTenantId = baggage?.getEntry(APP_BAGGAGE_KEYS.tenantId)?.value;
+        activeConversationId = baggage?.getEntry('gen_ai.conversation.id')?.value;
+        activeTenantId = baggage?.getEntry('microsoft.tenant.id')?.value;
       });
 
       const response = await app.process({
@@ -296,9 +295,9 @@ describe('App', () => {
       });
 
       expect(response.status).toBe(200);
-      expect(activeConversationId).toBe('conv-1');
-      expect(activeTenantId).toBe('tenant-id');
-      expect(propagation.getActiveBaggage()?.getEntry(APP_BAGGAGE_KEYS.conversationId)).toBeUndefined();
+      expect(activeConversationId).toBeUndefined();
+      expect(activeTenantId).toBeUndefined();
+      expect(propagation.getActiveBaggage()?.getEntry('gen_ai.conversation.id')).toBeUndefined();
     });
 
     it('should return an invoke response', async () => {
