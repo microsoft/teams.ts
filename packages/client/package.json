@@ -38,7 +38,6 @@
   },
   "dependencies": {
     "@azure/msal-browser": "^4.9.1",
-    "@microsoft/teams.api": "*",
     "@microsoft/teams.common": "*",
     "@microsoft/teams.graph": "*"
   },
