@@ -13,17 +13,13 @@
   },
   "dependencies": {
     "@hono/node-server": "^2.0.8",
-    "@microsoft/teams.api": "*",
     "@microsoft/teams.apps": "*",
-    "@microsoft/teams.common": "*",
-    "cors": "^2.8.5",
     "express": "^5.0.0",
     "hono": "^4.12.30",
     "restify": "^11.1.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
-    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.5.4",
     "@types/restify": "^8.5.12",
