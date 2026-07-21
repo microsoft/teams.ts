@@ -12,13 +12,13 @@
     "start:restify": "NODE_ENV=production tsx restify/index.ts"
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.13",
+    "@hono/node-server": "^2.0.8",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.common": "*",
     "cors": "^2.8.5",
     "express": "^5.0.0",
-    "hono": "^4.12.25",
+    "hono": "^4.12.30",
     "restify": "^11.1.0"
   },
   "devDependencies": {
