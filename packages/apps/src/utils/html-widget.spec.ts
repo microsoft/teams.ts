@@ -42,7 +42,8 @@ describe('buildHtmlWidgetMarkdown', () => {
   });
 
   it('should not double-inject if HTML already has the protocol', () => {
-    const htmlWithInit = '<div>Hello</div><script>ui/initialize</script>';
+    const htmlWithInit =
+      '<div>Hello</div><script>window.parent.postMessage({jsonrpc:\'2.0\',method:\'ui/initialize\'},\'*\')</script>';
     const payload = { ...MINIMAL_PAYLOAD, html: htmlWithInit };
     const result = buildHtmlWidgetMarkdown(payload);
     const jsonLine = result.split('\n').slice(1, -1).join('\n');
@@ -256,10 +257,18 @@ describe('injectWidgetProtocol', () => {
     expect(result).toContain('version:\'1.0.0\'');
   });
 
-  it('should not modify HTML that already contains ui/initialize', () => {
-    const htmlWithInit = '<body><script>ui/initialize</script></body>';
+  it('should not modify HTML that already performs the ui/initialize handshake', () => {
+    const htmlWithInit =
+      '<body><script>window.parent.postMessage({method:\'ui/initialize\'},\'*\')</script></body>';
     const result = injectWidgetProtocol(htmlWithInit);
     expect(result).toBe(htmlWithInit);
+  });
+
+  it('should still inject when HTML only mentions ui/initialize in text or a comment', () => {
+    const htmlMentioningInit = '<body><!-- ui/initialize --><p>ui/initialize</p></body>';
+    const result = injectWidgetProtocol(htmlMentioningInit);
+    expect(result).not.toBe(htmlMentioningInit);
+    expect(result).toContain('method:\'ui/initialize\'');
   });
 
   it('should be idempotent -- calling twice produces the same output', () => {
@@ -367,7 +376,8 @@ describe('buildHtmlWidgetMarkdown integration', () => {
   });
 
   it('should not double-inject when HTML already has protocol', () => {
-    const htmlWithProtocol = '<body><script>ui/initialize already here</script></body>';
+    const htmlWithProtocol =
+      '<body><script>window.parent.postMessage({method:\'ui/initialize\'},\'*\')</script></body>';
     const payload: IHtmlWidgetPayload = {
       type: 'widget/mcp-ui',
       name: 'Test',
@@ -488,6 +498,28 @@ describe('payload validation', () => {
     };
     expect(() => buildHtmlWidgetMarkdown(payload)).toThrow('https://');
   });
+
+  it('should throw if domain is a malformed https URL', () => {
+    for (const domain of ['https://', 'https:// not a url', 'http://example.com']) {
+      const payload: IHtmlWidgetPayload = {
+        type: 'widget/mcp-ui',
+        name: 'Widget',
+        html: '<div>Hello</div>',
+        domain,
+      };
+      expect(() => buildHtmlWidgetMarkdown(payload)).toThrow('https://');
+    }
+  });
+
+  it('should not throw for a valid https domain', () => {
+    const payload: IHtmlWidgetPayload = {
+      type: 'widget/mcp-ui',
+      name: 'Widget',
+      html: '<div>Hello</div>',
+      domain: 'https://teams.microsoft.com',
+    };
+    expect(() => buildHtmlWidgetMarkdown(payload)).not.toThrow();
+  });
 });
 
 describe('validateSecurityPolicy', () => {
@@ -518,6 +550,46 @@ describe('validateSecurityPolicy', () => {
     const policy: IHtmlWidgetSecurityPolicy = {
       ...EMPTY_POLICY,
       resourceDomains: ['https://cdn.example.com'],
+    };
+    const warnings = validateSecurityPolicy(html, policy);
+    expect(warnings).toEqual([]);
+  });
+
+  it('should warn when a subdomain uses a different scheme than the pinned policy entry', () => {
+    const html = '<script src="http://cdn.example.com/lib.js"></script>';
+    const policy: IHtmlWidgetSecurityPolicy = {
+      ...EMPTY_POLICY,
+      resourceDomains: ['https://example.com'],
+    };
+    const warnings = validateSecurityPolicy(html, policy);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].url).toBe('http://cdn.example.com/lib.js');
+  });
+
+  it('should allow any scheme for a host-only policy entry', () => {
+    const html = '<script src="http://cdn.example.com/lib.js"></script>';
+    const policy: IHtmlWidgetSecurityPolicy = {
+      ...EMPTY_POLICY,
+      resourceDomains: ['example.com'],
+    };
+    const warnings = validateSecurityPolicy(html, policy);
+    expect(warnings).toEqual([]);
+  });
+
+  it('should warn about <base href> not in baseUriDomains', () => {
+    const html = '<base href="https://evil.example.com/">';
+    const warnings = validateSecurityPolicy(html, EMPTY_POLICY);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].policyField).toBe('baseUriDomains');
+    expect(warnings[0].source).toBe('<base href>');
+    expect(warnings[0].url).toBe('https://evil.example.com/');
+  });
+
+  it('should not warn about <base href> in baseUriDomains', () => {
+    const html = '<base href="https://cdn.example.com/">';
+    const policy: IHtmlWidgetSecurityPolicy = {
+      ...EMPTY_POLICY,
+      baseUriDomains: ['https://cdn.example.com'],
     };
     const warnings = validateSecurityPolicy(html, policy);
     expect(warnings).toEqual([]);

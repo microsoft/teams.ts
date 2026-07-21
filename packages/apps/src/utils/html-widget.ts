@@ -37,7 +37,14 @@ function validateHtmlWidgetPayload(payload: IHtmlWidgetPayload): void {
     throw new Error('HTML widget payload requires a non-empty "html" field.');
   }
 
-  if (!payload.domain.trim() || !payload.domain.startsWith('https://')) {
+  const domain = payload.domain.trim();
+  let domainUrl: URL | undefined;
+  try {
+    domainUrl = new URL(domain);
+  } catch {
+    domainUrl = undefined;
+  }
+  if (!domainUrl || domainUrl.protocol !== 'https:' || !domainUrl.hostname) {
     throw new Error('HTML widget payload requires "domain" to be a valid URL starting with "https://".');
   }
 }
@@ -218,7 +225,10 @@ export function injectWidgetProtocol(
   html: string,
   options?: IInjectWidgetProtocolOptions
 ): string {
-  if (html.includes('ui/initialize')) {
+  // Skip injection only if the HTML already performs the ui/initialize
+  // handshake (a `method: 'ui/initialize'` postMessage), not if it merely
+  // mentions the string somewhere (e.g. in a comment or visible text).
+  if (/["']?method["']?\s*:\s*["']ui\/initialize["']/.test(html)) {
     return html;
   }
 
@@ -404,7 +414,13 @@ function isOriginAllowed(origin: string, allowedDomains: string[]): boolean {
   return allowedDomains.some((domain) => {
     const cleaned = domain.replace(/^['"]|['"]$/g, '');
     if (cleaned === '*') return true;
-    return origin === cleaned || origin.endsWith(`.${cleaned.replace(/^https?:\/\//, '')}`);
+    if (origin === cleaned) return true;
+    // If the policy entry pins a scheme (e.g. `https://example.com`), the
+    // origin must use that same scheme; otherwise fall back to host-only match.
+    const schemeMatch = /^(https?):\/\//.exec(cleaned);
+    if (schemeMatch && !origin.startsWith(`${schemeMatch[1]}://`)) return false;
+    const host = cleaned.replace(/^https?:\/\//, '');
+    return origin.endsWith(`.${host}`);
   });
 }
 
@@ -559,6 +575,22 @@ export function validateSecurityPolicy(
           source: '<form action>',
           policyField: 'connectDomains',
           message: `<form action> references "${attrMatch[1]}" but origin "${origin}" is not in connectDomains.`,
+        });
+      }
+    }
+  }
+
+  // baseUriDomains: <base href>
+  for (const tagStr of findTags('base')) {
+    const attrMatch = tagStr.match(/href=["']([^"']+)["']/i);
+    if (attrMatch) {
+      const origin = extractOrigin(attrMatch[1]);
+      if (origin && !isOriginAllowed(origin, policy.baseUriDomains ?? [])) {
+        warnings.push({
+          url: attrMatch[1],
+          source: '<base href>',
+          policyField: 'baseUriDomains',
+          message: `<base href> references "${attrMatch[1]}" but origin "${origin}" is not in baseUriDomains.`,
         });
       }
     }
