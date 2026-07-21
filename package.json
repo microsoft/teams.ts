@@ -43,18 +43,51 @@
     "test": "npx turbo test --concurrency=100%"
   },
   "devDependencies": {
-    "@turbo/gen": "^2.5.7",
+    "@turbo/gen": "^2.10.5",
     "nerdbank-gitversioning": "^3.9.50",
-    "turbo": "^2.9.14",
+    "turbo": "^2.10.5",
     "typescript": "^5.4.5"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.40.1"
   },
   "overrides": {
+    "esbuild": "^0.28.1",
+    "js-yaml": "4.3.0",
+    "@istanbuljs/load-nyc-config": {
+      "js-yaml": "3.15.0"
+    },
+    "@eslint/eslintrc": {
+      "js-yaml": "4.3.0"
+    },
+    "@redocly/openapi-core": "^2.39.0",
+    "openapi-typescript": {
+      "@redocly/openapi-core": "^2.39.0"
+    },
+    "botbuilder": {
+      "@azure/msal-node": {
+        ".": "2.16.3",
+        "uuid": "11.1.1"
+      },
+      "uuid": "11.1.1"
+    },
+    "botbuilder-core": {
+      "uuid": "11.1.1"
+    },
+    "botframework-connector": {
+      "@azure/msal-node": "^5.4.0",
+      "uuid": "11.1.1"
+    },
+    "botframework-schema": {
+      "uuid": "11.1.1"
+    },
+    "botframework-streaming": {
+      "uuid": "11.1.1"
+    },
     "restify": {
       "send": "^1.2.0",
-      "find-my-way": "^9.0.0"
+      "find-my-way": "^9.0.0",
+      "uuid": "11.1.1"
     },
     "follow-redirects": "^1.16.0",
     "router": {
