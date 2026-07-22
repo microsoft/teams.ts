@@ -31,7 +31,11 @@ export function createAuthProviderTokenFactory(
   return () => {
     return traceAuthTokenAcquisition(
       getAuthFlow(defaultAgenticIdentity),
-      async () => authProvider.token({ agenticIdentity: defaultAgenticIdentity })
+      // AuthProvider.token may resolve to null when no token is available, but
+      // the common HTTP TokenFactory contract only allows string | StringLike |
+      // undefined. Coerce null to undefined so the common client treats "no
+      // token" uniformly instead of leaking a null into header resolution.
+      async () => (await authProvider.token({ agenticIdentity: defaultAgenticIdentity })) ?? undefined
     );
   };
 }
