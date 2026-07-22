@@ -2,6 +2,7 @@ import { SpanKind } from '@opentelemetry/api';
 import type { Span, Tracer } from '@opentelemetry/api';
 
 import { Client } from '@microsoft/teams.common';
+import type { ILogger } from '@microsoft/teams.common';
 
 import { OUTBOUND_OPERATIONS } from '../diagnostics/constants';
 import {
@@ -154,6 +155,47 @@ describe('API outbound middleware', () => {
       }),
       expect.any(Function)
     );
+    expect(span.end).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not fail the API call when a telemetry response hook throws', async () => {
+    const warn = jest.fn();
+    const logger = {
+      debug: jest.fn(),
+      info: jest.fn(),
+      warn,
+      error: jest.fn(),
+      trace: jest.fn(),
+      log: jest.fn(),
+      child: jest.fn(),
+    } as unknown as ILogger;
+    (logger.child as jest.Mock).mockReturnValue(logger);
+
+    const client = new HttpClient({ logger });
+    client.use(new ApiOutboundTelemetryMiddleware());
+    mockAdapter(client, { ok: true });
+
+    const hookError = new Error('hook failed');
+    let hookCalled = false;
+
+    const res = await client.post('/test', {}, {
+      extensions: withApiOutboundTelemetry(telemetryMetadata(
+        OUTBOUND_OPERATIONS.create,
+        {},
+        {
+          onResponse: () => {
+            hookCalled = true;
+            throw hookError;
+          },
+        }
+      )),
+    });
+
+    expect(hookCalled).toBe(true);
+    expect((res.data as { ok?: boolean }).ok).toBe(true);
+    expect(recordTeamsApiOutboundError).not.toHaveBeenCalled();
+    expect(recordTeamsApiException).not.toHaveBeenCalled();
+    expect(warn).toHaveBeenCalledTimes(1);
     expect(span.end).toHaveBeenCalledTimes(1);
   });
 

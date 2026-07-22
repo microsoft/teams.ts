@@ -85,13 +85,35 @@ export class ApiOutboundTelemetryMiddleware implements Middleware {
         recordTeamsApiOutboundCall(metadata.operation);
 
         try {
-          const res = await next();
-          await metadata.onResponse?.(span, res as AxiosResponse);
+          let res: R;
+
+          // next() owns the error path: only genuine call failures are counted
+          // as outbound errors and recorded as exceptions on the span.
+          try {
+            res = await next();
+          } catch (error) {
+            recordTeamsApiOutboundError(metadata.operation);
+            recordTeamsApiException(span, error);
+            throw error;
+          }
+
+          // Telemetry response hooks run in their own try, separate from
+          // next(), so they can never fail the underlying API call: a throwing
+          // or rejecting hook would otherwise discard a successful response, be
+          // counted as an outbound error, and propagate to the caller. Isolate
+          // the hook and swallow (logging) any failure.
+          if (metadata.onResponse) {
+            try {
+              await metadata.onResponse(span, res as AxiosResponse);
+            } catch (hookError) {
+              context.log.warn(
+                'Microsoft.Teams.Api outbound telemetry response hook failed',
+                hookError
+              );
+            }
+          }
+
           return res;
-        } catch (error) {
-          recordTeamsApiOutboundError(metadata.operation);
-          recordTeamsApiException(span, error);
-          throw error;
         } finally {
           span.end();
         }
