@@ -7,7 +7,7 @@ import {
   MeetingInfo,
   MeetingNotificationParams,
   MeetingNotificationResponse,
-  MeetingParticipant,
+  MeetingParticipant
 } from '../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';

@@ -1,3 +1,6 @@
+import type { Span } from '@opentelemetry/api';
+import type { AxiosResponse } from 'axios';
+
 import {
   Client as HttpClient,
   type ClientOptions as HttpClientOptions
@@ -8,8 +11,17 @@ import {
   type IMessageActivityInput,
   type ITypingActivityInput
 } from '../../activities';
-import { resolveAadObjectId, Resource, TeamsChannelAccount, type DeprecatedInputActivity } from '../../models';
+import {
+  API_ATTRIBUTE_NAMES,
+  OUTBOUND_OPERATIONS,
+  type ConversationActivityOperation
+} from '../../diagnostics/constants';
+import { resolveAadObjectId, type DeprecatedInputActivity, type Resource, type TeamsChannelAccount } from '../../models';
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
+import {
+  ensureApiOutboundTelemetryMiddleware,
+  withApiOutboundTelemetry
+} from '../api-outbound-middleware';
 import { normalizeServiceUrl } from '../service-url';
 
 /**
@@ -21,6 +33,47 @@ import { normalizeServiceUrl } from '../service-url';
 export type ActivityParams = IMessageActivityInput | ITypingActivityInput;
 type ActivityParamsLike = ActivityParams | DeprecatedInputActivity;
 
+function apiOutboundTelemetryConfig(
+  operation: ConversationActivityOperation,
+  serviceUrl: string,
+  conversationId: string,
+  activity: ActivityParams | undefined,
+  options?: {
+    readonly activityId?: string;
+    readonly captureResponseActivityId?: boolean;
+  }
+) {
+  return {
+    extensions: withApiOutboundTelemetry({
+      operation,
+      attributes: {
+        [API_ATTRIBUTE_NAMES.operation]: operation,
+        [API_ATTRIBUTE_NAMES.serviceUrl]: serviceUrl,
+        [API_ATTRIBUTE_NAMES.conversationId]: conversationId,
+        ...(activity?.type !== undefined ? { [API_ATTRIBUTE_NAMES.activityType]: activity.type } : {}),
+        ...(options?.activityId !== undefined ? { [API_ATTRIBUTE_NAMES.activityId]: options.activityId } : {}),
+      },
+      ...(options?.captureResponseActivityId ? { onResponse: setResponseActivityId } : {}),
+    }),
+  };
+}
+
+function setResponseActivityId(span: Span, res: AxiosResponse): void {
+  const id = getResponseActivityId(res.data);
+  if (id) {
+    span.setAttribute(API_ATTRIBUTE_NAMES.activityId, id);
+  }
+}
+
+function getResponseActivityId(data: unknown): string | undefined {
+  if (!data || typeof data !== 'object') {
+    return undefined;
+  }
+
+  const id = (data as { id?: unknown }).id;
+  return typeof id === 'string' && id ? id : undefined;
+}
+
 export class ConversationActivityClient {
   readonly serviceUrl: string;
 
@@ -28,6 +81,7 @@ export class ConversationActivityClient {
     return this._http;
   }
   set http(v) {
+    ensureApiOutboundTelemetryMiddleware(v);
     this._http = v;
   }
   protected _http: HttpClient;
@@ -43,6 +97,7 @@ export class ConversationActivityClient {
     } else {
       this._http = new HttpClient(options);
     }
+    ensureApiOutboundTelemetryMiddleware(this._http);
 
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
   }
@@ -58,7 +113,10 @@ export class ConversationActivityClient {
     const activity = toActivityParams(params);
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
-      activity
+      activity,
+      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.create, this.serviceUrl, conversationId, activity, {
+        captureResponseActivityId: true,
+      })
     );
     return res.data;
   }
@@ -74,7 +132,11 @@ export class ConversationActivityClient {
     const activity = toActivityParams(params);
     const res = await this.http.put<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
-      activity
+      activity,
+      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.update, this.serviceUrl, conversationId, activity, {
+        activityId: id,
+        captureResponseActivityId: true,
+      })
     );
     return res.data;
   }
@@ -91,14 +153,26 @@ export class ConversationActivityClient {
     activity.replyToId = id;
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
-      activity
+      activity,
+      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.reply, this.serviceUrl, conversationId, activity, {
+        captureResponseActivityId: true,
+      })
     );
     return res.data;
   }
 
   async delete(conversationId: string, id: string) {
     const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`;
-    const res = await this.http.delete<void>(url);
+    const res = await this.http.delete<void>(
+      url,
+      apiOutboundTelemetryConfig(
+        OUTBOUND_OPERATIONS.delete,
+        this.serviceUrl,
+        conversationId,
+        undefined,
+        { activityId: id }
+      )
+    );
     return res.data;
   }
 
@@ -119,7 +193,10 @@ export class ConversationActivityClient {
     const activity = toActivityParams(params);
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities?isTargetedActivity=true`,
-      activity
+      activity,
+      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.createTargeted, this.serviceUrl, conversationId, activity, {
+        captureResponseActivityId: true,
+      })
     );
     return res.data;
   }
@@ -135,14 +212,27 @@ export class ConversationActivityClient {
     const activity = toActivityParams(params);
     const res = await this.http.put<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`,
-      activity
+      activity,
+      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.updateTargeted, this.serviceUrl, conversationId, activity, {
+        activityId: id,
+        captureResponseActivityId: true,
+      })
     );
     return res.data;
   }
 
   async deleteTargeted(conversationId: string, id: string) {
     const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}?isTargetedActivity=true`;
-    const res = await this.http.delete<void>(url);
+    const res = await this.http.delete<void>(
+      url,
+      apiOutboundTelemetryConfig(
+        OUTBOUND_OPERATIONS.deleteTargeted,
+        this.serviceUrl,
+        conversationId,
+        undefined,
+        { activityId: id }
+      )
+    );
     return res.data;
   }
 }

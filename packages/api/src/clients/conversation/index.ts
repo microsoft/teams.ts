@@ -8,6 +8,7 @@ import {
 import { Account, Conversation, ConversationResource, MessageReactionType, type DeprecatedInputActivity } from '../../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
+import { ensureApiOutboundTelemetryMiddleware } from '../api-outbound-middleware';
 import { ReactionClient } from '../reaction';
 import { normalizeServiceUrl } from '../service-url';
 
@@ -95,10 +96,11 @@ export class ConversationClient {
     return this._http;
   }
   set http(v) {
+    ensureApiOutboundTelemetryMiddleware(v);
     this._http = v;
-    this._activities.http = v;
-    this._members.http = v;
-    this._reactions.http = v;
+    this._activities.http = this._http;
+    this._members.http = this._http;
+    this._reactions.http = this._http;
   }
   protected _http: HttpClient;
   protected _activities: ConversationActivityClient;
@@ -116,6 +118,7 @@ export class ConversationClient {
     } else {
       this._http = new HttpClient(options);
     }
+    ensureApiOutboundTelemetryMiddleware(this._http);
 
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
     this._activities = new ConversationActivityClient(this.serviceUrl, this.http, this._apiClientSettings);
