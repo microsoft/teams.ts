@@ -70,7 +70,7 @@ export class ApiOutboundTelemetryMiddleware implements Middleware {
     context: MiddlewareContext<D>,
     next: MiddlewareNext<R>
   ): Promise<R> {
-    const metadata = getApiOutboundTelemetryMetadata(context.extensions);
+    const metadata = getApiOutboundTelemetryMetadata(context.config.extensions);
     if (!metadata) {
       return next();
     }

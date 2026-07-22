@@ -59,31 +59,22 @@ export type ClientOptions = {
 /**
  * Context for a single HTTP middleware invocation.
  *
- * Middleware can inspect the requested method and URL, read or mutate
- * `config`, and use `log` for diagnostics. `extensions` is SDK-local metadata
- * from `config.extensions`; it is never copied into headers, query params, or
- * the request body by the common client.
+ * `config` is the single source of truth for the outbound request: it carries
+ * the method, URL, body (`data`), query `params`, `headers`, and SDK-local
+ * `extensions`. Middleware reads and mutates the request through `config`
+ * (e.g. `context.config.headers`, `context.config.extensions`); `extensions`
+ * is never copied into headers, query params, or the request body by the
+ * common client. `log` is available for diagnostics.
  */
 export type MiddlewareContext<D = any> = {
   /**
-   * HTTP method for the request, when provided.
-   */
-  readonly method?: string;
-
-  /**
-   * URL for the request, when provided.
-   */
-  readonly url?: string;
-
-  /**
    * Mutable request config for this outbound call.
+   *
+   * This is the authoritative request state. Read the method, URL, body, and
+   * SDK-local `extensions` from here, and mutate it in place to change the
+   * request seen by later middleware and the terminal HTTP transport.
    */
   config: RequestConfig<D>;
-
-  /**
-   * SDK-local request metadata.
-   */
-  readonly extensions?: Record<string, unknown>;
 
   /**
    * Client logger.
@@ -177,10 +168,7 @@ export class Client {
     config?: RequestConfig<D>,
   ): Promise<R> {
     return this.invokeMiddleware<T, R, D>({
-      method: 'get',
-      url,
       config: { ...config, method: 'get', url },
-      extensions: config?.extensions,
       log: this.log,
     }, 0, 'method');
   }
@@ -191,10 +179,7 @@ export class Client {
     config?: RequestConfig<D>,
   ): Promise<R> {
     return this.invokeMiddleware<T, R, D>({
-      method: 'post',
-      url,
       config: { ...config, method: 'post', url, data },
-      extensions: config?.extensions,
       log: this.log,
     }, 0, 'method');
   }
@@ -205,10 +190,7 @@ export class Client {
     config?: RequestConfig<D>,
   ): Promise<R> {
     return this.invokeMiddleware<T, R, D>({
-      method: 'put',
-      url,
       config: { ...config, method: 'put', url, data },
-      extensions: config?.extensions,
       log: this.log,
     }, 0, 'method');
   }
@@ -219,10 +201,7 @@ export class Client {
     config?: RequestConfig<D>,
   ): Promise<R> {
     return this.invokeMiddleware<T, R, D>({
-      method: 'patch',
-      url,
       config: { ...config, method: 'patch', url, data },
-      extensions: config?.extensions,
       log: this.log,
     }, 0, 'method');
   }
@@ -232,10 +211,7 @@ export class Client {
     config?: RequestConfig<D>,
   ): Promise<R> {
     return this.invokeMiddleware<T, R, D>({
-      method: 'delete',
-      url,
       config: { ...config, method: 'delete', url },
-      extensions: config?.extensions,
       log: this.log,
     }, 0, 'method');
   }
@@ -244,10 +220,7 @@ export class Client {
     config: RequestConfig<D>,
   ): Promise<R> {
     return this.invokeMiddleware<T, R, D>({
-      method: config.method,
-      url: config.url,
       config,
-      extensions: config.extensions,
       log: this.log,
     }, 0, 'request');
   }
