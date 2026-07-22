@@ -48,6 +48,7 @@ type InvokeAliases = {
   'signin/verifyState': 'signin.verify-state';
   'signin/failure': 'signin.failure';
   'adaptiveCard/action': 'card.action';
+  'application/search': 'search';
 };
 
 export const INVOKE_ALIASES: InvokeAliases = {
@@ -76,6 +77,7 @@ export const INVOKE_ALIASES: InvokeAliases = {
   'signin/verifyState': 'signin.verify-state',
   'signin/failure': 'signin.failure',
   'adaptiveCard/action': 'card.action',
+  'application/search': 'search',
 };
 
 export * from './card-action';

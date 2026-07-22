@@ -30,6 +30,7 @@ export * from './membership-source-types';
 export * from './membership-source';
 export * from './membership-types';
 export * from './adaptive-card';
+export * from './search';
 export * from './channel-data';
 export * from './team-details';
 export * from './meeting';

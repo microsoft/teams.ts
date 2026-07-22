@@ -3,6 +3,7 @@ import {
   ConfigResponse,
   MessagingExtensionActionResponse,
   MessagingExtensionResponse,
+  SearchInvokeResponse,
   TabResponse,
   TaskModuleResponse,
   TokenExchangeInvokeResponse,
@@ -63,4 +64,5 @@ type InvokeResponseBody = {
   'signin/verifyState': void;
   'signin/failure': void;
   'adaptiveCard/action': AdaptiveCardActionResponse;
+  'application/search': SearchInvokeResponse;
 };

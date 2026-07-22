@@ -209,6 +209,43 @@ function createProfileCardInputValidation() {
   return card;
 }
 
+// A dynamic typeahead ChoiceSet: instead of static `choices`, it declares a
+// `choices.data` Data.Query with a `dataset`. As the user types, Teams sends an
+// `application/search` invoke, handled by `app.on('search', ...)` below.
+function createDynamicSearchCard(): IAdaptiveCard {
+  return {
+    type: 'AdaptiveCard',
+    version: '1.5',
+    body: [
+      {
+        type: 'TextBlock',
+        text: 'Pick a Nintendo game (type to search):',
+        wrap: true,
+        style: 'heading',
+      },
+      {
+        type: 'Input.ChoiceSet',
+        id: 'game',
+        label: 'Game',
+        placeholder: 'Search for a game',
+        style: 'filtered',
+        choices: [],
+        'choices.data': {
+          type: 'Data.Query',
+          dataset: 'nintendoGames',
+        },
+      },
+    ],
+    actions: [
+      {
+        type: 'Action.Execute',
+        title: 'Submit',
+        data: { action: 'submit_game' },
+      },
+    ],
+  };
+}
+
 const app = new App({
 });
 
@@ -240,6 +277,10 @@ const cardGeneratorByName: Record<
   'profile-input-validation': {
     generator: createProfileCardInputValidation,
     description: 'Show card with input validation',
+  },
+  search: {
+    generator: createDynamicSearchCard,
+    description: 'Show card with dynamic typeahead search (application/search)',
   },
 };
 
@@ -348,6 +389,40 @@ app.on('card.action.save_profile', async ({ activity, send }) => {
   await send(
     `Profile saved!\nName: ${data.name}\nEmail: ${data.email}\nSubscribed: ${data.subscribe}`
   );
+  return OK_RESPONSE;
+});
+
+// The full catalog the typeahead searches over. In a real app this would be a
+// database or API call.
+const NINTENDO_GAMES = [
+  'The Legend of Zelda: Tears of the Kingdom',
+  'Super Mario Odyssey',
+  'Animal Crossing: New Horizons',
+  'Metroid Dread',
+  'Splatoon 3',
+  'Mario Kart 8 Deluxe',
+  'Super Smash Bros. Ultimate',
+  'Pikmin 4',
+];
+
+// Fired when the user types in the dynamic typeahead ChoiceSet above. Return the
+// matching results as `{ title, value }` pairs.
+app.on('search', async ({ activity }) => {
+  const query = activity.value.queryText?.toLowerCase() ?? '';
+  const results = NINTENDO_GAMES.filter((game) =>
+    game.toLowerCase().includes(query)
+  ).map((game) => ({ title: game, value: game }));
+
+  return {
+    statusCode: 200,
+    type: 'application/vnd.microsoft.search.searchResponse',
+    value: { results },
+  };
+});
+
+app.on('card.action.submit_game', async ({ activity, send }) => {
+  const data = activity.value.action.data;
+  await send(`You picked: ${data.game}`);
   return OK_RESPONSE;
 });
 
