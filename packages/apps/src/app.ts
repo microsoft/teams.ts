@@ -349,6 +349,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       log: this.log,
       getId: () => this.id,
       getConnectionName: () => this.oauth.defaultConnectionName,
+      shouldFetchUserToken: () => this.shouldFetchUserToken(),
       apiClientSettings: this.options.apiClientSettings,
       graphBaseUrl: this.graphBaseUrl,
     });
@@ -787,5 +788,19 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected async getAppGraphToken(tenantId?: string) {
     if (!this.tokenManager) return;
     return await this.tokenManager.getGraphToken(tenantId);
+  }
+
+  /**
+   * whether to eagerly look up the user's OAuth token on every inbound activity.
+   * an explicit `oauth.fetchUserToken` wins; otherwise it is auto-detected, enabled
+   * only when an OAuth connection is explicitly configured, so apps that never use
+   * user OAuth do not pay for a wasted token request on every turn.
+   */
+  protected shouldFetchUserToken(): boolean {
+    const explicit = this.options.oauth?.fetchUserToken;
+    if (explicit !== undefined) {
+      return explicit;
+    }
+    return this.options.oauth?.defaultConnectionName !== undefined;
   }
 }

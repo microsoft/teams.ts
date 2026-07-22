@@ -349,4 +349,63 @@ describe('App', () => {
       expect(errors[0].activity).toBeDefined();
     });
   });
+
+  describe('user token lookup', () => {
+    let testApp: App;
+    const userActivity = new MessageActivity('hi', {
+      id: 'a1',
+      channelId: 'msteams',
+      from: { id: 'user-1', name: 'User' },
+      conversation: { id: 'c1' },
+      recipient: { id: 'bot' },
+    } as Partial<IMessageActivity>);
+
+    afterEach(() => {
+      testApp?.stop();
+    });
+
+    it('does not fetch the user token when no OAuth connection is configured', async () => {
+      testApp = createTestApp();
+      testApp.start();
+      const spy = jest.spyOn(testApp.api.users, 'getToken');
+
+      await testApp.process({ token, body: userActivity });
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('fetches the user token when an OAuth connection is configured', async () => {
+      testApp = createTestApp({ oauth: { defaultConnectionName: 'graph' } });
+      testApp.start();
+      const spy = jest
+        .spyOn(testApp.api.users, 'getToken')
+        .mockResolvedValue({ token: 'user-token' } as any);
+
+      await testApp.process({ token, body: userActivity });
+
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('honors an explicit fetchUserToken=false override even when OAuth is configured', async () => {
+      testApp = createTestApp({ oauth: { defaultConnectionName: 'graph', fetchUserToken: false } });
+      testApp.start();
+      const spy = jest.spyOn(testApp.api.users, 'getToken');
+
+      await testApp.process({ token, body: userActivity });
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('honors an explicit fetchUserToken=true override when no OAuth connection is configured', async () => {
+      testApp = createTestApp({ oauth: { fetchUserToken: true } });
+      testApp.start();
+      const spy = jest
+        .spyOn(testApp.api.users, 'getToken')
+        .mockResolvedValue({ token: 'user-token' } as any);
+
+      await testApp.process({ token, body: userActivity });
+
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+  });
 });
