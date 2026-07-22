@@ -410,19 +410,29 @@ export class Client {
     const transportConfig: RequestConfig<D> = { ...resolvedConfig };
     delete transportConfig.method;
     delete transportConfig.url;
-    delete transportConfig.data;
 
     switch (method) {
+      // get/delete carry any request body on `config.data`, so the resolved
+      // config is forwarded as-is. (Stripping `data` here previously dropped
+      // GET/DELETE request bodies that callers passed through `config`.)
       case 'get':
         return this.http.get<T, R, D>(url, transportConfig);
-      case 'post':
-        return this.http.post<T, R, D>(url, resolvedConfig.data, transportConfig);
-      case 'put':
-        return this.http.put<T, R, D>(url, resolvedConfig.data, transportConfig);
-      case 'patch':
-        return this.http.patch<T, R, D>(url, resolvedConfig.data, transportConfig);
       case 'delete':
         return this.http.delete<T, R, D>(url, transportConfig);
+      // post/put/patch take the body as a positional argument, so remove it
+      // from the forwarded config to avoid sending it in two places.
+      case 'post': {
+        const { data, ...rest } = transportConfig;
+        return this.http.post<T, R, D>(url, data, rest);
+      }
+      case 'put': {
+        const { data, ...rest } = transportConfig;
+        return this.http.put<T, R, D>(url, data, rest);
+      }
+      case 'patch': {
+        const { data, ...rest } = transportConfig;
+        return this.http.patch<T, R, D>(url, data, rest);
+      }
       default:
         return this.http.request<T, R, D>(resolvedConfig);
     }
