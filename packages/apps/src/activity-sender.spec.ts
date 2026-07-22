@@ -163,17 +163,8 @@ describe('ActivitySender', () => {
       expect(body).not.toHaveProperty('serviceUrl');
     });
 
-    it('should ignore sender option shapes that contain a serviceUrl and use the ref serviceUrl', async () => {
-      const options = {
-        agenticIdentity: undefined,
-        serviceUrl: 'https://ignored-service.botframework.com',
-      };
-
-      await sender.send(
-        { type: 'message', text: 'hi' },
-        ref,
-        options,
-      );
+    it('should use the ref serviceUrl when no agentic identity option is provided', async () => {
+      await sender.send({ type: 'message', text: 'hi' }, ref);
 
       expect(createClient).toHaveBeenCalledWith(ref.serviceUrl, undefined);
     });

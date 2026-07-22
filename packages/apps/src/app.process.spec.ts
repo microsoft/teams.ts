@@ -1,13 +1,100 @@
+import { context, propagation, ROOT_CONTEXT } from '@opentelemetry/api';
+import type { Context, ContextManager, Span, Tracer } from '@opentelemetry/api';
+
 import { IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse } from '@microsoft/teams.api';
 
 import { ActivitySender } from './activity-sender';
 import { App } from './app';
+import {
+  getTeamsBotApplicationTracer,
+  recordTeamsBotActivityReceived,
+  recordTeamsBotApplicationException,
+  recordTeamsBotHandlerDispatched,
+  recordTeamsBotHandlerDuration,
+  recordTeamsBotHandlerFailure,
+  recordTeamsBotHandlerUnmatched,
+  recordTeamsBotActivityProcessDuration
+} from './diagnostics/helpers';
 import { IActivityResponseEvent, IActivitySentEvent, IErrorEvent } from './events';
 import { IActivityEvent } from './events/activity';
 import { createTestApp } from './test-utils';
 
+jest.mock('./diagnostics/helpers', () => ({
+  getTeamsBotApplicationTracer: jest.fn(),
+  recordTeamsBotActivityReceived: jest.fn(),
+  recordTeamsBotApplicationException: jest.fn(),
+  recordTeamsBotHandlerDispatched: jest.fn(),
+  recordTeamsBotHandlerDuration: jest.fn(),
+  recordTeamsBotHandlerFailure: jest.fn(),
+  recordTeamsBotHandlerUnmatched: jest.fn(),
+  recordTeamsBotOAuthError: jest.fn(),
+  recordTeamsBotOAuthOperation: jest.fn(),
+  recordTeamsBotOAuthOperationDuration: jest.fn(),
+  recordTeamsBotActivityProcessDuration: jest.fn(),
+}));
+
+type SpanRecord = {
+  readonly name: string;
+  readonly options: any;
+  readonly span: Span;
+};
+
+class TestContextManager implements ContextManager {
+  private current = ROOT_CONTEXT;
+
+  active(): Context {
+    return this.current;
+  }
+
+  with<A extends unknown[], F extends (...args: A) => ReturnType<F>>(
+    scopedContext: Context,
+    fn: F,
+    thisArg?: ThisParameterType<F>,
+    ...args: A
+  ): ReturnType<F> {
+    const previous = this.current;
+    this.current = scopedContext;
+
+    try {
+      const result = fn.apply(thisArg, args);
+
+      if (isPromiseLike(result)) {
+        return result.finally(() => {
+          this.current = previous;
+        }) as ReturnType<F>;
+      }
+
+      this.current = previous;
+      return result;
+    } catch (error) {
+      this.current = previous;
+      throw error;
+    }
+  }
+
+  bind<T>(_context: Context, target: T): T {
+    return target;
+  }
+
+  enable(): this {
+    return this;
+  }
+
+  disable(): this {
+    this.current = ROOT_CONTEXT;
+    return this;
+  }
+}
+
+function isPromiseLike(value: unknown): value is Promise<unknown> {
+  return !!value && typeof value === 'object' && 'finally' in value && typeof value.finally === 'function';
+}
+
 describe('App', () => {
   let app: App;
+  let spans: SpanRecord[];
+  const startActiveSpan = jest.fn();
+  const tracer = { startActiveSpan } as unknown as Tracer;
   const token: IToken = {
     appId: 'app-id',
     serviceUrl: 'https://service.url',
@@ -19,6 +106,21 @@ describe('App', () => {
   const activity: IMessageActivity = new MessageActivity();
 
   beforeEach(() => {
+    spans = [];
+    jest.clearAllMocks();
+    context.disable();
+    context.setGlobalContextManager(new TestContextManager());
+    jest.mocked(getTeamsBotApplicationTracer).mockReturnValue(tracer);
+    startActiveSpan.mockImplementation((name: string, options: unknown, callback: (span: Span) => unknown) => {
+      const span = {
+        setAttribute: jest.fn(),
+        recordException: jest.fn(),
+        setStatus: jest.fn(),
+        end: jest.fn(),
+      } as unknown as Span;
+      spans.push({ name, options, span });
+      return callback(span);
+    });
     app = createTestApp();
     app.start();
   });
@@ -26,6 +128,7 @@ describe('App', () => {
   afterEach(() => {
     app.stop();
     jest.restoreAllMocks();
+    context.disable();
   });
 
   describe('process', () => {
@@ -38,6 +141,163 @@ describe('App', () => {
       const response = await app.process(event);
       expect(response.status).toBe(200);
       expect(response.body).toBeUndefined();
+    });
+
+    it('emits activity process telemetry and unmatched metrics without recording payload text', async () => {
+      const incomingActivity: IMessageActivity = new MessageActivity('do not record this')
+        .withId('activity-id')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot' })
+        .withConversation({ id: 'conv-1', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url/')
+        .toInterface();
+
+      const response = await app.process({
+        token,
+        body: incomingActivity,
+      });
+
+      const activityProcessSpan = spans.find((span) => span.name === 'microsoft.teams.activity.process');
+      expect(response.status).toBe(200);
+      expect(recordTeamsBotActivityReceived).toHaveBeenCalledWith('message');
+      expect(recordTeamsBotHandlerUnmatched).toHaveBeenCalledWith('message', undefined);
+      expect(recordTeamsBotActivityProcessDuration).toHaveBeenCalledWith('message', expect.any(Number));
+      expect(activityProcessSpan?.options.attributes).toEqual(expect.objectContaining({
+        'activity.type': 'message',
+        'activity.id': 'activity-id',
+        'conversation.id': 'conv-1',
+        'channel.id': 'msteams',
+        'bot.id': 'bot-1',
+        'service.url': 'https://service.url',
+      }));
+      expect(activityProcessSpan?.options.attributes).not.toHaveProperty('text');
+      expect(activityProcessSpan?.span.end).toHaveBeenCalled();
+    });
+
+    it('emits unmatched invoke metrics with invoke name only', async () => {
+      await app.process({
+        token,
+        body: {
+          type: 'invoke',
+          name: 'task/fetch',
+          channelId: 'msteams',
+          from: { id: 'user-1' },
+          recipient: { id: 'bot-1' },
+          conversation: { id: 'conv-1' },
+          serviceUrl: 'https://service.url',
+          value: { data: { dialog_id: 'not-recorded' } },
+        } as any,
+      });
+
+      expect(recordTeamsBotHandlerUnmatched).toHaveBeenCalledWith('invoke', 'task/fetch');
+    });
+
+    it('emits handler telemetry for selected route handlers', async () => {
+      app.on('message', () => undefined);
+
+      const response = await app.process({
+        token,
+        body: new MessageActivity('hello').toInterface(),
+      });
+
+      const handlerSpan = spans.find((span) => span.name === 'microsoft.teams.handler');
+      expect(response.status).toBe(200);
+      expect(recordTeamsBotHandlerDispatched).toHaveBeenCalledWith('message', 'type');
+      expect(recordTeamsBotHandlerDuration).toHaveBeenCalledWith('message', 'type', expect.any(Number));
+      expect(handlerSpan?.options.attributes).toEqual({
+        'handler.type': 'message',
+        'handler.dispatch': 'type',
+      });
+      expect(handlerSpan?.span.end).toHaveBeenCalled();
+    });
+
+    it('records handler and activity process exceptions while preserving error responses', async () => {
+      const error = new Error('Test error');
+      app.use(() => {
+        throw error;
+      });
+
+      const response = await app.process({
+        token,
+        body: new MessageActivity('hello').toInterface(),
+      });
+
+      const activityProcessSpan = spans.find((span) => span.name === 'microsoft.teams.activity.process');
+      const handlerSpan = spans.find((span) => span.name === 'microsoft.teams.handler');
+      expect(response.status).toBe(500);
+      expect(recordTeamsBotHandlerFailure).toHaveBeenCalledWith('message', 'catchall');
+      expect(recordTeamsBotApplicationException).toHaveBeenCalledWith(handlerSpan?.span, error);
+      expect(recordTeamsBotApplicationException).toHaveBeenCalledWith(activityProcessSpan?.span, error);
+      expect(recordTeamsBotHandlerDuration).toHaveBeenCalledWith('message', 'catchall', expect.any(Number));
+    });
+
+    it('uses catchall dispatch for middleware and activity catchall handlers', async () => {
+      app.use((ctx) => ctx.next());
+      app.on('activity', () => undefined);
+
+      const response = await app.process({
+        token,
+        body: new MessageActivity('hello').toInterface(),
+      });
+
+      expect(response.status).toBe(200);
+      expect(recordTeamsBotHandlerDispatched).toHaveBeenNthCalledWith(1, 'message', 'catchall');
+      expect(recordTeamsBotHandlerDispatched).toHaveBeenNthCalledWith(2, 'message', 'catchall');
+    });
+
+    it('uses invoke dispatch for invoke-specific handlers', async () => {
+      app.on('dialog.open', () => ({
+        task: {
+          type: 'message',
+          value: 'opened',
+        },
+      }));
+
+      const response = await app.process({
+        token,
+        body: {
+          type: 'invoke',
+          name: 'task/fetch',
+          channelId: 'msteams',
+          from: { id: 'user-1' },
+          recipient: { id: 'bot-1' },
+          conversation: { id: 'conv-1' },
+          serviceUrl: 'https://service.url',
+          value: {},
+        } as ITaskFetchInvokeActivity,
+      });
+
+      expect(response.status).toBe(200);
+      expect(recordTeamsBotHandlerDispatched).toHaveBeenCalledWith('task/fetch', 'invoke');
+    });
+
+    it('does not apply activity-derived baggage while processing the activity', async () => {
+      let activeConversationId: string | undefined;
+      let activeTenantId: string | undefined;
+      const incomingActivity: IMessageActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot', tenantId: 'tenant-id' })
+        .withConversation({ id: 'conv-1', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url')
+        .toInterface();
+
+      app.on('message', () => {
+        const baggage = propagation.getActiveBaggage();
+        activeConversationId = baggage?.getEntry('gen_ai.conversation.id')?.value;
+        activeTenantId = baggage?.getEntry('microsoft.tenant.id')?.value;
+      });
+
+      const response = await app.process({
+        token,
+        body: incomingActivity,
+      });
+
+      expect(response.status).toBe(200);
+      expect(activeConversationId).toBeUndefined();
+      expect(activeTenantId).toBeUndefined();
+      expect(propagation.getActiveBaggage()?.getEntry('gen_ai.conversation.id')).toBeUndefined();
     });
 
     it('should return an invoke response', async () => {
@@ -203,6 +463,85 @@ describe('App', () => {
           agenticAppId: 'agent-app',
           agenticUserId: 'agent-user',
         }),
+      });
+    });
+
+    it('uses the inbound agentic-scoped API client for the user-token precheck', async () => {
+      const incomingServiceUrl = 'https://incoming-service.botframework.com';
+      const agenticIdentity = {
+        agenticAppId: 'agent-app',
+        agenticUserId: 'agent-user',
+        tenantId: 'tenant-id',
+        agenticAppBlueprintId: 'blueprint-id',
+      };
+      const incomingActivity: IMessageActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({
+          id: 'bot-1',
+          name: 'Test Bot',
+          role: 'bot',
+          ...agenticIdentity,
+        })
+        .withConversation({ id: 'conv-123', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl(incomingServiceUrl)
+        .toInterface();
+      const scopedApi = app.api.clone({
+        serviceUrl: incomingServiceUrl,
+        agenticIdentity,
+      });
+      const clone = jest.spyOn(app.api, 'clone').mockReturnValue(scopedApi);
+      const rootGetToken = jest.spyOn(app.api.users, 'getToken').mockResolvedValue({ token: 'root-token' } as any);
+      const scopedGetToken = jest.spyOn(scopedApi.users, 'getToken').mockResolvedValue({ token: 'agentic-user-token' } as any);
+
+      await app.process({
+        token: { ...token, serviceUrl: incomingServiceUrl },
+        body: incomingActivity,
+      });
+
+      expect(clone).toHaveBeenCalledWith({
+        serviceUrl: incomingServiceUrl,
+        agenticIdentity,
+      });
+      expect(rootGetToken).not.toHaveBeenCalled();
+      expect(scopedGetToken).toHaveBeenCalledWith({
+        channelId: 'msteams',
+        userId: 'user-1',
+        connectionName: 'graph',
+      });
+    });
+
+    it('keeps the user-token precheck app-only when the inbound activity has no agentic identity', async () => {
+      const incomingServiceUrl = 'https://incoming-service.botframework.com';
+      const incomingActivity: IMessageActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot' })
+        .withConversation({ id: 'conv-123', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl(incomingServiceUrl)
+        .toInterface();
+      const scopedApi = app.api.clone({
+        serviceUrl: incomingServiceUrl,
+        agenticIdentity: undefined,
+      });
+      const clone = jest.spyOn(app.api, 'clone').mockReturnValue(scopedApi);
+      const rootGetToken = jest.spyOn(app.api.users, 'getToken').mockResolvedValue({ token: 'root-token' } as any);
+      const scopedGetToken = jest.spyOn(scopedApi.users, 'getToken').mockResolvedValue({ token: 'app-token' } as any);
+
+      await app.process({
+        token: { ...token, serviceUrl: incomingServiceUrl },
+        body: incomingActivity,
+      });
+
+      expect(clone).toHaveBeenCalledWith({
+        serviceUrl: incomingServiceUrl,
+        agenticIdentity: undefined,
+      });
+      expect(rootGetToken).not.toHaveBeenCalled();
+      expect(scopedGetToken).toHaveBeenCalledWith({
+        channelId: 'msteams',
+        userId: 'user-1',
+        connectionName: 'graph',
       });
     });
 

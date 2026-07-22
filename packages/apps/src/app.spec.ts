@@ -15,8 +15,8 @@ class TestApp extends App {
     return this.getAppGraphToken(tenantId);
   }
 
-  public async testSend(conversationId: string, activity: any) {
-    return this.send(conversationId, activity);
+  public async testSend(conversationId: string, activity: any, options?: any) {
+    return this.send(conversationId, activity, options);
   }
 
   public async testReply(conversationId: string, messageId: string, activity: any): Promise<any>;
@@ -154,6 +154,31 @@ describe('App', () => {
       expect(ref.bot.name).toBeUndefined();
     });
 
+    it('should forward send agentic identity options', async () => {
+      app = new TestApp({
+        httpServerAdapter: new TestAdapter(),
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        tenantId: 'test-tenant-id',
+      });
+
+      await app.start();
+
+      const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+
+      await app.testSend(
+        'conversation-id',
+        { type: 'message', text: 'Hello' },
+        { agenticIdentity }
+      );
+
+      const [, ref, options] = mockSend.mock.calls[0];
+      expect(ref.serviceUrl).toBe(app.api.serviceUrl);
+      expect(options).toEqual({ agenticIdentity });
+    });
+
     it('should throw error when app is not started (no clientId)', async () => {
       app = new TestApp({
         httpServerAdapter: new TestAdapter()
@@ -243,15 +268,16 @@ describe('App', () => {
           },
         },
       });
-      const spy = jest.spyOn((app.client as any).http, 'get').mockResolvedValueOnce({});
+      let seenConfig: any;
+      (app.client as any).http.defaults.adapter = async (config: any) => {
+        seenConfig = config;
+        return { data: {}, status: 200, statusText: 'OK', headers: {}, config };
+      };
 
       await app.client.get('/test');
 
-      expect(spy).toHaveBeenCalledWith('/test', {
-        headers: {
-          'User-Agent': expect.stringMatching(/^teams\.ts\[apps\]\/.* MyApp\/1\.0$/),
-        },
-      });
+      const userAgent = seenConfig.headers.get?.('User-Agent') ?? seenConfig.headers['User-Agent'];
+      expect(userAgent).toEqual(expect.stringMatching(/^teams\.ts\[apps\]\/.* MyApp\/1\.0$/));
     });
   });
 
