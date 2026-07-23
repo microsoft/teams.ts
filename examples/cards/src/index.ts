@@ -211,7 +211,7 @@ function createProfileCardInputValidation() {
 
 // A dynamic typeahead ChoiceSet: instead of static `choices`, it declares a
 // `choices.data` Data.Query with a `dataset`. As the user types, Teams sends an
-// `application/search` invoke, handled by `app.on('search', ...)` below.
+// `application/search` invoke, handled by `app.on('card.search', ...)` below.
 function createDynamicSearchCard(): IAdaptiveCard {
   return {
     type: 'AdaptiveCard',
@@ -407,7 +407,7 @@ const NINTENDO_GAMES = [
 
 // Fired when the user types in the dynamic typeahead ChoiceSet above. Return the
 // matching results as `{ title, value }` pairs.
-app.on('search', async ({ activity }) => {
+app.on('card.search', async ({ activity }) => {
   const query = activity.value.queryText?.toLowerCase() ?? '';
   const results = NINTENDO_GAMES.filter((game) =>
     game.toLowerCase().includes(query)

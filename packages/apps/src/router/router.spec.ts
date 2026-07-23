@@ -40,11 +40,11 @@ describe('Router', () => {
     expect(router.select({ type: 'invoke', name: 'signin/tokenExchange' } as any)).toHaveLength(1);
   });
 
-  it('should select "search" alias for application/search invoke', () => {
+  it('should select "card.search" alias for application/search invoke', () => {
     const router = new Router();
     const handler = jest.fn();
 
-    router.on('search', handler);
+    router.on('card.search', handler);
 
     expect(router.select({
       type: 'invoke',
