@@ -4,6 +4,7 @@ import {
   Activity,
   ActivityLike,
   AgenticIdentity,
+  ApiClientSettings,
   Account,
   ChannelID,
   ConversationReference,
@@ -67,6 +68,13 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly log: ILogger;
   readonly getId: () => string | undefined;
   readonly getConnectionName: () => string;
+  /**
+   * whether to eagerly look up the user's OAuth token on the inbound activity.
+   * the token is used to compute `ctx.isSignedIn` and `ctx.userToken`, and to authenticate
+   * `ctx.userGraph` (which is always constructed regardless of this setting).
+   */
+  readonly shouldFetchUserToken: () => boolean;
+  readonly apiClientSettings?: ApiClientSettings;
   readonly graphBaseUrl?: string;
 }
 
@@ -115,10 +123,14 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       });
 
       let userToken: string | undefined;
-      try {
-        userToken = await this.getUserToken(apiClient, activity.channelId, activity.from.id);
-      } catch (err) {
-        // noop
+      // Skipped unless configured (see OAuthSettings.fetchUserToken / auto-detection) to avoid
+      // a wasted user-token request on every activity when the app never reads ctx.userGraph.
+      if (this.options.shouldFetchUserToken()) {
+        try {
+          userToken = await this.getUserToken(apiClient, activity.channelId, activity.from.id);
+        } catch (err) {
+          // noop
+        }
       }
 
       const client = this.options.client.clone();

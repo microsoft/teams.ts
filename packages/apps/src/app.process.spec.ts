@@ -467,6 +467,10 @@ describe('App', () => {
     });
 
     it('uses the inbound agentic-scoped API client for the user-token precheck', async () => {
+      await app.stop();
+      app = createTestApp({ oauth: { defaultConnectionName: 'graph' } });
+      await app.start();
+
       const incomingServiceUrl = 'https://incoming-service.botframework.com';
       const agenticIdentity = {
         agenticAppId: 'agent-app',
@@ -512,6 +516,10 @@ describe('App', () => {
     });
 
     it('keeps the user-token precheck app-only when the inbound activity has no agentic identity', async () => {
+      await app.stop();
+      app = createTestApp({ oauth: { defaultConnectionName: 'graph' } });
+      await app.start();
+
       const incomingServiceUrl = 'https://incoming-service.botframework.com';
       const incomingActivity: IMessageActivity = new MessageActivity('hello')
         .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
@@ -721,6 +729,67 @@ describe('App', () => {
       expect(errors).toHaveLength(1);
       expect(errors[0].error.message).toBe('Test error');
       expect(errors[0].activity).toBeDefined();
+    });
+  });
+
+  describe('user token lookup', () => {
+    let testApp: App;
+    const userActivity = new MessageActivity('hi', {
+      id: 'a1',
+      channelId: 'msteams',
+      from: { id: 'user-1', name: 'User' },
+      conversation: { id: 'c1' },
+      recipient: { id: 'bot' },
+    } as Partial<IMessageActivity>);
+
+    afterEach(() => {
+      testApp?.stop();
+    });
+
+    it('does not fetch the user token when no OAuth connection is configured', async () => {
+      testApp = createTestApp();
+      testApp.start();
+      const spy = jest.spyOn(testApp.api.users, 'getToken');
+
+      await testApp.process({ token, body: userActivity });
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('fetches the user token when an OAuth connection is configured', async () => {
+      testApp = createTestApp({ oauth: { defaultConnectionName: 'graph' } });
+      await testApp.start();
+      jest.spyOn(testApp.api, 'clone').mockReturnValue(testApp.api);
+      const spy = jest
+        .spyOn(testApp.api.users, 'getToken')
+        .mockResolvedValue({ token: 'user-token' } as any);
+
+      await testApp.process({ token, body: userActivity });
+
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('honors an explicit fetchUserToken=false override even when OAuth is configured', async () => {
+      testApp = createTestApp({ oauth: { defaultConnectionName: 'graph', fetchUserToken: false } });
+      testApp.start();
+      const spy = jest.spyOn(testApp.api.users, 'getToken');
+
+      await testApp.process({ token, body: userActivity });
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('honors an explicit fetchUserToken=true override when no OAuth connection is configured', async () => {
+      testApp = createTestApp({ oauth: { fetchUserToken: true } });
+      await testApp.start();
+      jest.spyOn(testApp.api, 'clone').mockReturnValue(testApp.api);
+      const spy = jest
+        .spyOn(testApp.api.users, 'getToken')
+        .mockResolvedValue({ token: 'user-token' } as any);
+
+      await testApp.process({ token, body: userActivity });
+
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 });

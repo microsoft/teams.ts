@@ -112,7 +112,7 @@ export class ConversationActivityClient {
     // TODO: Will be deprecated alongside accessor in ConversationClient
     const activity = toActivityParams(params);
     const res = await this.http.post<Resource>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
+                  `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
       activity,
       apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.create, this.serviceUrl, conversationId, activity, {
         captureResponseActivityId: true,
@@ -152,7 +152,7 @@ export class ConversationActivityClient {
     const activity = toActivityParams(params);
     activity.replyToId = id;
     const res = await this.http.post<Resource>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
+      `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
       activity,
       apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.reply, this.serviceUrl, conversationId, activity, {
         captureResponseActivityId: true,

@@ -235,20 +235,25 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     // Extract activitySender and next before Object.assign to avoid overwriting methods
     const { activitySender, next, ...rest } = value;
 
+    // Rehydrate the inbound payload into its activity instance so computed
+    // accessors (channel/team/meeting/notification/tenant) resolve. Do NOT
+    // call `toInterface()` here: it flattens the instance to a plain object via
+    // `Object.assign`, which drops the prototype getters and makes those
+    // accessors silently return `undefined`.
     if (rest.activity.type === 'message') {
-      rest.activity = MessageActivity.from(rest.activity).toInterface();
+      rest.activity = MessageActivity.from(rest.activity);
     }
 
     if (rest.activity.type === 'messageUpdate') {
-      rest.activity = MessageUpdateActivity.from(rest.activity).toInterface();
+      rest.activity = MessageUpdateActivity.from(rest.activity);
     }
 
     if (rest.activity.type === 'messageDelete') {
-      rest.activity = MessageDeleteActivity.from(rest.activity).toInterface();
+      rest.activity = MessageDeleteActivity.from(rest.activity);
     }
 
     if (rest.activity.type === 'typing') {
-      rest.activity = TypingActivity.from(rest.activity).toInterface();
+      rest.activity = TypingActivity.from(rest.activity);
     }
 
     // SECURITY: drop any keys in `rest` that would shadow prototype methods.

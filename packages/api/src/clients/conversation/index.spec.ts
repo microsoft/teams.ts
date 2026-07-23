@@ -44,8 +44,8 @@ describe('ConversationClient', () => {
 
       await client.replyToActivity('1', '2', { type: 'message', text: 'hi' });
 
-      expect(spy).toHaveBeenCalledWith(
-        '/v3/conversations/1/activities/2',
+expect(spy).toHaveBeenCalledWith(
+        '/v3/conversations/1/activities',
         {
           type: 'message',
           text: 'hi',
@@ -212,8 +212,8 @@ describe('ConversationClient', () => {
 
         await client.activities('1').reply('2', { type: 'message', text: 'hi' });
 
-        expect(spy).toHaveBeenCalledWith(
-          '/v3/conversations/1/activities/2',
+expect(spy).toHaveBeenCalledWith(
+          '/v3/conversations/1/activities',
           {
             type: 'message',
             text: 'hi',
