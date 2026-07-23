@@ -1,6 +1,6 @@
 import {
   ActivityParams,
-  AgenticIdentity,
+  AgenticUser,
   Client,
   ConversationReference,
   DeprecatedInputActivity,
@@ -12,7 +12,11 @@ import { ILogger } from '@microsoft/teams.common';
 import { HttpStream } from './http/http-stream';
 import { ActivitySenderOptions, IStreamer, IActivitySender } from './types';
 
-export type ActivitySenderClientFactory = (serviceUrl: string, agenticIdentity?: AgenticIdentity) => Client;
+/**
+ * Creates an API client for a sender operation, optionally scoped to an Agent
+ * User identity.
+ */
+export type ActivitySenderClientFactory = (serviceUrl: string, agenticUser?: AgenticUser) => Client;
 
 /**
  * Handles sending activities to the Bot Framework
@@ -55,7 +59,7 @@ export class ActivitySender implements IActivitySender {
       throw new Error('Targeted messages are not supported in 1:1 (personal) chats.');
     }
 
-    const api = this.createClient(ref.serviceUrl, options?.agenticIdentity);
+    const api = this.createClient(ref.serviceUrl, options?.agenticUser);
 
     // Decide create vs update, with targeted variants
     if (payload.id) {

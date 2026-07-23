@@ -79,7 +79,7 @@ describe('Api Client auth provider', () => {
     expect(api.meetings.http).toBe(http);
     expect(api.reactions.http).toBe(http);
     expect(http.middlewares.filter((middleware) => middleware instanceof ApiOutboundTelemetryMiddleware)).toHaveLength(1);
-    expect(calls).toEqual([{ agenticIdentity: undefined }]);
+    expect(calls).toEqual([{ agenticUser: undefined }]);
   });
 
   it('rejects an auth provider with an HTTP client token', () => {
@@ -100,31 +100,31 @@ describe('Api Client auth provider', () => {
     )).toThrow('Cannot use both an auth provider and an HTTP client token.');
   });
 
-  it('creates an agentic identity scoped clone', () => {
+  it('creates an agentic user scoped clone', () => {
     const authProvider: AuthProvider = { token: async () => 'token' };
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', undefined, { authProvider });
 
-    const scoped = api.fromAgenticIdentity({ agenticIdentity });
+    const scoped = api.fromAgenticUser({ agenticUser });
 
     expect(scoped.serviceUrl).toBe(api.serviceUrl);
     expect(scoped.http.middlewares.filter((middleware) => middleware instanceof ApiOutboundTelemetryMiddleware)).toHaveLength(1);
   });
 
-  it('keeps forAgenticIdentity as an agentic identity convenience alias', () => {
+  it('keeps forAgenticUser as an agentic user convenience alias', () => {
     const authProvider: AuthProvider = { token: async () => 'token' };
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', undefined, { authProvider });
 
-    const scoped = api.forAgenticIdentity(agenticIdentity);
+    const scoped = api.forAgenticUser(agenticUser);
 
     expect(scoped.http.middlewares.filter((middleware) => middleware instanceof ApiOutboundTelemetryMiddleware)).toHaveLength(1);
   });
 
   it('creates a service url scoped clone', () => {
     const authProvider: AuthProvider = { token: async () => 'token' };
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
-    const api = new Client('https://service.example.com', undefined, { authProvider, agenticIdentity });
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+    const api = new Client('https://service.example.com', undefined, { authProvider, agenticUser });
 
     const scoped = api.fromServiceUrl({ serviceUrl: 'https://another.service.example.com/' });
 
@@ -133,14 +133,14 @@ describe('Api Client auth provider', () => {
     expect(scoped.http.middlewares.filter((middleware) => middleware instanceof ApiOutboundTelemetryMiddleware)).toHaveLength(1);
   });
 
-  it('creates a clone scoped to service url and agentic identity', () => {
+  it('creates a clone scoped to service url and agentic user', () => {
     const authProvider: AuthProvider = { token: async () => 'token' };
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', undefined, { authProvider });
 
     const scoped = api.clone({
       serviceUrl: 'https://another.service.example.com/',
-      agenticIdentity,
+      agenticUser,
     });
 
     expect(scoped.serviceUrl).toBe('https://another.service.example.com');
@@ -148,35 +148,35 @@ describe('Api Client auth provider', () => {
     expect(scoped.http.middlewares.filter((middleware) => middleware instanceof ApiOutboundTelemetryMiddleware)).toHaveLength(1);
   });
 
-  it('preserves the default agentic identity when clone receives an undefined identity', () => {
+  it('preserves the default agentic user when clone receives an undefined identity', () => {
     const authProvider: AuthProvider = { token: async () => 'token' };
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
-    const api = new Client('https://service.example.com', undefined, { authProvider, agenticIdentity });
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+    const api = new Client('https://service.example.com', undefined, { authProvider, agenticUser });
 
     const scoped = api.clone({
       serviceUrl: 'https://another.service.example.com/',
-      agenticIdentity: undefined,
+      agenticUser: undefined,
     });
 
     expect(scoped.serviceUrl).toBe('https://another.service.example.com');
     expect(scoped.http.middlewares.filter((middleware) => middleware instanceof ApiOutboundTelemetryMiddleware)).toHaveLength(1);
   });
 
-  it('clears the default agentic identity when clone receives a null identity', () => {
+  it('clears the default agentic user when clone receives a null identity', () => {
     const authProvider: AuthProvider = { token: async () => 'token' };
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
-    const api = new Client('https://service.example.com', undefined, { authProvider, agenticIdentity });
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+    const api = new Client('https://service.example.com', undefined, { authProvider, agenticUser });
 
     const scoped = api.clone({
       serviceUrl: 'https://another.service.example.com/',
-      agenticIdentity: null,
+      agenticUser: null,
     });
 
     expect(scoped.serviceUrl).toBe('https://another.service.example.com');
     expect(scoped.http.middlewares.filter((middleware) => middleware instanceof ApiOutboundTelemetryMiddleware)).toHaveLength(1);
   });
 
-  it('uses the scoped agentic identity when acquiring middleware auth tokens', async () => {
+  it('uses the scoped agentic user when acquiring middleware auth tokens', async () => {
     const calls: unknown[] = [];
     const authProvider: AuthProvider = {
       token: async (options) => {
@@ -186,16 +186,16 @@ describe('Api Client auth provider', () => {
     };
     const http = new TestHttpClient();
     mockAdapter(http);
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', http, { authProvider });
 
-    const scoped = api.fromAgenticIdentity({ agenticIdentity });
+    const scoped = api.fromAgenticUser({ agenticUser });
     await scoped.http.get('/test');
 
-    expect(calls).toEqual([{ agenticIdentity }]);
+    expect(calls).toEqual([{ agenticUser }]);
   });
 
-  it('uses a scoped clone for serviceUrl and agentic identity', async () => {
+  it('uses a scoped clone for serviceUrl and agentic user', async () => {
     const calls: unknown[] = [];
     const authProvider: AuthProvider = {
       token: async (options) => {
@@ -205,11 +205,11 @@ describe('Api Client auth provider', () => {
     };
     const http = new TestHttpClient();
     const requests = mockAdapter(http);
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', http, { authProvider });
     const scoped = api.clone({
       serviceUrl: 'https://override.service.example.com/',
-      agenticIdentity,
+      agenticUser,
     });
 
     await scoped.conversations.createActivity(
@@ -218,10 +218,10 @@ describe('Api Client auth provider', () => {
     );
 
     expect(requests[0].url).toBe('https://override.service.example.com/v3/conversations/conversation-id/activities');
-    expect(calls).toEqual([{ agenticIdentity }]);
+    expect(calls).toEqual([{ agenticUser }]);
   });
 
-  it('preserves and clears scoped agentic identity for middleware auth', async () => {
+  it('preserves and clears scoped agentic user for middleware auth', async () => {
     const calls: unknown[] = [];
     const authProvider: AuthProvider = {
       token: async (options) => {
@@ -231,15 +231,15 @@ describe('Api Client auth provider', () => {
     };
     const http = new TestHttpClient();
     mockAdapter(http);
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
-    const api = new Client('https://service.example.com', http, { authProvider, agenticIdentity });
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+    const api = new Client('https://service.example.com', http, { authProvider, agenticUser });
 
-    await api.clone({ agenticIdentity: undefined }).http.get('/preserve');
-    await api.clone({ agenticIdentity: null }).http.get('/clear');
+    await api.clone({ agenticUser: undefined }).http.get('/preserve');
+    await api.clone({ agenticUser: null }).http.get('/clear');
 
     expect(calls).toEqual([
-      { agenticIdentity },
-      { agenticIdentity: undefined },
+      { agenticUser },
+      { agenticUser: undefined },
     ]);
   });
 });

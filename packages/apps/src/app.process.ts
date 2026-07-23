@@ -3,8 +3,8 @@ import type { Span, SpanAttributes } from '@opentelemetry/api';
 import {
   Activity,
   ActivityLike,
-  AgenticIdentity,
   ApiClientSettings,
+  AgenticUser,
   Account,
   ChannelID,
   ConversationReference,
@@ -37,15 +37,15 @@ import { TokenManager } from './token-manager';
 import { IActivitySender, IPlugin, RouteHandler, StreamCancelledError } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 
-function getAgenticIdentity(account?: Account): AgenticIdentity | undefined {
+function getAgenticUser(account?: Account): AgenticUser | undefined {
   if (!account?.agenticAppId || !account.agenticUserId) {
     return undefined;
   }
   return {
-    agenticAppId: account.agenticAppId,
+    agenticAppInstanceId: account.agenticAppId,
     agenticUserId: account.agenticUserId,
     tenantId: account.tenantId,
-    agenticAppBlueprintId: account.agenticAppBlueprintId,
+    agenticBlueprintId: account.agenticAppBlueprintId,
   };
 }
 
@@ -116,10 +116,10 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
     }
 
     return traceActivityProcess(activity, serviceUrl, async (activityProcessSpan) => {
-      const agenticIdentity = getAgenticIdentity(activity.recipient);
+      const agenticUser = getAgenticUser(activity.recipient);
       const apiClient = this.options.api.clone({
         serviceUrl,
-        agenticIdentity,
+        agenticUser,
       });
 
       let userToken: string | undefined;
@@ -134,9 +134,9 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       }
 
       const client = this.options.client.clone();
-      const apiClientFactory = (senderServiceUrl: string, senderAgenticIdentity?: AgenticIdentity) => apiClient.clone({
+      const apiClientFactory = (senderServiceUrl: string, senderAgenticUser?: AgenticUser) => apiClient.clone({
         serviceUrl: senderServiceUrl,
-        agenticIdentity: senderAgenticIdentity ?? agenticIdentity,
+        agenticUser: senderAgenticUser ?? agenticUser,
       });
       const userGraph = new GraphClient(
         client.clone({ token: () => userToken }),

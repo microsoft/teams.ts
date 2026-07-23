@@ -1,7 +1,7 @@
 
 import { AuthenticationResult, ConfidentialClientApplication, ManagedIdentityApplication, LogLevel as MSALLogLevel, NodeSystemOptions } from '@azure/msal-node';
 
-import { AgenticIdentity, ClientCredentials, CloudEnvironment, Credentials, IToken, JsonWebToken, PUBLIC, TokenCredentials, FederatedIdentityCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api';
+import { AgenticUser, ClientCredentials, CloudEnvironment, Credentials, IToken, JsonWebToken, PUBLIC, TokenCredentials, FederatedIdentityCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api';
 import { ConsoleLogger, ILogger, LogLevel } from '@microsoft/teams.common';
 
 const DEFAULT_TENANT_FOR_GRAPH_TOKEN = 'common';
@@ -54,7 +54,7 @@ export class TokenManager {
   private cloud: CloudEnvironment;
   private confidentialClientsByTenantId: Record<string, ConfidentialClientApplication> = {};
   private federatedIdentityClientsByTenantId: Record<string, ConfidentialClientApplication> = {};
-  private agentIdentityClientsByTenantAndAppId: Record<string, ConfidentialClientApplication> = {};
+  private agenticAppInstanceClientsByTenantAndAppId: Record<string, ConfidentialClientApplication> = {};
   private managedIdentityClient: ManagedIdentityApplication | null = null;
 
   constructor(options: TokenManagerOptions, logger: ILogger) {
@@ -80,37 +80,40 @@ export class TokenManager {
     return await this.getToken(this.cloud.graphScope, this.resolveTenantId(tenantId, DEFAULT_TENANT_FOR_GRAPH_TOKEN));
   }
 
-  async getAgenticToken(
+  /**
+   * Acquires an Agentic User-scoped token for the supplied Agentic User identity.
+   */
+  async getAgenticUserToken(
     scope: string,
-    agenticIdentity: AgenticIdentity
+    agenticUser: AgenticUser
   ): Promise<IToken | null> {
     if (!this.credentials) {
       return null;
     }
 
-    const tenantId = agenticIdentity.tenantId ?? this.credentials.tenantId;
+    const tenantId = agenticUser.tenantId ?? this.credentials.tenantId;
     if (!tenantId) {
-      throw new Error('tenantId is required to get an Agentic Id token');
+      throw new Error('tenantId is required to get an Agentic User token');
     }
 
     if (isTokenCredentials(this.credentials)) {
-      return this.getTokenWithTokenProvider(this.credentials, scope, tenantId, agenticIdentity);
+      return this.getTokenWithTokenProvider(this.credentials, scope, tenantId, agenticUser);
     }
 
     if (!isClientCredentials(this.credentials)) {
-      throw new Error('Agentic tokens require ClientCredentials');
+      throw new Error('Agentic User tokens require ClientCredentials');
     }
 
     const t1Assertion = async () => {
       const confidentialClient = this.getConfidentialClient(this.credentials as ClientCredentials, tenantId);
       const t1Result = await confidentialClient.acquireTokenByClientCredential({
         scopes: [TOKEN_EXCHANGE_SCOPE],
-        fmiPath: agenticIdentity.agenticAppId,
+        fmiPath: agenticUser.agenticAppInstanceId,
       });
       return this.getAccessTokenOrThrow(t1Result, 'Agent token exchange step 1 failed');
     };
 
-    const t2Client = this.getAgentIdentityClient(tenantId, agenticIdentity.agenticAppId, t1Assertion);
+    const t2Client = this.getAgenticAppInstanceClient(tenantId, agenticUser.agenticAppInstanceId, t1Assertion);
     const t2Result = await t2Client.acquireTokenByClientCredential({ scopes: [TOKEN_EXCHANGE_SCOPE] });
     const t2 = this.getAccessTokenOrThrow(t2Result, 'Agent token exchange step 2 failed');
 
@@ -118,7 +121,7 @@ export class TokenManager {
     const t3Result = await t2Client.acquireTokenByUserFederatedIdentityCredential({
       scopes: [scope],
       assertion: t2,
-      userObjectId: agenticIdentity.agenticUserId,
+      userObjectId: agenticUser.agenticUserId,
       clientAssertion: t1ForStep3,
     });
     const t3 = this.getAccessTokenOrThrow(t3Result, 'Agent token exchange step 3 failed');
@@ -191,8 +194,8 @@ export class TokenManager {
     return this.handleTokenResponse(result);
   }
 
-  private async getTokenWithTokenProvider(credentials: TokenCredentials, scope: string, tenantId: string, agenticIdentity?: AgenticIdentity): Promise<IToken | null> {
-    const token = await credentials.token(scope, tenantId, agenticIdentity ? { agenticIdentity } : undefined);
+  private async getTokenWithTokenProvider(credentials: TokenCredentials, scope: string, tenantId: string, agenticUser?: AgenticUser): Promise<IToken | null> {
+    const token = await credentials.token(scope, tenantId, agenticUser ? { agenticUser } : undefined);
     return new JsonWebToken(token);
   }
   private async getTokenWithManagedIdentity(credentials: UserManagedIdentityCredentials, scope: string) {
@@ -261,16 +264,16 @@ export class TokenManager {
     return client;
   }
 
-  private getAgentIdentityClient(tenantId: string, agenticAppId: string, clientAssertion: () => Promise<string>) {
-    const cacheKey = `${tenantId}:${agenticAppId}`;
-    const cachedClient = this.agentIdentityClientsByTenantAndAppId[cacheKey];
+  private getAgenticAppInstanceClient(tenantId: string, agenticAppInstanceId: string, clientAssertion: () => Promise<string>) {
+    const cacheKey = `${tenantId}:${agenticAppInstanceId}`;
+    const cachedClient = this.agenticAppInstanceClientsByTenantAndAppId[cacheKey];
     if (cachedClient) {
       return cachedClient;
     }
 
     const client = new ConfidentialClientApplication({
       auth: {
-        clientId: agenticAppId,
+        clientId: agenticAppInstanceId,
         clientAssertion,
         authority: `${this.cloud.loginEndpoint}/${tenantId}`
       },
@@ -278,7 +281,7 @@ export class TokenManager {
         loggerOptions: this.buildLoggerOptions()
       }
     });
-    this.agentIdentityClientsByTenantAndAppId[cacheKey] = client;
+    this.agenticAppInstanceClientsByTenantAndAppId[cacheKey] = client;
     return client;
   }
 

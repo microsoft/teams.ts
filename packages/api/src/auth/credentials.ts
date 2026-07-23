@@ -1,7 +1,7 @@
 /**
  * credentials for app authentication
  */
-import { AgenticIdentity } from '../models/agentic-identity';
+import { AgenticUser } from '../models/agentic-user';
 
 export type Credentials = ClientCredentials | TokenCredentials | UserManagedIdentityCredentials | FederatedIdentityCredentials;
 
@@ -15,8 +15,14 @@ export type ClientCredentials = {
   readonly tenantId?: string;
 };
 
+/**
+ * Options passed to custom token providers when the SDK requests a token.
+ */
 export type TokenRequestOptions = {
-  readonly agenticIdentity?: AgenticIdentity;
+  /**
+   * Agentic User identity for requests that need an Agentic User-scoped token.
+   */
+  readonly agenticUser?: AgenticUser;
 };
 
 /**

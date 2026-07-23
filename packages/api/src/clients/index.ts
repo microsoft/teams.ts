@@ -4,7 +4,7 @@ import {
 } from '@microsoft/teams.common';
 
 import { CloudEnvironment } from '../auth/cloud-environment';
-import { AgenticIdentity } from '../models';
+import { AgenticUser } from '../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
 import {
@@ -23,7 +23,7 @@ import { UserClient } from './user';
 /**
  * Options for creating a scoped API client from an existing client.
  */
-export type ApiClientCloneOptions = Omit<Partial<ApiClientSettings>, 'agenticIdentity'> & {
+export type ApiClientCloneOptions = Omit<Partial<ApiClientSettings>, 'agenticUser'> & {
   /**
    * Service URL for the scoped client. Defaults to the current client's service URL.
    */
@@ -32,7 +32,7 @@ export type ApiClientCloneOptions = Omit<Partial<ApiClientSettings>, 'agenticIde
   /**
    * `undefined` preserves the current client default; `null` clears it.
    */
-  readonly agenticIdentity?: AgenticIdentity | null;
+  readonly agenticUser?: AgenticUser | null;
 };
 
 /**
@@ -48,11 +48,11 @@ export type ApiClientFromServiceUrlOptions = {
 /**
  * Options for creating a scoped API client for a specific Agentic User.
  */
-export type ApiClientFromAgenticIdentityOptions = {
+export type ApiClientFromAgenticUserOptions = {
   /**
    * Agentic User identity used by the scoped client when acquiring auth tokens.
    */
-  readonly agenticIdentity: AgenticIdentity;
+  readonly agenticUser: AgenticUser;
 };
 
 export class Client {
@@ -82,7 +82,7 @@ export class Client {
   protected _apiClientSettings: Partial<ApiClientSettings>;
   protected _authProvider?: AuthProvider;
   protected _cloud?: CloudEnvironment;
-  protected _defaultAgenticIdentity?: AgenticIdentity;
+  protected _defaultAgenticUser?: AgenticUser;
 
   constructor(
     serviceUrl: string,
@@ -92,7 +92,7 @@ export class Client {
     this.serviceUrl = normalizeServiceUrl(serviceUrl);
     this._cloud = apiClientSettings?.cloud;
     this._authProvider = apiClientSettings?.authProvider;
-    this._defaultAgenticIdentity = apiClientSettings?.agenticIdentity;
+    this._defaultAgenticUser = apiClientSettings?.agenticUser;
 
     if (!httpOptions) {
       this._http = this.prepareHttpClient(new HttpClient());
@@ -122,7 +122,7 @@ export class Client {
    * Create a scoped API client that reuses this client's HTTP configuration and auth provider.
    */
   clone(options: ApiClientCloneOptions = {}): Client {
-    const { serviceUrl, agenticIdentity, ...apiClientSettings } = options;
+    const { serviceUrl, agenticUser, ...apiClientSettings } = options;
     const http = this._baseHttp.clone();
     if (this._authProvider) {
       http.token = undefined;
@@ -134,7 +134,7 @@ export class Client {
       {
         ...this._apiClientSettings,
         ...apiClientSettings,
-        ...(agenticIdentity === undefined ? {} : { agenticIdentity: agenticIdentity ?? undefined }),
+        ...(agenticUser === undefined ? {} : { agenticUser: agenticUser ?? undefined }),
       }
     );
   }
@@ -142,14 +142,14 @@ export class Client {
   /**
    * Create a scoped API client for the provided Agentic User identity.
    */
-  forAgenticIdentity(agenticIdentity: AgenticIdentity): Client {
-    return this.fromAgenticIdentity({ agenticIdentity });
+  forAgenticUser(agenticUser: AgenticUser): Client {
+    return this.fromAgenticUser({ agenticUser });
   }
 
   /**
    * Create a scoped API client for the provided Agentic User identity.
    */
-  fromAgenticIdentity(options: ApiClientFromAgenticIdentityOptions): Client {
+  fromAgenticUser(options: ApiClientFromAgenticUserOptions): Client {
     return this.clone(options);
   }
 
@@ -167,7 +167,7 @@ export class Client {
 
     ensureApiOutboundTelemetryMiddleware(http);
     if (this._authProvider) {
-      http.token = createAuthProviderTokenFactory(this._authProvider, this._defaultAgenticIdentity);
+      http.token = createAuthProviderTokenFactory(this._authProvider, this._defaultAgenticUser);
     }
 
     this._baseHttp = http;

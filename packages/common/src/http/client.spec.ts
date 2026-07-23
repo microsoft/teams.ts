@@ -311,15 +311,15 @@ describe('Client', () => {
 
       await client.post('/test', {}, {
         extensions: {
-          agenticIdentity: { agenticAppId: 'agent-app', agenticUserId: 'agent-user' }
+          agenticUser: { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' }
         }
       });
 
       expect(seen).toEqual([
-        { agenticIdentity: { agenticAppId: 'agent-app', agenticUserId: 'agent-user' } }
+        { agenticUser: { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' } }
       ]);
       expect(adapterExtensions).toEqual({
-        agenticIdentity: { agenticAppId: 'agent-app', agenticUserId: 'agent-user' }
+        agenticUser: { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' }
       });
     });
   });

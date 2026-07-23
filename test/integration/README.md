@@ -9,7 +9,7 @@ Outbound API integration tests that run against live Teams service endpoints.
 
 ## Setup
 
-1. Copy `.env.example` to `.env.botid-prod` (and/or `.env.agenticid-prod`):
+1. Copy `.env.example` to `.env.botid-prod` (and/or `.env.agentic-user-prod`):
    ```bash
    cp .env.example .env.botid-prod
    ```
@@ -46,7 +46,7 @@ npm run test:botid-prod
 ## Known Limitations
 
 - **Canary**: Paged members returns empty, reactions return 404 — tests return early (reported as passed, not skipped).
-- **Agentic**: Reactions return 404 — tests return early.
+- **Agentic User**: Reactions return 404 — tests return early.
 - **Streaming**: Not yet covered (future addition for SSE chunk assembly).
 
 ## Cross-SDK Runbook
