@@ -4,7 +4,7 @@ import {
   Activity,
   ActivityLike,
   ApiClientSettings,
-  AgentUser,
+  AgenticUser,
   Account,
   ChannelID,
   ConversationReference,
@@ -37,13 +37,13 @@ import { TokenManager } from './token-manager';
 import { IActivitySender, IPlugin, RouteHandler, StreamCancelledError } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 
-function getAgentUser(account?: Account): AgentUser | undefined {
+function getAgenticUser(account?: Account): AgenticUser | undefined {
   if (!account?.agenticAppId || !account.agenticUserId) {
     return undefined;
   }
   return {
     agentAppInstanceId: account.agenticAppId,
-    agentUserId: account.agenticUserId,
+    agenticUserId: account.agenticUserId,
     tenantId: account.tenantId,
     agentIdentityBlueprintId: account.agenticAppBlueprintId,
   };
@@ -116,10 +116,10 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
     }
 
     return traceActivityProcess(activity, serviceUrl, async (activityProcessSpan) => {
-      const agentUser = getAgentUser(activity.recipient);
+      const agenticUser = getAgenticUser(activity.recipient);
       const apiClient = this.options.api.clone({
         serviceUrl,
-        agentUser,
+        agenticUser,
       });
 
       let userToken: string | undefined;
@@ -134,9 +134,9 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       }
 
       const client = this.options.client.clone();
-      const apiClientFactory = (senderServiceUrl: string, senderAgentUser?: AgentUser) => apiClient.clone({
+      const apiClientFactory = (senderServiceUrl: string, senderAgenticUser?: AgenticUser) => apiClient.clone({
         serviceUrl: senderServiceUrl,
-        agentUser: senderAgentUser ?? agentUser,
+        agenticUser: senderAgenticUser ?? agenticUser,
       });
       const userGraph = new GraphClient(
         client.clone({ token: () => userToken }),

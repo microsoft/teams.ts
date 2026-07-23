@@ -58,12 +58,12 @@ export type AgentLifecycleUpdatedProperty = {
 
 export type AgentLifecycleValueBase = {
   /**
-   * The tenant the Agent User belongs to.
+   * The tenant the Agentic User belongs to.
    */
   tenantId?: string;
 
   /**
-   * The Agent User object ID.
+   * The Agentic User object ID.
    *
    * This is an activity value wire field and intentionally keeps the
    * service-owned JSON key.
@@ -84,45 +84,45 @@ export type AgentLifecycleValueBase = {
   agentIdentityBlueprintId?: string;
 
   /**
-   * Monotonic version of the Agent User state, when provided by the service.
+   * Monotonic version of the Agentic User state, when provided by the service.
    */
   version?: number;
 };
 
-export type AgentUserIdentityCreatedValue = AgentLifecycleValueBase & {
+export type AgenticUserIdentityCreatedValue = AgentLifecycleValueBase & {
   eventType: 'agenticUserIdentityCreated';
   manager?: AgentLifecycleManager;
   expirationDateTime?: Date;
 };
 
-export type AgentUserIdentityUpdatedValue = AgentLifecycleValueBase & {
+export type AgenticUserIdentityUpdatedValue = AgentLifecycleValueBase & {
   eventType: 'agenticUserIdentityUpdated';
   updatedProperty: AgentLifecycleUpdatedProperty;
 };
 
-export type AgentUserManagerUpdatedValue = AgentLifecycleValueBase & {
+export type AgenticUserManagerUpdatedValue = AgentLifecycleValueBase & {
   eventType: 'agenticUserManagerUpdated';
   manager?: AgentLifecycleManagerRef;
 };
 
-export type AgentUserEnabledValue = AgentLifecycleValueBase & {
+export type AgenticUserEnabledValue = AgentLifecycleValueBase & {
   eventType: 'agenticUserEnabled';
 };
 
-export type AgentUserDisabledValue = AgentLifecycleValueBase & {
+export type AgenticUserDisabledValue = AgentLifecycleValueBase & {
   eventType: 'agenticUserDisabled';
 };
 
-export type AgentUserDeletedValue = AgentLifecycleValueBase & {
+export type AgenticUserDeletedValue = AgentLifecycleValueBase & {
   eventType: 'agenticUserDeleted';
   deletionReason?: string;
 };
 
-export type AgentUserUndeletedValue = AgentLifecycleValueBase & {
+export type AgenticUserUndeletedValue = AgentLifecycleValueBase & {
   eventType: 'agenticUserUndeleted';
 };
 
-export type AgentUserWorkloadOnboardingUpdatedValue = AgentLifecycleValueBase & {
+export type AgenticUserWorkloadOnboardingUpdatedValue = AgentLifecycleValueBase & {
   eventType: 'agenticUserWorkloadOnboardingUpdated';
   workloadName?: string;
   workloadOnboardingState?: string;
@@ -138,7 +138,7 @@ export interface IAgentLifecycleEventActivityBase<
   TValue extends AgentLifecycleValueBase = AgentLifecycleValueBase
 > extends IActivity<'event'> {
   /**
-   * Agent User lifecycle activities arrive as event activities named "agentLifecycle".
+   * Agentic User lifecycle activities arrive as event activities named "agentLifecycle".
    */
   name: 'agentLifecycle';
 
@@ -153,52 +153,52 @@ export interface IAgentLifecycleEventActivityBase<
   value: TValue;
 }
 
-export type IAgentUserIdentityCreatedEventActivity =
+export type IAgenticUserIdentityCreatedEventActivity =
   IAgentLifecycleEventActivityBase<
     'AgenticUserIdentityCreated',
-    AgentUserIdentityCreatedValue
+    AgenticUserIdentityCreatedValue
   >;
 
-export type IAgentUserIdentityUpdatedEventActivity =
+export type IAgenticUserIdentityUpdatedEventActivity =
   IAgentLifecycleEventActivityBase<
     'AgenticUserIdentityUpdated',
-    AgentUserIdentityUpdatedValue
+    AgenticUserIdentityUpdatedValue
   >;
 
-export type IAgentUserManagerUpdatedEventActivity =
+export type IAgenticUserManagerUpdatedEventActivity =
   IAgentLifecycleEventActivityBase<
     'AgenticUserManagerUpdated',
-    AgentUserManagerUpdatedValue
+    AgenticUserManagerUpdatedValue
   >;
 
-export type IAgentUserEnabledEventActivity =
-  IAgentLifecycleEventActivityBase<'AgenticUserEnabled', AgentUserEnabledValue>;
+export type IAgenticUserEnabledEventActivity =
+  IAgentLifecycleEventActivityBase<'AgenticUserEnabled', AgenticUserEnabledValue>;
 
-export type IAgentUserDisabledEventActivity =
-  IAgentLifecycleEventActivityBase<'AgenticUserDisabled', AgentUserDisabledValue>;
+export type IAgenticUserDisabledEventActivity =
+  IAgentLifecycleEventActivityBase<'AgenticUserDisabled', AgenticUserDisabledValue>;
 
-export type IAgentUserDeletedEventActivity =
-  IAgentLifecycleEventActivityBase<'AgenticUserDeleted', AgentUserDeletedValue>;
+export type IAgenticUserDeletedEventActivity =
+  IAgentLifecycleEventActivityBase<'AgenticUserDeleted', AgenticUserDeletedValue>;
 
-export type IAgentUserUndeletedEventActivity =
-  IAgentLifecycleEventActivityBase<'AgenticUserUndeleted', AgentUserUndeletedValue>;
+export type IAgenticUserUndeletedEventActivity =
+  IAgentLifecycleEventActivityBase<'AgenticUserUndeleted', AgenticUserUndeletedValue>;
 
-export type IAgentUserWorkloadOnboardingUpdatedEventActivity =
+export type IAgenticUserWorkloadOnboardingUpdatedEventActivity =
   IAgentLifecycleEventActivityBase<
     'AgenticUserWorkloadOnboardingUpdated',
-    AgentUserWorkloadOnboardingUpdatedValue
+    AgenticUserWorkloadOnboardingUpdatedValue
   >;
 
 export type IUnknownAgentLifecycleEventActivity =
   IAgentLifecycleEventActivityBase<string & {}, UnknownAgentLifecycleValue>;
 
 export type AgentLifecycleEventActivity =
-  | IAgentUserIdentityCreatedEventActivity
-  | IAgentUserIdentityUpdatedEventActivity
-  | IAgentUserManagerUpdatedEventActivity
-  | IAgentUserEnabledEventActivity
-  | IAgentUserDisabledEventActivity
-  | IAgentUserDeletedEventActivity
-  | IAgentUserUndeletedEventActivity
-  | IAgentUserWorkloadOnboardingUpdatedEventActivity
+  | IAgenticUserIdentityCreatedEventActivity
+  | IAgenticUserIdentityUpdatedEventActivity
+  | IAgenticUserManagerUpdatedEventActivity
+  | IAgenticUserEnabledEventActivity
+  | IAgenticUserDisabledEventActivity
+  | IAgenticUserDeletedEventActivity
+  | IAgenticUserUndeletedEventActivity
+  | IAgenticUserWorkloadOnboardingUpdatedEventActivity
   | IUnknownAgentLifecycleEventActivity;

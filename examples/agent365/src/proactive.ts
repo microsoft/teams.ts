@@ -2,15 +2,15 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  *
- * Proactive messaging as an Agent User.
+ * Proactive messaging as an Agentic User.
  *
- * Demonstrates both `app.send(..., { agentUser })` and a
+ * Demonstrates both `app.send(..., { agenticUser })` and a
  * lower-level conversation activity API client configured with an
- * Agent User identity. In both cases the API layer asks the auth provider
- * for the right Agent User token.
+ * Agentic User identity. In both cases the API layer asks the auth provider
+ * for the right Agentic User token.
  *
  * Usage:
- *   npx tsx -r dotenv/config src/proactive.ts <conversation-id> <agent-app-instance-id> <agent-user-id>
+ *   npx tsx -r dotenv/config src/proactive.ts <conversation-id> <agent-app-instance-id> <agentic-user-id>
  */
 
 import { MessageActivity } from '@microsoft/teams.api';
@@ -18,11 +18,11 @@ import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
 async function main() {
-  const [conversationId, agentAppInstanceId, agentUserId] = process.argv.slice(2);
+  const [conversationId, agentAppInstanceId, agenticUserId] = process.argv.slice(2);
 
-  if (!conversationId || !agentAppInstanceId || !agentUserId) {
+  if (!conversationId || !agentAppInstanceId || !agenticUserId) {
     console.error(
-      'Usage: npx tsx -r dotenv/config src/proactive.ts <conversation-id> <agent-app-instance-id> <agent-user-id>'
+      'Usage: npx tsx -r dotenv/config src/proactive.ts <conversation-id> <agent-app-instance-id> <agentic-user-id>'
     );
     process.exit(1);
   }
@@ -33,20 +33,20 @@ async function main() {
 
   await app.initialize();
 
-  const agentUser = app.getAgentUser(agentAppInstanceId, agentUserId);
+  const agenticUser = app.getAgenticUser(agentAppInstanceId, agenticUserId);
 
-  // 1. High-level app.send as an Agent User
+  // 1. High-level app.send as an Agentic User
   const sent = await app.send(
     conversationId,
-    new MessageActivity('Hello from app.send as an Agent User.'),
-    { agentUser },
+    new MessageActivity('Hello from app.send as an Agentic User.'),
+    { agenticUser },
   );
   console.log(`Sent activity through app.send. Activity ID: ${sent.id}`);
 
-  // 2. Lower-level conversation activity API as an Agent User
-  const agentUserApi = app.api.fromAgentUser({ agentUser });
-  const apiSent = await agentUserApi.conversations.activities(conversationId).create(
-    { type: 'message', text: 'Hello from the conversation activity API as an Agent User.' },
+  // 2. Lower-level conversation activity API as an Agentic User
+  const agenticUserApi = app.api.fromAgenticUser({ agenticUser });
+  const apiSent = await agenticUserApi.conversations.activities(conversationId).create(
+    { type: 'message', text: 'Hello from the conversation activity API as an Agentic User.' },
   );
   console.log(`Sent activity through app.api. Activity ID: ${apiSent.id}`);
 }

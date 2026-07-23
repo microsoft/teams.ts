@@ -6,7 +6,7 @@
   "scripts": {
     "test:integration": "jest --config jest.config.ts",
     "test:botid-prod": "dotenv -e .env.botid-prod -- jest --config jest.config.ts",
-    "test:agent-user-prod": "dotenv -e .env.agent-user-prod -- jest --config jest.config.ts"
+    "test:agentic-user-prod": "dotenv -e .env.agentic-user-prod -- jest --config jest.config.ts"
   },
   "devDependencies": {
     "@azure/msal-node": "^2.16.0",

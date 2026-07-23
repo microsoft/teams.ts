@@ -1,9 +1,9 @@
-import type { AgentUser } from '../models';
+import type { AgenticUser } from '../models';
 
 export type AuthProviderToken = string | { toString(): string };
 
 /**
- * Resolves outbound API tokens for app-only or Agent User-scoped requests.
+ * Resolves outbound API tokens for app-only or Agentic User-scoped requests.
  */
 export type AuthProvider = {
   readonly token: (options: {
@@ -13,8 +13,8 @@ export type AuthProvider = {
      */
     readonly scope?: string;
     /**
-     * Agent User identity for requests that need an Agent User-scoped token.
+     * Agentic User identity for requests that need an Agentic User-scoped token.
      */
-    readonly agentUser?: AgentUser;
+    readonly agenticUser?: AgenticUser;
   }) => AuthProviderToken | null | undefined | Promise<AuthProviderToken | null | undefined>;
 };

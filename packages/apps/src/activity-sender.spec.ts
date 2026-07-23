@@ -163,18 +163,18 @@ describe('ActivitySender', () => {
       expect(body).not.toHaveProperty('serviceUrl');
     });
 
-    it('should use the ref serviceUrl when no agent user option is provided', async () => {
+    it('should use the ref serviceUrl when no agentic user option is provided', async () => {
       await sender.send({ type: 'message', text: 'hi' }, ref);
 
       expect(createClient).toHaveBeenCalledWith(ref.serviceUrl, undefined);
     });
 
-    it('should use agent user option for the API client', async () => {
-      const agentUser = { agentAppInstanceId: 'agent-app', agentUserId: 'agent-user' };
+    it('should use agentic user option for the API client', async () => {
+      const agenticUser = { agentAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
 
-      await sender.send({ type: 'message', text: 'hi' }, ref, { agentUser });
+      await sender.send({ type: 'message', text: 'hi' }, ref, { agenticUser });
 
-      expect(createClient).toHaveBeenCalledWith(ref.serviceUrl, agentUser);
+      expect(createClient).toHaveBeenCalledWith(ref.serviceUrl, agenticUser);
     });
 
     it('should throw when sending targeted message in personal chat', async () => {

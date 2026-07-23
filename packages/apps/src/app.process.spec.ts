@@ -440,7 +440,7 @@ describe('App', () => {
           name: 'Test Bot',
           role: 'bot',
           agenticAppId: 'agent-app',
-          agenticUserId: 'agent-user',
+          agenticUserId: 'agentic-user',
         })
         .withConversation({ id: 'conv-123', conversationType: 'personal' })
         .withChannelId('msteams')
@@ -459,22 +459,22 @@ describe('App', () => {
 
       expect(clone).toHaveBeenCalledWith({
         serviceUrl: incomingServiceUrl,
-        agentUser: expect.objectContaining({
+        agenticUser: expect.objectContaining({
           agentAppInstanceId: 'agent-app',
-          agentUserId: 'agent-user',
+          agenticUserId: 'agentic-user',
         }),
       });
     });
 
-    it('uses the inbound Agent User-scoped API client for the user-token precheck', async () => {
+    it('uses the inbound Agentic User-scoped API client for the user-token precheck', async () => {
       await app.stop();
       app = createTestApp({ oauth: { defaultConnectionName: 'graph' } });
       await app.start();
 
       const incomingServiceUrl = 'https://incoming-service.botframework.com';
-      const agentUser = {
+      const agenticUser = {
         agentAppInstanceId: 'agent-app',
-        agentUserId: 'agent-user',
+        agenticUserId: 'agentic-user',
         tenantId: 'tenant-id',
         agentIdentityBlueprintId: 'blueprint-id',
       };
@@ -484,10 +484,10 @@ describe('App', () => {
           id: 'bot-1',
           name: 'Test Bot',
           role: 'bot',
-          agenticAppId: agentUser.agentAppInstanceId,
-          agenticUserId: agentUser.agentUserId,
-          agenticAppBlueprintId: agentUser.agentIdentityBlueprintId,
-          tenantId: agentUser.tenantId,
+          agenticAppId: agenticUser.agentAppInstanceId,
+          agenticUserId: agenticUser.agenticUserId,
+          agenticAppBlueprintId: agenticUser.agentIdentityBlueprintId,
+          tenantId: agenticUser.tenantId,
         })
         .withConversation({ id: 'conv-123', conversationType: 'personal' })
         .withChannelId('msteams')
@@ -495,11 +495,11 @@ describe('App', () => {
         .toInterface();
       const scopedApi = app.api.clone({
         serviceUrl: incomingServiceUrl,
-        agentUser,
+        agenticUser,
       });
       const clone = jest.spyOn(app.api, 'clone').mockReturnValue(scopedApi);
       const rootGetToken = jest.spyOn(app.api.users, 'getToken').mockResolvedValue({ token: 'root-token' } as any);
-      const scopedGetToken = jest.spyOn(scopedApi.users, 'getToken').mockResolvedValue({ token: 'agent-user-token' } as any);
+      const scopedGetToken = jest.spyOn(scopedApi.users, 'getToken').mockResolvedValue({ token: 'agentic-user-token' } as any);
 
       await app.process({
         token: { ...token, serviceUrl: incomingServiceUrl },
@@ -508,7 +508,7 @@ describe('App', () => {
 
       expect(clone).toHaveBeenCalledWith({
         serviceUrl: incomingServiceUrl,
-        agentUser,
+        agenticUser,
       });
       expect(rootGetToken).not.toHaveBeenCalled();
       expect(scopedGetToken).toHaveBeenCalledWith({
@@ -518,7 +518,7 @@ describe('App', () => {
       });
     });
 
-    it('keeps the user-token precheck app-only when the inbound activity has no agent user', async () => {
+    it('keeps the user-token precheck app-only when the inbound activity has no agentic user', async () => {
       await app.stop();
       app = createTestApp({ oauth: { defaultConnectionName: 'graph' } });
       await app.start();
@@ -533,7 +533,7 @@ describe('App', () => {
         .toInterface();
       const scopedApi = app.api.clone({
         serviceUrl: incomingServiceUrl,
-        agentUser: undefined,
+        agenticUser: undefined,
       });
       const clone = jest.spyOn(app.api, 'clone').mockReturnValue(scopedApi);
       const rootGetToken = jest.spyOn(app.api.users, 'getToken').mockResolvedValue({ token: 'root-token' } as any);
@@ -546,7 +546,7 @@ describe('App', () => {
 
       expect(clone).toHaveBeenCalledWith({
         serviceUrl: incomingServiceUrl,
-        agentUser: undefined,
+        agenticUser: undefined,
       });
       expect(rootGetToken).not.toHaveBeenCalled();
       expect(scopedGetToken).toHaveBeenCalledWith({

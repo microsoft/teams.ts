@@ -2,10 +2,10 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  *
- * Reactive echo agent demonstrating Agent User messaging.
+ * Reactive echo agent demonstrating Agentic User messaging.
  *
  * Incoming messages are handled normally; the inbound service URL and
- * Agent User identity are carried by the context/API layer automatically.
+ * Agentic User identity are carried by the context/API layer automatically.
  */
 
 import type { AgentLifecycleEventActivity } from '@microsoft/teams.api';
@@ -21,23 +21,23 @@ function logLifecycleEnvelope(
   handlerName: string,
   log: ILogger
 ) {
-  log.info(`[Agent User lifecycle:${handlerName}] envelope`, {
+  log.info(`[Agentic User lifecycle:${handlerName}] envelope`, {
     name: activity.name,
     valueType: activity.valueType,
     eventType: activity.value.eventType,
     channelId: activity.channelId,
     from: activity.from.id,
     recipientIdentity: {
-      agentUserId: activity.recipient.agenticUserId,
+      agenticUserId: activity.recipient.agenticUserId,
       agentAppInstanceId: activity.recipient.agenticAppId,
       agentIdentityBlueprintId: activity.recipient.agenticAppBlueprintId,
       tenantId: activity.recipient.tenantId,
     },
   });
 
-  log.info(`[Agent User lifecycle:${handlerName}] value`, {
+  log.info(`[Agentic User lifecycle:${handlerName}] value`, {
     tenantId: activity.value.tenantId,
-    agentUserId: activity.value.agenticUserId,
+    agenticUserId: activity.value.agenticUserId,
     agentAppInstanceId: activity.value.agenticAppInstanceId,
     agentIdentityBlueprintId: activity.value.agentIdentityBlueprintId,
     version: activity.value.version,
@@ -51,7 +51,7 @@ app.on('agentLifecycle', async (ctx) => {
 
 app.on('agenticUserIdentityCreated', ({ activity, log }) => {
   logLifecycleEnvelope(activity, 'identity_created', log);
-  log.info('[Agent User lifecycle:identity_created] details', {
+  log.info('[Agentic User lifecycle:identity_created] details', {
     expirationDateTime: activity.value.expirationDateTime,
     manager: activity.value.manager,
   });
@@ -59,14 +59,14 @@ app.on('agenticUserIdentityCreated', ({ activity, log }) => {
 
 app.on('agenticUserIdentityUpdated', ({ activity, log }) => {
   logLifecycleEnvelope(activity, 'identity_updated', log);
-  log.info('[Agent User lifecycle:identity_updated] details', {
+  log.info('[Agentic User lifecycle:identity_updated] details', {
     updatedProperty: activity.value.updatedProperty,
   });
 });
 
 app.on('agenticUserManagerUpdated', ({ activity, log }) => {
   logLifecycleEnvelope(activity, 'manager_updated', log);
-  log.info('[Agent User lifecycle:manager_updated] details', {
+  log.info('[Agentic User lifecycle:manager_updated] details', {
     manager: activity.value.manager,
   });
 });
@@ -81,7 +81,7 @@ app.on('agenticUserDisabled', ({ activity, log }) => {
 
 app.on('agenticUserDeleted', ({ activity, log }) => {
   logLifecycleEnvelope(activity, 'deleted', log);
-  log.info('[Agent User lifecycle:deleted] details', {
+  log.info('[Agentic User lifecycle:deleted] details', {
     deletionReason: activity.value.deletionReason,
   });
 });
@@ -92,16 +92,16 @@ app.on('agenticUserUndeleted', ({ activity, log }) => {
 
 app.on('agenticUserWorkloadOnboardingUpdated', ({ activity, log }) => {
   logLifecycleEnvelope(activity, 'workload_onboarding_updated', log);
-  log.info('[Agent User lifecycle:workload_onboarding_updated] details', {
+  log.info('[Agentic User lifecycle:workload_onboarding_updated] details', {
     workloadName: activity.value.workloadName,
     workloadOnboardingState: activity.value.workloadOnboardingState,
   });
 });
 
 app.on('message', async ({ send, reply, activity, api, log }) => {
-  log.info(`[Agent User reactive] Message received: ${activity.text}`);
-  log.info(`[Agent User reactive] From: ${activity.from?.id}`);
-  log.info(`[Agent User reactive] Recipient: ${activity.recipient?.id}`);
+  log.info(`[Agentic User reactive] Message received: ${activity.text}`);
+  log.info(`[Agentic User reactive] From: ${activity.from?.id}`);
+  log.info(`[Agentic User reactive] Recipient: ${activity.recipient?.id}`);
 
   await reply({ type: 'typing' });
 

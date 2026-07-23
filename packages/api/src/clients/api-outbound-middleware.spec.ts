@@ -235,7 +235,7 @@ describe('API outbound middleware', () => {
       'microsoft.teams.api.client',
       'microsoft.teams.auth.outbound',
     ]);
-    expect(calls).toEqual([{ agentUser: undefined }]);
+    expect(calls).toEqual([{ agenticUser: undefined }]);
     expect(requests[0].headers.Authorization).toBe('Bearer bot-token');
     expect(recordTeamsApiOutboundCall).toHaveBeenCalledWith('create');
     expect(authSpan.end).toHaveBeenCalled();

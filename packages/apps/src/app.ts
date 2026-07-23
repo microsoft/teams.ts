@@ -3,7 +3,7 @@ import { AxiosError } from 'axios';
 import {
   Activity,
   ActivityLike,
-  AgentUser,
+  AgenticUser,
   ApiClientSettings,
   CloudEnvironment,
   ConversationReference,
@@ -64,9 +64,9 @@ function isAppSendOptions(value: ActivityLike | DeprecatedInputActivity | AppSen
  */
 export type AppSendOptions = {
   /**
-   * Agent User identity to use when acquiring tokens for this send.
+   * Agentic User identity to use when acquiring tokens for this send.
    */
-  readonly agentUser?: AgentUser;
+  readonly agenticUser?: AgenticUser;
 };
 
 /**
@@ -178,7 +178,7 @@ export type AppOptions<TPlugin extends IPlugin> = {
 
   /**
    * API client settings used for overriding (e.g. oauthUrl).
-   * Cloud, authProvider, and agentUser are managed internally.
+   * Cloud, authProvider, and agenticUser are managed internally.
    */
   readonly apiClientSettings?: Pick<ApiClientSettings, 'oauthUrl'>;
 
@@ -339,9 +339,9 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     // initialize ActivitySender for sending activities
     this.activitySender = new ActivitySender(
       this.log,
-      (senderServiceUrl, agentUser) => this.api.clone({
+      (senderServiceUrl, agenticUser) => this.api.clone({
         serviceUrl: senderServiceUrl,
-        agentUser,
+        agenticUser,
       }),
     );
 
@@ -605,7 +605,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     const res = await this.activitySender.send(
       params,
       ref,
-      options?.agentUser ? { agentUser: options.agentUser } : undefined,
+      options?.agenticUser ? { agenticUser: options.agenticUser } : undefined,
     );
     return res;
   }
@@ -663,21 +663,21 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   }
 
   /**
-   * Create an AgentUser for use with Agent User send helpers.
+   * Create an AgenticUser for use with Agentic User send helpers.
    *
-   * @param agentAppInstanceId the Agent User app instance ID
-   * @param agentUserId the Agent User ID
+   * @param agentAppInstanceId the Agentic User app instance ID
+   * @param agenticUserId the Agentic User ID
    * @param opts optional overrides (tenantId defaults to this app's configured tenant,
    *   agentIdentityBlueprintId defaults to this AgentIdentityBlueprint's clientId)
    */
-  getAgentUser(agentAppInstanceId: string, agentUserId: string, opts?: { tenantId?: string; agentIdentityBlueprintId?: string }): AgentUser {
+  getAgenticUser(agentAppInstanceId: string, agenticUserId: string, opts?: { tenantId?: string; agentIdentityBlueprintId?: string }): AgenticUser {
     const tenantId = opts?.tenantId ?? this.options.tenantId;
     if (!tenantId) {
-      throw new Error('tenantId is required to get an Agent User identity');
+      throw new Error('tenantId is required to get an Agentic User identity');
     }
     return {
       agentAppInstanceId,
-      agentUserId,
+      agenticUserId,
       tenantId,
       agentIdentityBlueprintId: opts?.agentIdentityBlueprintId ?? this.id,
     };

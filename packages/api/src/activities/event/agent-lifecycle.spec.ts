@@ -1,13 +1,13 @@
 import {
   AgentLifecycleEventActivity,
-  IAgentUserIdentityCreatedEventActivity,
-  IAgentUserIdentityUpdatedEventActivity,
-  IAgentUserManagerUpdatedEventActivity,
+  IAgenticUserIdentityCreatedEventActivity,
+  IAgenticUserIdentityUpdatedEventActivity,
+  IAgenticUserManagerUpdatedEventActivity,
   IUnknownAgentLifecycleEventActivity,
 } from './agent-lifecycle';
 
 const TENANT_ID = '00000000-0000-0000-0000-000000000001';
-const AGENT_USER_ID = '00000000-0000-0000-0000-000000000002';
+const AGENTIC_USER_ID = '00000000-0000-0000-0000-000000000002';
 const APP_ID = '00000000-0000-0000-0000-000000000003';
 const AGENT_APP_INSTANCE_ID = '00000000-0000-0000-0000-000000000004';
 const BLUEPRINT_ID = '00000000-0000-0000-0000-000000000005';
@@ -23,7 +23,7 @@ const baseActivity = {
   recipient: {
     id: APP_ID,
     role: 'agenticUser',
-    agenticUserId: AGENT_USER_ID,
+    agenticUserId: AGENTIC_USER_ID,
     agenticAppId: APP_ID,
     agenticAppBlueprintId: BLUEPRINT_ID,
     callbackUri: 'https://example.test/api/messages',
@@ -40,12 +40,12 @@ const baseActivity = {
 
 describe('AgentLifecycleEventActivity', () => {
   it('models identity creation payloads', () => {
-    const activity: IAgentUserIdentityCreatedEventActivity = {
+    const activity: IAgenticUserIdentityCreatedEventActivity = {
       ...baseActivity,
       valueType: 'AgenticUserIdentityCreated',
       value: {
         tenantId: TENANT_ID,
-        agenticUserId: AGENT_USER_ID,
+        agenticUserId: AGENTIC_USER_ID,
         agenticAppInstanceId: AGENT_APP_INSTANCE_ID,
         agentIdentityBlueprintId: BLUEPRINT_ID,
         eventType: 'agenticUserIdentityCreated',
@@ -66,12 +66,12 @@ describe('AgentLifecycleEventActivity', () => {
   });
 
   it('models identity update payloads', () => {
-    const activity: IAgentUserIdentityUpdatedEventActivity = {
+    const activity: IAgenticUserIdentityUpdatedEventActivity = {
       ...baseActivity,
       valueType: 'AgenticUserIdentityUpdated',
       value: {
         tenantId: TENANT_ID,
-        agenticUserId: AGENT_USER_ID,
+        agenticUserId: AGENTIC_USER_ID,
         agenticAppInstanceId: AGENT_APP_INSTANCE_ID,
         agentIdentityBlueprintId: BLUEPRINT_ID,
         eventType: 'agenticUserIdentityUpdated',
@@ -88,12 +88,12 @@ describe('AgentLifecycleEventActivity', () => {
   });
 
   it('models manager update payloads', () => {
-    const activity: IAgentUserManagerUpdatedEventActivity = {
+    const activity: IAgenticUserManagerUpdatedEventActivity = {
       ...baseActivity,
       valueType: 'AgenticUserManagerUpdated',
       value: {
         tenantId: TENANT_ID,
-        agenticUserId: AGENT_USER_ID,
+        agenticUserId: AGENTIC_USER_ID,
         agenticAppInstanceId: AGENT_APP_INSTANCE_ID,
         agentIdentityBlueprintId: BLUEPRINT_ID,
         eventType: 'agenticUserManagerUpdated',
@@ -111,7 +111,7 @@ describe('AgentLifecycleEventActivity', () => {
       valueType: 'FutureAgentLifecycleEvent',
       value: {
         eventType: 'futureAgentLifecycleEvent',
-        agenticUserId: AGENT_USER_ID,
+        agenticUserId: AGENTIC_USER_ID,
         extraField: 'extra-value',
       },
     };
