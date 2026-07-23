@@ -170,7 +170,7 @@ describe('ActivitySender', () => {
     });
 
     it('should use agentic user option for the API client', async () => {
-      const agenticUser = { agentAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+      const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
 
       await sender.send({ type: 'message', text: 'hi' }, ref, { agenticUser });
 

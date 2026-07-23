@@ -10,7 +10,7 @@
  * for the right Agentic User token.
  *
  * Usage:
- *   npx tsx -r dotenv/config src/proactive.ts <conversation-id> <agent-app-instance-id> <agentic-user-id>
+ *   npx tsx -r dotenv/config src/proactive.ts <conversation-id> <agentic-app-instance-id> <agentic-user-id>
  */
 
 import { MessageActivity } from '@microsoft/teams.api';
@@ -18,22 +18,22 @@ import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
 async function main() {
-  const [conversationId, agentAppInstanceId, agenticUserId] = process.argv.slice(2);
+  const [conversationId, agenticAppInstanceId, agenticUserId] = process.argv.slice(2);
 
-  if (!conversationId || !agentAppInstanceId || !agenticUserId) {
+  if (!conversationId || !agenticAppInstanceId || !agenticUserId) {
     console.error(
-      'Usage: npx tsx -r dotenv/config src/proactive.ts <conversation-id> <agent-app-instance-id> <agentic-user-id>'
+      'Usage: npx tsx -r dotenv/config src/proactive.ts <conversation-id> <agentic-app-instance-id> <agentic-user-id>'
     );
     process.exit(1);
   }
 
   const app = new App({
-    logger: new ConsoleLogger('@examples/agent-identity-blueprint', { level: 'debug' }),
+    logger: new ConsoleLogger('@examples/agentic-blueprint', { level: 'debug' }),
   });
 
   await app.initialize();
 
-  const agenticUser = app.getAgenticUser(agentAppInstanceId, agenticUserId);
+  const agenticUser = app.getAgenticUser(agenticAppInstanceId, agenticUserId);
 
   // 1. High-level app.send as an Agentic User
   const sent = await app.send(

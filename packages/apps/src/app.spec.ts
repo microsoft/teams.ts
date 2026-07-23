@@ -164,7 +164,7 @@ describe('App', () => {
 
       await app.start();
 
-      const agenticUser = { agentAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+      const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 

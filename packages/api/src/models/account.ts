@@ -43,14 +43,14 @@ export type Account<P = any> = {
    */
   readonly agenticUserId?: string;
   /**
-   * ID of the concrete AgentAppInstance represented by this account.
+   * ID of the concrete AgenticAppInstance represented by this account.
    *
    * This is an activity wire field and intentionally keeps the service-owned
    * JSON key.
    */
   readonly agenticAppId?: string;
   /**
-   * ID of the AgentIdentityBlueprint backing the AgentAppInstance.
+   * ID of the AgenticBlueprint backing the AgenticAppInstance.
    *
    * This is an activity wire field and intentionally keeps the service-owned
    * JSON key.
@@ -70,10 +70,10 @@ export function getAgenticUser(account?: Account): AgenticUser | undefined {
   }
 
   return {
-    agentAppInstanceId: account.agenticAppId,
+    agenticAppInstanceId: account.agenticAppId,
     agenticUserId: account.agenticUserId,
     tenantId: account.tenantId,
-    agentIdentityBlueprintId: account.agenticAppBlueprintId,
+    agenticBlueprintId: account.agenticAppBlueprintId,
   };
 }
 

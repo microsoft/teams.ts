@@ -21,7 +21,7 @@ function openIdMetadataToKeysUri(openIdMetadataUrl: string): string {
  * Validator for inbound Teams activities.
  *
  * Classic bot activities use Bot Framework connector tokens. Agentic User activities
- * use Entra tokens whose audience is the AgentIdentityBlueprint ID.
+ * use Entra tokens whose audience is the AgenticBlueprint ID.
  */
 export class InboundActivityTokenValidator {
   private jwtValidator: JwtValidator;

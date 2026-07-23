@@ -460,7 +460,7 @@ describe('App', () => {
       expect(clone).toHaveBeenCalledWith({
         serviceUrl: incomingServiceUrl,
         agenticUser: expect.objectContaining({
-          agentAppInstanceId: 'agent-app',
+          agenticAppInstanceId: 'agent-app',
           agenticUserId: 'agentic-user',
         }),
       });
@@ -473,10 +473,10 @@ describe('App', () => {
 
       const incomingServiceUrl = 'https://incoming-service.botframework.com';
       const agenticUser = {
-        agentAppInstanceId: 'agent-app',
+        agenticAppInstanceId: 'agent-app',
         agenticUserId: 'agentic-user',
         tenantId: 'tenant-id',
-        agentIdentityBlueprintId: 'blueprint-id',
+        agenticBlueprintId: 'blueprint-id',
       };
       const incomingActivity: IMessageActivity = new MessageActivity('hello')
         .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
@@ -484,9 +484,9 @@ describe('App', () => {
           id: 'bot-1',
           name: 'Test Bot',
           role: 'bot',
-          agenticAppId: agenticUser.agentAppInstanceId,
+          agenticAppId: agenticUser.agenticAppInstanceId,
           agenticUserId: agenticUser.agenticUserId,
-          agenticAppBlueprintId: agenticUser.agentIdentityBlueprintId,
+          agenticAppBlueprintId: agenticUser.agenticBlueprintId,
           tenantId: agenticUser.tenantId,
         })
         .withConversation({ id: 'conv-123', conversationType: 'personal' })

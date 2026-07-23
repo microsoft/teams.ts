@@ -102,7 +102,7 @@ describe('Api Client auth provider', () => {
 
   it('creates an agentic user scoped clone', () => {
     const authProvider: AuthProvider = { token: async () => 'token' };
-    const agenticUser = { agentAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', undefined, { authProvider });
 
     const scoped = api.fromAgenticUser({ agenticUser });
@@ -113,7 +113,7 @@ describe('Api Client auth provider', () => {
 
   it('keeps forAgenticUser as an agentic user convenience alias', () => {
     const authProvider: AuthProvider = { token: async () => 'token' };
-    const agenticUser = { agentAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', undefined, { authProvider });
 
     const scoped = api.forAgenticUser(agenticUser);
@@ -123,7 +123,7 @@ describe('Api Client auth provider', () => {
 
   it('creates a service url scoped clone', () => {
     const authProvider: AuthProvider = { token: async () => 'token' };
-    const agenticUser = { agentAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', undefined, { authProvider, agenticUser });
 
     const scoped = api.fromServiceUrl({ serviceUrl: 'https://another.service.example.com/' });
@@ -135,7 +135,7 @@ describe('Api Client auth provider', () => {
 
   it('creates a clone scoped to service url and agentic user', () => {
     const authProvider: AuthProvider = { token: async () => 'token' };
-    const agenticUser = { agentAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', undefined, { authProvider });
 
     const scoped = api.clone({
@@ -150,7 +150,7 @@ describe('Api Client auth provider', () => {
 
   it('preserves the default agentic user when clone receives an undefined identity', () => {
     const authProvider: AuthProvider = { token: async () => 'token' };
-    const agenticUser = { agentAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', undefined, { authProvider, agenticUser });
 
     const scoped = api.clone({
@@ -164,7 +164,7 @@ describe('Api Client auth provider', () => {
 
   it('clears the default agentic user when clone receives a null identity', () => {
     const authProvider: AuthProvider = { token: async () => 'token' };
-    const agenticUser = { agentAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', undefined, { authProvider, agenticUser });
 
     const scoped = api.clone({
@@ -186,7 +186,7 @@ describe('Api Client auth provider', () => {
     };
     const http = new TestHttpClient();
     mockAdapter(http);
-    const agenticUser = { agentAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', http, { authProvider });
 
     const scoped = api.fromAgenticUser({ agenticUser });
@@ -205,7 +205,7 @@ describe('Api Client auth provider', () => {
     };
     const http = new TestHttpClient();
     const requests = mockAdapter(http);
-    const agenticUser = { agentAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', http, { authProvider });
     const scoped = api.clone({
       serviceUrl: 'https://override.service.example.com/',
@@ -231,7 +231,7 @@ describe('Api Client auth provider', () => {
     };
     const http = new TestHttpClient();
     mockAdapter(http);
-    const agenticUser = { agentAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', http, { authProvider, agenticUser });
 
     await api.clone({ agenticUser: undefined }).http.get('/preserve');

@@ -24,7 +24,7 @@ describe('AppAuthProvider', () => {
       getAgenticUserToken: jest.fn(async () => 'agentic-user-token'),
     } as unknown as jest.Mocked<TokenManager>;
     const provider = new AppAuthProvider(tokenManager);
-    const identity: AgenticUser = { agentAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+    const identity: AgenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
 
     const token = await provider.token({ scope: 'agentic-user-scope', agenticUser: identity });
 
@@ -52,7 +52,7 @@ describe('AppAuthProvider', () => {
       getAgenticUserToken: jest.fn(async () => 'agentic-user-default-token'),
     } as unknown as jest.Mocked<TokenManager>;
     const provider = new AppAuthProvider(tokenManager);
-    const identity: AgenticUser = { agentAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+    const identity: AgenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
 
     const token = await provider.token({ agenticUser: identity });
 

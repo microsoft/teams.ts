@@ -4,9 +4,9 @@
  */
 export type AgenticUser = {
   /**
-   * ID of the concrete AgentAppInstance that represents this Agentic User.
+   * ID of the concrete AgenticAppInstance that represents this Agentic User.
    */
-  readonly agentAppInstanceId: string;
+  readonly agenticAppInstanceId: string;
 
   /**
    * Entra object ID of the Agentic User.
@@ -20,9 +20,9 @@ export type AgenticUser = {
   readonly tenantId?: string;
 
   /**
-   * ID of the AgentIdentityBlueprint that backs the AgentAppInstance. When
+   * ID of the AgenticBlueprint that backs the AgenticAppInstance. When
    * omitted, callers may fall back to their configured app ID if the API
    * surface documents that behavior.
    */
-  readonly agentIdentityBlueprintId?: string;
+  readonly agenticBlueprintId?: string;
 };

@@ -54,7 +54,7 @@ export class TokenManager {
   private cloud: CloudEnvironment;
   private confidentialClientsByTenantId: Record<string, ConfidentialClientApplication> = {};
   private federatedIdentityClientsByTenantId: Record<string, ConfidentialClientApplication> = {};
-  private agentIdentityClientsByTenantAndAppId: Record<string, ConfidentialClientApplication> = {};
+  private agenticAppInstanceClientsByTenantAndAppId: Record<string, ConfidentialClientApplication> = {};
   private managedIdentityClient: ManagedIdentityApplication | null = null;
 
   constructor(options: TokenManagerOptions, logger: ILogger) {
@@ -108,12 +108,12 @@ export class TokenManager {
       const confidentialClient = this.getConfidentialClient(this.credentials as ClientCredentials, tenantId);
       const t1Result = await confidentialClient.acquireTokenByClientCredential({
         scopes: [TOKEN_EXCHANGE_SCOPE],
-        fmiPath: agenticUser.agentAppInstanceId,
+        fmiPath: agenticUser.agenticAppInstanceId,
       });
       return this.getAccessTokenOrThrow(t1Result, 'Agent token exchange step 1 failed');
     };
 
-    const t2Client = this.getAgentIdentityClient(tenantId, agenticUser.agentAppInstanceId, t1Assertion);
+    const t2Client = this.getAgenticAppInstanceClient(tenantId, agenticUser.agenticAppInstanceId, t1Assertion);
     const t2Result = await t2Client.acquireTokenByClientCredential({ scopes: [TOKEN_EXCHANGE_SCOPE] });
     const t2 = this.getAccessTokenOrThrow(t2Result, 'Agent token exchange step 2 failed');
 
@@ -264,16 +264,16 @@ export class TokenManager {
     return client;
   }
 
-  private getAgentIdentityClient(tenantId: string, agentAppInstanceId: string, clientAssertion: () => Promise<string>) {
-    const cacheKey = `${tenantId}:${agentAppInstanceId}`;
-    const cachedClient = this.agentIdentityClientsByTenantAndAppId[cacheKey];
+  private getAgenticAppInstanceClient(tenantId: string, agenticAppInstanceId: string, clientAssertion: () => Promise<string>) {
+    const cacheKey = `${tenantId}:${agenticAppInstanceId}`;
+    const cachedClient = this.agenticAppInstanceClientsByTenantAndAppId[cacheKey];
     if (cachedClient) {
       return cachedClient;
     }
 
     const client = new ConfidentialClientApplication({
       auth: {
-        clientId: agentAppInstanceId,
+        clientId: agenticAppInstanceId,
         clientAssertion,
         authority: `${this.cloud.loginEndpoint}/${tenantId}`
       },
@@ -281,7 +281,7 @@ export class TokenManager {
         loggerOptions: this.buildLoggerOptions()
       }
     });
-    this.agentIdentityClientsByTenantAndAppId[cacheKey] = client;
+    this.agenticAppInstanceClientsByTenantAndAppId[cacheKey] = client;
     return client;
   }
 

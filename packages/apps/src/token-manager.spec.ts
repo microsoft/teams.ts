@@ -503,7 +503,7 @@ describe('TokenManager', () => {
 
   describe('getAgenticUserToken', () => {
     const mockAgenticUser = {
-      agentAppInstanceId: 'agent-app-instance-id',
+      agenticAppInstanceId: 'agentic-app-instance-id',
       agenticUserId: 'agentic-user-id',
       tenantId: 'agentic-user-tenant-id',
     };
@@ -517,7 +517,7 @@ describe('TokenManager', () => {
     it('should throw when tenantId cannot be resolved', async () => {
       const tokenManager = new TokenManager({ clientId: 'id', clientSecret: 'secret' }, logger);
       await expect(
-        tokenManager.getAgenticUserToken('scope', { agentAppInstanceId: 'app', agenticUserId: 'user' })
+        tokenManager.getAgenticUserToken('scope', { agenticAppInstanceId: 'app', agenticUserId: 'user' })
       ).rejects.toThrow('tenantId is required to get an Agentic User token');
     });
 

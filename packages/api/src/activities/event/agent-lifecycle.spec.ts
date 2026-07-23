@@ -9,7 +9,7 @@ import {
 const TENANT_ID = '00000000-0000-0000-0000-000000000001';
 const AGENTIC_USER_ID = '00000000-0000-0000-0000-000000000002';
 const APP_ID = '00000000-0000-0000-0000-000000000003';
-const AGENT_APP_INSTANCE_ID = '00000000-0000-0000-0000-000000000004';
+const AGENTIC_APP_INSTANCE_ID = '00000000-0000-0000-0000-000000000004';
 const BLUEPRINT_ID = '00000000-0000-0000-0000-000000000005';
 
 const baseActivity = {
@@ -46,7 +46,7 @@ describe('AgentLifecycleEventActivity', () => {
       value: {
         tenantId: TENANT_ID,
         agenticUserId: AGENTIC_USER_ID,
-        agenticAppInstanceId: AGENT_APP_INSTANCE_ID,
+        agenticAppInstanceId: AGENTIC_APP_INSTANCE_ID,
         agentIdentityBlueprintId: BLUEPRINT_ID,
         eventType: 'agenticUserIdentityCreated',
         expirationDateTime: new Date('2026-06-30T00:00:00Z'),
@@ -72,7 +72,7 @@ describe('AgentLifecycleEventActivity', () => {
       value: {
         tenantId: TENANT_ID,
         agenticUserId: AGENTIC_USER_ID,
-        agenticAppInstanceId: AGENT_APP_INSTANCE_ID,
+        agenticAppInstanceId: AGENTIC_APP_INSTANCE_ID,
         agentIdentityBlueprintId: BLUEPRINT_ID,
         eventType: 'agenticUserIdentityUpdated',
         updatedProperty: {
@@ -94,7 +94,7 @@ describe('AgentLifecycleEventActivity', () => {
       value: {
         tenantId: TENANT_ID,
         agenticUserId: AGENTIC_USER_ID,
-        agenticAppInstanceId: AGENT_APP_INSTANCE_ID,
+        agenticAppInstanceId: AGENTIC_APP_INSTANCE_ID,
         agentIdentityBlueprintId: BLUEPRINT_ID,
         eventType: 'agenticUserManagerUpdated',
         manager: { managerId: 'manager-id' },

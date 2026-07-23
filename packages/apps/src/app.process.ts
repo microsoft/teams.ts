@@ -42,10 +42,10 @@ function getAgenticUser(account?: Account): AgenticUser | undefined {
     return undefined;
   }
   return {
-    agentAppInstanceId: account.agenticAppId,
+    agenticAppInstanceId: account.agenticAppId,
     agenticUserId: account.agenticUserId,
     tenantId: account.tenantId,
-    agentIdentityBlueprintId: account.agenticAppBlueprintId,
+    agenticBlueprintId: account.agenticAppBlueprintId,
   };
 }
 

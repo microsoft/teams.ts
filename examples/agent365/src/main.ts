@@ -13,7 +13,7 @@ import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger, type ILogger } from '@microsoft/teams.common';
 
 const app = new App({
-  logger: new ConsoleLogger('@examples/agent-identity-blueprint',),
+  logger: new ConsoleLogger('@examples/agentic-blueprint',),
 });
 
 function logLifecycleEnvelope(
@@ -29,8 +29,8 @@ function logLifecycleEnvelope(
     from: activity.from.id,
     recipientIdentity: {
       agenticUserId: activity.recipient.agenticUserId,
-      agentAppInstanceId: activity.recipient.agenticAppId,
-      agentIdentityBlueprintId: activity.recipient.agenticAppBlueprintId,
+      agenticAppInstanceId: activity.recipient.agenticAppId,
+      agenticBlueprintId: activity.recipient.agenticAppBlueprintId,
       tenantId: activity.recipient.tenantId,
     },
   });
@@ -38,8 +38,8 @@ function logLifecycleEnvelope(
   log.info(`[Agentic User lifecycle:${handlerName}] value`, {
     tenantId: activity.value.tenantId,
     agenticUserId: activity.value.agenticUserId,
-    agentAppInstanceId: activity.value.agenticAppInstanceId,
-    agentIdentityBlueprintId: activity.value.agentIdentityBlueprintId,
+    agenticAppInstanceId: activity.value.agenticAppInstanceId,
+    agenticBlueprintId: activity.value.agentIdentityBlueprintId,
     version: activity.value.version,
   });
 }

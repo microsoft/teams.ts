@@ -71,7 +71,7 @@ export type AgentLifecycleValueBase = {
   agenticUserId?: string;
 
   /**
-   * The concrete AgentAppInstance ID.
+   * The concrete AgenticAppInstance ID.
    *
    * This is an activity value wire field and intentionally keeps the
    * service-owned JSON key.
@@ -79,7 +79,7 @@ export type AgentLifecycleValueBase = {
   agenticAppInstanceId?: string;
 
   /**
-   * The AgentIdentityBlueprint ID.
+   * The AgenticBlueprint ID.
    */
   agentIdentityBlueprintId?: string;
 
