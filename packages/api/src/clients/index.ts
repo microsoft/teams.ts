@@ -4,7 +4,7 @@ import {
 } from '@microsoft/teams.common';
 
 import { CloudEnvironment } from '../auth/cloud-environment';
-import { AgenticIdentity } from '../models';
+import { AgentUser } from '../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
 import {
@@ -23,7 +23,7 @@ import { UserClient } from './user';
 /**
  * Options for creating a scoped API client from an existing client.
  */
-export type ApiClientCloneOptions = Omit<Partial<ApiClientSettings>, 'agenticIdentity'> & {
+export type ApiClientCloneOptions = Omit<Partial<ApiClientSettings>, 'agentUser'> & {
   /**
    * Service URL for the scoped client. Defaults to the current client's service URL.
    */
@@ -32,7 +32,7 @@ export type ApiClientCloneOptions = Omit<Partial<ApiClientSettings>, 'agenticIde
   /**
    * `undefined` preserves the current client default; `null` clears it.
    */
-  readonly agenticIdentity?: AgenticIdentity | null;
+  readonly agentUser?: AgentUser | null;
 };
 
 /**
@@ -46,13 +46,13 @@ export type ApiClientFromServiceUrlOptions = {
 };
 
 /**
- * Options for creating a scoped API client for a specific Agentic User.
+ * Options for creating a scoped API client for a specific Agent User.
  */
-export type ApiClientFromAgenticIdentityOptions = {
+export type ApiClientFromAgentUserOptions = {
   /**
-   * Agentic User identity used by the scoped client when acquiring auth tokens.
+   * Agent User identity used by the scoped client when acquiring auth tokens.
    */
-  readonly agenticIdentity: AgenticIdentity;
+  readonly agentUser: AgentUser;
 };
 
 export class Client {
@@ -82,7 +82,7 @@ export class Client {
   protected _apiClientSettings: Partial<ApiClientSettings>;
   protected _authProvider?: AuthProvider;
   protected _cloud?: CloudEnvironment;
-  protected _defaultAgenticIdentity?: AgenticIdentity;
+  protected _defaultAgentUser?: AgentUser;
 
   constructor(
     serviceUrl: string,
@@ -92,7 +92,7 @@ export class Client {
     this.serviceUrl = normalizeServiceUrl(serviceUrl);
     this._cloud = apiClientSettings?.cloud;
     this._authProvider = apiClientSettings?.authProvider;
-    this._defaultAgenticIdentity = apiClientSettings?.agenticIdentity;
+    this._defaultAgentUser = apiClientSettings?.agentUser;
 
     if (!httpOptions) {
       this._http = this.prepareHttpClient(new HttpClient());
@@ -122,7 +122,7 @@ export class Client {
    * Create a scoped API client that reuses this client's HTTP configuration and auth provider.
    */
   clone(options: ApiClientCloneOptions = {}): Client {
-    const { serviceUrl, agenticIdentity, ...apiClientSettings } = options;
+    const { serviceUrl, agentUser, ...apiClientSettings } = options;
     const http = this._baseHttp.clone();
     if (this._authProvider) {
       http.token = undefined;
@@ -134,22 +134,22 @@ export class Client {
       {
         ...this._apiClientSettings,
         ...apiClientSettings,
-        ...(agenticIdentity === undefined ? {} : { agenticIdentity: agenticIdentity ?? undefined }),
+        ...(agentUser === undefined ? {} : { agentUser: agentUser ?? undefined }),
       }
     );
   }
 
   /**
-   * Create a scoped API client for the provided Agentic User identity.
+   * Create a scoped API client for the provided Agent User identity.
    */
-  forAgenticIdentity(agenticIdentity: AgenticIdentity): Client {
-    return this.fromAgenticIdentity({ agenticIdentity });
+  forAgentUser(agentUser: AgentUser): Client {
+    return this.fromAgentUser({ agentUser });
   }
 
   /**
-   * Create a scoped API client for the provided Agentic User identity.
+   * Create a scoped API client for the provided Agent User identity.
    */
-  fromAgenticIdentity(options: ApiClientFromAgenticIdentityOptions): Client {
+  fromAgentUser(options: ApiClientFromAgentUserOptions): Client {
     return this.clone(options);
   }
 
@@ -167,7 +167,7 @@ export class Client {
 
     ensureApiOutboundTelemetryMiddleware(http);
     if (this._authProvider) {
-      http.token = createAuthProviderTokenFactory(this._authProvider, this._defaultAgenticIdentity);
+      http.token = createAuthProviderTokenFactory(this._authProvider, this._defaultAgentUser);
     }
 
     this._baseHttp = http;

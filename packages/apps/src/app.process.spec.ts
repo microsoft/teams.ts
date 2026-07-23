@@ -459,24 +459,24 @@ describe('App', () => {
 
       expect(clone).toHaveBeenCalledWith({
         serviceUrl: incomingServiceUrl,
-        agenticIdentity: expect.objectContaining({
-          agenticAppId: 'agent-app',
-          agenticUserId: 'agent-user',
+        agentUser: expect.objectContaining({
+          agentAppInstanceId: 'agent-app',
+          agentUserId: 'agent-user',
         }),
       });
     });
 
-    it('uses the inbound agentic-scoped API client for the user-token precheck', async () => {
+    it('uses the inbound Agent User-scoped API client for the user-token precheck', async () => {
       await app.stop();
       app = createTestApp({ oauth: { defaultConnectionName: 'graph' } });
       await app.start();
 
       const incomingServiceUrl = 'https://incoming-service.botframework.com';
-      const agenticIdentity = {
-        agenticAppId: 'agent-app',
-        agenticUserId: 'agent-user',
+      const agentUser = {
+        agentAppInstanceId: 'agent-app',
+        agentUserId: 'agent-user',
         tenantId: 'tenant-id',
-        agenticAppBlueprintId: 'blueprint-id',
+        agentIdentityBlueprintId: 'blueprint-id',
       };
       const incomingActivity: IMessageActivity = new MessageActivity('hello')
         .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
@@ -484,7 +484,10 @@ describe('App', () => {
           id: 'bot-1',
           name: 'Test Bot',
           role: 'bot',
-          ...agenticIdentity,
+          agenticAppId: agentUser.agentAppInstanceId,
+          agenticUserId: agentUser.agentUserId,
+          agenticAppBlueprintId: agentUser.agentIdentityBlueprintId,
+          tenantId: agentUser.tenantId,
         })
         .withConversation({ id: 'conv-123', conversationType: 'personal' })
         .withChannelId('msteams')
@@ -492,11 +495,11 @@ describe('App', () => {
         .toInterface();
       const scopedApi = app.api.clone({
         serviceUrl: incomingServiceUrl,
-        agenticIdentity,
+        agentUser,
       });
       const clone = jest.spyOn(app.api, 'clone').mockReturnValue(scopedApi);
       const rootGetToken = jest.spyOn(app.api.users, 'getToken').mockResolvedValue({ token: 'root-token' } as any);
-      const scopedGetToken = jest.spyOn(scopedApi.users, 'getToken').mockResolvedValue({ token: 'agentic-user-token' } as any);
+      const scopedGetToken = jest.spyOn(scopedApi.users, 'getToken').mockResolvedValue({ token: 'agent-user-token' } as any);
 
       await app.process({
         token: { ...token, serviceUrl: incomingServiceUrl },
@@ -505,7 +508,7 @@ describe('App', () => {
 
       expect(clone).toHaveBeenCalledWith({
         serviceUrl: incomingServiceUrl,
-        agenticIdentity,
+        agentUser,
       });
       expect(rootGetToken).not.toHaveBeenCalled();
       expect(scopedGetToken).toHaveBeenCalledWith({
@@ -515,7 +518,7 @@ describe('App', () => {
       });
     });
 
-    it('keeps the user-token precheck app-only when the inbound activity has no agentic identity', async () => {
+    it('keeps the user-token precheck app-only when the inbound activity has no agent user', async () => {
       await app.stop();
       app = createTestApp({ oauth: { defaultConnectionName: 'graph' } });
       await app.start();
@@ -530,7 +533,7 @@ describe('App', () => {
         .toInterface();
       const scopedApi = app.api.clone({
         serviceUrl: incomingServiceUrl,
-        agenticIdentity: undefined,
+        agentUser: undefined,
       });
       const clone = jest.spyOn(app.api, 'clone').mockReturnValue(scopedApi);
       const rootGetToken = jest.spyOn(app.api.users, 'getToken').mockResolvedValue({ token: 'root-token' } as any);
@@ -543,7 +546,7 @@ describe('App', () => {
 
       expect(clone).toHaveBeenCalledWith({
         serviceUrl: incomingServiceUrl,
-        agenticIdentity: undefined,
+        agentUser: undefined,
       });
       expect(rootGetToken).not.toHaveBeenCalled();
       expect(scopedGetToken).toHaveBeenCalledWith({

@@ -13,8 +13,8 @@ export interface TestConfig {
   channelId: string;
   meetingId?: string;
   userId2?: string;
-  agenticAppId?: string;
-  agenticUserId?: string;
+  agentAppInstanceId?: string;
+  agentUserId?: string;
   scope?: string;
 }
 
@@ -25,7 +25,7 @@ export interface TestFixture {
   memberMri1: string;
   memberMri2: string | undefined;
   isCanary: boolean;
-  isAgentic: boolean;
+  isAgentUser: boolean;
 }
 
 function loadConfig(): TestConfig {
@@ -48,8 +48,8 @@ function loadConfig(): TestConfig {
     channelId: env('TEST_CHANNELID'),
     meetingId: process.env['TEST_MEETINGID'],
     userId2: process.env['TEST_USER_ID_2'],
-    agenticAppId: process.env['TEST_AGENTIC_APP_ID'],
-    agenticUserId: process.env['TEST_AGENTIC_USER_ID'],
+    agentAppInstanceId: process.env['TEST_AGENT_APP_INSTANCE_ID'],
+    agentUserId: process.env['TEST_AGENT_USER_ID'],
     scope: process.env['AZURE_SCOPE'],
   };
 }
@@ -104,7 +104,7 @@ export async function getFixture(): Promise<TestFixture> {
   }
 
   const isCanary = config.serviceUrl.includes('canary');
-  const isAgentic = !!(config.agenticAppId && config.agenticUserId);
+  const isAgentUser = !!(config.agentAppInstanceId && config.agentUserId);
 
   _fixture = {
     config,
@@ -113,7 +113,7 @@ export async function getFixture(): Promise<TestFixture> {
     memberMri1: members[0].id,
     memberMri2: members[1]?.id,
     isCanary,
-    isAgentic,
+    isAgentUser,
   };
 
   return _fixture;

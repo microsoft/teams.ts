@@ -1,4 +1,4 @@
-import { AgenticIdentity } from './agentic-identity';
+import { AgentUser } from './agent-user';
 import { MembershipSource } from './membership-source';
 import { Role } from './role';
 
@@ -34,23 +34,46 @@ export type Account<P = any> = {
    */
   isTargeted?: boolean;
 
+  /**
+   * Entra object ID of the Agent User represented by this account, when the
+   * account is an Agent User.
+   *
+   * This is an activity wire field and intentionally keeps the service-owned
+   * JSON key.
+   */
   readonly agenticUserId?: string;
+  /**
+   * ID of the concrete AgentAppInstance represented by this account.
+   *
+   * This is an activity wire field and intentionally keeps the service-owned
+   * JSON key.
+   */
   readonly agenticAppId?: string;
+  /**
+   * ID of the AgentIdentityBlueprint backing the AgentAppInstance.
+   *
+   * This is an activity wire field and intentionally keeps the service-owned
+   * JSON key.
+   */
   readonly agenticAppBlueprintId?: string;
   readonly callbackUri?: string;
   readonly tenantId?: string;
 };
 
-export function getAgenticIdentity(account?: Account): AgenticIdentity | undefined {
+/**
+ * Builds an Agent User identity from an account when the activity recipient
+ * carries the Agent User fields required for scoped auth.
+ */
+export function getAgentUser(account?: Account): AgentUser | undefined {
   if (!account?.agenticAppId || !account.agenticUserId) {
     return undefined;
   }
 
   return {
-    agenticAppId: account.agenticAppId,
-    agenticUserId: account.agenticUserId,
+    agentAppInstanceId: account.agenticAppId,
+    agentUserId: account.agenticUserId,
     tenantId: account.tenantId,
-    agenticAppBlueprintId: account.agenticAppBlueprintId,
+    agentIdentityBlueprintId: account.agenticAppBlueprintId,
   };
 }
 

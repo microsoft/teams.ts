@@ -154,7 +154,7 @@ describe('App', () => {
       expect(ref.bot.name).toBeUndefined();
     });
 
-    it('should forward send agentic identity options', async () => {
+    it('should forward send agent user options', async () => {
       app = new TestApp({
         httpServerAdapter: new TestAdapter(),
         clientId: 'test-client-id',
@@ -164,19 +164,19 @@ describe('App', () => {
 
       await app.start();
 
-      const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agent-user' };
+      const agentUser = { agentAppInstanceId: 'agent-app', agentUserId: 'agent-user' };
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
       await app.testSend(
         'conversation-id',
         { type: 'message', text: 'Hello' },
-        { agenticIdentity }
+        { agentUser }
       );
 
       const [, ref, options] = mockSend.mock.calls[0];
       expect(ref.serviceUrl).toBe(app.api.serviceUrl);
-      expect(options).toEqual({ agenticIdentity });
+      expect(options).toEqual({ agentUser });
     });
 
     it('should throw error when app is not started (no clientId)', async () => {

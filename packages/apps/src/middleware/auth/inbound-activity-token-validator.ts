@@ -20,8 +20,8 @@ function openIdMetadataToKeysUri(openIdMetadataUrl: string): string {
 /**
  * Validator for inbound Teams activities.
  *
- * Classic bot activities use Bot Framework connector tokens. Agentic User activities
- * use Entra tokens whose audience is the Agent Blueprint app ID.
+ * Classic bot activities use Bot Framework connector tokens. Agent User activities
+ * use Entra tokens whose audience is the AgentIdentityBlueprint ID.
  */
 export class InboundActivityTokenValidator {
   private jwtValidator: JwtValidator;
@@ -108,7 +108,7 @@ export class InboundActivityTokenValidator {
     }
 
     const validator = this.getEntraValidator(tenantId);
-    // Agentic User inbound Entra tokens currently do not include serviceurl.
+    // Agent User inbound Entra tokens currently do not include serviceurl.
     // Revisit service URL validation when the platform defines a signed claim.
     return await validator.validateAccessToken(rawToken);
   }

@@ -12,7 +12,7 @@ import {
   getTeamsApiTracer,
   recordTeamsApiException
 } from '../diagnostics/helpers';
-import type { AgenticIdentity } from '../models';
+import type { AgentUser } from '../models';
 
 import type { AuthProvider } from './auth';
 
@@ -26,22 +26,22 @@ import type { AuthProvider } from './auth';
  */
 export function createAuthProviderTokenFactory(
   authProvider: AuthProvider,
-  defaultAgenticIdentity?: AgenticIdentity
+  defaultAgentUser?: AgentUser
 ): Token {
   return () => {
     return traceAuthTokenAcquisition(
-      getAuthFlow(defaultAgenticIdentity),
+      getAuthFlow(defaultAgentUser),
       // AuthProvider.token may resolve to null when no token is available, but
       // the common HTTP TokenFactory contract only allows string | StringLike |
       // undefined. Coerce null to undefined so the common client treats "no
       // token" uniformly instead of leaking a null into header resolution.
-      async () => (await authProvider.token({ agenticIdentity: defaultAgenticIdentity })) ?? undefined
+      async () => (await authProvider.token({ agentUser: defaultAgentUser })) ?? undefined
     );
   };
 }
 
-function getAuthFlow(agenticIdentity: AgenticIdentity | undefined): AuthFlow {
-  return agenticIdentity ? AUTH_FLOWS.agentic : AUTH_FLOWS.appOnly;
+function getAuthFlow(agentUser: AgentUser | undefined): AuthFlow {
+  return agentUser ? AUTH_FLOWS.agentUser : AUTH_FLOWS.appOnly;
 }
 
 async function traceAuthTokenAcquisition<T>(authFlow: AuthFlow, acquireToken: () => Promise<T>): Promise<T> {

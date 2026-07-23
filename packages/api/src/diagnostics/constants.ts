@@ -48,7 +48,7 @@ export const OUTBOUND_OPERATIONS = {
  * Private auth flow values used by API auth diagnostics.
  */
 export const AUTH_FLOWS = {
-  agentic: 'agentic',
+  agentUser: 'agent_user',
   appOnly: 'app_only',
 } as const;
 
