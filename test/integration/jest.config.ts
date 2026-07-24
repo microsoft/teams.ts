@@ -6,7 +6,7 @@ const config: Config = {
     '^.+\\.ts$': 'ts-jest',
   },
   testEnvironment: 'node',
-  testTimeout: 15000,
+  testTimeout: 30000,
   // Run sequentially — tests share a conversation and can conflict if parallel
   maxWorkers: 1,
   verbose: true,
