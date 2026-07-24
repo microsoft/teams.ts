@@ -13,6 +13,18 @@ A static widget renders directly from markdown with no callbacks.
 
 ![HTML widget simple demo: a static widget card rendered in Teams](./assets/widget-simple.png)
 
+### Tool call round-trip (`/calltool`)
+
+Clicking the widget button calls a bot tool via an `htmlwidget/calltool` invoke, and the widget renders the returned result.
+
+![HTML widget callTool demo: clicking Refresh calls the bot's refresh tool and renders the result](./assets/widget-calltool.gif)
+
+### Multi-tool dispatch (`/multi`)
+
+The widget exposes several buttons that each dispatch to a different bot tool, showing per-tool arguments and results.
+
+![HTML widget multi-tool demo: a widget with multiple buttons dispatches to different bot tools](./assets/widget-multi.gif)
+
 ### messageBack round-trip (`/messageback`)
 
 Clicking the widget button sends a `messageBack` to the bot, which echoes the received value.
