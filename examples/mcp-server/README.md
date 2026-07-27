@@ -71,25 +71,6 @@ The CLI writes `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID` to your `.env` file
 npm run dev
 ```
 
-## Run with the MCP Inspector
-
-The inspector connects to the server over HTTP, so run both in separate
-terminals. Terminal 1:
-
-```bash
-npm run dev
-```
-
-Terminal 2:
-
-```bash
-npm run inspect
-```
-
-In the inspector UI (opens in your browser), pick **Streamable HTTP** as the
-transport and enter `http://localhost:3978/mcp` as the URL, then click
-**Connect**.
-
 ## Example agent flow
 
 1. Agent calls `request_approval(userId, title, description)` → gets

@@ -6,23 +6,19 @@
   "scripts": {
     "dev:express": "tsx watch express/index.ts",
     "dev:hono": "tsx watch hono/index.ts",
-    "dev:restify": "tsx watch restify/index.ts",
     "start:express": "NODE_ENV=production tsx express/index.ts",
-    "start:hono": "NODE_ENV=production tsx hono/index.ts",
-    "start:restify": "NODE_ENV=production tsx restify/index.ts"
+    "start:hono": "NODE_ENV=production tsx hono/index.ts"
   },
   "dependencies": {
-    "@hono/node-server": "^2.0.10",
+    "@hono/node-server": "2.0.10",
     "@microsoft/teams.apps": "*",
     "express": "^5.0.0",
-    "hono": "^4.12.31",
-    "restify": "^11.1.0"
+    "hono": "^4.12.31"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
     "@types/express": "^5.0.0",
     "@types/node": "^22.5.4",
-    "@types/restify": "^8.5.12",
     "dotenv": "^16.4.5",
     "tsx": "^4.20.6",
     "typescript": "^5.4.5"
