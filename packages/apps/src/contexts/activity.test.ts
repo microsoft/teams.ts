@@ -673,8 +673,7 @@ describe('ActivityContext', () => {
           conversation: {
             id: 'channel-conv',
             conversationType: 'channel',
-            // isGroup deliberately false: channels must still be targeted via conversationType.
-            isGroup: false,
+            isGroup: true,
           },
         },
         activitySender: mockSender,

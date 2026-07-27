@@ -397,11 +397,9 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
 
     // In group conversations (group chats and channels) the OAuth card is sent as a
     // targeted message so it is visible only to the requesting user rather than the
-    // whole conversation. Channels are always group contexts, but `isGroup` is
-    // optional on the conversation, so treat channels as group scope to ensure the
-    // card is always targeted.
+    // whole conversation.
     const isChannel = this.activity.conversation.conversationType === 'channel';
-    const isGroup = this.activity.conversation.isGroup === true || isChannel;
+    const isGroup = this.activity.conversation.isGroup === true;
     const recipient = isGroup
       ? { ...this.activity.from, isTargeted: true }
       : this.activity.from;
