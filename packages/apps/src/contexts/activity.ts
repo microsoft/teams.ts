@@ -3,7 +3,6 @@ import {
   ActivityLike,
   ActivityParams,
   cardAttachment,
-  ConversationAccount,
   ConversationReference,
   DeprecatedInputActivity,
   InvokeResponse,
@@ -391,22 +390,21 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       msAppId: this.appId,
     };
 
-    if (this.activity.conversation.isGroup) {
-      // create new 1:1 conversation with user to do SSO
-      // because groupchats don't support it.
-      const res = await this.api.conversations.create({
-        tenantId: this.activity.conversation.tenantId,
-        members: [this.activity.from],
-      });
-
-      await this.send({ type: 'message', text: oauthCardText });
-      convo.conversation = { id: res.id } as ConversationAccount;
-    }
-
     const state = Buffer.from(JSON.stringify(tokenExchangeState)).toString(
       'base64'
     );
     const resource = await this.api.bots.signIn.getResource({ state });
+
+    // In group conversations (group chats and channels) the OAuth card is sent as a
+    // targeted message so it is visible only to the requesting user rather than the
+    // whole conversation. Channels cannot perform the silent SSO token exchange, so
+    // the token exchange resource is omitted there to render the sign-in button
+    // (OAuth card flow) instead of attempting an exchange that would fail.
+    const isGroup = this.activity.conversation.isGroup === true;
+    const isChannel = this.activity.conversation.conversationType === 'channel';
+    const recipient = isGroup
+      ? { ...this.activity.from, isTargeted: true }
+      : this.activity.from;
 
     await this.send(
       overrideSignInActivity?.(
@@ -415,12 +413,12 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
         resource.signInLink
       ) ?? {
         type: 'message',
-        recipient: this.activity.from,
+        recipient,
         attachments: [
           cardAttachment('oauth', {
             text: oauthCardText,
             connectionName: connectionName || this.connectionName,
-            tokenExchangeResource: resource.tokenExchangeResource,
+            tokenExchangeResource: isChannel ? undefined : resource.tokenExchangeResource,
             tokenPostResource: resource.tokenPostResource,
             buttons: [
               {
