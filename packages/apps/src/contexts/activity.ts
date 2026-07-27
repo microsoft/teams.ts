@@ -397,18 +397,26 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
 
     // In group conversations (group chats and channels) the OAuth card is sent as a
     // targeted message so it is visible only to the requesting user rather than the
-    // whole conversation. Channels cannot perform the silent SSO token exchange, so
-    // the token exchange resource is omitted there to render the sign-in button
-    // (OAuth card flow) instead of attempting an exchange that would fail.
-    const isGroup = this.activity.conversation.isGroup === true;
+    // whole conversation. Channels are always group contexts, but `isGroup` is
+    // optional on the conversation, so treat channels as group scope to ensure the
+    // card is always targeted.
     const isChannel = this.activity.conversation.conversationType === 'channel';
+    const isGroup = this.activity.conversation.isGroup === true || isChannel;
     const recipient = isGroup
       ? { ...this.activity.from, isTargeted: true }
       : this.activity.from;
 
+    // Channels cannot perform the silent SSO token exchange, so omit the token
+    // exchange resource there to render the sign-in button (OAuth card flow). This is
+    // applied to both the default card and any custom override so an override cannot
+    // accidentally trigger an exchange that Teams can't complete in a channel.
+    const tokenExchangeResource = isChannel
+      ? undefined
+      : resource.tokenExchangeResource;
+
     await this.send(
       overrideSignInActivity?.(
-        resource.tokenExchangeResource,
+        tokenExchangeResource,
         resource.tokenPostResource,
         resource.signInLink
       ) ?? {
@@ -418,7 +426,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
           cardAttachment('oauth', {
             text: oauthCardText,
             connectionName: connectionName || this.connectionName,
-            tokenExchangeResource: isChannel ? undefined : resource.tokenExchangeResource,
+            tokenExchangeResource,
             tokenPostResource: resource.tokenPostResource,
             buttons: [
               {

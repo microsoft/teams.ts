@@ -673,7 +673,8 @@ describe('ActivityContext', () => {
           conversation: {
             id: 'channel-conv',
             conversationType: 'channel',
-            isGroup: true,
+            // isGroup deliberately false: channels must still be targeted via conversationType.
+            isGroup: false,
           },
         },
         activitySender: mockSender,
@@ -699,6 +700,45 @@ describe('ActivityContext', () => {
       expect(sentActivity.recipient.isTargeted).toBe(true);
       // Channels cannot do silent SSO, so the token exchange resource is omitted.
       expect(sentActivity.attachments[0].content.tokenExchangeResource).toBeUndefined();
+    });
+
+    it('passes the channel-filtered token exchange resource to overrideSignInActivity', async () => {
+      context = new ActivityContext({
+        ...context,
+        activity: {
+          ...buildIncomingMessageActivity('Test message'),
+          conversation: {
+            id: 'channel-conv',
+            conversationType: 'channel',
+            isGroup: true,
+          },
+        },
+        activitySender: mockSender,
+      });
+
+      mockApiClient.users.getToken.mockRejectedValueOnce(new Error('No token'));
+      const mockResource = {
+        tokenExchangeResource: {
+          uri: 'my-token-exhcange-resource-uri',
+        } as TokenExchangeResource,
+        tokenPostResource: { sasUrl: 'sas' } as TokenPostResource,
+        signInLink: 'https://login.url',
+      };
+      mockApiClient.bots.signIn.getResource.mockResolvedValueOnce(mockResource);
+
+      const overrideSignInActivity = jest
+        .fn()
+        .mockReturnValue({ type: 'message', text: 'custom sign-in' });
+
+      await context.signin({ overrideSignInActivity });
+
+      // In channels the override callback receives no token exchange resource, so a
+      // custom override can't trigger a silent SSO exchange Teams can't complete.
+      expect(overrideSignInActivity).toHaveBeenCalledWith(
+        undefined,
+        mockResource.tokenPostResource,
+        mockResource.signInLink
+      );
     });
 
     it('forwards signout request to api client', async () => {
