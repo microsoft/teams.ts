@@ -27,13 +27,13 @@
     "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
     "@microsoft/teams.graph-endpoints": "*",
-    "@modelcontextprotocol/sdk": "^1.25.2",
+    "@modelcontextprotocol/sdk": "1.29.0",
     "express": "^5.0.0",
     "zod": "^3.24.3"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
-    "@modelcontextprotocol/inspector": "^0.21.2",
+    "@modelcontextprotocol/inspector": "0.18.0",
     "@types/express": "^5.0.0",
     "@types/node": "^22.5.4",
     "cross-env": "^7.0.3",

@@ -52,13 +52,41 @@
     "@rollup/rollup-linux-x64-gnu": "4.40.1"
   },
   "overrides": {
-    "restify": {
-      "send": "^1.2.0",
-      "find-my-way": "^9.0.0"
-    },
+    "@redocly/openapi-core": "^2.40.0",
+    "@azure/msal-node": "^5.4.1",
+    "@babel/core": "^7.29.7",
+    "@hono/node-server": "^2.0.11",
+    "esbuild": "^0.28.1",
+    "form-data": "^4.0.6",
     "follow-redirects": "^1.16.0",
+    "js-yaml": "^4.3.0",
     "router": {
       "path-to-regexp": "^8.4.0"
+    },
+    "openapi-typescript": {
+      "@redocly/openapi-core": "^2.40.0"
+    },
+    "uuid": "^11.1.1",
+    "@modelcontextprotocol/sdk": {
+      "@hono/node-server": "^2.0.11"
+    },
+    "botbuilder": {
+      "@azure/msal-node": "^5.4.1",
+      "uuid": "^11.1.1"
+    },
+    "botbuilder-core": {
+      "uuid": "^11.1.1"
+    },
+    "botframework-connector": {
+      "@azure/msal-node": "^5.4.1",
+      "uuid": "^11.1.1"
+    },
+    "botframework-schema": {
+      "uuid": "^11.1.1"
+    },
+    "botframework-streaming": {
+      "uuid": "^11.1.1",
+      "ws": "^7.5.13"
     }
   }
 }
