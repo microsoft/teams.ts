@@ -15,7 +15,7 @@ export const UPDATE_CONTEXT_WIDGET_HTML = `<!DOCTYPE html>
 html,body{height:100%;overflow:auto}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:16px;background:#fff;color:#242424;font-size:13px}
 h3{margin:0 0 8px}
-button{margin:4px 4px 4px 0;padding:6px 12px;border:1px solid #ccc;border-radius:4px;background:#f5f5f5;cursor:pointer;font-size:12px}
+button{margin:4px 4px 4px 0;padding:6px 12px;border:1px solid #ccc;border-radius:4px;background:#f5f5f5;color:inherit;cursor:pointer;font-size:12px}
 button:hover{background:#e0e0e0}
 textarea{width:100%;height:60px;margin:8px 0;padding:8px;border:1px solid #ccc;border-radius:4px;font-family:monospace;font-size:11px;resize:vertical}
 #status{margin-top:12px;padding:8px;background:#f0f9ff;border-radius:4px;white-space:pre-wrap;font-family:monospace;font-size:11px}
@@ -36,7 +36,9 @@ const pending = {};
 window.addEventListener('message', (event) => {
   const data = event.data;
   if (data?.id && pending[data.id]) {
-    pending[data.id](data);
+    const cb = pending[data.id];
+    delete pending[data.id];
+    cb(data);
   }
 });
 
