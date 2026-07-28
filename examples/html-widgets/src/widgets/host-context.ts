@@ -13,7 +13,7 @@ export const HOST_CONTEXT_WIDGET_HTML = `<!DOCTYPE html>
 <html><head><meta charset="utf-8">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:auto}
+html,body{overflow:auto}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:16px;background:#fff;color:#242424;font-size:13px}
 h3{margin:0 0 8px}
 .section{margin-top:12px;padding:8px;background:#f0f9ff;border-radius:4px}
@@ -91,6 +91,16 @@ async function init() {
 
   // Send initialized notification
   window.parent.postMessage({ jsonrpc: '2.0', method: 'ui/notifications/initialized', params: {} }, '*');
+
+  // Report content size so the host can size the iframe to fit. The SDK-injected
+  // protocol normally does this, but it skips injection for widgets (like this one)
+  // that run their own ui/initialize handshake, so we report the size ourselves.
+  notifySize();
+  setTimeout(notifySize, 100);
+}
+
+function notifySize() {
+  window.parent.postMessage({ jsonrpc: '2.0', method: 'ui/notifications/size-changed', params: { height: document.body.scrollHeight } }, '*');
 }
 
 init();
