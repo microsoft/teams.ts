@@ -20,6 +20,7 @@ h3{margin:0 0 8px}
 .section h4{margin:0 0 4px;font-size:12px;color:#333}
 pre{white-space:pre-wrap;word-break:break-all;font-family:monospace;font-size:11px;color:#555}
 .update{margin-top:8px;padding:6px;background:#fff3cd;border-radius:4px;font-size:11px}
+#updates{max-height:250px;overflow-y:auto}
 </style></head><body>
 <h3>Host Context Inspector</h3>
 <p>Displays the <code>hostContext</code> from <code>ui/initialize</code> response and listens for changes.</p>
@@ -46,7 +47,9 @@ window.addEventListener('message', (event) => {
 
   // Handle responses to our requests
   if (data.id && pending[data.id]) {
-    pending[data.id](data);
+    const cb = pending[data.id];
+    delete pending[data.id];
+    cb(data);
     return;
   }
 
@@ -102,6 +105,10 @@ async function init() {
 function notifySize() {
   window.parent.postMessage({ jsonrpc: '2.0', method: 'ui/notifications/size-changed', params: { height: document.body.scrollHeight } }, '*');
 }
+
+// Re-report size when content changes (e.g. host-context updates) so the host keeps
+// the iframe fit to content. The #updates log is capped, so the height stays bounded.
+if (window.ResizeObserver) new ResizeObserver(notifySize).observe(document.body);
 
 init();
 </script>
