@@ -11,6 +11,7 @@ import {
   DeprecatedInputActivity,
   InvokeResponse,
   isInvokeResponse,
+  IToken,
 } from '@microsoft/teams.api';
 import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
 
@@ -33,7 +34,6 @@ import { IActivityEvent } from './events';
 import { Router } from './router';
 import type { Route } from './router/route';
 import { IRoutes } from './routes';
-import { TokenManager } from './token-manager';
 import { IActivitySender, IPlugin, RouteHandler, StreamCancelledError } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 
@@ -60,7 +60,11 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly router: Router<PluginAdditionalContext<TPlugin>>;
   readonly plugins: ReadonlyArray<TPlugin>;
   readonly eventManager: EventManager<TPlugin>;
-  readonly tokenManager: TokenManager;
+  /**
+   * Acquires an app-only Microsoft Graph token for a tenant, or `null` when the
+   * app has no credentials configured.
+   */
+  readonly getAppGraphToken: (tenantId?: string) => Promise<IToken | null>;
   readonly activitySender: IActivitySender;
   readonly api: ApiClient;
   readonly client: HttpClient;
@@ -143,7 +147,14 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         { baseUrlRoot: this.options.graphBaseUrl }
       );
       const appGraph = new GraphClient(
-        client.clone({ token: () => this.options.tokenManager.getGraphToken(activity.conversation.tenantId ?? 'common') }),
+        client.clone({
+          // The token provider returns null when the app has no credentials, but
+          // the HTTP token contract treats only undefined as "no token"; coerce
+          // so null is never forwarded as an auth header.
+          token: async () =>
+            (await this.options.getAppGraphToken(activity.conversation.tenantId ?? 'common')) ??
+            undefined,
+        }),
         { baseUrlRoot: this.options.graphBaseUrl }
       );
 

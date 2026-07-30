@@ -4,20 +4,20 @@ import {
 } from '@microsoft/teams.common';
 
 import { CloudEnvironment } from '../auth/cloud-environment';
+import type { ITokenProvider } from '../auth/credentials';
 import { AgenticUser } from '../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
 import {
   ensureApiOutboundTelemetryMiddleware
 } from './api-outbound-middleware';
-import { AuthProvider } from './auth';
-import { createAuthProviderTokenFactory } from './auth-provider-token';
 import { BotClient } from './bot';
 import { ConversationClient } from './conversation';
 import { MeetingClient } from './meeting';
 import { ReactionClient } from './reaction';
 import { normalizeServiceUrl } from './service-url';
 import { TeamClient } from './team';
+import { createTokenProviderFactory } from './token-provider-factory';
 import { UserClient } from './user';
 
 /**
@@ -80,7 +80,7 @@ export class Client {
   protected _http: HttpClient;
   protected _baseHttp!: HttpClient;
   protected _apiClientSettings: Partial<ApiClientSettings>;
-  protected _authProvider?: AuthProvider;
+  protected _tokenProvider?: ITokenProvider;
   protected _cloud?: CloudEnvironment;
   protected _defaultAgenticUser?: AgenticUser;
 
@@ -91,7 +91,7 @@ export class Client {
   ) {
     this.serviceUrl = normalizeServiceUrl(serviceUrl);
     this._cloud = apiClientSettings?.cloud;
-    this._authProvider = apiClientSettings?.authProvider;
+    this._tokenProvider = apiClientSettings?.tokenProvider;
     this._defaultAgenticUser = apiClientSettings?.agenticUser;
 
     if (!httpOptions) {
@@ -119,12 +119,12 @@ export class Client {
   }
 
   /**
-   * Create a scoped API client that reuses this client's HTTP configuration and auth provider.
+   * Create a scoped API client that reuses this client's HTTP configuration and token provider.
    */
   clone(options: ApiClientCloneOptions = {}): Client {
     const { serviceUrl, agenticUser, ...apiClientSettings } = options;
     const http = this._baseHttp.clone();
-    if (this._authProvider) {
+    if (this._tokenProvider) {
       http.token = undefined;
     }
 
@@ -161,13 +161,13 @@ export class Client {
   }
 
   private prepareHttpClient(http: HttpClient): HttpClient {
-    if (this._authProvider && http.token !== undefined) {
-      throw new Error('Cannot use both an auth provider and an HTTP client token.');
+    if (this._tokenProvider && http.token !== undefined) {
+      throw new Error('Cannot use both a token provider and an HTTP client token.');
     }
 
     ensureApiOutboundTelemetryMiddleware(http);
-    if (this._authProvider) {
-      http.token = createAuthProviderTokenFactory(this._authProvider, this._defaultAgenticUser);
+    if (this._tokenProvider) {
+      http.token = createTokenProviderFactory(this._tokenProvider, this._defaultAgenticUser, this._cloud);
     }
 
     this._baseHttp = http;
@@ -183,4 +183,3 @@ export * from './meeting';
 export * from './reaction';
 export * from './team';
 export * from './api-client-settings';
-export * from './auth';

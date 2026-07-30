@@ -4,6 +4,7 @@ import type { Span, Tracer } from '@opentelemetry/api';
 import { Client } from '@microsoft/teams.common';
 import type { ILogger } from '@microsoft/teams.common';
 
+import type { ITokenProvider } from '../auth/credentials';
 import { OUTBOUND_OPERATIONS } from '../diagnostics/constants';
 import {
   getTeamsApiTracer,
@@ -16,8 +17,7 @@ import {
   ApiOutboundTelemetryMiddleware,
   withApiOutboundTelemetry
 } from './api-outbound-middleware';
-import type { AuthProvider } from './auth';
-import { createAuthProviderTokenFactory } from './auth-provider-token';
+import { createTokenProviderFactory } from './token-provider-factory';
 
 jest.mock('../diagnostics/helpers', () => ({
   getTeamsApiTracer: jest.fn(),
@@ -213,15 +213,15 @@ describe('API outbound middleware', () => {
       end: jest.fn(),
     } as unknown as Span;
     const calls: unknown[] = [];
-    const authProvider: AuthProvider = {
-      token: async (options) => {
-        calls.push(options);
+    const tokenProvider: ITokenProvider = {
+      getAppToken: async (scope) => {
+        calls.push(scope);
         return 'bot-token';
       }
     };
     const client = new HttpClient();
     client.use(new ApiOutboundTelemetryMiddleware());
-    client.token = createAuthProviderTokenFactory(authProvider);
+    client.token = createTokenProviderFactory(tokenProvider);
     const requests = mockAdapter(client, {});
     startActiveSpan.mockImplementation((name: string, _options: unknown, callback: (span: Span) => unknown) =>
       callback(name === 'microsoft.teams.auth.outbound' ? authSpan : apiSpan)
@@ -235,20 +235,20 @@ describe('API outbound middleware', () => {
       'microsoft.teams.api.client',
       'microsoft.teams.auth.outbound',
     ]);
-    expect(calls).toEqual([{ agenticUser: undefined }]);
+    expect(calls).toEqual(['https://api.botframework.com/.default']);
     expect(requests[0].headers.Authorization).toBe('Bearer bot-token');
     expect(recordTeamsApiOutboundCall).toHaveBeenCalledWith('create');
     expect(authSpan.end).toHaveBeenCalled();
     expect(apiSpan.end).toHaveBeenCalled();
   });
 
-  it('skips AuthProvider token resolution when Authorization is already set', async () => {
-    const authProvider: AuthProvider = {
-      token: jest.fn(async () => 'bot-token'),
+  it('skips token provider resolution when Authorization is already set', async () => {
+    const tokenProvider: ITokenProvider = {
+      getAppToken: jest.fn(async () => 'bot-token'),
     };
     const client = new HttpClient();
     client.use(new ApiOutboundTelemetryMiddleware());
-    client.token = createAuthProviderTokenFactory(authProvider);
+    client.token = createTokenProviderFactory(tokenProvider);
     const requests = mockAdapter(client, {});
 
     await client.post('/test', {}, {
@@ -256,7 +256,7 @@ describe('API outbound middleware', () => {
       extensions: withApiOutboundTelemetry(telemetryMetadata(OUTBOUND_OPERATIONS.create)),
     });
 
-    expect(authProvider.token).not.toHaveBeenCalled();
+    expect(tokenProvider.getAppToken).not.toHaveBeenCalled();
     expect(startActiveSpan.mock.calls.map(([name]) => name)).toEqual([
       'microsoft.teams.api.client',
     ]);
@@ -277,14 +277,14 @@ describe('API outbound middleware', () => {
       end: jest.fn(),
     } as unknown as Span;
     const error = new Error('token failed');
-    const authProvider: AuthProvider = {
-      token: jest.fn(async () => {
+    const tokenProvider: ITokenProvider = {
+      getAppToken: jest.fn(async () => {
         throw error;
       }),
     };
     const client = new HttpClient();
     client.use(new ApiOutboundTelemetryMiddleware());
-    client.token = createAuthProviderTokenFactory(authProvider);
+    client.token = createTokenProviderFactory(tokenProvider);
     mockAdapter(client);
     startActiveSpan.mockImplementation((name: string, _options: unknown, callback: (span: Span) => unknown) =>
       callback(name === 'microsoft.teams.auth.outbound' ? authSpan : apiSpan)

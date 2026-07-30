@@ -14,7 +14,7 @@ import {
   SentActivity,
   StripMentionsTextOptions,
   toActivityParams,
-  TokenCredentials,
+  TokenProvider,
 } from '@microsoft/teams.api';
 import {
   Client as HttpClient,
@@ -36,7 +36,6 @@ import { EventManager } from './app.events';
 import { OauthHandlers } from './app.oauth';
 import { PluginManager } from './app.plugins';
 import { ActivityProcessor } from './app.process';
-import { AppAuthProvider } from './auth-provider';
 import { Container } from './container';
 import { IActivityContext, FunctionContext, IFunctionContext } from './contexts';
 import { IActivityEvent } from './events';
@@ -48,7 +47,8 @@ import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { IRoutes } from './routes';
-import { TokenManager } from './token-manager';
+import { DEFAULT_TENANT_FOR_GRAPH_TOKEN, TokenManager } from './token-manager';
+import { AppTokenProvider, IAppTokenProvider } from './token-provider';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { getBooleanEnvValue } from './utils/env';
@@ -103,9 +103,14 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly tenantId?: string;
 
   /**
-   * token - An override to perform token fetching.
+   * An override to perform token fetching yourself, instead of letting the SDK
+   * acquire tokens from `clientSecret` or a managed identity.
+   *
+   * Pass a function — `(scope, tenantId?) => string` — if the app only ever
+   * authenticates as itself, or an object implementing `ITokenProvider` if it
+   * also acts as an Agentic User or needs Agentic App Instance tokens.
    */
-  readonly token?: TokenCredentials['token'];
+  readonly token?: TokenProvider;
 
   /**
    * managed identity client id - A managed identity client id.
@@ -178,7 +183,7 @@ export type AppOptions<TPlugin extends IPlugin> = {
 
   /**
    * API client settings used for overriding (e.g. oauthUrl).
-   * Cloud, authProvider, and agenticUser are managed internally.
+   * Cloud, tokenProvider, and agenticUser are managed internally.
    */
   readonly apiClientSettings?: Pick<ApiClientSettings, 'oauthUrl'>;
 
@@ -214,7 +219,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   readonly client: HttpClient;
   readonly storage: IStorage;
   readonly entraTokenValidator?: middleware.JwtValidator;
-  readonly authProvider: AppAuthProvider;
 
   /**
    * Graph API base URL derived from the configured cloud's `graphScope`.
@@ -224,13 +228,19 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    */
   readonly graphBaseUrl?: string;
 
-  protected readonly tokenManager: TokenManager;
-
   /**
    * the apps credentials
    */
   get credentials() {
     return this.tokenManager.credentials;
+  }
+
+  /**
+   * The app's token source, for acquiring a token for something the SDK does not
+   * call for you, such as an OpenTelemetry exporter.
+   */
+  get tokenProvider(): IAppTokenProvider {
+    return this._tokenProvider;
   }
 
   /**
@@ -255,6 +265,15 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected isInitialized = false;
   protected port?: number | string;
   protected activitySender: ActivitySender;
+
+  /**
+   * The concrete token machinery: MSAL clients, credential resolution, and the
+   * per-grant acquisition logic. Private because {@link App.tokenProvider} is
+   * the supported way in.
+   */
+  private readonly tokenManager: TokenManager;
+
+  private readonly _tokenProvider: AppTokenProvider;
 
   private eventManager!: EventManager<TPlugin>;
   private activityProcessor!: ActivityProcessor<TPlugin>;
@@ -308,11 +327,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       );
     }
     this.graph = new GraphClient(
-      this.client.clone({ token: () => this.getAppGraphToken() }),
+      this.client.clone({ token: async () => (await this.getAppGraphToken()) ?? undefined }),
       { baseUrlRoot: this.graphBaseUrl }
     );
 
-    // initialize TokenManager with credentials
     this.tokenManager = new TokenManager({
       clientId: this.options.clientId,
       clientSecret: this.options.clientSecret,
@@ -321,14 +339,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       managedIdentityClientId: this.options.managedIdentityClientId,
       cloud: this.cloud,
     }, this.log);
-    this.authProvider = new AppAuthProvider(this.tokenManager, this.cloud);
+    this._tokenProvider = new AppTokenProvider(this.tokenManager, this.cloud);
 
     const serviceUrl = (this.options.serviceUrl ?? process.env.SERVICE_URL ??
       'https://smba.trafficmanager.net/teams').replace(/\/+$/, '');
     const settings: Partial<ApiClientSettings> = {
       ...this.options.apiClientSettings,
       cloud: this.cloud,
-      authProvider: this.authProvider,
+      tokenProvider: this.tokenProvider,
     };
     this.api = new ApiClient(
       serviceUrl,
@@ -368,7 +386,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       router: this.router,
       plugins: this.pluginManager.plugins,
       eventManager: this.eventManager,
-      tokenManager: this.tokenManager,
+      getAppGraphToken: (tenantId) => this.getAppGraphToken(tenantId),
       activitySender: this.activitySender,
       api: this.api,
       client: this.client,
@@ -667,11 +685,12 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    *
    * @param agenticAppInstanceId the Agentic User app instance ID
    * @param agenticUserId the Agentic User ID
-   * @param opts optional overrides (tenantId defaults to this app's configured tenant,
-   *   agenticBlueprintId defaults to this AgenticBlueprint's clientId)
+   * @param opts optional overrides (tenantId defaults to the app's resolved
+   *   credentials — the `tenantId` option or the `TENANT_ID` environment
+   *   variable — and agenticBlueprintId defaults to this AgenticBlueprint's clientId)
    */
   getAgenticUser(agenticAppInstanceId: string, agenticUserId: string, opts?: { tenantId?: string; agenticBlueprintId?: string }): AgenticUser {
-    const tenantId = opts?.tenantId ?? this.options.tenantId;
+    const tenantId = opts?.tenantId ?? this.credentials?.tenantId ?? this.options.tenantId;
     if (!tenantId) {
       throw new Error('tenantId is required to get an Agentic User identity');
     }
@@ -844,13 +863,17 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   ///
 
   protected async getBotToken() {
-    if (!this.tokenManager) return;
-    return await this.tokenManager.getBotToken();
+    return await this.tokenProvider.getAppToken();
   }
 
   protected async getAppGraphToken(tenantId?: string) {
-    if (!this.tokenManager) return;
-    return await this.tokenManager.getGraphToken(tenantId);
+    // Graph falls back to the `common` tenant rather than the cloud's login
+    // tenant, so the tenant is resolved here instead of letting the provider
+    // apply its own default.
+    return await this.tokenProvider.getAppToken(
+      this.cloud.graphScope,
+      tenantId || this.credentials?.tenantId || DEFAULT_TENANT_FOR_GRAPH_TOKEN
+    );
   }
 
   /**

@@ -230,8 +230,7 @@ describe('TokenManager', () => {
 
       expect(mockTokenProvider).toHaveBeenCalledWith(
         'https://api.botframework.com/.default',
-        'test-tenant-id',
-        undefined
+        'test-tenant-id'
       );
       expect(token).not.toBeNull();
       expect(token?.toString()).toBe('mock-provider-token');
@@ -251,8 +250,7 @@ describe('TokenManager', () => {
 
       expect(mockTokenProvider).toHaveBeenCalledWith(
         'https://graph.microsoft.com/.default',
-        'custom-tenant',
-        undefined
+        'custom-tenant'
       );
       expect(token).not.toBeNull();
       expect(token?.toString()).toBe('mock-graph-provider-token');
@@ -521,20 +519,50 @@ describe('TokenManager', () => {
       ).rejects.toThrow('tenantId is required to get an Agentic User token');
     });
 
-    it('should use token provider when TokenCredentials are configured', async () => {
-      const mockTokenProvider = jest.fn().mockResolvedValue('mock-agentic-user-provider-token');
+    it('should throw when the token provider is a bare function', async () => {
+      // A plain (scope, tenantId) => string cannot express "act as this user",
+      // so it must throw rather than return an app-only token.
+      const mockTokenProvider = jest.fn().mockResolvedValue('mock-app-only-token');
       const tokenManager = new TokenManager({
         clientId: 'test-client-id',
         token: mockTokenProvider,
         tenantId: 'test-tenant-id'
       }, logger);
 
+      await expect(
+        tokenManager.getAgenticUserToken('target-scope', mockAgenticUser)
+      ).rejects.toThrow('getAgenticUserToken');
+      expect(mockTokenProvider).not.toHaveBeenCalled();
+    });
+
+    it('should throw when the token provider omits getAgenticUserToken', async () => {
+      const getAppToken = jest.fn().mockResolvedValue('mock-app-only-token');
+      const tokenManager = new TokenManager({
+        clientId: 'test-client-id',
+        token: { getAppToken },
+        tenantId: 'test-tenant-id'
+      }, logger);
+
+      await expect(
+        tokenManager.getAgenticUserToken('target-scope', mockAgenticUser)
+      ).rejects.toThrow('getAgenticUserToken');
+      expect(getAppToken).not.toHaveBeenCalled();
+    });
+
+    it('should use token provider when it implements getAgenticUserToken', async () => {
+      const getAgenticUserToken = jest.fn().mockResolvedValue('mock-agentic-user-provider-token');
+      const tokenManager = new TokenManager({
+        clientId: 'test-client-id',
+        token: { getAppToken: jest.fn(), getAgenticUserToken },
+        tenantId: 'test-tenant-id'
+      }, logger);
+
       const token = await tokenManager.getAgenticUserToken('target-scope', mockAgenticUser);
 
-      expect(mockTokenProvider).toHaveBeenCalledWith(
+      expect(getAgenticUserToken).toHaveBeenCalledWith(
         'target-scope',
-        'agentic-user-tenant-id',
-        { agenticUser: mockAgenticUser }
+        mockAgenticUser,
+        'agentic-user-tenant-id'
       );
       expect(token?.toString()).toBe('mock-agentic-user-provider-token');
     });
@@ -657,6 +685,132 @@ describe('TokenManager', () => {
         // Agent identity client should be cached (same key) — only 1 new client for the second call (base client is also cached)
         expect(clientCountAfterSecond).toBe(clientCountAfterFirst);
       });
+    });
+  });
+
+  describe('getAgenticAppInstanceToken', () => {
+    const AGENTIC_APP_INSTANCE_ID = 'agentic-app-instance-id';
+
+    it('should return null when no credentials are configured', async () => {
+      const tokenManager = new TokenManager({}, logger);
+      const token = await tokenManager.getAgenticAppInstanceToken('some-scope', AGENTIC_APP_INSTANCE_ID);
+      expect(token).toBeNull();
+    });
+
+    it('should throw when tenantId cannot be resolved', async () => {
+      const tokenManager = new TokenManager({ clientId: 'id', clientSecret: 'secret' }, logger);
+      await expect(
+        tokenManager.getAgenticAppInstanceToken('scope', AGENTIC_APP_INSTANCE_ID)
+      ).rejects.toThrow('tenantId is required to get an Agentic App Instance token');
+    });
+
+    it('should throw when credentials are not ClientCredentials', async () => {
+      const tokenManager = new TokenManager({
+        clientId: 'test-client-id',
+        tenantId: 'test-tenant-id',
+      }, logger);
+
+      await expect(
+        tokenManager.getAgenticAppInstanceToken('scope', AGENTIC_APP_INSTANCE_ID)
+      ).rejects.toThrow('Agentic App Instance tokens require ClientCredentials');
+    });
+
+    it('should stop at the agent-instance leg and never perform the user leg', async () => {
+      const mockAcquireByUserFederated = jest.fn();
+      (ConfidentialClientApplication as jest.MockedClass<typeof ConfidentialClientApplication>).mockImplementation(() => ({
+        acquireTokenByClientCredential: mockAcquireTokenByClientCredential,
+        acquireTokenByUserFederatedIdentityCredential: mockAcquireByUserFederated,
+      } as unknown as ConfidentialClientApplication));
+
+      mockAcquireTokenByClientCredential.mockResolvedValueOnce(createMockAuthResult('agent-instance-token'));
+
+      const tokenManager = new TokenManager(mockOptions, logger);
+      const token = await tokenManager.getAgenticAppInstanceToken('target-scope', AGENTIC_APP_INSTANCE_ID, 'agentic-tenant-id');
+
+      expect(token?.toString()).toBe('agent-instance-token');
+      // The app-only ladder omits the agentic-user leg entirely.
+      expect(mockAcquireByUserFederated).not.toHaveBeenCalled();
+      expect(mockAcquireTokenByClientCredential).toHaveBeenCalledWith({ scopes: ['target-scope'] });
+      // Acts as the agent application, in the requested tenant.
+      expect(ConfidentialClientApplication).toHaveBeenCalledWith(
+        expect.objectContaining({
+          auth: expect.objectContaining({
+            clientId: AGENTIC_APP_INSTANCE_ID,
+            authority: 'https://login.microsoftonline.com/agentic-tenant-id',
+          })
+        })
+      );
+    });
+
+    it('should fall back to the credentials tenantId', async () => {
+      mockAcquireTokenByClientCredential.mockResolvedValueOnce(createMockAuthResult('agent-instance-token'));
+
+      const tokenManager = new TokenManager(mockOptions, logger);
+      await tokenManager.getAgenticAppInstanceToken('target-scope', AGENTIC_APP_INSTANCE_ID);
+
+      expect(ConfidentialClientApplication).toHaveBeenCalledWith(
+        expect.objectContaining({
+          auth: expect.objectContaining({
+            authority: `https://login.microsoftonline.com/${mockOptions.tenantId}`
+          })
+        })
+      );
+    });
+
+    it('should throw when the agent-instance leg returns null', async () => {
+      mockAcquireTokenByClientCredential.mockResolvedValue(null);
+
+      const tokenManager = new TokenManager(mockOptions, logger);
+
+      await expect(
+        tokenManager.getAgenticAppInstanceToken('scope', AGENTIC_APP_INSTANCE_ID, 'agentic-tenant-id')
+      ).rejects.toThrow('Agent token exchange step 2 failed');
+    });
+
+    it('should throw when the token provider omits getAgenticAppInstanceToken', async () => {
+      const getAppToken = jest.fn().mockResolvedValue('mock-app-only-token');
+      const tokenManager = new TokenManager({
+        clientId: 'test-client-id',
+        token: { getAppToken },
+        tenantId: 'test-tenant-id'
+      }, logger);
+
+      await expect(
+        tokenManager.getAgenticAppInstanceToken('scope', AGENTIC_APP_INSTANCE_ID)
+      ).rejects.toThrow('getAgenticAppInstanceToken');
+      expect(getAppToken).not.toHaveBeenCalled();
+    });
+
+    it('should use token provider when it implements getAgenticAppInstanceToken', async () => {
+      // Custom-token apps were previously locked out of app-instance tokens,
+      // which blocked Agent365 telemetry export for them.
+      const getAgenticAppInstanceToken = jest.fn().mockResolvedValue('mock-app-instance-token');
+      const tokenManager = new TokenManager({
+        clientId: 'test-client-id',
+        token: { getAppToken: jest.fn(), getAgenticAppInstanceToken },
+        tenantId: 'test-tenant-id'
+      }, logger);
+
+      const token = await tokenManager.getAgenticAppInstanceToken('scope', AGENTIC_APP_INSTANCE_ID);
+
+      expect(getAgenticAppInstanceToken).toHaveBeenCalledWith(
+        'scope',
+        AGENTIC_APP_INSTANCE_ID,
+        'test-tenant-id'
+      );
+      expect(token?.toString()).toBe('mock-app-instance-token');
+    });
+
+    it('should return null when a token provider yields no token', async () => {
+      const tokenManager = new TokenManager({
+        clientId: 'test-client-id',
+        token: { getAppToken: jest.fn(), getAgenticAppInstanceToken: jest.fn().mockResolvedValue(null) },
+        tenantId: 'test-tenant-id'
+      }, logger);
+
+      expect(
+        await tokenManager.getAgenticAppInstanceToken('scope', AGENTIC_APP_INSTANCE_ID)
+      ).toBeNull();
     });
   });
 });

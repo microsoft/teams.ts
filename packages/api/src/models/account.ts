@@ -38,22 +38,16 @@ export type Account<P = any> = {
    * Entra object ID of the Agentic User represented by this account, when the
    * account is an Agentic User.
    *
-   * This is an activity wire field and intentionally keeps the service-owned
-   * JSON key.
+   * This and the two fields below are activity wire fields, so they keep the
+   * service-owned JSON keys.
    */
   readonly agenticUserId?: string;
   /**
    * ID of the concrete AgenticAppInstance represented by this account.
-   *
-   * This is an activity wire field and intentionally keeps the service-owned
-   * JSON key.
    */
   readonly agenticAppId?: string;
   /**
    * ID of the AgenticBlueprint backing the AgenticAppInstance.
-   *
-   * This is an activity wire field and intentionally keeps the service-owned
-   * JSON key.
    */
   readonly agenticAppBlueprintId?: string;
   readonly callbackUri?: string;
