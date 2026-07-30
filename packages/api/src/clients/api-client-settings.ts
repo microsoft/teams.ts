@@ -1,7 +1,7 @@
 import { CloudEnvironment } from '../auth/cloud-environment';
+import type { ITokenProvider } from '../auth/credentials';
 import { AgenticUser } from '../models';
 
-import { AuthProvider } from './auth';
 
 export type ApiClientSettings = {
   /**
@@ -18,9 +18,9 @@ export type ApiClientSettings = {
   readonly cloud?: CloudEnvironment;
 
   /**
-   * Auth provider for resolving tokens per-request.
+   * Token provider for resolving tokens per-request.
    */
-  readonly authProvider?: AuthProvider;
+  readonly tokenProvider?: ITokenProvider;
 
   /**
    * Default Agentic User identity for this client instance.
@@ -46,7 +46,7 @@ export function mergeApiClientSettings(
       env?.OAUTH_URL ??
       defaultOauthUrl,
     cloud: resolvedCloud,
-    authProvider: apiClientSettings?.authProvider,
+    tokenProvider: apiClientSettings?.tokenProvider,
     agenticUser: apiClientSettings?.agenticUser,
   };
 }

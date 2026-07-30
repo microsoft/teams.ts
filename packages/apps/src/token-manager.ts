@@ -1,10 +1,14 @@
 
 import { AuthenticationResult, ConfidentialClientApplication, ManagedIdentityApplication, LogLevel as MSALLogLevel, NodeSystemOptions } from '@azure/msal-node';
 
-import { AgenticUser, ClientCredentials, CloudEnvironment, Credentials, IToken, JsonWebToken, PUBLIC, TokenCredentials, FederatedIdentityCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api';
+import { AgenticUser, ClientCredentials, CloudEnvironment, Credentials, IToken, ITokenProvider, JsonWebToken, TokenProvider, TokenProviderResult, PUBLIC, TokenCredentials, FederatedIdentityCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api';
 import { ConsoleLogger, ILogger, LogLevel } from '@microsoft/teams.common';
 
-const DEFAULT_TENANT_FOR_GRAPH_TOKEN = 'common';
+/**
+ * Graph falls back to the multi-tenant `common` endpoint when no tenant is
+ * known, unlike other scopes which fall back to the cloud's login tenant.
+ */
+export const DEFAULT_TENANT_FOR_GRAPH_TOKEN = 'common';
 const TOKEN_EXCHANGE_SCOPE = 'api://AzureADTokenExchange/.default';
 
 const MSAL_LOG_LEVEL_TO_LOG_LEVEL: Record<MSALLogLevel, LogLevel> = {
@@ -42,7 +46,7 @@ export type TokenManagerOptions = {
   readonly clientId?: string;
   readonly clientSecret?: string;
   readonly tenantId?: string;
-  readonly token?: TokenCredentials['token'];
+  readonly token?: TokenProvider;
   managedIdentityClientId?: 'system' | (string & {});
   readonly cloud?: CloudEnvironment;
 };
@@ -82,6 +86,14 @@ export class TokenManager {
 
   /**
    * Acquires an Agentic User-scoped token for the supplied Agentic User identity.
+   *
+   * Builds on {@link getAgenticAppInstanceToken} by exchanging an app-instance
+   * token for one that also carries the agentic user's identity.
+   *
+   * @param scope the scope to request the final token for.
+   * @param agenticUser the agentic user identity to act on behalf of. Its
+   * `tenantId` takes precedence over the tenant configured on the credentials.
+   * @returns the token, or `null` when the app has no credentials configured.
    */
   async getAgenticUserToken(
     scope: string,
@@ -91,41 +103,145 @@ export class TokenManager {
       return null;
     }
 
-    const tenantId = agenticUser.tenantId ?? this.credentials.tenantId;
-    if (!tenantId) {
-      throw new Error('tenantId is required to get an Agentic User token');
-    }
+    const tenantId = this.resolveAgenticTenantId(agenticUser.tenantId, 'Agentic User');
 
     if (isTokenCredentials(this.credentials)) {
-      return this.getTokenWithTokenProvider(this.credentials, scope, tenantId, agenticUser);
+      const getAgenticUserToken = this.requireTokenProviderCapability(
+        this.credentials,
+        'getAgenticUserToken',
+        'Agentic User'
+      );
+      return this.toProviderToken(await getAgenticUserToken(scope, agenticUser, tenantId));
     }
 
-    if (!isClientCredentials(this.credentials)) {
-      throw new Error('Agentic User tokens require ClientCredentials');
-    }
+    this.requireClientCredentials(this.credentials, 'Agentic User');
 
-    const t1Assertion = async () => {
-      const confidentialClient = this.getConfidentialClient(this.credentials as ClientCredentials, tenantId);
-      const t1Result = await confidentialClient.acquireTokenByClientCredential({
-        scopes: [TOKEN_EXCHANGE_SCOPE],
-        fmiPath: agenticUser.agenticAppInstanceId,
-      });
-      return this.getAccessTokenOrThrow(t1Result, 'Agent token exchange step 1 failed');
-    };
+    const agenticAppInstanceId = agenticUser.agenticAppInstanceId;
+    const blueprintAssertion = this.blueprintAssertionFor(agenticAppInstanceId, tenantId);
 
-    const t2Client = this.getAgenticAppInstanceClient(tenantId, agenticUser.agenticAppInstanceId, t1Assertion);
-    const t2Result = await t2Client.acquireTokenByClientCredential({ scopes: [TOKEN_EXCHANGE_SCOPE] });
-    const t2 = this.getAccessTokenOrThrow(t2Result, 'Agent token exchange step 2 failed');
+    // Rung 2: an app-instance token, requested for the exchange scope so it can
+    // be presented as the subject assertion for the user exchange below.
+    const { client, token: appInstanceToken } = await this.acquireAgenticAppInstanceToken(
+      TOKEN_EXCHANGE_SCOPE,
+      agenticAppInstanceId,
+      tenantId,
+      blueprintAssertion
+    );
 
-    const t1ForStep3 = await t1Assertion();
-    const t3Result = await t2Client.acquireTokenByUserFederatedIdentityCredential({
+    // Rung 3: redeem the app-instance token for an agentic-user token.
+    const userResult = await client.acquireTokenByUserFederatedIdentityCredential({
       scopes: [scope],
-      assertion: t2,
+      assertion: appInstanceToken,
       userObjectId: agenticUser.agenticUserId,
-      clientAssertion: t1ForStep3,
+      clientAssertion: await blueprintAssertion(),
     });
-    const t3 = this.getAccessTokenOrThrow(t3Result, 'Agent token exchange step 3 failed');
-    return new JsonWebToken(t3);
+
+    return new JsonWebToken(
+      this.getAccessTokenOrThrow(userResult, 'Agent token exchange step 3 failed')
+    );
+  }
+
+  /**
+   * Acquires an app-only token for an Agentic App Instance, for calls the agent
+   * makes as *itself*. Use {@link getAgenticUserToken} when a call should be
+   * attributed to a user.
+   *
+   * @param scope the scope to request the token for.
+   * @param agenticAppInstanceId the agentic app instance to act as.
+   * @param tenantId the tenant to acquire the token in. Defaults to the tenant
+   * configured on the app's credentials when omitted.
+   * @returns the token, or `null` when the app has no credentials configured.
+   */
+  async getAgenticAppInstanceToken(
+    scope: string,
+    agenticAppInstanceId: string,
+    tenantId?: string
+  ): Promise<IToken | null> {
+    if (!this.credentials) {
+      return null;
+    }
+
+    const resolvedTenantId = this.resolveAgenticTenantId(tenantId, 'Agentic App Instance');
+
+    if (isTokenCredentials(this.credentials)) {
+      const getAgenticAppInstanceToken = this.requireTokenProviderCapability(
+        this.credentials,
+        'getAgenticAppInstanceToken',
+        'Agentic App Instance'
+      );
+      return this.toProviderToken(
+        await getAgenticAppInstanceToken(scope, agenticAppInstanceId, resolvedTenantId)
+      );
+    }
+
+    this.requireClientCredentials(this.credentials, 'Agentic App Instance');
+
+    const { token } = await this.acquireAgenticAppInstanceToken(
+      scope,
+      agenticAppInstanceId,
+      resolvedTenantId,
+      this.blueprintAssertionFor(agenticAppInstanceId, resolvedTenantId)
+    );
+
+    return new JsonWebToken(token);
+  }
+
+  /**
+   * Rung 1 of the agentic token ladder: an ordinary confidential-client grant
+   * for the app's own credentials, requesting the token exchange scope with an
+   * `fmiPath` naming the agentic app instance.
+   *
+   * Returned as a callback rather than a token because MSAL resolves client
+   * assertions lazily and re-invokes them when the assertion expires.
+   */
+  private blueprintAssertionFor(agenticAppInstanceId: string, tenantId: string) {
+    return async () => {
+      const confidentialClient = this.getConfidentialClient(this.credentials as ClientCredentials, tenantId);
+      const result = await confidentialClient.acquireTokenByClientCredential({
+        scopes: [TOKEN_EXCHANGE_SCOPE],
+        fmiPath: agenticAppInstanceId,
+      });
+      return this.getAccessTokenOrThrow(result, 'Agent token exchange step 1 failed');
+    };
+  }
+
+  /**
+   * Rung 2 of the agentic token ladder: a client-credentials grant made *as the
+   * agentic app instance*, authenticated by the rung 1 blueprint assertion.
+   *
+   * Also returns the MSAL client so callers that need to climb to rung 3 can
+   * reuse it instead of re-resolving it.
+   */
+  private async acquireAgenticAppInstanceToken(
+    scope: string,
+    agenticAppInstanceId: string,
+    tenantId: string,
+    blueprintAssertion: () => Promise<string>
+  ) {
+    const client = this.getAgenticAppInstanceClient(tenantId, agenticAppInstanceId, blueprintAssertion);
+    const result = await client.acquireTokenByClientCredential({ scopes: [scope] });
+
+    return {
+      client,
+      token: this.getAccessTokenOrThrow(result, 'Agent token exchange step 2 failed'),
+    };
+  }
+
+  private resolveAgenticTenantId(tenantId: string | undefined, tokenLabel: string) {
+    const resolved = tenantId ?? this.credentials?.tenantId;
+    if (!resolved) {
+      throw new Error(`tenantId is required to get an ${tokenLabel} token`);
+    }
+
+    return resolved;
+  }
+
+  private requireClientCredentials(credentials: Credentials, tokenLabel: string): ClientCredentials {
+    if (!isClientCredentials(credentials)) {
+      throw new Error(`${tokenLabel} tokens require ClientCredentials`);
+    }
+
+    return credentials;
   }
 
   private initializeCredentials(options: TokenManagerOptions): Credentials | undefined {
@@ -194,10 +310,49 @@ export class TokenManager {
     return this.handleTokenResponse(result);
   }
 
-  private async getTokenWithTokenProvider(credentials: TokenCredentials, scope: string, tenantId: string, agenticUser?: AgenticUser): Promise<IToken | null> {
-    const token = await credentials.token(scope, tenantId, agenticUser ? { agenticUser } : undefined);
-    return new JsonWebToken(token);
+  private async getTokenWithTokenProvider(credentials: TokenCredentials, scope: string, tenantId: string): Promise<IToken | null> {
+    const provider = credentials.token;
+    const token = typeof provider === 'function'
+      ? await provider(scope, tenantId)
+      : await provider.getAppToken(scope, tenantId);
+    return this.toProviderToken(token);
   }
+
+  /**
+   * Normalizes whatever a token provider returned into an `IToken`. `null` /
+   * `undefined` pass through as `null`.
+   */
+  private toProviderToken(value: TokenProviderResult): IToken | null {
+    if (value == null) {
+      return null;
+    }
+
+    return new JsonWebToken(typeof value === 'string' ? value : value.toString());
+  }
+
+  /**
+   * Resolves a capability off a custom token provider, or throws when it is
+   * missing rather than falling back under an identity the caller did not ask for.
+   */
+  private requireTokenProviderCapability<K extends 'getAgenticUserToken' | 'getAgenticAppInstanceToken'>(
+    credentials: TokenCredentials,
+    capability: K,
+    tokenLabel: string
+  ): NonNullable<ITokenProvider[K]> {
+    const provider = credentials.token;
+    const method = typeof provider === 'function' ? undefined : provider[capability];
+
+    if (!method) {
+      throw new Error(
+        `${tokenLabel} tokens require a token provider implementing \`${capability}\`. ` +
+        'The configured `token` credential does not, and returning an app-only token instead ' +
+        'would authenticate as the app under the wrong identity.'
+      );
+    }
+
+    return method.bind(provider) as NonNullable<ITokenProvider[K]>;
+  }
+
   private async getTokenWithManagedIdentity(credentials: UserManagedIdentityCredentials, scope: string) {
     const managedIdentityClient = this.getManagedIdentityClient(credentials);
     // Resource doesn't need the ./default suffix

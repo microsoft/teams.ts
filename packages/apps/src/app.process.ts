@@ -11,6 +11,7 @@ import {
   DeprecatedInputActivity,
   InvokeResponse,
   isInvokeResponse,
+  IToken,
 } from '@microsoft/teams.api';
 import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
 
@@ -33,7 +34,6 @@ import { IActivityEvent } from './events';
 import { Router } from './router';
 import type { Route } from './router/route';
 import { IRoutes } from './routes';
-import { TokenManager } from './token-manager';
 import { IActivitySender, IPlugin, RouteHandler, StreamCancelledError } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 
@@ -60,7 +60,10 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly router: Router<PluginAdditionalContext<TPlugin>>;
   readonly plugins: ReadonlyArray<TPlugin>;
   readonly eventManager: EventManager<TPlugin>;
-  readonly tokenManager: TokenManager;
+  /**
+   * Acquires an app-only Microsoft Graph token for a tenant.
+   */
+  readonly getAppGraphToken: (tenantId?: string) => Promise<IToken | null | undefined>;
   readonly activitySender: IActivitySender;
   readonly api: ApiClient;
   readonly client: HttpClient;
@@ -143,7 +146,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         { baseUrlRoot: this.options.graphBaseUrl }
       );
       const appGraph = new GraphClient(
-        client.clone({ token: () => this.options.tokenManager.getGraphToken(activity.conversation.tenantId ?? 'common') }),
+        client.clone({ token: () => this.options.getAppGraphToken(activity.conversation.tenantId ?? 'common') }),
         { baseUrlRoot: this.options.graphBaseUrl }
       );
 

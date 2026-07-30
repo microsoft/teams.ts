@@ -1,9 +1,22 @@
+import { ConfidentialClientApplication } from '@azure/msal-node';
 import jwt from 'jsonwebtoken';
 
 import { CHINA, JsonWebToken, PUBLIC, US_GOV, US_GOV_DOD, withOverrides } from '@microsoft/teams.api';
 
 import { App } from './app';
 import { TestAdapter } from './test-utils';
+
+jest.mock('@azure/msal-node');
+
+/**
+ * Stubs the MSAL client `TokenManager` builds internally. `App` no longer holds
+ * the manager, so the seam is the auth library rather than the app's internals.
+ */
+const mockMsalToken = (acquireTokenByClientCredential: jest.Mock) => {
+  (ConfidentialClientApplication as unknown as jest.Mock).mockImplementation(
+    () => ({ acquireTokenByClientCredential })
+  );
+};
 
 class TestApp extends App {
   // Expose protected members for testing
@@ -72,10 +85,7 @@ describe('App', () => {
         accessToken: mockBotToken,
       });
 
-      // @ts-expect-error - accessing private method for testing
-      jest.spyOn(app.tokenManager, 'getConfidentialClient').mockReturnValue({
-        acquireTokenByClientCredential: mockAcquireToken,
-      } as any);
+      mockMsalToken(mockAcquireToken);
 
       const token = await app.testGetBotToken();
 
@@ -88,10 +98,7 @@ describe('App', () => {
         accessToken: mockGraphToken,
       });
 
-      // @ts-expect-error - accessing private method for testing
-      jest.spyOn(app.tokenManager, 'getConfidentialClient').mockReturnValue({
-        acquireTokenByClientCredential: mockAcquireToken,
-      } as any);
+      mockMsalToken(mockAcquireToken);
 
       const token = await app.testGetAppGraphToken();
 
@@ -114,14 +121,91 @@ describe('App', () => {
     it('should not prefetch tokens on start', async () => {
       const mockAcquireToken = jest.fn();
 
-      // @ts-expect-error - accessing private method for testing
-      jest.spyOn(app.tokenManager, 'getConfidentialClient').mockReturnValue({
-        acquireTokenByClientCredential: mockAcquireToken,
-      } as any);
+      mockMsalToken(mockAcquireToken);
 
       await app.start();
 
       expect(mockAcquireToken).not.toHaveBeenCalled();
+    });
+
+    it('should expose token acquisition publicly via app.tokenProvider', async () => {
+      const mockAcquireToken = jest.fn().mockResolvedValue({
+        accessToken: mockGraphToken,
+      });
+
+      mockMsalToken(mockAcquireToken);
+
+      const token = await app.tokenProvider.getAppToken('https://graph.microsoft.com/.default');
+
+      expect(token?.toString()).toBe(mockGraphToken);
+    });
+
+    it('should return the same provider on every access', () => {
+      // The getter must return a stable object, since callers hand it to
+      // long-lived collaborators such as an OTel exporter.
+      expect(app.tokenProvider).toBe(app.tokenProvider);
+    });
+
+    it('should expose each agentic capability as its own method', () => {
+      // A provider that omits a capability fails loudly instead of returning an
+      // app-only token under the wrong identity.
+      expect(typeof app.tokenProvider.getAppToken).toBe('function');
+      expect(typeof app.tokenProvider.getAgenticUserToken).toBe('function');
+      expect(typeof app.tokenProvider.getAgenticAppInstanceToken).toBe('function');
+    });
+  });
+
+  describe('getAgenticUser', () => {
+    const originalTenantId = process.env.TENANT_ID;
+    const originalClientId = process.env.CLIENT_ID;
+
+    afterEach(() => {
+      // Assigning `undefined` would set the literal string, which later tests
+      // read as a configured client id.
+      const restore = (key: string, value?: string) => {
+        if (value === undefined) delete process.env[key];
+        else process.env[key] = value;
+      };
+      restore('TENANT_ID', originalTenantId);
+      restore('CLIENT_ID', originalClientId);
+    });
+
+    it('should resolve the tenant from the environment when no option is given', () => {
+      // The tenant comes from resolved credentials, not the raw options, so an
+      // app configured entirely through env vars can still build an identity.
+      process.env.TENANT_ID = 'env-tenant';
+      process.env.CLIENT_ID = 'env-client';
+      const app = new App();
+
+      const agenticUser = app.getAgenticUser('app-instance-id', 'agentic-user-id');
+
+      expect(agenticUser).toEqual({
+        agenticAppInstanceId: 'app-instance-id',
+        agenticUserId: 'agentic-user-id',
+        tenantId: 'env-tenant',
+        agenticBlueprintId: 'env-client',
+      });
+    });
+
+    it('should prefer explicit overrides over the configured tenant', () => {
+      const app = new App({ clientId: 'client-id', tenantId: 'option-tenant' });
+
+      const agenticUser = app.getAgenticUser('app-instance-id', 'agentic-user-id', {
+        tenantId: 'override-tenant',
+        agenticBlueprintId: 'override-blueprint',
+      });
+
+      expect(agenticUser.tenantId).toBe('override-tenant');
+      expect(agenticUser.agenticBlueprintId).toBe('override-blueprint');
+    });
+
+    it('should throw when no tenant can be resolved', () => {
+      delete process.env.TENANT_ID;
+      const app = new App({ clientId: 'client-id' });
+
+      expect(() => app.getAgenticUser('app-instance-id', 'agentic-user-id')).toThrow(
+        'tenantId is required'
+      );
     });
   });
 

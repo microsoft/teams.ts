@@ -65,16 +65,13 @@ export type AgentLifecycleValueBase = {
   /**
    * The Agentic User object ID.
    *
-   * This is an activity value wire field and intentionally keeps the
-   * service-owned JSON key.
+   * This and the fields below are activity wire fields, so they keep the
+   * service-owned JSON keys.
    */
   agenticUserId?: string;
 
   /**
    * The concrete AgenticAppInstance ID.
-   *
-   * This is an activity value wire field and intentionally keeps the
-   * service-owned JSON key.
    */
   agenticAppInstanceId?: string;
 
