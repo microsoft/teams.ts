@@ -66,9 +66,10 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly plugins: ReadonlyArray<TPlugin>;
   readonly eventManager: EventManager<TPlugin>;
   /**
-   * Acquires an app-only Microsoft Graph token for a tenant.
+   * Acquires an app-only Microsoft Graph token for a tenant, or `null` when the
+   * app has no credentials configured.
    */
-  readonly getAppGraphToken: (tenantId?: string) => Promise<IToken | null | undefined>;
+  readonly getAppGraphToken: (tenantId?: string) => Promise<IToken | null>;
   readonly activitySender: IActivitySender;
   readonly api: ApiClient;
   readonly client: HttpClient;
@@ -158,7 +159,14 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         { baseUrlRoot: this.options.graphBaseUrl }
       );
       const appGraph = new GraphClient(
-        client.clone({ token: () => this.options.getAppGraphToken(activity.conversation.tenantId ?? 'common') }),
+        client.clone({
+          // The token provider returns null when the app has no credentials, but
+          // the HTTP token contract treats only undefined as "no token"; coerce
+          // so null is never forwarded as an auth header.
+          token: async () =>
+            (await this.options.getAppGraphToken(activity.conversation.tenantId ?? 'common')) ??
+            undefined,
+        }),
         { baseUrlRoot: this.options.graphBaseUrl }
       );
 
