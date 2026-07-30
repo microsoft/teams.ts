@@ -19,6 +19,11 @@ import { ActivitySender } from './activity-sender';
 import { type ApiClient, GraphClient } from './api';
 import { EventManager } from './app.events';
 import { ActivityContext, IActivityContext } from './contexts';
+import {
+  agent365BaggageFromActivity,
+  withAgent365Baggage,
+  type IAgent365BaggageOptions
+} from './diagnostics/agent365-baggage';
 import { APP_ATTRIBUTE_NAMES, APP_HANDLER_DISPATCH, APP_SPAN_NAMES } from './diagnostics/constants';
 import {
   getTeamsBotApplicationTracer,
@@ -61,6 +66,7 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly plugins: ReadonlyArray<TPlugin>;
   readonly eventManager: EventManager<TPlugin>;
   /**
+  /**
    * Acquires an app-only Microsoft Graph token for a tenant, or `null` when the
    * app has no credentials configured.
    */
@@ -80,6 +86,10 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly shouldFetchUserToken: () => boolean;
   readonly apiClientSettings?: ApiClientSettings;
   readonly graphBaseUrl?: string;
+  /**
+   * Agent365 baggage settings, or `false` to disable the bridge.
+   */
+  readonly agent365Baggage?: IAgent365BaggageOptions | false;
 }
 
 /**
@@ -119,7 +129,10 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       serviceUrl = serviceUrl.slice(0, serviceUrl.length - 1);
     }
 
-    return traceActivityProcess(activity, serviceUrl, async (activityProcessSpan) => {
+    // Establish Agent365 baggage before any span starts, so every span in the
+    // turn observes the same identity. A route-level middleware runs too late:
+    // the root span already exists by then.
+    return this.withActivityBaggage(activity, () => traceActivityProcess(activity, serviceUrl, async (activityProcessSpan) => {
       const agenticUser = getAgenticUser(activity.recipient);
       const apiClient = this.options.api.clone({
         serviceUrl,
@@ -302,7 +315,20 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       }
 
       return response;
-    });
+    }));
+  }
+
+  /**
+   * Runs the inbound turn inside an Agent365 baggage scope derived from the
+   * activity, unless the bridge is disabled.
+   */
+  private withActivityBaggage<T>(activity: Activity, execute: () => Promise<T>): Promise<T> {
+    const options = this.options.agent365Baggage;
+    if (options === false) {
+      return execute();
+    }
+
+    return withAgent365Baggage(agent365BaggageFromActivity(activity, options ?? {}), execute);
   }
 
   /**

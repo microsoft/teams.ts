@@ -1,10 +1,11 @@
 import { context, propagation, ROOT_CONTEXT } from '@opentelemetry/api';
-import type { Context, ContextManager, Span, Tracer } from '@opentelemetry/api';
+import type { Baggage, Context, ContextManager, Span, Tracer } from '@opentelemetry/api';
 
 import { IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse } from '@microsoft/teams.api';
 
 import { ActivitySender } from './activity-sender';
 import { App } from './app';
+import { Agent365BaggageKeys } from './diagnostics/agent365-baggage';
 import {
   getTeamsBotApplicationTracer,
   recordTeamsBotActivityReceived,
@@ -37,6 +38,8 @@ type SpanRecord = {
   readonly name: string;
   readonly options: any;
   readonly span: Span;
+  /** baggage active at the moment the span was created */
+  readonly baggage?: Baggage;
 };
 
 class TestContextManager implements ContextManager {
@@ -118,7 +121,7 @@ describe('App', () => {
         setStatus: jest.fn(),
         end: jest.fn(),
       } as unknown as Span;
-      spans.push({ name, options, span });
+      spans.push({ name, options, span, baggage: propagation.getActiveBaggage() });
       return callback(span);
     });
     app = createTestApp();
@@ -272,10 +275,8 @@ describe('App', () => {
       expect(recordTeamsBotHandlerDispatched).toHaveBeenCalledWith('task/fetch', 'invoke');
     });
 
-    it('does not apply activity-derived baggage while processing the activity', async () => {
-      let activeConversationId: string | undefined;
-      let activeTenantId: string | undefined;
-      const incomingActivity: IMessageActivity = new MessageActivity('hello')
+    describe('agent365 baggage', () => {
+      const inbound: IMessageActivity = new MessageActivity('hello')
         .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
         .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot', tenantId: 'tenant-id' })
         .withConversation({ id: 'conv-1', conversationType: 'personal' })
@@ -283,21 +284,114 @@ describe('App', () => {
         .withServiceUrl('https://service.url')
         .toInterface();
 
-      app.on('message', () => {
-        const baggage = propagation.getActiveBaggage();
-        activeConversationId = baggage?.getEntry('gen_ai.conversation.id')?.value;
-        activeTenantId = baggage?.getEntry('microsoft.tenant.id')?.value;
+      it('establishes baggage before the root span so every span in the turn inherits it', async () => {
+        let handlerConversationId: string | undefined;
+        app.on('message', () => {
+          handlerConversationId = propagation.getActiveBaggage()?.getEntry(Agent365BaggageKeys.conversationId)?.value;
+        });
+
+        const response = await app.process({ token, body: inbound });
+        const rootSpan = spans.find((span) => span.name === 'microsoft.teams.activity.process');
+
+        expect(response.status).toBe(200);
+        // the root span is the point a route-level middleware could never reach
+        expect(rootSpan?.baggage?.getEntry(Agent365BaggageKeys.conversationId)?.value).toBe('conv-1');
+        expect(rootSpan?.baggage?.getEntry(Agent365BaggageKeys.tenantId)?.value).toBe('tenant-id');
+        expect(rootSpan?.baggage?.getEntry(Agent365BaggageKeys.agentId)?.value).toBe('bot-1');
+        expect(handlerConversationId).toBe('conv-1');
       });
 
-      const response = await app.process({
-        token,
-        body: incomingActivity,
+      it('does not leak the scope past the turn', async () => {
+        await app.process({ token, body: inbound });
+        expect(propagation.getActiveBaggage()?.getEntry(Agent365BaggageKeys.conversationId)).toBeUndefined();
       });
 
-      expect(response.status).toBe(200);
-      expect(activeConversationId).toBeUndefined();
-      expect(activeTenantId).toBeUndefined();
-      expect(propagation.getActiveBaggage()?.getEntry('gen_ai.conversation.id')).toBeUndefined();
+      it('omits personal data unless the app opts in', async () => {
+        const scoped = createTestApp();
+        scoped.start();
+
+        try {
+          await scoped.process({ token, body: inbound });
+          const rootSpan = spans.find((span) => span.name === 'microsoft.teams.activity.process');
+          expect(rootSpan?.baggage?.getEntry(Agent365BaggageKeys.userName)).toBeUndefined();
+        } finally {
+          scoped.stop();
+        }
+
+        spans = [];
+        const optedIn = createTestApp({ telemetry: { agent365: { include: ['senderName'], operationSource: 'test-agent' } } });
+        optedIn.start();
+
+        try {
+          await optedIn.process({ token, body: inbound });
+          const rootSpan = spans.find((span) => span.name === 'microsoft.teams.activity.process');
+          expect(rootSpan?.baggage?.getEntry(Agent365BaggageKeys.userName)?.value).toBe('Test User');
+          expect(rootSpan?.baggage?.getEntry(Agent365BaggageKeys.operationSource)?.value).toBe('test-agent');
+        } finally {
+          optedIn.stop();
+        }
+      });
+
+      it('does not let a nested send downgrade the values the activity established', async () => {
+        // ctx.send builds its ConversationReference from `activity.recipient`, so its
+        // agent id is recipient.id while the activity resolver prefers agenticAppId.
+        // The nested send scope must not overwrite the richer value.
+        const agenticInbound: IMessageActivity = new MessageActivity('hello')
+          .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+          .withRecipient({
+            id: 'bot-1',
+            name: 'Test Bot',
+            role: 'bot',
+            tenantId: 'tenant-id',
+            agenticAppId: 'agentic-app-instance-id',
+            agenticUserId: 'agentic-user-id',
+            agenticAppBlueprintId: 'agentic-blueprint-id',
+          } as any)
+          .withConversation({ id: 'conv-1', conversationType: 'personal' })
+          .withChannelId('msteams')
+          .withServiceUrl('https://service.url')
+          .toInterface();
+
+        let sendBaggage: Record<string, string | undefined> = {};
+        // stub the network leg only, so the real send-side baggage wrapper still runs
+        jest.spyOn(ActivitySender.prototype as any, 'dispatch').mockImplementation(async () => {
+          const baggage = propagation.getActiveBaggage();
+          sendBaggage = {
+            agentId: baggage?.getEntry(Agent365BaggageKeys.agentId)?.value,
+            tenantId: baggage?.getEntry(Agent365BaggageKeys.tenantId)?.value,
+            conversationId: baggage?.getEntry(Agent365BaggageKeys.conversationId)?.value,
+            agenticUserId: baggage?.getEntry(Agent365BaggageKeys.agenticUserId)?.value,
+          };
+          return { id: 'sent-1' };
+        });
+
+        app.on('message', async ({ send }) => {
+          await send('reply');
+        });
+
+        await app.process({ token, body: agenticInbound });
+
+        expect(sendBaggage).toEqual({
+          agentId: 'agentic-app-instance-id',
+          tenantId: 'tenant-id',
+          conversationId: 'conv-1',
+          agenticUserId: 'agentic-user-id',
+        });
+      });
+
+      it('sets no baggage when the bridge is disabled', async () => {
+        const disabled = createTestApp({ telemetry: { agent365: false } });
+        disabled.start();
+
+        try {
+          spans = [];
+          await disabled.process({ token, body: inbound });
+          const rootSpan = spans.find((span) => span.name === 'microsoft.teams.activity.process');
+          expect(rootSpan?.baggage).toBeUndefined();
+        } finally {
+          disabled.stop();
+        }
+      });
     });
 
     it('should return an invoke response', async () => {

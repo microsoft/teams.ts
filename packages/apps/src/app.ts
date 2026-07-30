@@ -38,6 +38,9 @@ import { PluginManager } from './app.plugins';
 import { ActivityProcessor } from './app.process';
 import { Container } from './container';
 import { IActivityContext, FunctionContext, IFunctionContext } from './contexts';
+import {
+  type IAgent365BaggageOptions
+} from './diagnostics/agent365-baggage';
 import { IActivityEvent } from './events';
 import { ExpressAdapter, IHttpServerAdapter } from './http';
 import { HttpServer } from './http/http-server';
@@ -194,6 +197,28 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * Defaults to PUBLIC (commercial cloud).
    */
   readonly cloud?: CloudEnvironment;
+
+  /**
+   * Telemetry settings.
+   */
+  readonly telemetry?: AppTelemetryOptions;
+};
+
+/**
+ * Telemetry settings applied across every flow the SDK owns.
+ */
+export type AppTelemetryOptions = {
+  /**
+   * Configures the Agent365 baggage the SDK derives from inbound activities.
+   *
+   * Identifier-only baggage (tenant, conversation, channel, agent, and caller
+   * ids) is populated by default; personal-data fields require an explicit
+   * `include` entry. Pass `false` to disable the bridge entirely.
+   *
+   * This covers only the inbound flow. Proactive work should open its own scope
+   * with `createAgent365Scope`, which takes the same options.
+   */
+  readonly agent365?: IAgent365BaggageOptions | false;
 };
 
 export type AppActivityOptions = {
@@ -397,6 +422,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       shouldFetchUserToken: () => this.shouldFetchUserToken(),
       apiClientSettings: this.options.apiClientSettings,
       graphBaseUrl: this.graphBaseUrl,
+      agent365Baggage: this.options.telemetry?.agent365,
     });
 
     if (this.credentials?.clientId) {
