@@ -1,0 +1,27 @@
+name: Dependabot Security PR Age Check
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited]
+  schedule:
+    - cron: '17 8 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: write
+
+jobs:
+  age-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.x'
+      - name: Comment on security PR package age
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node .github/scripts/dependabot-pr-age-check.mjs
