@@ -352,7 +352,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       );
     }
     this.graph = new GraphClient(
-      this.client.clone({ token: () => this.getAppGraphToken() }),
+      this.client.clone({ token: async () => (await this.getAppGraphToken()) ?? undefined }),
       { baseUrlRoot: this.graphBaseUrl }
     );
 
