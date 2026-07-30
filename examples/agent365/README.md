@@ -1,6 +1,6 @@
 # AgenticBlueprint and Agentic User example
 
-Demonstrates using an AgenticBlueprint to send and receive messages as an Agentic User, and how to wire the resulting telemetry into Agent365 observability.
+Demonstrates using an AgenticBlueprint to send and receive messages as an Agentic User, and how to wire the resulting telemetry into Agent365 observability. For background on the underlying telemetry model, see the [OpenTelemetry documentation](https://opentelemetry.io/docs/).
 
 | Entrypoint | Flow | What it shows |
 | --- | --- | --- |

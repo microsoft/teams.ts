@@ -8,6 +8,15 @@
 import { shutdownMicrosoftOpenTelemetry, useMicrosoftOpenTelemetry } from '@microsoft/opentelemetry';
 import type { IAppTokenProvider } from '@microsoft/teams.apps';
 
+/**
+ * OAuth scope requested for the token that authorizes telemetry export.
+ *
+ * The default `api://9b975845-388f-4429-889e-eab1ef63949c/.default` targets the
+ * first-party Microsoft Agent365 observability service — the resource that
+ * ingests the exported spans and requires the `Agent365.Observability.OtelWrite`
+ * role on the caller. Override it by setting `A365_OBSERVABILITY_SCOPES_OVERRIDE`
+ * (e.g. to point at a non-production observability resource).
+ */
 export const OBSERVABILITY_SCOPE =
   process.env.A365_OBSERVABILITY_SCOPES_OVERRIDE ||
   'api://9b975845-388f-4429-889e-eab1ef63949c/.default';
