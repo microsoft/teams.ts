@@ -1,6 +1,57 @@
+import { context, propagation, ROOT_CONTEXT } from '@opentelemetry/api';
+import type { Context, ContextManager } from '@opentelemetry/api';
+
 import { ActivityParams, Client, ConversationReference, MessageActivity } from '@microsoft/teams.api';
 
 import { ActivitySender } from './activity-sender';
+import { Agent365BaggageKeys, withAgent365Baggage } from './diagnostics/agent365-baggage';
+
+class TestContextManager implements ContextManager {
+  private current = ROOT_CONTEXT;
+
+  active(): Context {
+    return this.current;
+  }
+
+  with<A extends unknown[], F extends (...args: A) => ReturnType<F>>(
+    scopedContext: Context,
+    fn: F,
+    thisArg?: ThisParameterType<F>,
+    ...args: A
+  ): ReturnType<F> {
+    const previous = this.current;
+    this.current = scopedContext;
+
+    try {
+      const result = fn.apply(thisArg, args) as any;
+
+      if (result && typeof result.finally === 'function') {
+        return result.finally(() => {
+          this.current = previous;
+        });
+      }
+
+      this.current = previous;
+      return result;
+    } catch (error) {
+      this.current = previous;
+      throw error;
+    }
+  }
+
+  bind<T>(_context: Context, target: T): T {
+    return target;
+  }
+
+  enable(): this {
+    return this;
+  }
+
+  disable(): this {
+    this.current = ROOT_CONTEXT;
+    return this;
+  }
+}
 
 describe('ActivitySender', () => {
   let sender: ActivitySender;
@@ -202,6 +253,63 @@ describe('ActivitySender', () => {
 
       const result = await sender.send(activity, groupRef);
       expect(result).toEqual(expect.objectContaining({ id: 'activity-1' }));
+    });
+  });
+
+  describe('agent365 baggage', () => {
+    const agenticUser = {
+      agenticAppInstanceId: 'agentic-app-instance-id',
+      agenticUserId: 'agentic-user-id',
+      tenantId: 'agentic-tenant-id',
+      agenticBlueprintId: 'agentic-blueprint-id',
+    };
+
+    beforeEach(() => {
+      context.disable();
+      context.setGlobalContextManager(new TestContextManager());
+    });
+
+    afterEach(() => {
+      context.disable();
+    });
+
+    it('establishes no baggage of its own', async () => {
+      // A send cannot attribute the operation it belongs to: the caller's
+      // invoke_agent span is created before the send, so the caller owns the scope.
+      let observedInsideSend: unknown = 'unset';
+      createClient.mockImplementation(() => {
+        observedInsideSend = propagation.getActiveBaggage();
+        return mockClient;
+      });
+
+      await sender.send({ type: 'message', text: 'hello' }, ref, { agenticUser });
+
+      expect(observedInsideSend).toBeUndefined();
+    });
+
+    it('propagates a scope the caller established', async () => {
+      let observed: Record<string, string | undefined> = {};
+      createClient.mockImplementation(() => {
+        const baggage = propagation.getActiveBaggage();
+        observed = {
+          agentId: baggage?.getEntry(Agent365BaggageKeys.agentId)?.value,
+          conversationId: baggage?.getEntry(Agent365BaggageKeys.conversationId)?.value,
+        };
+        return mockClient;
+      });
+
+      await withAgent365Baggage(
+        {
+          [Agent365BaggageKeys.agentId]: 'established-upstream',
+          [Agent365BaggageKeys.conversationId]: 'conv-123',
+        },
+        () => sender.send({ type: 'message', text: 'hello' }, ref, { agenticUser })
+      );
+
+      expect(observed).toEqual({
+        agentId: 'established-upstream',
+        conversationId: 'conv-123',
+      });
     });
   });
 

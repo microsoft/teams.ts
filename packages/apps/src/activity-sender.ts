@@ -43,6 +43,18 @@ export class ActivitySender implements IActivitySender {
     ref: ConversationReference,
     options?: ActivitySenderOptions
   ): Promise<SentActivity> {
+    return this.dispatch(activity, ref, options);
+  }
+
+  createStream(ref: ConversationReference): IStreamer {
+    return new HttpStream(this.createClient(ref.serviceUrl), ref, this.logger);
+  }
+
+  private async dispatch(
+    activity: ActivityParams | DeprecatedInputActivity,
+    ref: ConversationReference,
+    options?: ActivitySenderOptions
+  ): Promise<SentActivity> {
     const params = toActivityParams(activity);
 
     // Merge activity with conversation reference for the wire payload.
@@ -75,7 +87,4 @@ export class ActivitySender implements IActivitySender {
     return { ...payload, ...res };
   }
 
-  createStream(ref: ConversationReference): IStreamer {
-    return new HttpStream(this.createClient(ref.serviceUrl), ref, this.logger);
-  }
 }
