@@ -113,7 +113,6 @@ Pass `telemetry: { agent365: false }` to disable the bridge.
 Outbound sends contribute no baggage of their own. Proactive code creates its own Agent365 spans *before* it calls `app.send`, so anything the send established would arrive too late to attribute them — it would cover the SDK's own outbound spans while leaving yours bare. Attribution is the caller's, because the caller is what knows the operation. Build an opener with `createAgent365Scope` and wrap the work:
 
 ```ts
-import type { AgenticIdentity } from '@microsoft/teams.api';
 import { App, createAgent365Scope } from '@microsoft/teams.apps';
 
 // Shared, so proactive baggage matches reactive baggage.
@@ -122,19 +121,10 @@ const agent365 = { operationSource: 'nightly-digest', include: ['agentName'] } a
 const app = new App({ telemetry: { agent365 } });
 const withAgent365Scope = createAgent365Scope(agent365);
 
-await app.initialize();
-const agenticAppBlueprintId = app.id;
-const tenantId = app.credentials?.tenantId;
-if (!agenticAppBlueprintId || !tenantId) {
-  throw new Error('CLIENT_ID and TENANT_ID are required to construct an AgenticIdentity.');
-}
-
-const agenticIdentity: AgenticIdentity = {
-  agenticAppBlueprintId,
+const agenticIdentity = app.getAgenticIdentity({
   agenticAppId,
   agenticUserId,
-  tenantId,
-};
+});
 
 await withAgent365Scope({ agenticIdentity, conversationId }, async () => {
   const scope = InvokeAgentScope.start(/* ... */);

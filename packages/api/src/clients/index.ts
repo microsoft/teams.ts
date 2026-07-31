@@ -45,16 +45,6 @@ export type ApiClientFromServiceUrlOptions = {
   readonly serviceUrl: string;
 };
 
-/**
- * Options for creating a scoped API client for a specific agentic identity.
- */
-export type ApiClientFromAgenticIdentityOptions = {
-  /**
-   * Agentic operation identity used by the scoped client when acquiring auth tokens.
-   */
-  readonly agenticIdentity: AgenticIdentity;
-};
-
 export class Client {
   readonly serviceUrl: string;
   readonly bots: BotClient;
@@ -141,9 +131,12 @@ export class Client {
 
   /**
    * Create a scoped API client for the provided agentic identity.
+   *
+   * @param agenticIdentity Agentic operation identity used by the scoped client
+   * when acquiring auth tokens.
    */
-  fromAgenticIdentity(options: ApiClientFromAgenticIdentityOptions): Client {
-    return this.clone(options);
+  forAgenticIdentity(agenticIdentity: AgenticIdentity): Client {
+    return this.clone({ agenticIdentity });
   }
 
   /**

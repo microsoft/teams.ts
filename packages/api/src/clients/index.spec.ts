@@ -143,7 +143,7 @@ describe('Api Client token provider', () => {
     const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', undefined, { tokenProvider });
 
-    const scoped = api.fromAgenticIdentity({ agenticIdentity });
+    const scoped = api.forAgenticIdentity(agenticIdentity);
 
     expect(scoped.serviceUrl).toBe(api.serviceUrl);
     expect(scoped.http.middlewares.filter((middleware) => middleware instanceof ApiOutboundTelemetryMiddleware)).toHaveLength(1);
@@ -212,7 +212,7 @@ describe('Api Client token provider', () => {
     const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', http, { tokenProvider });
 
-    const scoped = api.fromAgenticIdentity({ agenticIdentity });
+    const scoped = api.forAgenticIdentity(agenticIdentity);
     await scoped.http.get('/test');
 
     expect(calls).toEqual([
@@ -242,7 +242,7 @@ describe('Api Client token provider', () => {
     const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', agenticUserId: 'agentic-user', tenantId: 'tenant' };
     const api = new Client('https://service.example.com', http, { tokenProvider });
 
-    await api.fromAgenticIdentity({ agenticIdentity }).http.get('/test');
+    await api.forAgenticIdentity(agenticIdentity).http.get('/test');
 
     expect(calls).toEqual([{
       flow: 'agenticUser',
@@ -269,7 +269,7 @@ describe('Api Client token provider', () => {
     const api = new Client('https://service.example.com', http, { tokenProvider });
 
     await expect(
-      api.fromAgenticIdentity({ agenticIdentity }).http.get('/test')
+      api.forAgenticIdentity(agenticIdentity).http.get('/test')
     ).rejects.toThrow('agenticAppId is required for user-backed AgenticIdentity token acquisition');
     expect(getAgenticUserToken).not.toHaveBeenCalled();
   });
@@ -288,10 +288,15 @@ describe('Api Client token provider', () => {
     };
     const http = new TestHttpClient();
     mockAdapter(http);
-    const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', tenantId: 'tenant' };
+    const agenticIdentity = {
+      agenticAppBlueprintId: 'agentic-blueprint',
+      agenticAppId: 'agent-app',
+      agenticUserId: null,
+      tenantId: 'tenant',
+    };
     const api = new Client('https://service.example.com', http, { tokenProvider });
 
-    await api.fromAgenticIdentity({ agenticIdentity }).http.get('/test');
+    await api.forAgenticIdentity(agenticIdentity).http.get('/test');
 
     expect(calls).toEqual([{
       flow: 'agenticApp',
@@ -316,7 +321,7 @@ describe('Api Client token provider', () => {
     const api = new Client('https://service.example.com', http, { tokenProvider });
 
     await expect(
-      api.fromAgenticIdentity({ agenticIdentity }).http.get('/test')
+      api.forAgenticIdentity(agenticIdentity).http.get('/test')
     ).rejects.toThrow('agenticAppId is required for app-backed AgenticIdentity token acquisition');
     expect(getAgenticAppToken).not.toHaveBeenCalled();
   });

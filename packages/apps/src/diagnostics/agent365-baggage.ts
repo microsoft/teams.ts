@@ -213,10 +213,9 @@ export function agent365BaggageFromActivity(
  */
 export interface IAgent365Scope {
   /**
-   * The agentic identity scope the operation runs under. Construct this object
-   * directly with the app blueprint, app, user, and tenant identifiers needed
-   * for the operation. Omit for app-only work; the agent id then falls back to
-   * the opener's `agentId`.
+   * The agentic identity scope the operation runs under, typically from
+   * `App.getAgenticIdentity`. Omit for app-only work; the agent id then falls back
+   * to the opener's `agentId`.
    */
   readonly agenticIdentity?: AgenticIdentity;
 

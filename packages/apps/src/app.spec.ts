@@ -155,6 +155,101 @@ describe('App', () => {
     });
   });
 
+  describe('getAgenticIdentity', () => {
+    const originalTenantId = process.env.TENANT_ID;
+    const originalClientId = process.env.CLIENT_ID;
+
+    afterEach(() => {
+      // Assigning `undefined` would set the literal string, which later tests
+      // read as a configured client id.
+      const restore = (key: string, value?: string) => {
+        if (value === undefined) delete process.env[key];
+        else process.env[key] = value;
+      };
+      restore('TENANT_ID', originalTenantId);
+      restore('CLIENT_ID', originalClientId);
+    });
+
+    it('should resolve the tenant and blueprint from the environment when no option is given', () => {
+      // The IDs come from resolved credentials, not the raw options, so an app
+      // configured entirely through env vars can still build an identity.
+      process.env.TENANT_ID = 'env-tenant';
+      process.env.CLIENT_ID = 'env-client';
+      const app = new App();
+
+      const agenticIdentity = app.getAgenticIdentity();
+
+      expect(agenticIdentity).toEqual({
+        agenticAppId: undefined,
+        agenticUserId: undefined,
+        tenantId: 'env-tenant',
+        agenticAppBlueprintId: 'env-client',
+      });
+    });
+
+    it('should preserve optional app and user IDs when provided', () => {
+      const app = new App({ clientId: 'client-id', tenantId: 'tenant-id' });
+
+      const agenticIdentity = app.getAgenticIdentity({
+        agenticAppId: 'agentic-app-id',
+        agenticUserId: 'agentic-user-id',
+      });
+
+      expect(agenticIdentity).toEqual({
+        agenticAppBlueprintId: 'client-id',
+        agenticAppId: 'agentic-app-id',
+        agenticUserId: 'agentic-user-id',
+        tenantId: 'tenant-id',
+      });
+    });
+
+    it('should preserve null app and user IDs for non-user-backed scopes', () => {
+      const app = new App({ clientId: 'client-id', tenantId: 'tenant-id' });
+
+      const agenticIdentity = app.getAgenticIdentity({
+        agenticAppId: null,
+        agenticUserId: null,
+      });
+
+      expect(agenticIdentity).toEqual({
+        agenticAppBlueprintId: 'client-id',
+        agenticAppId: null,
+        agenticUserId: null,
+        tenantId: 'tenant-id',
+      });
+    });
+
+    it('should prefer explicit overrides over configured IDs', () => {
+      const app = new App({ clientId: 'client-id', tenantId: 'option-tenant' });
+
+      const agenticIdentity = app.getAgenticIdentity({
+        tenantId: 'override-tenant',
+        agenticAppBlueprintId: 'override-blueprint',
+      });
+
+      expect(agenticIdentity.tenantId).toBe('override-tenant');
+      expect(agenticIdentity.agenticAppBlueprintId).toBe('override-blueprint');
+    });
+
+    it('should throw when no tenant can be resolved', () => {
+      delete process.env.TENANT_ID;
+      const app = new App({ clientId: 'client-id' });
+
+      expect(() => app.getAgenticIdentity()).toThrow(
+        'tenantId is required'
+      );
+    });
+
+    it('should throw when no agentic app blueprint can be resolved', () => {
+      delete process.env.CLIENT_ID;
+      const app = new App({ tenantId: 'tenant-id' });
+
+      expect(() => app.getAgenticIdentity()).toThrow(
+        'agenticAppBlueprintId is required'
+      );
+    });
+  });
+
   describe('send', () => {
     let app: TestApp;
 

@@ -302,6 +302,7 @@ describe('API outbound middleware', () => {
       {
         agenticAppBlueprintId: 'agentic-blueprint',
         agenticAppId: 'agentic-app',
+        agenticUserId: null,
       }
     );
 
