@@ -1,20 +1,34 @@
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
- *
- * Reactive echo agent demonstrating AgenticIdentity messaging.
+ * REACTIVE flow: an echo agent that responds with an AgenticIdentity.
  *
  * Incoming messages are handled normally; the inbound service URL and
  * AgenticIdentity scope is carried by the context/API layer automatically.
  */
 
+import { InvokeAgentScope } from '@microsoft/opentelemetry';
+import { getAgenticIdentity } from '@microsoft/teams.api';
 import type { AgentLifecycleEventActivity } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger, type ILogger } from '@microsoft/teams.common';
 
+import { useAgent365Exporter } from './observability';
+
 const app = new App({
-  logger: new ConsoleLogger('@examples/agentic-blueprint',),
+  logger: new ConsoleLogger('@examples/agentic-blueprint'),
+  telemetry: {
+    agent365: {
+      // Identifiers are populated by default; names and email addresses are
+      // opt-in per field.
+      include: ['senderName', 'senderEmail', 'agentName', 'agentEmail', 'agentDescription'],
+      operationSource: 'Microsoft.Teams.Apps',
+    },
+  },
 });
+
+// Let the Agent365 exporter mint its access tokens through this app.
+useAgent365Exporter(app.tokenProvider);
 
 function logLifecycleEnvelope(
   activity: AgentLifecycleEventActivity,
@@ -99,28 +113,72 @@ app.on('agenticUserWorkloadOnboardingUpdated', ({ activity, log }) => {
 });
 
 app.on('message', async ({ send, reply, activity, api, log }) => {
-  log.info(`[AgenticIdentity reactive] Message received: ${activity.text}`);
-  log.info(`[AgenticIdentity reactive] From: ${activity.from?.id}`);
-  log.info(`[AgenticIdentity reactive] Recipient: ${activity.recipient?.id}`);
+  log.info('[reactive] message received', {
+    activityId: activity.id,
+    conversationId: activity.conversation.id,
+    from: activity.from?.id,
+    recipient: activity.recipient?.id,
+  });
 
-  await reply({ type: 'typing' });
+  // The scope supplies only what baggage cannot carry: message content, span
+  // shape, and server address. The SDK put the identity ids into baggage for
+  // this turn, and the distro's processor copies them onto the span.
+  const identity = getAgenticIdentity(activity.recipient);
+  const agenticAppId = identity?.agenticAppId;
+  const tenantId = identity?.tenantId ?? activity.conversation.tenantId;
 
-  const text = activity.text?.toLowerCase() ?? '';
+  const serverAddress = (() => {
+    try {
+      return activity.serviceUrl ? new URL(activity.serviceUrl).host : undefined;
+    } catch {
+      return undefined;
+    }
+  })();
 
-  if (text.includes('react')) {
-    await api.conversations.addReaction(
-      activity.conversation.id,
-      activity.id,
-      'like'
-    );
-    await reply('Added a like reaction to your message.');
-    return;
-  }
+  const scope =
+    agenticAppId && tenantId
+      ? InvokeAgentScope.start(
+        { content: activity.text ?? '' },
+        serverAddress ? { endpoint: { host: serverAddress } } : {},
+        {
+          // `agentId` is typed required but sourced from baggage at runtime;
+          // `tenantId` is typed optional but the constructor throws without it.
+          agentId: agenticAppId,
+          tenantId,
+        }
+      )
+      : undefined;
 
-  if (text.includes('reply')) {
-    await reply('Hello! How can I assist you today?');
+  const handle = async (): Promise<void> => {
+    await reply({ type: 'typing' });
+
+    const text = activity.text?.toLowerCase() ?? '';
+    let responseText: string;
+
+    if (text.includes('react')) {
+      await api.conversations.addReaction(activity.conversation.id, activity.id, 'like');
+      responseText = 'Added a like reaction to your message.';
+      await reply(responseText);
+    } else if (text.includes('reply')) {
+      responseText = 'Hello! How can I assist you today?';
+      await reply(responseText);
+    } else {
+      responseText = `You said "${activity.text}"`;
+      await send(responseText);
+    }
+
+    scope?.recordOutputMessages(responseText);
+  };
+
+  if (scope) {
+    try {
+      await scope.withActiveSpanAsync(handle);
+    } finally {
+      scope.dispose();
+    }
   } else {
-    await send(`You said "${activity.text}"`);
+    log.warn('[reactive] no agentic identity on the activity; skipping Agent365 scope');
+    await handle();
   }
 });
 

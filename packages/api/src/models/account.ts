@@ -64,10 +64,10 @@ export function getAgenticIdentity(account?: Account): AgenticIdentity | undefin
   }
 
   return {
-  agenticAppId: account.agenticAppId,
+    agenticAppId: account.agenticAppId,
     agenticUserId: account.agenticUserId,
     tenantId: account.tenantId,
-  agenticAppBlueprintId: account.agenticAppBlueprintId,
+    agenticAppBlueprintId: account.agenticAppBlueprintId,
   };
 }
 

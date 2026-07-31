@@ -66,7 +66,6 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly plugins: ReadonlyArray<TPlugin>;
   readonly eventManager: EventManager<TPlugin>;
   /**
-  /**
    * Acquires an app-only Microsoft Graph token for a tenant, or `null` when the
    * app has no credentials configured.
    */
