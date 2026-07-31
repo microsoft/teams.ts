@@ -4,7 +4,7 @@ import {
   Activity,
   ActivityLike,
   ApiClientSettings,
-  AgenticUser,
+  AgenticIdentity,
   Account,
   ChannelID,
   ConversationReference,
@@ -42,15 +42,16 @@ import { IRoutes } from './routes';
 import { IActivitySender, IPlugin, RouteHandler, StreamCancelledError } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 
-function getAgenticUser(account?: Account): AgenticUser | undefined {
-  if (!account?.agenticAppId || !account.agenticUserId) {
+function getAgenticIdentity(account?: Account): AgenticIdentity | undefined {
+  if (!account?.agenticAppBlueprintId) {
     return undefined;
   }
+
   return {
-    agenticAppInstanceId: account.agenticAppId,
+    agenticAppId: account.agenticAppId,
     agenticUserId: account.agenticUserId,
     tenantId: account.tenantId,
-    agenticBlueprintId: account.agenticAppBlueprintId,
+    agenticAppBlueprintId: account.agenticAppBlueprintId,
   };
 }
 
@@ -132,10 +133,10 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
     // turn observes the same identity. A route-level middleware runs too late:
     // the root span already exists by then.
     return this.withActivityBaggage(activity, () => traceActivityProcess(activity, serviceUrl, async (activityProcessSpan) => {
-      const agenticUser = getAgenticUser(activity.recipient);
+      const agenticIdentity = getAgenticIdentity(activity.recipient);
       const apiClient = this.options.api.clone({
         serviceUrl,
-        agenticUser,
+        agenticIdentity,
       });
 
       let userToken: string | undefined;
@@ -150,9 +151,9 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       }
 
       const client = this.options.client.clone();
-      const apiClientFactory = (senderServiceUrl: string, senderAgenticUser?: AgenticUser) => apiClient.clone({
+      const apiClientFactory = (senderServiceUrl: string, senderAgenticIdentity?: AgenticIdentity) => apiClient.clone({
         serviceUrl: senderServiceUrl,
-        agenticUser: senderAgenticUser ?? agenticUser,
+        agenticIdentity: senderAgenticIdentity ?? agenticIdentity,
       });
       const userGraph = new GraphClient(
         client.clone({ token: () => userToken }),

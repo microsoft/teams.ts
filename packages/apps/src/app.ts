@@ -3,7 +3,7 @@ import { AxiosError } from 'axios';
 import {
   Activity,
   ActivityLike,
-  AgenticUser,
+  AgenticIdentity,
   ApiClientSettings,
   CloudEnvironment,
   ConversationReference,
@@ -67,9 +67,9 @@ function isAppSendOptions(value: ActivityLike | DeprecatedInputActivity | AppSen
  */
 export type AppSendOptions = {
   /**
-   * Agentic User identity to use when acquiring tokens for this send.
+   * Agentic identity scope to use when acquiring tokens for this send.
    */
-  readonly agenticUser?: AgenticUser;
+  readonly agenticIdentity?: AgenticIdentity;
 };
 
 /**
@@ -111,7 +111,7 @@ export type AppOptions<TPlugin extends IPlugin> = {
    *
    * Pass a function — `(scope, tenantId?) => string` — if the app only ever
    * authenticates as itself, or an object implementing `ITokenProvider` if it
-   * also acts as an Agentic User or needs Agentic App Instance tokens.
+   * also acts with an AgenticIdentity.
    */
   readonly token?: TokenProvider;
 
@@ -186,7 +186,7 @@ export type AppOptions<TPlugin extends IPlugin> = {
 
   /**
    * API client settings used for overriding (e.g. oauthUrl).
-   * Cloud, tokenProvider, and agenticUser are managed internally.
+   * Cloud, tokenProvider, and agenticIdentity are managed internally.
    */
   readonly apiClientSettings?: Pick<ApiClientSettings, 'oauthUrl'>;
 
@@ -382,9 +382,9 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     // initialize ActivitySender for sending activities
     this.activitySender = new ActivitySender(
       this.log,
-      (senderServiceUrl, agenticUser) => this.api.clone({
+      (senderServiceUrl, agenticIdentity) => this.api.clone({
         serviceUrl: senderServiceUrl,
-        agenticUser,
+        agenticIdentity,
       }),
     );
 
@@ -649,7 +649,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     const res = await this.activitySender.send(
       params,
       ref,
-      options?.agenticUser ? { agenticUser: options.agenticUser } : undefined,
+      options?.agenticIdentity ? { agenticIdentity: options.agenticIdentity } : undefined,
     );
     return res;
   }
@@ -704,28 +704,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     const opts = activity && isAppSendOptions(activity) ? activity : options;
     return this.send(conversationId, messageId as ActivityLike | DeprecatedInputActivity, opts);
-  }
-
-  /**
-   * Create an AgenticUser for use with Agentic User send helpers.
-   *
-   * @param agenticAppInstanceId the Agentic User app instance ID
-   * @param agenticUserId the Agentic User ID
-   * @param opts optional overrides (tenantId defaults to the app's resolved
-   *   credentials — the `tenantId` option or the `TENANT_ID` environment
-   *   variable — and agenticBlueprintId defaults to this AgenticBlueprint's clientId)
-   */
-  getAgenticUser(agenticAppInstanceId: string, agenticUserId: string, opts?: { tenantId?: string; agenticBlueprintId?: string }): AgenticUser {
-    const tenantId = opts?.tenantId ?? this.credentials?.tenantId ?? this.options.tenantId;
-    if (!tenantId) {
-      throw new Error('tenantId is required to get an Agentic User identity');
-    }
-    return {
-      agenticAppInstanceId,
-      agenticUserId,
-      tenantId,
-      agenticBlueprintId: opts?.agenticBlueprintId ?? this.id,
-    };
   }
 
   /**

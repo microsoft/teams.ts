@@ -1,8 +1,6 @@
 /**
  * credentials for app authentication
  */
-import { AgenticUser } from '../models/agentic-user';
-
 export type Credentials = ClientCredentials | TokenCredentials | UserManagedIdentityCredentials | FederatedIdentityCredentials;
 
 /**
@@ -17,9 +15,9 @@ export type ClientCredentials = {
 
 /**
  * The simplest way to supply your own tokens: one callback for every request.
- * Sufficient for apps that only ever authenticate as themselves; apps that act
- * as an Agentic User or need an app-instance token should supply an
- * {@link ITokenProvider} instead.
+ * Sufficient for apps that only ever authenticate as themselves; apps that need
+ * Agentic User or Agentic App tokens should supply an {@link ITokenProvider}
+ * instead.
  */
 export type TokenProviderFn = (
   scope: string | string[],
@@ -35,8 +33,8 @@ export type TokenProviderResult = string | { toString(): string } | null | undef
 
 /**
  * Named token acquisition, for apps that supply their own tokens and need more
- * than one kind. The agentic methods are optional; if the SDK needs one and it
- * is missing, it throws rather than falling back to
+ * than one kind. Agentic token helpers are specific to the grant being minted;
+ * if the SDK needs one and it is missing, it throws rather than falling back to
  * {@link ITokenProvider.getAppToken} under an identity the caller did not ask for.
  *
  * Return the raw access token string. The SDK does not cache it.
@@ -51,40 +49,38 @@ export interface ITokenProvider {
   getAppToken(scope: string, tenantId?: string): TokenProviderResult | Promise<TokenProviderResult>;
 
   /**
-   * Acquires a token carrying the agentic user's identity.
+   * Acquires a token carrying the requested user-backed agentic identity.
    *
-   * @param scope the scope, or scopes, to request the token for.
-   * @param agenticUser the agentic user to act on behalf of.
+   * @param scope the scope to request the token for.
+   * @param agenticAppId the agentic app ID that owns the user.
+   * @param agenticUserId the agentic user ID to act as.
    * @param tenantId the tenant to acquire the token in, when the SDK knows it.
    */
   getAgenticUserToken?(
     scope: string,
-    agenticUser: AgenticUser,
+    agenticAppId: string,
+    agenticUserId: string,
     tenantId?: string
   ): TokenProviderResult | Promise<TokenProviderResult>;
 
   /**
-   * Acquires an app-only token for an Agentic App Instance — the agent acting
-   * as *itself* rather than on a user's behalf.
+   * Acquires a token carrying the requested app-backed agentic identity.
    *
-   * Omitting this, or {@link ITokenProvider.getAgenticUserToken}, makes the SDK
-   * throw when it needs that grant rather than silently substituting an
-   * app-only token, which would carry the wrong identity.
-   *
-   * @param scope the scope, or scopes, to request the token for.
-   * @param agenticAppInstanceId the agentic app instance to act as.
+   * @param scope the scope to request the token for.
+   * @param agenticAppId the agentic app ID to act as.
    * @param tenantId the tenant to acquire the token in, when the SDK knows it.
    */
-  getAgenticAppInstanceToken?(
+  getAgenticAppToken?(
     scope: string,
-    agenticAppInstanceId: string,
+    agenticAppId: string,
     tenantId?: string
   ): TokenProviderResult | Promise<TokenProviderResult>;
 }
 
 /**
  * Anything that can supply tokens for an app: a {@link TokenProviderFn} for
- * app-only work, or an {@link ITokenProvider} to also serve the agentic grants.
+ * app-only work, or an {@link ITokenProvider} to also serve Agentic User and
+ * Agentic App grants.
  */
 export type TokenProvider = TokenProviderFn | ITokenProvider;
 
@@ -98,7 +94,7 @@ export type TokenCredentials = {
   /**
    * Supplies tokens for this app. Pass a {@link TokenProviderFn} for app-only
    * work, or an {@link ITokenProvider} to additionally serve Agentic User and
-   * Agentic App Instance tokens.
+   * Agentic App tokens.
    */
   readonly token: TokenProvider;
 };

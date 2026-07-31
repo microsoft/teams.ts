@@ -151,61 +151,7 @@ describe('App', () => {
       // app-only token under the wrong identity.
       expect(typeof app.tokenProvider.getAppToken).toBe('function');
       expect(typeof app.tokenProvider.getAgenticUserToken).toBe('function');
-      expect(typeof app.tokenProvider.getAgenticAppInstanceToken).toBe('function');
-    });
-  });
-
-  describe('getAgenticUser', () => {
-    const originalTenantId = process.env.TENANT_ID;
-    const originalClientId = process.env.CLIENT_ID;
-
-    afterEach(() => {
-      // Assigning `undefined` would set the literal string, which later tests
-      // read as a configured client id.
-      const restore = (key: string, value?: string) => {
-        if (value === undefined) delete process.env[key];
-        else process.env[key] = value;
-      };
-      restore('TENANT_ID', originalTenantId);
-      restore('CLIENT_ID', originalClientId);
-    });
-
-    it('should resolve the tenant from the environment when no option is given', () => {
-      // The tenant comes from resolved credentials, not the raw options, so an
-      // app configured entirely through env vars can still build an identity.
-      process.env.TENANT_ID = 'env-tenant';
-      process.env.CLIENT_ID = 'env-client';
-      const app = new App();
-
-      const agenticUser = app.getAgenticUser('app-instance-id', 'agentic-user-id');
-
-      expect(agenticUser).toEqual({
-        agenticAppInstanceId: 'app-instance-id',
-        agenticUserId: 'agentic-user-id',
-        tenantId: 'env-tenant',
-        agenticBlueprintId: 'env-client',
-      });
-    });
-
-    it('should prefer explicit overrides over the configured tenant', () => {
-      const app = new App({ clientId: 'client-id', tenantId: 'option-tenant' });
-
-      const agenticUser = app.getAgenticUser('app-instance-id', 'agentic-user-id', {
-        tenantId: 'override-tenant',
-        agenticBlueprintId: 'override-blueprint',
-      });
-
-      expect(agenticUser.tenantId).toBe('override-tenant');
-      expect(agenticUser.agenticBlueprintId).toBe('override-blueprint');
-    });
-
-    it('should throw when no tenant can be resolved', () => {
-      delete process.env.TENANT_ID;
-      const app = new App({ clientId: 'client-id' });
-
-      expect(() => app.getAgenticUser('app-instance-id', 'agentic-user-id')).toThrow(
-        'tenantId is required'
-      );
+      expect(typeof app.tokenProvider.getAgenticAppToken).toBe('function');
     });
   });
 
@@ -238,7 +184,7 @@ describe('App', () => {
       expect(ref.bot.name).toBeUndefined();
     });
 
-    it('should forward send agentic user options', async () => {
+    it('should forward send agentic identity options', async () => {
       app = new TestApp({
         httpServerAdapter: new TestAdapter(),
         clientId: 'test-client-id',
@@ -248,19 +194,23 @@ describe('App', () => {
 
       await app.start();
 
-      const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+      const agenticIdentity = {
+        agenticAppBlueprintId: 'agentic-blueprint',
+        agenticAppId: 'agent-app',
+        agenticUserId: 'agentic-user',
+      };
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
       await app.testSend(
         'conversation-id',
         { type: 'message', text: 'Hello' },
-        { agenticUser }
+        { agenticIdentity }
       );
 
       const [, ref, options] = mockSend.mock.calls[0];
       expect(ref.serviceUrl).toBe(app.api.serviceUrl);
-      expect(options).toEqual({ agenticUser });
+      expect(options).toEqual({ agenticIdentity });
     });
 
     it('should throw error when app is not started (no clientId)', async () => {

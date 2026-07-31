@@ -1,24 +1,24 @@
-# AgenticBlueprint and Agentic User example
+# AgenticIdentity example
 
-Demonstrates using an AgenticBlueprint to send and receive messages as an Agentic User, and how to wire the resulting telemetry into Agent365 observability. For background on the underlying telemetry model, see the [OpenTelemetry documentation](https://opentelemetry.io/docs/).
+Demonstrates using `AgenticIdentity` as the SDK operation/request/proactive scope in the Agent 365 program, and how to wire the resulting telemetry into Agent365 observability. An `AgenticIdentity` has an `agenticAppBlueprintId`, can include an `agenticAppId`, and that app can optionally be associated with an `agenticUserId`. For background on the underlying telemetry model, see the [OpenTelemetry documentation](https://opentelemetry.io/docs/).
 
 | Entrypoint | Flow | What it shows |
 | --- | --- | --- |
-| `src/observability.ts` | OTel setup | Exporter + agentic app instance token resolver. |
+| `src/observability.ts` | OTel setup | Exporter + Agentic App token resolver. |
 | `src/main.ts` | Reactive | Inbound messages; the SDK establishes baggage automatically. |
 | `src/proactive.ts` | Proactive | A job with no inbound activity opens its own scope. |
 
 ```bash
-export CLIENT_ID=<agentic-blueprint-id>
-export CLIENT_SECRET=<agentic-blueprint-secret>
+export CLIENT_ID=<agentic-app-blueprint-id>
+export CLIENT_SECRET=<agentic-app-blueprint-secret>
 export TENANT_ID=<tenant-id>
 ```
 
 ## Reactive Echo
 
-`src/main.ts` mimics the echo example. Incoming messages are handled normally; the inbound service URL and Agentic User identity are carried by the context/API layer.
+`src/main.ts` mimics the echo example. Incoming messages are handled normally; the inbound service URL and `AgenticIdentity` operation scope are carried by the context/API layer.
 
-It also logs Agentic User `agentLifecycle` events through one general handler plus typed handlers for each observed `AgenticUser*` wire lifecycle variant. The general handler calls `ctx.next()` so the matching variant-specific handler can run afterward.
+It also logs `agentLifecycle` events through one general handler plus typed Agentic User handlers for each observed `AgenticUser*` wire lifecycle variant. Lifecycle APIs stay Agentic User-specific because those service events are specifically about agentic users. The general handler calls `ctx.next()` so the matching variant-specific handler can run afterward.
 
 ```bash
 npm run dev --workspace @examples/agentic-blueprint
@@ -26,12 +26,12 @@ npm run dev --workspace @examples/agentic-blueprint
 
 ## Proactive API Send
 
-`src/proactive.ts` shows both `app.send(..., { agenticUser })` and the lower-level conversation activity API. In both cases the API layer asks the auth provider for the right Agentic User token and uses it in the request header.
+`src/proactive.ts` shows both `app.send(..., { agenticIdentity })` and the lower-level conversation activity API. `AgenticIdentity` is the SDK operation scope; token helpers stay specific, so the API layer maps that scope to the Agentic User or Agentic App helper the service operation needs.
 
 ```bash
 npm run dev:proactive --workspace @examples/agentic-blueprint -- \
   <conversation-id> \
-  <agentic-app-instance-id> \
+  <agentic-app-id> \
   <agentic-user-id>
 ```
 
@@ -55,7 +55,7 @@ Signals emitted by the Teams SDK use lowercase dotted names under the `Microsoft
 
 `src/observability.ts` exports a single `useAgent365Exporter(tokens)` that initializes the distro and points its exporter at a token source.
 
-Exports are attributed to the agent itself rather than to a user, so the exporter authenticates with an *agentic app instance* (service-to-service) token:
+Exports are attributed to the agent itself rather than to a user, so the exporter authenticates with an Agentic App token:
 
 ```ts
 useMicrosoftOpenTelemetry({
@@ -64,17 +64,17 @@ useMicrosoftOpenTelemetry({
     enableObservabilityExporter: true,
     useS2SEndpoint: true,
     observabilityScopeOverride: OBSERVABILITY_SCOPE,
-    tokenResolver: (agenticAppInstanceId, tenantId, authScopes) =>
-      tokens.getAgenticAppInstanceToken(
+    tokenResolver: (agenticAppId, tenantId, authScopes) =>
+      tokens.getAgenticAppToken(
         authScopes?.[0] ?? OBSERVABILITY_SCOPE,
-        agenticAppInstanceId,
+        agenticAppId,
         tenantId
       ),
   },
 });
 ```
 
-`app.tokenProvider` mints that token — the SDK's token surface for callers that need to authenticate outside the API and Graph clients. Call `useAgent365Exporter(app.tokenProvider)` after constructing the `App` and before `app.start()`.
+`app.tokenProvider` mints that token — the SDK's token surface for callers that need to authenticate outside the API and Graph clients. These helpers stay specific (`getAgenticUserToken` and `getAgenticAppToken`) even though sends and API clients use `AgenticIdentity` as their operation scope. Call `useAgent365Exporter(app.tokenProvider)` after constructing the `App` and before `app.start()`.
 
 ### 2. Reactive flows
 
@@ -113,6 +113,7 @@ Pass `telemetry: { agent365: false }` to disable the bridge.
 Outbound sends contribute no baggage of their own. Proactive code creates its own Agent365 spans *before* it calls `app.send`, so anything the send established would arrive too late to attribute them — it would cover the SDK's own outbound spans while leaving yours bare. Attribution is the caller's, because the caller is what knows the operation. Build an opener with `createAgent365Scope` and wrap the work:
 
 ```ts
+import type { AgenticIdentity } from '@microsoft/teams.api';
 import { App, createAgent365Scope } from '@microsoft/teams.apps';
 
 // Shared, so proactive baggage matches reactive baggage.
@@ -121,10 +122,24 @@ const agent365 = { operationSource: 'nightly-digest', include: ['agentName'] } a
 const app = new App({ telemetry: { agent365 } });
 const withAgent365Scope = createAgent365Scope(agent365);
 
-await withAgent365Scope({ agenticUser, conversationId }, async () => {
+await app.initialize();
+const agenticAppBlueprintId = app.id;
+const tenantId = app.credentials?.tenantId;
+if (!agenticAppBlueprintId || !tenantId) {
+  throw new Error('CLIENT_ID and TENANT_ID are required to construct an AgenticIdentity.');
+}
+
+const agenticIdentity: AgenticIdentity = {
+  agenticAppBlueprintId,
+  agenticAppId,
+  agenticUserId,
+  tenantId,
+};
+
+await withAgent365Scope({ agenticIdentity, conversationId }, async () => {
   const scope = InvokeAgentScope.start(/* ... */);
   try {
-    await scope.withActiveSpanAsync(() => app.send(conversationId, 'Digest ready.', { agenticUser }));
+    await scope.withActiveSpanAsync(() => app.send(conversationId, 'Digest ready.', { agenticIdentity }));
   } finally {
     scope.dispose();
   }
@@ -154,7 +169,7 @@ const withAgent365Scope = createAgent365Scope({
 
 await withAgent365Scope(
   {
-    agenticUser,
+    agenticIdentity,
     conversationId,
     agentName: 'Nightly Digest Agent',
     agentEmail: 'digest-agent@example.com', // dropped: not in `include`

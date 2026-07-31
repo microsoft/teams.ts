@@ -1,6 +1,6 @@
 import {
   ActivityParams,
-  AgenticUser,
+  AgenticIdentity,
   Client,
   ConversationReference,
   DeprecatedInputActivity,
@@ -13,10 +13,10 @@ import { HttpStream } from './http/http-stream';
 import { ActivitySenderOptions, IStreamer, IActivitySender } from './types';
 
 /**
- * Creates an API client for a sender operation, optionally scoped to an Agent
- * User identity.
+ * Creates an API client for a sender operation, optionally scoped to an agentic
+ * identity.
  */
-export type ActivitySenderClientFactory = (serviceUrl: string, agenticUser?: AgenticUser) => Client;
+export type ActivitySenderClientFactory = (serviceUrl: string, agenticIdentity?: AgenticIdentity) => Client;
 
 /**
  * Handles sending activities to the Bot Framework
@@ -71,7 +71,7 @@ export class ActivitySender implements IActivitySender {
       throw new Error('Targeted messages are not supported in 1:1 (personal) chats.');
     }
 
-    const api = this.createClient(ref.serviceUrl, options?.agenticUser);
+    const api = this.createClient(ref.serviceUrl, options?.agenticIdentity);
 
     // Decide create vs update, with targeted variants
     if (payload.id) {

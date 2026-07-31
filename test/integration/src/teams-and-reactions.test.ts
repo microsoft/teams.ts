@@ -32,7 +32,7 @@ describe('Reactions', () => {
 
   it('should add and remove a reaction', async () => {
     if (f.isCanary) return; // Reactions return 404 on canary
-    if (f.isAgenticUser) return; // Reactions return 404 with agentic user
+    if (f.isAgenticIdentity) return; // Reactions return 404 with AgenticIdentity
 
     // Send a message to react to
     const sent = await f.api.conversations

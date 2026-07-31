@@ -1,12 +1,15 @@
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
+ * REACTIVE flow: an echo agent that responds with an AgenticIdentity.
  *
- * REACTIVE flow: an echo agent that responds as an Agentic User.
+ * Incoming messages are handled normally; the inbound service URL and
+ * AgenticIdentity operation scope are carried by the context/API layer
+ * automatically.
  */
 
 import { InvokeAgentScope } from '@microsoft/opentelemetry';
-import { getAgenticUser } from '@microsoft/teams.api';
+import { getAgenticIdentity } from '@microsoft/teams.api';
 import type { AgentLifecycleEventActivity } from '@microsoft/teams.api';
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger, type ILogger } from '@microsoft/teams.common';
@@ -33,7 +36,7 @@ function logLifecycleEnvelope(
   handlerName: string,
   log: ILogger
 ) {
-  log.info(`[Agentic User lifecycle:${handlerName}] envelope`, {
+  log.info(`[AgenticUser lifecycle:${handlerName}] envelope`, {
     name: activity.name,
     valueType: activity.valueType,
     eventType: activity.value.eventType,
@@ -41,17 +44,17 @@ function logLifecycleEnvelope(
     from: activity.from.id,
     recipientIdentity: {
       agenticUserId: activity.recipient.agenticUserId,
-      agenticAppInstanceId: activity.recipient.agenticAppId,
-      agenticBlueprintId: activity.recipient.agenticAppBlueprintId,
+      agenticAppId: activity.recipient.agenticAppId,
+      agenticAppBlueprintId: activity.recipient.agenticAppBlueprintId,
       tenantId: activity.recipient.tenantId,
     },
   });
 
-  log.info(`[Agentic User lifecycle:${handlerName}] value`, {
+  log.info(`[AgenticUser lifecycle:${handlerName}] value`, {
     tenantId: activity.value.tenantId,
     agenticUserId: activity.value.agenticUserId,
     agenticAppInstanceId: activity.value.agenticAppInstanceId,
-    agenticBlueprintId: activity.value.agentIdentityBlueprintId,
+    agentIdentityBlueprintId: activity.value.agentIdentityBlueprintId,
     version: activity.value.version,
   });
 }
@@ -63,7 +66,7 @@ app.on('agentLifecycle', async (ctx) => {
 
 app.on('agenticUserIdentityCreated', ({ activity, log }) => {
   logLifecycleEnvelope(activity, 'identity_created', log);
-  log.info('[Agentic User lifecycle:identity_created] details', {
+  log.info('[AgenticUser lifecycle:identity_created] details', {
     expirationDateTime: activity.value.expirationDateTime,
     manager: activity.value.manager,
   });
@@ -71,14 +74,14 @@ app.on('agenticUserIdentityCreated', ({ activity, log }) => {
 
 app.on('agenticUserIdentityUpdated', ({ activity, log }) => {
   logLifecycleEnvelope(activity, 'identity_updated', log);
-  log.info('[Agentic User lifecycle:identity_updated] details', {
+  log.info('[AgenticUser lifecycle:identity_updated] details', {
     updatedProperty: activity.value.updatedProperty,
   });
 });
 
 app.on('agenticUserManagerUpdated', ({ activity, log }) => {
   logLifecycleEnvelope(activity, 'manager_updated', log);
-  log.info('[Agentic User lifecycle:manager_updated] details', {
+  log.info('[AgenticUser lifecycle:manager_updated] details', {
     manager: activity.value.manager,
   });
 });
@@ -93,7 +96,7 @@ app.on('agenticUserDisabled', ({ activity, log }) => {
 
 app.on('agenticUserDeleted', ({ activity, log }) => {
   logLifecycleEnvelope(activity, 'deleted', log);
-  log.info('[Agentic User lifecycle:deleted] details', {
+  log.info('[AgenticUser lifecycle:deleted] details', {
     deletionReason: activity.value.deletionReason,
   });
 });
@@ -104,7 +107,7 @@ app.on('agenticUserUndeleted', ({ activity, log }) => {
 
 app.on('agenticUserWorkloadOnboardingUpdated', ({ activity, log }) => {
   logLifecycleEnvelope(activity, 'workload_onboarding_updated', log);
-  log.info('[Agentic User lifecycle:workload_onboarding_updated] details', {
+  log.info('[AgenticUser lifecycle:workload_onboarding_updated] details', {
     workloadName: activity.value.workloadName,
     workloadOnboardingState: activity.value.workloadOnboardingState,
   });
@@ -121,8 +124,8 @@ app.on('message', async ({ send, reply, activity, api, log }) => {
   // The scope supplies only what baggage cannot carry: message content, span
   // shape, and server address. The SDK put the identity ids into baggage for
   // this turn, and the distro's processor copies them onto the span.
-  const identity = getAgenticUser(activity.recipient);
-  const agenticAppInstanceId = identity?.agenticAppInstanceId;
+  const identity = getAgenticIdentity(activity.recipient);
+  const agenticAppId = identity?.agenticAppId;
   const tenantId = identity?.tenantId ?? activity.conversation.tenantId;
 
   const serverAddress = (() => {
@@ -134,14 +137,14 @@ app.on('message', async ({ send, reply, activity, api, log }) => {
   })();
 
   const scope =
-    agenticAppInstanceId && tenantId
+    agenticAppId && tenantId
       ? InvokeAgentScope.start(
         { content: activity.text ?? '' },
         serverAddress ? { endpoint: { host: serverAddress } } : {},
         {
           // `agentId` is typed required but sourced from baggage at runtime;
           // `tenantId` is typed optional but the constructor throws without it.
-          agentId: agenticAppInstanceId,
+          agentId: agenticAppId,
           tenantId,
         }
       )

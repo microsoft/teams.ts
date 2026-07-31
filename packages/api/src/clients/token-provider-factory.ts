@@ -15,7 +15,7 @@ import {
   getTeamsApiTracer,
   recordTeamsApiException
 } from '../diagnostics/helpers';
-import type { AgenticUser } from '../models';
+import { isUserBackedAgenticIdentity, type AgenticIdentity } from '../models';
 
 
 /**
@@ -26,35 +26,73 @@ import type { AgenticUser } from '../models';
  */
 export function createTokenProviderFactory(
   tokenProvider: ITokenProvider,
-  defaultAgenticUser?: AgenticUser,
+  defaultAgenticIdentity?: AgenticIdentity,
   cloud: CloudEnvironment = PUBLIC
 ): Token {
   return () => {
-    return traceAuthTokenAcquisition(getAuthFlow(defaultAgenticUser), async () => {
+    return traceAuthTokenAcquisition(getAuthFlow(defaultAgenticIdentity), async () => {
       // Coerce null to undefined: the TokenFactory contract allows only
       // string | StringLike | undefined.
-      if (!defaultAgenticUser) {
+      if (!defaultAgenticIdentity) {
         return (await tokenProvider.getAppToken(cloud.botScope)) ?? undefined;
       }
 
-      if (!tokenProvider.getAgenticUserToken) {
+      if (isUserBackedAgenticIdentity(defaultAgenticIdentity)) {
+        if (!tokenProvider.getAgenticUserToken) {
+          throw new Error(
+            'This client is scoped to a user-backed AgenticIdentity, but the configured token provider does not ' +
+            'implement `getAgenticUserToken`. Falling back to an app-only token would authenticate ' +
+            'under the wrong identity.'
+          );
+        }
+
+        return (
+          (await tokenProvider.getAgenticUserToken(
+            cloud.agenticIdentityBotScope,
+            requireAgenticAppId(defaultAgenticIdentity, 'user-backed'),
+            defaultAgenticIdentity.agenticUserId,
+            defaultAgenticIdentity.tenantId
+          )) ?? undefined
+        );
+      }
+
+      if (!tokenProvider.getAgenticAppToken) {
         throw new Error(
-          'This client is scoped to an Agentic User, but the configured token provider does not ' +
-          'implement `getAgenticUserToken`. Falling back to an app-only token would authenticate ' +
-          'as the app rather than the user.'
+          'This client is scoped to an app-backed AgenticIdentity, but the configured token provider does not ' +
+          'implement `getAgenticAppToken`. Falling back to an app-only token would authenticate ' +
+          'under the wrong identity.'
         );
       }
 
       return (
-        (await tokenProvider.getAgenticUserToken(cloud.agenticUserBotScope, defaultAgenticUser)) ??
-        undefined
+        (await tokenProvider.getAgenticAppToken(
+          cloud.agenticIdentityBotScope,
+          requireAgenticAppId(defaultAgenticIdentity, 'app-backed'),
+          defaultAgenticIdentity.tenantId
+        )) ?? undefined
       );
     });
   };
 }
 
-function getAuthFlow(agenticUser: AgenticUser | undefined): AuthFlow {
-  return agenticUser ? AUTH_FLOWS.agenticUser : AUTH_FLOWS.appOnly;
+function getAuthFlow(agenticIdentity: AgenticIdentity | undefined): AuthFlow {
+  if (!agenticIdentity) {
+    return AUTH_FLOWS.appOnly;
+  }
+
+  return isUserBackedAgenticIdentity(agenticIdentity)
+    ? AUTH_FLOWS.agenticUser
+    : AUTH_FLOWS.agenticApp;
+}
+
+function requireAgenticAppId(agenticIdentity: AgenticIdentity, identityFlavor: string): string {
+  if (!agenticIdentity.agenticAppId) {
+    throw new Error(
+      `agenticAppId is required for ${identityFlavor} AgenticIdentity token acquisition`
+    );
+  }
+
+  return agenticIdentity.agenticAppId;
 }
 
 async function traceAuthTokenAcquisition<T>(authFlow: AuthFlow, acquireToken: () => Promise<T>): Promise<T> {

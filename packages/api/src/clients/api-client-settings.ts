@@ -1,6 +1,6 @@
 import { CloudEnvironment } from '../auth/cloud-environment';
 import type { ITokenProvider } from '../auth/credentials';
-import { AgenticUser } from '../models';
+import { AgenticIdentity } from '../models';
 
 
 export type ApiClientSettings = {
@@ -23,9 +23,9 @@ export type ApiClientSettings = {
   readonly tokenProvider?: ITokenProvider;
 
   /**
-   * Default Agentic User identity for this client instance.
+   * Default agentic operation identity for this client instance.
    */
-  readonly agenticUser?: AgenticUser;
+  readonly agenticIdentity?: AgenticIdentity;
 };
 
 export const DEFAULT_API_CLIENT_SETTINGS: ApiClientSettings = {
@@ -47,6 +47,6 @@ export function mergeApiClientSettings(
       defaultOauthUrl,
     cloud: resolvedCloud,
     tokenProvider: apiClientSettings?.tokenProvider,
-    agenticUser: apiClientSettings?.agenticUser,
+    agenticIdentity: apiClientSettings?.agenticIdentity,
   };
 }

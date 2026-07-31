@@ -5,13 +5,14 @@ import { Client } from '@microsoft/teams.common';
 import type { ILogger } from '@microsoft/teams.common';
 
 import type { ITokenProvider } from '../auth/credentials';
-import { OUTBOUND_OPERATIONS } from '../diagnostics/constants';
+import { AUTH_FLOWS, OUTBOUND_OPERATIONS } from '../diagnostics/constants';
 import {
   getTeamsApiTracer,
   recordTeamsApiException,
   recordTeamsApiOutboundCall,
   recordTeamsApiOutboundError
 } from '../diagnostics/helpers';
+import type { AgenticIdentity } from '../models';
 
 import {
   ApiOutboundTelemetryMiddleware,
@@ -240,6 +241,77 @@ describe('API outbound middleware', () => {
     expect(recordTeamsApiOutboundCall).toHaveBeenCalledWith('create');
     expect(authSpan.end).toHaveBeenCalled();
     expect(apiSpan.end).toHaveBeenCalled();
+  });
+
+  async function executeRequestWithTokenProvider(
+    tokenProvider: ITokenProvider,
+    agenticIdentity?: AgenticIdentity
+  ) {
+    const client = new HttpClient();
+    client.use(new ApiOutboundTelemetryMiddleware());
+    client.token = createTokenProviderFactory(tokenProvider, agenticIdentity);
+    mockAdapter(client, {});
+
+    await client.post('/test', {}, {
+      extensions: withApiOutboundTelemetry(telemetryMetadata(OUTBOUND_OPERATIONS.create)),
+    });
+  }
+
+  it('records app_only auth flow for app tokens', async () => {
+    await executeRequestWithTokenProvider({
+      getAppToken: async () => 'bot-token',
+    });
+
+    expect(startActiveSpan).toHaveBeenCalledWith(
+      'microsoft.teams.auth.outbound',
+      expect.objectContaining({
+        attributes: { 'auth.flow': AUTH_FLOWS.appOnly },
+      }),
+      expect.any(Function)
+    );
+  });
+
+  it('records agentic_user auth flow for user-backed agentic tokens', async () => {
+    await executeRequestWithTokenProvider(
+      {
+        getAppToken: async () => 'bot-token',
+        getAgenticUserToken: async () => 'agentic-user-token',
+      },
+      {
+        agenticAppBlueprintId: 'agentic-blueprint',
+        agenticAppId: 'agentic-app',
+        agenticUserId: 'agentic-user',
+      }
+    );
+
+    expect(startActiveSpan).toHaveBeenCalledWith(
+      'microsoft.teams.auth.outbound',
+      expect.objectContaining({
+        attributes: { 'auth.flow': AUTH_FLOWS.agenticUser },
+      }),
+      expect.any(Function)
+    );
+  });
+
+  it('records agentic_app auth flow for app-backed agentic tokens', async () => {
+    await executeRequestWithTokenProvider(
+      {
+        getAppToken: async () => 'bot-token',
+        getAgenticAppToken: async () => 'agentic-app-token',
+      },
+      {
+        agenticAppBlueprintId: 'agentic-blueprint',
+        agenticAppId: 'agentic-app',
+      }
+    );
+
+    expect(startActiveSpan).toHaveBeenCalledWith(
+      'microsoft.teams.auth.outbound',
+      expect.objectContaining({
+        attributes: { 'auth.flow': AUTH_FLOWS.agenticApp },
+      }),
+      expect.any(Function)
+    );
   });
 
   it('skips token provider resolution when Authorization is already set', async () => {

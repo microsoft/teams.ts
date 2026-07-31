@@ -1,13 +1,8 @@
-import { AgenticUser, IToken } from '@microsoft/teams.api';
+import { IToken } from '@microsoft/teams.api';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
 import { TokenManager } from './token-manager';
 import { AppTokenProvider } from './token-provider';
-
-const identity: AgenticUser = {
-  agenticAppInstanceId: 'agent-app',
-  agenticUserId: 'agentic-user',
-};
 
 // AppTokenProvider's contract is Promise<IToken | null>, so the manager must
 // yield a token-shaped object rather than a bare string. Reference equality on
@@ -31,9 +26,7 @@ const makeToken = (value: string): IToken =>
 const spyOnTokenManager = (tokenManager: TokenManager) => ({
   getAppToken: jest.spyOn(tokenManager, 'getAppToken').mockResolvedValue(null),
   getAgenticUserToken: jest.spyOn(tokenManager, 'getAgenticUserToken').mockResolvedValue(null),
-  getAgenticAppInstanceToken: jest
-    .spyOn(tokenManager, 'getAgenticAppInstanceToken')
-    .mockResolvedValue(null),
+  getAgenticAppToken: jest.spyOn(tokenManager, 'getAgenticAppToken').mockResolvedValue(null),
 });
 
 describe('AppTokenProvider', () => {
@@ -50,40 +43,39 @@ describe('AppTokenProvider', () => {
     expect(token?.toString()).toBe('app-token');
     expect(spies.getAppToken).toHaveBeenCalledWith('bot-scope', undefined);
     expect(spies.getAgenticUserToken).not.toHaveBeenCalled();
+    expect(spies.getAgenticAppToken).not.toHaveBeenCalled();
   });
 
-  it('acquires an Agentic User token', async () => {
+  it('acquires an Agentic User token by ID fields', async () => {
     const agenticUserToken = makeToken('agentic-user-token');
     const tokenManager = new TokenManager({}, new ConsoleLogger('test'));
     const spies = spyOnTokenManager(tokenManager);
     spies.getAgenticUserToken.mockResolvedValue(agenticUserToken);
     const provider = new AppTokenProvider(tokenManager);
 
-    const token = await provider.getAgenticUserToken('agentic-user-scope', identity);
+    const token = await provider.getAgenticUserToken('agentic-user-scope', 'agent-app', 'agentic-user', 'tenant');
 
     expect(token).toBe(agenticUserToken);
     expect(token?.toString()).toBe('agentic-user-token');
-    expect(spies.getAgenticUserToken).toHaveBeenCalledWith('agentic-user-scope', identity);
+    expect(spies.getAgenticUserToken).toHaveBeenCalledWith('agentic-user-scope', 'agent-app', 'agentic-user', 'tenant');
+    expect(spies.getAgenticAppToken).not.toHaveBeenCalled();
     expect(spies.getAppToken).not.toHaveBeenCalled();
   });
 
-  it('acquires an Agentic App Instance token', async () => {
-    const appInstanceToken = makeToken('app-instance-token');
+  it('acquires an Agentic App token by app ID', async () => {
+    const agenticAppToken = makeToken('agentic-app-token');
     const tokenManager = new TokenManager({}, new ConsoleLogger('test'));
     const spies = spyOnTokenManager(tokenManager);
-    spies.getAgenticAppInstanceToken.mockResolvedValue(appInstanceToken);
+    spies.getAgenticAppToken.mockResolvedValue(agenticAppToken);
     const provider = new AppTokenProvider(tokenManager);
 
-    const token = await provider.getAgenticAppInstanceToken('obs-scope', 'agent-app', 'tenant');
+    const token = await provider.getAgenticAppToken('agentic-app-scope', 'agent-app', 'tenant');
 
-    expect(token).toBe(appInstanceToken);
-    expect(token?.toString()).toBe('app-instance-token');
-    expect(spies.getAgenticAppInstanceToken).toHaveBeenCalledWith(
-      'obs-scope',
-      'agent-app',
-      'tenant'
-    );
+    expect(token).toBe(agenticAppToken);
+    expect(token?.toString()).toBe('agentic-app-token');
+    expect(spies.getAgenticAppToken).toHaveBeenCalledWith('agentic-app-scope', 'agent-app', 'tenant');
     expect(spies.getAgenticUserToken).not.toHaveBeenCalled();
+    expect(spies.getAppToken).not.toHaveBeenCalled();
   });
 
   it('returns null when the app has no credentials configured', async () => {
@@ -111,19 +103,38 @@ describe('AppTokenProvider', () => {
     );
   });
 
-  it('defaults to the cloud agenticUserBotScope when scope is omitted', async () => {
+  it('defaults Agentic User helper scope to the cloud agenticIdentityBotScope', async () => {
     const defaultToken = makeToken('agentic-user-default-token');
     const tokenManager = new TokenManager({}, new ConsoleLogger('test'));
     const spies = spyOnTokenManager(tokenManager);
     spies.getAgenticUserToken.mockResolvedValue(defaultToken);
     const provider = new AppTokenProvider(tokenManager);
 
-    const token = await provider.getAgenticUserToken(undefined, identity);
+    const token = await provider.getAgenticUserToken(undefined, 'agent-app', 'agentic-user', 'tenant');
 
     expect(token).toBe(defaultToken);
     expect(spies.getAgenticUserToken).toHaveBeenCalledWith(
       'https://botapi.skype.com/.default',
-      identity
+      'agent-app',
+      'agentic-user',
+      'tenant'
+    );
+  });
+
+  it('defaults Agentic App helper scope to the cloud agenticIdentityBotScope', async () => {
+    const defaultToken = makeToken('agentic-app-default-token');
+    const tokenManager = new TokenManager({}, new ConsoleLogger('test'));
+    const spies = spyOnTokenManager(tokenManager);
+    spies.getAgenticAppToken.mockResolvedValue(defaultToken);
+    const provider = new AppTokenProvider(tokenManager);
+
+    const token = await provider.getAgenticAppToken(undefined, 'agent-app', 'tenant');
+
+    expect(token).toBe(defaultToken);
+    expect(spies.getAgenticAppToken).toHaveBeenCalledWith(
+      'https://botapi.skype.com/.default',
+      'agent-app',
+      'tenant'
     );
   });
 });

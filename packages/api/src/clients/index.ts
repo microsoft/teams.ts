@@ -5,7 +5,7 @@ import {
 
 import { CloudEnvironment } from '../auth/cloud-environment';
 import type { ITokenProvider } from '../auth/credentials';
-import { AgenticUser } from '../models';
+import { AgenticIdentity } from '../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
 import {
@@ -23,7 +23,7 @@ import { UserClient } from './user';
 /**
  * Options for creating a scoped API client from an existing client.
  */
-export type ApiClientCloneOptions = Omit<Partial<ApiClientSettings>, 'agenticUser'> & {
+export type ApiClientCloneOptions = Omit<Partial<ApiClientSettings>, 'agenticIdentity'> & {
   /**
    * Service URL for the scoped client. Defaults to the current client's service URL.
    */
@@ -32,7 +32,7 @@ export type ApiClientCloneOptions = Omit<Partial<ApiClientSettings>, 'agenticUse
   /**
    * `undefined` preserves the current client default; `null` clears it.
    */
-  readonly agenticUser?: AgenticUser | null;
+  readonly agenticIdentity?: AgenticIdentity | null;
 };
 
 /**
@@ -46,13 +46,13 @@ export type ApiClientFromServiceUrlOptions = {
 };
 
 /**
- * Options for creating a scoped API client for a specific Agentic User.
+ * Options for creating a scoped API client for a specific agentic identity.
  */
-export type ApiClientFromAgenticUserOptions = {
+export type ApiClientFromAgenticIdentityOptions = {
   /**
-   * Agentic User identity used by the scoped client when acquiring auth tokens.
+   * Agentic operation identity used by the scoped client when acquiring auth tokens.
    */
-  readonly agenticUser: AgenticUser;
+  readonly agenticIdentity: AgenticIdentity;
 };
 
 export class Client {
@@ -82,7 +82,7 @@ export class Client {
   protected _apiClientSettings: Partial<ApiClientSettings>;
   protected _tokenProvider?: ITokenProvider;
   protected _cloud?: CloudEnvironment;
-  protected _defaultAgenticUser?: AgenticUser;
+  protected _defaultAgenticIdentity?: AgenticIdentity;
 
   constructor(
     serviceUrl: string,
@@ -92,7 +92,7 @@ export class Client {
     this.serviceUrl = normalizeServiceUrl(serviceUrl);
     this._cloud = apiClientSettings?.cloud;
     this._tokenProvider = apiClientSettings?.tokenProvider;
-    this._defaultAgenticUser = apiClientSettings?.agenticUser;
+    this._defaultAgenticIdentity = apiClientSettings?.agenticIdentity;
 
     if (!httpOptions) {
       this._http = this.prepareHttpClient(new HttpClient());
@@ -122,7 +122,7 @@ export class Client {
    * Create a scoped API client that reuses this client's HTTP configuration and token provider.
    */
   clone(options: ApiClientCloneOptions = {}): Client {
-    const { serviceUrl, agenticUser, ...apiClientSettings } = options;
+    const { serviceUrl, agenticIdentity, ...apiClientSettings } = options;
     const http = this._baseHttp.clone();
     if (this._tokenProvider) {
       http.token = undefined;
@@ -134,22 +134,15 @@ export class Client {
       {
         ...this._apiClientSettings,
         ...apiClientSettings,
-        ...(agenticUser === undefined ? {} : { agenticUser: agenticUser ?? undefined }),
+        ...(agenticIdentity === undefined ? {} : { agenticIdentity: agenticIdentity ?? undefined }),
       }
     );
   }
 
   /**
-   * Create a scoped API client for the provided Agentic User identity.
+   * Create a scoped API client for the provided agentic identity.
    */
-  forAgenticUser(agenticUser: AgenticUser): Client {
-    return this.fromAgenticUser({ agenticUser });
-  }
-
-  /**
-   * Create a scoped API client for the provided Agentic User identity.
-   */
-  fromAgenticUser(options: ApiClientFromAgenticUserOptions): Client {
+  fromAgenticIdentity(options: ApiClientFromAgenticIdentityOptions): Client {
     return this.clone(options);
   }
 
@@ -167,7 +160,7 @@ export class Client {
 
     ensureApiOutboundTelemetryMiddleware(http);
     if (this._tokenProvider) {
-      http.token = createTokenProviderFactory(this._tokenProvider, this._defaultAgenticUser, this._cloud);
+      http.token = createTokenProviderFactory(this._tokenProvider, this._defaultAgenticIdentity, this._cloud);
     }
 
     this._baseHttp = http;

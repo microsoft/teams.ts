@@ -1,4 +1,4 @@
-import { ActivityParams, AgenticUser, ConversationReference, DeprecatedInputActivity, SentActivity } from '@microsoft/teams.api';
+import { ActivityParams, AgenticIdentity, ConversationReference, DeprecatedInputActivity, SentActivity } from '@microsoft/teams.api';
 
 import { IStreamer } from '../streamer';
 
@@ -7,9 +7,9 @@ import { IStreamer } from '../streamer';
  */
 export type ActivitySenderOptions = {
   /**
-   * Agentic User identity to use when acquiring tokens for this send.
+   * Agentic identity scope to use when acquiring tokens for this send.
    */
-  readonly agenticUser?: AgenticUser;
+  readonly agenticIdentity?: AgenticIdentity;
 };
 
 /**

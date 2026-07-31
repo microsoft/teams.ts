@@ -214,18 +214,22 @@ describe('ActivitySender', () => {
       expect(body).not.toHaveProperty('serviceUrl');
     });
 
-    it('should use the ref serviceUrl when no agentic user option is provided', async () => {
+    it('should use the ref serviceUrl when no agentic identity option is provided', async () => {
       await sender.send({ type: 'message', text: 'hi' }, ref);
 
       expect(createClient).toHaveBeenCalledWith(ref.serviceUrl, undefined);
     });
 
-    it('should use agentic user option for the API client', async () => {
-      const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+    it('should use agentic identity option for the API client', async () => {
+      const agenticIdentity = {
+        agenticAppBlueprintId: 'agentic-blueprint',
+        agenticAppId: 'agent-app',
+        agenticUserId: 'agentic-user',
+      };
 
-      await sender.send({ type: 'message', text: 'hi' }, ref, { agenticUser });
+      await sender.send({ type: 'message', text: 'hi' }, ref, { agenticIdentity });
 
-      expect(createClient).toHaveBeenCalledWith(ref.serviceUrl, agenticUser);
+      expect(createClient).toHaveBeenCalledWith(ref.serviceUrl, agenticIdentity);
     });
 
     it('should throw when sending targeted message in personal chat', async () => {
@@ -257,11 +261,11 @@ describe('ActivitySender', () => {
   });
 
   describe('agent365 baggage', () => {
-    const agenticUser = {
-      agenticAppInstanceId: 'agentic-app-instance-id',
+    const agenticIdentity = {
+      agenticAppId: 'agentic-app-id',
       agenticUserId: 'agentic-user-id',
       tenantId: 'agentic-tenant-id',
-      agenticBlueprintId: 'agentic-blueprint-id',
+      agenticAppBlueprintId: 'agentic-blueprint-id',
     };
 
     beforeEach(() => {
@@ -282,7 +286,7 @@ describe('ActivitySender', () => {
         return mockClient;
       });
 
-      await sender.send({ type: 'message', text: 'hello' }, ref, { agenticUser });
+      await sender.send({ type: 'message', text: 'hello' }, ref, { agenticIdentity });
 
       expect(observedInsideSend).toBeUndefined();
     });
@@ -303,7 +307,7 @@ describe('ActivitySender', () => {
           [Agent365BaggageKeys.agentId]: 'established-upstream',
           [Agent365BaggageKeys.conversationId]: 'conv-123',
         },
-        () => sender.send({ type: 'message', text: 'hello' }, ref, { agenticUser })
+        () => sender.send({ type: 'message', text: 'hello' }, ref, { agenticIdentity })
       );
 
       expect(observed).toEqual({

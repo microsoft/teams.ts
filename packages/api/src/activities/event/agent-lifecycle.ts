@@ -71,12 +71,12 @@ export type AgentLifecycleValueBase = {
   agenticUserId?: string;
 
   /**
-   * The concrete AgenticAppInstance ID.
+   * Service-owned agentic app instance ID.
    */
   agenticAppInstanceId?: string;
 
   /**
-   * The AgenticBlueprint ID.
+   * Service-owned Agentic App Blueprint ID.
    */
   agentIdentityBlueprintId?: string;
 
