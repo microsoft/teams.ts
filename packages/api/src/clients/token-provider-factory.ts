@@ -15,7 +15,7 @@ import {
   getTeamsApiTracer,
   recordTeamsApiException
 } from '../diagnostics/helpers';
-import { isAgenticUserIdentity, type AgenticIdentity } from '../models';
+import { type AgenticIdentity } from '../models';
 
 
 /**
@@ -37,22 +37,16 @@ export function createTokenProviderFactory(
         return (await tokenProvider.getAppToken(cloud.botScope)) ?? undefined;
       }
 
-      if (!isAgenticUserIdentity(defaultAgenticIdentity)) {
+      if (!tokenProvider.getAgenticIdentityToken) {
         throw new Error(
-          'Unsupported agentic identity shape. Expected an AgenticUser identity with `agenticUserId`.'
-        );
-      }
-
-      if (!tokenProvider.getAgenticUserToken) {
-        throw new Error(
-          'This client is scoped to an Agentic User, but the configured token provider does not ' +
-          'implement `getAgenticUserToken`. Falling back to an app-only token would authenticate ' +
-          'as the app rather than the user.'
+          'This client is scoped to an AgenticIdentity, but the configured token provider does not ' +
+          'implement `getAgenticIdentityToken`. Falling back to an app-only token would authenticate ' +
+          'under the wrong identity.'
         );
       }
 
       return (
-        (await tokenProvider.getAgenticUserToken(cloud.agenticUserBotScope, defaultAgenticIdentity)) ??
+        (await tokenProvider.getAgenticIdentityToken(cloud.agenticIdentityBotScope, defaultAgenticIdentity)) ??
         undefined
       );
     });
@@ -60,7 +54,7 @@ export function createTokenProviderFactory(
 }
 
 function getAuthFlow(agenticIdentity: AgenticIdentity | undefined): AuthFlow {
-  return agenticIdentity && isAgenticUserIdentity(agenticIdentity) ? AUTH_FLOWS.agenticUser : AUTH_FLOWS.appOnly;
+  return agenticIdentity ? AUTH_FLOWS.agenticIdentity : AUTH_FLOWS.appOnly;
 }
 
 async function traceAuthTokenAcquisition<T>(authFlow: AuthFlow, acquireToken: () => Promise<T>): Promise<T> {

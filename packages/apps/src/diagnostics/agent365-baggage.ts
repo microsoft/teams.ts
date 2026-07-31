@@ -1,6 +1,6 @@
 import { context as otelContext, propagation } from '@opentelemetry/api';
 
-import { isAgenticUserIdentity, type Activity, type AgenticIdentity } from '@microsoft/teams.api';
+import { isUserBackedAgenticIdentity, type Activity, type AgenticIdentity } from '@microsoft/teams.api';
 
 /**
  * Values accepted by the Agent365 baggage bridge. `null`, `undefined`, blank
@@ -60,12 +60,12 @@ export const Agent365BaggageKeys = {
   agentName: 'gen_ai.agent.name',
 
   /**
-   * Agent365 user identifier for the Agentic User the operation acts as.
+   * Agent365 user identifier for the user-backed AgenticIdentity the operation acts as.
    */
   agenticUserId: 'microsoft.agent.user.id',
 
   /**
-   * Agent365 blueprint identifier backing the Agentic App Instance.
+   * Agent365 blueprint identifier backing the agentic app.
    */
   agentBlueprintId: 'microsoft.a365.agent.blueprint.id',
 
@@ -214,7 +214,7 @@ export function agent365BaggageFromActivity(
 export interface IAgent365Scope {
   /**
    * The agentic identity scope the operation runs under, typically from
-   * `App.getAgenticUser`. Omit for app-only work; the agent id then falls back
+   * `App.getAgenticIdentity`. Omit for app-only work; the agent id then falls back
    * to the opener's `agentId`.
    */
   readonly agenticIdentity?: AgenticIdentity;
@@ -323,7 +323,7 @@ export function createAgent365Scope(
 
   return (scope, fn) => {
     const agenticIdentity = scope.agenticIdentity;
-    const agenticUser = agenticIdentity && isAgenticUserIdentity(agenticIdentity)
+    const userBackedIdentity = agenticIdentity && isUserBackedAgenticIdentity(agenticIdentity)
       ? agenticIdentity
       : undefined;
 
@@ -335,9 +335,9 @@ export function createAgent365Scope(
             conversationId: scope.conversationId,
             conversationItemLink: bound.serviceUrl,
             channelName: bound.channelName,
-            agentId: agenticIdentity?.agenticAppInstanceId ?? bound.agentId,
-            agenticUserId: agenticUser?.agenticUserId,
-            agentBlueprintId: agenticIdentity?.agenticBlueprintId,
+            agentId: agenticIdentity?.agenticAppId ?? bound.agentId,
+            agenticUserId: userBackedIdentity?.agenticUserId,
+            agentBlueprintId: agenticIdentity?.agenticAppBlueprintId,
             userId: scope.userId,
             senderName: scope.senderName,
             senderEmail: scope.senderEmail,

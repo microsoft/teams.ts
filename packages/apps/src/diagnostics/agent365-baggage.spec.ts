@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { context, propagation, ROOT_CONTEXT } from '@opentelemetry/api';
 import type { Context, ContextManager } from '@opentelemetry/api';
 
-import type { Activity, AgenticUser } from '@microsoft/teams.api';
+import type { Activity, AgenticIdentity } from '@microsoft/teams.api';
 
 import {
   agent365BaggageFromActivity,
@@ -266,11 +266,11 @@ describe('agent365 baggage', () => {
   });
 
   describe('createAgent365Scope', () => {
-    const agenticUser: AgenticUser = {
-      agenticAppInstanceId: 'app-instance-1',
+    const agenticIdentity: AgenticIdentity = {
+      agenticAppId: 'agentic-app-1',
       agenticUserId: 'agentic-user-1',
       tenantId: 'tenant-1',
-      agenticBlueprintId: 'blueprint-1',
+      agenticAppBlueprintId: 'blueprint-1',
     };
 
     it('binds options once so call sites supply identity only', () => {
@@ -281,9 +281,9 @@ describe('agent365 baggage', () => {
         operationSource: 'nightly-digest',
       });
 
-      withScope({ agenticIdentity: agenticUser, conversationId: 'conv-1' }, () => {
+      withScope({ agenticIdentity, conversationId: 'conv-1' }, () => {
         expect(activeValue(Agent365BaggageKeys.tenantId)).toBe('tenant-1');
-        expect(activeValue(Agent365BaggageKeys.agentId)).toBe('app-instance-1');
+        expect(activeValue(Agent365BaggageKeys.agentId)).toBe('agentic-app-1');
         expect(activeValue(Agent365BaggageKeys.agenticUserId)).toBe('agentic-user-1');
         expect(activeValue(Agent365BaggageKeys.agentBlueprintId)).toBe('blueprint-1');
         expect(activeValue(Agent365BaggageKeys.conversationId)).toBe('conv-1');
@@ -367,7 +367,7 @@ describe('agent365 baggage', () => {
     it('passes work through untouched when disabled', () => {
       const withScope = createAgent365Scope(false);
 
-      withScope({ agenticIdentity: agenticUser, conversationId: 'conv-1' }, () => {
+      withScope({ agenticIdentity, conversationId: 'conv-1' }, () => {
         expect(propagation.getActiveBaggage()).toBeUndefined();
       });
     });

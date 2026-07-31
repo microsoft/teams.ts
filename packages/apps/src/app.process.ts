@@ -5,7 +5,6 @@ import {
   ActivityLike,
   ApiClientSettings,
   AgenticIdentity,
-  AgenticUser,
   Account,
   ChannelID,
   ConversationReference,
@@ -43,15 +42,15 @@ import { IRoutes } from './routes';
 import { IActivitySender, IPlugin, RouteHandler, StreamCancelledError } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 
-function getAgenticUser(account?: Account): AgenticUser | undefined {
+function getAgenticIdentity(account?: Account): AgenticIdentity | undefined {
   if (!account?.agenticAppId || !account.agenticUserId) {
     return undefined;
   }
   return {
-    agenticAppInstanceId: account.agenticAppId,
+    agenticAppId: account.agenticAppId,
     agenticUserId: account.agenticUserId,
     tenantId: account.tenantId,
-    agenticBlueprintId: account.agenticAppBlueprintId,
+    agenticAppBlueprintId: account.agenticAppBlueprintId,
   };
 }
 
@@ -134,7 +133,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
     // turn observes the same identity. A route-level middleware runs too late:
     // the root span already exists by then.
     return this.withActivityBaggage(activity, () => traceActivityProcess(activity, serviceUrl, async (activityProcessSpan) => {
-      const agenticIdentity = getAgenticUser(activity.recipient);
+      const agenticIdentity = getAgenticIdentity(activity.recipient);
       const apiClient = this.options.api.clone({
         serviceUrl,
         agenticIdentity,

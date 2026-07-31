@@ -150,12 +150,11 @@ describe('App', () => {
       // A provider that omits a capability fails loudly instead of returning an
       // app-only token under the wrong identity.
       expect(typeof app.tokenProvider.getAppToken).toBe('function');
-      expect(typeof app.tokenProvider.getAgenticUserToken).toBe('function');
-      expect(typeof app.tokenProvider.getAgenticAppInstanceToken).toBe('function');
+      expect(typeof app.tokenProvider.getAgenticIdentityToken).toBe('function');
     });
   });
 
-  describe('getAgenticUser', () => {
+  describe('getAgenticIdentity', () => {
     const originalTenantId = process.env.TENANT_ID;
     const originalClientId = process.env.CLIENT_ID;
 
@@ -177,33 +176,33 @@ describe('App', () => {
       process.env.CLIENT_ID = 'env-client';
       const app = new App();
 
-      const agenticUser = app.getAgenticUser('app-instance-id', 'agentic-user-id');
+      const agenticIdentity = app.getAgenticIdentity('agentic-app-id', 'agentic-user-id');
 
-      expect(agenticUser).toEqual({
-        agenticAppInstanceId: 'app-instance-id',
+      expect(agenticIdentity).toEqual({
+        agenticAppId: 'agentic-app-id',
         agenticUserId: 'agentic-user-id',
         tenantId: 'env-tenant',
-        agenticBlueprintId: 'env-client',
+        agenticAppBlueprintId: 'env-client',
       });
     });
 
     it('should prefer explicit overrides over the configured tenant', () => {
       const app = new App({ clientId: 'client-id', tenantId: 'option-tenant' });
 
-      const agenticUser = app.getAgenticUser('app-instance-id', 'agentic-user-id', {
+      const agenticIdentity = app.getAgenticIdentity('agentic-app-id', 'agentic-user-id', {
         tenantId: 'override-tenant',
-        agenticBlueprintId: 'override-blueprint',
+        agenticAppBlueprintId: 'override-blueprint',
       });
 
-      expect(agenticUser.tenantId).toBe('override-tenant');
-      expect(agenticUser.agenticBlueprintId).toBe('override-blueprint');
+      expect(agenticIdentity.tenantId).toBe('override-tenant');
+      expect(agenticIdentity.agenticAppBlueprintId).toBe('override-blueprint');
     });
 
     it('should throw when no tenant can be resolved', () => {
       delete process.env.TENANT_ID;
       const app = new App({ clientId: 'client-id' });
 
-      expect(() => app.getAgenticUser('app-instance-id', 'agentic-user-id')).toThrow(
+      expect(() => app.getAgenticIdentity('agentic-app-id', 'agentic-user-id')).toThrow(
         'tenantId is required'
       );
     });
@@ -248,19 +247,19 @@ describe('App', () => {
 
       await app.start();
 
-      const agenticUser = { agenticAppInstanceId: 'agent-app', agenticUserId: 'agentic-user' };
+      const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
       await app.testSend(
         'conversation-id',
         { type: 'message', text: 'Hello' },
-        { agenticIdentity: agenticUser }
+        { agenticIdentity }
       );
 
       const [, ref, options] = mockSend.mock.calls[0];
       expect(ref.serviceUrl).toBe(app.api.serviceUrl);
-      expect(options).toEqual({ agenticIdentity: agenticUser });
+      expect(options).toEqual({ agenticIdentity });
     });
 
     it('should throw error when app is not started (no clientId)', async () => {

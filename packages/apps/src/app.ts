@@ -4,7 +4,6 @@ import {
   Activity,
   ActivityLike,
   AgenticIdentity,
-  AgenticUser,
   ApiClientSettings,
   CloudEnvironment,
   ConversationReference,
@@ -112,7 +111,7 @@ export type AppOptions<TPlugin extends IPlugin> = {
    *
    * Pass a function — `(scope, tenantId?) => string` — if the app only ever
    * authenticates as itself, or an object implementing `ITokenProvider` if it
-   * also acts as an Agentic User or needs Agentic App Instance tokens.
+   * also acts with an AgenticIdentity.
    */
   readonly token?: TokenProvider;
 
@@ -708,24 +707,24 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   }
 
   /**
-   * Create an AgenticUser for use with Agentic User send helpers.
+   * Create an AgenticIdentity for scoped proactive sends and API clients.
    *
-   * @param agenticAppInstanceId the Agentic User app instance ID
-   * @param agenticUserId the Agentic User ID
+   * @param agenticAppId the agentic app ID
+   * @param agenticUserId the user-backed agentic identity ID
    * @param opts optional overrides (tenantId defaults to the app's resolved
    *   credentials — the `tenantId` option or the `TENANT_ID` environment
-   *   variable — and agenticBlueprintId defaults to this AgenticBlueprint's clientId)
+   *   variable — and agenticAppBlueprintId defaults to this app's clientId)
    */
-  getAgenticUser(agenticAppInstanceId: string, agenticUserId: string, opts?: { tenantId?: string; agenticBlueprintId?: string }): AgenticUser {
+  getAgenticIdentity(agenticAppId: string, agenticUserId: string, opts?: { tenantId?: string; agenticAppBlueprintId?: string }): AgenticIdentity {
     const tenantId = opts?.tenantId ?? this.credentials?.tenantId ?? this.options.tenantId;
     if (!tenantId) {
-      throw new Error('tenantId is required to get an Agentic User identity');
+      throw new Error('tenantId is required to get an AgenticIdentity');
     }
     return {
-      agenticAppInstanceId,
+      agenticAppId,
       agenticUserId,
       tenantId,
-      agenticBlueprintId: opts?.agenticBlueprintId ?? this.id,
+      agenticAppBlueprintId: opts?.agenticAppBlueprintId ?? this.id,
     };
   }
 

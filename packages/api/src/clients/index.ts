@@ -5,7 +5,7 @@ import {
 
 import { CloudEnvironment } from '../auth/cloud-environment';
 import type { ITokenProvider } from '../auth/credentials';
-import { AgenticIdentity, AgenticUser } from '../models';
+import { AgenticIdentity } from '../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
 import {
@@ -43,16 +43,6 @@ export type ApiClientFromServiceUrlOptions = {
    * Service URL for the scoped client.
    */
   readonly serviceUrl: string;
-};
-
-/**
- * Options for creating a scoped API client for a specific Agentic User.
- */
-export type ApiClientFromAgenticUserOptions = {
-  /**
-   * Agentic User identity used by the scoped client when acquiring auth tokens.
-   */
-  readonly agenticUser: AgenticUser;
 };
 
 /**
@@ -161,20 +151,6 @@ export class Client {
    */
   fromAgenticIdentity(options: ApiClientFromAgenticIdentityOptions): Client {
     return this.clone(options);
-  }
-
-  /**
-   * Create a scoped API client for the provided Agentic User identity.
-   */
-  forAgenticUser(agenticUser: AgenticUser): Client {
-    return this.fromAgenticIdentity({ agenticIdentity: agenticUser });
-  }
-
-  /**
-   * Create a scoped API client for the provided Agentic User identity.
-   */
-  fromAgenticUser(options: ApiClientFromAgenticUserOptions): Client {
-    return this.fromAgenticIdentity({ agenticIdentity: options.agenticUser });
   }
 
   /**
