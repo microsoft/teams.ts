@@ -588,6 +588,19 @@ describe('ActivityContext', () => {
     });
 
     it('creates oauth card for new signin in 1:1 chat', async () => {
+      context = new ActivityContext({
+        ...context,
+        activity: {
+          ...buildIncomingMessageActivity('Test message'),
+          conversation: {
+            id: 'personal-conv',
+            conversationType: 'personal',
+            isGroup: false,
+          },
+        },
+        activitySender: mockSender,
+      });
+
       mockApiClient.users.getToken.mockRejectedValueOnce(
         new Error('No token')
       );
@@ -604,44 +617,25 @@ describe('ActivityContext', () => {
 
       await context.signin();
 
-      expect(mockSender.send).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'message',
-          attachments: [
-            {
-              content: {
-                buttons: [
-                  {
-                    title: 'Sign In',
-                    type: 'signin',
-                    value: 'https://login.url',
-                  },
-                ],
-                connectionName: 'test-connection',
-                text: 'Please Sign In...',
-                tokenExchangeResource: {
-                  uri: 'my-token-exhcange-resource-uri',
-                },
-                tokenPostResource: { sasUrl: 'my-token-post-resource-sas-url' },
-              },
-              contentType: 'application/vnd.microsoft.card.oauth',
-            },
-          ],
-          recipient: { id: 'test-user', name: 'Test User', role: 'user' },
-        }),
-        mockRef
-      );
+      // No 1:1 fallback conversation is created.
+      expect(mockApiClient.conversations.create).not.toHaveBeenCalled();
+      const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+      // 1:1 sign-in cards are not targeted and keep the token exchange resource (SSO possible).
+      expect(sentActivity.recipient.isTargeted).toBeUndefined();
+      expect(sentActivity.attachments[0].content.tokenExchangeResource).toEqual({
+        uri: 'my-token-exhcange-resource-uri',
+      });
     });
 
-    it('creates new 1:1 conversation for group chat signin', async () => {
+    it('sends a targeted oauth card in a group chat without creating a 1:1', async () => {
       context = new ActivityContext({
         ...context,
         activity: {
           ...buildIncomingMessageActivity('Test message'),
           conversation: {
             id: 'group-conv',
+            conversationType: 'groupChat',
             isGroup: true,
-            conversationType: 'group',
           },
         },
         activitySender: mockSender,
@@ -650,13 +644,10 @@ describe('ActivityContext', () => {
       mockApiClient.users.getToken.mockRejectedValueOnce(
         new Error('No token')
       );
-      mockApiClient.conversations.create.mockResolvedValueOnce({
-        id: 'new-conv-id',
-        activityId: 'new-activity-id',
-        serviceUrl: '',
-      });
       const mockResource = {
-        tokenExchangeResource: {} as TokenExchangeResource,
+        tokenExchangeResource: {
+          uri: 'my-token-exhcange-resource-uri',
+        } as TokenExchangeResource,
         tokenPostResource: {} as TokenPostResource,
         signInLink: 'https://login.url',
       };
@@ -664,10 +655,88 @@ describe('ActivityContext', () => {
 
       await context.signin();
 
-      expect(mockApiClient.conversations.create).toHaveBeenCalled();
-      expect(mockSender.send).toHaveBeenCalledWith(
-        expect.objectContaining({ type: 'message', text: 'Please Sign In...' }),
-        expect.any(Object)
+      // No 1:1 fallback; the card is sent directly in the group chat, targeted to the user.
+      expect(mockApiClient.conversations.create).not.toHaveBeenCalled();
+      const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+      expect(sentActivity.recipient.isTargeted).toBe(true);
+      // SSO token exchange remains available in group chats.
+      expect(sentActivity.attachments[0].content.tokenExchangeResource).toEqual({
+        uri: 'my-token-exhcange-resource-uri',
+      });
+    });
+
+    it('sends a targeted oauth card and omits token exchange in a channel', async () => {
+      context = new ActivityContext({
+        ...context,
+        activity: {
+          ...buildIncomingMessageActivity('Test message'),
+          conversation: {
+            id: 'channel-conv',
+            conversationType: 'channel',
+            isGroup: true,
+          },
+        },
+        activitySender: mockSender,
+      });
+
+      mockApiClient.users.getToken.mockRejectedValueOnce(
+        new Error('No token')
+      );
+      const mockResource = {
+        tokenExchangeResource: {
+          uri: 'my-token-exhcange-resource-uri',
+        } as TokenExchangeResource,
+        tokenPostResource: {} as TokenPostResource,
+        signInLink: 'https://login.url',
+      };
+      mockApiClient.bots.signIn.getResource.mockResolvedValueOnce(mockResource);
+
+      await context.signin();
+
+      // No 1:1 fallback; card sent directly in the channel, targeted to the user.
+      expect(mockApiClient.conversations.create).not.toHaveBeenCalled();
+      const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+      expect(sentActivity.recipient.isTargeted).toBe(true);
+      // Channels cannot do silent SSO, so the token exchange resource is omitted.
+      expect(sentActivity.attachments[0].content.tokenExchangeResource).toBeUndefined();
+    });
+
+    it('passes the channel-filtered token exchange resource to overrideSignInActivity', async () => {
+      context = new ActivityContext({
+        ...context,
+        activity: {
+          ...buildIncomingMessageActivity('Test message'),
+          conversation: {
+            id: 'channel-conv',
+            conversationType: 'channel',
+            isGroup: true,
+          },
+        },
+        activitySender: mockSender,
+      });
+
+      mockApiClient.users.getToken.mockRejectedValueOnce(new Error('No token'));
+      const mockResource = {
+        tokenExchangeResource: {
+          uri: 'my-token-exhcange-resource-uri',
+        } as TokenExchangeResource,
+        tokenPostResource: { sasUrl: 'sas' } as TokenPostResource,
+        signInLink: 'https://login.url',
+      };
+      mockApiClient.bots.signIn.getResource.mockResolvedValueOnce(mockResource);
+
+      const overrideSignInActivity = jest
+        .fn()
+        .mockReturnValue({ type: 'message', text: 'custom sign-in' });
+
+      await context.signin({ overrideSignInActivity });
+
+      // In channels the override callback receives no token exchange resource, so a
+      // custom override can't trigger a silent SSO exchange Teams can't complete.
+      expect(overrideSignInActivity).toHaveBeenCalledWith(
+        undefined,
+        mockResource.tokenPostResource,
+        mockResource.signInLink
       );
     });
 

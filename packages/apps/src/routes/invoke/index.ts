@@ -9,6 +9,7 @@ import { DialogSubmitSubRoutes } from './dialog-submit';
 import { FileConsentActivityRoutes } from './file-consent';
 import { MessageExtensionSubmitActivityRoutes } from './message-extension-submit';
 import { MessageSubmitActivityRoutes } from './message-submit';
+import { WidgetCallToolRoutes } from './widget-calltool';
 
 export type InvokeActivityRoutes<TExtraCtx extends Record<string, any> = Record<string, any>> = {
   [K in InvokeActivity['name']as InvokeAliases[K]]?: RouteHandler<
@@ -20,7 +21,8 @@ export type InvokeActivityRoutes<TExtraCtx extends Record<string, any> = Record<
   MessageSubmitActivityRoutes &
   DialogOpenSubRoutes<TExtraCtx> &
   DialogSubmitSubRoutes<TExtraCtx> &
-  CardActionSubRoutes<TExtraCtx>;
+  CardActionSubRoutes<TExtraCtx> &
+  WidgetCallToolRoutes<TExtraCtx>;
 
 type InvokeAliases = {
   'config/fetch': 'config.open';
@@ -48,6 +50,8 @@ type InvokeAliases = {
   'signin/verifyState': 'signin.verify-state';
   'signin/failure': 'signin.failure';
   'adaptiveCard/action': 'card.action';
+  'application/search': 'card.search';
+  'htmlwidget/calltool': 'widget.callTool';
 };
 
 export const INVOKE_ALIASES: InvokeAliases = {
@@ -76,6 +80,8 @@ export const INVOKE_ALIASES: InvokeAliases = {
   'signin/verifyState': 'signin.verify-state',
   'signin/failure': 'signin.failure',
   'adaptiveCard/action': 'card.action',
+  'application/search': 'card.search',
+  'htmlwidget/calltool': 'widget.callTool',
 };
 
 export * from './card-action';
@@ -84,4 +90,5 @@ export * from './dialog-submit';
 export * from './file-consent';
 export * from './message-extension-submit';
 export * from './message-submit';
+export * from './widget-calltool';
 
