@@ -38,7 +38,9 @@ export function createTokenProviderFactory(
       }
 
       if (!isAgenticUserIdentity(defaultAgenticIdentity)) {
-        throw new Error('Unsupported agentic identity shape.');
+        throw new Error(
+          'Unsupported agentic identity shape. Expected an AgenticUser identity with `agenticUserId`.'
+        );
       }
 
       if (!tokenProvider.getAgenticUserToken) {
