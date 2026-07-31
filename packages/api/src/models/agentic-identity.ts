@@ -1,12 +1,10 @@
 /**
- * Agentic program identity scope used by SDK operations such as proactive
- * sends and scoped API clients.
+ * SDK operation/request scope for the Agent 365 program.
  *
- * This is a scoping term, not a replacement for concrete Agent 365 concepts.
- * Today Teams activities convey user-backed agentic identity fields, and future
- * SDK support can add additional concrete shapes without requiring callers to
- * provide a `kind` discriminator. Code that needs user-backed behavior should
- * check for field presence, for example `'agenticUserId' in identity`.
+ * An AgenticIdentity encompasses an agentic app blueprint
+ * (`agenticAppBlueprintId`), which can instantiate agentic apps
+ * (`agenticAppId`), and each app can optionally have associated agentic users
+ * (`agenticUserId`).
  */
 export type AgenticIdentity = {
   /**
