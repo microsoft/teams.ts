@@ -49,7 +49,7 @@ export function createTokenProviderFactory(
         return (
           (await tokenProvider.getAgenticUserToken(
             cloud.agenticIdentityBotScope,
-            defaultAgenticIdentity.agenticAppId,
+            requireAgenticAppId(defaultAgenticIdentity, 'user-backed'),
             defaultAgenticIdentity.agenticUserId,
             defaultAgenticIdentity.tenantId
           )) ?? undefined
@@ -67,7 +67,7 @@ export function createTokenProviderFactory(
       return (
         (await tokenProvider.getAgenticAppToken(
           cloud.agenticIdentityBotScope,
-          defaultAgenticIdentity.agenticAppId,
+          requireAgenticAppId(defaultAgenticIdentity, 'app-backed'),
           defaultAgenticIdentity.tenantId
         )) ?? undefined
       );
@@ -77,6 +77,16 @@ export function createTokenProviderFactory(
 
 function getAuthFlow(agenticIdentity: AgenticIdentity | undefined): AuthFlow {
   return agenticIdentity ? AUTH_FLOWS.agenticIdentity : AUTH_FLOWS.appOnly;
+}
+
+function requireAgenticAppId(agenticIdentity: AgenticIdentity, identityFlavor: string): string {
+  if (!agenticIdentity.agenticAppId) {
+    throw new Error(
+      `agenticAppId is required for ${identityFlavor} AgenticIdentity token acquisition`
+    );
+  }
+
+  return agenticIdentity.agenticAppId;
 }
 
 async function traceAuthTokenAcquisition<T>(authFlow: AuthFlow, acquireToken: () => Promise<T>): Promise<T> {

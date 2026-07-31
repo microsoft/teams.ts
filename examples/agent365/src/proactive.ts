@@ -59,7 +59,7 @@ async function main() {
       const scope = InvokeAgentScope.start(
         { content: 'Scheduled digest' },
         {},
-        { agentId: agenticIdentity.agenticAppId, tenantId: agenticIdentity.tenantId }
+        { agentId: agenticAppId, tenantId: agenticIdentity.tenantId }
       );
 
       try {

@@ -43,9 +43,10 @@ import { IActivitySender, IPlugin, RouteHandler, StreamCancelledError } from './
 import { PluginAdditionalContext } from './types/app-routing';
 
 function getAgenticIdentity(account?: Account): AgenticIdentity | undefined {
-  if (!account?.agenticAppId || !account.agenticUserId) {
+  if (!account?.agenticAppBlueprintId) {
     return undefined;
   }
+
   return {
     agenticAppId: account.agenticAppId,
     agenticUserId: account.agenticUserId,

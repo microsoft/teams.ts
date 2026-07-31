@@ -1,6 +1,6 @@
 /**
  * Agentic program identity scope used by SDK operations such as proactive
- * sends, scoped API clients, and token minting.
+ * sends and scoped API clients.
  *
  * This is a scoping term, not a replacement for concrete Agent 365 concepts.
  * Today Teams activities convey user-backed agentic identity fields, and future
@@ -10,9 +10,14 @@
  */
 export type AgenticIdentity = {
   /**
-   * ID of the agentic app represented by this identity.
+   * ID of the Agentic App Blueprint that backs the agentic app.
    */
-  readonly agenticAppId: string;
+  readonly agenticAppBlueprintId: string;
+
+  /**
+   * ID of the agentic app represented by this identity, when available/needed.
+   */
+  readonly agenticAppId?: string;
 
   /**
    * Entra object ID of the user-backed agentic identity, when the operation
@@ -21,17 +26,9 @@ export type AgenticIdentity = {
   readonly agenticUserId?: string;
 
   /**
-   * Tenant ID for token acquisition. When omitted, callers may fall back to
-   * their configured tenant if the API surface documents that behavior.
+   * Tenant ID for token acquisition.
    */
   readonly tenantId?: string;
-
-  /**
-   * ID of the Agentic App Blueprint that backs the agentic app. When omitted,
-   * callers may fall back to their configured app ID if the API surface
-   * documents that behavior.
-   */
-  readonly agenticAppBlueprintId?: string;
 };
 
 /**

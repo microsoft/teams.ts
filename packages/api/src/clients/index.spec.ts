@@ -140,7 +140,7 @@ describe('Api Client token provider', () => {
 
   it('creates an agentic identity scoped clone', () => {
     const tokenProvider: ITokenProvider = { getAppToken: async () => 'token' };
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', undefined, { tokenProvider });
 
     const scoped = api.fromAgenticIdentity({ agenticIdentity });
@@ -151,7 +151,7 @@ describe('Api Client token provider', () => {
 
   it('keeps forAgenticIdentity as the canonical agentic identity helper', () => {
     const tokenProvider: ITokenProvider = { getAppToken: async () => 'token' };
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', undefined, { tokenProvider });
 
     const scoped = api.forAgenticIdentity(agenticIdentity);
@@ -161,7 +161,7 @@ describe('Api Client token provider', () => {
 
   it('creates a service url scoped clone', () => {
     const tokenProvider: ITokenProvider = { getAppToken: async () => 'token' };
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', undefined, { tokenProvider, agenticIdentity });
 
     const scoped = api.fromServiceUrl({ serviceUrl: 'https://another.service.example.com/' });
@@ -173,7 +173,7 @@ describe('Api Client token provider', () => {
 
   it('creates a clone scoped to service url and agentic identity', () => {
     const tokenProvider: ITokenProvider = { getAppToken: async () => 'token' };
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', undefined, { tokenProvider });
 
     const scoped = api.clone({
@@ -188,7 +188,7 @@ describe('Api Client token provider', () => {
 
   it('preserves the default agentic identity when clone receives an undefined identity', () => {
     const tokenProvider: ITokenProvider = { getAppToken: async () => 'token' };
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', undefined, { tokenProvider, agenticIdentity });
 
     const scoped = api.clone({
@@ -202,7 +202,7 @@ describe('Api Client token provider', () => {
 
   it('clears the default agentic identity when clone receives a null identity', () => {
     const tokenProvider: ITokenProvider = { getAppToken: async () => 'token' };
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', undefined, { tokenProvider, agenticIdentity });
 
     const scoped = api.clone({
@@ -219,7 +219,7 @@ describe('Api Client token provider', () => {
     const tokenProvider = recordingProvider(calls);
     const http = new TestHttpClient();
     mockAdapter(http);
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', http, { tokenProvider });
 
     const scoped = api.fromAgenticIdentity({ agenticIdentity });
@@ -249,7 +249,7 @@ describe('Api Client token provider', () => {
     };
     const http = new TestHttpClient();
     mockAdapter(http);
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agentic-user', tenantId: 'tenant' };
+    const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', agenticUserId: 'agentic-user', tenantId: 'tenant' };
     const api = new Client('https://service.example.com', http, { tokenProvider });
 
     await api.fromAgenticIdentity({ agenticIdentity }).http.get('/test');
@@ -261,6 +261,27 @@ describe('Api Client token provider', () => {
       agenticUserId: 'agentic-user',
       tenantId: 'tenant',
     }]);
+  });
+
+  it('throws when a user-backed scoped identity lacks the app ID needed for token acquisition', async () => {
+    const getAgenticUserToken = jest.fn().mockResolvedValue('token');
+    const tokenProvider: ITokenProvider = {
+      getAppToken: async () => 'token',
+      getAgenticUserToken,
+    };
+    const http = new TestHttpClient();
+    mockAdapter(http);
+    const agenticIdentity = {
+      agenticAppBlueprintId: 'agentic-blueprint',
+      agenticUserId: 'agentic-user',
+      tenantId: 'tenant',
+    };
+    const api = new Client('https://service.example.com', http, { tokenProvider });
+
+    await expect(
+      api.fromAgenticIdentity({ agenticIdentity }).http.get('/test')
+    ).rejects.toThrow('agenticAppId is required for user-backed AgenticIdentity token acquisition');
+    expect(getAgenticUserToken).not.toHaveBeenCalled();
   });
 
   it('uses getAgenticAppToken for app-backed identity when identity helper is omitted', async () => {
@@ -277,7 +298,7 @@ describe('Api Client token provider', () => {
     };
     const http = new TestHttpClient();
     mockAdapter(http);
-    const agenticIdentity = { agenticAppId: 'agent-app', tenantId: 'tenant' };
+    const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', tenantId: 'tenant' };
     const api = new Client('https://service.example.com', http, { tokenProvider });
 
     await api.fromAgenticIdentity({ agenticIdentity }).http.get('/test');
@@ -290,12 +311,32 @@ describe('Api Client token provider', () => {
     }]);
   });
 
+  it('throws when an app-backed scoped identity lacks the app ID needed for token acquisition', async () => {
+    const getAgenticAppToken = jest.fn().mockResolvedValue('token');
+    const tokenProvider: ITokenProvider = {
+      getAppToken: async () => 'token',
+      getAgenticAppToken,
+    };
+    const http = new TestHttpClient();
+    mockAdapter(http);
+    const agenticIdentity = {
+      agenticAppBlueprintId: 'agentic-blueprint',
+      tenantId: 'tenant',
+    };
+    const api = new Client('https://service.example.com', http, { tokenProvider });
+
+    await expect(
+      api.fromAgenticIdentity({ agenticIdentity }).http.get('/test')
+    ).rejects.toThrow('agenticAppId is required for app-backed AgenticIdentity token acquisition');
+    expect(getAgenticAppToken).not.toHaveBeenCalled();
+  });
+
   it('uses a scoped clone for serviceUrl and agentic identity', async () => {
     const calls: unknown[] = [];
     const tokenProvider = recordingProvider(calls);
     const http = new TestHttpClient();
     const requests = mockAdapter(http);
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', http, { tokenProvider });
     const scoped = api.clone({
       serviceUrl: 'https://override.service.example.com/',
@@ -323,7 +364,7 @@ describe('Api Client token provider', () => {
     const tokenProvider = recordingProvider(calls);
     const http = new TestHttpClient();
     mockAdapter(http);
-    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
+    const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
     const api = new Client('https://service.example.com', http, { tokenProvider, agenticIdentity });
 
     await api.clone({ agenticIdentity: undefined }).http.get('/preserve');

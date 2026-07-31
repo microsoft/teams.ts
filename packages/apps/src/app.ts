@@ -720,11 +720,15 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     if (!tenantId) {
       throw new Error('tenantId is required to get an AgenticIdentity');
     }
+    const agenticAppBlueprintId = opts?.agenticAppBlueprintId ?? this.id;
+    if (!agenticAppBlueprintId) {
+      throw new Error('agenticAppBlueprintId is required to get an AgenticIdentity');
+    }
     return {
       agenticAppId,
       agenticUserId,
       tenantId,
-      agenticAppBlueprintId: opts?.agenticAppBlueprintId ?? this.id,
+      agenticAppBlueprintId,
     };
   }
 

@@ -56,10 +56,10 @@ export type Account<P = any> = {
 
 /**
  * Builds an agentic identity from an account when the activity recipient
- * carries the fields required for scoped auth.
+ * carries the fields required for scoped operations.
  */
 export function getAgenticIdentity(account?: Account): AgenticIdentity | undefined {
-  if (!account?.agenticAppId || !account.agenticUserId) {
+  if (!account?.agenticAppBlueprintId) {
     return undefined;
   }
 

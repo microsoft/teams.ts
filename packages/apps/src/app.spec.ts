@@ -207,6 +207,15 @@ describe('App', () => {
         'tenantId is required'
       );
     });
+
+    it('should throw when no agentic app blueprint can be resolved', () => {
+      delete process.env.CLIENT_ID;
+      const app = new App({ tenantId: 'tenant-id' });
+
+      expect(() => app.getAgenticIdentity('agentic-app-id', 'agentic-user-id')).toThrow(
+        'agenticAppBlueprintId is required'
+      );
+    });
   });
 
   describe('send', () => {
@@ -248,7 +257,11 @@ describe('App', () => {
 
       await app.start();
 
-      const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
+      const agenticIdentity = {
+        agenticAppBlueprintId: 'agentic-blueprint',
+        agenticAppId: 'agent-app',
+        agenticUserId: 'agentic-user',
+      };
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 

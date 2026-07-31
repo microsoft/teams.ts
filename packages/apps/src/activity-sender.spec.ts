@@ -221,7 +221,11 @@ describe('ActivitySender', () => {
     });
 
     it('should use agentic identity option for the API client', async () => {
-      const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
+      const agenticIdentity = {
+        agenticAppBlueprintId: 'agentic-blueprint',
+        agenticAppId: 'agent-app',
+        agenticUserId: 'agentic-user',
+      };
 
       await sender.send({ type: 'message', text: 'hi' }, ref, { agenticIdentity });
 

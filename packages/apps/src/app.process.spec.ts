@@ -535,6 +535,7 @@ describe('App', () => {
           role: 'bot',
           agenticAppId: 'agent-app',
           agenticUserId: 'agentic-user',
+          agenticAppBlueprintId: 'agentic-blueprint',
         })
         .withConversation({ id: 'conv-123', conversationType: 'personal' })
         .withChannelId('msteams')
@@ -556,6 +557,7 @@ describe('App', () => {
         agenticIdentity: expect.objectContaining({
           agenticAppId: 'agent-app',
           agenticUserId: 'agentic-user',
+          agenticAppBlueprintId: 'agentic-blueprint',
         }),
       });
     });
