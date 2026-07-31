@@ -4,7 +4,7 @@
  *
  * Proactive messaging as an Agentic User.
  *
- * Demonstrates both `app.send(..., { agenticUser })` and a
+ * Demonstrates both `app.send(..., { agenticIdentity })` and a
  * lower-level conversation activity API client configured with an
  * Agentic User identity. In both cases the API layer asks the auth provider
  * for the right Agentic User token.
@@ -39,12 +39,12 @@ async function main() {
   const sent = await app.send(
     conversationId,
     new MessageActivity('Hello from app.send as an Agentic User.'),
-    { agenticUser },
+    { agenticIdentity: agenticUser },
   );
   console.log(`Sent activity through app.send. Activity ID: ${sent.id}`);
 
   // 2. Lower-level conversation activity API as an Agentic User
-  const agenticUserApi = app.api.fromAgenticUser({ agenticUser });
+  const agenticUserApi = app.api.fromAgenticIdentity({ agenticIdentity: agenticUser });
   const apiSent = await agenticUserApi.conversations.activities(conversationId).create(
     { type: 'message', text: 'Hello from the conversation activity API as an Agentic User.' },
   );

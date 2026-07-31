@@ -553,7 +553,7 @@ describe('App', () => {
 
       expect(clone).toHaveBeenCalledWith({
         serviceUrl: incomingServiceUrl,
-        agenticUser: expect.objectContaining({
+        agenticIdentity: expect.objectContaining({
           agenticAppInstanceId: 'agent-app',
           agenticUserId: 'agentic-user',
         }),
@@ -589,7 +589,7 @@ describe('App', () => {
         .toInterface();
       const scopedApi = app.api.clone({
         serviceUrl: incomingServiceUrl,
-        agenticUser,
+        agenticIdentity: agenticUser,
       });
       const clone = jest.spyOn(app.api, 'clone').mockReturnValue(scopedApi);
       const rootGetToken = jest.spyOn(app.api.users, 'getToken').mockResolvedValue({ token: 'root-token' } as any);
@@ -602,7 +602,7 @@ describe('App', () => {
 
       expect(clone).toHaveBeenCalledWith({
         serviceUrl: incomingServiceUrl,
-        agenticUser,
+        agenticIdentity: agenticUser,
       });
       expect(rootGetToken).not.toHaveBeenCalled();
       expect(scopedGetToken).toHaveBeenCalledWith({
@@ -627,7 +627,7 @@ describe('App', () => {
         .toInterface();
       const scopedApi = app.api.clone({
         serviceUrl: incomingServiceUrl,
-        agenticUser: undefined,
+        agenticIdentity: undefined,
       });
       const clone = jest.spyOn(app.api, 'clone').mockReturnValue(scopedApi);
       const rootGetToken = jest.spyOn(app.api.users, 'getToken').mockResolvedValue({ token: 'root-token' } as any);
@@ -640,7 +640,7 @@ describe('App', () => {
 
       expect(clone).toHaveBeenCalledWith({
         serviceUrl: incomingServiceUrl,
-        agenticUser: undefined,
+        agenticIdentity: undefined,
       });
       expect(rootGetToken).not.toHaveBeenCalled();
       expect(scopedGetToken).toHaveBeenCalledWith({

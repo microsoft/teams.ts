@@ -281,7 +281,7 @@ describe('agent365 baggage', () => {
         operationSource: 'nightly-digest',
       });
 
-      withScope({ agenticUser, conversationId: 'conv-1' }, () => {
+      withScope({ agenticIdentity: agenticUser, conversationId: 'conv-1' }, () => {
         expect(activeValue(Agent365BaggageKeys.tenantId)).toBe('tenant-1');
         expect(activeValue(Agent365BaggageKeys.agentId)).toBe('app-instance-1');
         expect(activeValue(Agent365BaggageKeys.agenticUserId)).toBe('agentic-user-1');
@@ -367,7 +367,7 @@ describe('agent365 baggage', () => {
     it('passes work through untouched when disabled', () => {
       const withScope = createAgent365Scope(false);
 
-      withScope({ agenticUser, conversationId: 'conv-1' }, () => {
+      withScope({ agenticIdentity: agenticUser, conversationId: 'conv-1' }, () => {
         expect(propagation.getActiveBaggage()).toBeUndefined();
       });
     });

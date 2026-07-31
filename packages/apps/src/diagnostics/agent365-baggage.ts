@@ -1,6 +1,6 @@
 import { context as otelContext, propagation } from '@opentelemetry/api';
 
-import type { Activity, AgenticUser } from '@microsoft/teams.api';
+import { isAgenticUserIdentity, type Activity, type AgenticIdentity } from '@microsoft/teams.api';
 
 /**
  * Values accepted by the Agent365 baggage bridge. `null`, `undefined`, blank
@@ -213,10 +213,11 @@ export function agent365BaggageFromActivity(
  */
 export interface IAgent365Scope {
   /**
-   * The Agentic User the operation acts as, typically from `App.getAgenticUser`.
-   * Omit for app-only work; the agent id then falls back to the opener's `agentId`.
+   * The agentic identity scope the operation runs under, typically from
+   * `App.getAgenticUser`. Omit for app-only work; the agent id then falls back
+   * to the opener's `agentId`.
    */
-  readonly agenticUser?: AgenticUser;
+  readonly agenticIdentity?: AgenticIdentity;
 
   /**
    * The conversation the operation targets, when it has one.
@@ -225,7 +226,7 @@ export interface IAgent365Scope {
 
   /**
    * The human the operation runs on behalf of, when there is one. The agentic
-   * user id belongs on `agenticUser`, not here.
+   * user id belongs on `agenticIdentity`, not here.
    */
   readonly userId?: string;
 
@@ -278,7 +279,7 @@ export interface IAgent365ScopeOptions extends IAgent365BaggageOptions {
   readonly serviceUrl?: Agent365BaggageValue;
 
   /**
-   * Fallback `gen_ai.agent.id` used when a scope has no `agenticUser`. Typically
+   * Fallback `gen_ai.agent.id` used when a scope has no `agenticIdentity`. Typically
    * the app's client id.
    */
   readonly agentId?: Agent365BaggageValue;
@@ -304,7 +305,7 @@ export type Agent365ScopeOpener = <T>(scope: IAgent365Scope, fn: () => T) => T;
  *
  * ```ts
  * const withScope = createAgent365Scope({ operationSource: 'nightly-digest' });
- * await withScope({ agenticUser, conversationId }, () => runJob());
+ * await withScope({ agenticIdentity, conversationId }, () => runJob());
  * ```
  *
  * @param options host-wide baggage defaults and personal-data policy. Pass
@@ -320,18 +321,23 @@ export function createAgent365Scope(
 
   const bound = options ?? {};
 
-  return (scope, fn) =>
-    withAgent365Baggage(
+  return (scope, fn) => {
+    const agenticIdentity = scope.agenticIdentity;
+    const agenticUser = agenticIdentity && isAgenticUserIdentity(agenticIdentity)
+      ? agenticIdentity
+      : undefined;
+
+    return withAgent365Baggage(
       {
         ...toBaggageEntries(
           {
-            tenantId: scope.agenticUser?.tenantId,
+            tenantId: agenticIdentity?.tenantId,
             conversationId: scope.conversationId,
             conversationItemLink: bound.serviceUrl,
             channelName: bound.channelName,
-            agentId: scope.agenticUser?.agenticAppInstanceId ?? bound.agentId,
-            agenticUserId: scope.agenticUser?.agenticUserId,
-            agentBlueprintId: scope.agenticUser?.agenticBlueprintId,
+            agentId: agenticIdentity?.agenticAppInstanceId ?? bound.agentId,
+            agenticUserId: agenticUser?.agenticUserId,
+            agentBlueprintId: agenticIdentity?.agenticBlueprintId,
             userId: scope.userId,
             senderName: scope.senderName,
             senderEmail: scope.senderEmail,
@@ -345,6 +351,7 @@ export function createAgent365Scope(
       },
       fn
     );
+  };
 }
 
 /**

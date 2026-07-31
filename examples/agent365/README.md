@@ -18,7 +18,7 @@ npm run dev --workspace @examples/agentic-blueprint
 
 ## Proactive API Send
 
-`src/proactive.ts` shows both `app.send(..., { agenticUser })` and the lower-level conversation activity API. In both cases the API layer asks the auth provider for the right Agentic User token and uses it in the request header.
+`src/proactive.ts` shows both `app.send(..., { agenticIdentity })` and the lower-level conversation activity API. In both cases the API layer asks the auth provider for the right Agentic User token and uses it in the request header.
 
 ```bash
 export CLIENT_ID=<agentic-blueprint-id>

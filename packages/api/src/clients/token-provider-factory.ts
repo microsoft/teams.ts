@@ -15,7 +15,7 @@ import {
   getTeamsApiTracer,
   recordTeamsApiException
 } from '../diagnostics/helpers';
-import type { AgenticUser } from '../models';
+import { isAgenticUserIdentity, type AgenticIdentity } from '../models';
 
 
 /**
@@ -26,15 +26,19 @@ import type { AgenticUser } from '../models';
  */
 export function createTokenProviderFactory(
   tokenProvider: ITokenProvider,
-  defaultAgenticUser?: AgenticUser,
+  defaultAgenticIdentity?: AgenticIdentity,
   cloud: CloudEnvironment = PUBLIC
 ): Token {
   return () => {
-    return traceAuthTokenAcquisition(getAuthFlow(defaultAgenticUser), async () => {
+    return traceAuthTokenAcquisition(getAuthFlow(defaultAgenticIdentity), async () => {
       // Coerce null to undefined: the TokenFactory contract allows only
       // string | StringLike | undefined.
-      if (!defaultAgenticUser) {
+      if (!defaultAgenticIdentity) {
         return (await tokenProvider.getAppToken(cloud.botScope)) ?? undefined;
+      }
+
+      if (!isAgenticUserIdentity(defaultAgenticIdentity)) {
+        throw new Error('Unsupported agentic identity shape.');
       }
 
       if (!tokenProvider.getAgenticUserToken) {
@@ -46,15 +50,15 @@ export function createTokenProviderFactory(
       }
 
       return (
-        (await tokenProvider.getAgenticUserToken(cloud.agenticUserBotScope, defaultAgenticUser)) ??
+        (await tokenProvider.getAgenticUserToken(cloud.agenticUserBotScope, defaultAgenticIdentity)) ??
         undefined
       );
     });
   };
 }
 
-function getAuthFlow(agenticUser: AgenticUser | undefined): AuthFlow {
-  return agenticUser ? AUTH_FLOWS.agenticUser : AUTH_FLOWS.appOnly;
+function getAuthFlow(agenticIdentity: AgenticIdentity | undefined): AuthFlow {
+  return agenticIdentity && isAgenticUserIdentity(agenticIdentity) ? AUTH_FLOWS.agenticUser : AUTH_FLOWS.appOnly;
 }
 
 async function traceAuthTokenAcquisition<T>(authFlow: AuthFlow, acquireToken: () => Promise<T>): Promise<T> {

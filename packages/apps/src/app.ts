@@ -3,6 +3,7 @@ import { AxiosError } from 'axios';
 import {
   Activity,
   ActivityLike,
+  AgenticIdentity,
   AgenticUser,
   ApiClientSettings,
   CloudEnvironment,
@@ -67,9 +68,9 @@ function isAppSendOptions(value: ActivityLike | DeprecatedInputActivity | AppSen
  */
 export type AppSendOptions = {
   /**
-   * Agentic User identity to use when acquiring tokens for this send.
+   * Agentic identity scope to use when acquiring tokens for this send.
    */
-  readonly agenticUser?: AgenticUser;
+  readonly agenticIdentity?: AgenticIdentity;
 };
 
 /**
@@ -186,7 +187,7 @@ export type AppOptions<TPlugin extends IPlugin> = {
 
   /**
    * API client settings used for overriding (e.g. oauthUrl).
-   * Cloud, tokenProvider, and agenticUser are managed internally.
+   * Cloud, tokenProvider, and agenticIdentity are managed internally.
    */
   readonly apiClientSettings?: Pick<ApiClientSettings, 'oauthUrl'>;
 
@@ -382,9 +383,9 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     // initialize ActivitySender for sending activities
     this.activitySender = new ActivitySender(
       this.log,
-      (senderServiceUrl, agenticUser) => this.api.clone({
+      (senderServiceUrl, agenticIdentity) => this.api.clone({
         serviceUrl: senderServiceUrl,
-        agenticUser,
+        agenticIdentity,
       }),
     );
 
@@ -649,7 +650,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     const res = await this.activitySender.send(
       params,
       ref,
-      options?.agenticUser ? { agenticUser: options.agenticUser } : undefined,
+      options?.agenticIdentity ? { agenticIdentity: options.agenticIdentity } : undefined,
     );
     return res;
   }
