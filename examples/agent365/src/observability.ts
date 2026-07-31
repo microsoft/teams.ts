@@ -38,7 +38,7 @@ export function useAgent365Exporter(
       // Agent365 service.
       enableObservabilityExporter: true,
 
-      // App-backed identity token -> the S2S endpoint. Flip both together for a delegated token.
+      // Agentic App token -> the S2S endpoint. Flip both together for a delegated token.
       useS2SEndpoint: true,
 
       observabilityScopeOverride: OBSERVABILITY_SCOPE,
@@ -55,7 +55,7 @@ export function useAgent365Exporter(
         const value = token?.toString();
         if (!value) {
           throw new Error(
-            'Agent365 exporter could not mint an AgenticApp token. Check CLIENT_ID / CLIENT_SECRET / TENANT_ID.'
+            'Agent365 exporter could not mint an Agentic App token. Check CLIENT_ID / CLIENT_SECRET / TENANT_ID.'
           );
         }
 

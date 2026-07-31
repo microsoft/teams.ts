@@ -5,8 +5,8 @@
  *
  * Demonstrates both `app.send(..., { agenticIdentity })` and a
  * lower-level conversation activity API client configured with an
- * AgenticIdentity. In both cases the API layer asks the auth provider
- * for the right AgenticIdentity token.
+ * AgenticIdentity. In both cases the API layer treats AgenticIdentity as the
+ * operation scope and asks the auth provider for the specific user/app token.
  *
  * There is no inbound activity here, so the job opens its own baggage scope
  * with `createAgent365Scope` instead of the SDK establishing one.

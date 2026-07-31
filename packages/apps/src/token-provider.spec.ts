@@ -1,13 +1,8 @@
-import { AgenticIdentity, IToken } from '@microsoft/teams.api';
+import { IToken } from '@microsoft/teams.api';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
 import { TokenManager } from './token-manager';
 import { AppTokenProvider } from './token-provider';
-
-const identity: AgenticIdentity = {
-  agenticAppId: 'agent-app',
-  agenticUserId: 'agentic-user',
-};
 
 // AppTokenProvider's contract is Promise<IToken | null>, so the manager must
 // yield a token-shaped object rather than a bare string. Reference equality on
@@ -30,7 +25,6 @@ const makeToken = (value: string): IToken =>
 // to null; a test overrides only the one it drives.
 const spyOnTokenManager = (tokenManager: TokenManager) => ({
   getAppToken: jest.spyOn(tokenManager, 'getAppToken').mockResolvedValue(null),
-  getAgenticIdentityToken: jest.spyOn(tokenManager, 'getAgenticIdentityToken').mockResolvedValue(null),
   getAgenticUserToken: jest.spyOn(tokenManager, 'getAgenticUserToken').mockResolvedValue(null),
   getAgenticAppToken: jest.spyOn(tokenManager, 'getAgenticAppToken').mockResolvedValue(null),
 });
@@ -48,24 +42,6 @@ describe('AppTokenProvider', () => {
     expect(token).toBe(appToken);
     expect(token?.toString()).toBe('app-token');
     expect(spies.getAppToken).toHaveBeenCalledWith('bot-scope', undefined);
-    expect(spies.getAgenticIdentityToken).not.toHaveBeenCalled();
-    expect(spies.getAgenticUserToken).not.toHaveBeenCalled();
-    expect(spies.getAgenticAppToken).not.toHaveBeenCalled();
-  });
-
-  it('acquires an AgenticIdentity token', async () => {
-    const agenticIdentityToken = makeToken('agentic-identity-token');
-    const tokenManager = new TokenManager({}, new ConsoleLogger('test'));
-    const spies = spyOnTokenManager(tokenManager);
-    spies.getAgenticIdentityToken.mockResolvedValue(agenticIdentityToken);
-    const provider = new AppTokenProvider(tokenManager);
-
-    const token = await provider.getAgenticIdentityToken('agentic-identity-scope', identity);
-
-    expect(token).toBe(agenticIdentityToken);
-    expect(token?.toString()).toBe('agentic-identity-token');
-    expect(spies.getAgenticIdentityToken).toHaveBeenCalledWith('agentic-identity-scope', identity);
-    expect(spies.getAppToken).not.toHaveBeenCalled();
     expect(spies.getAgenticUserToken).not.toHaveBeenCalled();
     expect(spies.getAgenticAppToken).not.toHaveBeenCalled();
   });
@@ -82,7 +58,6 @@ describe('AppTokenProvider', () => {
     expect(token).toBe(agenticUserToken);
     expect(token?.toString()).toBe('agentic-user-token');
     expect(spies.getAgenticUserToken).toHaveBeenCalledWith('agentic-user-scope', 'agent-app', 'agentic-user', 'tenant');
-    expect(spies.getAgenticIdentityToken).not.toHaveBeenCalled();
     expect(spies.getAgenticAppToken).not.toHaveBeenCalled();
     expect(spies.getAppToken).not.toHaveBeenCalled();
   });
@@ -99,7 +74,6 @@ describe('AppTokenProvider', () => {
     expect(token).toBe(agenticAppToken);
     expect(token?.toString()).toBe('agentic-app-token');
     expect(spies.getAgenticAppToken).toHaveBeenCalledWith('agentic-app-scope', 'agent-app', 'tenant');
-    expect(spies.getAgenticIdentityToken).not.toHaveBeenCalled();
     expect(spies.getAgenticUserToken).not.toHaveBeenCalled();
     expect(spies.getAppToken).not.toHaveBeenCalled();
   });
@@ -126,22 +100,6 @@ describe('AppTokenProvider', () => {
     expect(spies.getAppToken).toHaveBeenCalledWith(
       'https://api.botframework.com/.default',
       undefined
-    );
-  });
-
-  it('defaults to the cloud agenticIdentityBotScope when scope is omitted', async () => {
-    const defaultToken = makeToken('agentic-identity-default-token');
-    const tokenManager = new TokenManager({}, new ConsoleLogger('test'));
-    const spies = spyOnTokenManager(tokenManager);
-    spies.getAgenticIdentityToken.mockResolvedValue(defaultToken);
-    const provider = new AppTokenProvider(tokenManager);
-
-    const token = await provider.getAgenticIdentityToken(undefined, identity);
-
-    expect(token).toBe(defaultToken);
-    expect(spies.getAgenticIdentityToken).toHaveBeenCalledWith(
-      'https://botapi.skype.com/.default',
-      identity
     );
   });
 

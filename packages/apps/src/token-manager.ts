@@ -1,7 +1,7 @@
 
 import { AuthenticationResult, ConfidentialClientApplication, ManagedIdentityApplication, LogLevel as MSALLogLevel, NodeSystemOptions } from '@azure/msal-node';
 
-import { AgenticIdentity, ClientCredentials, CloudEnvironment, Credentials, IToken, ITokenProvider, JsonWebToken, TokenProvider, TokenProviderResult, PUBLIC, TokenCredentials, FederatedIdentityCredentials, UserManagedIdentityCredentials, isUserBackedAgenticIdentity } from '@microsoft/teams.api';
+import { ClientCredentials, CloudEnvironment, Credentials, IToken, ITokenProvider, JsonWebToken, TokenProvider, TokenProviderResult, PUBLIC, TokenCredentials, FederatedIdentityCredentials, UserManagedIdentityCredentials } from '@microsoft/teams.api';
 import { ConsoleLogger, ILogger, LogLevel } from '@microsoft/teams.common';
 
 /**
@@ -82,49 +82,6 @@ export class TokenManager {
 
   async getGraphToken(tenantId?: string): Promise<IToken | null> {
     return await this.getToken(this.cloud.graphScope, this.resolveTenantId(tenantId, DEFAULT_TENANT_FOR_GRAPH_TOKEN));
-  }
-
-  /**
-   * Acquires a token for the supplied AgenticIdentity.
-   *
-   * User-backed identities perform the full user exchange. App-backed
-   * identities acquire an app token scoped to `agenticAppId`.
-   *
-   * @param scope the scope to request the final token for.
-   * @param agenticIdentity the agentic identity to act under. Its
-   * `tenantId` takes precedence over the tenant configured on the credentials.
-   * @returns the token, or `null` when the app has no credentials configured.
-   */
-  async getAgenticIdentityToken(
-    scope: string,
-    agenticIdentity: AgenticIdentity
-  ): Promise<IToken | null> {
-    if (!this.credentials) {
-      return null;
-    }
-
-    if (isTokenCredentials(this.credentials)) {
-      const provider = this.credentials.token;
-      if (typeof provider !== 'function' && provider.getAgenticIdentityToken) {
-        const tenantId = this.resolveAgenticTenantId(agenticIdentity.tenantId, 'AgenticIdentity');
-        return this.toProviderToken(await provider.getAgenticIdentityToken(scope, agenticIdentity, tenantId));
-      }
-    }
-
-    if (!isUserBackedAgenticIdentity(agenticIdentity)) {
-      return await this.getAgenticAppToken(
-        scope,
-        this.requireAgenticAppId(agenticIdentity.agenticAppId, 'AgenticIdentity'),
-        agenticIdentity.tenantId
-      );
-    }
-
-    return await this.getAgenticUserToken(
-      scope,
-      this.requireAgenticAppId(agenticIdentity.agenticAppId, 'AgenticIdentity'),
-      agenticIdentity.agenticUserId,
-      agenticIdentity.tenantId
-    );
   }
 
   /**

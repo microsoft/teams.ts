@@ -150,7 +150,6 @@ describe('App', () => {
       // A provider that omits a capability fails loudly instead of returning an
       // app-only token under the wrong identity.
       expect(typeof app.tokenProvider.getAppToken).toBe('function');
-      expect(typeof app.tokenProvider.getAgenticIdentityToken).toBe('function');
       expect(typeof app.tokenProvider.getAgenticUserToken).toBe('function');
       expect(typeof app.tokenProvider.getAgenticAppToken).toBe('function');
     });

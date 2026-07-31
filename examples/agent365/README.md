@@ -4,7 +4,7 @@ Demonstrates using an AgenticIdentity scope to send and receive messages in the 
 
 | Entrypoint | Flow | What it shows |
 | --- | --- | --- |
-| `src/observability.ts` | OTel setup | Exporter + app-backed AgenticIdentity token resolver. |
+| `src/observability.ts` | OTel setup | Exporter + Agentic App token resolver. |
 | `src/main.ts` | Reactive | Inbound messages; the SDK establishes baggage automatically. |
 | `src/proactive.ts` | Proactive | A job with no inbound activity opens its own scope. |
 
@@ -26,7 +26,7 @@ npm run dev --workspace @examples/agentic-blueprint
 
 ## Proactive API Send
 
-`src/proactive.ts` shows both `app.send(..., { agenticIdentity })` and the lower-level conversation activity API. In both cases the API layer asks the auth provider for the right AgenticIdentity token and uses it in the request header.
+`src/proactive.ts` shows both `app.send(..., { agenticIdentity })` and the lower-level conversation activity API. `AgenticIdentity` is the SDK operation scope; the API layer maps that scope to the specific Agentic User or Agentic App token helper it needs.
 
 ```bash
 npm run dev:proactive --workspace @examples/agentic-blueprint -- \
@@ -55,7 +55,7 @@ Signals emitted by the Teams SDK use lowercase dotted names under the `Microsoft
 
 `src/observability.ts` exports a single `useAgent365Exporter(tokens)` that initializes the distro and points its exporter at a token source.
 
-Exports are attributed to the agent itself rather than to a user, so the exporter authenticates with an app-backed agentic token:
+Exports are attributed to the agent itself rather than to a user, so the exporter authenticates with an Agentic App token:
 
 ```ts
 useMicrosoftOpenTelemetry({
@@ -74,7 +74,7 @@ useMicrosoftOpenTelemetry({
 });
 ```
 
-`app.tokenProvider` mints that token — the SDK's token surface for callers that need to authenticate outside the API and Graph clients. Call `useAgent365Exporter(app.tokenProvider)` after constructing the `App` and before `app.start()`.
+`app.tokenProvider` mints that token — the SDK's token surface for callers that need to authenticate outside the API and Graph clients. These helpers stay specific (`getAgenticUserToken` and `getAgenticAppToken`) even though sends and API clients use `AgenticIdentity` as their operation scope. Call `useAgent365Exporter(app.tokenProvider)` after constructing the `App` and before `app.start()`.
 
 ### 2. Reactive flows
 

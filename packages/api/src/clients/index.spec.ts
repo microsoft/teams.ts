@@ -4,7 +4,6 @@ import {
 } from '@microsoft/teams.common';
 
 import type { ITokenProvider } from '../auth/credentials';
-import type { AgenticIdentity } from '../models/agentic-identity';
 
 import { ApiOutboundTelemetryMiddleware } from './api-outbound-middleware';
 
@@ -33,7 +32,7 @@ function mockAdapter(client: TestHttpClient) {
 
 /**
  * Records which capability the client reached for, so a test can tell an
- * app-only acquisition from an AgenticIdentity one.
+ * app-only acquisition from the specific agentic token helpers.
  */
 function recordingProvider(calls: unknown[]): ITokenProvider {
   return {
@@ -41,8 +40,12 @@ function recordingProvider(calls: unknown[]): ITokenProvider {
       calls.push({ flow: 'app' });
       return 'token';
     },
-    getAgenticIdentityToken: async (_scope: string, agenticIdentity: AgenticIdentity) => {
-      calls.push({ flow: 'agenticIdentity', agenticIdentity });
+    getAgenticUserToken: async (_scope, agenticAppId, agenticUserId, tenantId) => {
+      calls.push({ flow: 'agenticUser', agenticAppId, agenticUserId, tenantId });
+      return 'token';
+    },
+    getAgenticAppToken: async (_scope, agenticAppId, tenantId) => {
+      calls.push({ flow: 'agenticApp', agenticAppId, tenantId });
       return 'token';
     },
   };
@@ -222,7 +225,14 @@ describe('Api Client token provider', () => {
     const scoped = api.fromAgenticIdentity({ agenticIdentity });
     await scoped.http.get('/test');
 
-    expect(calls).toEqual([{ flow: 'agenticIdentity', agenticIdentity }]);
+    expect(calls).toEqual([
+      {
+        flow: 'agenticUser',
+        agenticAppId: 'agent-app',
+        agenticUserId: 'agentic-user',
+        tenantId: undefined,
+      },
+    ]);
   });
 
   it('uses getAgenticUserToken for user-backed identity when identity helper is omitted', async () => {
@@ -298,7 +308,14 @@ describe('Api Client token provider', () => {
     );
 
     expect(requests[0].url).toBe('https://override.service.example.com/v3/conversations/conversation-id/activities');
-    expect(calls).toEqual([{ flow: 'agenticIdentity', agenticIdentity }]);
+    expect(calls).toEqual([
+      {
+        flow: 'agenticUser',
+        agenticAppId: 'agent-app',
+        agenticUserId: 'agentic-user',
+        tenantId: undefined,
+      },
+    ]);
   });
 
   it('preserves and clears scoped agentic identity for middleware auth', async () => {
@@ -313,7 +330,12 @@ describe('Api Client token provider', () => {
     await api.clone({ agenticIdentity: null }).http.get('/clear');
 
     expect(calls).toEqual([
-      { flow: 'agenticIdentity', agenticIdentity },
+      {
+        flow: 'agenticUser',
+        agenticAppId: 'agent-app',
+        agenticUserId: 'agentic-user',
+        tenantId: undefined,
+      },
       { flow: 'app' },
     ]);
   });

@@ -37,19 +37,12 @@ export function createTokenProviderFactory(
         return (await tokenProvider.getAppToken(cloud.botScope)) ?? undefined;
       }
 
-      if (tokenProvider.getAgenticIdentityToken) {
-        return (
-          (await tokenProvider.getAgenticIdentityToken(cloud.agenticIdentityBotScope, defaultAgenticIdentity)) ??
-          undefined
-        );
-      }
-
       if (isUserBackedAgenticIdentity(defaultAgenticIdentity)) {
         if (!tokenProvider.getAgenticUserToken) {
           throw new Error(
             'This client is scoped to a user-backed AgenticIdentity, but the configured token provider does not ' +
-            'implement `getAgenticIdentityToken` or `getAgenticUserToken`. Falling back to an app-only token would ' +
-            'authenticate under the wrong identity.'
+            'implement `getAgenticUserToken`. Falling back to an app-only token would authenticate ' +
+            'under the wrong identity.'
           );
         }
 
@@ -66,8 +59,8 @@ export function createTokenProviderFactory(
       if (!tokenProvider.getAgenticAppToken) {
         throw new Error(
           'This client is scoped to an app-backed AgenticIdentity, but the configured token provider does not ' +
-          'implement `getAgenticIdentityToken` or `getAgenticAppToken`. Falling back to an app-only token would ' +
-          'authenticate under the wrong identity.'
+          'implement `getAgenticAppToken`. Falling back to an app-only token would authenticate ' +
+          'under the wrong identity.'
         );
       }
 

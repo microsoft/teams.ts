@@ -1,4 +1,4 @@
-import { AgenticIdentity, CloudEnvironment, IToken, ITokenProvider, PUBLIC } from '@microsoft/teams.api';
+import { CloudEnvironment, IToken, ITokenProvider, PUBLIC } from '@microsoft/teams.api';
 
 import { TokenManager } from './token-manager';
 
@@ -23,21 +23,10 @@ export interface IAppTokenProvider extends ITokenProvider {
   getAppToken(scope?: string, tenantId?: string): Promise<IToken | null>;
 
   /**
-   * Acquires a token carrying the requested agentic identity.
-   *
-   * @param scope the scope to request the token for. Defaults to the configured
-   * cloud environment's AgenticIdentity bot scope when `undefined`.
-   * @param agenticIdentity the identity to act under. Its `tenantId`
-   * takes precedence over the tenant configured on the credentials.
-   * @returns the token, or `null` when the app has no credentials configured.
-   */
-  getAgenticIdentityToken(scope: string | undefined, agenticIdentity: AgenticIdentity): Promise<IToken | null>;
-
-  /**
    * Acquires a token carrying the requested user-backed agentic identity.
    *
    * @param scope the scope to request the token for. Defaults to the configured
-   * cloud environment's AgenticIdentity bot scope when `undefined`.
+   * cloud environment's agentic Bot API scope when `undefined`.
    * @param agenticAppId the agentic app ID that owns the user.
    * @param agenticUserId the agentic user ID to act as.
    * @param tenantId the tenant to acquire the token in. Defaults to the tenant
@@ -55,7 +44,7 @@ export interface IAppTokenProvider extends ITokenProvider {
    * Acquires a token carrying the requested app-backed agentic identity.
    *
    * @param scope the scope to request the token for. Defaults to the configured
-   * cloud environment's AgenticIdentity bot scope when `undefined`.
+   * cloud environment's agentic Bot API scope when `undefined`.
    * @param agenticAppId the agentic app ID to act as.
    * @param tenantId the tenant to acquire the token in. Defaults to the tenant
    * configured on the app's credentials.
@@ -77,13 +66,6 @@ export class AppTokenProvider implements IAppTokenProvider {
 
   async getAppToken(scope?: string, tenantId?: string) {
     return await this.tokenManager.getAppToken(scope ?? this.cloud.botScope, tenantId);
-  }
-
-  async getAgenticIdentityToken(scope: string | undefined, agenticIdentity: AgenticIdentity) {
-    return await this.tokenManager.getAgenticIdentityToken(
-      scope ?? this.cloud.agenticIdentityBotScope,
-      agenticIdentity
-    );
   }
 
   async getAgenticUserToken(
