@@ -708,6 +708,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
   /**
    * Create an AgenticIdentity for scoped proactive sends and API clients.
+   * This helper builds the user-associated scope used by proactive examples;
+   * AgenticIdentity itself keeps `agenticAppId` and `agenticUserId` optional.
    *
    * @param agenticAppId the agentic app ID
    * @param agenticUserId the user-backed agentic identity ID

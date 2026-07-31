@@ -4,7 +4,8 @@
  * REACTIVE flow: an echo agent that responds with an AgenticIdentity.
  *
  * Incoming messages are handled normally; the inbound service URL and
- * AgenticIdentity scope is carried by the context/API layer automatically.
+ * AgenticIdentity operation scope are carried by the context/API layer
+ * automatically.
  */
 
 import { InvokeAgentScope } from '@microsoft/opentelemetry';

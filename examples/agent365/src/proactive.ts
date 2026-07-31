@@ -3,10 +3,10 @@
  * Licensed under the MIT License.
  * Proactive messaging with an AgenticIdentity.
  *
- * Demonstrates both `app.send(..., { agenticIdentity })` and a
- * lower-level conversation activity API client configured with an
- * AgenticIdentity. In both cases the API layer treats AgenticIdentity as the
- * operation scope and asks the auth provider for the specific user/app token.
+ * Demonstrates both `app.send(..., { agenticIdentity })` and a lower-level
+ * conversation activity API client configured with an AgenticIdentity operation
+ * scope. The scope has a blueprint ID, may include an app ID, and can associate
+ * that app with an agentic user; token helpers stay specific to the flow.
  *
  * There is no inbound activity here, so the job opens its own baggage scope
  * with `createAgent365Scope` instead of the SDK establishing one.

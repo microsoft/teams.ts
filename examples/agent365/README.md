@@ -1,6 +1,6 @@
 # AgenticIdentity example
 
-Demonstrates using an AgenticIdentity scope to send and receive messages in the Agent 365 program, and how to wire the resulting telemetry into Agent365 observability. For background on the underlying telemetry model, see the [OpenTelemetry documentation](https://opentelemetry.io/docs/).
+Demonstrates using `AgenticIdentity` as the SDK operation/request/proactive scope in the Agent 365 program, and how to wire the resulting telemetry into Agent365 observability. An `AgenticIdentity` has an `agenticAppBlueprintId`, can include an `agenticAppId`, and that app can optionally be associated with an `agenticUserId`. For background on the underlying telemetry model, see the [OpenTelemetry documentation](https://opentelemetry.io/docs/).
 
 | Entrypoint | Flow | What it shows |
 | --- | --- | --- |
@@ -16,7 +16,7 @@ export TENANT_ID=<tenant-id>
 
 ## Reactive Echo
 
-`src/main.ts` mimics the echo example. Incoming messages are handled normally; the inbound service URL and AgenticIdentity scope are carried by the context/API layer.
+`src/main.ts` mimics the echo example. Incoming messages are handled normally; the inbound service URL and `AgenticIdentity` operation scope are carried by the context/API layer.
 
 It also logs `agentLifecycle` events through one general handler plus typed Agentic User handlers for each observed `AgenticUser*` wire lifecycle variant. Lifecycle APIs stay Agentic User-specific because those service events are specifically about agentic users. The general handler calls `ctx.next()` so the matching variant-specific handler can run afterward.
 
@@ -26,7 +26,7 @@ npm run dev --workspace @examples/agentic-blueprint
 
 ## Proactive API Send
 
-`src/proactive.ts` shows both `app.send(..., { agenticIdentity })` and the lower-level conversation activity API. `AgenticIdentity` is the SDK operation scope; the API layer maps that scope to the specific Agentic User or Agentic App token helper it needs.
+`src/proactive.ts` shows both `app.send(..., { agenticIdentity })` and the lower-level conversation activity API. `AgenticIdentity` is the SDK operation scope; token helpers stay specific, so the API layer maps that scope to the Agentic User or Agentic App helper the service operation needs.
 
 ```bash
 npm run dev:proactive --workspace @examples/agentic-blueprint -- \
