@@ -19,6 +19,7 @@
     "dev:proactive": "tsx -r dotenv/config src/proactive.ts"
   },
   "dependencies": {
+    "@microsoft/opentelemetry": "1.2.0",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.common": "*"
