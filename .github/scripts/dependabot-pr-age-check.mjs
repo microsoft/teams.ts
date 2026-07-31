@@ -38,11 +38,18 @@ async function main() {
   const pullRequests = await getTargetPullRequests(context);
 
   for (const pullRequest of pullRequests) {
-    if (!isDependabotPullRequest(pullRequest)) {
-      continue;
-    }
-
     try {
+      if (!isDependabotPullRequest(pullRequest)) {
+        // The gate only applies to Dependabot PRs, but when `package-age/7-day`
+        // is a required status check GitHub blocks any PR that never reports it.
+        // Publish a passing "not applicable" status so human PRs are never gated.
+        await setCommitStatus(context, pullRequest, {
+          state: 'success',
+          description: 'Not a Dependabot PR; package-age gate not applicable.',
+        });
+        continue;
+      }
+
       const assessment = await assessPullRequest(context, pullRequest);
       await setCommitStatus(context, pullRequest, assessment);
     } catch (error) {
@@ -232,6 +239,10 @@ async function getChangedVersionsFromLockfiles(context, pullRequest) {
   return [...changed.values()];
 }
 
+/**
+ * Returns all files changed by the PR (paginated), used to locate changed
+ * lockfiles.
+ */
 async function listPullRequestFiles(context, pullRequest) {
   const files = [];
   let page = 1;
@@ -275,7 +286,7 @@ async function readLockfileVersions(context, path, ref) {
   try {
     raw = await githubRequestRaw(
       context,
-      `/repos/${context.owner}/${context.repo}/contents/${encodeURIComponent(path)}?ref=${ref}`,
+      `/repos/${context.owner}/${context.repo}/contents/${encodePath(path)}?ref=${ref}`,
     );
   } catch (error) {
     console.warn(`Could not fetch ${path} at ${ref}:`, error.message);
@@ -308,6 +319,20 @@ async function readLockfileVersions(context, path, ref) {
   return versions;
 }
 
+/**
+ * Encodes a repository file path for the GitHub Contents API, escaping each
+ * segment individually so that directory separators are preserved (nested
+ * lockfiles such as `packages/foo/package-lock.json` resolve correctly).
+ */
+function encodePath(path) {
+  return path.split('/').map(encodeURIComponent).join('/');
+}
+
+/**
+ * Extracts the package name from an npm v2/v3 lockfile install path (the text
+ * after the final `node_modules/` segment), or null if the path is not a
+ * dependency install path.
+ */
 function installPathToName(installPath) {
   const marker = 'node_modules/';
   const index = installPath.lastIndexOf(marker);
@@ -317,6 +342,10 @@ function installPathToName(installPath) {
   return installPath.slice(index + marker.length);
 }
 
+/**
+ * Recursively collects `name@version` entries from the nested `dependencies`
+ * tree of an npm v1 lockfile into the provided map.
+ */
 function collectV1Dependencies(dependencies, versions) {
   if (!dependencies) {
     return;
@@ -467,7 +496,7 @@ async function githubRequest(context, path, options = {}) {
 async function githubRequestRaw(context, path) {
   const response = await fetch(`https://api.github.com${path}`, {
     headers: {
-      Accept: 'application/vnd.github.raw+json',
+      Accept: 'application/vnd.github.raw',
       Authorization: `Bearer ${context.token}`,
       'User-Agent': `${context.owner}-${context.repo}-package-age-gate`,
     },
