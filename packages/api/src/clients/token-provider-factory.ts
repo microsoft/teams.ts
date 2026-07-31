@@ -76,7 +76,13 @@ export function createTokenProviderFactory(
 }
 
 function getAuthFlow(agenticIdentity: AgenticIdentity | undefined): AuthFlow {
-  return agenticIdentity ? AUTH_FLOWS.agenticIdentity : AUTH_FLOWS.appOnly;
+  if (!agenticIdentity) {
+    return AUTH_FLOWS.appOnly;
+  }
+
+  return isUserBackedAgenticIdentity(agenticIdentity)
+    ? AUTH_FLOWS.agenticUser
+    : AUTH_FLOWS.agenticApp;
 }
 
 function requireAgenticAppId(agenticIdentity: AgenticIdentity, identityFlavor: string): string {
