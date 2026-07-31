@@ -62,6 +62,34 @@ export interface ITokenProvider {
     agenticIdentity: AgenticIdentity,
     tenantId?: string
   ): TokenProviderResult | Promise<TokenProviderResult>;
+
+  /**
+   * Acquires a token carrying the requested user-backed agentic identity.
+   *
+   * @param scope the scope, or scopes, to request the token for.
+   * @param agenticAppId the agentic app ID that owns the user.
+   * @param agenticUserId the agentic user ID to act as.
+   * @param tenantId the tenant to acquire the token in, when the SDK knows it.
+   */
+  getAgenticUserToken?(
+    scope: string,
+    agenticAppId: string,
+    agenticUserId: string,
+    tenantId?: string
+  ): TokenProviderResult | Promise<TokenProviderResult>;
+
+  /**
+   * Acquires a token carrying the requested app-backed agentic identity.
+   *
+   * @param scope the scope, or scopes, to request the token for.
+   * @param agenticAppId the agentic app ID to act as.
+   * @param tenantId the tenant to acquire the token in, when the SDK knows it.
+   */
+  getAgenticAppToken?(
+    scope: string,
+    agenticAppId: string,
+    tenantId?: string
+  ): TokenProviderResult | Promise<TokenProviderResult>;
 }
 
 /**

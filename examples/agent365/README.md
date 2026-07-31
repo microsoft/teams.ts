@@ -18,7 +18,7 @@ export TENANT_ID=<tenant-id>
 
 `src/main.ts` mimics the echo example. Incoming messages are handled normally; the inbound service URL and AgenticIdentity scope are carried by the context/API layer.
 
-It also logs `agentLifecycle` events through one general handler plus typed handlers for each observed `AgenticUser*` wire lifecycle variant. The general handler calls `ctx.next()` so the matching variant-specific handler can run afterward.
+It also logs `agentLifecycle` events through one general handler plus typed Agentic User handlers for each observed `AgenticUser*` wire lifecycle variant. Lifecycle APIs stay Agentic User-specific because those service events are specifically about agentic users. The general handler calls `ctx.next()` so the matching variant-specific handler can run afterward.
 
 ```bash
 npm run dev --workspace @examples/agentic-blueprint
@@ -55,7 +55,7 @@ Signals emitted by the Teams SDK use lowercase dotted names under the `Microsoft
 
 `src/observability.ts` exports a single `useAgent365Exporter(tokens)` that initializes the distro and points its exporter at a token source.
 
-Exports are attributed to the agent itself rather than to a user, so the exporter authenticates with an app-backed `AgenticIdentity` token:
+Exports are attributed to the agent itself rather than to a user, so the exporter authenticates with an app-backed agentic token:
 
 ```ts
 useMicrosoftOpenTelemetry({
@@ -65,9 +65,10 @@ useMicrosoftOpenTelemetry({
     useS2SEndpoint: true,
     observabilityScopeOverride: OBSERVABILITY_SCOPE,
     tokenResolver: (agenticAppId, tenantId, authScopes) =>
-      tokens.getAgenticIdentityToken(
+      tokens.getAgenticAppToken(
         authScopes?.[0] ?? OBSERVABILITY_SCOPE,
-        { agenticAppId, tenantId }
+        agenticAppId,
+        tenantId
       ),
   },
 });

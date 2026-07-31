@@ -225,6 +225,61 @@ describe('Api Client token provider', () => {
     expect(calls).toEqual([{ flow: 'agenticIdentity', agenticIdentity }]);
   });
 
+  it('uses getAgenticUserToken for user-backed identity when identity helper is omitted', async () => {
+    const calls: unknown[] = [];
+    const tokenProvider: ITokenProvider = {
+      getAppToken: async () => {
+        calls.push({ flow: 'app' });
+        return 'token';
+      },
+      getAgenticUserToken: async (scope, agenticAppId, agenticUserId, tenantId) => {
+        calls.push({ flow: 'agenticUser', scope, agenticAppId, agenticUserId, tenantId });
+        return 'token';
+      },
+    };
+    const http = new TestHttpClient();
+    mockAdapter(http);
+    const agenticIdentity = { agenticAppId: 'agent-app', agenticUserId: 'agentic-user', tenantId: 'tenant' };
+    const api = new Client('https://service.example.com', http, { tokenProvider });
+
+    await api.fromAgenticIdentity({ agenticIdentity }).http.get('/test');
+
+    expect(calls).toEqual([{
+      flow: 'agenticUser',
+      scope: 'https://botapi.skype.com/.default',
+      agenticAppId: 'agent-app',
+      agenticUserId: 'agentic-user',
+      tenantId: 'tenant',
+    }]);
+  });
+
+  it('uses getAgenticAppToken for app-backed identity when identity helper is omitted', async () => {
+    const calls: unknown[] = [];
+    const tokenProvider: ITokenProvider = {
+      getAppToken: async () => {
+        calls.push({ flow: 'app' });
+        return 'token';
+      },
+      getAgenticAppToken: async (scope, agenticAppId, tenantId) => {
+        calls.push({ flow: 'agenticApp', scope, agenticAppId, tenantId });
+        return 'token';
+      },
+    };
+    const http = new TestHttpClient();
+    mockAdapter(http);
+    const agenticIdentity = { agenticAppId: 'agent-app', tenantId: 'tenant' };
+    const api = new Client('https://service.example.com', http, { tokenProvider });
+
+    await api.fromAgenticIdentity({ agenticIdentity }).http.get('/test');
+
+    expect(calls).toEqual([{
+      flow: 'agenticApp',
+      scope: 'https://botapi.skype.com/.default',
+      agenticAppId: 'agent-app',
+      tenantId: 'tenant',
+    }]);
+  });
+
   it('uses a scoped clone for serviceUrl and agentic identity', async () => {
     const calls: unknown[] = [];
     const tokenProvider = recordingProvider(calls);

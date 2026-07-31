@@ -1,8 +1,8 @@
 import {
   AgentLifecycleEventActivity,
-  IAgenticIdentityCreatedEventActivity,
-  IAgenticIdentityUpdatedEventActivity,
-  IAgenticIdentityManagerUpdatedEventActivity,
+  IAgenticUserIdentityCreatedEventActivity,
+  IAgenticUserIdentityUpdatedEventActivity,
+  IAgenticUserManagerUpdatedEventActivity,
   IUnknownAgentLifecycleEventActivity,
 } from './agent-lifecycle';
 
@@ -40,7 +40,7 @@ const baseActivity = {
 
 describe('AgentLifecycleEventActivity', () => {
   it('models identity creation payloads', () => {
-    const activity: IAgenticIdentityCreatedEventActivity = {
+    const activity: IAgenticUserIdentityCreatedEventActivity = {
       ...baseActivity,
       valueType: 'AgenticUserIdentityCreated',
       value: {
@@ -66,7 +66,7 @@ describe('AgentLifecycleEventActivity', () => {
   });
 
   it('models identity update payloads', () => {
-    const activity: IAgenticIdentityUpdatedEventActivity = {
+    const activity: IAgenticUserIdentityUpdatedEventActivity = {
       ...baseActivity,
       valueType: 'AgenticUserIdentityUpdated',
       value: {
@@ -88,7 +88,7 @@ describe('AgentLifecycleEventActivity', () => {
   });
 
   it('models manager update payloads', () => {
-    const activity: IAgenticIdentityManagerUpdatedEventActivity = {
+    const activity: IAgenticUserManagerUpdatedEventActivity = {
       ...baseActivity,
       valueType: 'AgenticUserManagerUpdated',
       value: {

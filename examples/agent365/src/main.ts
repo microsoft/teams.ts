@@ -35,7 +35,7 @@ function logLifecycleEnvelope(
   handlerName: string,
   log: ILogger
 ) {
-  log.info(`[AgenticIdentity lifecycle:${handlerName}] envelope`, {
+  log.info(`[AgenticUser lifecycle:${handlerName}] envelope`, {
     name: activity.name,
     valueType: activity.valueType,
     eventType: activity.value.eventType,
@@ -49,7 +49,7 @@ function logLifecycleEnvelope(
     },
   });
 
-  log.info(`[AgenticIdentity lifecycle:${handlerName}] value`, {
+  log.info(`[AgenticUser lifecycle:${handlerName}] value`, {
     tenantId: activity.value.tenantId,
     agenticUserId: activity.value.agenticUserId,
     agenticAppInstanceId: activity.value.agenticAppInstanceId,
@@ -65,7 +65,7 @@ app.on('agentLifecycle', async (ctx) => {
 
 app.on('agenticUserIdentityCreated', ({ activity, log }) => {
   logLifecycleEnvelope(activity, 'identity_created', log);
-  log.info('[AgenticIdentity lifecycle:identity_created] details', {
+  log.info('[AgenticUser lifecycle:identity_created] details', {
     expirationDateTime: activity.value.expirationDateTime,
     manager: activity.value.manager,
   });
@@ -73,14 +73,14 @@ app.on('agenticUserIdentityCreated', ({ activity, log }) => {
 
 app.on('agenticUserIdentityUpdated', ({ activity, log }) => {
   logLifecycleEnvelope(activity, 'identity_updated', log);
-  log.info('[AgenticIdentity lifecycle:identity_updated] details', {
+  log.info('[AgenticUser lifecycle:identity_updated] details', {
     updatedProperty: activity.value.updatedProperty,
   });
 });
 
 app.on('agenticUserManagerUpdated', ({ activity, log }) => {
   logLifecycleEnvelope(activity, 'manager_updated', log);
-  log.info('[AgenticIdentity lifecycle:manager_updated] details', {
+  log.info('[AgenticUser lifecycle:manager_updated] details', {
     manager: activity.value.manager,
   });
 });
@@ -95,7 +95,7 @@ app.on('agenticUserDisabled', ({ activity, log }) => {
 
 app.on('agenticUserDeleted', ({ activity, log }) => {
   logLifecycleEnvelope(activity, 'deleted', log);
-  log.info('[AgenticIdentity lifecycle:deleted] details', {
+  log.info('[AgenticUser lifecycle:deleted] details', {
     deletionReason: activity.value.deletionReason,
   });
 });
@@ -106,7 +106,7 @@ app.on('agenticUserUndeleted', ({ activity, log }) => {
 
 app.on('agenticUserWorkloadOnboardingUpdated', ({ activity, log }) => {
   logLifecycleEnvelope(activity, 'workload_onboarding_updated', log);
-  log.info('[AgenticIdentity lifecycle:workload_onboarding_updated] details', {
+  log.info('[AgenticUser lifecycle:workload_onboarding_updated] details', {
     workloadName: activity.value.workloadName,
     workloadOnboardingState: activity.value.workloadOnboardingState,
   });

@@ -32,6 +32,40 @@ export interface IAppTokenProvider extends ITokenProvider {
    * @returns the token, or `null` when the app has no credentials configured.
    */
   getAgenticIdentityToken(scope: string | undefined, agenticIdentity: AgenticIdentity): Promise<IToken | null>;
+
+  /**
+   * Acquires a token carrying the requested user-backed agentic identity.
+   *
+   * @param scope the scope to request the token for. Defaults to the configured
+   * cloud environment's AgenticIdentity bot scope when `undefined`.
+   * @param agenticAppId the agentic app ID that owns the user.
+   * @param agenticUserId the agentic user ID to act as.
+   * @param tenantId the tenant to acquire the token in. Defaults to the tenant
+   * configured on the app's credentials.
+   * @returns the token, or `null` when the app has no credentials configured.
+   */
+  getAgenticUserToken(
+    scope: string | undefined,
+    agenticAppId: string,
+    agenticUserId: string,
+    tenantId?: string
+  ): Promise<IToken | null>;
+
+  /**
+   * Acquires a token carrying the requested app-backed agentic identity.
+   *
+   * @param scope the scope to request the token for. Defaults to the configured
+   * cloud environment's AgenticIdentity bot scope when `undefined`.
+   * @param agenticAppId the agentic app ID to act as.
+   * @param tenantId the tenant to acquire the token in. Defaults to the tenant
+   * configured on the app's credentials.
+   * @returns the token, or `null` when the app has no credentials configured.
+   */
+  getAgenticAppToken(
+    scope: string | undefined,
+    agenticAppId: string,
+    tenantId?: string
+  ): Promise<IToken | null>;
 }
 
 /** @internal */
@@ -49,6 +83,32 @@ export class AppTokenProvider implements IAppTokenProvider {
     return await this.tokenManager.getAgenticIdentityToken(
       scope ?? this.cloud.agenticIdentityBotScope,
       agenticIdentity
+    );
+  }
+
+  async getAgenticUserToken(
+    scope: string | undefined,
+    agenticAppId: string,
+    agenticUserId: string,
+    tenantId?: string
+  ) {
+    return await this.tokenManager.getAgenticUserToken(
+      scope ?? this.cloud.agenticIdentityBotScope,
+      agenticAppId,
+      agenticUserId,
+      tenantId
+    );
+  }
+
+  async getAgenticAppToken(
+    scope: string | undefined,
+    agenticAppId: string,
+    tenantId?: string
+  ) {
+    return await this.tokenManager.getAgenticAppToken(
+      scope ?? this.cloud.agenticIdentityBotScope,
+      agenticAppId,
+      tenantId
     );
   }
 }

@@ -15,7 +15,7 @@ import {
   getTeamsApiTracer,
   recordTeamsApiException
 } from '../diagnostics/helpers';
-import { type AgenticIdentity } from '../models';
+import { isUserBackedAgenticIdentity, type AgenticIdentity } from '../models';
 
 
 /**
@@ -37,17 +37,46 @@ export function createTokenProviderFactory(
         return (await tokenProvider.getAppToken(cloud.botScope)) ?? undefined;
       }
 
-      if (!tokenProvider.getAgenticIdentityToken) {
+      if (tokenProvider.getAgenticIdentityToken) {
+        return (
+          (await tokenProvider.getAgenticIdentityToken(cloud.agenticIdentityBotScope, defaultAgenticIdentity)) ??
+          undefined
+        );
+      }
+
+      if (isUserBackedAgenticIdentity(defaultAgenticIdentity)) {
+        if (!tokenProvider.getAgenticUserToken) {
+          throw new Error(
+            'This client is scoped to a user-backed AgenticIdentity, but the configured token provider does not ' +
+            'implement `getAgenticIdentityToken` or `getAgenticUserToken`. Falling back to an app-only token would ' +
+            'authenticate under the wrong identity.'
+          );
+        }
+
+        return (
+          (await tokenProvider.getAgenticUserToken(
+            cloud.agenticIdentityBotScope,
+            defaultAgenticIdentity.agenticAppId,
+            defaultAgenticIdentity.agenticUserId,
+            defaultAgenticIdentity.tenantId
+          )) ?? undefined
+        );
+      }
+
+      if (!tokenProvider.getAgenticAppToken) {
         throw new Error(
-          'This client is scoped to an AgenticIdentity, but the configured token provider does not ' +
-          'implement `getAgenticIdentityToken`. Falling back to an app-only token would authenticate ' +
-          'under the wrong identity.'
+          'This client is scoped to an app-backed AgenticIdentity, but the configured token provider does not ' +
+          'implement `getAgenticIdentityToken` or `getAgenticAppToken`. Falling back to an app-only token would ' +
+          'authenticate under the wrong identity.'
         );
       }
 
       return (
-        (await tokenProvider.getAgenticIdentityToken(cloud.agenticIdentityBotScope, defaultAgenticIdentity)) ??
-        undefined
+        (await tokenProvider.getAgenticAppToken(
+          cloud.agenticIdentityBotScope,
+          defaultAgenticIdentity.agenticAppId,
+          defaultAgenticIdentity.tenantId
+        )) ?? undefined
       );
     });
   };

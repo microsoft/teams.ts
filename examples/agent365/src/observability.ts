@@ -28,7 +28,7 @@ export const OBSERVABILITY_SCOPE =
  * created before this runs are dropped.
  */
 export function useAgent365Exporter(
-  tokens: Pick<IAppTokenProvider, 'getAgenticIdentityToken'>
+  tokens: Pick<IAppTokenProvider, 'getAgenticAppToken'>
 ): void {
   useMicrosoftOpenTelemetry({
     a365: {
@@ -46,15 +46,16 @@ export function useAgent365Exporter(
 
       // Don't cache: MSAL caches per scope and refreshes on expiry.
       tokenResolver: async (agenticAppId, tenantId, authScopes) => {
-        const token = await tokens.getAgenticIdentityToken(
+        const token = await tokens.getAgenticAppToken(
           authScopes?.[0] ?? OBSERVABILITY_SCOPE,
-          { agenticAppId, tenantId }
+          agenticAppId,
+          tenantId
         );
 
         const value = token?.toString();
         if (!value) {
           throw new Error(
-            'Agent365 exporter could not mint an AgenticIdentity token. Check CLIENT_ID / CLIENT_SECRET / TENANT_ID.'
+            'Agent365 exporter could not mint an AgenticApp token. Check CLIENT_ID / CLIENT_SECRET / TENANT_ID.'
           );
         }
 

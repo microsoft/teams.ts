@@ -31,6 +31,8 @@ const makeToken = (value: string): IToken =>
 const spyOnTokenManager = (tokenManager: TokenManager) => ({
   getAppToken: jest.spyOn(tokenManager, 'getAppToken').mockResolvedValue(null),
   getAgenticIdentityToken: jest.spyOn(tokenManager, 'getAgenticIdentityToken').mockResolvedValue(null),
+  getAgenticUserToken: jest.spyOn(tokenManager, 'getAgenticUserToken').mockResolvedValue(null),
+  getAgenticAppToken: jest.spyOn(tokenManager, 'getAgenticAppToken').mockResolvedValue(null),
 });
 
 describe('AppTokenProvider', () => {
@@ -47,6 +49,8 @@ describe('AppTokenProvider', () => {
     expect(token?.toString()).toBe('app-token');
     expect(spies.getAppToken).toHaveBeenCalledWith('bot-scope', undefined);
     expect(spies.getAgenticIdentityToken).not.toHaveBeenCalled();
+    expect(spies.getAgenticUserToken).not.toHaveBeenCalled();
+    expect(spies.getAgenticAppToken).not.toHaveBeenCalled();
   });
 
   it('acquires an AgenticIdentity token', async () => {
@@ -61,6 +65,42 @@ describe('AppTokenProvider', () => {
     expect(token).toBe(agenticIdentityToken);
     expect(token?.toString()).toBe('agentic-identity-token');
     expect(spies.getAgenticIdentityToken).toHaveBeenCalledWith('agentic-identity-scope', identity);
+    expect(spies.getAppToken).not.toHaveBeenCalled();
+    expect(spies.getAgenticUserToken).not.toHaveBeenCalled();
+    expect(spies.getAgenticAppToken).not.toHaveBeenCalled();
+  });
+
+  it('acquires an Agentic User token by ID fields', async () => {
+    const agenticUserToken = makeToken('agentic-user-token');
+    const tokenManager = new TokenManager({}, new ConsoleLogger('test'));
+    const spies = spyOnTokenManager(tokenManager);
+    spies.getAgenticUserToken.mockResolvedValue(agenticUserToken);
+    const provider = new AppTokenProvider(tokenManager);
+
+    const token = await provider.getAgenticUserToken('agentic-user-scope', 'agent-app', 'agentic-user', 'tenant');
+
+    expect(token).toBe(agenticUserToken);
+    expect(token?.toString()).toBe('agentic-user-token');
+    expect(spies.getAgenticUserToken).toHaveBeenCalledWith('agentic-user-scope', 'agent-app', 'agentic-user', 'tenant');
+    expect(spies.getAgenticIdentityToken).not.toHaveBeenCalled();
+    expect(spies.getAgenticAppToken).not.toHaveBeenCalled();
+    expect(spies.getAppToken).not.toHaveBeenCalled();
+  });
+
+  it('acquires an Agentic App token by app ID', async () => {
+    const agenticAppToken = makeToken('agentic-app-token');
+    const tokenManager = new TokenManager({}, new ConsoleLogger('test'));
+    const spies = spyOnTokenManager(tokenManager);
+    spies.getAgenticAppToken.mockResolvedValue(agenticAppToken);
+    const provider = new AppTokenProvider(tokenManager);
+
+    const token = await provider.getAgenticAppToken('agentic-app-scope', 'agent-app', 'tenant');
+
+    expect(token).toBe(agenticAppToken);
+    expect(token?.toString()).toBe('agentic-app-token');
+    expect(spies.getAgenticAppToken).toHaveBeenCalledWith('agentic-app-scope', 'agent-app', 'tenant');
+    expect(spies.getAgenticIdentityToken).not.toHaveBeenCalled();
+    expect(spies.getAgenticUserToken).not.toHaveBeenCalled();
     expect(spies.getAppToken).not.toHaveBeenCalled();
   });
 
@@ -102,6 +142,41 @@ describe('AppTokenProvider', () => {
     expect(spies.getAgenticIdentityToken).toHaveBeenCalledWith(
       'https://botapi.skype.com/.default',
       identity
+    );
+  });
+
+  it('defaults Agentic User helper scope to the cloud agenticIdentityBotScope', async () => {
+    const defaultToken = makeToken('agentic-user-default-token');
+    const tokenManager = new TokenManager({}, new ConsoleLogger('test'));
+    const spies = spyOnTokenManager(tokenManager);
+    spies.getAgenticUserToken.mockResolvedValue(defaultToken);
+    const provider = new AppTokenProvider(tokenManager);
+
+    const token = await provider.getAgenticUserToken(undefined, 'agent-app', 'agentic-user', 'tenant');
+
+    expect(token).toBe(defaultToken);
+    expect(spies.getAgenticUserToken).toHaveBeenCalledWith(
+      'https://botapi.skype.com/.default',
+      'agent-app',
+      'agentic-user',
+      'tenant'
+    );
+  });
+
+  it('defaults Agentic App helper scope to the cloud agenticIdentityBotScope', async () => {
+    const defaultToken = makeToken('agentic-app-default-token');
+    const tokenManager = new TokenManager({}, new ConsoleLogger('test'));
+    const spies = spyOnTokenManager(tokenManager);
+    spies.getAgenticAppToken.mockResolvedValue(defaultToken);
+    const provider = new AppTokenProvider(tokenManager);
+
+    const token = await provider.getAgenticAppToken(undefined, 'agent-app', 'tenant');
+
+    expect(token).toBe(defaultToken);
+    expect(spies.getAgenticAppToken).toHaveBeenCalledWith(
+      'https://botapi.skype.com/.default',
+      'agent-app',
+      'tenant'
     );
   });
 });

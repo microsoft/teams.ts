@@ -103,52 +103,128 @@ export class TokenManager {
       return null;
     }
 
-    const agenticAppId = this.requireAgenticAppId(agenticIdentity);
-    const tenantId = this.resolveAgenticTenantId(agenticIdentity.tenantId, 'AgenticIdentity');
-
     if (isTokenCredentials(this.credentials)) {
-      const getAgenticIdentityToken = this.requireTokenProviderCapability(
-        this.credentials,
-        'getAgenticIdentityToken',
-        'AgenticIdentity'
-      );
-      return this.toProviderToken(await getAgenticIdentityToken(scope, agenticIdentity, tenantId));
+      const provider = this.credentials.token;
+      if (typeof provider !== 'function' && provider.getAgenticIdentityToken) {
+        const tenantId = this.resolveAgenticTenantId(agenticIdentity.tenantId, 'AgenticIdentity');
+        return this.toProviderToken(await provider.getAgenticIdentityToken(scope, agenticIdentity, tenantId));
+      }
     }
-
-    this.requireClientCredentials(this.credentials, 'AgenticIdentity');
 
     if (!isUserBackedAgenticIdentity(agenticIdentity)) {
-      const { token } = await this.acquireAgenticAppToken(
+      return await this.getAgenticAppToken(
         scope,
-        agenticAppId,
-        tenantId,
-        this.blueprintAssertionFor(agenticAppId, tenantId)
+        this.requireAgenticAppId(agenticIdentity.agenticAppId, 'AgenticIdentity'),
+        agenticIdentity.tenantId
       );
-      return new JsonWebToken(token);
     }
 
-    const blueprintAssertion = this.blueprintAssertionFor(agenticAppId, tenantId);
+    return await this.getAgenticUserToken(
+      scope,
+      this.requireAgenticAppId(agenticIdentity.agenticAppId, 'AgenticIdentity'),
+      agenticIdentity.agenticUserId,
+      agenticIdentity.tenantId
+    );
+  }
+
+  /**
+   * Acquires an Agentic User-scoped token.
+   *
+   * @param scope the scope to request the final token for.
+   * @param agenticAppId the agentic app ID that owns the user.
+   * @param agenticUserId the agentic user ID to act as.
+   * @param tenantId the tenant to acquire the token in. Defaults to the tenant
+   * configured on the credentials.
+   * @returns the token, or `null` when the app has no credentials configured.
+   */
+  async getAgenticUserToken(
+    scope: string,
+    agenticAppId: string,
+    agenticUserId: string,
+    tenantId?: string
+  ): Promise<IToken | null> {
+    if (!this.credentials) {
+      return null;
+    }
+
+    const resolvedAgenticAppId = this.requireAgenticAppId(agenticAppId, 'AgenticUser');
+    const resolvedAgenticUserId = this.requireAgenticUserId(agenticUserId);
+    const resolvedTenantId = this.resolveAgenticTenantId(tenantId, 'AgenticUser');
+
+    if (isTokenCredentials(this.credentials)) {
+      const getAgenticUserToken = this.requireTokenProviderCapability(
+        this.credentials,
+        'getAgenticUserToken',
+        'AgenticUser'
+      );
+      return this.toProviderToken(await getAgenticUserToken(scope, resolvedAgenticAppId, resolvedAgenticUserId, resolvedTenantId));
+    }
+
+    this.requireClientCredentials(this.credentials, 'AgenticUser');
+
+    const blueprintAssertion = this.blueprintAssertionFor(resolvedAgenticAppId, resolvedTenantId);
 
     // Rung 2: an app token, requested for the exchange scope so it can
     // be presented as the subject assertion for the user exchange below.
     const { client, token: appToken } = await this.acquireAgenticAppToken(
       TOKEN_EXCHANGE_SCOPE,
-      agenticAppId,
-      tenantId,
+      resolvedAgenticAppId,
+      resolvedTenantId,
       blueprintAssertion
     );
 
-    // Rung 3: redeem the app token for a user-backed AgenticIdentity token.
+    // Rung 3: redeem the app token for an Agentic User token.
     const userResult = await client.acquireTokenByUserFederatedIdentityCredential({
       scopes: [scope],
       assertion: appToken,
-      userObjectId: agenticIdentity.agenticUserId,
+      userObjectId: resolvedAgenticUserId,
       clientAssertion: await blueprintAssertion(),
     });
 
     return new JsonWebToken(
       this.getAccessTokenOrThrow(userResult, 'Agent token exchange step 3 failed')
     );
+  }
+
+  /**
+   * Acquires an agentic app-scoped token.
+   *
+   * @param scope the scope to request the final token for.
+   * @param agenticAppId the agentic app ID to act as.
+   * @param tenantId the tenant to acquire the token in. Defaults to the tenant
+   * configured on the credentials.
+   * @returns the token, or `null` when the app has no credentials configured.
+   */
+  async getAgenticAppToken(
+    scope: string,
+    agenticAppId: string,
+    tenantId?: string
+  ): Promise<IToken | null> {
+    if (!this.credentials) {
+      return null;
+    }
+
+    const resolvedAgenticAppId = this.requireAgenticAppId(agenticAppId, 'AgenticApp');
+    const resolvedTenantId = this.resolveAgenticTenantId(tenantId, 'AgenticApp');
+
+    if (isTokenCredentials(this.credentials)) {
+      const getAgenticAppToken = this.requireTokenProviderCapability(
+        this.credentials,
+        'getAgenticAppToken',
+        'AgenticApp'
+      );
+      return this.toProviderToken(await getAgenticAppToken(scope, resolvedAgenticAppId, resolvedTenantId));
+    }
+
+    this.requireClientCredentials(this.credentials, 'AgenticApp');
+
+    const { token } = await this.acquireAgenticAppToken(
+      scope,
+      resolvedAgenticAppId,
+      resolvedTenantId,
+      this.blueprintAssertionFor(resolvedAgenticAppId, resolvedTenantId)
+    );
+    return new JsonWebToken(token);
   }
 
   /**
@@ -192,12 +268,20 @@ export class TokenManager {
     };
   }
 
-  private requireAgenticAppId(identity: AgenticIdentity) {
-    if (!identity.agenticAppId) {
-      throw new Error('agenticAppId is required to get an AgenticIdentity token');
+  private requireAgenticAppId(agenticAppId: string | undefined, tokenLabel: string) {
+    if (!agenticAppId) {
+      throw new Error(`agenticAppId is required to get an ${tokenLabel} token`);
     }
 
-    return identity.agenticAppId;
+    return agenticAppId;
+  }
+
+  private requireAgenticUserId(agenticUserId: string | undefined) {
+    if (!agenticUserId) {
+      throw new Error('agenticUserId is required to get an AgenticUser token');
+    }
+
+    return agenticUserId;
   }
 
   private resolveAgenticTenantId(tenantId: string | undefined, tokenLabel: string) {
@@ -307,7 +391,7 @@ export class TokenManager {
    * Resolves a capability off a custom token provider, or throws when it is
    * missing rather than falling back under an identity the caller did not ask for.
    */
-  private requireTokenProviderCapability<K extends 'getAgenticIdentityToken'>(
+  private requireTokenProviderCapability<K extends keyof ITokenProvider>(
     credentials: TokenCredentials,
     capability: K,
     tokenLabel: string

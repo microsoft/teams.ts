@@ -520,7 +520,7 @@ describe('TokenManager', () => {
       const tokenManager = new TokenManager({ clientId: 'id', clientSecret: 'secret' }, logger);
       await expect(
         tokenManager.getAgenticIdentityToken('scope', { agenticAppId: 'app', agenticUserId: 'user' })
-      ).rejects.toThrow('tenantId is required to get an AgenticIdentity token');
+      ).rejects.toThrow('tenantId is required to get an AgenticUser token');
     });
 
     it('should throw when agenticAppId is missing at runtime', async () => {
@@ -543,11 +543,11 @@ describe('TokenManager', () => {
 
       await expect(
         tokenManager.getAgenticIdentityToken('target-scope', mockAgenticIdentity)
-      ).rejects.toThrow('getAgenticIdentityToken');
+      ).rejects.toThrow('getAgenticUserToken');
       expect(mockTokenProvider).not.toHaveBeenCalled();
     });
 
-    it('should throw when the token provider omits getAgenticIdentityToken', async () => {
+    it('should throw when the token provider omits the required Agentic User helper', async () => {
       const getAppToken = jest.fn().mockResolvedValue('mock-app-only-token');
       const tokenManager = new TokenManager({
         clientId: 'test-client-id',
@@ -557,7 +557,7 @@ describe('TokenManager', () => {
 
       await expect(
         tokenManager.getAgenticIdentityToken('target-scope', mockAgenticIdentity)
-      ).rejects.toThrow('getAgenticIdentityToken');
+      ).rejects.toThrow('getAgenticUserToken');
       expect(getAppToken).not.toHaveBeenCalled();
     });
 
@@ -579,6 +579,25 @@ describe('TokenManager', () => {
       expect(token?.toString()).toBe('mock-agentic-identity-provider-token');
     });
 
+    it('should fall back to getAgenticUserToken by ID fields when the provider omits getAgenticIdentityToken', async () => {
+      const getAgenticUserToken = jest.fn().mockResolvedValue('mock-agentic-user-provider-token');
+      const tokenManager = new TokenManager({
+        clientId: 'test-client-id',
+        token: { getAppToken: jest.fn(), getAgenticUserToken },
+        tenantId: 'test-tenant-id'
+      }, logger);
+
+      const token = await tokenManager.getAgenticIdentityToken('target-scope', mockAgenticIdentity);
+
+      expect(getAgenticUserToken).toHaveBeenCalledWith(
+        'target-scope',
+        'agentic-app-id',
+        'agentic-user-id',
+        'agentic-identity-tenant-id'
+      );
+      expect(token?.toString()).toBe('mock-agentic-user-provider-token');
+    });
+
     it('should throw when credentials are not ClientCredentials or TokenCredentials', async () => {
       const tokenManager = new TokenManager({
         clientId: 'test-client-id',
@@ -587,7 +606,7 @@ describe('TokenManager', () => {
 
       await expect(
         tokenManager.getAgenticIdentityToken('scope', mockAgenticIdentity)
-      ).rejects.toThrow('AgenticIdentity tokens require ClientCredentials');
+      ).rejects.toThrow('AgenticUser tokens require ClientCredentials');
     });
 
     describe('user-backed token exchange with ClientCredentials', () => {
@@ -615,6 +634,30 @@ describe('TokenManager', () => {
         expect(token?.toString()).toBe('t3-final-token');
 
         // Verify step 3 call
+        expect(mockAcquireByUserFederated).toHaveBeenCalledWith({
+          scopes: ['target-scope'],
+          assertion: 't2-token',
+          userObjectId: 'agentic-user-id',
+          clientAssertion: 't1-for-step3',
+        });
+
+      });
+
+      it('should support direct Agentic User token helper with ID fields', async () => {
+        mockAcquireTokenByClientCredential
+          .mockResolvedValueOnce(createMockAuthResult('t2-token'))
+          .mockResolvedValueOnce(createMockAuthResult('t1-for-step3'));
+        mockAcquireByUserFederated.mockResolvedValue(createMockAuthResult('t3-final-token'));
+
+        const tokenManager = new TokenManager(mockOptions, logger);
+        const token = await tokenManager.getAgenticUserToken(
+          'target-scope',
+          'agentic-app-id',
+          'agentic-user-id',
+          'agentic-identity-tenant-id'
+        );
+
+        expect(token?.toString()).toBe('t3-final-token');
         expect(mockAcquireByUserFederated).toHaveBeenCalledWith({
           scopes: ['target-scope'],
           assertion: 't2-token',
@@ -724,6 +767,45 @@ describe('TokenManager', () => {
           })
         })
       );
+    });
+
+    it('should support direct Agentic App token helper with app ID field', async () => {
+      const mockAcquireByUserFederated = jest.fn();
+      (ConfidentialClientApplication as jest.MockedClass<typeof ConfidentialClientApplication>).mockImplementation(() => ({
+        acquireTokenByClientCredential: mockAcquireTokenByClientCredential,
+        acquireTokenByUserFederatedIdentityCredential: mockAcquireByUserFederated,
+      } as unknown as ConfidentialClientApplication));
+
+      mockAcquireTokenByClientCredential.mockResolvedValueOnce(createMockAuthResult('agentic-app-token'));
+
+      const tokenManager = new TokenManager(mockOptions, logger);
+      const token = await tokenManager.getAgenticAppToken(
+        'target-scope',
+        'agentic-app-id',
+        'agentic-identity-tenant-id'
+      );
+
+      expect(token?.toString()).toBe('agentic-app-token');
+      expect(mockAcquireByUserFederated).not.toHaveBeenCalled();
+      expect(mockAcquireTokenByClientCredential).toHaveBeenCalledWith({ scopes: ['target-scope'] });
+    });
+
+    it('should fall back to getAgenticAppToken by app ID when provider omits getAgenticIdentityToken', async () => {
+      const getAgenticAppToken = jest.fn().mockResolvedValue('mock-agentic-app-provider-token');
+      const tokenManager = new TokenManager({
+        clientId: 'test-client-id',
+        token: { getAppToken: jest.fn(), getAgenticAppToken },
+        tenantId: 'test-tenant-id'
+      }, logger);
+
+      const token = await tokenManager.getAgenticIdentityToken('target-scope', mockAppBackedIdentity);
+
+      expect(getAgenticAppToken).toHaveBeenCalledWith(
+        'target-scope',
+        'agentic-app-id',
+        'agentic-identity-tenant-id'
+      );
+      expect(token?.toString()).toBe('mock-agentic-app-provider-token');
     });
 
     it('should fall back to the credentials tenantId', async () => {
