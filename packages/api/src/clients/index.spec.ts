@@ -149,16 +149,6 @@ describe('Api Client token provider', () => {
     expect(scoped.http.middlewares.filter((middleware) => middleware instanceof ApiOutboundTelemetryMiddleware)).toHaveLength(1);
   });
 
-  it('keeps forAgenticIdentity as the canonical agentic identity helper', () => {
-    const tokenProvider: ITokenProvider = { getAppToken: async () => 'token' };
-    const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };
-    const api = new Client('https://service.example.com', undefined, { tokenProvider });
-
-    const scoped = api.forAgenticIdentity(agenticIdentity);
-
-    expect(scoped.http.middlewares.filter((middleware) => middleware instanceof ApiOutboundTelemetryMiddleware)).toHaveLength(1);
-  });
-
   it('creates a service url scoped clone', () => {
     const tokenProvider: ITokenProvider = { getAppToken: async () => 'token' };
     const agenticIdentity = { agenticAppBlueprintId: 'agentic-blueprint', agenticAppId: 'agent-app', agenticUserId: 'agentic-user' };

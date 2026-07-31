@@ -142,13 +142,6 @@ export class Client {
   /**
    * Create a scoped API client for the provided agentic identity.
    */
-  forAgenticIdentity(agenticIdentity: AgenticIdentity): Client {
-    return this.fromAgenticIdentity({ agenticIdentity });
-  }
-
-  /**
-   * Create a scoped API client for the provided agentic identity.
-   */
   fromAgenticIdentity(options: ApiClientFromAgenticIdentityOptions): Client {
     return this.clone(options);
   }

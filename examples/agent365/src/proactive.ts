@@ -16,7 +16,7 @@
  */
 
 import { InvokeAgentScope } from '@microsoft/opentelemetry';
-import { MessageActivity } from '@microsoft/teams.api';
+import { MessageActivity, type AgenticIdentity } from '@microsoft/teams.api';
 import { App, createAgent365Scope } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
@@ -50,7 +50,20 @@ async function main() {
   useAgent365Exporter(app.tokenProvider);
   await app.initialize();
 
-  const agenticIdentity = app.getAgenticIdentity(agenticAppId, agenticUserId);
+  const agenticAppBlueprintId = app.id;
+  const tenantId = app.credentials?.tenantId;
+  if (!agenticAppBlueprintId) {
+    throw new Error('CLIENT_ID is required to construct an AgenticIdentity.');
+  }
+  if (!tenantId) {
+    throw new Error('TENANT_ID is required to construct an AgenticIdentity.');
+  }
+  const agenticIdentity: AgenticIdentity = {
+    agenticAppBlueprintId,
+    agenticAppId,
+    agenticUserId,
+    tenantId,
+  };
 
   // Everything inside this scope — the invoke_agent span, the sends, and the
   // SDK's own api.client and auth.outbound spans — carries the same identity.
