@@ -1,0 +1,35 @@
+name: Dependabot Package Age Gate
+
+# Publishes a required commit status ("package-age/7-day") on every Dependabot
+# PR. The status is `success` only when all changed package versions (including
+# transitive lockfile changes) are at least 7 days old, matching the Microsoft
+# Central Feed Services (CFS) npm quarantine window. Configure this status as a
+# required check in branch protection so a `failure`/`pending` state blocks the
+# merge and prevents `npm ci` from breaking on quarantined packages.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  schedule:
+    # Daily re-check so PRs that were too new auto-clear once packages age past
+    # the 7-day window.
+    - cron: '17 8 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: write
+
+jobs:
+  age-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.x'
+      - name: Evaluate Dependabot package age
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node .github/scripts/dependabot-pr-age-check.mjs
