@@ -73,6 +73,36 @@ export type AppSendOptions = {
 };
 
 /**
+ * Options for creating an Agent 365 operation identity from app configuration.
+ */
+export type AppGetAgenticIdentityOptions = {
+  /**
+   * ID of the agentic app represented by this identity, when available/needed.
+   * Omit or use `null` for blueprint-level scopes.
+   */
+  readonly agenticAppId?: string | null;
+
+  /**
+   * Entra object ID of the user-backed agentic identity, when the operation
+   * acts on behalf of a user. Omit or use `null` for app-backed or
+   * blueprint-level scopes.
+   */
+  readonly agenticUserId?: string | null;
+
+  /**
+   * Tenant ID for token acquisition. Defaults to the app's resolved credentials
+   * or configured `tenantId`.
+   */
+  readonly tenantId?: string;
+
+  /**
+   * ID of the Agentic App Blueprint that backs the agentic app. Defaults to the
+   * app client ID resolved from credentials/configuration.
+   */
+  readonly agenticAppBlueprintId?: string;
+};
+
+/**
  * App initialization options
  */
 export type AppOptions<TPlugin extends IPlugin> = {
@@ -704,6 +734,34 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     const opts = activity && isAppSendOptions(activity) ? activity : options;
     return this.send(conversationId, messageId as ActivityLike | DeprecatedInputActivity, opts);
+  }
+
+  /**
+   * Create an AgenticIdentity for scoped proactive sends and API clients.
+   *
+   * AgenticIdentity is the SDK operation/request scope for Agent 365. This
+   * helper fills the required blueprint and tenant identifiers from app
+   * configuration while allowing app/user IDs to be omitted or set to `null`
+   * when the operation is not scoped to a concrete agentic app or user.
+   *
+   * @param options identity fields and optional overrides
+   */
+  getAgenticIdentity(options: AppGetAgenticIdentityOptions = {}): AgenticIdentity {
+    const tenantId = options.tenantId ?? this.credentials?.tenantId ?? this.options.tenantId;
+    if (!tenantId) {
+      throw new Error('tenantId is required to get an AgenticIdentity');
+    }
+    const agenticAppBlueprintId = options.agenticAppBlueprintId ?? this.id;
+    if (!agenticAppBlueprintId) {
+      throw new Error('agenticAppBlueprintId is required to get an AgenticIdentity');
+    }
+
+    return {
+      agenticAppBlueprintId,
+      agenticAppId: options.agenticAppId,
+      agenticUserId: options.agenticUserId,
+      tenantId,
+    };
   }
 
   /**

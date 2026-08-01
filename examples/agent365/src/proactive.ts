@@ -16,7 +16,7 @@
  */
 
 import { InvokeAgentScope } from '@microsoft/opentelemetry';
-import { MessageActivity, type AgenticIdentity } from '@microsoft/teams.api';
+import { MessageActivity } from '@microsoft/teams.api';
 import { App, createAgent365Scope } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
@@ -50,20 +50,10 @@ async function main() {
   useAgent365Exporter(app.tokenProvider);
   await app.initialize();
 
-  const agenticAppBlueprintId = app.id;
-  const tenantId = app.credentials?.tenantId;
-  if (!agenticAppBlueprintId) {
-    throw new Error('CLIENT_ID is required to construct an AgenticIdentity.');
-  }
-  if (!tenantId) {
-    throw new Error('TENANT_ID is required to construct an AgenticIdentity.');
-  }
-  const agenticIdentity: AgenticIdentity = {
-    agenticAppBlueprintId,
+  const agenticIdentity = app.getAgenticIdentity({
     agenticAppId,
     agenticUserId,
-    tenantId,
-  };
+  });
 
   // Everything inside this scope — the invoke_agent span, the sends, and the
   // SDK's own api.client and auth.outbound spans — carries the same identity.
@@ -87,7 +77,7 @@ async function main() {
 
           // 2. Lower-level conversation activity API. Still attributed, because
           //    the scope — not the send — established the baggage.
-          const agenticIdentityApi = app.api.fromAgenticIdentity({ agenticIdentity });
+          const agenticIdentityApi = app.api.forAgenticIdentity(agenticIdentity);
           const apiSent = await agenticIdentityApi.conversations
             .activities(conversationId)
             .create({

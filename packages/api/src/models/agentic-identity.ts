@@ -14,14 +14,16 @@ export type AgenticIdentity = {
 
   /**
    * ID of the agentic app represented by this identity, when available/needed.
+   * Omit or use `null` when the operation has only a blueprint-level scope.
    */
-  readonly agenticAppId?: string;
+  readonly agenticAppId?: string | null;
 
   /**
    * Entra object ID of the user-backed agentic identity, when the operation
-   * acts on behalf of a user.
+   * acts on behalf of a user. Omit or use `null` for app-backed or
+   * blueprint-level operations that do not act as an agentic user.
    */
-  readonly agenticUserId?: string;
+  readonly agenticUserId?: string | null;
 
   /**
    * Tenant ID for token acquisition.
