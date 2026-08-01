@@ -23,6 +23,7 @@ import { PluginAdditionalContext } from './types/app-routing';
  */
 export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
   private readonly processedExchangeIds: string[] = [];
+  private readonly tokenExchangeLocks = new Map<string, Promise<void>>();
 
   constructor(
     private readonly getConnectionName: () => string,
@@ -44,11 +45,18 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
     }
 
     const exchangeId = activity.value.id;
-    if (exchangeId && this.processedExchangeIds.includes(exchangeId)) {
-      return { status: 200 };
+    if (exchangeId) {
+      if (this.processedExchangeIds.includes(exchangeId)) {
+        return { status: 200 };
+      }
+      const existingLock = this.tokenExchangeLocks.get(exchangeId);
+      if (existingLock) {
+        await existingLock.catch(() => {});
+        return { status: 200 };
+      }
     }
 
-    try {
+    const doExchange = async () => {
       const token = await api.users.exchangeToken({
         channelId: activity.channelId,
         userId: activity.from.id,
@@ -74,6 +82,16 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
 
       this.events.emit('signin', { ...ctx, token, isSignedIn: true });
       next(ctx);
+    };
+
+    try {
+      if (exchangeId) {
+        const lock = doExchange();
+        this.tokenExchangeLocks.set(exchangeId, lock);
+        await lock;
+      } else {
+        await doExchange();
+      }
       return { status: 200 };
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -93,6 +111,10 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
         status: 412,
         body,
       };
+    } finally {
+      if (exchangeId) {
+        this.tokenExchangeLocks.delete(exchangeId);
+      }
     }
   };
 
