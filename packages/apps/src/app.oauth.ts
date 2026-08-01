@@ -22,6 +22,8 @@ import { PluginAdditionalContext } from './types/app-routing';
  * class fields so they can be passed directly as route callbacks.
  */
 export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
+  private readonly processedExchangeIds: string[] = [];
+
   constructor(
     private readonly getConnectionName: () => string,
     private readonly client: HttpClient,
@@ -41,6 +43,11 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
       );
     }
 
+    const exchangeId = activity.value.id;
+    if (exchangeId && this.processedExchangeIds.includes(exchangeId)) {
+      return { status: 200 };
+    }
+
     try {
       const token = await api.users.exchangeToken({
         channelId: activity.channelId,
@@ -57,6 +64,13 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
         }),
         { baseUrlRoot: this.graphBaseUrl }
       );
+
+      if (exchangeId) {
+        this.processedExchangeIds.push(exchangeId);
+        if (this.processedExchangeIds.length > 1000) {
+          this.processedExchangeIds.shift();
+        }
+      }
 
       this.events.emit('signin', { ...ctx, token, isSignedIn: true });
       next(ctx);
