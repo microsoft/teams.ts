@@ -2,7 +2,7 @@ import { AdaptiveCard, TextBlock } from '@microsoft/teams.cards';
 
 import { Account, cardAttachment } from '../../models';
 
-import { MessageActivity } from './message';
+import { MessageActivity, MessageActivityInput } from './message';
 
 describe('MessageActivity', () => {
   const user: Account = {
@@ -467,6 +467,30 @@ describe('MessageActivity', () => {
         .addQuote('msg-1')
         .addText(' manual text');
       expect(activity.text).toEqual('<quoted messageId="msg-1"/> manual text');
+    });
+  });
+
+  describe('addStreamFinal', () => {
+    // Teams documents `streamSequence` as required on every streaming request except this one:
+    // "For the final message, `streamSequence` must not be set."
+    it('should not put a streamSequence on the final', () => {
+      const activity = new MessageActivityInput('done').withId('stream-1').addStreamFinal();
+
+      const streamInfo = (activity.entities ?? []).find((e) => e.type === 'streaminfo');
+      expect(streamInfo).toMatchObject({ streamId: 'stream-1', streamType: 'final' });
+      expect(streamInfo).not.toHaveProperty('streamSequence');
+      expect(activity.channelData).not.toHaveProperty('streamSequence');
+    });
+
+    it('should drop a streamSequence carried over from the chunks', () => {
+      const activity = new MessageActivityInput('done')
+        .withChannelData({ streamId: 'stream-1', streamType: 'streaming', streamSequence: 4 })
+        .addStreamFinal();
+
+      const streamInfo = (activity.entities ?? []).find((e) => e.type === 'streaminfo');
+      expect(streamInfo).not.toHaveProperty('streamSequence');
+      expect(activity.channelData).not.toHaveProperty('streamSequence');
+      expect(activity.channelData?.streamType).toEqual('final');
     });
   });
 });
