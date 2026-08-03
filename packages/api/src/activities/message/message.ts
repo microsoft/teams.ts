@@ -315,6 +315,10 @@ export class MessageActivityInput extends ActivityInput<'message'> implements IM
 
   /**
    * Mark the message as the final activity in a stream.
+   *
+   * The final carries no `streamSequence`. Teams documents the sequence as required on every streaming
+   * request except this one: "For the final message, `streamSequence` must not be set."
+   * https://learn.microsoft.com/en-us/microsoftteams/platform/bots/streaming-ux#stream-message-through-rest-api
    */
   addStreamFinal() {
     if (!this.channelData) {
@@ -322,17 +326,15 @@ export class MessageActivityInput extends ActivityInput<'message'> implements IM
     }
 
     const streamId = this.channelData.streamId || this.id || '';
-    const streamSequence = this.channelData.streamSequence ?? 1;
 
     this.channelData.streamId = streamId;
     this.channelData.streamType = 'final';
-    this.channelData.streamSequence = streamSequence;
+    delete this.channelData.streamSequence;
 
     this.addEntity({
       type: 'streaminfo',
       streamId,
       streamType: 'final',
-      streamSequence,
     });
 
     return this;
