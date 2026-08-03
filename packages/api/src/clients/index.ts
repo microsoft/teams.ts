@@ -4,80 +4,162 @@ import {
 } from '@microsoft/teams.common';
 
 import { CloudEnvironment } from '../auth/cloud-environment';
+import type { ITokenProvider } from '../auth/credentials';
+import { AgenticIdentity } from '../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
+import {
+  ensureApiOutboundTelemetryMiddleware
+} from './api-outbound-middleware';
 import { BotClient } from './bot';
 import { ConversationClient } from './conversation';
 import { MeetingClient } from './meeting';
 import { ReactionClient } from './reaction';
+import { normalizeServiceUrl } from './service-url';
 import { TeamClient } from './team';
+import { createTokenProviderFactory } from './token-provider-factory';
 import { UserClient } from './user';
+
+/**
+ * Options for creating a scoped API client from an existing client.
+ */
+export type ApiClientCloneOptions = Omit<Partial<ApiClientSettings>, 'agenticIdentity'> & {
+  /**
+   * Service URL for the scoped client. Defaults to the current client's service URL.
+   */
+  readonly serviceUrl?: string;
+
+  /**
+   * `undefined` preserves the current client default; `null` clears it.
+   */
+  readonly agenticIdentity?: AgenticIdentity | null;
+};
+
+/**
+ * Options for creating a scoped API client for a specific Bot Framework service URL.
+ */
+export type ApiClientFromServiceUrlOptions = {
+  /**
+   * Service URL for the scoped client.
+   */
+  readonly serviceUrl: string;
+};
 
 export class Client {
   readonly serviceUrl: string;
+  readonly bots: BotClient;
   readonly users: UserClient;
   readonly conversations: ConversationClient;
   readonly teams: TeamClient;
   readonly meetings: MeetingClient;
+  readonly reactions: ReactionClient;
 
   get http() {
     return this._http;
   }
   set http(v) {
-    this._bots.http = v;
-    this.conversations.http = v;
-    this.users.http = v;
-    this.teams.http = v;
-    this.meetings.http = v;
-    this._reactions.http = v;
-    this._http = v;
-  }
-  /**
-   * @deprecated The bot client is no longer used and will be removed in a
-   * future release.
-   */
-  get bots() {
-    return this._bots;
-  }
-  /**
-   * @deprecated Use `conversations.addReaction(...)` and
-   * `conversations.deleteReaction(...)` instead. This will be removed in a
-   * future release.
-   */
-  get reactions() {
-    return this._reactions;
+    const http = this.prepareHttpClient(v);
+    this.bots.http = http;
+    this.users.http = http;
+    this.conversations.http = http;
+    this.teams.http = http;
+    this.meetings.http = http;
+    this.reactions.http = http;
+    this._http = http;
   }
   protected _http: HttpClient;
-  protected _bots: BotClient;
-  protected _reactions: ReactionClient;
+  protected _baseHttp!: HttpClient;
   protected _apiClientSettings: Partial<ApiClientSettings>;
+  protected _tokenProvider?: ITokenProvider;
+  protected _cloud?: CloudEnvironment;
+  protected _defaultAgenticIdentity?: AgenticIdentity;
 
-  constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>, cloud?: CloudEnvironment) {
-    this.serviceUrl = serviceUrl;
+  constructor(
+    serviceUrl: string,
+    httpOptions?: HttpClient | HttpClientOptions,
+    apiClientSettings?: Partial<ApiClientSettings>,
+  ) {
+    this.serviceUrl = normalizeServiceUrl(serviceUrl);
+    this._cloud = apiClientSettings?.cloud;
+    this._tokenProvider = apiClientSettings?.tokenProvider;
+    this._defaultAgenticIdentity = apiClientSettings?.agenticIdentity;
 
-    if (!options) {
-      this._http = new HttpClient();
-    } else if ('request' in options) {
-      this._http = options;
+    if (!httpOptions) {
+      this._http = this.prepareHttpClient(new HttpClient());
+    } else if ('request' in httpOptions) {
+      this._http = this.prepareHttpClient(httpOptions);
     } else {
-      this._http = new HttpClient({
-        ...options,
+      this._http = this.prepareHttpClient(new HttpClient({
+        ...httpOptions,
         headers: {
-          ...options?.headers,
+          ...httpOptions?.headers,
           'Content-Type': 'application/json',
         },
-      });
+      }));
     }
 
-    this._apiClientSettings = mergeApiClientSettings(apiClientSettings, cloud);
+    this._apiClientSettings = mergeApiClientSettings(apiClientSettings, this._cloud);
 
-    this._bots = new BotClient(this.http, this._apiClientSettings);
-    this.users = new UserClient(this.http, this._apiClientSettings);
-    this.conversations = new ConversationClient(serviceUrl, this.http, this._apiClientSettings);
-    this.teams = new TeamClient(serviceUrl, this.http, this._apiClientSettings);
-    this.meetings = new MeetingClient(serviceUrl, this.http, this._apiClientSettings);
-    this._reactions = new ReactionClient(serviceUrl, this.http, this._apiClientSettings);
+    this.bots = new BotClient(this.http, this._apiClientSettings, this._cloud);
+    this.users = new UserClient(this.http, this._apiClientSettings, this._cloud);
+    this.conversations = new ConversationClient(this.serviceUrl, this.http, this._apiClientSettings);
+    this.teams = new TeamClient(this.serviceUrl, this.http, this._apiClientSettings);
+    this.meetings = new MeetingClient(this.serviceUrl, this.http, this._apiClientSettings);
+    this.reactions = new ReactionClient(this.serviceUrl, this.http, this._apiClientSettings);
   }
+
+  /**
+   * Create a scoped API client that reuses this client's HTTP configuration and token provider.
+   */
+  clone(options: ApiClientCloneOptions = {}): Client {
+    const { serviceUrl, agenticIdentity, ...apiClientSettings } = options;
+    const http = this._baseHttp.clone();
+    if (this._tokenProvider) {
+      http.token = undefined;
+    }
+
+    return new Client(
+      serviceUrl ?? this.serviceUrl,
+      http,
+      {
+        ...this._apiClientSettings,
+        ...apiClientSettings,
+        ...(agenticIdentity === undefined ? {} : { agenticIdentity: agenticIdentity ?? undefined }),
+      }
+    );
+  }
+
+  /**
+   * Create a scoped API client for the provided agentic identity.
+   *
+   * @param agenticIdentity Agentic operation identity used by the scoped client
+   * when acquiring auth tokens.
+   */
+  forAgenticIdentity(agenticIdentity: AgenticIdentity): Client {
+    return this.clone({ agenticIdentity });
+  }
+
+  /**
+   * Create a scoped API client for the provided Bot Framework service URL.
+   */
+  fromServiceUrl(options: ApiClientFromServiceUrlOptions): Client {
+    return this.clone(options);
+  }
+
+  private prepareHttpClient(http: HttpClient): HttpClient {
+    if (this._tokenProvider && http.token !== undefined) {
+      throw new Error('Cannot use both a token provider and an HTTP client token.');
+    }
+
+    ensureApiOutboundTelemetryMiddleware(http);
+    if (this._tokenProvider) {
+      http.token = createTokenProviderFactory(this._tokenProvider, this._defaultAgenticIdentity, this._cloud);
+    }
+
+    this._baseHttp = http;
+    return http;
+  }
+
 }
 
 export * from './user';

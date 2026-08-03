@@ -1,15 +1,22 @@
 import {
   ActivityParams,
+  AgenticIdentity,
   Client,
   ConversationReference,
   DeprecatedInputActivity,
   SentActivity,
   toActivityParams
 } from '@microsoft/teams.api';
-import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
+import { ILogger } from '@microsoft/teams.common';
 
 import { HttpStream } from './http/http-stream';
-import { IStreamer, IActivitySender } from './types';
+import { ActivitySenderOptions, IStreamer, IActivitySender } from './types';
+
+/**
+ * Creates an API client for a sender operation, optionally scoped to an agentic
+ * identity.
+ */
+export type ActivitySenderClientFactory = (serviceUrl: string, agenticIdentity?: AgenticIdentity) => Client;
 
 /**
  * Handles sending activities to the Bot Framework
@@ -17,19 +24,37 @@ import { IStreamer, IActivitySender } from './types';
  */
 export class ActivitySender implements IActivitySender {
   constructor(
-    private client: HttpClient,
-    private logger: ILogger
+    private logger: ILogger,
+    private createClient: ActivitySenderClientFactory,
   ) { }
 
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
-  async send(activity: DeprecatedInputActivity, ref: ConversationReference): Promise<SentActivity>;
-  async send(activity: ActivityParams, ref: ConversationReference): Promise<SentActivity>;
-  async send(activity: ActivityParams | DeprecatedInputActivity, ref: ConversationReference): Promise<SentActivity>;
-  async send(activity: ActivityParams | DeprecatedInputActivity, ref: ConversationReference): Promise<SentActivity> {
-    // Create API client for this conversation's service URL
-    const api = new Client(ref.serviceUrl, this.client);
+  async send(activity: DeprecatedInputActivity, ref: ConversationReference, options?: ActivitySenderOptions): Promise<SentActivity>;
+  async send(activity: ActivityParams, ref: ConversationReference, options?: ActivitySenderOptions): Promise<SentActivity>;
+  async send(
+    activity: ActivityParams | DeprecatedInputActivity,
+    ref: ConversationReference,
+    options?: ActivitySenderOptions
+  ): Promise<SentActivity>;
+  async send(
+    activity: ActivityParams | DeprecatedInputActivity,
+    ref: ConversationReference,
+    options?: ActivitySenderOptions
+  ): Promise<SentActivity> {
+    return this.dispatch(activity, ref, options);
+  }
+
+  createStream(ref: ConversationReference): IStreamer {
+    return new HttpStream(this.createClient(ref.serviceUrl), ref, this.logger);
+  }
+
+  private async dispatch(
+    activity: ActivityParams | DeprecatedInputActivity,
+    ref: ConversationReference,
+    options?: ActivitySenderOptions
+  ): Promise<SentActivity> {
     const params = toActivityParams(activity);
 
     // Merge activity with conversation reference for the wire payload.
@@ -46,6 +71,8 @@ export class ActivitySender implements IActivitySender {
       throw new Error('Targeted messages are not supported in 1:1 (personal) chats.');
     }
 
+    const api = this.createClient(ref.serviceUrl, options?.agenticIdentity);
+
     // Decide create vs update, with targeted variants
     if (payload.id) {
       const res = isTargeted
@@ -60,9 +87,4 @@ export class ActivitySender implements IActivitySender {
     return { ...payload, ...res };
   }
 
-  createStream(ref: ConversationReference): IStreamer {
-    // Create API client for this conversation's service URL
-    const api = new Client(ref.serviceUrl, this.client);
-    return new HttpStream(api, ref, this.logger);
-  }
 }

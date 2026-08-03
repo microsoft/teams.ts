@@ -3,7 +3,7 @@ import express from 'express';
 import { Activity, CloudEnvironment, Credentials, IToken } from '@microsoft/teams.api';
 import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
-import { ServiceTokenValidator } from './auth/service-token-validator';
+import { InboundActivityTokenValidator } from './auth/inbound-activity-token-validator';
 
 export type JwtValidationParams = {
   credentials?: Credentials;
@@ -20,9 +20,9 @@ export function withJwtValidation(params: JwtValidationParams) {
   const logger = inputLogger?.child('jwt-validation-middleware') ?? new ConsoleLogger('jwt-validation-middleware');
 
   // Create service token validator if credentials are provided
-  let validator: ServiceTokenValidator | null;
+  let validator: InboundActivityTokenValidator | null;
   if (credentials?.clientId) {
-    validator = new ServiceTokenValidator(
+    validator = new InboundActivityTokenValidator(
       credentials.clientId,
       credentials.tenantId,
       undefined,

@@ -1,9 +1,22 @@
+import { ConfidentialClientApplication } from '@azure/msal-node';
 import jwt from 'jsonwebtoken';
 
 import { CHINA, JsonWebToken, PUBLIC, US_GOV, US_GOV_DOD, withOverrides } from '@microsoft/teams.api';
 
 import { App } from './app';
 import { TestAdapter } from './test-utils';
+
+jest.mock('@azure/msal-node');
+
+/**
+ * Stubs the MSAL client `TokenManager` builds internally. `App` no longer holds
+ * the manager, so the seam is the auth library rather than the app's internals.
+ */
+const mockMsalToken = (acquireTokenByClientCredential: jest.Mock) => {
+  (ConfidentialClientApplication as unknown as jest.Mock).mockImplementation(
+    () => ({ acquireTokenByClientCredential })
+  );
+};
 
 class TestApp extends App {
   // Expose protected members for testing
@@ -15,8 +28,8 @@ class TestApp extends App {
     return this.getAppGraphToken(tenantId);
   }
 
-  public async testSend(conversationId: string, activity: any) {
-    return this.send(conversationId, activity);
+  public async testSend(conversationId: string, activity: any, options?: any) {
+    return this.send(conversationId, activity, options);
   }
 
   public async testReply(conversationId: string, messageId: string, activity: any): Promise<any>;
@@ -72,10 +85,7 @@ describe('App', () => {
         accessToken: mockBotToken,
       });
 
-      // @ts-expect-error - accessing private method for testing
-      jest.spyOn(app.tokenManager, 'getConfidentialClient').mockReturnValue({
-        acquireTokenByClientCredential: mockAcquireToken,
-      } as any);
+      mockMsalToken(mockAcquireToken);
 
       const token = await app.testGetBotToken();
 
@@ -88,10 +98,7 @@ describe('App', () => {
         accessToken: mockGraphToken,
       });
 
-      // @ts-expect-error - accessing private method for testing
-      jest.spyOn(app.tokenManager, 'getConfidentialClient').mockReturnValue({
-        acquireTokenByClientCredential: mockAcquireToken,
-      } as any);
+      mockMsalToken(mockAcquireToken);
 
       const token = await app.testGetAppGraphToken();
 
@@ -114,14 +121,132 @@ describe('App', () => {
     it('should not prefetch tokens on start', async () => {
       const mockAcquireToken = jest.fn();
 
-      // @ts-expect-error - accessing private method for testing
-      jest.spyOn(app.tokenManager, 'getConfidentialClient').mockReturnValue({
-        acquireTokenByClientCredential: mockAcquireToken,
-      } as any);
+      mockMsalToken(mockAcquireToken);
 
       await app.start();
 
       expect(mockAcquireToken).not.toHaveBeenCalled();
+    });
+
+    it('should expose token acquisition publicly via app.tokenProvider', async () => {
+      const mockAcquireToken = jest.fn().mockResolvedValue({
+        accessToken: mockGraphToken,
+      });
+
+      mockMsalToken(mockAcquireToken);
+
+      const token = await app.tokenProvider.getAppToken('https://graph.microsoft.com/.default');
+
+      expect(token?.toString()).toBe(mockGraphToken);
+    });
+
+    it('should return the same provider on every access', () => {
+      // The getter must return a stable object, since callers hand it to
+      // long-lived collaborators such as an OTel exporter.
+      expect(app.tokenProvider).toBe(app.tokenProvider);
+    });
+
+    it('should expose each agentic capability as its own method', () => {
+      // A provider that omits a capability fails loudly instead of returning an
+      // app-only token under the wrong identity.
+      expect(typeof app.tokenProvider.getAppToken).toBe('function');
+      expect(typeof app.tokenProvider.getAgenticUserToken).toBe('function');
+      expect(typeof app.tokenProvider.getAgenticAppToken).toBe('function');
+    });
+  });
+
+  describe('getAgenticIdentity', () => {
+    const originalTenantId = process.env.TENANT_ID;
+    const originalClientId = process.env.CLIENT_ID;
+
+    afterEach(() => {
+      // Assigning `undefined` would set the literal string, which later tests
+      // read as a configured client id.
+      const restore = (key: string, value?: string) => {
+        if (value === undefined) delete process.env[key];
+        else process.env[key] = value;
+      };
+      restore('TENANT_ID', originalTenantId);
+      restore('CLIENT_ID', originalClientId);
+    });
+
+    it('should resolve the tenant and blueprint from the environment when no option is given', () => {
+      // The IDs come from resolved credentials, not the raw options, so an app
+      // configured entirely through env vars can still build an identity.
+      process.env.TENANT_ID = 'env-tenant';
+      process.env.CLIENT_ID = 'env-client';
+      const app = new App();
+
+      const agenticIdentity = app.getAgenticIdentity();
+
+      expect(agenticIdentity).toEqual({
+        agenticAppId: undefined,
+        agenticUserId: undefined,
+        tenantId: 'env-tenant',
+        agenticAppBlueprintId: 'env-client',
+      });
+    });
+
+    it('should preserve optional app and user IDs when provided', () => {
+      const app = new App({ clientId: 'client-id', tenantId: 'tenant-id' });
+
+      const agenticIdentity = app.getAgenticIdentity({
+        agenticAppId: 'agentic-app-id',
+        agenticUserId: 'agentic-user-id',
+      });
+
+      expect(agenticIdentity).toEqual({
+        agenticAppBlueprintId: 'client-id',
+        agenticAppId: 'agentic-app-id',
+        agenticUserId: 'agentic-user-id',
+        tenantId: 'tenant-id',
+      });
+    });
+
+    it('should preserve null app and user IDs for non-user-backed scopes', () => {
+      const app = new App({ clientId: 'client-id', tenantId: 'tenant-id' });
+
+      const agenticIdentity = app.getAgenticIdentity({
+        agenticAppId: null,
+        agenticUserId: null,
+      });
+
+      expect(agenticIdentity).toEqual({
+        agenticAppBlueprintId: 'client-id',
+        agenticAppId: null,
+        agenticUserId: null,
+        tenantId: 'tenant-id',
+      });
+    });
+
+    it('should prefer explicit overrides over configured IDs', () => {
+      const app = new App({ clientId: 'client-id', tenantId: 'option-tenant' });
+
+      const agenticIdentity = app.getAgenticIdentity({
+        tenantId: 'override-tenant',
+        agenticAppBlueprintId: 'override-blueprint',
+      });
+
+      expect(agenticIdentity.tenantId).toBe('override-tenant');
+      expect(agenticIdentity.agenticAppBlueprintId).toBe('override-blueprint');
+    });
+
+    it('should throw when no tenant can be resolved', () => {
+      delete process.env.TENANT_ID;
+      const app = new App({ clientId: 'client-id' });
+
+      expect(() => app.getAgenticIdentity()).toThrow(
+        'tenantId is required'
+      );
+    });
+
+    it('should throw when no agentic app blueprint can be resolved', () => {
+      delete process.env.CLIENT_ID;
+      const app = new App({ tenantId: 'tenant-id' });
+
+      expect(() => app.getAgenticIdentity()).toThrow(
+        'agenticAppBlueprintId is required'
+      );
     });
   });
 
@@ -146,12 +271,41 @@ describe('App', () => {
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
-      await app.testSend('conversation-id', { text: 'Hello' });
+      await app.testSend('conversation-id', { type: 'message', text: 'Hello' });
 
       expect(mockSend).toHaveBeenCalled();
       const [, ref] = mockSend.mock.calls[0];
       expect(ref.bot.id).toBe('test-client-id');
       expect(ref.bot.name).toBeUndefined();
+    });
+
+    it('should forward send agentic identity options', async () => {
+      app = new TestApp({
+        httpServerAdapter: new TestAdapter(),
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        tenantId: 'test-tenant-id',
+      });
+
+      await app.start();
+
+      const agenticIdentity = {
+        agenticAppBlueprintId: 'agentic-blueprint',
+        agenticAppId: 'agent-app',
+        agenticUserId: 'agentic-user',
+      };
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+
+      await app.testSend(
+        'conversation-id',
+        { type: 'message', text: 'Hello' },
+        { agenticIdentity }
+      );
+
+      const [, ref, options] = mockSend.mock.calls[0];
+      expect(ref.serviceUrl).toBe(app.api.serviceUrl);
+      expect(options).toEqual({ agenticIdentity });
     });
 
     it('should throw error when app is not started (no clientId)', async () => {
@@ -162,7 +316,7 @@ describe('App', () => {
       await app.start();
 
       await expect(
-        app.testSend('conversation-id', { text: 'Hello' })
+        app.testSend('conversation-id', { type: 'message', text: 'Hello' })
       ).rejects.toThrow('App has no credentials set up');
     });
   });
@@ -243,15 +397,16 @@ describe('App', () => {
           },
         },
       });
-      const spy = jest.spyOn((app.client as any).http, 'get').mockResolvedValueOnce({});
+      let seenConfig: any;
+      (app.client as any).http.defaults.adapter = async (config: any) => {
+        seenConfig = config;
+        return { data: {}, status: 200, statusText: 'OK', headers: {}, config };
+      };
 
       await app.client.get('/test');
 
-      expect(spy).toHaveBeenCalledWith('/test', {
-        headers: {
-          'User-Agent': expect.stringMatching(/^teams\.ts\[apps\]\/.* MyApp\/1\.0$/),
-        },
-      });
+      const userAgent = seenConfig.headers.get?.('User-Agent') ?? seenConfig.headers['User-Agent'];
+      expect(userAgent).toEqual(expect.stringMatching(/^teams\.ts\[apps\]\/.* MyApp\/1\.0$/));
     });
   });
 
@@ -466,7 +621,7 @@ describe('App', () => {
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
-      await app.testReply('19:abc@thread.skype', '1680000000000', { text: 'Hello thread' });
+      await app.testReply('19:abc@thread.skype', '1680000000000', { type: 'message', text: 'Hello thread' });
 
       expect(mockSend).toHaveBeenCalled();
       const [, ref] = mockSend.mock.calls[0];
@@ -477,7 +632,7 @@ describe('App', () => {
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
-      await app.testReply('19:abc@thread.skype', { text: 'Hello flat' });
+      await app.testReply('19:abc@thread.skype', { type: 'message', text: 'Hello flat' });
 
       expect(mockSend).toHaveBeenCalled();
       const [, ref] = mockSend.mock.calls[0];
@@ -488,7 +643,7 @@ describe('App', () => {
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
-      await app.testReply('19:abc@thread.skype;messageid=123', { text: 'Hello' });
+      await app.testReply('19:abc@thread.skype;messageid=123', { type: 'message', text: 'Hello' });
 
       expect(mockSend).toHaveBeenCalled();
       const [, ref] = mockSend.mock.calls[0];
@@ -499,7 +654,7 @@ describe('App', () => {
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
-      await app.testReply('19:meeting_abc@thread.v2', '123', { text: 'Hello' });
+      await app.testReply('19:meeting_abc@thread.v2', '123', { type: 'message', text: 'Hello' });
 
       expect(mockSend).toHaveBeenCalled();
       const [, ref] = mockSend.mock.calls[0];
@@ -508,7 +663,7 @@ describe('App', () => {
 
     it('should throw on invalid messageId in three-arg form', async () => {
       await expect(
-        app.testReply('19:abc@thread.skype', 'not-a-number', { text: 'Hello' })
+        app.testReply('19:abc@thread.skype', 'not-a-number', { type: 'message', text: 'Hello' })
       ).rejects.toThrow('Invalid messageId');
     });
 
@@ -518,7 +673,7 @@ describe('App', () => {
       });
 
       await expect(
-        unstartedApp.testReply('conv-id', { text: 'Hello' })
+        unstartedApp.testReply('conv-id', { type: 'message', text: 'Hello' })
       ).rejects.toThrow('App has no credentials set up');
     });
   });

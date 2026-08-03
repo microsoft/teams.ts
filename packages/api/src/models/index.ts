@@ -37,4 +37,4 @@ export * from './meeting';
 export * from './channel-id';
 export * from './activity-like';
 export * from './html-widget';
-
+export * from './agentic-identity';

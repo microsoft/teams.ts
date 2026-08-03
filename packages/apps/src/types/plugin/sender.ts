@@ -1,6 +1,16 @@
-import { ActivityParams, ConversationReference, DeprecatedInputActivity, SentActivity } from '@microsoft/teams.api';
+import { ActivityParams, AgenticIdentity, ConversationReference, DeprecatedInputActivity, SentActivity } from '@microsoft/teams.api';
 
 import { IStreamer } from '../streamer';
+
+/**
+ * Options for low-level activity sender operations.
+ */
+export type ActivitySenderOptions = {
+  /**
+   * Agentic identity scope to use when acquiring tokens for this send.
+   */
+  readonly agenticIdentity?: AgenticIdentity;
+};
 
 /**
  * Interface for activity sending (NOT a plugin)
@@ -11,12 +21,12 @@ export interface IActivitySender {
    * Send an activity
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
-  send(activity: DeprecatedInputActivity, ref: ConversationReference): Promise<SentActivity>;
+  send(activity: DeprecatedInputActivity, ref: ConversationReference, options?: ActivitySenderOptions): Promise<SentActivity>;
   /**
    * Send an activity
    */
-  send(activity: ActivityParams, ref: ConversationReference): Promise<SentActivity>;
-  send(activity: ActivityParams | DeprecatedInputActivity, ref: ConversationReference): Promise<SentActivity>;
+  send(activity: ActivityParams, ref: ConversationReference, options?: ActivitySenderOptions): Promise<SentActivity>;
+  send(activity: ActivityParams | DeprecatedInputActivity, ref: ConversationReference, options?: ActivitySenderOptions): Promise<SentActivity>;
 
   /**
    * Create a new activity stream

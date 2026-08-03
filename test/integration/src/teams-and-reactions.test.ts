@@ -32,7 +32,7 @@ describe('Reactions', () => {
 
   it('should add and remove a reaction', async () => {
     if (f.isCanary) return; // Reactions return 404 on canary
-    if (f.isAgentic) return; // Reactions return 404 with agentic identity
+    if (f.isAgenticIdentity) return; // Reactions return 404 with AgenticIdentity
 
     // Send a message to react to
     const sent = await f.api.conversations
@@ -45,14 +45,14 @@ describe('Reactions', () => {
     expect(sent?.id).toBeDefined();
 
     // Add reaction
-    await f.api.reactions.add(
+    await f.api.conversations.addReaction(
       f.config.conversationId,
       sent.id!,
       'like'
     );
 
     // Remove reaction
-    await f.api.reactions.delete(
+    await f.api.conversations.deleteReaction(
       f.config.conversationId,
       sent.id!,
       'like'

@@ -6,6 +6,7 @@ import {
 import { ChannelInfo, TeamDetails } from '../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from './api-client-settings';
+import { normalizeServiceUrl } from './service-url';
 
 export class TeamClient {
   readonly serviceUrl: string;
@@ -20,7 +21,7 @@ export class TeamClient {
   protected _apiClientSettings: Partial<ApiClientSettings>;
 
   constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
-    this.serviceUrl = serviceUrl;
+    this.serviceUrl = normalizeServiceUrl(serviceUrl);
 
     if (!options) {
       this._http = new HttpClient();
@@ -34,14 +35,14 @@ export class TeamClient {
   }
 
   async getById(id: string) {
-    const res = await this.http.get<TeamDetails>(`${this.serviceUrl}/v3/teams/${id}`);
+    const url = `${this.serviceUrl}/v3/teams/${id}`;
+    const res = await this.http.get<TeamDetails>(url);
     return res.data;
   }
 
   async getConversations(id: string) {
-    const res = await this.http.get<{ conversations: ChannelInfo[] }>(
-      `${this.serviceUrl}/v3/teams/${id}/conversations`
-    );
+    const url = `${this.serviceUrl}/v3/teams/${id}/conversations`;
+    const res = await this.http.get<{ conversations: ChannelInfo[] }>(url);
     return res.data.conversations;
   }
 }

@@ -1,3 +1,4 @@
+import { AgenticIdentity } from './agentic-identity';
 import { MembershipSource } from './membership-source';
 import { Role } from './role';
 
@@ -11,6 +12,17 @@ export type Account<P = any> = {
    */
   readonly type?: string;
   readonly name?: string;
+  /**
+   * Email address for the account when the channel includes it. This is optional
+   * because many inbound activities omit email addresses.
+   */
+  readonly email?: string;
+  /**
+   * User role metadata for the account when the channel includes it. This is
+   * optional and should not be used for authorization decisions unless the
+   * channel explicitly documents the value.
+   */
+  readonly userRole?: string;
   readonly properties?: P;
   readonly membershipSources?: MembershipSource[];
 
@@ -21,7 +33,43 @@ export type Account<P = any> = {
    * Diagnostic: ExperimentalTeamsTargeted
    */
   isTargeted?: boolean;
+
+  /**
+   * Entra object ID of the user-backed agentic identity represented by this
+   * account, when present.
+   *
+   * This and the two fields below are activity wire fields, so they keep the
+   * service-owned JSON keys.
+   */
+  readonly agenticUserId?: string;
+  /**
+   * ID of the agentic app represented by this account.
+   */
+  readonly agenticAppId?: string;
+  /**
+   * ID of the Agentic App Blueprint backing the agentic app.
+   */
+  readonly agenticAppBlueprintId?: string;
+  readonly callbackUri?: string;
+  readonly tenantId?: string;
 };
+
+/**
+ * Builds an agentic identity from an account when the activity recipient
+ * carries the fields required for scoped operations.
+ */
+export function getAgenticIdentity(account?: Account): AgenticIdentity | undefined {
+  if (!account?.agenticAppBlueprintId) {
+    return undefined;
+  }
+
+  return {
+    agenticAppId: account.agenticAppId,
+    agenticUserId: account.agenticUserId,
+    tenantId: account.tenantId,
+    agenticAppBlueprintId: account.agenticAppBlueprintId,
+  };
+}
 
 /**
  * Represents a Teams channel account, extending the basic channel account with Teams-specific properties.

@@ -3,6 +3,7 @@ import {
   type ClientOptions as HttpClientOptions
 } from '@microsoft/teams.common';
 
+import { CloudEnvironment } from '../../auth';
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 
 import { BotSignInClient } from './sign-in';
@@ -23,7 +24,7 @@ export class BotClient {
   protected _http: HttpClient;
   protected _clientSettings: Partial<ApiClientSettings>;
 
-  constructor(options?: HttpClient | HttpClientOptions, clientSettings?: Partial<ApiClientSettings>) {
+  constructor(options?: HttpClient | HttpClientOptions, clientSettings?: Partial<ApiClientSettings>, cloud?: CloudEnvironment) {
     if (!options) {
       this._http = new HttpClient();
     } else if ('request' in options) {
@@ -32,8 +33,8 @@ export class BotClient {
       this._http = new HttpClient(options);
     }
 
-    this._clientSettings = mergeApiClientSettings(clientSettings);
-    this.signIn = new BotSignInClient(this.http, this._clientSettings);
+    this._clientSettings = mergeApiClientSettings(clientSettings, cloud);
+    this.signIn = new BotSignInClient(this.http, this._clientSettings, cloud);
   }
 }
 
