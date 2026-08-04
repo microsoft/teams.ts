@@ -3,6 +3,7 @@ import { AxiosError } from 'axios';
 import {
   Activity,
   ActivityLike,
+  AgenticIdentity,
   ApiClientSettings,
   CloudEnvironment,
   ConversationReference,
@@ -13,7 +14,7 @@ import {
   SentActivity,
   StripMentionsTextOptions,
   toActivityParams,
-  TokenCredentials,
+  TokenProvider,
 } from '@microsoft/teams.api';
 import {
   Client as HttpClient,
@@ -37,6 +38,9 @@ import { PluginManager } from './app.plugins';
 import { ActivityProcessor } from './app.process';
 import { Container } from './container';
 import { IActivityContext, FunctionContext, IFunctionContext } from './contexts';
+import {
+  type IAgent365BaggageOptions
+} from './diagnostics/agent365-baggage';
 import { IActivityEvent } from './events';
 import { ExpressAdapter, IHttpServerAdapter } from './http';
 import { HttpServer } from './http/http-server';
@@ -46,11 +50,57 @@ import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { IRoutes } from './routes';
-import { TokenManager } from './token-manager';
+import { DEFAULT_TENANT_FOR_GRAPH_TOKEN, TokenManager } from './token-manager';
+import { AppTokenProvider, IAppTokenProvider } from './token-provider';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { getBooleanEnvValue } from './utils/env';
 import { toThreadedConversationId } from './utils/thread';
+
+function isAppSendOptions(value: ActivityLike | DeprecatedInputActivity | AppSendOptions): value is AppSendOptions {
+  if (typeof value === 'string') return false;
+  return !('type' in value);
+}
+
+/**
+ * Options for proactive app sends and replies.
+ */
+export type AppSendOptions = {
+  /**
+   * Agentic identity scope to use when acquiring tokens for this send.
+   */
+  readonly agenticIdentity?: AgenticIdentity;
+};
+
+/**
+ * Options for creating an Agent 365 operation identity from app configuration.
+ */
+export type AppGetAgenticIdentityOptions = {
+  /**
+   * ID of the agentic app represented by this identity, when available/needed.
+   * Omit or use `null` for blueprint-level scopes.
+   */
+  readonly agenticAppId?: string | null;
+
+  /**
+   * Entra object ID of the user-backed agentic identity, when the operation
+   * acts on behalf of a user. Omit or use `null` for app-backed or
+   * blueprint-level scopes.
+   */
+  readonly agenticUserId?: string | null;
+
+  /**
+   * Tenant ID for token acquisition. Defaults to the app's resolved credentials
+   * or configured `tenantId`.
+   */
+  readonly tenantId?: string;
+
+  /**
+   * ID of the Agentic App Blueprint that backs the agentic app. Defaults to the
+   * app client ID resolved from credentials/configuration.
+   */
+  readonly agenticAppBlueprintId?: string;
+};
 
 /**
  * App initialization options
@@ -86,9 +136,14 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly tenantId?: string;
 
   /**
-   * token - An override to perform token fetching.
+   * An override to perform token fetching yourself, instead of letting the SDK
+   * acquire tokens from `clientSecret` or a managed identity.
+   *
+   * Pass a function — `(scope, tenantId?) => string` — if the app only ever
+   * authenticates as itself, or an object implementing `ITokenProvider` if it
+   * also acts with an AgenticIdentity.
    */
-  readonly token?: TokenCredentials['token'];
+  readonly token?: TokenProvider;
 
   /**
    * managed identity client id - A managed identity client id.
@@ -160,9 +215,10 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly serviceUrl?: string;
 
   /**
-   * API client settings used for overriding.
+   * API client settings used for overriding (e.g. oauthUrl).
+   * Cloud, tokenProvider, and agenticIdentity are managed internally.
    */
-  readonly apiClientSettings?: ApiClientSettings;
+  readonly apiClientSettings?: Pick<ApiClientSettings, 'oauthUrl'>;
 
   /**
    * Cloud environment for sovereign cloud support.
@@ -171,6 +227,28 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * Defaults to PUBLIC (commercial cloud).
    */
   readonly cloud?: CloudEnvironment;
+
+  /**
+   * Telemetry settings.
+   */
+  readonly telemetry?: AppTelemetryOptions;
+};
+
+/**
+ * Telemetry settings applied across every flow the SDK owns.
+ */
+export type AppTelemetryOptions = {
+  /**
+   * Configures the Agent365 baggage the SDK derives from inbound activities.
+   *
+   * Identifier-only baggage (tenant, conversation, channel, agent, and caller
+   * ids) is populated by default; personal-data fields require an explicit
+   * `include` entry. Pass `false` to disable the bridge entirely.
+   *
+   * This covers only the inbound flow. Proactive work should open its own scope
+   * with `createAgent365Scope`, which takes the same options.
+   */
+  readonly agent365?: IAgent365BaggageOptions | false;
 };
 
 export type AppActivityOptions = {
@@ -205,13 +283,19 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    */
   readonly graphBaseUrl?: string;
 
-  protected readonly tokenManager: TokenManager;
-
   /**
    * the apps credentials
    */
   get credentials() {
     return this.tokenManager.credentials;
+  }
+
+  /**
+   * The app's token source, for acquiring a token for something the SDK does not
+   * call for you, such as an OpenTelemetry exporter.
+   */
+  get tokenProvider(): IAppTokenProvider {
+    return this._tokenProvider;
   }
 
   /**
@@ -236,6 +320,15 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected isInitialized = false;
   protected port?: number | string;
   protected activitySender: ActivitySender;
+
+  /**
+   * The concrete token machinery: MSAL clients, credential resolution, and the
+   * per-grant acquisition logic. Private because {@link App.tokenProvider} is
+   * the supported way in.
+   */
+  private readonly tokenManager: TokenManager;
+
+  private readonly _tokenProvider: AppTokenProvider;
 
   private eventManager!: EventManager<TPlugin>;
   private activityProcessor!: ActivityProcessor<TPlugin>;
@@ -277,15 +370,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       });
     }
 
-    const serviceUrl = (this.options.serviceUrl ?? process.env.SERVICE_URL ??
-      'https://smba.trafficmanager.net/teams').replace(/\/+$/, '');
-    this.api = new ApiClient(
-      serviceUrl,
-      this.client.clone({ token: () => this.getBotToken() }),
-      this.options.apiClientSettings,
-      this.cloud
-    );
-
     // Derive Graph API base URL from the cloud's graphScope (e.g. "https://graph.microsoft.us/.default"
     // -> "https://graph.microsoft.us"). Falls back to the public Graph endpoint inside GraphClient if
     // the scope isn't a URL (custom delegated scope, empty, etc.).
@@ -298,11 +382,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       );
     }
     this.graph = new GraphClient(
-      this.client.clone({ token: () => this.getAppGraphToken() }),
+      this.client.clone({ token: async () => (await this.getAppGraphToken()) ?? undefined }),
       { baseUrlRoot: this.graphBaseUrl }
     );
 
-    // initialize TokenManager with credentials
     this.tokenManager = new TokenManager({
       clientId: this.options.clientId,
       clientSecret: this.options.clientSecret,
@@ -311,11 +394,28 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       managedIdentityClientId: this.options.managedIdentityClientId,
       cloud: this.cloud,
     }, this.log);
+    this._tokenProvider = new AppTokenProvider(this.tokenManager, this.cloud);
+
+    const serviceUrl = (this.options.serviceUrl ?? process.env.SERVICE_URL ??
+      'https://smba.trafficmanager.net/teams').replace(/\/+$/, '');
+    const settings: Partial<ApiClientSettings> = {
+      ...this.options.apiClientSettings,
+      cloud: this.cloud,
+      tokenProvider: this.tokenProvider,
+    };
+    this.api = new ApiClient(
+      serviceUrl,
+      this.client.clone(),
+      settings
+    );
 
     // initialize ActivitySender for sending activities
     this.activitySender = new ActivitySender(
-      this.client.clone({ token: () => this.getBotToken() }),
-      this.log
+      this.log,
+      (senderServiceUrl, agenticIdentity) => this.api.clone({
+        serviceUrl: senderServiceUrl,
+        agenticIdentity,
+      }),
     );
 
     // initialize the activity pipeline collaborators. App owns these and passes
@@ -341,7 +441,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       router: this.router,
       plugins: this.pluginManager.plugins,
       eventManager: this.eventManager,
-      tokenManager: this.tokenManager,
+      getAppGraphToken: (tenantId) => this.getAppGraphToken(tenantId),
       activitySender: this.activitySender,
       api: this.api,
       client: this.client,
@@ -352,6 +452,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       shouldFetchUserToken: () => this.shouldFetchUserToken(),
       apiClientSettings: this.options.apiClientSettings,
       graphBaseUrl: this.graphBaseUrl,
+      agent365Baggage: this.options.telemetry?.agent365,
     });
 
     if (this.credentials?.clientId) {
@@ -545,10 +646,18 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
-  async send(conversationId: string, activity: DeprecatedInputActivity): Promise<SentActivity>;
-  async send(conversationId: string, activity: ActivityLike): Promise<SentActivity>;
-  async send(conversationId: string, activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
-  async send(conversationId: string, activity: ActivityLike | DeprecatedInputActivity) {
+  async send(conversationId: string, activity: DeprecatedInputActivity, options?: AppSendOptions): Promise<SentActivity>;
+  async send(conversationId: string, activity: ActivityLike, options?: AppSendOptions): Promise<SentActivity>;
+  async send(
+    conversationId: string,
+    activity: ActivityLike | DeprecatedInputActivity,
+    options?: AppSendOptions
+  ): Promise<SentActivity>;
+  async send(
+    conversationId: string,
+    activity: ActivityLike | DeprecatedInputActivity,
+    options?: AppSendOptions
+  ) {
     if (!this.id) {
       throw new Error('App has no credentials set up');
     }
@@ -567,7 +676,11 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       } as ConversationReference['conversation'],
     };
 
-    const res = await this.activitySender.send(params, ref);
+    const res = await this.activitySender.send(
+      params,
+      ref,
+      options?.agenticIdentity ? { agenticIdentity: options.agenticIdentity } : undefined,
+    );
     return res;
   }
 
@@ -586,12 +699,13 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
-  async reply(conversationId: string, messageId: string, activity: DeprecatedInputActivity): Promise<any>;
-  async reply(conversationId: string, messageId: string, activity: ActivityLike): Promise<any>;
+  async reply(conversationId: string, messageId: string, activity: DeprecatedInputActivity, options?: AppSendOptions): Promise<any>;
+  async reply(conversationId: string, messageId: string, activity: ActivityLike, options?: AppSendOptions): Promise<any>;
   async reply(
     conversationId: string,
     messageId: string,
-    activity: ActivityLike | DeprecatedInputActivity
+    activity: ActivityLike | DeprecatedInputActivity,
+    options?: AppSendOptions
   ): Promise<any>;
   /**
    * send an activity proactively to a conversation.
@@ -605,19 +719,49 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
-  async reply(conversationId: string, activity: DeprecatedInputActivity): Promise<any>;
-  async reply(conversationId: string, activity: ActivityLike): Promise<any>;
-  async reply(conversationId: string, activity: ActivityLike | DeprecatedInputActivity): Promise<any>;
+  async reply(conversationId: string, activity: DeprecatedInputActivity, options?: AppSendOptions): Promise<any>;
+  async reply(conversationId: string, activity: ActivityLike, options?: AppSendOptions): Promise<any>;
+  async reply(conversationId: string, activity: ActivityLike | DeprecatedInputActivity, options?: AppSendOptions): Promise<any>;
   async reply(
     conversationId: string,
     messageId: string | ActivityLike | DeprecatedInputActivity,
-    activity?: ActivityLike | DeprecatedInputActivity
+    activity?: ActivityLike | DeprecatedInputActivity | AppSendOptions,
+    options?: AppSendOptions
   ) {
-    if (typeof messageId === 'string' && activity !== undefined) {
-      return this.send(toThreadedConversationId(conversationId, messageId), activity);
+    if (typeof messageId === 'string' && activity !== undefined && !isAppSendOptions(activity)) {
+      return this.send(toThreadedConversationId(conversationId, messageId), activity, options);
     }
 
-    return this.send(conversationId, messageId);
+    const opts = activity && isAppSendOptions(activity) ? activity : options;
+    return this.send(conversationId, messageId as ActivityLike | DeprecatedInputActivity, opts);
+  }
+
+  /**
+   * Create an AgenticIdentity for scoped proactive sends and API clients.
+   *
+   * AgenticIdentity is the SDK operation/request scope for Agent 365. This
+   * helper fills the required blueprint and tenant identifiers from app
+   * configuration while allowing app/user IDs to be omitted or set to `null`
+   * when the operation is not scoped to a concrete agentic app or user.
+   *
+   * @param options identity fields and optional overrides
+   */
+  getAgenticIdentity(options: AppGetAgenticIdentityOptions = {}): AgenticIdentity {
+    const tenantId = options.tenantId ?? this.credentials?.tenantId ?? this.options.tenantId;
+    if (!tenantId) {
+      throw new Error('tenantId is required to get an AgenticIdentity');
+    }
+    const agenticAppBlueprintId = options.agenticAppBlueprintId ?? this.id;
+    if (!agenticAppBlueprintId) {
+      throw new Error('agenticAppBlueprintId is required to get an AgenticIdentity');
+    }
+
+    return {
+      agenticAppBlueprintId,
+      agenticAppId: options.agenticAppId,
+      agenticUserId: options.agenticUserId,
+      tenantId,
+    };
   }
 
   /**
@@ -781,13 +925,17 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   ///
 
   protected async getBotToken() {
-    if (!this.tokenManager) return;
-    return await this.tokenManager.getBotToken();
+    return await this.tokenProvider.getAppToken();
   }
 
   protected async getAppGraphToken(tenantId?: string) {
-    if (!this.tokenManager) return;
-    return await this.tokenManager.getGraphToken(tenantId);
+    // Graph falls back to the `common` tenant rather than the cloud's login
+    // tenant, so the tenant is resolved here instead of letting the provider
+    // apply its own default.
+    return await this.tokenProvider.getAppToken(
+      this.cloud.graphScope,
+      tenantId || this.credentials?.tenantId || DEFAULT_TENANT_FOR_GRAPH_TOKEN
+    );
   }
 
   /**

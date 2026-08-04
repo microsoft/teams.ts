@@ -5,6 +5,7 @@ import {
 
 import { PagedMembersResult, resolveAadObjectId, TeamsChannelAccount } from '../../models';
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
+import { normalizeServiceUrl } from '../service-url';
 
 export class ConversationMemberClient {
   readonly serviceUrl: string;
@@ -19,7 +20,7 @@ export class ConversationMemberClient {
   protected _apiClientSettings: Partial<ApiClientSettings>;
 
   constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
-    this.serviceUrl = serviceUrl;
+    this.serviceUrl = normalizeServiceUrl(serviceUrl);
 
     if (!options) {
       this._http = new HttpClient();
@@ -32,18 +33,14 @@ export class ConversationMemberClient {
   }
 
   async get(conversationId: string): Promise<TeamsChannelAccount[]> {
-    // TODO: Will be deprecated alongside accessor in ConversationClient
-    const res = await this.http.get<TeamsChannelAccount[]>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/members`
-    );
+    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/members`;
+    const res = await this.http.get<TeamsChannelAccount[]>(url);
     return res.data.map(resolveAadObjectId);
   }
 
   async getById(conversationId: string, id: string): Promise<TeamsChannelAccount> {
-    // TODO: Will be deprecated alongside accessor in ConversationClient
-    const res = await this.http.get<TeamsChannelAccount>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/members/${id}`
-    );
+    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/members/${id}`;
+    const res = await this.http.get<TeamsChannelAccount>(url);
     return resolveAadObjectId(res.data);
   }
 
@@ -55,15 +52,12 @@ export class ConversationMemberClient {
    * @returns PagedMembersResult containing members and an optional continuation token.
    */
   async getPaged(conversationId: string, pageSize?: number, continuationToken?: string): Promise<PagedMembersResult> {
-    // TODO: Will be deprecated alongside accessor in ConversationClient
     const params: Record<string, string | number> = {};
     if (pageSize !== undefined) params['pageSize'] = pageSize;
     if (continuationToken !== undefined) params['continuationToken'] = continuationToken;
 
-    const res = await this.http.get<PagedMembersResult>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/pagedMembers`,
-      { params }
-    );
+    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/pagedMembers`;
+    const res = await this.http.get<PagedMembersResult>(url, { params });
     return { ...res.data, members: res.data.members.map(resolveAadObjectId) };
   }
 
@@ -71,9 +65,8 @@ export class ConversationMemberClient {
    * @deprecated This will be removed by end of summer 2026.
    */
   async delete(conversationId: string, id: string) {
-    const res = await this.http.delete<void>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/members/${id}`
-    );
+    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/members/${id}`;
+    const res = await this.http.delete<void>(url);
     return res.data;
   }
 }

@@ -33,4 +33,15 @@ describe('TeamClient', () => {
     await client.getConversations('1');
     expect(spy).toHaveBeenCalledWith('/v3/teams/1/conversations');
   });
+
+  it('should use normalized constructor serviceUrl', async () => {
+    const client = new TeamClient('https://default.service/');
+    const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
+
+    await client.getById('1');
+
+    expect(spy).toHaveBeenCalledWith(
+      'https://default.service/v3/teams/1'
+    );
+  });
 });

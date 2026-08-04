@@ -1,1 +1,1 @@
-export type Role = 'user' | 'bot' | 'skill';
+export type Role = 'user' | 'bot' | 'skill' | 'agenticUser' | (string & {});

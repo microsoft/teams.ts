@@ -192,6 +192,40 @@ describe('Router', () => {
         name: 'application/vnd.microsoft.meetingEnd'
       } as any)).toHaveLength(1);
     });
+
+    it('should select agentLifecycle valueType filtered routes', () => {
+      const router = new Router();
+      const handler = jest.fn();
+
+      router.on('event', handler);
+      router.on('agentLifecycle', handler);
+      router.on('agenticUserIdentityCreated', handler);
+      router.on('agenticUserEnabled', handler);
+
+      expect(router.select({
+        type: 'event',
+        name: 'agentLifecycle',
+        valueType: 'AgenticUserIdentityCreated'
+      } as any)).toHaveLength(3);
+
+      expect(router.select({
+        type: 'event',
+        name: 'agentLifecycle',
+        valueType: 'AgenticUserEnabled'
+      } as any)).toHaveLength(3);
+
+      expect(router.select({
+        type: 'event',
+        name: 'agentLifecycle',
+        valueType: 'AgenticUserManagerUpdated'
+      } as any)).toHaveLength(2);
+
+      expect(router.select({
+        type: 'event',
+        name: 'agentLifecycle',
+        valueType: 'UnknownAgentLifecycleEvent'
+      } as any)).toHaveLength(2);
+    });
   });
 
   describe('invoke', () => {

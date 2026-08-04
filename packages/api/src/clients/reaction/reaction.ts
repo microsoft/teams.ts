@@ -6,6 +6,7 @@ import {
 import { MessageReactionType } from '../../models/message/message-reaction';
 
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
+import { normalizeServiceUrl } from '../service-url';
 
 /**
  * Client for adding and removing emoji reactions on messages in a conversation.
@@ -23,7 +24,7 @@ export class ReactionClient {
   protected _apiClientSettings: Partial<ApiClientSettings>;
 
   constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
-    this.serviceUrl = serviceUrl;
+    this.serviceUrl = normalizeServiceUrl(serviceUrl);
 
     if (!options) {
       this._http = new HttpClient();
@@ -40,10 +41,8 @@ export class ReactionClient {
    * Add a reaction to a message.
    */
   async add(conversationId: string, activityId: string, reactionType: MessageReactionType) {
-    // TODO: Will be deprecated alongside accessor in ConversationClient
-    const res = await this.http.put<void>(
-      `${this.serviceUrl}/v3/conversations/${encodeURIComponent(conversationId)}/activities/${encodeURIComponent(activityId)}/reactions/${encodeURIComponent(reactionType)}`
-    );
+    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${activityId}/reactions/${reactionType}`;
+    const res = await this.http.put<void>(url);
     return res.data;
   }
 
@@ -51,10 +50,8 @@ export class ReactionClient {
    * Delete a reaction from a message.
    */
   async delete(conversationId: string, activityId: string, reactionType: MessageReactionType) {
-    // TODO: Will be deprecated alongside accessor in ConversationClient
-    const res = await this.http.delete<void>(
-      `${this.serviceUrl}/v3/conversations/${encodeURIComponent(conversationId)}/activities/${encodeURIComponent(activityId)}/reactions/${encodeURIComponent(reactionType)}`
-    );
+    const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${activityId}/reactions/${reactionType}`;
+    const res = await this.http.delete<void>(url);
     return res.data;
   }
 }

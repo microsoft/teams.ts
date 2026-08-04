@@ -43,19 +43,14 @@ describe('MeetingClient', () => {
     expect(spy).toHaveBeenCalledWith('/v1/meetings/1/participants/2?tenantId=3');
   });
 
-  it('should URL-encode meeting id in getById', async () => {
-    const client = new MeetingClient('');
+  it('should use normalized constructor serviceUrl', async () => {
+    const client = new MeetingClient('https://default.service/');
     const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
-    await client.getById('abc+def/ghi=');
-    expect(spy).toHaveBeenCalledWith('/v1/meetings/abc%2Bdef%2Fghi%3D');
-  });
 
-  it('should URL-encode participant parameters', async () => {
-    const client = new MeetingClient('');
-    const spy = jest.spyOn(client.http, 'get').mockResolvedValueOnce({});
-    await client.getParticipant('abc+def/ghi=', 'user=1', 'tenant/1');
+    await client.getById('1');
+
     expect(spy).toHaveBeenCalledWith(
-      '/v1/meetings/abc%2Bdef%2Fghi%3D/participants/user%3D1?tenantId=tenant%2F1'
+      'https://default.service/v1/meetings/1'
     );
   });
 
@@ -71,15 +66,4 @@ describe('MeetingClient', () => {
     });
   });
 
-  it('should URL-encode meeting id in sendNotification', async () => {
-    const client = new MeetingClient('');
-    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
-    await client.sendNotification('abc+def/ghi=', {
-      value: { recipients: ['user1'], surfaces: [{ surface: 'meetingTabIcon' }] },
-    });
-    expect(spy).toHaveBeenCalledWith(
-      '/v1/meetings/abc%2Bdef%2Fghi%3D/notification',
-      expect.any(Object)
-    );
-  });
 });

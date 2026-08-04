@@ -1,1 +1,1 @@
-export type ChannelID = 'webchat' | 'msteams' | Omit<string, 'webchat' | 'msteams'>;
+export type ChannelID = 'webchat' | 'msteams' | 'agents' | (string & {});

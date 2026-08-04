@@ -1,3 +1,4 @@
+import { AgentLifecycleEventActivity } from './agent-lifecycle';
 import { IMeetingEndEventActivity } from './meeting-end';
 import { IMeetingParticipantJoinEventActivity } from './meeting-participant-join';
 import { IMeetingParticipantLeaveEventActivity } from './meeting-participant-leave';
@@ -9,8 +10,10 @@ export type EventActivity =
   | IMeetingStartEventActivity
   | IMeetingEndEventActivity
   | IMeetingParticipantJoinEventActivity
-  | IMeetingParticipantLeaveEventActivity;
+  | IMeetingParticipantLeaveEventActivity
+  | AgentLifecycleEventActivity;
 
+export * from './agent-lifecycle';
 export * from './meeting-end';
 export * from './meeting-participant-join';
 export * from './meeting-participant-leave';

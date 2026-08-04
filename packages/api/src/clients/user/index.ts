@@ -3,6 +3,7 @@ import {
   type ClientOptions as HttpClientOptions
 } from '@microsoft/teams.common';
 
+import { CloudEnvironment } from '../../auth';
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 
 import {
@@ -18,10 +19,10 @@ export class UserClient {
   get http() {
     return this._http;
   }
-set http(v) {
-  this._token.http = v;
-  this._http = v;
-}
+  set http(v) {
+    this._token.http = v;
+    this._http = v;
+  }
   /**
    * @deprecated Use the flattened methods on `UserClient` instead
    * (e.g. `users.getToken(...)`). This grouped accessor will be removed
@@ -34,7 +35,7 @@ set http(v) {
   protected _token: UserTokenClient;
   protected _apiClientSettings: Partial<ApiClientSettings>;
 
-  constructor(options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
+  constructor(options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>, cloud?: CloudEnvironment) {
     if (!options) {
       this._http = new HttpClient();
     } else if ('request' in options) {
@@ -43,8 +44,8 @@ set http(v) {
       this._http = new HttpClient(options);
     }
 
-    this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
-    this._token = new UserTokenClient(this.http, this._apiClientSettings);
+    this._apiClientSettings = mergeApiClientSettings(apiClientSettings, cloud);
+    this._token = new UserTokenClient(this.http, this._apiClientSettings, cloud);
   }
 
   /**

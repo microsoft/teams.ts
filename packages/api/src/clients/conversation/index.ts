@@ -8,7 +8,9 @@ import {
 import { Account, Conversation, ConversationResource, MessageReactionType, type DeprecatedInputActivity } from '../../models';
 
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
+import { ensureApiOutboundTelemetryMiddleware } from '../api-outbound-middleware';
 import { ReactionClient } from '../reaction';
+import { normalizeServiceUrl } from '../service-url';
 
 import { ActivityParams, ConversationActivityClient } from './activity';
 import { ConversationMemberClient } from './member';
@@ -93,20 +95,21 @@ export class ConversationClient {
   get http() {
     return this._http;
   }
-set http(v) {
-  this._activities.http = v;
-  this._members.http = v;
-  this._reactions.http = v;
-  this._http = v;
-}
-protected _http: HttpClient;
-protected _activities: ConversationActivityClient;
-protected _members: ConversationMemberClient;
-protected _reactions: ReactionClient;
-protected _apiClientSettings: Partial<ApiClientSettings>;
+  set http(v) {
+    ensureApiOutboundTelemetryMiddleware(v);
+    this._http = v;
+    this._activities.http = this._http;
+    this._members.http = this._http;
+    this._reactions.http = this._http;
+  }
+  protected _http: HttpClient;
+  protected _activities: ConversationActivityClient;
+  protected _members: ConversationMemberClient;
+  protected _reactions: ReactionClient;
+  protected _apiClientSettings: Partial<ApiClientSettings>;
 
   constructor(serviceUrl: string, options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
-    this.serviceUrl = serviceUrl;
+    this.serviceUrl = normalizeServiceUrl(serviceUrl);
 
     if (!options) {
       this._http = new HttpClient();
@@ -115,11 +118,12 @@ protected _apiClientSettings: Partial<ApiClientSettings>;
     } else {
       this._http = new HttpClient(options);
     }
+    ensureApiOutboundTelemetryMiddleware(this._http);
 
     this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
-    this._activities = new ConversationActivityClient(serviceUrl, this.http, this._apiClientSettings);
-    this._members = new ConversationMemberClient(serviceUrl, this.http, this._apiClientSettings);
-    this._reactions = new ReactionClient(serviceUrl, this.http, this._apiClientSettings);
+    this._activities = new ConversationActivityClient(this.serviceUrl, this.http, this._apiClientSettings);
+    this._members = new ConversationMemberClient(this.serviceUrl, this.http, this._apiClientSettings);
+    this._reactions = new ReactionClient(this.serviceUrl, this.http, this._apiClientSettings);
   }
 
   /**
@@ -139,7 +143,8 @@ protected _apiClientSettings: Partial<ApiClientSettings>;
       createTargeted: (params: ActivityParamsLike) => this._activities.createTargeted(conversationId, params),
       updateTargeted: (id: string, params: ActivityParamsLike) =>
         this._activities.updateTargeted(conversationId, id, params),
-      deleteTargeted: (id: string) => this._activities.deleteTargeted(conversationId, id),
+      deleteTargeted: (id: string) =>
+        this._activities.deleteTargeted(conversationId, id),
     };
   }
 
@@ -163,8 +168,7 @@ protected _apiClientSettings: Partial<ApiClientSettings>;
 
   /**
    * Create an activity in a conversation.
-   */
-  /**
+   *
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
   createActivity(conversationId: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['create']>;
@@ -175,8 +179,7 @@ protected _apiClientSettings: Partial<ApiClientSettings>;
 
   /**
    * Update an activity in a conversation.
-   */
-  /**
+   *
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
   updateActivity(conversationId: string, id: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['update']>;
@@ -187,8 +190,7 @@ protected _apiClientSettings: Partial<ApiClientSettings>;
 
   /**
    * Reply to an activity in a conversation.
-   */
-  /**
+   *
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
   replyToActivity(conversationId: string, id: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['reply']>;
@@ -213,8 +215,7 @@ protected _apiClientSettings: Partial<ApiClientSettings>;
 
   /**
    * Create a targeted activity in a conversation.
-   */
-  /**
+   *
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
   createTargetedActivity(conversationId: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['createTargeted']>;
@@ -225,8 +226,7 @@ protected _apiClientSettings: Partial<ApiClientSettings>;
 
   /**
    * Update a targeted activity in a conversation.
-   */
-  /**
+   *
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
   updateTargetedActivity(conversationId: string, id: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['updateTargeted']>;
@@ -289,10 +289,8 @@ protected _apiClientSettings: Partial<ApiClientSettings>;
   }
 
   async create(params: CreateConversationParams) {
-    const res = await this.http.post<ConversationResource>(
-      `${this.serviceUrl}/v3/conversations`,
-      params
-    );
+    const url = `${this.serviceUrl}/v3/conversations`;
+    const res = await this.http.post<ConversationResource>(url, params);
     return res.data;
   }
 }

@@ -5,6 +5,7 @@ import {
   type ClientOptions as HttpClientOptions
 } from '@microsoft/teams.common';
 
+import { CloudEnvironment } from '../../auth';
 import { ChannelID, TokenExchangeRequest, TokenResponse, TokenStatus } from '../../models';
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 
@@ -59,7 +60,7 @@ export class UserTokenClient {
   protected _http: HttpClient;
   protected _apiClientSettings: Partial<ApiClientSettings>;
 
-  constructor(options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>) {
+  constructor(options?: HttpClient | HttpClientOptions, apiClientSettings?: Partial<ApiClientSettings>, cloud?: CloudEnvironment) {
     if (!options) {
       this._http = new HttpClient();
     } else if ('request' in options) {
@@ -68,7 +69,7 @@ export class UserTokenClient {
       this._http = new HttpClient(options);
     }
 
-    this._apiClientSettings = mergeApiClientSettings(apiClientSettings);
+    this._apiClientSettings = mergeApiClientSettings(apiClientSettings, cloud);
   }
 
   async get(params: GetUserTokenParams) {
