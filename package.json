@@ -49,7 +49,7 @@
     "typescript": "^5.4.5"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.40.1"
+    "@rollup/rollup-linux-x64-gnu": "4.62.3"
   },
   "overrides": {
     "restify": {
