@@ -15,6 +15,13 @@ import {
   APP_OAUTH_RESULT,
   APP_SPAN_NAMES,
 } from './diagnostics/constants';
+import {
+  getTeamsBotApplicationTracer,
+  recordTeamsBotApplicationException,
+  recordTeamsBotOAuthError,
+  recordTeamsBotOAuthOperation,
+  recordTeamsBotOAuthOperationDuration,
+} from './diagnostics/helpers';
 
 describe('OauthHandlers', () => {
   let handlers: OauthHandlers;
@@ -169,14 +176,6 @@ describe('OauthHandlers', () => {
     });
   });
 });
-import {
-  getTeamsBotApplicationTracer,
-  recordTeamsBotApplicationException,
-  recordTeamsBotOAuthError,
-  recordTeamsBotOAuthOperation,
-  recordTeamsBotOAuthOperationDuration,
-} from './diagnostics/helpers';
-
 jest.mock('./diagnostics/helpers', () => ({
   getTeamsBotApplicationTracer: jest.fn(),
   recordTeamsBotApplicationException: jest.fn(),
