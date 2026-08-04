@@ -110,16 +110,16 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
               { baseUrlRoot: this.graphBaseUrl }
             );
 
+            this.events.emit('signin', { ...ctx, token, isSignedIn: true });
+            telemetry.callbackInvoked = true;
+            next(ctx);
+
             if (exchangeId) {
               this.processedExchangeIds.push(exchangeId);
               if (this.processedExchangeIds.length > 1000) {
                 this.processedExchangeIds.shift();
               }
             }
-
-            this.events.emit('signin', { ...ctx, token, isSignedIn: true });
-            telemetry.callbackInvoked = true;
-            next(ctx);
             telemetry.result = APP_OAUTH_RESULT.success;
             telemetry.responseStatus = 200;
             return { status: 200 };

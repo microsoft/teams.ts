@@ -34,6 +34,17 @@ describe('OauthHandlers', () => {
     mockClient = { clone: jest.fn().mockReturnThis() } as any;
     mockEvents = new EventEmitter<any>();
     handlers = new OauthHandlers(mockGetConnectionName, mockClient, mockEvents);
+
+    (getTeamsBotApplicationTracer as jest.Mock).mockReturnValue({
+      startActiveSpan: (_name: string, _options: any, cb: (span: any) => any) => {
+        return cb({
+          setAttribute: jest.fn(),
+          end: jest.fn(),
+          setStatus: jest.fn(),
+          recordException: jest.fn()
+        });
+      }
+    });
   });
 
   describe('onTokenExchange', () => {
