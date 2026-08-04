@@ -37,7 +37,7 @@
     "test": "npx jest"
   },
   "dependencies": {
-    "@azure/msal-node": "^5.3.0",
+    "@azure/msal-node": "^5.4.2",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.common": "*",
     "@microsoft/teams.graph": "*",
