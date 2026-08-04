@@ -37,6 +37,8 @@ export interface IConversationUpdateActivity extends IActivity<'conversationUpda
       | 'teamHardDeleted'
       | 'teamRenamed'
       | 'teamRestored'
-      | 'teamUnarchived';
+      | 'teamUnarchived'
+      | 'teamMemberAdded'
+      | 'teamMemberRemoved';
   };
 }

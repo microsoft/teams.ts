@@ -28,7 +28,7 @@ class MockAdapter implements IHttpServerAdapter {
   }
 }
 
-const defaultOptions = { skipAuth: true, messagingEndpoint: '/api/messages' };
+const defaultOptions = { dangerouslyAllowUnauthenticatedRequests: true, messagingEndpoint: '/api/messages' };
 
 describe('HttpServer', () => {
   let adapter: MockAdapter;
@@ -49,7 +49,10 @@ describe('HttpServer', () => {
     });
 
     it('should register route with custom messaging endpoint', async () => {
-      const customServer = new HttpServer(adapter, { skipAuth: true, messagingEndpoint: '/bot/incoming' });
+      const customServer = new HttpServer(adapter, {
+        dangerouslyAllowUnauthenticatedRequests: true,
+        messagingEndpoint: '/bot/incoming',
+      });
       await customServer.initialize({ credentials: undefined });
 
       expect(adapter.routes).toHaveLength(1);
@@ -67,7 +70,7 @@ describe('HttpServer', () => {
     it('warns when no credentials are configured', async () => {
       const logger = { warn: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn(), child: jest.fn() } as any;
       const warnServer = new HttpServer(adapter, {
-        skipAuth: false,
+        dangerouslyAllowUnauthenticatedRequests: false,
         logger,
         messagingEndpoint: '/api/messages',
       });
@@ -81,7 +84,7 @@ describe('HttpServer', () => {
     it('does not warn when credentials are configured', async () => {
       const logger = { warn: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn(), child: jest.fn() } as any;
       const credServer = new HttpServer(adapter, {
-        skipAuth: false,
+        dangerouslyAllowUnauthenticatedRequests: false,
         logger,
         messagingEndpoint: '/api/messages',
       });
@@ -92,6 +95,36 @@ describe('HttpServer', () => {
       expect(logger.warn).not.toHaveBeenCalled();
     });
 
+    it('warns when credentials are configured and unauthenticated requests are enabled', async () => {
+      const logger = { warn: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn(), child: jest.fn() } as any;
+      const warnServer = new HttpServer(adapter, {
+        dangerouslyAllowUnauthenticatedRequests: true,
+        logger,
+        messagingEndpoint: '/api/messages',
+      });
+      await warnServer.initialize({
+        credentials: { clientId: 'x', tenantId: 'y' } as any,
+      });
+
+      expect(logger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('Credentials are configured, but dangerouslyAllowUnauthenticatedRequests is enabled')
+      );
+    });
+
+  });
+
+  describe('unauthenticated request configuration', () => {
+    it('should use dangerouslyAllowUnauthenticatedRequests option', () => {
+      expect((server as any).dangerouslyAllowUnauthenticatedRequests).toBe(true);
+    });
+
+    it('should default dangerouslyAllowUnauthenticatedRequests to false', () => {
+      const explicitServer = new HttpServer(adapter, {
+        messagingEndpoint: '/api/messages',
+      });
+
+      expect((explicitServer as any).dangerouslyAllowUnauthenticatedRequests).toBe(false);
+    });
   });
 
   describe('handleRequest', () => {
@@ -161,7 +194,10 @@ describe('HttpServer', () => {
     let authServer: HttpServer;
 
     beforeEach(async () => {
-      authServer = new HttpServer(adapter, { ...defaultOptions, skipAuth: false });
+      authServer = new HttpServer(adapter, {
+        ...defaultOptions,
+        dangerouslyAllowUnauthenticatedRequests: false,
+      });
       await authServer.initialize({
         credentials: { clientId: 'test-app', tenantId: 'test-tenant' } as any,
       });
@@ -175,11 +211,14 @@ describe('HttpServer', () => {
     });
   });
 
-  describe('handleRequest without credentials and without skipAuth', () => {
+  describe('handleRequest without credentials and without unauthenticated requests allowed', () => {
     let noCredServer: HttpServer;
 
     beforeEach(async () => {
-      noCredServer = new HttpServer(adapter, { ...defaultOptions, skipAuth: false });
+      noCredServer = new HttpServer(adapter, {
+        ...defaultOptions,
+        dangerouslyAllowUnauthenticatedRequests: false,
+      });
       await noCredServer.initialize({ credentials: undefined });
     });
 

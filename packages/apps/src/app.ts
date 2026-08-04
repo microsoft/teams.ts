@@ -49,6 +49,7 @@ import { IRoutes } from './routes';
 import { TokenManager } from './token-manager';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
+import { getBooleanEnvValue } from './utils/env';
 import { toThreadedConversationId } from './utils/thread';
 
 /**
@@ -135,7 +136,13 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly activity?: AppActivityOptions;
 
   /**
-   * Skip authentication for HTTP requests
+   * Dangerously allow incoming HTTP requests without Teams service token validation.
+   * Uses environment variable DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS if not explicitly provided.
+   */
+  readonly dangerouslyAllowUnauthenticatedRequests?: boolean;
+
+  /**
+   * @deprecated Use dangerouslyAllowUnauthenticatedRequests instead.
    */
   readonly skipAuth?: boolean;
 
@@ -342,6 +349,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       log: this.log,
       getId: () => this.id,
       getConnectionName: () => this.oauth.defaultConnectionName,
+      shouldFetchUserToken: () => this.shouldFetchUserToken(),
       apiClientSettings: this.options.apiClientSettings,
       graphBaseUrl: this.graphBaseUrl,
     });
@@ -367,8 +375,25 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         '  - new App({ plugins: [new HttpPlugin()] }) (deprecated)'
       );
     }
-
     let server: HttpServer;
+    let dangerouslyAllowUnauthenticatedRequests = this.options.dangerouslyAllowUnauthenticatedRequests;
+    if (dangerouslyAllowUnauthenticatedRequests === undefined && this.options.skipAuth !== undefined) {
+      this.log.warn(
+        '[DEPRECATED] skipAuth is deprecated. Use dangerouslyAllowUnauthenticatedRequests instead.'
+      );
+      dangerouslyAllowUnauthenticatedRequests = this.options.skipAuth;
+    }
+    if (dangerouslyAllowUnauthenticatedRequests === undefined) {
+      const unauthenticatedRequestsEnvValue = getBooleanEnvValue('DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS');
+      if (unauthenticatedRequestsEnvValue !== undefined) {
+        this.log.warn(
+          'DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS is set. ' +
+          'Unauthenticated request behavior is configured by the environment.'
+        );
+        dangerouslyAllowUnauthenticatedRequests = unauthenticatedRequestsEnvValue;
+      }
+    }
+    dangerouslyAllowUnauthenticatedRequests ??= false;
 
     // HttpPlugin in plugins array (backwards compatibility)
     if (httpPlugin) {
@@ -385,7 +410,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         logger: this.log,
         onError: (err) => this.eventManager.onError({ error: err })
       }), {
-        skipAuth: this.options.skipAuth,
+        dangerouslyAllowUnauthenticatedRequests,
         logger: this.log,
         messagingEndpoint: this.options.messagingEndpoint ?? '/api/messages',
       });
@@ -763,5 +788,19 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected async getAppGraphToken(tenantId?: string) {
     if (!this.tokenManager) return;
     return await this.tokenManager.getGraphToken(tenantId);
+  }
+
+  /**
+   * whether to eagerly look up the user's OAuth token on every inbound activity.
+   * an explicit `oauth.fetchUserToken` wins; otherwise it is auto-detected, enabled
+   * only when an OAuth connection is explicitly configured, so apps that never use
+   * user OAuth do not pay for a wasted token request on every turn.
+   */
+  protected shouldFetchUserToken(): boolean {
+    const explicit = this.options.oauth?.fetchUserToken;
+    if (explicit !== undefined) {
+      return explicit;
+    }
+    return this.options.oauth?.defaultConnectionName !== undefined;
   }
 }

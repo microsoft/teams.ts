@@ -57,7 +57,7 @@ describe('BotBuilderAdapter', () => {
         cloudAdapter: adapter as unknown as CloudAdapter,
         httpServerAdapter,
       }),
-      skipAuth: true,
+      dangerouslyAllowUnauthenticatedRequests: true,
     });
     await app.start();
   });
@@ -146,7 +146,7 @@ describe('BotBuilderAdapter', () => {
         httpServerAdapter,
         logger: logger as any,
       }),
-      skipAuth: true,
+      dangerouslyAllowUnauthenticatedRequests: true,
     });
     await app.start();
 

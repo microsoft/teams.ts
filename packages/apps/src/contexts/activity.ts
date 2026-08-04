@@ -3,7 +3,6 @@ import {
   ActivityLike,
   ActivityParams,
   cardAttachment,
-  ConversationAccount,
   ConversationReference,
   DeprecatedInputActivity,
   InvokeResponse,
@@ -235,20 +234,25 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     // Extract activitySender and next before Object.assign to avoid overwriting methods
     const { activitySender, next, ...rest } = value;
 
+    // Rehydrate the inbound payload into its activity instance so computed
+    // accessors (channel/team/meeting/notification/tenant) resolve. Do NOT
+    // call `toInterface()` here: it flattens the instance to a plain object via
+    // `Object.assign`, which drops the prototype getters and makes those
+    // accessors silently return `undefined`.
     if (rest.activity.type === 'message') {
-      rest.activity = MessageActivity.from(rest.activity).toInterface();
+      rest.activity = MessageActivity.from(rest.activity);
     }
 
     if (rest.activity.type === 'messageUpdate') {
-      rest.activity = MessageUpdateActivity.from(rest.activity).toInterface();
+      rest.activity = MessageUpdateActivity.from(rest.activity);
     }
 
     if (rest.activity.type === 'messageDelete') {
-      rest.activity = MessageDeleteActivity.from(rest.activity).toInterface();
+      rest.activity = MessageDeleteActivity.from(rest.activity);
     }
 
     if (rest.activity.type === 'typing') {
-      rest.activity = TypingActivity.from(rest.activity).toInterface();
+      rest.activity = TypingActivity.from(rest.activity);
     }
 
     // SECURITY: drop any keys in `rest` that would shadow prototype methods.
@@ -386,36 +390,41 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       msAppId: this.appId,
     };
 
-    if (this.activity.conversation.isGroup) {
-      // create new 1:1 conversation with user to do SSO
-      // because groupchats don't support it.
-      const res = await this.api.conversations.create({
-        tenantId: this.activity.conversation.tenantId,
-        members: [this.activity.from],
-      });
-
-      await this.send({ type: 'message', text: oauthCardText });
-      convo.conversation = { id: res.id } as ConversationAccount;
-    }
-
     const state = Buffer.from(JSON.stringify(tokenExchangeState)).toString(
       'base64'
     );
     const resource = await this.api.bots.signIn.getResource({ state });
 
+    // In group conversations (group chats and channels) the OAuth card is sent as a
+    // targeted message so it is visible only to the requesting user rather than the
+    // whole conversation.
+    const isChannel = this.activity.conversation.conversationType === 'channel';
+    const isGroup = this.activity.conversation.isGroup === true;
+    const recipient = isGroup
+      ? { ...this.activity.from, isTargeted: true }
+      : this.activity.from;
+
+    // Channels cannot perform the silent SSO token exchange, so omit the token
+    // exchange resource there to render the sign-in button (OAuth card flow). This is
+    // applied to both the default card and any custom override so an override cannot
+    // accidentally trigger an exchange that Teams can't complete in a channel.
+    const tokenExchangeResource = isChannel
+      ? undefined
+      : resource.tokenExchangeResource;
+
     await this.send(
       overrideSignInActivity?.(
-        resource.tokenExchangeResource,
+        tokenExchangeResource,
         resource.tokenPostResource,
         resource.signInLink
       ) ?? {
         type: 'message',
-        recipient: this.activity.from,
+        recipient,
         attachments: [
           cardAttachment('oauth', {
             text: oauthCardText,
             connectionName: connectionName || this.connectionName,
-            tokenExchangeResource: resource.tokenExchangeResource,
+            tokenExchangeResource,
             tokenPostResource: resource.tokenPostResource,
             buttons: [
               {

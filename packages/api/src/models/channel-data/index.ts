@@ -1,6 +1,7 @@
 import { MeetingInfo } from '../meeting';
 import { MembershipSource } from '../membership-source';
 
+import { AppInfo } from './app-info';
 import { ChannelInfo } from './channel-info';
 import { FeedbackLoop } from './feedback-loop';
 import { NotificationInfo } from './notification-info';
@@ -21,6 +22,11 @@ export type ChannelData = {
    * message was sent.
    */
   channel?: ChannelInfo;
+
+  /**
+   * @member {AppInfo} [app] Information about the app that sent the message.
+   */
+  app?: AppInfo;
 
   /**
    * @member {string} [eventType] Type of event.
@@ -114,6 +120,7 @@ export type ChannelData = {
   membershipSource?: MembershipSource;
 };
 
+export * from './app-info';
 export * from './channel-info';
 export * from './notification-info';
 export * from './on-behalf-of';

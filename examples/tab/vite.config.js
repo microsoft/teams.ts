@@ -6,6 +6,6 @@ export default defineConfig({
   plugins: [react()],
   base: '/tabs/test',
   esbuild: {
-    tsconfigRaw: fs.readFileSync('./tsconfig.app.json', 'utf8'),
+    tsconfigRaw: fs.readFileSync(new URL('./tsconfig.app.json', import.meta.url), 'utf8'),
   },
 });
