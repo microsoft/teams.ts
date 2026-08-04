@@ -22,8 +22,9 @@ import { PluginAdditionalContext } from './types/app-routing';
  * class fields so they can be passed directly as route callbacks.
  */
 export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
+  // TODO: Implement production de-duplication with state to prevent duplicates across replicas or restarts
   private readonly processedExchangeIds: string[] = [];
-  private readonly tokenExchangeLocks = new Map<string, Promise<void>>();
+  private readonly tokenExchangeLocks = new Map<string, Promise<{ status: number, body?: TokenExchangeInvokeResponse }>>();
 
   constructor(
     private readonly getConnectionName: () => string,
@@ -51,70 +52,69 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
       }
       const existingLock = this.tokenExchangeLocks.get(exchangeId);
       if (existingLock) {
-        await existingLock.catch(() => {});
-        return { status: 200 };
+        return await existingLock;
       }
     }
 
-    const doExchange = async () => {
-      const token = await api.users.exchangeToken({
-        channelId: activity.channelId,
-        userId: activity.from.id,
-        connectionName: activity.value.connectionName,
-        exchangeRequest: {
-          token: activity.value.token,
-        },
-      });
+    const performExchange = async () => {
+      try {
+        const token = await api.users.exchangeToken({
+          channelId: activity.channelId,
+          userId: activity.from.id,
+          connectionName: activity.value.connectionName,
+          exchangeRequest: {
+            token: activity.value.token,
+          },
+        });
 
-      ctx.userGraph = new GraphClient(
-        this.client.clone({
-          token: token.token,
-        }),
-        { baseUrlRoot: this.graphBaseUrl }
-      );
+        ctx.userGraph = new GraphClient(
+          this.client.clone({
+            token: token.token,
+          }),
+          { baseUrlRoot: this.graphBaseUrl }
+        );
 
-      if (exchangeId) {
-        this.processedExchangeIds.push(exchangeId);
-        if (this.processedExchangeIds.length > 1000) {
-          this.processedExchangeIds.shift();
+        if (exchangeId) {
+          this.processedExchangeIds.push(exchangeId);
+          if (this.processedExchangeIds.length > 1000) {
+            this.processedExchangeIds.shift();
+          }
         }
-      }
 
-      this.events.emit('signin', { ...ctx, token, isSignedIn: true });
-      next(ctx);
+        this.events.emit('signin', { ...ctx, token, isSignedIn: true });
+        next(ctx);
+        return { status: 200 };
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          if (error.status !== 404 && error.status !== 400 && error.status !== 412) {
+            this.events.emit('error', { error, activity });
+            return { status: error.status || 500 };
+          }
+        }
+
+        const body: TokenExchangeInvokeResponse = {
+          id: activity.value.id,
+          connectionName: activity.value.connectionName,
+          failureDetail: 'unable to exchange token...',
+        };
+
+        return {
+          status: 412,
+          body,
+        };
+      }
     };
 
-    try {
-      if (exchangeId) {
-        const lock = doExchange();
-        this.tokenExchangeLocks.set(exchangeId, lock);
-        await lock;
-      } else {
-        await doExchange();
-      }
-      return { status: 200 };
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        if (error.status !== 404 && error.status !== 400 && error.status !== 412) {
-          this.events.emit('error', { error, activity });
-          return { status: error.status || 500 };
-        }
-      }
-
-      const body: TokenExchangeInvokeResponse = {
-        id: activity.value.id,
-        connectionName: activity.value.connectionName,
-        failureDetail: 'unable to exchange token...',
-      };
-
-      return {
-        status: 412,
-        body,
-      };
-    } finally {
-      if (exchangeId) {
+    if (exchangeId) {
+      const lock = performExchange();
+      this.tokenExchangeLocks.set(exchangeId, lock);
+      try {
+        return await lock;
+      } finally {
         this.tokenExchangeLocks.delete(exchangeId);
       }
+    } else {
+      return await performExchange();
     }
   };
 
