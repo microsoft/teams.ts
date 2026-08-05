@@ -1,6 +1,7 @@
 export type Attachment = {
   /**
    * @member {string} [id] The id of the attachment.
+   * @deprecated This is a legacy Bot Framework field and will be removed in a future version of the SDK.
    */
   id?: string;
 
