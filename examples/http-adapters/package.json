@@ -24,7 +24,7 @@
     "@types/node": "^22.5.4",
     "@types/restify": "^8.5.12",
     "dotenv": "^16.4.5",
-    "tsx": "^4.20.6",
+    "tsx": "^4.23.1",
     "typescript": "^5.4.5"
   }
 }
