@@ -21,7 +21,7 @@
     "@microsoft/teams.api": "*",
     "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
-    "date-fns": "^4.1.0",
+    "date-fns": "^4.4.0",
     "highlight.js": "^11.11.1",
     "htmlparser2": "^10.0.0",
     "mdast-util-from-markdown": "^2.0.2",
