@@ -29,6 +29,7 @@
     "bots"
   ],
   "scripts": {
+    "check:lockfile-registry": "node scripts/check-lockfile-registry.js",
     "version:stamp": "node scripts/version.js",
     "version:get": "nbgv get-version -v NpmPackageVersion",
     "clean": "npx turbo clean",
