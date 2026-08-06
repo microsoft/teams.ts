@@ -1,8 +1,8 @@
 import { ConversationType } from '@microsoft/teams.api';
 
 /**
- * Where the SDK found an inbound file. 
- * - `botActivity` files come straight from the inbound activity's attachments; 
+ * Where the SDK found an inbound file.
+ * - `botActivity` files come straight from the inbound activity's attachments;
  * - `graph` files are hydrated through Microsoft Graph.
  */
 export type FileSource = 'botActivity' | 'graph';
@@ -16,15 +16,15 @@ export type FileSource = 'botActivity' | 'graph';
 export interface IDownloadedFile {
   /** The file bytes, buffered from `stream()` read to completion. */
   bytes: Uint8Array;
-  /** MIME type resolved from the response or the incoming file. */
+  /** MIME type resolved from the download response header, or the incoming file's metadata type if the response omits one. Falls back to `application/octet-stream` when neither provides a type, so this is never empty. */
   contentType: string;
   /** Resolved filename. */
   filename: string;
   /** The URL the bytes were actually fetched from. */
   sourceUrl: string;
 
-  /** Decode bytes as UTF-8 (or a provided encoding). No content-type check. 
-   * Lossy: invalid bytes become the U+FFFD replacement character and never throw. 
+  /** Decode bytes as UTF-8 (or a provided encoding). No content-type check.
+   * Lossy: invalid bytes become the U+FFFD replacement character and never throw.
    * For strict or binary-safe reads, use `bytes`/`arrayBuffer()`. */
   text(encoding?: string): string;
   /** Return the bytes as an `ArrayBuffer`. Synchronous; no re-download. */
@@ -44,7 +44,9 @@ export interface IIncomingFile {
   uniqueId?: string;
   /** Display name including extension when known. */
   name: string;
-  /** MIME type when known. */
+  /**
+   * The file's MIME type, when Teams provides it with the file; otherwise unset. The type resolved from the download response is on the returned {@link IDownloadedFile}, not written back here.
+   */
   contentType?: string;
   /** File extension without the dot (e.g. `pdf`), taken from the platform-supplied `fileType`. Absent when the wire omits it. */
   extension?: string;
@@ -69,7 +71,7 @@ export interface IIncomingFile {
   arrayBuffer(): Promise<ArrayBuffer>;
   /** Stream the bytes straight to a local file path, so saving a large file never materializes it in memory. Requires Node: it writes to the local filesystem, which is unavailable in the browser. */
   saveAs(path: string): Promise<void>;
-};
+}
 
 /**
  * Accessor for the uploaded files on the current inbound activity, exposed as `ctx.files`.

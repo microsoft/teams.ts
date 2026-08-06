@@ -22,7 +22,8 @@ export type FileDownloadInfo = {
   fileType?: string;
 
   /**
-   * @member {any} [etag] ETag for the file.
+   * @member {string} [etag] A server-assigned version tag identifying this version of the file's contents, for detecting whether the file changed between reads.
+   * Read-only; populated when Teams provides it with the file.
    */
-  etag?: any;
+  etag?: string;
 };
