@@ -46,7 +46,7 @@ export async function openFileStream(
     return openPersonalFileStream(target, options);
   }
 
-  throw new FileScopeNotSupportedError(String(target.scope));
+  throw new FileScopeNotSupportedError(target.scope);
 }
 
 async function openPersonalFileStream(

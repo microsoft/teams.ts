@@ -1,3 +1,5 @@
+import { ConversationType } from '@microsoft/teams.api';
+
 /**
  * Raised when an inbound file's short-lived download URL has expired and can no longer fetch bytes.
  *
@@ -33,9 +35,9 @@ export class FileUrlExpiredError extends Error {
  */
 export class FileScopeNotSupportedError extends Error {
   /** The conversation scope that is not yet fetchable. */
-  readonly scope: string;
+  readonly scope: ConversationType;
 
-  constructor(scope: string, message?: string) {
+  constructor(scope: ConversationType, message?: string) {
     super(message ?? `downloading files from '${scope}' conversations is not supported via SDK at this time`);
     this.name = 'FileScopeNotSupportedError';
     this.scope = scope;
