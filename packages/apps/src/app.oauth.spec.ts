@@ -140,6 +140,8 @@ describe('OauthHandlers', () => {
         next
       };
       
+      const emitSpy = jest.spyOn(mockEvents, 'emit');
+
       const results = await Promise.all([
         handlers.onTokenExchange(ctx),
         handlers.onTokenExchange(ctx)
@@ -147,6 +149,9 @@ describe('OauthHandlers', () => {
       
       expect(results).toEqual([{ status: 200 }, { status: 200 }]);
       expect(mockApi.users.exchangeToken).toHaveBeenCalledTimes(1);
+      expect(emitSpy).toHaveBeenCalledTimes(1);
+      expect(emitSpy).toHaveBeenCalledWith('signin', expect.anything());
+      expect(next).toHaveBeenCalledTimes(1);
     });
 
     it('returns 412 for concurrent callers when original exchange fails', async () => {
@@ -176,6 +181,8 @@ describe('OauthHandlers', () => {
         next: jest.fn()
       };
       
+      const emitSpy = jest.spyOn(mockEvents, 'emit');
+
       const results = await Promise.all([
         handlers.onTokenExchange(ctx),
         handlers.onTokenExchange(ctx)
@@ -184,6 +191,8 @@ describe('OauthHandlers', () => {
       expect(results[0].status).toEqual(412);
       expect(results[1].status).toEqual(412);
       expect(mockApi.users.exchangeToken).toHaveBeenCalledTimes(1);
+      expect(emitSpy).not.toHaveBeenCalled();
+      expect(ctx.next).not.toHaveBeenCalled();
     });
   });
 });

@@ -112,7 +112,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
 
             this.events.emit('signin', { ...ctx, token, isSignedIn: true });
             telemetry.callbackInvoked = true;
-            next(ctx);
+            await next(ctx);
 
             if (exchangeId) {
               this.processedExchangeIds.push(exchangeId);
@@ -203,7 +203,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
 
           this.events.emit('signin', { ...ctx, token, isSignedIn: true });
           telemetry.callbackInvoked = true;
-          next(ctx);
+          await next(ctx);
           telemetry.result = APP_OAUTH_RESULT.success;
           telemetry.responseStatus = 200;
           return { status: 200 };
@@ -275,7 +275,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
           activity,
         });
 
-        next(ctx);
+        await next(ctx);
         telemetry.result = APP_OAUTH_RESULT.notified;
         telemetry.responseStatus = 200;
         return { status: 200 };
