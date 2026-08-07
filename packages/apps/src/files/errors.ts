@@ -31,7 +31,7 @@ export class FileUrlExpiredError extends Error {
  * Raised when file bytes are requested for a conversation scope whose download path is not implemented.
  *
  * Only `personal` (1:1) uploaded files download directly. 
- * `groupChat` and `channel` files are surfaced by `list()`, but fetching their bytes needs Graph; `download()`/`stream()` throws until that path lands.
+ * `groupChat` files are surfaced by `list()`, but fetching their bytes needs Graph; `download()`/`stream()` throws until that path lands.
  */
 export class FileScopeNotSupportedError extends Error {
   /** The conversation scope that is not yet fetchable. */
