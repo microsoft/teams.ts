@@ -271,7 +271,7 @@ export function injectWidgetProtocol(
   const script = '<script>(function(){'
     + cspDebug
     + 'var id=\'init-\'+Math.random().toString(36).slice(2);'
-    + 'function notifySize(){window.parent.postMessage({jsonrpc:\'2.0\',method:\'ui/notifications/size-changed\',params:{height:document.body.scrollHeight}},\'*\');}'
+    + 'function notifySize(){window.parent.postMessage({jsonrpc:\'2.0\',method:\'ui/notifications/size-changed\',params:{height:Math.ceil(Math.max(document.documentElement.scrollHeight,document.body.scrollHeight))}},\'*\');}'
     + 'window.addEventListener(\'message\',function(e){var d=e.data;if(!d||d.jsonrpc!==\'2.0\')return;'
     + 'if(d.id===id&&d.result){window.parent.postMessage({jsonrpc:\'2.0\',method:\'ui/notifications/initialized\'},\'*\');setTimeout(notifySize,100);}'
     + hookLines
