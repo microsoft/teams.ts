@@ -59,6 +59,10 @@ async function openPersonalFileStream(
     throw new Error('cannot download personal file: no download URL is available');
   }
 
+  if (!/^https:\/\//i.test(url)) {
+    throw new Error('cannot download file: download URL must use https');
+  }
+
   const doFetch = options?.fetch ?? defaultFetch;
 
   // Plain GET with no bearer token: the download URL embeds its own `tempauth` credential, and attaching a credential can get the request rejected.

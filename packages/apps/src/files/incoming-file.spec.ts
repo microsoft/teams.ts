@@ -139,6 +139,14 @@ describe('IncomingFile', () => {
       expect(calls).toHaveLength(0);
     });
 
+    it('throws when a personal file download URL is not https', async () => {
+      const { fetch, calls } = sequenceFetch([jsonBody('unused')]);
+      const file = personalFile({ fetch, downloadUrl: 'http://download.example/notes.txt' });
+
+      await expect(file.download()).rejects.toThrow(/must use https/);
+      expect(calls).toHaveLength(0);
+    });
+
     it('throws on a non-auth error response', async () => {
       const { fetch } = sequenceFetch([new Response(null, { status: 500, statusText: 'Server Error' })]);
       const file = personalFile({ fetch });
