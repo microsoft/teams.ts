@@ -234,6 +234,16 @@ describe('Client', () => {
           headers: { Authorization: 'Bearer test' },
         });
       });
+
+      it('should not send Authorization when a request token resolves to nothing', async () => {
+        const client = new HttpClient({ token: 'default' });
+        const spy = jest.spyOn(client.instance, 'get').mockResolvedValueOnce({});
+
+        await client.get('/test', { token: () => undefined });
+
+        const [, config] = spy.mock.calls[0];
+        expect(config?.headers?.Authorization).toBeUndefined();
+      });
     });
   });
 

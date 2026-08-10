@@ -1,9 +1,12 @@
+import { Readable } from 'stream';
+
 import { ConversationType } from '@microsoft/teams.api';
+import { Client as HttpClient } from '@microsoft/teams.common';
 
 import { FileScopeNotSupportedError, FileUrlExpiredError } from './errors';
 
 /**
- * Pluggable fetch used to retrieve file bytes. Defaults to the global `fetch`; injectable so tests can supply a real `Response` without hitting the network.
+ * Pluggable fetch used to retrieve file bytes. Injectable so tests can supply a real `Response` without hitting the network; when omitted the app's {@link HttpClient} is used instead.
  */
 export type FileFetch = (url: string, init?: { signal?: AbortSignal }) => Promise<Response>;
 
@@ -31,7 +34,30 @@ export type OpenedFileStream = {
   contentType: string;
 };
 
-const defaultFetch: FileFetch = (url, init) => fetch(url, { method: 'GET', signal: init?.signal });
+/**
+ * Options shared by every scope's download path.
+ */
+export type OpenFileStreamOptions = {
+  priorFetchSucceeded?: boolean;
+  /** Test-only transport override. Takes precedence over `httpClient`. */
+  fetch?: FileFetch;
+  /** The app's HTTP client, so downloads inherit its User-Agent, middleware, interceptors, and any user-supplied configuration. */
+  httpClient?: HttpClient;
+  signal?: AbortSignal;
+};
+
+/**
+ * The transport-agnostic shape both the `fetch` and {@link HttpClient} paths normalize to.
+ */
+type TransportResponse = {
+  status: number;
+  statusText: string;
+  ok: boolean;
+  contentType?: string;
+  stream?: ReadableStream<Uint8Array>;
+  /** Releases the underlying socket for responses whose body we are not going to read. */
+  discard: () => void;
+};
 
 /**
  * Open a byte stream for an inbound file, keyed on its conversation scope so every scope's receive path extends this one place rather than branching in callers.
@@ -40,7 +66,7 @@ const defaultFetch: FileFetch = (url, init) => fetch(url, { method: 'GET', signa
  */
 export async function openFileStream(
   target: FileFetchTarget,
-  options?: { priorFetchSucceeded?: boolean; fetch?: FileFetch; signal?: AbortSignal }
+  options?: OpenFileStreamOptions
 ): Promise<OpenedFileStream> {
   if (target.scope === 'personal') {
     return openPersonalFileStream(target, options);
@@ -51,7 +77,7 @@ export async function openFileStream(
 
 async function openPersonalFileStream(
   target: FileFetchTarget,
-  options?: { priorFetchSucceeded?: boolean; fetch?: FileFetch; signal?: AbortSignal }
+  options?: OpenFileStreamOptions
 ): Promise<OpenedFileStream> {
   const url = target.downloadUrl;
 
@@ -63,21 +89,73 @@ async function openPersonalFileStream(
     throw new Error('cannot download file: download URL must use https');
   }
 
-  const doFetch = options?.fetch ?? defaultFetch;
-
-  // Plain GET with no bearer token: the download URL embeds its own `tempauth` credential, and attaching a credential can get the request rejected.
-  const response = await doFetch(url, { signal: options?.signal });
+  const response = await requestFile(url, options);
 
   if (response.status === 401 || response.status === 403) {
+    response.discard();
     throw new FileUrlExpiredError(options?.priorFetchSucceeded ? 'reread' : 'firstFetch');
   }
 
-  if (!response.ok || !response.body) {
+  if (!response.ok || !response.stream) {
+    response.discard();
     throw new Error(`failed to download file: ${response.status} ${response.statusText}`.trim());
   }
 
-  const contentType = response.headers.get('content-type') ?? target.contentType ?? 'application/octet-stream';
-  return { stream: response.body, sourceUrl: url, contentType };
+  const contentType = response.contentType ?? target.contentType ?? 'application/octet-stream';
+  return { stream: response.stream, sourceUrl: url, contentType };
+}
+
+async function requestFile(url: string, options?: OpenFileStreamOptions): Promise<TransportResponse> {
+  if (options?.fetch) {
+    return fromFetchResponse(await options.fetch(url, { signal: options.signal }));
+  }
+
+  if (options?.httpClient) {
+    return requestViaHttpClient(url, options.httpClient, options.signal);
+  }
+
+  throw new Error('cannot download file: no HTTP client is available');
+}
+
+async function requestViaHttpClient(
+  url: string,
+  client: HttpClient,
+  signal?: AbortSignal
+): Promise<TransportResponse> {
+  const response = await client.get<Readable>(url, {
+    responseType: 'stream',
+    signal,
+    // The URL carries its own `tempauth` credential; a bearer token on top of it can get the request rejected.
+    token: () => undefined,
+    // We map 401/403 onto FileUrlExpiredError ourselves, so keep axios from throwing first.
+    validateStatus: () => true,
+  });
+
+  const body: Readable | undefined = response.data;
+  const contentTypeHeader = response.headers?.['content-type'];
+
+  return {
+    status: response.status,
+    statusText: response.statusText ?? '',
+    ok: response.status >= 200 && response.status < 300,
+    contentType: typeof contentTypeHeader === 'string' ? contentTypeHeader : undefined,
+    // `packages/apps` is Node-only, so adapting Node's `Readable` to a web `ReadableStream` is safe here.
+    stream: body ? (Readable.toWeb(body) as unknown as ReadableStream<Uint8Array>) : undefined,
+    discard: () => body?.destroy(),
+  };
+}
+
+function fromFetchResponse(response: Response): TransportResponse {
+  return {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok,
+    contentType: response.headers.get('content-type') ?? undefined,
+    stream: response.body ?? undefined,
+    discard: () => {
+      void response.body?.cancel().catch(() => { });
+    },
+  };
 }
 
 /**

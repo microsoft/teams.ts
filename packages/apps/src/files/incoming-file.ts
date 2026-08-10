@@ -1,6 +1,7 @@
 import { createWriteStream } from 'fs';
 
 import { ConversationType } from '@microsoft/teams.api';
+import { Client as HttpClient } from '@microsoft/teams.common';
 
 import { collectStream, FileFetch, FileFetchTarget, openFileStream } from './download';
 import { DownloadedFile } from './downloaded-file';
@@ -20,8 +21,10 @@ export interface IIncomingFileInit {
   raw?: unknown;
   /** Short-lived, pre-authorized download URL (personal scope). */
   downloadUrl?: string;
-  /** Injectable fetch, defaulting to the global `fetch`; used to keep tests off the network. */
+  /** Injectable fetch used to keep tests off the network; takes precedence over `httpClient`. */
   fetch?: FileFetch;
+  /** The app's HTTP client, so downloads inherit its User-Agent, middleware, and user-supplied configuration. */
+  httpClient?: HttpClient;
 }
 
 /**
@@ -39,6 +42,7 @@ export class IncomingFile implements IIncomingFile {
 
   private readonly downloadUrl?: string;
   private readonly _fetch?: FileFetch;
+  private readonly _httpClient?: HttpClient;
   private _priorFetchSucceeded = false;
 
   constructor(init: IIncomingFileInit) {
@@ -52,12 +56,14 @@ export class IncomingFile implements IIncomingFile {
     this.raw = init.raw;
     this.downloadUrl = init.downloadUrl;
     this._fetch = init.fetch;
+    this._httpClient = init.httpClient;
   }
 
   async stream(): Promise<ReadableStream<Uint8Array>> {
     const opened = await openFileStream(this.target(), {
       priorFetchSucceeded: this._priorFetchSucceeded,
       fetch: this._fetch,
+      httpClient: this._httpClient,
     });
     this._priorFetchSucceeded = true;
     return opened.stream;
@@ -67,6 +73,7 @@ export class IncomingFile implements IIncomingFile {
     const opened = await openFileStream(this.target(), {
       priorFetchSucceeded: this._priorFetchSucceeded,
       fetch: this._fetch,
+      httpClient: this._httpClient,
     });
     this._priorFetchSucceeded = true;
 
@@ -94,6 +101,7 @@ export class IncomingFile implements IIncomingFile {
     const opened = await openFileStream(this.target(), {
       priorFetchSucceeded: this._priorFetchSucceeded,
       fetch: this._fetch,
+      httpClient: this._httpClient,
     });
     this._priorFetchSucceeded = true;
 

@@ -6,7 +6,7 @@ import {
   FileDownloadInfo,
   MessageActivity,
 } from '@microsoft/teams.api';
-import { ILogger } from '@microsoft/teams.common';
+import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
 
 import { IncomingFile } from './incoming-file';
 import { IFilesAccessor, IIncomingFile } from './types';
@@ -19,7 +19,9 @@ import { IFilesAccessor, IIncomingFile } from './types';
 export class FilesAccessor implements IFilesAccessor {
   constructor(
     private readonly activity: Activity,
-    private readonly log: ILogger
+    private readonly log: ILogger,
+    /** The app's HTTP client, threaded into every {@link IncomingFile} so downloads go through the SDK's outbound pipeline rather than a bare `fetch`. */
+    private readonly httpClient?: HttpClient
   ) {}
 
   async list(): Promise<IIncomingFile[]> {
@@ -94,6 +96,7 @@ export class FilesAccessor implements IFilesAccessor {
       webUrl: attachment.contentUrl,
       raw: attachment,
       downloadUrl,
+      httpClient: this.httpClient,
     });
   }
 }

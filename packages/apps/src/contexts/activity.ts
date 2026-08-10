@@ -18,7 +18,7 @@ import {
   TokenPostResource,
   TypingActivity,
 } from '@microsoft/teams.api';
-import { ILogger, IStorage } from '@microsoft/teams.common';
+import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
 
 import { ApiClient, GraphClient } from '../api';
 import { FilesAccessor } from '../files/files-accessor';
@@ -73,6 +73,13 @@ export interface IBaseActivityContextOptions<T extends Activity = Activity> {
    * the api client
    */
   api: ApiClient;
+
+  /**
+   * the app's shared HTTP client, used for outbound calls that are not part of the Teams API surface
+   * (e.g. downloading an inbound file's bytes)
+   * They inherit the app's User-Agent, middleware, and configuration.
+   */
+  client?: HttpClient;
 
   /**
    * the app graph client
@@ -278,7 +285,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     this.next = next;
     this.stream = activitySender.createStream(value.ref);
     this.connectionName = value.connectionName;
-    this.files = new FilesAccessor(this.activity, this.log);
+    this.files = new FilesAccessor(this.activity, this.log, value.client);
   }
 
   /**
