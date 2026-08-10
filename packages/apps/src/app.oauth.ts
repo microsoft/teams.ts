@@ -47,6 +47,10 @@ const EXPECTED_OAUTH_HTTP_STATUSES = new Set([400, 404, 412]);
  * class fields so they can be passed directly as route callbacks.
  */
 export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
+  // TODO: Implement production de-duplication with state to prevent duplicates across replicas or restarts
+  private readonly processedExchangeIds: string[] = [];
+  private readonly tokenExchangeLocks = new Map<string, Promise<{ status: number, body?: TokenExchangeInvokeResponse }>>();
+
   constructor(
     private readonly getConnectionName: () => string,
     private readonly client: HttpClient,
@@ -72,54 +76,91 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
           );
         }
 
-        try {
-          const token = await api.users.exchangeToken({
-            channelId: activity.channelId,
-            userId: activity.from.id,
-            connectionName: activityConnectionName,
-            exchangeRequest: {
-              token: activity.value.token,
-            },
-          });
-
-          ctx.userGraph = new GraphClient(
-            this.client.clone({
-              token: token.token,
-            }),
-            { baseUrlRoot: this.graphBaseUrl }
-          );
-
-          this.events.emit('signin', { ...ctx, token, isSignedIn: true });
-          telemetry.callbackInvoked = true;
-          next(ctx);
-          telemetry.result = APP_OAUTH_RESULT.success;
-          telemetry.responseStatus = 200;
-          return { status: 200 };
-        } catch (error) {
-          if (error instanceof AxiosError) {
-            if (!isExpectedOAuthHttpStatus(error)) {
-              telemetry.result = APP_OAUTH_RESULT.failure;
-              telemetry.responseStatus = error.status || 500;
-              recordUnexpectedOAuthError(span, telemetry, error, APP_OAUTH_ERROR_TYPE.httpError);
-              this.events.emit('error', { error, activity });
-              return { status: error.status || 500 };
-            }
-          } else {
-            recordUnexpectedOAuthError(span, telemetry, error, APP_OAUTH_ERROR_TYPE.exception);
+        const exchangeId = activity.value.id;
+        if (exchangeId) {
+          if (this.processedExchangeIds.includes(exchangeId)) {
+            telemetry.result = APP_OAUTH_RESULT.success;
+            telemetry.responseStatus = 200;
+            return { status: 200 };
           }
+          const existingLock = this.tokenExchangeLocks.get(exchangeId);
+          if (existingLock) {
+            const result = await existingLock;
+            telemetry.result = result.status === 200 ? APP_OAUTH_RESULT.success : APP_OAUTH_RESULT.failure;
+            telemetry.responseStatus = result.status;
+            return result;
+          }
+        }
 
-          const body: TokenExchangeInvokeResponse = {
-            id: activity.value.id,
-            connectionName: activityConnectionName,
-            failureDetail: 'unable to exchange token...',
-          };
+        const performExchange = async () => {
+          try {
+            const token = await api.users.exchangeToken({
+              channelId: activity.channelId,
+              userId: activity.from.id,
+              connectionName: activityConnectionName,
+              exchangeRequest: {
+                token: activity.value.token,
+              },
+            });
 
-          telemetry.result = APP_OAUTH_RESULT.failure;
-          telemetry.responseStatus = 412;
-          return {
-            status: 412,
-            body,
-          };
+            ctx.userGraph = new GraphClient(
+              this.client.clone({
+                token: token.token,
+              }),
+              { baseUrlRoot: this.graphBaseUrl }
+            );
+
+            this.events.emit('signin', { ...ctx, token, isSignedIn: true });
+            telemetry.callbackInvoked = true;
+            await next(ctx);
+
+            if (exchangeId) {
+              this.processedExchangeIds.push(exchangeId);
+              if (this.processedExchangeIds.length > 1000) {
+                this.processedExchangeIds.shift();
+              }
+            }
+            telemetry.result = APP_OAUTH_RESULT.success;
+            telemetry.responseStatus = 200;
+            return { status: 200 };
+          } catch (error) {
+            if (error instanceof AxiosError) {
+              if (!isExpectedOAuthHttpStatus(error)) {
+                telemetry.result = APP_OAUTH_RESULT.failure;
+                telemetry.responseStatus = error.status || 500;
+                recordUnexpectedOAuthError(span, telemetry, error, APP_OAUTH_ERROR_TYPE.httpError);
+                this.events.emit('error', { error, activity });
+                return { status: error.status || 500 };
+              }
+            } else {
+              recordUnexpectedOAuthError(span, telemetry, error, APP_OAUTH_ERROR_TYPE.exception);
+            }
+
+            const body: TokenExchangeInvokeResponse = {
+              id: activity.value.id,
+              connectionName: activityConnectionName,
+              failureDetail: 'unable to exchange token...',
+            };
+
+            telemetry.result = APP_OAUTH_RESULT.failure;
+            telemetry.responseStatus = 412;
+            return {
+              status: 412,
+              body,
+            };
+          }
+        };
+
+        if (exchangeId) {
+          const lock = performExchange();
+          this.tokenExchangeLocks.set(exchangeId, lock);
+          try {
+            return await lock;
+          } finally {
+            this.tokenExchangeLocks.delete(exchangeId);
+          }
+        } else {
+          return await performExchange();
         }
       }
     );
@@ -162,7 +203,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
 
           this.events.emit('signin', { ...ctx, token, isSignedIn: true });
           telemetry.callbackInvoked = true;
-          next(ctx);
+          await next(ctx);
           telemetry.result = APP_OAUTH_RESULT.success;
           telemetry.responseStatus = 200;
           return { status: 200 };
@@ -234,7 +275,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
           activity,
         });
 
-        next(ctx);
+        await next(ctx);
         telemetry.result = APP_OAUTH_RESULT.notified;
         telemetry.responseStatus = 200;
         return { status: 200 };

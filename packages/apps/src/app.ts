@@ -549,24 +549,24 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       name: 'signin.token-exchange',
       type: 'system',
       select: activity => activity.type === 'invoke' && activity.name === 'signin/tokenExchange',
-      callback: ctx => this.oauthHandlers.onTokenExchange(ctx),
+      callback: ctx => this.oauthHandlers.onTokenExchange(ctx) as unknown as Promise<void>,
     });
 
     this.router.register({
       name: 'signin.verify-state',
       type: 'system',
       select: activity => activity.type === 'invoke' && activity.name === 'signin/verifyState',
-      callback: ctx => this.oauthHandlers.onVerifyState(ctx),
+      callback: ctx => this.oauthHandlers.onVerifyState(ctx) as unknown as Promise<void>,
     });
 
     this.router.register({
       name: 'signin.failure',
       type: 'system',
       select: activity => activity.type === 'invoke' && activity.name === 'signin/failure',
-      callback: ctx => this.oauthHandlers.onSignInFailure(ctx),
+      callback: ctx => this.oauthHandlers.onSignInFailure(ctx) as unknown as Promise<void>,
     });
 
-    this.event('error', ({ error }) => {
+    this.event('error', ({ error }: any) => {
       this.log.error(error.message);
 
       if (error instanceof AxiosError) {
