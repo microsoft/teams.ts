@@ -263,7 +263,7 @@ export function injectWidgetProtocol(
   // Assemble the protocol script (minified for payload size):
   // - (opt-in) Listen for CSP violations and log them
   // - Generate a unique request ID for the init handshake
-  // - Define notifySize to report body height to the host
+  // - Define notifySize to report content height to the host
   // - Listen for messages: on init response, send initialized + size;
   //   on known notifications, dispatch to window.onX callbacks
   // - Send ui/initialize request with app info and capabilities
