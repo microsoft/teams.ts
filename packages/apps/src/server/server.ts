@@ -18,6 +18,14 @@ export type IServerInitializeDeps = {
  */
 export interface IServer {
   /**
+   * Discriminant identifying the concrete inbound transport. Each transport
+   * sets a unique literal tag (HTTP uses `'http'`). Enables type-safe narrowing
+   * to a specific server interface (e.g. {@link IHttpServer}) via a constant-time
+   * check, rather than brittle structural/duck-typing tests.
+   */
+  readonly transport: string;
+
+  /**
    * Callback the App sets to process an inbound activity and return the invoke
    * response. Set by the App during construction.
    */

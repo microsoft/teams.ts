@@ -64,10 +64,7 @@ function isAppSendOptions(value: ActivityLike | DeprecatedInputActivity | AppSen
 }
 
 function isHttpServer(server: IServer): server is IHttpServer {
-  return (
-    typeof (server as Partial<IHttpServer>).registerRoute === 'function' &&
-    typeof (server as Partial<IHttpServer>).serveStatic === 'function'
-  );
+  return server.transport === 'http';
 }
 
 /**

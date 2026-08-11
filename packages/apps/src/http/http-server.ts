@@ -42,6 +42,8 @@ export type HttpServerOptions = {
  * Public interface for HttpServer, exposed via DI for plugins
  */
 export interface IHttpServer extends IServer {
+  /** Transport discriminant for the HTTP server. */
+  readonly transport: 'http';
   handleRequest(request: IHttpServerRequest): Promise<IHttpServerResponse>;
   registerRoute(method: HttpMethod, path: string, handler: HttpRouteHandler): void;
   serveStatic(path: string, directory: string): void;
@@ -53,6 +55,9 @@ export interface IHttpServer extends IServer {
  * Configurable HTTP server for receiving Teams activities
  */
 export class HttpServer implements IHttpServer {
+  /** Transport discriminant identifying this as the HTTP server. */
+  readonly transport = 'http' as const;
+
   /**
    * Callback invoked when a valid activity request arrives
    * App should set this to process activities
