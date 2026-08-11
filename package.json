@@ -45,6 +45,7 @@
   },
   "devDependencies": {
     "@turbo/gen": "^2.5.7",
+    "esbuild": "0.25.12",
     "nerdbank-gitversioning": "^3.9.50",
     "turbo": "^2.9.14",
     "typescript": "^5.4.5"
@@ -53,14 +54,46 @@
     "@rollup/rollup-linux-x64-gnu": "4.62.3"
   },
   "overrides": {
+    "@azure/core-http": {
+      "uuid": "^11.1.1"
+    },
+    "@azure/msal-node": {
+      "uuid": "^11.1.1"
+    },
+    "botbuilder": {
+      "@azure/msal-node": {
+        "uuid": "^11.1.1"
+      },
+      "uuid": "^11.1.1"
+    },
+    "botbuilder-core": {
+      "uuid": "^11.1.1"
+    },
+    "botframework-schema": {
+      "uuid": "^11.1.1"
+    },
+    "botframework-streaming": {
+      "uuid": "^11.1.1"
+    },
+    "bundle-require": {
+      "esbuild": "0.28.2"
+    },
     "restify": {
       "send": "^1.2.0",
-      "find-my-way": "^9.0.0"
+      "find-my-way": "^9.7.0",
+      "uuid": "^11.1.1"
     },
     "follow-redirects": "^1.16.0",
     "router": {
       "path-to-regexp": "^8.4.0"
     },
-    "rollup": "4.62.3"
+    "rollup": "4.62.3",
+    "tsup": {
+      ".": "8.5.1",
+      "esbuild": "0.28.2"
+    },
+    "vite": {
+      "esbuild": "0.25.12"
+    }
   }
 }

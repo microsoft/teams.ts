@@ -43,7 +43,7 @@
     "@microsoft/teams.common": "*",
     "express": "^5.0.0",
     "jsonwebtoken": "^9.0.2",
-    "uuid": "^11.0.5",
+    "uuid": "^11.1.1",
     "ws": "^8.18.1"
   },
   "peerDependencies": {
