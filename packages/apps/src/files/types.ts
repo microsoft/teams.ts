@@ -45,7 +45,7 @@ export interface IIncomingFile {
   /** Display name including extension when known. */
   name: string;
   /**
-   * The file's MIME type, when Teams provides it with the file; otherwise unset. The type resolved from the download response is on the returned {@link IDownloadedFile}, not written back here.
+   * The file's MIME type when the source provides one. Always unset for `botActivity` files: a `file.download.info` attachment carries no MIME type, only the `fileType` extension surfaced as {@link extension}. Populated for sources that do carry one, such as a `graph` drive item. To learn the type of the bytes you actually received, read {@link IDownloadedFile.contentType}, which is resolved from the download response.
    */
   contentType?: string;
   /** File extension without the dot (e.g. `pdf`), taken from the platform-supplied `fileType`. Absent when the wire omits it. */

@@ -11,6 +11,28 @@ import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
 import { IncomingFile } from './incoming-file';
 import { IFilesAccessor, IIncomingFile } from './types';
 
+/** Narrow an unknown wire value to `string | undefined`, the shape every {@link FileDownloadInfo} field declares. */
+function isOptionalString(value: unknown): value is string | undefined {
+  return value === undefined || typeof value === 'string';
+}
+
+/**
+ * Coerce an attachment's `content` into a {@link FileDownloadInfo}. `Attachment.content` is typed `any`, so without this the wire payload would be trusted unchecked and a wrong-typed `downloadUrl` would only surface later as a confusing failure at fetch time. Returns `undefined` for anything that is not an object or that carries a non-string where a string is required; unknown extra properties are ignored, matching how the peer SDKs deserialize this payload.
+ */
+function asFileDownloadInfo(content: unknown): FileDownloadInfo | undefined {
+  if (typeof content !== 'object' || content === null) {
+    return undefined;
+  }
+
+  const { downloadUrl, uniqueId, fileType } = content as Record<string, unknown>;
+
+  if (!isOptionalString(downloadUrl) || !isOptionalString(uniqueId) || !isOptionalString(fileType)) {
+    return undefined;
+  }
+
+  return { downloadUrl, uniqueId, fileType };
+}
+
 /**
  * Reads the files attached to the current inbound activity and exposes them as lazy {@link IncomingFile} handles. Wired onto the activity context as `ctx.files`.
  *
@@ -71,7 +93,7 @@ export class FilesAccessor implements IFilesAccessor {
       return undefined;
     }
 
-    const content: FileDownloadInfo | undefined = attachment.content;
+    const content = asFileDownloadInfo(attachment.content);
     const downloadUrl = content?.downloadUrl;
     const name = attachment.name;
 

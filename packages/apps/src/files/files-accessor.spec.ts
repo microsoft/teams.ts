@@ -74,6 +74,60 @@ describe('FilesAccessor', () => {
     expect(files).toHaveLength(0);
   });
 
+  it('skips a file.download.info whose content is not an object', async () => {
+    const attachment: Attachment = {
+      contentType: FILE_DOWNLOAD_INFO_CONTENT_TYPE,
+      name: 'weird.pdf',
+      content: 'https://download.example/not-an-object',
+    };
+
+    const files = await new FilesAccessor(activityWith([attachment]), log).list();
+
+    expect(files).toHaveLength(0);
+  });
+
+  it('skips a file.download.info whose downloadUrl is not a string', async () => {
+    const attachment: Attachment = {
+      contentType: FILE_DOWNLOAD_INFO_CONTENT_TYPE,
+      name: 'weird.pdf',
+      content: { downloadUrl: { href: 'https://download.example/nested' }, uniqueId: 'x' },
+    };
+
+    const files = await new FilesAccessor(activityWith([attachment]), log).list();
+
+    expect(files).toHaveLength(0);
+  });
+
+  it('skips a file.download.info carrying a non-string uniqueId alongside a valid downloadUrl', async () => {
+    const attachment: Attachment = {
+      contentType: FILE_DOWNLOAD_INFO_CONTENT_TYPE,
+      name: 'weird.pdf',
+      content: { downloadUrl: 'https://download.example/weird.pdf', uniqueId: 42 },
+    };
+
+    const files = await new FilesAccessor(activityWith([attachment]), log).list();
+
+    expect(files).toHaveLength(0);
+  });
+
+  it('ignores unknown extra properties on the content payload', async () => {
+    const attachment: Attachment = {
+      contentType: FILE_DOWNLOAD_INFO_CONTENT_TYPE,
+      name: 'extra.pdf',
+      content: {
+        downloadUrl: 'https://download.example/extra.pdf',
+        uniqueId: 'extra-id',
+        fileType: 'pdf',
+        somethingNew: { nested: true },
+      },
+    };
+
+    const [file] = await new FilesAccessor(activityWith([attachment]), log).list();
+
+    expect(file.name).toBe('extra.pdf');
+    expect(file.uniqueId).toBe('extra-id');
+  });
+
   it('maps a file that has no uniqueId', async () => {
     const attachment: Attachment = {
       contentType: FILE_DOWNLOAD_INFO_CONTENT_TYPE,
