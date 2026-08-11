@@ -1,8 +1,9 @@
-import { Activity, InvokeResponse, IToken } from '@microsoft/teams.api';
+import { Activity, Credentials, InvokeResponse, IToken } from '@microsoft/teams.api';
 import { ConsoleLogger, EventEmitter, IEventEmitter, ILogger } from '@microsoft/teams.common';
 
 import { IActivityEvent } from '../events';
 import { IServer, IServerInitializeDeps } from '../server';
+import { IAppTokenProvider } from '../token-provider';
 
 import {
   buildAckReplyFrame,
@@ -43,17 +44,20 @@ export type WsConnectEvents = {
 /**
  * Dependencies the owning {@link App} supplies to the socket server. Kept
  * separate from the public {@link WsConnectOptions} because they are wired
- * internally (reusing the app's credentials and identity) rather than by the
- * developer.
+ * internally rather than by the developer.
+ *
+ * Mirrors how {@link HttpServer} takes its inputs: the app's credentials (and
+ * cloud) arrive as data through {@link SocketServer.initialize}, and outbound
+ * token acquisition goes through the app's {@link IAppTokenProvider} service —
+ * no ad-hoc per-value function callbacks.
  */
 export type SocketServerDeps = {
   /**
-   * Acquire the Bot Framework access token used to authenticate negotiate.
-   * Reuses the app's existing credentials — Socket Mode adds no second token.
+   * The app's token source, used to acquire the Bot Framework access token that
+   * authenticates the APX negotiate call. Reuses the app's existing credentials
+   * — Socket Mode adds no second token.
    */
-  readonly getBotToken: () => Promise<string>;
-  /** The bot's client id, echoed on reply frames for APX routing. */
-  readonly getBotId: () => string | undefined;
+  readonly tokenProvider: IAppTokenProvider;
   /** Surface an unexpected inbound-processing error to the app pipeline. */
   readonly onError?: (error: Error) => void;
   /** Logger to use; defaults to a `SocketServer`-tagged console logger. */
@@ -102,6 +106,7 @@ export class SocketServer implements IServer {
   private readonly log: ILogger;
   private _status: WsConnectStatus = 'idle';
   private connection?: ISocketConnection;
+  private credentials?: Credentials;
 
   constructor(
     readonly options: WsConnectOptions = {},
@@ -128,12 +133,13 @@ export class SocketServer implements IServer {
   }
 
   /**
-   * {@link IServer} lifecycle. Socket Mode authenticates via negotiate using the
-   * app's credentials (wired through the constructor deps), so there is nothing
-   * to initialize from the app-level dependencies here.
+   * {@link IServer} lifecycle. Receives the app's credentials the same way the
+   * HTTP server does; the bot id echoed on reply frames is derived from them.
+   * The negotiate token is acquired lazily in {@link start} via the token
+   * provider, so there is nothing else to do here.
    */
-  async initialize(_deps: IServerInitializeDeps): Promise<void> {
-    // no-op: the socket negotiates its own auth in start().
+  async initialize(deps: IServerInitializeDeps): Promise<void> {
+    this.credentials = deps.credentials;
   }
 
   /**
@@ -150,7 +156,7 @@ export class SocketServer implements IServer {
     this.connection = factory(
       {
         negotiateUrl: this.negotiateUrl,
-        getBotToken: this.deps.getBotToken,
+        getBotToken: () => this.acquireBotToken(),
         readinessTimeoutMs: this.options.readinessTimeoutMs ?? DEFAULT_READINESS_TIMEOUT_MS,
         reconnectDelaysMs: this.options.reconnectDelaysMs ?? DEFAULT_RECONNECT_DELAYS_MS,
       },
@@ -202,7 +208,7 @@ export class SocketServer implements IServer {
    * return a post-handler acknowledgement once the pipeline has run.
    */
   async handleEnvelope(envelope: SocketActivityEnvelope): Promise<ReplyFrame | undefined> {
-    const base = replyFrameBase(envelope, this.deps.getBotId());
+    const base = replyFrameBase(envelope, this.botId);
     const activity = readEnvelopeActivity(envelope);
 
     if (!activity) {
@@ -243,6 +249,21 @@ export class SocketServer implements IServer {
     }
   }
 
+  /** The bot's client id, echoed on reply frames for APX routing. */
+  private get botId(): string | undefined {
+    return this.credentials?.clientId;
+  }
+
+  /**
+   * Acquire the Bot Framework access token used to authenticate the APX
+   * negotiate call, in string form. Delegates to the app's token provider so
+   * Socket Mode reuses the exact same credential/token flow as the rest of the
+   * SDK.
+   */
+  private async acquireBotToken(): Promise<string> {
+    return (await this.deps.tokenProvider.getAppToken())?.toString() ?? '';
+  }
+
   /**
    * Build the {@link IToken} the pipeline expects for an inbound activity.
    *
@@ -254,7 +275,7 @@ export class SocketServer implements IServer {
    */
   private syntheticToken(activity: Activity): IToken {
     const serviceUrl = activity.serviceUrl ?? '';
-    const appId = this.deps.getBotId() ?? '';
+    const appId = this.botId ?? '';
     return {
       appId,
       serviceUrl,

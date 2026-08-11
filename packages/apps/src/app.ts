@@ -558,13 +558,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     } else if (this.options.wsConnect) {
       // Socket Mode: use a SocketServer as the app's inbound transport instead
       // of an HTTP listener. Constructed internally (not by the developer) so it
-      // can reuse the app's credentials for negotiate and deliver activities
-      // through the same pipeline as the HTTP transport.
+      // can reuse the app's credentials/token provider for negotiate and deliver
+      // activities through the same pipeline as the HTTP transport. Credentials
+      // (for the bot id) are handed over via server.initialize(), the same way
+      // the HTTP server receives them.
       const wsOptions: WsConnectOptions =
         this.options.wsConnect === true ? {} : this.options.wsConnect;
       const socketServer = new SocketServer(wsOptions, {
-        getBotToken: async () => (await this.getBotToken())?.toString() ?? '',
-        getBotId: () => this.id,
+        tokenProvider: this.tokenProvider,
         onError: (err) => this.eventManager.onError({ error: err }),
         logger: this.log,
       });
