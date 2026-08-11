@@ -9,6 +9,7 @@ import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 
 import { IActivityEvent, ICoreActivity } from '../events';
 import { InboundActivityTokenValidator } from '../middleware/auth/inbound-activity-token-validator';
+import { IServer, IServerInitializeDeps } from '../server';
 
 import { HttpMethod, IHttpServerAdapter, IHttpServerRequest, IHttpServerResponse, HttpRouteHandler } from './adapter';
 
@@ -40,8 +41,10 @@ export type HttpServerOptions = {
 /**
  * Public interface for HttpServer, exposed via DI for plugins
  */
-export interface IHttpServer {
+export interface IHttpServer extends IServer {
   handleRequest(request: IHttpServerRequest): Promise<IHttpServerResponse>;
+  registerRoute(method: HttpMethod, path: string, handler: HttpRouteHandler): void;
+  serveStatic(path: string, directory: string): void;
   readonly adapter: IHttpServerAdapter;
   readonly messagingEndpoint: string;
 }
@@ -94,10 +97,7 @@ export class HttpServer implements IHttpServer {
    * Can be called multiple times - only initializes once
    * Called by App.initialize()
    */
-  async initialize(deps: {
-    credentials?: Credentials;
-    cloud?: CloudEnvironment;
-  }) {
+  async initialize(deps: IServerInitializeDeps) {
     if (this.initialized) {
       this.logger.debug('HttpServer already initialized, skipping');
       return;
@@ -148,12 +148,15 @@ export class HttpServer implements IHttpServer {
    * Start the HTTP server
    * Called by App.start()
    */
-  async start(port: number | string) {
+  async start(port?: number | string) {
     if (!this._adapter.start) {
       throw new Error(
         'Adapter does not implement start(). ' +
         'Either implement start() in your adapter, or manage server lifecycle manually.'
       );
+    }
+    if (port === undefined) {
+      throw new Error('HttpServer.start() requires a port.');
     }
     await this._adapter.start(port);
   }

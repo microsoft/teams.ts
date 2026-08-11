@@ -42,7 +42,7 @@ import {
   type IAgent365BaggageOptions
 } from './diagnostics/agent365-baggage';
 import { IActivityEvent } from './events';
-import { ExpressAdapter, IHttpServerAdapter } from './http';
+import { ExpressAdapter, IHttpServerAdapter, IHttpServer } from './http';
 import { HttpServer } from './http/http-server';
 import * as middleware from './middleware';
 import { RemoteFunctionValidator } from './middleware/auth/remote-function-validator';
@@ -50,6 +50,7 @@ import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { IRoutes } from './routes';
+import { IServer, IServerInitializeDeps } from './server';
 import { DEFAULT_TENANT_FOR_GRAPH_TOKEN, TokenManager } from './token-manager';
 import { AppTokenProvider, IAppTokenProvider } from './token-provider';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
@@ -60,6 +61,13 @@ import { toThreadedConversationId } from './utils/thread';
 function isAppSendOptions(value: ActivityLike | DeprecatedInputActivity | AppSendOptions): value is AppSendOptions {
   if (typeof value === 'string') return false;
   return !('type' in value);
+}
+
+function isHttpServer(server: IServer): server is IHttpServer {
+  return (
+    typeof (server as Partial<IHttpServer>).registerRoute === 'function' &&
+    typeof (server as Partial<IHttpServer>).serveStatic === 'function'
+  );
 }
 
 /**
@@ -269,7 +277,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   readonly cloud: CloudEnvironment;
   readonly graph: GraphClient;
   readonly log: ILogger;
-  readonly server: HttpServer;
+  readonly server: IServer;
   readonly http?: HttpPlugin;
   readonly client: HttpClient;
   readonly storage: IStorage;
@@ -529,6 +537,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     // Register HTTP server for plugins that need HTTP capabilities
     this.container.register('IHttpServer', { useValue: server });
+    this.container.register('IServer', { useValue: server });
 
     // Register all plugins (including HttpPlugin if using old way)
     for (const plugin of plugins) {
@@ -588,10 +597,11 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     await this.pluginManager.init();
 
     // initialize server
-    await this.server.initialize({
+    const serverDeps: IServerInitializeDeps = {
       credentials: this.credentials,
       cloud: this.cloud,
-    });
+    };
+    await this.server.initialize(serverDeps);
 
     this.isInitialized = true;
   }
@@ -862,6 +872,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       ? new RemoteFunctionValidator(this.entraTokenValidator, log)
       : null;
 
+    if (!isHttpServer(this.server)) {
+      throw new Error('app.function() requires an HTTP server transport.');
+    }
+
     this.server.registerRoute('POST', `/api/functions/${name}`, async ({ body, headers }) => {
       // Validate JWT token and extract context
       if (!validator) {
@@ -900,6 +914,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param path The path to the web `dist` folder.
    */
   tab(name: string, path: string) {
+    if (!isHttpServer(this.server)) {
+      throw new Error('app.tab() requires an HTTP server transport.');
+    }
+
     this.server.serveStatic(`/tabs/${name}`, path);
 
     return this;

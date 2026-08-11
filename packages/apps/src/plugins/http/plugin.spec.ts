@@ -1,7 +1,7 @@
 import http from 'http';
 
 import { App } from '../../app';
-import { ExpressAdapter } from '../../http';
+import { ExpressAdapter, IHttpServer } from '../../http';
 import { HttpServer } from '../../http/http-server';
 
 import { HttpPlugin } from './plugin';
@@ -94,7 +94,7 @@ describe('HttpPlugin', () => {
       });
 
       // Server adapter should be using the custom server
-      const adapter = app.server.adapter as ExpressAdapter;
+      const adapter = (app.server as IHttpServer).adapter as ExpressAdapter;
       expect((adapter as any).server).toBe(customServer);
     });
 
@@ -115,8 +115,8 @@ describe('HttpPlugin', () => {
       expect(newApp.server).toBeInstanceOf(HttpServer);
 
       // Both should have adapter
-      expect(oldApp.server.adapter).toBeInstanceOf(ExpressAdapter);
-      expect(newApp.server.adapter).toBeInstanceOf(ExpressAdapter);
+      expect((oldApp.server as IHttpServer).adapter).toBeInstanceOf(ExpressAdapter);
+      expect((newApp.server as IHttpServer).adapter).toBeInstanceOf(ExpressAdapter);
     });
 
     it('should expose deprecated app.http getter', () => {
@@ -157,7 +157,7 @@ describe('HttpPlugin', () => {
 
       // App should still be able to register routes
       const mockHandler = jest.fn(async () => ({ status: 200 }));
-      app.server.registerRoute('POST', '/test', mockHandler);
+      (app.server as IHttpServer).registerRoute('POST', '/test', mockHandler);
 
       expect(app.server).toBeDefined();
     });

@@ -11,6 +11,7 @@ export * from './diagnostics';
 
 // HTTP infrastructure - public API
 export * from './http';
+export * from './server';
 
 // Threading utilities
 export { toThreadedConversationId } from './utils/thread';
