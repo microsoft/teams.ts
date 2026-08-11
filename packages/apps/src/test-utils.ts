@@ -44,6 +44,12 @@ export class TestAdapter implements IHttpServerAdapter {
 export function createTestApp<TPlugin extends IPlugin = IPlugin>(
   options?: AppOptions<TPlugin>
 ): App<TPlugin> {
+  // Socket Mode replaces the inbound HTTP transport, so don't inject a
+  // TestAdapter when wsConnect is enabled (the two are mutually exclusive).
+  if (options?.wsConnect) {
+    return new App({ ...options });
+  }
+
   return new App({
     ...options,
     httpServerAdapter: options?.httpServerAdapter ?? new TestAdapter()
