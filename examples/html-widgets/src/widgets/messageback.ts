@@ -15,7 +15,7 @@ export const MESSAGEBACK_WIDGET_HTML = `<!DOCTYPE html>
 <html><head><meta charset="utf-8">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:auto}
+html,body{overflow:auto}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   padding:16px;background:#fff;color:#242424;font-size:13px}
 h3{margin:0 0 8px 0}

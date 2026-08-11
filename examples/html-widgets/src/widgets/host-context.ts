@@ -103,7 +103,7 @@ async function init() {
 }
 
 function notifySize() {
-  window.parent.postMessage({ jsonrpc: '2.0', method: 'ui/notifications/size-changed', params: { height: document.body.scrollHeight } }, '*');
+  window.parent.postMessage({ jsonrpc: '2.0', method: 'ui/notifications/size-changed', params: { height: Math.ceil(Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)) } }, '*');
 }
 
 // Re-report size when content changes (e.g. host-context updates) so the host keeps
