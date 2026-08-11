@@ -85,7 +85,8 @@ export async function handleProactiveReaction(
     context.ref.conversation.id,
     'This message was sent and reacted to using app-level APIs.'
   );
-  await context.api.conversations.addReaction(
+  const api = app.api.clone({ serviceUrl: context.ref.serviceUrl });
+  await api.conversations.addReaction(
     context.activity.conversation.id,
     sent.id,
     'like'
