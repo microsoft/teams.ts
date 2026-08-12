@@ -1,0 +1,14 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**"],
+      "dependsOn": [
+        "@microsoft/teams.api#build",
+        "@microsoft/teams.apps#build",
+        "@microsoft/teams.m365extensions#build"
+      ]
+    }
+  }
+}

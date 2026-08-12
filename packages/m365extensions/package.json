@@ -1,0 +1,57 @@
+{
+  "name": "@microsoft/teams.m365extensions",
+  "version": "0.0.0",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "homepage": "https://github.com/microsoft/teams.ts",
+  "bugs": "https://github.com/microsoft/teams.ts/issues",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/teams.ts.git",
+    "directory": "packages/m365extensions"
+  },
+  "keywords": [
+    "microsoft",
+    "teams",
+    "msteams",
+    "agents",
+    "m365"
+  ],
+  "scripts": {
+    "clean": "npx rimraf ./dist",
+    "build": "npx tsup",
+    "lint": "npx eslint",
+    "lint:fix": "npx eslint --fix",
+    "test": "npx jest"
+  },
+  "dependencies": {
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.apps": "*"
+  },
+  "peerDependencies": {
+    "@microsoft/agents-activity": "^1.5.0",
+    "@microsoft/agents-hosting": "^1.5.0"
+  },
+  "devDependencies": {
+    "@microsoft/agents-activity": "^1.5.0",
+    "@microsoft/agents-hosting": "^1.5.0",
+    "@microsoft/teams.config": "*",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^22.0.2",
+    "jest": "^29.7.0",
+    "rimraf": "^6.0.1",
+    "ts-jest": "^29.2.5",
+    "tsup": "^8.4.0",
+    "typescript": "^5.4.5"
+  },
+  "description": "M365 Extension package that embeds the Teams SDK inside a Microsoft Agents SDK AgentApplication."
+}
