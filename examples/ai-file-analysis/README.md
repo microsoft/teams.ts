@@ -37,7 +37,7 @@ The bot entry in your Teams app manifest must set `supportsFiles` to `true`:
 ]
 ```
 
-Without it, Teams never delivers attachments to the bot. `ctx.files.list()` returns an empty list and this sample replies asking for a file, even though the user attached one.
+Without it, Teams does not enable the attachment UI in the bot's chat, so there is no way to attach a file in the first place and `ctx.files.list()` has nothing to return.
 
 ## Setup
 
