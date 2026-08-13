@@ -2,7 +2,7 @@ import { ActivityTypes, Channels } from '@microsoft/agents-activity';
 import {
   AgentApplication,
   CloudAdapter,
-  loadAuthConfigFromEnv,
+  getAuthConfigWithDefaults,
   MemoryStorage,
   RouteRank,
   TurnContext,
@@ -37,13 +37,11 @@ function command(name: string): RegExp {
   return new RegExp(`^\\s*(?:${mention}\\s*)*${escaped}[ \\t]*(?:\\r?\\n[\\s\\S]*)?$`, 'i');
 }
 
-// Agents SDK's loadAuthConfigFromEnv() reads the camelCase
-// clientId / clientSecret / tenantId — bridge them before loading the auth config.
-process.env.clientId ??= process.env.CLIENT_ID;
-process.env.clientSecret ??= process.env.CLIENT_SECRET;
-process.env.tenantId ??= process.env.TENANT_ID;
-
-const AUTH_CONFIG = loadAuthConfigFromEnv();
+const AUTH_CONFIG = getAuthConfigWithDefaults({
+  clientId: process.env.CLIENT_ID,
+  clientSecret: process.env.CLIENT_SECRET,
+  tenantId: process.env.TENANT_ID,
+});
 const ADAPTER = new CloudAdapter(AUTH_CONFIG);
 const CONNECTION_MANAGER = ADAPTER.connectionManager;
 const STORAGE = new MemoryStorage();
