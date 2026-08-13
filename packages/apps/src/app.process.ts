@@ -240,6 +240,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         activity,
         next,
         api: apiClient,
+        client: this.options.client,
         userGraph,
         appGraph,
         appId: this.options.getId() || '',

@@ -18,9 +18,11 @@ import {
   TokenPostResource,
   TypingActivity,
 } from '@microsoft/teams.api';
-import { ILogger, IStorage } from '@microsoft/teams.common';
+import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
 
 import { ApiClient, GraphClient } from '../api';
+import { FilesAccessor } from '../files/files-accessor';
+import { IFilesAccessor } from '../files/types';
 import { IStreamer } from '../types';
 import { IActivitySender } from '../types/plugin/sender';
 
@@ -71,6 +73,13 @@ export interface IBaseActivityContextOptions<T extends Activity = Activity> {
    * the api client
    */
   api: ApiClient;
+
+  /**
+   * the app's shared HTTP client, used for outbound calls that are not part of the Teams API surface
+   * (e.g. downloading an inbound file's bytes)
+   * They inherit the app's User-Agent, middleware, and configuration.
+   */
+  client?: HttpClient;
 
   /**
    * the app graph client
@@ -151,6 +160,11 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   stream: IStreamer;
 
   /**
+   * the uploaded files on the current inbound activity, i.e. `contentType: file.download.info` subset of `activity.attachments`, mapped to `IncomingFile`. See {@link IFilesAccessor}.
+   */
+  files: IFilesAccessor;
+
+  /**
    * call the next event/middleware handler
    */
   next: (
@@ -221,6 +235,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   userGraph!: GraphClient;
   storage!: IStorage;
   stream!: IStreamer;
+  files!: IFilesAccessor;
   isSignedIn?: boolean;
   connectionName: string;
   next!: (
@@ -270,6 +285,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     this.next = next;
     this.stream = activitySender.createStream(value.ref);
     this.connectionName = value.connectionName;
+    this.files = new FilesAccessor(this.activity, this.log, value.client);
   }
 
   /**
@@ -459,6 +475,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       ref: this.ref,
       storage: this.storage,
       stream: this.stream,
+      files: this.files,
       isSignedIn: this.isSignedIn,
       connectionName: this.connectionName,
       userToken: this.userToken,

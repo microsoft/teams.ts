@@ -1,14 +1,17 @@
+import { Readable } from 'stream';
+
 import { type MockedObject } from 'jest-mock';
 
 import {
   Activity,
   ConversationReference,
+  FILE_DOWNLOAD_INFO_CONTENT_TYPE,
   IMessageActivity,
   MessageActivity,
   TokenExchangeResource,
   TokenPostResource,
 } from '@microsoft/teams.api';
-import { ILogger, IStorage } from '@microsoft/teams.common';
+import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
 
 import { ApiClient, GraphClient } from '../api';
 
@@ -827,6 +830,67 @@ describe('ActivityContext', () => {
 
       expect(maliciousSend).not.toHaveBeenCalled();
       expect(mockSender.send).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('files accessor', () => {
+    // `ctx.files` must receive the app's HTTP client so file downloads inherit its
+    // User-Agent, middleware, and user-supplied configuration. The download path
+    // falls back to a bare global `fetch` when no client is present, so dropping
+    // it here would silently bypass the SDK's outbound pipeline instead of
+    // failing loudly. This asserts the hand-off at the context boundary.
+    it('passes the app HTTP client through to ctx.files', async () => {
+      const seen: string[] = [];
+      const client = new HttpClient();
+      client.use({
+        async invoke(mwContext: any, next: any) {
+          mwContext.config.adapter = async (config: any) => {
+            seen.push(String(config.url));
+            return {
+              status: 200,
+              statusText: '',
+              headers: {},
+              config,
+              data: Readable.from([Buffer.from('bytes')]),
+            };
+          };
+          return next();
+        },
+      });
+
+      const activity = MessageActivity.from({
+        type: 'message',
+        conversation: { id: 'test-conversation', conversationType: 'personal' },
+        attachments: [
+          {
+            contentType: FILE_DOWNLOAD_INFO_CONTENT_TYPE,
+            name: 'report.pdf',
+            content: { downloadUrl: 'https://download.example/report.pdf?tempauth=abc' },
+          },
+        ],
+      } as unknown as IMessageActivity);
+
+      const ctx = new ActivityContext({
+        appId: 'test-app',
+        activity,
+        ref: mockRef,
+        log: mockLogger,
+        api: mockApiClient,
+        client,
+        appGraph: {} as GraphClient,
+        userGraph: {} as GraphClient,
+        storage: mockStorage,
+        connectionName: 'test-connection',
+        next: jest.fn(),
+        activitySender: mockSender,
+      });
+
+      const file = await ctx.files.first();
+      expect(file).toBeDefined();
+
+      await file!.download();
+
+      expect(seen).toEqual(['https://download.example/report.pdf?tempauth=abc']);
     });
   });
 });

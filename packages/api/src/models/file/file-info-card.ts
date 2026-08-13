@@ -16,7 +16,8 @@ export type FileInfoCard = {
   fileType?: string;
 
   /**
-   * @member {any} [etag] ETag for the file.
+   * @member {string} [etag] A server-assigned version tag identifying the uploaded file's contents.
+   * Populated from the storage service's upload response.
    */
-  etag?: any;
+  etag?: string;
 };
