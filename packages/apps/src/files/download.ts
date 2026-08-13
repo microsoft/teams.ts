@@ -126,7 +126,10 @@ async function requestViaHttpClient(
     responseType: 'stream',
     signal,
     // The URL carries its own `tempauth` credential; a bearer token on top of it can get the request rejected.
+    // `token` only suppresses the token-derived header, so also override any default `Authorization` the client
+    // was configured with, which `withConfig` would otherwise merge in and send to a third-party storage host.
     token: () => undefined,
+    headers: { Authorization: undefined },
     // We map 401/403 onto FileUrlExpiredError ourselves, so keep axios from throwing first.
     validateStatus: () => true,
   });

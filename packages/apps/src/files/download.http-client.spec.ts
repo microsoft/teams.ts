@@ -99,6 +99,20 @@ describe('file download via HttpClient', () => {
     expect(transport.header('Authorization')).toBeUndefined();
   });
 
+  // A default `Authorization` header is merged in by `withConfig` independently of the token, so suppressing the
+  // token alone would still leak the bot's credential to the third-party storage host.
+  it('does not attach an Authorization header even when the client has one as a default header', async () => {
+    const transport = new CapturingTransport(200, 'hi');
+    const client = new HttpClient({
+      headers: { Authorization: 'Bearer super-secret-app-token' },
+      middlewares: [transport],
+    });
+
+    await fileWith(client).download();
+
+    expect(transport.header('Authorization')).toBeUndefined();
+  });
+
   // Dropping the token must not cost us the rest of the client's configuration.
   it('preserves the client User-Agent and registered middleware', async () => {
     const transport = new CapturingTransport(200, 'hi');
