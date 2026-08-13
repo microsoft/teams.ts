@@ -39,6 +39,7 @@ import { IActivityEvent } from './events';
 import { Router } from './router';
 import type { Route } from './router/route';
 import { IRoutes } from './routes';
+import { TurnStateLoader } from './state';
 import { IActivitySender, IPlugin, RouteHandler, StreamCancelledError } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 
@@ -75,6 +76,10 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly api: ApiClient;
   readonly client: HttpClient;
   readonly storage: IStorage;
+  /**
+   * Loader used to attach and persist state for each activity turn.
+   */
+  readonly stateLoader?: TurnStateLoader;
   readonly log: ILogger;
   readonly getId: () => string | undefined;
   readonly getConnectionName: () => string;
@@ -253,6 +258,14 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         ...pluginContexts
       });
 
+      const conversationId = activity.conversation?.id;
+      if (this.options.stateLoader && conversationId) {
+        context.state = await this.options.stateLoader.load(
+          conversationId,
+          activity.from?.id
+        );
+      }
+
       const send = context.send.bind(context);
       context.send = async (activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) => {
         const res = await send(activity, conversationRef ?? ref);
@@ -312,6 +325,14 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
           activity,
           response: response,
         });
+      } finally {
+        if (context.state && this.options.stateLoader) {
+          try {
+            await this.options.stateLoader.save(context.state);
+          } finally {
+            context.state.seal();
+          }
+        }
       }
 
       return response;

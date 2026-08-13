@@ -50,6 +50,7 @@ import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { IRoutes } from './routes';
+import { createStateLoader, StateOptions, TurnStateLoader } from './state';
 import { DEFAULT_TENANT_FOR_GRAPH_TOKEN, TokenManager } from './token-manager';
 import { AppTokenProvider, IAppTokenProvider } from './token-provider';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
@@ -169,6 +170,15 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * storage instance to use
    */
   readonly storage?: IStorage;
+
+  /**
+   * Enables per-turn conversation and user state.
+   *
+   * Pass `true` to use the app storage with default keys, or provide options
+   * to configure dedicated storage, key prefix, or expiration. State is
+   * disabled when omitted or `false`.
+   */
+  readonly state?: boolean | StateOptions;
 
   /**
    * plugins to extend the apps functionality
@@ -329,6 +339,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   private readonly tokenManager: TokenManager;
 
   private readonly _tokenProvider: AppTokenProvider;
+  private readonly stateLoader?: TurnStateLoader;
 
   private eventManager!: EventManager<TPlugin>;
   private activityProcessor!: ActivityProcessor<TPlugin>;
@@ -339,6 +350,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   constructor(readonly options: AppOptions<TPlugin> = {}) {
     this.log = this.options.logger || new ConsoleLogger('@teams/app');
     this.storage = this.options.storage || new LocalStorage();
+    this.stateLoader = createStateLoader(this.options.state, this.storage, this.log);
 
     // Resolve cloud environment from options or CLOUD env var
     const cloudEnvName = typeof process !== 'undefined' ? process.env.CLOUD : undefined;
@@ -446,6 +458,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       api: this.api,
       client: this.client,
       storage: this.storage,
+      stateLoader: this.stateLoader,
       log: this.log,
       getId: () => this.id,
       getConnectionName: () => this.oauth.defaultConnectionName,

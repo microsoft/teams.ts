@@ -21,6 +21,7 @@ import {
 import { ILogger, IStorage } from '@microsoft/teams.common';
 
 import { ApiClient, GraphClient } from '../api';
+import { TurnStateContainer } from '../state';
 import { IStreamer } from '../types';
 import { IActivitySender } from '../types/plugin/sender';
 
@@ -86,6 +87,14 @@ export interface IBaseActivityContextOptions<T extends Activity = Activity> {
    * app storage instance
    */
   storage: IStorage;
+
+  /**
+   * Conversation and user state loaded for this activity turn.
+   *
+   * This is undefined when state is disabled or the activity has no conversation ID.
+   * Do not retain the container after the handler completes; its scopes are sealed.
+   */
+  state?: TurnStateContainer;
 
   /**
    * whether the user has provided
@@ -220,6 +229,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   appGraph!: GraphClient;
   userGraph!: GraphClient;
   storage!: IStorage;
+  state?: TurnStateContainer;
   stream!: IStreamer;
   isSignedIn?: boolean;
   connectionName: string;
@@ -458,6 +468,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       log: this.log,
       ref: this.ref,
       storage: this.storage,
+      state: this.state,
       stream: this.stream,
       isSignedIn: this.isSignedIn,
       connectionName: this.connectionName,

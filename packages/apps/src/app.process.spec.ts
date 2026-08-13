@@ -2,6 +2,7 @@ import { context, propagation, ROOT_CONTEXT } from '@opentelemetry/api';
 import type { Baggage, Context, ContextManager, Span, Tracer } from '@opentelemetry/api';
 
 import { IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse } from '@microsoft/teams.api';
+import { IStorage } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
 import { App } from './app';
@@ -18,6 +19,7 @@ import {
 } from './diagnostics/helpers';
 import { IActivityResponseEvent, IActivitySentEvent, IErrorEvent } from './events';
 import { IActivityEvent } from './events/activity';
+import { TurnStateContainer } from './state';
 import { createTestApp } from './test-utils';
 
 jest.mock('./diagnostics/helpers', () => ({
@@ -135,6 +137,109 @@ describe('App', () => {
   });
 
   describe('process', () => {
+    it('loads, exposes, persists, and seals per-turn state', async () => {
+      const data = new Map<string, string>();
+      const storage: IStorage<string, string> = {
+        get: (key) => data.get(key),
+        set: (key, value) => {
+          data.set(key, value);
+        },
+        delete: (key) => {
+          data.delete(key);
+        },
+      };
+      await app.stop();
+      app = createTestApp({ state: { storage } });
+      await app.start();
+      const turnStates: TurnStateContainer[] = [];
+      const counts: number[] = [];
+      app.on('message', ({ state }) => {
+        if (!state) {
+          throw new Error('Expected state to be enabled.');
+        }
+        turnStates.push(state);
+        const count = (state.conversation.get<number>('count') ?? 0) + 1;
+        counts.push(count);
+        state.conversation.set('count', count);
+      });
+      const stateActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot' })
+        .withConversation({ id: 'conv-1', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .toInterface();
+
+      await app.process({ token, body: stateActivity });
+      await app.process({ token, body: stateActivity });
+
+      expect(turnStates).toHaveLength(2);
+      expect(counts).toEqual([1, 2]);
+      expect(turnStates[0].conversation.isSealed).toBe(true);
+      expect(() => turnStates[0].conversation.get('count')).toThrow();
+    });
+
+    it('persists dirty state when a handler fails', async () => {
+      const data = new Map<string, string>();
+      const storage: IStorage<string, string> = {
+        get: (key) => data.get(key),
+        set: (key, value) => {
+          data.set(key, value);
+        },
+        delete: (key) => {
+          data.delete(key);
+        },
+      };
+      await app.stop();
+      app = createTestApp({ state: { storage } });
+      await app.start();
+      app.on('message', ({ state }) => {
+        state?.conversation.set('saved', true);
+        throw new Error('handler failed');
+      });
+      const stateActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot' })
+        .withConversation({ id: 'conv-1', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .toInterface();
+
+      const response = await app.process({ token, body: stateActivity });
+
+      expect(response.status).toBe(500);
+      expect(JSON.parse(data.get('ts:conv:conv-1') ?? '{}').data).toEqual({
+        saved: true,
+      });
+    });
+
+    it('seals state and propagates the error when persistence fails', async () => {
+      const saveError = new Error('save failed');
+      const storage: IStorage<string, string> = {
+        get: () => undefined,
+        set: () => {
+          throw saveError;
+        },
+        delete: () => undefined,
+      };
+      await app.stop();
+      app = createTestApp({ state: { storage } });
+      await app.start();
+      let capturedState: TurnStateContainer | undefined;
+      app.on('message', ({ state }) => {
+        capturedState = state;
+        state?.conversation.set('saved', true);
+      });
+      const stateActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot' })
+        .withConversation({ id: 'conv-1', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .toInterface();
+
+      await expect(app.process({ token, body: stateActivity })).rejects.toBe(saveError);
+      expect(capturedState?.conversation.isSealed).toBe(true);
+      expect(() => capturedState?.conversation.get('saved')).toThrow();
+    });
+
     it('should return status 200 if no route matches', async () => {
       const event: IActivityEvent = {
         token: token,
