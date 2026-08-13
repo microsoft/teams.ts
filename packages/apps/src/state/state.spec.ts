@@ -2,7 +2,11 @@ import { ILogger, IStorage, LocalStorage } from '@microsoft/teams.common';
 
 import { TurnStateContainer } from './container';
 import { createStateLoader, TurnStateLoader } from './loader';
-import { TurnState, TurnStateSealedError } from './turn-state';
+import {
+  createStateKey,
+  TurnState,
+  TurnStateSealedError,
+} from './turn-state';
 
 class TestStorage implements IStorage<string, string> {
   readonly data = new Map<string, string>();
@@ -50,6 +54,47 @@ describe('TurnState', () => {
     expect(() => state.get('value')).toThrow(TurnStateSealedError);
     expect(() => state.set('value', 2)).toThrow(TurnStateSealedError);
     expect(() => state.has('value')).toThrow(TurnStateSealedError);
+  });
+
+  it('supports stable typed keys alongside normal string keys', () => {
+    const preferences = createStateKey(
+      'contoso.preferences.v1',
+      () => ({ theme: 'light' }),
+      (value) => ({ ...(value as { theme: string }), hydrated: true })
+    );
+    const state = new TurnState({
+      '$contoso.preferences.v1': { theme: 'dark' },
+      count: 1,
+    });
+
+    expect(state.get<number>('count')).toBe(1);
+    expect(state.get(preferences)).toEqual({
+      theme: 'dark',
+      hydrated: true,
+    });
+    expect(state.has(preferences)).toBe(true);
+    expect(state.toRecord()).toEqual(
+      expect.objectContaining({
+        '$contoso.preferences.v1': {
+          theme: 'dark',
+          hydrated: true,
+        },
+      })
+    );
+    expect(state.isDirty).toBe(true);
+  });
+
+  it('creates and persists a typed default when its entry is missing', () => {
+    const settings = createStateKey('contoso.settings.v1', () => ({
+      enabled: true,
+    }));
+    const state = new TurnState();
+
+    expect(state.get(settings)).toEqual({ enabled: true });
+    expect(state.toRecord()).toEqual({
+      '$contoso.settings.v1': { enabled: true },
+    });
+    expect(state.isDirty).toBe(true);
   });
 });
 
