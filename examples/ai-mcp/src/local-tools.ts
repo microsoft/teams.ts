@@ -33,6 +33,8 @@ export const CLARIFICATION_TOOL_SCHEMA: JSONSchema = {
     options: {
       type: 'array',
       items: { type: 'string' },
+      minItems: 2,
+      maxItems: 4,
       description: '2-4 candidate interpretations the user can pick between.',
     },
   },
@@ -49,7 +51,9 @@ export async function executeClarificationTool(
   log: ILogger
 ): Promise<string> {
   if (!isClarificationArgs(input)) {
-    throw new Error('request_clarification requires a question and 2-4 options.');
+    const message = 'request_clarification requires a question and 2-4 options.';
+    log.warn(message);
+    return message;
   }
 
   log.info(
