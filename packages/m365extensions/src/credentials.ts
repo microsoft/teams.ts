@@ -20,8 +20,24 @@ type AgenticCapableProvider = AuthProvider & {
   ) => string | Promise<string>;
 };
 
+/**
+ * A teams.ts {@link ITokenProvider} backed by the host Agents SDK connections,
+ * so teams.ts mints outbound tokens using the host app's identity.
+ */
 export type TeamsSdkTokenProvider = ITokenProvider;
 
+/**
+ * Build a teams.ts token provider that delegates to the host Agents SDK
+ * connection manager.
+ *
+ * For each requested scope it selects the connection appropriate to the active
+ * turn (per-request identity when a turn is in flight, otherwise the default
+ * connection) and returns that provider's access token — so the bridge never
+ * holds its own credential. Also supports agentic user tokens when the
+ * underlying MSAL provider exposes them.
+ *
+ * @param connectionManager the host app's connection manager
+ */
 export function createAgentSdkTokenProvider(
   connectionManager: AgentSdkConnections
 ): TeamsSdkTokenProvider {

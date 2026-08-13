@@ -1,7 +1,7 @@
 import { ConfidentialClientApplication } from '@azure/msal-node';
 import jwt from 'jsonwebtoken';
 
-import { CHINA, JsonWebToken, PUBLIC, US_GOV, US_GOV_DOD, withOverrides } from '@microsoft/teams.api';
+import { CHINA, JsonWebToken, MessageActivity, PUBLIC, US_GOV, US_GOV_DOD, withOverrides } from '@microsoft/teams.api';
 
 import { App } from './app';
 import { TestAdapter } from './test-utils';
@@ -745,6 +745,22 @@ describe('App', () => {
       } finally {
         await app.stop();
       }
+    });
+  });
+
+  describe('hasMatchingRoute', () => {
+    it('returns true when a registered route matches the activity', () => {
+      const app = new App({ clientId: 'client-id' });
+      app.message(/help/, jest.fn());
+
+      expect(app.hasMatchingRoute(new MessageActivity('please help'))).toBe(true);
+    });
+
+    it('returns false when no registered route matches the activity', () => {
+      const app = new App({ clientId: 'client-id' });
+      app.message(/help/, jest.fn());
+
+      expect(app.hasMatchingRoute(new MessageActivity('unrelated text'))).toBe(false);
     });
   });
 });

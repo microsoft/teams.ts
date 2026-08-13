@@ -44,9 +44,7 @@ function fakeApp(options: {
 }) {
   return {
     initialize: jest.fn().mockResolvedValue(undefined),
-    router: {
-      select: jest.fn().mockReturnValue(options.hasRoute ? [jest.fn()] : []),
-    },
+    hasMatchingRoute: jest.fn().mockReturnValue(options.hasRoute),
     process: jest.fn().mockResolvedValue(options.invokeResponse),
   } as unknown as App<any>;
 }
@@ -151,7 +149,7 @@ describe('TeamsMiddleware routing', () => {
     expect(app.process).not.toHaveBeenCalled();
   });
 
-  it('lets bypassed Teams turns call next after initialization', async () => {
+  it('lets bypassed Teams turns call next without initializing', async () => {
     const app = fakeApp({ hasRoute: true });
     const next = jest.fn().mockResolvedValue(undefined);
 
@@ -161,7 +159,7 @@ describe('TeamsMiddleware routing', () => {
     );
 
     expect(next).toHaveBeenCalledTimes(1);
-    expect(app.initialize).toHaveBeenCalledTimes(1);
+    expect(app.initialize).not.toHaveBeenCalled();
     expect(app.process).not.toHaveBeenCalled();
   });
 

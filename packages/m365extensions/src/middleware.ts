@@ -11,8 +11,21 @@ import { TeamsToken } from './token';
 
 const TEAMS_CHANNEL_ID = 'msteams';
 
+/**
+ * Predicate that lets a turn skip teams.ts and stay entirely on the host
+ * Agents SDK app, even when it arrives on the Teams channel.
+ *
+ * Return `true` to bypass teams.ts (e.g. to keep `signin/*` invokes on the
+ * Agents SDK auth flow); the middleware then calls `next()` without routing.
+ */
 export type ShouldBypassTeams = (context: TurnContext) => boolean;
 
+/**
+ * Whether an activity arrived on the Microsoft Teams channel.
+ *
+ * Accepts either a plain channel id (e.g. `"msteams"`, or a sub-channel like
+ * `"msteams:..."`) or the object form and compares only the base channel.
+ */
 export function isTeamsChannel(activity: { channelId?: string | { channel?: string } | null }): boolean {
   const channelId = activity.channelId;
   if (!channelId) {
@@ -26,6 +39,16 @@ export function isTeamsChannel(activity: { channelId?: string | { channel?: stri
   return channel === TEAMS_CHANNEL_ID;
 }
 
+/**
+ * Agents SDK middleware that routes matching Teams activities to a teams.ts
+ * {@link App}, and lets everything else fall through to the host app.
+ *
+ * For each turn it: ignores non-Teams channels; honors {@link ShouldBypassTeams};
+ * and, for a Teams turn, hands off to teams.ts only when the app has a matching
+ * route (via `App.hasMatchingRoute`) — otherwise calling `next()` so the host
+ * app can handle it. Invoke responses produced by teams.ts are propagated back
+ * through the Agents SDK pipeline. Constructed for you by {@link useTeamsSdk}.
+ */
 export class TeamsMiddleware implements Middleware {
   private readonly _teamsApp: App<any>;
   private readonly _shouldBypassTeams?: ShouldBypassTeams;
@@ -49,9 +72,7 @@ export class TeamsMiddleware implements Middleware {
     await this._teamsApp.initialize();
 
     const coreActivity = context.activity as unknown as TeamsActivity;
-    const router: { select?: (activity: TeamsActivity) => unknown[] } | undefined = (this._teamsApp as any).router;
-    const matched = router?.select?.(coreActivity);
-    if (!matched || matched.length === 0) {
+    if (!this._teamsApp.hasMatchingRoute(coreActivity)) {
       await next();
       return;
     }
