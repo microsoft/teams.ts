@@ -41,12 +41,12 @@ export class TeamsMiddleware implements Middleware {
       return;
     }
 
-    await this._teamsApp.initialize();
-
     if (this._shouldBypassTeams?.(context)) {
       await next();
       return;
     }
+
+    await this._teamsApp.initialize();
 
     const coreActivity = context.activity as unknown as TeamsActivity;
     const router: { select?: (activity: TeamsActivity) => unknown[] } | undefined = (this._teamsApp as any).router;
