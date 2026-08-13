@@ -28,6 +28,9 @@ export class McpToolSet {
     this._log = log;
   }
 
+  /**
+   * Connects to an MCP server and captures its available tools.
+   */
   static async create(serverUrl: string, log: ILogger): Promise<McpToolSet> {
     const client = new Client({ name: 'ai-mcp-sample', version: '0.0.0' });
     const transport = new StreamableHTTPClientTransport(new URL(serverUrl));
@@ -45,6 +48,37 @@ export class McpToolSet {
   }
 
   /**
+   * Provider-neutral MCP tool definitions discovered from the server.
+   */
+  get tools(): readonly McpTool[] {
+    return this._tools;
+  }
+
+  /**
+   * Executes a discovered MCP tool and records citation metadata from its result.
+   */
+  async execute(
+    name: string,
+    args: Record<string, unknown>,
+    citations: CitationCollector
+  ): Promise<string> {
+    const tool = this._tools.find((candidate) => candidate.name === name);
+    if (!tool) {
+      throw new Error(`MCP tool ${name} was not discovered.`);
+    }
+
+    this._log.info(
+      `[mcp] ${tool.name}(${Object.entries(args)
+        .map(([key, value]) => `${key}=${JSON.stringify(value)}`)
+        .join(', ')})`
+    );
+    const result = await this._client.callTool({ name: tool.name, arguments: args });
+    const text = stringifyResult(result.content);
+    citations.tryExtract(text);
+    return text;
+  }
+
+  /**
    * Returns a fresh array of RunnableToolFunctions for one turn. The
    * citation collector is captured by closure so every MCP tool call on
    * that turn writes into the same collector.
@@ -56,17 +90,7 @@ export class McpToolSet {
         name: tool.name,
         description: tool.description,
         parameters: tool.parameters,
-        function: async (args: Record<string, unknown>) => {
-          this._log.info(
-            `[mcp] ${tool.name}(${Object.entries(args)
-              .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
-              .join(', ')})`
-          );
-          const result = await this._client.callTool({ name: tool.name, arguments: args });
-          const text = stringifyResult(result.content);
-          citations.tryExtract(text);
-          return text;
-        },
+        function: (args: Record<string, unknown>) => this.execute(tool.name, args, citations),
         parse: (raw: string) => JSON.parse(raw) as Record<string, unknown>,
       },
     }));
@@ -77,9 +101,12 @@ export class McpToolSet {
   }
 }
 
-type McpTool = {
+export type McpTool = {
+  /** Name exposed to the model. */
   name: string;
+  /** Description exposed to the model. */
   description: string;
+  /** JSON Schema accepted by the MCP tool. */
   parameters: Record<string, unknown>;
 };
 
