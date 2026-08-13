@@ -302,7 +302,7 @@ AGENT_SDK_APP.onActivity(
   RouteRank.Last
 );
 
-const server = startServer(AGENT_SDK_APP);
+const server = startServer(AGENT_SDK_APP, AUTH_CONFIG);
 server.get('/', (_req: unknown, res: { send: (body: string) => void }) => {
   res.send('M365 Extension sample is running. POST activities to /api/messages.');
 });
