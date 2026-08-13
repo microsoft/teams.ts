@@ -85,6 +85,9 @@ export interface IBaseActivityContextOptions<T extends Activity = Activity> {
 
   /**
    * app storage instance
+   *
+   * @deprecated Use `state` for conversation or user state. Applications that
+   * need general persistence should own and use their storage provider directly.
    */
   storage: IStorage;
 
@@ -228,6 +231,9 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   api!: ApiClient;
   appGraph!: GraphClient;
   userGraph!: GraphClient;
+  /**
+   * @deprecated Use `state` for conversation or user state.
+   */
   storage!: IStorage;
   state?: TurnStateContainer;
   stream!: IStreamer;

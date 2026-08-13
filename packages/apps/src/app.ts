@@ -168,6 +168,9 @@ export type AppOptions<TPlugin extends IPlugin> = {
 
   /**
    * storage instance to use
+   *
+   * @deprecated Configure `state.storage` for turn state. Applications that
+   * need general persistence should own and use their storage provider directly.
    */
   readonly storage?: IStorage;
 
@@ -282,6 +285,12 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   readonly server: HttpServer;
   readonly http?: HttpPlugin;
   readonly client: HttpClient;
+  /**
+   * The app's legacy shared storage instance.
+   *
+   * @deprecated Use `ctx.state` for turn state. Applications that need general
+   * persistence should own and use their storage provider directly.
+   */
   readonly storage: IStorage;
   readonly entraTokenValidator?: middleware.JwtValidator;
 
