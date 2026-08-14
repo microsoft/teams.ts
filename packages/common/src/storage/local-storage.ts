@@ -1,4 +1,4 @@
-import type { IStorage } from './storage';
+import type { IStorage, IStorageSetOptions } from './storage';
 
 export type LocalStorageOptions = {
   /**
@@ -10,13 +10,16 @@ export type LocalStorageOptions = {
 export class LocalStorage<T = any> implements IStorage<string, T> {
   protected readonly _store: Map<string, T>;
   protected readonly _keys: string[];
+  protected readonly _expirations: Map<string, number> = new Map();
   protected readonly _options: LocalStorageOptions;
 
   get keys(): string[] {
+    this._purgeExpired();
     return this._keys;
   }
 
   get size(): number {
+    this._purgeExpired();
     return this._store.size;
   }
 
@@ -27,11 +30,22 @@ export class LocalStorage<T = any> implements IStorage<string, T> {
   }
 
   get(key: string): T | undefined {
+    if (this._isExpired(key)) {
+      this.delete(key);
+      return undefined;
+    }
     this._hit(key);
     return this._store.get(key);
   }
 
-  set(key: string, value: T): void {
+  set(key: string, value: T, options: IStorageSetOptions = {}): void {
+    if (
+      options.ttl !== undefined &&
+      (!Number.isFinite(options.ttl) || options.ttl < 0)
+    ) {
+      throw new RangeError('Storage TTL must be a non-negative, finite number.');
+    }
+    this._purgeExpired();
     if (!this._hit(key)) {
       this._keys.push(key);
     }
@@ -42,11 +56,17 @@ export class LocalStorage<T = any> implements IStorage<string, T> {
 
         if (k) {
           this._store.delete(k);
+          this._expirations.delete(k);
         }
       }
     }
 
     this._store.set(key, value);
+    if (options.ttl === undefined) {
+      this._expirations.delete(key);
+    } else {
+      this._expirations.set(key, Date.now() + options.ttl * 1000);
+    }
   }
 
   delete(key: string): void {
@@ -57,9 +77,11 @@ export class LocalStorage<T = any> implements IStorage<string, T> {
     }
 
     this._store.delete(key);
+    this._expirations.delete(key);
   }
 
   toString(): string {
+    this._purgeExpired();
     return JSON.stringify(
       Array.from(this._store.entries()).map(([key, value]) => ({
         key,
@@ -86,5 +108,18 @@ export class LocalStorage<T = any> implements IStorage<string, T> {
     }
 
     return true;
+  }
+
+  protected _isExpired(key: string): boolean {
+    const expiresAt = this._expirations.get(key);
+    return expiresAt !== undefined && expiresAt <= Date.now();
+  }
+
+  protected _purgeExpired(): void {
+    for (const key of [...this._keys]) {
+      if (this._isExpired(key)) {
+        this.delete(key);
+      }
+    }
   }
 }

@@ -138,8 +138,8 @@ describe('App', () => {
 
   describe('process', () => {
     it('loads, exposes, persists, and seals per-turn state', async () => {
-      const data = new Map<string, string>();
-      const storage: IStorage<string, string> = {
+      const data = new Map<string, Record<string, unknown>>();
+      const storage: IStorage<string, Record<string, unknown>> = {
         get: (key) => data.get(key),
         set: (key, value) => {
           data.set(key, value);
@@ -179,8 +179,8 @@ describe('App', () => {
     });
 
     it('persists dirty state when a handler fails', async () => {
-      const data = new Map<string, string>();
-      const storage: IStorage<string, string> = {
+      const data = new Map<string, Record<string, unknown>>();
+      const storage: IStorage<string, Record<string, unknown>> = {
         get: (key) => data.get(key),
         set: (key, value) => {
           data.set(key, value);
@@ -206,14 +206,14 @@ describe('App', () => {
       const response = await app.process({ token, body: stateActivity });
 
       expect(response.status).toBe(500);
-      expect(JSON.parse(data.get('ts:conv:conv-1') ?? '{}').data).toEqual({
+      expect(data.get('ts:conv:conv-1')).toEqual({
         saved: true,
       });
     });
 
     it('seals state and propagates the error when persistence fails', async () => {
       const saveError = new Error('save failed');
-      const storage: IStorage<string, string> = {
+      const storage: IStorage<string, Record<string, unknown>> = {
         get: () => undefined,
         set: () => {
           throw saveError;

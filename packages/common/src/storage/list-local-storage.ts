@@ -1,4 +1,4 @@
-import type { IListStorage } from './storage';
+import type { IListStorage, IStorageSetOptions } from './storage';
 
 /**
  * An in-memory list storage.
@@ -14,7 +14,10 @@ export class ListLocalStorage<T = any> implements IListStorage<T> {
         return this._list[key];
     }
 
-    set(key: number, value: T): void {
+    set(key: number, value: T, options: IStorageSetOptions = {}): void {
+        if (options.ttl !== undefined) {
+            throw new Error('ListLocalStorage does not support TTL.');
+        }
         this._list[key] = value;
     }
 

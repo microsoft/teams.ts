@@ -4,11 +4,6 @@ import { TurnStateContainer } from './container';
 import { StateOptions } from './options';
 import { TurnState } from './turn-state';
 
-type StateEnvelope = {
-  readonly ts: number;
-  readonly data: Record<string, unknown>;
-};
-
 /**
  * Loads and saves per-turn state scopes using app storage.
  *
@@ -16,16 +11,19 @@ type StateEnvelope = {
  * last-writer-wins semantics.
  */
 export class TurnStateLoader {
-  private readonly storage: IStorage<string, string>;
+  private readonly storage: IStorage<string, Record<string, unknown>>;
   private readonly keyPrefix: string;
   private readonly ttl?: number;
 
   /**
    * Creates a state loader.
-   * @param storage Storage for JSON state envelopes.
+   * @param storage Storage for JSON-native state records.
    * @param options State key and expiration options.
    */
-  constructor(storage: IStorage<string, string>, options: StateOptions = {}) {
+  constructor(
+    storage: IStorage<string, Record<string, unknown>>,
+    options: StateOptions = {}
+  ) {
     this.storage = storage;
     this.keyPrefix = options.keyPrefix ?? 'ts';
     this.ttl = options.ttl;
@@ -115,18 +113,10 @@ export class TurnStateLoader {
       return new TurnState();
     }
 
-    try {
-      const envelope: unknown = JSON.parse(value);
-      if (!isStateEnvelope(envelope)) {
-        return new TurnState();
-      }
-      if (this.ttl !== undefined && Date.now() / 1000 - envelope.ts > this.ttl) {
-        return new TurnState();
-      }
-      return new TurnState(envelope.data);
-    } catch {
+    if (!isStateRecord(value)) {
       return new TurnState();
     }
+    return new TurnState(structuredClone(value));
   }
 
   private async saveScope(key: string, state: TurnState): Promise<void> {
@@ -138,11 +128,12 @@ export class TurnStateLoader {
       return;
     }
 
-    const envelope: StateEnvelope = {
-      ts: Date.now() / 1000,
-      data: state.toRecord(),
-    };
-    await this.storage.set(key, JSON.stringify(envelope));
+    const value = structuredClone(state.toRecord());
+    if (this.ttl === undefined) {
+      await this.storage.set(key, value);
+    } else {
+      await this.storage.set(key, value, { ttl: this.ttl });
+    }
   }
 }
 
@@ -162,7 +153,8 @@ export function createStateLoader(
   }
 
   const options = state === true ? {} : state;
-  const storage = options.storage ?? fallbackStorage as IStorage<string, string>;
+  const storage = options.storage ??
+    fallbackStorage as IStorage<string, Record<string, unknown>>;
   if (storage instanceof LocalStorage) {
     logger.warn(
       'Per-turn state is using LocalStorage and will not be shared across processes. Configure state.storage for production.'
@@ -172,16 +164,6 @@ export function createStateLoader(
   return new TurnStateLoader(storage, options);
 }
 
-function isStateEnvelope(value: unknown): value is StateEnvelope {
-  if (!value || typeof value !== 'object') {
-    return false;
-  }
-
-  const envelope = value as Record<string, unknown>;
-  return (
-    typeof envelope.ts === 'number' &&
-    !!envelope.data &&
-    typeof envelope.data === 'object' &&
-    !Array.isArray(envelope.data)
-  );
+function isStateRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
 }

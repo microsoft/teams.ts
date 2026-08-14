@@ -1,13 +1,22 @@
-import { ILogger, IStorage, LocalStorage } from '@microsoft/teams.common';
+import {
+  ILogger,
+  IStorage,
+  IStorageSetOptions,
+  LocalStorage,
+} from '@microsoft/teams.common';
 
 import { TurnStateContainer } from './container';
 import { createStateLoader, TurnStateLoader } from './loader';
 import { TurnState, TurnStateSealedError } from './turn-state';
 
-class TestStorage implements IStorage<string, string> {
-  readonly data = new Map<string, string>();
+class TestStorage implements IStorage<string, Record<string, unknown>> {
+  readonly data = new Map<string, Record<string, unknown>>();
   readonly get = jest.fn((key: string) => this.data.get(key));
-  readonly set = jest.fn((key: string, value: string) => {
+  readonly set = jest.fn((
+    key: string,
+    value: Record<string, unknown>,
+    _options?: IStorageSetOptions
+  ) => {
     this.data.set(key, value);
   });
   readonly delete = jest.fn((key: string) => {
@@ -24,6 +33,21 @@ describe('TurnState', () => {
     expect(state.isDirty).toBe(false);
 
     state.set('existing', 1);
+    expect(state.isDirty).toBe(true);
+  });
+
+  it('keeps mutable reads clean until the value is explicitly set', () => {
+    const state = new TurnState({
+      feature: { count: 1 },
+    });
+    const feature = state.get<{ count: number }>('feature');
+
+    if (feature) {
+      feature.count++;
+    }
+    expect(state.isDirty).toBe(false);
+
+    state.set('feature', feature);
     expect(state.isDirty).toBe(true);
   });
 
@@ -65,11 +89,11 @@ describe('TurnStateLoader', () => {
 
     expect(storage.set).toHaveBeenCalledWith(
       'ts:conv:conversation-1',
-      expect.any(String)
+      { shared: 1 }
     );
     expect(storage.set).toHaveBeenCalledWith(
       'ts:user:conversation-1:user-1',
-      expect.any(String)
+      { personal: 2 }
     );
 
     const loaded = await loader.load('conversation-1', 'user-1');
@@ -94,17 +118,30 @@ describe('TurnStateLoader', () => {
     expect(storage.delete).toHaveBeenCalledWith('ts:conv:conversation-1');
   });
 
-  it('treats malformed and expired values as absent', async () => {
+  it('treats invalid stored values as absent', async () => {
     const storage = new TestStorage();
-    storage.data.set('ts:conv:malformed', '{');
     storage.data.set(
-      'ts:conv:expired',
-      JSON.stringify({ ts: Date.now() / 1000 - 30, data: { value: 1 } })
+      'ts:conv:invalid',
+      [] as unknown as Record<string, unknown>
     );
-    const loader = new TurnStateLoader(storage, { ttl: 10 });
+    const loader = new TurnStateLoader(storage);
 
-    expect((await loader.load('malformed')).conversation.isEmpty).toBe(true);
-    expect((await loader.load('expired')).conversation.isEmpty).toBe(true);
+    expect((await loader.load('invalid')).conversation.isEmpty).toBe(true);
+  });
+
+  it('delegates TTL enforcement to the storage provider', async () => {
+    const storage = new TestStorage();
+    const loader = new TurnStateLoader(storage, { ttl: 10 });
+    const state = await loader.load('conversation-1');
+    state.conversation.set('value', 1);
+
+    await loader.save(state);
+
+    expect(storage.set).toHaveBeenCalledWith(
+      'ts:conv:conversation-1',
+      { value: 1 },
+      { ttl: 10 }
+    );
   });
 
   it('omits user state when no user ID is available', async () => {
@@ -113,6 +150,33 @@ describe('TurnStateLoader', () => {
 
     expect(state.user).toBeUndefined();
     expect(storage.get).toHaveBeenCalledTimes(1);
+  });
+
+  it('isolates loaded and saved state from provider-owned object references', async () => {
+    const storage = new TestStorage();
+    storage.data.set('ts:conv:conversation-1', {
+      feature: { count: 1 },
+    });
+    const loader = new TurnStateLoader(storage);
+    const first = await loader.load('conversation-1');
+    const firstFeature = first.conversation.get<{ count: number }>('feature');
+    if (firstFeature) {
+      firstFeature.count = 2;
+    }
+
+    const second = await loader.load('conversation-1');
+    expect(
+      second.conversation.get<{ count: number }>('feature')
+    ).toEqual({ count: 1 });
+
+    first.conversation.set('feature', firstFeature);
+    await loader.save(first);
+    if (firstFeature) {
+      firstFeature.count = 3;
+    }
+    expect(storage.data.get('ts:conv:conversation-1')).toEqual({
+      feature: { count: 2 },
+    });
   });
 
   it('deletes backing state before clearing memory and allows later persistence', async () => {
@@ -135,7 +199,7 @@ describe('TurnStateLoader', () => {
     await loader.save(state);
     expect(storage.set).toHaveBeenCalledWith(
       'ts:conv:conversation-1',
-      expect.any(String)
+      { new: 3 }
     );
   });
 });

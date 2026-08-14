@@ -49,6 +49,9 @@ export class TurnState implements Iterable<[string, unknown]> {
 
   /**
    * Reads a value from this scope.
+   *
+   * Reads never mark state dirty. Call `set` after changing mutable values so
+   * the scope is persisted at the end of the turn.
    * @param key Stable key used to persist the value.
    */
   get<T = unknown>(key: string): T | undefined {
