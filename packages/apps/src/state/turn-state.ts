@@ -117,10 +117,9 @@ export class TurnState {
     this.sealed = true;
   }
 
-  /** @internal Clears state after persisted records are deleted. */
-  reset(): void {
+  /** @internal Marks this scope as synchronized with its backing store. */
+  markClean(): void {
     this.ensureActive();
-    this.data.clear();
     this.dirty = false;
   }
 

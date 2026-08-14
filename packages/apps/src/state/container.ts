@@ -39,9 +39,12 @@ export class TurnStateContainer {
    */
   async delete(): Promise<void> {
      await this.deleter();
-    this.conversation.reset();
-    this.user?.reset();
-  }
+
+     this.conversation.clear();
+     this.user?.clear();
+     this.conversation.markClean();
+     this.user?.markClean();
+   }
 
   /** Seals both scopes after activity processing completes. */
   seal(): void {
