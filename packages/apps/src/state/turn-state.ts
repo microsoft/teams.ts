@@ -14,7 +14,7 @@ export class TurnStateSealedError extends Error {
  * Values are persisted as JSON at the end of the turn when the state is dirty.
  * Instances are not thread-safe and must not be retained after the handler completes.
  */
-export class TurnState implements Iterable<[string, unknown]> {
+export class TurnState {
   private readonly data: Map<string, unknown>;
   private dirty = false;
   private sealed = false;
@@ -103,39 +103,6 @@ export class TurnState implements Iterable<[string, unknown]> {
     this.dirty = true;
   }
 
-  /** Returns a snapshot iterator over the keys in this scope. */
-  keys(): IterableIterator<string> {
-    this.ensureActive();
-    return new Map(this.data).keys();
-  }
-
-  /** Returns a snapshot iterator over the values in this scope. */
-  values(): IterableIterator<unknown> {
-    this.ensureActive();
-    return new Map(this.data).values();
-  }
-
-  /** Returns a snapshot iterator over the entries in this scope. */
-  entries(): IterableIterator<[string, unknown]> {
-    this.ensureActive();
-    return new Map(this.data).entries();
-  }
-
-  /**
-   * Invokes a callback for each value in a snapshot of this scope.
-   * @param callback Callback invoked with each value, key, and this state object.
-   * @param thisArg Optional callback receiver.
-   */
-  forEach(
-    callback: (value: unknown, key: string, state: TurnState) => void,
-    thisArg?: unknown
-  ): void {
-    this.ensureActive();
-    for (const [key, value] of new Map(this.data)) {
-      callback.call(thisArg, value, key, this);
-    }
-  }
-
   /**
    * Returns a shallow record snapshot for persistence.
    *
@@ -148,11 +115,6 @@ export class TurnState implements Iterable<[string, unknown]> {
   /** Seals this scope so handlers cannot access it after the turn completes. */
   seal(): void {
     this.sealed = true;
-  }
-
-  /** Returns a snapshot iterator over this scope. */
-  [Symbol.iterator](): IterableIterator<[string, unknown]> {
-    return this.entries();
   }
 
   /** @internal Clears state after persisted records are deleted. */

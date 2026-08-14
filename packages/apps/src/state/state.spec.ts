@@ -42,19 +42,6 @@ describe('TurnState', () => {
     expect(state.isDirty).toBe(true);
   });
 
-  it('uses snapshot iterators so mutation during iteration is safe', () => {
-    const state = new TurnState({ first: 1, second: 2 });
-    const visited: string[] = [];
-
-    for (const [key] of state) {
-      visited.push(key);
-      state.delete(key);
-    }
-
-    expect(visited).toEqual(['first', 'second']);
-    expect(state.isEmpty).toBe(true);
-  });
-
   it('blocks access after sealing while preserving metadata and persistence snapshots', () => {
     const state = new TurnState({ value: 1 });
     state.seal();
