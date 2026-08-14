@@ -61,10 +61,8 @@ export class TurnStateLoader {
 
     return new TurnStateContainer(
       conversation,
-      conversationId,
-      (loadedConversationId, loadedUserId) => this.delete(loadedConversationId, loadedUserId),
-      user,
-      userId
+      () => this.delete(conversationId, userId),
+      user
     );
   }
 
@@ -73,23 +71,29 @@ export class TurnStateLoader {
    *
    * Dirty empty scopes delete their backing keys; clean scopes perform no I/O.
    * @param container State container to persist.
+   * @param conversationId Conversation ID associated with the state.
+   * @param userId Optional sender ID associated with the user scope.
    */
-  async save(container: TurnStateContainer): Promise<void> {
-    if (!container.conversationId) {
+  async save(
+    container: TurnStateContainer,
+    conversationId: string,
+    userId?: string
+  ): Promise<void> {
+    if (!conversationId) {
       throw new Error('A conversation ID is required to save turn state.');
     }
 
     await this.saveScope(
-      this.conversationKey(container.conversationId),
+      this.conversationKey(conversationId),
       container.conversation
     );
 
     if (container.user) {
-      if (!container.userId) {
+      if (!userId) {
         throw new Error('A user ID is required to save user turn state.');
       }
       await this.saveScope(
-        this.userKey(container.conversationId, container.userId),
+        this.userKey(conversationId, userId),
         container.user
       );
     }

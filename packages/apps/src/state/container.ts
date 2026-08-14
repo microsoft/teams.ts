@@ -1,6 +1,6 @@
 import { TurnState } from './turn-state';
 
-type StateDeleter = (conversationId: string, userId?: string) => Promise<void>;
+type StateDeleter = () => Promise<void>;
 
 /** Conversation and user state loaded for one activity turn. */
 export class TurnStateContainer {
@@ -13,34 +13,22 @@ export class TurnStateContainer {
    */
   readonly user?: TurnState;
 
-  /** Conversation ID used to load and persist this container. */
-  readonly conversationId: string;
-
-  /** User ID used to load and persist the user scope. */
-  readonly userId?: string;
-
   private readonly deleter: StateDeleter;
 
   /**
    * Creates a loaded state container.
    * @param conversation Conversation-scoped state.
-   * @param conversationId Conversation ID associated with the state.
    * @param deleter Callback that removes persisted scopes.
    * @param user Optional user-within-conversation state.
-   * @param userId Optional sender ID associated with the user scope.
    */
   constructor(
     conversation: TurnState,
-    conversationId: string,
     deleter: StateDeleter,
-    user?: TurnState,
-    userId?: string
+    user?: TurnState
   ) {
     this.conversation = conversation;
-    this.conversationId = conversationId;
     this.deleter = deleter;
     this.user = user;
-    this.userId = userId;
   }
 
   /**
@@ -50,7 +38,7 @@ export class TurnStateContainer {
    * written after this call are persisted normally at the end of the turn.
    */
   async delete(): Promise<void> {
-    await this.deleter(this.conversationId, this.userId);
+     await this.deleter();
     this.conversation.reset();
     this.user?.reset();
   }

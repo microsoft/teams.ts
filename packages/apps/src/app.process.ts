@@ -259,10 +259,11 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       });
 
       const conversationId = activity.conversation?.id;
+      const userId = activity.from?.id;
       if (this.options.stateLoader && conversationId) {
         context.state = await this.options.stateLoader.load(
           conversationId,
-          activity.from?.id
+          userId
         );
       }
 
@@ -326,9 +327,13 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
           response: response,
         });
       } finally {
-        if (context.state && this.options.stateLoader) {
+        if (context.state && this.options.stateLoader && conversationId) {
           try {
-            await this.options.stateLoader.save(context.state);
+            await this.options.stateLoader.save(
+              context.state,
+              conversationId,
+              userId
+            );
           } finally {
             context.state.seal();
           }

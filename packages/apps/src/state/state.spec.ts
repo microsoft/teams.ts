@@ -63,7 +63,7 @@ describe('TurnStateLoader', () => {
 
     state.conversation.set('shared', 1);
     state.user?.set('personal', 2);
-    await loader.save(state);
+    await loader.save(state, 'conversation-1', 'user-1');
 
     expect(storage.set).toHaveBeenCalledWith(
       'ts:conv:conversation-1',
@@ -86,13 +86,13 @@ describe('TurnStateLoader', () => {
     const loader = new TurnStateLoader(storage);
     const state = await loader.load('conversation-1');
 
-    await loader.save(state);
+    await loader.save(state, 'conversation-1');
     expect(storage.set).not.toHaveBeenCalled();
     expect(storage.delete).not.toHaveBeenCalled();
 
     state.conversation.set('value', 1);
     state.conversation.clear();
-    await loader.save(state);
+    await loader.save(state, 'conversation-1');
     expect(storage.delete).toHaveBeenCalledWith('ts:conv:conversation-1');
   });
 
@@ -117,7 +117,7 @@ describe('TurnStateLoader', () => {
     const state = await loader.load('conversation-1');
     state.conversation.set('value', 1);
 
-    await loader.save(state);
+    await loader.save(state, 'conversation-1');
 
     expect(storage.set).toHaveBeenCalledWith(
       'ts:conv:conversation-1',
@@ -152,7 +152,7 @@ describe('TurnStateLoader', () => {
     ).toEqual({ count: 1 });
 
     first.conversation.set('feature', firstFeature);
-    await loader.save(first);
+    await loader.save(first, 'conversation-1');
     if (firstFeature) {
       firstFeature.count = 3;
     }
@@ -166,10 +166,8 @@ describe('TurnStateLoader', () => {
     const loader = new TurnStateLoader(storage);
     const state = new TurnStateContainer(
       new TurnState({ shared: 1 }),
-      'conversation-1',
-      (conversationId, userId) => loader.delete(conversationId, userId),
-      new TurnState({ personal: 2 }),
-      'user-1'
+      () => loader.delete('conversation-1', 'user-1'),
+      new TurnState({ personal: 2 })
     );
 
     await state.delete();
@@ -178,7 +176,7 @@ describe('TurnStateLoader', () => {
     expect(state.user?.isDirty).toBe(false);
 
     state.conversation.set('new', 3);
-    await loader.save(state);
+    await loader.save(state, 'conversation-1', 'user-1');
     expect(storage.set).toHaveBeenCalledWith(
       'ts:conv:conversation-1',
       { new: 3 }
