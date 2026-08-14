@@ -3,11 +3,12 @@ import type { IStorage, IStorageSetOptions } from '@microsoft/teams.common';
 /** Configures per-turn conversation and user state. */
 export type StateOptions = {
   /**
-   * Storage used for persisted JSON-native state records.
+   * Storage used for persisted state JSON strings.
    *
-   * The provider owns serialization and encoding. Defaults to the app's storage.
+   * Providers may encode the strings to UTF-8 or another native representation.
+   * Defaults to the app's storage.
    */
-  readonly storage?: IStorage<string, Record<string, unknown>>;
+  readonly storage?: IStorage<string, string>;
 
   /**
    * Prefix applied to conversation and user storage keys.

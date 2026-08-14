@@ -4,10 +4,10 @@ import { TurnStateContainer } from './container';
 import { createStateLoader, TurnStateLoader } from './loader';
 import { TurnState, TurnStateSealedError } from './turn-state';
 
-class TestStorage implements IStorage<string, Record<string, unknown>> {
-  readonly data = new Map<string, Record<string, unknown>>();
+class TestStorage implements IStorage<string, string> {
+  readonly data = new Map<string, string>();
   readonly get = jest.fn((key: string) => this.data.get(key));
-  readonly set = jest.fn((key: string, value: Record<string, unknown>) => {
+  readonly set = jest.fn((key: string, value: string) => {
     this.data.set(key, value);
   });
   readonly delete = jest.fn((key: string) => {
@@ -67,11 +67,11 @@ describe('TurnStateLoader', () => {
 
     expect(storage.set).toHaveBeenCalledWith(
       'ts:conv:conversation-1',
-      { shared: 1 }
+      '{"shared":1}'
     );
     expect(storage.set).toHaveBeenCalledWith(
       'ts:user:conversation-1:user-1',
-      { personal: 2 }
+      '{"personal":2}'
     );
 
     const loaded = await loader.load('conversation-1', 'user-1');
@@ -96,16 +96,16 @@ describe('TurnStateLoader', () => {
     expect(storage.delete).toHaveBeenCalledWith('ts:conv:conversation-1');
   });
 
-  it('treats invalid stored values as absent', async () => {
-    const storage = new TestStorage();
-    storage.data.set(
-      'ts:conv:invalid',
-      [] as unknown as Record<string, unknown>
-    );
-    const loader = new TurnStateLoader(storage);
+  it.each(['not json', '[]', 'null', '1'])(
+    'treats invalid stored value %p as absent',
+    async (value) => {
+      const storage = new TestStorage();
+      storage.data.set('ts:conv:invalid', value);
+      const loader = new TurnStateLoader(storage);
 
-    expect((await loader.load('invalid')).conversation.isEmpty).toBe(true);
-  });
+      expect((await loader.load('invalid')).conversation.isEmpty).toBe(true);
+    }
+  );
 
   it('passes storage options through unchanged on writes', async () => {
     const storage = new TestStorage();
@@ -121,9 +121,21 @@ describe('TurnStateLoader', () => {
 
     expect(storage.set).toHaveBeenCalledWith(
       'ts:conv:conversation-1',
-      { value: 1 },
+      '{"value":1}',
       storageOptions
     );
+  });
+
+  it('rejects state that cannot be serialized as JSON', async () => {
+    const storage = new TestStorage();
+    const loader = new TurnStateLoader(storage);
+    const state = await loader.load('conversation-1');
+    const circular: Record<string, unknown> = {};
+    circular.self = circular;
+    state.conversation.set('circular', circular);
+
+    await expect(loader.save(state, 'conversation-1')).rejects.toThrow(TypeError);
+    expect(storage.set).not.toHaveBeenCalled();
   });
 
   it('omits user state when no user ID is available', async () => {
@@ -134,11 +146,12 @@ describe('TurnStateLoader', () => {
     expect(storage.get).toHaveBeenCalledTimes(1);
   });
 
-  it('isolates loaded and saved state from provider-owned object references', async () => {
+  it('isolates each loaded turn and the serialized saved value', async () => {
     const storage = new TestStorage();
-    storage.data.set('ts:conv:conversation-1', {
-      feature: { count: 1 },
-    });
+    storage.data.set(
+      'ts:conv:conversation-1',
+      '{"feature":{"count":1}}'
+    );
     const loader = new TurnStateLoader(storage);
     const first = await loader.load('conversation-1');
     const firstFeature = first.conversation.get<{ count: number }>('feature');
@@ -156,9 +169,9 @@ describe('TurnStateLoader', () => {
     if (firstFeature) {
       firstFeature.count = 3;
     }
-    expect(storage.data.get('ts:conv:conversation-1')).toEqual({
-      feature: { count: 2 },
-    });
+    expect(storage.data.get('ts:conv:conversation-1')).toBe(
+      '{"feature":{"count":2}}'
+    );
   });
 
   it('deletes backing state before clearing memory and allows later persistence', async () => {
@@ -179,7 +192,7 @@ describe('TurnStateLoader', () => {
     await loader.save(state, 'conversation-1', 'user-1');
     expect(storage.set).toHaveBeenCalledWith(
       'ts:conv:conversation-1',
-      { new: 3 }
+      '{"new":3}'
     );
   });
 });

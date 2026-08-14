@@ -11,17 +11,17 @@ import { TurnState } from './turn-state';
  * last-writer-wins semantics.
  */
 export class TurnStateLoader {
-  private readonly storage: IStorage<string, Record<string, unknown>>;
+  private readonly storage: IStorage<string, string>;
   private readonly keyPrefix: string;
   private readonly storageOptions: StateOptions['storageOptions'];
 
   /**
    * Creates a state loader.
-   * @param storage Storage for JSON-native state records.
+   * @param storage Storage for serialized state JSON.
    * @param options State storage and key options.
    */
   constructor(
-    storage: IStorage<string, Record<string, unknown>>,
+    storage: IStorage<string, string>,
     options: StateOptions = {}
   ) {
     this.storage = storage;
@@ -117,10 +117,11 @@ export class TurnStateLoader {
       return new TurnState();
     }
 
-    if (!isStateRecord(value)) {
+    const data = deserializeState(value);
+    if (!data) {
       return new TurnState();
     }
-    return new TurnState(structuredClone(value));
+    return new TurnState(data);
   }
 
   private async saveScope(key: string, state: TurnState): Promise<void> {
@@ -132,7 +133,7 @@ export class TurnStateLoader {
       return;
     }
 
-    const value = structuredClone(state.toRecord());
+    const value = JSON.stringify(state.toRecord());
     if (this.storageOptions) {
       await this.storage.set(key, value, this.storageOptions);
     } else {
@@ -158,7 +159,7 @@ export function createStateLoader(
 
   const options = state === true ? {} : state;
   const storage = options.storage ??
-    fallbackStorage as IStorage<string, Record<string, unknown>>;
+    fallbackStorage as IStorage<string, string>;
   if (storage instanceof LocalStorage) {
     logger.warn(
       'Per-turn state is using LocalStorage and will not be shared across processes. Configure state.storage for production.'
@@ -166,6 +167,15 @@ export function createStateLoader(
   }
 
   return new TurnStateLoader(storage, options);
+}
+
+function deserializeState(value: string): Record<string, unknown> | undefined {
+  try {
+    const data: unknown = JSON.parse(value);
+    return isStateRecord(data) ? data : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function isStateRecord(value: unknown): value is Record<string, unknown> {
