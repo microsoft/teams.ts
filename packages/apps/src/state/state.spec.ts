@@ -120,6 +120,25 @@ describe('TurnStateLoader', () => {
     expect((await loader.load('invalid')).conversation.isEmpty).toBe(true);
   });
 
+  it('passes storage options through unchanged on writes', async () => {
+    const storage = new TestStorage();
+    const storageOptions = {
+      consistency: 'strong',
+      partition: 'state',
+    };
+    const loader = new TurnStateLoader(storage, { storageOptions });
+    const state = await loader.load('conversation-1');
+    state.conversation.set('value', 1);
+
+    await loader.save(state);
+
+    expect(storage.set).toHaveBeenCalledWith(
+      'ts:conv:conversation-1',
+      { value: 1 },
+      storageOptions
+    );
+  });
+
   it('omits user state when no user ID is available', async () => {
     const storage = new TestStorage();
     const state = await new TurnStateLoader(storage).load('conversation-1');

@@ -13,6 +13,7 @@ import { TurnState } from './turn-state';
 export class TurnStateLoader {
   private readonly storage: IStorage<string, Record<string, unknown>>;
   private readonly keyPrefix: string;
+  private readonly storageOptions: StateOptions['storageOptions'];
 
   /**
    * Creates a state loader.
@@ -25,6 +26,7 @@ export class TurnStateLoader {
   ) {
     this.storage = storage;
     this.keyPrefix = options.keyPrefix ?? 'ts';
+    this.storageOptions = options.storageOptions;
   }
 
   /**
@@ -127,7 +129,11 @@ export class TurnStateLoader {
     }
 
     const value = structuredClone(state.toRecord());
-    await this.storage.set(key, value);
+    if (this.storageOptions) {
+      await this.storage.set(key, value, this.storageOptions);
+    } else {
+      await this.storage.set(key, value);
+    }
   }
 }
 

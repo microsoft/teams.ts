@@ -1,10 +1,20 @@
 /**
+ * Provider-defined options applied when writing a storage value.
+ *
+ * Storage implementations own the supported option names and semantics.
+ */
+export type IStorageSetOptions = Readonly<Record<string, unknown>>;
+
+/**
  * a storage container that can
  * get/set/delete items by a unique key
  */
 export interface IStorage<TKey = any, TValue = any> {
   get(key: TKey): TValue | undefined | Promise<TValue | undefined>;
-  set(key: TKey, value: TValue): void | Promise<void>;
+  /**
+   * Stores a value with optional provider-defined write options.
+   */
+  set(key: TKey, value: TValue, options?: IStorageSetOptions): void | Promise<void>;
   delete(key: TKey): void | Promise<void>;
 }
 

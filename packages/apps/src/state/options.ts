@@ -1,4 +1,4 @@
-import type { IStorage } from '@microsoft/teams.common';
+import type { IStorage, IStorageSetOptions } from '@microsoft/teams.common';
 
 /** Configures per-turn conversation and user state. */
 export type StateOptions = {
@@ -14,5 +14,10 @@ export type StateOptions = {
    * @default 'ts'
    */
   readonly keyPrefix?: string;
+
+  /**
+   * Provider-defined options passed unchanged on every state write.
+   */
+  readonly storageOptions?: IStorageSetOptions;
 
 };
