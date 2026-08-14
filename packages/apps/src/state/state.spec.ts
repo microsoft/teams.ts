@@ -176,14 +176,14 @@ describe('TurnStateLoader', () => {
 
   it('deletes backing state before clearing memory and allows later persistence', async () => {
     const storage = new TestStorage();
+    storage.data.set('ts:conv:conversation-1', '{"shared":1}');
+    storage.data.set('ts:user:conversation-1:user-1', '{"personal":2}');
     const loader = new TurnStateLoader(storage);
-    const state = new TurnStateContainer(
-      new TurnState({ shared: 1 }),
-      () => loader.delete('conversation-1', 'user-1'),
-      new TurnState({ personal: 2 })
-    );
+    const state = await loader.load('conversation-1', 'user-1');
 
     await state.delete();
+    expect(storage.data.has('ts:conv:conversation-1')).toBe(false);
+    expect(storage.data.has('ts:user:conversation-1:user-1')).toBe(false);
     expect(state.conversation.isEmpty).toBe(true);
     expect(state.conversation.isDirty).toBe(false);
     expect(state.user?.isDirty).toBe(false);
@@ -194,6 +194,15 @@ describe('TurnStateLoader', () => {
       'ts:conv:conversation-1',
       '{"new":3}'
     );
+  });
+
+  it('rejects deletion for a manually constructed container', async () => {
+    const state = new TurnStateContainer(new TurnState({ shared: 1 }));
+
+    await expect(state.delete()).rejects.toThrow(
+      'State deletion is not available for a container that was not loaded by the app.'
+    );
+    expect(state.conversation.get('shared')).toBe(1);
   });
 });
 

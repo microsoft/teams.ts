@@ -61,8 +61,8 @@ export class TurnStateLoader {
 
     return new TurnStateContainer(
       conversation,
-      () => this.delete(conversationId, userId),
-      user
+      user,
+      () => this.delete(conversationId, userId)
     );
   }
 
