@@ -906,6 +906,18 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   }
 
   /**
+   * whether any registered route matches the inbound activity
+   *
+   * Useful for hosts that embed the app behind their own pipeline (e.g. the
+   * Microsoft 365 Extension and need to decide whether to hand a turn
+   * to this app or let it fall through, without running the activity.
+   * @param activity the inbound activity to test against registered routes
+   */
+  hasMatchingRoute(activity: Activity): boolean {
+    return this.router.select(activity).length > 0;
+  }
+
+  /**
    * activity handler called when an inbound activity is received
    * @param event the received activity event
    */
