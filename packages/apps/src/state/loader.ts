@@ -88,7 +88,10 @@ export class TurnStateLoader {
       container.conversation
     );
 
-    if (container.user && userId) {
+    if (container.user) {
+      if (!userId) {
+        throw new Error('A user ID is required to save user turn state.');
+      }
       await this.saveScope(
         this.userKey(conversationId, userId),
         container.user

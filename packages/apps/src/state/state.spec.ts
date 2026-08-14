@@ -134,21 +134,6 @@ describe('TurnStateLoader', () => {
     expect(storage.get).toHaveBeenCalledTimes(1);
   });
 
-  it('skips user state on save when no user ID is available', async () => {
-    const storage = new TestStorage();
-    const loader = new TurnStateLoader(storage);
-    const state = new TurnStateContainer(
-      new TurnState(),
-      async () => undefined,
-      new TurnState()
-    );
-    state.user?.set('personal', 1);
-
-    await loader.save(state, 'conversation-1');
-
-    expect(storage.set).not.toHaveBeenCalled();
-  });
-
   it('isolates loaded and saved state from provider-owned object references', async () => {
     const storage = new TestStorage();
     storage.data.set('ts:conv:conversation-1', {
