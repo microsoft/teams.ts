@@ -1,9 +1,4 @@
-import {
-  ILogger,
-  IStorage,
-  IStorageSetOptions,
-  LocalStorage,
-} from '@microsoft/teams.common';
+import { ILogger, IStorage, LocalStorage } from '@microsoft/teams.common';
 
 import { TurnStateContainer } from './container';
 import { createStateLoader, TurnStateLoader } from './loader';
@@ -12,11 +7,7 @@ import { TurnState, TurnStateSealedError } from './turn-state';
 class TestStorage implements IStorage<string, Record<string, unknown>> {
   readonly data = new Map<string, Record<string, unknown>>();
   readonly get = jest.fn((key: string) => this.data.get(key));
-  readonly set = jest.fn((
-    key: string,
-    value: Record<string, unknown>,
-    _options?: IStorageSetOptions
-  ) => {
+  readonly set = jest.fn((key: string, value: Record<string, unknown>) => {
     this.data.set(key, value);
   });
   readonly delete = jest.fn((key: string) => {
@@ -127,21 +118,6 @@ describe('TurnStateLoader', () => {
     const loader = new TurnStateLoader(storage);
 
     expect((await loader.load('invalid')).conversation.isEmpty).toBe(true);
-  });
-
-  it('delegates TTL enforcement to the storage provider', async () => {
-    const storage = new TestStorage();
-    const loader = new TurnStateLoader(storage, { ttl: 10 });
-    const state = await loader.load('conversation-1');
-    state.conversation.set('value', 1);
-
-    await loader.save(state);
-
-    expect(storage.set).toHaveBeenCalledWith(
-      'ts:conv:conversation-1',
-      { value: 1 },
-      { ttl: 10 }
-    );
   });
 
   it('omits user state when no user ID is available', async () => {

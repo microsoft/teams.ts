@@ -1,14 +1,6 @@
 import { ListLocalStorage } from './list-local-storage';
 
 describe('ListLocalStorage', () => {
-  it('rejects TTL writes because list storage cannot expire individual entries', () => {
-    const storage = new ListLocalStorage();
-
-    expect(() => storage.set(0, 'value', { ttl: 10 })).toThrow(
-      'ListLocalStorage does not support TTL.'
-    );
-  });
-
     it('should get undefined for empty index', () => {
         const storage = new ListLocalStorage();
         expect(storage.get(0)).toBeUndefined();
