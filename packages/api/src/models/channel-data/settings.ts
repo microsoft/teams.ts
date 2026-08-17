@@ -8,7 +8,7 @@ export type ChannelDataSettings = {
   /**
    * @member {ChannelInfo} [selectedChannel] Information about the selected Teams channel.
    */
-  selectedChannel: ChannelInfo;
+  selectedChannel?: ChannelInfo;
 
   /**
    * @member {any} [any] Additional properties that are not otherwise defined by the TeamsChannelDataSettings
