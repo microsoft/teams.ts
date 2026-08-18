@@ -27,7 +27,7 @@
     "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
     "@microsoft/teams.graph-endpoints": "*",
-    "@modelcontextprotocol/sdk": "^1.25.2",
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "express": "^5.0.0",
     "zod": "^3.24.3"
   },
