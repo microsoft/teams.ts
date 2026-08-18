@@ -35,7 +35,7 @@
   },
   "peerDependencies": {
     "@microsoft/teams.ai": "*",
-    "@modelcontextprotocol/sdk": "^1.13.0"
+    "@modelcontextprotocol/sdk": "^1.30.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
