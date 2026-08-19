@@ -87,9 +87,8 @@ export class ActivitySender implements IActivitySender {
     return { ...payload, ...res };
   }
 
-  private stripRecipient(activity: ActivityParams | DeprecatedInputActivity) {
-    const updatePayload = { ...activity };
-    delete updatePayload.recipient;
+  private stripRecipient<T extends { recipient?: unknown }>(activity: T): Omit<T, 'recipient'> {
+    const { recipient: _recipient, ...updatePayload } = activity;
     return updatePayload;
   }
 
