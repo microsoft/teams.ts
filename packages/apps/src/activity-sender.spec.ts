@@ -156,8 +156,13 @@ describe('ActivitySender', () => {
       expect(conversations.updateTargetedActivity).toHaveBeenCalledWith(
         'conv-123',
         'existing-id',
-        expect.objectContaining({ recipient: expect.objectContaining({ isTargeted: true }) })
+        expect.objectContaining({
+          type: 'message',
+          text: 'targeted update',
+          id: 'existing-id',
+        })
       );
+      expect(conversations.updateTargetedActivity.mock.calls[0][2]).not.toHaveProperty('recipient');
       expect(conversations.createActivity).not.toHaveBeenCalled();
     });
 
