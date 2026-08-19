@@ -18,10 +18,11 @@ import { readFileSync } from 'node:fs';
  * The gate deliberately fails safe: an un-verifiable age blocks the merge rather
  * than allowing a potentially-quarantined package through.
  *
- * Scope: only the npm ecosystem is gated. Dependabot PRs for other ecosystems
- * (notably `github_actions`) resolve from github.com rather than the CFS npm
- * feed, so their versions are never quarantined and report a passing
- * "not applicable" status.
+ * Scope: only npm packages are gated. Dependabot PRs for ecosystems that do not
+ * resolve through the CFS npm feed (notably GitHub Actions, branched as
+ * `dependabot/github_actions/...`) report a passing "not applicable" status.
+ * Ecosystems the script does not recognize still run the full check, so an
+ * unexpected branch name can never bypass the fail-safe.
  */
 
 const AGE_THRESHOLD_DAYS = 7;
@@ -32,12 +33,27 @@ const LOCKFILE_SUFFIX = 'package-lock.json';
 const STATUS_DESCRIPTION_LIMIT = 140;
 
 /**
- * Dependabot ecosystems whose packages are served by the CFS npm feed and are
- * therefore subject to the quarantine window. Dependabot encodes the ecosystem
- * in its branch name (`dependabot/<ecosystem>/<slug>`), which is the signal this
- * script uses because it is not customizable, unlike PR labels.
+ * Dependabot ecosystems that are known not to resolve through the CFS npm feed
+ * and therefore can never be quarantined.
+ *
+ * These are Dependabot's *branch-name* slugs, which intentionally differ from
+ * the `package-ecosystem` keys in `.github/dependabot.yml`:
+ *
+ *   package-ecosystem: "github-actions"  ->  dependabot/github_actions/...
+ *   package-ecosystem: npm               ->  dependabot/npm_and_yarn/...
+ *
+ * The branch slug is the signal used here because, unlike PR labels, it is not
+ * customizable. Any ecosystem *not* listed is treated as potentially-npm and
+ * runs the full age check, so an unrecognized or newly-configured ecosystem
+ * fails safe rather than silently skipping the gate.
  */
-const QUARANTINED_ECOSYSTEMS = new Set(['npm_and_yarn']);
+const NON_NPM_ECOSYSTEMS = new Set([
+  'github_actions',
+  'docker',
+  'devcontainers',
+  'submodules',
+  'terraform',
+]);
 
 const DEPENDABOT_BRANCH_PATTERN = /^dependabot\/(?<ecosystem>[^/]+)\//u;
 
@@ -198,10 +214,12 @@ function isDependabotPullRequest(pullRequest) {
 }
 
 /**
- * Reads the Dependabot ecosystem from the PR head branch
- * (`dependabot/<ecosystem>/<slug>`).
+ * Reads the Dependabot ecosystem slug from the PR head branch
+ * (`dependabot/<slug>/<update>`). Note this slug differs from the
+ * `package-ecosystem` key in `dependabot.yml` -- `npm` is branched as
+ * `npm_and_yarn`, and `github-actions` as `github_actions`.
  *
- * @returns {string|null} the ecosystem, or null when the branch does not follow
+ * @returns {string|null} the slug, or null when the branch does not follow
  * Dependabot's naming scheme (treated as unknown, so the full check still runs).
  */
 function getDependabotEcosystem(pullRequest) {
@@ -217,24 +235,27 @@ function getDependabotEcosystem(pullRequest) {
  * @returns {Promise<{state: 'success'|'failure'|'pending', description: string}>}
  */
 async function assessPullRequest(context, pullRequest) {
-  // Only npm packages flow through the CFS feed that enforces the quarantine.
-  // `github_actions` (and any other non-npm ecosystem) resolves from github.com,
-  // so its versions can never be quarantined -- and looking them up on the npm
-  // registry would 404 and wrongly trip the fail-safe.
-  const ecosystem = getDependabotEcosystem(pullRequest);
-  if (ecosystem !== null && !QUARANTINED_ECOSYSTEMS.has(ecosystem)) {
-    return {
-      state: 'success',
-      description: truncate(
-        `Ecosystem "${ecosystem}" is not served by the CFS npm feed; package-age gate not applicable.`,
-      ),
-    };
-  }
-
+  // A changed lockfile is ground truth that npm versions are moving, so it is
+  // evaluated *before* any ecosystem shortcut: if npm packages changed they are
+  // gated no matter what the branch name claims.
   let changedVersions = await getChangedVersionsFromLockfiles(context, pullRequest);
   let source = 'lockfile';
 
   if (changedVersions.length === 0) {
+    // No npm versions moved. Only packages served by the CFS feed can be
+    // quarantined; GitHub Actions and friends resolve from github.com, and
+    // looking their names up on the npm registry would 404 and wrongly trip the
+    // fail-safe. Unrecognized ecosystems fall through to the full check.
+    const ecosystem = getDependabotEcosystem(pullRequest);
+    if (ecosystem !== null && NON_NPM_ECOSYSTEMS.has(ecosystem)) {
+      return {
+        state: 'success',
+        description: truncate(
+          `Ecosystem "${ecosystem}" is not served by the CFS npm feed; package-age gate not applicable.`,
+        ),
+      };
+    }
+
     changedVersions = extractDependencyUpdatesFromBody(pullRequest);
     source = 'pr-body';
   }

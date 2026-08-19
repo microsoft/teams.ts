@@ -7,9 +7,12 @@ name: Dependabot Package Age Gate
 # status as a required check in branch protection so a `failure`/`pending` state
 # blocks the merge and prevents `npm ci` from breaking on quarantined packages.
 #
-# Only the npm ecosystem is gated. Dependabot PRs for other ecosystems (notably
-# `github_actions`) resolve through github.com rather than the CFS npm feed, so
-# they are never quarantined and report a passing "not applicable" status.
+# Only npm packages are gated. Dependabot PRs for ecosystems that do not resolve
+# through the CFS npm feed report a passing "not applicable" status -- notably
+# GitHub Actions, configured as `package-ecosystem: "github-actions"` but
+# branched by Dependabot as `dependabot/github_actions/...`. Ecosystems the
+# script does not recognize still run the full check, so an unexpected branch
+# name can never bypass the fail-safe.
 on:
   pull_request_target:
     types: [opened, synchronize, reopened]
