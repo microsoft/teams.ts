@@ -12,7 +12,7 @@ import {
 } from '@microsoft/teams.cards';
 import { ILogger } from '@microsoft/teams.common';
 
-import { Agent, AgentRunResult } from './agent';
+import type { IAgentRunner, AgentRunResult } from './agent';
 import { CLARIFICATION_INPUT_ID } from './local-tools';
 
 const OK_RESPONSE: AdaptiveCardActionMessageResponse = {
@@ -30,7 +30,7 @@ const OK_RESPONSE: AdaptiveCardActionMessageResponse = {
  * Feedback routes are independent of the agent — `message.fetch-task` returns
  * a task module dialog and `message.submit.feedback` logs the result.
  */
-export function registerHandlers(app: App, agent: Agent, log: ILogger): void {
+export function registerHandlers(app: App, agent: IAgentRunner, log: ILogger): void {
   app.on('message', async ({ activity, stream }) => {
     const userText = activity.stripMentionsText().text ?? '';
     const result = await agent.run(activity.conversation.id, userText, stream);

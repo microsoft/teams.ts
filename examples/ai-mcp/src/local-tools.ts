@@ -1,3 +1,4 @@
+import type { JSONSchema } from 'openai/lib/jsonschema';
 import type { RunnableToolFunction } from 'openai/lib/RunnableFunction';
 
 import {
@@ -20,6 +21,49 @@ export type ClarificationArgs = {
 };
 
 /**
+ * JSON Schema shared by the OpenAI and Anthropic tool definitions.
+ */
+export const CLARIFICATION_TOOL_SCHEMA: JSONSchema = {
+  type: 'object',
+  properties: {
+    question: {
+      type: 'string',
+      description: 'The clarification question to ask the user.',
+    },
+    options: {
+      type: 'array',
+      items: { type: 'string' },
+      minItems: 2,
+      maxItems: 4,
+      description: '2-4 candidate interpretations the user can pick between.',
+    },
+  },
+  required: ['question', 'options'],
+  additionalProperties: false,
+};
+
+/**
+ * Executes the provider-neutral clarification tool.
+ */
+export async function executeClarificationTool(
+  input: unknown,
+  pendingCards: AdaptiveCard[],
+  log: ILogger
+): Promise<string> {
+  if (!isClarificationArgs(input)) {
+    const message = 'request_clarification requires a question and 2-4 options.';
+    log.warn(message);
+    return message;
+  }
+
+  log.info(
+    `[tool] ${CLARIFICATION_TOOL_NAME}(question=${input.question}, options=[${input.options.join(', ')}])`
+  );
+  pendingCards.push(buildClarificationCard(input));
+  return 'Clarification card attached.';
+}
+
+/**
  * Builds the clarification tool as a RunnableToolFunction. The `function`
  * callback runs during the agent's tool loop: it pushes the card into a
  * per-turn bucket the agent inspects after `runner.done()`, and returns a
@@ -40,32 +84,23 @@ export function buildClarificationTool(
       description:
         'Show an Adaptive Card asking the user to clarify their request when ambiguous. ' +
         'The user picks one option and submits; their choice arrives as the next user turn.',
-      parameters: {
-        type: 'object',
-        properties: {
-          question: {
-            type: 'string',
-            description: 'The clarification question to ask the user.',
-          },
-          options: {
-            type: 'array',
-            items: { type: 'string' },
-            description: '2-4 candidate interpretations the user can pick between.',
-          },
-        },
-        required: ['question', 'options'],
-        additionalProperties: false,
-      },
-      function: async (args: ClarificationArgs) => {
-        log.info(
-          `[tool] ${CLARIFICATION_TOOL_NAME}(question=${args.question}, options=[${args.options.join(', ')}])`
-        );
-        pendingCards.push(buildClarificationCard(args));
-        return 'Clarification card attached.';
-      },
+      parameters: CLARIFICATION_TOOL_SCHEMA,
+      function: (args: ClarificationArgs) => executeClarificationTool(args, pendingCards, log),
       parse: (raw: string) => JSON.parse(raw) as ClarificationArgs,
     },
   };
+}
+
+function isClarificationArgs(value: unknown): value is ClarificationArgs {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const input = value as Record<string, unknown>;
+  return (
+    typeof input['question'] === 'string' &&
+    Array.isArray(input['options']) &&
+    input['options'].length >= 2 &&
+    input['options'].length <= 4 &&
+    input['options'].every((option) => typeof option === 'string')
+  );
 }
 
 function buildClarificationCard(args: ClarificationArgs): AdaptiveCard {

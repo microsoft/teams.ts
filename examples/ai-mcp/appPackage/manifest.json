@@ -15,7 +15,7 @@
     "termsOfUseUrl": "https://www.microsoft.com/legal/terms-of-use"
   },
   "description": {
-    "short": "Teams bot powered by Azure OpenAI + MS Learn MCP",
+    "short": "Teams bot powered by AI + MS Learn MCP",
     "full": "A Teams bot that streams answers grounded in MS Learn docs via the MCP protocol, with inline citations, follow-up chips, a clarification card tool, and custom feedback."
   },
   "icons": {

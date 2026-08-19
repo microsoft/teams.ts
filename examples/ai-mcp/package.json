@@ -21,6 +21,7 @@
     "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.cards": "*",
