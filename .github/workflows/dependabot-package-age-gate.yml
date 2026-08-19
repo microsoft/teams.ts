@@ -1,18 +1,25 @@
 name: Dependabot Package Age Gate
 
 # Publishes a required commit status ("package-age/7-day") on every Dependabot
-# PR. The status is `success` only when all changed package versions (including
-# transitive lockfile changes) are at least 7 days old, matching the Microsoft
-# Central Feed Services (CFS) npm quarantine window. Configure this status as a
-# required check in branch protection so a `failure`/`pending` state blocks the
-# merge and prevents `npm ci` from breaking on quarantined packages.
+# PR. The status is `success` only when all changed npm package versions
+# (including transitive lockfile changes) are at least 7 days old, matching the
+# Microsoft Central Feed Services (CFS) npm quarantine window. Configure this
+# status as a required check in branch protection so a `failure`/`pending` state
+# blocks the merge and prevents `npm ci` from breaking on quarantined packages.
+#
+# Only the npm ecosystem is gated. Dependabot PRs for other ecosystems (notably
+# `github_actions`) resolve through github.com rather than the CFS npm feed, so
+# they are never quarantined and report a passing "not applicable" status.
 on:
   pull_request_target:
     types: [opened, synchronize, reopened]
+  merge_group:
+    # Required status checks must also report on the merge queue's temporary
+    # ref, otherwise the queue waits forever for a status that never arrives.
   schedule:
-    # Daily re-check so PRs that were too new auto-clear once packages age past
-    # the 7-day window.
-    - cron: '17 8 * * *'
+    # Twice-daily re-check so PRs that were too new auto-clear once packages age
+    # past the 7-day window, without waiting a full day for the next run.
+    - cron: '17 8,20 * * *'
   workflow_dispatch:
 
 permissions:

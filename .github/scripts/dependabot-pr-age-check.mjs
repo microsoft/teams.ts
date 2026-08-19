@@ -17,6 +17,11 @@ import { readFileSync } from 'node:fs';
  *
  * The gate deliberately fails safe: an un-verifiable age blocks the merge rather
  * than allowing a potentially-quarantined package through.
+ *
+ * Scope: only the npm ecosystem is gated. Dependabot PRs for other ecosystems
+ * (notably `github_actions`) resolve from github.com rather than the CFS npm
+ * feed, so their versions are never quarantined and report a passing
+ * "not applicable" status.
  */
 
 const AGE_THRESHOLD_DAYS = 7;
@@ -27,6 +32,16 @@ const LOCKFILE_SUFFIX = 'package-lock.json';
 const STATUS_DESCRIPTION_LIMIT = 140;
 
 /**
+ * Dependabot ecosystems whose packages are served by the CFS npm feed and are
+ * therefore subject to the quarantine window. Dependabot encodes the ecosystem
+ * in its branch name (`dependabot/<ecosystem>/<slug>`), which is the signal this
+ * script uses because it is not customizable, unlike PR labels.
+ */
+const QUARANTINED_ECOSYSTEMS = new Set(['npm_and_yarn']);
+
+const DEPENDABOT_BRANCH_PATTERN = /^dependabot\/(?<ecosystem>[^/]+)\//u;
+
+/**
  * Fallback parser for Dependabot PR prose when no lockfile diff is available.
  * Handles both single ("Bumps `X` from A to B") and grouped ("Updates `X` from
  * A to B") update wording.
@@ -35,6 +50,27 @@ const DEPENDENCY_UPDATE_PATTERN = /(?:Bumps|Updates)\s+(?:\[(?<linked>[^\]]+)\]\
 
 async function main() {
   const context = loadContext();
+
+  // The merge queue builds a temporary ref that is not attached to any pull
+  // request. A required status check must still report on it or the queue
+  // blocks forever, so publish the result the queued PRs already earned: they
+  // could only enter the queue after passing this gate, and packages only get
+  // older from there.
+  if (context.eventName === 'merge_group') {
+    const payload = readEventPayload(context.eventPath);
+    const headSha = payload.merge_group?.head_sha;
+
+    if (!headSha) {
+      throw new Error('merge_group event payload is missing merge_group.head_sha.');
+    }
+
+    await publishStatus(context, headSha, {
+      state: 'success',
+      description: 'Package-age gate satisfied on the queued pull request(s).',
+    }, 'merge_group');
+    return;
+  }
+
   const pullRequests = await getTargetPullRequests(context);
 
   for (const pullRequest of pullRequests) {
@@ -86,8 +122,27 @@ function loadContext() {
     eventPath: process.env.GITHUB_EVENT_PATH ?? '',
     owner,
     repo,
+    repository,
+    runId: process.env.GITHUB_RUN_ID ?? '',
+    serverUrl: process.env.GITHUB_SERVER_URL ?? 'https://github.com',
     token,
   };
+}
+
+/**
+ * URL of the workflow run that produced the status, used as the status
+ * `target_url`. It is a real GitHub-hosted page, so it gives reviewers the
+ * untruncated package list in the job log plus a native "Re-run all jobs"
+ * button to refresh the gate on demand.
+ *
+ * @returns {string|undefined} undefined outside of a GitHub Actions run.
+ */
+function workflowRunUrl(context) {
+  if (!context.runId) {
+    return undefined;
+  }
+
+  return `${context.serverUrl}/${context.repository}/actions/runs/${context.runId}`;
 }
 
 function readEventPayload(eventPath) {
@@ -143,6 +198,18 @@ function isDependabotPullRequest(pullRequest) {
 }
 
 /**
+ * Reads the Dependabot ecosystem from the PR head branch
+ * (`dependabot/<ecosystem>/<slug>`).
+ *
+ * @returns {string|null} the ecosystem, or null when the branch does not follow
+ * Dependabot's naming scheme (treated as unknown, so the full check still runs).
+ */
+function getDependabotEcosystem(pullRequest) {
+  const match = DEPENDABOT_BRANCH_PATTERN.exec(pullRequest.head?.ref ?? '');
+  return match?.groups?.ecosystem ?? null;
+}
+
+/**
  * Determines the age-eligibility of a PR by inspecting every package version it
  * changes. Prefers the lockfile diff (captures transitive changes CFS also
  * quarantines) and falls back to parsing the PR body when no lockfile changed.
@@ -150,6 +217,20 @@ function isDependabotPullRequest(pullRequest) {
  * @returns {Promise<{state: 'success'|'failure'|'pending', description: string}>}
  */
 async function assessPullRequest(context, pullRequest) {
+  // Only npm packages flow through the CFS feed that enforces the quarantine.
+  // `github_actions` (and any other non-npm ecosystem) resolves from github.com,
+  // so its versions can never be quarantined -- and looking them up on the npm
+  // registry would 404 and wrongly trip the fail-safe.
+  const ecosystem = getDependabotEcosystem(pullRequest);
+  if (ecosystem !== null && !QUARANTINED_ECOSYSTEMS.has(ecosystem)) {
+    return {
+      state: 'success',
+      description: truncate(
+        `Ecosystem "${ecosystem}" is not served by the CFS npm feed; package-age gate not applicable.`,
+      ),
+    };
+  }
+
   let changedVersions = await getChangedVersionsFromLockfiles(context, pullRequest);
   let source = 'lockfile';
 
@@ -430,9 +511,7 @@ async function getDependencyAge(dependency) {
 }
 
 /**
- * Publishes the age-gate result as a commit status on the PR head SHA. The
- * Commit Status API replaces any prior status for the same context, so repeated
- * runs update in place without spamming.
+ * Publishes the age-gate result as a commit status on the PR head SHA.
  */
 async function setCommitStatus(context, pullRequest, assessment) {
   const sha = pullRequest.head?.sha;
@@ -440,20 +519,34 @@ async function setCommitStatus(context, pullRequest, assessment) {
     throw new Error(`PR #${pullRequest.number} has no head SHA.`);
   }
 
+  await publishStatus(context, sha, assessment, `PR #${pullRequest.number}`);
+}
+
+/**
+ * Writes the `package-age/7-day` commit status for a SHA. The Commit Status API
+ * replaces any prior status for the same context, so repeated runs update in
+ * place without spamming.
+ */
+async function publishStatus(context, sha, assessment, label) {
+  /** @type {{state: string, context: string, description: string, target_url?: string}} */
+  const body = {
+    state: assessment.state,
+    context: STATUS_CONTEXT,
+    description: truncate(assessment.description),
+  };
+
+  const targetUrl = workflowRunUrl(context);
+  if (targetUrl) {
+    body.target_url = targetUrl;
+  }
+
   await githubRequest(
     context,
     `/repos/${context.owner}/${context.repo}/statuses/${sha}`,
-    {
-      method: 'POST',
-      body: JSON.stringify({
-        state: assessment.state,
-        context: STATUS_CONTEXT,
-        description: truncate(assessment.description),
-      }),
-    },
+    { method: 'POST', body: JSON.stringify(body) },
   );
 
-  console.log(`PR #${pullRequest.number} [${sha.slice(0, 7)}] -> ${assessment.state}: ${assessment.description}`);
+  console.log(`${label} [${sha.slice(0, 7)}] -> ${assessment.state}: ${assessment.description}`);
 }
 
 function truncate(value) {
