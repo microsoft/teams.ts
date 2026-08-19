@@ -78,6 +78,13 @@ export function HttpServer() {
 }
 
 /**
+ * inject the `App` `IServer` instance (the active inbound transport)
+ */
+export function Server() {
+  return Dependency({ name: 'IServer' });
+}
+
+/**
  * options for a plugins dependency
  * that should get injected into it
  * by the `App`
@@ -86,6 +93,7 @@ export type DependencyOptions =
   | LoggerDependencyOptions
   | StorageDependencyOptions
   | HttpServerDependencyOptions
+  | ServerDependencyOptions
   | PluginDependencyOptions;
 
 export type LoggerDependencyOptions = {
@@ -127,13 +135,26 @@ export type HttpServerDependencyOptions = {
   readonly optional?: false;
 };
 
+export type ServerDependencyOptions = {
+  /**
+   * the name used to resolve the dependency
+   */
+  readonly name: 'IServer';
+
+  /**
+   * if optional, the app will not throw
+   * if the dependency is not found
+   */
+  readonly optional?: false;
+};
+
 export type PluginDependencyOptions = {
   /**
    * the name used to resolve the dependency
    */
   readonly name?: Omit<
     string,
-    'ILogger' | 'IStorage' | 'IHttpServer'
+    'ILogger' | 'IStorage' | 'IHttpServer' | 'IServer'
   >;
 
   /**
