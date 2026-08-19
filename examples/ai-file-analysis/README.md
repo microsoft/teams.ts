@@ -21,7 +21,7 @@ The distinction matters because most of the code volume here is guardrails. Rece
 - Node.js
 - A Teams bot registration
 - A Teams app manifest with `supportsFiles` set to `true` on the bot entry (see [Enable file support in the manifest](#enable-file-support-in-the-manifest))
-- An Azure OpenAI deployment (use a vision-capable model to analyze images)
+- An Azure OpenAI deployment (use a vision-capable model to analyze images). This is optional: without it the example still runs, receives files, and reports each one with an Adaptive Card instead of analyzing it. See [Running without a model](#running-without-a-model).
 
 ## Enable file support in the manifest
 
@@ -55,6 +55,12 @@ Run:
 ```bash
 npm run dev --workspace=@examples/ai-file-analysis
 ```
+
+## Running without a model
+
+The file APIs this example demonstrates do not need a model, so the Azure OpenAI settings above are optional.
+
+Leave any of them unset and the example starts in metadata-only mode. It still receives, downloads, and reports every attached file with the Adaptive Card, showing the resolved content type, byte count, scope, and source, so the whole file round-trip is demonstrable without a model subscription. Only the analysis step is skipped, and the card says so.
 
 ## What happens to an attached file
 

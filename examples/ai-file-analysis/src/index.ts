@@ -1,7 +1,7 @@
 import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
-import { classifyFile, prepareAnalysis, runAnalysis } from './ai';
+import { classifyFile, isAiConfigured, prepareAnalysis, runAnalysis } from './ai';
 import type { AnalyzableFile } from './ai';
 import { unsupportedFileCard } from './file-card';
 
@@ -17,6 +17,17 @@ const logger = new ConsoleLogger('@examples/ai-file-analysis', {
 
 const app = new App({ logger });
 
+// SAMPLE GUARDRAIL: the file API needs no model, so the sample stays usable without Azure OpenAI settings. Without them it answers every file with the metadata card instead of analyzing it, which keeps download, content type, scope, and source demonstrable with no model subscription.
+const aiConfigured = isAiConfigured();
+if (!aiConfigured) {
+  logger.warn(
+    'Azure OpenAI is not configured, so files will be reported but not analyzed. Set AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, and AZURE_OPENAI_MODEL_DEPLOYMENT_NAME in .env to enable analysis.'
+  );
+}
+
+const NO_MODEL_NOTE =
+  'I downloaded this file, but no model is configured for this sample, so I did not analyze it. Set the Azure OpenAI values in .env to enable analysis.';
+
 app.on('message', async ({ activity, files, send, stream }) => {
   await send({ type: 'typing' });
 
@@ -24,7 +35,9 @@ app.on('message', async ({ activity, files, send, stream }) => {
   const attached = await files.list();
   if (attached.length === 0) {
     await send(
-      'Attach one or more files. I analyze text files and images, and describe anything else I cannot read.'
+      aiConfigured
+        ? 'Attach one or more files. I analyze text files and images, and describe anything else I cannot read.'
+        : 'Attach one or more files. No model is configured, so I will report what I received without analyzing it.'
     );
     return;
   }
@@ -39,6 +52,11 @@ app.on('message', async ({ activity, files, send, stream }) => {
     } catch (err) {
       logger.warn(`Could not download ${file.name}: ${(err as Error).message}`);
       await send(`I could not download ${file.name}.`);
+      continue;
+    }
+
+    if (!aiConfigured) {
+      await send(unsupportedFileCard(file, downloaded, NO_MODEL_NOTE));
       continue;
     }
 

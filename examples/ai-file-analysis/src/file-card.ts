@@ -11,10 +11,13 @@ import {
  * FILE RECEIVE: the no-LLM response for a file this sample will not send to the model.
  *
  * Nothing here touches Azure OpenAI. It reports what the file API exposes (`scope`, `source`, resolved content type) plus the byte count that was actually downloaded, so the file round-trip is still demonstrated for formats the model never sees.
+ *
+ * @param note Overrides the closing explanation. Defaults to the unsupported-format wording; the no-model path passes its own so the card does not imply the file type was the problem.
  */
 export function unsupportedFileCard(
   file: IIncomingFile,
-  downloaded: IDownloadedFile
+  downloaded: IDownloadedFile,
+  note = 'I downloaded this file but did not analyze it. This sample sends only text files and PNG, JPEG, GIF, or WebP images to the model.'
 ): AdaptiveCard {
   return new AdaptiveCard(
     new Container(
@@ -31,10 +34,7 @@ export function unsupportedFileCard(
       new Fact('Scope', file.scope),
       new Fact('Source', file.source)
     ),
-    new TextBlock(
-      'I downloaded this file but did not analyze it. This sample sends only text files and PNG, JPEG, GIF, or WebP images to the model.',
-      { wrap: true, isSubtle: true, spacing: 'Medium' }
-    )
+    new TextBlock(note, { wrap: true, isSubtle: true, spacing: 'Medium' })
   );
 }
 

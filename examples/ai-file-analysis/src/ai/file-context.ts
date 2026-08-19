@@ -152,17 +152,13 @@ export function prepareAnalysis(
     const truncated = includedBytes < file.bytes.byteLength;
     totalTextBytes += includedBytes;
 
-    parts.push({
-      type: 'text',
-      text: [
-        `Attached file: ${file.filename}`,
-        '',
-        '<file>',
-        text,
-        truncated ? '\n[File content truncated by the sample.]' : '',
-        '</file>',
-      ].join('\n'),
-    });
+    const lines = [`Attached file: ${file.filename}`, '', '<file>', text];
+    if (truncated) {
+      lines.push('[File content truncated by the sample.]');
+    }
+    lines.push('</file>');
+
+    parts.push({ type: 'text', text: lines.join('\n') });
 
     if (truncated) {
       warnings.push(
@@ -174,7 +170,7 @@ export function prepareAnalysis(
 
   if (files.length > MAX_FILES) {
     warnings.push(
-      `${files.length - MAX_FILES} additional file(s) were not sent to the model because this sample accepts up to ${MAX_FILES} files per message.`
+      `${files.length - MAX_FILES} supported file(s) were not sent to the model because this sample analyzes up to ${MAX_FILES} files per message. Unsupported files are reported separately.`
     );
   }
 
