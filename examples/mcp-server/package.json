@@ -16,7 +16,7 @@
     "build": "npx tsc",
     "start": "node -r dotenv/config .",
     "dev": "tsx watch -r dotenv/config src/index.ts",
-    "inspect": "npx cross-env SERVER_PORT=9000 npx @modelcontextprotocol/inspector",
+    "inspect": "npx @modelcontextprotocol/inspector",
     "dev:teamsfx": "NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
     "dev:teamsfx:testtool": "NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
     "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
@@ -33,10 +33,9 @@
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
-    "@modelcontextprotocol/inspector": "^0.21.2",
+    "@modelcontextprotocol/inspector": "^2.1.0",
     "@types/express": "^5.0.0",
     "@types/node": "^22.5.4",
-    "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
     "env-cmd": "latest",
     "rimraf": "^6.0.1",
