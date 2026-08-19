@@ -57,6 +57,7 @@ import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { getBooleanEnvValue } from './utils/env';
 import { toThreadedConversationId } from './utils/thread';
+import { SocketServer, WsConnectOptions } from './ws-connect';
 
 function isAppSendOptions(value: ActivityLike | DeprecatedInputActivity | AppSendOptions): value is AppSendOptions {
   if (typeof value === 'string') return false;
@@ -237,6 +238,25 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * Telemetry settings.
    */
   readonly telemetry?: AppTelemetryOptions;
+
+  /**
+   * Opt in to inbound **Socket Mode**: receive activities over an APX-negotiated
+   * Azure SignalR WebSocket instead of an HTTP messaging endpoint, so the app
+   * needs no public messaging endpoint or dev tunnel for inbound delivery.
+   *
+   * Pass `true` to enable with defaults, or a {@link WsConnectOptions} object to
+   * customize the negotiate endpoint, readiness timeout, or reconnect behavior.
+   * Omit or pass `false` to keep the default HTTP inbound transport.
+   *
+   * Socket Mode replaces the inbound HTTP transport entirely: the app does not
+   * listen on HTTP, so browser-driven features that need an HTTP endpoint
+   * (`app.tab()`, `app.function()`, OAuth redirect callbacks) are unavailable
+   * and will throw. Outbound activity sends still go over the HTTP conversation
+   * API, and handlers remain transport-agnostic. The bot's existing credentials
+   * are reused to negotiate; no second token is required. Cannot be combined
+   * with `httpServerAdapter` or an `HttpPlugin`.
+   */
+  readonly wsConnect?: boolean | WsConnectOptions;
 };
 
 /**
@@ -279,6 +299,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   readonly client: HttpClient;
   readonly storage: IStorage;
   readonly entraTokenValidator?: middleware.JwtValidator;
+
+  /**
+   * The inbound Socket Mode transport, present only when the app was created
+   * with `wsConnect` enabled (the same instance as {@link App.server} in that
+   * case). Use it to observe the socket lifecycle (`app.wsConnect.status`,
+   * `app.wsConnect.events`).
+   */
+  readonly wsConnect?: SocketServer;
 
   /**
    * Graph API base URL derived from the configured cloud's `graphScope`.
@@ -481,7 +509,23 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         '  - new App({ plugins: [new HttpPlugin()] }) (deprecated)'
       );
     }
-    let server: HttpServer;
+
+    // Socket Mode replaces the inbound HTTP transport entirely, so it cannot
+    // coexist with a caller-supplied HTTP adapter or the (deprecated) HttpPlugin.
+    if (this.options.wsConnect && this.options.httpServerAdapter) {
+      throw new Error(
+        'Cannot provide both wsConnect and httpServerAdapter: Socket Mode replaces ' +
+        'the inbound HTTP transport. Enable one or the other.'
+      );
+    }
+    if (this.options.wsConnect && httpPlugin) {
+      throw new Error(
+        'Cannot provide both wsConnect and an HttpPlugin: Socket Mode replaces the ' +
+        'inbound HTTP transport. Enable one or the other.'
+      );
+    }
+
+    let server: IServer;
     let dangerouslyAllowUnauthenticatedRequests = this.options.dangerouslyAllowUnauthenticatedRequests;
     if (dangerouslyAllowUnauthenticatedRequests === undefined && this.options.skipAuth !== undefined) {
       this.log.warn(
@@ -511,6 +555,22 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       if (!server) {
         throw new Error('HttpPlugin.asServer() returned undefined');
       }
+    } else if (this.options.wsConnect) {
+      // Socket Mode: use a SocketServer as the app's inbound transport instead
+      // of an HTTP listener. Constructed internally (not by the developer) so it
+      // can reuse the app's credentials/token provider for negotiate and deliver
+      // activities through the same pipeline as the HTTP transport. Credentials
+      // (for the bot id) are handed over via server.initialize(), the same way
+      // the HTTP server receives them.
+      const wsOptions: WsConnectOptions =
+        this.options.wsConnect === true ? {} : this.options.wsConnect;
+      const socketServer = new SocketServer(wsOptions, {
+        tokenProvider: this.tokenProvider,
+        onError: (err) => this.eventManager.onError({ error: err }),
+        logger: this.log,
+      });
+      this.wsConnect = socketServer;
+      server = socketServer;
     } else {
       server = new HttpServer(this.options.httpServerAdapter ?? new ExpressAdapter(undefined, {
         logger: this.log,
@@ -532,8 +592,12 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     this.container.register('ILogger', { useValue: this.log });
     this.container.register('IStorage', { useValue: this.storage });
 
-    // Register HTTP server for plugins that need HTTP capabilities
-    this.container.register('IHttpServer', { useValue: server });
+    // Register the active transport for plugins that need it. Only HTTP servers
+    // are registered under 'IHttpServer'; every transport is registered under
+    // 'IServer'.
+    if (isHttpServer(server)) {
+      this.container.register('IHttpServer', { useValue: server });
+    }
     this.container.register('IServer', { useValue: server });
 
     // Register all plugins (including HttpPlugin if using old way)

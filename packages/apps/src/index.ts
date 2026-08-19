@@ -14,6 +14,9 @@ export * from './diagnostics';
 export * from './http';
 export * from './server';
 
+// Socket Mode (inbound WebSocket transport) - public API
+export * from './ws-connect';
+
 // Threading utilities
 export { toThreadedConversationId } from './utils/thread';
 

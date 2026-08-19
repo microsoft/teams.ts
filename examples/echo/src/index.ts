@@ -6,6 +6,12 @@ import { MockReminderService } from './mock-reminder-service';
 
 const app = new App({
   logger: new ConsoleLogger('@tests/echo', { level: 'debug' }),
+  // Opt in to inbound Socket Mode: receive activities over an APX-negotiated
+  // WebSocket instead of an HTTP messaging endpoint (no public endpoint or dev
+  // tunnel needed for inbound). Only inbound delivery changes — handlers and
+  // outbound sends are unaffected. Pass `true` for defaults, or an options
+  // object to customize, e.g. `{ readinessTimeoutMs: 30000 }`.
+  // wsConnect: true,
 });
 
 app.on('message', async ({ reply, activity }) => {
