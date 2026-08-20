@@ -66,7 +66,7 @@ describe('SocketServer (through App)', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      wsConnect: { connectionFactory: factory },
+      wsConnect: { connectionFactory: factory, fallbackToHttp: false },
     });
 
     // The socket server IS the app's inbound transport (app.server), and the
@@ -83,7 +83,7 @@ describe('SocketServer (through App)', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      wsConnect: { connectionFactory: factory },
+      wsConnect: { connectionFactory: factory, fallbackToHttp: false },
     });
 
     const seen: string[] = [];
@@ -116,7 +116,7 @@ describe('SocketServer (through App)', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      wsConnect: { connectionFactory: factory },
+      wsConnect: { connectionFactory: factory, fallbackToHttp: false },
     });
 
     let handled = false;
@@ -149,7 +149,7 @@ describe('SocketServer (through App)', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      wsConnect: { connectionFactory: factory },
+      wsConnect: { connectionFactory: factory, fallbackToHttp: false },
     });
     await app.start();
 
@@ -162,7 +162,7 @@ describe('SocketServer (through App)', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      wsConnect: { connectionFactory: factory },
+      wsConnect: { connectionFactory: factory, fallbackToHttp: false },
     });
 
     app.on('card.action', (async () => {
@@ -180,17 +180,18 @@ describe('SocketServer (through App)', () => {
     expect(reply).toMatchObject({ status: 500, envelopeId: 'env-err' });
   });
 
-  it('throws for HTTP-only features (tab, function) in Socket Mode', () => {
+  it('throws for HTTP-only features (tab, function) in socket-only mode', () => {
     const { factory } = makeFakeFactory();
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      wsConnect: { connectionFactory: factory },
+      wsConnect: { connectionFactory: factory, fallbackToHttp: false },
     });
 
-    // No HTTP listener exists in Socket Mode, so browser-driven HTTP features
+    // Socket-only mode has no HTTP listener, so browser-driven HTTP features
     // are unavailable and fail fast rather than silently no-op.
     expect(() => app.tab('demo', './dist')).toThrow(/HTTP server transport/);
     expect(() => app.function('demo', async () => ({}))).toThrow(/HTTP server transport/);
   });
 });
+

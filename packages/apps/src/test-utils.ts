@@ -44,10 +44,22 @@ export class TestAdapter implements IHttpServerAdapter {
 export function createTestApp<TPlugin extends IPlugin = IPlugin>(
   options?: AppOptions<TPlugin>
 ): App<TPlugin> {
-  // Socket Mode replaces the inbound HTTP transport, so don't inject a
-  // TestAdapter when wsConnect is enabled (the two are mutually exclusive).
+  // Socket Mode manages its own inbound transport. When the experimental HTTP
+  // fallback is active (the default), the app still stands up an HTTP messaging
+  // endpoint alongside the socket, so inject a no-op TestAdapter for it (unless
+  // the caller supplied one). For socket-only mode (fallbackToHttp === false)
+  // there is no HTTP transport, so a supplied adapter would be rejected — don't
+  // inject one.
   if (options?.wsConnect) {
-    return new App({ ...options });
+    const socketOnly =
+      options.wsConnect !== true && options.wsConnect.fallbackToHttp === false;
+    if (socketOnly) {
+      return new App({ ...options });
+    }
+    return new App({
+      ...options,
+      httpServerAdapter: options.httpServerAdapter ?? new TestAdapter(),
+    });
   }
 
   return new App({

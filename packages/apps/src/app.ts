@@ -50,7 +50,7 @@ import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { IRoutes } from './routes';
-import { IServer, IServerInitializeDeps } from './server';
+import { CompositeServer, IServer, IServerInitializeDeps } from './server';
 import { DEFAULT_TENANT_FOR_GRAPH_TOKEN, TokenManager } from './token-manager';
 import { AppTokenProvider, IAppTokenProvider } from './token-provider';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
@@ -241,20 +241,30 @@ export type AppOptions<TPlugin extends IPlugin> = {
 
   /**
    * Opt in to inbound **Socket Mode**: receive activities over an APX-negotiated
-   * Azure SignalR WebSocket instead of an HTTP messaging endpoint, so the app
-   * needs no public messaging endpoint or dev tunnel for inbound delivery.
+   * Azure SignalR WebSocket, so the app needs no public messaging endpoint or
+   * dev tunnel for inbound delivery.
    *
    * Pass `true` to enable with defaults, or a {@link WsConnectOptions} object to
-   * customize the negotiate endpoint, readiness timeout, or reconnect behavior.
-   * Omit or pass `false` to keep the default HTTP inbound transport.
+   * customize the negotiate endpoint, readiness timeout, reconnect behavior, or
+   * the HTTP fallback. Omit or pass `false` to keep the default HTTP inbound
+   * transport.
    *
-   * Socket Mode replaces the inbound HTTP transport entirely: the app does not
-   * listen on HTTP, so browser-driven features that need an HTTP endpoint
-   * (`app.tab()`, `app.function()`, OAuth redirect callbacks) are unavailable
-   * and will throw. Outbound activity sends still go over the HTTP conversation
-   * API, and handlers remain transport-agnostic. The bot's existing credentials
-   * are reused to negotiate; no second token is required. Cannot be combined
-   * with `httpServerAdapter` or an `HttpPlugin`.
+   * By default (`fallbackToHttp` defaults to `true`), Socket Mode also stands up
+   * an HTTP messaging endpoint alongside the socket — an **experimental,
+   * transitional** capability — so the **service** can deliver inbound
+   * activities over either transport during rollout. Set
+   * `wsConnect.fallbackToHttp = false` for a socket-only app with no HTTP
+   * endpoint.
+   *
+   * Either way, only **inbound** delivery is affected: outbound activity sends
+   * still go over the HTTP conversation API, and handlers remain
+   * transport-agnostic. The bot's existing credentials are reused to negotiate;
+   * no second token is required. Browser-driven features that need an HTTP
+   * endpoint (`app.tab()`, `app.function()`, OAuth redirect callbacks) are
+   * **not** enabled by Socket Mode — the HTTP fallback is a messaging-inbound
+   * sink only, so those features remain unavailable. Cannot be combined with an
+   * `HttpPlugin`; a supplied `httpServerAdapter` is reused for the HTTP fallback
+   * (and rejected only when `fallbackToHttp` is `false`).
    */
   readonly wsConnect?: boolean | WsConnectOptions;
 };
@@ -510,18 +520,29 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       );
     }
 
-    // Socket Mode replaces the inbound HTTP transport entirely, so it cannot
-    // coexist with a caller-supplied HTTP adapter or the (deprecated) HttpPlugin.
+    // Socket Mode changes the inbound transport. A caller-supplied HTTP adapter
+    // is only meaningful when the experimental HTTP fallback is active (it is
+    // reused for the fallback messaging endpoint); with socket-only
+    // (fallbackToHttp === false) there is no HTTP transport, so a supplied
+    // adapter is contradictory and rejected.
     if (this.options.wsConnect && this.options.httpServerAdapter) {
-      throw new Error(
-        'Cannot provide both wsConnect and httpServerAdapter: Socket Mode replaces ' +
-        'the inbound HTTP transport. Enable one or the other.'
-      );
+      const socketOnly =
+        this.options.wsConnect !== true && this.options.wsConnect.fallbackToHttp === false;
+      if (socketOnly) {
+        throw new Error(
+          'Cannot provide httpServerAdapter with wsConnect.fallbackToHttp = false: ' +
+          'socket-only Socket Mode has no HTTP transport. Remove the adapter, or enable ' +
+          'the HTTP fallback (the default) to reuse it.'
+        );
+      }
     }
+    // The (deprecated) HttpPlugin is a full inbound HTTP server of its own and
+    // cannot coexist with Socket Mode; the experimental fallback stands up its
+    // own HTTP messaging endpoint internally instead.
     if (this.options.wsConnect && httpPlugin) {
       throw new Error(
-        'Cannot provide both wsConnect and an HttpPlugin: Socket Mode replaces the ' +
-        'inbound HTTP transport. Enable one or the other.'
+        'Cannot provide both wsConnect and an HttpPlugin: Socket Mode manages its own ' +
+        'inbound transport (including the experimental HTTP fallback). Enable one or the other.'
       );
     }
 
@@ -570,16 +591,32 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         logger: this.log,
       });
       this.wsConnect = socketServer;
-      server = socketServer;
+
+      // Experimental HTTP fallback (on by default): when Socket Mode is enabled
+      // and `fallbackToHttp` is not explicitly disabled, also stand up an HTTP
+      // messaging endpoint so the *service* (APX) can deliver inbound activities
+      // over either transport — it decides which one per activity. The HTTP
+      // adapter is created implicitly. The two transports are wrapped in a
+      // CompositeServer that is *not* an IHttpServer, so browser-dependent
+      // features stay disabled exactly as in socket-only mode.
+      if (wsOptions.fallbackToHttp !== false) {
+        this.log.warn(
+          '[EXPERIMENTAL] Socket Mode HTTP fallback is enabled: an HTTP messaging ' +
+          'endpoint is running alongside the socket so the service can deliver over ' +
+          'either transport. This is transitional and will be removed once Socket Mode ' +
+          'is the sole inbound transport. Set wsConnect.fallbackToHttp = false for ' +
+          'socket-only.'
+        );
+        server = new CompositeServer(
+          socketServer,
+          this.createHttpServer(dangerouslyAllowUnauthenticatedRequests),
+          this.log
+        );
+      } else {
+        server = socketServer;
+      }
     } else {
-      server = new HttpServer(this.options.httpServerAdapter ?? new ExpressAdapter(undefined, {
-        logger: this.log,
-        onError: (err) => this.eventManager.onError({ error: err })
-      }), {
-        dangerouslyAllowUnauthenticatedRequests,
-        logger: this.log,
-        messagingEndpoint: this.options.messagingEndpoint ?? '/api/messages',
-      });
+      server = this.createHttpServer(dangerouslyAllowUnauthenticatedRequests);
     }
 
     // Always set this.server
@@ -1029,5 +1066,22 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       return explicit;
     }
     return this.options.oauth?.defaultConnectionName !== undefined;
+  }
+
+  /**
+   * Build the default HTTP inbound server (messaging endpoint). Shared by the
+   * plain HTTP path and the experimental Socket Mode HTTP fallback so both use
+   * the same adapter, auth, and messaging-endpoint configuration. The adapter is
+   * created implicitly (default `ExpressAdapter`) unless one was supplied.
+   */
+  private createHttpServer(dangerouslyAllowUnauthenticatedRequests: boolean): HttpServer {
+    return new HttpServer(this.options.httpServerAdapter ?? new ExpressAdapter(undefined, {
+      logger: this.log,
+      onError: (err) => this.eventManager.onError({ error: err })
+    }), {
+      dangerouslyAllowUnauthenticatedRequests,
+      logger: this.log,
+      messagingEndpoint: this.options.messagingEndpoint ?? '/api/messages',
+    });
   }
 }

@@ -11,6 +11,12 @@ const app = new App({
   // tunnel needed for inbound). Only inbound delivery changes — handlers and
   // outbound sends are unaffected. Pass `true` for defaults, or an options
   // object to customize, e.g. `{ readinessTimeoutMs: 30000 }`.
+  //
+  // By default (experimental), enabling Socket Mode also stands up an HTTP
+  // messaging endpoint alongside the socket so the service can deliver inbound
+  // activities over either transport during rollout. This does NOT enable
+  // browser features (app.tab()/app.function()/OAuth callbacks stay off). For a
+  // socket-only app, opt out with `{ fallbackToHttp: false }`.
   // wsConnect: true,
 });
 

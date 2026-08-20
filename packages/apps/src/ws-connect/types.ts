@@ -75,6 +75,29 @@ export type WsConnectOptions = {
    * connection. When provided, this overrides the built-in SignalR factory.
    */
   readonly connectionFactory?: SocketConnectionFactory;
+
+  /**
+   * **Experimental.** When Socket Mode is enabled, also stand up an HTTP
+   * messaging endpoint alongside the socket so the **service (APX)** can deliver
+   * inbound activities over either transport — APX decides which one to use per
+   * activity. The HTTP adapter is created implicitly (a default `ExpressAdapter`
+   * unless an `httpServerAdapter` is supplied to `App`); you do not need to
+   * configure one.
+   *
+   * This only affects **inbound** delivery. The HTTP transport here is a
+   * messaging-inbound sink only: browser-dependent features that Socket Mode
+   * disables (`app.tab()`, `app.function()`, OAuth redirect callbacks) remain
+   * **unavailable** — enabling the fallback does not re-enable them.
+   *
+   * Set to `false` for a socket-only app (no HTTP endpoint).
+   *
+   * @experimental This is a transitional capability for the Socket Mode rollout
+   * and is expected to be removed once Socket Mode becomes the sole inbound
+   * transport. Its behavior and this option may change or be removed without a
+   * major-version bump.
+   * @default true
+   */
+  readonly fallbackToHttp?: boolean;
 };
 
 /**
