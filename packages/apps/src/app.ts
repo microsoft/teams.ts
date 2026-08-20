@@ -506,118 +506,17 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       );
     }
 
-    // Determine HTTP server
+    // Determine and construct the inbound transport
     const plugins: Array<TPlugin> = this.options.plugins || [];
     const httpPlugin = PluginManager.findHttpPlugin(plugins) as HttpPlugin | undefined;
 
-    // Error if both httpServerAdapter and http plugin are provided
-    if (this.options.httpServerAdapter && httpPlugin) {
-      throw new Error(
-        'Cannot provide both httpServerAdapter option and HttpPlugin in plugins array. ' +
-        'Use either:\n' +
-        '  - new App({ httpServerAdapter: new ExpressAdapter() }) (recommended)\n' +
-        '  - new App({ plugins: [new HttpPlugin()] }) (deprecated)'
-      );
-    }
+    this.validateTransportOptions(httpPlugin);
 
-    // Socket Mode changes the inbound transport. A caller-supplied HTTP adapter
-    // is only meaningful when the experimental HTTP fallback is active (it is
-    // reused for the fallback messaging endpoint); with socket-only
-    // (fallbackToHttp === false) there is no HTTP transport, so a supplied
-    // adapter is contradictory and rejected.
-    if (this.options.wsConnect && this.options.httpServerAdapter) {
-      const socketOnly =
-        this.options.wsConnect !== true && this.options.wsConnect.fallbackToHttp === false;
-      if (socketOnly) {
-        throw new Error(
-          'Cannot provide httpServerAdapter with wsConnect.fallbackToHttp = false: ' +
-          'socket-only Socket Mode has no HTTP transport. Remove the adapter, or enable ' +
-          'the HTTP fallback (the default) to reuse it.'
-        );
-      }
-    }
-    // The (deprecated) HttpPlugin is a full inbound HTTP server of its own and
-    // cannot coexist with Socket Mode; the experimental fallback stands up its
-    // own HTTP messaging endpoint internally instead.
-    if (this.options.wsConnect && httpPlugin) {
-      throw new Error(
-        'Cannot provide both wsConnect and an HttpPlugin: Socket Mode manages its own ' +
-        'inbound transport (including the experimental HTTP fallback). Enable one or the other.'
-      );
-    }
-
-    let server: IServer;
-    let dangerouslyAllowUnauthenticatedRequests = this.options.dangerouslyAllowUnauthenticatedRequests;
-    if (dangerouslyAllowUnauthenticatedRequests === undefined && this.options.skipAuth !== undefined) {
-      this.log.warn(
-        '[DEPRECATED] skipAuth is deprecated. Use dangerouslyAllowUnauthenticatedRequests instead.'
-      );
-      dangerouslyAllowUnauthenticatedRequests = this.options.skipAuth;
-    }
-    if (dangerouslyAllowUnauthenticatedRequests === undefined) {
-      const unauthenticatedRequestsEnvValue = getBooleanEnvValue('DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS');
-      if (unauthenticatedRequestsEnvValue !== undefined) {
-        this.log.warn(
-          'DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS is set. ' +
-          'Unauthenticated request behavior is configured by the environment.'
-        );
-        dangerouslyAllowUnauthenticatedRequests = unauthenticatedRequestsEnvValue;
-      }
-    }
-    dangerouslyAllowUnauthenticatedRequests ??= false;
-
-    // HttpPlugin in plugins array (backwards compatibility)
-    if (httpPlugin) {
-      this.log.warn('[DEPRECATED] HttpPlugin in plugins array will be deprecated. Use httpServerAdapter option instead:\n' +
-        '  new App({ httpServerAdapter: new ExpressAdapter() })');
-      this.http = httpPlugin;
-      // Extract internal server and always set this.server
-      server = (httpPlugin as any).asServer?.();
-      if (!server) {
-        throw new Error('HttpPlugin.asServer() returned undefined');
-      }
-    } else if (this.options.wsConnect) {
-      // Socket Mode: use a SocketServer as the app's inbound transport instead
-      // of an HTTP listener. Constructed internally (not by the developer) so it
-      // can reuse the app's credentials/token provider for negotiate and deliver
-      // activities through the same pipeline as the HTTP transport. Credentials
-      // (for the bot id) are handed over via server.initialize(), the same way
-      // the HTTP server receives them.
-      const wsOptions: WsConnectOptions =
-        this.options.wsConnect === true ? {} : this.options.wsConnect;
-      const socketServer = new SocketServer(wsOptions, {
-        tokenProvider: this.tokenProvider,
-        onError: (err) => this.eventManager.onError({ error: err }),
-        logger: this.log,
-      });
-      this.wsConnect = socketServer;
-
-      // Experimental HTTP fallback (on by default): when Socket Mode is enabled
-      // and `fallbackToHttp` is not explicitly disabled, also stand up an HTTP
-      // messaging endpoint so the *service* (APX) can deliver inbound activities
-      // over either transport — it decides which one per activity. The HTTP
-      // adapter is created implicitly. The two transports are wrapped in a
-      // CompositeServer that is *not* an IHttpServer, so browser-dependent
-      // features stay disabled exactly as in socket-only mode.
-      if (wsOptions.fallbackToHttp !== false) {
-        this.log.warn(
-          '[EXPERIMENTAL] Socket Mode HTTP fallback is enabled: an HTTP messaging ' +
-          'endpoint is running alongside the socket so the service can deliver over ' +
-          'either transport. This is transitional and will be removed once Socket Mode ' +
-          'is the sole inbound transport. Set wsConnect.fallbackToHttp = false for ' +
-          'socket-only.'
-        );
-        server = new CompositeServer(
-          socketServer,
-          this.createHttpServer(dangerouslyAllowUnauthenticatedRequests),
-          this.log
-        );
-      } else {
-        server = socketServer;
-      }
-    } else {
-      server = this.createHttpServer(dangerouslyAllowUnauthenticatedRequests);
-    }
+    const dangerouslyAllowUnauthenticatedRequests = this.resolveUnauthenticatedRequests();
+    const transport = this.createServer(httpPlugin, dangerouslyAllowUnauthenticatedRequests);
+    const server = transport.server;
+    this.http = transport.http;
+    this.wsConnect = transport.wsConnect;
 
     // Always set this.server
     this.server = server;
@@ -1066,6 +965,156 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       return explicit;
     }
     return this.options.oauth?.defaultConnectionName !== undefined;
+  }
+
+  /**
+   * Validate mutually-exclusive inbound-transport options and throw a helpful
+   * error for any incompatible combination (HTTP adapter vs `HttpPlugin`, and
+   * Socket Mode vs each of those). Called from the constructor before any
+   * server is built.
+   */
+  private validateTransportOptions(httpPlugin: HttpPlugin | undefined): void {
+    // Error if both httpServerAdapter and http plugin are provided
+    if (this.options.httpServerAdapter && httpPlugin) {
+      throw new Error(
+        'Cannot provide both httpServerAdapter option and HttpPlugin in plugins array. ' +
+        'Use either:\n' +
+        '  - new App({ httpServerAdapter: new ExpressAdapter() }) (recommended)\n' +
+        '  - new App({ plugins: [new HttpPlugin()] }) (deprecated)'
+      );
+    }
+
+    // Socket Mode changes the inbound transport. A caller-supplied HTTP adapter
+    // is only meaningful when the experimental HTTP fallback is active (it is
+    // reused for the fallback messaging endpoint); with socket-only
+    // (fallbackToHttp === false) there is no HTTP transport, so a supplied
+    // adapter is contradictory and rejected.
+    if (this.options.wsConnect && this.options.httpServerAdapter) {
+      const socketOnly =
+        this.options.wsConnect !== true && this.options.wsConnect.fallbackToHttp === false;
+      if (socketOnly) {
+        throw new Error(
+          'Cannot provide httpServerAdapter with wsConnect.fallbackToHttp = false: ' +
+          'socket-only Socket Mode has no HTTP transport. Remove the adapter, or enable ' +
+          'the HTTP fallback (the default) to reuse it.'
+        );
+      }
+    }
+
+    // The (deprecated) HttpPlugin is a full inbound HTTP server of its own and
+    // cannot coexist with Socket Mode; the experimental fallback stands up its
+    // own HTTP messaging endpoint internally instead.
+    if (this.options.wsConnect && httpPlugin) {
+      throw new Error(
+        'Cannot provide both wsConnect and an HttpPlugin: Socket Mode manages its own ' +
+        'inbound transport (including the experimental HTTP fallback). Enable one or the other.'
+      );
+    }
+  }
+
+  /**
+   * Resolve the effective `dangerouslyAllowUnauthenticatedRequests` setting from
+   * the explicit option, the deprecated `skipAuth` alias, and the
+   * `DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS` env var (in that precedence),
+   * warning where appropriate. Defaults to `false`.
+   */
+  private resolveUnauthenticatedRequests(): boolean {
+    let value = this.options.dangerouslyAllowUnauthenticatedRequests;
+
+    if (value === undefined && this.options.skipAuth !== undefined) {
+      this.log.warn(
+        '[DEPRECATED] skipAuth is deprecated. Use dangerouslyAllowUnauthenticatedRequests instead.'
+      );
+      value = this.options.skipAuth;
+    }
+
+    if (value === undefined) {
+      const envValue = getBooleanEnvValue('DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS');
+      if (envValue !== undefined) {
+        this.log.warn(
+          'DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS is set. ' +
+          'Unauthenticated request behavior is configured by the environment.'
+        );
+        value = envValue;
+      }
+    }
+
+    return value ?? false;
+  }
+
+  /**
+   * Select and construct the app's inbound {@link IServer}: the deprecated
+   * `HttpPlugin`'s server, a Socket Mode server (via {@link createSocketServer}),
+   * or the default HTTP server. Assumes {@link validateTransportOptions} has
+   * already rejected incompatible combinations. Returns the server plus the
+   * readonly fields the constructor should assign (`http` for the deprecated
+   * plugin, `wsConnect` for Socket Mode).
+   */
+  private createServer(
+    httpPlugin: HttpPlugin | undefined,
+    dangerouslyAllowUnauthenticatedRequests: boolean
+  ): { server: IServer; http?: HttpPlugin; wsConnect?: SocketServer } {
+    // HttpPlugin in plugins array (backwards compatibility)
+    if (httpPlugin) {
+      this.log.warn('[DEPRECATED] HttpPlugin in plugins array will be deprecated. Use httpServerAdapter option instead:\n' +
+        '  new App({ httpServerAdapter: new ExpressAdapter() })');
+      const server: IServer | undefined = (httpPlugin as any).asServer?.();
+      if (!server) {
+        throw new Error('HttpPlugin.asServer() returned undefined');
+      }
+      return { server, http: httpPlugin };
+    }
+
+    if (this.options.wsConnect) {
+      return this.createSocketServer(dangerouslyAllowUnauthenticatedRequests);
+    }
+
+    return { server: this.createHttpServer(dangerouslyAllowUnauthenticatedRequests) };
+  }
+
+  /**
+   * Build the Socket Mode inbound transport. A {@link SocketServer} is
+   * constructed internally (not by the developer) so it can reuse the app's
+   * token provider for negotiate and deliver activities through the same
+   * pipeline as HTTP; credentials are handed over later via
+   * `server.initialize()`. When the experimental HTTP fallback is enabled (the
+   * default), the socket is wrapped with an implicit HTTP messaging endpoint in
+   * a {@link CompositeServer} so the service can deliver over either transport.
+   * The composite is intentionally not an `IHttpServer`, so browser-dependent
+   * features stay disabled exactly as in socket-only mode. Returns both the
+   * outward-facing server (socket or composite) and the inner socket for the
+   * `wsConnect` field.
+   */
+  private createSocketServer(
+    dangerouslyAllowUnauthenticatedRequests: boolean
+  ): { server: IServer; wsConnect: SocketServer } {
+    const wsOptions: WsConnectOptions =
+      this.options.wsConnect === true ? {} : (this.options.wsConnect as WsConnectOptions);
+
+    const socketServer = new SocketServer(wsOptions, {
+      tokenProvider: this.tokenProvider,
+      onError: (err) => this.eventManager.onError({ error: err }),
+      logger: this.log,
+    });
+
+    if (wsOptions.fallbackToHttp === false) {
+      return { server: socketServer, wsConnect: socketServer };
+    }
+
+    this.log.warn(
+      '[EXPERIMENTAL] Socket Mode HTTP fallback is enabled: an HTTP messaging ' +
+      'endpoint is running alongside the socket so the service can deliver over ' +
+      'either transport. This is transitional and will be removed once Socket Mode ' +
+      'is the sole inbound transport. Set wsConnect.fallbackToHttp = false for ' +
+      'socket-only.'
+    );
+
+    const server = new CompositeServer(
+      socketServer,
+      this.createHttpServer(dangerouslyAllowUnauthenticatedRequests),
+      this.log
+    );
+    return { server, wsConnect: socketServer };
   }
 
   /**
