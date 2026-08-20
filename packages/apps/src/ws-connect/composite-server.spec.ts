@@ -170,4 +170,19 @@ describe('CompositeServer (unit)', () => {
     expect(secondary.calls).toEqual(['initialize', 'start', 'stop']);
     expect(primary.calls).toEqual(['initialize', 'start', 'stop']);
   });
+
+  it('propagates an HTTP start failure without attempting to start the socket', async () => {
+    const primary = makeSpyServer('socket');
+    const secondary = makeSpyServer('http');
+    secondary.server.start = async () => {
+      secondary.calls.push('start');
+      throw new Error('http boom');
+    };
+    const composite = new CompositeServer(primary.server, secondary.server, quiet());
+
+    await expect(composite.start(3978)).rejects.toThrow('http boom');
+
+    expect(secondary.calls).toEqual(['start']);
+    expect(primary.calls).toEqual([]);
+  });
 });
