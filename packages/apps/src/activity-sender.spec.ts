@@ -134,7 +134,11 @@ describe('ActivitySender', () => {
       const conversations = (mockClient as any).conversations;
       expect(conversations.createTargetedActivity).toHaveBeenCalledWith(
         'conv-123',
-        expect.objectContaining({ type: 'message', text: 'targeted' })
+        expect.objectContaining({
+          type: 'message',
+          text: 'targeted',
+          recipient: expect.objectContaining({ isTargeted: true }),
+        })
       );
     });
 
@@ -150,7 +154,7 @@ describe('ActivitySender', () => {
         recipient: { id: 'user-1', name: 'User', role: 'user', isTargeted: true },
       } as ActivityParams;
 
-      await sender.send(activity, groupRef);
+      const result = await sender.send(activity, groupRef);
 
       const conversations = (mockClient as any).conversations;
       expect(conversations.updateTargetedActivity).toHaveBeenCalledWith(
@@ -164,6 +168,7 @@ describe('ActivitySender', () => {
       );
       expect(conversations.updateTargetedActivity.mock.calls[0][2]).not.toHaveProperty('recipient');
       expect(conversations.createActivity).not.toHaveBeenCalled();
+      expect(result.recipient).toEqual(expect.objectContaining({ isTargeted: true }));
     });
 
     it('should merge bot and conversation from ref into activity', async () => {
@@ -262,6 +267,7 @@ describe('ActivitySender', () => {
 
       const result = await sender.send(activity, groupRef);
       expect(result).toEqual(expect.objectContaining({ id: 'activity-1' }));
+      expect(result.recipient).toEqual(expect.objectContaining({ isTargeted: true }));
     });
   });
 
