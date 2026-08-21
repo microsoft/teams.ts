@@ -1,5 +1,6 @@
 import { Readable } from 'stream';
 
+import { AxiosError } from 'axios';
 import { type MockedObject } from 'jest-mock';
 
 import {
@@ -16,6 +17,15 @@ import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common
 import { ApiClient, GraphClient } from '../api';
 
 import { ActivityContext } from './activity';
+
+const missingTokenError = () =>
+  new AxiosError('No token', '404', undefined, undefined, {
+    status: 404,
+    statusText: 'Not Found',
+    headers: {},
+    config: {} as never,
+    data: {},
+  });
 
 describe('ActivityContext', () => {
   let mockSender: { send: jest.Mock; createStream: jest.Mock };
@@ -605,7 +615,7 @@ describe('ActivityContext', () => {
       });
 
       mockApiClient.users.getToken.mockRejectedValueOnce(
-        new Error('No token')
+        missingTokenError()
       );
       const mockResource = {
         tokenExchangeResource: {
@@ -645,7 +655,7 @@ describe('ActivityContext', () => {
       });
 
       mockApiClient.users.getToken.mockRejectedValueOnce(
-        new Error('No token')
+        missingTokenError()
       );
       const mockResource = {
         tokenExchangeResource: {
@@ -683,7 +693,7 @@ describe('ActivityContext', () => {
       });
 
       mockApiClient.users.getToken.mockRejectedValueOnce(
-        new Error('No token')
+        missingTokenError()
       );
       const mockResource = {
         tokenExchangeResource: {
@@ -718,7 +728,7 @@ describe('ActivityContext', () => {
         activitySender: mockSender,
       });
 
-      mockApiClient.users.getToken.mockRejectedValueOnce(new Error('No token'));
+      mockApiClient.users.getToken.mockRejectedValueOnce(missingTokenError());
       const mockResource = {
         tokenExchangeResource: {
           uri: 'my-token-exhcange-resource-uri',
@@ -741,6 +751,15 @@ describe('ActivityContext', () => {
         mockResource.tokenPostResource,
         mockResource.signInLink
       );
+    });
+
+    it('propagates unexpected token lookup failures', async () => {
+      const error = new Error('token service unavailable');
+      mockApiClient.users.getToken.mockRejectedValueOnce(error);
+
+      await expect(context.signin()).rejects.toBe(error);
+
+      expect(mockApiClient.bots.signIn.getResource).not.toHaveBeenCalled();
     });
 
     it('forwards signout request to api client', async () => {

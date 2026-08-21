@@ -48,6 +48,52 @@ class TestApp extends App {
 }
 
 describe('App', () => {
+  describe('OAuth flow registration', () => {
+    it('returns the legacy default flow without enabling public turn state', () => {
+      const app = new App({ httpServerAdapter: new TestAdapter() });
+
+      expect(app.getOAuthFlow('graph').connectionName).toBe('graph');
+      expect(app.options.state).toBeUndefined();
+      expect(app.options.oauth).toBeUndefined();
+    });
+
+    it('registers flows through the app and resolves names case-insensitively', () => {
+      const app = new App({ httpServerAdapter: new TestAdapter() });
+      const github = app.addOAuthFlow('GitHub');
+
+      expect(app.getOAuthFlow('github')).toBe(github);
+    });
+
+    it('registers flows declaratively through app options', () => {
+      const app = new App({
+        httpServerAdapter: new TestAdapter(),
+        oauthFlows: ['graph', 'github'],
+      });
+
+      expect(app.getOAuthFlow('GRAPH').connectionName).toBe('graph');
+      expect(app.getOAuthFlow('GitHub').connectionName).toBe('github');
+    });
+
+    it('registers the legacy default name explicitly through the app', () => {
+      const app = new App({ httpServerAdapter: new TestAdapter() });
+      const graph = app.addOAuthFlow('GRAPH');
+
+      expect(app.getOAuthFlow('graph')).toBe(graph);
+    });
+
+    it('rejects duplicate explicit flows and lists registered connections on lookup failure', () => {
+      const app = new App({ httpServerAdapter: new TestAdapter() });
+      app.addOAuthFlow('github');
+
+      expect(() => app.addOAuthFlow('GITHUB')).toThrow(
+        'An OAuth flow is already registered for connection "GITHUB".'
+      );
+      expect(() => app.getOAuthFlow('missing')).toThrow(
+        'Registered connections: github, graph.'
+      );
+    });
+  });
+
   describe('token acquisition', () => {
     let app: TestApp;
     const mockBotToken = jwt.sign(

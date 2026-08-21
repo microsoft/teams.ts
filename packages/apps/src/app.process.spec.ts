@@ -1074,6 +1074,16 @@ describe('App', () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
+    it('does not eagerly fetch tokens for registered OAuth flows', async () => {
+      testApp = createTestApp({ oauthFlows: ['graph'] });
+      testApp.start();
+      const spy = jest.spyOn(testApp.api.users, 'getToken');
+
+      await testApp.process({ token, body: userActivity });
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
     it('honors an explicit fetchUserToken=false override even when OAuth is configured', async () => {
       testApp = createTestApp({ oauth: { defaultConnectionName: 'graph', fetchUserToken: false } });
       testApp.start();

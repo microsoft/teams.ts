@@ -1,5 +1,5 @@
 {
-  "name": "@examples/auth",
+  "name": "@examples/oauth",
   "version": "0.0.6",
   "private": true,
   "license": "MIT",
@@ -23,6 +23,7 @@
   "dependencies": {
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.common": "*",
+    "@microsoft/teams.graph": "*",
     "@microsoft/teams.graph-endpoints": "*"
   },
   "devDependencies": {

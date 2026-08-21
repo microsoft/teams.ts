@@ -8,32 +8,36 @@ import type {
 } from '@microsoft/teams.api';
 import { EventEmitter, Client as HttpClient } from '@microsoft/teams.common';
 
-import { OauthHandlers } from './app.oauth';
 import {
   APP_OAUTH_ERROR_TYPE,
   APP_OAUTH_OPERATION,
   APP_OAUTH_RESULT,
   APP_SPAN_NAMES,
-} from './diagnostics/constants';
+} from '../diagnostics/constants';
 import {
   getTeamsBotApplicationTracer,
   recordTeamsBotApplicationException,
   recordTeamsBotOAuthError,
   recordTeamsBotOAuthOperation,
   recordTeamsBotOAuthOperationDuration,
-} from './diagnostics/helpers';
+} from '../diagnostics/helpers';
+import { TurnState, TurnStateContainer } from '../state';
+
+import { OauthHandlers } from './handlers';
+
+import { OAuthFlow } from '.';
 
 describe('OauthHandlers', () => {
   let handlers: OauthHandlers;
-  let mockGetConnectionName: jest.Mock;
+  let mockGetFlows: jest.Mock;
   let mockClient: jest.Mocked<HttpClient>;
   let mockEvents: EventEmitter<any>;
   
   beforeEach(() => {
-    mockGetConnectionName = jest.fn().mockReturnValue('test-connection');
+    mockGetFlows = jest.fn().mockReturnValue([new OAuthFlow('test-connection')]);
     mockClient = { clone: jest.fn().mockReturnThis() } as any;
     mockEvents = new EventEmitter<any>();
-    handlers = new OauthHandlers(mockGetConnectionName, mockClient, mockEvents);
+    handlers = new OauthHandlers(mockGetFlows, () => false, mockClient, mockEvents);
 
     (getTeamsBotApplicationTracer as jest.Mock).mockReturnValue({
       startActiveSpan: (_name: string, _options: any, cb: (span: any) => any) => {
@@ -58,6 +62,7 @@ describe('OauthHandlers', () => {
       const mockActivity = {
         channelId: 'msteams',
         from: { id: 'user-id' },
+        conversation: { id: 'conversation-id' },
         value: {
           id: 'exchange-1',
           connectionName: 'test-connection',
@@ -79,6 +84,10 @@ describe('OauthHandlers', () => {
       expect(result).toEqual({ status: 200 });
       expect(mockApi.users.exchangeToken).toHaveBeenCalled();
       expect(next).toHaveBeenCalled();
+      expect(ctx.log.warn).toHaveBeenCalledWith(
+        '[DEPRECATED] OAuth is using the implicit "test-connection" flow. ' +
+        'Register it with app.addOAuthFlow("test-connection").'
+      );
     });
 
     it('returns 412 on generic error', async () => {
@@ -91,6 +100,7 @@ describe('OauthHandlers', () => {
       const mockActivity = {
         channelId: 'msteams',
         from: { id: 'user-id' },
+        conversation: { id: 'conversation-id' },
         value: {
           id: 'exchange-2',
           connectionName: 'test-connection',
@@ -124,6 +134,7 @@ describe('OauthHandlers', () => {
       const mockActivity = {
         channelId: 'msteams',
         from: { id: 'user-id' },
+        conversation: { id: 'conversation-id' },
         value: {
           id: 'exchange-3',
           connectionName: 'test-connection',
@@ -167,6 +178,7 @@ describe('OauthHandlers', () => {
       const mockActivity = {
         channelId: 'msteams',
         from: { id: 'user-id' },
+        conversation: { id: 'conversation-id' },
         value: {
           id: 'exchange-4',
           connectionName: 'test-connection',
@@ -196,13 +208,287 @@ describe('OauthHandlers', () => {
     });
   });
 });
-jest.mock('./diagnostics/helpers', () => ({
+jest.mock('../diagnostics/helpers', () => ({
   getTeamsBotApplicationTracer: jest.fn(),
   recordTeamsBotApplicationException: jest.fn(),
   recordTeamsBotOAuthError: jest.fn(),
   recordTeamsBotOAuthOperation: jest.fn(),
   recordTeamsBotOAuthOperationDuration: jest.fn(),
 }));
+
+describe('OauthHandlers multi-flow lifecycle', () => {
+  const client = {
+    clone: jest.fn().mockReturnValue({}),
+  };
+  let events: EventEmitter<any>;
+  let graph: OAuthFlow;
+  let github: OAuthFlow;
+  let handlers: OauthHandlers;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    events = new EventEmitter<any>();
+    jest.mocked(getTeamsBotApplicationTracer).mockReturnValue({
+      startActiveSpan: (_name: string, _options: unknown, callback: (span: Span) => unknown) =>
+        callback({
+          setAttribute: jest.fn(),
+          recordException: jest.fn(),
+          setStatus: jest.fn(),
+          end: jest.fn(),
+        } as unknown as Span),
+    } as unknown as Tracer);
+    graph = new OAuthFlow('graph');
+    github = new OAuthFlow('github');
+    handlers = new OauthHandlers(
+      () => [graph, github],
+      () => true,
+      client as any,
+      events
+    );
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('dispatches token exchange to the matching flow and preserves the signin event', async () => {
+    const onGraphComplete = jest.fn();
+    const onGithubComplete = jest.fn();
+    graph.onSignInComplete(onGraphComplete);
+    github.onSignInComplete(onGithubComplete);
+    const ctx = createTokenExchangeContext({
+      api: {
+        users: {
+          exchangeToken: jest.fn().mockResolvedValue({
+            token: 'github-token',
+            connectionName: 'github',
+            expiration: '2030-01-01T00:00:00Z',
+          }),
+        },
+      },
+    });
+    ctx.activity.value.connectionName = 'github';
+    const event = jest.fn();
+    events.on('signin', event);
+
+    await expect(handlers.onTokenExchange(ctx as any)).resolves.toEqual({ status: 200 });
+
+    expect(onGraphComplete).not.toHaveBeenCalled();
+    expect(onGithubComplete).toHaveBeenCalledWith(
+      expect.objectContaining({ userToken: 'github-token', isSignedIn: true }),
+      expect.objectContaining({ token: 'github-token', connectionName: 'github' })
+    );
+    expect(event).toHaveBeenCalledWith(expect.objectContaining({
+      token: expect.objectContaining({ token: 'github-token' }),
+      userToken: 'github-token',
+      isSignedIn: true,
+    }));
+  });
+
+  it('returns 400 when multiple flows cannot resolve the exchange connection', async () => {
+    const exchangeToken = jest.fn();
+    const ctx = createTokenExchangeContext({
+      api: { users: { exchangeToken } },
+    });
+    ctx.activity.value.connectionName = 'unknown';
+
+    await expect(handlers.onTokenExchange(ctx as any)).resolves.toEqual({ status: 400 });
+    expect(exchangeToken).not.toHaveBeenCalled();
+  });
+
+  it('tries the newest pending flow first for verify-state invokes', async () => {
+    const now = jest.spyOn(Date, 'now');
+    const graphComplete = jest.fn();
+    const githubComplete = jest.fn();
+    graph.onSignInComplete(graphComplete);
+    github.onSignInComplete(githubComplete);
+    const ctx = createVerifyStateContext({
+      api: {
+        users: {
+          getToken: jest.fn().mockImplementation(({ connectionName }) => {
+            if (connectionName !== 'github') {
+              throw new AxiosError('missing', '404', undefined, undefined, {
+                status: 404,
+                statusText: 'Not Found',
+                headers: {},
+                config: {} as any,
+                data: {},
+              });
+            }
+            return {
+              token: 'github-token',
+              connectionName,
+              expiration: '2030-01-01T00:00:00Z',
+            };
+          }),
+        },
+      },
+    });
+
+    now.mockReturnValue(1_000);
+    graph.recordPending(ctx as any, true);
+    now.mockReturnValue(2_000);
+    github.recordPending(ctx as any, true);
+    now.mockReturnValue(2_500);
+
+    await expect(handlers.onVerifyState(ctx as any)).resolves.toEqual({ status: 200 });
+    expect(ctx.api.users.getToken).toHaveBeenCalledTimes(1);
+    expect(ctx.api.users.getToken).toHaveBeenCalledWith(expect.objectContaining({
+      connectionName: 'github',
+      code: 'auth-code-state',
+    }));
+    expect(graphComplete).not.toHaveBeenCalled();
+    expect(githubComplete).toHaveBeenCalled();
+    now.mockRestore();
+  });
+
+  it('attributes client failure to the newest pending SSO-capable flow', async () => {
+    const graphFailure = jest.fn();
+    const githubFailure = jest.fn();
+    graph.onSignInFailure(graphFailure);
+    github.onSignInFailure(githubFailure);
+    const ctx = createSignInFailureContext();
+
+    graph.recordPending(ctx as any, false);
+    github.recordPending(ctx as any, true);
+    await expect(handlers.onSignInFailure(ctx as any)).resolves.toEqual({ status: 200 });
+
+    expect(graphFailure).not.toHaveBeenCalled();
+    expect(githubFailure).toHaveBeenCalledWith(
+      expect.anything(),
+      { code: 'resourcematchfailed', message: 'full failure message' }
+    );
+  });
+
+  it('uses enabled user state for pending attribution across handler instances', async () => {
+    const state = new TurnStateContainer(new TurnState(), new TurnState());
+    const markContext = createVerifyStateContext({ state });
+    github.recordPending(markContext as any, true);
+    const githubComplete = jest.fn();
+    github.onSignInComplete(githubComplete);
+    const nextHandler = new OauthHandlers(
+      () => [graph, github],
+      () => true,
+      client as any,
+      events
+    );
+    const verifyContext = createVerifyStateContext({
+      state,
+      api: {
+        users: {
+          getToken: jest.fn().mockResolvedValue({
+            token: 'github-token',
+            connectionName: 'github',
+            expiration: '2030-01-01T00:00:00Z',
+          }),
+        },
+      },
+    });
+
+    await expect(nextHandler.onVerifyState(verifyContext as any)).resolves.toEqual({ status: 200 });
+    expect(verifyContext.api.users.getToken).toHaveBeenCalledWith(expect.objectContaining({
+      connectionName: 'github',
+    }));
+    expect(githubComplete).toHaveBeenCalled();
+  });
+
+  it('clears pending state and invokes failure callbacks for verify-state HTTP errors', async () => {
+    const state = new TurnStateContainer(new TurnState(), new TurnState());
+    const graphFailure = jest.fn();
+    const githubFailure = jest.fn();
+    graph.onSignInFailure(graphFailure);
+    github.onSignInFailure(githubFailure);
+    const ctx = createVerifyStateContext({
+      state,
+      api: {
+        users: {
+          getToken: jest.fn().mockRejectedValue(
+            new AxiosError('missing', '404', undefined, undefined, {
+              status: 404,
+              statusText: 'Not Found',
+              headers: {},
+              config: {} as any,
+              data: {},
+            })
+          ),
+        },
+      },
+    });
+    github.recordPending(ctx as any, true);
+
+    await expect(handlers.onVerifyState(ctx as any)).resolves.toEqual({ status: 404 });
+
+    expect(state.user?.has('__oauth:pending:github')).toBe(false);
+    expect(state.user?.has('__oauth:pending:sso:github')).toBe(false);
+    expect(graphFailure).toHaveBeenCalledWith(expect.anything(), undefined);
+    expect(githubFailure).toHaveBeenCalledWith(expect.anything(), undefined);
+  });
+
+  it('propagates non-HTTP verify-state failures for explicitly registered flows', async () => {
+    const error = new Error('invalid token response');
+    const ctx = createVerifyStateContext({
+      api: {
+        users: {
+          getToken: jest.fn().mockRejectedValue(error),
+        },
+      },
+    });
+
+    await expect(handlers.onVerifyState(ctx as any)).rejects.toBe(error);
+  });
+
+  it('uses conversation state to suppress a late duplicate across handler instances', async () => {
+    const state = new TurnStateContainer(new TurnState(), new TurnState());
+    const firstExchange = jest.fn().mockResolvedValue({
+      token: 'graph-token',
+      connectionName: 'graph',
+      expiration: '2030-01-01T00:00:00Z',
+    });
+    const firstContext = createTokenExchangeContext({
+      state,
+      api: { users: { exchangeToken: firstExchange } },
+    });
+    firstContext.activity.value.connectionName = 'graph';
+
+    await expect(handlers.onTokenExchange(firstContext as any)).resolves.toEqual({ status: 200 });
+
+    const secondExchange = jest.fn();
+    const secondContext = createTokenExchangeContext({
+      state,
+      api: { users: { exchangeToken: secondExchange } },
+    });
+    secondContext.activity.value.connectionName = 'graph';
+    const nextHandler = new OauthHandlers(
+      () => [graph, github],
+      () => true,
+      client as any,
+      events
+    );
+
+    await expect(nextHandler.onTokenExchange(secondContext as any)).resolves.toEqual({ status: 200 });
+    expect(secondExchange).not.toHaveBeenCalled();
+  });
+
+  it('keeps a successful exchange deduplicated when a completion callback throws', async () => {
+    const callbackError = new Error('callback failed');
+    github.onSignInComplete(() => {
+      throw callbackError;
+    });
+    const exchangeToken = jest.fn().mockResolvedValue({
+      token: 'github-token',
+      connectionName: 'github',
+      expiration: '2030-01-01T00:00:00Z',
+    });
+    const ctx = createTokenExchangeContext({
+      api: { users: { exchangeToken } },
+    });
+    ctx.activity.value.connectionName = 'github';
+
+    await expect(handlers.onTokenExchange(ctx as any)).rejects.toBe(callbackError);
+    await expect(handlers.onTokenExchange(ctx as any)).resolves.toEqual({ status: 200 });
+    expect(exchangeToken).toHaveBeenCalledTimes(1);
+  });
+});
 
 type SpanRecord = {
   readonly name: string;
@@ -246,7 +532,12 @@ describe('OauthHandlers diagnostics', () => {
       spans.push({ name, options, attributes, span });
       return callback(span);
     });
-    handlers = new OauthHandlers(() => 'default-connection', client as any, events as any);
+    handlers = new OauthHandlers(
+      () => [new OAuthFlow('default-connection')],
+      () => false,
+      client as any,
+      events as any
+    );
   });
 
   it('emits token exchange success telemetry without recording token values', async () => {
@@ -263,7 +554,7 @@ describe('OauthHandlers diagnostics', () => {
     const emitted = JSON.stringify([span.options, span.attributes]);
 
     expect(response).toEqual({ status: 200 });
-    expect(span.name).toBe(APP_SPAN_NAMES.oauthTokenExchange);
+    expect(span.name).toBe(APP_SPAN_NAMES.oauth);
     expect(span.options.attributes).toEqual({
       'oauth.connection': 'activity-connection',
       'oauth.operation': APP_OAUTH_OPERATION.tokenExchange,
@@ -399,7 +690,7 @@ describe('OauthHandlers diagnostics', () => {
     const emitted = JSON.stringify([span.options, span.attributes]);
 
     expect(response).toEqual({ status: 412 });
-    expect(span.name).toBe(APP_SPAN_NAMES.oauthVerifyState);
+    expect(span.name).toBe(APP_SPAN_NAMES.oauth);
     expect(span.options.attributes).toEqual({
       'oauth.connection': 'default-connection',
       'oauth.operation': APP_OAUTH_OPERATION.verifyState,
@@ -531,7 +822,7 @@ describe('OauthHandlers diagnostics', () => {
     const emitted = JSON.stringify([span.options, span.attributes]);
 
     expect(response).toEqual({ status: 200 });
-    expect(span.name).toBe(APP_SPAN_NAMES.oauthSigninFailure);
+    expect(span.name).toBe(APP_SPAN_NAMES.oauth);
     expect(span.options.attributes).toEqual({
       'oauth.connection': 'default-connection',
       'oauth.operation': APP_OAUTH_OPERATION.signinFailure,

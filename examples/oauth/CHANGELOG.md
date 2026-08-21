@@ -1,4 +1,4 @@
-# @examples/auth
+# @examples/oauth
 
 ## 0.0.6
 

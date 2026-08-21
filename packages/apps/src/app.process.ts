@@ -82,11 +82,16 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly stateLoader?: TurnStateLoader;
   readonly log: ILogger;
   readonly getId: () => string | undefined;
+  /**
+   * Gets the connection name used by deprecated context OAuth fields.
+   *
+   * @deprecated Registered OAuth flows own their connection names.
+   */
   readonly getConnectionName: () => string;
   /**
-   * whether to eagerly look up the user's OAuth token on the inbound activity.
-   * the token is used to compute `ctx.isSignedIn` and `ctx.userToken`, and to authenticate
-   * `ctx.userGraph` (which is always constructed regardless of this setting).
+   * Whether to populate deprecated context OAuth fields on the inbound activity.
+   *
+   * @deprecated Registered flows fetch tokens only when their methods are called.
    */
   readonly shouldFetchUserToken: () => boolean;
   readonly apiClientSettings?: ApiClientSettings;
@@ -145,8 +150,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       });
 
       let userToken: string | undefined;
-      // Skipped unless configured (see OAuthSettings.fetchUserToken / auto-detection) to avoid
-      // a wasted user-token request on every activity when the app never reads ctx.userGraph.
+      // Legacy context OAuth fields opt into this eager lookup.
       if (this.options.shouldFetchUserToken()) {
         try {
           userToken = await this.getUserToken(apiClient, activity.channelId, activity.from.id);

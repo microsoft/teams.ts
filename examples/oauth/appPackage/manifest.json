@@ -4,8 +4,8 @@
   "manifestVersion": "1.20",
   "id": "${{TEAMS_APP_ID}}",
   "name": {
-    "short": "auth-tester",
-    "full": "Auth tester agent"
+    "short": "oauth-sample",
+    "full": "Multi-provider OAuth sample"
   },
   "developer": {
     "name": "Microsoft",
@@ -15,8 +15,8 @@
     "termsOfUseUrl": "https://www.microsoft.com/legal/terms-of-use"
   },
   "description": {
-    "short": "Sample bot that repeats back what you say",
-    "full": "Sample bot that repeats back what you say"
+    "short": "Sign in with Microsoft Graph or GitHub",
+    "full": "Demonstrates independent Microsoft Graph and GitHub OAuth connections"
   },
   "icons": {
     "outline": "outline.png",

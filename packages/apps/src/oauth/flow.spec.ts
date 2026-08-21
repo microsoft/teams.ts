@@ -1,0 +1,291 @@
+import type { Span } from '@opentelemetry/api';
+import { AxiosError } from 'axios';
+
+import type { TokenResponse, TokenStatus } from '@microsoft/teams.api';
+
+import type { IActivityContext } from '../contexts';
+import {
+  APP_OAUTH_ERROR_TYPE,
+  APP_OAUTH_OPERATION,
+  APP_OAUTH_RESULT,
+} from '../diagnostics/constants';
+import {
+  getTeamsBotApplicationTracer,
+  recordTeamsBotApplicationException,
+  recordTeamsBotOAuthError,
+  recordTeamsBotOAuthOperation,
+} from '../diagnostics/helpers';
+import { TurnState, TurnStateContainer } from '../state';
+
+import { OAuthFlow } from '.';
+
+jest.mock('../diagnostics/helpers', () => ({
+  getTeamsBotApplicationTracer: jest.fn(),
+  recordTeamsBotApplicationException: jest.fn(),
+  recordTeamsBotOAuthError: jest.fn(),
+  recordTeamsBotOAuthOperation: jest.fn(),
+  recordTeamsBotOAuthOperationDuration: jest.fn(),
+}));
+
+describe('OAuthFlow', () => {
+  const token: TokenResponse = {
+    channelId: 'msteams',
+    connectionName: 'graph',
+    token: 'user-token',
+    expiration: '2030-01-01T00:00:00Z',
+  };
+  const status: TokenStatus = {
+    channelId: 'msteams',
+    connectionName: 'graph',
+    hasToken: true,
+    serviceProviderDisplayName: 'Microsoft Entra ID',
+  };
+
+  let context: IActivityContext;
+  let getToken: jest.Mock;
+  let getTokenStatus: jest.Mock;
+  let getSignInResource: jest.Mock;
+  let send: jest.Mock;
+  let signOut: jest.Mock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.mocked(getTeamsBotApplicationTracer).mockReturnValue({
+      startActiveSpan: (
+        _name: string,
+        _options: unknown,
+        callback: (span: Span) => unknown
+      ) =>
+        callback({
+          setAttribute: jest.fn(),
+          recordException: jest.fn(),
+          end: jest.fn(),
+        } as unknown as Span),
+    } as ReturnType<typeof getTeamsBotApplicationTracer>);
+    getToken = jest.fn();
+    getTokenStatus = jest.fn();
+    getSignInResource = jest.fn();
+    send = jest.fn();
+    signOut = jest.fn();
+    context = {
+      appId: 'app-id',
+      activity: {
+        channelId: 'msteams',
+        from: { id: 'user-id' },
+        conversation: {
+          id: 'conversation-id',
+          conversationType: 'personal',
+        },
+      },
+      ref: {
+        channelId: 'msteams',
+        conversation: { id: 'conversation-id' },
+      },
+      api: {
+        bots: {
+          signIn: {
+            getResource: getSignInResource,
+          },
+        },
+        users: {
+          getToken,
+          getTokenStatus,
+          signOut,
+        },
+      },
+      send,
+    } as unknown as IActivityContext;
+  });
+
+  it('rejects a blank connection name', () => {
+    expect(() => new OAuthFlow('  ')).toThrow('OAuth connection name is required');
+  });
+
+  it('returns the existing token string without changing its response shape', async () => {
+    getToken.mockResolvedValue(token);
+    const flow = new OAuthFlow('graph');
+
+    await expect(flow.getToken(context)).resolves.toBe('user-token');
+    expect(getToken).toHaveBeenCalledWith({
+      channelId: 'msteams',
+      userId: 'user-id',
+      connectionName: 'graph',
+    });
+    expect(recordTeamsBotOAuthOperation).toHaveBeenCalledWith(
+      'graph',
+      APP_OAUTH_OPERATION.getToken,
+      APP_OAUTH_RESULT.hit
+    );
+  });
+
+  it('returns undefined only for expected token-miss responses', async () => {
+    getToken.mockRejectedValue(new AxiosError('missing', '404', undefined, undefined, {
+      status: 404,
+      statusText: 'Not Found',
+      headers: {},
+      config: {} as never,
+      data: {},
+    }));
+
+    await expect(new OAuthFlow('graph').getToken(context)).resolves.toBeUndefined();
+    expect(recordTeamsBotOAuthOperation).toHaveBeenCalledWith(
+      'graph',
+      APP_OAUTH_OPERATION.getToken,
+      APP_OAUTH_RESULT.miss
+    );
+  });
+
+  it('propagates unexpected token lookup errors', async () => {
+    const error = new Error('storage unavailable');
+    getToken.mockRejectedValue(error);
+
+    await expect(new OAuthFlow('graph').getToken(context)).rejects.toBe(error);
+  });
+
+  it('returns a cached token from sign-in and records the cached result', async () => {
+    getToken.mockResolvedValue(token);
+
+    await expect(new OAuthFlow('graph').signIn(context)).resolves.toBe(
+      'user-token'
+    );
+
+    expect(send).not.toHaveBeenCalled();
+    expect(recordTeamsBotOAuthOperation).toHaveBeenCalledWith(
+      'graph',
+      APP_OAUTH_OPERATION.signIn,
+      APP_OAUTH_RESULT.cached
+    );
+  });
+
+  it('starts sign-in with flow defaults, per-call overrides, and a fixed connection', async () => {
+    context.state = new TurnStateContainer(new TurnState(), new TurnState());
+    getToken.mockRejectedValue(new AxiosError('missing', '404', undefined, undefined, {
+      status: 404,
+      statusText: 'Not Found',
+      headers: {},
+      config: {} as never,
+      data: {},
+    }));
+    getSignInResource.mockResolvedValue({
+      signInLink: 'https://token.botframework.com/signin',
+      tokenExchangeResource: {
+        id: 'exchange-id',
+        uri: 'api://app-id',
+        providerId: 'provider-id',
+      },
+    });
+    const flow = new OAuthFlow('graph', {
+      oauthCardText: 'Default text',
+      signInButtonText: 'Continue',
+      connectionName: 'ignored-default',
+    });
+
+    await flow.signIn(context, {
+      oauthCardText: 'Per-call text',
+      connectionName: 'ignored-call',
+    });
+
+    expect(getToken).toHaveBeenCalledWith({
+      channelId: 'msteams',
+      userId: 'user-id',
+      connectionName: 'graph',
+    });
+    expect(send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attachments: [
+          expect.objectContaining({
+            content: expect.objectContaining({
+              text: 'Per-call text',
+              connectionName: 'graph',
+              buttons: [
+                expect.objectContaining({
+                  title: 'Continue',
+                  value: 'https://token.botframework.com/signin',
+                }),
+              ],
+            }),
+          }),
+        ],
+      }),
+      expect.objectContaining({
+        conversation: { id: 'conversation-id' },
+      })
+    );
+    expect(context.state.user?.has('__oauth:pending:graph')).toBe(true);
+    expect(context.state.user?.has('__oauth:pending:sso:graph')).toBe(true);
+    expect(recordTeamsBotOAuthOperation).toHaveBeenCalledWith(
+      'graph',
+      APP_OAUTH_OPERATION.signIn,
+      APP_OAUTH_RESULT.cardSent
+    );
+  });
+
+  it('signs out and reports connection state through existing clients', async () => {
+    signOut.mockResolvedValue(undefined);
+    getToken.mockResolvedValue(token);
+    getTokenStatus.mockResolvedValue([status]);
+    const flow = new OAuthFlow('graph');
+
+    await expect(flow.isSignedIn(context)).resolves.toBe(true);
+    await expect(flow.getConnectionStatus(context)).resolves.toEqual([status]);
+    await flow.signOut(context);
+
+    expect(getTokenStatus).toHaveBeenCalledWith({
+      channelId: 'msteams',
+      userId: 'user-id',
+      includeFilter: '',
+    });
+    expect(signOut).toHaveBeenCalledWith({
+      channelId: 'msteams',
+      userId: 'user-id',
+      connectionName: 'graph',
+    });
+    expect(recordTeamsBotOAuthOperation).toHaveBeenCalledWith(
+      'graph',
+      APP_OAUTH_OPERATION.signOut,
+      APP_OAUTH_RESULT.success
+    );
+    expect(recordTeamsBotOAuthOperation).toHaveBeenCalledWith(
+      'all',
+      APP_OAUTH_OPERATION.connectionStatus,
+      APP_OAUTH_RESULT.success
+    );
+  });
+
+  it('records sign-out failures and propagates the original error', async () => {
+    const error = new Error('token service unavailable');
+    signOut.mockRejectedValue(error);
+
+    await expect(new OAuthFlow('graph').signOut(context)).rejects.toBe(error);
+
+    expect(recordTeamsBotApplicationException).toHaveBeenCalledWith(
+      expect.anything(),
+      error
+    );
+    expect(recordTeamsBotOAuthError).toHaveBeenCalledWith(
+      'graph',
+      APP_OAUTH_OPERATION.signOut,
+      APP_OAUTH_ERROR_TYPE.exception
+    );
+  });
+
+  it('replaces lifecycle callbacks when registered again', async () => {
+    const firstComplete = jest.fn();
+    const secondComplete = jest.fn();
+    const firstFailure = jest.fn();
+    const secondFailure = jest.fn();
+    const flow = new OAuthFlow('graph')
+      .onSignInComplete(firstComplete)
+      .onSignInComplete(secondComplete)
+      .onSignInFailure(firstFailure)
+      .onSignInFailure(secondFailure);
+
+    await flow.complete(context, token);
+    await flow.fail(context, undefined);
+
+    expect(firstComplete).not.toHaveBeenCalled();
+    expect(secondComplete).toHaveBeenCalledWith(context, token);
+    expect(firstFailure).not.toHaveBeenCalled();
+    expect(secondFailure).toHaveBeenCalledWith(context, undefined);
+  });
+});

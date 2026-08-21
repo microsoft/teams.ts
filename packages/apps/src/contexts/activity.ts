@@ -2,7 +2,6 @@ import {
   Activity,
   ActivityLike,
   ActivityParams,
-  cardAttachment,
   ConversationReference,
   DeprecatedInputActivity,
   InvokeResponse,
@@ -13,9 +12,6 @@ import {
   MessageUpdateActivity,
   SentActivity,
   toActivityParams,
-  TokenExchangeResource,
-  TokenExchangeState,
-  TokenPostResource,
   TypingActivity,
 } from '@microsoft/teams.api';
 import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
@@ -23,6 +19,7 @@ import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common
 import { ApiClient, GraphClient } from '../api';
 import { FilesAccessor } from '../files/files-accessor';
 import { IFilesAccessor } from '../files/types';
+import { OAuthSignInOptions, startOAuthSignIn } from '../oauth';
 import { TurnStateContainer } from '../state';
 import { IStreamer } from '../types';
 import { IActivitySender } from '../types/plugin/sender';
@@ -43,6 +40,7 @@ export interface IActivityContextConstructorArgs {
   next: (
     context?: IActivityContext
   ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
+
 }
 
 /**
@@ -89,6 +87,9 @@ export interface IBaseActivityContextOptions<T extends Activity = Activity> {
 
   /**
    * the user graph client
+   *
+   * @deprecated Use a registered OAuth flow to acquire the token needed by the
+   * Microsoft Graph operation. This property remains available for compatibility.
    */
   userGraph: GraphClient;
 
@@ -112,57 +113,27 @@ export interface IBaseActivityContextOptions<T extends Activity = Activity> {
    * whether the user has provided
    * their MSGraph credentials for use
    * via `api.user.*`
+   *
+   * @deprecated Use `app.getOAuthFlow(connectionName).isSignedIn(ctx)`.
    */
   isSignedIn?: boolean;
 
   /**
    * the default connection name to use for the app
    * @default `graph`
+   * @deprecated Register and retain the required `OAuthFlow` explicitly.
    */
   connectionName: string;
 
   /**
    * the user token for the activity context
+   *
+   * @deprecated Use `app.getOAuthFlow(connectionName).getToken(ctx)`.
    */
   userToken?: string;
 }
 
 export type IActivityContextOptions<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>> = IBaseActivityContextOptions<T> & TExtraCtx;
-
-type SignInOptions = {
-  /**
-   * The text to display on the oauth card
-   * @default `Please Sign In...`
-   */
-  oauthCardText: string;
-
-  /**
-   * The text to display on the sign in button
-   * @default `Sign In`
-   */
-  signInButtonText: string;
-
-  /**
-   * The sign in link to use in the card
-   */
-  signInLink?: string;
-
-  /**
-   * The connection name to use
-   */
-  connectionName?: string;
-
-  /**
-   * Construct your own sign in activity
-   * By default, we create a simple oauth card with a sign in button.
-   * Only use this if you need to fully customize the sign in experience.
-   */
-  overrideSignInActivity?: (
-    tokenExchangeResource?: TokenExchangeResource,
-    tokenPostResource?: TokenPostResource,
-    signInLink?: string
-  ) => ActivityLike;
-};
 
 export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>>
   extends IBaseActivityContextOptions<T> {
@@ -221,12 +192,16 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   /**
    * trigger user signin flow for the activity sender
    * @param options options for the signin flow
+   * @deprecated Register a connection with `app.addOAuthFlow(...)` and call
+   * `flow.signIn(ctx, options)` instead.
    */
-  signin: (options?: Partial<SignInOptions>) => Promise<string | undefined>;
+  signin: (options?: OAuthSignInOptions) => Promise<string | undefined>;
 
   /**
    * sign the activity sender out
    * @param name auth connection name, defaults to `graph`
+   * @deprecated Register a connection with `app.addOAuthFlow(...)` and call
+   * `flow.signOut(ctx)` instead.
    */
   signout: (name?: string) => Promise<void>;
 }
@@ -260,7 +235,6 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   [key: string]: any;
 
   private activitySender: IActivitySender;
-
   constructor(value: IBaseActivityContextOptions & IActivityContextConstructorArgs) {
     // Extract activitySender and next before Object.assign to avoid overwriting methods
     const { activitySender, next, ...rest } = value;
@@ -389,86 +363,12 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     return this.send(activity);
   }
 
-  async signin(options?: Partial<SignInOptions>) {
-    const {
-      oauthCardText,
-      signInButtonText,
-      connectionName,
-      signInLink,
-      overrideSignInActivity
-    }: SignInOptions = {
-      oauthCardText: 'Please Sign In...',
-      signInButtonText: 'Sign In',
-      ...options,
-    };
-
-    const convo = { ...this.ref };
-
-    try {
-      const res = await this.api.users.getToken({
-        channelId: this.activity.channelId,
-        userId: this.activity.from.id,
-        connectionName: connectionName || this.connectionName,
-      });
-
-      return res.token;
-    } catch (err) {
-      // noop
-    }
-
-    const tokenExchangeState: TokenExchangeState = {
-      connectionName: connectionName || this.connectionName,
-      conversation: convo,
-      relatesTo: this.activity.relatesTo,
-      msAppId: this.appId,
-    };
-
-    const state = Buffer.from(JSON.stringify(tokenExchangeState)).toString(
-      'base64'
-    );
-    const resource = await this.api.bots.signIn.getResource({ state });
-
-    // In group conversations (group chats and channels) the OAuth card is sent as a
-    // targeted message so it is visible only to the requesting user rather than the
-    // whole conversation.
-    const isChannel = this.activity.conversation.conversationType === 'channel';
-    const isGroup = this.activity.conversation.isGroup === true;
-    const recipient = isGroup
-      ? { ...this.activity.from, isTargeted: true }
-      : this.activity.from;
-
-    // Channels cannot perform the silent SSO token exchange, so omit the token
-    // exchange resource there to render the sign-in button (OAuth card flow). This is
-    // applied to both the default card and any custom override so an override cannot
-    // accidentally trigger an exchange that Teams can't complete in a channel.
-    const tokenExchangeResource = isChannel
-      ? undefined
-      : resource.tokenExchangeResource;
-
-    await this.send(
-      overrideSignInActivity?.(
-        tokenExchangeResource,
-        resource.tokenPostResource,
-        resource.signInLink
-      ) ?? {
-        type: 'message',
-        recipient,
-        attachments: [
-          cardAttachment('oauth', {
-            text: oauthCardText,
-            connectionName: connectionName || this.connectionName,
-            tokenExchangeResource,
-            tokenPostResource: resource.tokenPostResource,
-            buttons: [
-              {
-                type: 'signin',
-                title: signInButtonText,
-                value: signInLink || resource.signInLink,
-              },
-            ],
-          }),
-        ],
-      }, convo
+  async signin(options: OAuthSignInOptions = {}) {
+    return startOAuthSignIn(
+      this.toInterface(),
+      options.connectionName || this.connectionName,
+      options,
+      undefined
     );
   }
 
