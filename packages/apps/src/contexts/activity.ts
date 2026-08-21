@@ -41,6 +41,23 @@ export interface IActivityContextConstructorArgs {
     context?: IActivityContext
   ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 
+  /**
+   * Validates that a connection used by the deprecated `signin()` helper is
+   * registered or is the implicit legacy default.
+   * @internal
+   */
+  validateOAuthConnection?: (connectionName: string) => void;
+
+  /**
+   * Records pending OAuth attribution after the deprecated `signin()` helper
+   * sends a card for a registered connection.
+   * @internal
+   */
+  onOAuthSignInInitiated?: (
+    context: IActivityContext,
+    connectionName: string,
+    supportsSso: boolean
+  ) => void | Promise<void>;
 }
 
 /**
@@ -235,9 +252,18 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   [key: string]: any;
 
   private activitySender: IActivitySender;
+  private readonly validateOAuthConnection?: IActivityContextConstructorArgs['validateOAuthConnection'];
+  private readonly onOAuthSignInInitiated?: IActivityContextConstructorArgs['onOAuthSignInInitiated'];
+
   constructor(value: IBaseActivityContextOptions & IActivityContextConstructorArgs) {
     // Extract activitySender and next before Object.assign to avoid overwriting methods
-    const { activitySender, next, ...rest } = value;
+    const {
+      activitySender,
+      next,
+      validateOAuthConnection,
+      onOAuthSignInInitiated,
+      ...rest
+    } = value;
 
     // Rehydrate the inbound payload into its activity instance so computed
     // accessors (channel/team/meeting/notification/tenant) resolve. Do NOT
@@ -272,6 +298,8 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
 
     Object.assign(this, rest);
     this.activitySender = activitySender;
+    this.validateOAuthConnection = validateOAuthConnection;
+    this.onOAuthSignInInitiated = onOAuthSignInInitiated;
     this.next = next;
     this.stream = activitySender.createStream(value.ref);
     this.connectionName = value.connectionName;
@@ -364,11 +392,14 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   }
 
   async signin(options: OAuthSignInOptions = {}) {
+    const connectionName = options.connectionName || this.connectionName;
+    this.validateOAuthConnection?.(connectionName);
+
     return startOAuthSignIn(
       this.toInterface(),
-      options.connectionName || this.connectionName,
+      connectionName,
       options,
-      undefined
+      this.onOAuthSignInInitiated
     );
   }
 

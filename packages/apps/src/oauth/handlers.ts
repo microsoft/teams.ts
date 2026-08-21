@@ -155,7 +155,12 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
           this.clearPending(ctx, flow);
           this.applyUserToken(ctx, token);
           await flow.complete(ctx, token);
-          this.events.emit('signin', { ...ctx, token, isSignedIn: true });
+          this.events.emit('signin', {
+            ...ctx,
+            connectionName: flow.connectionName,
+            token,
+            isSignedIn: true,
+          });
           telemetry.callbackInvoked = true;
           await next(ctx);
           telemetry.result = APP_OAUTH_RESULT.success;
@@ -358,7 +363,12 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
     this.clearPending(ctx, flow);
     this.applyUserToken(ctx, token);
     await flow.complete(ctx, token);
-    this.events.emit('signin', { ...ctx, token, isSignedIn: true });
+    this.events.emit('signin', {
+      ...ctx,
+      connectionName: flow.connectionName,
+      token,
+      isSignedIn: true,
+    });
     telemetry.result = APP_OAUTH_RESULT.success;
     telemetry.responseStatus = 200;
     return { status: 200 };

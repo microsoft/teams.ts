@@ -262,6 +262,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       getId: () => this.id,
       getConnectionName: () => this.oauth.defaultConnectionName,
       shouldFetchUserToken: () => this.shouldFetchUserToken(),
+      validateOAuthConnection: (connectionName) =>
+        this.oauthFlowRegistry.validate(connectionName),
+      onOAuthSignInInitiated: (context, connectionName, supportsSso) =>
+        this.oauthFlowRegistry.recordPending(
+          context,
+          connectionName,
+          supportsSso
+        ),
       apiClientSettings: this.options.apiClientSettings,
       graphBaseUrl: this.graphBaseUrl,
       agent365Baggage: this.options.telemetry?.agent365,

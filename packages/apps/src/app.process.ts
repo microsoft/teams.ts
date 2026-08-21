@@ -89,11 +89,26 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
    */
   readonly getConnectionName: () => string;
   /**
-   * Whether to populate deprecated context OAuth fields on the inbound activity.
+   * Whether to proactively fetch the legacy default-flow token for each inbound
+   * activity. The result populates deprecated context OAuth fields.
    *
    * @deprecated Registered flows fetch tokens only when their methods are called.
    */
   readonly shouldFetchUserToken: () => boolean;
+  /**
+   * Validates a connection selected through the deprecated activity-context
+   * sign-in helper before any token service request is made.
+   */
+  readonly validateOAuthConnection?: (connectionName: string) => void;
+  /**
+   * Records which registered OAuth flow emitted a card through the deprecated
+   * activity-context sign-in helper.
+   */
+  readonly onOAuthSignInInitiated?: (
+    context: IActivityContext,
+    connectionName: string,
+    supportsSso: boolean
+  ) => void | Promise<void>;
   readonly apiClientSettings?: ApiClientSettings;
   readonly graphBaseUrl?: string;
   /**
@@ -259,6 +274,8 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         storage: this.options.storage,
         isSignedIn: !!userToken,
         connectionName: this.options.getConnectionName(),
+        validateOAuthConnection: this.options.validateOAuthConnection,
+        onOAuthSignInInitiated: this.options.onOAuthSignInInitiated,
         activitySender,
         ...pluginContexts
       });

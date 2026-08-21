@@ -279,6 +279,7 @@ describe('OauthHandlers multi-flow lifecycle', () => {
       expect.objectContaining({ token: 'github-token', connectionName: 'github' })
     );
     expect(event).toHaveBeenCalledWith(expect.objectContaining({
+      connectionName: 'github',
       token: expect.objectContaining({ token: 'github-token' }),
       userToken: 'github-token',
       isSignedIn: true,

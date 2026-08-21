@@ -1,5 +1,6 @@
 import type { Client as HttpClient, EventEmitter } from '@microsoft/teams.common';
 
+import type { IActivityContext } from '../contexts';
 import type { Router } from '../router';
 import type { AppEvents, IPlugin } from '../types';
 import type { PluginAdditionalContext } from '../types/app-routing';
@@ -83,6 +84,24 @@ export class OAuthFlowRegistry<TPlugin extends IPlugin = IPlugin> {
   /** @internal Returns whether a flow was explicitly registered. */
   isExplicit(flow: OAuthFlow): boolean {
     return this.explicitFlows.get(this.normalize(flow.connectionName)) === flow;
+  }
+
+  /**
+   * @internal Validates a connection before deprecated context sign-in starts.
+   */
+  validate(connectionName: string): void {
+    this.get(connectionName);
+  }
+
+  /**
+   * @internal Records pending attribution for a registered or legacy flow.
+   */
+  recordPending(
+    context: IActivityContext,
+    connectionName: string,
+    supportsSso: boolean
+  ): void {
+    this.get(connectionName).recordPending(context, supportsSso);
   }
 
   private registerRoutes(options: OAuthFlowRegistryOptions<TPlugin>): void {
