@@ -162,6 +162,8 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * Connection names are matched case-insensitively and must be non-empty and
    * unique. Retrieve a declaratively registered flow with
    * `app.getOAuthFlow(connectionName)` to configure lifecycle callbacks.
+   * The legacy default connection remains available when omitted; listing that
+   * connection configures the same flow rather than creating a duplicate.
    */
   readonly oauthFlows?: ReadonlyArray<string>;
 

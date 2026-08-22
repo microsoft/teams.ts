@@ -280,8 +280,8 @@ describe('OAuthFlow', () => {
       .onSignInFailure(firstFailure)
       .onSignInFailure(secondFailure);
 
-    await flow.complete(context, token);
-    await flow.fail(context, undefined);
+    await flow.complete(context as any, token);
+    await flow.fail(context as any, undefined);
 
     expect(firstComplete).not.toHaveBeenCalled();
     expect(secondComplete).toHaveBeenCalledWith(context, token);

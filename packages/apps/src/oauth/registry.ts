@@ -18,49 +18,50 @@ type OAuthFlowRegistryOptions<TPlugin extends IPlugin> = {
 };
 
 /**
- * @internal Owns explicit OAuth registrations and the deprecated default flow.
+ * @internal Owns the default and additional OAuth flows.
  */
 export class OAuthFlowRegistry<TPlugin extends IPlugin = IPlugin> {
-  private readonly explicitFlows = new Map<string, OAuthFlow>();
-  private readonly legacyFlow: OAuthFlow;
+  private readonly flows = new Map<string, OAuthFlow<TPlugin>>();
+  private readonly addedFlowNames = new Set<string>();
 
   /**
-   * @internal Creates the registry and installs routes for its legacy fallback
-   * and all flows registered later.
+   * @internal Creates the registry with its implicit default and installs routes
+   * for all flows.
    */
   constructor(options: OAuthFlowRegistryOptions<TPlugin>) {
-    this.legacyFlow = new OAuthFlow(options.defaultConnectionName);
+    const defaultFlow = new OAuthFlow<TPlugin>(options.defaultConnectionName);
+    this.flows.set(this.normalize(defaultFlow.connectionName), defaultFlow);
     this.registerRoutes(options);
   }
 
-  /** @internal Adds an explicitly registered flow. */
-  add(flow: OAuthFlow): void {
+  /**
+   * @internal Adds a flow. The first addition of the implicit default replaces
+   * its placeholder; subsequent additions of the same name are rejected.
+   */
+  add(flow: OAuthFlow<TPlugin>): void {
     const normalized = this.normalize(flow.connectionName);
-    if (this.explicitFlows.has(normalized)) {
+    if (this.addedFlowNames.has(normalized)) {
       throw new Error(
         `An OAuth flow is already registered for connection "${flow.connectionName}".`
       );
     }
 
-    this.explicitFlows.set(normalized, flow);
+    this.flows.set(normalized, flow);
+    this.addedFlowNames.add(normalized);
   }
 
   /**
-   * @internal Resolves an explicit flow or the deprecated default fallback.
+   * @internal Resolves a flow by connection name.
    */
-  get(connectionName: string): OAuthFlow {
+  get(connectionName: string): OAuthFlow<TPlugin> {
     if (!connectionName.trim()) {
       throw new Error('OAuth connection name is required.');
     }
 
     const normalized = this.normalize(connectionName);
-    const flow = this.explicitFlows.get(normalized);
+    const flow = this.flows.get(normalized);
     if (flow) {
       return flow;
-    }
-
-    if (this.normalize(this.legacyFlow.connectionName) === normalized) {
-      return this.legacyFlow;
     }
 
     const available = this.getAll()
@@ -72,18 +73,9 @@ export class OAuthFlowRegistry<TPlugin extends IPlugin = IPlugin> {
     );
   }
 
-  /** @internal Returns explicit flows plus any distinct legacy fallback. */
-  getAll(): OAuthFlow[] {
-    const flows = [...this.explicitFlows.values()];
-    if (!this.explicitFlows.has(this.normalize(this.legacyFlow.connectionName))) {
-      flows.push(this.legacyFlow);
-    }
-    return flows;
-  }
-
-  /** @internal Returns whether a flow was explicitly registered. */
-  isExplicit(flow: OAuthFlow): boolean {
-    return this.explicitFlows.get(this.normalize(flow.connectionName)) === flow;
+  /** @internal Returns every registered flow, including the implicit default. */
+  getAll(): OAuthFlow<TPlugin>[] {
+    return [...this.flows.values()];
   }
 
   /**
@@ -94,7 +86,7 @@ export class OAuthFlowRegistry<TPlugin extends IPlugin = IPlugin> {
   }
 
   /**
-   * @internal Records pending attribution for a registered or legacy flow.
+   * @internal Records pending attribution for a flow.
    */
   recordPending(
     context: IActivityContext,
@@ -107,7 +99,6 @@ export class OAuthFlowRegistry<TPlugin extends IPlugin = IPlugin> {
   private registerRoutes(options: OAuthFlowRegistryOptions<TPlugin>): void {
     const handlers = new OauthHandlers<TPlugin>(
       () => this.getAll(),
-      flow => this.isExplicit(flow),
       options.client,
       options.events,
       options.graphBaseUrl

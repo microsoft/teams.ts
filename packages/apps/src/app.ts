@@ -587,8 +587,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   addOAuthFlow(
     connectionName: string,
     options: OAuthSignInOptions = {}
-  ): OAuthFlow {
-    const flow = new OAuthFlow(connectionName, options);
+  ): OAuthFlow<TPlugin> {
+    const flow = new OAuthFlow<TPlugin>(connectionName, options);
     this.oauthFlowRegistry.add(flow);
     return flow;
   }
@@ -602,7 +602,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param connectionName Connection to resolve.
    * @throws When the connection name is blank or no matching flow is registered.
    */
-  getOAuthFlow(connectionName: string): OAuthFlow {
+  getOAuthFlow(connectionName: string): OAuthFlow<TPlugin> {
     return this.oauthFlowRegistry.get(connectionName);
   }
 

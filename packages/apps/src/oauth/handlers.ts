@@ -45,11 +45,9 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
 
   private readonly processedExchangeIds = new Map<string, number>();
   private readonly tokenExchangeLocks = new Map<string, Promise<{ status: number, body?: TokenExchangeInvokeResponse }>>();
-  private hasWarnedLegacyFlow = false;
 
   constructor(
-    private readonly getFlows: () => readonly OAuthFlow[],
-    private readonly isExplicitFlow: (flow: OAuthFlow) => boolean,
+    private readonly getFlows: () => readonly OAuthFlow<TPlugin>[],
     private readonly client: HttpClient,
     private readonly events: EventEmitter<AppEvents<TPlugin>>,
     private readonly graphBaseUrl?: string
@@ -62,9 +60,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
     const value = activity.value;
     const activityConnectionName = value?.connectionName;
     const flow = this.resolveTokenExchangeFlow(activityConnectionName);
-    const connectionName = flow && !this.isExplicitFlow(flow) && activityConnectionName
-      ? activityConnectionName
-      : flow?.connectionName ?? activityConnectionName ?? '';
+    const connectionName = flow?.connectionName ?? activityConnectionName ?? '';
 
     return traceOAuthOperation(
       APP_SPAN_NAMES.oauth,
@@ -76,8 +72,6 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
           telemetry.responseStatus = 400;
           return { status: 400 };
         }
-        this.warnLegacyFlow(ctx, flow.connectionName);
-
         if (flow.connectionName !== activityConnectionName) {
           log.warn(
             `OAuth connection "${activityConnectionName}" was not registered; using the only registered flow "${flow.connectionName}"`
@@ -189,9 +183,6 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
     const { log, activity, next } = ctx;
     const flows = this.getOrderedFlows(ctx, false);
     const connectionName = flows[0]?.connectionName ?? '';
-    if (flows[0]) {
-      this.warnLegacyFlow(ctx, flows[0].connectionName);
-    }
 
     return traceOAuthOperation(
       APP_SPAN_NAMES.oauth,
@@ -207,19 +198,13 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
           return { status: 404 };
         }
 
-        let lastResponse: { status: number } = { status: 404 };
         for (const flow of flows) {
           const response = await this.verifyFlow(ctx, flow, activity.value.state, span, telemetry);
-          lastResponse = response;
           if (response.status === 200) {
             telemetry.callbackInvoked = true;
             await next(ctx);
             return response;
           }
-        }
-
-        if (flows.length === 1 && !this.isExplicitFlow(flows[0])) {
-          return lastResponse;
         }
 
         telemetry.result = APP_OAUTH_RESULT.noToken;
@@ -262,9 +247,6 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
     );
     const flows = pendingFlows.length > 0 ? [pendingFlows[0]] : this.getFlows();
     const connectionName = flows[0]?.connectionName ?? '';
-    if (flows[0]) {
-      this.warnLegacyFlow(ctx, flows[0].connectionName);
-    }
 
     return traceOAuthOperation(
       APP_SPAN_NAMES.oauth,
@@ -297,7 +279,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
     );
   };
 
-  private resolveTokenExchangeFlow(connectionName?: string): OAuthFlow | undefined {
+  private resolveTokenExchangeFlow(connectionName?: string): OAuthFlow<TPlugin> | undefined {
     const exact = this.findFlow(connectionName);
     if (exact) {
       return exact;
@@ -307,7 +289,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
     return flows.length === 1 ? flows[0] : undefined;
   }
 
-  private findFlow(connectionName?: string): OAuthFlow | undefined {
+  private findFlow(connectionName?: string): OAuthFlow<TPlugin> | undefined {
     if (!connectionName) {
       return undefined;
     }
@@ -318,7 +300,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
 
   private async verifyFlow(
     ctx: contexts.IActivityContext<ISignInVerifyStateInvokeActivity, PluginAdditionalContext<TPlugin>>,
-    flow: OAuthFlow,
+    flow: OAuthFlow<TPlugin>,
     state: string,
     span: Span,
     telemetry: OAuthTelemetryState
@@ -343,10 +325,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
           return { status: error.status || 500 };
         }
       } else {
-        if (this.isExplicitFlow(flow)) {
-          throw error;
-        }
-        recordUnexpectedOAuthError(span, telemetry, error, APP_OAUTH_ERROR_TYPE.exception);
+        throw error;
       }
 
       telemetry.result = APP_OAUTH_RESULT.failure;
@@ -422,14 +401,20 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
     return `__oauth:exchange:${exchangeId}`;
   }
 
-  private getOrderedFlows(ctx: contexts.IActivityContext, ssoOnly: boolean): OAuthFlow[] {
+  private getOrderedFlows(
+    ctx: contexts.IActivityContext,
+    ssoOnly: boolean
+  ): OAuthFlow<TPlugin>[] {
     return [...this.getFlows()].sort((left, right) =>
       (right.getPending(ctx, ssoOnly) ?? 0) -
       (left.getPending(ctx, ssoOnly) ?? 0)
     );
   }
 
-  private clearPending(ctx: contexts.IActivityContext, flow: OAuthFlow): void {
+  private clearPending(
+    ctx: contexts.IActivityContext,
+    flow: OAuthFlow<TPlugin>
+  ): void {
     flow.clearPending(ctx);
   }
 
@@ -442,18 +427,6 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
 
   }
 
-  private warnLegacyFlow(ctx: contexts.IActivityContext, connectionName: string): void {
-    const flow = this.findFlow(connectionName);
-    if (!flow || this.isExplicitFlow(flow) || this.hasWarnedLegacyFlow) {
-      return;
-    }
-
-    this.hasWarnedLegacyFlow = true;
-    ctx.log.warn(
-      `[DEPRECATED] OAuth is using the implicit "${connectionName}" flow. ` +
-      `Register it with app.addOAuthFlow("${connectionName}").`
-    );
-  }
 }
 
 function isExpectedOAuthHttpStatus(error: AxiosError): boolean {

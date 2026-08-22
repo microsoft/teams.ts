@@ -3,6 +3,9 @@ import { AxiosError } from 'axios';
 import {
   ActivityLike,
   cardAttachment,
+  ISignInFailureInvokeActivity,
+  ISignInTokenExchangeInvokeActivity,
+  ISignInVerifyStateInvokeActivity,
   SignInFailure,
   TokenExchangeResource,
   TokenExchangeState,
@@ -18,6 +21,8 @@ import {
   APP_OAUTH_RESULT,
   APP_SPAN_NAMES,
 } from '../diagnostics/constants';
+import type { IPlugin } from '../types';
+import type { PluginAdditionalContext } from '../types/app-routing';
 
 import { traceOAuthOperation } from './telemetry';
 
@@ -164,8 +169,13 @@ export async function startOAuthSignIn(
  * Cached tokens returned directly by {@link OAuthFlow.signIn} do not invoke
  * this callback.
  */
-export type OAuthSignInCompleteHandler = (
-  context: IActivityContext,
+export type OAuthSignInCompleteHandler<
+  TPlugin extends IPlugin = IPlugin
+> = (
+  context: IActivityContext<
+    ISignInTokenExchangeInvokeActivity | ISignInVerifyStateInvokeActivity,
+    PluginAdditionalContext<TPlugin>
+  >,
   token: TokenResponse
 ) => void | Promise<void>;
 
@@ -175,8 +185,15 @@ export type OAuthSignInCompleteHandler = (
  * `failure` contains the Teams client payload for `signin/failure` invokes.
  * It is undefined for token-service or token-exchange failures.
  */
-export type OAuthSignInFailureHandler = (
-  context: IActivityContext,
+export type OAuthSignInFailureHandler<
+  TPlugin extends IPlugin = IPlugin
+> = (
+  context: IActivityContext<
+    | ISignInFailureInvokeActivity
+    | ISignInTokenExchangeInvokeActivity
+    | ISignInVerifyStateInvokeActivity,
+    PluginAdditionalContext<TPlugin>
+  >,
   failure?: SignInFailure
 ) => void | Promise<void>;
 
@@ -185,13 +202,15 @@ export type OAuthSignInFailureHandler = (
  *
  * Flows are registered through `AppOptions.oauthFlows` or
  * `app.addOAuthFlow(...)` so inbound sign-in invokes can be dispatched to the
- * correct connection.
+ * correct connection. The legacy default connection is represented by the same
+ * flow type and uses the same completion and error semantics even when it is
+ * available implicitly for backward compatibility.
  */
-export class OAuthFlow {
+export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
   private static readonly PENDING_TTL_MS = 5 * 60 * 1000;
 
-  private signInCompleteHandler?: OAuthSignInCompleteHandler;
-  private signInFailureHandler?: OAuthSignInFailureHandler;
+  private signInCompleteHandler?: OAuthSignInCompleteHandler<TPlugin>;
+  private signInFailureHandler?: OAuthSignInFailureHandler<TPlugin>;
   private readonly pendingFlows = new Map<string, number>();
 
   /**
@@ -217,7 +236,7 @@ export class OAuthFlow {
    *
    * Calling this method again replaces the previous callback.
    */
-  onSignInComplete(handler: OAuthSignInCompleteHandler): this {
+  onSignInComplete(handler: OAuthSignInCompleteHandler<TPlugin>): this {
     this.signInCompleteHandler = handler;
     return this;
   }
@@ -227,7 +246,7 @@ export class OAuthFlow {
    *
    * Calling this method again replaces the previous callback.
    */
-  onSignInFailure(handler: OAuthSignInFailureHandler): this {
+  onSignInFailure(handler: OAuthSignInFailureHandler<TPlugin>): this {
     this.signInFailureHandler = handler;
     return this;
   }
@@ -353,12 +372,26 @@ export class OAuthFlow {
   }
 
   /** @internal Invokes the registered completion callback. */
-  async complete(context: IActivityContext, token: TokenResponse): Promise<void> {
+  async complete(
+    context: IActivityContext<
+      ISignInTokenExchangeInvokeActivity | ISignInVerifyStateInvokeActivity,
+      PluginAdditionalContext<TPlugin>
+    >,
+    token: TokenResponse
+  ): Promise<void> {
     await this.signInCompleteHandler?.(context, token);
   }
 
   /** @internal Invokes the registered failure callback. */
-  async fail(context: IActivityContext, failure?: SignInFailure): Promise<void> {
+  async fail(
+    context: IActivityContext<
+      | ISignInFailureInvokeActivity
+      | ISignInTokenExchangeInvokeActivity
+      | ISignInVerifyStateInvokeActivity,
+      PluginAdditionalContext<TPlugin>
+    >,
+    failure?: SignInFailure
+  ): Promise<void> {
     await this.signInFailureHandler?.(context, failure);
   }
 

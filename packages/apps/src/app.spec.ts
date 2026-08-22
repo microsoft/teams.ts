@@ -49,7 +49,7 @@ class TestApp extends App {
 
 describe('App', () => {
   describe('OAuth flow registration', () => {
-    it('returns the legacy default flow without enabling public turn state', () => {
+    it('returns the implicit default flow without enabling public turn state', () => {
       const app = new App({ httpServerAdapter: new TestAdapter() });
 
       expect(app.getOAuthFlow('graph').connectionName).toBe('graph');
@@ -74,7 +74,7 @@ describe('App', () => {
       expect(app.getOAuthFlow('GitHub').connectionName).toBe('github');
     });
 
-    it('registers the legacy default name explicitly through the app', () => {
+    it('replaces the implicit default when that name is registered', () => {
       const app = new App({ httpServerAdapter: new TestAdapter() });
       const graph = app.addOAuthFlow('GRAPH');
 
@@ -89,7 +89,7 @@ describe('App', () => {
         'An OAuth flow is already registered for connection "GITHUB".'
       );
       expect(() => app.getOAuthFlow('missing')).toThrow(
-        'Registered connections: github, graph.'
+        'Registered connections: graph, github.'
       );
     });
   });
