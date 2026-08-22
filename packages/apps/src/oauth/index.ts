@@ -202,9 +202,8 @@ export type OAuthSignInFailureHandler<
  *
  * Flows are registered through `AppOptions.oauthFlows` or
  * `app.addOAuthFlow(...)` so inbound sign-in invokes can be dispatched to the
- * correct connection. The legacy default connection is represented by the same
- * flow type and uses the same completion and error semantics even when it is
- * available implicitly for backward compatibility.
+ * correct connection. Apps without registered flows retain their legacy
+ * default connection as the same flow type for backward compatibility.
  */
 export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
   private static readonly PENDING_TTL_MS = 5 * 60 * 1000;
@@ -458,8 +457,10 @@ export type OAuthSettings = {
    * the OAuth connection name to use for
    * authentication
    *
-   * Using this setting without registering the matching connection through
-   * `app.addOAuthFlow(...)` relies on deprecated internal fallback behavior.
+   * This legacy default cannot be combined with `AppOptions.oauthFlows` or
+   * `app.addOAuthFlow(...)`. Deprecated context OAuth helpers may omit the
+   * connection name to use this default; when they provide a name, it must
+   * match this connection. When omitted, the same behavior uses `graph`.
    * @default `graph`
    * @deprecated Register the connection with `app.addOAuthFlow(...)`.
    */

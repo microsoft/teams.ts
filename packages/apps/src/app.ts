@@ -156,6 +156,15 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     this.log = this.options.logger || new ConsoleLogger('@teams/app');
     this.storage = this.options.storage || new LocalStorage();
     const hasConfiguredOAuthFlows = (this.options.oauthFlows?.length ?? 0) > 0;
+    if (
+      hasConfiguredOAuthFlows &&
+      this.options.oauth?.defaultConnectionName !== undefined
+    ) {
+      throw new Error(
+        'oauth.defaultConnectionName cannot be combined with registered OAuth flows. ' +
+        'Remove defaultConnectionName and name the connection when calling OAuth helpers.'
+      );
+    }
     if (hasConfiguredOAuthFlows && this.options.state === false) {
       throw new Error(
         'OAuth flows require turn state. Remove state: false or configure state options.'
@@ -271,8 +280,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       getId: () => this.id,
       getConnectionName: () => this.oauth.defaultConnectionName,
       shouldFetchUserToken: () => this.shouldFetchUserToken(),
-      validateOAuthConnection: (connectionName) =>
-        this.oauthFlowRegistry.validate(connectionName),
+      validateOAuthConnection: (connectionName, connectionNameProvided) =>
+        this.oauthFlowRegistry.validate(connectionName, connectionNameProvided),
       onOAuthSignInInitiated: (context, connectionName, supportsSso) =>
         this.oauthFlowRegistry.recordPending(
           context,
@@ -374,7 +383,9 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     }
 
     this.oauthFlowRegistry = new OAuthFlowRegistry({
-      defaultConnectionName: this.oauth.defaultConnectionName,
+      defaultConnectionName: hasConfiguredOAuthFlows
+        ? undefined
+        : this.oauth.defaultConnectionName,
       router: this.router,
       client: this.client,
       events: this.events,
@@ -587,7 +598,9 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * Registers an OAuth flow for one Bot Framework OAuth connection.
    *
    * Connection names are matched case-insensitively. Registering the same
-   * connection more than once throws.
+   * connection more than once throws. The first registration removes
+   * the implicit legacy default. This method cannot be used when
+   * `oauth.defaultConnectionName` was configured.
    *
    * @param connectionName OAuth connection name.
    * @param options Optional card defaults for the flow.
@@ -597,6 +610,13 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     connectionName: string,
     options: OAuthSignInOptions = {}
   ): OAuthFlow<TPlugin> {
+    if (this.options.oauth?.defaultConnectionName !== undefined) {
+      throw new Error(
+        'oauth.defaultConnectionName cannot be combined with registered OAuth flows. ' +
+        'Remove defaultConnectionName and name the connection when calling OAuth helpers.'
+      );
+    }
+
     const flow = new OAuthFlow<TPlugin>(connectionName, options);
     this.enableOAuthState();
     this.oauthFlowRegistry.add(flow);
@@ -606,8 +626,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /**
    * Gets the OAuth flow for a connection.
    *
-   * The implicit default is returned when its connection has not been
-   * configured explicitly.
+   * The implicit legacy default is available only until the first flow
+   * is registered.
    *
    * @param connectionName Connection to resolve.
    * @throws When the connection name is blank or no matching flow is registered.

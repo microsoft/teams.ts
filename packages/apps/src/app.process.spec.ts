@@ -1094,6 +1094,99 @@ describe('App', () => {
       expect(hasState).toBe(true);
     });
 
+    it('requires deprecated context OAuth helpers to name a registered flow', async () => {
+      testApp = createTestApp({ oauthFlows: ['github'] });
+      testApp.start();
+      const errors: Error[] = [];
+      testApp.on('message', async ({ signin, signout }) => {
+        for (const operation of [() => signin(), () => signout()]) {
+          try {
+            await operation();
+          } catch (error) {
+            errors.push(error as Error);
+          }
+        }
+      });
+      const getToken = jest.spyOn(testApp.api.users, 'getToken');
+      const signOut = jest.spyOn(testApp.api.users, 'signOut');
+
+      await testApp.process({ token, body: userActivity });
+
+      expect(errors.map(error => error.message)).toEqual([
+        'OAuth connection name is required when OAuth flows are registered.',
+        'OAuth connection name is required when OAuth flows are registered.',
+      ]);
+      expect(getToken).not.toHaveBeenCalled();
+      expect(signOut).not.toHaveBeenCalled();
+    });
+
+    it('uses a configured default when omitted and rejects a different name', async () => {
+      testApp = createTestApp({
+        oauth: {
+          defaultConnectionName: 'github',
+          fetchUserToken: false,
+        },
+      });
+      testApp.start();
+      jest.spyOn(testApp.api, 'clone').mockReturnValue(testApp.api);
+      const errors: Error[] = [];
+      const getToken = jest
+        .spyOn(testApp.api.users, 'getToken')
+        .mockResolvedValue({
+          token: 'github-token',
+          connectionName: 'github',
+          channelId: 'msteams',
+          expiration: new Date(Date.now() + 60_000).toISOString(),
+        });
+      const signOut = jest
+        .spyOn(testApp.api.users, 'signOut')
+        .mockResolvedValue(undefined);
+      testApp.on('message', async ({ signin, signout }) => {
+        const operations = [
+          () => signin(),
+          () => signout(),
+          () => signin({ connectionName: 'graph' }),
+          () => signout('graph'),
+          () => signin({ connectionName: 'github' }),
+          () => signout('github'),
+        ];
+        for (const operation of operations) {
+          try {
+            await operation();
+          } catch (error) {
+            errors.push(error as Error);
+          }
+        }
+      });
+
+      await testApp.process({ token, body: userActivity });
+
+      expect(errors.map(error => error.message)).toEqual([
+        'No OAuth flow is registered for connection "graph". Registered connections: github.',
+        'No OAuth flow is registered for connection "graph". Registered connections: github.',
+      ]);
+      expect(getToken).toHaveBeenNthCalledWith(1, {
+        channelId: 'msteams',
+        connectionName: 'github',
+        userId: 'user-1',
+      });
+      expect(getToken).toHaveBeenNthCalledWith(2, {
+        channelId: 'msteams',
+        connectionName: 'github',
+        userId: 'user-1',
+      });
+      expect(signOut).toHaveBeenNthCalledWith(1, {
+        channelId: 'msteams',
+        connectionName: 'github',
+        userId: 'user-1',
+      });
+      expect(signOut).toHaveBeenNthCalledWith(2, {
+        channelId: 'msteams',
+        connectionName: 'github',
+        userId: 'user-1',
+      });
+    });
+
     it('enables state when an OAuth flow is added imperatively', async () => {
       testApp = createTestApp();
       testApp.addOAuthFlow('github');

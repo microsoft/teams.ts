@@ -98,9 +98,12 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly shouldFetchUserToken: () => boolean;
   /**
    * Validates a connection selected through the deprecated activity-context
-   * sign-in helper before any token service request is made.
+   * OAuth helpers before any token service request is made.
    */
-  readonly validateOAuthConnection?: (connectionName: string) => void;
+  readonly validateOAuthConnection?: (
+    connectionName: string,
+    connectionNameProvided: boolean
+  ) => void;
   /**
    * Records which registered OAuth flow emitted a card through the deprecated
    * activity-context sign-in helper.

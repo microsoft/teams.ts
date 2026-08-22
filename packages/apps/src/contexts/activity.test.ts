@@ -691,7 +691,10 @@ describe('ActivityContext', () => {
         context.signin({ connectionName: 'github' })
       ).rejects.toBe(error);
 
-      expect(validateOAuthConnection).toHaveBeenCalledWith('github');
+      expect(validateOAuthConnection).toHaveBeenCalledWith(
+        'github',
+        true
+      );
       expect(mockApiClient.users.getToken).not.toHaveBeenCalled();
       expect(mockApiClient.bots.signIn.getResource).not.toHaveBeenCalled();
       expect(mockSender.send).not.toHaveBeenCalled();
@@ -820,13 +823,48 @@ describe('ActivityContext', () => {
     });
 
     it('forwards signout request to api client', async () => {
+      const validateOAuthConnection = jest.fn();
+      context = buildActivityContext(
+        buildIncomingMessageActivity('Test message'),
+        { validateOAuthConnection }
+      );
+
       await context.signout();
 
+      expect(validateOAuthConnection).toHaveBeenCalledWith(
+        'test-connection',
+        false
+      );
       expect(mockApiClient.users.signOut).toHaveBeenCalledWith({
         channelId: 'test-channel',
         userId: 'test-user',
         connectionName: 'test-connection',
       });
+    });
+
+    it('identifies an omitted signin connection for registered-flow validation', async () => {
+      const error = new Error(
+        'OAuth connection name is required when OAuth flows are registered.'
+      );
+      const validateOAuthConnection = jest.fn(
+        (_connectionName: string, connectionNameProvided: boolean) => {
+          if (!connectionNameProvided) {
+            throw error;
+          }
+        }
+      );
+      context = buildActivityContext(
+        buildIncomingMessageActivity('Test message'),
+        { validateOAuthConnection }
+      );
+
+      await expect(context.signin()).rejects.toBe(error);
+
+      expect(validateOAuthConnection).toHaveBeenCalledWith(
+        'test-connection',
+        false
+      );
+      expect(mockApiClient.users.getToken).not.toHaveBeenCalled();
     });
   });
 

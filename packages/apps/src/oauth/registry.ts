@@ -10,7 +10,7 @@ import { OauthHandlers } from './handlers';
 import { OAuthFlow } from '.';
 
 type OAuthFlowRegistryOptions<TPlugin extends IPlugin> = {
-  readonly defaultConnectionName: string;
+  readonly defaultConnectionName?: string;
   readonly router: Router<PluginAdditionalContext<TPlugin>>;
   readonly client: HttpClient;
   readonly events: EventEmitter<AppEvents<TPlugin>>;
@@ -18,36 +18,44 @@ type OAuthFlowRegistryOptions<TPlugin extends IPlugin> = {
 };
 
 /**
- * Owns the default and additional OAuth flows.
+ * Owns either the legacy default OAuth flow or registered flows.
  */
 export class OAuthFlowRegistry<TPlugin extends IPlugin = IPlugin> {
   private readonly flows = new Map<string, OAuthFlow<TPlugin>>();
-  private readonly addedFlowNames = new Set<string>();
+  private usesRegisteredFlows: boolean;
 
   /**
-   * Creates the registry with its implicit default and installs routes for all
-   * flows.
+   * Creates the registry and installs routes for all flows.
+   *
+   * Omitting `defaultConnectionName` starts the registry in registered-flow mode.
    */
   constructor(options: OAuthFlowRegistryOptions<TPlugin>) {
-    const defaultFlow = new OAuthFlow<TPlugin>(options.defaultConnectionName);
-    this.flows.set(this.normalize(defaultFlow.connectionName), defaultFlow);
+    this.usesRegisteredFlows = options.defaultConnectionName === undefined;
+    if (options.defaultConnectionName !== undefined) {
+      const defaultFlow = new OAuthFlow<TPlugin>(options.defaultConnectionName);
+      this.flows.set(this.normalize(defaultFlow.connectionName), defaultFlow);
+    }
     this.registerRoutes(options);
   }
 
   /**
-   * Adds a flow. The first addition of the implicit default replaces its
-   * placeholder; subsequent additions of the same name are rejected.
+   * Adds a flow. The first registration removes the legacy
+   * implicit flow; subsequent additions of the same name are rejected.
    */
   add(flow: OAuthFlow<TPlugin>): void {
+    if (!this.usesRegisteredFlows) {
+      this.flows.clear();
+      this.usesRegisteredFlows = true;
+    }
+
     const normalized = this.normalize(flow.connectionName);
-    if (this.addedFlowNames.has(normalized)) {
+    if (this.flows.has(normalized)) {
       throw new Error(
         `An OAuth flow is already registered for connection "${flow.connectionName}".`
       );
     }
 
     this.flows.set(normalized, flow);
-    this.addedFlowNames.add(normalized);
   }
 
   /**
@@ -73,15 +81,21 @@ export class OAuthFlowRegistry<TPlugin extends IPlugin = IPlugin> {
     );
   }
 
-  /** Returns every registered flow, including the implicit default. */
+  /** Returns every flow in the active legacy or registered-flow mode. */
   getAll(): OAuthFlow<TPlugin>[] {
     return [...this.flows.values()];
   }
 
   /**
-   * Validates a connection before deprecated context sign-in starts.
+   * Validates a connection before a deprecated context OAuth helper runs.
    */
-  validate(connectionName: string): void {
+  validate(connectionName: string, connectionNameProvided: boolean): void {
+    if (this.usesRegisteredFlows && !connectionNameProvided) {
+      throw new Error(
+        'OAuth connection name is required when OAuth flows are registered.'
+      );
+    }
+
     this.get(connectionName);
   }
 

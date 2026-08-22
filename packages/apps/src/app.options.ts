@@ -136,7 +136,7 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * options to configure dedicated storage and a custom key prefix. State is
    * disabled when omitted or `false`. Registering an OAuth flow automatically
    * enables state when this option is omitted. `false` cannot be combined with
-   * explicit OAuth flow registration.
+   * OAuth flow registration.
    */
   readonly state?: boolean | StateOptions;
 
@@ -164,8 +164,9 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * Connection names are matched case-insensitively and must be non-empty and
    * unique. Retrieve a declaratively registered flow with
    * `app.getOAuthFlow(connectionName)` to configure lifecycle callbacks.
-   * The legacy default connection remains available when omitted; listing that
-   * connection configures the same flow rather than creating a duplicate.
+   * Every connection must be listed. This option cannot be combined
+   * with `oauth.defaultConnectionName`. Deprecated `ctx.signin()` and
+   * `ctx.signout()` calls must name a connection when flows are registered.
    * Declaring any flow enables turn state when `state` is omitted. Set `state`
    * options to control its storage; `state: false` is rejected.
    */

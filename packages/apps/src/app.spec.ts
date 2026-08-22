@@ -62,6 +62,9 @@ describe('App', () => {
       const github = app.addOAuthFlow('GitHub');
 
       expect(app.getOAuthFlow('github')).toBe(github);
+      expect(() => app.getOAuthFlow('graph')).toThrow(
+        'Registered connections: GitHub.'
+      );
     });
 
     it('registers flows declaratively through app options', () => {
@@ -74,14 +77,14 @@ describe('App', () => {
       expect(app.getOAuthFlow('GitHub').connectionName).toBe('github');
     });
 
-    it('replaces the implicit default when that name is registered', () => {
+    it('registers the former default explicitly without retaining a placeholder', () => {
       const app = new App({ httpServerAdapter: new TestAdapter() });
       const graph = app.addOAuthFlow('GRAPH');
 
       expect(app.getOAuthFlow('graph')).toBe(graph);
     });
 
-    it('rejects duplicate explicit flows and lists registered connections on lookup failure', () => {
+    it('rejects duplicate flows and lists registered connections on lookup failure', () => {
       const app = new App({ httpServerAdapter: new TestAdapter() });
       app.addOAuthFlow('github');
 
@@ -89,11 +92,29 @@ describe('App', () => {
         'An OAuth flow is already registered for connection "GITHUB".'
       );
       expect(() => app.getOAuthFlow('missing')).toThrow(
-        'Registered connections: graph, github.'
+        'Registered connections: github.'
       );
     });
 
-    it('rejects explicit OAuth flows when turn state is disabled', () => {
+    it('rejects combining a configured legacy default with registered flows', () => {
+      expect(() => new App({
+        httpServerAdapter: new TestAdapter(),
+        oauth: { defaultConnectionName: 'graph' },
+        oauthFlows: ['graph', 'github'],
+      })).toThrow(
+        'oauth.defaultConnectionName cannot be combined with registered OAuth flows.'
+      );
+
+      const app = new App({
+        httpServerAdapter: new TestAdapter(),
+        oauth: { defaultConnectionName: 'github' },
+      });
+      expect(() => app.addOAuthFlow('github')).toThrow(
+        'oauth.defaultConnectionName cannot be combined with registered OAuth flows.'
+      );
+    });
+
+    it('rejects registered OAuth flows when turn state is disabled', () => {
       expect(() => new App({
         httpServerAdapter: new TestAdapter(),
         oauthFlows: ['graph'],

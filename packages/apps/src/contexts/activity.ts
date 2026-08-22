@@ -42,11 +42,14 @@ export interface IActivityContextConstructorArgs {
   ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 
   /**
-   * Validates that a connection used by the deprecated `signin()` helper is
-   * registered or is the implicit legacy default.
+   * Validates that a connection used by a deprecated OAuth helper is registered
+   * and was named when registered flows require it.
    * @internal
    */
-  validateOAuthConnection?: (connectionName: string) => void;
+  validateOAuthConnection?: (
+    connectionName: string,
+    connectionNameProvided: boolean
+  ) => void;
 
   /**
    * Records pending OAuth attribution after the deprecated `signin()` helper
@@ -392,8 +395,9 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   }
 
   async signin(options: OAuthSignInOptions = {}) {
-    const connectionName = options.connectionName || this.connectionName;
-    this.validateOAuthConnection?.(connectionName);
+    const connectionNameProvided = options.connectionName !== undefined;
+    const connectionName = options.connectionName ?? this.connectionName;
+    this.validateOAuthConnection?.(connectionName, connectionNameProvided);
 
     return startOAuthSignIn(
       this.toInterface(),
@@ -404,10 +408,14 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   }
 
   async signout(connectionName?: string) {
+    this.validateOAuthConnection?.(
+      connectionName ?? this.connectionName,
+      connectionName !== undefined
+    );
     await this.api.users.signOut({
       channelId: this.activity.channelId,
       userId: this.activity.from.id,
-      connectionName: connectionName || this.connectionName,
+      connectionName: connectionName ?? this.connectionName,
     });
   }
 
