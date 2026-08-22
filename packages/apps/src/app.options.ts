@@ -134,7 +134,9 @@ export type AppOptions<TPlugin extends IPlugin> = {
    *
    * Pass `true` to use the app storage with the default key prefix, or provide
    * options to configure dedicated storage and a custom key prefix. State is
-   * disabled when omitted or `false`.
+   * disabled when omitted or `false`. Registering an OAuth flow automatically
+   * enables state when this option is omitted. `false` cannot be combined with
+   * explicit OAuth flow registration.
    */
   readonly state?: boolean | StateOptions;
 
@@ -164,6 +166,8 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * `app.getOAuthFlow(connectionName)` to configure lifecycle callbacks.
    * The legacy default connection remains available when omitted; listing that
    * connection configures the same flow rather than creating a duplicate.
+   * Declaring any flow enables turn state when `state` is omitted. Set `state`
+   * options to control its storage; `state: false` is rejected.
    */
   readonly oauthFlows?: ReadonlyArray<string>;
 

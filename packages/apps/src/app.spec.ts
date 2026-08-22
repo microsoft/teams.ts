@@ -92,6 +92,24 @@ describe('App', () => {
         'Registered connections: graph, github.'
       );
     });
+
+    it('rejects explicit OAuth flows when turn state is disabled', () => {
+      expect(() => new App({
+        httpServerAdapter: new TestAdapter(),
+        oauthFlows: ['graph'],
+        state: false,
+      })).toThrow(
+        'OAuth flows require turn state. Remove state: false or configure state options.'
+      );
+
+      const app = new App({
+        httpServerAdapter: new TestAdapter(),
+        state: false,
+      });
+      expect(() => app.addOAuthFlow('github')).toThrow(
+        'OAuth flows require turn state. Remove state: false or configure state options.'
+      );
+    });
   });
 
   describe('token acquisition', () => {

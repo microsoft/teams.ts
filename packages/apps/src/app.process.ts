@@ -77,9 +77,10 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly client: HttpClient;
   readonly storage: IStorage;
   /**
-   * Loader used to attach and persist state for each activity turn.
+   * Gets the loader used to attach and persist state for each activity turn.
+   * The loader can become available after an OAuth flow is registered.
    */
-  readonly stateLoader?: TurnStateLoader;
+  readonly getStateLoader: () => TurnStateLoader | undefined;
   readonly log: ILogger;
   readonly getId: () => string | undefined;
   /**
@@ -282,6 +283,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
 
       const conversationId = activity.conversation?.id;
       const userId = activity.from?.id;
+      const stateLoader = this.options.getStateLoader();
 
       const send = context.send.bind(context);
       context.send = async (activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) => {
@@ -315,6 +317,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         activityProcessSpan,
         conversationId,
         userId,
+        stateLoader,
         async () => {
           try {
             const res = await next();
@@ -350,6 +353,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
     activityProcessSpan: Span,
     conversationId: string | undefined,
     userId: string | undefined,
+    stateLoader: TurnStateLoader | undefined,
     dispatch: () => Promise<InvokeResponse>
   ): Promise<InvokeResponse> {
     let response: InvokeResponse = { status: 500 };
@@ -357,8 +361,8 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
     let saveError: unknown;
 
     try {
-      if (this.options.stateLoader && conversationId) {
-        context.state = await this.options.stateLoader.load(
+      if (stateLoader && conversationId) {
+        context.state = await stateLoader.load(
           conversationId,
           userId
         );
@@ -367,9 +371,9 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
     } catch (error) {
       dispatchError = error;
     } finally {
-      if (context.state && this.options.stateLoader && conversationId) {
+      if (context.state && stateLoader && conversationId) {
         try {
-          await this.options.stateLoader.save(context.state);
+        await stateLoader.save(context.state);
         } catch (error) {
           saveError = error;
         } finally {

@@ -144,7 +144,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   private readonly tokenManager: TokenManager;
 
   private readonly _tokenProvider: AppTokenProvider;
-  private readonly stateLoader?: TurnStateLoader;
+  private stateLoader?: TurnStateLoader;
 
   private eventManager!: EventManager<TPlugin>;
   private activityProcessor!: ActivityProcessor<TPlugin>;
@@ -155,7 +155,16 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   constructor(readonly options: AppOptions<TPlugin> = {}) {
     this.log = this.options.logger || new ConsoleLogger('@teams/app');
     this.storage = this.options.storage || new LocalStorage();
-    this.stateLoader = createStateLoader(this.options.state, this.log);
+    const hasConfiguredOAuthFlows = (this.options.oauthFlows?.length ?? 0) > 0;
+    if (hasConfiguredOAuthFlows && this.options.state === false) {
+      throw new Error(
+        'OAuth flows require turn state. Remove state: false or configure state options.'
+      );
+    }
+    this.stateLoader = createStateLoader(
+      this.options.state ?? (hasConfiguredOAuthFlows ? true : undefined),
+      this.log
+    );
 
     // Resolve cloud environment from options or CLOUD env var
     const cloudEnvName = typeof process !== 'undefined' ? process.env.CLOUD : undefined;
@@ -257,7 +266,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       api: this.api,
       client: this.client,
       storage: this.storage,
-      stateLoader: this.stateLoader,
+      getStateLoader: () => this.stateLoader,
       log: this.log,
       getId: () => this.id,
       getConnectionName: () => this.oauth.defaultConnectionName,
@@ -589,6 +598,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     options: OAuthSignInOptions = {}
   ): OAuthFlow<TPlugin> {
     const flow = new OAuthFlow<TPlugin>(connectionName, options);
+    this.enableOAuthState();
     this.oauthFlowRegistry.add(flow);
     return flow;
   }
@@ -596,8 +606,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /**
    * Gets the OAuth flow for a connection.
    *
-   * Explicit registrations take precedence. The deprecated legacy flow is
-   * returned for the app's default connection when no explicit flow exists.
+   * The implicit default is returned when its connection has not been
+   * configured explicitly.
    *
    * @param connectionName Connection to resolve.
    * @throws When the connection name is blank or no matching flow is registered.
@@ -807,6 +817,15 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       return explicit;
     }
     return this.options.oauth?.defaultConnectionName !== undefined;
+  }
+
+  private enableOAuthState(): void {
+    if (this.options.state === false) {
+      throw new Error(
+        'OAuth flows require turn state. Remove state: false or configure state options.'
+      );
+    }
+    this.stateLoader ??= createStateLoader(true, this.storage, this.log);
   }
 
 }

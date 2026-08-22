@@ -1065,6 +1065,10 @@ describe('App', () => {
       testApp = createTestApp({ oauth: { defaultConnectionName: 'graph' } });
       await testApp.start();
       jest.spyOn(testApp.api, 'clone').mockReturnValue(testApp.api);
+      let hasState = true;
+      testApp.on('message', ({ state }) => {
+        hasState = state !== undefined;
+      });
       const spy = jest
         .spyOn(testApp.api.users, 'getToken')
         .mockResolvedValue({ token: 'user-token' } as any);
@@ -1072,16 +1076,36 @@ describe('App', () => {
       await testApp.process({ token, body: userActivity });
 
       expect(spy).toHaveBeenCalledTimes(1);
+      expect(hasState).toBe(false);
     });
 
-    it('does not eagerly fetch tokens for registered OAuth flows', async () => {
+    it('enables state without eagerly fetching tokens for configured OAuth flows', async () => {
       testApp = createTestApp({ oauthFlows: ['graph'] });
       testApp.start();
+      let hasState = false;
+      testApp.on('message', ({ state }) => {
+        hasState = state !== undefined;
+      });
       const spy = jest.spyOn(testApp.api.users, 'getToken');
 
       await testApp.process({ token, body: userActivity });
 
       expect(spy).not.toHaveBeenCalled();
+      expect(hasState).toBe(true);
+    });
+
+    it('enables state when an OAuth flow is added imperatively', async () => {
+      testApp = createTestApp();
+      testApp.addOAuthFlow('github');
+      testApp.start();
+      let hasState = false;
+      testApp.on('message', ({ state }) => {
+        hasState = state !== undefined;
+      });
+
+      await testApp.process({ token, body: userActivity });
+
+      expect(hasState).toBe(true);
     });
 
     it('honors an explicit fetchUserToken=false override even when OAuth is configured', async () => {

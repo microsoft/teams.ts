@@ -42,8 +42,9 @@ const EXPECTED_OAUTH_HTTP_STATUSES = new Set([400, 404, 412]);
  */
 export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
   private static readonly STATE_TTL_MS = 5 * 60 * 1000;
+  private static readonly MAX_EXCHANGE_ENTRIES = 1_000;
+  private static readonly EXCHANGE_STATE_KEY = '__oauth:exchanges';
 
-  private readonly processedExchangeIds = new Map<string, number>();
   private readonly tokenExchangeLocks = new Map<string, Promise<{ status: number, body?: TokenExchangeInvokeResponse }>>();
 
   constructor(
@@ -56,10 +57,10 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
   onTokenExchange = async (
     ctx: contexts.IActivityContext<ISignInTokenExchangeInvokeActivity, PluginAdditionalContext<TPlugin>>
   ) => {
-    const { api, activity, log, next } = ctx;
+    const { api, activity, next } = ctx;
     const value = activity.value;
     const activityConnectionName = value?.connectionName;
-    const flow = this.resolveTokenExchangeFlow(activityConnectionName);
+    const flow = this.findFlow(activityConnectionName);
     const connectionName = flow?.connectionName ?? activityConnectionName ?? '';
 
     return traceOAuthOperation(
@@ -72,12 +73,6 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
           telemetry.responseStatus = 400;
           return { status: 400 };
         }
-        if (flow.connectionName !== activityConnectionName) {
-          log.warn(
-            `OAuth connection "${activityConnectionName}" was not registered; using the only registered flow "${flow.connectionName}"`
-          );
-        }
-
         const exchangeId = value.id;
         if (exchangeId) {
           if (this.isExchangeProcessed(ctx, exchangeId)) {
@@ -279,16 +274,6 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
     );
   };
 
-  private resolveTokenExchangeFlow(connectionName?: string): OAuthFlow<TPlugin> | undefined {
-    const exact = this.findFlow(connectionName);
-    if (exact) {
-      return exact;
-    }
-
-    const flows = this.getFlows();
-    return flows.length === 1 ? flows[0] : undefined;
-  }
-
   private findFlow(connectionName?: string): OAuthFlow<TPlugin> | undefined {
     if (!connectionName) {
       return undefined;
@@ -380,25 +365,25 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
 
   private isExchangeProcessed(ctx: contexts.IActivityContext, exchangeId: string): boolean {
     const now = Date.now();
-    this.pruneExpiredEntries(now);
-
-    const memoryTimestamp = this.processedExchangeIds.get(exchangeId);
-    if (memoryTimestamp !== undefined && now - memoryTimestamp < OauthHandlers.STATE_TTL_MS) {
-      return true;
-    }
-
-    const stateTimestamp = ctx.state?.conversation.get<number>(this.exchangeStateKey(exchangeId));
+    const stateTimestamp = this.getExchangeState(ctx, now)[exchangeId];
     return stateTimestamp !== undefined && now - stateTimestamp < OauthHandlers.STATE_TTL_MS;
   }
 
   private markExchangeProcessed(ctx: contexts.IActivityContext, exchangeId: string): void {
-    const timestamp = Date.now();
-    this.processedExchangeIds.set(exchangeId, timestamp);
-    ctx.state?.conversation.set(this.exchangeStateKey(exchangeId), timestamp);
-  }
+    const conversationState = ctx.state?.conversation;
+    if (!conversationState) {
+      return;
+    }
 
-  private exchangeStateKey(exchangeId: string): string {
-    return `__oauth:exchange:${exchangeId}`;
+    const timestamp = Date.now();
+    const exchanges = this.getExchangeState(ctx, timestamp);
+    exchanges[exchangeId] = timestamp;
+    const bounded = Object.fromEntries(
+      Object.entries(exchanges)
+        .sort(([, left], [, right]) => right - left)
+        .slice(0, OauthHandlers.MAX_EXCHANGE_ENTRIES)
+    );
+    conversationState.set(OauthHandlers.EXCHANGE_STATE_KEY, bounded);
   }
 
   private getOrderedFlows(
@@ -418,13 +403,36 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
     flow.clearPending(ctx);
   }
 
-  private pruneExpiredEntries(now: number): void {
-    for (const [exchangeId, timestamp] of this.processedExchangeIds) {
-      if (now - timestamp >= OauthHandlers.STATE_TTL_MS) {
-        this.processedExchangeIds.delete(exchangeId);
-      }
+  private getExchangeState(
+    ctx: contexts.IActivityContext,
+    now: number
+  ): Record<string, number> {
+    const conversationState = ctx.state?.conversation;
+    if (!conversationState) {
+      return {};
     }
 
+    const stored = conversationState.get<Record<string, number>>(
+      OauthHandlers.EXCHANGE_STATE_KEY
+    ) ?? {};
+    const current = Object.fromEntries(
+      Object.entries(stored)
+        .filter(([, timestamp]) =>
+          Number.isFinite(timestamp) &&
+          now - timestamp < OauthHandlers.STATE_TTL_MS
+        )
+        .sort(([, left], [, right]) => right - left)
+        .slice(0, OauthHandlers.MAX_EXCHANGE_ENTRIES)
+    );
+
+    if (Object.keys(current).length !== Object.keys(stored).length) {
+      if (Object.keys(current).length === 0) {
+        conversationState.delete(OauthHandlers.EXCHANGE_STATE_KEY);
+      } else {
+        conversationState.set(OauthHandlers.EXCHANGE_STATE_KEY, current);
+      }
+    }
+    return current;
   }
 
 }

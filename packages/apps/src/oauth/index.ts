@@ -211,7 +211,6 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
 
   private signInCompleteHandler?: OAuthSignInCompleteHandler<TPlugin>;
   private signInFailureHandler?: OAuthSignInFailureHandler<TPlugin>;
-  private readonly pendingFlows = new Map<string, number>();
 
   /**
    * Creates an OAuth flow for a connection.
@@ -417,18 +416,6 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
       }
       context.state?.user?.delete(stateKey);
     }
-
-    const memoryKey = this.pendingMemoryKey(context, ssoOnly);
-    const memoryValue = this.pendingFlows.get(memoryKey);
-    if (
-      memoryValue !== undefined &&
-      now - memoryValue < OAuthFlow.PENDING_TTL_MS
-    ) {
-      return memoryValue;
-    }
-    if (memoryValue !== undefined) {
-      this.pendingFlows.delete(memoryKey);
-    }
     return undefined;
   }
 
@@ -443,12 +430,7 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
     ssoOnly: boolean,
     value: number
   ): void {
-    if (context.state?.user) {
-      context.state.user.set(this.pendingStateKey(ssoOnly), value);
-      return;
-    }
-
-    this.pendingFlows.set(this.pendingMemoryKey(context, ssoOnly), value);
+    context.state?.user?.set(this.pendingStateKey(ssoOnly), value);
   }
 
   private deletePendingValue(
@@ -456,24 +438,12 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
     ssoOnly: boolean
   ): void {
     context.state?.user?.delete(this.pendingStateKey(ssoOnly));
-    this.pendingFlows.delete(this.pendingMemoryKey(context, ssoOnly));
   }
 
   private pendingStateKey(ssoOnly: boolean): string {
     return `__oauth:pending:${ssoOnly ? 'sso:' : ''}${this.connectionName.toLowerCase()}`;
   }
 
-  private pendingMemoryKey(
-    context: IActivityContext,
-    ssoOnly: boolean
-  ): string {
-    return [
-      context.activity.conversation.id,
-      context.activity.from.id,
-      ssoOnly ? 'sso' : 'all',
-      this.connectionName.toLowerCase(),
-    ].join(':');
-  }
 }
 
 /**

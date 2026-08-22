@@ -18,15 +18,15 @@ type OAuthFlowRegistryOptions<TPlugin extends IPlugin> = {
 };
 
 /**
- * @internal Owns the default and additional OAuth flows.
+ * Owns the default and additional OAuth flows.
  */
 export class OAuthFlowRegistry<TPlugin extends IPlugin = IPlugin> {
   private readonly flows = new Map<string, OAuthFlow<TPlugin>>();
   private readonly addedFlowNames = new Set<string>();
 
   /**
-   * @internal Creates the registry with its implicit default and installs routes
-   * for all flows.
+   * Creates the registry with its implicit default and installs routes for all
+   * flows.
    */
   constructor(options: OAuthFlowRegistryOptions<TPlugin>) {
     const defaultFlow = new OAuthFlow<TPlugin>(options.defaultConnectionName);
@@ -35,8 +35,8 @@ export class OAuthFlowRegistry<TPlugin extends IPlugin = IPlugin> {
   }
 
   /**
-   * @internal Adds a flow. The first addition of the implicit default replaces
-   * its placeholder; subsequent additions of the same name are rejected.
+   * Adds a flow. The first addition of the implicit default replaces its
+   * placeholder; subsequent additions of the same name are rejected.
    */
   add(flow: OAuthFlow<TPlugin>): void {
     const normalized = this.normalize(flow.connectionName);
@@ -51,7 +51,7 @@ export class OAuthFlowRegistry<TPlugin extends IPlugin = IPlugin> {
   }
 
   /**
-   * @internal Resolves a flow by connection name.
+   * Resolves a flow by connection name.
    */
   get(connectionName: string): OAuthFlow<TPlugin> {
     if (!connectionName.trim()) {
@@ -73,20 +73,20 @@ export class OAuthFlowRegistry<TPlugin extends IPlugin = IPlugin> {
     );
   }
 
-  /** @internal Returns every registered flow, including the implicit default. */
+  /** Returns every registered flow, including the implicit default. */
   getAll(): OAuthFlow<TPlugin>[] {
     return [...this.flows.values()];
   }
 
   /**
-   * @internal Validates a connection before deprecated context sign-in starts.
+   * Validates a connection before deprecated context sign-in starts.
    */
   validate(connectionName: string): void {
     this.get(connectionName);
   }
 
   /**
-   * @internal Records pending attribution for a flow.
+   * Records pending attribution for a flow.
    */
   recordPending(
     context: IActivityContext,

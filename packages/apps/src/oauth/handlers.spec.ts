@@ -116,6 +116,31 @@ describe('OauthHandlers', () => {
       expect(result.status).toEqual(412);
       expect(result.body).toBeDefined();
     });
+
+    it('returns 400 when the token exchange connection is not registered', async () => {
+      const ctx: any = {
+        api: {
+          users: {
+            exchangeToken: jest.fn(),
+          },
+        },
+        activity: {
+          channelId: 'msteams',
+          from: { id: 'user-id' },
+          conversation: { id: 'conversation-id' },
+          value: {
+            id: 'exchange-unknown',
+            connectionName: 'unknown',
+            token: 'some-token',
+          },
+        },
+        log: { warn: jest.fn() },
+        next: jest.fn(),
+      };
+
+      await expect(handlers.onTokenExchange(ctx)).resolves.toEqual({ status: 400 });
+      expect(ctx.api.users.exchangeToken).not.toHaveBeenCalled();
+    });
     
     it('prevents duplicates for the same exchangeId', async () => {
       const mockApi = {
@@ -299,6 +324,7 @@ describe('OauthHandlers multi-flow lifecycle', () => {
     graph.onSignInComplete(graphComplete);
     github.onSignInComplete(githubComplete);
     const ctx = createVerifyStateContext({
+      state: new TurnStateContainer(new TurnState(), new TurnState()),
       api: {
         users: {
           getToken: jest.fn().mockImplementation(({ connectionName }) => {
@@ -343,7 +369,9 @@ describe('OauthHandlers multi-flow lifecycle', () => {
     const githubFailure = jest.fn();
     graph.onSignInFailure(graphFailure);
     github.onSignInFailure(githubFailure);
-    const ctx = createSignInFailureContext();
+    const ctx = createSignInFailureContext({
+      state: new TurnStateContainer(new TurnState(), new TurnState()),
+    });
 
     graph.recordPending(ctx as any, false);
     github.recordPending(ctx as any, true);
@@ -474,6 +502,7 @@ describe('OauthHandlers multi-flow lifecycle', () => {
       expiration: '2030-01-01T00:00:00Z',
     });
     const ctx = createTokenExchangeContext({
+      state: new TurnStateContainer(new TurnState(), new TurnState()),
       api: { users: { exchangeToken } },
     });
     ctx.activity.value.connectionName = 'github';
@@ -852,7 +881,7 @@ function createTokenExchangeContext(overrides: Record<string, unknown> = {}) {
       recipient: { id: 'bot-id', role: 'bot' },
       value: {
         id: 'exchange-id',
-        connectionName: 'activity-connection',
+        connectionName: 'default-connection',
         token: 'incoming-token',
       },
     } as ISignInTokenExchangeInvokeActivity,
