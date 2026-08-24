@@ -54,7 +54,7 @@
     "@microsoft/teams.graph-tools": "*",
     "rimraf": "^6.0.1",
     "tsup": "^8.4.0",
-    "typescript": "^5.4.5"
+    "typescript": "^7.0.2"
   },
   "exports": {
     ".": {

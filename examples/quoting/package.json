@@ -28,6 +28,6 @@
     "dotenv": "^17.4.2",
     "rimraf": "^6.0.1",
     "tsx": "^4.23.12",
-    "typescript": "^5.4.5"
+    "typescript": "^7.0.2"
   }
 }

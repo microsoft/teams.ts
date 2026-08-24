@@ -28,7 +28,7 @@
     "@stylistic/eslint-plugin": "^4.2.0",
     "eslint": "^9.25.1",
     "eslint-plugin-import": "^2.31.0",
-    "typescript": "^5.4.5",
+    "typescript": "^7.0.2",
     "typescript-eslint": "^8.67.0"
   }
 }
