@@ -81,6 +81,17 @@ describe('TurnStateLoader', () => {
     expect(loaded.user?.isDirty).toBe(false);
   });
 
+  it('encodes IDs as distinct storage-key segments', () => {
+    const loader = new TurnStateLoader(new TestStorage());
+
+    expect(loader.conversationKey('a:b/c')).toBe('ts:conv:a%3Ab%2Fc');
+    expect(loader.userKey('a:b', 'c')).toBe('ts:user:a%3Ab:c');
+    expect(loader.userKey('a', 'b:c')).toBe('ts:user:a:b%3Ac');
+    expect(loader.userKey('conversation', 'user!\'()* \u2603')).toBe(
+      'ts:user:conversation:user%21%27%28%29%2A%20%E2%98%83'
+    );
+  });
+
   it('performs no writes for clean scopes and deletes dirty empty scopes', async () => {
     const storage = new TestStorage();
     const loader = new TurnStateLoader(storage);

@@ -209,8 +209,42 @@ describe('App', () => {
       expect(data.get('ts:conv:conv-1')).toBe('{"saved":true}');
     });
 
-    it('seals state and propagates the error when persistence fails', async () => {
+    it('reports a state load failure without dispatching handlers', async () => {
+      const loadError = new Error('load failed');
+      const errors: IErrorEvent[] = [];
+      const storage: IStorage<string, string> = {
+        get: () => {
+          throw loadError;
+        },
+        set: () => undefined,
+        delete: () => undefined,
+      };
+      await app.stop();
+      app = createTestApp({ state: { storage } });
+      await app.start();
+      const handler = jest.fn();
+      app.on('message', handler);
+      app.event('error', (event) => {
+        errors.push(event);
+      });
+      const stateActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot' })
+        .withConversation({ id: 'conv-1', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .toInterface();
+
+      const response = await app.process({ token, body: stateActivity });
+
+      expect(response.status).toBe(500);
+      expect(handler).not.toHaveBeenCalled();
+      expect(errors).toHaveLength(1);
+      expect(errors[0].error).toBe(loadError);
+    });
+
+    it('seals state and reports the error when persistence fails', async () => {
       const saveError = new Error('save failed');
+      const errors: IErrorEvent[] = [];
       const storage: IStorage<string, string> = {
         get: () => undefined,
         set: () => {
@@ -226,6 +260,9 @@ describe('App', () => {
         capturedState = state;
         state?.conversation.set('saved', true);
       });
+      app.event('error', (event) => {
+        errors.push(event);
+      });
       const stateActivity = new MessageActivity('hello')
         .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
         .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot' })
@@ -233,9 +270,52 @@ describe('App', () => {
         .withChannelId('msteams')
         .toInterface();
 
-      await expect(app.process({ token, body: stateActivity })).rejects.toBe(saveError);
+      const response = await app.process({ token, body: stateActivity });
+
+      expect(response.status).toBe(500);
+      expect(errors).toHaveLength(1);
+      expect(errors[0].error).toBe(saveError);
       expect(capturedState?.conversation.isSealed).toBe(true);
       expect(() => capturedState?.conversation.get('saved')).toThrow();
+    });
+
+    it('reports handler and persistence failures as one error', async () => {
+      const handlerError = new Error('handler failed');
+      const saveError = new Error('save failed');
+      const errors: IErrorEvent[] = [];
+      const storage: IStorage<string, string> = {
+        get: () => undefined,
+        set: () => {
+          throw saveError;
+        },
+        delete: () => undefined,
+      };
+      await app.stop();
+      app = createTestApp({ state: { storage } });
+      await app.start();
+      app.on('message', ({ state }) => {
+        state?.conversation.set('saved', true);
+        throw handlerError;
+      });
+      app.event('error', (event) => {
+        errors.push(event);
+      });
+      const stateActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot' })
+        .withConversation({ id: 'conv-1', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .toInterface();
+
+      const response = await app.process({ token, body: stateActivity });
+
+      expect(response.status).toBe(500);
+      expect(errors).toHaveLength(1);
+      expect(errors[0].error).toBeInstanceOf(AggregateError);
+      expect((errors[0].error as AggregateError).errors).toEqual([
+        handlerError,
+        saveError,
+      ]);
     });
 
     it('should return status 200 if no route matches', async () => {

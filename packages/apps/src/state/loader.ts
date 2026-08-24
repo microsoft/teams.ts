@@ -29,19 +29,24 @@ export class TurnStateLoader {
 
   /**
    * Returns the persisted conversation-scope key.
+   *
+   * The conversation ID is percent-encoded as one key segment.
    * @param conversationId Conversation ID.
    */
   conversationKey(conversationId: string): string {
-    return `${this.keyPrefix}:conv:${conversationId}`;
+    return `${this.keyPrefix}:conv:${encodeKeySegment(conversationId)}`;
   }
 
   /**
    * Returns the persisted user-within-conversation key.
+   *
+   * The conversation and user IDs are independently percent-encoded so
+   * delimiter characters cannot make distinct ID pairs share a key.
    * @param conversationId Conversation ID.
    * @param userId User ID.
    */
   userKey(conversationId: string, userId: string): string {
-    return `${this.keyPrefix}:user:${conversationId}:${userId}`;
+    return `${this.keyPrefix}:user:${encodeKeySegment(conversationId)}:${encodeKeySegment(userId)}`;
   }
 
   /**
@@ -174,4 +179,11 @@ function deserializeState(value: string): Record<string, unknown> | undefined {
 
 function isStateRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function encodeKeySegment(value: string): string {
+  return encodeURIComponent(value).replace(
+    /[!'()*]/g,
+    (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`
+  );
 }

@@ -261,12 +261,6 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
 
       const conversationId = activity.conversation?.id;
       const userId = activity.from?.id;
-      if (this.options.stateLoader && conversationId) {
-        context.state = await this.options.stateLoader.load(
-          conversationId,
-          userId
-        );
-      }
 
       const send = context.send.bind(context);
       context.send = async (activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) => {
@@ -294,55 +288,95 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         });
       });
 
-      let response: InvokeResponse;
-      try {
-        const res = await next();
-
-        await context.stream.close();
-
-        if (isInvokeResponse(res)) {
-          response = res;
-        } else {
-          response = { status: 200, body: res };
-        }
-
-        this.options.eventManager.onActivityResponse({
-          ...ref,
-          activity,
-          response: res,
-        });
-      } catch (error: any) {
-        if (isStreamCancelledError(error)) {
-          this.options.log.debug('stream canceled, returning 200');
-          await context.stream.close();
-          response = { status: 200 };
-        } else {
-          response = { status: 500 };
-          recordTeamsBotApplicationException(activityProcessSpan, error);
-          this.options.eventManager.onError({ error, activity });
-        }
-
-        this.options.eventManager.onActivityResponse({
-          ...ref,
-          activity,
-          response: response,
-        });
-      } finally {
-        if (context.state && this.options.stateLoader && conversationId) {
+      const response = await this.executeTurnLifecycle(
+        context,
+        activity,
+        activityProcessSpan,
+        conversationId,
+        userId,
+        async () => {
           try {
-            await this.options.stateLoader.save(
-              context.state,
-              conversationId,
-              userId
-            );
-          } finally {
-            context.state.seal();
+            const res = await next();
+            await context.stream.close();
+            return isInvokeResponse(res)
+              ? res
+              : { status: 200, body: res };
+          } catch (error: any) {
+            if (!isStreamCancelledError(error)) {
+              throw error;
+            }
+
+            this.options.log.debug('stream canceled, returning 200');
+            await context.stream.close();
+            return { status: 200 };
           }
         }
-      }
+      );
+
+      this.options.eventManager.onActivityResponse({
+        ...ref,
+        activity,
+        response,
+      });
 
       return response;
     }));
+  }
+
+  private async executeTurnLifecycle(
+    context: ActivityContext,
+    activity: Activity,
+    activityProcessSpan: Span,
+    conversationId: string | undefined,
+    userId: string | undefined,
+    dispatch: () => Promise<InvokeResponse>
+  ): Promise<InvokeResponse> {
+    let response: InvokeResponse = { status: 500 };
+    let turnError: unknown;
+
+    try {
+      if (this.options.stateLoader && conversationId) {
+        context.state = await this.options.stateLoader.load(
+          conversationId,
+          userId
+        );
+      }
+      response = await dispatch();
+    } catch (error) {
+      turnError = error;
+    } finally {
+      if (context.state && this.options.stateLoader && conversationId) {
+        try {
+          await this.options.stateLoader.save(
+            context.state,
+            conversationId,
+            userId
+          );
+        } catch (saveError) {
+          turnError = turnError
+            ? new AggregateError(
+              [turnError, saveError],
+              'Activity handling and state persistence failed.'
+            )
+            : saveError;
+        } finally {
+          context.state.seal();
+        }
+      }
+    }
+
+    if (turnError) {
+      recordTeamsBotApplicationException(activityProcessSpan, turnError);
+      await this.options.eventManager.onError({
+        error: turnError instanceof Error
+          ? turnError
+          : new Error(String(turnError)),
+        activity,
+      });
+      return { status: 500 };
+    }
+
+    return response;
   }
 
   /**
