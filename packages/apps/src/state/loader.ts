@@ -154,12 +154,10 @@ export class TurnStateLoader {
 /**
  * Creates the app state loader when state is enabled.
  * @param state `true` for defaults, options for custom behavior, or a falsy value to disable state.
- * @param fallbackStorage App storage used when no dedicated state storage is set.
  * @param logger Logger used to warn about process-local storage.
  */
 export function createStateLoader(
   state: boolean | StateOptions | undefined,
-  fallbackStorage: IStorage<string, unknown>,
   logger: ILogger
 ): TurnStateLoader | undefined {
   if (!state) {
@@ -167,8 +165,7 @@ export function createStateLoader(
   }
 
   const options = state === true ? {} : state;
-  const storage = options.storage ??
-    fallbackStorage as IStorage<string, string>;
+  const storage = options.storage ?? new LocalStorage<string>();
   if (storage instanceof LocalStorage) {
     logger.warn(
       'Per-turn state is using LocalStorage and will not be shared across processes. Configure state.storage for production.'

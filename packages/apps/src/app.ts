@@ -177,8 +177,8 @@ export type AppOptions<TPlugin extends IPlugin> = {
   /**
    * Enables per-turn conversation and user state.
    *
-   * Pass `true` to use the app storage with default keys, or provide options
-   * to configure dedicated storage, key prefix, or expiration. State is
+   * Pass `true` to use the app storage with the default key prefix, or provide
+   * options to configure dedicated storage and a custom key prefix. State is
    * disabled when omitted or `false`.
    */
   readonly state?: boolean | StateOptions;
@@ -359,7 +359,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   constructor(readonly options: AppOptions<TPlugin> = {}) {
     this.log = this.options.logger || new ConsoleLogger('@teams/app');
     this.storage = this.options.storage || new LocalStorage();
-    this.stateLoader = createStateLoader(this.options.state, this.storage, this.log);
+    this.stateLoader = createStateLoader(this.options.state, this.log);
 
     // Resolve cloud environment from options or CLOUD env var
     const cloudEnvName = typeof process !== 'undefined' ? process.env.CLOUD : undefined;

@@ -1,4 +1,4 @@
-import { ILogger, IStorage, LocalStorage } from '@microsoft/teams.common';
+import { ILogger, IStorage } from '@microsoft/teams.common';
 
 import { TurnStateContainer } from './container';
 import { createStateLoader, TurnStateLoader } from './loader';
@@ -261,13 +261,14 @@ describe('createStateLoader', () => {
   });
 
   it('disables state for omitted and false options', () => {
-    const storage = new TestStorage();
-    expect(createStateLoader(undefined, storage, logger)).toBeUndefined();
-    expect(createStateLoader(false, storage, logger)).toBeUndefined();
+    expect(createStateLoader(undefined, logger)).toBeUndefined();
+    expect(createStateLoader(false, logger)).toBeUndefined();
   });
 
-  it('warns when state resolves to process-local storage', () => {
-    createStateLoader(true, new LocalStorage(), logger);
+  it('uses dedicated process-local storage by default and warns', () => {
+    const loader = createStateLoader(true, logger);
+
+    expect(loader).toBeDefined();
     expect(logger.warn).toHaveBeenCalledTimes(1);
   });
 
@@ -275,7 +276,6 @@ describe('createStateLoader', () => {
     const stateStorage = new TestStorage();
     const loader = createStateLoader(
       { storage: stateStorage, keyPrefix: 'custom' },
-      new LocalStorage(),
       logger
     );
 

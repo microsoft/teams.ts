@@ -965,6 +965,25 @@ describe('App', () => {
       expect(responses[0].activity).toBeDefined();
     });
 
+    it('should emit a normalized invoke response when a handler returns no data', async () => {
+      const responses: IActivityResponseEvent[] = [];
+      app.event('activity.response', (event) => {
+        responses.push(event);
+      });
+      app.use(() => undefined);
+
+      await app.process({
+        token,
+        body: messageActivity,
+      });
+
+      expect(responses).toHaveLength(1);
+      expect(responses[0].response).toEqual({
+        status: 200,
+        body: undefined,
+      });
+    });
+
     it('should emit the "activity.sent" event when a reply is sent', async () => {
       const sent: IActivitySentEvent[] = [];
       app.event('activity.sent', (event) => {
