@@ -13,18 +13,22 @@ import { TurnState } from './turn-state';
 export class TurnStateLoader {
   private readonly storage: IStorage<string, string>;
   private readonly keyPrefix: string;
+  private readonly logger?: ILogger;
 
   /**
    * Creates a state loader.
    * @param storage Storage for serialized state JSON.
    * @param options State storage and key options.
+   * @param logger Optional logger for malformed persisted values.
    */
   constructor(
     storage: IStorage<string, string>,
-    options: StateOptions = {}
+    options: StateOptions = {},
+    logger?: ILogger
   ) {
     this.storage = storage;
     this.keyPrefix = options.keyPrefix ?? 'ts';
+    this.logger = logger;
   }
 
   /**
@@ -117,12 +121,15 @@ export class TurnStateLoader {
 
   private async loadScope(key: string): Promise<TurnState> {
     const value = await this.storage.get(key);
-    if (!value) {
+    if (value === undefined) {
       return new TurnState();
     }
 
     const data = deserializeState(value);
     if (!data) {
+      this.logger?.warn(
+        'Ignoring malformed persisted turn state; expected a JSON object string.'
+      );
       return new TurnState();
     }
     return new TurnState(data);
@@ -168,7 +175,7 @@ export function createStateLoader(
     );
   }
 
-  return new TurnStateLoader(storage, options);
+  return new TurnStateLoader(storage, options, logger);
 }
 
 function deserializeState(value: string): Record<string, unknown> | undefined {

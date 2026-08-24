@@ -154,6 +154,23 @@ describe('TurnStateLoader', () => {
     }
   );
 
+  it('warns without logging malformed persisted data', async () => {
+    const storage = new TestStorage();
+    const logger = {
+      warn: jest.fn(),
+    } as unknown as ILogger;
+    storage.data.set('ts:conv:invalid', 'sensitive malformed value');
+    const loader = new TurnStateLoader(storage, {}, logger);
+
+    expect((await loader.load('invalid')).conversation.isEmpty).toBe(true);
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Ignoring malformed persisted turn state; expected a JSON object string.'
+    );
+    expect(logger.warn).not.toHaveBeenCalledWith(
+      expect.stringContaining('sensitive malformed value')
+    );
+  });
+
   it('rejects state that cannot be serialized as JSON', async () => {
     const storage = new TestStorage();
     const loader = new TurnStateLoader(storage);
