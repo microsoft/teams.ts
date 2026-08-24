@@ -55,7 +55,22 @@
   "overrides": {
     "restify": {
       "send": "^1.2.0",
-      "find-my-way": "^9.0.0"
+      "find-my-way": "^9.7.0",
+      "uuid": "11.1.1"
+    },
+    "botbuilder": {
+      "@azure/msal-node": {
+        "uuid": "11.1.1"
+      }
+    },
+    "@modelcontextprotocol/inspector": {
+      "vite": {
+        "esbuild": "0.28.2"
+      }
+    },
+    "uuid": "11.1.1",
+    "tsup": {
+      "esbuild": "0.28.2"
     },
     "follow-redirects": "^1.16.0",
     "router": {
