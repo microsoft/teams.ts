@@ -1,4 +1,5 @@
 import { AgenticIdentity } from './agentic-identity';
+import { ConversationType } from './conversation-type';
 import { MembershipSource } from './membership-source';
 import { Role } from './role';
 
@@ -147,7 +148,7 @@ export function resolveAadObjectId(data: any): TeamsChannelAccount {
 export type ConversationAccount = {
   readonly id: string;
   readonly tenantId?: string;
-  readonly conversationType: 'personal' | 'groupChat' | Omit<string, 'personal' | 'groupChat'>;
+  readonly conversationType: ConversationType;
   readonly name?: string;
   readonly isGroup?: boolean;
 };

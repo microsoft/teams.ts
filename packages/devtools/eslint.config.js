@@ -2,7 +2,8 @@ const js = require('@eslint/js');
 const globals = require('globals');
 const reactCompiler = require('eslint-plugin-react-compiler');
 const reactHooks = require('eslint-plugin-react-hooks');
-const reactRefresh = require('eslint-plugin-react-refresh');
+// eslint-plugin-react-refresh v0.5 is ESM-only, so `require()` yields the module namespace and the plugin lives on the `default` export.
+const reactRefresh = require('eslint-plugin-react-refresh').default;
 const tseslint = require('typescript-eslint');
 const orderImports = require('./eslint-rules/order-imports');
 

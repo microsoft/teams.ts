@@ -12,7 +12,7 @@ export const OPEN_LINK_WIDGET_HTML = `<!DOCTYPE html>
 <html><head><meta charset="utf-8">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:auto}
+html,body{overflow:auto}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:16px;background:#fff;color:#242424;font-size:13px}
 h3{margin:0 0 8px}
 button{margin:4px 4px 4px 0;padding:6px 12px;border:1px solid #ccc;border-radius:4px;background:#f5f5f5;color:inherit;cursor:pointer;font-size:12px}
