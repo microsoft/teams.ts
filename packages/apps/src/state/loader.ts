@@ -73,6 +73,7 @@ export class TurnStateLoader {
    * Persists dirty scopes from a loaded container.
    *
    * Dirty empty scopes delete their backing keys; clean scopes perform no I/O.
+   * Each successfully persisted scope is marked clean independently.
    * @param container State container to persist.
    * @param conversationId Conversation ID associated with the state.
    * @param userId Optional sender ID associated with the user scope.
@@ -133,11 +134,13 @@ export class TurnStateLoader {
     }
     if (state.isEmpty) {
       await this.storage.delete(key);
+      state.markClean();
       return;
     }
 
     const value = JSON.stringify(state.toRecord());
     await this.storage.set(key, value);
+    state.markClean();
   }
 }
 

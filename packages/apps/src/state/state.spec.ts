@@ -105,6 +105,42 @@ describe('TurnStateLoader', () => {
     state.conversation.clear();
     await loader.save(state, 'conversation-1');
     expect(storage.delete).toHaveBeenCalledWith('ts:conv:conversation-1');
+    expect(state.conversation.isDirty).toBe(false);
+
+    await loader.save(state, 'conversation-1');
+    expect(storage.delete).toHaveBeenCalledTimes(1);
+  });
+
+  it('cleans successful scopes while leaving a failed scope dirty for retry', async () => {
+    const storage = new TestStorage();
+    const userKey = 'ts:user:conversation-1:user-1';
+    storage.set.mockImplementation((key, value) => {
+      if (key === userKey) {
+        throw new Error('user save failed');
+      }
+      storage.data.set(key, value);
+    });
+    const loader = new TurnStateLoader(storage);
+    const state = await loader.load('conversation-1', 'user-1');
+    state.conversation.set('shared', 1);
+    state.user?.set('personal', 2);
+
+    await expect(
+      loader.save(state, 'conversation-1', 'user-1')
+    ).rejects.toThrow('user save failed');
+
+    expect(state.conversation.isDirty).toBe(false);
+    expect(state.user?.isDirty).toBe(true);
+
+    storage.set.mockImplementation((key, value) => {
+      storage.data.set(key, value);
+    });
+    storage.set.mockClear();
+    await loader.save(state, 'conversation-1', 'user-1');
+
+    expect(storage.set).toHaveBeenCalledTimes(1);
+    expect(storage.set).toHaveBeenCalledWith(userKey, '{"personal":2}');
+    expect(state.user?.isDirty).toBe(false);
   });
 
   it.each(['not json', '[]', 'null', '1'])(
