@@ -1,5 +1,5 @@
 {
-  "name": "@examples/reactions",
+  "name": "@examples/interacting-with-messages",
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
@@ -15,13 +15,12 @@
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
     "start": "node .",
-    "dev": "tsx watch -r dotenv/config src/index.ts",
-    "dev:teamsfx": "npx cross-env NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
-    "dev:teamsfx:testtool": "npx cross-env NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
-    "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
+    "dev": "tsx watch -r dotenv/config src/index.ts"
   },
   "dependencies": {
-    "@microsoft/teams.apps": "*"
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.apps": "*",
+    "@microsoft/teams.common": "*"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
@@ -29,7 +28,6 @@
     "dotenv": "^17.4.2",
     "rimraf": "^6.0.1",
     "tsx": "^4.23.12",
-    "typescript": "^5.4.5",
-    "env-cmd": "latest"
+    "typescript": "^5.4.5"
   }
 }

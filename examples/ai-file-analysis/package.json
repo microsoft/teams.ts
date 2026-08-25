@@ -1,6 +1,6 @@
 {
-  "name": "@examples/quoting",
-  "version": "0.0.0",
+  "name": "@examples/ai-file-analysis",
+  "version": "0.0.1",
   "private": true,
   "license": "MIT",
   "main": "dist/index",
@@ -14,20 +14,22 @@
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
-    "start": "node .",
+    "start": "node -r dotenv/config dist/index.js",
     "dev": "tsx watch -r dotenv/config src/index.ts"
   },
   "dependencies": {
     "@microsoft/teams.api": "*",
     "@microsoft/teams.apps": "*",
-    "@microsoft/teams.common": "*"
+    "@microsoft/teams.cards": "*",
+    "@microsoft/teams.common": "*",
+    "openai": "^4.104.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
     "@types/node": "^22.5.4",
-    "dotenv": "^17.4.2",
+    "dotenv": "^16.4.5",
     "rimraf": "^6.0.1",
-    "tsx": "^4.23.12",
+    "tsx": "^4.23.1",
     "typescript": "^5.4.5"
   }
 }
