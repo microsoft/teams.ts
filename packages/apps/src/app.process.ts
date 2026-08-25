@@ -332,7 +332,8 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
     dispatch: () => Promise<InvokeResponse>
   ): Promise<InvokeResponse> {
     let response: InvokeResponse = { status: 500 };
-    let turnError: unknown;
+    let dispatchError: unknown;
+    let saveError: unknown;
 
     try {
       if (this.options.stateLoader && conversationId) {
@@ -343,7 +344,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       }
       response = await dispatch();
     } catch (error) {
-      turnError = error;
+      dispatchError = error;
     } finally {
       if (context.state && this.options.stateLoader && conversationId) {
         try {
@@ -352,31 +353,42 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
             conversationId,
             userId
           );
-        } catch (saveError) {
-          turnError = turnError
-            ? new AggregateError(
-              [turnError, saveError],
-              'Activity handling and state persistence failed.'
-            )
-            : saveError;
+        } catch (error) {
+          saveError = error;
         } finally {
           context.state.seal();
         }
       }
     }
 
-    if (turnError) {
-      recordTeamsBotApplicationException(activityProcessSpan, turnError);
-      await this.options.eventManager.onError({
-        error: turnError instanceof Error
-          ? turnError
-          : new Error(String(turnError)),
+    if (dispatchError) {
+      await this.reportTurnError(
+        dispatchError,
         activity,
-      });
+        activityProcessSpan
+      );
+    }
+    if (saveError) {
+      await this.reportTurnError(saveError, activity, activityProcessSpan);
+    }
+
+    if (dispatchError || saveError) {
       return { status: 500 };
     }
 
     return response;
+  }
+
+  private async reportTurnError(
+    error: unknown,
+    activity: Activity,
+    activityProcessSpan: Span
+  ): Promise<void> {
+    recordTeamsBotApplicationException(activityProcessSpan, error);
+    await this.options.eventManager.onError({
+      error: error instanceof Error ? error : new Error(String(error)),
+      activity,
+    });
   }
 
   /**

@@ -242,7 +242,7 @@ describe('App', () => {
       expect(errors[0].error).toBe(loadError);
     });
 
-    it('seals state and reports the error when persistence fails', async () => {
+    it('seals state, reports save failure, and returns 500', async () => {
       const saveError = new Error('save failed');
       const errors: IErrorEvent[] = [];
       const storage: IStorage<string, string> = {
@@ -279,7 +279,7 @@ describe('App', () => {
       expect(() => capturedState?.conversation.get('saved')).toThrow();
     });
 
-    it('reports handler and persistence failures as one error', async () => {
+    it('reports handler and persistence failures separately', async () => {
       const handlerError = new Error('handler failed');
       const saveError = new Error('save failed');
       const errors: IErrorEvent[] = [];
@@ -310,9 +310,7 @@ describe('App', () => {
       const response = await app.process({ token, body: stateActivity });
 
       expect(response.status).toBe(500);
-      expect(errors).toHaveLength(1);
-      expect(errors[0].error).toBeInstanceOf(AggregateError);
-      expect((errors[0].error as AggregateError).errors).toEqual([
+      expect(errors.map(({ error }) => error)).toEqual([
         handlerError,
         saveError,
       ]);
