@@ -207,9 +207,12 @@ export type OAuthSignInFailureHandler<
  */
 export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
   private static readonly PENDING_TTL_MS = 5 * 60 * 1000;
+  private static readonly MAX_PENDING_ENTRIES = 1_000;
 
   private signInCompleteHandler?: OAuthSignInCompleteHandler<TPlugin>;
   private signInFailureHandler?: OAuthSignInFailureHandler<TPlugin>;
+  private readonly pendingSignIns = new Map<string, number>();
+  private readonly pendingSsoSignIns = new Map<string, number>();
 
   /**
    * Creates an OAuth flow for a connection.
@@ -352,7 +355,7 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
    * The Bot Framework endpoint returns all connection statuses; callers can
    * select this flow's entry by matching {@link connectionName}.
    */
-  getConnectionStatus(context: IActivityContext): Promise<TokenStatus[]> {
+  getAllConnectionStatuses(context: IActivityContext): Promise<TokenStatus[]> {
     return traceOAuthOperation(
       APP_SPAN_NAMES.oauth,
       APP_OAUTH_ALL_CONNECTIONS,
@@ -408,14 +411,21 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
   getPending(context: IActivityContext, ssoOnly: boolean): number | undefined {
     const now = Date.now();
     const stateKey = this.pendingStateKey(ssoOnly);
-    const stateValue = context.state?.user?.get<number>(stateKey);
-    if (stateValue !== undefined) {
-      if (now - stateValue < OAuthFlow.PENDING_TTL_MS) {
-        return stateValue;
+    const userState = context.state?.user;
+    if (userState) {
+      const stateValue = userState.get<number>(stateKey);
+      if (stateValue !== undefined) {
+        if (now - stateValue < OAuthFlow.PENDING_TTL_MS) {
+          return stateValue;
+        }
+        userState.delete(stateKey);
       }
-      context.state?.user?.delete(stateKey);
+      return undefined;
     }
-    return undefined;
+
+    const pending = this.pendingMap(ssoOnly);
+    this.prunePending(pending, now);
+    return pending.get(context.activity.from.id);
   }
 
   /** @internal Clears pending sign-in attribution for this flow. */
@@ -429,7 +439,15 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
     ssoOnly: boolean,
     value: number
   ): void {
-    context.state?.user?.set(this.pendingStateKey(ssoOnly), value);
+    const userState = context.state?.user;
+    if (userState) {
+      userState.set(this.pendingStateKey(ssoOnly), value);
+      return;
+    }
+
+    const pending = this.pendingMap(ssoOnly);
+    pending.set(context.activity.from.id, value);
+    this.prunePending(pending, value);
   }
 
   private deletePendingValue(
@@ -437,10 +455,33 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
     ssoOnly: boolean
   ): void {
     context.state?.user?.delete(this.pendingStateKey(ssoOnly));
+    this.pendingMap(ssoOnly).delete(context.activity.from.id);
   }
 
   private pendingStateKey(ssoOnly: boolean): string {
     return `__oauth:pending:${ssoOnly ? 'sso:' : ''}${this.connectionName.toLowerCase()}`;
+  }
+
+  private pendingMap(ssoOnly: boolean): Map<string, number> {
+    return ssoOnly ? this.pendingSsoSignIns : this.pendingSignIns;
+  }
+
+  private prunePending(pending: Map<string, number>, now: number): void {
+    for (const [userId, timestamp] of pending) {
+      if (now - timestamp >= OAuthFlow.PENDING_TTL_MS) {
+        pending.delete(userId);
+      }
+    }
+
+    if (pending.size <= OAuthFlow.MAX_PENDING_ENTRIES) {
+      return;
+    }
+
+    for (const [userId] of [...pending.entries()]
+      .sort(([, left], [, right]) => right - left)
+      .slice(OAuthFlow.MAX_PENDING_ENTRIES)) {
+      pending.delete(userId);
+    }
   }
 
 }
@@ -459,8 +500,8 @@ export type OAuthSettings = {
    *
    * This legacy default cannot be combined with `AppOptions.oauthFlows` or
    * `app.addOAuthFlow(...)`. Deprecated context OAuth helpers may omit the
-   * connection name to use this default; when they provide a name, it must
-   * match this connection. When omitted, the same behavior uses `graph`.
+   * connection name to use this default; explicitly supplied connection names
+   * continue to override it. When omitted, the same behavior uses `graph`.
    * @default `graph`
    * @deprecated Register the connection with `app.addOAuthFlow(...)`.
    */

@@ -415,6 +415,36 @@ describe('OauthHandlers multi-flow lifecycle', () => {
     expect(githubComplete).toHaveBeenCalled();
   });
 
+  it('uses process-local pending attribution when state is disabled', async () => {
+    const now = jest.spyOn(Date, 'now');
+    const githubComplete = jest.fn();
+    github.onSignInComplete(githubComplete);
+    const markContext = createVerifyStateContext();
+    now.mockReturnValue(1_000);
+    graph.recordPending(markContext as any, true);
+    now.mockReturnValue(2_000);
+    github.recordPending(markContext as any, true);
+    now.mockReturnValue(2_500);
+    const verifyContext = createVerifyStateContext({
+      api: {
+        users: {
+          getToken: jest.fn().mockResolvedValue({
+            token: 'github-token',
+            connectionName: 'github',
+            expiration: '2030-01-01T00:00:00Z',
+          }),
+        },
+      },
+    });
+
+    await expect(handlers.onVerifyState(verifyContext as any)).resolves.toEqual({ status: 200 });
+    expect(verifyContext.api.users.getToken).toHaveBeenCalledWith(expect.objectContaining({
+      connectionName: 'github',
+    }));
+    expect(githubComplete).toHaveBeenCalled();
+    now.mockRestore();
+  });
+
   it('clears pending state and invokes failure callbacks for verify-state HTTP errors', async () => {
     const state = new TurnStateContainer(new TurnState(), new TurnState());
     const graphFailure = jest.fn();
@@ -489,6 +519,27 @@ describe('OauthHandlers multi-flow lifecycle', () => {
 
     await expect(nextHandler.onTokenExchange(secondContext as any)).resolves.toEqual({ status: 200 });
     expect(secondExchange).not.toHaveBeenCalled();
+  });
+
+  it('uses process-local tracking to suppress a late duplicate without state', async () => {
+    const exchangeToken = jest.fn().mockResolvedValue({
+      token: 'graph-token',
+      connectionName: 'graph',
+      expiration: '2030-01-01T00:00:00Z',
+    });
+    const firstContext = createTokenExchangeContext({
+      api: { users: { exchangeToken } },
+    });
+    firstContext.activity.value.connectionName = 'graph';
+
+    await expect(handlers.onTokenExchange(firstContext as any)).resolves.toEqual({ status: 200 });
+
+    const secondContext = createTokenExchangeContext({
+      api: { users: { exchangeToken } },
+    });
+    secondContext.activity.value.connectionName = 'graph';
+    await expect(handlers.onTokenExchange(secondContext as any)).resolves.toEqual({ status: 200 });
+    expect(exchangeToken).toHaveBeenCalledTimes(1);
   });
 
   it('keeps a successful exchange deduplicated when a completion callback throws', async () => {

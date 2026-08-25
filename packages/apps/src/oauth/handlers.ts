@@ -45,10 +45,11 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
   private static readonly MAX_EXCHANGE_ENTRIES = 1_000;
   private static readonly EXCHANGE_STATE_KEY = '__oauth:exchanges';
 
-  // Process-local only: durable conversation state deduplicates sequential
-  // exchanges across instances, while this map collapses concurrent requests
-  // that reach the same instance.
+  // Process-local only: this map collapses concurrent duplicates that reach the
+  // same instance; persisted conversation state covers cross-instance retries.
   private readonly tokenExchangeLocks = new Map<string, Promise<{ status: number, body?: TokenExchangeInvokeResponse }>>();
+  // Retains completed exchanges when state is disabled or unavailable.
+  private readonly processedExchanges = new Map<string, number>();
 
   constructor(
     private readonly getFlows: () => readonly OAuthFlow<TPlugin>[],
@@ -369,16 +370,24 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
   private isExchangeProcessed(ctx: contexts.IActivityContext, exchangeId: string): boolean {
     const now = Date.now();
     const stateTimestamp = this.getExchangeState(ctx, now)[exchangeId];
-    return stateTimestamp !== undefined && now - stateTimestamp < OauthHandlers.STATE_TTL_MS;
+    if (stateTimestamp !== undefined && now - stateTimestamp < OauthHandlers.STATE_TTL_MS) {
+      return true;
+    }
+
+    this.pruneProcessedExchanges(now);
+    return this.processedExchanges.has(exchangeId);
   }
 
   private markExchangeProcessed(ctx: contexts.IActivityContext, exchangeId: string): void {
+    const timestamp = Date.now();
+    this.processedExchanges.set(exchangeId, timestamp);
+    this.pruneProcessedExchanges(timestamp);
+
     const conversationState = ctx.state?.conversation;
     if (!conversationState) {
       return;
     }
 
-    const timestamp = Date.now();
     const exchanges = this.getExchangeState(ctx, timestamp);
     exchanges[exchangeId] = timestamp;
     const bounded = Object.fromEntries(
@@ -387,6 +396,24 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
         .slice(0, OauthHandlers.MAX_EXCHANGE_ENTRIES)
     );
     conversationState.set(OauthHandlers.EXCHANGE_STATE_KEY, bounded);
+  }
+
+  private pruneProcessedExchanges(now: number): void {
+    for (const [exchangeId, timestamp] of this.processedExchanges) {
+      if (now - timestamp >= OauthHandlers.STATE_TTL_MS) {
+        this.processedExchanges.delete(exchangeId);
+      }
+    }
+
+    if (this.processedExchanges.size <= OauthHandlers.MAX_EXCHANGE_ENTRIES) {
+      return;
+    }
+
+    for (const [exchangeId] of [...this.processedExchanges.entries()]
+      .sort(([, left], [, right]) => right - left)
+      .slice(OauthHandlers.MAX_EXCHANGE_ENTRIES)) {
+      this.processedExchanges.delete(exchangeId);
+    }
   }
 
   private getOrderedFlows(

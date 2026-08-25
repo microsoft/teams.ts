@@ -165,11 +165,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         'Remove defaultConnectionName and name the connection when calling OAuth helpers.'
       );
     }
-    if (hasConfiguredOAuthFlows && this.options.state === false) {
-      throw new Error(
-        'OAuth flows require turn state. Remove state: false or configure state options.'
-      );
-    }
     this.stateLoader = createStateLoader(
       this.options.state ?? (hasConfiguredOAuthFlows ? true : undefined),
       this.log
@@ -841,9 +836,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
   private enableOAuthState(): void {
     if (this.options.state === false) {
-      throw new Error(
-        'OAuth flows require turn state. Remove state: false or configure state options.'
-      );
+      return;
     }
     this.stateLoader ??= createStateLoader(true, this.log);
   }

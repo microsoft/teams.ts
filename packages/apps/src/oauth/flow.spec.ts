@@ -227,7 +227,7 @@ describe('OAuthFlow', () => {
     const flow = new OAuthFlow('graph');
 
     await expect(flow.isSignedIn(context)).resolves.toBe(true);
-    await expect(flow.getConnectionStatus(context)).resolves.toEqual([status]);
+    await expect(flow.getAllConnectionStatuses(context)).resolves.toEqual([status]);
     await flow.signOut(context);
 
     expect(getTokenStatus).toHaveBeenCalledWith({

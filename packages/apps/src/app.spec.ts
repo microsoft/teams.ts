@@ -114,22 +114,19 @@ describe('App', () => {
       );
     });
 
-    it('rejects registered OAuth flows when turn state is disabled', () => {
-      expect(() => new App({
+    it('allows registered OAuth flows to use process-local tracking when state is disabled', () => {
+      const declarative = new App({
         httpServerAdapter: new TestAdapter(),
         oauthFlows: ['graph'],
         state: false,
-      })).toThrow(
-        'OAuth flows require turn state. Remove state: false or configure state options.'
-      );
+      });
+      expect(declarative.getOAuthFlow('graph').connectionName).toBe('graph');
 
       const app = new App({
         httpServerAdapter: new TestAdapter(),
         state: false,
       });
-      expect(() => app.addOAuthFlow('github')).toThrow(
-        'OAuth flows require turn state. Remove state: false or configure state options.'
-      );
+      expect(app.addOAuthFlow('github').connectionName).toBe('github');
     });
   });
 

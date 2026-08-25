@@ -1246,6 +1246,22 @@ describe('App', () => {
       expect(hasState).toBe(true);
     });
 
+    it('keeps state disabled for registered OAuth flows when explicitly disabled', async () => {
+      testApp = createTestApp({
+        oauthFlows: ['github'],
+        state: false,
+      });
+      testApp.start();
+      let hasState = true;
+      testApp.on('message', ({ state }) => {
+        hasState = state !== undefined;
+      });
+
+      await testApp.process({ token, body: userActivity });
+
+      expect(hasState).toBe(false);
+    });
+
     it('honors an explicit fetchUserToken=false override even when OAuth is configured', async () => {
       testApp = createTestApp({ oauth: { defaultConnectionName: 'graph', fetchUserToken: false } });
       testApp.start();
