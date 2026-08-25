@@ -55,12 +55,32 @@
   "overrides": {
     "restify": {
       "send": "^1.2.0",
-      "find-my-way": "^9.0.0"
+      "find-my-way": "^9.0.0",
+      "uuid": "^11.1.1"
+    },
+    "@azure/core-http-compat": "2.4.0",
+    "@azure/identity@^4.4.1": "4.13.1",
+    "@azure/msal-node": {
+      "uuid": "^11.1.1"
+    },
+    "botbuilder": {
+      "uuid": "^11.1.1"
+    },
+    "botbuilder-core": {
+      "uuid": "^11.1.1"
+    },
+    "botframework-schema": {
+      "uuid": "^11.1.1"
+    },
+    "botframework-streaming": {
+      "uuid": "^11.1.1"
     },
     "follow-redirects": "^1.16.0",
     "router": {
       "path-to-regexp": "^8.4.0"
     },
+    "esbuild": "^0.28.1",
+    "uuid": "^11.1.1",
     "rollup": "4.62.3"
   }
 }
