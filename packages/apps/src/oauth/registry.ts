@@ -90,7 +90,11 @@ export class OAuthFlowRegistry<TPlugin extends IPlugin = IPlugin> {
    * Validates a connection before a deprecated context OAuth helper runs.
    */
   validate(connectionName: string, connectionNameProvided: boolean): void {
-    if (this.usesRegisteredFlows && !connectionNameProvided) {
+    if (!this.usesRegisteredFlows) {
+      return;
+    }
+
+    if (!connectionNameProvided) {
       throw new Error(
         'OAuth connection name is required when OAuth flows are registered.'
       );
@@ -107,6 +111,10 @@ export class OAuthFlowRegistry<TPlugin extends IPlugin = IPlugin> {
     connectionName: string,
     supportsSso: boolean
   ): void {
+    if (!this.usesRegisteredFlows) {
+      return;
+    }
+
     this.get(connectionName).recordPending(context, supportsSso);
   }
 

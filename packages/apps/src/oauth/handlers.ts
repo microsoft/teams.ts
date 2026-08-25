@@ -45,6 +45,9 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
   private static readonly MAX_EXCHANGE_ENTRIES = 1_000;
   private static readonly EXCHANGE_STATE_KEY = '__oauth:exchanges';
 
+  // Process-local only: durable conversation state deduplicates sequential
+  // exchanges across instances, while this map collapses concurrent requests
+  // that reach the same instance.
   private readonly tokenExchangeLocks = new Map<string, Promise<{ status: number, body?: TokenExchangeInvokeResponse }>>();
 
   constructor(

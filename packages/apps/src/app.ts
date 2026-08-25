@@ -845,7 +845,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         'OAuth flows require turn state. Remove state: false or configure state options.'
       );
     }
-    this.stateLoader ??= createStateLoader(true, this.storage, this.log);
+    this.stateLoader ??= createStateLoader(true, this.log);
   }
 
 }

@@ -1,5 +1,6 @@
 import { context, propagation, ROOT_CONTEXT } from '@opentelemetry/api';
 import type { Baggage, Context, ContextManager, Span, Tracer } from '@opentelemetry/api';
+import { AxiosError } from 'axios';
 
 import { IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse } from '@microsoft/teams.api';
 import { IStorage } from '@microsoft/teams.common';
@@ -1099,7 +1100,12 @@ describe('App', () => {
       testApp.start();
       const errors: Error[] = [];
       testApp.on('message', async ({ signin, signout }) => {
-        for (const operation of [() => signin(), () => signout()]) {
+        for (const operation of [
+          () => signin(),
+          () => signout(),
+          () => signin({ connectionName: 'graph' }),
+          () => signout('graph'),
+        ]) {
           try {
             await operation();
           } catch (error) {
@@ -1115,12 +1121,14 @@ describe('App', () => {
       expect(errors.map(error => error.message)).toEqual([
         'OAuth connection name is required when OAuth flows are registered.',
         'OAuth connection name is required when OAuth flows are registered.',
+        'No OAuth flow is registered for connection "graph". Registered connections: github.',
+        'No OAuth flow is registered for connection "graph". Registered connections: github.',
       ]);
       expect(getToken).not.toHaveBeenCalled();
       expect(signOut).not.toHaveBeenCalled();
     });
 
-    it('uses a configured default when omitted and rejects a different name', async () => {
+    it('preserves legacy connection overrides when a default is configured', async () => {
       testApp = createTestApp({
         oauth: {
           defaultConnectionName: 'github',
@@ -1129,7 +1137,6 @@ describe('App', () => {
       });
       testApp.start();
       jest.spyOn(testApp.api, 'clone').mockReturnValue(testApp.api);
-      const errors: Error[] = [];
       const getToken = jest
         .spyOn(testApp.api.users, 'getToken')
         .mockResolvedValue({
@@ -1142,35 +1149,27 @@ describe('App', () => {
         .spyOn(testApp.api.users, 'signOut')
         .mockResolvedValue(undefined);
       testApp.on('message', async ({ signin, signout }) => {
-        const operations = [
-          () => signin(),
-          () => signout(),
-          () => signin({ connectionName: 'graph' }),
-          () => signout('graph'),
-          () => signin({ connectionName: 'github' }),
-          () => signout('github'),
-        ];
-        for (const operation of operations) {
-          try {
-            await operation();
-          } catch (error) {
-            errors.push(error as Error);
-          }
-        }
+        await signin();
+        await signout();
+        await signin({ connectionName: 'graph' });
+        await signout('graph');
+        await signin({ connectionName: 'github' });
+        await signout('github');
       });
 
       await testApp.process({ token, body: userActivity });
 
-      expect(errors.map(error => error.message)).toEqual([
-        'No OAuth flow is registered for connection "graph". Registered connections: github.',
-        'No OAuth flow is registered for connection "graph". Registered connections: github.',
-      ]);
       expect(getToken).toHaveBeenNthCalledWith(1, {
         channelId: 'msteams',
         connectionName: 'github',
         userId: 'user-1',
       });
       expect(getToken).toHaveBeenNthCalledWith(2, {
+        channelId: 'msteams',
+        connectionName: 'graph',
+        userId: 'user-1',
+      });
+      expect(getToken).toHaveBeenNthCalledWith(3, {
         channelId: 'msteams',
         connectionName: 'github',
         userId: 'user-1',
@@ -1182,9 +1181,55 @@ describe('App', () => {
       });
       expect(signOut).toHaveBeenNthCalledWith(2, {
         channelId: 'msteams',
+        connectionName: 'graph',
+        userId: 'user-1',
+      });
+      expect(signOut).toHaveBeenNthCalledWith(3, {
+        channelId: 'msteams',
         connectionName: 'github',
         userId: 'user-1',
       });
+    });
+
+    it('preserves legacy card initiation for a non-default connection', async () => {
+      testApp = createTestApp({
+        oauth: {
+          defaultConnectionName: 'github',
+          fetchUserToken: false,
+        },
+      });
+      testApp.start();
+      jest.spyOn(testApp.api, 'clone').mockReturnValue(testApp.api);
+      jest.spyOn(testApp.api.users, 'getToken').mockRejectedValue(
+        new AxiosError('No token', undefined, undefined, undefined, {
+          status: 404,
+          statusText: 'Not Found',
+          headers: {},
+          config: {} as never,
+          data: {},
+        })
+      );
+      const getResource = jest
+        .spyOn(testApp.api.bots.signIn, 'getResource')
+        .mockResolvedValue({
+          signInLink: 'https://login.example.com',
+          tokenPostResource: {},
+        } as any);
+      jest.spyOn(ActivitySender.prototype, 'send').mockResolvedValue({
+        id: 'signin-card',
+      } as any);
+      testApp.on('message', async ({ signin }) => {
+        await signin({ connectionName: 'graph' });
+      });
+
+      const response = await testApp.process({ token, body: userActivity });
+
+      expect(response.status).toBe(200);
+      expect(getResource).toHaveBeenCalledWith({ state: expect.any(String) });
+      const [{ state }] = getResource.mock.calls[0];
+      expect(JSON.parse(Buffer.from(state, 'base64').toString())).toEqual(
+        expect.objectContaining({ connectionName: 'graph' })
+      );
     });
 
     it('enables state when an OAuth flow is added imperatively', async () => {
