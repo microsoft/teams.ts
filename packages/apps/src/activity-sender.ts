@@ -75,9 +75,17 @@ export class ActivitySender implements IActivitySender {
 
     // Decide create vs update, with targeted variants
     if (payload.id) {
-      const res = isTargeted
-        ? await api.conversations.updateTargetedActivity(ref.conversation.id, payload.id, payload)
-        : await api.conversations.updateActivity(ref.conversation.id, payload.id, payload);
+      if (isTargeted) {
+        const { recipient: _recipient, ...targetedUpdate } = payload;
+        const res = await api.conversations.updateTargetedActivity(
+          ref.conversation.id,
+          payload.id,
+          targetedUpdate
+        );
+        return { ...payload, ...res };
+      }
+
+      const res = await api.conversations.updateActivity(ref.conversation.id, payload.id, payload);
       return { ...payload, ...res };
     }
 

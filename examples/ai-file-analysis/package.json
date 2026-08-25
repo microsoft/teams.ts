@@ -1,5 +1,5 @@
 {
-  "name": "@examples/a2a",
+  "name": "@examples/ai-file-analysis",
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
@@ -14,27 +14,22 @@
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
-    "start": "node -r dotenv/config .",
-    "dev": "tsx watch -r dotenv/config src/index.ts",
-    "dev:alice": "env-cmd --silent -f .env.alice tsx watch src/index.ts",
-    "dev:bob": "env-cmd --silent -f .env.bob tsx watch src/index.ts"
+    "start": "node -r dotenv/config dist/index.js",
+    "dev": "tsx watch -r dotenv/config src/index.ts"
   },
   "dependencies": {
-    "@a2a-js/sdk": "^0.3.13",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.apps": "*",
+    "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
-    "express": "^5.1.0",
-    "openai": "^6.37.0"
+    "openai": "^4.104.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
-    "@types/express": "^5.0.0",
     "@types/node": "^22.5.4",
-    "dotenv": "^17.4.2",
-    "env-cmd": "latest",
+    "dotenv": "^16.4.5",
     "rimraf": "^6.0.1",
-    "tsx": "^4.23.12",
+    "tsx": "^4.23.1",
     "typescript": "^5.4.5"
   }
 }
