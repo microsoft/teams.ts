@@ -1,6 +1,6 @@
 /**
  * Constructs a threaded conversation ID by appending `;messageid={messageId}`
- * to the conversation ID. This is the format the service uses to route messages
+ * to the conversation ID. This is the format the Teams service uses to route messages
  * to a specific thread.
  *
  * @param conversationId the conversation to thread into (e.g. `19:abc@thread.skype`)
@@ -18,7 +18,7 @@ export function toThreadedConversationId(conversationId: string, messageId: stri
     );
   }
 
-  // Strip any existing ;messageid= suffix (mirrors the service's conversation-ID normalization)
+  // Strip any existing ;messageid= suffix (mirrors the Teams service's conversation-ID normalization)
   const baseId = conversationId.split(';')[0];
   return `${baseId};messageid=${messageId}`;
 }

@@ -761,7 +761,7 @@ export class Activity<T extends string = string> implements IActivity<T> {
    * Add a targeted message info entity for prompt preview.
    * Skips if already present. In reactive flows, `ctx.send()` and `ctx.reply()`
    * populate this automatically — use this helper for proactive or deferred sends.
-   * An invalid or expired messageId causes the service to silently drop the preview
+   * An invalid or expired messageId causes the Teams service to silently drop the preview
    * while still delivering the message.
    *
    * @param messageId the message ID of the targeted message (from the incoming activity's `id`)
