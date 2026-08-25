@@ -8,6 +8,7 @@ import {
   ISignInVerifyStateInvokeActivity,
   SignInFailure,
   TokenExchangeResource,
+  TokenExchangeInvokeResponse,
   TokenExchangeState,
   TokenPostResource,
   TokenResponse,
@@ -16,6 +17,7 @@ import {
 
 import type { IActivityContext } from '../contexts';
 import {
+  APP_OAUTH_ERROR_TYPE,
   APP_OAUTH_ALL_CONNECTIONS,
   APP_OAUTH_OPERATION,
   APP_OAUTH_RESULT,
@@ -24,7 +26,10 @@ import {
 import type { IPlugin } from '../types';
 import type { PluginAdditionalContext } from '../types/app-routing';
 
-import { traceOAuthOperation } from './telemetry';
+import {
+  recordUnexpectedOAuthError,
+  traceOAuthOperation,
+} from './telemetry';
 
 /**
  * Options used when an OAuth flow starts an interactive sign-in.
@@ -87,6 +92,43 @@ type OAuthSignInInitiatedHandler = (
   supportsSso: boolean
 ) => void | Promise<void>;
 
+type OAuthVerifyStateResult =
+  | {
+    readonly kind: 'success';
+    readonly status: 200;
+    readonly token: TokenResponse;
+  }
+  | {
+    readonly kind: 'miss';
+    readonly status: 404 | 412;
+  }
+  | {
+    readonly kind: 'error';
+    readonly status: number;
+    readonly error: AxiosError;
+  };
+
+type OAuthTokenExchangeResult =
+  | {
+    readonly kind: 'success';
+    readonly status: 200;
+    readonly token: TokenResponse;
+  }
+  | {
+    readonly kind: 'duplicate';
+    readonly status: 200;
+  }
+  | {
+    readonly kind: 'fallback';
+    readonly status: 412;
+    readonly body: TokenExchangeInvokeResponse;
+  }
+  | {
+    readonly kind: 'error';
+    readonly status: number;
+    readonly error: AxiosError;
+  };
+
 /** @internal Gets a cached token or emits an OAuth sign-in card. */
 export async function startOAuthSignIn(
   context: IActivityContext,
@@ -119,9 +161,11 @@ export async function startOAuthSignIn(
   };
   const state = Buffer.from(JSON.stringify(tokenExchangeState)).toString('base64');
   const resource = await context.api.bots.signIn.getResource({ state });
-  const isChannel = context.activity.conversation.conversationType === 'channel';
-  const isGroup = context.activity.conversation.isGroup === true;
-  const recipient = isGroup
+  const conversationType = context.activity.conversation.conversationType;
+  const isChannel = conversationType === 'channel';
+  const isChannelOrGroup =
+    isChannel || conversationType === 'groupChat';
+  const recipient = isChannelOrGroup
     ? { ...context.activity.from, isTargeted: true }
     : context.activity.from;
   const tokenExchangeResource = isChannel
@@ -208,11 +252,22 @@ export type OAuthSignInFailureHandler<
 export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
   private static readonly PENDING_TTL_MS = 5 * 60 * 1000;
   private static readonly MAX_PENDING_ENTRIES = 1_000;
+  private static readonly EXCHANGE_TTL_MS = 5 * 60 * 1000;
+  private static readonly MAX_EXCHANGE_ENTRIES = 1_000;
+  private static readonly EXCHANGE_STATE_KEY = '__oauth:exchanges';
 
   private signInCompleteHandler?: OAuthSignInCompleteHandler<TPlugin>;
   private signInFailureHandler?: OAuthSignInFailureHandler<TPlugin>;
   private readonly pendingSignIns = new Map<string, number>();
   private readonly pendingSsoSignIns = new Map<string, number>();
+  // Process-local only: this map collapses concurrent duplicates that reach the
+  // same instance; persisted conversation state covers cross-instance retries.
+  private readonly tokenExchangeLocks = new Map<
+    string,
+    Promise<OAuthTokenExchangeResult>
+  >();
+  // Retains completed exchanges when state is disabled or unavailable.
+  private readonly processedExchanges = new Map<string, number>();
 
   /**
    * Creates an OAuth flow for a connection.
@@ -396,6 +451,198 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
     await this.signInFailureHandler?.(context, failure);
   }
 
+  /** @internal Exchanges an SSO token for this flow. */
+  async exchangeToken(
+    context: IActivityContext<
+      ISignInTokenExchangeInvokeActivity,
+      PluginAdditionalContext<TPlugin>
+    >,
+    value: ISignInTokenExchangeInvokeActivity['value'],
+    applyToken: (token: TokenResponse) => void | Promise<void>
+  ): Promise<OAuthTokenExchangeResult> {
+    return traceOAuthOperation(
+      APP_SPAN_NAMES.oauth,
+      this.connectionName,
+      APP_OAUTH_OPERATION.tokenExchange,
+      async (span, telemetry) => {
+        const exchangeId = value.id;
+        if (exchangeId) {
+          if (this.isExchangeProcessed(context, exchangeId)) {
+            telemetry.result = APP_OAUTH_RESULT.duplicate;
+            telemetry.responseStatus = 200;
+            return { kind: 'duplicate', status: 200 };
+          }
+
+          const existingLock = this.tokenExchangeLocks.get(exchangeId);
+          if (existingLock) {
+            const result = await existingLock;
+            telemetry.result = result.status === 200
+              ? APP_OAUTH_RESULT.duplicate
+              : APP_OAUTH_RESULT.failure;
+            telemetry.responseStatus = result.status;
+            return result.kind === 'success'
+              ? { kind: 'duplicate', status: 200 }
+              : result;
+          }
+        }
+
+        const performExchange = async (): Promise<OAuthTokenExchangeResult> => {
+          let token: TokenResponse;
+          try {
+            token = await context.api.users.exchangeToken({
+              channelId: context.activity.channelId,
+              userId: context.activity.from.id,
+              connectionName: this.connectionName,
+              exchangeRequest: {
+                token: value.token,
+              },
+            });
+          } catch (error) {
+            if (!(error instanceof AxiosError)) {
+              // Token-service failures use AxiosError. Let anything outside
+              // that contract follow the app's normal error handling.
+              throw error;
+            }
+
+            if (isMissingTokenError(error)) {
+              // 412 tells Teams that silent SSO could not complete and it
+              // should fall back to the interactive OAuth card.
+              await this.fail(context);
+              telemetry.callbackInvoked =
+                this.signInFailureHandler !== undefined;
+              telemetry.result = APP_OAUTH_RESULT.failure;
+              telemetry.responseStatus = 412;
+              return this.tokenExchangeFailure(value.id);
+            }
+
+            // Unexpected service statuses are operational errors, not a
+            // request for interactive fallback, so preserve their status.
+            this.clearPending(context);
+            await this.fail(context);
+            telemetry.callbackInvoked =
+              this.signInFailureHandler !== undefined;
+            telemetry.result = APP_OAUTH_RESULT.failure;
+            const status = error.status || 500;
+            telemetry.responseStatus = status;
+            recordUnexpectedOAuthError(
+              span,
+              telemetry,
+              error,
+              APP_OAUTH_ERROR_TYPE.httpError
+            );
+            return { kind: 'error', status, error };
+          }
+
+          if (!token?.token) {
+            this.clearPending(context);
+            await this.fail(context);
+            telemetry.callbackInvoked = this.signInFailureHandler !== undefined;
+            telemetry.result = APP_OAUTH_RESULT.failure;
+            telemetry.responseStatus = 412;
+            return this.tokenExchangeFailure(value.id);
+          }
+
+          if (exchangeId) {
+            this.markExchangeProcessed(context, exchangeId);
+          }
+
+          this.clearPending(context);
+          await applyToken(token);
+          await this.complete(context, token);
+          telemetry.callbackInvoked = this.signInCompleteHandler !== undefined;
+          telemetry.result = APP_OAUTH_RESULT.success;
+          telemetry.responseStatus = 200;
+          return { kind: 'success', status: 200, token };
+        };
+
+        if (!exchangeId) {
+          return performExchange();
+        }
+
+        const lock = performExchange();
+        this.tokenExchangeLocks.set(exchangeId, lock);
+        try {
+          return await lock;
+        } finally {
+          this.tokenExchangeLocks.delete(exchangeId);
+        }
+      }
+    );
+  }
+
+  /** @internal Attempts to redeem a verify-state code for this flow. */
+  async verifyState(
+    context: IActivityContext<
+      ISignInVerifyStateInvokeActivity,
+      PluginAdditionalContext<TPlugin>
+    >,
+    state: string | undefined,
+    applyToken: (token: TokenResponse) => void | Promise<void>
+  ): Promise<OAuthVerifyStateResult> {
+    return traceOAuthOperation(
+      APP_SPAN_NAMES.oauth,
+      this.connectionName,
+      APP_OAUTH_OPERATION.verifyState,
+      async (span, telemetry) => {
+        if (!state) {
+          context.log.warn(
+            `auth state not found for conversation "${context.activity.conversation.id}" and user "${context.activity.from.id}"`
+          );
+          telemetry.result = APP_OAUTH_RESULT.noToken;
+          telemetry.responseStatus = 404;
+          return { kind: 'miss', status: 404 };
+        }
+
+        let token: TokenResponse;
+        try {
+          token = await context.api.users.getToken({
+            channelId: context.activity.channelId,
+            userId: context.activity.from.id,
+            connectionName: this.connectionName,
+            code: state,
+          });
+        } catch (error) {
+          if (!(error instanceof AxiosError)) {
+            throw error;
+          }
+
+          this.clearPending(context);
+          await this.fail(context);
+          telemetry.callbackInvoked = this.signInFailureHandler !== undefined;
+          telemetry.result = APP_OAUTH_RESULT.failure;
+          if (isMissingTokenError(error)) {
+            telemetry.responseStatus = 412;
+            return { kind: 'miss', status: 412 };
+          }
+
+          const status = error.status || 500;
+          telemetry.responseStatus = status;
+          recordUnexpectedOAuthError(
+            span,
+            telemetry,
+            error,
+            APP_OAUTH_ERROR_TYPE.httpError
+          );
+          return { kind: 'error', status, error };
+        }
+
+        if (!token?.token) {
+          telemetry.result = APP_OAUTH_RESULT.noToken;
+          telemetry.responseStatus = 412;
+          return { kind: 'miss', status: 412 };
+        }
+
+        this.clearPending(context);
+        await applyToken(token);
+        await this.complete(context, token);
+        telemetry.callbackInvoked = this.signInCompleteHandler !== undefined;
+        telemetry.result = APP_OAUTH_RESULT.success;
+        telemetry.responseStatus = 200;
+        return { kind: 'success', status: 200, token };
+      }
+    );
+  }
+
   /** @internal Records this flow as the source of an interactive sign-in. */
   recordPending(context: IActivityContext, supportsSso: boolean): void {
     const startedAt = Date.now();
@@ -484,6 +731,109 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
     }
   }
 
+  private tokenExchangeFailure(
+    id: string
+  ): Extract<OAuthTokenExchangeResult, { kind: 'fallback' }> {
+    return {
+      kind: 'fallback',
+      status: 412,
+      body: {
+        id,
+        connectionName: this.connectionName,
+        failureDetail: 'unable to exchange token...',
+      },
+    };
+  }
+
+  private isExchangeProcessed(
+    context: IActivityContext,
+    exchangeId: string
+  ): boolean {
+    const now = Date.now();
+    const stateTimestamp = this.getExchangeState(context, now)[exchangeId];
+    if (
+      stateTimestamp !== undefined &&
+      now - stateTimestamp < OAuthFlow.EXCHANGE_TTL_MS
+    ) {
+      return true;
+    }
+
+    this.pruneProcessedExchanges(now);
+    return this.processedExchanges.has(exchangeId);
+  }
+
+  private markExchangeProcessed(
+    context: IActivityContext,
+    exchangeId: string
+  ): void {
+    const timestamp = Date.now();
+    this.processedExchanges.set(exchangeId, timestamp);
+    this.pruneProcessedExchanges(timestamp);
+
+    const conversationState = context.state?.conversation;
+    if (!conversationState) {
+      return;
+    }
+
+    const exchanges = this.getExchangeState(context, timestamp);
+    exchanges[exchangeId] = timestamp;
+    const bounded = Object.fromEntries(
+      Object.entries(exchanges)
+        .sort(([, left], [, right]) => right - left)
+        .slice(0, OAuthFlow.MAX_EXCHANGE_ENTRIES)
+    );
+    conversationState.set(OAuthFlow.EXCHANGE_STATE_KEY, bounded);
+  }
+
+  private pruneProcessedExchanges(now: number): void {
+    for (const [exchangeId, timestamp] of this.processedExchanges) {
+      if (now - timestamp >= OAuthFlow.EXCHANGE_TTL_MS) {
+        this.processedExchanges.delete(exchangeId);
+      }
+    }
+
+    if (this.processedExchanges.size <= OAuthFlow.MAX_EXCHANGE_ENTRIES) {
+      return;
+    }
+
+    for (const [exchangeId] of [...this.processedExchanges.entries()]
+      .sort(([, left], [, right]) => right - left)
+      .slice(OAuthFlow.MAX_EXCHANGE_ENTRIES)) {
+      this.processedExchanges.delete(exchangeId);
+    }
+  }
+
+  private getExchangeState(
+    context: IActivityContext,
+    now: number
+  ): Record<string, number> {
+    const conversationState = context.state?.conversation;
+    if (!conversationState) {
+      return {};
+    }
+
+    const stored = conversationState.get<Record<string, number>>(
+      OAuthFlow.EXCHANGE_STATE_KEY
+    ) ?? {};
+    const current = Object.fromEntries(
+      Object.entries(stored)
+        .filter(([, timestamp]) =>
+          Number.isFinite(timestamp) &&
+          now - timestamp < OAuthFlow.EXCHANGE_TTL_MS
+        )
+        .sort(([, left], [, right]) => right - left)
+        .slice(0, OAuthFlow.MAX_EXCHANGE_ENTRIES)
+    );
+
+    if (Object.keys(current).length !== Object.keys(stored).length) {
+      if (Object.keys(current).length === 0) {
+        conversationState.delete(OAuthFlow.EXCHANGE_STATE_KEY);
+      } else {
+        conversationState.set(OAuthFlow.EXCHANGE_STATE_KEY, current);
+      }
+    }
+    return current;
+  }
 }
 
 /**

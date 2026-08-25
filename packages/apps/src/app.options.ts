@@ -135,8 +135,10 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * Pass `true` to use the app storage with the default key prefix, or provide
    * options to configure dedicated storage and a custom key prefix. State is
    * disabled when omitted or `false`. Registering an OAuth flow automatically
-   * enables state when this option is omitted. Explicit `false` keeps state
-   * disabled and uses process-local OAuth lifecycle tracking instead.
+   * enables state with process-local `LocalStorage` when this option is omitted.
+   * Configure shared `state.storage` before running registered OAuth flows on
+   * multiple instances. Explicit `false` keeps state disabled and uses
+   * process-local OAuth lifecycle tracking instead.
    */
   readonly state?: boolean | StateOptions;
 
@@ -167,8 +169,10 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * Every connection must be listed. This option cannot be combined
    * with `oauth.defaultConnectionName`. Deprecated `ctx.signin()` and
    * `ctx.signout()` calls must name a connection when flows are registered.
-   * Declaring any flow enables turn state when `state` is omitted. Set `state`
-   * options to control its storage, or set `state: false` to use process-local
+   * Declaring any flow enables turn state with process-local `LocalStorage` when
+   * `state` is omitted. Configure shared `state.storage` before running multiple
+   * instances so pending sign-in attribution and token-exchange deduplication
+   * remain available across requests. Set `state: false` to use process-local
    * OAuth lifecycle tracking instead.
    */
   readonly oauthFlows?: ReadonlyArray<string>;

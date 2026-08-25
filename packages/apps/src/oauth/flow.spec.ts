@@ -1,7 +1,11 @@
 import type { Span } from '@opentelemetry/api';
 import { AxiosError } from 'axios';
 
-import type { TokenResponse, TokenStatus } from '@microsoft/teams.api';
+import type {
+  ISignInVerifyStateInvokeActivity,
+  TokenResponse,
+  TokenStatus,
+} from '@microsoft/teams.api';
 
 import type { IActivityContext } from '../contexts';
 import {
@@ -142,6 +146,33 @@ describe('OAuthFlow', () => {
     await expect(new OAuthFlow('graph').getToken(context)).rejects.toBe(error);
   });
 
+  it('distinguishes verify-state misses from expected HTTP failures', async () => {
+    const failure = jest.fn();
+    const flow = new OAuthFlow('graph').onSignInFailure(failure);
+    const verifyContext = context as IActivityContext<ISignInVerifyStateInvokeActivity>;
+    getToken.mockResolvedValueOnce({});
+
+    await expect(flow.verifyState(verifyContext, 'code', jest.fn())).resolves.toEqual({
+      kind: 'miss',
+      status: 412,
+    });
+    expect(failure).not.toHaveBeenCalled();
+
+    getToken.mockRejectedValueOnce(new AxiosError('missing', '404', undefined, undefined, {
+      status: 404,
+      statusText: 'Not Found',
+      headers: {},
+      config: {} as never,
+      data: {},
+    }));
+
+    await expect(flow.verifyState(verifyContext, 'code', jest.fn())).resolves.toEqual({
+      kind: 'miss',
+      status: 412,
+    });
+    expect(failure).toHaveBeenCalledWith(expect.anything(), undefined);
+  });
+
   it('returns a cached token from sign-in and records the cached result', async () => {
     getToken.mockResolvedValue(token);
 
@@ -217,6 +248,101 @@ describe('OAuthFlow', () => {
       'graph',
       APP_OAUTH_OPERATION.signIn,
       APP_OAUTH_RESULT.cardSent
+    );
+  });
+
+  it('targets the sender and omits silent token exchange in channels', async () => {
+    context = {
+      ...context,
+      activity: {
+        ...context.activity,
+        conversation: {
+          id: 'conversation-id',
+          conversationType: 'channel',
+        },
+      },
+    } as IActivityContext;
+    getToken.mockRejectedValue(new AxiosError('missing', '404', undefined, undefined, {
+      status: 404,
+      statusText: 'Not Found',
+      headers: {},
+      config: {} as never,
+      data: {},
+    }));
+    getSignInResource.mockResolvedValue({
+      signInLink: 'https://token.botframework.com/signin',
+      tokenExchangeResource: {
+        id: 'exchange-id',
+        uri: 'api://app-id',
+        providerId: 'provider-id',
+      },
+    });
+
+    await new OAuthFlow('graph').signIn(context);
+
+    expect(send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        recipient: expect.objectContaining({
+          id: 'user-id',
+          isTargeted: true,
+        }),
+        attachments: [
+          expect.objectContaining({
+            content: expect.objectContaining({
+              tokenExchangeResource: undefined,
+            }),
+          }),
+        ],
+      }),
+      expect.anything()
+    );
+  });
+
+  it('targets the sender and retains silent token exchange in group chats', async () => {
+    context = {
+      ...context,
+      activity: {
+        ...context.activity,
+        conversation: {
+          id: 'conversation-id',
+          conversationType: 'groupChat',
+        },
+      },
+    } as IActivityContext;
+    getToken.mockRejectedValue(new AxiosError('missing', '404', undefined, undefined, {
+      status: 404,
+      statusText: 'Not Found',
+      headers: {},
+      config: {} as never,
+      data: {},
+    }));
+    const tokenExchangeResource = {
+      id: 'exchange-id',
+      uri: 'api://app-id',
+      providerId: 'provider-id',
+    };
+    getSignInResource.mockResolvedValue({
+      signInLink: 'https://token.botframework.com/signin',
+      tokenExchangeResource,
+    });
+
+    await new OAuthFlow('graph').signIn(context);
+
+    expect(send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        recipient: expect.objectContaining({
+          id: 'user-id',
+          isTargeted: true,
+        }),
+        attachments: [
+          expect.objectContaining({
+            content: expect.objectContaining({
+              tokenExchangeResource,
+            }),
+          }),
+        ],
+      }),
+      expect.anything()
     );
   });
 

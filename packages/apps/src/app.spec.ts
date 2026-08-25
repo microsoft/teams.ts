@@ -2,6 +2,7 @@ import { ConfidentialClientApplication } from '@azure/msal-node';
 import jwt from 'jsonwebtoken';
 
 import { CHINA, JsonWebToken, MessageActivity, PUBLIC, US_GOV, US_GOV_DOD, withOverrides } from '@microsoft/teams.api';
+import { ConsoleLogger } from '@microsoft/teams.common';
 
 import { App } from './app';
 import { TestAdapter } from './test-utils';
@@ -76,6 +77,39 @@ describe('App', () => {
       expect(app.getOAuthFlow('GRAPH').connectionName).toBe('graph');
       expect(app.getOAuthFlow('GitHub').connectionName).toBe('github');
     });
+
+    it.each([
+      ['declaratively', (logger: ConsoleLogger) => new App({
+        httpServerAdapter: new TestAdapter(),
+        logger,
+        oauthFlows: ['graph'],
+      })],
+      ['imperatively', (logger: ConsoleLogger) => {
+        const app = new App({
+          httpServerAdapter: new TestAdapter(),
+          logger,
+        });
+        app.addOAuthFlow('graph');
+        return app;
+      }],
+    ])(
+      'warns about the OAuth consequence when state is enabled %s',
+      (_registration, createApp) => {
+        const logger = new ConsoleLogger('test');
+        const warn = jest.spyOn(logger, 'warn').mockImplementation();
+
+        createApp(logger);
+
+        expect(warn).toHaveBeenCalledWith(
+          expect.stringContaining(
+            'OAuth sign-in may fail in multi-instance deployments'
+          )
+        );
+        expect(warn).toHaveBeenCalledWith(
+          expect.stringContaining('Configure state.storage with shared storage')
+        );
+      }
+    );
 
     it('registers the former default explicitly without retaining a placeholder', () => {
       const app = new App({ httpServerAdapter: new TestAdapter() });

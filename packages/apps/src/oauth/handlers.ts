@@ -1,12 +1,8 @@
-import type { Span } from '@opentelemetry/api';
-import { AxiosError } from 'axios';
-
 import {
   ISignInFailureInvokeActivity,
   ISignInTokenExchangeInvokeActivity,
   ISignInVerifyStateInvokeActivity,
   SignInFailure,
-  TokenExchangeInvokeResponse,
   TokenResponse,
 } from '@microsoft/teams.api';
 import { Client as HttpClient, EventEmitter } from '@microsoft/teams.common';
@@ -14,7 +10,6 @@ import { Client as GraphClient } from '@microsoft/teams.graph';
 
 import * as contexts from '../contexts';
 import {
-  APP_OAUTH_ERROR_TYPE,
   APP_OAUTH_OPERATION,
   APP_OAUTH_RESULT,
   APP_SPAN_NAMES,
@@ -22,15 +17,9 @@ import {
 import { AppEvents, IPlugin } from '../types';
 import { PluginAdditionalContext } from '../types/app-routing';
 
-import {
-  OAuthTelemetryState,
-  recordUnexpectedOAuthError,
-  traceOAuthOperation,
-} from './telemetry';
+import { traceOAuthOperation } from './telemetry';
 
 import { OAuthFlow } from '.';
-
-const EXPECTED_OAUTH_HTTP_STATUSES = new Set([400, 404, 412]);
 
 /**
  * Default handlers for the SSO sign-in invoke activities
@@ -41,16 +30,6 @@ const EXPECTED_OAUTH_HTTP_STATUSES = new Set([400, 404, 412]);
  * class fields so they can be passed directly as route callbacks.
  */
 export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
-  private static readonly STATE_TTL_MS = 5 * 60 * 1000;
-  private static readonly MAX_EXCHANGE_ENTRIES = 1_000;
-  private static readonly EXCHANGE_STATE_KEY = '__oauth:exchanges';
-
-  // Process-local only: this map collapses concurrent duplicates that reach the
-  // same instance; persisted conversation state covers cross-instance retries.
-  private readonly tokenExchangeLocks = new Map<string, Promise<{ status: number, body?: TokenExchangeInvokeResponse }>>();
-  // Retains completed exchanges when state is disabled or unavailable.
-  private readonly processedExchanges = new Map<string, number>();
-
   constructor(
     private readonly getFlows: () => readonly OAuthFlow<TPlugin>[],
     private readonly client: HttpClient,
@@ -61,156 +40,72 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
   onTokenExchange = async (
     ctx: contexts.IActivityContext<ISignInTokenExchangeInvokeActivity, PluginAdditionalContext<TPlugin>>
   ) => {
-    const { api, activity, next } = ctx;
+    const { activity, next } = ctx;
     const value = activity.value;
-    const activityConnectionName = value?.connectionName;
-    const flow = this.findFlow(activityConnectionName);
-    const connectionName = flow?.connectionName ?? activityConnectionName ?? '';
+    const flow = this.findFlow(value?.connectionName);
 
-    return traceOAuthOperation(
-      APP_SPAN_NAMES.oauth,
-      connectionName,
-      APP_OAUTH_OPERATION.tokenExchange,
-      async (span, telemetry) => {
-        if (!value || !flow) {
-          telemetry.result = APP_OAUTH_RESULT.failure;
-          telemetry.responseStatus = 400;
-          return { status: 400 };
-        }
-        const exchangeId = value.id;
-        if (exchangeId) {
-          if (this.isExchangeProcessed(ctx, exchangeId)) {
-            telemetry.result = APP_OAUTH_RESULT.duplicate;
-            telemetry.responseStatus = 200;
-            return { status: 200 };
-          }
-          const existingLock = this.tokenExchangeLocks.get(exchangeId);
-          if (existingLock) {
-            const result = await existingLock;
-            telemetry.result = result.status === 200
-              ? APP_OAUTH_RESULT.duplicate
-              : APP_OAUTH_RESULT.failure;
-            telemetry.responseStatus = result.status;
-            return result;
-          }
-        }
+    if (!value || !flow) {
+      return { status: 400 };
+    }
 
-        const performExchange = async () => {
-          let token: TokenResponse;
-          try {
-            token = await api.users.exchangeToken({
-              channelId: activity.channelId,
-              userId: activity.from.id,
-              connectionName,
-              exchangeRequest: {
-                token: value.token,
-              },
-            });
-          } catch (error) {
-            if (error instanceof AxiosError) {
-              if (isExpectedOAuthHttpStatus(error)) {
-                await flow.fail(ctx);
-                telemetry.result = APP_OAUTH_RESULT.failure;
-                telemetry.responseStatus = 412;
-                return this.tokenExchangeFailure(value.id, connectionName);
-              } else {
-                this.clearPending(ctx, flow);
-                await flow.fail(ctx);
-                telemetry.result = APP_OAUTH_RESULT.failure;
-                telemetry.responseStatus = error.status || 500;
-                recordUnexpectedOAuthError(span, telemetry, error, APP_OAUTH_ERROR_TYPE.httpError);
-                this.events.emit('error', { error, activity });
-                return { status: error.status || 500 };
-              }
-            } else {
-              this.clearPending(ctx, flow);
-              await flow.fail(ctx);
-              recordUnexpectedOAuthError(span, telemetry, error, APP_OAUTH_ERROR_TYPE.exception);
-            }
-
-            telemetry.result = APP_OAUTH_RESULT.failure;
-            telemetry.responseStatus = 412;
-            return this.tokenExchangeFailure(value.id, connectionName);
-          }
-
-          if (!token?.token) {
-            this.clearPending(ctx, flow);
-            await flow.fail(ctx);
-            telemetry.result = APP_OAUTH_RESULT.failure;
-            telemetry.responseStatus = 412;
-            return this.tokenExchangeFailure(value.id, connectionName);
-          }
-
-          if (exchangeId) {
-            this.markExchangeProcessed(ctx, exchangeId);
-          }
-
-          this.clearPending(ctx, flow);
-          this.applyUserToken(ctx, token);
-          await flow.complete(ctx, token);
-          this.events.emit('signin', {
-            ...ctx,
-            connectionName: flow.connectionName,
-            token,
-            isSignedIn: true,
-          });
-          telemetry.callbackInvoked = true;
-          await next(ctx);
-          telemetry.result = APP_OAUTH_RESULT.success;
-          telemetry.responseStatus = 200;
-          return { status: 200 };
-        };
-
-        if (exchangeId) {
-          const lock = performExchange();
-          this.tokenExchangeLocks.set(exchangeId, lock);
-          try {
-            return await lock;
-          } finally {
-            this.tokenExchangeLocks.delete(exchangeId);
-          }
-        } else {
-          return await performExchange();
-        }
-      }
+    const response = await flow.exchangeToken(
+      ctx,
+      value,
+      token => this.applyUserToken(ctx, token)
     );
+
+    switch (response.kind) {
+      case 'error':
+        this.events.emit('error', { error: response.error, activity });
+        return { status: response.status };
+      case 'success':
+        this.events.emit('signin', {
+          ...ctx,
+          connectionName: flow.connectionName,
+          token: response.token,
+          isSignedIn: true,
+        });
+        await next(ctx);
+        return { status: 200 };
+      case 'fallback':
+        return { status: 412, body: response.body };
+      case 'duplicate':
+        return { status: 200 };
+    }
   };
 
   onVerifyState = async (
     ctx: contexts.IActivityContext<ISignInVerifyStateInvokeActivity, PluginAdditionalContext<TPlugin>>
   ) => {
-    const { log, activity, next } = ctx;
+    const { activity, next } = ctx;
     const flows = this.getOrderedFlows(ctx, false);
-    const connectionName = flows[0]?.connectionName ?? '';
 
-    return traceOAuthOperation(
-      APP_SPAN_NAMES.oauth,
-      connectionName,
-      APP_OAUTH_OPERATION.verifyState,
-      async (span, telemetry) => {
-        if (!activity.value?.state) {
-          log.warn(
-            `auth state not found for conversation "${activity.conversation.id}" and user "${activity.from.id}"`
-          );
-          telemetry.result = APP_OAUTH_RESULT.noToken;
-          telemetry.responseStatus = 404;
-          return { status: 404 };
-        }
+    for (const flow of flows) {
+      const response = await flow.verifyState(
+        ctx,
+        activity.value?.state,
+        token => this.applyUserToken(ctx, token)
+      );
 
-        for (const flow of flows) {
-          const response = await this.verifyFlow(ctx, flow, activity.value.state, span, telemetry);
-          if (response.status === 200) {
-            telemetry.callbackInvoked = true;
-            await next(ctx);
-            return response;
-          }
-        }
-
-        telemetry.result = APP_OAUTH_RESULT.noToken;
-        telemetry.responseStatus = 404;
-        return { status: 404 };
+      switch (response.kind) {
+        case 'error':
+          this.events.emit('error', { error: response.error, activity });
+          return { status: response.status };
+        case 'success':
+          this.events.emit('signin', {
+            ...ctx,
+            connectionName: flow.connectionName,
+            token: response.token,
+            isSignedIn: true,
+          });
+          await next(ctx);
+          return { status: 200 };
+        case 'miss':
+          break;
       }
-    );
+    }
+
+    return { status: 404 };
   };
 
   /**
@@ -261,7 +156,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
         );
 
         for (const flow of flows) {
-          this.clearPending(ctx, flow);
+          flow.clearPending(ctx);
           await flow.fail(ctx, failure);
         }
 
@@ -287,61 +182,6 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
     return this.getFlows().find(flow => flow.connectionName.toLowerCase() === normalized);
   }
 
-  private async verifyFlow(
-    ctx: contexts.IActivityContext<ISignInVerifyStateInvokeActivity, PluginAdditionalContext<TPlugin>>,
-    flow: OAuthFlow<TPlugin>,
-    state: string,
-    span: Span,
-    telemetry: OAuthTelemetryState
-  ): Promise<{ status: number }> {
-    let token: TokenResponse;
-    try {
-      token = await ctx.api.users.getToken({
-        channelId: ctx.activity.channelId,
-        userId: ctx.activity.from.id,
-        connectionName: flow.connectionName,
-        code: state,
-      });
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        this.clearPending(ctx, flow);
-        await flow.fail(ctx);
-        if (!isExpectedOAuthHttpStatus(error)) {
-          telemetry.result = APP_OAUTH_RESULT.failure;
-          telemetry.responseStatus = error.status || 500;
-          recordUnexpectedOAuthError(span, telemetry, error, APP_OAUTH_ERROR_TYPE.httpError);
-          this.events.emit('error', { error, activity: ctx.activity });
-          return { status: error.status || 500 };
-        }
-      } else {
-        throw error;
-      }
-
-      telemetry.result = APP_OAUTH_RESULT.failure;
-      telemetry.responseStatus = 412;
-      return { status: 412 };
-    }
-
-    if (!token?.token) {
-      telemetry.result = APP_OAUTH_RESULT.noToken;
-      telemetry.responseStatus = 412;
-      return { status: 412 };
-    }
-
-    this.clearPending(ctx, flow);
-    this.applyUserToken(ctx, token);
-    await flow.complete(ctx, token);
-    this.events.emit('signin', {
-      ...ctx,
-      connectionName: flow.connectionName,
-      token,
-      isSignedIn: true,
-    });
-    telemetry.result = APP_OAUTH_RESULT.success;
-    telemetry.responseStatus = 200;
-    return { status: 200 };
-  }
-
   private applyUserToken(ctx: contexts.IActivityContext, token: TokenResponse): void {
     ctx.userToken = token.token;
     ctx.isSignedIn = true;
@@ -351,69 +191,6 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
       }),
       { baseUrlRoot: this.graphBaseUrl }
     );
-  }
-
-  private tokenExchangeFailure(
-    id: string,
-    connectionName: string
-  ): { status: number, body: TokenExchangeInvokeResponse } {
-    return {
-      status: 412,
-      body: {
-        id,
-        connectionName,
-        failureDetail: 'unable to exchange token...',
-      },
-    };
-  }
-
-  private isExchangeProcessed(ctx: contexts.IActivityContext, exchangeId: string): boolean {
-    const now = Date.now();
-    const stateTimestamp = this.getExchangeState(ctx, now)[exchangeId];
-    if (stateTimestamp !== undefined && now - stateTimestamp < OauthHandlers.STATE_TTL_MS) {
-      return true;
-    }
-
-    this.pruneProcessedExchanges(now);
-    return this.processedExchanges.has(exchangeId);
-  }
-
-  private markExchangeProcessed(ctx: contexts.IActivityContext, exchangeId: string): void {
-    const timestamp = Date.now();
-    this.processedExchanges.set(exchangeId, timestamp);
-    this.pruneProcessedExchanges(timestamp);
-
-    const conversationState = ctx.state?.conversation;
-    if (!conversationState) {
-      return;
-    }
-
-    const exchanges = this.getExchangeState(ctx, timestamp);
-    exchanges[exchangeId] = timestamp;
-    const bounded = Object.fromEntries(
-      Object.entries(exchanges)
-        .sort(([, left], [, right]) => right - left)
-        .slice(0, OauthHandlers.MAX_EXCHANGE_ENTRIES)
-    );
-    conversationState.set(OauthHandlers.EXCHANGE_STATE_KEY, bounded);
-  }
-
-  private pruneProcessedExchanges(now: number): void {
-    for (const [exchangeId, timestamp] of this.processedExchanges) {
-      if (now - timestamp >= OauthHandlers.STATE_TTL_MS) {
-        this.processedExchanges.delete(exchangeId);
-      }
-    }
-
-    if (this.processedExchanges.size <= OauthHandlers.MAX_EXCHANGE_ENTRIES) {
-      return;
-    }
-
-    for (const [exchangeId] of [...this.processedExchanges.entries()]
-      .sort(([, left], [, right]) => right - left)
-      .slice(OauthHandlers.MAX_EXCHANGE_ENTRIES)) {
-      this.processedExchanges.delete(exchangeId);
-    }
   }
 
   private getOrderedFlows(
@@ -426,47 +203,4 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
     );
   }
 
-  private clearPending(
-    ctx: contexts.IActivityContext,
-    flow: OAuthFlow<TPlugin>
-  ): void {
-    flow.clearPending(ctx);
-  }
-
-  private getExchangeState(
-    ctx: contexts.IActivityContext,
-    now: number
-  ): Record<string, number> {
-    const conversationState = ctx.state?.conversation;
-    if (!conversationState) {
-      return {};
-    }
-
-    const stored = conversationState.get<Record<string, number>>(
-      OauthHandlers.EXCHANGE_STATE_KEY
-    ) ?? {};
-    const current = Object.fromEntries(
-      Object.entries(stored)
-        .filter(([, timestamp]) =>
-          Number.isFinite(timestamp) &&
-          now - timestamp < OauthHandlers.STATE_TTL_MS
-        )
-        .sort(([, left], [, right]) => right - left)
-        .slice(0, OauthHandlers.MAX_EXCHANGE_ENTRIES)
-    );
-
-    if (Object.keys(current).length !== Object.keys(stored).length) {
-      if (Object.keys(current).length === 0) {
-        conversationState.delete(OauthHandlers.EXCHANGE_STATE_KEY);
-      } else {
-        conversationState.set(OauthHandlers.EXCHANGE_STATE_KEY, current);
-      }
-    }
-    return current;
-  }
-
-}
-
-function isExpectedOAuthHttpStatus(error: AxiosError): boolean {
-  return error.status !== undefined && EXPECTED_OAUTH_HTTP_STATUSES.has(error.status);
 }

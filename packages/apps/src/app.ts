@@ -58,6 +58,7 @@ import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { IRoutes } from './routes';
 import { createStateLoader, TurnStateLoader } from './state';
+import { createOAuthStateLoader } from './state/loader';
 import { DEFAULT_TENANT_FOR_GRAPH_TOKEN, TokenManager } from './token-manager';
 import { AppTokenProvider, IAppTokenProvider } from './token-provider';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
@@ -166,7 +167,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       );
     }
     this.stateLoader = createStateLoader(
-      this.options.state ?? (hasConfiguredOAuthFlows ? true : undefined),
+      this.options.state,
       this.log
     );
 
@@ -835,10 +836,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   }
 
   private enableOAuthState(): void {
-    if (this.options.state === false) {
+    if (this.options.state === false || this.stateLoader) {
       return;
     }
-    this.stateLoader ??= createStateLoader(true, this.log);
+    this.stateLoader = createOAuthStateLoader(this.log);
   }
 
 }

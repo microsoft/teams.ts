@@ -86,10 +86,11 @@ describe('OauthHandlers', () => {
       expect(next).toHaveBeenCalled();
     });
 
-    it('returns 412 on generic error', async () => {
+    it('propagates generic errors', async () => {
+      const error = new Error('failed');
       const mockApi = {
         users: {
-          exchangeToken: jest.fn().mockRejectedValue(new Error('failed')),
+          exchangeToken: jest.fn().mockRejectedValue(error),
         }
       };
       
@@ -111,10 +112,8 @@ describe('OauthHandlers', () => {
         next: jest.fn()
       };
       
-      const result = await handlers.onTokenExchange(ctx);
-      
-      expect(result.status).toEqual(412);
-      expect(result.body).toBeDefined();
+      await expect(handlers.onTokenExchange(ctx)).rejects.toBe(error);
+      expect(ctx.next).not.toHaveBeenCalled();
     });
 
     it('returns 400 when the token exchange connection is not registered', async () => {
@@ -186,12 +185,13 @@ describe('OauthHandlers', () => {
       expect(next).toHaveBeenCalledTimes(1);
     });
 
-    it('returns 412 for concurrent callers when original exchange fails', async () => {
+    it('propagates one shared generic failure to concurrent callers', async () => {
+      const error = new Error('failed');
       const mockApi = {
         users: {
           exchangeToken: jest.fn().mockImplementation(async () => {
              await new Promise(r => setTimeout(r, 10));
-             throw new Error('failed');
+             throw error;
           }),
         }
       };
@@ -216,13 +216,15 @@ describe('OauthHandlers', () => {
       
       const emitSpy = jest.spyOn(mockEvents, 'emit');
 
-      const results = await Promise.all([
+      const results = await Promise.allSettled([
         handlers.onTokenExchange(ctx),
         handlers.onTokenExchange(ctx)
       ]);
       
-      expect(results[0].status).toEqual(412);
-      expect(results[1].status).toEqual(412);
+      expect(results).toEqual([
+        { status: 'rejected', reason: error },
+        { status: 'rejected', reason: error },
+      ]);
       expect(mockApi.users.exchangeToken).toHaveBeenCalledTimes(1);
       expect(emitSpy).not.toHaveBeenCalled();
       expect(ctx.next).not.toHaveBeenCalled();
@@ -613,7 +615,7 @@ describe('OauthHandlers diagnostics', () => {
     );
   });
 
-  it('emits token exchange success telemetry without recording token values', async () => {
+  it('emits token exchange success telemetry without a callback or token values', async () => {
     const ctx = createTokenExchangeContext({
       api: {
         users: {
@@ -635,8 +637,8 @@ describe('OauthHandlers diagnostics', () => {
     expect(span.attributes).toEqual(expect.objectContaining({
       'oauth.result': APP_OAUTH_RESULT.success,
       'invoke.response.status': 200,
-      'oauth.callback.invoked': true,
     }));
+    expect(span.attributes['oauth.callback.invoked']).toBeUndefined();
     expect(recordTeamsBotOAuthOperation).toHaveBeenCalledWith(
       'default-connection',
       APP_OAUTH_OPERATION.tokenExchange,
@@ -687,7 +689,7 @@ describe('OauthHandlers diagnostics', () => {
     expect(recordTeamsBotApplicationException).not.toHaveBeenCalled();
   });
 
-  it('records unexpected non-HTTP token exchange fallbacks as failures with OAuth errors', async () => {
+  it('records and propagates unexpected non-HTTP token exchange errors', async () => {
     const error = new Error('invalid operation');
     const ctx = createTokenExchangeContext({
       api: {
@@ -697,22 +699,14 @@ describe('OauthHandlers diagnostics', () => {
       },
     });
 
-    const response = await handlers.onTokenExchange(ctx as any);
+    await expect(handlers.onTokenExchange(ctx as any)).rejects.toBe(error);
     const span = spans[0];
 
-    expect(response).toEqual({
-      status: 412,
-      body: {
-        id: 'exchange-id',
-        connectionName: 'default-connection',
-        failureDetail: 'unable to exchange token...',
-      },
-    });
     expect(span.attributes).toEqual(expect.objectContaining({
       'oauth.result': APP_OAUTH_RESULT.failure,
-      'invoke.response.status': 412,
       'oauth.error.type': APP_OAUTH_ERROR_TYPE.exception,
     }));
+    expect(span.attributes['invoke.response.status']).toBeUndefined();
     expect(recordTeamsBotApplicationException).toHaveBeenCalledWith(span.span, error);
     expect(recordTeamsBotOAuthError).toHaveBeenCalledWith(
       'default-connection',
@@ -749,7 +743,7 @@ describe('OauthHandlers diagnostics', () => {
     );
   });
 
-  it('returns the final no-token response when no flow verifies the state', async () => {
+  it('returns the final no-token response after a flow records an expected failure', async () => {
     const ctx = createVerifyStateContext({
       api: {
         users: {
@@ -769,13 +763,13 @@ describe('OauthHandlers diagnostics', () => {
       'oauth.operation': APP_OAUTH_OPERATION.verifyState,
     });
     expect(span.attributes).toEqual(expect.objectContaining({
-      'oauth.result': APP_OAUTH_RESULT.noToken,
-      'invoke.response.status': 404,
+      'oauth.result': APP_OAUTH_RESULT.failure,
+      'invoke.response.status': 412,
     }));
     expect(recordTeamsBotOAuthOperation).toHaveBeenCalledWith(
       'default-connection',
       APP_OAUTH_OPERATION.verifyState,
-      APP_OAUTH_RESULT.noToken
+      APP_OAUTH_RESULT.failure
     );
     expect(recordTeamsBotOAuthError).not.toHaveBeenCalled();
     expect(recordTeamsBotApplicationException).not.toHaveBeenCalled();
@@ -841,11 +835,11 @@ describe('OauthHandlers diagnostics', () => {
     const response = await handlers.onVerifyState(ctx as any);
     const span = spans[0];
 
-    expect(response).toEqual({ status: 404 });
+    expect(response).toEqual({ status: 503 });
     expect(events.emit).toHaveBeenCalledWith('error', { error, activity: ctx.activity });
     expect(span.attributes).toEqual(expect.objectContaining({
-      'oauth.result': APP_OAUTH_RESULT.noToken,
-      'invoke.response.status': 404,
+      'oauth.result': APP_OAUTH_RESULT.failure,
+      'invoke.response.status': 503,
       'oauth.error.type': APP_OAUTH_ERROR_TYPE.httpError,
     }));
     expect(recordTeamsBotApplicationException).toHaveBeenCalledWith(span.span, error);
@@ -856,7 +850,7 @@ describe('OauthHandlers diagnostics', () => {
     );
   });
 
-  it('emits verify state success telemetry with callback-invoked attribute', async () => {
+  it('emits verify state success telemetry without a callback when none is registered', async () => {
     const ctx = createVerifyStateContext({
       api: {
         users: {
@@ -873,8 +867,8 @@ describe('OauthHandlers diagnostics', () => {
     expect(span.attributes).toEqual(expect.objectContaining({
       'oauth.result': APP_OAUTH_RESULT.success,
       'invoke.response.status': 200,
-      'oauth.callback.invoked': true,
     }));
+    expect(span.attributes['oauth.callback.invoked']).toBeUndefined();
     expect(recordTeamsBotOAuthOperation).toHaveBeenCalledWith(
       'default-connection',
       APP_OAUTH_OPERATION.verifyState,

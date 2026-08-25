@@ -96,7 +96,7 @@ export const APP_OAUTH_RESULT = {
  */
 export const APP_OAUTH_ERROR_TYPE = {
   httpError: 'http_error',
-  exception: 'invalid_op',
+  exception: 'exception',
 } as const;
 
 /**
