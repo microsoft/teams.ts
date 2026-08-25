@@ -16,7 +16,7 @@
     "build:bundle:visualize": "npx vite-bundle-visualizer"
   },
   "dependencies": {
-    "@fluentui/react-components": "^9.6.0",
+    "@fluentui/react-components": "^9.74.6",
     "@fluentui/react-icons": "^2.0.274",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.cards": "*",
