@@ -209,6 +209,7 @@ export class HttpStream implements IStreamer {
     const finalAttachments = this.finalActivity?.attachments ?? [];
     const finalEntities = this.finalActivity?.entities ?? [];
     const finalSuggestedActions = this.finalActivity?.suggestedActions;
+    const finalTextFormat = this.finalActivity?.textFormat;
 
     if (this.text === '' && !finalAttachments.length && !finalSuggestedActions) {
       this._logger.warn('no text, attachments, or suggested actions to send, cannot close stream');
@@ -229,6 +230,10 @@ export class HttpStream implements IStreamer {
         .addEntities(...finalEntities)
         .withChannelData(this.channelData)
         .addStreamFinal();
+
+      if (finalTextFormat) {
+        activity.withTextFormat(finalTextFormat);
+      }
 
       if (finalSuggestedActions) {
         activity.withSuggestedActions(finalSuggestedActions);
@@ -284,6 +289,7 @@ export class HttpStream implements IStreamer {
     const finalAttachments = this.finalActivity?.attachments ?? [];
     const finalEntities = (this.finalActivity?.entities ?? []).filter((e) => e.type !== 'streaminfo');
     const finalSuggestedActions = this.finalActivity?.suggestedActions;
+    const finalTextFormat = this.finalActivity?.textFormat;
 
     const activity: IMessageActivityInput = {
       type: 'message',
@@ -298,6 +304,10 @@ export class HttpStream implements IStreamer {
 
     if (finalSuggestedActions) {
       activity.suggestedActions = finalSuggestedActions;
+    }
+
+    if (finalTextFormat) {
+      activity.textFormat = finalTextFormat;
     }
 
     return this.sendWithRetry(activity);
@@ -369,14 +379,26 @@ export class HttpStream implements IStreamer {
       // Once the stream has timed out, stop sending chunks for this cycle.
       if (this._timedOut) return;
 
+      // Last message emitted wins for textFormat (matches finalActivity's attachments /
+      // entities / suggestedActions behavior), applied to every cumulative typing chunk
+      // below so intermediate updates render with the same format as the eventual final
+      // message.
+      const textFormat = this.finalActivity?.textFormat;
+
       // Send informative updates immediately
       for (const informativeUpdate of informativeUpdates) {
         const activity = new TypingActivityInput().withText(informativeUpdate.text || '').withChannelData({ streamType: 'informative' });
+        if (textFormat) {
+          activity.withTextFormat(textFormat);
+        }
         await this.pushStreamChunk(activity);
       }
 
       if (this.text) {
         const activity = new TypingActivityInput().withText(this.text);
+        if (textFormat) {
+          activity.withTextFormat(textFormat);
+        }
         await this.pushStreamChunk(activity);
       }
 
