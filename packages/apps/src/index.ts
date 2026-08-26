@@ -3,6 +3,7 @@ export * from './plugins';
 export * from './types';
 export * from './contexts';
 export * from './events';
+export * from './state';
 export * from './files';
 export * from './oauth';
 // Only the interface is public: the implementing class is constructed from the

@@ -8,6 +8,9 @@ export const APP_SPAN_NAMES = {
   oauthTokenExchange: 'microsoft.teams.oauth.token_exchange',
   oauthVerifyState: 'microsoft.teams.oauth.verify_state',
   oauthSigninFailure: 'microsoft.teams.oauth.signin_failure',
+  stateLoad: 'microsoft.teams.state.load',
+  stateSave: 'microsoft.teams.state.save',
+  stateDelete: 'microsoft.teams.state.delete',
 } as const;
 
 /**

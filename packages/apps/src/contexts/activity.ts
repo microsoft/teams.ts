@@ -23,6 +23,7 @@ import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common
 import { ApiClient, GraphClient } from '../api';
 import { FilesAccessor } from '../files/files-accessor';
 import { IFilesAccessor } from '../files/types';
+import { TurnStateContainer } from '../state';
 import { IStreamer } from '../types';
 import { IActivitySender } from '../types/plugin/sender';
 
@@ -93,8 +94,19 @@ export interface IBaseActivityContextOptions<T extends Activity = Activity> {
 
   /**
    * app storage instance
+   *
+   * @deprecated Use `state` for conversation or user state. Applications that
+   * need general persistence should own and use their storage provider directly.
    */
   storage: IStorage;
+
+  /**
+   * Conversation and user state loaded for this activity turn.
+   *
+   * This is undefined when state is disabled or the activity has no conversation ID.
+   * Do not retain the container after the handler completes; its scopes are sealed.
+   */
+  state?: TurnStateContainer;
 
   /**
    * whether the user has provided
@@ -233,7 +245,11 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   api!: ApiClient;
   appGraph!: GraphClient;
   userGraph!: GraphClient;
+  /**
+   * @deprecated Use `state` for conversation or user state.
+   */
   storage!: IStorage;
+  state?: TurnStateContainer;
   stream!: IStreamer;
   files!: IFilesAccessor;
   isSignedIn?: boolean;
@@ -474,6 +490,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       log: this.log,
       ref: this.ref,
       storage: this.storage,
+      state: this.state,
       stream: this.stream,
       files: this.files,
       isSignedIn: this.isSignedIn,

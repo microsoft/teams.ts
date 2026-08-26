@@ -39,6 +39,7 @@ import { IActivityEvent } from './events';
 import { Router } from './router';
 import type { Route } from './router/route';
 import { IRoutes } from './routes';
+import { TurnStateLoader } from './state';
 import { IActivitySender, IPlugin, RouteHandler, StreamCancelledError } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 
@@ -75,6 +76,10 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly api: ApiClient;
   readonly client: HttpClient;
   readonly storage: IStorage;
+  /**
+   * Loader used to attach and persist state for each activity turn.
+   */
+  readonly stateLoader?: TurnStateLoader;
   readonly log: ILogger;
   readonly getId: () => string | undefined;
   readonly getConnectionName: () => string;
@@ -254,6 +259,9 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         ...pluginContexts
       });
 
+      const conversationId = activity.conversation?.id;
+      const userId = activity.from?.id;
+
       const send = context.send.bind(context);
       context.send = async (activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) => {
         const res = await send(activity, conversationRef ?? ref);
@@ -280,43 +288,103 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         });
       });
 
-      let response: InvokeResponse;
-      try {
-        const res = await next();
+      const response = await this.executeTurnLifecycle(
+        context,
+        activity,
+        activityProcessSpan,
+        conversationId,
+        userId,
+        async () => {
+          try {
+            const res = await next();
+            await context.stream.close();
+            return isInvokeResponse(res)
+              ? res
+              : { status: 200, body: res };
+          } catch (error: any) {
+            if (!isStreamCancelledError(error)) {
+              throw error;
+            }
 
-        await context.stream.close();
-
-        if (isInvokeResponse(res)) {
-          response = res;
-        } else {
-          response = { status: 200, body: res };
+            this.options.log.debug('stream canceled, returning 200');
+            await context.stream.close();
+            return { status: 200 };
+          }
         }
+      );
 
-        this.options.eventManager.onActivityResponse({
-          ...ref,
-          activity,
-          response: res,
-        });
-      } catch (error: any) {
-        if (isStreamCancelledError(error)) {
-          this.options.log.debug('stream canceled, returning 200');
-          await context.stream.close();
-          response = { status: 200 };
-        } else {
-          response = { status: 500 };
-          recordTeamsBotApplicationException(activityProcessSpan, error);
-          this.options.eventManager.onError({ error, activity });
-        }
-
-        this.options.eventManager.onActivityResponse({
-          ...ref,
-          activity,
-          response: response,
-        });
-      }
+      this.options.eventManager.onActivityResponse({
+        ...ref,
+        activity,
+        response,
+      });
 
       return response;
     }));
+  }
+
+  private async executeTurnLifecycle(
+    context: ActivityContext,
+    activity: Activity,
+    activityProcessSpan: Span,
+    conversationId: string | undefined,
+    userId: string | undefined,
+    dispatch: () => Promise<InvokeResponse>
+  ): Promise<InvokeResponse> {
+    let response: InvokeResponse = { status: 500 };
+    let dispatchError: unknown;
+    let saveError: unknown;
+
+    try {
+      if (this.options.stateLoader && conversationId) {
+        context.state = await this.options.stateLoader.load(
+          conversationId,
+          userId
+        );
+      }
+      response = await dispatch();
+    } catch (error) {
+      dispatchError = error;
+    } finally {
+      if (context.state && this.options.stateLoader && conversationId) {
+        try {
+          await this.options.stateLoader.save(context.state);
+        } catch (error) {
+          saveError = error;
+        } finally {
+          context.state.seal();
+        }
+      }
+    }
+
+    if (dispatchError) {
+      await this.reportTurnError(
+        dispatchError,
+        activity,
+        activityProcessSpan
+      );
+    }
+    if (saveError) {
+      await this.reportTurnError(saveError, activity, activityProcessSpan);
+    }
+
+    if (dispatchError || saveError) {
+      return { status: 500 };
+    }
+
+    return response;
+  }
+
+  private async reportTurnError(
+    error: unknown,
+    activity: Activity,
+    activityProcessSpan: Span
+  ): Promise<void> {
+    recordTeamsBotApplicationException(activityProcessSpan, error);
+    await this.options.eventManager.onError({
+      error: error instanceof Error ? error : new Error(String(error)),
+      activity,
+    });
   }
 
   /**
