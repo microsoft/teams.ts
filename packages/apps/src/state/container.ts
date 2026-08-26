@@ -11,37 +11,25 @@ export class TurnStateContainer {
    * State for the current user within the current conversation.
    * Undefined when the activity has no sender ID.
    */
-  readonly user?: TurnState;
+   readonly user?: TurnState;
 
-  /** @internal Conversation storage key captured when this state was loaded. */
-  readonly conversationKey?: string;
+   private readonly deleter?: StateDeleter;
 
-  /** @internal User storage key captured when this state was loaded. */
-  readonly userKey?: string;
-
-  private readonly deleter?: StateDeleter;
-
-  /**
-   * Creates a loaded state container.
-   * @param conversation Conversation-scoped state.
-   * @param user Optional user-within-conversation state.
-   * @param deleter Optional callback that removes persisted scopes. Normally supplied by the app.
-   * @param conversationKey Optional conversation storage key. Normally supplied by the app.
-   * @param userKey Optional user storage key. Normally supplied by the app.
-   */
-  constructor(
-    conversation: TurnState,
-    user?: TurnState,
-    deleter?: StateDeleter,
-    conversationKey?: string,
-    userKey?: string
-  ) {
-    this.conversation = conversation;
-    this.user = user;
-    this.deleter = deleter;
-    this.conversationKey = conversationKey;
-    this.userKey = userKey;
-  }
+   /**
+    * Creates a loaded state container.
+    * @param conversation Conversation-scoped state.
+    * @param user Optional user-within-conversation state.
+    * @param deleter Optional callback that removes persisted scopes. Normally supplied by the app.
+    */
+   constructor(
+     conversation: TurnState,
+     user?: TurnState,
+     deleter?: StateDeleter
+   ) {
+     this.conversation = conversation;
+     this.user = user;
+     this.deleter = deleter;
+   }
 
   /**
    * Deletes both persisted scopes and clears their in-memory snapshots.

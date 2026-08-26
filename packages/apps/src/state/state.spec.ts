@@ -256,8 +256,25 @@ describe('TurnStateLoader', () => {
     state.conversation.set('shared', 1);
 
     await expect(loader.save(state)).rejects.toThrow(
-      'Turn state can only be saved after it has been loaded.'
+      'Turn state can only be saved by the loader that loaded it.'
     );
+  });
+
+  it('rejects saving through a different loader', async () => {
+    const firstStorage = new TestStorage();
+    const secondStorage = new TestStorage();
+    const state = await new TurnStateLoader(firstStorage).load(
+      'conversation-1'
+    );
+    state.conversation.set('shared', 1);
+
+    await expect(
+      new TurnStateLoader(secondStorage).save(state)
+    ).rejects.toThrow(
+      'Turn state can only be saved by the loader that loaded it.'
+    );
+    expect(firstStorage.set).not.toHaveBeenCalled();
+    expect(secondStorage.set).not.toHaveBeenCalled();
   });
 
 });

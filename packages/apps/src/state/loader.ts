@@ -10,6 +10,11 @@ import { TurnStateContainer } from './container';
 import { StateOptions } from './options';
 import { TurnState } from './turn-state';
 
+type TurnStatePersistenceKeys = {
+  readonly conversation: string;
+  readonly user?: string;
+};
+
 /**
  * Loads and saves per-turn state scopes using app storage.
  *
@@ -20,6 +25,10 @@ export class TurnStateLoader {
   private readonly storage: IStorage<string, string>;
   private readonly keyPrefix: string;
   private readonly logger?: ILogger;
+  private readonly persistenceKeys = new WeakMap<
+    TurnStateContainer,
+    TurnStatePersistenceKeys
+  >();
 
   /**
    * Creates a state loader.
@@ -75,13 +84,16 @@ export class TurnStateLoader {
       const conversation = await this.loadScope(conversationKey);
       const user = userKey ? await this.loadScope(userKey) : undefined;
 
-      return new TurnStateContainer(
+      const container = new TurnStateContainer(
         conversation,
         user,
-        () => this.delete(conversationId, userId),
-        conversationKey,
-        userKey
+        () => this.delete(conversationId, userId)
       );
+      this.persistenceKeys.set(container, {
+        conversation: conversationKey,
+        user: userKey,
+      });
+      return container;
     });
   }
 
@@ -94,18 +106,18 @@ export class TurnStateLoader {
    * @param container Loaded state container to persist.
    */
   async save(container: TurnStateContainer): Promise<void> {
-    const conversationKey = container.conversationKey;
-    if (!conversationKey) {
+    const keys = this.persistenceKeys.get(container);
+    if (!keys) {
       throw new Error(
-        'Turn state can only be saved after it has been loaded.'
+        'Turn state can only be saved by the loader that loaded it.'
       );
     }
 
     await traceStateOperation(APP_SPAN_NAMES.stateSave, async () => {
-      await this.saveScope(conversationKey, container.conversation);
+      await this.saveScope(keys.conversation, container.conversation);
 
-      if (container.user && container.userKey) {
-        await this.saveScope(container.userKey, container.user);
+      if (container.user && keys.user) {
+        await this.saveScope(keys.user, container.user);
       }
     });
   }
