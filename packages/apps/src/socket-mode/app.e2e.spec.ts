@@ -3,8 +3,10 @@ import { ConsoleLogger } from '@microsoft/teams.common';
 import { App } from '../app';
 import { HttpRouteHandler, IHttpServerAdapter } from '../http';
 import { HttpPlugin } from '../plugins';
-import { CompositeServer } from '../server/composite-server';
+
 import { createTestApp } from '../test-utils';
+
+import { CompositeAdapter } from './composite-adapter';
 
 import {
   SocketActivityEnvelope,
@@ -161,7 +163,7 @@ describe('Socket Mode App e2e matrix', () => {
       const app = createTestApp({
         clientId: 'bot1',
         logger: quiet(),
-        socketMode: { fallbackToHttp: false, reconnectDelaysMs: [0] },
+        socketMode: { fallbackToHttp: false, reconnectDelaysMs: [0], geos: [''] },
       });
       const ready = jest.fn();
       const disconnected = jest.fn();
@@ -171,7 +173,7 @@ describe('Socket Mode App e2e matrix', () => {
       app.socketMode!.events.on('reconnected', reconnected);
 
       await app.initialize();
-      const start = app.server.start();
+      const start = app.server.start(0);
 
       expect(app.socketMode!.status).toBe('connecting');
       expect(ready).not.toHaveBeenCalled();
@@ -180,7 +182,8 @@ describe('Socket Mode App e2e matrix', () => {
       connState.connections[0].fireReady({ botKey: 'bot1', connectionId: 'connection-2' });
       await start;
       expect(app.socketMode!.status).toBe('ready');
-      expect(ready).toHaveBeenCalledWith({ botKey: 'bot1', connectionId: 'connection-2' });
+      // Events carry the geo they relate to ('' for the no-geo single connection).
+      expect(ready).toHaveBeenCalledWith({ geo: '', frame: { botKey: 'bot1', connectionId: 'connection-2' } });
 
       // A drop terminates the connection; the supervisor renegotiates a fresh one
       // (subsequent connections auto-ready).
@@ -190,10 +193,10 @@ describe('Socket Mode App e2e matrix', () => {
       connState.connections[0].drop(drop);
       await ticks();
 
-      expect(disconnected).toHaveBeenCalledWith({ error: drop });
+      expect(disconnected).toHaveBeenCalledWith({ geo: '', error: drop });
       expect(connState.connections.length).toBe(built + 1); // a brand-new connection
       expect(app.socketMode!.status).toBe('ready');
-      expect(reconnected).toHaveBeenCalledWith(undefined);
+      expect(reconnected).toHaveBeenCalledWith({ geo: '' });
 
       await app.stop();
       expect(app.socketMode!.status).toBe('stopped');
@@ -278,15 +281,15 @@ describe('Socket Mode App e2e matrix', () => {
       const defaultApp = createTestApp({
         clientId: 'bot1',
         logger: quiet(),
-        socketMode: { fallbackToHttp: false },
+        socketMode: { fallbackToHttp: false, geos: [''] },
       });
       await defaultApp.start();
 
       expect(connState.contexts[0]).toMatchObject({
         negotiateUrl: 'https://botapi.skype.com/v3/websockets/connect',
         readinessTimeoutMs: 30_000,
-        keepAliveIntervalMs: 5_000,
-        serverTimeoutMs: 15_000,
+        keepAliveIntervalMs: 15_000,
+        serverTimeoutMs: 30_000,
       });
 
       const customApp = createTestApp({
@@ -294,6 +297,7 @@ describe('Socket Mode App e2e matrix', () => {
         logger: quiet(),
         socketMode: {
           fallbackToHttp: false,
+          geos: [''],
           negotiateBaseUrl: 'https://apx.example/ring/',
           readinessTimeoutMs: 1234,
           keepAliveIntervalMs: 7000,
@@ -310,6 +314,24 @@ describe('Socket Mode App e2e matrix', () => {
       });
     });
 
+    it('connects to all three geos by default with geo-scoped negotiate URLs', async () => {
+      const app = createTestApp({
+        clientId: 'bot1',
+        logger: quiet(),
+        socketMode: { fallbackToHttp: false },
+      });
+      await app.start();
+
+      expect(app.socketMode!.geoList).toEqual(['amer', 'emea', 'apac']);
+      const urls = connState.contexts.map((c: any) => c.negotiateUrl).sort();
+      expect(urls).toEqual([
+        'https://botapi.skype.com/amer/v3/websockets/connect',
+        'https://botapi.skype.com/apac/v3/websockets/connect',
+        'https://botapi.skype.com/emea/v3/websockets/connect',
+      ]);
+      expect(app.socketMode!.status).toBe('ready');
+    });
+
     it('accepts the boolean shorthand (socketMode: true) and applies the default connection options', async () => {
       const app = createTestApp({
         clientId: 'bot1',
@@ -320,16 +342,20 @@ describe('Socket Mode App e2e matrix', () => {
 
       // The `true` shorthand enables the experimental HTTP fallback by default,
       // so the app runs the composite transport while still exposing the socket.
-      expect(app.server).toBeInstanceOf(CompositeServer);
+      expect(app.server.adapter).toBeInstanceOf(CompositeAdapter);
       expect(app.socketMode).toBeDefined();
 
       await app.start(4321);
 
+      // The `true` shorthand uses the default geos, so it opens one connection
+      // per geo with the shared default connection options.
+      expect(app.socketMode!.geoList).toEqual(['amer', 'emea', 'apac']);
+      expect(connState.contexts).toHaveLength(3);
       expect(connState.contexts[0]).toMatchObject({
-        negotiateUrl: 'https://botapi.skype.com/v3/websockets/connect',
+        negotiateUrl: 'https://botapi.skype.com/amer/v3/websockets/connect',
         readinessTimeoutMs: 30_000,
-        keepAliveIntervalMs: 5_000,
-        serverTimeoutMs: 15_000,
+        keepAliveIntervalMs: 15_000,
+        serverTimeoutMs: 30_000,
       });
     });
 
@@ -371,7 +397,7 @@ describe('Socket Mode App e2e matrix', () => {
         body: { transport: 'socket' },
       })) as any);
 
-      expect(app.server).toBeInstanceOf(CompositeServer);
+      expect(app.server.adapter).toBeInstanceOf(CompositeAdapter);
       await app.start(4321);
 
       expect(adapter.startedPorts).toEqual([4321]);
@@ -409,7 +435,7 @@ describe('Socket Mode App e2e matrix', () => {
       })).toThrow(/both socketMode and an HttpPlugin/);
     });
 
-    it('accepts an HTTP adapter for fallback but rejects it for socket-only mode', () => {
+    it('accepts an HTTP adapter in both fallback and socket-only mode (socket-only ignores it)', () => {
       const adapter = new CapturingAdapter();
 
       expect(() => createTestApp({
@@ -424,7 +450,7 @@ describe('Socket Mode App e2e matrix', () => {
         httpServerAdapter: adapter,
         logger: quiet(),
         socketMode: { fallbackToHttp: false },
-      })).toThrow(/httpServerAdapter with socketMode\.fallbackToHttp = false/);
+      })).not.toThrow();
     });
   });
 });
