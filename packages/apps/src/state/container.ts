@@ -13,6 +13,12 @@ export class TurnStateContainer {
    */
   readonly user?: TurnState;
 
+  /** @internal Conversation storage key captured when this state was loaded. */
+  readonly conversationKey?: string;
+
+  /** @internal User storage key captured when this state was loaded. */
+  readonly userKey?: string;
+
   private readonly deleter?: StateDeleter;
 
   /**
@@ -20,15 +26,21 @@ export class TurnStateContainer {
    * @param conversation Conversation-scoped state.
    * @param user Optional user-within-conversation state.
    * @param deleter Optional callback that removes persisted scopes. Normally supplied by the app.
+   * @param conversationKey Optional conversation storage key. Normally supplied by the app.
+   * @param userKey Optional user storage key. Normally supplied by the app.
    */
   constructor(
     conversation: TurnState,
     user?: TurnState,
-    deleter?: StateDeleter
+    deleter?: StateDeleter,
+    conversationKey?: string,
+    userKey?: string
   ) {
     this.conversation = conversation;
     this.user = user;
     this.deleter = deleter;
+    this.conversationKey = conversationKey;
+    this.userKey = userKey;
   }
 
   /**

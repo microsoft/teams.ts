@@ -176,6 +176,12 @@ describe('App', () => {
       expect(counts).toEqual([1, 2]);
       expect(turnStates[0].conversation.isSealed).toBe(true);
       expect(() => turnStates[0].conversation.get('count')).toThrow();
+      expect(spans.map(({ name }) => name)).toEqual(
+        expect.arrayContaining([
+          'microsoft.teams.state.load',
+          'microsoft.teams.state.save',
+        ])
+      );
     });
 
     it('persists dirty state when a handler fails', async () => {

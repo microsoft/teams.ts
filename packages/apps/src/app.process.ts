@@ -348,11 +348,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
     } finally {
       if (context.state && this.options.stateLoader && conversationId) {
         try {
-          await this.options.stateLoader.save(
-            context.state,
-            conversationId,
-            userId
-          );
+          await this.options.stateLoader.save(context.state);
         } catch (error) {
           saveError = error;
         } finally {

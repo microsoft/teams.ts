@@ -63,7 +63,7 @@ describe('TurnStateLoader', () => {
 
     state.conversation.set('shared', 1);
     state.user?.set('personal', 2);
-    await loader.save(state, 'conversation-1', 'user-1');
+    await loader.save(state);
 
     expect(storage.set).toHaveBeenCalledWith(
       'ts:conv:conversation-1',
@@ -97,17 +97,17 @@ describe('TurnStateLoader', () => {
     const loader = new TurnStateLoader(storage);
     const state = await loader.load('conversation-1');
 
-    await loader.save(state, 'conversation-1');
+    await loader.save(state);
     expect(storage.set).not.toHaveBeenCalled();
     expect(storage.delete).not.toHaveBeenCalled();
 
     state.conversation.set('value', 1);
     state.conversation.clear();
-    await loader.save(state, 'conversation-1');
+    await loader.save(state);
     expect(storage.delete).toHaveBeenCalledWith('ts:conv:conversation-1');
     expect(state.conversation.isDirty).toBe(false);
 
-    await loader.save(state, 'conversation-1');
+    await loader.save(state);
     expect(storage.delete).toHaveBeenCalledTimes(1);
   });
 
@@ -126,7 +126,7 @@ describe('TurnStateLoader', () => {
     state.user?.set('personal', 2);
 
     await expect(
-      loader.save(state, 'conversation-1', 'user-1')
+      loader.save(state)
     ).rejects.toThrow('user save failed');
 
     expect(state.conversation.isDirty).toBe(false);
@@ -136,7 +136,7 @@ describe('TurnStateLoader', () => {
       storage.data.set(key, value);
     });
     storage.set.mockClear();
-    await loader.save(state, 'conversation-1', 'user-1');
+    await loader.save(state);
 
     expect(storage.set).toHaveBeenCalledTimes(1);
     expect(storage.set).toHaveBeenCalledWith(userKey, '{"personal":2}');
@@ -179,7 +179,7 @@ describe('TurnStateLoader', () => {
     circular.self = circular;
     state.conversation.set('circular', circular);
 
-    await expect(loader.save(state, 'conversation-1')).rejects.toThrow(TypeError);
+    await expect(loader.save(state)).rejects.toThrow(TypeError);
     expect(storage.set).not.toHaveBeenCalled();
   });
 
@@ -210,7 +210,7 @@ describe('TurnStateLoader', () => {
     ).toEqual({ count: 1 });
 
     first.conversation.set('feature', firstFeature);
-    await loader.save(first, 'conversation-1');
+    await loader.save(first);
     if (firstFeature) {
       firstFeature.count = 3;
     }
@@ -234,7 +234,7 @@ describe('TurnStateLoader', () => {
     expect(state.user?.isDirty).toBe(false);
 
     state.conversation.set('new', 3);
-    await loader.save(state, 'conversation-1', 'user-1');
+    await loader.save(state);
     expect(storage.set).toHaveBeenCalledWith(
       'ts:conv:conversation-1',
       '{"new":3}'
@@ -249,6 +249,17 @@ describe('TurnStateLoader', () => {
     );
     expect(state.conversation.get('shared')).toBe(1);
   });
+
+  it('rejects saving a manually constructed container', async () => {
+    const loader = new TurnStateLoader(new TestStorage());
+    const state = new TurnStateContainer(new TurnState());
+    state.conversation.set('shared', 1);
+
+    await expect(loader.save(state)).rejects.toThrow(
+      'Turn state can only be saved after it has been loaded.'
+    );
+  });
+
 });
 
 describe('createStateLoader', () => {
