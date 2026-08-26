@@ -265,6 +265,28 @@ describe('Socket Mode App e2e matrix', () => {
         reconnectDelaysMs: [],
       });
     });
+
+    it('accepts the boolean shorthand (socketMode: true) and applies the default connection options', async () => {
+      const app = createTestApp({
+        clientId: 'bot1',
+        logger: quiet(),
+        httpServerAdapter: new CapturingAdapter(),
+        socketMode: true,
+      });
+
+      // The `true` shorthand enables the experimental HTTP fallback by default,
+      // so the app runs the composite transport while still exposing the socket.
+      expect(app.server).toBeInstanceOf(CompositeServer);
+      expect(app.socketMode).toBeDefined();
+
+      await app.start(4321);
+
+      expect(connState.contexts[0]).toMatchObject({
+        negotiateUrl: 'https://botapi.skype.com/v3/websockets/connect',
+        readinessTimeoutMs: 30_000,
+        reconnectDelaysMs: [0, 2000, 5000, 10_000, 20_000],
+      });
+    });
   });
 
   describe('composite transport integration', () => {
