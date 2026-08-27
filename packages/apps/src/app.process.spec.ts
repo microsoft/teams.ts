@@ -2,7 +2,7 @@ import { context, propagation, ROOT_CONTEXT } from '@opentelemetry/api';
 import type { Baggage, Context, ContextManager, Span, Tracer } from '@opentelemetry/api';
 import { AxiosError } from 'axios';
 
-import { IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse } from '@microsoft/teams.api';
+import { IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse, TokenStatus } from '@microsoft/teams.api';
 import { IStorage } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
@@ -1093,6 +1093,55 @@ describe('App', () => {
 
       expect(spy).not.toHaveBeenCalled();
       expect(hasState).toBe(true);
+    });
+
+    it('corrects stale and missing connection statuses with direct token lookups', async () => {
+      testApp = createTestApp({ oauthFlows: ['graph', 'github'] });
+      testApp.start();
+      jest.spyOn(testApp.api, 'clone').mockReturnValue(testApp.api);
+      const staleGraphStatus = {
+        channelId: 'msteams',
+        connectionName: 'graph',
+        hasToken: false,
+        serviceProviderDisplayName: 'Microsoft Entra ID',
+      };
+      jest
+        .spyOn(testApp.api.users, 'getTokenStatus')
+        .mockResolvedValue([staleGraphStatus]);
+      const getToken = jest
+        .spyOn(testApp.api.users, 'getToken')
+        .mockImplementation(async ({ connectionName }) => ({
+          channelId: 'msteams',
+          connectionName,
+          expiration: new Date(Date.now() + 60_000).toISOString(),
+          token: `${connectionName}-token`,
+        }));
+      let statuses: TokenStatus[] | undefined;
+      testApp.on('message', async (ctx) => {
+        statuses = await ctx.getConnectionStatus();
+      });
+
+      await testApp.process({ token, body: userActivity });
+
+      expect(statuses!).toEqual([
+        {
+          ...staleGraphStatus,
+          hasToken: true,
+        },
+        {
+          channelId: 'msteams',
+          connectionName: 'github',
+          hasToken: true,
+          serviceProviderDisplayName: '',
+        },
+      ]);
+      expect(staleGraphStatus.hasToken).toBe(false);
+      expect(getToken).toHaveBeenCalledWith(expect.objectContaining({
+        connectionName: 'graph',
+      }));
+      expect(getToken).toHaveBeenCalledWith(expect.objectContaining({
+        connectionName: 'github',
+      }));
     });
 
     it('requires deprecated context OAuth helpers to name a registered flow', async () => {

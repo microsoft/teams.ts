@@ -284,6 +284,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
           connectionName,
           supportsSso
         ),
+      getOAuthConnectionStatus: context =>
+        this.oauthFlowRegistry.getConnectionStatus(context),
       apiClientSettings: this.options.apiClientSettings,
       graphBaseUrl: this.graphBaseUrl,
       agent365Baggage: this.options.telemetry?.agent365,

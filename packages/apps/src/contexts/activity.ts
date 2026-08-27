@@ -11,6 +11,7 @@ import {
   MessageDeleteActivity,
   MessageUpdateActivity,
   SentActivity,
+  TokenStatus,
   toActivityParams,
   TypingActivity,
 } from '@microsoft/teams.api';
@@ -61,6 +62,14 @@ export interface IActivityContextConstructorArgs {
     connectionName: string,
     supportsSso: boolean
   ) => void | Promise<void>;
+
+  /**
+   * Gets corrected connection status through the app's OAuth registry.
+   * @internal
+   */
+  getOAuthConnectionStatus?: (
+    context: IActivityContext
+  ) => Promise<TokenStatus[]>;
 }
 
 /**
@@ -224,6 +233,16 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * `flow.signOut(ctx)` instead.
    */
   signout: (name?: string) => Promise<void>;
+
+  /**
+   * Gets token status for every registered OAuth connection.
+   *
+   * Connections reported as disconnected after silent SSO are verified with a
+   * direct token lookup. A connected flow omitted by the status endpoint is
+   * returned with an empty `serviceProviderDisplayName` because that value is
+   * unavailable from the token response.
+   */
+  getConnectionStatus: () => Promise<TokenStatus[]>;
 }
 
 export type IActivityContext<T extends Activity = Activity, TExtraContext = unknown> =
@@ -257,6 +276,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   private activitySender: IActivitySender;
   private readonly validateOAuthConnection?: IActivityContextConstructorArgs['validateOAuthConnection'];
   private readonly onOAuthSignInInitiated?: IActivityContextConstructorArgs['onOAuthSignInInitiated'];
+  private readonly getOAuthConnectionStatus?: IActivityContextConstructorArgs['getOAuthConnectionStatus'];
 
   constructor(value: IBaseActivityContextOptions & IActivityContextConstructorArgs) {
     // Extract activitySender and next before Object.assign to avoid overwriting methods
@@ -265,6 +285,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       next,
       validateOAuthConnection,
       onOAuthSignInInitiated,
+      getOAuthConnectionStatus,
       ...rest
     } = value;
 
@@ -303,6 +324,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     this.activitySender = activitySender;
     this.validateOAuthConnection = validateOAuthConnection;
     this.onOAuthSignInInitiated = onOAuthSignInInitiated;
+    this.getOAuthConnectionStatus = getOAuthConnectionStatus;
     this.next = next;
     this.stream = activitySender.createStream(value.ref);
     this.connectionName = value.connectionName;
@@ -419,6 +441,14 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     });
   }
 
+  async getConnectionStatus(): Promise<TokenStatus[]> {
+    if (!this.getOAuthConnectionStatus) {
+      throw new Error('OAuth connection status is unavailable.');
+    }
+
+    return this.getOAuthConnectionStatus(this.toInterface());
+  }
+
   toInterface(): IActivityContext {
     return {
       activity: this.activity,
@@ -441,6 +471,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       send: this.send.bind(this),
       signin: this.signin.bind(this),
       signout: this.signout.bind(this),
+      getConnectionStatus: this.getConnectionStatus.bind(this),
     };
   }
 

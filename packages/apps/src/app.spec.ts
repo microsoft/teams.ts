@@ -58,11 +58,11 @@ describe('App', () => {
       expect(app.options.oauth).toBeUndefined();
     });
 
-    it('registers flows through the app and resolves names case-insensitively', () => {
+    it('registers flows through the app and resolves normalized names', () => {
       const app = new App({ httpServerAdapter: new TestAdapter() });
       const github = app.addOAuthFlow('GitHub');
 
-      expect(app.getOAuthFlow('github')).toBe(github);
+      expect(app.getOAuthFlow(' github ')).toBe(github);
       expect(() => app.getOAuthFlow('graph')).toThrow(
         'Registered connections: GitHub.'
       );

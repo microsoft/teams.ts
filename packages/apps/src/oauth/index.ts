@@ -12,13 +12,11 @@ import {
   TokenExchangeState,
   TokenPostResource,
   TokenResponse,
-  TokenStatus,
 } from '@microsoft/teams.api';
 
 import type { IActivityContext } from '../contexts';
 import {
   APP_OAUTH_ERROR_TYPE,
-  APP_OAUTH_ALL_CONNECTIONS,
   APP_OAUTH_OPERATION,
   APP_OAUTH_RESULT,
   APP_SPAN_NAMES,
@@ -365,29 +363,6 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
    */
   async isSignedIn(context: IActivityContext): Promise<boolean> {
     return (await this.getToken(context)) !== undefined;
-  }
-
-  /**
-   * Gets the token service status for the current user's configured connections.
-   *
-   * The Bot Framework endpoint returns all connection statuses; callers can
-   * select this flow's entry by matching {@link connectionName}.
-   */
-  getAllConnectionStatuses(context: IActivityContext): Promise<TokenStatus[]> {
-    return traceOAuthOperation(
-      APP_SPAN_NAMES.oauth,
-      APP_OAUTH_ALL_CONNECTIONS,
-      APP_OAUTH_OPERATION.connectionStatus,
-      async (_span, telemetry) => {
-        const statuses = await context.api.users.getTokenStatus({
-          channelId: context.activity.channelId,
-          userId: context.activity.from.id,
-          includeFilter: '',
-        });
-        telemetry.result = APP_OAUTH_RESULT.success;
-        return statuses;
-      }
-    );
   }
 
   /** @internal Invokes the registered completion callback. */

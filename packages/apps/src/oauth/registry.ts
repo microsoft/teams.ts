@@ -1,11 +1,19 @@
+import type { TokenStatus } from '@microsoft/teams.api';
 import type { Client as HttpClient, EventEmitter } from '@microsoft/teams.common';
 
 import type { IActivityContext } from '../contexts';
+import {
+  APP_OAUTH_ALL_CONNECTIONS,
+  APP_OAUTH_OPERATION,
+  APP_OAUTH_RESULT,
+  APP_SPAN_NAMES,
+} from '../diagnostics/constants';
 import type { Router } from '../router';
 import type { AppEvents, IPlugin } from '../types';
 import type { PluginAdditionalContext } from '../types/app-routing';
 
 import { OauthHandlers } from './handlers';
+import { traceOAuthOperation } from './telemetry';
 
 import { OAuthFlow } from '.';
 
@@ -87,6 +95,65 @@ export class OAuthFlowRegistry<TPlugin extends IPlugin = IPlugin> {
   }
 
   /**
+   * Gets and corrects token-service status for every registered connection.
+   *
+   * Silent SSO can leave the status endpoint stale, so disconnected or omitted
+   * flows are checked directly for a cached token.
+   */
+  async getConnectionStatus(context: IActivityContext): Promise<TokenStatus[]> {
+    const flows = this.getAll();
+    if (flows.length === 0) {
+      throw new Error(
+        'No OAuth flow is registered. Call addOAuthFlow(connectionName) on the App first.'
+      );
+    }
+
+    return traceOAuthOperation(
+      APP_SPAN_NAMES.oauth,
+      APP_OAUTH_ALL_CONNECTIONS,
+      APP_OAUTH_OPERATION.connectionStatus,
+      async (_span, telemetry) => {
+        const statuses = await context.api.users.getTokenStatus({
+          channelId: context.activity.channelId,
+          userId: context.activity.from.id,
+          includeFilter: '',
+        });
+        const results = statuses.map(status => ({ ...status }));
+
+        for (const flow of flows) {
+          const existing = results.find(
+            status =>
+              this.normalize(status.connectionName) ===
+              this.normalize(flow.connectionName)
+          );
+          if (existing?.hasToken) {
+            continue;
+          }
+
+          const token = await flow.getToken(context);
+          if (!token) {
+            continue;
+          }
+
+          if (existing) {
+            existing.hasToken = true;
+          } else {
+            results.push({
+              channelId: context.activity.channelId,
+              connectionName: flow.connectionName,
+              hasToken: true,
+              serviceProviderDisplayName: '',
+            });
+          }
+        }
+
+        telemetry.result = APP_OAUTH_RESULT.success;
+        return results;
+      }
+    );
+  }
+
+  /**
    * Validates a connection before a deprecated context OAuth helper runs.
    */
   validate(connectionName: string, connectionNameProvided: boolean): void {
@@ -155,6 +222,6 @@ export class OAuthFlowRegistry<TPlugin extends IPlugin = IPlugin> {
   }
 
   private normalize(connectionName: string): string {
-    return connectionName.toLowerCase();
+    return connectionName.trim().toLowerCase();
   }
 }

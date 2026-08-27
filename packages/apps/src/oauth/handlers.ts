@@ -150,8 +150,10 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
       return undefined;
     }
 
-    const normalized = connectionName.toLowerCase();
-    return this.getFlows().find(flow => flow.connectionName.toLowerCase() === normalized);
+    const normalized = connectionName.trim().toLowerCase();
+    return this.getFlows().find(
+      flow => flow.connectionName.trim().toLowerCase() === normalized
+    );
   }
 
   private applyUserToken(ctx: contexts.IActivityContext, token: TokenResponse): void {

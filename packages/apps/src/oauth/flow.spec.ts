@@ -4,7 +4,6 @@ import { AxiosError } from 'axios';
 import type {
   ISignInVerifyStateInvokeActivity,
   TokenResponse,
-  TokenStatus,
 } from '@microsoft/teams.api';
 
 import type { IActivityContext } from '../contexts';
@@ -38,16 +37,8 @@ describe('OAuthFlow', () => {
     token: 'user-token',
     expiration: '2030-01-01T00:00:00Z',
   };
-  const status: TokenStatus = {
-    channelId: 'msteams',
-    connectionName: 'graph',
-    hasToken: true,
-    serviceProviderDisplayName: 'Microsoft Entra ID',
-  };
-
   let context: IActivityContext;
   let getToken: jest.Mock;
-  let getTokenStatus: jest.Mock;
   let getSignInResource: jest.Mock;
   let send: jest.Mock;
   let signOut: jest.Mock;
@@ -67,7 +58,6 @@ describe('OAuthFlow', () => {
         } as unknown as Span),
     } as ReturnType<typeof getTeamsBotApplicationTracer>);
     getToken = jest.fn();
-    getTokenStatus = jest.fn();
     getSignInResource = jest.fn();
     send = jest.fn();
     signOut = jest.fn();
@@ -93,7 +83,6 @@ describe('OAuthFlow', () => {
         },
         users: {
           getToken,
-          getTokenStatus,
           signOut,
         },
       },
@@ -344,21 +333,14 @@ describe('OAuthFlow', () => {
     );
   });
 
-  it('signs out and reports connection state through existing clients', async () => {
+  it('signs out and reports signed-in state through existing clients', async () => {
     signOut.mockResolvedValue(undefined);
     getToken.mockResolvedValue(token);
-    getTokenStatus.mockResolvedValue([status]);
     const flow = new OAuthFlow('graph');
 
     await expect(flow.isSignedIn(context)).resolves.toBe(true);
-    await expect(flow.getAllConnectionStatuses(context)).resolves.toEqual([status]);
     await flow.signOut(context);
 
-    expect(getTokenStatus).toHaveBeenCalledWith({
-      channelId: 'msteams',
-      userId: 'user-id',
-      includeFilter: '',
-    });
     expect(signOut).toHaveBeenCalledWith({
       channelId: 'msteams',
       userId: 'user-id',
@@ -367,11 +349,6 @@ describe('OAuthFlow', () => {
     expect(recordTeamsBotOAuthOperation).toHaveBeenCalledWith(
       'graph',
       APP_OAUTH_OPERATION.signOut,
-      APP_OAUTH_RESULT.success
-    );
-    expect(recordTeamsBotOAuthOperation).toHaveBeenCalledWith(
-      'all',
-      APP_OAUTH_OPERATION.connectionStatus,
       APP_OAUTH_RESULT.success
     );
   });

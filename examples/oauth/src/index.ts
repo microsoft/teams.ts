@@ -39,7 +39,7 @@ app.on('message', async (ctx) => {
     await github.signOut(ctx);
     await ctx.send('Signed out of GitHub.');
   } else if (command === '/status') {
-    const statuses = await graph.getAllConnectionStatuses(ctx);
+    const statuses = await ctx.getConnectionStatus();
     await ctx.send(statuses
       .map(status => `${status.connectionName}: ${status.hasToken ? 'signed in' : 'signed out'}`)
       .join('\n'));

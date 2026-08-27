@@ -12,6 +12,7 @@ import {
   InvokeResponse,
   isInvokeResponse,
   IToken,
+  TokenStatus,
 } from '@microsoft/teams.api';
 import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
 
@@ -113,6 +114,12 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
     connectionName: string,
     supportsSso: boolean
   ) => void | Promise<void>;
+  /**
+   * Gets corrected status for all OAuth connections registered on the app.
+   */
+  readonly getOAuthConnectionStatus?: (
+    context: IActivityContext
+  ) => Promise<TokenStatus[]>;
   readonly apiClientSettings?: ApiClientSettings;
   readonly graphBaseUrl?: string;
   /**
@@ -280,6 +287,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         connectionName: this.options.getConnectionName(),
         validateOAuthConnection: this.options.validateOAuthConnection,
         onOAuthSignInInitiated: this.options.onOAuthSignInInitiated,
+        getOAuthConnectionStatus: this.options.getOAuthConnectionStatus,
         activitySender,
         ...pluginContexts
       });

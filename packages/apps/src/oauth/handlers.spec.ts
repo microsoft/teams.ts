@@ -65,7 +65,7 @@ describe('OauthHandlers', () => {
         conversation: { id: 'conversation-id' },
         value: {
           id: 'exchange-1',
-          connectionName: 'test-connection',
+          connectionName: ' TEST-CONNECTION ',
           token: 'some-token',
         }
       };
@@ -82,7 +82,9 @@ describe('OauthHandlers', () => {
       const result = await handlers.onTokenExchange(ctx);
       
       expect(result).toEqual({ status: 200 });
-      expect(mockApi.users.exchangeToken).toHaveBeenCalled();
+      expect(mockApi.users.exchangeToken).toHaveBeenCalledWith(
+        expect.objectContaining({ connectionName: 'test-connection' })
+      );
       expect(next).toHaveBeenCalled();
     });
 
