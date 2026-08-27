@@ -114,8 +114,8 @@ export class FilesAccessor implements IFilesAccessor {
       extension: content?.fileType,
       scope,
       source: 'botActivity',
-      // Maps the wire's `contentUrl` (a browsable link to the file in OneDrive/SharePoint) to `webUrl`; not fetchable like `downloadUrl`.
-      webUrl: attachment.contentUrl,
+      // Browsable link to the file in OneDrive/SharePoint; not fetchable like `downloadUrl`.
+      contentUrl: attachment.contentUrl,
       raw: attachment,
       downloadUrl,
       httpClient: this.httpClient,

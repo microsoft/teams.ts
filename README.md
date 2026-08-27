@@ -100,7 +100,8 @@ $: npm run test
 - [`@examples/echo`](./examples/echo/README.md)
 - [`@examples/auth`](./examples/auth/README.md)
 - [`@examples/botbuilder`](./examples/botbuilder/README.md)
-- [`@examples/oauth`](./examples/oauth/README.md)
+- [`@examples/graph`](./examples/graph/README.md) — existing single-connection Graph authentication
+- [`@examples/oauth`](./examples/oauth/README.md) — `OAuthFlow` lifecycle with multiple connections
 - [`@examples/ai-mcp`](./examples/ai-mcp/README.md) — AI with the `openai` SDK + `@modelcontextprotocol/sdk`
 - [`@examples/a2a`](./examples/a2a/README.md) — agent-to-agent with `@a2a-js/sdk`
 - [`@examples/ai-file-analysis`](./examples/ai-file-analysis/README.md) — receiving attached files and sending them to a model

@@ -1,6 +1,6 @@
 {
-  "name": "@examples/mcp-server",
-  "version": "0.0.0",
+  "name": "@examples/graph",
+  "version": "0.0.6",
   "private": true,
   "license": "MIT",
   "main": "dist/index",
@@ -14,32 +14,24 @@
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
-    "start": "node -r dotenv/config .",
+    "start": "node .",
     "dev": "tsx watch -r dotenv/config src/index.ts",
-    "inspect": "npx @modelcontextprotocol/inspector",
     "dev:teamsfx": "NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
     "dev:teamsfx:testtool": "NODE_OPTIONS='--inspect=9239' npx env-cmd -f .env npm run dev",
     "dev:teamsfx:launch-testtool": "npx env-cmd --silent -f env/.env.testtool teamsapptester start"
   },
   "dependencies": {
-    "@microsoft/teams.api": "*",
     "@microsoft/teams.apps": "*",
-    "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
-    "@microsoft/teams.graph-endpoints": "*",
-    "@modelcontextprotocol/sdk": "^1.30.0",
-    "express": "^5.0.0",
-    "zod": "^3.24.3"
+    "@microsoft/teams.graph-endpoints": "*"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
-    "@modelcontextprotocol/inspector": "^2.3.0",
-    "@types/express": "^5.0.0",
     "@types/node": "^22.5.4",
     "dotenv": "^17.4.2",
-    "env-cmd": "latest",
     "rimraf": "^6.0.1",
     "tsx": "^4.23.12",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "env-cmd": "latest"
   }
 }

@@ -36,7 +36,7 @@ describe('FilesAccessor', () => {
     expect(file.extension).toBe('pdf');
     expect(file.scope).toBe('personal');
     expect(file.source).toBe('botActivity');
-    expect(file.webUrl).toBe('https://contoso.sharepoint.com/report.pdf');
+    expect(file.contentUrl).toBe('https://contoso.sharepoint.com/report.pdf');
     expect(file.raw).toBe(attachment);
   });
 
