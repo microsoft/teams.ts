@@ -177,7 +177,7 @@ describe('OAuthFlow', () => {
   });
 
   it.each([400, 412])(
-    'returns 412 for terminal verify-state status %i',
+    'treats verify-state status %i as a routing miss',
     async status => {
       const failure = jest.fn();
       const flow = new OAuthFlow('graph').onSignInFailure(failure);
@@ -192,8 +192,8 @@ describe('OAuthFlow', () => {
 
       await expect(
         flow.verifyState(verifyContext, 'code', jest.fn(), jest.fn())
-      ).resolves.toEqual({ status: 412 });
-      expect(failure).toHaveBeenCalledWith(expect.anything(), undefined);
+      ).resolves.toBeUndefined();
+      expect(failure).not.toHaveBeenCalled();
     }
   );
 

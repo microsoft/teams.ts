@@ -548,9 +548,9 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
             throw error;
           }
 
-          if (isTokenNotFoundError(error)) {
+          if (isExpectedOAuthInvokeError(error)) {
             telemetry.result = APP_OAUTH_RESULT.noToken;
-            telemetry.responseStatus = 404;
+            telemetry.responseStatus = error.status;
             return undefined;
           }
 
@@ -558,10 +558,6 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
           await this.fail(context);
           telemetry.callbackInvoked = this.signInFailureHandler !== undefined;
           telemetry.result = APP_OAUTH_RESULT.failure;
-          if (isExpectedOAuthInvokeError(error)) {
-            telemetry.responseStatus = 412;
-            return { status: 412 };
-          }
 
           const status = error.status || 500;
           telemetry.responseStatus = status;

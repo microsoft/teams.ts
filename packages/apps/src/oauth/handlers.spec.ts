@@ -368,37 +368,40 @@ describe('OauthHandlers multi-flow lifecycle', () => {
     now.mockRestore();
   });
 
-  it('continues after a 404 routing miss without invoking failure callbacks', async () => {
-    const graphComplete = jest.fn();
-    const graphFailure = jest.fn();
-    const githubFailure = jest.fn();
-    graph.onSignInComplete(graphComplete).onSignInFailure(graphFailure);
-    github.onSignInFailure(githubFailure);
-    const getToken = jest.fn().mockImplementation(({ connectionName }) => {
-      if (connectionName === 'github') {
-        throw createAxiosError(404);
-      }
-      return {
-        token: 'graph-token',
-        connectionName,
-        expiration: '2030-01-01T00:00:00Z',
-      };
-    });
-    const ctx = createVerifyStateContext({
-      api: { users: { getToken } },
-    });
-    github.recordPending(ctx as any, true);
+  it.each([400, 404, 412])(
+    'continues after a %i routing miss without invoking failure callbacks',
+    async status => {
+      const graphComplete = jest.fn();
+      const graphFailure = jest.fn();
+      const githubFailure = jest.fn();
+      graph.onSignInComplete(graphComplete).onSignInFailure(graphFailure);
+      github.onSignInFailure(githubFailure);
+      const getToken = jest.fn().mockImplementation(({ connectionName }) => {
+        if (connectionName === 'github') {
+          throw createAxiosError(status);
+        }
+        return {
+          token: 'graph-token',
+          connectionName,
+          expiration: '2030-01-01T00:00:00Z',
+        };
+      });
+      const ctx = createVerifyStateContext({
+        api: { users: { getToken } },
+      });
+      github.recordPending(ctx as any, true);
 
-    await expect(handlers.onVerifyState(ctx as any)).resolves.toEqual({ status: 200 });
+      await expect(handlers.onVerifyState(ctx as any)).resolves.toEqual({ status: 200 });
 
-    expect(getToken.mock.calls.map(([params]) => params.connectionName)).toEqual([
-      'github',
-      'graph',
-    ]);
-    expect(graphComplete).toHaveBeenCalled();
-    expect(graphFailure).not.toHaveBeenCalled();
-    expect(githubFailure).not.toHaveBeenCalled();
-  });
+      expect(getToken.mock.calls.map(([params]) => params.connectionName)).toEqual([
+        'github',
+        'graph',
+      ]);
+      expect(graphComplete).toHaveBeenCalled();
+      expect(graphFailure).not.toHaveBeenCalled();
+      expect(githubFailure).not.toHaveBeenCalled();
+    }
+  );
 
   it('attributes client failure to the newest pending SSO-capable flow', async () => {
     const graphFailure = jest.fn();
@@ -481,7 +484,7 @@ describe('OauthHandlers multi-flow lifecycle', () => {
     now.mockRestore();
   });
 
-  it('stops on verify-state 412 and fails only the attributed flow', async () => {
+  it('stops on an unexpected verify-state status and fails only the attributed flow', async () => {
     const state = new TurnStateContainer(new TurnState(), new TurnState());
     const graphFailure = jest.fn();
     const githubFailure = jest.fn();
@@ -491,13 +494,13 @@ describe('OauthHandlers multi-flow lifecycle', () => {
       state,
       api: {
         users: {
-          getToken: jest.fn().mockRejectedValue(createAxiosError(412)),
+          getToken: jest.fn().mockRejectedValue(createAxiosError(503)),
         },
       },
     });
     github.recordPending(ctx as any, true);
 
-    await expect(handlers.onVerifyState(ctx as any)).resolves.toEqual({ status: 412 });
+    await expect(handlers.onVerifyState(ctx as any)).resolves.toEqual({ status: 503 });
 
     expect(state.user?.has('__oauth:pending:github')).toBe(false);
     expect(state.user?.has('__oauth:pending:sso:github')).toBe(false);
