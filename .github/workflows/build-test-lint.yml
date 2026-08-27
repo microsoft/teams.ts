@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ['24.x', '25.x']
+        node-version: ['22.x', '24.x']
     permissions:
       contents: read
     steps:
