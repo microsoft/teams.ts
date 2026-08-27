@@ -38,7 +38,7 @@
     "@eslint/js": "^9.19.0",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
+    "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.19.0",
     "eslint-plugin-react-compiler": "^19.0.0-beta-40c6c23-20250301",
