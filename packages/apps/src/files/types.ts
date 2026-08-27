@@ -57,7 +57,7 @@ export interface IIncomingFile {
   /**
    * Browsable URL to the file in OneDrive/SharePoint, as sent on the attachment's `contentUrl`.
    *
-   * Not fetchable for bytes despite the name; those come from {@link downloadUrl}.
+   * Not fetchable for bytes despite the name; those come from {@link IIncomingFile.download} or {@link IIncomingFile.stream}.
    */
   contentUrl?: string;
   /** The raw underlying attachment/graph object for escape-hatch access. */
