@@ -106,9 +106,11 @@ export async function startOAuthSignIn(
       userId: context.activity.from.id,
       connectionName,
     });
-    return response.token;
+    if (response.token) {
+      return response.token;
+    }
   } catch (error) {
-    if (!isMissingTokenError(error)) {
+    if (!isTokenNotFoundError(error)) {
       throw error;
     }
   }
@@ -271,8 +273,8 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
   /**
    * Silently gets the current user's token for this connection.
    *
-   * Returns undefined when the token service reports that no token is available.
-   * Unexpected transport and service failures are propagated.
+   * Returns undefined when the token service returns no token or reports `404`.
+   * Other transport and service failures, including `400` and `412`, propagate.
    */
   async getToken(context: IActivityContext): Promise<string | undefined> {
     return traceOAuthOperation(
@@ -292,7 +294,7 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
             : APP_OAUTH_RESULT.miss;
           return token;
         } catch (error) {
-          if (isMissingTokenError(error)) {
+          if (isTokenNotFoundError(error)) {
             telemetry.result = APP_OAUTH_RESULT.miss;
             return undefined;
           }
@@ -308,7 +310,8 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
    *
    * Returns the cached token string when already signed in. Returns undefined
    * after sending a card; completion is then delivered to the registered
-   * callback and the existing app `signin` event.
+   * callback and the existing app `signin` event. Cached-token lookup errors
+   * other than `404` propagate without sending a card.
    */
   signIn(
     context: IActivityContext,
@@ -443,7 +446,7 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
               throw error;
             }
 
-            if (isMissingTokenError(error)) {
+            if (isExpectedOAuthInvokeError(error)) {
               // 412 tells Teams that silent SSO could not complete and it
               // should fall back to the interactive OAuth card.
               await this.fail(context);
@@ -549,7 +552,7 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
           await this.fail(context);
           telemetry.callbackInvoked = this.signInFailureHandler !== undefined;
           telemetry.result = APP_OAUTH_RESULT.failure;
-          if (isMissingTokenError(error)) {
+          if (isExpectedOAuthInvokeError(error)) {
             telemetry.responseStatus = 412;
             return undefined;
           }
@@ -814,7 +817,11 @@ export const DEFAULT_OAUTH_SETTINGS: Required<Pick<OAuthSettings, 'defaultConnec
   defaultConnectionName: 'graph'
 };
 
-function isMissingTokenError(error: unknown): boolean {
+function isTokenNotFoundError(error: unknown): boolean {
+  return error instanceof AxiosError && error.status === 404;
+}
+
+function isExpectedOAuthInvokeError(error: unknown): boolean {
   return error instanceof AxiosError &&
     (error.status === 400 || error.status === 404 || error.status === 412);
 }

@@ -111,7 +111,7 @@ describe('OAuthFlow', () => {
     );
   });
 
-  it('returns undefined only for expected token-miss responses', async () => {
+  it('returns undefined when the token endpoint returns 404', async () => {
     getToken.mockRejectedValue(new AxiosError('missing', '404', undefined, undefined, {
       status: 404,
       statusText: 'Not Found',
@@ -127,6 +127,22 @@ describe('OAuthFlow', () => {
       APP_OAUTH_RESULT.miss
     );
   });
+
+  it.each([400, 412])(
+    'propagates %i from direct token lookup',
+    async status => {
+      const error = new AxiosError('token lookup failed', `${status}`, undefined, undefined, {
+        status,
+        statusText: 'Token Lookup Failed',
+        headers: {},
+        config: {} as never,
+        data: {},
+      });
+      getToken.mockRejectedValue(error);
+
+      await expect(new OAuthFlow('graph').getToken(context)).rejects.toBe(error);
+    }
+  );
 
   it('propagates unexpected token lookup errors', async () => {
     const error = new Error('storage unavailable');
@@ -173,6 +189,34 @@ describe('OAuthFlow', () => {
       APP_OAUTH_OPERATION.signIn,
       APP_OAUTH_RESULT.cached
     );
+  });
+
+  it.each([400, 412, 500])(
+    'propagates token lookup status %i instead of sending a sign-in card',
+    async status => {
+      const error = new AxiosError('token lookup failed', `${status}`, undefined, undefined, {
+        status,
+        statusText: 'Token Lookup Failed',
+        headers: {},
+        config: {} as never,
+        data: {},
+      });
+      getToken.mockRejectedValue(error);
+
+      await expect(new OAuthFlow('graph').signIn(context)).rejects.toBe(error);
+      expect(getSignInResource).not.toHaveBeenCalled();
+      expect(send).not.toHaveBeenCalled();
+    }
+  );
+
+  it('starts sign-in when the token response contains no token', async () => {
+    getToken.mockResolvedValue({});
+    getSignInResource.mockResolvedValue({
+      signInLink: 'https://token.botframework.com/signin',
+    });
+
+    await expect(new OAuthFlow('graph').signIn(context)).resolves.toBeUndefined();
+    expect(send).toHaveBeenCalled();
   });
 
   it('starts sign-in with flow defaults, per-call overrides, and a fixed connection', async () => {
