@@ -3,12 +3,12 @@ import { AxiosError } from 'axios';
 import {
   ActivityLike,
   cardAttachment,
+  InvokeResponse,
   ISignInFailureInvokeActivity,
   ISignInTokenExchangeInvokeActivity,
   ISignInVerifyStateInvokeActivity,
   SignInFailure,
   TokenExchangeResource,
-  TokenExchangeInvokeResponse,
   TokenExchangeState,
   TokenPostResource,
   TokenResponse,
@@ -91,43 +91,6 @@ type OAuthSignInInitiatedHandler = (
   connectionName: string,
   supportsSso: boolean
 ) => void | Promise<void>;
-
-type OAuthVerifyStateResult =
-  | {
-    readonly kind: 'success';
-    readonly status: 200;
-    readonly token: TokenResponse;
-  }
-  | {
-    readonly kind: 'miss';
-    readonly status: 404 | 412;
-  }
-  | {
-    readonly kind: 'error';
-    readonly status: number;
-    readonly error: AxiosError;
-  };
-
-type OAuthTokenExchangeResult =
-  | {
-    readonly kind: 'success';
-    readonly status: 200;
-    readonly token: TokenResponse;
-  }
-  | {
-    readonly kind: 'duplicate';
-    readonly status: 200;
-  }
-  | {
-    readonly kind: 'fallback';
-    readonly status: 412;
-    readonly body: TokenExchangeInvokeResponse;
-  }
-  | {
-    readonly kind: 'error';
-    readonly status: number;
-    readonly error: AxiosError;
-  };
 
 /** @internal Gets a cached token or emits an OAuth sign-in card. */
 export async function startOAuthSignIn(
@@ -264,7 +227,7 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
   // same instance; persisted conversation state covers cross-instance retries.
   private readonly tokenExchangeLocks = new Map<
     string,
-    Promise<OAuthTokenExchangeResult>
+    Promise<InvokeResponse<'signin/tokenExchange'>>
   >();
   // Retains completed exchanges when state is disabled or unavailable.
   private readonly processedExchanges = new Map<string, number>();
@@ -458,8 +421,9 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
       PluginAdditionalContext<TPlugin>
     >,
     value: ISignInTokenExchangeInvokeActivity['value'],
-    applyToken: (token: TokenResponse) => void | Promise<void>
-  ): Promise<OAuthTokenExchangeResult> {
+    onSuccess: (token: TokenResponse) => void | Promise<void>,
+    onError: (error: AxiosError) => void
+  ): Promise<InvokeResponse<'signin/tokenExchange'>> {
     return traceOAuthOperation(
       APP_SPAN_NAMES.oauth,
       this.connectionName,
@@ -470,7 +434,7 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
           if (this.isExchangeProcessed(context, exchangeId)) {
             telemetry.result = APP_OAUTH_RESULT.duplicate;
             telemetry.responseStatus = 200;
-            return { kind: 'duplicate', status: 200 };
+            return { status: 200 };
           }
 
           const existingLock = this.tokenExchangeLocks.get(exchangeId);
@@ -480,13 +444,13 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
               ? APP_OAUTH_RESULT.duplicate
               : APP_OAUTH_RESULT.failure;
             telemetry.responseStatus = result.status;
-            return result.kind === 'success'
-              ? { kind: 'duplicate', status: 200 }
-              : result;
+            return result;
           }
         }
 
-        const performExchange = async (): Promise<OAuthTokenExchangeResult> => {
+        const performExchange = async (): Promise<
+          InvokeResponse<'signin/tokenExchange'>
+        > => {
           let token: TokenResponse;
           try {
             token = await context.api.users.exchangeToken({
@@ -530,7 +494,8 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
               error,
               APP_OAUTH_ERROR_TYPE.httpError
             );
-            return { kind: 'error', status, error };
+            onError(error);
+            return { status };
           }
 
           if (!token?.token) {
@@ -545,14 +510,12 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
           if (exchangeId) {
             this.markExchangeProcessed(context, exchangeId);
           }
-
           this.clearPending(context);
-          await applyToken(token);
-          await this.complete(context, token);
+          await onSuccess(token);
           telemetry.callbackInvoked = this.signInCompleteHandler !== undefined;
           telemetry.result = APP_OAUTH_RESULT.success;
           telemetry.responseStatus = 200;
-          return { kind: 'success', status: 200, token };
+          return { status: 200 };
         };
 
         if (!exchangeId) {
@@ -577,8 +540,9 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
       PluginAdditionalContext<TPlugin>
     >,
     state: string | undefined,
-    applyToken: (token: TokenResponse) => void | Promise<void>
-  ): Promise<OAuthVerifyStateResult> {
+    onSuccess: (token: TokenResponse) => void | Promise<void>,
+    onError: (error: AxiosError) => void
+  ): Promise<InvokeResponse<'signin/verifyState'> | undefined> {
     return traceOAuthOperation(
       APP_SPAN_NAMES.oauth,
       this.connectionName,
@@ -590,7 +554,7 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
           );
           telemetry.result = APP_OAUTH_RESULT.noToken;
           telemetry.responseStatus = 404;
-          return { kind: 'miss', status: 404 };
+          return undefined;
         }
 
         let token: TokenResponse;
@@ -612,7 +576,7 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
           telemetry.result = APP_OAUTH_RESULT.failure;
           if (isMissingTokenError(error)) {
             telemetry.responseStatus = 412;
-            return { kind: 'miss', status: 412 };
+            return undefined;
           }
 
           const status = error.status || 500;
@@ -623,22 +587,22 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
             error,
             APP_OAUTH_ERROR_TYPE.httpError
           );
-          return { kind: 'error', status, error };
+          onError(error);
+          return { status };
         }
 
         if (!token?.token) {
           telemetry.result = APP_OAUTH_RESULT.noToken;
           telemetry.responseStatus = 412;
-          return { kind: 'miss', status: 412 };
+          return undefined;
         }
 
         this.clearPending(context);
-        await applyToken(token);
-        await this.complete(context, token);
+        await onSuccess(token);
         telemetry.callbackInvoked = this.signInCompleteHandler !== undefined;
         telemetry.result = APP_OAUTH_RESULT.success;
         telemetry.responseStatus = 200;
-        return { kind: 'success', status: 200, token };
+        return { status: 200 };
       }
     );
   }
@@ -733,9 +697,8 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
 
   private tokenExchangeFailure(
     id: string
-  ): Extract<OAuthTokenExchangeResult, { kind: 'fallback' }> {
+  ): InvokeResponse<'signin/tokenExchange'> {
     return {
-      kind: 'fallback',
       status: 412,
       body: {
         id,

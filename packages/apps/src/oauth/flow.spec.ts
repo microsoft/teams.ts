@@ -152,10 +152,9 @@ describe('OAuthFlow', () => {
     const verifyContext = context as IActivityContext<ISignInVerifyStateInvokeActivity>;
     getToken.mockResolvedValueOnce({});
 
-    await expect(flow.verifyState(verifyContext, 'code', jest.fn())).resolves.toEqual({
-      kind: 'miss',
-      status: 412,
-    });
+    await expect(
+      flow.verifyState(verifyContext, 'code', jest.fn(), jest.fn())
+    ).resolves.toBeUndefined();
     expect(failure).not.toHaveBeenCalled();
 
     getToken.mockRejectedValueOnce(new AxiosError('missing', '404', undefined, undefined, {
@@ -166,10 +165,9 @@ describe('OAuthFlow', () => {
       data: {},
     }));
 
-    await expect(flow.verifyState(verifyContext, 'code', jest.fn())).resolves.toEqual({
-      kind: 'miss',
-      status: 412,
-    });
+    await expect(
+      flow.verifyState(verifyContext, 'code', jest.fn(), jest.fn())
+    ).resolves.toBeUndefined();
     expect(failure).toHaveBeenCalledWith(expect.anything(), undefined);
   });
 

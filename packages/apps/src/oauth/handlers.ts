@@ -40,7 +40,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
   onTokenExchange = async (
     ctx: contexts.IActivityContext<ISignInTokenExchangeInvokeActivity, PluginAdditionalContext<TPlugin>>
   ) => {
-    const { activity, next } = ctx;
+    const { activity } = ctx;
     const value = activity.value;
     const flow = this.findFlow(value?.connectionName);
 
@@ -51,57 +51,29 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
     const response = await flow.exchangeToken(
       ctx,
       value,
-      token => this.applyUserToken(ctx, token)
+      token => this.completeSignIn(flow, ctx, token),
+      error => this.events.emit('error', { error, activity })
     );
 
-    switch (response.kind) {
-      case 'error':
-        this.events.emit('error', { error: response.error, activity });
-        return { status: response.status };
-      case 'success':
-        this.events.emit('signin', {
-          ...ctx,
-          connectionName: flow.connectionName,
-          token: response.token,
-          isSignedIn: true,
-        });
-        await next(ctx);
-        return { status: 200 };
-      case 'fallback':
-        return { status: 412, body: response.body };
-      case 'duplicate':
-        return { status: 200 };
-    }
+    return response;
   };
 
   onVerifyState = async (
     ctx: contexts.IActivityContext<ISignInVerifyStateInvokeActivity, PluginAdditionalContext<TPlugin>>
   ) => {
-    const { activity, next } = ctx;
+    const { activity } = ctx;
     const flows = this.getOrderedFlows(ctx, false);
 
     for (const flow of flows) {
       const response = await flow.verifyState(
         ctx,
         activity.value?.state,
-        token => this.applyUserToken(ctx, token)
+        token => this.completeSignIn(flow, ctx, token),
+        error => this.events.emit('error', { error, activity })
       );
 
-      switch (response.kind) {
-        case 'error':
-          this.events.emit('error', { error: response.error, activity });
-          return { status: response.status };
-        case 'success':
-          this.events.emit('signin', {
-            ...ctx,
-            connectionName: flow.connectionName,
-            token: response.token,
-            isSignedIn: true,
-          });
-          await next(ctx);
-          return { status: 200 };
-        case 'miss':
-          break;
+      if (response) {
+        return response;
       }
     }
 
@@ -191,6 +163,25 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
       }),
       { baseUrlRoot: this.graphBaseUrl }
     );
+  }
+
+  private async completeSignIn(
+    flow: OAuthFlow<TPlugin>,
+    ctx: contexts.IActivityContext<
+      ISignInTokenExchangeInvokeActivity | ISignInVerifyStateInvokeActivity,
+      PluginAdditionalContext<TPlugin>
+    >,
+    token: TokenResponse
+  ): Promise<void> {
+    this.applyUserToken(ctx, token);
+    await flow.complete(ctx, token);
+    this.events.emit('signin', {
+      ...ctx,
+      connectionName: flow.connectionName,
+      token,
+      isSignedIn: true,
+    });
+    await ctx.next(ctx);
   }
 
   private getOrderedFlows(
