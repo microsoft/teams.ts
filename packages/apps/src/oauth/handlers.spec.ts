@@ -368,6 +368,38 @@ describe('OauthHandlers multi-flow lifecycle', () => {
     now.mockRestore();
   });
 
+  it('continues after a 404 routing miss without invoking failure callbacks', async () => {
+    const graphComplete = jest.fn();
+    const graphFailure = jest.fn();
+    const githubFailure = jest.fn();
+    graph.onSignInComplete(graphComplete).onSignInFailure(graphFailure);
+    github.onSignInFailure(githubFailure);
+    const getToken = jest.fn().mockImplementation(({ connectionName }) => {
+      if (connectionName === 'github') {
+        throw createAxiosError(404);
+      }
+      return {
+        token: 'graph-token',
+        connectionName,
+        expiration: '2030-01-01T00:00:00Z',
+      };
+    });
+    const ctx = createVerifyStateContext({
+      api: { users: { getToken } },
+    });
+    github.recordPending(ctx as any, true);
+
+    await expect(handlers.onVerifyState(ctx as any)).resolves.toEqual({ status: 200 });
+
+    expect(getToken.mock.calls.map(([params]) => params.connectionName)).toEqual([
+      'github',
+      'graph',
+    ]);
+    expect(graphComplete).toHaveBeenCalled();
+    expect(graphFailure).not.toHaveBeenCalled();
+    expect(githubFailure).not.toHaveBeenCalled();
+  });
+
   it('attributes client failure to the newest pending SSO-capable flow', async () => {
     const graphFailure = jest.fn();
     const githubFailure = jest.fn();
@@ -449,7 +481,7 @@ describe('OauthHandlers multi-flow lifecycle', () => {
     now.mockRestore();
   });
 
-  it('clears pending state and invokes failure callbacks for verify-state HTTP errors', async () => {
+  it('stops on verify-state 412 and fails only the attributed flow', async () => {
     const state = new TurnStateContainer(new TurnState(), new TurnState());
     const graphFailure = jest.fn();
     const githubFailure = jest.fn();
@@ -459,25 +491,21 @@ describe('OauthHandlers multi-flow lifecycle', () => {
       state,
       api: {
         users: {
-          getToken: jest.fn().mockRejectedValue(
-            new AxiosError('missing', '404', undefined, undefined, {
-              status: 404,
-              statusText: 'Not Found',
-              headers: {},
-              config: {} as any,
-              data: {},
-            })
-          ),
+          getToken: jest.fn().mockRejectedValue(createAxiosError(412)),
         },
       },
     });
     github.recordPending(ctx as any, true);
 
-    await expect(handlers.onVerifyState(ctx as any)).resolves.toEqual({ status: 404 });
+    await expect(handlers.onVerifyState(ctx as any)).resolves.toEqual({ status: 412 });
 
     expect(state.user?.has('__oauth:pending:github')).toBe(false);
     expect(state.user?.has('__oauth:pending:sso:github')).toBe(false);
-    expect(graphFailure).toHaveBeenCalledWith(expect.anything(), undefined);
+    expect(ctx.api.users.getToken).toHaveBeenCalledTimes(1);
+    expect(ctx.api.users.getToken).toHaveBeenCalledWith(expect.objectContaining({
+      connectionName: 'github',
+    }));
+    expect(graphFailure).not.toHaveBeenCalled();
     expect(githubFailure).toHaveBeenCalledWith(expect.anything(), undefined);
   });
 
@@ -745,7 +773,7 @@ describe('OauthHandlers diagnostics', () => {
     );
   });
 
-  it('returns the final no-token response after a flow records an expected failure', async () => {
+  it('records verify-state 404 as a no-token routing miss', async () => {
     const ctx = createVerifyStateContext({
       api: {
         users: {
@@ -765,13 +793,13 @@ describe('OauthHandlers diagnostics', () => {
       'oauth.operation': APP_OAUTH_OPERATION.verifyState,
     });
     expect(span.attributes).toEqual(expect.objectContaining({
-      'oauth.result': APP_OAUTH_RESULT.failure,
-      'invoke.response.status': 412,
+      'oauth.result': APP_OAUTH_RESULT.noToken,
+      'invoke.response.status': 404,
     }));
     expect(recordTeamsBotOAuthOperation).toHaveBeenCalledWith(
       'default-connection',
       APP_OAUTH_OPERATION.verifyState,
-      APP_OAUTH_RESULT.failure
+      APP_OAUTH_RESULT.noToken
     );
     expect(recordTeamsBotOAuthError).not.toHaveBeenCalled();
     expect(recordTeamsBotApplicationException).not.toHaveBeenCalled();

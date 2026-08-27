@@ -151,7 +151,7 @@ describe('OAuthFlow', () => {
     await expect(new OAuthFlow('graph').getToken(context)).rejects.toBe(error);
   });
 
-  it('distinguishes verify-state misses from expected HTTP failures', async () => {
+  it('treats empty and 404 verify-state results as routing misses', async () => {
     const failure = jest.fn();
     const flow = new OAuthFlow('graph').onSignInFailure(failure);
     const verifyContext = context as IActivityContext<ISignInVerifyStateInvokeActivity>;
@@ -173,8 +173,29 @@ describe('OAuthFlow', () => {
     await expect(
       flow.verifyState(verifyContext, 'code', jest.fn(), jest.fn())
     ).resolves.toBeUndefined();
-    expect(failure).toHaveBeenCalledWith(expect.anything(), undefined);
+    expect(failure).not.toHaveBeenCalled();
   });
+
+  it.each([400, 412])(
+    'returns 412 for terminal verify-state status %i',
+    async status => {
+      const failure = jest.fn();
+      const flow = new OAuthFlow('graph').onSignInFailure(failure);
+      const verifyContext = context as IActivityContext<ISignInVerifyStateInvokeActivity>;
+      getToken.mockRejectedValue(new AxiosError('verification failed', `${status}`, undefined, undefined, {
+        status,
+        statusText: 'Verification Failed',
+        headers: {},
+        config: {} as never,
+        data: {},
+      }));
+
+      await expect(
+        flow.verifyState(verifyContext, 'code', jest.fn(), jest.fn())
+      ).resolves.toEqual({ status: 412 });
+      expect(failure).toHaveBeenCalledWith(expect.anything(), undefined);
+    }
+  );
 
   it('returns a cached token from sign-in and records the cached result', async () => {
     getToken.mockResolvedValue(token);

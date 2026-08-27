@@ -548,13 +548,19 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
             throw error;
           }
 
+          if (isTokenNotFoundError(error)) {
+            telemetry.result = APP_OAUTH_RESULT.noToken;
+            telemetry.responseStatus = 404;
+            return undefined;
+          }
+
           this.clearPending(context);
           await this.fail(context);
           telemetry.callbackInvoked = this.signInFailureHandler !== undefined;
           telemetry.result = APP_OAUTH_RESULT.failure;
           if (isExpectedOAuthInvokeError(error)) {
             telemetry.responseStatus = 412;
-            return undefined;
+            return { status: 412 };
           }
 
           const status = error.status || 500;
@@ -571,7 +577,7 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
 
         if (!token?.token) {
           telemetry.result = APP_OAUTH_RESULT.noToken;
-          telemetry.responseStatus = 412;
+          telemetry.responseStatus = 404;
           return undefined;
         }
 
