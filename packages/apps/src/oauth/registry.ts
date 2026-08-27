@@ -190,7 +190,8 @@ export class OAuthFlowRegistry<TPlugin extends IPlugin = IPlugin> {
       () => this.getAll(),
       options.client,
       options.events,
-      options.graphBaseUrl
+      options.graphBaseUrl,
+      () => this.usesRegisteredFlows
     );
 
     options.router.register({

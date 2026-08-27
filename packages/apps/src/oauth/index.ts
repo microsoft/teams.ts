@@ -400,11 +400,12 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
     >,
     value: ISignInTokenExchangeInvokeActivity['value'],
     onSuccess: (token: TokenResponse) => void | Promise<void>,
-    onError: (error: AxiosError) => void
+    onError: (error: AxiosError) => void,
+    connectionName = this.connectionName
   ): Promise<InvokeResponse<'signin/tokenExchange'>> {
     return traceOAuthOperation(
       APP_SPAN_NAMES.oauth,
-      this.connectionName,
+      connectionName,
       APP_OAUTH_OPERATION.tokenExchange,
       async (span, telemetry) => {
         const exchangeId = value.id;
@@ -434,7 +435,7 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
             token = await context.api.users.exchangeToken({
               channelId: context.activity.channelId,
               userId: context.activity.from.id,
-              connectionName: this.connectionName,
+              connectionName,
               exchangeRequest: {
                 token: value.token,
               },
@@ -454,7 +455,7 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
                 this.signInFailureHandler !== undefined;
               telemetry.result = APP_OAUTH_RESULT.failure;
               telemetry.responseStatus = 412;
-              return this.tokenExchangeFailure(value.id);
+              return this.tokenExchangeFailure(value.id, connectionName);
             }
 
             // Unexpected service statuses are operational errors, not a
@@ -482,7 +483,7 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
             telemetry.callbackInvoked = this.signInFailureHandler !== undefined;
             telemetry.result = APP_OAUTH_RESULT.failure;
             telemetry.responseStatus = 412;
-            return this.tokenExchangeFailure(value.id);
+            return this.tokenExchangeFailure(value.id, connectionName);
           }
 
           if (exchangeId) {
@@ -676,13 +677,14 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
   }
 
   private tokenExchangeFailure(
-    id: string
+    id: string,
+    connectionName = this.connectionName
   ): InvokeResponse<'signin/tokenExchange'> {
     return {
       status: 412,
       body: {
         id,
-        connectionName: this.connectionName,
+        connectionName,
         failureDetail: 'unable to exchange token...',
       },
     };

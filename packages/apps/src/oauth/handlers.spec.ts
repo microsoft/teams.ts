@@ -142,6 +142,91 @@ describe('OauthHandlers', () => {
       await expect(handlers.onTokenExchange(ctx)).resolves.toEqual({ status: 400 });
       expect(ctx.api.users.exchangeToken).not.toHaveBeenCalled();
     });
+
+    it('preserves legacy exchange for an explicitly requested connection', async () => {
+      const exchangeToken = jest.fn().mockResolvedValue({
+        token: 'custom-token',
+        connectionName: 'custom',
+        expiration: '2030-01-01T00:00:00Z',
+      });
+      const legacyHandlers = new OauthHandlers(
+        mockGetFlows,
+        mockClient,
+        mockEvents,
+        undefined,
+        () => false
+      );
+      const ctx: any = {
+        api: { users: { exchangeToken } },
+        activity: {
+          channelId: 'msteams',
+          from: { id: 'user-id' },
+          conversation: { id: 'conversation-id' },
+          value: {
+            id: 'exchange-custom',
+            connectionName: 'custom',
+            token: 'some-token',
+          },
+        },
+        log: { warn: jest.fn() },
+        next: jest.fn(),
+      };
+      const signin = jest.fn();
+      mockEvents.on('signin', signin);
+
+      await expect(legacyHandlers.onTokenExchange(ctx)).resolves.toEqual({ status: 200 });
+
+      expect(exchangeToken).toHaveBeenCalledWith(expect.objectContaining({
+        connectionName: 'custom',
+      }));
+      expect(ctx.log.warn).toHaveBeenCalledWith(
+        'default connection name "test-connection" does not match activity connection name "custom"'
+      );
+      expect(signin).toHaveBeenCalledWith(expect.objectContaining({
+        connectionName: 'custom',
+        userToken: 'custom-token',
+        isSignedIn: true,
+      }));
+      expect(ctx.next).toHaveBeenCalledTimes(1);
+    });
+
+    it('attributes legacy exchange fallback responses to the requested connection', async () => {
+      const legacyHandlers = new OauthHandlers(
+        mockGetFlows,
+        mockClient,
+        mockEvents,
+        undefined,
+        () => false
+      );
+      const ctx: any = {
+        api: {
+          users: {
+            exchangeToken: jest.fn().mockRejectedValue(createAxiosError(412)),
+          },
+        },
+        activity: {
+          channelId: 'msteams',
+          from: { id: 'user-id' },
+          conversation: { id: 'conversation-id' },
+          value: {
+            id: 'exchange-custom',
+            connectionName: 'custom',
+            token: 'some-token',
+          },
+        },
+        log: { warn: jest.fn() },
+        next: jest.fn(),
+      };
+
+      await expect(legacyHandlers.onTokenExchange(ctx)).resolves.toEqual({
+        status: 412,
+        body: {
+          id: 'exchange-custom',
+          connectionName: 'custom',
+          failureDetail: 'unable to exchange token...',
+        },
+      });
+    });
     
     it('prevents duplicates for the same exchangeId', async () => {
       const mockApi = {

@@ -34,7 +34,8 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
     private readonly getFlows: () => readonly OAuthFlow<TPlugin>[],
     private readonly client: HttpClient,
     private readonly events: EventEmitter<AppEvents<TPlugin>>,
-    private readonly graphBaseUrl?: string
+    private readonly graphBaseUrl?: string,
+    private readonly usesRegisteredFlows: () => boolean = () => true
   ) { }
 
   onTokenExchange = async (
@@ -42,17 +43,31 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
   ) => {
     const { activity } = ctx;
     const value = activity.value;
-    const flow = this.findFlow(value?.connectionName);
 
-    if (!value || !flow) {
+    if (!value?.connectionName?.trim()) {
       return { status: 400 };
+    }
+
+    const registeredFlow = this.findFlow(value.connectionName);
+    const flow = registeredFlow ??
+      (this.usesRegisteredFlows() ? undefined : this.getFlows()[0]);
+    if (!flow) {
+      return { status: 400 };
+    }
+
+    const connectionName = registeredFlow?.connectionName ?? value.connectionName;
+    if (!registeredFlow) {
+      ctx.log.warn(
+        `default connection name "${flow.connectionName}" does not match activity connection name "${connectionName}"`
+      );
     }
 
     const response = await flow.exchangeToken(
       ctx,
       value,
-      token => this.completeSignIn(flow, ctx, token),
-      error => this.events.emit('error', { error, activity })
+      token => this.completeSignIn(flow, ctx, token, connectionName),
+      error => this.events.emit('error', { error, activity }),
+      connectionName
     );
 
     return response;
@@ -173,13 +188,14 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
       ISignInTokenExchangeInvokeActivity | ISignInVerifyStateInvokeActivity,
       PluginAdditionalContext<TPlugin>
     >,
-    token: TokenResponse
+    token: TokenResponse,
+    connectionName = flow.connectionName
   ): Promise<void> {
     this.applyUserToken(ctx, token);
     await flow.complete(ctx, token);
     this.events.emit('signin', {
       ...ctx,
-      connectionName: flow.connectionName,
+      connectionName,
       token,
       isSignedIn: true,
     });
