@@ -379,10 +379,8 @@ export class HttpStream implements IStreamer {
       // Once the stream has timed out, stop sending chunks for this cycle.
       if (this._timedOut) return;
 
-      // Last message emitted wins for textFormat (matches finalActivity's attachments /
-      // entities / suggestedActions behavior), applied to every cumulative typing chunk
-      // below so intermediate updates render with the same format as the eventual final
-      // message.
+      // Last emitted message wins for textFormat (same as attachments/entities/etc.),
+      // so streamed chunks render with the same format as the final message.
       const textFormat = this.finalActivity?.textFormat;
 
       // Send informative updates immediately

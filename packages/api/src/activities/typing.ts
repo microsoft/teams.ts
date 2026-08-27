@@ -9,9 +9,7 @@ export interface ITypingActivity extends IActivity<'typing'> {
   text?: string;
 
   /**
-   * Format of the `text` field. Streaming implementations set this so intermediate
-   * typing chunks render with the same format (ex. `'extendedmarkdown'`) as the
-   * final message they accumulate into. Default: `'markdown'`.
+   * Format of the `text` field (ex. `'extendedmarkdown'`). Default: `'markdown'`.
    */
   textFormat?: TextFormat;
 }
@@ -33,9 +31,7 @@ export interface ITypingActivityInput extends IActivityInput<'typing'> {
   text?: string;
 
   /**
-   * Format of the `text` field. Streaming implementations set this so intermediate
-   * typing chunks render with the same format (ex. `'extendedmarkdown'`) as the
-   * final message they accumulate into. Default: `'markdown'`.
+   * Format of the `text` field (ex. `'extendedmarkdown'`). Default: `'markdown'`.
    */
   textFormat?: TextFormat;
 }
@@ -61,9 +57,7 @@ export class TypingActivityInput extends ActivityInput<'typing'> implements ITyp
   text?: string;
 
   /**
-   * Format of the `text` field. Streaming implementations set this so intermediate
-   * typing chunks render with the same format (ex. `'extendedmarkdown'`) as the
-   * final message they accumulate into. Default: `'markdown'`.
+   * Format of the `text` field (ex. `'extendedmarkdown'`). Default: `'markdown'`.
    */
   textFormat?: TextFormat;
 
