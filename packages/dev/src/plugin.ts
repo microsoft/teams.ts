@@ -1,9 +1,8 @@
+import { randomUUID } from 'crypto';
 import http from 'http';
 import path from 'path';
 
 import express from 'express';
-
-import * as uuid from 'uuid';
 
 import { WebSocket, WebSocketServer } from 'ws';
 
@@ -161,7 +160,7 @@ export class DevtoolsPlugin {
 
   onActivity({ activity, conversation }: IPluginActivityEvent) {
     this.emitActivityToSockets({
-      id: uuid.v4(),
+      id: randomUUID(),
       type: 'activity.received',
       chat: conversation,
       body: activity,
@@ -171,7 +170,7 @@ export class DevtoolsPlugin {
 
   onActivitySent({ activity, conversation }: IPluginActivitySentEvent) {
     this.emitActivityToSockets({
-      id: uuid.v4(),
+      id: randomUUID(),
       type: 'activity.sent',
       chat: conversation,
       body: activity as any,
@@ -189,12 +188,12 @@ export class DevtoolsPlugin {
   }
 
   protected onSocketConnection(socket: WebSocket) {
-    const id = uuid.v4();
+    const id = randomUUID();
     this.sockets.set(id, socket);
 
     socket.send(
       JSON.stringify({
-        id: uuid.v4(),
+        id: randomUUID(),
         type: 'metadata',
         body: {
           pages: this.pages,
