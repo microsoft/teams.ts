@@ -1,5 +1,6 @@
 import { Readable } from 'stream';
 
+import { AxiosError } from 'axios';
 import { type MockedObject } from 'jest-mock';
 
 import {
@@ -15,7 +16,19 @@ import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common
 
 import { ApiClient, GraphClient } from '../api';
 
-import { ActivityContext } from './activity';
+import {
+  ActivityContext,
+  IActivityContextConstructorArgs,
+} from './activity';
+
+const missingTokenError = () =>
+  new AxiosError('No token', '404', undefined, undefined, {
+    status: 404,
+    statusText: 'Not Found',
+    headers: {},
+    config: {} as never,
+    data: {},
+  });
 
 describe('ActivityContext', () => {
   let mockSender: { send: jest.Mock; createStream: jest.Mock };
@@ -98,7 +111,10 @@ describe('ActivityContext', () => {
       .withId(id ?? 'test-activity-id');
   };
 
-  const buildActivityContext = (activity: Activity): ActivityContext => {
+  const buildActivityContext = (
+    activity: Activity,
+    constructorArgs: Partial<IActivityContextConstructorArgs> = {}
+  ): ActivityContext => {
     return new ActivityContext({
       appId: 'test-app',
       activity,
@@ -111,6 +127,7 @@ describe('ActivityContext', () => {
       connectionName: 'test-connection',
       next: jest.fn(),
       activitySender: mockSender,
+      ...constructorArgs,
     });
   };
 
@@ -605,7 +622,7 @@ describe('ActivityContext', () => {
       });
 
       mockApiClient.users.getToken.mockRejectedValueOnce(
-        new Error('No token')
+        missingTokenError()
       );
       const mockResource = {
         tokenExchangeResource: {
@@ -630,6 +647,59 @@ describe('ActivityContext', () => {
       });
     });
 
+    it('records pending attribution when deprecated signin sends a card', async () => {
+      const onOAuthSignInInitiated = jest.fn();
+      context = buildActivityContext(
+        buildIncomingMessageActivity('Test message'),
+        { onOAuthSignInInitiated }
+      );
+      mockApiClient.users.getToken.mockRejectedValueOnce(missingTokenError());
+      mockApiClient.bots.signIn.getResource.mockResolvedValueOnce({
+        tokenExchangeResource: {
+          uri: 'my-token-exchange-resource-uri',
+        } as TokenExchangeResource,
+        tokenPostResource: {} as TokenPostResource,
+        signInLink: 'https://login.url',
+      });
+
+      await context.signin({ connectionName: 'github' });
+
+      expect(onOAuthSignInInitiated).toHaveBeenCalledWith(
+        expect.objectContaining({
+          activity: expect.objectContaining({
+            conversation: expect.objectContaining({ id: 'test-conversation' }),
+          }),
+        }),
+        'github',
+        false
+      );
+    });
+
+    it('rejects an undeclared connection before starting deprecated signin', async () => {
+      const error = new Error(
+        'No OAuth flow is registered for connection "github".'
+      );
+      const validateOAuthConnection = jest.fn(() => {
+        throw error;
+      });
+      context = buildActivityContext(
+        buildIncomingMessageActivity('Test message'),
+        { validateOAuthConnection }
+      );
+
+      await expect(
+        context.signin({ connectionName: 'github' })
+      ).rejects.toBe(error);
+
+      expect(validateOAuthConnection).toHaveBeenCalledWith(
+        'github',
+        true
+      );
+      expect(mockApiClient.users.getToken).not.toHaveBeenCalled();
+      expect(mockApiClient.bots.signIn.getResource).not.toHaveBeenCalled();
+      expect(mockSender.send).not.toHaveBeenCalled();
+    });
+
     it('sends a targeted oauth card in a group chat without creating a 1:1', async () => {
       context = new ActivityContext({
         ...context,
@@ -645,7 +715,7 @@ describe('ActivityContext', () => {
       });
 
       mockApiClient.users.getToken.mockRejectedValueOnce(
-        new Error('No token')
+        missingTokenError()
       );
       const mockResource = {
         tokenExchangeResource: {
@@ -683,7 +753,7 @@ describe('ActivityContext', () => {
       });
 
       mockApiClient.users.getToken.mockRejectedValueOnce(
-        new Error('No token')
+        missingTokenError()
       );
       const mockResource = {
         tokenExchangeResource: {
@@ -718,7 +788,7 @@ describe('ActivityContext', () => {
         activitySender: mockSender,
       });
 
-      mockApiClient.users.getToken.mockRejectedValueOnce(new Error('No token'));
+      mockApiClient.users.getToken.mockRejectedValueOnce(missingTokenError());
       const mockResource = {
         tokenExchangeResource: {
           uri: 'my-token-exhcange-resource-uri',
@@ -743,14 +813,58 @@ describe('ActivityContext', () => {
       );
     });
 
+    it('propagates unexpected token lookup failures', async () => {
+      const error = new Error('token service unavailable');
+      mockApiClient.users.getToken.mockRejectedValueOnce(error);
+
+      await expect(context.signin()).rejects.toBe(error);
+
+      expect(mockApiClient.bots.signIn.getResource).not.toHaveBeenCalled();
+    });
+
     it('forwards signout request to api client', async () => {
+      const validateOAuthConnection = jest.fn();
+      context = buildActivityContext(
+        buildIncomingMessageActivity('Test message'),
+        { validateOAuthConnection }
+      );
+
       await context.signout();
 
+      expect(validateOAuthConnection).toHaveBeenCalledWith(
+        'test-connection',
+        false
+      );
       expect(mockApiClient.users.signOut).toHaveBeenCalledWith({
         channelId: 'test-channel',
         userId: 'test-user',
         connectionName: 'test-connection',
       });
+    });
+
+    it('identifies an omitted signin connection for registered-flow validation', async () => {
+      const error = new Error(
+        'OAuth connection name is required when OAuth flows are registered.'
+      );
+      const validateOAuthConnection = jest.fn(
+        (_connectionName: string, connectionNameProvided: boolean) => {
+          if (!connectionNameProvided) {
+            throw error;
+          }
+        }
+      );
+      context = buildActivityContext(
+        buildIncomingMessageActivity('Test message'),
+        { validateOAuthConnection }
+      );
+
+      await expect(context.signin()).rejects.toBe(error);
+
+      expect(validateOAuthConnection).toHaveBeenCalledWith(
+        'test-connection',
+        false
+      );
+      expect(mockApiClient.users.getToken).not.toHaveBeenCalled();
     });
   });
 

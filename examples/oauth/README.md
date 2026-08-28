@@ -1,11 +1,8 @@
-# Graph auth sample
+# Multi-provider OAuth sample
 
-This sample demonstrates signing a user in and calling Microsoft Graph with the `userGraph` client.
-
-For new applications that need named flows or multiple OAuth connections, use the
-[multi-provider OAuth sample](../oauth/README.md), which demonstrates the `OAuthFlow`
-registration and lifecycle APIs. This sample remains focused on the existing
-single-connection context helpers.
+This sample registers independent `graph` and `github` OAuth flows. Each flow
+owns its sign-in completion/failure callbacks and can be queried or signed out
+without affecting the other connection.
 
 ## Teams CLI
 
@@ -20,16 +17,15 @@ teams login
 Expose this sample's local `/api/messages` endpoint with a tunnel, then create the Teams app:
 
 ```bash
-teams app create --name "graph" --endpoint "https://<your-tunnel>/api/messages" --env .env --json
+teams app create --name "oauth" --endpoint "https://<your-tunnel>/api/messages" --env .env --json
 ```
 
 The CLI writes `CLIENT_ID`, `CLIENT_SECRET`, and `TENANT_ID` to your `.env` file and prints an install link for Teams. Save the `teamsAppId` and `botId` from the JSON output for the auth setup below.
 
-## Configure Graph auth
+## Configure Microsoft Graph
 
-This sample expects an OAuth connection named `graph`, matching `defaultConnectionName: 'graph'` in `src/index.ts`.
-
-Follow the Teams SDK [SSO setup guide](https://github.com/microsoft/teams-sdk/blob/main/plugins/teams-sdk/skills/teams-dev/references/guide-setup-sso.md) flow:
+The `graph` connection is the default and supports Teams SSO. Follow the Teams
+SDK [SSO setup guide](https://github.com/microsoft/teams-sdk/blob/main/plugins/teams-sdk/skills/teams-dev/references/guide-setup-sso.md).
 
 1. Make sure Azure CLI is installed and signed in with the same account used for `teams login`:
 
@@ -81,24 +77,30 @@ Follow the Teams SDK [SSO setup guide](https://github.com/microsoft/teams-sdk/bl
    teams app doctor <teamsAppId>
    ```
 
-## Updating Graph scopes
+## Configure GitHub
 
-The default OAuth connection uses `User.Read`. To request more Microsoft Graph delegated permissions, update the OAuth connection scopes in Azure Bot Service. For example:
+1. Create a GitHub OAuth app with this authorization callback URL:
 
-```bash
-az bot authsetting create \
-  --name <botId> \
-  --resource-group <resourceGroup> \
-  --setting-name "graph" \
-  --service Aadv2 \
-  --client-id <botId> \
-  --client-secret <clientSecret> \
-  --provider-scope-string "User.Read People.Read User.ReadBasic.All" \
-  --parameters tenantId=<tenantId> tokenExchangeUrl=api://botid-<botId> \
-  --subscription <subscription>
-```
+   ```text
+   https://token.botframework.com/.auth/web/redirect
+   ```
 
-> Admin consent may be required depending on the scopes you add.
+2. Create the second Azure Bot OAuth connection:
+
+   ```bash
+   az bot authsetting create \
+     --name <botId> \
+     --resource-group <resourceGroup> \
+     --setting-name "github" \
+     --service GitHub \
+     --client-id <githubClientId> \
+     --client-secret <githubClientSecret> \
+     --provider-scope-string "read:user user:email" \
+     --subscription <subscription>
+   ```
+
+The connection name must be `github`, matching the `github` entry in `oauthFlows` in
+`src/index.ts`.
 
 ## Run
 
@@ -106,4 +108,12 @@ az bot authsetting create \
 npm run dev
 ```
 
-In Teams, send any message to start sign-in. After sign-in succeeds, the bot calls `GET /me` through Microsoft Graph and replies with the signed-in user's display name.
+Use these commands in Teams:
+
+| Command | Action |
+| --- | --- |
+| `/graph` | Sign in and call Microsoft Graph `GET /me`. |
+| `/github` | Sign in and call GitHub `GET /user`. |
+| `/status` | Show both token-service connection statuses. |
+| `/signout graph` | Sign out only from Microsoft Graph. |
+| `/signout github` | Sign out only from GitHub. |

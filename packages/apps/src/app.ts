@@ -12,13 +12,10 @@ import {
   InvokeResponse,
   PUBLIC,
   SentActivity,
-  StripMentionsTextOptions,
   toActivityParams,
-  TokenProvider,
 } from '@microsoft/teams.api';
 import {
   Client as HttpClient,
-  type ClientOptions as HttpClientOptions,
   ConsoleLogger,
   EventEmitter,
   EventHandler,
@@ -31,26 +28,37 @@ import pkg from '../package.json';
 
 import { ActivitySender } from './activity-sender';
 import { ApiClient, GraphClient } from './api';
-
 import { EventManager } from './app.events';
-import { OauthHandlers } from './app.oauth';
+
+import type {
+  AppGetAgenticIdentityOptions,
+  AppOptions,
+  AppSendOptions,
+} from './app.options';
+export type {
+  AppActivityOptions,
+  AppGetAgenticIdentityOptions,
+  AppOptions,
+  AppSendOptions,
+  AppTelemetryOptions,
+} from './app.options';
 import { PluginManager } from './app.plugins';
 import { ActivityProcessor } from './app.process';
 import { Container } from './container';
 import { IActivityContext, FunctionContext, IFunctionContext } from './contexts';
-import {
-  type IAgent365BaggageOptions
-} from './diagnostics/agent365-baggage';
 import { IActivityEvent } from './events';
-import { ExpressAdapter, IHttpServerAdapter } from './http';
+import { ExpressAdapter } from './http';
 import { HttpServer } from './http/http-server';
 import * as middleware from './middleware';
 import { RemoteFunctionValidator } from './middleware/auth/remote-function-validator';
-import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
+import { DEFAULT_OAUTH_SETTINGS, OAuthFlow } from './oauth';
+import type { OAuthSignInOptions } from './oauth';
+import { OAuthFlowRegistry } from './oauth/registry';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { IRoutes } from './routes';
-import { createStateLoader, StateOptions, TurnStateLoader } from './state';
+import { createStateLoader, TurnStateLoader } from './state';
+import { createOAuthStateLoader } from './state/loader';
 import { DEFAULT_TENANT_FOR_GRAPH_TOKEN, TokenManager } from './token-manager';
 import { AppTokenProvider, IAppTokenProvider } from './token-provider';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
@@ -62,217 +70,6 @@ function isAppSendOptions(value: ActivityLike | DeprecatedInputActivity | AppSen
   if (typeof value === 'string') return false;
   return !('type' in value);
 }
-
-/**
- * Options for proactive app sends and replies.
- */
-export type AppSendOptions = {
-  /**
-   * Agentic identity scope to use when acquiring tokens for this send.
-   */
-  readonly agenticIdentity?: AgenticIdentity;
-};
-
-/**
- * Options for creating an Agent 365 operation identity from app configuration.
- */
-export type AppGetAgenticIdentityOptions = {
-  /**
-   * ID of the agentic app represented by this identity, when available/needed.
-   * Omit or use `null` for blueprint-level scopes.
-   */
-  readonly agenticAppId?: string | null;
-
-  /**
-   * Entra object ID of the user-backed agentic identity, when the operation
-   * acts on behalf of a user. Omit or use `null` for app-backed or
-   * blueprint-level scopes.
-   */
-  readonly agenticUserId?: string | null;
-
-  /**
-   * Tenant ID for token acquisition. Defaults to the app's resolved credentials
-   * or configured `tenantId`.
-   */
-  readonly tenantId?: string;
-
-  /**
-   * ID of the Agentic App Blueprint that backs the agentic app. Defaults to the
-   * app client ID resolved from credentials/configuration.
-   */
-  readonly agenticAppBlueprintId?: string;
-};
-
-/**
- * App initialization options
- */
-export type AppOptions<TPlugin extends IPlugin> = {
-  /**
-   * client id - Your application's client identifier
-   * Uses environment variable CLIENT_ID if not explicitly provided
-   */
-  readonly clientId?: string;
-
-  /**
-   * client secret - Your application's secret to be able to send messages
-   * as your bot.
-   * Uses environment variable CLIENT_SECRET if not explicitly provided
-   * If not available, uses ManagedIdentity to authenticate
-   */
-  readonly clientSecret?: string;
-
-  /**
-   * Application ID URI from the Azure portal. Used for user authentication.
-   * Matches webApplicationInfo.resource in the app manifest.
-   */
-  readonly applicationIdUri?: string;
-
-  /**
-   * tenantId - The tenantId where your app is registered
-   * Uses environment variable TENANT_ID if not explicitly provided
-   * If your app has MultiTenant auth enabled (this value should not be provided).
-   * (Note: That MultiTenant auth has been deprecated, so only legacy apps will have this
-   * value enabled)
-   */
-  readonly tenantId?: string;
-
-  /**
-   * An override to perform token fetching yourself, instead of letting the SDK
-   * acquire tokens from `clientSecret` or a managed identity.
-   *
-   * Pass a function — `(scope, tenantId?) => string` — if the app only ever
-   * authenticates as itself, or an object implementing `ITokenProvider` if it
-   * also acts with an AgenticIdentity.
-   */
-  readonly token?: TokenProvider;
-
-  /**
-   * managed identity client id - A managed identity client id.
-   * Uses environment variable MANAGED_IDENTITY_CLIENT_ID if not explicitly provided
-   * If:
-   *   - Same as client id, uses User Managed Identity for auth
-   *   - "system", uses System Managed Identity in a Federated Identity Credentials
-   *   - Different from client id or system, uses UMI in a Federated Identity Credentials
-   */
-  managedIdentityClientId?: 'system' | (string & {});
-
-  /**
-   * http client or client options used to make api requests
-   */
-  readonly client?: HttpClient | HttpClientOptions | (() => HttpClient);
-
-  /**
-   * logger instance to use
-   */
-  readonly logger?: ILogger;
-
-  /**
-   * storage instance to use
-   *
-   * @deprecated Configure `state.storage` for turn state. Applications that
-   * need general persistence should own and use their storage provider directly.
-   */
-  readonly storage?: IStorage;
-
-  /**
-   * Enables per-turn conversation and user state.
-   *
-   * Pass `true` to use the app storage with the default key prefix, or provide
-   * options to configure dedicated storage and a custom key prefix. State is
-   * disabled when omitted or `false`.
-   */
-  readonly state?: boolean | StateOptions;
-
-  /**
-   * plugins to extend the apps functionality
-   */
-  readonly plugins?: Array<TPlugin>;
-
-  /**
-   * HTTP server adapter for handling bot requests
-   */
-  readonly httpServerAdapter?: IHttpServerAdapter;
-
-  /**
-   * OAuth Settings
-   */
-  readonly oauth?: OAuthSettings;
-
-  /**
-   * Activity Options
-   */
-  readonly activity?: AppActivityOptions;
-
-  /**
-   * Dangerously allow incoming HTTP requests without Teams service token validation.
-   * Uses environment variable DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS if not explicitly provided.
-   */
-  readonly dangerouslyAllowUnauthenticatedRequests?: boolean;
-
-  /**
-   * @deprecated Use dangerouslyAllowUnauthenticatedRequests instead.
-   */
-  readonly skipAuth?: boolean;
-
-  /**
-   * URL path for the Teams messaging endpoint
-   * @default '/api/messages'
-   */
-  readonly messagingEndpoint?: `/${string}`;
-
-  /**
-   * Base Service URL for BotBackend
-   * Uses environment variable SERVICE_URL  if not provided
-   * and defaults to https://smba.trafficmanager.net/teams
-   */
-  readonly serviceUrl?: string;
-
-  /**
-   * API client settings used for overriding (e.g. oauthUrl).
-   * Cloud, tokenProvider, and agenticIdentity are managed internally.
-   */
-  readonly apiClientSettings?: Pick<ApiClientSettings, 'oauthUrl'>;
-
-  /**
-   * Cloud environment for sovereign cloud support.
-   * Accepts a CloudEnvironment object or uses CLOUD environment variable.
-   * Valid env var values: "Public", "USGov", "USGovDoD", "China".
-   * Defaults to PUBLIC (commercial cloud).
-   */
-  readonly cloud?: CloudEnvironment;
-
-  /**
-   * Telemetry settings.
-   */
-  readonly telemetry?: AppTelemetryOptions;
-};
-
-/**
- * Telemetry settings applied across every flow the SDK owns.
- */
-export type AppTelemetryOptions = {
-  /**
-   * Configures the Agent365 baggage the SDK derives from inbound activities.
-   *
-   * Identifier-only baggage (tenant, conversation, channel, agent, and caller
-   * ids) is populated by default; personal-data fields require an explicit
-   * `include` entry. Pass `false` to disable the bridge entirely.
-   *
-   * This covers only the inbound flow. Proactive work should open its own scope
-   * with `createAgent365Scope`, which takes the same options.
-   */
-  readonly agent365?: IAgent365BaggageOptions | false;
-};
-
-export type AppActivityOptions = {
-  readonly mentions?: {
-    /**
-     * Automatically remove `<at>...</at>` mention
-     * from inbound activity `text`
-     */
-    readonly stripText?: boolean | StripMentionsTextOptions;
-  };
-};
 
 /**
  * The orchestrator for receiving/sending activities
@@ -348,18 +145,31 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   private readonly tokenManager: TokenManager;
 
   private readonly _tokenProvider: AppTokenProvider;
-  private readonly stateLoader?: TurnStateLoader;
+  private stateLoader?: TurnStateLoader;
 
   private eventManager!: EventManager<TPlugin>;
   private activityProcessor!: ActivityProcessor<TPlugin>;
-  private oauthHandlers!: OauthHandlers<TPlugin>;
+  private readonly oauthFlowRegistry: OAuthFlowRegistry<TPlugin>;
 
   private readonly _userAgent = `teams.ts[apps]/${pkg.version}`;
 
   constructor(readonly options: AppOptions<TPlugin> = {}) {
     this.log = this.options.logger || new ConsoleLogger('@teams/app');
     this.storage = this.options.storage || new LocalStorage();
-    this.stateLoader = createStateLoader(this.options.state, this.log);
+    const hasConfiguredOAuthFlows = (this.options.oauthFlows?.length ?? 0) > 0;
+    if (
+      hasConfiguredOAuthFlows &&
+      this.options.oauth?.defaultConnectionName !== undefined
+    ) {
+      throw new Error(
+        'oauth.defaultConnectionName cannot be combined with registered OAuth flows. ' +
+        'Remove defaultConnectionName and name the connection when calling OAuth helpers.'
+      );
+    }
+    this.stateLoader = createStateLoader(
+      this.options.state,
+      this.log
+    );
 
     // Resolve cloud environment from options or CLOUD env var
     const cloudEnvName = typeof process !== 'undefined' ? process.env.CLOUD : undefined;
@@ -452,12 +262,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       },
     });
     this.eventManager = new EventManager<TPlugin>(this.events, this.pluginManager.plugins);
-    this.oauthHandlers = new OauthHandlers<TPlugin>(
-      () => this.oauth.defaultConnectionName,
-      this.client,
-      this.events,
-      this.graphBaseUrl
-    );
     this.activityProcessor = new ActivityProcessor<TPlugin>({
       router: this.router,
       plugins: this.pluginManager.plugins,
@@ -467,11 +271,21 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       api: this.api,
       client: this.client,
       storage: this.storage,
-      stateLoader: this.stateLoader,
+      getStateLoader: () => this.stateLoader,
       log: this.log,
       getId: () => this.id,
       getConnectionName: () => this.oauth.defaultConnectionName,
       shouldFetchUserToken: () => this.shouldFetchUserToken(),
+      validateOAuthConnection: (connectionName, connectionNameProvided) =>
+        this.oauthFlowRegistry.validate(connectionName, connectionNameProvided),
+      onOAuthSignInInitiated: (context, connectionName, supportsSso) =>
+        this.oauthFlowRegistry.recordPending(
+          context,
+          connectionName,
+          supportsSso
+        ),
+      getOAuthConnectionStatus: context =>
+        this.oauthFlowRegistry.getConnectionStatus(context),
       apiClientSettings: this.options.apiClientSettings,
       graphBaseUrl: this.graphBaseUrl,
       agent365Baggage: this.options.telemetry?.agent365,
@@ -566,27 +380,18 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       );
     }
 
-    // default event handlers
-    this.router.register({
-      name: 'signin.token-exchange',
-      type: 'system',
-      select: activity => activity.type === 'invoke' && activity.name === 'signin/tokenExchange',
-      callback: ctx => this.oauthHandlers.onTokenExchange(ctx) as unknown as Promise<void>,
+    this.oauthFlowRegistry = new OAuthFlowRegistry({
+      defaultConnectionName: hasConfiguredOAuthFlows
+        ? undefined
+        : this.oauth.defaultConnectionName,
+      router: this.router,
+      client: this.client,
+      events: this.events,
+      graphBaseUrl: this.graphBaseUrl,
     });
-
-    this.router.register({
-      name: 'signin.verify-state',
-      type: 'system',
-      select: activity => activity.type === 'invoke' && activity.name === 'signin/verifyState',
-      callback: ctx => this.oauthHandlers.onVerifyState(ctx) as unknown as Promise<void>,
-    });
-
-    this.router.register({
-      name: 'signin.failure',
-      type: 'system',
-      select: activity => activity.type === 'invoke' && activity.name === 'signin/failure',
-      callback: ctx => this.oauthHandlers.onSignInFailure(ctx) as unknown as Promise<void>,
-    });
+    for (const connectionName of this.options.oauthFlows ?? []) {
+      this.addOAuthFlow(connectionName);
+    }
 
     this.event('error', ({ error }: any) => {
       this.log.error(error.message);
@@ -773,6 +578,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     if (!tenantId) {
       throw new Error('tenantId is required to get an AgenticIdentity');
     }
+
     const agenticAppBlueprintId = options.agenticAppBlueprintId ?? this.id;
     if (!agenticAppBlueprintId) {
       throw new Error('agenticAppBlueprintId is required to get an AgenticIdentity');
@@ -784,6 +590,48 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       agenticUserId: options.agenticUserId,
       tenantId,
     };
+  }
+
+  /**
+   * Registers an OAuth flow for one Bot Framework OAuth connection.
+   *
+   * Connection names are matched case-insensitively. Registering the same
+   * connection more than once throws. The first registration removes
+   * the implicit legacy default. This method cannot be used when
+   * `oauth.defaultConnectionName` was configured.
+   *
+   * @param connectionName OAuth connection name.
+   * @param options Optional card defaults for the flow.
+   * @returns The registered flow so callbacks can be chained.
+   */
+  addOAuthFlow(
+    connectionName: string,
+    options: OAuthSignInOptions = {}
+  ): OAuthFlow<TPlugin> {
+    if (this.options.oauth?.defaultConnectionName !== undefined) {
+      throw new Error(
+        'oauth.defaultConnectionName cannot be combined with registered OAuth flows. ' +
+        'Remove defaultConnectionName and name the connection when calling OAuth helpers.'
+      );
+    }
+
+    const flow = new OAuthFlow<TPlugin>(connectionName, options);
+    this.enableOAuthState();
+    this.oauthFlowRegistry.add(flow);
+    return flow;
+  }
+
+  /**
+   * Gets the OAuth flow for a connection.
+   *
+   * The implicit legacy default is available only until the first flow
+   * is registered.
+   *
+   * @param connectionName Connection to resolve.
+   * @throws When the connection name is blank or no matching flow is registered.
+   */
+  getOAuthFlow(connectionName: string): OAuthFlow<TPlugin> {
+    return this.oauthFlowRegistry.get(connectionName);
   }
 
   /**
@@ -973,10 +821,13 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   }
 
   /**
-   * whether to eagerly look up the user's OAuth token on every inbound activity.
-   * an explicit `oauth.fetchUserToken` wins; otherwise it is auto-detected, enabled
-   * only when an OAuth connection is explicitly configured, so apps that never use
-   * user OAuth do not pay for a wasted token request on every turn.
+   * Whether deprecated context OAuth fields require an eager token lookup.
+   *
+   * Registered flows never enable this behavior. An explicit legacy
+   * `oauth.fetchUserToken` wins; otherwise lookup is enabled only when the
+   * legacy default connection was explicitly configured.
+   *
+   * @deprecated Registered flows fetch tokens only through `OAuthFlow` methods.
    */
   protected shouldFetchUserToken(): boolean {
     const explicit = this.options.oauth?.fetchUserToken;
@@ -985,4 +836,12 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     }
     return this.options.oauth?.defaultConnectionName !== undefined;
   }
+
+  private enableOAuthState(): void {
+    if (this.options.state === false || this.stateLoader) {
+      return;
+    }
+    this.stateLoader = createOAuthStateLoader(this.log);
+  }
+
 }
