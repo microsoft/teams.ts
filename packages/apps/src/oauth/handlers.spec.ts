@@ -569,6 +569,50 @@ describe('OauthHandlers multi-flow lifecycle', () => {
     now.mockRestore();
   });
 
+  it('scopes process-local pending attribution by conversation', async () => {
+    const now = jest.spyOn(Date, 'now');
+    const graphComplete = jest.fn();
+    const githubComplete = jest.fn();
+    graph.onSignInComplete(graphComplete);
+    github.onSignInComplete(githubComplete);
+    const graphContext = createVerifyStateContext();
+    const githubContext = createVerifyStateContext();
+    githubContext.activity = {
+      ...githubContext.activity,
+      conversation: {
+        ...githubContext.activity.conversation,
+        id: 'other-conversation',
+      },
+    };
+
+    now.mockReturnValue(1_000);
+    graph.recordPending(graphContext as any, true);
+    now.mockReturnValue(2_000);
+    github.recordPending(githubContext as any, true);
+    now.mockReturnValue(2_500);
+
+    const verifyContext = createVerifyStateContext({
+      api: {
+        users: {
+          getToken: jest.fn().mockResolvedValue({
+            token: 'graph-token',
+            connectionName: 'graph',
+            expiration: '2030-01-01T00:00:00Z',
+          }),
+        },
+      },
+    });
+
+    await expect(handlers.onVerifyState(verifyContext as any)).resolves.toEqual({ status: 200 });
+    expect(verifyContext.api.users.getToken).toHaveBeenCalledTimes(1);
+    expect(verifyContext.api.users.getToken).toHaveBeenCalledWith(expect.objectContaining({
+      connectionName: 'graph',
+    }));
+    expect(graphComplete).toHaveBeenCalled();
+    expect(githubComplete).not.toHaveBeenCalled();
+    now.mockRestore();
+  });
+
   it('stops on an unexpected verify-state status and fails only the attributed flow', async () => {
     const state = new TurnStateContainer(new TurnState(), new TurnState());
     const graphFailure = jest.fn();

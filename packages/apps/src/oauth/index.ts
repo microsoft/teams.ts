@@ -617,7 +617,7 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
 
     const pending = this.pendingMap(ssoOnly);
     this.prunePending(pending, now);
-    return pending.get(context.activity.from.id);
+    return pending.get(this.pendingContextKey(context));
   }
 
   /** @internal Clears pending sign-in attribution for this flow. */
@@ -638,7 +638,7 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
     }
 
     const pending = this.pendingMap(ssoOnly);
-    pending.set(context.activity.from.id, value);
+    pending.set(this.pendingContextKey(context), value);
     this.prunePending(pending, value);
   }
 
@@ -647,7 +647,7 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
     ssoOnly: boolean
   ): void {
     context.state?.user?.delete(this.pendingStateKey(ssoOnly));
-    this.pendingMap(ssoOnly).delete(context.activity.from.id);
+    this.pendingMap(ssoOnly).delete(this.pendingContextKey(context));
   }
 
   private pendingStateKey(ssoOnly: boolean): string {
@@ -658,10 +658,17 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
     return ssoOnly ? this.pendingSsoSignIns : this.pendingSignIns;
   }
 
+  private pendingContextKey(context: IActivityContext): string {
+    return JSON.stringify([
+      context.activity.conversation.id,
+      context.activity.from.id,
+    ]);
+  }
+
   private prunePending(pending: Map<string, number>, now: number): void {
-    for (const [userId, timestamp] of pending) {
+    for (const [contextKey, timestamp] of pending) {
       if (now - timestamp >= OAuthFlow.PENDING_TTL_MS) {
-        pending.delete(userId);
+        pending.delete(contextKey);
       }
     }
 
@@ -669,10 +676,10 @@ export class OAuthFlow<TPlugin extends IPlugin = IPlugin> {
       return;
     }
 
-    for (const [userId] of [...pending.entries()]
+    for (const [contextKey] of [...pending.entries()]
       .sort(([, left], [, right]) => right - left)
       .slice(OAuthFlow.MAX_PENDING_ENTRIES)) {
-      pending.delete(userId);
+      pending.delete(contextKey);
     }
   }
 
