@@ -177,6 +177,29 @@ export function createStateLoader(
   state: boolean | StateOptions | undefined,
   logger: ILogger
 ): TurnStateLoader | undefined {
+  return createStateLoaderWithWarning(
+    state,
+    logger,
+    'Per-turn state is using LocalStorage and will not be shared across processes. Configure state.storage for production.'
+  );
+}
+
+/** @internal Creates the default state loader enabled by OAuth flow registration. */
+export function createOAuthStateLoader(logger: ILogger): TurnStateLoader {
+  return createStateLoaderWithWarning(
+    true,
+    logger,
+    'OAuth flow registration automatically enabled per-turn state using LocalStorage. ' +
+    'Pending sign-in attribution and token-exchange deduplication will not be shared across processes, ' +
+    'so OAuth sign-in may fail in multi-instance deployments. Configure state.storage with shared storage before running multiple instances.'
+  )!;
+}
+
+function createStateLoaderWithWarning(
+  state: boolean | StateOptions | undefined,
+  logger: ILogger,
+  localStorageWarning: string
+): TurnStateLoader | undefined {
   if (!state) {
     return undefined;
   }
@@ -184,9 +207,7 @@ export function createStateLoader(
   const options = state === true ? {} : state;
   const storage = options.storage ?? new LocalStorage<string>();
   if (storage instanceof LocalStorage) {
-    logger.warn(
-      'Per-turn state is using LocalStorage and will not be shared across processes. Configure state.storage for production.'
-    );
+    logger.warn(localStorageWarning);
   }
 
   return new TurnStateLoader(storage, options, logger);

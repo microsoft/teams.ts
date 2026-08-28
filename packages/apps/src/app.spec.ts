@@ -2,6 +2,7 @@ import { ConfidentialClientApplication } from '@azure/msal-node';
 import jwt from 'jsonwebtoken';
 
 import { CHINA, JsonWebToken, MessageActivity, PUBLIC, US_GOV, US_GOV_DOD, withOverrides } from '@microsoft/teams.api';
+import { ConsoleLogger } from '@microsoft/teams.common';
 
 import { App } from './app';
 import { TestAdapter } from './test-utils';
@@ -48,6 +49,121 @@ class TestApp extends App {
 }
 
 describe('App', () => {
+  describe('OAuth flow registration', () => {
+    it('returns the implicit default flow without enabling public turn state', () => {
+      const app = new App({ httpServerAdapter: new TestAdapter() });
+
+      expect(app.getOAuthFlow('graph').connectionName).toBe('graph');
+      expect(app.options.state).toBeUndefined();
+      expect(app.options.oauth).toBeUndefined();
+    });
+
+    it('registers flows through the app and resolves normalized names', () => {
+      const app = new App({ httpServerAdapter: new TestAdapter() });
+      const github = app.addOAuthFlow('GitHub');
+
+      expect(app.getOAuthFlow(' github ')).toBe(github);
+      expect(() => app.getOAuthFlow('graph')).toThrow(
+        'Registered connections: GitHub.'
+      );
+    });
+
+    it('registers flows declaratively through app options', () => {
+      const app = new App({
+        httpServerAdapter: new TestAdapter(),
+        oauthFlows: ['graph', 'github'],
+      });
+
+      expect(app.getOAuthFlow('GRAPH').connectionName).toBe('graph');
+      expect(app.getOAuthFlow('GitHub').connectionName).toBe('github');
+    });
+
+    it.each([
+      ['declaratively', (logger: ConsoleLogger) => new App({
+        httpServerAdapter: new TestAdapter(),
+        logger,
+        oauthFlows: ['graph'],
+      })],
+      ['imperatively', (logger: ConsoleLogger) => {
+        const app = new App({
+          httpServerAdapter: new TestAdapter(),
+          logger,
+        });
+        app.addOAuthFlow('graph');
+        return app;
+      }],
+    ])(
+      'warns about the OAuth consequence when state is enabled %s',
+      (_registration, createApp) => {
+        const logger = new ConsoleLogger('test');
+        const warn = jest.spyOn(logger, 'warn').mockImplementation();
+
+        createApp(logger);
+
+        expect(warn).toHaveBeenCalledWith(
+          expect.stringContaining(
+            'OAuth sign-in may fail in multi-instance deployments'
+          )
+        );
+        expect(warn).toHaveBeenCalledWith(
+          expect.stringContaining('Configure state.storage with shared storage')
+        );
+      }
+    );
+
+    it('registers the former default explicitly without retaining a placeholder', () => {
+      const app = new App({ httpServerAdapter: new TestAdapter() });
+      const graph = app.addOAuthFlow('GRAPH');
+
+      expect(app.getOAuthFlow('graph')).toBe(graph);
+    });
+
+    it('rejects duplicate flows and lists registered connections on lookup failure', () => {
+      const app = new App({ httpServerAdapter: new TestAdapter() });
+      app.addOAuthFlow('github');
+
+      expect(() => app.addOAuthFlow('GITHUB')).toThrow(
+        'An OAuth flow is already registered for connection "GITHUB".'
+      );
+      expect(() => app.getOAuthFlow('missing')).toThrow(
+        'Registered connections: github.'
+      );
+    });
+
+    it('rejects combining a configured legacy default with registered flows', () => {
+      expect(() => new App({
+        httpServerAdapter: new TestAdapter(),
+        oauth: { defaultConnectionName: 'graph' },
+        oauthFlows: ['graph', 'github'],
+      })).toThrow(
+        'oauth.defaultConnectionName cannot be combined with registered OAuth flows.'
+      );
+
+      const app = new App({
+        httpServerAdapter: new TestAdapter(),
+        oauth: { defaultConnectionName: 'github' },
+      });
+      expect(() => app.addOAuthFlow('github')).toThrow(
+        'oauth.defaultConnectionName cannot be combined with registered OAuth flows.'
+      );
+    });
+
+    it('allows registered OAuth flows to use process-local tracking when state is disabled', () => {
+      const declarative = new App({
+        httpServerAdapter: new TestAdapter(),
+        oauthFlows: ['graph'],
+        state: false,
+      });
+      expect(declarative.getOAuthFlow('graph').connectionName).toBe('graph');
+
+      const app = new App({
+        httpServerAdapter: new TestAdapter(),
+        state: false,
+      });
+      expect(app.addOAuthFlow('github').connectionName).toBe('github');
+    });
+  });
+
   describe('token acquisition', () => {
     let app: TestApp;
     const mockBotToken = jwt.sign(

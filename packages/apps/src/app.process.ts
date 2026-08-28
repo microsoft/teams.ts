@@ -12,6 +12,7 @@ import {
   InvokeResponse,
   isInvokeResponse,
   IToken,
+  TokenStatus,
 } from '@microsoft/teams.api';
 import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
 
@@ -77,18 +78,48 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
   readonly client: HttpClient;
   readonly storage: IStorage;
   /**
-   * Loader used to attach and persist state for each activity turn.
+   * Gets the loader used to attach and persist state for each activity turn.
+   * The loader can become available after an OAuth flow is registered.
    */
-  readonly stateLoader?: TurnStateLoader;
+  readonly getStateLoader: () => TurnStateLoader | undefined;
   readonly log: ILogger;
   readonly getId: () => string | undefined;
+  /**
+   * Gets the connection name used by deprecated context OAuth fields.
+   *
+   * @deprecated Registered OAuth flows own their connection names.
+   */
   readonly getConnectionName: () => string;
   /**
-   * whether to eagerly look up the user's OAuth token on the inbound activity.
-   * the token is used to compute `ctx.isSignedIn` and `ctx.userToken`, and to authenticate
-   * `ctx.userGraph` (which is always constructed regardless of this setting).
+   * Whether to proactively fetch the legacy default-flow token for each inbound
+   * activity. The result populates deprecated context OAuth fields.
+   *
+   * @deprecated Registered flows fetch tokens only when their methods are called.
    */
   readonly shouldFetchUserToken: () => boolean;
+  /**
+   * Validates a connection selected through the deprecated activity-context
+   * OAuth helpers before any token service request is made.
+   */
+  readonly validateOAuthConnection?: (
+    connectionName: string,
+    connectionNameProvided: boolean
+  ) => void;
+  /**
+   * Records which registered OAuth flow emitted a card through the deprecated
+   * activity-context sign-in helper.
+   */
+  readonly onOAuthSignInInitiated?: (
+    context: IActivityContext,
+    connectionName: string,
+    supportsSso: boolean
+  ) => void | Promise<void>;
+  /**
+   * Gets corrected status for all OAuth connections registered on the app.
+   */
+  readonly getOAuthConnectionStatus?: (
+    context: IActivityContext
+  ) => Promise<TokenStatus[]>;
   readonly apiClientSettings?: ApiClientSettings;
   readonly graphBaseUrl?: string;
   /**
@@ -145,8 +176,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       });
 
       let userToken: string | undefined;
-      // Skipped unless configured (see OAuthSettings.fetchUserToken / auto-detection) to avoid
-      // a wasted user-token request on every activity when the app never reads ctx.userGraph.
+      // Legacy context OAuth fields opt into this eager lookup.
       if (this.options.shouldFetchUserToken()) {
         try {
           userToken = await this.getUserToken(apiClient, activity.channelId, activity.from.id);
@@ -255,12 +285,16 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         storage: this.options.storage,
         isSignedIn: !!userToken,
         connectionName: this.options.getConnectionName(),
+        validateOAuthConnection: this.options.validateOAuthConnection,
+        onOAuthSignInInitiated: this.options.onOAuthSignInInitiated,
+        getOAuthConnectionStatus: this.options.getOAuthConnectionStatus,
         activitySender,
         ...pluginContexts
       });
 
       const conversationId = activity.conversation?.id;
       const userId = activity.from?.id;
+      const stateLoader = this.options.getStateLoader();
 
       const send = context.send.bind(context);
       context.send = async (activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) => {
@@ -294,6 +328,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         activityProcessSpan,
         conversationId,
         userId,
+        stateLoader,
         async () => {
           try {
             const res = await next();
@@ -329,6 +364,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
     activityProcessSpan: Span,
     conversationId: string | undefined,
     userId: string | undefined,
+    stateLoader: TurnStateLoader | undefined,
     dispatch: () => Promise<InvokeResponse>
   ): Promise<InvokeResponse> {
     let response: InvokeResponse = { status: 500 };
@@ -336,8 +372,8 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
     let saveError: unknown;
 
     try {
-      if (this.options.stateLoader && conversationId) {
-        context.state = await this.options.stateLoader.load(
+      if (stateLoader && conversationId) {
+        context.state = await stateLoader.load(
           conversationId,
           userId
         );
@@ -346,9 +382,9 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
     } catch (error) {
       dispatchError = error;
     } finally {
-      if (context.state && this.options.stateLoader && conversationId) {
+      if (context.state && stateLoader && conversationId) {
         try {
-          await this.options.stateLoader.save(context.state);
+        await stateLoader.save(context.state);
         } catch (error) {
           saveError = error;
         } finally {
