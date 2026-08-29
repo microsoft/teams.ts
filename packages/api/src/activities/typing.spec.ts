@@ -1,4 +1,4 @@
-import { TypingActivity } from './typing';
+import { TypingActivity, TypingActivityInput } from './typing';
 
 describe('TypingActivity', () => {
   it('should build', () => {
@@ -11,6 +11,12 @@ describe('TypingActivity', () => {
     const activity = new TypingActivity().withText('test').addText('ing123');
     expect(activity.type).toEqual('typing');
     expect(activity.text).toEqual('testing123');
+  });
+
+  it('should build with textFormat', () => {
+    const activity = new TypingActivity().withText('test').withTextFormat('extendedmarkdown');
+    expect(activity.text).toEqual('test');
+    expect(activity.textFormat).toEqual('extendedmarkdown');
   });
 
   it('should build from interface', () => {
@@ -34,5 +40,29 @@ describe('TypingActivity', () => {
       name: 'test-user',
       role: 'user',
     });
+  });
+});
+
+describe('TypingActivityInput', () => {
+  it('should build with text', () => {
+    const activity = new TypingActivityInput().withText('test').addText('ing123');
+    expect(activity.type).toEqual('typing');
+    expect(activity.text).toEqual('testing123');
+  });
+
+  it('should build with textFormat', () => {
+    const activity = new TypingActivityInput().withText('test').withTextFormat('extendedmarkdown');
+    expect(activity.text).toEqual('test');
+    expect(activity.textFormat).toEqual('extendedmarkdown');
+  });
+
+  it('should build from interface, retaining textFormat', () => {
+    const activity = TypingActivityInput.from({
+      type: 'typing',
+      text: 'test',
+      textFormat: 'extendedmarkdown',
+    });
+    expect(activity.text).toEqual('test');
+    expect(activity.textFormat).toEqual('extendedmarkdown');
   });
 });
