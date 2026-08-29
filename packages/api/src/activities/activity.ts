@@ -629,7 +629,7 @@ export class Activity<T extends string = string> implements IActivity<T> {
   /**
    * Sets the activity timestamp as an ISO-8601 string.
    *
-   * @deprecated Timestamps set on outgoing activities are ignored.
+   * @deprecated  Use ActivityInput/MessageActivityInput/TypingActivityInput when constructing outbound activities.
    */
   withTimestamp(value: Date | string) {
     this.timestamp = value instanceof Date ? value.toISOString() : value;
@@ -644,7 +644,7 @@ export class Activity<T extends string = string> implements IActivity<T> {
   /**
    * Sets the activity's local timestamp as an ISO-8601 string.
    *
-   * @deprecated Local timestamps set on outgoing activities are ignored.
+   * @deprecated Use ActivityInput/MessageActivityInput/TypingActivityInput when constructing outbound activities.
    */
   withLocalTimestamp(value: Date | string) {
     this.localTimestamp = value instanceof Date ? value.toISOString() : value;
