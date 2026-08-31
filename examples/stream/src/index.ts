@@ -118,7 +118,7 @@ app.on('message', async ({ activity, stream, send, log }) => {
   }
 
   if (shouldRunExtendedMarkdown(activity.text)) {
-    stream.update('Checking the release status...');
+    stream.update('Checking the release status...', 'markdown');
     await sleep(1000);
 
     for (const delta of EXTENDED_MARKDOWN_DELTAS) {
