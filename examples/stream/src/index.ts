@@ -41,7 +41,7 @@ const SECOND_STREAM_MESSAGES = [
 ];
 
 const EXTENDED_MARKDOWN_DELTAS = [
-  '**On it — here\'s where your `v2.3.0` release stands:**\n\n',
+  '🚀 **Release checklist for `v2.3.0`**\n\n',
   '- [x] Run unit + integration tests\n',
   '- [x] Build and publish packages\n',
   '- [ ] ~~Manual smoke test~~ (skipped — covered by the integration suite)\n',
