@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
-    "@modelcontextprotocol/inspector": "^2.2.0",
+    "@modelcontextprotocol/inspector": "^2.3.0",
     "@types/express": "^5.0.0",
     "@types/node": "^22.5.4",
     "dotenv": "^17.4.2",

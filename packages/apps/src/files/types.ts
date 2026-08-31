@@ -54,8 +54,12 @@ export interface IIncomingFile {
   scope: ConversationType;
   /** Where the SDK found the file. Only `botActivity` is produced today. */
   source: FileSource;
-  /** Web URL to the file in OneDrive/SharePoint when known. */
-  webUrl?: string;
+  /**
+   * Browsable URL to the file in OneDrive/SharePoint, as sent on the attachment's `contentUrl`.
+   *
+   * Not fetchable for bytes despite the name; those come from {@link IIncomingFile.download} or {@link IIncomingFile.stream}.
+   */
+  contentUrl?: string;
   /** The raw underlying attachment/graph object for escape-hatch access. */
   raw?: unknown;
 

@@ -17,7 +17,7 @@ export interface IIncomingFileInit {
   extension?: string;
   scope: ConversationType;
   source: FileSource;
-  webUrl?: string;
+  contentUrl?: string;
   raw?: unknown;
   /** Short-lived, pre-authorized download URL (personal scope). */
   downloadUrl?: string;
@@ -37,7 +37,7 @@ export class IncomingFile implements IIncomingFile {
   readonly extension?: string;
   readonly scope: ConversationType;
   readonly source: FileSource;
-  readonly webUrl?: string;
+  readonly contentUrl?: string;
   readonly raw?: unknown;
 
   private readonly downloadUrl?: string;
@@ -52,7 +52,7 @@ export class IncomingFile implements IIncomingFile {
     this.extension = init.extension;
     this.scope = init.scope;
     this.source = init.source;
-    this.webUrl = init.webUrl;
+    this.contentUrl = init.contentUrl;
     this.raw = init.raw;
     this.downloadUrl = init.downloadUrl;
     this._fetch = init.fetch;

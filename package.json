@@ -6,7 +6,7 @@
   "bugs": "https://github.com/microsoft/teams.ts/issues",
   "packageManager": "npm@11.12.1",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.12.0"
   },
   "repository": {
     "type": "git",
@@ -46,11 +46,11 @@
   "devDependencies": {
     "@turbo/gen": "^2.5.7",
     "nerdbank-gitversioning": "^3.10.91",
-    "turbo": "^2.9.14",
+    "turbo": "^2.10.11",
     "typescript": "^5.4.5"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.62.3"
+    "@rollup/rollup-linux-x64-gnu": "4.62.4"
   },
   "overrides": {
     "restify": {

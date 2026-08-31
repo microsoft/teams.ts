@@ -2,7 +2,6 @@ import {
   Activity,
   ActivityLike,
   ActivityParams,
-  cardAttachment,
   ConversationReference,
   DeprecatedInputActivity,
   InvokeResponse,
@@ -12,10 +11,8 @@ import {
   MessageDeleteActivity,
   MessageUpdateActivity,
   SentActivity,
+  TokenStatus,
   toActivityParams,
-  TokenExchangeResource,
-  TokenExchangeState,
-  TokenPostResource,
   TypingActivity,
 } from '@microsoft/teams.api';
 import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
@@ -23,6 +20,8 @@ import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common
 import { ApiClient, GraphClient } from '../api';
 import { FilesAccessor } from '../files/files-accessor';
 import { IFilesAccessor } from '../files/types';
+import { OAuthSignInOptions, startOAuthSignIn } from '../oauth';
+import { TurnStateContainer } from '../state';
 import { IStreamer } from '../types';
 import { IActivitySender } from '../types/plugin/sender';
 
@@ -42,6 +41,35 @@ export interface IActivityContextConstructorArgs {
   next: (
     context?: IActivityContext
   ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
+
+  /**
+   * Validates that a connection used by a deprecated OAuth helper is registered
+   * and was named when registered flows require it.
+   * @internal
+   */
+  validateOAuthConnection?: (
+    connectionName: string,
+    connectionNameProvided: boolean
+  ) => void;
+
+  /**
+   * Records pending OAuth attribution after the deprecated `signin()` helper
+   * sends a card for a registered connection.
+   * @internal
+   */
+  onOAuthSignInInitiated?: (
+    context: IActivityContext,
+    connectionName: string,
+    supportsSso: boolean
+  ) => void | Promise<void>;
+
+  /**
+   * Gets corrected connection status through the app's OAuth registry.
+   * @internal
+   */
+  getOAuthConnectionStatus?: (
+    context: IActivityContext
+  ) => Promise<TokenStatus[]>;
 }
 
 /**
@@ -88,69 +116,53 @@ export interface IBaseActivityContextOptions<T extends Activity = Activity> {
 
   /**
    * the user graph client
+   *
+   * @deprecated Use a registered OAuth flow to acquire the token needed by the
+   * Microsoft Graph operation. This property remains available for compatibility.
    */
   userGraph: GraphClient;
 
   /**
    * app storage instance
+   *
+   * @deprecated Use `state` for conversation or user state. Applications that
+   * need general persistence should own and use their storage provider directly.
    */
   storage: IStorage;
+
+  /**
+   * Conversation and user state loaded for this activity turn.
+   *
+   * This is undefined when state is disabled or the activity has no conversation ID.
+   * Do not retain the container after the handler completes; its scopes are sealed.
+   */
+  state?: TurnStateContainer;
 
   /**
    * whether the user has provided
    * their MSGraph credentials for use
    * via `api.user.*`
+   *
+   * @deprecated Use `app.getOAuthFlow(connectionName).isSignedIn(ctx)`.
    */
   isSignedIn?: boolean;
 
   /**
    * the default connection name to use for the app
    * @default `graph`
+   * @deprecated Register and retain the required `OAuthFlow` explicitly.
    */
   connectionName: string;
 
   /**
    * the user token for the activity context
+   *
+   * @deprecated Use `app.getOAuthFlow(connectionName).getToken(ctx)`.
    */
   userToken?: string;
 }
 
 export type IActivityContextOptions<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>> = IBaseActivityContextOptions<T> & TExtraCtx;
-
-type SignInOptions = {
-  /**
-   * The text to display on the oauth card
-   * @default `Please Sign In...`
-   */
-  oauthCardText: string;
-
-  /**
-   * The text to display on the sign in button
-   * @default `Sign In`
-   */
-  signInButtonText: string;
-
-  /**
-   * The sign in link to use in the card
-   */
-  signInLink?: string;
-
-  /**
-   * The connection name to use
-   */
-  connectionName?: string;
-
-  /**
-   * Construct your own sign in activity
-   * By default, we create a simple oauth card with a sign in button.
-   * Only use this if you need to fully customize the sign in experience.
-   */
-  overrideSignInActivity?: (
-    tokenExchangeResource?: TokenExchangeResource,
-    tokenPostResource?: TokenPostResource,
-    signInLink?: string
-  ) => ActivityLike;
-};
 
 export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx extends Record<string, any> = Record<string, any>>
   extends IBaseActivityContextOptions<T> {
@@ -209,14 +221,28 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   /**
    * trigger user signin flow for the activity sender
    * @param options options for the signin flow
+   * @deprecated Register a connection with `app.addOAuthFlow(...)` and call
+   * `flow.signIn(ctx, options)` instead.
    */
-  signin: (options?: Partial<SignInOptions>) => Promise<string | undefined>;
+  signin: (options?: OAuthSignInOptions) => Promise<string | undefined>;
 
   /**
    * sign the activity sender out
    * @param name auth connection name, defaults to `graph`
+   * @deprecated Register a connection with `app.addOAuthFlow(...)` and call
+   * `flow.signOut(ctx)` instead.
    */
   signout: (name?: string) => Promise<void>;
+
+  /**
+   * Gets token status for every registered OAuth connection.
+   *
+   * Connections reported as disconnected after silent SSO are verified with a
+   * direct token lookup. A connected flow omitted by the status endpoint is
+   * returned with an empty `serviceProviderDisplayName` because that value is
+   * unavailable from the token response.
+   */
+  getConnectionStatus: () => Promise<TokenStatus[]>;
 }
 
 export type IActivityContext<T extends Activity = Activity, TExtraContext = unknown> =
@@ -233,7 +259,11 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   api!: ApiClient;
   appGraph!: GraphClient;
   userGraph!: GraphClient;
+  /**
+   * @deprecated Use `state` for conversation or user state.
+   */
   storage!: IStorage;
+  state?: TurnStateContainer;
   stream!: IStreamer;
   files!: IFilesAccessor;
   isSignedIn?: boolean;
@@ -244,10 +274,20 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   [key: string]: any;
 
   private activitySender: IActivitySender;
+  private readonly validateOAuthConnection?: IActivityContextConstructorArgs['validateOAuthConnection'];
+  private readonly onOAuthSignInInitiated?: IActivityContextConstructorArgs['onOAuthSignInInitiated'];
+  private readonly getOAuthConnectionStatus?: IActivityContextConstructorArgs['getOAuthConnectionStatus'];
 
   constructor(value: IBaseActivityContextOptions & IActivityContextConstructorArgs) {
     // Extract activitySender and next before Object.assign to avoid overwriting methods
-    const { activitySender, next, ...rest } = value;
+    const {
+      activitySender,
+      next,
+      validateOAuthConnection,
+      onOAuthSignInInitiated,
+      getOAuthConnectionStatus,
+      ...rest
+    } = value;
 
     // Rehydrate the inbound payload into its activity instance so computed
     // accessors (channel/team/meeting/notification/tenant) resolve. Do NOT
@@ -282,6 +322,9 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
 
     Object.assign(this, rest);
     this.activitySender = activitySender;
+    this.validateOAuthConnection = validateOAuthConnection;
+    this.onOAuthSignInInitiated = onOAuthSignInInitiated;
+    this.getOAuthConnectionStatus = getOAuthConnectionStatus;
     this.next = next;
     this.stream = activitySender.createStream(value.ref);
     this.connectionName = value.connectionName;
@@ -373,95 +416,37 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     return this.send(activity);
   }
 
-  async signin(options?: Partial<SignInOptions>) {
-    const {
-      oauthCardText,
-      signInButtonText,
+  async signin(options: OAuthSignInOptions = {}) {
+    const connectionNameProvided = options.connectionName !== undefined;
+    const connectionName = options.connectionName ?? this.connectionName;
+    this.validateOAuthConnection?.(connectionName, connectionNameProvided);
+
+    return startOAuthSignIn(
+      this.toInterface(),
       connectionName,
-      signInLink,
-      overrideSignInActivity
-    }: SignInOptions = {
-      oauthCardText: 'Please Sign In...',
-      signInButtonText: 'Sign In',
-      ...options,
-    };
-
-    const convo = { ...this.ref };
-
-    try {
-      const res = await this.api.users.getToken({
-        channelId: this.activity.channelId,
-        userId: this.activity.from.id,
-        connectionName: connectionName || this.connectionName,
-      });
-
-      return res.token;
-    } catch (err) {
-      // noop
-    }
-
-    const tokenExchangeState: TokenExchangeState = {
-      connectionName: connectionName || this.connectionName,
-      conversation: convo,
-      relatesTo: this.activity.relatesTo,
-      msAppId: this.appId,
-    };
-
-    const state = Buffer.from(JSON.stringify(tokenExchangeState)).toString(
-      'base64'
-    );
-    const resource = await this.api.bots.signIn.getResource({ state });
-
-    // In group conversations (group chats and channels) the OAuth card is sent as a
-    // targeted message so it is visible only to the requesting user rather than the
-    // whole conversation.
-    const isChannel = this.activity.conversation.conversationType === 'channel';
-    const isGroup = this.activity.conversation.isGroup === true;
-    const recipient = isGroup
-      ? { ...this.activity.from, isTargeted: true }
-      : this.activity.from;
-
-    // Channels cannot perform the silent SSO token exchange, so omit the token
-    // exchange resource there to render the sign-in button (OAuth card flow). This is
-    // applied to both the default card and any custom override so an override cannot
-    // accidentally trigger an exchange that Teams can't complete in a channel.
-    const tokenExchangeResource = isChannel
-      ? undefined
-      : resource.tokenExchangeResource;
-
-    await this.send(
-      overrideSignInActivity?.(
-        tokenExchangeResource,
-        resource.tokenPostResource,
-        resource.signInLink
-      ) ?? {
-        type: 'message',
-        recipient,
-        attachments: [
-          cardAttachment('oauth', {
-            text: oauthCardText,
-            connectionName: connectionName || this.connectionName,
-            tokenExchangeResource,
-            tokenPostResource: resource.tokenPostResource,
-            buttons: [
-              {
-                type: 'signin',
-                title: signInButtonText,
-                value: signInLink || resource.signInLink,
-              },
-            ],
-          }),
-        ],
-      }, convo
+      options,
+      this.onOAuthSignInInitiated
     );
   }
 
   async signout(connectionName?: string) {
+    this.validateOAuthConnection?.(
+      connectionName ?? this.connectionName,
+      connectionName !== undefined
+    );
     await this.api.users.signOut({
       channelId: this.activity.channelId,
       userId: this.activity.from.id,
-      connectionName: connectionName || this.connectionName,
+      connectionName: connectionName ?? this.connectionName,
     });
+  }
+
+  async getConnectionStatus(): Promise<TokenStatus[]> {
+    if (!this.getOAuthConnectionStatus) {
+      throw new Error('OAuth connection status is unavailable.');
+    }
+
+    return this.getOAuthConnectionStatus(this.toInterface());
   }
 
   toInterface(): IActivityContext {
@@ -474,6 +459,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       log: this.log,
       ref: this.ref,
       storage: this.storage,
+      state: this.state,
       stream: this.stream,
       files: this.files,
       isSignedIn: this.isSignedIn,
@@ -485,6 +471,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       send: this.send.bind(this),
       signin: this.signin.bind(this),
       signout: this.signout.bind(this),
+      getConnectionStatus: this.getConnectionStatus.bind(this),
     };
   }
 

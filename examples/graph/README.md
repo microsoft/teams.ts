@@ -2,6 +2,11 @@
 
 This sample demonstrates signing a user in and calling Microsoft Graph with the `userGraph` client.
 
+For new applications that need named flows or multiple OAuth connections, use the
+[multi-provider OAuth sample](../oauth/README.md), which demonstrates the `OAuthFlow`
+registration and lifecycle APIs. This sample remains focused on the existing
+single-connection context helpers.
+
 ## Teams CLI
 
 Use the official Teams CLI (`@microsoft/teams.cli`) to create and manage the Teams app for this sample:
