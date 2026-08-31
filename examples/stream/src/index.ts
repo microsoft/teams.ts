@@ -40,7 +40,7 @@ const SECOND_STREAM_MESSAGES = [
   '[stream 2] The app processor will close this stream when the handler returns.',
 ];
 
-const EXTENDED_MARKDOWN_DELTAS = [
+const EXTENDED_MARKDOWN_MESSAGES = [
   '**Extended markdown stream** — rendering features plain markdown can\'t:\n\n',
   '- [x] Sent with `textFormat: \'extendedmarkdown\'`\n',
   '- [x] Task list items render as real checkboxes\n',
@@ -120,9 +120,9 @@ app.on('message', async ({ activity, stream, send, log }) => {
     stream.update('Starting the extended markdown stream...', 'markdown');
     await sleep(1000);
 
-    for (const delta of EXTENDED_MARKDOWN_DELTAS) {
+    for (const message of EXTENDED_MARKDOWN_MESSAGES) {
       await sleep(500);
-      stream.emit(new MessageActivityInput(delta).withTextFormat('extendedmarkdown'));
+      stream.emit(new MessageActivityInput(message).withTextFormat('extendedmarkdown'));
     }
     return;
   }
