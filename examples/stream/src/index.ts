@@ -117,7 +117,7 @@ app.on('message', async ({ activity, stream, send, log }) => {
   }
 
   if (shouldRunExtendedMarkdown(activity.text)) {
-    stream.update('Starting the extended markdown stream...', 'markdown');
+    stream.update('Starting the *extended* markdown stream...', 'markdown');
     await sleep(1000);
 
     for (const message of EXTENDED_MARKDOWN_MESSAGES) {
