@@ -41,12 +41,11 @@ const SECOND_STREAM_MESSAGES = [
 ];
 
 const EXTENDED_MARKDOWN_DELTAS = [
-  '🚀 **Release checklist for `v2.3.0`**\n\n',
-  '- [x] Run unit + integration tests\n',
-  '- [x] Build and publish packages\n',
-  '- [ ] ~~Manual smoke test~~ (skipped — covered by the integration suite)\n',
-  '- [x] Tag the release and push\n',
-  '- [ ] Publish release notes\n',
+  '**Extended markdown stream** — rendering features plain markdown can\'t:\n\n',
+  '- [x] Sent with `textFormat: \'extendedmarkdown\'`\n',
+  '- [x] Task list items render as real checkboxes\n',
+  '- [ ] ~~Under plain markdown these would be literal `[ ]` text~~\n',
+  '- [x] Strikethrough renders too\n',
 ];
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -118,7 +117,7 @@ app.on('message', async ({ activity, stream, send, log }) => {
   }
 
   if (shouldRunExtendedMarkdown(activity.text)) {
-    stream.update('Checking the release status...', 'markdown');
+    stream.update('Starting the extended markdown stream...', 'markdown');
     await sleep(1000);
 
     for (const delta of EXTENDED_MARKDOWN_DELTAS) {
