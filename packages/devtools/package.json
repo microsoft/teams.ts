@@ -35,7 +35,7 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
-    "@eslint/js": "^9.19.0",
+    "@eslint/js": "^9.39.5",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
