@@ -150,7 +150,6 @@ export class ConversationActivityClient {
   async reply(conversationId: string, id: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
     const activity = toActivityParams(params);
-    activity.replyToId = id;
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
       activity,

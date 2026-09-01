@@ -328,7 +328,6 @@ describe('ConversationActivityClient', () => {
       {
         type: 'message',
         text: 'hi',
-        replyToId: '2',
       },
       expectTelemetryConfig()
     );
