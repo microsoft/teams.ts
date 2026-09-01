@@ -338,9 +338,9 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   /**
    * send an activity in the current conversation without quoting.
    *
-   * In channels, sends to the current thread. In group chats, an inbound L2
-   * message stays in its thread while an inbound L1 message produces another L1.
-   * Personal chats and meetings send as normal messages.
+   * In channels, sends to the current thread. In group chats, a reply stays in
+   * its thread while a root message produces another root message. Personal
+   * chats and meetings send as normal messages.
    *
    * @param activity the activity to send
    * @param conversationRef optional conversation reference to send to a different conversation or thread

@@ -101,7 +101,7 @@ describe('ActivitySender', () => {
       expect(result).toEqual(expect.objectContaining({ id: 'activity-1' }));
     });
 
-    it('should call the reply endpoint for an L2 activity', async () => {
+    it('should call the reply endpoint for a threaded activity', async () => {
       await sender.send(
         { type: 'message', text: 'thread reply' },
         ref,
