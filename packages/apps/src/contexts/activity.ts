@@ -24,6 +24,7 @@ import { OAuthSignInOptions, startOAuthSignIn } from '../oauth';
 import { TurnStateContainer } from '../state';
 import { IStreamer } from '../types';
 import { IActivitySender } from '../types/plugin/sender';
+import { parseLegacyThreadedConversationId } from '../utils/thread';
 
 /**
  * Constructor arguments for ActivityContext
@@ -198,6 +199,8 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   /**
    * reply to the inbound activity, automatically quoting the inbound message
    * @param activity activity to send
+   * @deprecated Use `MessageActivityInput.prependQuote(...)` with {@link send} so
+   * visual quoting remains explicit and independent from thread placement.
    */
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
@@ -210,6 +213,7 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * send a reply quoting a specific message by ID
    * @param messageId the ID of the message to quote
    * @param activity activity to send
+   * @deprecated Use `MessageActivityInput.prependQuote(...)` with {@link send}.
    */
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
@@ -334,11 +338,13 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   /**
    * send an activity in the current conversation without quoting.
    *
-   * In channels, sends to the current thread. In scopes that do not
-   * support threading (group chat, meetings), sends as a normal message.
-   * To send with a visual quote of the inbound message, use {@link reply}.
+   * In channels, sends to the current thread. In group chats, an inbound L2
+   * message stays in its thread while an inbound L1 message produces another L1.
+   * Personal chats and meetings send as normal messages.
    *
    * @param activity the activity to send
+   * @deprecated Use `MessageActivityInput.prependQuote(...)` with {@link send} so
+   * visual quoting remains explicit and independent from thread placement.
    * @param conversationRef optional conversation reference to send to a different conversation or thread
    */
   /**
@@ -366,7 +372,12 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     }
 
     const ref = conversationRef ?? this.ref;
-    return this.activitySender.send(params, ref);
+    const rootMessageId = !params.id && !this.isTargetedOutbound(params)
+      ? this.getOutboundThreadRoot(conversationRef)
+      : undefined;
+    return rootMessageId
+      ? this.activitySender.send(params, ref, { rootMessageId })
+      : this.activitySender.send(params, ref);
   }
 
   /**
@@ -397,6 +408,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * Teams renders the quoted message as a preview bubble above the response text.
    * @param messageId - The ID of the message to quote
    * @param activity - The activity to send — a quote placeholder for messageId will be prepended to its text
+   * @deprecated Use `MessageActivityInput.prependQuote(...)` with {@link send}.
    */
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
@@ -497,6 +509,35 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
 
   private isSameConversation(conversationRef?: ConversationReference) {
     return !conversationRef || conversationRef.conversation?.id === this.ref.conversation?.id;
+  }
+
+  private getOutboundThreadRoot(
+    conversationRef?: ConversationReference
+  ): string | undefined {
+    if (!this.isSameConversation(conversationRef)) {
+      return undefined;
+    }
+
+    const conversationType = this.activity.conversation?.conversationType;
+    if (conversationType === 'personal') {
+      return undefined;
+    }
+
+    const legacyThread = parseLegacyThreadedConversationId(
+      this.activity.conversation?.id ?? ''
+    );
+    const inboundThreadRoot = this.activity.channelData?.thread?.id
+      ?? legacyThread?.rootMessageId;
+
+    if (conversationType === 'groupChat') {
+      return inboundThreadRoot;
+    }
+
+    if (conversationType === 'channel') {
+      return inboundThreadRoot ?? this.activity.id;
+    }
+
+    return undefined;
   }
 
   private applyTargetedRecipient(params: ActivityParams) {

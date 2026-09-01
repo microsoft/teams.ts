@@ -64,7 +64,7 @@ import { AppTokenProvider, IAppTokenProvider } from './token-provider';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { getBooleanEnvValue } from './utils/env';
-import { toThreadedConversationId } from './utils/thread';
+import { parseLegacyThreadedConversationId, toThreadedConversationId } from './utils/thread';
 
 function isAppSendOptions(value: ActivityLike | DeprecatedInputActivity | AppSendOptions): value is AppSendOptions {
   if (typeof value === 'string') return false;
@@ -463,9 +463,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /**
    * send an activity proactively to a conversation.
    *
-   * Sends to the exact conversation ID provided. For channel threads,
-   * the conversation ID must include `;messageid=` - use {@link toThreadedConversationId}
-   * to construct it, or use {@link reply} which handles this automatically.
+   * A valid legacy `;messageid={rootId}` suffix is translated to the Bot Framework
+   * reply endpoint for compatibility. Prefer {@link reply} for new threaded sends.
    *
    * @param conversationId the conversation to send to
    * @param activity the activity to send
@@ -485,11 +484,21 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     activity: ActivityLike | DeprecatedInputActivity,
     options?: AppSendOptions
   ) {
+    return this.sendActivity(conversationId, activity, options);
+  }
+
+  private async sendActivity(
+    conversationId: string,
+    activity: ActivityLike | DeprecatedInputActivity,
+    options?: AppSendOptions,
+    rootMessageId?: string
+  ): Promise<SentActivity> {
     if (!this.id) {
       throw new Error('App has no credentials set up');
     }
 
     const params = toActivityParams(activity);
+    const legacyThread = parseLegacyThreadedConversationId(conversationId);
 
     const ref: ConversationReference = {
       channelId: 'msteams',
@@ -499,25 +508,27 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         role: 'bot',
       },
       conversation: {
-        id: conversationId,
+        id: legacyThread?.conversationId ?? conversationId,
       } as ConversationReference['conversation'],
     };
 
-    const res = await this.activitySender.send(
-      params,
-      ref,
-      options?.agenticIdentity ? { agenticIdentity: options.agenticIdentity } : undefined,
-    );
+    const senderOptions = options?.agenticIdentity || rootMessageId || legacyThread
+      ? {
+        agenticIdentity: options?.agenticIdentity,
+        rootMessageId: rootMessageId ?? legacyThread?.rootMessageId,
+      }
+      : undefined;
+    const res = senderOptions
+      ? await this.activitySender.send(params, ref, senderOptions)
+      : await this.activitySender.send(params, ref);
     return res;
   }
 
   /**
    * send an activity proactively as a threaded reply.
    *
-   * Constructs a threaded conversation ID from the conversation ID
-   * and message ID via {@link toThreadedConversationId}, then sends
-   * to that thread. The service determines whether threading is
-   * supported for the given conversation type.
+   * Uses the Bot Framework reply endpoint to place the activity under
+   * the supplied thread root.
    *
    * @param conversationId the conversation ID
    * @param messageId the thread root message ID
@@ -537,8 +548,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /**
    * send an activity proactively to a conversation.
    *
-   * Sends to the exact conversation ID provided - threaded if
-   * it contains `;messageid=`, flat otherwise.
+   * Preserves the compatibility overload that accepts either a flat conversation
+   * ID or a legacy threaded conversation ID.
    *
    * @param conversationId the conversation to send to
    * @param activity the activity to send
@@ -556,7 +567,15 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     options?: AppSendOptions
   ) {
     if (typeof messageId === 'string' && activity !== undefined && !isAppSendOptions(activity)) {
-      return this.send(toThreadedConversationId(conversationId, messageId), activity, options);
+      const legacyThread = parseLegacyThreadedConversationId(
+        toThreadedConversationId(conversationId, messageId)
+      )!;
+      return this.sendActivity(
+        legacyThread.conversationId,
+        activity,
+        options,
+        legacyThread.rootMessageId
+      );
     }
 
     const opts = activity && isAppSendOptions(activity) ? activity : options;

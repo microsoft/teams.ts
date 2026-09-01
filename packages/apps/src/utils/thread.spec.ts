@@ -1,10 +1,33 @@
-import { toThreadedConversationId } from './thread';
+import {
+  parseLegacyThreadedConversationId,
+  toThreadedConversationId,
+} from './thread';
 
 describe('toThreadedConversationId', () => {
   it('should construct a threaded conversation ID', () => {
     expect(toThreadedConversationId('19:abc@thread.skype', '1680000000000')).toBe(
       '19:abc@thread.skype;messageid=1680000000000'
     );
+  });
+
+  describe('parseLegacyThreadedConversationId', () => {
+    it('parses a valid legacy threaded conversation ID', () => {
+      expect(
+        parseLegacyThreadedConversationId('19:abc@thread.skype;messageid=123')
+      ).toEqual({
+        conversationId: '19:abc@thread.skype',
+        rootMessageId: '123',
+      });
+    });
+
+    it.each([
+      '19:abc@thread.skype',
+      '19:abc@thread.skype;messageid=',
+      '19:abc@thread.skype;messageid=0',
+      '19:abc@thread.skype;messageid=abc',
+    ])('ignores invalid legacy ID %s', (conversationId) => {
+      expect(parseLegacyThreadedConversationId(conversationId)).toBeUndefined();
+    });
   });
 
   it('should work with different conversation ID formats', () => {

@@ -152,9 +152,10 @@ export class ConversationActivityClient {
     const activity = toActivityParams(params);
     activity.replyToId = id;
     const res = await this.http.post<Resource>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
+      `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
       activity,
       apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.reply, this.serviceUrl, conversationId, activity, {
+        activityId: id,
         captureResponseActivityId: true,
       })
     );

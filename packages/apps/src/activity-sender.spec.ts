@@ -63,6 +63,7 @@ describe('ActivitySender', () => {
     mockClient = {
       conversations: {
         createActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
+        replyToActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
         updateActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
         createTargetedActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
         updateTargetedActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
@@ -98,6 +99,48 @@ describe('ActivitySender', () => {
       );
       expect(createClient).toHaveBeenCalledWith(ref.serviceUrl, undefined);
       expect(result).toEqual(expect.objectContaining({ id: 'activity-1' }));
+    });
+
+    it('should call the reply endpoint for an L2 activity', async () => {
+      await sender.send(
+        { type: 'message', text: 'thread reply' },
+        ref,
+        { rootMessageId: 'root-456' }
+      );
+
+      const conversations = (mockClient as any).conversations;
+      expect(conversations.replyToActivity).toHaveBeenCalledWith(
+        'conv-123',
+        'root-456',
+        expect.objectContaining({
+          type: 'message',
+          text: 'thread reply',
+          conversation: ref.conversation,
+        })
+      );
+      expect(conversations.createActivity).not.toHaveBeenCalled();
+    });
+
+    it('translates a legacy threaded conversation ID to the reply endpoint', async () => {
+      const legacyRef = {
+        ...ref,
+        conversation: {
+          ...ref.conversation,
+          id: 'conv-123;messageid=789',
+        },
+      };
+
+      await sender.send({ type: 'message', text: 'legacy reply' }, legacyRef);
+
+      const conversations = (mockClient as any).conversations;
+      expect(conversations.replyToActivity).toHaveBeenCalledWith(
+        'conv-123',
+        '789',
+        expect.objectContaining({
+          conversation: expect.objectContaining({ id: 'conv-123' }),
+        })
+      );
+      expect(conversations.createActivity).not.toHaveBeenCalled();
     });
 
     it('should call update for an existing activity', async () => {

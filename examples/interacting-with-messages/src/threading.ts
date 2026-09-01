@@ -1,5 +1,5 @@
-import { Activity } from '@microsoft/teams.api';
-import { App, IActivityContext, toThreadedConversationId } from '@microsoft/teams.apps';
+import { Activity, MessageActivityInput } from '@microsoft/teams.api';
+import { App, IActivityContext } from '@microsoft/teams.apps';
 
 type MessageContext = IActivityContext<Extract<Activity, { type: 'message' }>>;
 
@@ -15,7 +15,10 @@ export async function handleThreadReply(
     return false;
   }
 
-  await context.reply('This is a threaded reply to your message.');
+  await context.send(
+    new MessageActivityInput('This is a threaded reply to your message.')
+      .prependQuote(context.activity.id)
+  );
   return true;
 }
 
@@ -57,34 +60,14 @@ export async function handleProactiveThread(
   return true;
 }
 
-/**
- * Handles the command that manually constructs a threaded conversation ID.
- * @returns Whether the command matched.
- */
-export async function handleManualThread(
-  app: App,
-  context: MessageContext,
-  text: string
-): Promise<boolean> {
-  if (text !== 'thread manual') {
-    return false;
-  }
-
-  const { conversationId, threadRootId } = getThreadReference(context);
-  const threadId = toThreadedConversationId(conversationId, threadRootId);
-  await app.send(
-    threadId,
-    'This was sent using `toThreadedConversationId()` + `app.send()` for manual control.'
-  );
-  return true;
-}
-
 function getThreadReference(context: MessageContext): {
   conversationId: string;
   threadRootId: string;
 } {
   const conversationId = context.ref.conversation.id;
-  const threadParts = conversationId.split(';messageid=');
-  const threadRootId = threadParts.length > 1 ? threadParts[1] : context.activity.id;
+  const legacyThreadRootId = conversationId.split(';messageid=')[1];
+  const threadRootId = context.activity.channelData?.thread?.id
+    ?? legacyThreadRootId
+    ?? context.activity.id;
   return { conversationId, threadRootId };
 }

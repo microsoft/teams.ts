@@ -157,6 +157,7 @@ describe('ActivityContext', () => {
           team: { id: 'team-id' },
           meeting: { id: 'meeting-id' },
           notification: { alert: true },
+          thread: { id: 'thread-root-id' },
         },
       } as unknown as Activity;
     };
@@ -168,6 +169,7 @@ describe('ActivityContext', () => {
       expect(ctx.activity.team?.id).toEqual('team-id');
       expect(ctx.activity.meeting?.id).toEqual('meeting-id');
       expect(ctx.activity.notification?.alert).toEqual(true);
+      expect(ctx.activity.channelData?.thread?.id).toEqual('thread-root-id');
       // `tenant` is a class-only getter (not declared on the public interface),
       // so read it through the concrete instance shape.
       expect((ctx.activity as { tenant?: { id: string } }).tenant?.id).toEqual('tenant-id');
@@ -323,8 +325,90 @@ describe('ActivityContext', () => {
           text: 'What is up?',
           type: 'message',
         }),
-        mockRef
+        mockRef,
+        { rootMessageId: 'test-activity-id' }
       );
+    });
+
+    it.each([
+      {
+        scope: 'personal',
+        conversationType: 'personal',
+        conversationId: 'personal-conversation',
+        threadId: 'ignored-thread',
+        expectedRoot: undefined,
+      },
+      {
+        scope: 'group chat L1',
+        conversationType: 'groupChat',
+        conversationId: 'group-conversation',
+        threadId: undefined,
+        expectedRoot: undefined,
+      },
+      {
+        scope: 'group chat L2',
+        conversationType: 'groupChat',
+        conversationId: 'group-conversation',
+        threadId: 'group-root',
+        expectedRoot: 'group-root',
+      },
+      {
+        scope: 'channel L1',
+        conversationType: 'channel',
+        conversationId: 'channel-conversation',
+        threadId: undefined,
+        expectedRoot: 'test-activity-id',
+      },
+      {
+        scope: 'channel L2',
+        conversationType: 'channel',
+        conversationId: 'channel-conversation',
+        threadId: 'channel-root',
+        expectedRoot: 'channel-root',
+      },
+    ])('uses the expected placement for $scope', async ({
+      conversationType,
+      conversationId,
+      threadId,
+      expectedRoot,
+    }) => {
+      const activity = new MessageActivity('Hello')
+        .withFrom({ id: 'test-user', role: 'user' })
+        .withRecipient({ id: 'bot-id', role: 'bot' })
+        .withChannelId('msteams')
+        .withConversation({
+          id: conversationId,
+          conversationType: conversationType as 'personal' | 'groupChat' | 'channel',
+        })
+        .withId('test-activity-id');
+      if (threadId) {
+        activity.withChannelData({ thread: { id: threadId } });
+      }
+      context = buildActivityContext(activity);
+
+      await context.send('response');
+
+      const options = mockSender.send.mock.calls[0][2];
+      expect(options?.rootMessageId).toBe(expectedRoot);
+    });
+
+    it('uses the legacy conversation suffix when thread metadata is absent', async () => {
+      const activity = new MessageActivity('Hello')
+        .withFrom({ id: 'test-user', role: 'user' })
+        .withRecipient({ id: 'bot-id', role: 'bot' })
+        .withChannelId('msteams')
+        .withConversation({
+          id: 'group-conversation;messageid=456',
+          conversationType: 'groupChat',
+        })
+        .withId('test-activity-id');
+      context = buildActivityContext(activity);
+
+      await context.send('response');
+
+      expect(mockSender.send.mock.calls[0][2]).toEqual({
+        rootMessageId: '456',
+      });
     });
 
     describe('targeted messages', () => {

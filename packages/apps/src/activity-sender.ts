@@ -11,6 +11,7 @@ import { ILogger } from '@microsoft/teams.common';
 
 import { HttpStream } from './http/http-stream';
 import { ActivitySenderOptions, IStreamer, IActivitySender } from './types';
+import { parseLegacyThreadedConversationId } from './utils/thread';
 
 /**
  * Creates an API client for a sender operation, optionally scoped to an agentic
@@ -56,12 +57,18 @@ export class ActivitySender implements IActivitySender {
     options?: ActivitySenderOptions
   ): Promise<SentActivity> {
     const params = toActivityParams(activity);
+    const legacyThread = parseLegacyThreadedConversationId(ref.conversation.id);
+    const conversationId = legacyThread?.conversationId ?? ref.conversation.id;
+    const rootMessageId = options?.rootMessageId ?? legacyThread?.rootMessageId;
 
     // Merge activity with conversation reference for the wire payload.
     const payload = {
       ...params,
       from: ref.bot,
-      conversation: ref.conversation,
+      conversation: {
+        ...ref.conversation,
+        id: conversationId,
+      },
     };
 
     // Check if this is a targeted message
@@ -78,20 +85,22 @@ export class ActivitySender implements IActivitySender {
       if (isTargeted) {
         const { recipient: _recipient, ...targetedUpdate } = payload;
         const res = await api.conversations.updateTargetedActivity(
-          ref.conversation.id,
+          conversationId,
           payload.id,
           targetedUpdate
         );
         return { ...payload, ...res };
       }
 
-      const res = await api.conversations.updateActivity(ref.conversation.id, payload.id, payload);
+      const res = await api.conversations.updateActivity(conversationId, payload.id, payload);
       return { ...payload, ...res };
     }
 
     const res = isTargeted
-      ? await api.conversations.createTargetedActivity(ref.conversation.id, payload)
-      : await api.conversations.createActivity(ref.conversation.id, payload);
+      ? await api.conversations.createTargetedActivity(conversationId, payload)
+      : rootMessageId
+        ? await api.conversations.replyToActivity(conversationId, rootMessageId, payload)
+        : await api.conversations.createActivity(conversationId, payload);
     return { ...payload, ...res };
   }
 
