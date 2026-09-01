@@ -487,43 +487,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     return this.sendActivity(conversationId, activity, options);
   }
 
-  private async sendActivity(
-    conversationId: string,
-    activity: ActivityLike | DeprecatedInputActivity,
-    options?: AppSendOptions,
-    rootMessageId?: string
-  ): Promise<SentActivity> {
-    if (!this.id) {
-      throw new Error('App has no credentials set up');
-    }
-
-    const params = toActivityParams(activity);
-    const legacyThread = parseLegacyThreadedConversationId(conversationId);
-
-    const ref: ConversationReference = {
-      channelId: 'msteams',
-      serviceUrl: this.api.serviceUrl,
-      bot: {
-        id: this.id,
-        role: 'bot',
-      },
-      conversation: {
-        id: legacyThread?.conversationId ?? conversationId,
-      } as ConversationReference['conversation'],
-    };
-
-    const senderOptions = options?.agenticIdentity || rootMessageId || legacyThread
-      ? {
-        agenticIdentity: options?.agenticIdentity,
-        rootMessageId: rootMessageId ?? legacyThread?.rootMessageId,
-      }
-      : undefined;
-    const res = senderOptions
-      ? await this.activitySender.send(params, ref, senderOptions)
-      : await this.activitySender.send(params, ref);
-    return res;
-  }
-
   /**
    * send an activity proactively as a threaded reply.
    *
@@ -854,6 +817,43 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       return explicit;
     }
     return this.options.oauth?.defaultConnectionName !== undefined;
+  }
+
+  private async sendActivity(
+    conversationId: string,
+    activity: ActivityLike | DeprecatedInputActivity,
+    options?: AppSendOptions,
+    rootMessageId?: string
+  ): Promise<SentActivity> {
+    if (!this.id) {
+      throw new Error('App has no credentials set up');
+    }
+
+    const params = toActivityParams(activity);
+    const legacyThread = parseLegacyThreadedConversationId(conversationId);
+
+    const ref: ConversationReference = {
+      channelId: 'msteams',
+      serviceUrl: this.api.serviceUrl,
+      bot: {
+        id: this.id,
+        role: 'bot',
+      },
+      conversation: {
+        id: legacyThread?.conversationId ?? conversationId,
+      } as ConversationReference['conversation'],
+    };
+
+    const senderOptions = options?.agenticIdentity || rootMessageId || legacyThread
+      ? {
+        agenticIdentity: options?.agenticIdentity,
+        rootMessageId: rootMessageId ?? legacyThread?.rootMessageId,
+      }
+      : undefined;
+    const res = senderOptions
+      ? await this.activitySender.send(params, ref, senderOptions)
+      : await this.activitySender.send(params, ref);
+    return res;
   }
 
   private enableOAuthState(): void {
