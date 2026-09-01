@@ -105,6 +105,7 @@ describe('Router', () => {
       router.on('installationUpdate', handler);
       router.on('install.add', handler);
       router.on('install.remove', handler);
+      router.on('install.upgrade', handler);
 
       expect(router.select({
         type: 'installationUpdate',
@@ -114,6 +115,11 @@ describe('Router', () => {
       expect(router.select({
         type: 'installationUpdate',
         action: 'remove'
+      } as any)).toHaveLength(2);
+
+      expect(router.select({
+        type: 'installationUpdate',
+        action: 'upgrade'
       } as any)).toHaveLength(2);
     });
   });
