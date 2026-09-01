@@ -507,7 +507,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       legacyThread
         ? {
           agenticIdentity: options?.agenticIdentity,
-          rootMessageId: legacyThread.rootMessageId,
+          threadRootId: legacyThread.threadRootId,
         }
         : options?.agenticIdentity
           ? { agenticIdentity: options.agenticIdentity }
@@ -585,7 +585,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
       return this.activitySender.send(toActivityParams(activity), ref, {
         agenticIdentity: options?.agenticIdentity,
-        rootMessageId: messageId,
+        threadRootId: messageId,
       });
     }
 

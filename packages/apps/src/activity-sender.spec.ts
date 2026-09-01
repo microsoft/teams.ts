@@ -105,7 +105,7 @@ describe('ActivitySender', () => {
       await sender.send(
         { type: 'message', text: 'thread reply' },
         ref,
-        { rootMessageId: 'root-456' }
+        { threadRootId: 'root-456' }
       );
 
       const conversations = (mockClient as any).conversations;

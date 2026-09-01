@@ -370,11 +370,11 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     }
 
     const ref = conversationRef ?? this.ref;
-    const rootMessageId = !params.id && !this.isTargetedOutbound(params)
+    const threadRootId = !params.id && !this.isTargetedOutbound(params)
       ? this.getOutboundThreadRoot(conversationRef)
       : undefined;
-    return rootMessageId
-      ? this.activitySender.send(params, ref, { rootMessageId })
+    return threadRootId
+      ? this.activitySender.send(params, ref, { threadRootId })
       : this.activitySender.send(params, ref);
   }
 
@@ -527,7 +527,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       this.activity.conversation?.id ?? ''
     );
     const inboundThreadRoot = this.activity.channelData?.thread?.id
-      ?? legacyThread?.rootMessageId;
+      ?? legacyThread?.threadRootId;
 
     if (conversationType === 'groupChat') {
       return inboundThreadRoot;

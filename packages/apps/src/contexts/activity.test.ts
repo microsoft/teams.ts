@@ -326,7 +326,7 @@ describe('ActivityContext', () => {
           type: 'message',
         }),
         mockRef,
-        { rootMessageId: 'test-activity-id' }
+        { threadRootId: 'test-activity-id' }
       );
     });
 
@@ -389,7 +389,7 @@ describe('ActivityContext', () => {
       await context.send('response');
 
       const options = mockSender.send.mock.calls[0][2];
-      expect(options?.rootMessageId).toBe(expectedRoot);
+      expect(options?.threadRootId).toBe(expectedRoot);
     });
 
     it('uses the legacy conversation suffix when thread metadata is absent', async () => {
@@ -407,7 +407,7 @@ describe('ActivityContext', () => {
       await context.send('response');
 
       expect(mockSender.send.mock.calls[0][2]).toEqual({
-        rootMessageId: '456',
+        threadRootId: '456',
       });
     });
 

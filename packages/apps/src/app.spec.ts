@@ -742,7 +742,7 @@ describe('App', () => {
       expect(mockSend).toHaveBeenCalled();
       const [, ref, options] = mockSend.mock.calls[0];
       expect(ref.conversation.id).toBe('19:abc@thread.skype');
-      expect(options.rootMessageId).toBe('1680000000000');
+      expect(options.threadRootId).toBe('1680000000000');
     });
 
     it('should pass conversationId as-is when called with two args', async () => {
@@ -765,7 +765,7 @@ describe('App', () => {
       expect(mockSend).toHaveBeenCalled();
       const [, ref, options] = mockSend.mock.calls[0];
       expect(ref.conversation.id).toBe('19:abc@thread.skype');
-      expect(options.rootMessageId).toBe('123');
+      expect(options.threadRootId).toBe('123');
     });
 
     it('should translate a legacy threaded ID passed directly to send', async () => {
@@ -779,7 +779,7 @@ describe('App', () => {
 
       const [, ref, options] = mockSend.mock.calls[0];
       expect(ref.conversation.id).toBe('19:abc@thread.skype');
-      expect(options.rootMessageId).toBe('456');
+      expect(options.threadRootId).toBe('456');
     });
 
     it('should use endpoint placement for any conversation type (three-arg form)', async () => {
@@ -791,7 +791,7 @@ describe('App', () => {
       expect(mockSend).toHaveBeenCalled();
       const [, ref, options] = mockSend.mock.calls[0];
       expect(ref.conversation.id).toBe('19:meeting_abc@thread.v2');
-      expect(options.rootMessageId).toBe('123');
+      expect(options.threadRootId).toBe('123');
     });
 
     it('should throw on invalid messageId in three-arg form', async () => {

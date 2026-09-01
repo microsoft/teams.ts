@@ -15,7 +15,7 @@ export type ActivitySenderOptions = {
    * Root activity ID used to place a new activity in a thread through the Bot
    * Framework reply endpoint. Omit it to create a root activity.
    */
-  readonly rootMessageId?: string;
+  readonly threadRootId?: string;
 };
 
 /**

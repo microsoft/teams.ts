@@ -16,7 +16,7 @@ describe('toThreadedConversationId', () => {
         parseLegacyThreadedConversationId('19:abc@thread.skype;messageid=123')
       ).toEqual({
         conversationId: '19:abc@thread.skype',
-        rootMessageId: '123',
+        threadRootId: '123',
       });
     });
 

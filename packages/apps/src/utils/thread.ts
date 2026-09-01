@@ -30,7 +30,7 @@ export function toThreadedConversationId(conversationId: string, messageId: stri
  */
 export type LegacyThreadedConversation = {
   readonly conversationId: string;
-  readonly rootMessageId: string;
+  readonly threadRootId: string;
 };
 
 /**
@@ -47,6 +47,6 @@ export function parseLegacyThreadedConversationId(
 
   return {
     conversationId: match[1],
-    rootMessageId: match[2],
+    threadRootId: match[2],
   };
 }

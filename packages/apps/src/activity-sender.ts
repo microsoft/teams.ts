@@ -59,7 +59,7 @@ export class ActivitySender implements IActivitySender {
     const params = toActivityParams(activity);
     const legacyThread = parseLegacyThreadedConversationId(ref.conversation.id);
     const conversationId = legacyThread?.conversationId ?? ref.conversation.id;
-    const rootMessageId = options?.rootMessageId ?? legacyThread?.rootMessageId;
+    const threadRootId = options?.threadRootId ?? legacyThread?.threadRootId;
 
     // Merge activity with conversation reference for the wire payload.
     const payload = {
@@ -98,8 +98,8 @@ export class ActivitySender implements IActivitySender {
 
     const res = isTargeted
       ? await api.conversations.createTargetedActivity(conversationId, payload)
-      : rootMessageId
-        ? await api.conversations.replyToActivity(conversationId, rootMessageId, payload)
+      : threadRootId
+        ? await api.conversations.replyToActivity(conversationId, threadRootId, payload)
         : await api.conversations.createActivity(conversationId, payload);
     return { ...payload, ...res };
   }
