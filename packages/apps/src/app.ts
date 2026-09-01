@@ -538,19 +538,25 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     options?: AppSendOptions
   ): Promise<any>;
   /**
-   * send an activity proactively to a conversation.
+   * Send an activity proactively using the legacy two-argument reply form.
    *
-   * Preserves the compatibility overload that accepts either a flat conversation
-   * ID or a legacy threaded conversation ID.
-   *
-   * @param conversationId the conversation to send to
-   * @param activity the activity to send
-   */
-  /**
-   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   * @deprecated Use `send(conversationId, activity, options)` for a root message,
+   * or `reply(conversationId, messageId, activity, options)` for a threaded reply.
    */
   async reply(conversationId: string, activity: DeprecatedInputActivity, options?: AppSendOptions): Promise<any>;
+  /**
+   * Send an activity proactively using the legacy two-argument reply form.
+   *
+   * @deprecated Use `send(conversationId, activity, options)` for a root message,
+   * or `reply(conversationId, messageId, activity, options)` for a threaded reply.
+   */
   async reply(conversationId: string, activity: ActivityLike, options?: AppSendOptions): Promise<any>;
+  /**
+   * Send an activity proactively using the legacy two-argument reply form.
+   *
+   * @deprecated Use `send(conversationId, activity, options)` for a root message,
+   * or `reply(conversationId, messageId, activity, options)` for a threaded reply.
+   */
   async reply(conversationId: string, activity: ActivityLike | DeprecatedInputActivity, options?: AppSendOptions): Promise<any>;
   async reply(
     conversationId: string,
