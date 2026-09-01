@@ -64,7 +64,7 @@ import { AppTokenProvider, IAppTokenProvider } from './token-provider';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { getBooleanEnvValue } from './utils/env';
-import { parseLegacyThreadedConversationId, toThreadedConversationId } from './utils/thread';
+import { parseLegacyThreadedConversationId } from './utils/thread';
 
 function isAppSendOptions(value: ActivityLike | DeprecatedInputActivity | AppSendOptions): value is AppSendOptions {
   if (typeof value === 'string') return false;
@@ -484,7 +484,33 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     activity: ActivityLike | DeprecatedInputActivity,
     options?: AppSendOptions
   ) {
-    return this.sendActivity(conversationId, activity, options);
+    if (!this.id) {
+      throw new Error('App has no credentials set up');
+    }
+
+    const legacyThread = parseLegacyThreadedConversationId(conversationId);
+    const params = toActivityParams(activity);
+    const ref: ConversationReference = {
+      channelId: 'msteams',
+      serviceUrl: this.api.serviceUrl,
+      bot: {
+        id: this.id,
+        role: 'bot',
+      },
+      conversation: {
+        id: legacyThread?.conversationId ?? conversationId,
+      } as ConversationReference['conversation'],
+    };
+    const senderOptions = options?.agenticIdentity || legacyThread
+      ? {
+        agenticIdentity: options?.agenticIdentity,
+        rootMessageId: legacyThread?.rootMessageId,
+      }
+      : undefined;
+
+    return senderOptions
+      ? this.activitySender.send(params, ref, senderOptions)
+      : this.activitySender.send(params, ref);
   }
 
   /**
@@ -530,15 +556,34 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     options?: AppSendOptions
   ) {
     if (typeof messageId === 'string' && activity !== undefined && !isAppSendOptions(activity)) {
-      const legacyThread = parseLegacyThreadedConversationId(
-        toThreadedConversationId(conversationId, messageId)
-      )!;
-      return this.sendActivity(
-        legacyThread.conversationId,
-        activity,
-        options,
-        legacyThread.rootMessageId
-      );
+      if (!this.id) {
+        throw new Error('App has no credentials set up');
+      }
+      if (!conversationId) {
+        throw new Error('conversationId must be a non-empty string');
+      }
+      if (!messageId || !/^\d+$/.test(messageId) || messageId === '0') {
+        throw new Error(
+          `Invalid messageId "${messageId}": must be a non-zero numeric value`
+        );
+      }
+
+      const ref: ConversationReference = {
+        channelId: 'msteams',
+        serviceUrl: this.api.serviceUrl,
+        bot: {
+          id: this.id,
+          role: 'bot',
+        },
+        conversation: {
+          id: conversationId.split(';')[0],
+        } as ConversationReference['conversation'],
+      };
+
+      return this.activitySender.send(toActivityParams(activity), ref, {
+        agenticIdentity: options?.agenticIdentity,
+        rootMessageId: messageId,
+      });
     }
 
     const opts = activity && isAppSendOptions(activity) ? activity : options;
@@ -817,43 +862,6 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       return explicit;
     }
     return this.options.oauth?.defaultConnectionName !== undefined;
-  }
-
-  private async sendActivity(
-    conversationId: string,
-    activity: ActivityLike | DeprecatedInputActivity,
-    options?: AppSendOptions,
-    rootMessageId?: string
-  ): Promise<SentActivity> {
-    if (!this.id) {
-      throw new Error('App has no credentials set up');
-    }
-
-    const params = toActivityParams(activity);
-    const legacyThread = parseLegacyThreadedConversationId(conversationId);
-
-    const ref: ConversationReference = {
-      channelId: 'msteams',
-      serviceUrl: this.api.serviceUrl,
-      bot: {
-        id: this.id,
-        role: 'bot',
-      },
-      conversation: {
-        id: legacyThread?.conversationId ?? conversationId,
-      } as ConversationReference['conversation'],
-    };
-
-    const senderOptions = options?.agenticIdentity || rootMessageId || legacyThread
-      ? {
-        agenticIdentity: options?.agenticIdentity,
-        rootMessageId: rootMessageId ?? legacyThread?.rootMessageId,
-      }
-      : undefined;
-    const res = senderOptions
-      ? await this.activitySender.send(params, ref, senderOptions)
-      : await this.activitySender.send(params, ref);
-    return res;
   }
 
   private enableOAuthState(): void {
