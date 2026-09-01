@@ -3,7 +3,8 @@ import {
   IMessageActivityInput,
   ITypingActivity,
   ITypingActivityInput,
-  SentActivity
+  SentActivity,
+  TextFormat
 } from '@microsoft/teams.api';
 import { IEventEmitter } from '@microsoft/teams.common';
 
@@ -97,8 +98,10 @@ export interface IStreamer {
   /**
    * send status updates before emitting (ex. "Thinking...")
    * @param text the status text to send
+   * @param textFormat format of `text` (ex. `'extendedmarkdown'`); omit or pass `null`
+   * to use the Teams default (`'markdown'`)
    */
-  update(text: string): void;
+  update(text: string, textFormat?: TextFormat | null): void;
 
   /**
    * Discard accumulated streamed text and any pending text deltas, so the

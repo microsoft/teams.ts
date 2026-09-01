@@ -301,6 +301,54 @@ describe('HttpStream', () => {
     expect(finalCall[1].textFormat).toBe('extendedmarkdown');
   });
 
+  test('informative update carries its own textFormat, independent of finalActivity', async () => {
+    const stream = new HttpStream(client, ref, logger);
+    mockCreate();
+
+    // An informative update with its own textFormat, sent before any message is emitted
+    // (so finalActivity is still undefined). Its format must come from the update itself.
+    stream.emit({
+      type: 'typing',
+      text: 'Checking the release status...',
+      channelData: { streamType: 'informative' },
+      textFormat: 'extendedmarkdown',
+    });
+    await jest.runAllTimersAsync();
+
+    const calls = client.conversations.createActivity.mock.calls;
+    expect(calls[0][1].type).toBe('typing');
+    expect(calls[0][1].channelData?.streamType).toBe('informative');
+    expect(calls[0][1].textFormat).toBe('extendedmarkdown');
+  });
+
+  test('update(text, textFormat) sends an informative chunk with that format', async () => {
+    const stream = new HttpStream(client, ref, logger);
+    mockCreate();
+
+    stream.update('Thinking...', 'extendedmarkdown');
+    await jest.runAllTimersAsync();
+
+    const calls = client.conversations.createActivity.mock.calls;
+    expect(calls[0][1].type).toBe('typing');
+    expect(calls[0][1].channelData?.streamType).toBe('informative');
+    expect(calls[0][1].textFormat).toBe('extendedmarkdown');
+  });
+
+  test('update(text) and update(text, null) omit textFormat (Teams default)', async () => {
+    const stream = new HttpStream(client, ref, logger);
+    mockCreate();
+
+    stream.update('no format');
+    await jest.runAllTimersAsync();
+    stream.update('explicit null', null);
+    await jest.runAllTimersAsync();
+
+    const calls = client.conversations.createActivity.mock.calls;
+    expect(calls[0][1].type).toBe('typing');
+    expect(calls[0][1].textFormat).toBeUndefined();
+    expect(calls[1][1].textFormat).toBeUndefined();
+  });
+
   test('sendFinal (timeout fallback) retains the last emitted textFormat', async () => {
     const stream = new HttpStream(client, ref, logger);
     let createCalls = 0;

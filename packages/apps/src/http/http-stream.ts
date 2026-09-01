@@ -9,6 +9,7 @@ import {
   ITypingActivityInput,
   MessageActivityInput,
   SentActivity,
+  TextFormat,
   toActivityParams,
   TypingActivityInput,
 } from '@microsoft/teams.api';
@@ -140,12 +141,15 @@ export class HttpStream implements IStreamer {
   /**
    * Send a typing/status update without adding to the main text.
    * @param text Status text (ex. "Thinking...")
+   * @param textFormat Format of `text` (ex. `'extendedmarkdown'`). Omit or pass `null`
+   * to use the Teams default (`'markdown'`).
    */
-  update(text: string) {
+  update(text: string, textFormat?: TextFormat | null) {
     this.emit({
       type: 'typing',
       text: text,
-      channelData: { streamType: 'informative' }
+      channelData: { streamType: 'informative' },
+      ...(textFormat ? { textFormat } : {}),
     });
   }
 
@@ -379,15 +383,18 @@ export class HttpStream implements IStreamer {
       // Once the stream has timed out, stop sending chunks for this cycle.
       if (this._timedOut) return;
 
-      // Last emitted message wins for textFormat (same as attachments/entities/etc.),
-      // so streamed chunks render with the same format as the final message.
+      // Streamed text chunks use last-emitted-message-wins for textFormat (same as
+      // attachments/entities/etc.), so they render like the final message.
       const textFormat = this.finalActivity?.textFormat;
 
-      // Send informative updates immediately
+      // Send informative updates immediately. Each carries its own textFormat
+      // (finalActivity isn't set yet at this point), so read it off the update.
       for (const informativeUpdate of informativeUpdates) {
-        const activity = new TypingActivityInput().withText(informativeUpdate.text || '').withChannelData({ streamType: 'informative' });
-        if (textFormat) {
-          activity.withTextFormat(textFormat);
+        const activity = new TypingActivityInput()
+          .withText(informativeUpdate.text || '')
+          .withChannelData({ streamType: 'informative' });
+        if (informativeUpdate.textFormat) {
+          activity.withTextFormat(informativeUpdate.textFormat);
         }
         await this.pushStreamChunk(activity);
       }
