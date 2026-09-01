@@ -199,7 +199,7 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   /**
    * reply to the inbound activity, automatically quoting the inbound message
    * @param activity activity to send
-   * @deprecated Use `MessageActivityInput.prependQuote(...)` with {@link send} so
+   * @deprecated Use `MessageActivityInput.addQuote(...)` with {@link send} so
    * visual quoting remains explicit and independent from thread placement.
    */
   /**
@@ -213,7 +213,7 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * send a reply quoting a specific message by ID
    * @param messageId the ID of the message to quote
    * @param activity activity to send
-   * @deprecated Use `MessageActivityInput.prependQuote(...)` with {@link send}.
+   * @deprecated Use `MessageActivityInput.addQuote(...)` with {@link send}.
    */
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
@@ -387,7 +387,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * To send without quoting, use {@link send}.
    *
    * @param activity the activity to send
-   * @deprecated Use `MessageActivityInput.prependQuote(...)` with {@link send} so
+   * @deprecated Use `MessageActivityInput.addQuote(...)` with {@link send} so
    * visual quoting remains explicit and independent from thread placement.
    */
   /**
@@ -408,7 +408,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * Teams renders the quoted message as a preview bubble above the response text.
    * @param messageId - The ID of the message to quote
    * @param activity - The activity to send — a quote placeholder for messageId will be prepended to its text
-   * @deprecated Use `MessageActivityInput.prependQuote(...)` with {@link send}.
+   * @deprecated Use `MessageActivityInput.addQuote(...)` with {@link send}.
    */
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.

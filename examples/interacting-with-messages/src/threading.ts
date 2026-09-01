@@ -16,8 +16,8 @@ export async function handleThreadReply(
   }
 
   await context.send(
-    new MessageActivityInput('This is a threaded reply to your message.')
-      .prependQuote(context.activity.id)
+    new MessageActivityInput()
+      .addQuote(context.activity.id, 'This is a threaded reply to your message.')
   );
   return true;
 }
