@@ -343,8 +343,6 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * Personal chats and meetings send as normal messages.
    *
    * @param activity the activity to send
-   * @deprecated Use `MessageActivityInput.prependQuote(...)` with {@link send} so
-   * visual quoting remains explicit and independent from thread placement.
    * @param conversationRef optional conversation reference to send to a different conversation or thread
    */
   /**
@@ -389,6 +387,8 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * To send without quoting, use {@link send}.
    *
    * @param activity the activity to send
+   * @deprecated Use `MessageActivityInput.prependQuote(...)` with {@link send} so
+   * visual quoting remains explicit and independent from thread placement.
    */
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
