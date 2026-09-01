@@ -72,8 +72,8 @@ describe('ConversationActivityClient', () => {
       text: 'hi',
     });
 
-        expect(spy).toHaveBeenCalledWith(
-          '/v3/conversations/1/activities/2',
+    expect(spy).toHaveBeenCalledWith(
+      '/v3/conversations/1/activities',
       {
         type: 'message',
         text: 'hi',
@@ -323,8 +323,8 @@ describe('ConversationActivityClient', () => {
       text: 'hi',
     });
 
-expect(spy).toHaveBeenCalledWith(
-      '/v3/conversations/1/activities',
+    expect(spy).toHaveBeenCalledWith(
+      '/v3/conversations/1/activities/2',
       {
         type: 'message',
         text: 'hi',
