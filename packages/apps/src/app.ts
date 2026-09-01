@@ -501,16 +501,19 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         id: legacyThread?.conversationId ?? conversationId,
       } as ConversationReference['conversation'],
     };
-    const senderOptions = options?.agenticIdentity || legacyThread
-      ? {
-        agenticIdentity: options?.agenticIdentity,
-        rootMessageId: legacyThread?.rootMessageId,
-      }
-      : undefined;
-
-    return senderOptions
-      ? this.activitySender.send(params, ref, senderOptions)
-      : this.activitySender.send(params, ref);
+    const res = await this.activitySender.send(
+      params,
+      ref,
+      legacyThread
+        ? {
+          agenticIdentity: options?.agenticIdentity,
+          rootMessageId: legacyThread.rootMessageId,
+        }
+        : options?.agenticIdentity
+          ? { agenticIdentity: options.agenticIdentity }
+          : undefined,
+    );
+    return res;
   }
 
   /**
