@@ -11,7 +11,6 @@ import { ILogger } from '@microsoft/teams.common';
 
 import { HttpStream } from './http/http-stream';
 import { ActivitySenderOptions, IStreamer, IActivitySender } from './types';
-import { parseLegacyThreadedConversationId } from './utils/thread';
 
 /**
  * Creates an API client for a sender operation, optionally scoped to an agentic
@@ -57,18 +56,13 @@ export class ActivitySender implements IActivitySender {
     options?: ActivitySenderOptions
   ): Promise<SentActivity> {
     const params = toActivityParams(activity);
-    const legacyThread = parseLegacyThreadedConversationId(ref.conversation.id);
-    const conversationId = legacyThread?.conversationId ?? ref.conversation.id;
-    const threadRootId = options?.threadRootId ?? legacyThread?.threadRootId;
+    const conversationId = ref.conversation.id;
 
     // Merge activity with conversation reference for the wire payload.
     const payload = {
       ...params,
       from: ref.bot,
-      conversation: {
-        ...ref.conversation,
-        id: conversationId,
-      },
+      conversation: ref.conversation,
     };
 
     // Check if this is a targeted message
@@ -98,8 +92,8 @@ export class ActivitySender implements IActivitySender {
 
     const res = isTargeted
       ? await api.conversations.createTargetedActivity(conversationId, payload)
-      : threadRootId
-        ? await api.conversations.replyToActivity(conversationId, threadRootId, payload)
+      : options?.threadRootId
+        ? await api.conversations.replyToActivity(conversationId, options.threadRootId, payload)
         : await api.conversations.createActivity(conversationId, payload);
     return { ...payload, ...res };
   }

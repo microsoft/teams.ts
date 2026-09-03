@@ -121,7 +121,7 @@ describe('ActivitySender', () => {
       expect(conversations.createActivity).not.toHaveBeenCalled();
     });
 
-    it('translates a legacy threaded conversation ID to the reply endpoint', async () => {
+    it('does not infer thread placement from a legacy threaded conversation ID', async () => {
       const legacyRef = {
         ...ref,
         conversation: {
@@ -131,16 +131,15 @@ describe('ActivitySender', () => {
       };
 
       await sender.send({ type: 'message', text: 'legacy reply' }, legacyRef);
-
       const conversations = (mockClient as any).conversations;
-      expect(conversations.replyToActivity).toHaveBeenCalledWith(
-        'conv-123',
-        '789',
+      const conversations = (mockClient as any).conversations;
+      expect(conversations.createActivity).toHaveBeenCalledWith(
+        'conv-123;messageid=789',
         expect.objectContaining({
-          conversation: expect.objectContaining({ id: 'conv-123' }),
+          conversation: expect.objectContaining({ id: 'conv-123;messageid=789' }),
         })
       );
-      expect(conversations.createActivity).not.toHaveBeenCalled();
+      expect(conversations.replyToActivity).not.toHaveBeenCalled();
     });
 
     it('should call update for an existing activity', async () => {
