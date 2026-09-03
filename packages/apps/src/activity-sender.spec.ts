@@ -151,16 +151,27 @@ describe('ActivitySender', () => {
       );
     });
 
-    it('should throw when sending targeted message in personal chat', async () => {
+    it('should send a targeted message in a personal conversation', async () => {
       const activity: ActivityParams = {
         type: 'message',
         text: 'hello',
         recipient: { id: 'user-1', name: 'User', role: 'user', isTargeted: true },
       };
 
-      await expect(sender.send(activity, ref)).rejects.toThrow(
-        'Targeted messages are not supported in 1:1 (personal) chats.'
+      const result = await sender.send(activity, ref);
+
+      expect(mockHttpClient.post).toHaveBeenCalledWith(
+        'https://smba.trafficmanager.net/teams/v3/conversations/conv-123/activities?isTargetedActivity=true',
+        expect.objectContaining({
+          type: 'message',
+          text: 'hello',
+          recipient: expect.objectContaining({
+            id: 'user-1',
+            isTargeted: true,
+          }),
+        })
       );
+      expect(result).toEqual(expect.objectContaining({ id: 'activity-1' }));
     });
 
     it('should allow targeted message in group chat', async () => {
