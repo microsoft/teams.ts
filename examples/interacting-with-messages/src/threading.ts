@@ -60,12 +60,33 @@ export async function handleProactiveThread(
   return true;
 }
 
+/**
+ * Handles the command that sends with a legacy threaded conversation ID.
+ * @returns Whether the command matched.
+ */
+export async function handleManualThread(
+  app: App,
+  context: MessageContext,
+  text: string
+): Promise<boolean> {
+  if (text !== 'thread manual') {
+    return false;
+  }
+
+  const { conversationId, threadRootId } = getThreadReference(context);
+  await app.send(
+    `${conversationId};messageid=${threadRootId}`,
+    'This was sent using a legacy threaded conversation ID with `app.send()`.'
+  );
+  return true;
+}
+
 function getThreadReference(context: MessageContext): {
   conversationId: string;
   threadRootId: string;
 } {
-  const conversationId = context.ref.conversation.id;
-  const legacyThreadRootId = conversationId.split(';messageid=')[1];
+  const [conversationId, legacyThreadRootId] =
+    context.ref.conversation.id.split(';messageid=');
   const threadRootId = context.activity.channelData?.thread?.id
     ?? legacyThreadRootId
     ?? context.activity.id;

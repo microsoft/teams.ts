@@ -17,6 +17,7 @@ import {
   registerReactionEvents,
 } from './reactions';
 import {
+  handleManualThread,
   handleProactiveThread,
   handleThreadReply,
   handleThreadSend,
@@ -44,6 +45,7 @@ app.on('message', async (context) => {
       '- `thread reply` - send a reactive threaded reply\n' +
       '- `thread send` - send to the same thread without quoting\n' +
       '- `thread proactive` - send a proactive threaded reply\n' +
+      '- `thread manual` - use a legacy threaded conversation ID with `app.send()`\n' +
       '\n' +
       '**Reactions:**\n' +
       '- `reaction add <type>` - add a reaction to your message\n' +
@@ -85,6 +87,10 @@ app.on('message', async (context) => {
   }
 
   if (await handleProactiveThread(app, context, text)) {
+    return;
+  }
+
+  if (await handleManualThread(app, context, text)) {
     return;
   }
 
