@@ -298,7 +298,9 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
 
       const send = context.send.bind(context);
       context.send = async (activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) => {
-        const res = await send(activity, conversationRef ?? ref);
+        const res = conversationRef
+          ? await send(activity, conversationRef)
+          : await send(activity);
 
         this.options.eventManager.onActivitySent({
           ...(conversationRef ?? ref),
