@@ -39,12 +39,7 @@ export class ActivitySender implements IActivitySender {
       conversation: ref.conversation,
     };
 
-    // Check if this is a targeted message
     const isTargeted = payload.recipient?.isTargeted === true;
-
-    if (isTargeted && ref.conversation.conversationType === 'personal') {
-      throw new Error('Targeted messages are not supported in 1:1 (personal) chats.');
-    }
 
     // Decide create vs update, with targeted variants
     if (payload.id) {
