@@ -40,13 +40,12 @@ const SECOND_STREAM_MESSAGES = [
   '[stream 2] The app processor will close this stream when the handler returns.',
 ];
 
-const EXTENDED_MARKDOWN_DELTAS = [
-  '**On it — here\'s where your `v2.3.0` release stands:**\n\n',
-  '- [x] Run unit + integration tests\n',
-  '- [x] Build and publish packages\n',
-  '- [ ] ~~Manual smoke test~~ (skipped — covered by the integration suite)\n',
-  '- [x] Tag the release and push\n',
-  '- [ ] Publish release notes\n',
+const EXTENDED_MARKDOWN_MESSAGES = [
+  '**Extended markdown stream** — rendering features plain markdown can\'t:\n\n',
+  '- [x] Sent with `textFormat: \'extendedmarkdown\'`\n',
+  '- [x] Task list items render as real checkboxes\n',
+  '- [ ] ~~Under plain markdown these would be literal `[ ]` text~~\n',
+  '- [x] Strikethrough renders too\n',
 ];
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -118,12 +117,12 @@ app.on('message', async ({ activity, stream, send, log }) => {
   }
 
   if (shouldRunExtendedMarkdown(activity.text)) {
-    stream.update('Checking the release status...');
+    stream.update('Starting the *extended* markdown stream...', 'markdown');
     await sleep(1000);
 
-    for (const delta of EXTENDED_MARKDOWN_DELTAS) {
+    for (const message of EXTENDED_MARKDOWN_MESSAGES) {
       await sleep(500);
-      stream.emit(new MessageActivityInput(delta).withTextFormat('extendedmarkdown'));
+      stream.emit(new MessageActivityInput(message).withTextFormat('extendedmarkdown'));
     }
     return;
   }
