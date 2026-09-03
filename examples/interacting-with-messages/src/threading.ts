@@ -61,7 +61,7 @@ export async function handleProactiveThread(
 }
 
 /**
- * Handles the command that sends with a legacy threaded conversation ID.
+ * Handles the command that sends with an explicit thread reference.
  * @returns Whether the command matched.
  */
 export async function handleManualThread(
@@ -74,9 +74,10 @@ export async function handleManualThread(
   }
 
   const { conversationId, threadRootId } = getThreadReference(context);
-  await app.send(
-    `${conversationId};messageid=${threadRootId}`,
-    'This was sent using a legacy threaded conversation ID with `app.send()`.'
+  await app.reply(
+    conversationId,
+    threadRootId,
+    'This was sent using an explicit thread reference with `app.reply()`.'
   );
   return true;
 }

@@ -30,7 +30,7 @@ Each concept is kept in a separate source module:
 | `thread reply` | `context.send()` places a reply and explicit quote in the current thread |
 | `thread send` | `context.send()` sends to the same thread without quoting |
 | `thread proactive` | `app.reply()` sends a proactive threaded reply |
-| `thread manual` | `app.send()` translates a legacy threaded conversation ID to the reply endpoint |
+| `thread manual` | `app.reply()` sends using an explicit conversation ID and thread root |
 
 ### Reactions
 
