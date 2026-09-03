@@ -544,10 +544,6 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     }
 
     const conversationType = this.activity.conversation?.conversationType;
-    if (conversationType === 'personal') {
-      return undefined;
-    }
-
     const legacyThread = parseLegacyThreadedConversationId(
       this.activity.conversation?.id ?? ''
     );
