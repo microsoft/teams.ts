@@ -314,7 +314,7 @@ describe('ActivityContext', () => {
   });
 
   describe('send', () => {
-    it('sends the activity to the sender plugin', async () => {
+    it('routes a one-argument send to the current inbound conversation', async () => {
       const activity = buildIncomingMessageActivity('Hello world');
       context = buildActivityContext(activity);
       await context.send('What is up?');
@@ -434,7 +434,7 @@ describe('ActivityContext', () => {
         );
       });
 
-      it('does not default send to targeted for a different conversation', async () => {
+      it('routes a legacy two-argument send to the alternate conversation', async () => {
         const activity = new MessageActivity('Hello world')
           .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
           .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
@@ -1092,3 +1092,4 @@ describe('ActivityContext', () => {
     });
   });
 });
+
