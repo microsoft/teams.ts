@@ -50,6 +50,7 @@ import { DEFAULT_OAUTH_SETTINGS, OAuthSettings } from './oauth';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { IRoutes } from './routes';
+import { CompositeAdapter, SocketModeAdapter, SocketModeOptions } from './socket-mode';
 import { DEFAULT_TENANT_FOR_GRAPH_TOKEN, TokenManager } from './token-manager';
 import { AppTokenProvider, IAppTokenProvider } from './token-provider';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
@@ -181,6 +182,27 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly httpServerAdapter?: IHttpServerAdapter;
 
   /**
+   * **Experimental.** Receive inbound activities over Socket Mode — a Teams
+   * backend service-negotiated outbound WebSocket — instead of (or alongside) an
+   * HTTP messaging endpoint, so the bot needs no public URL or dev tunnel.
+   *
+   * Pass `true` for all defaults, or an object to configure it. By default a
+   * single bot opens one connection per geo (`amer`, `emea`, `apac`) and *also*
+   * stands up an HTTP messaging endpoint (`fallbackToHttp` defaults to `true`)
+   * so the service can deliver over either transport; set
+   * `socketMode.fallbackToHttp = false` for a socket-only app with no HTTP
+   * transport (browser features like `app.tab()`/`app.function()` then have no
+   * transport and are inert). Each activity is delivered over exactly one
+   * transport, so no dedupe is required.
+   *
+   * Cannot be combined with the deprecated `HttpPlugin`. Observe the socket via
+   * {@link App.socketMode}.
+   *
+   * @experimental This API is in preview and may change in the future.
+   */
+  readonly socketMode?: boolean | SocketModeOptions;
+
+  /**
    * OAuth Settings
    */
   readonly oauth?: OAuthSettings;
@@ -270,6 +292,18 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   readonly graph: GraphClient;
   readonly log: ILogger;
   readonly server: HttpServer;
+
+  /**
+   * **Experimental.** The Socket Mode inbound transport, present only when the
+   * app was constructed with `socketMode` enabled. It is the same
+   * {@link IHttpServerAdapter} instance {@link App.server} runs on (directly in
+   * socket-only mode, or as one child of the composite adapter when the HTTP
+   * fallback is on). Use it to observe the socket lifecycle
+   * (`app.socketMode.status`, `app.socketMode.geoStatuses`, `app.socketMode.events`).
+   *
+   * @experimental This API is in preview and may change in the future.
+   */
+  readonly socketMode?: SocketModeAdapter;
   readonly http?: HttpPlugin;
   readonly client: HttpClient;
   readonly storage: IStorage;
@@ -476,6 +510,16 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         '  - new App({ plugins: [new HttpPlugin()] }) (deprecated)'
       );
     }
+
+    // The deprecated HttpPlugin is a full HTTP server and can't coexist with
+    // Socket Mode (which manages its own inbound transport, including the
+    // experimental HTTP fallback).
+    if (this.options.socketMode && httpPlugin) {
+      throw new Error(
+        'Cannot provide both socketMode and an HttpPlugin: Socket Mode manages its own ' +
+        'inbound transport (including the experimental HTTP fallback). Enable one or the other.'
+      );
+    }
     let server: HttpServer;
     let dangerouslyAllowUnauthenticatedRequests = this.options.dangerouslyAllowUnauthenticatedRequests;
     if (dangerouslyAllowUnauthenticatedRequests === undefined && this.options.skipAuth !== undefined) {
@@ -506,6 +550,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       if (!server) {
         throw new Error('HttpPlugin.asServer() returned undefined');
       }
+    } else if (this.options.socketMode) {
+      const built = this.buildSocketMode(dangerouslyAllowUnauthenticatedRequests);
+      server = built.server;
+      this.socketMode = built.socketMode;
     } else {
       server = new HttpServer(this.options.httpServerAdapter ?? new ExpressAdapter(undefined, {
         logger: this.log,
@@ -950,5 +998,62 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       return explicit;
     }
     return this.options.oauth?.defaultConnectionName !== undefined;
+  }
+
+  /**
+   * Build the Socket Mode inbound transport and the {@link HttpServer} that runs
+   * it. The {@link SocketModeAdapter} is constructed internally so it can reuse
+   * the app's token provider (credentials arrive later via
+   * {@link SocketModeAdapter.initialize}).
+   *
+   * With the experimental HTTP fallback (the default, `fallbackToHttp !== false`)
+   * the socket adapter is paired with an HTTP adapter (the supplied
+   * `httpServerAdapter` or a default `ExpressAdapter`) inside a
+   * {@link CompositeAdapter}, so a single `HttpServer` receives over both
+   * transports. With `fallbackToHttp: false` the socket adapter is the server's
+   * sole adapter (socket-only, no HTTP). Returns the outward-facing server plus
+   * the socket adapter for the {@link App.socketMode} field.
+   */
+  private buildSocketMode(
+    dangerouslyAllowUnauthenticatedRequests: boolean
+  ): { server: HttpServer; socketMode: SocketModeAdapter } {
+    const options: SocketModeOptions =
+      this.options.socketMode === true ? {} : (this.options.socketMode as SocketModeOptions);
+    const messagingEndpoint = this.options.messagingEndpoint ?? '/api/messages';
+
+    const socketAdapter = new SocketModeAdapter(options, {
+      tokenProvider: this.tokenProvider,
+      messagingEndpoint,
+      soleTransport: options.fallbackToHttp === false,
+      onError: (err) => this.eventManager.onError({ error: err }),
+      logger: this.log,
+    });
+
+    let adapter: IHttpServerAdapter;
+    if (options.fallbackToHttp === false) {
+      // Socket-only: the socket adapter is the server's sole transport. Any
+      // supplied httpServerAdapter is unused (browser features have no transport).
+      adapter = socketAdapter;
+    } else {
+      this.log.warn(
+        '[EXPERIMENTAL] Socket Mode HTTP fallback is enabled: an HTTP messaging ' +
+        'endpoint runs alongside the socket so the service can deliver over either ' +
+        'transport. This is transitional and will be removed once Socket Mode is the ' +
+        'sole inbound transport. Set socketMode.fallbackToHttp = false for socket-only.'
+      );
+      const httpAdapter = this.options.httpServerAdapter ?? new ExpressAdapter(undefined, {
+        logger: this.log,
+        onError: (err) => this.eventManager.onError({ error: err }),
+      });
+      // HTTP first so the messaging endpoint is listening before the socket dials out.
+      adapter = new CompositeAdapter([httpAdapter, socketAdapter], this.log);
+    }
+
+    const server = new HttpServer(adapter, {
+      dangerouslyAllowUnauthenticatedRequests,
+      logger: this.log,
+      messagingEndpoint,
+    });
+    return { server, socketMode: socketAdapter };
   }
 }

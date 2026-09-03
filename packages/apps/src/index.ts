@@ -12,6 +12,12 @@ export * from './diagnostics';
 // HTTP infrastructure - public API
 export * from './http';
 
+// Socket Mode (inbound WebSocket transport). Only the developer-facing surface
+// is public; the wire protocol (envelopes, reply frames, negotiate, connection
+// internals) and the transitional CompositeAdapter stay module-private to avoid
+// leaking unvalidated types and risking naming collisions.
+export type { SocketModeAdapter, SocketModeOptions, SocketModeStatus, SocketModeEvents } from './socket-mode';
+
 // Threading utilities
 export { toThreadedConversationId } from './utils/thread';
 
