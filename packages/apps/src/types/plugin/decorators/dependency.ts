@@ -129,12 +129,14 @@ export type HttpServerDependencyOptions = {
 
 export type PluginDependencyOptions = {
   /**
-   * the name used to resolve the dependency
+   * the name used to resolve the dependency.
+   *
+   * note: the reserved DI names (`ILogger`, `IStorage`, `IHttpServer`)
+   * are not excluded at the type level — TypeScript cannot subtract string
+   * literals from `string` — so passing one here resolves the built-in
+   * instance rather than a plugin. Avoid reusing them as plugin names.
    */
-  readonly name?: Omit<
-    string,
-    'ILogger' | 'IStorage' | 'IHttpServer'
-  >;
+  readonly name?: string;
 
   /**
    * if optional, the app will not throw
