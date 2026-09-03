@@ -205,7 +205,10 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * @deprecated Reactive sends should target the current inbound conversation. Use App.send() to send to a different conversation.
    */
   send(activity: DeprecatedInputActivity, conversationRef: ConversationReference): Promise<SentActivity>;
-  send(activity: ActivityLike, conversationRef: ConversationReference): Promise<SentActivity>;
+   /**
+    * @deprecated Reactive sends should target the current inbound conversation. Use App.send() to send to a different conversation.
+    */
+   send(activity: ActivityLike, conversationRef: ConversationReference): Promise<SentActivity>;
 
   /**
    * reply to the inbound activity, automatically quoting the inbound message
@@ -369,7 +372,10 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * @deprecated Reactive sends should target the current inbound conversation. Use App.send() to send to a different conversation.
    */
   async send(activity: DeprecatedInputActivity, conversationRef: ConversationReference): Promise<SentActivity>;
-  async send(activity: ActivityLike, conversationRef: ConversationReference): Promise<SentActivity>;
+   /**
+    * @deprecated Reactive sends should target the current inbound conversation. Use App.send() to send to a different conversation.
+    */
+   async send(activity: ActivityLike, conversationRef: ConversationReference): Promise<SentActivity>;
   async send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) {
     const params = toActivityParams(activity);
 
