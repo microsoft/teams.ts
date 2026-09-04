@@ -11,6 +11,7 @@ Targeted messages are messages that only a specific recipient can see - other pa
 | `test send` | Sends a targeted message (only you see it) |
 | `test update` | Sends a targeted message, then updates it after 3 seconds |
 | `test delete` | Sends a targeted message, then deletes it after 3 seconds |
+| `test thread` | Sends a targeted reply in the current thread with an explicit quote |
 | `test public` | Sends a public reply (visible to everyone) |
 | `send public` | Only sends a public message if the incoming message is targeted |
 | `send private` | Only sends a private message if the incoming message is targeted |
@@ -25,6 +26,10 @@ The `appPackage/manifest.json` uses `manifestVersion: "devPreview"` because the 
 - `bots[].commandLists[].triggers: ["slash"]` — declares the listed commands as slash commands. They appear in the Teams `/` picker for group chats and channels.
 
 Slash commands arrive at the bot as regular `MessageActivity` events with `activity.recipient.isTargeted === true`, which the `test inbound` handler in this sample demonstrates.
+
+Targeted delivery, thread placement, and quote rendering are independent. The
+`test thread` handler combines all three by using `context.send()` with a
+targeted recipient and an explicit `addQuote()`.
 
 The `send public` and `send private` commands are useful for verifying whether the inbound message was targeted. If it isn't, the bot says `Send it to me privately first!`.
 

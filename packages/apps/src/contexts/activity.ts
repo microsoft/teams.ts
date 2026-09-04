@@ -384,8 +384,6 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     }
 
     if (this.isTargetedOutbound(params)) {
-      this.stripQuotedReplyMetadata(params);
-
       // `targetedMessageInfo` points at the original targeted inbound message for prompt preview.
       // Do not add it for generic targeted sends; Teams can reject it if the referenced activity
       // was not itself delivered as a targeted message.
@@ -395,7 +393,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     }
 
     const ref = conversationRef ?? this.ref;
-    const threadRootId = !params.id && !this.isTargetedOutbound(params)
+    const threadRootId = !params.id
       ? this.getOutboundThreadRoot(conversationRef)
       : undefined;
     return threadRootId
@@ -570,16 +568,6 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
 
   private isTargetedOutbound(params: ActivityParams): params is MessageActivityParams {
     return params.type === 'message' && params.recipient?.isTargeted === true;
-  }
-
-  private stripQuotedReplyMetadata(params: MessageActivityParams) {
-    if (params.entities) {
-      params.entities = params.entities.filter((e) => e.type !== 'quotedReply');
-    }
-
-    if (params.text) {
-      params.text = params.text.replace(`<quoted messageId="${this.activity.id}"/>`, '').trim();
-    }
   }
 
   private addTargetedMessageInfo(params: MessageActivityParams) {

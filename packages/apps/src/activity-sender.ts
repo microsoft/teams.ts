@@ -90,10 +90,16 @@ export class ActivitySender implements IActivitySender {
       return { ...payload, ...res };
     }
 
-    const res = isTargeted
-      ? await api.conversations.createTargetedActivity(conversationId, payload)
-      : options?.threadRootId
-        ? await api.conversations.replyToActivity(conversationId, options.threadRootId, payload)
+    const res = options?.threadRootId
+      ? isTargeted
+        ? await api.conversations.replyToTargetedActivity(
+          conversationId,
+          options.threadRootId,
+          payload
+        )
+        : await api.conversations.replyToActivity(conversationId, options.threadRootId, payload)
+      : isTargeted
+        ? await api.conversations.createTargetedActivity(conversationId, payload)
         : await api.conversations.createActivity(conversationId, payload);
     return { ...payload, ...res };
   }

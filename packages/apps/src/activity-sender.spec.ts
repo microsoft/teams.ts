@@ -1,7 +1,13 @@
 import { context, propagation, ROOT_CONTEXT } from '@opentelemetry/api';
 import type { Context, ContextManager } from '@opentelemetry/api';
 
-import { ActivityParams, Client, ConversationReference, MessageActivity } from '@microsoft/teams.api';
+import {
+  ActivityParams,
+  Client,
+  ConversationReference,
+  MessageActivity,
+  MessageActivityInput
+} from '@microsoft/teams.api';
 
 import { ActivitySender } from './activity-sender';
 import { Agent365BaggageKeys, withAgent365Baggage } from './diagnostics/agent365-baggage';
@@ -64,6 +70,7 @@ describe('ActivitySender', () => {
       conversations: {
         createActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
         replyToActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
+        replyToTargetedActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
         updateActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
         createTargetedActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
         updateTargetedActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
@@ -132,7 +139,6 @@ describe('ActivitySender', () => {
 
       await sender.send({ type: 'message', text: 'legacy reply' }, legacyRef);
       const conversations = (mockClient as any).conversations;
-      const conversations = (mockClient as any).conversations;
       expect(conversations.createActivity).toHaveBeenCalledWith(
         'conv-123;messageid=789',
         expect.objectContaining({
@@ -140,6 +146,35 @@ describe('ActivitySender', () => {
         })
       );
       expect(conversations.replyToActivity).not.toHaveBeenCalled();
+    });
+
+    it('should call the targeted reply endpoint for a targeted threaded activity', async () => {
+      const groupRef = {
+        ...ref,
+        conversation: { id: 'conv-123', conversationType: 'groupChat' },
+      };
+      const activity = new MessageActivityInput('targeted thread reply')
+        .prependQuote('root-456')
+        .withRecipient({ id: 'user-1', role: 'user' }, true);
+
+      await sender.send(activity, groupRef, { threadRootId: 'root-456' });
+
+      const conversations = (mockClient as any).conversations;
+      expect(conversations.replyToTargetedActivity).toHaveBeenCalledWith(
+        'conv-123',
+        'root-456',
+        expect.objectContaining({
+          text: '<quoted messageId="root-456"/> targeted thread reply',
+          recipient: expect.objectContaining({ isTargeted: true }),
+          entities: expect.arrayContaining([
+            expect.objectContaining({
+              type: 'quotedReply',
+              quotedReply: { messageId: 'root-456' },
+            }),
+          ]),
+        })
+      );
+      expect(conversations.createTargetedActivity).not.toHaveBeenCalled();
     });
 
     it('should call update for an existing activity', async () => {
@@ -292,6 +327,20 @@ describe('ActivitySender', () => {
       };
 
       await expect(sender.send(activity, ref)).rejects.toThrow(
+        'Targeted messages are not supported in 1:1 (personal) chats.'
+      );
+    });
+
+    it('should throw when sending a targeted threaded reply in personal chat', async () => {
+      const activity: ActivityParams = {
+        type: 'message',
+        text: 'hello',
+        recipient: { id: 'user-1', name: 'User', role: 'user', isTargeted: true },
+      };
+
+      await expect(
+        sender.send(activity, ref, { threadRootId: 'root-456' })
+      ).rejects.toThrow(
         'Targeted messages are not supported in 1:1 (personal) chats.'
       );
     });

@@ -745,6 +745,22 @@ describe('App', () => {
       expect(options.threadRootId).toBe('1680000000000');
     });
 
+    it('should preserve a targeted recipient for proactive threaded routing', async () => {
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+      const activity = new MessageActivity('Targeted reply')
+        .withRecipient({ id: 'user-1', role: 'user' }, true);
+
+      await app.testReply('19:abc@thread.skype', '1680000000000', activity);
+
+      const [params, ref, options] = mockSend.mock.calls[0];
+      expect(params.recipient).toEqual(
+        expect.objectContaining({ id: 'user-1', isTargeted: true })
+      );
+      expect(ref.conversation.id).toBe('19:abc@thread.skype');
+      expect(options.threadRootId).toBe('1680000000000');
+    });
+
     it('should pass conversationId as-is when called with two args', async () => {
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);

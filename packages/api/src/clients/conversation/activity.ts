@@ -148,17 +148,7 @@ export class ConversationActivityClient {
   async reply(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
   async reply(conversationId: string, id: string, params: ActivityParamsLike): Promise<Resource>;
   async reply(conversationId: string, id: string, params: ActivityParamsLike) {
-    // TODO: Will be deprecated alongside accessor in ConversationClient
-    const activity = toActivityParams(params);
-    const res = await this.http.post<Resource>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`,
-      activity,
-      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.reply, this.serviceUrl, conversationId, activity, {
-        activityId: id,
-        captureResponseActivityId: true,
-      })
-    );
-    return res.data;
+    return this.sendReply(conversationId, id, params, false);
   }
 
   async delete(conversationId: string, id: string) {
@@ -202,6 +192,17 @@ export class ConversationActivityClient {
   }
 
   /**
+   * Reply to an activity as a targeted message visible only to its recipient.
+   *
+   * @param conversationId Base conversation ID without a legacy thread suffix.
+   * @param id Root activity ID that identifies the destination thread.
+   * @param params Outbound activity with a targeted recipient.
+   */
+  async replyTargeted(conversationId: string, id: string, params: ActivityParams): Promise<Resource> {
+    return this.sendReply(conversationId, id, params, true);
+  }
+
+  /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
   async updateTargeted(conversationId: string, id: string, params: DeprecatedInputActivity): Promise<Resource>;
@@ -232,6 +233,28 @@ export class ConversationActivityClient {
         undefined,
         { activityId: id }
       )
+    );
+    return res.data;
+  }
+
+  private async sendReply(
+    conversationId: string,
+    id: string,
+    params: ActivityParamsLike,
+    isTargeted: boolean
+  ): Promise<Resource> {
+    const activity = toActivityParams(params);
+    const targetedQuery = isTargeted ? '?isTargetedActivity=true' : '';
+    const operation = isTargeted
+      ? OUTBOUND_OPERATIONS.replyTargeted
+      : OUTBOUND_OPERATIONS.reply;
+    const res = await this.http.post<Resource>(
+      `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}${targetedQuery}`,
+      activity,
+      apiOutboundTelemetryConfig(operation, this.serviceUrl, conversationId, activity, {
+        activityId: id,
+        captureResponseActivityId: true,
+      })
     );
     return res.data;
   }

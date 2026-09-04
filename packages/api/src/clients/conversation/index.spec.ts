@@ -54,6 +54,22 @@ describe('ConversationClient', () => {
       );
     });
 
+    it('replyToTargetedActivity should POST a targeted reply', async () => {
+      const client = new ConversationClient('');
+      const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+
+      await client.replyToTargetedActivity('1', '2', { type: 'message', text: 'hi' });
+
+      expect(spy).toHaveBeenCalledWith(
+        '/v3/conversations/1/activities/2?isTargetedActivity=true',
+        {
+          type: 'message',
+          text: 'hi',
+        },
+        expectTelemetryConfig()
+      );
+    });
+
     it('deleteActivity should DELETE an activity', async () => {
       const client = new ConversationClient('');
       const spy = jest.spyOn(client.http, 'delete').mockResolvedValueOnce({});

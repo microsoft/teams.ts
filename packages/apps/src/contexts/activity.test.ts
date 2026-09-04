@@ -276,7 +276,7 @@ describe('ActivityContext', () => {
       expect(sentActivity.text).toEqual('<quoted messageId="msg-42"/>');
     });
     
-    it('reply to targeted message strips blockquote via addTargetedMessageInfo', async () => {
+    it('reply to targeted message preserves quote metadata with targetedMessageInfo', async () => {
       const activity = new MessageActivity('Hello world')
         .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
         .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
@@ -290,9 +290,6 @@ describe('ActivityContext', () => {
 
       expect(mockSender.send).toHaveBeenCalledTimes(1);
       const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
-      // Reply prepends blockquote, but send() auto-populates addTargetedMessageInfo
-      // which strips quotedReply entities — the blockquote text remains since it's
-      // the legacy format, not the <quoted .../> placeholder.
       expect(sentActivity.recipient).toEqual(
         expect.objectContaining({
           id: 'test-user',
@@ -303,6 +300,10 @@ describe('ActivityContext', () => {
       );
       expect(sentActivity.entities).toEqual(
         expect.arrayContaining([
+          expect.objectContaining({
+            type: 'quotedReply',
+            quotedReply: { messageId: 'test-activity-id' },
+          }),
           expect.objectContaining({
             type: 'targetedMessageInfo',
             messageId: 'test-activity-id',
@@ -430,7 +431,8 @@ describe('ActivityContext', () => {
             type: 'message',
             recipient: expect.objectContaining({ id: 'test-user', name: 'Test User', role: 'user', isTargeted: true }),
           }),
-          mockRef
+          mockRef,
+          { threadRootId: 'test-activity-id' }
         );
       });
 
@@ -507,7 +509,8 @@ describe('ActivityContext', () => {
             type: 'message',
             recipient: expect.objectContaining({ id: 'test-user', name: 'Test User', role: 'user', isTargeted: true }),
           }),
-          mockRef
+          mockRef,
+          { threadRootId: 'test-activity-id' }
         );
         const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
         expect(sentActivity.entities).toBeUndefined();
@@ -553,7 +556,8 @@ describe('ActivityContext', () => {
             type: 'message',
             recipient: expect.objectContaining({ id: 'explicit-user-id', name: '', role: 'user', isTargeted: true }),
           }),
-          mockRef
+          mockRef,
+          { threadRootId: 'test-activity-id' }
         );
       });
 
@@ -599,7 +603,8 @@ describe('ActivityContext', () => {
               }),
             ]),
           }),
-          mockRef
+          mockRef,
+          { threadRootId: '1772129782775' }
         );
       });
 
@@ -659,7 +664,36 @@ describe('ActivityContext', () => {
               }),
             ]),
           }),
-          mockRef
+          mockRef,
+          { threadRootId: '1772129782775' }
+        );
+      });
+
+      it('preserves an explicit quote on a targeted threaded send', async () => {
+        const activity = buildIncomingMessageActivity('Hello world');
+        context = buildActivityContext(activity);
+        const targetedActivity = new MessageActivityInput()
+          .addQuote('quoted-message-id', 'Secret message')
+          .withRecipient(
+            { id: 'test-user', name: 'Test User', role: 'user' },
+            true
+          );
+
+        await context.send(targetedActivity);
+
+        expect(mockSender.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: '<quoted messageId="quoted-message-id"/> Secret message',
+            recipient: expect.objectContaining({ isTargeted: true }),
+            entities: expect.arrayContaining([
+              expect.objectContaining({
+                type: 'quotedReply',
+                quotedReply: { messageId: 'quoted-message-id' },
+              }),
+            ]),
+          }),
+          mockRef,
+          { threadRootId: 'test-activity-id' }
         );
       });
     });
@@ -1092,4 +1126,3 @@ describe('ActivityContext', () => {
     });
   });
 });
-

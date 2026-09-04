@@ -27,10 +27,11 @@ Each concept is kept in a separate source module:
 
 | Command | Behavior |
 |---------|----------|
-| `thread reply` | `context.send()` places a reply and explicit quote in the current thread |
-| `thread send` | `context.send()` sends to the same thread without quoting |
+| `default send` | `context.send()` sends to the same thread without quoting |
 | `thread proactive` | `app.reply()` sends a proactive threaded reply |
-| `thread manual` | `app.reply()` sends using an explicit conversation ID and thread root |
+| `thread proactive quote` | `app.reply()` sends a proactive threaded reply with an explicit quote |
+| `thread proactive targeted` | `app.reply()` sends a targeted proactive threaded reply |
+| `thread proactive targeted quote` | `app.reply()` sends a targeted proactive threaded reply with an explicit quote |
 
 ### Reactions
 
